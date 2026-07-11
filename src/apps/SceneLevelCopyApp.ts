@@ -233,7 +233,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
   // Source docs of a type belonging to the chosen source level. Empty `levels`
   // means "all levels", so those are included too (per user decision).
   _sourceDocs(entry: IPlaceableType): any[] {
-    const coll = this.source?.[entry.coll];
+    const coll = (this.source as unknown as Record<string, any>)?.[entry.coll];
     if (!coll) return [];
     const all = Array.from(coll) as any[];
     return all.filter((d) => {
@@ -418,7 +418,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(_options): Promise<any> {
+  async _prepareContext(_options: any): Promise<any> {
     const context = await super._prepareContext({ ..._options, noCacheLoad: true });
     await this._refreshImages();
 
@@ -556,7 +556,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return out;
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
 
     // Bind <select> change listeners (avoid the action re-render that discards
@@ -626,7 +626,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
 
   // ----- action handlers -----
 
-  static toggleType(this: SceneLevelCopyApp, _event, target: HTMLElement) {
+  static toggleType(this: SceneLevelCopyApp, _event: any, target: HTMLElement) {
     const id = target?.dataset?.type;
     if (!id) return;
     if (this.types.has(id)) this.types.delete(id);
@@ -634,7 +634,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     this.render();
   }
 
-  static setScaleMode(this: SceneLevelCopyApp, _event, target: HTMLElement) {
+  static setScaleMode(this: SceneLevelCopyApp, _event: any, target: HTMLElement) {
     const mode = target?.dataset?.mode as TScaleMode;
     if (mode === "none" || mode === "ratio" || mode === "hint" || mode === "gridcells") {
       this.scaleMode = mode;
@@ -650,7 +650,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     this.targetHint.clearRect();
   }
 
-  static nudgeEdge(this: SceneLevelCopyApp, _event, target: HTMLElement) {
+  static nudgeEdge(this: SceneLevelCopyApp, _event: any, target: HTMLElement) {
     const surface = target?.dataset?.surface === "target" ? this.targetHint : this.sourceHint;
     const edge = target?.dataset?.edge as "left" | "right" | "top" | "bottom";
     const sign = Number(target?.dataset?.sign);
@@ -731,7 +731,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       for (const entry of selected) {
         const docs = this._projected(entry, transform);
         if (mode === "replace") {
-          const existing = (Array.from(target[entry.coll] ?? []) as any[])
+          const existing = (Array.from((target as unknown as Record<string, any>)[entry.coll] ?? []) as any[])
             .filter((d) => (Array.from(d.levels ?? []) as string[]).includes(this.targetLevelId as string))
             .map((d) => d.id);
           if (docs.length) {

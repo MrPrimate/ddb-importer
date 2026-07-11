@@ -108,6 +108,13 @@ export default class DDBSetup extends DDBAppV2 {
   constructor({
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
     showDiscouraged = false,
+  }: {
+    actor?: Actor.Implementation | null;
+    callMuncher?: boolean;
+    sheetTab?: string;
+    coreTab?: string;
+    infoTab?: string;
+    showDiscouraged?: boolean;
   } = {}) {
     super();
     this.callMuncher = callMuncher;
@@ -187,7 +194,7 @@ export default class DDBSetup extends DDBAppV2 {
     this.enhancementConfig = MuncherSettings.getEnhancementSettings();
   }
 
-  static openDebug(_event, _target) {
+  static openDebug(_event: Event, _target: any) {
     new DDBDebugger().render({ force: true });
   }
 
@@ -373,11 +380,11 @@ export default class DDBSetup extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onRender(context, options): Promise<void> {
+  async _onRender(context: any, options: any): Promise<void> {
     await super._onRender(context, options);
   }
 
-  async _prepareContext(options): Promise<IDDBSetupContext> {
+  async _prepareContext(options: any): Promise<IDDBSetupContext> {
 
     let context: IDDBSetupContext = {
       // core
@@ -503,7 +510,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId, context: IDDBSetupContext): Promise<IDDBSetupContext> {
+  async _preparePartContext(partId: string, context: IDDBSetupContext): Promise<IDDBSetupContext> {
     switch (partId) {
       case "core": {
         context = await this._prepareCoreContext(context);
@@ -746,7 +753,7 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
-  static async selectDirectory(this: DDBSetup, _event, target) {
+  static async selectDirectory(this: DDBSetup, _event: Event, target: any) {
     const targetDirSetting = target.dataset.target;
     const currentDir = utils.getSetting<string>(targetDirSetting);
     const current = await FileHelper.getFileUrl(currentDir, "");
@@ -777,7 +784,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-  async _saveCore(formData) {
+  async _saveCore(formData: any) {
     const currentKey = PatreonHelper.getPatreonKey();
 
     if (currentKey !== formData.object["patreon-key"]) {
@@ -867,7 +874,7 @@ export default class DDBSetup extends DDBAppV2 {
     } else {
       // save changes
       for (const data of directoryStatus.filter((dir) => !dir.isBad)) {
-        await game.settings.set(SETTINGS.MODULE_ID, data.key, data.value);
+        await utils.setSetting(data.key, data.value);
       }
       const useWebP = formData.object["use-webp"] as boolean;
       const useDeepFilePaths = formData.object["use-deep-file-paths"] as boolean;

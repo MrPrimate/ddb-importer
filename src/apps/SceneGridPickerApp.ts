@@ -380,7 +380,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(_options): Promise<any> {
+  async _prepareContext(_options: any): Promise<any> {
     await this._prepareImage();
     this._inferMultiplierFromScene();
 
@@ -528,7 +528,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
 
   // Action handlers - all bound via DEFAULT_OPTIONS.actions.
 
-  static toggleCell(this: SceneGridPickerApp, _event, target: HTMLElement) {
+  static toggleCell(this: SceneGridPickerApp, _event: any, target: HTMLElement) {
     const id = target?.dataset?.cell;
     if (!id) return;
     if (this.selected.has(id)) this.selected.delete(id);
@@ -638,7 +638,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     this.render();
   }
 
-  static selectCandidate(this: SceneGridPickerApp, _event, target: HTMLElement) {
+  static selectCandidate(this: SceneGridPickerApp, _event: any, target: HTMLElement) {
     const key = target?.dataset?.candidate;
     if (!key) return;
     this.selectedCandidateKey = key;
@@ -986,7 +986,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
   // ApplicationV2 wires `data-action` attributes to click events, which
   // immediately re-renders when you click a <select> to open its menu and
   // discards your choice. We attach a `change` listener manually instead.
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
     this.element.querySelectorAll<HTMLSelectElement>(".ddb-grid-picker-multiplier-select").forEach((sel) => {
       sel.addEventListener("change", (event) => {

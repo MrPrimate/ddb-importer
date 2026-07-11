@@ -57,6 +57,12 @@ declare module "fvtt-types/configuration" {
     }
   }
 
+  namespace NoteDocument {
+    interface Schema {
+      levels: ICoreSceneLevelsSetSchema;
+    }
+  }
+
   namespace DrawingDocument {
     interface Schema {
       levels: ICoreSceneLevelsSetSchema;

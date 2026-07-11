@@ -116,10 +116,10 @@ const CompendiumHelper = {
       const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
       const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
+      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img") as string)) {
         foundryActor.img = foundry.utils.getProperty(existingNPC, "system.img") as string;
       }
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src"))) {
+      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") as string)) {
         const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken) as unknown as I5ePrototypeToken;
         delete oldValues.name;
         delete oldValues.sight;
@@ -132,7 +132,7 @@ const CompendiumHelper = {
         foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
-      DDBItemImporter.copySupportedItemFlags(existingNPC.toObject(), foundryActor);
+      DDBItemImporter.copySupportedItemFlags(existingNPC.toObject() as unknown as Item.Implementation, foundryActor);
     }
 
     return foundryActor;
@@ -539,7 +539,7 @@ const CompendiumHelper = {
     return newFolder;
   },
 
-  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false } = {}) {
+  async retrieveCompendiumSpellReferences(spellNames: string[], { use2024Spells = false } = {}) {
     const compendiumName = utils.getSetting<string>("entity-spell-compendium");
 
     const results = await CompendiumHelper.queryCompendiumEntries({
@@ -554,7 +554,7 @@ const CompendiumHelper = {
     return cleanResults;
   },
 
-  getConfiguredCompendiums() {
+  getConfiguredCompendiums(): IConfiguredCompendium[] {
     return SETTINGS.COMPENDIUMS.map((comp) => {
       const settingValue = utils.getSetting<string>(comp.setting);
       const pack = game.packs.get(settingValue);
@@ -582,10 +582,10 @@ const CompendiumHelper = {
     return count;
   },
 
-  getDeleteRecreateInfo() {
+  getDeleteRecreateInfo(): IDeleteRecreateInfo {
     const configured = CompendiumHelper.getConfiguredCompendiums();
-    const worldCompendiums = [];
-    const skippedCompendiums = [];
+    const worldCompendiums: IWorldCompendium[] = [];
+    const skippedCompendiums: ISkippedCompendium[] = [];
 
     for (const entry of configured) {
       if (!entry.pack) {
@@ -599,14 +599,14 @@ const CompendiumHelper = {
       const defaultName = `DDB ${entry.title}`;
       const isDefault = entry.settingValue === defaultName
         || entry.settingValue === entry.pack.metadata.id;
-      worldCompendiums.push({ ...entry, isDefault });
+      worldCompendiums.push({ ...entry, pack: entry.pack, isDefault });
     }
 
     const nonDefaultCompendiums = worldCompendiums.filter((c) => !c.isDefault);
     return { worldCompendiums, skippedCompendiums, nonDefaultCompendiums };
   },
 
-  async deleteAndRecreateCompendiums(compendiumSettings) {
+  async deleteAndRecreateCompendiums(compendiumSettings: IWorldCompendium[]) {
     let count = 0;
     for (const entry of compendiumSettings) {
       if (!entry.pack) continue;
@@ -631,7 +631,7 @@ const CompendiumHelper = {
     return recreated;
   },
 
-  getCompendiumLookups(type, selected) {
+  getCompendiumLookups(type: string, selected: string) {
     const excludedCompendiumPackages = [
       "dnd5e",
       "dae",
@@ -659,7 +659,7 @@ const CompendiumHelper = {
         && pack.documentName === type
       && !excludedCompendiumPackages.includes(pack.metadata.packageName),
       )
-      .reduce((choices, pack) => {
+      .reduce((choices: Record<string, any>, pack) => {
         choices[pack.collection] = {
           label: `[${pack.metadata.packageName}] ${pack.metadata.label}`,
           selected: pack.collection === selected,

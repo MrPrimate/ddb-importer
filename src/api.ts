@@ -269,7 +269,6 @@ export const API_BASE = {
     findEffects: DDBEffectHelper.findEffects,
     getCantripDice: DDBEffectHelper.getCantripDice,
     getHighestAbility: DDBEffectHelper.getHighestAbility,
-    getRemainingDuration: DDBEffectHelper.getRemainingDuration,
     isRangedWeaponAttack: DDBEffectHelper.isRangedWeaponAttack,
     requirementsSatisfied: DDBEffectHelper.requirementsSatisfied,
     selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
