@@ -25,12 +25,7 @@ export default class DialogHelper {
      );
      console.warn(`You selected ${selected}`);
    */
-  static async buttonDialog({ title = "", content = "", buttons, options = { height: "auto" } }: {
-    title?: string;
-    content?: string;
-    buttons?: { label: string; value: unknown }[];
-    options?: Record<string, any>;
-  } = {}, direction = "row") {
+  static async buttonDialog({ title = "", content = "", buttons, options = { height: "auto" } }: IDDBDialogHelperButtonDialogConfig = {}, direction = "row") {
 
     return new Promise((resolve) => {
       new Dialog(
@@ -53,11 +48,11 @@ export default class DialogHelper {
 
   static ChooserDialog = ChooserDialog;
 
-  static async AskUserButtonDialog(user, ...buttonArgs) {
+  static async AskUserButtonDialog(user: string, ...buttonArgs: any[]) {
     return globalThis.DDBImporter.socket.executeAsUser("simpleButtonDialog", user, ...buttonArgs);
   }
 
-  static async AskUserChooserDialog(user, ...dialogArgs) {
+  static async AskUserChooserDialog(user: string, ...dialogArgs: any[]) {
     return globalThis.DDBImporter.socket.executeAsUser("chooserDialog", user, ...dialogArgs);
   }
 }

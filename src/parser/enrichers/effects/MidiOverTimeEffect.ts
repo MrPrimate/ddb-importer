@@ -17,7 +17,7 @@ interface IGenerateDamageOverTimeEffectOptions {
 }
 
 interface IMidiOverTimeEffectOptions {
-  document: I5ePCItem | I5eMonsterItem;
+  document: TAll5eItemDocuments;
   actor: I5eActorData;
   otherDescription?: string | null;
   flags?: Record<string, any>;
@@ -26,7 +26,7 @@ interface IMidiOverTimeEffectOptions {
 
 export default class MidiOverTimeEffect {
   parsedDescription: IFeatureBasicsResult;
-  document: I5ePCItem | I5eMonsterItem;
+  document: TAll5eItemDocuments;
   actor: I5eActorData;
   effect: I5eEffectData;
   conditionStatus: ReturnType<typeof DDBDescriptions.parseStatusCondition>;

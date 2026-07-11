@@ -2,9 +2,9 @@ import utils from "./Utils";
 
 class AdvancedDialog {
 
-  inputs: Record<string, any>[];
+  inputs: IAdvancedDialogInput[];
 
-  buttons: Record<string, any>[];
+  buttons: IAdvancedDialogButton[];
 
   dialog: Dialog | null;
 
@@ -35,8 +35,8 @@ class AdvancedDialog {
    *   @param {object} config.options Additional options for the foundry Dialog.
    *   @param {Function} config.render Optional function to pass to render call for Dialog.
    */
-  constructor(inputs = [], buttons = [], // prompt information
-    { title = "", defaultButton = "OK", close = (resolve) => resolve({ success: false }), options = {}, render = null } = {}, // dialog config
+  constructor(inputs: IAdvancedDialogInput[] = [], buttons: IAdvancedDialogButton[] = [], // prompt information
+    { title = "", defaultButton = "OK", close = (resolve: (value: unknown) => void) => resolve({ success: false }), options = {}, render = null as ((html: unknown) => void) | null } = {}, // dialog config
   ) {
     this.inputs = inputs;
     this.buttons = buttons;
@@ -59,7 +59,7 @@ class AdvancedDialog {
    * @param {type} label The text to be displayed as the label.
    * @returns {string} The generated HTML for the table header label.
    */
-  static _generateTableHeaderLabel(id, label) {
+  static _generateTableHeaderLabel(id: string | number, label: string) {
     return `<th><label for="ddb-${id}">${label}</label></th>`;
   }
 
@@ -72,7 +72,7 @@ class AdvancedDialog {
    * @param {number} idx The index of the selection element.
    * @returns {string} The HTML stub for the selection element.
    */
-  static _generateSelectionHtmlStub(type, label, options, idx) {
+  static _generateSelectionHtmlStub(type: string, label: string, options: any, idx: number) {
     const thLabel = AdvancedDialog._generateTableHeaderLabel(idx, label);
     switch (type.toLowerCase()) {
       case "button":
@@ -90,7 +90,7 @@ class AdvancedDialog {
       }
       case "select": {
         const optionString = options
-          .map((entry, idx) => {
+          .map((entry: Record<string, any>, idx: number) => {
             const selected = entry.selected ? "selected" : "";
             return `<option value="${idx}" ${selected}>${entry.label}</option>`;
           })
@@ -150,7 +150,7 @@ class AdvancedDialog {
    * @param {HTMLElement} html The HTML element to parse.
    * @returns {Array} The parsed selection results.
    */
-  _parseSelectionResults(html) {
+  _parseSelectionResults(html: any) {
     const results = this.inputs
       .map((input, idx) => {
         switch (input.type.toLowerCase()) {
@@ -270,7 +270,7 @@ export class ChooserDialog extends AdvancedDialog {
           ...o,
           [button.label]: {
             label: button.label,
-            callback: (html) => {
+            callback: (html: any) => {
               const results = {
                 button,
                 results: this._parseSelectionResults(html),
@@ -293,7 +293,7 @@ export class ChooserDialog extends AdvancedDialog {
         : {
           defaultButton: {
             label: this.config.defaultButtonLabel,
-            callback: (html) =>
+            callback: (html: any) =>
               resolve({
                 button: { value: "default", label: this.config.defaultButtonLabel },
                 results: this._parseSelectionResults(html),
@@ -322,7 +322,7 @@ export class ChooserDialog extends AdvancedDialog {
     });
   }
 
-  static async Ask(...args) {
+  static async Ask(...args: any[]) {
     const dialog = new ChooserDialog(...args);
     return dialog.ask();
   }

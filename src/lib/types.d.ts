@@ -150,4 +150,25 @@ global {
     recursive?: boolean | null;
     notifier?: null | ((note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void);
   }
+
+  interface IDDBDialogHelperButtonDialogConfig {
+    title?: string;
+    content?: string;
+    buttons?: { label: string; value: unknown }[];
+    options?: Record<string, any>;
+  }
+
+  interface IAdvancedDialogInput {
+    label: string;
+    type: string;
+    options?: Record<string, any>[];
+  }
+
+  interface IAdvancedDialogButton {
+    label: string;
+    value: string;
+    callback?: (results: Record<string, any>, html: unknown) => unknown;
+    default?: boolean;
+  }
+
 }
