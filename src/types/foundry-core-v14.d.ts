@@ -1,10 +1,22 @@
 export {};
 
 global {
+  // Loose stand-in for EmbeddedCollection<BaseLevel> (fvtt-types has no Level document).
+  // Adds the EmbeddedCollection methods used by this repo on top of plain Collection.
+  // v14 common/abstract/embedded-collection.mjs:332 -- toObject(source=true).
+  // Element of scene.levels: a BaseLevel document at runtime -- data shape plus toObject().
+  type TCoreSceneLevelDocument = I5eSceneLevel & {
+    toObject(source?: boolean): I5eSceneLevel;
+  };
+
+  type TCoreSceneLevelsCollection = foundry.utils.Collection<TCoreSceneLevelDocument> & {
+    toObject(source?: boolean): I5eSceneLevel[];
+  };
+
   type ICoreSceneLevelsSchema = foundry.data.fields.DataField<
     foundry.data.fields.DataField.DefaultOptions,
     I5eSceneLevel[],
-    foundry.utils.Collection<I5eSceneLevel>,
+    TCoreSceneLevelsCollection,
     I5eSceneLevel[]
   >;
 
@@ -45,6 +57,22 @@ declare module "fvtt-types/configuration" {
       //   <Options, AssignmentType, InitializedType, PersistedType>
       // initialized -> Collection (scene.levels), source -> array (scene.toObject().levels).
       levels: ICoreSceneLevelsSchema;
+      shiftX: foundry.data.fields.NumberField<{ required: true }>;
+      shiftY: foundry.data.fields.NumberField<{ required: true }>;
+
+      // v14 common/documents/scene.mjs:137 -- new fields.SchemaField({type, duration, activeOnly})
+      transition: foundry.data.fields.SchemaField<{
+        type: foundry.data.fields.StringField<{ required: true; nullable: true; blank: false; initial: null }>;
+        duration: foundry.data.fields.NumberField<{ required: true; nullable: false; integer: true; initial: 1500 }>;
+        activeOnly: foundry.data.fields.BooleanField;
+      }>;
+    }
+
+    // v14 common/documents/scene.mjs:106 -- fog.mode NumberField, choices
+    // CONST.FOG_EXPLORATION_MODES, initial INDIVIDUAL (1). fvtt-types #main still has the
+    // v13 shape (exploration/overlay) -- merging can add `mode` but not remove those.
+    interface FogSchema {
+      mode: foundry.data.fields.NumberField<{ required: true; initial: 1 }>;
     }
   }
 

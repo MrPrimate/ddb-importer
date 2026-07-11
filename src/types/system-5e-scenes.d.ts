@@ -394,6 +394,14 @@ global {
     notes?: any[];
     versions?: { ddbMetaData?: { lastUpdate?: string } } & Record<string, unknown>;
     oldVersions?: unknown;
+    foundryVersion?: string;
+    userData?: Record<string, {
+      lastUpdate?: string;
+      lastImport?: string;
+      lastImportVersion?: string;
+    }>;
+    img?: string | null;
+    levelImages?: Record<string, string>;
   }
 
   interface I5eSceneDataFlags {

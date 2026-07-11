@@ -294,7 +294,7 @@ export default class ChrisPremadesHelper {
   }
 
 
-  static async addAndReplaceRedundantChrisDocuments(actor: Actor.Implementation, monsterName: string = null) {
+  static async addAndReplaceRedundantChrisDocuments(actor: Actor, monsterName: string = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
     const itemCollection = actor.getEmbeddedCollection("Item") as unknown as { toObject: () => TExternalAutomationDocuments[] };

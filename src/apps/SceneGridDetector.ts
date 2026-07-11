@@ -122,13 +122,16 @@ function normalizeImageSource(source: IRunDetectionOptions["imageSource"], scene
   return resolveSceneGridImageSource(scene);
 }
 
-function getDDBImporterFlag(scene: Scene, key: string): any {
+function getDDBImporterFlag<K extends keyof I5eSceneDDBImporterFlags>(
+  scene: Scene,
+  key: K,
+): I5eSceneDDBImporterFlags[K] | undefined {
   try {
     if (typeof scene.getFlag === "function") {
-      return scene.getFlag("ddbimporter", key);
+      return scene.getFlag("ddbimporter", key) as I5eSceneDDBImporterFlags[K];
     }
   } catch (_e) { /* fall through */ }
-  return scene.flags?.["ddbimporter"]?.[key];
+  return (scene.flags?.["ddbimporter"] as I5eSceneDDBImporterFlags | undefined)?.[key];
 }
 
 export async function fetchBackgroundBlob(src: string): Promise<Blob> {
