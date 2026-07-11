@@ -4,14 +4,8 @@ import logger from "../../../lib/Logger";
 import utils from "../../../lib/Utils";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
 
-interface ITransformProfile {
-  name: string;
-  uuid?: string | null;
-  [key: string]: any;
-}
-
 interface IParsedProfile {
-  profile: ITransformProfile;
+  profile: I5eSummonProfile;
   name: string;
   normalizedName: string;
   ddbId: number | null;
@@ -21,7 +15,7 @@ interface IParsedProfile {
  * Parses a transform profile name, optionally encoded as "Name#ddbId".
  * Rewrites the profile name to the clean display name (strips the "#id" suffix).
  */
-function parseProfile(profile: ITransformProfile): IParsedProfile {
+function parseProfile(profile: I5eSummonProfile): IParsedProfile {
   const [rawName, idPart] = (profile.name ?? "").split("#");
   const name = rawName.trim();
   const ddbId = idPart && !Number.isNaN(parseInt(idPart)) ? parseInt(idPart) : null;
@@ -36,9 +30,9 @@ function parseProfile(profile: ITransformProfile): IParsedProfile {
 
 function findIndexEntry(index: any, parsed: IParsedProfile, rules: string): any | undefined {
   if (parsed.ddbId !== null) {
-    return index.find((entry) => foundry.utils.getProperty(entry, "flags.ddbimporter.id") == parsed.ddbId);
+    return index.find((entry: any) => foundry.utils.getProperty(entry, "flags.ddbimporter.id") == parsed.ddbId);
   }
-  return index.find((entry) =>
+  return index.find((entry: any) =>
     utils.normalizeString(entry.name) === parsed.normalizedName
     && foundry.utils.getProperty(entry, "system.source.rules") === rules,
   );
@@ -53,8 +47,8 @@ function findIndexEntry(index: any, parsed: IParsedProfile, rules: string): any 
  * Mutates the passed profiles in place (sets `uuid`, cleans `name`).
  */
 export async function resolveTransformProfileUuids(
-  { profiles, is2014 }: { profiles: ITransformProfile[]; is2014: boolean },
-): Promise<ITransformProfile[]> {
+  { profiles, is2014 }: { profiles: I5eSummonProfile[]; is2014: boolean },
+): Promise<I5eSummonProfile[]> {
   const rules = is2014 ? "2014" : "2024";
 
   const parsed = (profiles ?? [])

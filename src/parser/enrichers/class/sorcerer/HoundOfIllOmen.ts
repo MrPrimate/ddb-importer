@@ -19,9 +19,13 @@ export default class HoundOfIllOmen extends DDBEnricherData {
       noTemplate: true,
       profileKeys: [{ count: 1, name: "HoundOfIllOmen" }],
       summons: {
-        "creatureSizes": ["med"],
-        "creatureTypes": ["monstrosity"],
-        "bonuses.hp": "floor(@classes.sorcerer.levels / 2)",
+        bonuses: {
+          hp: "floor(@classes.sorcerer.levels / 2)",
+        },
+      },
+      data: {
+        creatureSizes: ["med"],
+        creatureTypes: ["monstrosity"],
       },
     };
   }

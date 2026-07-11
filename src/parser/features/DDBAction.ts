@@ -67,7 +67,7 @@ export default class DDBAction extends DDBFeatureMixin {
     return this.ddbDefinition.attackTypeRange || this.ddbDefinition.rangeId;
   }
 
-  getDamage(bonuses = []) {
+  getDamage(bonuses: string[] = []) {
     // when the action type is not set to melee or ranged we don't apply the mod to damage
     const meleeOrRangedAction = this.isMeleeOrRangedAction();
     const modBonus = (this.ddbDefinition.statId || this.ddbDefinition.abilityModifierStatId)

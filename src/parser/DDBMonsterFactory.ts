@@ -606,7 +606,7 @@ export default class DDBMonsterFactory {
         this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
       }
       logger.debug(`Preparing ${monster.name} data for import`);
-      const munched = await DDBMonsterImporter.addNPC(monster, "monster");
+      const munched = await DDBMonsterImporter.addNPC(monster, "monsters");
       if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
     }

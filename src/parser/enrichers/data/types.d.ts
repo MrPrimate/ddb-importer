@@ -47,7 +47,6 @@ global {
   export interface IDDBSummonsData {
     match?: IDDBSummonsMatch;
     bonuses?: IDDBSummonsBonuses;
-    [key: string]: any;
   }
 
   // -- Activity Parent Lookup -------------------------------------------------

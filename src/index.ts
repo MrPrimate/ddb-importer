@@ -12,9 +12,12 @@ import addMetaDataIndicators from "./hooks/renderSceneDirectory/metaDataIndicato
 import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure";
 import activateMetaNote from "./hooks/canvas/activateMetaNote";
 
-Hooks.on("canvasReady", () => {
+
+export const setAllRenderFlags = () => {
   canvas.notes?.setAllRenderFlags({ refreshState: true });
-});
+};
+
+Hooks.on("canvasReady", setAllRenderFlags);
 
 // register hooks
 Hooks.once("init", init);

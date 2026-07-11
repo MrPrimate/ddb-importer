@@ -444,18 +444,8 @@ global {
 
   // ---- Consumable item --------------------------------------------------
 
-  interface I5eConsumableDamageBase {
-    types: I5eDamageType[];
-    custom?: {
-      enabled: boolean;
-    };
-    scaling?: {
-      number: number;
-    };
-  }
-
   interface I5eConsumableDamage {
-    base: I5eConsumableDamageBase;
+    base: I5eDamagePart;
     replace: boolean;
   }
 

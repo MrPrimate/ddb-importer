@@ -36,7 +36,7 @@ interface ISummonsIndexMock {
 
 export default class DDBSummonsManager {
 
-  static DEFAULT_SUMMON = {
+  static DEFAULT_SUMMON: I5eSummonActivity = {
     match: {
       proficiency: false,
       attacks: false,
@@ -58,7 +58,7 @@ export default class DDBSummonsManager {
     },
   };
 
-  itemHandler: DDBItemImporter;
+  itemHandler: DDBItemImporter<I5eMonsterData> | null;
   ddbData: IDDBData;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   indexFilter: { fields: string[] };
@@ -78,7 +78,7 @@ export default class DDBSummonsManager {
     this.compendiumFolders = new DDBCompendiumFolders("summons");
     await this.compendiumFolders.loadCompendium("summons");
 
-    this.itemHandler = new DDBItemImporter("summons", [], {
+    this.itemHandler = new DDBItemImporter<I5eMonsterData>("summons", [], {
       indexFilter: this.indexFilter,
       matchFlags: ["is2014", "is2024"],
       notifier: this.notifier,
@@ -101,27 +101,29 @@ export default class DDBSummonsManager {
     return results;
   }
 
-  addProfilesToActivity(activity: I5eActivity, summonsKeys = [], data = {}) {
+  addProfilesToActivity(activity: I5eSummonActivity, summonsKeys: IDDBSummonProfileKey[] = [], data = {}) {
 
-    const keys = summonsKeys.map((s) => s.name);
+    const keys = summonsKeys.map((s: any) => s.name);
 
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
       keys.includes(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
     ) as unknown as ISummonsIndexMock[];
-    const profiles = summonActors
+    const profiles: I5eSummonProfile[] = summonActors
       .map((actor) => {
         const flag = foundry.utils.getProperty(actor, "flags.ddbimporter.summons.summonsKey") as string;
+        const summonKeyCount = summonsKeys.find((s) => flag === s.name)?.count ?? "";
+        const summonKeyLevel = summonsKeys.find((s) => flag === s.name)?.level ?? { min: null, max: null };
         return {
           _id: actor._id,
           name: actor.name,
           uuid: actor.uuid,
-          count: summonsKeys.find((s) => flag === s.name)?.count ?? "",
-          level: summonsKeys.find((s) => flag === s.name)?.level ?? { min: null, max: null },
+          count: String(summonKeyCount),
+          level: summonKeyLevel,
         };
       });
 
     const baseData = foundry.utils.mergeObject(
-      foundry.utils.deepClone(DDBSummonsManager.DEFAULT_SUMMON), data);
+      foundry.utils.deepClone(DDBSummonsManager.DEFAULT_SUMMON), data) as I5eSummonActivity;
 
     baseData.profiles = profiles;
     activity = foundry.utils.mergeObject(activity, baseData);

@@ -730,6 +730,8 @@ global {
 
   type I5ePCConsumptionItems = I5eInventoryItem | I5eFeatItem | I5eWeaponItem | I5eSpellItem;
 
+  type IEnricherItems = I5ePCConsumptionItems | I5eBackgroundItem;
+
   export type I5eMonsterItem =
     | I5eWeaponItem
     | I5eFeatItem

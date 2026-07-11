@@ -13,7 +13,7 @@ const COMPANION_SPELLS_2014 = [
   // "Spirit of Death",
 ];
 
-const MULTI_COMPANIONS_2014 = {
+const MULTI_COMPANIONS_2014: Record<string, string[]> = {
   "Aberrant Spirit": ["Slaad", "Beholderkin", "Star Spawn"],
   "Bestial Spirit": ["Air", "Land", "Water"],
   "Celestial Spirit": ["Avenger", "Defender"],
@@ -49,7 +49,7 @@ const COMPANION_SPELLS_2024 = [
   "Summon Sea Spirit",
 ];
 
-const MULTI_COMPANIONS_2024 = {
+const MULTI_COMPANIONS_2024: Record<string, string[]> = {
   "Aberrant Spirit": ["Slaad", "Beholderkin", "Mind Flayer"],
   "Bestial Spirit": ["Air", "Land", "Water"],
   "Celestial Spirit": ["Avenger", "Defender"],
@@ -84,7 +84,7 @@ const COMPANION_FEATURES = [
   "Reanimated Companion",
 ];
 
-const COMPANION_OPTIONS = {
+const COMPANION_OPTIONS: Record<string, string[]> = {
   "Primal Companion": [
     "Beast of the Land",
     "Beast of the Sea",
@@ -137,7 +137,7 @@ const FIND_FAMILIAR_MATCHES = [
   "Eldritch Invocations: Pact of the Chain",
 ];
 
-const FAMILIAR_COUNTS = {
+const FAMILIAR_COUNTS: Record<string, string> = {
   "Flock of Familiars": "3",
 };
 

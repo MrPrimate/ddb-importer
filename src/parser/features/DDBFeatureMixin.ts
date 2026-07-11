@@ -70,6 +70,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   ddbCharacter: DDBCharacter | null;
   name: string;
   originalName: string;
+  declare type: IActionTypes;
   isMuncher: boolean;
   identifier: string;
   legacy: boolean;
@@ -158,7 +159,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.levelScaleInfusion
       = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
-    this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value;
+    this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value as string;
     this.useScaleValueLink
       = !this.excludedScale && this.scaleValueLink && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }

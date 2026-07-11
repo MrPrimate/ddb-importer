@@ -7,24 +7,33 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 
-interface IDDBMonsterImporter {
-  monster?: I5eMonsterData;
-  type?: TMonsterImporterTypes;
-  updateExisting?: boolean;
-  fullWipe?: boolean;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
-}
+interface IDDBMonsterImporterBuildOptions {
+  temporary?: boolean;
+  update?: boolean;
+  addToWorld?: boolean;
+  forceImageUpdate?: boolean;
+};
 
-export default class DDBMonsterImporter {
+type TMonsterImporterMonsterShapes = I5eMonsterData | I5eVehicleData;
+
+type TMonsterImporterMonsterItems = I5eMonsterItem | I5eVehicleItem;
+
+export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes = I5eMonsterData> {
   compendiumActor: Actor.Implementation | null;
   itemImporter: DDBItemImporter;
   type: TMonsterImporterTypes;
   fullWipe: boolean;
   updateExisting: boolean;
-  monster: I5eMonsterData;
+  monster: T;
   data: Actor.Implementation | null;
 
-  constructor({ monster, type, updateExisting, notifier, fullWipe = false }: IDDBMonsterImporter = {}) {
+  constructor({ monster, type, updateExisting, notifier, fullWipe = false }: {
+    monster?: T;
+    type?: TMonsterImporterTypes;
+    updateExisting?: boolean;
+    fullWipe?: boolean;
+    notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  } = {}) {
     this.monster = monster;
     this.type = type;
     this.fullWipe = fullWipe;
@@ -46,8 +55,9 @@ export default class DDBMonsterImporter {
       if (!("activities" in item.system)) continue;
       const spells = (
         await Promise.all(
-          item.system.activities.getByType("cast").map((a) => a.getCachedSpellData()),
-        )).filter((spell) => !this.compendiumActor.items.find((i) =>
+          // TODO: what is the dnd5e activity type here?
+          item.system.activities.getByType("cast").map((a: any) => a.getCachedSpellData()),
+        )).filter((spell: any) => !(this.compendiumActor.items as unknown as Item.Implementation[]).find((i) =>
         i.type === "spell" && foundry.utils.hasProperty(i, "flags.dnd5e.cachedFor")
         && i.flags?.dnd5e?.cachedFor === spell.flags?.dnd5e?.cachedFor,
       ));
@@ -64,7 +74,7 @@ export default class DDBMonsterImporter {
     });
 
     const currentItems = this.compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
-    const fiddledItems = [];
+    const fiddledItems: any[] = [];
 
     await newItems.forEach((item) => {
       const existingItem = currentItems.find((owned) => {
@@ -88,7 +98,9 @@ export default class DDBMonsterImporter {
             item.img = existingItem.img;
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
           }
-          if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
+          if ("consume" in existingItem.system
+            && foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")
+          ) {
             if ("consume" in item.system) item.system.consume = existingItem.system.consume;
             foundry.utils.setProperty(item, "system.uses.recovery", foundry.utils.getProperty(existingItem, "system.uses.recovery"));
             foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
@@ -120,8 +132,8 @@ export default class DDBMonsterImporter {
       return;
     }
 
-    const duplicate: I5eMonsterData = foundry.utils.duplicate(this.monster) as unknown as I5eMonsterData;
-    this.monster = (await this.itemImporter.addCompendiumFolderIds([duplicate]))[0] as I5eMonsterData;
+    const duplicate: T = foundry.utils.duplicate(this.monster) as unknown as T;
+    this.monster = (await this.itemImporter.addCompendiumFolderIds([duplicate]))[0] as T;
 
     if (foundry.utils.hasProperty(this.monster, "_id") && this.itemImporter.compendium.index.has(this.monster._id)) {
       if (this.updateExisting) {
@@ -156,7 +168,7 @@ export default class DDBMonsterImporter {
         await this.compendiumActor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
 
         // console.warn("ExistingNPC", { existingNPC: this.compendiumActor.toObject() });
-        const items = foundry.utils.deepClone(this.monster.items) as I5eMonsterItem[];
+        const items = foundry.utils.deepClone(this.monster.items) as TMonsterImporterMonsterItems[];
         this.monster.items = [];
 
         const updatedNPC = await this.compendiumActor.update(this.monster as any, {
@@ -239,12 +251,14 @@ export default class DDBMonsterImporter {
     const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
     const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
 
+    const detailsType = this.monster.system.details.type;
     const npcType = this.type.startsWith("vehicle")
       ? "vehicle"
-      : this.monster.system.details.type.value
-        ?? (this.monster.system.details.type.custom && this.monster.system.details.type.custom !== ""
-          ? this.monster.system.details.type.custom
-          : "unknown");
+      : (typeof detailsType === "object"
+        ? (detailsType.value
+          ?? (detailsType.custom && detailsType.custom !== "" ? detailsType.custom : "unknown"))
+        : "unknown");
+
     const genericNPCName = utils.referenceNameString(npcType);
     const npcName = utils.referenceNameString(this.monster.name);
 
@@ -387,7 +401,7 @@ export default class DDBMonsterImporter {
           ...cfg, filename, updateActor: false,
         });
         foundry.utils.mergeObject(this.monster, foundry.utils.expandObject(prototypeToken));
-        this.monster.flags["tokenizer-2"] = { layerStack: layers };
+        foundry.utils.setProperty(this.monster, "flags.tokenizer-2", { layerStack: layers });
 
       } else if (game.modules.get("vtta-tokenizer")?.active) {
 
@@ -419,7 +433,7 @@ export default class DDBMonsterImporter {
   async build({
     temporary = true, update = false, addToWorld = false,
     forceImageUpdate = undefined,
-  } = {}) {
+  }: IDDBMonsterImporterBuildOptions = {}) {
     logger.debug("Importing Images");
     await this.getNPCImage({ forceUpdate: forceImageUpdate });
     logger.debug("Checking Items");
@@ -431,7 +445,7 @@ export default class DDBMonsterImporter {
       srdIconUpdate: utils.getSetting<boolean>("munching-policy-use-srd-icons"), // "munching-policy-use-srd-monster-images"
       monster: true,
       monsterName: this.monster.name,
-    }) as unknown as I5eMonsterItem[]; // we know these are all the correct item type as they are passed in here
+    }) as unknown as TMonsterImporterMonsterItems[]; // we know these are all the correct item type as they are passed in here
     this.monster = Iconizer.addActorEffectIcons(this.monster);
 
     if (!addToWorld) return;
@@ -457,10 +471,14 @@ export default class DDBMonsterImporter {
 
   }
 
-
-  static async addNPC(data, type, buildOptions = {}, { updateExisting = null, fullWipe = null } = {}) {
+  static async addNPC(
+    data: I5eMonsterData | I5eVehicleData,
+    type: TMonsterImporterTypes,
+    buildOptions: IDDBMonsterImporterBuildOptions = {},
+    { updateExisting = null, fullWipe = null }: { updateExisting?: boolean | null; fullWipe?: boolean | null } = {},
+  ) {
     try {
-      const monsterImporter = new DDBMonsterImporter({
+      const monsterImporter = new DDBMonsterImporter<typeof data>({
         monster: data,
         type,
         updateExisting,
