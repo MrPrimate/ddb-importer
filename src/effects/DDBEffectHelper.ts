@@ -1,4 +1,3 @@
-import { EmptyObject } from "fvtt-types/utils";
 import {
   utils,
   logger,
@@ -9,6 +8,15 @@ import { DICTIONARY } from "../config/_module";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature";
 import { DDBDescriptions } from "../parser/lib/_module";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
+
+// numbered title/content chunks pulled out of ol/p HTML lists
+// (used for monster ray/option style features)
+interface IExtractedHtmlItem {
+  number: number;
+  title: string;
+  content: string;
+  full: string;
+}
 
 interface IDamageOverTimeEffectOptions {
   document: I5ePCItem | I5eMonsterItem;
@@ -54,24 +62,21 @@ interface IDetailsSystemStub {
   };
 }
 
+interface ILevelCrSystemStub {
+  details: {
+    level: number;
+    cr: number;
+  };
+}
+
+interface IAbilitiesSystemStub {
+  abilities: Record<string, { value: number }>;
+}
+
 interface IAttackStubActivity {
   type?: string;
   attack?: { type?: { classification?: string; value?: string } };
   parent?: { properties?: Set<string> };
-}
-
-interface IConditionActorish {
-  uuid?: string;
-  document?: IConditionActorish;
-  effects?: { get(id: string): { delete(): Promise<unknown> } | undefined };
-  update(data: Record<string, unknown>): Promise<unknown>;
-}
-
-interface TSimpleItemRef { _id?: string; uuid?: string }
-
-interface IRemovalDocument {
-  name?: string;
-  parent?: { system?: { attributes?: { spell?: { dc?: number } } } };
 }
 
 interface IRemovalActivity {
@@ -101,7 +106,7 @@ export default class DDBEffectHelper {
     return ChangeHelper.atlChange;
   }
 
-  static getMonsterFeatureDamage(damageText, featureDoc = null): IDDBMonsterActionDataDamagePart[] {
+  static getMonsterFeatureDamage(damageText: string, featureDoc: TAll5eItemDocuments = null): IDDBMonsterActionDataDamagePart[] {
     const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined;
     if (preParsed) return preParsed;
     logger.debug("Monster feature damage miss", { damageText, featureDoc });
@@ -111,7 +116,7 @@ export default class DDBEffectHelper {
     return feature.actionData.damageParts;
   }
 
-  static getOvertimeDamage(text, featureDoc = null): IDDBMonsterActionDataDamagePart[] | undefined {
+  static getOvertimeDamage(text: string, featureDoc: TAll5eItemDocuments = null): IDDBMonsterActionDataDamagePart[] | undefined {
     if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
       const damageText = text.split("taking")[1];
       return DDBEffectHelper.getMonsterFeatureDamage(damageText, featureDoc);
@@ -120,7 +125,7 @@ export default class DDBEffectHelper {
   }
 
 
-  static generateConditionOnlyEffect(actor, document, otherDescription = null) {
+  static generateConditionOnlyEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string = null) {
     const generator = new MidiOverTimeEffect({
       document,
       actor,
@@ -130,7 +135,7 @@ export default class DDBEffectHelper {
   }
 
 
-  static generateOverTimeEffect(actor, document, otherDescription = null) {
+  static generateOverTimeEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string = null) {
     const generator = new MidiOverTimeEffect({
       document,
       actor,
@@ -184,7 +189,7 @@ export default class DDBEffectHelper {
    * @param {string} [icon=null] An icon to use for the effect.
    * @returns {Promise<void>}
    */
-  static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
+  static async addSaveAdvantageToTarget(targetActor: Actor.Known, originItem: Item.Known, ability: T5eAbility, additionLabel = "", icon: string = null) {
 
     const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
@@ -213,7 +218,7 @@ export default class DDBEffectHelper {
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
   }
 
-  static async attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid, scale = 1) {
+  static async attachSequencerFileToTemplate(templateUuid: string, sequencerFile: string, originUuid: string, scale = 1) {
     if (game.modules.get("sequencer")?.active) {
       if (Sequencer.Database.entryExists(sequencerFile)) {
         logger.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
@@ -236,15 +241,19 @@ export default class DDBEffectHelper {
     }
   }
 
-  static async buttonDialog(config, direction) {
+  static async buttonDialog(config: IDDBDialogHelperButtonDialogConfig, direction: string) {
     return DialogHelper.buttonDialog(config, direction);
   }
 
-  static canSense(token, target) {
+  static canSense(token: foundry.canvas.placeables.Token, target: foundry.canvas.placeables.Token): boolean {
     return MidiQOL.canSense(token, target);
   }
 
-  static checkCollision(ray, types = ["sight", "move"], mode = "any") {
+  static checkCollision(
+    ray: foundry.canvas.geometry.Ray,
+    types: CONST.WALL_RESTRICTION_TYPES[] = ["sight", "move"],
+    mode: foundry.canvas.geometry.PointSourcePolygon.CollisionModes = "any",
+  ) {
     for (const type of types) {
       const result = CONFIG.Canvas.polygonBackends[type].testCollision(ray.A, ray.B, { mode, type });
       if (result) return result;
@@ -255,14 +264,14 @@ export default class DDBEffectHelper {
   /**
    * Checks the cover bonus for a given token, target, item, and displayName.
    *
-   * @param {any} token The token object.
-   * @param {any} target The target object.
-   * @param {any} item The item object.
+   * @param {foundry.canvas.placeables.Token} token The token object.
+   * @param {foundry.canvas.placeables.Token} target The target object.
+   * @param {Item} item The item object.
    * @param {string} displayName The display name of the cover.
    * @returns {string|number} The cover bonus or the display name of the cover.
    */
-  static checkCover(token, target, item, displayName) {
-    const cover = MidiQOL.computeCoverBonus(token, target, item);
+  static checkCover(token: foundry.canvas.placeables.Token, target: foundry.canvas.placeables.Token, item: Item, displayName: string) {
+    const cover = MidiQOL.computeCoverBonus(token, target, item) as number;
     if (!displayName) return cover;
     switch (cover) {
       case 0:
@@ -287,14 +296,14 @@ export default class DDBEffectHelper {
    * @param {*} originItemName the name of item used for AA customization of the condition.
    * @param {*} conditionItemUuid the UUID of the item applying the condition.
    */
-  static configureCustomAAForCondition(condition, macroData, originItemName, conditionItemUuid) {
+  static configureCustomAAForCondition(condition: string, macroData: any, originItemName: string, conditionItemUuid: string) {
     // Get default condition label
     const statusName = CONFIG.DND5E.conditionTypes[condition];
     if (!statusName) {
       return;
     }
     const customStatusName = `${statusName.label} [${originItemName}]`;
-    if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => (a.label ?? a.name) === customStatusName)) {
+    if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a: any) => (a.label ?? a.name) === customStatusName)) {
       const aaHookId = (Hooks as unknown as IDynamicHooks).on("AutomatedAnimations-WorkflowStart", (data: IAAWorkflowData) => {
         if (
           data.item instanceof CONFIG.ActiveEffect.documentClass
@@ -325,13 +334,13 @@ export default class DDBEffectHelper {
     return false;
   }
 
-  static async _createJB2aActors(subFolderName, name) {
+  static async _createJB2aActors(subFolderName: string, name: string) {
     const packKeys = ["jb2a_patreon.jb2a-actors", "JB2A_DnD5e.jb2a-actors"];
     for (const key of packKeys) {
       const pack = game.packs.get(key) as CompendiumCollection<"Actor"> | undefined;
 
       if (!pack) continue;
-      const actors = pack.index.filter((f) => (f.name as string).includes(name));
+      const actors = pack.index.filter((f) => (f.name as string).includes(name)) as TIndexEntry[];
       const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
 
       for (const actor of actors) {
@@ -350,17 +359,17 @@ export default class DDBEffectHelper {
     return targets;
   }
 
-  static async checkTargetInRange({ sourceUuid, targetUuid, distance }) {
+  static async checkTargetInRange({ sourceUuid, targetUuid, distance }: { sourceUuid: string; targetUuid: string; distance: number }) {
     if (!game.modules.get("midi-qol")?.active) {
       ui.notifications.error("checkTargetInRange requires midiQoL, not checking");
       logger.error("checkTargetInRange requires midiQoL, not checking");
       return true;
     }
-    const sourceToken = await fromUuid(sourceUuid);
+    const sourceToken = await fromUuid(sourceUuid) as unknown as foundry.canvas.placeables.Token;
     if (!sourceToken) return false;
     const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance);
-    const isInRange = targetsInRange.reduce((result, possible) => {
-      const collisionRay = new Ray(sourceToken as unknown as { x: number; y: number }, possible);
+    const isInRange = targetsInRange.reduce((result: boolean, possible: any) => {
+      const collisionRay = new foundry.canvas.geometry.Ray(sourceToken as unknown as { x: number; y: number }, possible);
       const collision = DDBEffectHelper.checkCollision(collisionRay, ["sight"]);
       if (possible.uuid === targetUuid && !collision) result = true;
       return result;
@@ -374,8 +383,8 @@ export default class DDBEffectHelper {
    * @param {object} item The item to display the card for
    * @returns {Promise} A promise that resolves when the card is displayed
    */
-  static async displayItemCard(item) {
-    const msg = await item.displayCard({ createMessage: false });
+  static async displayItemCard(item: Item.Known) {
+    const msg = await item.displayCard({ create: false });
     const DIV = document.createElement("DIV");
     DIV.innerHTML = msg.content;
     DIV.querySelector("div.card-buttons").remove();
@@ -385,10 +394,11 @@ export default class DDBEffectHelper {
   /**
    * Identifies and returns the IDs of tokens that are contained within a given template.
    *
-   * @param {object} templateDoc The template document used to determine token containment.
+   * @param {MeasuredTemplateDocument} templateDoc The template document used to determine token containment.
    * @returns {Array} An array of token IDs that are contained within the specified template.
    */
-  static findContainedTokensInTemplate(templateDoc) {
+  static findContainedTokensInTemplate(templateDoc: MeasuredTemplateDocument) {
+    // TODO: this needs refactoring for v14
     const contained = new Set();
     for (const tokenDoc of templateDoc.parent.tokens) {
       const startX = tokenDoc.width >= 1 ? 0.5 : tokenDoc.width / 2;
@@ -414,11 +424,11 @@ export default class DDBEffectHelper {
    * @param {string} name The name of the effect to find.
    * @returns {Effect} - The effect with the specified name, or undefined if not found.
    */
-  static findEffect(actor, name) {
+  static findEffect(actor: Actor.Known, name: string) {
     return actor.effects.getName(name);
   }
 
-  static getActorEffects(actor) {
+  static getActorEffects(actor: Actor.Known | Actor.Implementation) {
     return Array.from(actor?.allApplicableEffects() ?? []);
   }
 
@@ -427,12 +437,12 @@ export default class DDBEffectHelper {
    *
    * @param {object} workflow The workflow object to update
    * @param {object} item The item to get the new target for
-   * @param {Token} oldToken The old token to remove from the workflow targets
+   * @param {foundry.canvas.placeables.Token} oldToken The old token to remove from the workflow targets
    * @param {string} [targetTitle] An optional title to display in the target confirmation dialog
    *
-   * @returns {Token|undefined} The new target, or undefined if no new target is found
+   * @returns {foundry.canvas.placeables.Token|undefined} The new target, or undefined if no new target is found
    */
-  static async getNewMidiQOLWorkflowTarget(workflow, item, oldToken, targetTitle = undefined) {
+  static async getNewMidiQOLWorkflowTarget(workflow: any, item: any, oldToken: foundry.canvas.placeables.Token, targetTitle: string = undefined) {
     workflow.targets.delete(oldToken);
     workflow.saves.delete(oldToken);
     workflow.hitTargets.delete(oldToken);
@@ -443,7 +453,7 @@ export default class DDBEffectHelper {
     if (!newToken) return undefined;
     workflow.targets.add(newToken);
     workflow.hitTargets.add(newToken);
-    workflow.saveResults = workflow.saveResults.filter((e) => e.data.tokenId !== oldToken.id);
+    workflow.saveResults = workflow.saveResults.filter((e: any) => e.data.tokenId !== oldToken.id);
     return newToken;
   }
 
@@ -454,8 +464,8 @@ export default class DDBEffectHelper {
    * @param {string[]} names An array of effect names to search for.
    * @returns {object[]} An array of effects matching the given names.
    */
-  static findEffects(actor, names) {
-    const results = [];
+  static findEffects(actor: Actor.Known, names: string[]) {
+    const results: any[] = [];
     for (const name of names) {
       if (DDBEffectHelper.findEffect(actor, name)) {
         results.push(DDBEffectHelper.findEffect(actor, name));
@@ -468,9 +478,9 @@ export default class DDBEffectHelper {
    * Return actor from a UUID
    *
    * @param {string} uuid The UUID of the actor.
-   * @returns {object|null} Returns the actor document or null if not found.
+   * @returns {Actor|null} Returns the actor document or null if not found.
    */
-  static fromActorUuid(uuid) {
+  static fromActorUuid(uuid: string): Actor.Known | Actor | Actor.Implementation | null {
     const doc = fromUuidSync(uuid);
     if (doc instanceof CONFIG.Token.documentClass) return doc.actor;
     if (doc instanceof CONFIG.Actor.documentClass) return doc;
@@ -483,11 +493,11 @@ export default class DDBEffectHelper {
    * @param {any} actorRef The actor reference to retrieve the actor from.
    * @returns {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
    */
-  static getActor(actorRef) {
+  static getActor(actorRef: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): Actor | Actor.Implementation | null {
     if (actorRef instanceof Actor) return actorRef;
-    if (actorRef instanceof Token) return actorRef.actor;
+    if (actorRef instanceof foundry.canvas.placeables.Token) return actorRef.actor;
     if (actorRef instanceof TokenDocument) return actorRef.actor;
-    if (utils.isString(actorRef)) return DDBEffectHelper.fromActorUuid(actorRef);
+    if (utils.isString(actorRef)) return DDBEffectHelper.fromActorUuid(actorRef as string);
     return null;
   }
 
@@ -497,61 +507,12 @@ export default class DDBEffectHelper {
    * @param {Actor} actor The actor object
    * @returns {number} The number of cantrip dice.
    */
-  static getCantripDice(actor) {
-    const level = actor.type === "character"
-      ? actor.system.details.level
-      : actor.system.details.cr;
+  static getCantripDice(actor: Actor): number {
+    const systemData = actor.system as unknown as ILevelCrSystemStub;
+    const level: number = actor.type === "character"
+      ? systemData.details.level
+      : systemData.details.cr;
     return 1 + Math.floor((level + 1) / 6);
-  }
-
-  /**
-   * This is a simple reworking of midi-qols measureDistances function, for use where midi-qol is not available
-   * Measure distances for given segments with optional grid spaces.
-   *
-   * @param {Array} segments Array of segments to measure distances for
-   * @param {object} options Optional object with grid spaces configuration
-   * @returns {Array} Array of distances for each segment
-   */
-  static simpleMeasureDistances(segments, options: { gridSpaces?: boolean } = {}) {
-    if (canvas?.grid?.grid.constructor.name !== "BaseGrid" || !options.gridSpaces) {
-      const distances = canvas?.grid?.measureDistances(segments, options as unknown as EmptyObject);
-      return distances;
-    }
-
-    const rule = (canvas as unknown as { grid: { diagonalRule: string } })?.grid.diagonalRule;
-    if (!options.gridSpaces || !["555", "5105", "EUCL"].includes(rule)) {
-      return canvas?.grid?.measureDistances(segments, options as unknown as EmptyObject);
-    }
-    // Track the total number of diagonals
-    let nDiagonal = 0;
-    const d = canvas?.dimensions;
-
-    const grid = canvas?.scene?.grid;
-    if (!d || !d.size) return 0;
-
-    // Iterate over measured segments
-    return segments.map((s) => {
-      const r = s.ray;
-      // Determine the total distance traveled
-      const nx = Math.ceil(Math.max(0, Math.abs(r.dx / d.size)));
-      const ny = Math.ceil(Math.max(0, Math.abs(r.dy / d.size)));
-      // Determine the number of straight and diagonal moves
-      const nd = Math.min(nx, ny);
-      const ns = Math.abs(ny - nx);
-      nDiagonal += nd;
-
-      if (rule === "5105") { // Alternative DMG Movement
-        const nd10 = Math.floor(nDiagonal / 2) - Math.floor((nDiagonal - nd) / 2);
-        const spaces = (nd10 * 2) + (nd - nd10) + ns;
-        return spaces * d.distance;
-      } else if (rule === "EUCL") { // Euclidean Measurement
-        const nx = Math.max(0, Math.abs(r.dx / d.size));
-        const ny = Math.max(0, Math.abs(r.dy / d.size));
-        return Math.ceil(Math.hypot(nx, ny) * grid?.distance);
-      } else { // Standard PHB Movement
-        return Math.max(nx, ny) * grid.distance;
-      }
-    });
   }
 
   /**
@@ -562,27 +523,32 @@ export default class DDBEffectHelper {
    * @param {boolean} wallBlocking whether to consider walls as blocking
    * @returns {Array} an array of segments representing the distance between the two objects
    */
-  static _getDistanceSegments(t1, t2, wallBlocking = false) {
+  static _getDistanceSegments(t1: any, t2: any, wallBlocking = false): { origin: Canvas.Point; dest: Canvas.Point }[] {
     const t1StartX = t1.document.width >= 1 ? 0.5 : t1.document.width / 2;
     const t1StartY = t1.document.height >= 1 ? 0.5 : t1.document.height / 2;
     const t2StartX = t2.document.width >= 1 ? 0.5 : t2.document.width / 2;
     const t2StartY = t2.document.height >= 1 ? 0.5 : t2.document.height / 2;
     let x, x1, y, y1;
-    const segments = [];
+    const segments: { origin: Canvas.Point; dest: Canvas.Point }[] = [];
     for (x = t1StartX; x < t1.document.width; x++) {
       for (y = t1StartY; y < t1.document.height; y++) {
-        const origin = new PIXI.Point(...canvas.grid.getCenter(Math.round(t1.document.x + (canvas.dimensions.size * x)), Math.round(t1.document.y + (canvas.dimensions.size * y))));
+        const origin = canvas.grid.getCenterPoint({
+          x: Math.round(t1.document.x + (canvas.dimensions.size * x)),
+          y: Math.round(t1.document.y + (canvas.dimensions.size * y)),
+        });
         for (x1 = t2StartX; x1 < t2.document.width; x1++) {
           for (y1 = t2StartY; y1 < t2.document.height; y1++) {
-            const dest = new PIXI.Point(...canvas.grid.getCenter(Math.round(t2.document.x + (canvas.dimensions.size * x1)), Math.round(t2.document.y + (canvas.dimensions.size * y1))));
-            const r = new Ray(origin, dest);
+            const dest = canvas.grid.getCenterPoint({
+              x: Math.round(t2.document.x + (canvas.dimensions.size * x1)),
+              y: Math.round(t2.document.y + (canvas.dimensions.size * y1)),
+            });
 
             if (wallBlocking) {
               const collisionCheck = CONFIG.Canvas.polygonBackends.move.testCollision(origin, dest, { mode: "any", type: "move" });
 
               if (collisionCheck) continue;
             }
-            segments.push({ ray: r });
+            segments.push({ origin, dest });
           }
         }
       }
@@ -593,11 +559,11 @@ export default class DDBEffectHelper {
   /**
    * Calculate the height difference between two tokens based on their elevation and dimensions.
    *
-   * @param {type} t1 description of parameter t1
-   * @param {type} t2 description of parameter t2
-   * @returns {type} the height difference between the two tokens
+   * @param {Token} t1 the first token
+   * @param {Token} t2 the second token
+   * @returns {number} the height difference between the two tokens
    */
-  static _calculateTokeHeightDifference(t1, t2) {
+  static _calculateTokenHeightDifference(t1: Token, t2: Token) {
     const t1Elevation = t1.document.elevation ?? 0;
     const t2Elevation = t2.document.elevation ?? 0;
     const t1TopElevation = t1Elevation + (Math.max(t1.document.height, t1.document.width) * (canvas?.dimensions?.distance ?? 5));
@@ -622,12 +588,12 @@ export default class DDBEffectHelper {
    * This is a simple reworking of midi-qols get distance function, for use where midi-qol is not available
    * Calculate the distance between two tokens on the canvas, considering the presence of walls.
    *
-   * @param {string} token1 The ID of the first token
-   * @param {string} token2 The ID of the second token
+   * @param {string | Token} token1 The ID or instance of the first token
+   * @param {string | Token} token2 The ID or instance of the second token
    * @param {boolean} wallBlocking Whether to consider walls as obstacles (default is false)
    * @returns {number} The calculated distance between the two tokens
    */
-  static getSimpleDistance(token1, token2, wallBlocking = false) {
+  static getSimpleDistance(token1:  string | Token, token2:  string | Token, wallBlocking = false): number {
     if (!canvas || !canvas.scene) return -1;
     if (!canvas.grid || !canvas.dimensions) return -1;
     const t1 = DDBEffectHelper.getToken(token1);
@@ -638,30 +604,20 @@ export default class DDBEffectHelper {
     const segments = DDBEffectHelper._getDistanceSegments(t1, t2, wallBlocking);
     if (segments.length === 0) return -1;
 
-    const rayDistances = segments.map((ray) => DDBEffectHelper.simpleMeasureDistances([ray], { gridSpaces: true }));
-    let distance = Math.min(...rayDistances);
+    const heightDifference = DDBEffectHelper._calculateTokenHeightDifference(t1, t2);
 
-    const heightDifference = DDBEffectHelper._calculateTokeHeightDifference(t1, t2);
+    // measurePath applies the scene's configured diagonal rule (CONST.GRID_DIAGONALS) in 3D
+    const distances = segments.map(({ origin, dest }) =>
+      canvas.grid.measurePath([
+        { x: origin.x, y: origin.y, elevation: 0 },
+        { x: dest.x, y: dest.y, elevation: heightDifference },
+      ], {}).distance,
+    );
 
-    const distanceRule = (canvas.grid as unknown as { diagonalRule: string }).diagonalRule;
-    // 5105 Alternative DMG Movement
-    // 555 Standard Movement
-    // EUCL Euclidean Measurement
-    if (["555", "5105"].includes(distanceRule)) {
-      const nd = Math.min(distance, heightDifference);
-      const ns = Math.abs(distance - heightDifference);
-      distance = nd + ns;
-      const dimension = canvas?.dimensions?.distance ?? 5;
-      if (distanceRule === "5105") distance += Math.floor(nd / 2 / dimension) * dimension;
-    } else {
-      // assumes euclidean
-      distance = Math.sqrt((heightDifference * heightDifference) + (distance * distance));
-    }
-
-    return distance;
+    return Math.min(...distances);
   }
 
-  static getDistance(token1, token2, wallsBlock = false, includeCover = false) {
+  static getDistance(token1: string | Token, token2:  string | Token, wallsBlock = false, includeCover = false) {
     if (game.modules.get("midi-qol")?.active) {
       return MidiQOL.computeDistance(token1, token2, { wallsBlock, includeCover });
     } else {
@@ -676,12 +632,13 @@ export default class DDBEffectHelper {
    * @param {Array|string} abilities The abilities array or string.
    * @returns {string|undefined} The highest ability or undefined if no abilities are provided.
    */
-  static getHighestAbility(actor, abilities) {
+  static getHighestAbility(actor: Actor.Implementation, abilities: T5eAbility[] | T5eAbility): T5eAbility | undefined {
     if (typeof abilities === "string") {
       return abilities;
     } else if (Array.isArray(abilities)) {
+      const systemData = actor.system as unknown as IAbilitiesSystemStub;
       return abilities.reduce((prv, current) => {
-        if (actor.system.abilities[current].value > actor.system.abilities[prv].value) return current;
+        if (systemData.abilities[current].value > systemData.abilities[prv].value) return current;
         else return prv;
       }, abilities[0]);
     }
@@ -694,9 +651,9 @@ export default class DDBEffectHelper {
    * @param {object} entity The entity for which to retrieve the race or type.
    * @returns {string} The race or type of the entity, in lowercase.
    */
-  static getRaceOrType(entity) {
+  static getRaceOrType(entity: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): string {
     const actor = DDBEffectHelper.getActor(entity);
-    const systemData = actor?.system as IDetailsSystemStub;
+    const systemData = actor?.system as unknown as IDetailsSystemStub;
     if (!systemData) return "";
     if (systemData.details.race) {
       return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
@@ -710,10 +667,10 @@ export default class DDBEffectHelper {
    * @param {any} tokenRef The token reference to retrieve the token from.
    * @returns {Token|undefined} The retrieved token if it exists, otherwise undefined.
    */
-  static getToken(tokenRef) {
+  static getToken(tokenRef: string | foundry.canvas.placeables.Token | TokenDocument) {
     if (!tokenRef) return undefined;
-    if (tokenRef instanceof Token) return tokenRef;
-    if (utils.isString(tokenRef)) return ((fromUuidSync(tokenRef as string) as TokenDocument)?.object);
+    if (tokenRef instanceof foundry.canvas.placeables.Token) return tokenRef;
+    if (utils.isString(tokenRef)) return ((fromUuidSync(tokenRef) as unknown as TokenDocument)?.object);
     if (tokenRef instanceof TokenDocument) return tokenRef.object;
     return undefined;
   }
@@ -724,15 +681,15 @@ export default class DDBEffectHelper {
    * @param {any} tokenRef The token reference to retrieve the TokenDocument for.
    * @returns {TokenDocument|undefined} The TokenDocument associated with the token reference, or undefined if not found.
    */
-  static getTokenDocument(tokenRef) {
+  static getTokenDocument(tokenRef: string | foundry.canvas.placeables.Token | TokenDocument): TokenDocument | undefined {
     if (!tokenRef) return undefined;
     if (tokenRef instanceof TokenDocument) return tokenRef;
     if (typeof tokenRef === "string") {
-      const document = fromUuidSync(tokenRef);
+      const document = fromUuidSync(tokenRef) as TokenDocument | Actor.Known | undefined;
       if (document instanceof TokenDocument) return document;
       if (document instanceof Actor) return DDBEffectHelper.getTokenForActor(document)?.document;
     }
-    if (tokenRef instanceof Token) return tokenRef.document;
+    if (tokenRef instanceof foundry.canvas.placeables.Token) return tokenRef.document;
     return undefined;
   }
 
@@ -742,19 +699,24 @@ export default class DDBEffectHelper {
    * @param {Actor} actor The actor for which to retrieve the token.
    * @returns {Token|undefined} The token associated with the actor, or undefined if no token is found.
    */
-  static getTokenForActor(actor) {
+  static getTokenForActor(actor: Actor.Known): Token | undefined {
     const tokens = actor.getActiveTokens();
     if (!tokens.length) return undefined;
-    const controlled = tokens.filter((t) => t._controlled);
+    const controlled = tokens.filter((t) => t.controlled);
     return controlled.length ? controlled.shift() : tokens.shift();
   }
 
-  static getActiveCreaturesFromTokenByDisposition(target, {
+  static getActiveCreaturesFromTokenByDisposition(target: Token, {
     includeIncapacitated = false,
-    excludedActorIds = [], excludedTokenIds = [], distance = 5,
+    excludedActorIds = [] as string[], excludedTokenIds = [] as string[], distance = 5,
   } = {}) {
 
-    const result = {
+    const result: {
+      allies: Token[];
+      enemies: Token[];
+      neutrals: Token[];
+      others: Token[];
+    } = {
       allies: [],
       enemies: [],
       neutrals: [],
@@ -792,7 +754,7 @@ export default class DDBEffectHelper {
    * @param {object} token The token for which to get the image.
    * @returns {string} The image URL for the token.
    */
-  static async getTokenImage(token) {
+  static async getTokenImage(token: Token) {
     const midiConfigSettings = utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol");
     let img = token.document?.texture?.src ?? token.actor.img ?? "";
     if (midiConfigSettings.usePlayerPortrait && token.actor.type === "character") {
@@ -810,33 +772,14 @@ export default class DDBEffectHelper {
    * @param {any} entity The entity to retrieve the type or race from.
    * @returns {string} The type or race of the entity, in lowercase. If the type or race is not available, an empty string is returned.
    */
-  static getTypeOrRace(entity) {
+  static getTypeOrRace(entity: any) {
     const actor = DDBEffectHelper.getActor(entity);
-    const systemData = actor?.system as IDetailsSystemStub;
+    const systemData = actor?.system as unknown as IDetailsSystemStub;
     if (!systemData) return "";
     if (systemData.details.type?.value) {
       return systemData.details.type?.value.toLocaleLowerCase() ?? "";
     }
     return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
-  }
-
-  /**
-   * Returns a new duration which reflects the remaining duration of the specified one.
-   *
-   * @param {*} duration the source duration
-   * @returns {number} a new duration which reflects the remaining duration of the specified one.
-   */
-  static getRemainingDuration(duration) {
-    const newDuration: { seconds?: number; rounds?: number; turns?: number } = {};
-    if (duration.type === "seconds") {
-      newDuration.seconds = duration.remaining;
-    } else if (duration.type === "turns") {
-      const remainingRounds = Math.floor(duration.remaining);
-      const remainingTurns = (duration.remaining - remainingRounds) * 100;
-      newDuration.rounds = remainingRounds;
-      newDuration.turns = remainingTurns;
-    }
-    return newDuration;
   }
 
   static isAttack({
@@ -907,9 +850,9 @@ export default class DDBEffectHelper {
    * @param {type} b
    * @returns {boolean} true if a is smaller than b, false otherwise
    */
-  static isSmaller (a, b) {
-    const sizeA = DICTIONARY.sizes.find((s) => s.value === a.system.traits.size)?.size;
-    const sizeB = DICTIONARY.sizes.find((s) => s.value === b.system.traits.size)?.size;
+  static isSmaller (a: Actor.Implementation, b: Actor.Implementation) {
+    const sizeA = DICTIONARY.sizes.find((s) => s.value === (a as any).system.traits.size)?.size;
+    const sizeB = DICTIONARY.sizes.find((s) => s.value === (b as any).system.traits.size)?.size;
     return sizeA < sizeB;
   }
 
@@ -918,8 +861,8 @@ export default class DDBEffectHelper {
    * @param {Actor.Implementation} actor actor for which to get the size value.
    * @returns {number} the numeric value of the specified actor's size.
    */
-  static getActorSizeValue(actor) {
-    return DDBEffectHelper.getSizeValue(actor?.system?.traits?.size ?? "med");
+  static getActorSizeValue(actor: Actor.Implementation) {
+    return DDBEffectHelper.getSizeValue((actor as any)?.system?.traits?.size ?? "med");
   }
 
   /**
@@ -928,7 +871,7 @@ export default class DDBEffectHelper {
    * @param {string} size  the size name for which to get the size value.
    * @returns {number} the numeric value of the specified size.
    */
-  static getSizeValue(size) {
+  static getSizeValue(size: string) {
     return Object.keys(CONFIG.DND5E.actorSizes).indexOf(size ?? "med");
   }
 
@@ -940,9 +883,9 @@ export default class DDBEffectHelper {
    * @param {Array<string>} dependencies An array of module names to check for installation and activation.
    * @returns {boolean} true if all dependencies are installed and active, false otherwise.
    */
-  static requirementsSatisfied(name, dependencies) {
+  static requirementsSatisfied(name: string, dependencies: any) {
     let missingDep = false;
-    dependencies.forEach((dep) => {
+    dependencies.forEach((dep: any) => {
       if (!game.modules.get(dep)?.active) {
         const errorMsg = `${name}: ${dep} must be installed and active.`;
         ui.notifications.error(errorMsg);
@@ -961,7 +904,7 @@ export default class DDBEffectHelper {
    * @param {object} [workflow=null] The workflow for which the saving throw is rolled
    * @returns {Promise} A promise that resolves with the save result
    */
-  static async rollSaveForItem(item, targetToken, workflow = null) {
+  static async rollSaveForItem(item: Item.Implementation, targetToken: Token, workflow: any = null) {
     const { ability, dc } = foundry.utils.duplicate(item.system.save);
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
@@ -990,8 +933,8 @@ export default class DDBEffectHelper {
    * @param {boolean} includeSource flag to indicate if the reference token should be included or not in the selected targets.
    * @returns {Array[Token]} an array of Token instances that were selected.
    */
-  static selectTargetsWithinX(sourceToken, distance, includeSource) {
-    const aoeTargets = MidiQOL.findNearby(null, sourceToken, distance);
+  static selectTargetsWithinX(sourceToken: Token, distance: number, includeSource: boolean) {
+    const aoeTargets = MidiQOL.findNearby(null, sourceToken, distance) as Token[];
     if (includeSource) {
       aoeTargets.unshift(sourceToken);
     }
@@ -1001,11 +944,11 @@ export default class DDBEffectHelper {
     return aoeTargets;
   }
 
-  static updateUserTargets(targets) {
+  static updateUserTargets(targets: string[]) {
     (game.user as unknown as ITokenTargetUser).updateTokenTargets(targets);
   }
 
-  static isConditionEffectAppliedAndActive(condition, actor) {
+  static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation) {
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
@@ -1013,7 +956,7 @@ export default class DDBEffectHelper {
     );
   }
 
-  static getConditionEffectAppliedAndActive(condition, actor) {
+  static getConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation) {
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
@@ -1022,18 +965,18 @@ export default class DDBEffectHelper {
   }
 
   static async removeCondition({ actor, actorUuid, conditionName, level = null }: {
-    actor?: IConditionActorish;
+    actor?: Actor.Implementation | Token;
     actorUuid?: string;
     conditionName?: string;
     level?: number | null;
   } = {}) {
-    if (!actor) actor = await fromUuid(actorUuid) as unknown as IConditionActorish;
+    if (!actor) actor = await fromUuid(actorUuid) as unknown as Actor.Implementation;
     if (!actor) {
       logger.error("No actor passed to remove condition");
       return;
     }
 
-    actor = (actor.document ?? actor);
+    actor = ((actor as any).document ?? actor) as Actor.Implementation;
     const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
 
     if (!condition) {
@@ -1050,7 +993,7 @@ export default class DDBEffectHelper {
     if (existing) await existing.delete();
     if (condition.id === "exhaustion") {
       logger.debug("Reducing exhaustion", level);
-      await actor.update({ "system.attributes.exhaustion": level ?? 0 });
+      await actor.update({ "system.attributes.exhaustion": level ?? 0 } as unknown as Parameters<typeof actor.update>[0]);
     }
   }
 
@@ -1073,12 +1016,12 @@ export default class DDBEffectHelper {
 
   static async addCondition({ conditionName, actor, actorUuid, level = null, origin = null }: {
     conditionName?: string;
-    actor?: IConditionActorish;
+    actor?: Actor.Implementation;
     actorUuid?: string;
     level?: number | null;
     origin?: string | null;
   } = {}) {
-    if (!actor) actor = await fromUuid(actorUuid) as unknown as IConditionActorish;
+    if (!actor) actor = await fromUuid(actorUuid) as unknown as Actor.Implementation;
     if (!actor) {
       logger.error("No actor passed to remove condition");
       return;
@@ -1097,20 +1040,20 @@ export default class DDBEffectHelper {
     logger.debug(`adding ${condition.name}`, { condition });
 
     const effect = await ActiveEffect.implementation.fromStatusEffect(condition.id);
-    if (condition.level) effect.updateSource({ [`flags.dnd5e.${condition.id}Level`]: condition.level });
+    if (condition.level) effect.updateSource({ [`flags.dnd5e.${condition.id}Level`]: condition.level } as unknown as Parameters<typeof effect.updateSource>[0]);
     effect.updateSource({ origin } as unknown as Parameters<typeof effect.updateSource>[0]);
     ActiveEffect.implementation.create(effect, { parent: actor as unknown as Actor.Implementation, keepId: true });
 
     if (condition.foundry === "exhaustion") {
       logger.debug("Updating actor exhaustion", level);
-      await actor.update({ "system.attributes.exhaustion": level ?? 1 });
+      await actor.update({ "system.attributes.exhaustion": level ?? 1 } as any);
     }
   }
 
   static async adjustCondition({ add = false, remove = false, actor, conditionName, level = null, origin = null }: {
     add?: boolean;
     remove?: boolean;
-    actor?: IConditionActorish;
+    actor?: Actor.Implementation;
     conditionName?: string;
     level?: number | null;
     origin?: string | null;
@@ -1137,8 +1080,8 @@ export default class DDBEffectHelper {
 
   }
 
-  static extractListItems(text, { type = "ol", titleType = "em" } = {}) {
-    const results = [];
+  static extractListItems(text: string, { type = "ol", titleType = "em" } = {}): IExtractedHtmlItem[] {
+    const results: IExtractedHtmlItem[] = [];
     const parsedDoc = utils.htmlToDoc(text);
     const list = parsedDoc.body.querySelector(type);
     if (list) {
@@ -1159,8 +1102,8 @@ export default class DDBEffectHelper {
     return DDBEffectHelper.extractParagraphItems(text, { titleType });
   }
 
-  static extractParagraphItems(text, { type = "p", titleType = "em" } = {}) {
-    const results = [];
+  static extractParagraphItems(text: string, { type = "p", titleType = "em" } = {}): IExtractedHtmlItem[] {
+    const results: IExtractedHtmlItem[] = [];
     const parsedDoc = utils.htmlToDoc(text);
 
     const listItems = parsedDoc.querySelectorAll(type);
@@ -1183,11 +1126,11 @@ export default class DDBEffectHelper {
   }
 
   static async _verySimpleDamageRollToChat({ actor, flavor, formula, damageType = "damage", item, itemId, itemUuid }: {
-    actor?: Actor.Implementation;
+    actor?: Actor;
     flavor?: string;
     formula?: string;
     damageType?: string;
-    item?: TSimpleItemRef;
+    item?: Item.Implementation;
     itemId?: string;
     itemUuid?: string;
   } = {}) {
@@ -1195,17 +1138,17 @@ export default class DDBEffectHelper {
     await roll.evaluate({ async: true } as unknown as Parameters<typeof roll.evaluate>[0]);
 
     if (!item && itemId && !itemUuid && actor) {
-      item = actor.getEmbeddedDocument("Item", itemId) as unknown as TSimpleItemRef;
+      item = (actor as any).getEmbeddedDocument("Item", itemId) as unknown as Item.Implementation;
     }
     if (!item && itemUuid && actor) {
-      item = await fromUuid(itemUuid) as unknown as TSimpleItemRef;
+      item = await fromUuid(itemUuid) as unknown as Item.Implementation;
     }
 
     if (item && !itemId) itemId = item._id;
     if (item && !itemUuid) itemUuid = item.uuid;
 
     roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor }),
+      speaker: ChatMessage.getSpeaker({ actor: actor as unknown as any }),
       flavor,
       "flags.dnd5e": {
         targets: dnd5e.utils.getTargetDescriptors(),
@@ -1225,17 +1168,17 @@ export default class DDBEffectHelper {
     flavor?: string;
     formulas?: string[];
     damageType?: string;
-    item?: TSimpleItemRef;
+    item?: Item.Implementation;
     itemId?: string;
     itemUuid?: string;
     fastForward?: boolean;
   } = {}) {
 
     if (!item && itemId && !itemUuid && actor) {
-      item = actor.getEmbeddedDocument("Item", itemId) as unknown as TSimpleItemRef;
+      item = actor.getEmbeddedDocument("Item", itemId) as unknown as Item.Implementation;
     }
     if (!item && itemUuid && actor) {
-      item = await fromUuid(itemUuid) as unknown as TSimpleItemRef;
+      item = await fromUuid(itemUuid) as unknown as Item.Implementation;
     }
 
     if (item && !itemId) itemId = item._id;
@@ -1270,6 +1213,16 @@ export default class DDBEffectHelper {
     targets = undefined, showFullCard = false, scaling = false,
     configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
     createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
+  }: {
+    targets?: Token[] | undefined;
+    showFullCard?: boolean;
+    scaling?: boolean;
+    configureDialog?: boolean;
+    targetConfirmation?: any;
+    slotLevel?: number | undefined;
+    createMeasuredTemplate?: boolean | undefined;
+    consumeResource?: boolean;
+    consumeSpellSlot?: boolean;
   } = {}) {
     return [
       // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
@@ -1322,13 +1275,13 @@ export default class DDBEffectHelper {
     ]));
   }
 
-  static getConcentrationEffect(actor, documentName = "") {
+  static getConcentrationEffect(actor: Actor.Implementation, documentName = "") {
     const concentrationEffectNames = DDBEffectHelper.getConcentrationNames(documentName);
-    return actor.effects.find((ef) => concentrationEffectNames.some((c) => ef.name.startsWith(c)));
+    return actor.effects.find((ef: ActiveEffect) => concentrationEffectNames.some((c) => (ef as unknown as I5eEffectData).name.startsWith(c)));
   }
 
   static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: {
-    document?: { name?: string };
+    document?: TAll5eItemDocuments;
     turn?: string;
     damage?: string;
     damageType?: string;
@@ -1341,7 +1294,7 @@ export default class DDBEffectHelper {
   }
 
   static overTimeSave({ document, turn, saveAbility, saveRemove = true, dc }: {
-    document?: { name?: string };
+    document?: TAll5eItemDocuments;
     turn?: string;
     saveAbility?: string | string[];
     saveRemove?: boolean;
@@ -1350,24 +1303,22 @@ export default class DDBEffectHelper {
     return ChangeHelper.overTimeSaveChange({ document, turn, saveAbility, saveRemove, dc });
   }
 
-  static startOrEnd(text) {
+  static startOrEnd(text: string) {
     return DDBDescriptions.startOrEnd(text);
   }
 
-  static overTimeSaveEnd({ document, effect, save, text }) {
+  static overTimeSaveEnd({ document, effect, save, text }: Record<string, any>) {
     const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document, save, text });
     if (change) effect.system.changes.push(change);
   }
 
-
-  static getSpecialDuration(effect, match) {
+  static getSpecialDuration(effect: I5eEffectData, match: any) {
     return DDBDescriptions.addSpecialDurationFlagsToEffect(effect, match);
   }
 
-
   static DEFAULT_DURATION_SECONDS = 60;
 
-  static getDuration(text, returnDefault = true) {
+  static getDuration(text: string, returnDefault = true) {
     return DDBDescriptions.getDuration(text, returnDefault);
   }
 
@@ -1380,8 +1331,8 @@ export default class DDBEffectHelper {
     return DDBDescriptions.parseStatusCondition({ text });
   }
 
-  static filerActivitiesByIds(activities, ids) {
-    const newActivities = {};
+  static filerActivitiesByIds(activities: any, ids: any[]) {
+    const newActivities: Record<string, any> = {};
     if (ids.length > 0) {
       for (const [key, activity] of Object.entries(activities)) {
         if (ids.includes((activity as { _id?: string })._id)) newActivities[key] = activity;
@@ -1390,8 +1341,8 @@ export default class DDBEffectHelper {
     return newActivities;
   }
 
-  static filterActivitiesByTypes(activities, types) {
-    const newActivities = {};
+  static filterActivitiesByTypes(activities: any, types: any) {
+    const newActivities: Record<string, any> = {};
     if (types.length > 0) {
       for (const [key, activity] of Object.entries(activities)) {
         if (types.includes((activity as { type?: string }).type)) newActivities[key] = activity;
@@ -1409,26 +1360,58 @@ export default class DDBEffectHelper {
     level = null, clearUses = true, addProperties = [], noSpellslot = true, clearTargets = true,
     clearActiveAuraEffects = true, killAnimations = false, filterActivityDamageTypes = [], returnDataOnly = false,
     retainEnchantments = false,
-  } = {}) {
+  }: {
+    uuid?: string | null;
+    document?: Item | null;
+    parent?: any;
+    activityIds?: string[];
+    activityTypes?: string[];
+    clearEffectFlags?: boolean;
+    clearEffects?: boolean;
+    filterEffects?: boolean;
+    newId?: boolean;
+    clearId?: boolean;
+    removeProperties?: string[];
+    setToAtWill?: boolean;
+    renameDocument?: string | null;
+    setTargetTo?: string;
+    clearTargetTemplate?: boolean;
+    overrideTarget?: boolean;
+    overrideDuration?: boolean;
+    durationUnits?: TDurationUnit;
+    durationValue?: number | null;
+    level?: number | null;
+    clearUses?: boolean;
+    addProperties?: string[];
+    noSpellslot?: boolean;
+    clearTargets?: boolean;
+    clearActiveAuraEffects?: boolean;
+    killAnimations?: boolean;
+    filterActivityDamageTypes?: string[];
+    returnDataOnly?: boolean;
+    retainEnchantments?: boolean;
+  } = {}): Item.Implementation | TAll5eItemDocuments | null {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
-    const base = document ?? fromUuidSync(uuid);
+    const base = document ?? fromUuidSync(uuid) as unknown as Item | null;
     if (!base) return null;
-    const newDocumentData = document.toObject();
+    const newDocumentData = document.toObject() as unknown as TAll5eItemDocuments;
     if (clearId) delete newDocumentData._id;
     if (newId) newDocumentData._id = foundry.utils.randomID();
-    if (activityIds.length > 0)
-      newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
-    if (activityTypes.length > 0)
-      newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
+    if ("activities" in newDocumentData.system) {
+      if (activityIds.length > 0)
+        newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
+      if (activityTypes.length > 0)
+        newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
+    }
 
     if (clearActiveAuraEffects) {
-      newDocumentData.effects = newDocumentData.effects.filter((e) =>
+      newDocumentData.effects = newDocumentData.effects.filter((e: any) =>
         !foundry.utils.getProperty(e.flags, "ActiveAura.isAura"),
       );
     }
 
     if (retainEnchantments) {
-      const enchantmentEffects = newDocumentData.effects?.filter((e) => e.type === "enchantment") ?? [];
+      const enchantmentEffects = newDocumentData.effects?.filter((e: any) => e.type === "enchantment") ?? [];
       // newDocumentData.effects = newDocumentData.effects?.filter((e) => e.type === "enchantment") ?? [];
       foundry.utils.setProperty(newDocumentData, "flags.ddbimporter.effect.enchantmentEffects", enchantmentEffects);
       foundry.utils.setProperty(newDocumentData, "effects", []);
@@ -1436,8 +1419,9 @@ export default class DDBEffectHelper {
       foundry.utils.setProperty(newDocumentData, "effects", []);
     }
 
-    for (const key of Object.keys(newDocumentData.system.activities)) {
-      const a = newDocumentData.system.activities[key];
+    const activities = "activities" in newDocumentData.system ? newDocumentData.system.activities : {};
+    for (const key of Object.keys(activities)) {
+      const a = activities[key];
 
       if (a.consumption) a.consumption.targets = [];
       if (overrideTarget) a.target.override = true;
@@ -1463,24 +1447,24 @@ export default class DDBEffectHelper {
       if (overrideDuration) a.duration.override = true;
       if (durationUnits) {
         a.duration.units = durationUnits;
-        a.duration.value = durationValue;
+        a.duration.value = String(durationValue);
       }
 
       if (clearTargets) foundry.utils.setProperty(a, "consumption.targets", []);
       if (noSpellslot) foundry.utils.setProperty(a, "consumption.spellSlot", false);
 
-      if (filterActivityDamageTypes.length > 0) {
-        a.damage.parts = a.damage.parts.filter((part) =>
-          part.types.some((partType) => filterActivityDamageTypes.includes(partType)),
-        ).map((part) => {
-          part.types = part.types.filter((partType) => filterActivityDamageTypes.includes(partType));
+      if (filterActivityDamageTypes.length > 0 && "damage" in a) {
+        a.damage.parts = a.damage.parts.filter((part: any) =>
+          part.types.some((partType: any) => filterActivityDamageTypes.includes(partType)),
+        ).map((part: any) => {
+          part.types = part.types.filter((partType: any) => filterActivityDamageTypes.includes(partType));
           return part;
         });
       }
 
-      a.effects = a.effects.filter((e) => newDocumentData.effects.some((f) => f._id === e._id));
+      a.effects = a.effects.filter((e: any) => newDocumentData.effects.some((f: any) => f._id === e._id));
 
-      newDocumentData.system.activities[key] = a;
+      if ("activities" in newDocumentData.system) newDocumentData.system.activities[key] = a;
     }
 
     if (clearEffectFlags) {
@@ -1490,17 +1474,19 @@ export default class DDBEffectHelper {
       foundry.utils.setProperty(newDocumentData, "flags.dae", {});
     }
 
-    if (filterEffects) {
+    if (filterEffects && "activities" in newDocumentData.system) {
       const allowedIds = Object.values(newDocumentData.system.activities).map((a) => {
         return ((a as { effects?: { _id: string }[] }).effects ?? []).map((e) => e._id);
       }).flat();
-      newDocumentData.effects = newDocumentData.effects.filter((e) => allowedIds.includes(e._id));
+      newDocumentData.effects = newDocumentData.effects.filter((e: any) => allowedIds.includes(e._id));
     }
-    for (const prop of removeProperties) {
-      newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties, prop);
-    }
-    for (const prop of addProperties) {
-      newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties, prop);
+    if ("properties" in newDocumentData.system) {
+      for (const prop of removeProperties) {
+        newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties, prop);
+      }
+      for (const prop of addProperties) {
+        newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties, prop);
+      }
     }
     if (setToAtWill) {
       foundry.utils.setProperty(newDocumentData, "system.method", "atwill");
@@ -1516,7 +1502,7 @@ export default class DDBEffectHelper {
       });
     }
 
-    if (level) newDocumentData.system.level = level;
+    if (level && "level" in newDocumentData.system) newDocumentData.system.level = level;
 
     if (killAnimations) foundry.utils.setProperty(newDocumentData, "flags.autoanimations.killAnim", true);
 
@@ -1525,12 +1511,12 @@ export default class DDBEffectHelper {
 
     if (returnDataOnly) return newDocumentData;
 
-    const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
-    return newDocument;
+    const newDocument = new CONFIG.Item.documentClass(newDocumentData as any, { parent });
+    return newDocument as Item.Implementation;
   }
 
-  static async rollMidiItemUse(document, workflowBuilderOptions = {}, {
-    targetIds = [], applyFailureConditions = [],
+  static async rollMidiItemUse(document: Item.Implementation | TAll5eItemDocuments, workflowBuilderOptions = {}, {
+    targetIds = [] as string[], applyFailureConditions = [] as string[],
   } = {}) {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id)
@@ -1561,8 +1547,8 @@ export default class DDBEffectHelper {
 
   }
 
-  static async rollMidiActivityUse(activity, workflowBuilderOptions = {}, {
-    targetIds = [], applyFailureConditions = [],
+  static async rollMidiActivityUse(activity: any, workflowBuilderOptions = {}, {
+    targetIds = [] as string[], applyFailureConditions = [] as string[],
   } = {}) {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id)
@@ -1595,27 +1581,28 @@ export default class DDBEffectHelper {
   }
 
 
-  static async _conditionRemovalMidiRoll(targetToken, condition, {
-    document = {},
-    activity = null,
-    type = null, // can be save or check, if null, will check flags
-    ability = null, // e.g. wis, if null, will check flags
-    saveDC = null, // if null, will use activity if present, otherwise spelldc
+  static async _conditionRemovalMidiRoll(targetToken: Token.Implementation, condition: string, {
+    document = null,
+    activity = null as any,
+    type = null as string | null, // can be save or check, if null, will check flags
+    ability = null as string | null, // e.g. wis, if null, will check flags
+    saveDC = null as number | null, // if null, will use activity if present, otherwise spelldc
   }: {
-    document?: IRemovalDocument;
+    document?: Item.Implementation | null;
     activity?: IRemovalActivity | null;
     type?: string | null;
     ability?: string | null;
     saveDC?: number | null;
   } = {}) {
     const name = document?.name ?? "";
-    const caster = document.parent;
+    const caster = document?.parent;
     const derivedActivity = activity
-      ?? Object.values(foundry.utils.getProperty(document, "system.activities") ?? {}).find((a) => a.type === "save");
-    const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? caster?.system.attributes.spell?.dc;
+      ?? Object.values(foundry.utils.getProperty(document ?? {}, "system.activities") ?? {}).find((a) => a.type === "save");
+    const casterSystem = caster?.system as unknown as { attributes?: { spell?: { dc?: number } } } | undefined;
+    const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? casterSystem?.attributes?.spell?.dc;
     if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
-    const removalCheck = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalCheck");
-    const removalSave = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalSave");
+    const removalCheck = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalCheck");
+    const removalSave = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalSave");
     const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? derivedActivity?.save?.ability.first();
     if (!derivedAbility) throw new Error("No ability specified, and no default removal ability found in document flags!");
     const derivedType = type ?? (removalCheck ? "check" : removalSave ? "save" : null);
@@ -1629,7 +1616,9 @@ export default class DDBEffectHelper {
     } as unknown as Parameters<typeof ChatMessage.getSpeaker>[0]);
 
     const rollResult = derivedType === "check"
-      ? (await targetToken.actor.rollAbilityTest(derivedAbility, { speaker, flavor })).total
+      ? (await targetToken.actor.rollAbilityCheck({
+        ability: derivedAbility,
+      }, {}, { data: { speaker, flavor } }))[0].total
       : (await targetToken.actor.rollSavingThrow({
         ability: derivedAbility,
         target: derivedSaveDc,
@@ -1646,14 +1635,22 @@ export default class DDBEffectHelper {
     return rollResult;
   }
 
-  static async attemptConditionRemovalDialog(targetToken, condition, {
-    document = {},
+  static async attemptConditionRemovalDialog(targetToken: Token.Implementation, condition: any, {
+    document = null,
     activity = null,
     type = null, // can be save or check, if null, will check flags
     ability = null, // e.g. wis, if null, will check flags
     saveDC = null, // if null, will use activity if present, otherwise spelldc
     ask = true,
     checkConditionExists = true,
+  }: {
+    document?: Item.Implementation | null;
+    activity?: IRemovalActivity | null;
+    type?: string | null;
+    ability?: string | null;
+    saveDC?: number | null;
+    ask?: boolean;
+    checkConditionExists?: boolean;
   } = {}) {
     if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)
       && checkConditionExists)
@@ -1696,14 +1693,14 @@ export default class DDBEffectHelper {
     }
   }
 
-  static isEffectExpired(effect) {
-    if (game.modules.get("times-up")?.active && globalThis.TimesUp.isEffectExpired) {
-      return globalThis.TimesUp.isEffectExpired(effect);
+  static isEffectExpired(effect: any) {
+    if (game.modules.get("times-up")?.active && (globalThis as any).TimesUp.isEffectExpired) {
+      return (globalThis as any).TimesUp.isEffectExpired(effect);
     }
     return effect.duration.remaining <= 0;
   }
 
-  static async deleteEffectsByUuid({ effectsToDelete = [] } = {}) {
+  static async deleteEffectsByUuid({ effectsToDelete = [] as string[] } = {}) {
     for (const effectUuid of effectsToDelete) {
       const effect = await fromUuid(effectUuid);
       if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
@@ -1741,7 +1738,7 @@ export default class DDBEffectHelper {
 
   static FLAG_NAME = "ddbihelpers";
 
-  static getFlag(entity, flagId) {
+  static getFlag(entity: any, flagId: string) {
     if (!entity) return logger.error(`ddbeffecthelper getFlag: actor not defined`);
     let theActor;
     if (typeof entity === "string") {
@@ -1810,7 +1807,7 @@ export default class DDBEffectHelper {
     return actor.update({ [key]: null });
   }
 
-  static async setFlag(targetActor: Actor | foundry.canvas.placeables.Token | string, flagId: string, value: string | number | boolean) {
+  static async setFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorUuid: targetActor, flagId, value });
     } else if (typeof targetActor === "string") {
@@ -1828,7 +1825,7 @@ export default class DDBEffectHelper {
     });
   }
 
-  static async unsetFlag(targetActor: Actor | foundry.canvas.placeables.Token | string, flagId: string) {
+  static async unsetFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorUuid: targetActor, flagId });
     } else if (typeof targetActor === "string") {
@@ -1851,7 +1848,7 @@ export default class DDBEffectHelper {
    * @param {MidiQOL.Workflow} currentWorkflow The current midi-qol workflow.
    * @param {Array} damageTypes array of damage types to replace with
    */
-  static replaceActivityDamageMidi(currentWorkflow, damageTypes = []) {
+  static replaceActivityDamageMidi(currentWorkflow: any, damageTypes: any = []) {
     // Change temporarely the damage types of the activity, but make a temporary copy before applying changes
     // and keep the original values in a flag
     const currentActivity = currentWorkflow.activity;
@@ -1863,7 +1860,7 @@ export default class DDBEffectHelper {
       // Set in memory and recompute activity derived data
       foundry.utils.setProperty(currentWorkflow, "planarWarrior.origActivityDmgParts", origParts);
       const parts = foundry.utils.deepClone(currentActivity.damage.parts);
-      parts.forEach((d) => (d.types = new Set(damageTypes)));
+      parts.forEach((d: any) => (d.types = new Set(damageTypes)));
       currentActivity.damage.parts = parts;
       currentActivity.prepareData();
     }
@@ -1874,7 +1871,7 @@ export default class DDBEffectHelper {
    *
    * @param {MidiQOL.Workflow} currentWorkflow The current midi-qol workflow.
    */
-  static revertActivityDamageMidi(currentWorkflow) {
+  static revertActivityDamageMidi(currentWorkflow: any) {
     // Revert activity to original damage
     const origParts = foundry.utils.getProperty(currentWorkflow, "planarWarrior.origActivityDmgParts");
     if (!origParts || !currentWorkflow.activity?.damage?.parts) {

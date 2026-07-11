@@ -12,7 +12,7 @@ export interface DDBMonsterStartParams {
   search?: string;
   sources?: number[];
   excludedCategories?: number[];
-  monsterTypes?: string[];
+  monsterTypes?: number[];
   homebrew?: boolean;
   homebrewOnly?: boolean;
   excludeLegacy?: boolean;

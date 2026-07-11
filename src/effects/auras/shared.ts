@@ -32,7 +32,7 @@ function getSafeName(name: string) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
-export async function setBasicCombatFlag(actor: Actor, flagName: string, origin?: string) {
+export async function setBasicCombatFlag(actor: Actor | Actor.Implementation, flagName: string, origin?: string) {
   await DDBEffectHelper.setFlag(actor, flagName, {
     id: game.combat?.id ?? null,
     round: game.combat?.round ?? null,
@@ -411,7 +411,7 @@ export async function applyAuraToTemplate(returnArgs: any, {
   }
 
   if (isCantrip) {
-    const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
+    const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor as unknown as Actor);
     returnArgs[0].spellLevel = cantripDice;
     const newEffects = returnArgs[0].item.effects.map((effect: any) => {
       effect.system.changes = effect.system.changes.map((change: any) => {
