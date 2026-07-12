@@ -299,5 +299,10 @@ global {
     quickplayTilesPreserved: number;
   }
 
+  interface IAdventureMuncherOverrideById {
+    _id?: string;
+    folder?: string;
+  }
+  type IAdventureMuncherOverridesById = Map<string, IAdventureMuncherOverrideById>;
 
 }

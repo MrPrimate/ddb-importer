@@ -66,8 +66,8 @@ export default class DDBEncounter {
     const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-    const goodMonsterIds = [];
-    const missingMonsterIds = [];
+    const goodMonsterIds: { ddbId: number; name: string; id: string; quantity: number }[] = [];
+    const missingMonsterIds: { ddbId: number; quantity: number }[] = [];
     logger.debug("Parsing encounter", this.ddbEncounterData);
     this.ddbEncounterData.monsters.forEach((monster) => {
       const id = monster.id;
@@ -79,8 +79,8 @@ export default class DDBEncounter {
       }
     });
 
-    const goodCharacterData = [];
-    const missingCharacterData = [];
+    const goodCharacterData: { id: string; name: string; ddbId: number | string }[] = [];
+    const missingCharacterData: { ddbId: number | string; name: string }[] = [];
     this.ddbEncounterData.players
       .filter((character) => !character.hidden)
       .forEach((character) => {
@@ -147,7 +147,7 @@ export default class DDBEncounter {
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
     const compendiumName = CompendiumHelper.getCompendiumLabel("monster");
 
-    const monstersToAddToWorld = [];
+    const monstersToAddToWorld: IEncounterWorldMonsterData[] = [];
     this.data.monsterData = [];
     this.data.worldMonsters = [];
     const journalMonsterInfo = new Map();
@@ -169,7 +169,7 @@ export default class DDBEncounter {
         journalMonsterInfo.set(monsterData.ddbId, monsterData);
 
         for (let i = 0; i < monster.quantity; i++) {
-          const addData = foundry.utils.deepClone(monsterData);
+          const addData = foundry.utils.deepClone(monsterData) as IEncounterWorldMonsterData;
           addData.quantity = 1;
           addData.uniqueId = monster.uniqueId;
           addData.initiative = monster.initiative;
@@ -424,8 +424,8 @@ export default class DDBEncounter {
 
     if (!importDDBIScene && !useExistingScene) return undefined;
 
-    let sceneData;
-    let worldScene;
+    let sceneData: I5eSceneData;
+    let worldScene: Scene;
 
     if (importDDBIScene) {
       logger.debug(`Creating scene for encounter "${this.data.name}""`);
@@ -433,7 +433,7 @@ export default class DDBEncounter {
     } else if (useExistingScene) {
       worldScene = game.scenes.find((s) => s.id == this.sceneId);
       if (worldScene) {
-        sceneData = worldScene.toObject();
+        sceneData = worldScene.toObject() as unknown as I5eSceneData;
         logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.data.name}""`, { worldScene, sceneData });
       } else {
         logger.warn(`Unable to find scene ${this.sceneId}, creating a new scene `);
@@ -549,18 +549,18 @@ export default class DDBEncounter {
           logger.info(`Updating DDBI scene ${sceneData.name}`);
           sceneData._id = worldScene.id;
           await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
-          await worldScene.update(foundry.utils.mergeObject(worldScene.toObject(), sceneData));
+          await worldScene.update(foundry.utils.mergeObject(worldScene.toObject(), sceneData) as unknown as Scene.UpdateData);
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
           const existingSceneMonsterIds = worldScene.tokens
-            .filter((t) => t.flags?.ddbimporter?.encounterId == this.data.id && t.actor.type == "npc")
-            .map((t) => t.id);
+            .filter((t: any) => t.flags?.ddbimporter?.encounterId == this.data.id && t.actor.type == "npc")
+            .map((t: any) => t.id);
           await worldScene.deleteEmbeddedDocuments("Token", existingSceneMonsterIds);
         }
       } else if (importDDBIScene) {
         logger.info(`Importing scene ${sceneData.name}`);
         try {
-          worldScene = await Scene.create(sceneData);
+          worldScene = await Scene.create(sceneData as unknown as Scene.CreateData) as Scene;
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to create scene ${sceneData.name}`);
@@ -572,9 +572,9 @@ export default class DDBEncounter {
       thumbScene["thumb"] = thumbData.thumb;
 
       logger.debug("Creating tokenens on scene", tokenData);
-      worldScene = await worldScene.update(thumbScene, { keepId: true });
+      worldScene = await worldScene.update(thumbScene as unknown as Scene.UpdateData, { keepId: true } as any);
 
-      await worldScene.createEmbeddedDocuments("Token", tokenData);
+      await worldScene.createEmbeddedDocuments("Token", tokenData as any);
 
       this.scene = worldScene;
     }
@@ -602,24 +602,26 @@ export default class DDBEncounter {
     this.combat = await Combat.create({ scene: this.scene.id, flags: flags } as unknown as Combat.CreateInput) as Combat;
     await this.combat.activate();
 
-    const toCreate = [];
+    const toCreate: ICombatantData[] = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => foundry.utils.getProperty(t.document, "flags.ddbimporter.encounterId") == this.data.id || t.actor.type == "character");
+      .filter((t: any) => foundry.utils.getProperty(t.document, "flags.ddbimporter.encounterId") == this.data.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
-        const combatant: { tokenId: string; actorId: string; hidden: boolean; initiative?: number } = {
-          tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden,
+        const combatant: ICombatantData = {
+          tokenId: t.id,
+          actorId: t.document.actorId,
+          hidden: t.document.hidden,
         };
         const ddbInitiative = foundry.utils.getProperty(t.document, "flags.ddbimporter.dndbeyond.initiative") as number | undefined;
         if (useDDBSave && ddbInitiative) combatant.initiative = ddbInitiative;
         if (!t.inCombat) toCreate.push(combatant);
       });
-      const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate) as unknown as (Combatant & { initiative: number | null })[];
+      const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate as unknown as any) as unknown as Combatant.Known[];
 
       const rollMonsterInitiative = utils.getSetting<boolean>("encounter-import-policy-roll-monster-initiative");
       combatants
-        .filter((c) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
-        .forEach(async (c) => {
+        .filter((c: any) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
+        .forEach(async (c: any) => {
           if (c.initiative === null) await this.combat.rollInitiative(c.id);
         });
     }
@@ -627,7 +629,10 @@ export default class DDBEncounter {
     return this.combat;
   }
 
-  async importEncounter({ img = null, sceneId = null } = {}) {
+  async importEncounter({ img = null, sceneId = null }: {
+    img?: string;
+    sceneId?: string;
+  } = {}) {
     if (img) this.img = img;
     if (sceneId) this.sceneId = sceneId;
     await this.#importMonsters();

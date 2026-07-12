@@ -71,7 +71,7 @@ const URLS = {
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
 };
 
-const MUNCH_DEFAULTS: { name: string; needed: boolean }[] = [
+const MUNCH_DEFAULTS: IMuncherDefaultSetting[] = [
   { name: "munching-policy-update-existing", needed: true },
   { name: "munching-policy-use-inbuilt-icons", needed: true },
   { name: "munching-policy-use-srd-icons", needed: false },

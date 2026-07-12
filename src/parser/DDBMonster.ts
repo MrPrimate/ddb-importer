@@ -159,17 +159,17 @@ class DDBMonster {
   };
   overrides: IDDBMonsterOverrides;
 
-  setProperty(name, value) {
+  setProperty(name: string, value: any) {
     if (this.overrides["name"]) {
-      this[name] = this.overrides["name"];
+      (this as Record<string, any>)[name] = this.overrides["name"];
     } else {
-      this[name] = value;
+      (this as Record<string, any>)[name] = value;
     }
   }
 
-  constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
-    useCastActivity = null, forceRulesVersion = null } = {}, overrides: IDDBMonsterOverrides = {},
+  constructor(ddbObject: any = null, { existingNpc = null as any, extra = false, useItemAC = true,
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null as any,
+    useCastActivity = null as any, forceRulesVersion = null as any } = {}, overrides: IDDBMonsterOverrides = {},
   ) {
     this.source = ddbObject;
 

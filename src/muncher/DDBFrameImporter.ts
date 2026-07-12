@@ -143,7 +143,7 @@ export default class DDBFrameImporter {
     bar.style.width = `${pct}%`;
   }
 
-  static async parseFrames(notifier?: (props: NotifierV2Props) => void): Promise<number> {
+  static async parseFrames(notifier?: INotifierV2): Promise<number> {
     // Call both the v2 notifier (for the structured progress channel) AND
     // utils.munchNote (the legacy global-id jQuery helper) so the user sees
     // the name/progress text regardless of any v2 wiring issue.

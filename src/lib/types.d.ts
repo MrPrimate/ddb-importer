@@ -6,6 +6,33 @@ global {
 
   type TCompendiumTypes = typeof COMPENDIUM_LOOKUP[number]["type"];
 
+  type TDDBCompendiumSetting = typeof COMPENDIUMS[number];
+
+  interface IConfiguredCompendium {
+    setting: string;
+    title: string;
+    type: string;
+    auto: boolean;
+    settingValue: string;
+    pack: CompendiumCollection.Any | undefined;
+    comp: TDDBCompendiumSetting;
+  }
+
+  interface ISkippedCompendium extends IConfiguredCompendium {
+    reason: string;
+  }
+
+  interface IWorldCompendium extends Omit<IConfiguredCompendium, "pack"> {
+    pack: CompendiumCollection.Any;
+    isDefault: boolean;
+  }
+
+  interface IDeleteRecreateInfo {
+    worldCompendiums: IWorldCompendium[];
+    skippedCompendiums: ISkippedCompendium[];
+    nonDefaultCompendiums: IWorldCompendium[];
+  }
+
   interface IDDBImporterDebugLogEntry {
     level: string;
     message: string;

@@ -24,9 +24,6 @@ import { DDBReferenceLinker } from "../../../parser/lib/_module";
 const CONTENT_QUERY
   = "SELECT ID as id, CobaltID as cobaltId, ParentID as parentId, Slug as slug, Title as title, RenderedHTML as html FROM Content";
 
-/** Progress sink */
-type Notify = (props: NotifierV2Props) => void;
-
 /**
  * In-browser adventure importer - Phase 1 vertical slice (journals only).
  *
@@ -40,11 +37,11 @@ type Notify = (props: NotifierV2Props) => void;
  */
 export default class NativeAdventureMunch {
 
-  #notifier: Notify | null = null;
+  #notifier: INotifierV2 | null = null;
   #phaseIdx = 0;
   #phaseTotal = 0;
 
-  constructor({ notifier = null }: { notifier?: Notify | null } = {}) {
+  constructor({ notifier = null }: { notifier?: INotifierV2 | null } = {}) {
     this.#notifier = notifier ?? null;
   }
 

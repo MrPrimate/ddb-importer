@@ -29,6 +29,8 @@ global {
     progressBar?: "primary" | "secondary";
   }
 
+  type INotifierV2 = ((props: NotifierV2Props) => void);
+
   interface DDBApplicationPart extends foundry.applications.api.HandlebarsApplicationMixin.HandlebarsTemplatePart {
     container?: {
       id: string;

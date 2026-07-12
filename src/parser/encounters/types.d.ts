@@ -73,4 +73,11 @@ global {
     monsterData?: IEncounterWorldMonsterData[];
     worldMonsters?: IEncounterWorldMonsterData[];
   }
+
+  interface ICombatantData {
+    tokenId: string;
+    actorId: string;
+    hidden: boolean;
+    initiative?: number;
+  }
 }

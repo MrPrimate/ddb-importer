@@ -4,6 +4,9 @@ import DDBItemsImporter from "../DDBItemsImporter";
 import { SETTINGS } from "../../config/_module";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
+type TGameDataType = "scenes" | "actors" | "items" | "journal" | "tables" | "playlist" | "macros";
+type TEntityType = Scene | Actor | Item | JournalEntry | RollTable | Playlist | Macro;
+
 export default class AdventureMunchHelpers {
 
   /**
@@ -12,8 +15,8 @@ export default class AdventureMunchHelpers {
    * @param  {string} id Entity Id
    * @returns {object} Entity Object Data
    */
-  static findEntityByImportId(type, id) {
-    return game.data[type].find((item) => item._id === id);
+  static findEntityByImportId<T extends TEntityType = TEntityType>(type: TGameDataType, id: string): T | undefined {
+    return (game.data as Record<string, any>)[type].find((item: T) => item._id === id);
   }
 
   /**
@@ -24,9 +27,9 @@ export default class AdventureMunchHelpers {
    * @param {Function} asyncFn async function to run on each match
    * @returns {string}
    */
-  static async replaceAsync(str, regex, asyncFn) {
-    const promises = [];
-    str.replace(regex, (match, ...args) => {
+  static async replaceAsync(str: any, regex: any, asyncFn: any) {
+    const promises: any[] = [];
+    str.replace(regex, (match: any, ...args: any[]) => {
       const promise = asyncFn(match, ...args);
       promises.push(promise);
     });
@@ -40,8 +43,8 @@ export default class AdventureMunchHelpers {
    * @param  {object} obj2
    * @returns {object}
    */
-  static diff(obj1: object, obj2: object): object {
-    const result = {};
+  static diff(obj1: Record<string, any>, obj2: Record<string, any>): object {
+    const result: Record<string, any> = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
       if (Array.isArray(obj2[key]) && Array.isArray(obj1[key]))
@@ -58,11 +61,11 @@ export default class AdventureMunchHelpers {
    * @param   {string} string String to match on
    * @returns {Array}
    */
-  static reMatchAll(regexp, string) {
+  static reMatchAll(regexp: string | RegExp, string: any) {
     const matches = string.match(new RegExp(regexp, "gm"));
     if (matches) {
       let start = 0;
-      return matches.map((group0) => {
+      return matches.map((group0: any) => {
         const match = group0.match(regexp);
         match.index = string.indexOf(group0, start);
         start = match.index;
@@ -72,7 +75,7 @@ export default class AdventureMunchHelpers {
     return matches;
   }
 
-  static async loadMissingDocuments(type, docIds, notifierV2 = null) {
+  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 = null) {
     return new Promise((resolve) => {
       if (docIds && docIds.length > 0) {
         switch (type) {
@@ -136,7 +139,7 @@ export default class AdventureMunchHelpers {
     return compendiumIndex;
   }
 
-  static async getMissingIds(type: TCompendiumTypes, ids: (number | string)[]) {
+  static async getMissingIds(type: TCompendiumTypes, ids: (string | number)[]): Promise<number[]> {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
     return ids.filter((id) =>
@@ -144,15 +147,14 @@ export default class AdventureMunchHelpers {
         const v = foundry.utils.getProperty(i, flagPath);
         return v != null && String(v) === String(id);
       }),
-    );
+    ).map((i) => parseInt(String(i)));
   }
 
-  static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2 = null) {
+  static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2: INotifierV2 = null) {
     const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
     logger.debug(`${type} missing ids`, missingIds);
     const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
     logger.debug(`${type} missing`, missingDocuments);
-    return missingDocuments;
   }
 
   /**
@@ -206,7 +208,7 @@ export default class AdventureMunchHelpers {
   }
 
 
-  static async linkExistingActorTokens(tokens) {
+  static async linkExistingActorTokens(tokens: I5eTokenData[]): Promise<I5eTokenData[]> {
     const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
 
     const newTokens = tokens.map((token) => {
@@ -223,9 +225,9 @@ export default class AdventureMunchHelpers {
   }
 
   // check the document for version data and for update info to see if we can replace it
-  static extractDocumentVersionData(newDoc, existingDoc) {
+  static extractDocumentVersionData(newDoc: I5eSceneData, existingDoc: { flags: I5eSceneDataFlags }) {
     const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID).version;
-    if (!existingDoc) existingDoc = {};
+    if (!existingDoc) existingDoc = { flags : {}};
     // do we have versioned metadata?
     foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", {});
     if (newDoc?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate) {
@@ -247,13 +249,19 @@ export default class AdventureMunchHelpers {
       const oldAdventureMuncherVersion = existingDoc?.flags?.ddb?.versions?.adventureMuncher
         ? existingDoc.flags.ddb.versions.adventureMuncher
         : "0.3.0";
-      const oldVersions = { ddbImporter: oldDDBImporterVersion, ddbMetaData: oldDDBMetaDataVersions, adventureMuncher: oldAdventureMuncherVersion };
+      const oldVersions = {
+        ddbImporter: oldDDBImporterVersion,
+        ddbMetaData: oldDDBMetaDataVersions,
+        adventureMuncher: oldAdventureMuncherVersion,
+      };
 
       const documentVersions = newDoc.flags.ddb.versions;
-      const documentFoundryVersion = documentVersions["ddbMetaData"]["foundry"] !== undefined ? documentVersions["ddbMetaData"]["foundry"] : "0.8.9";
-      const importerVersionChanged = foundry.utils.isNewerVersion(ddbIVersion, oldVersions["ddbImporter"]);
-      const metaVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lastUpdate"], oldVersions["ddbMetaData"]["lastUpdate"]);
-      const muncherVersionChanged = foundry.utils.isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
+      const documentFoundryVersion = foundry.utils.getProperty(oldDDBMetaDataVersions, "foundry") as string ?? "0.8.9";
+      const importerVersionChanged = foundry.utils.isNewerVersion(ddbIVersion, documentFoundryVersion);
+      const metaVersionChanged = foundry.utils.isNewerVersion(oldDDBMetaDataVersions.lastUpdate, oldDDBMetaDataVersions.lastUpdate);
+
+      const adventureMuncherVersion = foundry.utils.getProperty(documentVersions, "adventureMuncher") as string;
+      const muncherVersionChanged = foundry.utils.isNewerVersion(adventureMuncherVersion, oldAdventureMuncherVersion);
       const foundryVersionNewer = foundry.utils.isNewerVersion(documentFoundryVersion, game.version);
 
       const versionUpdates = {
@@ -361,14 +369,17 @@ export default class AdventureMunchHelpers {
    *   overrides (e.g. `{ _id, folder }`) that take precedence over `folderId`
    * @returns {Promise<Array>} the imported/existing world actors
    */
-  static async importMonstersToWorld(ddbIds, { folderId = null, overridesById = null } = {}) {
+  static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null }: {
+    folderId?: string;
+    overridesById?: IAdventureMuncherOverridesById;
+  } = {}) {
     const compendium = CompendiumHelper.getCompendiumType("monster", false);
     if (!compendium) {
       logger.warn("AdventureMunchHelpers.importMonstersToWorld: no monster compendium available");
       return [];
     }
     const index = await AdventureMunchHelpers.getCompendiumIndex("monster");
-    const wanted = new Set(ddbIds.map((id) => String(id)));
+    const wanted = new Set(ddbIds.map((id: any) => String(id)));
     const results = [];
     for (const idx of index) {
       const ddbId = String(foundry.utils.getProperty(idx, "flags.ddbimporter.id") ?? "");
@@ -377,7 +388,7 @@ export default class AdventureMunchHelpers {
         (a) => String(foundry.utils.getProperty(a, "flags.ddbimporter.id") ?? "") === ddbId,
       );
       if (!worldActor) {
-        const override = overridesById?.get?.(ddbId) ?? overridesById?.get?.(Number(ddbId)) ?? {};
+        const override: IAdventureMuncherOverrideById = overridesById?.get?.(ddbId) ?? {};
         const overrides = { folder: folderId, ...override };
         try {
           worldActor = await game.actors.importFromCompendium(
@@ -461,7 +472,7 @@ export default class AdventureMunchHelpers {
   }: {
     adventureName: string;
     path: string;
-    content: Blob;
+    content: Blob | string;
     mimeType: string;
     misc: boolean;
   }): Promise<string> {

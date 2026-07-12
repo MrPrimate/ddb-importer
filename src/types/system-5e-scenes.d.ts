@@ -380,6 +380,33 @@ global {
     gridLevelId?: string | null;
   }
 
+  interface IDDBSceneFlagTokenDDBActorFlags {
+    id: number;
+    entityTypeId: number;
+    creatureGroupId: number | null;
+    version: string;
+    creatureFlags: string [];
+    isLegacy: boolean;
+    flatAC: boolean;
+    name: string;
+  }
+
+  interface IDDBSceneFlagTokenDDBItemFlags {
+    name: string;
+    type: TCompendiumTypes;
+    ddbId?: string | number;
+    customItem?: boolean;
+    data?: DeepPartial<I5eInventoryItem | I5eFeatItem>;
+  }
+  interface I5eSceneFlagToken extends Token5e {
+    flags: {
+      ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
+      ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
+      ddbActorEffects?: I5eEffectData[];
+      actorFolderId?: string;
+    };
+  }
+
   interface I5eSceneDDBFlags {
     ddbId?: number;
     cobaltId?: number | null;
@@ -390,9 +417,21 @@ global {
     source?: string;
     player?: boolean;
     imageFilename?: string | null;
-    tokens?: any[];
+    tokens?: I5eSceneFlagToken[];
     notes?: any[];
-    versions?: { ddbMetaData?: { lastUpdate?: string } } & Record<string, unknown>;
+    versions?: {
+      ddbMetaData?: {
+        lastUpdate?: string;
+        drawings?: string;
+        notes?: string;
+        tokens?: string;
+        walls?: string;
+        lights?: string;
+        foundry?: string;
+      };
+      adventureMuncher? : string;
+      ddbImporter?: string;
+    };
     oldVersions?: unknown;
     foundryVersion?: string;
     userData?: Record<string, {

@@ -24,6 +24,21 @@ interface IDDBAdventureMonsterData {
   name?: string;
 }
 
+interface INeededTokens {
+  name: string;
+  ddbId: string;
+  actorId: string;
+  compendiumId: string;
+  folderId: string;
+}
+
+type IFolderType = "JournalEntry" | "RollTable" | "Scene" | "Actor" | "Item" | "Macro";
+
+type IAdventureMuncherFolder = I5eFolderData & {
+  type: IFolderType;
+  parent?: string | null;
+};
+
 interface IDDBAdventureRequired {
   monsterData: IDDBAdventureMonsterData[];
   monsters: string[];
@@ -91,12 +106,12 @@ interface IAdventureMunchLookups {
 
 export default class AdventureMunch {
 
-  notifierV2?: (props: NotifierV2Props) => void;
+  notifierV2?: INotifierV2;
 
   raw: Record<string, IZipEntry[]>;
   temporary: IDDBAdventureMuncherTrackerData;
   _itemsToRevisit: string[];
-  folders: any[] | null;
+  folders: IAdventureMuncherFolder[] | null;
   zipEntries: IZipEntry[];
   importFile: File;
   importFilename: string;
@@ -131,7 +146,7 @@ export default class AdventureMunch {
     journalWorldActors?: boolean | null;
     addToCompendiums?: boolean | null;
     addToAdventureCompendium?: boolean | null;
-    notifierV2?: ((props: NotifierV2Props) => void) | null;
+    notifierV2?: INotifierV2 | null;
     use2024monsters?: boolean | null;
   } = {}) {
     this._itemsToRevisit = [];
@@ -193,11 +208,11 @@ export default class AdventureMunch {
     this.notifierV2 = notifierV2;
   }
 
-  findCompendiumEntityByImportId(type, id) {
-    return this.compendiums[type].index.find((item) => item._id === id);
+  findCompendiumEntityByImportId(type: "journal" | "table" | "monster", id: string) {
+    return this.compendiums[type].index.find((item: TIndexEntry) => item._id === id);
   }
 
-  replaceUUIDSForCompendium(text) {
+  replaceUUIDSForCompendium(text: string) {
     const journalRegex = /@UUID\[JournalEntry/g;
     text = text.replaceAll(journalRegex, `@UUID[Compendium.${this.compendiums.journal.metadata.id}.JournalEntry`);
     const tableRegex = /@UUID\[RollTable/g;
@@ -224,7 +239,7 @@ export default class AdventureMunch {
    *   fullUploadPath: the full path to the file
    *   forcingWebp: whether the .webp extension was added
    */
-  getImportFilePaths(path, misc) {
+  getImportFilePaths(path: string, misc: any) {
     return AdventureMunchHelpers.getImportFilePaths({ adventureName: this.adventure.name, path, misc });
   }
 
@@ -287,12 +302,12 @@ export default class AdventureMunch {
   }
 
 
-  async importFolder(folders, folderList) {
+  async importFolder(folders: IAdventureMuncherFolder[], folderList: IAdventureMuncherFolder[]) {
     // console.warn("Creating Folders", {
     //   folders,
     //   folderList,
     // });
-    await utils.asyncForEach(folders, async (f) => {
+    await utils.asyncForEach(folders, async (f: IAdventureMuncherFolder) => {
       const folderData = f;
 
       const existingFolder = game.folders.find((folder) =>
@@ -307,7 +322,7 @@ export default class AdventureMunch {
         // this.lookups.folders[folderData.flags.importid] = existingFolder._id;
       } else {
         if (folderData.parent) folderData.folder = folderData.parent;
-        const newFolder = await Folder.create(folderData, { keepId: true }) as unknown as Folder.Implementation;
+        const newFolder = await Folder.create(folderData as unknown as Folder.CreateData, { keepId: true }) as unknown as Folder.Implementation;
         this.temporary.folder.push(newFolder);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
@@ -323,8 +338,8 @@ export default class AdventureMunch {
     });
   }
 
-  async importCompendiumFolder(folders, folderList) {
-    await utils.asyncForEach(folders, async (f) => {
+  async importCompendiumFolder(folders: IAdventureMuncherFolder[], folderList: IAdventureMuncherFolder[]) {
+    await utils.asyncForEach(folders, async (f: IAdventureMuncherFolder) => {
       const folderData = f;
       const supportedFolders = ["JournalEntry", "RollTable"];
       if (supportedFolders.includes(folderData.type)) {
@@ -340,7 +355,7 @@ export default class AdventureMunch {
           } else {
             folderData.parent = this.lookups.folders[folderData.parent];
           }
-          newFolder = await Folder.create(folderData, { keepId: true, pack: pack.metadata.id }) as unknown as typeof newFolder;
+          newFolder = await Folder.create(folderData as unknown as Folder.CreateData, { keepId: true, pack: pack.metadata.id }) as unknown as typeof newFolder;
           logger.debug(`Created new compendium folder ${newFolder._id} with data:`, folderData, newFolder);
         }
         this.lookups.folders[folderData.flags.importid] = newFolder._id;
@@ -447,7 +462,7 @@ export default class AdventureMunch {
     const scenes = this.temporary?.scene ?? [];
     if (scenes.length === 0) return [];
 
-    const getDimensions = async (src) => {
+    const getDimensions = async (src: string) => {
       const blob = await fetchBackgroundBlob(src);
       return readBitmapDimensions(blob);
     };
@@ -545,8 +560,8 @@ export default class AdventureMunch {
       { key: "macros", label: "Macros", icon: "fa-solid fa-code" },
       { key: "folders", label: "Folders", icon: "fa-solid fa-folder" },
     ]
-      .filter((entry) => this.temporary[entry.key]?.length > 0)
-      .map((entry) => `<li><i class="${entry.icon}"></i> ${this.temporary[entry.key].length} ${entry.label}</li>`)
+      .filter((entry) => (foundry.utils.getProperty(this.temporary, entry.key) as any[])?.length > 0)
+      .map((entry) => `<li><i class="${entry.icon}"></i> ${(foundry.utils.getProperty(this.temporary, entry.key) as any[]).length} ${entry.label}</li>`)
       .join("");
 
     foundry.applications.api.DialogV2.prompt({
@@ -567,11 +582,11 @@ export default class AdventureMunch {
    * @param  {string} uuid Item id or uuid
    * @returns {object} Document
    */
-  fetchTemporaryItem(uuid) {
+  fetchTemporaryItem(uuid: string) {
     const id = uuid.split(".").pop();
     for (const [key, itemArray] of Object.entries(this.temporary)) {
       logger.debug(`Checking temporary ${key} for ${uuid}`, itemArray);
-      const match = itemArray.find((i) => i._id === id);
+      const match = itemArray.find((i: TIndexEntry) => i._id === id);
       if (match) {
         logger.debug(`Found ${key} match for ${uuid}`, match);
         return match;
@@ -581,14 +596,14 @@ export default class AdventureMunch {
   }
 
 
-  async _getTokenUpdateData(worldActor, sceneToken) {
+  async _getTokenUpdateData(worldActor: Actor.Known, sceneToken: I5eSceneFlagToken) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
     for (const item of ddbItems) {
       if (item.customItem) {
         items.push(item.data);
       } else {
-        const ddbId = foundry.utils.getProperty(item, "ddbId");
+        const ddbId = foundry.utils.getProperty(item, "ddbId") as number;
         if (Number.isInteger(ddbId)) {
           // fetch ddbItem
           const compendium = CompendiumHelper.getCompendiumType(item.type);
@@ -629,22 +644,23 @@ export default class AdventureMunch {
     }
 
     if (sceneToken.delta?.effects) {
-      for (const effect of sceneToken.delta.effects as Record<string, any>[]) {
-        if (effect.label) {
-          effect.name = effect.label;
-          delete effect.label;
+      for (const effect of sceneToken.delta.effects as I5eEffectData[]) {
+        // migration from older versions of Foundry
+        if ((effect as any).label) {
+          effect.name = (effect as any).label;
+          delete (effect as any).label;
         }
-        if (effect.icon) {
-          effect.img = effect.icon;
-          delete effect.icon;
+        if ((effect as any).icon) {
+          effect.img = (effect as any).icon;
+          delete (effect as any).icon;
         }
         if (foundry.utils.hasProperty(effect, "flags.core.statusId")) {
           const condition = CONFIG.statusEffects.find((c) => c.id === effect.flags.core.statusId)
             ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId as string));
           if (!condition) continue;
-          (effect as Record<string, any>).id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
-          if (!(effect as Record<string, any>).statuses) (effect as Record<string, any>).statuses = [];
-          (effect as Record<string, any>).statuses.push(condition.id);
+          effect.id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
+          if (!effect.statuses) effect.statuses = [];
+          effect.statuses.push(condition.id);
           delete effect.flags.core.statusId;
         }
       }
@@ -677,7 +693,7 @@ export default class AdventureMunch {
     let result;
     try {
       logger.debug(`Creating token data for ${sceneToken.name} for id ${sceneToken.actorId}`, { updateData, worldActorUUID: worldActor.uuid });
-      const tokenData = await worldActor.getTokenDocument(updateData);
+      const tokenData = await worldActor.getTokenDocument(updateData as any);
 
       logger.debug(`${sceneToken.name} token data for id ${sceneToken.actorId}`, { tokenData, updateData, worldActorUUID: worldActor.uuid });
       result = tokenData.toObject();
@@ -689,15 +705,15 @@ export default class AdventureMunch {
     return result;
   }
 
-  async _getSceneTokens(scene, tokens) {
+  async _getSceneTokens(scene: Scene, tokens: any) {
     const tokenResults = [];
     const deadTokens = [];
 
     for (const token of tokens) {
       if (token.actorId && !token.actorLink) {
         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === foundry.utils.getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
-        delete sceneToken.scale;
-        const worldActor = game.actors.get(token.actorId);
+        delete (sceneToken as any).scale;
+        const worldActor = game.actors.get(token.actorId) as Actor.Known;
         if (worldActor) {
           const updateData = await this._getTokenUpdateData(worldActor, sceneToken);
           updateData.hidden = true;
@@ -718,9 +734,9 @@ export default class AdventureMunch {
   }
 
 
-  async _revisitScene(document) {
-    const updatedData = {};
-    const scene = foundry.utils.duplicate(document);
+  async _revisitScene(document: Scene) {
+    const updatedData: Scene.UpdateData = {};
+    const scene = foundry.utils.duplicate(document) as unknown as I5eSceneData;
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
 
@@ -755,7 +771,7 @@ export default class AdventureMunch {
             for (const document of loadedDocs) {
               switch (document.documentName) {
                 case "Scene": {
-                  await this._revisitScene(document);
+                  await this._revisitScene(document as Scene);
                   break;
                 }
                 // no default
@@ -803,7 +819,7 @@ export default class AdventureMunch {
     }
   }
 
-  async getZipFile(fileName) {
+  async getZipFile(fileName: string) {
     const file = this.zipEntries.find((entry) => {
       return entry.filename === fileName;
     });
@@ -813,7 +829,7 @@ export default class AdventureMunch {
     return data;
   }
 
-  async _getTextFileFromZip(filename) {
+  async _getTextFileFromZip(filename: string) {
     const raw = await this.getZipFile(filename);
     if (raw) {
       return raw.text();
@@ -823,7 +839,7 @@ export default class AdventureMunch {
     }
   }
 
-  folderExistsInZip(folder) {
+  folderExistsInZip(folder: string) {
     return this.zipEntries.some((entry) => {
       return entry.directory && entry.filename.toLowerCase().includes(folder);
     });
@@ -834,7 +850,7 @@ export default class AdventureMunch {
 
     logger.info(`Selecting Scenes for ${this.adventure.name} - (${dataFiles.length} possible scenes for import)`);
 
-    const fileData = [];
+    const fileData: I5eSceneData[] = [];
 
     await utils.asyncForEach(dataFiles, async (file) => {
       const raw = await this._getTextFileFromZip(file.filename);
@@ -913,9 +929,10 @@ export default class AdventureMunch {
       if (this.addToCompendiums) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
         await createDDBCompendium(compData);
-        for (const key of Object.keys(this.compendiums)) {
-          this.compendiums[key] = CompendiumHelper.getCompendiumType(key as TCompendiumTypes);
-          await this.compendiums[key].getIndex({ fields: ["name", "flags.ddbimporter.id", "system.source.rules"] });
+        const compendiums = this.compendiums;
+        for (const key of Object.keys(compendiums)) {
+          compendiums[key] = CompendiumHelper.getCompendiumType(key as TCompendiumTypes);
+          await compendiums[key].getIndex({ fields: ["name", "flags.ddbimporter.id", "system.source.rules"] });
         }
       }
 
@@ -981,14 +998,14 @@ export default class AdventureMunch {
 
   /**
    * Import actors from compendium into world
-   * @param {Array<Objects>} neededActors array of needed actors
+   * @param {Array<Actor.Implementation>} neededActors array of needed actors
    * @returns {Promise<Array>} array of world actors
    */
-  async ensureWorldActors(neededActors) {
+  async ensureWorldActors(neededActors: INeededTokens[]): Promise<Actor.Implementation[]> {
     logger.debug("Trying to import actors from compendium", neededActors);
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as unknown as CompendiumCollection<"Actor">;
-    const results = [];
-    await utils.asyncForEach(neededActors, async (actor) => {
+    const results: Actor.Implementation[] = [];
+    await utils.asyncForEach(neededActors, async (actor: INeededTokens) => {
       let worldActor = game.actors.get(actor.actorId) as Actor.Implementation;
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
@@ -1010,7 +1027,7 @@ export default class AdventureMunch {
     return results;
   }
 
-  static async linkDDBActors(tokens) {
+  static async linkDDBActors(tokens: I5eTokenData[]) {
     const linkedExistingTokens = await AdventureMunchHelpers.linkExistingActorTokens(tokens);
     const newTokens = linkedExistingTokens
       .filter((token) => token.flags.ddbActorFlags?.id && token.flags.compendiumActorId);
@@ -1023,7 +1040,7 @@ export default class AdventureMunch {
    * @param {object} data array of actor data objects
    * @returns {Promise<Array>} array of world actors
    */
-  async importRemainingActors(data) {
+  async importRemainingActors(data: IDDBAdventureMonsterData[]) {
     logger.debug("Checking for the following actors in world", data);
     // Per-actor import target: the manifest pins each actor's world _id + folder.
     const overridesById = new Map(
@@ -1034,7 +1051,7 @@ export default class AdventureMunch {
       { overridesById },
     ) as Actor.Implementation[];
     for (const worldActor of results) {
-      if (!this.temporary.actor.some((a) => (worldActor.flags as Record<string, any>).ddbimporter.id == (a.flags as Record<string, any>).ddbimporter.id)) {
+      if (!this.temporary.actor.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actor.push(worldActor);
       }
     }
@@ -1046,10 +1063,10 @@ export default class AdventureMunch {
    * @param {object} scene the scene to generate actors for
    * @returns {Promise<Array>} array of world actors
    */
-  async generateTokenActors(scene) {
+  async generateTokenActors(scene: I5eSceneData) {
     logger.debug(`Token Actor generation for ${scene.name} starting`);
     const tokens = await AdventureMunch.linkDDBActors(scene.tokens);
-    const neededActors = tokens
+    const neededActors: INeededTokens[] = tokens
       .map((token) => {
         return {
           name: token.name,
@@ -1069,7 +1086,8 @@ export default class AdventureMunch {
     return results;
   }
 
-  static _migrateSceneDataToV14(data) {
+  // this should be an I5eSceneData type, but we would need to model all the old fields.
+  static _migrateSceneDataToV14(data: any) {
     // Already in v14 levels shape. The adventure muncher / proxy meta-data can
     // still ship a deprecated top-level `background` block alongside the levels
     // array (it doesn't understand levels, so it never populates the level
@@ -1078,7 +1096,7 @@ export default class AdventureMunch {
     if (data.levels?.length) {
       const stray = data.background ?? {};
       if (stray.src || data.backgroundColor) {
-        const defaultLevel = data.levels.find((l) => l._id === DEFAULT_LEVEL_ID) ?? data.levels[0];
+        const defaultLevel = data.levels.find((l: any) => l._id === DEFAULT_LEVEL_ID) ?? data.levels[0];
         if (defaultLevel) {
           defaultLevel.background ??= {};
           // Only fill what the level is missing; never clobber a level that
@@ -1193,7 +1211,8 @@ export default class AdventureMunch {
     return data;
   }
 
-  static _drawingFixes(drawing) {
+  // this should be the drawing data type but we would need to model old fields for migration
+  static _drawingFixes(drawing: any) {
     if (!foundry.utils.hasProperty(drawing, "interface"))
       drawing.interface = true;
     if (!foundry.utils.hasProperty(drawing, "levels"))
@@ -1203,7 +1222,7 @@ export default class AdventureMunch {
       // knows r/c/e/p; the old freehand ("f") and text ("t") types must be
       // translated or they fall through to a 0x0 rectangle that fails
       // V14's drawing validation.
-      const LEGACY_SHAPE_TYPE_MAP = {
+      const LEGACY_SHAPE_TYPE_MAP: Record<string, string> = {
         r: "r",
         c: "c",
         e: "e",
@@ -1212,7 +1231,7 @@ export default class AdventureMunch {
         t: "r", // text drawing
       };
       const type = LEGACY_SHAPE_TYPE_MAP[drawing.type] ?? "r";
-      const migratePoints = (t) => Array.isArray(t.points) ? t.points.flat() : t.points;
+      const migratePoints = (t: any) => Array.isArray(t.points) ? t.points.flat() : t.points;
       const points = migratePoints(drawing);
       drawing.shape = {
         type: type,
@@ -1252,7 +1271,8 @@ export default class AdventureMunch {
     return drawing;
   }
 
-  async _loadDocumentAssets(data, importType) {
+  // need to be able to model the variety of adventure muncher data types that have migration elements
+  async _loadDocumentAssets(data: any, importType: string) {
 
     data.flags.importid = data._id;
 
@@ -1379,15 +1399,15 @@ export default class AdventureMunch {
       name: this.adventure.name,
       description: this.adventure.description,
       folders: this.temporary.folder.map((doc) => doc.toObject()),
-      combats: [],
+      combats: [] as any[],
       items: itemData.concat(spellData).map((doc) => doc.toObject()),
       actors: this.temporary.actor.map((doc) => doc.toObject()),
       journal: this.temporary.journal.map((doc) => doc.toObject()),
       scenes: this.temporary.scene.map((doc) => doc.toObject()),
       tables: this.temporary.table.map((doc) => doc.toObject()),
-      macros: [],
-      cards: [],
-      playlists: [],
+      macros: [] as any[],
+      cards: [] as any[],
+      playlists: [] as any[],
       flags: {
         ddbimporter: {
           isDDBAdventure: true,
@@ -1403,7 +1423,7 @@ export default class AdventureMunch {
     return data;
   }
 
-  async _getCompendiumAdventure(adventureData) {
+  async _getCompendiumAdventure(adventureData: any) {
     const existingAdventure = this._pack.index.find((i) => i.name === adventureData.name);
     if (existingAdventure) {
       return existingAdventure;
@@ -1422,7 +1442,7 @@ export default class AdventureMunch {
   }
 
 
-  async _importAdventureCompendium(adventureData) {
+  async _importAdventureCompendium(adventureData: any) {
     try {
       this._pack = CompendiumHelper.getCompendiumType("adventure") as unknown as CompendiumCollection<"Adventure">;
       const existingAdventure = await this._getCompendiumAdventure(adventureData);
@@ -1485,7 +1505,7 @@ export default class AdventureMunch {
       // Preserve existing snip configurations before overwriting
       let preservedSnips: ReturnType<typeof SceneSnipProcessor.getSnips> = [];
       if (overwriteEntity) {
-        const existingScene = AdventureMunchHelpers.findEntityByImportId("scenes", data._id) as Scene | undefined;
+        const existingScene = AdventureMunchHelpers.findEntityByImportId<Scene>("scenes", data._id);
         if (existingScene) {
           preservedSnips = SceneSnipProcessor.getSnips(existingScene as Scene);
         }
@@ -1515,7 +1535,7 @@ export default class AdventureMunch {
   }
 
 
-  async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
+  async _importRenderedFile(typeName: string, data: any, needRevisit: any, overwriteIds: string[]) {
     const overwriteEntity = overwriteIds.includes(data._id);
     const options = { keepId: true, keepEmbeddedIds: true };
     switch (typeName) {
@@ -1533,7 +1553,7 @@ export default class AdventureMunch {
         break;
       }
       case "Actor":
-        if (!AdventureMunchHelpers.findEntityByImportId("actors", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId<Actor>("actors", data._id)) {
           const actor = await Actor.create(data, options) as Actor.Implementation;
           await actor.update({ [`prototypeToken.actorId`]: actor.id } as any);
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
@@ -1541,7 +1561,7 @@ export default class AdventureMunch {
         }
         break;
       case "Item":
-        if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId<Item>("items", data._id)) {
           const item = await Item.create(data, options) as Item.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
           this.temporary.item.push(item);
@@ -1549,14 +1569,14 @@ export default class AdventureMunch {
         break;
       case "JournalEntry":
         foundry.utils.setProperty(data, "flags.core.sheetClass", "ddb-importer.DDBJournalSheet");
-        if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId<JournalEntry>("journal", data._id)) {
           const journal = await JournalEntry.create(data, options) as JournalEntry.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           this.temporary.journal.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
-          data.pages.forEach((page) => {
+          data.pages.forEach((page: any) => {
             if (page.type == "text") {
               page.text.content = this.replaceUUIDSForCompendium(page.text.content);
             }
@@ -1566,7 +1586,7 @@ export default class AdventureMunch {
         }
         break;
       case "RollTable":
-        if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId<RollTable>("tables", data._id)) {
           const rolltable = await RollTable.create(data, options) as RollTable.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           this.temporary.table.push(rolltable);
@@ -1578,7 +1598,7 @@ export default class AdventureMunch {
         }
         break;
       case "Playlist":
-        if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId<Playlist>("playlist", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
           const playlist = await Playlist.create(data, options) as Playlist.Implementation;
           this.temporary.playlist.push(playlist);
@@ -1595,13 +1615,13 @@ export default class AdventureMunch {
     }
   }
 
-  async _checkForDataUpdates(type) {
+  async _checkForDataUpdates(type: any) {
     const importType = AdventureMunchHelpers.getImportType(type);
     const dataFiles = this.raw[type];
 
     logger.info(`Checking ${this.adventure.name} - ${importType} (${dataFiles.length} for updates)`);
 
-    const fileData = [];
+    const fileData: I5eSceneData[] = [];
     let hasVersions = false;
 
     await utils.asyncForEach(dataFiles, async (file) => {
@@ -1714,7 +1734,8 @@ export default class AdventureMunch {
     }
   }
 
-  async _importTokenImage(tokenType, data, { img = false, texture = true } = {}) {
+  // right now this is only used for actors, which none of the adv muncher native files produce
+  async _importTokenImage(tokenType: string, data: any, { img = false, texture = true } = {}) {
     if (data[tokenType]?.randomImg) {
       const imgFilepaths = data[tokenType].img.split("/");
       const imgFilename = imgFilepaths.reverse()[0];
@@ -1757,9 +1778,9 @@ export default class AdventureMunch {
     return data;
   }
 
-  _updateSceneTokensWithNewMonsters(scene) {
+  _updateSceneTokensWithNewMonsters(scene: I5eSceneData) {
     logger.debug(`Updating Scene Tokens (${scene.tokens.length}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
-    scene.tokens = scene.tokens.map((token) => {
+    scene.tokens = scene.tokens.map((token: any) => {
       const ddbId = token.flags?.ddbActorFlags?.id;
       const name = token.flags?.ddbActorFlags?.name;
       const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
@@ -1775,7 +1796,7 @@ export default class AdventureMunch {
     logger.info(`Updated Scene Tokens for ${scene.name}`, scene.tokens);
   }
 
-  async _importFile(type, { overwriteIds = [] } = {}) {
+  async _importFile(type: string, { overwriteIds = [] as string[] } = {}) {
     let totalCount = 0;
     let currentCount = 0;
 
@@ -1829,11 +1850,11 @@ export default class AdventureMunch {
    * @param {string} text HTML text to act on
    * @returns {string} HTML with modified links
    */
-  foundryCompendiumReplace(text) {
+  foundryCompendiumReplace(text: string) {
     return CompendiumLinkReplacer.foundryCompendiumReplace(text, this._linkReplaceOptions());
   }
 
-  _updateProgress(total, count, type) {
+  _updateProgress(total: number, count: number, type: any) {
     this.notifierV2?.({
       progress: { current: count, total },
       section: "import",
@@ -1842,7 +1863,7 @@ export default class AdventureMunch {
     });
   }
 
-  _progressNote(note) {
+  _progressNote(note: any) {
     this.notifierV2?.({ section: "note", message: note });
   }
 }

@@ -15,7 +15,7 @@ interface IDDBItemImporterOptions {
   useCompendiumFolders?: boolean | null;
   recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-  notifierV2?: (props: NotifierV2Props) => void;
+  notifierV2?: INotifierV2;
 }
 
 interface IDDBItemImporterLoadPassedItemsFromCompendiumOptions extends IDDBItemImporterGetCompendiumItemsOptions {
@@ -73,7 +73,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-  notifierV2: ((props: NotifierV2Props) => void) | null;
+  notifierV2: INotifierV2 | null;
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;

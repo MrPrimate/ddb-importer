@@ -99,7 +99,7 @@ interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
   extra?: boolean;
   notifier?: (note: any, options?: NotifierV1Props) => void;
-  notifierV2?: (props: NotifierV2Props) => void;
+  notifierV2?: INotifierV2;
   type?: TMonsterImporterTypes;
   forceUpdate?: boolean | null;
   useLocalKey?: boolean | null;
@@ -137,7 +137,7 @@ export default class DDBMonsterFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-  notifierV2: ((props: NotifierV2Props) => void) | null;
+  notifierV2: INotifierV2 | null;
   type: TMonsterImporterTypes;
   compendiumFolders: DDBCompendiumFolders;
   update: boolean;

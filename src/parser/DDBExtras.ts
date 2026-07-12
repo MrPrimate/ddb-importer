@@ -82,7 +82,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   return extra;
 }
 
-function generateArtificerDamageEffect(actor, extra): I5eEffectData {
+function generateArtificerDamageEffect(actor: Actor.OfType<"character">, extra: I5eMonsterData): I5eMonsterData {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
@@ -116,7 +116,13 @@ function generateArtificerDamageEffect(actor, extra): I5eEffectData {
   return extra;
 }
 
-const creatureGroupMatrix = [
+interface ICreatureGroupMember {
+  id: number;
+  name: string;
+  animation: string;
+}
+
+const creatureGroupMatrix: ICreatureGroupMember[] = [
   {
     id: 1,
     name: "Wildshape",
@@ -169,7 +175,7 @@ const creatureGroupMatrix = [
   },
 ];
 
-function getCreatureAnimationType(name, creatureGroup) {
+function getCreatureAnimationType(name: string, creatureGroup: ICreatureGroupMember): string {
   // "fire":
   // "air":
   // "lightning":
@@ -181,7 +187,8 @@ function getCreatureAnimationType(name, creatureGroup) {
   // "fourelements":
   const checkName = name.toLowerCase();
   let animation = "magic1";
-  switch (name) {
+  // switch on true so the includes() cases actually match (was switch(name), which never matched)
+  switch (true) {
     case checkName.includes("flame"):
     case checkName.includes("fire"):
       animation = "fire";
@@ -217,17 +224,17 @@ function getCreatureAnimationType(name, creatureGroup) {
   return animation;
 }
 
-function setExtraMunchDefaults() {
-  const munchSettings = [];
+function setExtraMunchDefaults(): IMuncherDefaultSetting[] {
+  const munchSettings: IMuncherDefaultSetting[] = [];
 
   SETTINGS.MUNCH_DEFAULTS.forEach((setting) => {
     logger.debug(`Loading extras munch settings ${setting.name}`);
-    setting["chosen"] = utils.getSetting<string>(setting.name);
+    setting.chosen = utils.getSetting<string>(setting.name);
     munchSettings.push(setting);
   });
 
   munchSettings.forEach((setting) => {
-    game.settings.set("ddb-importer", setting.name, setting.needed);
+    utils.setSetting(setting.name, setting.needed);
   });
 
   return munchSettings;
