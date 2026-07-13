@@ -1,3 +1,5 @@
+import TokenDocument5e from "dnd5e/dnd5e/module/documents/token.d.mts";
+
 export {};
 
 global {
@@ -389,6 +391,11 @@ global {
     isLegacy: boolean;
     flatAC: boolean;
     name: string;
+    keepToken?: boolean;
+    tokenImage?: string | null;
+    keepAvatar?: boolean;
+    avatarImage?: string | null;
+    tokenLinkId?: string;
   }
 
   interface IDDBSceneFlagTokenDDBItemFlags {
@@ -398,13 +405,15 @@ global {
     customItem?: boolean;
     data?: DeepPartial<I5eInventoryItem | I5eFeatItem>;
   }
-  interface I5eSceneFlagToken extends Token5e {
+  interface I5eSceneFlagToken extends TokenDocument5e {
     flags: {
       ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
       ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
       ddbActorEffects?: I5eEffectData[];
       actorFolderId?: string;
     };
+    // delta?: ActorDelta | null;
+    // actorId: string;
   }
 
   interface I5eSceneDDBFlags {
