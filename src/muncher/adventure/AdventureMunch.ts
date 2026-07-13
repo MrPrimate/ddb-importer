@@ -17,13 +17,6 @@ import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
-interface IDDBAdventureMonsterData {
-  actorId: string;
-  ddbId: number;
-  folderId: string;
-  name?: string;
-}
-
 interface INeededTokens {
   name: string;
   ddbId: string;
@@ -38,33 +31,6 @@ type IAdventureMuncherFolder = I5eFolderData & {
   type: IFolderType;
   parent?: string | null;
 };
-
-interface IDDBAdventureRequired {
-  monsterData: IDDBAdventureMonsterData[];
-  monsters: string[];
-  items: string[];
-  spells: string[];
-  vehicles: string[];
-  skills: string[];
-  senses: string[];
-  conditions: string[];
-  actions: string[];
-  weaponproperties: string[];
-}
-
-interface IDDBAdventure {
-  id: string;
-  name: string;
-  description: string;
-  system: string;
-  modules: string[];
-  version: number | string;
-  options: {
-    folders: boolean;
-  };
-  required: IDDBAdventureRequired;
-  folderColour: string;
-}
 
 interface IDDBAdventureMuncherTrackerData {
   scene: Scene.Implementation[];
@@ -929,11 +895,16 @@ export default class AdventureMunch {
       if (this.addToCompendiums) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
         await createDDBCompendium(compData);
-        const compendiums = this.compendiums;
-        for (const key of Object.keys(compendiums)) {
-          compendiums[key] = CompendiumHelper.getCompendiumType(key as TCompendiumTypes);
-          await compendiums[key].getIndex({ fields: ["name", "flags.ddbimporter.id", "system.source.rules"] });
-        }
+        const indexFields = { fields: ["name", "flags.ddbimporter.id", "system.source.rules"] };
+
+        this.compendiums.journal = CompendiumHelper.getCompendiumType("journal") as CompendiumCollection<"JournalEntry">;
+        await this.compendiums.journal.getIndex(indexFields);
+
+        this.compendiums.table = CompendiumHelper.getCompendiumType("table") as CompendiumCollection<"RollTable">;
+        await this.compendiums.table.getIndex(indexFields);
+
+        this.compendiums.monster = CompendiumHelper.getCompendiumType("monster") as CompendiumCollection<"Actor">;
+        await this.compendiums.monster.getIndex(indexFields);
       }
 
       await this._unpackZip();
@@ -1381,7 +1352,7 @@ export default class AdventureMunch {
   }
 
 
-  async _createAdventure() {
+  async _createAdventure(): Promise<I5eAdventureData> {
     logger.debug("Packing up adventure");
     if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData);
     const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true) as Item.Implementation[];
@@ -1442,7 +1413,7 @@ export default class AdventureMunch {
   }
 
 
-  async _importAdventureCompendium(adventureData: any) {
+  async _importAdventureCompendium(adventureData: I5eAdventureData) {
     try {
       this._pack = CompendiumHelper.getCompendiumType("adventure") as unknown as CompendiumCollection<"Adventure">;
       const existingAdventure = await this._getCompendiumAdventure(adventureData);
