@@ -249,7 +249,7 @@ export default class AdventureMunchHelpers {
       const oldAdventureMuncherVersion = existingDoc?.flags?.ddb?.versions?.adventureMuncher
         ? existingDoc.flags.ddb.versions.adventureMuncher
         : "0.3.0";
-      const oldVersions = {
+      const oldVersions: I5eSceneDDBFlagsOldVersions = {
         ddbImporter: oldDDBImporterVersion,
         ddbMetaData: oldDDBMetaDataVersions,
         adventureMuncher: oldAdventureMuncherVersion,
@@ -264,7 +264,7 @@ export default class AdventureMunchHelpers {
       const muncherVersionChanged = foundry.utils.isNewerVersion(adventureMuncherVersion, oldAdventureMuncherVersion);
       const foundryVersionNewer = foundry.utils.isNewerVersion(documentFoundryVersion, game.version);
 
-      const versionUpdates = {
+      const versionUpdates: IDDBFlagsVersionUpdates = {
         importerVersionChanged: importerVersionChanged,
         metaVersionChanged: metaVersionChanged,
         muncherVersionChanged: muncherVersionChanged,

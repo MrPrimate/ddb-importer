@@ -175,7 +175,8 @@ export default class AdventureMunch {
   }
 
   findCompendiumEntityByImportId(type: "journal" | "table" | "monster", id: string) {
-    return this.compendiums[type].index.find((item: TIndexEntry) => item._id === id);
+    const index = this.compendiums[type]?.index as foundry.utils.Collection<TIndexEntry> | undefined;
+    return index?.find((item: TIndexEntry) => item._id === id);
   }
 
   replaceUUIDSForCompendium(text: string) {
@@ -307,8 +308,7 @@ export default class AdventureMunch {
   async importCompendiumFolder(folders: IAdventureMuncherFolder[], folderList: IAdventureMuncherFolder[]) {
     await utils.asyncForEach(folders, async (f: IAdventureMuncherFolder) => {
       const folderData = f;
-      const supportedFolders = ["JournalEntry", "RollTable"];
-      if (supportedFolders.includes(folderData.type)) {
+      if (folderData.type === "JournalEntry" || folderData.type === "RollTable") {
         const pack = CompendiumHelper.getCompendiumType(folderData.type);
         let newFolder = pack.folders.find((folder) =>
           (folder._id === folderData._id || (folder.flags as Record<string, unknown>).importid === folderData._id)
@@ -609,8 +609,9 @@ export default class AdventureMunch {
       delete sceneToken.actorData;
     }
 
-    if (sceneToken.delta?.effects) {
-      for (const effect of sceneToken.delta.effects as I5eEffectData[]) {
+    const deltaEffects = foundry.utils.getProperty(sceneToken, "delta.effects") as I5eEffectData[] | undefined;
+    if (deltaEffects) {
+      for (const effect of deltaEffects) {
         // migration from older versions of Foundry
         if ((effect as any).label) {
           effect.name = (effect as any).label;
@@ -620,14 +621,15 @@ export default class AdventureMunch {
           effect.img = (effect as any).icon;
           delete (effect as any).icon;
         }
-        if (foundry.utils.hasProperty(effect, "flags.core.statusId")) {
-          const condition = CONFIG.statusEffects.find((c) => c.id === effect.flags.core.statusId)
-            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId as string));
+        const statusId = foundry.utils.getProperty(effect, "flags.core.statusId") as string | undefined;
+        if (statusId) {
+          const condition = CONFIG.statusEffects.find((c) => c.id === statusId)
+            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(statusId));
           if (!condition) continue;
-          effect.id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
+          effect._id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
           if (!effect.statuses) effect.statuses = [];
           effect.statuses.push(condition.id);
-          delete effect.flags.core.statusId;
+          delete effect.flags?.core?.statusId;
         }
       }
     }
@@ -1640,11 +1642,11 @@ export default class AdventureMunch {
           } else if (importer.metaVersionChanged) {
             const fromVersion = oldVersions?.ddbMetaData?.lastUpdate ? `v${oldVersions.ddbMetaData.lastUpdate}` : "unknown version";
             const icons = [
-              versions.ddbMetaData.tokenVersionChanged ? `<i class="fa fa-pastafarianism" title="Tokens changed"></i>` : "",
-              versions.wallVersionChanged ? `<i class="fa fa-door-closed" title="Walls changed"></i>` : "",
-              versions.noteVersionChanged ? `<i class="fa fa-map-pin" title="Note pins changed"></i>` : "",
-              versions.lightVersionChanged ? `<i class="fa fa-lightbulb" title="Lights changed"></i>` : "",
-              versions.drawingVersionChanged ? `<i class="fa fa-pen" title="Drawings changed"></i>` : "",
+              importer.tokenVersionChanged ? `<i class="fa fa-pastafarianism" title="Tokens changed"></i>` : "",
+              importer.wallVersionChanged ? `<i class="fa fa-door-closed" title="Walls changed"></i>` : "",
+              importer.noteVersionChanged ? `<i class="fa fa-map-pin" title="Note pins changed"></i>` : "",
+              importer.lightVersionChanged ? `<i class="fa fa-lightbulb" title="Lights changed"></i>` : "",
+              importer.drawingVersionChanged ? `<i class="fa fa-pen" title="Drawings changed"></i>` : "",
             ].filter(Boolean).join(" ");
             label = `<label for="new_${scene._id}">${scene.name} : <i>from ${fromVersion} to v${versions.ddbMetaData.lastUpdate}</i> ${icons}</label>`;
           } else {

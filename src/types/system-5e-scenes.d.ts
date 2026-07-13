@@ -416,6 +416,34 @@ global {
     // actorId: string;
   }
 
+  interface I5eSceneDDBFlagsDDBMetaDataVersions {
+    lastUpdate?: string;
+    drawings?: string;
+    notes?: string;
+    tokens?: string;
+    walls?: string;
+    lights?: string;
+    foundry?: string;
+  }
+
+  interface I5eSceneDDBFlagsOldVersions {
+    ddbImporter: string;
+    ddbMetaData: I5eSceneDDBFlagsDDBMetaDataVersions;
+    adventureMuncher: string;
+  }
+
+  interface IDDBFlagsVersionUpdates {
+    importerVersionChanged: boolean;
+    metaVersionChanged: boolean;
+    muncherVersionChanged: boolean;
+    foundryVersionNewer: boolean;
+    drawingVersionChanged: boolean;
+    noteVersionChanged: boolean;
+    tokenVersionChanged: boolean;
+    wallVersionChanged: boolean;
+    lightVersionChanged: boolean;
+  }
+
   interface I5eSceneDDBFlags {
     ddbId?: number;
     cobaltId?: number | null;
@@ -429,6 +457,7 @@ global {
     tokens?: I5eSceneFlagToken[];
     notes?: any[];
     versions?: {
+      importer?: IDDBFlagsVersionUpdates;
       ddbMetaData?: {
         lastUpdate?: string;
         drawings?: string;
@@ -441,7 +470,7 @@ global {
       adventureMuncher? : string;
       ddbImporter?: string;
     };
-    oldVersions?: unknown;
+    oldVersions?: I5eSceneDDBFlagsOldVersions;
     foundryVersion?: string;
     userData?: Record<string, {
       lastUpdate?: string;
