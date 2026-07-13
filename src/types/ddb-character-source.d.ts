@@ -835,6 +835,105 @@ global {
     characters: any[];
   }
 
+  // ---- Creatures (companions, beasts, summons) ------------------------------
+
+  /**
+   * A creature stat block as embedded in a character's `creatures[]`.
+   * Shares sub-structures with monster source data, but is a distinct shape:
+   * it carries `isHomebrew`/`sourceId`/`slug`/`statBlockType` and omits the
+   * *Html fields and `url`/`collectionUserId` present on IDDBMonsterSourceData.
+   */
+  export interface IDDBCreatureDefinition {
+    // Identification
+    id: number;
+    entityTypeId: number;
+    name: string;
+    slug: string;
+
+    // Type & physical characteristics
+    typeId: number;
+    subTypes: number[];
+    sizeId: number;
+    alignmentId: number | null;
+    swarm: IDDBMonsterSwarm | null;
+    tags: string[];
+    environments: number[];
+
+    // Publishing / metadata
+    isHomebrew: boolean;
+    isLegacy: boolean;
+    isLegendary: boolean;
+    isMythic: boolean;
+    hasLair: boolean;
+    hideCr: boolean;
+    version: string | null;
+    statBlockType: number;
+
+    // Sources
+    sourceId: number;
+    sourcePageNumber: number | null;
+    sources: IDDBSource[];
+
+    // Images
+    avatarUrl: string;
+    basicAvatarUrl: string | null;
+    largeAvatarUrl: string | null;
+
+    // Combat statistics
+    armorClass: number;
+    armorClassDescription: string;
+    challengeRatingId: number;
+    lairChallengeRatingId: number | null;
+    averageHitPoints: number;
+    hitPointDice: IDDBMonsterHitPointDice;
+    passivePerception: number;
+    initiative: number | null;
+
+    // Ability scores, saves & skills
+    stats: IDDBMonsterStat[];
+    savingThrows: IDDBMonsterSavingThrow[];
+    skills: IDDBMonsterSkill[];
+
+    // Movement & senses
+    movements: IDDBMonsterMovement[];
+    senses: IDDBMonsterSense[];
+
+    // Languages
+    languages: IDDBMonsterLanguage[];
+    languageDescription: string;
+    languageNote: string;
+
+    // Damage & conditions
+    damageAdjustments: number[];
+    conditionImmunities: number[];
+
+    // Descriptions (HTML strings, empty string when not applicable)
+    characteristicsDescription: string;
+    specialTraitsDescription: string;
+    actionsDescription: string;
+    reactionsDescription: string;
+    bonusActionsDescription: string;
+    legendaryActionsDescription: string;
+    mythicActionsDescription: string;
+    lairDescription: string;
+
+    // Equipment
+    gear: any | null;
+  }
+
+  /** A single entry in a character's `creatures[]` (a companion/summon instance). */
+  export interface IDDBCreature {
+    id: number;
+    entityTypeId: number;
+    name: string;
+    description: string | null;
+    isActive: boolean;
+    removedHitPoints: number;
+    temporaryHitPoints: number | null;
+    groupId: number;
+    definition: IDDBCreatureDefinition;
+  }
+
   // ---- Character (main) -----------------------------------------------------
 
   export interface IDDBCharacterData {
@@ -935,7 +1034,7 @@ global {
     modifiers: IDDBModifiers;
 
     // Companions & campaign
-    creatures: any[];
+    creatures: IDDBCreature[];
     campaign: IDDBCampaign | null;
     campaignSetting: any | null;
 
