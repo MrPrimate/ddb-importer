@@ -1051,7 +1051,7 @@ export default class AdventureMunch {
       { overridesById },
     ) as Actor.Implementation[];
     for (const worldActor of results) {
-      if (!this.temporary.actor.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      if (!this.temporary.actor.some((a: Actor.Implementation) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actor.push(worldActor);
       }
     }
@@ -1127,7 +1127,7 @@ export default class AdventureMunch {
     });
 
     // Build the default level from v13 top-level fields
-    const level = {
+    const level: I5eSceneLevel = {
       _id: DEFAULT_LEVEL_ID,
       name: "Level",
       background: {
@@ -1145,10 +1145,10 @@ export default class AdventureMunch {
         anchorY: 0.5,
         offsetX: 0,
         offsetY: 0,
-        fit: foundry.utils.getProperty(bg, "fit") ?? "fill",
-        scaleX: foundry.utils.getProperty(bg, "scaleX") ?? 1,
-        scaleY: foundry.utils.getProperty(bg, "scaleY") ?? 1,
-        rotation: foundry.utils.getProperty(bg, "rotation") ?? 0,
+        fit: foundry.utils.getProperty(bg, "fit") as string ?? "fill",
+        scaleX: foundry.utils.getProperty(bg, "scaleX") as number ?? 1,
+        scaleY: foundry.utils.getProperty(bg, "scaleY") as number ?? 1,
+        rotation: foundry.utils.getProperty(bg, "rotation") as number ?? 0,
       },
     };
 
@@ -1394,20 +1394,20 @@ export default class AdventureMunch {
 
     await this._revisitItems();
 
-    const data = {
+    const data: I5eAdventureData = {
       img: image,
       name: this.adventure.name,
       description: this.adventure.description,
-      folders: this.temporary.folder.map((doc) => doc.toObject()),
-      combats: [] as any[],
-      items: itemData.concat(spellData).map((doc) => doc.toObject()),
-      actors: this.temporary.actor.map((doc) => doc.toObject()),
-      journal: this.temporary.journal.map((doc) => doc.toObject()),
-      scenes: this.temporary.scene.map((doc) => doc.toObject()),
-      tables: this.temporary.table.map((doc) => doc.toObject()),
-      macros: [] as any[],
-      cards: [] as any[],
-      playlists: [] as any[],
+      folders: this.temporary.folder.map((doc) => doc.toObject()) as unknown as I5eFolderData[],
+      combats: [],
+      items: itemData.concat(spellData).map((doc) => doc.toObject()) as unknown as I5eItemData[],
+      actors: this.temporary.actor.map((doc) => doc.toObject()) as unknown as I5eActorData[],
+      journal: this.temporary.journal.map((doc) => doc.toObject()) as unknown as I5eJournalData[],
+      scenes: this.temporary.scene.map((doc) => doc.toObject()) as unknown as I5eSceneData[],
+      tables: this.temporary.table.map((doc) => doc.toObject()) as unknown as I5eTableData[],
+      macros: [],
+      cards: [],
+      playlists: [],
       flags: {
         ddbimporter: {
           isDDBAdventure: true,
@@ -1460,7 +1460,7 @@ export default class AdventureMunch {
       if (existingAdventure) {
         const loadedAdventure = await this._pack.getDocument(existingAdventure._id);
         adventureData._id = loadedAdventure._id;
-        adventure = await loadedAdventure.update(adventureData, { diff: false, recursive: false });
+        adventure = await loadedAdventure.update(adventureData as any, { diff: false, recursive: false });
         ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
       }
 

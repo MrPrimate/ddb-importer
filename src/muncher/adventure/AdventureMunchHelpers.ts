@@ -372,7 +372,7 @@ export default class AdventureMunchHelpers {
   static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null }: {
     folderId?: string;
     overridesById?: IAdventureMuncherOverridesById;
-  } = {}) {
+  } = {}): Promise<Actor.Implementation[]> {
     const compendium = CompendiumHelper.getCompendiumType("monster", false);
     if (!compendium) {
       logger.warn("AdventureMunchHelpers.importMonstersToWorld: no monster compendium available");
@@ -380,7 +380,7 @@ export default class AdventureMunchHelpers {
     }
     const index = await AdventureMunchHelpers.getCompendiumIndex("monster");
     const wanted = new Set(ddbIds.map((id: any) => String(id)));
-    const results = [];
+    const results: Actor.Implementation[] = [];
     for (const idx of index) {
       const ddbId = String(foundry.utils.getProperty(idx, "flags.ddbimporter.id") ?? "");
       if (!wanted.has(ddbId)) continue;
@@ -400,7 +400,7 @@ export default class AdventureMunchHelpers {
           continue;
         }
       }
-      if (worldActor) results.push(worldActor);
+      if (worldActor) results.push(worldActor as unknown as Actor.Implementation);
     }
     return results;
   }
