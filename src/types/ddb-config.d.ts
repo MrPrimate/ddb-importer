@@ -98,19 +98,19 @@ global {
   export interface IDDBConfigCreatureGroup {
     id: number;
     name: string;
-    categoryId: number;
-    enabledByDefault: boolean;
-    allowDuplicates: boolean;
-    allowCombat: boolean;
-    isPrimary: boolean;
-    isMisc: boolean;
+    categoryId?: number;
+    enabledByDefault?: boolean;
+    allowDuplicates?: boolean;
+    allowCombat?: boolean;
+    isPrimary?: boolean;
+    isMisc?: boolean;
     specialQualityTitle: string | null;
     specialQualityText: string | null;
     flags: string[];
-    monsterTypes: number[];
+    monsterTypes?: number[];
     ownerStats: number[];
     description: string;
-    actionSnippet: string | null;
+    actionSnippet?: string | null;
   }
 
   export interface IDDBConfigNaturalActionAttackCustomData {

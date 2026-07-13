@@ -919,6 +919,15 @@ global {
 
     // Equipment
     gear: any | null;
+
+    // injected by ddb importer
+    automatedEvocationAnimation?: string;
+    creatureGroup?: IDDBConfigCreatureGroup | null;
+    creatureGroupId?: number | null;
+    creatureFlags?: string[];
+    removedHitPoints?: number;
+    temporaryHitPoints?: number;
+    ownership?: { default: number } | null;
   }
 
   /** A single entry in a character's `creatures[]` (a companion/summon instance). */
