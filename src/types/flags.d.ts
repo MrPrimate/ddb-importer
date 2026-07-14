@@ -269,7 +269,11 @@ global {
         anchorToToken?: boolean; // Whether cone/ray template origin is anchored to caster's token border
       };
     };
-    TokenDocument: {
+    Token: {
+      ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
+      ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
+      ddbActorEffects?: I5eEffectData[];
+      actorFolderId?: string;
       dnd5e?: {
         dependentOn?: string;
       };
