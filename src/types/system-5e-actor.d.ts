@@ -1135,7 +1135,7 @@ global {
     proficiencies?: IDDBPCDnDBeyondProficiencyFlags[] | null;
     proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[] | null;
     effectAbilities?: I5eAbilities | null;
-    abilityOverrides?: Record<string, number> | null;
+    abilityOverrides?: Record<T5eAbility, number> | null;
     characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[] | null;
     templateStrings?: IDDBTemplateStringResult[] | null;
     campaign?: IDDBPCDnDBeyondCampaignFlags | null;

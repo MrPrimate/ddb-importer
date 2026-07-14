@@ -63,7 +63,7 @@ declare global {
   // }
 
   interface ITokenizer2APIResponse {
-    prototypeToken: Record<string, any>;
+    prototypeToken: I5ePrototypeToken;
     layers: Record<string, any>[];
   }
   interface ITokenizer2API {

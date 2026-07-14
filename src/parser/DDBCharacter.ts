@@ -104,7 +104,7 @@ export interface IDDBCharacterGetCharacterDataOptions {
 }
 
 export interface DDBCharacterImportOptions {
-  currentActor?: Actor.Implementation | null;
+  currentActor?: TImporterActor | null;
   characterId?: string | null;
   selectResources?: boolean;
   enableCompanions?: boolean;
@@ -220,14 +220,17 @@ interface DDBCharacter {
   autoLinkConsumption(): Promise<void>;
 }
 
+
+type TFeatureActionItem = I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem;
+
 export interface IDDBCharacterDataStub {
   character: I5ePCData;
-  features: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem)[];
+  features: TFeatureActionItem[];
   race: I5eRaceItem;
-  classes: I5eClassItem[];
+  classes: (I5eClassItem | I5eSubclassItem)[];
   inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
   spells: I5eSpellItem[];
-  actions: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem)[];
+  actions: TFeatureActionItem[];
   itemSpells: I5eSpellItem[];
 }
 
@@ -247,9 +250,9 @@ class DDBCharacter {
   resourceChoices: ResourceChoices;
   raw: IDDBCharacterDataStub;
   abilities: {
-    overrides:  Record<string, number>;
-    core: I5eAbilities;
-    withEffects: I5eAbilities;
+    overrides: Partial<I5eAbilities>;
+    core: Partial<I5eAbilities>;
+    withEffects: Partial<I5eAbilities>;
   };
   totalLevels: number;
   enableCompanions: boolean;
@@ -411,6 +414,7 @@ class DDBCharacter {
       filterModifiers: false,
       splitSpells: true,
       devMode: foundry.utils.getProperty(CONFIG, "DDBI.DEV.enabled") ?? false,
+      updateId: null as string | null,
     };
     if (syncId) {
       body["updateId"] = syncId;
@@ -607,9 +611,12 @@ class DDBCharacter {
     }
   }
 
-  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [] }: { featureTypes?: string[]; hints?: string[] } = {}) {
+  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [] }: {
+    featureTypes?: ("actions" | "features")[];
+    hints?: string[];
+  } = {}) {
     for (const featureType of featureTypes) {
-      const index = this.data[featureType].findIndex((f) => {
+      const index = this.data[featureType].findIndex((f: any) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
         if (isCustomAction) return false;
         const name = f.flags.ddbimporter?.originalName ?? f.name;
@@ -620,15 +627,18 @@ class DDBCharacter {
       });
       if (index !== -1) {
         logger.debug(`Found ${featureType} : ${featureName}`);
-        return this.data[featureType][index];
+        return (this.data as Record<string, any>)[featureType][index];
       }
     }
     return undefined;
   }
 
-  getDataFeats(featName: string, { featureTypes = ["actions", "features"], hints = [] }: { featureTypes?: string[]; hints?: string[] } = {}) {
+  getDataFeats(featName: string, { featureTypes = ["actions", "features"], hints = [] }: {
+    featureTypes?: ("actions" | "features")[];
+    hints?: string[];
+  } = {}): TFeatureActionItem {
     for (const featureType of featureTypes) {
-      const index = this.data[featureType].findIndex((f) => {
+      const index = (this.data as Record<string, any>)[featureType].findIndex((f: any) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
         if (isCustomAction) return false;
         if (f.type !== "feat") return false;
@@ -691,7 +701,7 @@ class DDBCharacter {
     );
   }
 
-  updateItemId(item) {
+  updateItemId(item: I5eItemData) {
     const itemMatch = DDBDataUtils.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
     if (itemMatch) {
       item._id = itemMatch._id;
@@ -699,7 +709,7 @@ class DDBCharacter {
     }
   }
 
-  updateItemIds(items) {
+  updateItemIds(items: I5eItemData[]): I5eItemData[] {
     if (!this.currentActor) return items;
     items.forEach((item) => {
       this.updateItemId(item);
