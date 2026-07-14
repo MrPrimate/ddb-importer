@@ -26,7 +26,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
   /** @override */
-  tabGroups = {};
+  tabGroups: Record<string, string> = {};
 
   _markTabs(tabs: IDDBTabs): IDDBTabs {
     for (const v of Object.values(tabs)) {
@@ -107,14 +107,14 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  changeTab(tab, group, options) {
+  changeTab(tab: any, group: any, options: any) {
     super.changeTab(tab, group, options);
     if (["sheet"].includes(group)) {
       this._toggleNestedTabs();
     }
   }
 
-  async _prepareContext(options): Promise<DDBAppV2Context> {
+  async _prepareContext(options: any): Promise<DDBAppV2Context> {
     const noCacheLoad = options?.noCacheLoad ?? false;
     if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false }) as DDBAppV2Context;
@@ -125,7 +125,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
   /** @override */
 
-  async _preparePartContext(_partId, context) {
+  async _preparePartContext(_partId: string, context: any) {
     return context;
   }
 
@@ -134,7 +134,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _configureRenderOptions(options) {
+  _configureRenderOptions(options: any) {
     super._configureRenderOptions(options);
     if (options.isFirstRender && this.hasFrame) {
       options.window ||= {};
@@ -144,9 +144,9 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onFirstRender(context, options) {
+  async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
-    const containers = {};
+    const containers: Record<string, HTMLElement> = {};
     const ctor = this.constructor as typeof DDBAppV2;
     for (const [part, config] of Object.entries(ctor.PARTS)) {
       if (!config.container?.id) continue;
@@ -197,7 +197,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
 
-  getMessageClass(section) {
+  getMessageClass(section: any) {
     let messageClass;
     switch (section) {
       case "level4":
@@ -256,16 +256,17 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
   }
 
-  intervalId = null;
+  intervalId: any = null;
 
-  autoRotateMessage(category, subcategory = null, intervalMs = 5000) {
+  autoRotateMessage(category: keyof typeof DICTIONARY.messages.loading, subcategory: string | null = null, intervalMs = 5000) {
     if (this.intervalId) this.stopAutoRotateMessage();
-    let messages;
+    let messages: string[] | undefined;
 
+    const categoryMessages = DICTIONARY.messages.loading[category];
     if (subcategory) {
-      messages = DICTIONARY.messages.loading[category]?.[subcategory];
-    } else {
-      messages = DICTIONARY.messages.loading[category];
+      messages = Array.isArray(categoryMessages) ? undefined : categoryMessages?.[subcategory];
+    } else if (Array.isArray(categoryMessages)) {
+      messages = categoryMessages;
     }
     if (!messages || !messages.length) {
       messages = DICTIONARY.messages.loading["default"];

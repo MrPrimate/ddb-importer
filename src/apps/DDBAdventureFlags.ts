@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../config/_module";
 import { logger } from "../lib/_module";
 
-type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }>;
+type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }> & Record<string, any>;
 
 /** the document whose ddb flags are shown/edited by this application */
 interface IFlagDocument {
@@ -33,7 +33,7 @@ export class DDBAdventureFlags extends FormApplication {
     const flagGroups = ["ddb", "ddbimporter", "monsterMunch", "ddb-importer"];
     const ignoredSubFlagGroups = ["ddbimporter.acEffects", "ddbimporter.autoAC"];
 
-    function generateFlagLookup(flagData, flagName, flagGroupName) {
+    function generateFlagLookup(flagData: any, flagName: string, flagGroupName: string) {
       logger.debug(`FlagName ${flagName}, flagGroupName ${flagGroupName}`, flagData);
       for (const flagKey in flagData) {
         logger.debug("flagkey", flagKey);
@@ -54,7 +54,7 @@ export class DDBAdventureFlags extends FormApplication {
 
     flagGroups.forEach((flagGroup) => {
       logger.debug(`Flag group ${flagGroup}`, item.flags);
-      generateFlagLookup(item.flags[flagGroup], flagGroup, flagGroup);
+      generateFlagLookup(foundry.utils.getProperty(item.flags, flagGroup), flagGroup, flagGroup);
     });
 
     const result = {
@@ -100,7 +100,7 @@ export class DDBAdventureFlags extends FormApplication {
   }
 
 
-  activateListeners(html) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)

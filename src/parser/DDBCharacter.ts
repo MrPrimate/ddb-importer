@@ -98,6 +98,11 @@ export interface ResourceChoices {
   tertiary: string;
 }
 
+export interface IDDBCharacterGetCharacterDataOptions {
+  syncId?: string | null;
+  localCobaltPostFix?: string;
+}
+
 export interface DDBCharacterImportOptions {
   currentActor?: Actor.Implementation | null;
   characterId?: string | null;
@@ -392,7 +397,7 @@ class DDBCharacter {
    * Loads and parses character in the proxy
    * @param {{syncId?:string, localCobaltPostFix?:string}} [options]
    */
-  async getCharacterData({ syncId = undefined, localCobaltPostFix = "" } = {}) {
+  async getCharacterData({ syncId = undefined as any, localCobaltPostFix = "" }: IDDBCharacterGetCharacterDataOptions = {}) {
     const cobaltCookie = Secrets.getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = utils.getSetting<string>("beta-key");

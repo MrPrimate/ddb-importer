@@ -17,7 +17,7 @@ import DDBAppV2 from "./DDBAppV2";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 import DDBDebugger from "./DDBDebugger";
 import DDBKeyChangeDialog from "./DDBKeyChangeDialog";
-
+import type { DDBCharacterImportOptions } from "../parser/DDBCharacter";
 
 export default class DDBCharacterManager extends DDBAppV2 {
   actor: Actor.Implementation;
@@ -50,7 +50,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     this._debugContext = {};
   }
 
-  static renderPopup(type, url) {
+  static renderPopup(type: string, url: string) {
     if (SETTINGS.POPUPS[type] && !SETTINGS.POPUPS[type].close) {
       SETTINGS.POPUPS[type].focus();
       SETTINGS.POPUPS[type].location.href = url;
@@ -172,7 +172,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await super._onRender(context, options);
     // custom listeners
     // watch the change of the muncher-policy-selector checkboxes
@@ -237,7 +237,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   /** @override */
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
 
     // loads settings for actor
     this.importSettings = MuncherSettings.getCharacterImportSettings();
@@ -299,7 +299,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId, context) {
+  async _preparePartContext(partId: string, context: any) {
     switch (partId) {
       default: {
         context.tab = context.tabs[partId];
@@ -310,7 +310,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
 
-  showCurrentTask(title, { message = null, isError = false } = {}) {
+  showCurrentTask(title: string, { message = null as any, isError = false } = {}) {
     logger.debug("DDBCharacterManager: showCurrentTask", { title, message, isError });
     const element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
@@ -326,7 +326,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   /* -------------------------------------------- */
 
-  async #handleURLUpdate(event) {
+  async #handleURLUpdate(event: any) {
     const URL = event.currentTarget.value;
     const characterId = DDBCharacter.getCharacterId(URL);
 
@@ -391,7 +391,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async setLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async setLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       const existingKey = await PatreonHelper.getPatreonKey(true);
       if (!(this.actor.flags as IActorFlagConfig).ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
@@ -409,7 +409,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async deleteLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async deleteLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       await PatreonHelper.setPatreonKey(null, true);
       await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } } as Actor.UpdateInput);
@@ -426,7 +426,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async setLocalCobaltClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async setLocalCobaltClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       new DDBCookie({
         actor: this.actor,
@@ -443,7 +443,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async deleteLocalCobaltClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async deleteLocalCobaltClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       Secrets.deleteLocalCobalt(this.actor.id);
       this.element.querySelector<HTMLButtonElement>("#delete-local-cobalt").disabled = true;
@@ -455,7 +455,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async updateCharacterClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async updateCharacterClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = true;
       await updateDDBCharacter(this.actor).then((result) => {
@@ -477,19 +477,18 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async importCompanionsClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async importCompanionsClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-extras-start").disabled = true;
       this.showCurrentTask("Fetching character data");
       const characterId = (this.actor.flags as IActorFlagConfig).ddbimporter.dndbeyond.characterId;
-      const ddbCharacterOptions = {
+      const ddbCharacterOptions: DDBCharacterImportOptions = {
         currentActor: this.actor,
-        ddb: null,
         characterId,
         selectResources: false,
       };
       const getOptions = {
-        syncId: null,
+        syncId: null as string | null,
         localCobaltPostFix: this.actor.id,
       };
       await DDBRunContext.runWith({
@@ -505,7 +504,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
           FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
         }
         if (this.ddbCharacter.source?.success) {
-          await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
+          await generateCharacterExtras(this.element, this.ddbCharacter, this.actor as Actor.OfType<"character">);
           this.showCurrentTask("Loading Extras", { message: "Done." });
           this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-extras-start").disabled = true;
           this.close();
@@ -532,7 +531,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     return;
   }
 
-  static async importCharacterClickEvent(this: DDBCharacterManager, _event, _target) {
+  static async importCharacterClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-import-start").disabled = true;
 
@@ -564,7 +563,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     return;
   }
 
-  static openDebug(this: DDBCharacterManager, _event, _target) {
+  static openDebug(this: DDBCharacterManager, _event: any, _target: any) {
     new DDBDebugger({ actor: this.actor, extra: this.debugContext }).render({ force: true });
   }
 

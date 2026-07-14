@@ -70,13 +70,13 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     return {};
   }
 
-  static async reloadOwned(this: DDBAdventureBrowser, _event, _target) {
+  static async reloadOwned(this: DDBAdventureBrowser, _event: any, _target: any) {
     this._ownedIds = null;
     this._ownedFetchFailed = false;
     await this._loadOwned();
   }
 
-  static toggleCategory(this: DDBAdventureBrowser, _event, target) {
+  static toggleCategory(this: DDBAdventureBrowser, _event: any, target: any) {
     const categoryId = Number(target?.dataset?.categoryId);
     if (!Number.isInteger(categoryId)) return;
     if (this.expandedCategories.has(categoryId)) this.expandedCategories.delete(categoryId);
@@ -84,7 +84,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     this.render();
   }
 
-  static async importAdventure(this: DDBAdventureBrowser, _event, target) {
+  static async importAdventure(this: DDBAdventureBrowser, _event: any, target: any) {
     const bookId = Number(target?.dataset?.bookId);
     if (!Number.isInteger(bookId)) {
       logger.error("DDBAdventureBrowser.importAdventure: missing/invalid bookId on target");
@@ -122,7 +122,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     }
   }
 
-  static async closeDetails(this: DDBAdventureBrowser, _event, _target) {
+  static async closeDetails(this: DDBAdventureBrowser, _event: any, _target: any) {
     const details = this.element.querySelector(".ddb-muncher-details");
     if (details) details.classList.add("munching-details-hidden");
     this.importingId = null;
@@ -212,7 +212,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  async _onFirstRender(context, options) {
+  async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     if (this._ownedIds === null && !this._ownedFetchFailed) {
       this._loadOwned();
@@ -258,7 +258,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     this.render();
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     // Restore list scroll position, then keep tracking it.
@@ -312,7 +312,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     context.searchTerm = this.searchTerm;

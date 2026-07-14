@@ -10,7 +10,7 @@ export class DDBAdventureImporter extends Sheet {
     handler?: (document: any, option: any, submitted: any) => Promise<unknown> | unknown;
   }>;
 
-  constructor(adventure, options) {
+  constructor(adventure: any, options: any) {
     super(adventure, options);
     this.options.classes.push(SETTINGS.ADVENTURE_CSS);
     this.importOptions = {};
@@ -24,7 +24,7 @@ export class DDBAdventureImporter extends Sheet {
   }
 
   /** @inheritDoc */
-  async _renderInner(data) {
+  async _renderInner(data: any) {
     const html = await super._renderInner(data);
 
     let options = `<section class="import-form"><h2>Importer Options</h2>`;
@@ -43,7 +43,7 @@ export class DDBAdventureImporter extends Sheet {
   }
 
   /** @inheritDoc */
-  async importContent(toCreate, toUpdate, documentCount) {
+  async importContent(toCreate: any, toUpdate: any, documentCount: any) {
     const importResult = await super.importContent(toCreate, toUpdate, documentCount);
     for (const [name, option] of Object.entries(this.importOptions || {})) {
       if (option.handler) {
