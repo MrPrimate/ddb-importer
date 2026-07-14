@@ -124,11 +124,12 @@ export default class DDBCharacterImporter {
    * @returns {object[]} the filtered array of items
    */
   filterItemsByUserSelection(invert = false) {
-    let items = [];
+    let items: I5eItemData[] = [];
     const validItemTypes = DDBCharacterImporter.getCharacterUpdatePolicyTypes(invert);
 
-    for (const section of SETTINGS.FILTER_SECTIONS) {
-      items = items.concat(this.result[section]).filter((item) => validItemTypes.includes(item.type));
+    for (const section of ["classes", "race", "features", "actions", "inventory", "spells"]) {
+      const newItems: I5eItemData[] = foundry.utils.getProperty(this.result, section) as I5eItemData[] || [];
+      items = items.concat(newItems).filter((item) => validItemTypes.includes(item.type));
     }
     return items;
   }
@@ -145,13 +146,13 @@ export default class DDBCharacterImporter {
    * Loops through a characters items and updates flags
    * @param {*} items
    */
-  async copySupportedCharacterItemFlags(items) {
+  async copySupportedCharacterItemFlags(items: I5eItemData[]) {
     items.forEach((item) => {
       const originalItem = this.actorOriginal.items.find(
         (originalItem) => item.name === originalItem.name && item.type === originalItem.type,
       );
       if (originalItem) {
-        DDBItemImporter.copySupportedItemFlags(originalItem, item);
+        DDBItemImporter.copySupportedItemFlags(originalItem as unknown as Item.Implementation, item);
       }
     });
   }
@@ -170,8 +171,9 @@ export default class DDBCharacterImporter {
       "notes",
     ];
     journalFields.forEach((field) => {
-      if (this.actorOriginal.system.details[field]) {
-        this.result.character.system.details[field] = this.actorOriginal.system.details[field];
+      const originalValue = foundry.utils.getProperty(this.actorOriginal, `system.details.${field}`);
+      if (originalValue) {
+        foundry.utils.setProperty(this.result.character, `system.details.${field}`, originalValue);
       }
     });
   }
@@ -453,16 +455,16 @@ ${item.system.description.chat}
     }
   }
 
-  static async getIndividualOverrideItems(overrideItems: TAll5eDocuments[]): Promise<TAll5eDocuments[]> {
+  static async getIndividualOverrideItems(overrideItems: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
-    const compendiumItems: TAll5eDocuments[] = await Promise.all(overrideItems
+    const compendiumItems: TAll5eItemDocuments[] = await Promise.all(overrideItems
       .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId")
         && compendium.index.has(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string))
       .map(async (item) => {
         const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string) as Item.Implementation;
-        const compendiumItem: TAll5eDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eDocuments;
+        const compendiumItem: TAll5eItemDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eItemDocuments;
         foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
         if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
           foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", foundry.utils.getProperty(item, "flags.ddbimporter.overrideItem"));
@@ -485,7 +487,7 @@ ${item.system.description.chat}
       overrideId: true,
       linkItemFlags: true,
     };
-    const remappedItems: TAll5eDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+    const remappedItems: TAll5eItemDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions) as TAll5eItemDocuments[];
 
     return remappedItems;
   }
@@ -511,7 +513,8 @@ ${item.system.description.chat}
     // some items get ignored completly, if so we don't match these
     if (!(foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false)) {
       logger.debug(`Updating ${item.name} with id`);
-      item["_id"] = existingItem["id"];
+      item["_id"] = foundry.utils.getProperty(existingItem, "id") as string
+        ?? foundry.utils.getProperty(existingItem, "_id") as string;
       if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);
         item.flags.ddbimporter.matchedImg = existingItem.img;
@@ -533,7 +536,7 @@ ${item.system.description.chat}
         }
         item.flags.ddbimporter.retainResourceConsumption = true;
         if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
-          foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
+          foundry.utils.setProperty(item, "flags.link-item-resource-5e", foundry.utils.getProperty(existingItem, "flags.link-item-resource-5e"));
         }
       }
       if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
@@ -606,25 +609,24 @@ ${item.system.description.chat}
     if (!spellsAsActivities) {
       logger.debug("No magic items module(s) found, adding spells to sheet.");
       items.push(
-        this.result.itemSpells.filter((item) => {
+        ...(this.result.itemSpells.filter((item) => {
           const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;
           if (!active) logger.info(`Missing active flag on item spell ${item.name}`);
           return active;
-        }),
+        })),
       );
-      items = items.flat();
     }
     logger.debug("Finished item fetch");
     return items;
   }
 
-  async processCharacterItems(items) {
-    let compendiumItems = [];
-    let overrideCompendiumItems = [];
-    let individualCompendiumItems = [];
+  async processCharacterItems(items: I5eItemData[]) {
+    let compendiumItems: I5eItemData[] = [];
+    let overrideCompendiumItems: I5eItemData[] = [];
+    let individualCompendiumItems: I5eItemData[] = [];
 
     // First we do items that are individually marked as override
-    const individualOverrideItems = items.filter((item) => {
+    const individualOverrideItems = items.filter((item: any) => {
       const overrideId = foundry.utils.getProperty(item, "flags.ddbimporter.overrideId");
       return overrideId !== undefined && overrideId !== "NONE";
     });
@@ -755,7 +757,7 @@ ${item.system.description.chat}
       !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect,
     );
 
-    const spellEffects = [];
+    const spellEffects: I5eEffectData[] = [];
     for (const e of itemEffects) {
       const isOther = coreStatusEffects.some((ae) => ae._id === e._id)
         || charEffects.some((ae) => ae._id === e._id)
@@ -813,7 +815,7 @@ ${item.system.description.chat}
 
   async addImportIdToItems() {
     const importId = this.importId;
-    function addImportId(items) {
+    function addImportId<T>(items: T[]): T[] {
       return items.map((item) => {
         foundry.utils.setProperty(item, "flags.ddbimporter.importId", importId);
         return item;
@@ -954,7 +956,7 @@ ${item.system.description.chat}
           const originalKlass: I5eClassItem = this.actorOriginal.items.find(
             (original) => original.name === klass.name && original.type === "class",
           ) as I5eClassItem;
-          if (originalKlass) {
+          if (originalKlass && klass.type === "class") {
             klass.system.hd.spent = originalKlass.system.hd.spent;
           }
           return klass;
@@ -966,7 +968,7 @@ ${item.system.description.chat}
       if (!this.settings.updatePolicyBio) {
         const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "ideal", "trait"];
         bioUpdates.forEach((option) => {
-          this.result.character.system.details[option] = this.actorOriginal.system.details[option];
+          foundry.utils.setProperty(this.result.character, `system.details.${option}`, foundry.utils.getProperty(this.actorOriginal, `system.details.${option}`));
         });
       }
       if (!this.settings.updatePolicySpellUse) {
@@ -1052,7 +1054,7 @@ ${item.system.description.chat}
       if (this.settings.useChrisPremades) {
         this.notifier(`Applying CPR...`);
         logger.debug("Applying CPR effects...");
-        await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
+        await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor as unknown as Actor);
       }
       this.notifier(`Updating conditions...`);
       logger.debug("Updating conditions...");
@@ -1094,7 +1096,7 @@ ${item.system.description.chat}
         enableCompanions: true,
       };
       const getOptions = {
-        syncId: null,
+        syncId: null as string | null,
         localCobaltPostFix: this.actor.id,
       };
       const runResult = await DDBRunContext.runWith({
@@ -1151,7 +1153,7 @@ ${item.system.description.chat}
         selectResources: true,
       };
       const getOptions = {
-        syncId: null,
+        syncId: null as string | null,
         localCobaltPostFix: actorData._id,
       };
       const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
@@ -1197,7 +1199,7 @@ ${item.system.description.chat}
     }
   }
 
-  static async importCharacterById(characterId, notifier, folderId = null) {
+  static async importCharacterById(characterId: string | number, notifier: any, folderId: string = null) {
     const createData = {
       name: "New Actor",
       type: "character",
