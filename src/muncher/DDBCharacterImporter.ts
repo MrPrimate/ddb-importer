@@ -815,7 +815,7 @@ ${item.system.description.chat}
 
   async addImportIdToItems() {
     const importId = this.importId;
-    function addImportId<T>(items: T[]): T[] {
+    function addImportId<T extends I5eItemData>(items: T[]): T[] {
       return items.map((item) => {
         foundry.utils.setProperty(item, "flags.ddbimporter.importId", importId);
         return item;
