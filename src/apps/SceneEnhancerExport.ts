@@ -191,14 +191,13 @@ export function collectSceneData(scene: Scene, bookCode: string) {
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.tokens
-    .filter((token: any) => !token.actorLink)
-    .map((token: any) => {
+    .filter((token) => !token.actorLink)
+    .map((token) => {
       const result = {
         _id: token._id,
         name: token.name,
         width: token.width,
         height: token.height,
-        scale: token.scale,
         x: token.x,
         y: token.y,
         disposition: token.disposition,
@@ -210,7 +209,6 @@ export function collectSceneData(scene: Scene, bookCode: string) {
         level: token.level,
         depth: token.depth,
         hidden: token.hidden,
-        tint: token.tint,
         actorData: token.delta.toObject(),
         light: token.light,
       };
@@ -236,17 +234,18 @@ export function collectSceneData(scene: Scene, bookCode: string) {
       //   scene,
       // });
       if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete (token as Record<string, any>).actorData.flags["token-action-hud-core"];
-      delete token.flags["token-action-hud-core"];
-      delete token.flags["simbuls-cover-calculator"];
-      delete token.flags["monks-enhanced-journal"];
-      delete token.flags["monks-tokenbar"];
-      delete token.flags["tagger"];
-      delete token.flags["monks-combat-marker"];
-      delete token.flags["image-hover"];
-      delete token.flags["elevation-drag-ruler"];
+      // these might exist, we don't have them in our model, we don't want to carry them over, so delete them
+      delete (token.flags as Record<string, any>)["token-action-hud-core"];
+      delete (token.flags as Record<string, any>)["simbuls-cover-calculator"];
+      delete (token.flags as Record<string, any>)["monks-enhanced-journal"];
+      delete (token.flags as Record<string, any>)["monks-tokenbar"];
+      delete (token.flags as Record<string, any>)["tagger"];
+      delete (token.flags as Record<string, any>)["monks-combat-marker"];
+      delete (token.flags as Record<string, any>)["image-hover"];
+      delete (token.flags as Record<string, any>)["elevation-drag-ruler"];
 
       return result;
-    });
+    }) as I5eSceneTokenData[];
 
 
   // removed un-needed userdata

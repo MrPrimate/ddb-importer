@@ -108,4 +108,12 @@ declare module "fvtt-types/configuration" {
       levels: ICoreSceneLevelsSetSchema;
     }
   }
+
+  namespace TokenDocument {
+    interface Schema {
+      level: string | null;
+      depth: foundry.data.fields.NumberField<{ required: true; nullable: false; integer: true; initial: 1 }>;
+    }
+
+  }
 }

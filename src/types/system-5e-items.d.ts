@@ -912,4 +912,13 @@ global {
     | I5eToolItem
     | I5eLootItem;
 
+  export type I5eItemData =
+    | I5eInventoryItem
+    | I5eSpellItem
+    | I5eFeatItem
+    | I5eBackgroundItem
+    | I5eClassItem
+    | I5eSubclassItem
+    | I5eRaceItem;
+
 }

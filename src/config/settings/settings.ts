@@ -83,8 +83,6 @@ const MUNCH_DEFAULTS: IMuncherDefaultSetting[] = [
   { name: "munching-policy-update-images", needed: false },
 ];
 
-const FILTER_SECTIONS = ["classes", "race", "features", "actions", "inventory", "spells"];
-
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
   addFeatures: false,
