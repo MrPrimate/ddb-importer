@@ -850,6 +850,9 @@ global {
     name: string;
     slug: string;
 
+    // foundry
+    folder: string | null;
+
     // Type & physical characteristics
     typeId: number;
     subTypes: number[];

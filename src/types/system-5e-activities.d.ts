@@ -124,7 +124,7 @@ global {
   }
 
   interface I5eActivityAttack {
-    ability?: string;
+    ability?: T5eAbility | "";
     bonus?: string;
     critical?: {
       threshold?: number;

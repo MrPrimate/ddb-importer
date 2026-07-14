@@ -482,7 +482,6 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: Actor.Of
 }
 
 function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterData) {
-  const damageDiceExpression = /(\d*d\d+\s*\+*\s*)+/;
   // `TODO: this probably is a flag now
   const characterProficiencyBonus = actor.flags.ddbimporter.dndbeyond.profBonus ?? 0;
   const artificerBonusGroup = [10, 12];
@@ -509,35 +508,34 @@ function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterD
     // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
     || extra.flags?.ddbimporter?.creatureGroupId === 12
   ) {
+    const isArtificer = artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId);
+
     extra.items = extra.items.map((item) => {
-      if (item.type === "weapon") {
-        let characterAbility;
+      if (item.type !== "weapon" || !isArtificer) return item;
 
-        //TO DO - this needs to be refactored with the move to activities
-        item.system.damage.base = item.system.damage.base.map((part) => {
-          const match = part[0].match(damageDiceExpression);
-          if (match) {
-            let dice = match[0];
-            // the artificer creatures have the initial prof built in, lets replace it
-            if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId)) {
-              characterAbility = "int";
-              dice = match[1].trim().endsWith("+") ? match[1].trim().slice(0, -1) : match[1];
-            }
-            part[0] = `${dice.trim()}`;
-          }
-
-          return part;
-        });
-
-        if (characterAbility) {
-          const ability = item.system.ability;
-          const mod = parseInt(extra.system.abilities[ability].mod);
-          const characterMod = parseInt(actor.system.abilities[characterAbility].mod);
-
-          const globalMod = Number(actor.system.bonuses.rsak.attack || 0);
-          item.system.attack.bonus = characterMod + globalMod - mod;
-        }
+      // Artificer companions bake the creature's own prof/ability bonus into the
+      // base weapon damage; the damage prof is re-applied via the "@prof" effect
+      // (generateArtificerDamageEffect), so strip the flat bonus from the single
+      // base damage object (this used to be an array of formula/type tuples).
+      if (item.system.damage?.base) {
+        item.system.damage.base.bonus = "";
       }
+
+      // Attacks should use the character's spell attack (int + global rsak bonus)
+      // rather than the companion's own ability. Attack data now lives on the
+      // attack activity, so correct each attack activity's flat bonus.
+      const characterMod = utils.calculateModifier((actor.system as I5ePCSystemData).abilities!.int.value!);
+      const globalMod = Number((actor.system as I5ePCSystemData).bonuses.rsak.attack || 0);
+
+      for (const activity of Object.values(item.system.activities ?? {})) {
+        if (activity.type !== "attack" || !activity.attack) continue;
+        const ability = activity.attack.ability === ""
+          ? "str"
+          : activity.attack.ability as T5eAbility;
+        const extraMod = utils.calculateModifier(extra.system.abilities[ability].value);        const mod = ability ? extraMod : 0;
+        activity.attack.bonus = `${characterMod + globalMod - mod}`;
+      }
+
       return item;
     });
   }

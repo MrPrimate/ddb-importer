@@ -40,7 +40,7 @@ global {
     save?: I5eAbilitySaveConfig;
   }
 
-  export type I5eAbilities = Record<string, I5eAbilityScore>;
+  export type I5eAbilities = Record<T5eAbility, I5eAbilityScore>;
 
   // ---- Attributes -----------------------------------------------------------
 
