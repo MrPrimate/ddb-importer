@@ -41,7 +41,7 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @override */
-  async _usageChatButtons(message) {
+  async _usageChatButtons(message: Record<string, any>) {
     const superButtons = await super._usageChatButtons(message);
     if (!this.macro.function) return superButtons;
     const macroButton = {
@@ -55,10 +55,10 @@ export default class MacroActivity extends BaseMacroActivity {
     return [macroButton].concat(superButtons);
   }
 
-  async _executeDDBMacro(targetUuids = []) {
+  async _executeDDBMacro(targetUuids: string[] = []) {
 
     const ids = {
-      effect: null,
+      effect: null as string | null,
       actor: this.actor.uuid,
       token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
       item: this.item.uuid,
@@ -87,14 +87,14 @@ export default class MacroActivity extends BaseMacroActivity {
       macroParts,
     });
 
-    await DDBSimpleMacro.execute(macroParts[1], macroParts[2], context, ids, scope);
+    await DDBSimpleMacro.execute(macroParts[1] as DDBMacroType, macroParts[2], context, ids, scope);
 
   }
 
-  async _executeFoundryMacro(targets = []) {
+  async _executeFoundryMacro(targets: unknown[] = []) {
     let macro;
     if (this.macro.function.startsWith("Macro.")) {
-      macro = await fromUuid(this.macro.function);
+      macro = await fromUuid(this.macro.function) as Macro.Implementation;
     } else {
       macro = game.macros.find((m) => m.name === this.macro.function);
     }
@@ -109,7 +109,7 @@ export default class MacroActivity extends BaseMacroActivity {
         activity: this,
         origin: this.uuid,
         parameters: this.macro.parameters,
-      });
+      } as unknown as Parameters<typeof macro.execute>[0]);
     }
   }
 
@@ -135,7 +135,7 @@ export default class MacroActivity extends BaseMacroActivity {
   }
 
   /** @override */
-  async _triggerSubsequentActions(_config, _results) {
+  async _triggerSubsequentActions(_config: unknown, _results: unknown) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
     const targets = Array.from(game.user.targets);

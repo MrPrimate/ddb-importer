@@ -1024,7 +1024,9 @@ export default class AdventureMunch {
       { overridesById },
     ) as Actor.Implementation[];
     for (const worldActor of results) {
-      if (!this.temporary.actor.some((a: Actor.Implementation) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      const worldActorDDBId = foundry.utils.getProperty(worldActor, "flags.ddbimporter.id") as number | undefined;
+      if (!worldActorDDBId) continue;
+      if (!this.temporary.actor.some((a) => foundry.utils.getProperty(a, "flags.ddbimporter.id") === worldActorDDBId)) {
         this.temporary.actor.push(worldActor);
       }
     }

@@ -471,7 +471,7 @@ export default class Utils {
     return name;
   }
 
-  static renderPopup(type: string, url: string) {
+  static renderPopup(type: "json" | "web", url: string) {
     if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].closed) {
       CONFIG.DDBI.POPUPS[type].focus();
       CONFIG.DDBI.POPUPS[type].location.href = url;
