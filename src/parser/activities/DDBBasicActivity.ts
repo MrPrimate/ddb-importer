@@ -15,9 +15,10 @@ export default class DDBBasicActivity {
   data: I5eActivity;
   actor: I5ePCData | I5eMonsterData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
-  ddbParent: DDBActivityFactoryMixin | null;
+  ddbParent: DDBActivityFactoryMixin<any> | null;
   // 5e class
-  activityType: any;
+  // the CONFIG.DND5E.activityTypes registry entry for this.type
+  activityType: { documentClass: new (...args: any[]) => any };
 
   _init(): void {
     logger.debug(`Generating DDBBasicActivity ${this.name}`);
@@ -109,7 +110,10 @@ export default class DDBBasicActivity {
   }
 
   // note spells do not have activation
-  _generateActivation({ activationOverride = null, noManual = false }: { activationOverride?: any; noManual?: boolean } = {}): void {
+  _generateActivation({ activationOverride = null, noManual = false }: {
+    activationOverride?: I5eActivityActivation | null;
+    noManual?: boolean;
+  } = {}): void {
     if (activationOverride) {
       this.data.activation = activationOverride;
       this.data.activation.override = true;
@@ -131,12 +135,24 @@ export default class DDBBasicActivity {
     };
   }
 
-  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false, consumeItem = null }: { targetOverrides?: any; consumptionOverride?: any; additionalTargets?: any[]; consumeActivity?: boolean; consumeItem?: any } = {}): void {
+  _generateConsumption({
+    targetOverrides = null,
+    consumptionOverride = null,
+    additionalTargets = [],
+    consumeActivity = false,
+    consumeItem = null,
+  }: {
+    targetOverrides?: I5eConsumptionTarget[] | null;
+    consumptionOverride?: I5eActivityConsumption | null;
+    additionalTargets?: I5eConsumptionTarget[];
+    consumeActivity?: boolean;
+    consumeItem?: boolean | null;
+  } = {}): void {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
     }
-    const targets: any[] = [];
+    const targets: I5eConsumptionTarget[] = [];
     const scaling = false;
 
     // types:
@@ -199,9 +215,9 @@ export default class DDBBasicActivity {
 
   }
 
-  _generateDescription({ overRide = null }: { overRide?: any } = {}): void {
+  _generateDescription({ overRide = null }: { overRide?: string | null } = {}): void {
     this.data.description = {
-      chatFlavor: overRide ?? foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") ?? "",
+      chatFlavor: overRide ?? (foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") as string) ?? "",
     };
   }
 
@@ -213,7 +229,7 @@ export default class DDBBasicActivity {
     logger.debug(`Stubbed summon generation for ${this.name}`);
   }
 
-  _generateDuration({ durationOverride = null }: { durationOverride?: any } = {}): void {
+  _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}): void {
     if (durationOverride) {
       this.data.duration = durationOverride;
       this.data.duration.override = true;
@@ -225,35 +241,35 @@ export default class DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  _generateRange({ rangeOverride = null }: { rangeOverride?: any } = {}): void {
+  _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}): void {
     if (rangeOverride) {
       this.data.range = rangeOverride;
       this.data.range.override = true;
     }
   }
 
-  _generateTarget({ targetOverride = null }: { targetOverride?: any } = {}): void {
+  _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}): void {
     if (targetOverride) {
       this.data.target = targetOverride;
       this.data.target.override = true;
     }
   }
 
-  _generateUses({ usesOverride = null }: { usesOverride?: any } = {}): void {
+  _generateUses({ usesOverride = null }: { usesOverride?: I5eSystemLimitedUses | I5eConsumableUses | null } = {}): void {
     if (usesOverride) {
       this.data.uses = usesOverride;
       this.data.uses.override = true;
     }
   }
 
-  _generateCheck({ checkOverride = null }: { checkOverride?: any } = {}): void {
+  _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}): void {
     if (!("check" in this.data)) return;
     if (checkOverride) {
       this.data.check = checkOverride;
     };
   }
 
-  _generateSpell({ spellOverride = null }: { spellOverride?: any } = {}): void {
+  _generateSpell({ spellOverride = null }: { spellOverride?: I5eActivitySpell | null } = {}): void {
     if (!("spell" in this.data)) return;
     if (spellOverride) {
       this.data.spell = spellOverride;
@@ -270,9 +286,9 @@ export default class DDBBasicActivity {
   }: {
     allowCritical?: boolean | null;
     includeBase?: boolean;
-    damageParts?: any[] | null;
+    damageParts?: I5eDamagePart[] | null;
     onSave?: string | null;
-    scalingOverride?: any;
+    scalingOverride?: IDDBActivityBuild["damageScalingOverride"];
     criticalDamage?: string | null;
   } = {}): void {
     if (!("damage" in this.data)) return;
@@ -310,13 +326,16 @@ export default class DDBBasicActivity {
     // }
   }
 
-  _generateHealing({ healingPart, healingChatFlavor = null }: { healingPart?: any; healingChatFlavor?: string | null } = {}): void {
+  _generateHealing({ healingPart, healingChatFlavor = null }: {
+    healingPart?: IDDBActivityBuild["healingPart"];
+    healingChatFlavor?: string | null;
+  } = {}): void {
     if (healingChatFlavor) this.data.description.chatFlavor = healingChatFlavor;
     if (!("healing" in this.data)) return;
-    this.data.healing = healingPart;
+    this.data.healing = healingPart as I5eDamagePart;
   }
 
-  _generateSave({ saveOverride = null }: { saveOverride?: any } = {}): void {
+  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}): void {
     if (!("save" in this.data)) return;
     if (saveOverride) {
       this.data.save = saveOverride;
@@ -347,14 +366,14 @@ export default class DDBBasicActivity {
     unarmed?: boolean;
     spell?: boolean;
     classification?: string | null;
-    ability?: string | null;
+    ability?: T5eAbility | null;
     bonus?: string;
     criticalThreshold?: number | undefined;
     flat?: boolean;
   } = {}): void {
     if (!("attack" in this.data)) return;
 
-    const attack = {
+    const attack: I5eActivityAttack = {
       ability: ability ? ability : "",
       bonus,
       critical: {
@@ -371,7 +390,7 @@ export default class DDBBasicActivity {
 
   }
 
-  _generateRoll({ rollOverride = null }: { rollOverride?: any } = {}): void {
+  _generateRoll({ rollOverride = null }: { rollOverride?: I5eActivityRoll | null } = {}): void {
     if (!("roll" in this.data)) return;
     if (rollOverride) {
       this.data.roll = rollOverride;
@@ -379,7 +398,7 @@ export default class DDBBasicActivity {
   }
 
 
-  _generateDDBMacro({ ddbMacroOverride = null }: { ddbMacroOverride?: any } = {}): void {
+  _generateDDBMacro({ ddbMacroOverride = null }: { ddbMacroOverride?: IDDBActivityMacro | null } = {}): void {
     if (!("macro" in this.data)) return;
     if (ddbMacroOverride) {
       this.data.macro = ddbMacroOverride;
@@ -697,7 +716,7 @@ export default class DDBBasicActivity {
     enchantmentEffect.system.changes.push(...changes);
     foundry.utils.mergeObject(activity.data, activityData);
 
-    const effectLink = {
+    const effectLink: I5eActivityEffect = {
       _id: enchantmentEffect._id,
       level: {
         min: null,

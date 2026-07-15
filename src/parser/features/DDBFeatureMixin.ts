@@ -838,8 +838,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-
-  getActionAttackAbility(): string {
+  getActionAttackAbility(): T5eActivityAttackAbility {
     return "";
   }
 

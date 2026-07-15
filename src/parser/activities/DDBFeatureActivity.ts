@@ -58,7 +58,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   }
 
   // note spells do not have activation
-  _generateActivation({ activationOverride = null } = {}) {
+  _generateActivation({ activationOverride = null }: { activationOverride?: I5eActivityActivation | null } = {}) {
     if (activationOverride) {
       this.data.activation = activationOverride;
       return;
@@ -82,12 +82,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateConsumption({ consumptionOverride = null } = {}) {
+  _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
     }
-    const targets = [];
+    const targets: I5eConsumptionTarget[] = [];
     const scaling = false;
 
     // types:
@@ -97,9 +97,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // "itemUses"
 
     if (this.ddbParent.rawCharacter) {
-      Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.ddbParent.rawCharacter.system.resources[resource];
-        if (this.ddbDefinition.name === detail.label) {
+      Object.entries(this.ddbParent.rawCharacter.system.resources).forEach(([resource, detail]) => {
+        if (detail && this.ddbDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
             target: `resources.${resource}.value`,
@@ -391,7 +390,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDamage({ parts = null, includeBase = false } = {}) {
+  _generateDamage({ parts = null, includeBase = false }: {
+    parts?: I5eDamagePart[] | null;
+    includeBase?: boolean;
+  } = {}) {
     if (!this.ddbParent.getDamage && !parts) {
       return;
     }
@@ -437,7 +439,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     this.buildData.healing = damage;
   }
 
-  _generateSave({ saveOverride = null } = {}) {
+  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (saveOverride) {
       this.buildData.save = saveOverride;
       return;
@@ -469,7 +471,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateAttack({ attackOverride = null, unarmed = false, spell = false } = {}) {
+  _generateAttack({ attackOverride = null, unarmed = false, spell = false }: {
+    attackOverride?: I5eActivityAttack | null;
+    unarmed?: boolean;
+    spell?: boolean;
+  } = {}) {
     if (attackOverride) {
       this.buildData.attack = attackOverride;
       return;
@@ -510,12 +516,9 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const bonusParent = this.ddbParent as { getBonusDamage?: () => string | number };
     const bonus = bonusParent.getBonusDamage ? bonusParent.getBonusDamage() : "";
 
-    const attack = {
+    const attack: I5eActivityAttack = {
       ability: this.ddbParent.getActionAttackAbility(),
       bonus: bonus && bonus !== 0 ? String(bonus) : "",
-      damage: {
-        parts: [],
-      },
       critical: {
         threshold: undefined,
       },
@@ -536,7 +539,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false } = {}) {
+  _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false }: {
+    name?: string | null;
+    rollOverride?: I5eActivityRoll | null;
+    damageParts?: I5eDamagePart[] | null;
+    includeBase?: boolean;
+  } = {}) {
     if (rollOverride) {
       this.buildData.roll = rollOverride;
       return;

@@ -123,8 +123,10 @@ global {
     effectConditionText?: string;
   }
 
+  type T5eActivityAttackAbility = T5eAbility | "";
+
   interface I5eActivityAttack {
-    ability?: T5eAbility | "";
+    ability?: T5eActivityAttackAbility;
     bonus?: string;
     critical?: {
       threshold?: number;
