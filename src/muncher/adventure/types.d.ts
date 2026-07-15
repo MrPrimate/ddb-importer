@@ -37,42 +37,6 @@ global {
     flags: { "ddbimporter": Record<string, unknown> };
   }
 
-
-  interface IDDBMetaScene {
-    name?: string;
-    width?: number;
-    height?: number;
-    padding?: number;
-    grid?: {
-      type?: number;
-      size?: number;
-      color?: string;
-      alpha?: number;
-      distance?: number;
-      units?: string;
-    };
-    background?: {
-      offsetX?: number;
-      offsetY?: number;
-      scaleX?: number;
-      scaleY?: number;
-      rotation?: number;
-      tint?: string | null;
-    };
-    walls?: I5eWallData[];
-    lights?: I5eAmbientLightData[];
-    drawings?: I5eDrawingData[];
-    flags?: {
-      ddb?: {
-        tokens?: I5eTokenData[];
-        notes?: I5eNoteData[];
-        bookCode?: string | null;
-      };
-      // legacy stairways module data; array pre-0.10.7, object after
-      stairways?: any[] | { data?: any[] };
-    };
-  }
-
   interface IDDBImporterSceneFlags {
     // Stamped at scene creation by DDBMap.
     mapId?: string | null;

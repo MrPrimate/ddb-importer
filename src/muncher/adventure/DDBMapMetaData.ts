@@ -247,7 +247,7 @@ export default class DDBMapMetaData {
   //
   // Public so the native adventure importer can apply the same cleansing to
   // its own scene docs before create (NativeSceneBuilder).
-  static cleanseSceneInfo(info: IDDBMetaScene): IDDBMetaScene {
+  static cleanseSceneInfo(info: I5eSceneData): I5eSceneData {
     if (!info || typeof info !== "object") return info;
 
     DDBMapMetaData._normaliseLegacyGrid(info as any);
@@ -256,8 +256,9 @@ export default class DDBMapMetaData {
       AdventureMunch._migrateSceneDataToV14(info);
     }
 
-    if (info.flags?.["perfect-vision"] && Array.isArray(info.flags["perfect-vision"])) {
-      info.flags["perfect-vision"] = {};
+    const infoFlags = info.flags as Record<string, any> | undefined;
+    if (infoFlags?.["perfect-vision"] && Array.isArray(infoFlags["perfect-vision"])) {
+      infoFlags["perfect-vision"] = {};
     }
 
     if (Array.isArray(info.flags?.stairways)
@@ -545,7 +546,7 @@ export default class DDBMapMetaData {
   // deprecated in V14 in favour of Level#background; reading scene.background
   // triggers a compatibility warning on every access.
   private static _readLevelBackgroundSrc(scene: Scene): string | null {
-    const levels = scene?.levels?.contents ?? scene?.levels ?? [];
+    const levels = (scene?.levels?.contents ?? scene?.levels ?? []) as I5eSceneLevel[];
     const first = levels[0];
     return first?.background?.src ?? null;
   }
@@ -646,7 +647,7 @@ export default class DDBMapMetaData {
     const updates: any[] = [];
     const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
     for (const tile of tiles) {
-      const flags = (tile.flags ?? {})["ddbimporter"] ?? {};
+      const flags = ((tile.flags ?? {}) as Record<string, any>)["ddbimporter"] ?? {};
       if (!flags.quickplayStickerId) continue;
       const rawPos = flags.rawPosition;
       const rawSize = Number(flags.rawSize);
@@ -728,9 +729,9 @@ export default class DDBMapMetaData {
   //
   // Public so the native adventure importer can reuse this projection when
   // applying meta-data into pre-create scene docs (NativeSceneBuilder).
-  static buildSceneUpdate(scene: Scene, info: IDDBMetaScene): Record<string, any> {
+  static buildSceneUpdate(scene: Scene, info: I5eSceneData): Record<string, any> {
     const update: Record<string, any> = {};
-    const ourLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
+    const ourLevel = ((scene.levels?.contents ?? scene.levels ?? []) as I5eSceneLevel[])[0];
 
     for (const [key, value] of Object.entries(info)) {
       if (this._MERGE_EXCLUDE_KEYS.has(key)) continue;
@@ -827,9 +828,10 @@ export default class DDBMapMetaData {
     // Mirror the meta-data background offsets so they don't fight each other.
     // (Post-cleanse this is redundant - _migrateSceneDataToV14 already moves
     // background.offsetX/Y to root shiftX/Y, copied via update[key] above.)
-    if (info.background && typeof info.background === "object") {
-      if (Number.isFinite(info.background.offsetX)) update.shiftX = info.background.offsetX;
-      if (Number.isFinite(info.background.offsetY)) update.shiftY = info.background.offsetY;
+    // we are casting this to any the interface no longer has this in v14
+    if ((info as any).background && typeof (info as any).background === "object") {
+      if (Number.isFinite((info as any).background.offsetX)) update.shiftX = (info as any).background.offsetX;
+      if (Number.isFinite((info as any).background.offsetY)) update.shiftY = (info as any).background.offsetY;
     }
 
     // Meta dims govern the scene. Every placeable (walls/lights/drawings/
@@ -847,7 +849,7 @@ export default class DDBMapMetaData {
     match: IDDBMetaMatch,
     options: IDDBMetaApplyOptions,
   ): Promise<IDDBMetaApplyResult> {
-    const info = match.scene as IDDBMetaScene;
+    const info = match.scene as I5eSceneData;
     const result: IDDBMetaApplyResult = {
       match,
       sceneMerged: false,
@@ -904,7 +906,7 @@ export default class DDBMapMetaData {
       const restamp: Record<string, any> = {};
       const currentLevelBgSrc = DDBMapMetaData._readLevelBackgroundSrc(scene);
       if (munchedLevelBgSrc && currentLevelBgSrc !== munchedLevelBgSrc) {
-        const firstLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
+        const firstLevel = ((scene.levels?.contents ?? scene.levels ?? []) as I5eSceneLevel[])[0];
         if (firstLevel?._id) {
           restamp["levels"] = [{ _id: firstLevel._id, background: { src: munchedLevelBgSrc } }];
         }
