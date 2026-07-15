@@ -59,7 +59,7 @@ global {
     target: I5eActivityTarget;
     duration: I5eSystemDurationData;
     extraAttackBonus: number;
-    baseAbility: string | null;
+    baseAbility: T5eActivityAttackAbility | null;
     proficient: boolean;
     properties: Partial<Record<TWeaponProperties | TFeatProperties, boolean>>;
     range: I5eWeaponRange;

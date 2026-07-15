@@ -191,7 +191,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       ? "ranged"
       : "melee";
 
-    const attack = {
+    const attack: I5eActivityAttack = {
       ability: this.actionData.baseAbility,
       bonus: this.actionData.extraAttackBonus && `${this.actionData.extraAttackBonus}`.trim() !== "0" ? `${this.actionData.extraAttackBonus}` : "",
       critical: {
