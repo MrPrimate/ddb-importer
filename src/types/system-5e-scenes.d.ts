@@ -135,6 +135,7 @@ global {
   // }
 
   interface I5eTokenData extends TokenDocument5e {
+    name?: string;
     flags: {
       ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
       ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
@@ -215,12 +216,21 @@ global {
   interface I5eNoteDDBFlags {
     slugLink?: string;
     labelName?: string;
+    contentChunkId?: string;
+    originalLink?: string;
+    slug?: string;
+    linkName?: string;
+    ddbId?: string;
+    parentId?: number | string;
+    cobaltId?: number | null;
+    journalId?: string;
   }
 
   interface I5eNoteFlags {
     anchor?: {
       slug?: string;
     };
+    ddbId?: string;
     ddb?: I5eNoteDDBFlags;
   }
 

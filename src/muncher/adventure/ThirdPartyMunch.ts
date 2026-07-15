@@ -27,7 +27,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   _itemsToRevisit: string[];
   _adventure: Record<string, unknown>;
-  _scenePackage: { scenes?: any[]; folder?: string };
+  _scenePackage: { scenes?: I5eSceneData[]; folder?: string };
   _packageName: string;
   _description: string;
   _pageFinders: Record<string, PageFinder>;
@@ -110,7 +110,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   async getData() {
     let data;
-    let packages = [];
+    let packages: any[] = [];
 
     try {
       data = await $.getJSON(RAW_MODULES_URL);
@@ -138,19 +138,19 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   /** @override */
-  activateListeners(html) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
     html.find(".dialog-button").on("click", this._dialogButton.bind(this));
     html.find("#select-package").on("change", this._selectPackage.bind(this, null, html));
   }
 
-  async _selectPackage(_event, html) {
+  async _selectPackage(_event: any, html: JQuery<HTMLElement>) {
     const packageSelectionElement = html.find("#select-package");
 
     // get selected campaign from html selection
-    const packageSelection = packageSelectionElement[0].selectedOptions[0]
-      ? packageSelectionElement[0].selectedOptions[0].value
+    const packageSelection = (packageSelectionElement[0] as HTMLSelectElement).selectedOptions[0]
+      ? (packageSelectionElement[0] as HTMLSelectElement).selectedOptions[0].value
       : undefined;
 
     const moduleMessage = html.find("#ddb-message");
@@ -160,7 +160,7 @@ export default class ThirdPartyMunch extends FormApplication {
         return !game.modules.get(module)?.active;
       });
 
-      this._packageName = packageSelectionElement[0].selectedOptions[0].text;
+      this._packageName = (packageSelectionElement[0] as HTMLSelectElement).selectedOptions[0].text;
       this._description = this._defaultRepoData.packages[packageSelection].description;
 
 
@@ -206,7 +206,7 @@ export default class ThirdPartyMunch extends FormApplication {
     $("#ddb-adventure-import").css("height", "auto");
   }
 
-  async _createFolders(adventure, folders) {
+  async _createFolders(adventure: IDDBAdventure, folders: any[]) {
     if (folders) {
       CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
@@ -220,7 +220,7 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  async _checkForMissingData(adventure, folders) {
+  async _checkForMissingData(adventure: IDDBAdventure, folders: any) {
     await this._createFolders(adventure, folders);
 
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
@@ -240,7 +240,7 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  static _renderCompleteDialog(title, adventure) {
+  static _renderCompleteDialog(title: string, adventure: IDDBAdventure) {
     foundry.applications.api.DialogV2.prompt({
       window: { title },
       content: `<h1>${adventure.name}</h1>`,
@@ -249,7 +249,7 @@ export default class ThirdPartyMunch extends FormApplication {
     });
   }
 
-  static async _fixupScenes(scenes) {
+  static async _fixupScenes(scenes: I5eSceneData[]) {
     try {
       if (scenes.length > 0) {
         const totalCount = scenes.length;
@@ -265,7 +265,7 @@ export default class ThirdPartyMunch extends FormApplication {
                 // Remove once/if resolved
                 if (!obj.thumb) {
                   const thumbData = await obj.createThumbnail();
-                  updatedData["thumb"] = thumbData.thumb;
+                  foundry.utils.setProperty(updatedData, "thumb", thumbData.thumb);
                 }
                 await obj.update(updatedData);
                 break;
@@ -285,11 +285,11 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  static async _createFolder(label, type) {
+  static async _createFolder(label: string, type: string) {
     const folderData = {
       "name": label,
       "type": type,
-      "parent": null,
+      "parent": null as string | null,
       "sorting": "m",
     };
     const newFolder = await Folder.create(folderData as unknown as Folder.CreateInput) as unknown as Folder.Implementation;
@@ -297,7 +297,7 @@ export default class ThirdPartyMunch extends FormApplication {
     return newFolder;
   }
 
-  static async _findFolder(label, type): Promise<Folder.Implementation> {
+  static async _findFolder(label: string, type: string): Promise<Folder.Implementation> {
     const folder = game.folders.find((f) =>
       f.type === type
       && (f as unknown as { parentFolder?: unknown }).parentFolder === undefined
@@ -307,30 +307,39 @@ export default class ThirdPartyMunch extends FormApplication {
     return (folder ? folder : ThirdPartyMunch._createFolder(label, type)) as unknown as Folder.Implementation;
   }
 
-  static _generateMockAdventure(scene) {
+  static _generateMockAdventure(scene: I5eSceneData): IDDBAdventure {
     const monsters = scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens
       ? scene.flags.ddb.tokens
         .filter((token) => token.flags?.ddbActorFlags?.id)
-        .map((token) => token.flags.ddbActorFlags.id)
+        .map((token) => String(token.flags.ddbActorFlags.id))
       : [];
     return {
       id: foundry.utils.randomID(),
       name: DDBSources.getBookName(scene.flags.ddb.bookCode),
       description: "",
       system: "dnd5e",
-      modules: [],
+      modules: [] as any[],
       version: "2.5",
       options: {
         folders: true,
       },
       folderColour: "FF0000",
       required: {
+        monsterData: [],
         monsters,
+        items: [],
+        spells: [],
+        vehicles: [],
+        skills: [],
+        senses: [],
+        conditions: [],
+        actions: [],
+        weaponproperties: [],
       },
     };
   }
 
-  static _generateActorId(token) {
+  static _generateActorId(token: I5eTokenData) {
     if (!foundry.utils.hasProperty(token, "flags.ddbActorFlags.id")) logger.warn("Token does not link to DDB Actor", token);
     const ddbId = token.flags.ddbActorFlags?.id;
     const folderId = token.flags.actorFolderId;
@@ -348,16 +357,16 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  async _linkSceneTokens(scene) {
+  async _linkSceneTokens(scene: I5eSceneData) {
     logger.info(`Linking ${scene.name}, ${scene.tokens.length} tokens`);
-    const tokens = await Promise.all(scene.tokens.map(async (token) => {
+    const tokens = await Promise.all(scene.tokens.map(async (token: any) => {
       if (token.actorId) {
-        const worldActor = game.actors.get(token.actorId);
+        const worldActor = game.actors.get(token.actorId) as Actor.Known;
         if (worldActor) {
           // we merge the override data provided by the token to the actor to get
           // world specific things like img paths and scales etc
-          const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-          delete sceneToken.scale;
+          const sceneToken = scene.flags.ddb.tokens.find((t: any) => t._id === token._id);
+          delete (sceneToken as any).scale;
 
           const newToken = await this.adventureMunch._getTokenUpdateData(worldActor, sceneToken);
           return newToken;
@@ -368,7 +377,9 @@ export default class ThirdPartyMunch extends FormApplication {
     return tokens;
   }
 
-  async _linkSceneNotes(scene, adventure) {
+  // this needs reworking as the note data on the thord party scenes is not quite like the data on  the ddb adv muncher scenees
+  // see the third party config export
+  async _linkSceneNotes(scene: I5eSceneData, adventure: IDDBAdventure) {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
     this.adventureMunch.adventure = foundry.utils.deepClone(adventure);
 
@@ -399,7 +410,7 @@ export default class ThirdPartyMunch extends FormApplication {
                 && journal.flags.ddb.linkName == note.flags.ddb.linkName
               : false;
             const journalNameMatch = !contentChunkIdMatch && !originMatch
-              ? (journal.name as string).trim() == note.label.trim() // ||
+              ? (journal.name as string).trim() == ((note as any).label ?? note.text).trim() // ||
               //  journal.pages.some((page) => page.name.trim() === note.label.trim())
               : false;
             return contentChunkIdMatch || originMatch || journalNameMatch;
@@ -407,25 +418,25 @@ export default class ThirdPartyMunch extends FormApplication {
           });
 
         if (noteJournal) {
-          logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
+          logger.info(`Found note "${(note as any).label ?? note.text}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
-          note.icon = await Iconizer.generateIcon(this.adventureMunch.adventure.name, note.label);
+          (note as any).icon = await Iconizer.generateIcon(this.adventureMunch.adventure.name, (note as any).label ?? note.text);
           if (noJournalPinNotes) {
-            note.flags.ddb.labelName = `${note.label}`;
-            note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
+            note.flags.ddb.labelName = `${(note as any).label ?? note.text}`;
+            note.flags.ddb.slugLink = (note as any).label ?? note.text.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
             note.flags.anchor = {
               slug: note.flags.ddb.slugLink,
             };
-            note.text = note.label;
+            note.text = (note as any).label ?? note.text;
 
             if (!this._pageFinders[noteJournal._id]) {
               this._pageFinders[noteJournal._id] = new PageFinder(noteJournal);
             }
             const contentChunkIdPageId = foundry.utils.hasProperty(note, "flags.ddb.contentChunkId")
-              ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(note.flags.ddb.contentChunkId)
+              ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(note.flags.ddb.contentChunkId as string)
               : undefined;
             const slugLinkPageId = foundry.utils.hasProperty(note, "flags.ddb.slugLink")
-              ? this._pageFinders[noteJournal._id].getPageIdForElementId(note.flags.ddb.slugLink)
+              ? this._pageFinders[noteJournal._id].getPageIdForElementId(note.flags.ddb.slugLink as string)
               : undefined;
 
             // console.warn("MATCHES", { slugLinkPageId, contentChunkIdPageId, noteFlags: note.flags.ddb });
@@ -448,11 +459,11 @@ export default class ThirdPartyMunch extends FormApplication {
         return note;
       }));
 
-    const positionedNotes = [];
+    const positionedNotes: any[] = [];
     notes.forEach((note) => {
       if (note.flags?.ddb?.journalId) {
-        note.positions.forEach((position) => {
-          logger.info(`Matching ${note.label} to position ${position.x}/${position.y}`);
+        (note as any).positions.forEach((position: any) => {
+          logger.info(`Matching ${(note as any).label ?? note.text} to position ${position.x}/${position.y}`);
           const noteId = foundry.utils.randomID();
           const n = {
             "_id": noteId,
@@ -465,7 +476,7 @@ export default class ThirdPartyMunch extends FormApplication {
             "x": position.x,
             "y": position.y,
             "texture": {
-              "src": note.icon, // "assets/icons/1.svg",
+              "src": (note as any).icon, // "assets/icons/1.svg",
             },
             "iconSize": note.iconSize ? note.iconSize : 40,
             "text": note.text ? note.text : "",
@@ -487,14 +498,14 @@ export default class ThirdPartyMunch extends FormApplication {
     const adjustedScenes = this._scenePackage.scenes
       .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
 
-    await utils.asyncForEach(adjustedScenes, async(scene) => {
+    await utils.asyncForEach(adjustedScenes, async(scene: I5eSceneData) => {
       logger.debug(`Adjusting scene ${scene.name}`);
       const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
       if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
         await this._checkForMissingData(mockAdventure, []);
         const bookName = DDBSources.getBookName(scene.flags.ddb.bookCode);
         const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
-        scene.tokens = scene.flags.ddb.tokens.map((token) => {
+        scene.tokens = scene.flags.ddb.tokens.map((token: any) => {
           token.flags.actorFolderId = actorFolder.id;
           token.actorId = ThirdPartyMunch._generateActorId(token);
           if (foundry.utils.hasProperty(token, "actorData")) {
@@ -512,7 +523,7 @@ export default class ThirdPartyMunch extends FormApplication {
     return adjustedScenes;
   }
 
-  async _getScene(scene) {
+  async _getScene(scene: I5eSceneData): Promise<Scene> {
     const compendiumId = scene.flags.ddbimporter.export.compendium;
     const compendium = game.packs.get(compendiumId);
     const folderName = this._scenePackage.folder ? this._scenePackage.folder : compendium.metadata.label;
@@ -536,18 +547,18 @@ export default class ThirdPartyMunch extends FormApplication {
     if (existingScene) {
       logger.info(`Updating ${scene.name}`);
       logger.debug(`${scene.name}update data`, { scene, existingScene });
-      await existingScene.update(scene);
+      await existingScene.update(scene as any);
       return existingScene;
     } else {
       scene.folder = folder.id;
-      const worldScene = await game.scenes.importFromCompendium(compendium as unknown as CompendiumCollection<"Scene">, compendiumScene._id, scene, { keepId: true });
+      const worldScene = await game.scenes.importFromCompendium(compendium as unknown as CompendiumCollection<"Scene">, compendiumScene._id, scene as any, { keepId: true });
       logger.info(`Scene: ${scene.name} folder:`, folder);
       logger.debug("worldScene:", worldScene);
       return worldScene;
     }
   }
 
-  async _updateScenes(scenes) {
+  async _updateScenes(scenes: I5eSceneData[]) {
     logger.debug("Processing scenes!", scenes);
     const filteredScenes = scenes
       .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
@@ -559,9 +570,9 @@ export default class ThirdPartyMunch extends FormApplication {
         else return false;
       });
 
-    const processedScenes = [];
+    const processedScenes: any[] = [];
 
-    await utils.asyncForEach(filteredScenes, async(scene) => {
+    await utils.asyncForEach(filteredScenes, async(scene: I5eSceneData) => {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
       const tokenUpdates = foundry.utils.duplicate(scene.tokens);
       logger.debug("tokenUpdates", tokenUpdates);
@@ -571,17 +582,20 @@ export default class ThirdPartyMunch extends FormApplication {
       logger.debug("World scene to add tokens to", worldScene);
       const existingTokens = tokenUpdates.filter((t) => worldScene.tokens.some((wT) => t._id === wT._id));
       logger.debug("existingTokens", existingTokens);
-      await worldScene.updateEmbeddedDocuments("Token", existingTokens, { keepId: true, keepEmbeddedIds: true } as unknown as TokenDocument.Database.UpdateManyDocumentsOperation);
+      await worldScene.updateEmbeddedDocuments("Token", existingTokens as any, {
+        keepId: true,
+        keepEmbeddedIds: true,
+      } as unknown as TokenDocument.Database.UpdateManyDocumentsOperation);
       const newTokens = tokenUpdates.filter((t) => !worldScene.tokens.some((wT) => t._id === wT._id));
       logger.debug("newTokens", newTokens);
-      await worldScene.createEmbeddedDocuments("Token", newTokens, { keepId: true, keepEmbeddedIds: true });
+      await worldScene.createEmbeddedDocuments("Token", newTokens as any, { keepId: true, keepEmbeddedIds: true });
 
       logger.debug(`Finished scene DDB update ${scene.name}`);
     });
     return processedScenes;
   }
 
-  async _dialogButton(event) {
+  async _dialogButton(event: any) {
     event.preventDefault();
     event.stopPropagation();
     const a = event.currentTarget;
@@ -660,7 +674,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
           logger.debug(`Generating scene tokens for ${scene.name}`);
-          const newScene = foundry.utils.duplicate(scene);
+          const newScene = foundry.utils.duplicate(scene) as unknown as I5eSceneData;
           newScene.tokens = await this._linkSceneTokens(scene);
           return newScene;
         }),
@@ -676,7 +690,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       const toTimer = setTimeout(() => {
         logger.warn(`Reference update timed out.`);
-        ThirdPartyMunch._renderCompleteDialog(`Un-Successful Import of ${packageName}`, { name: packageName });
+        ThirdPartyMunch._renderCompleteDialog(`Un-Successful Import of ${packageName}`, { name: packageName } as unknown as IDDBAdventure);
         this.close();
       }, 120000);
 
@@ -686,20 +700,20 @@ export default class ThirdPartyMunch extends FormApplication {
 
       $(".ddb-overlay").toggleClass("import-invalid");
 
-      ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${packageName}`, { name: packageName });
+      ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${packageName}`, { name: packageName } as unknown as IDDBAdventure);
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
       this.close();
     }
   }
 
-  static _updateProgress(total, count, type) {
+  static _updateProgress(total: number, count: number, type: string) {
     const localizedType = `ddb-importer.label.${type}`;
     $(".import-progress-bar")
       .width(`${Math.trunc((count / total) * 100)}%`)
       .html(`<span>${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`);
   }
 
-  static _progressNote(note) {
+  static _progressNote(note: string) {
     $(".import-progress-bar")
       .html(`<span>${game.i18n.localize("ddb-importer.label.Working")} (${note})...</span>`);
   }
