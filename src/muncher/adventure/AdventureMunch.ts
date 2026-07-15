@@ -19,7 +19,7 @@ export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 interface INeededTokens {
   name: string;
-  ddbId: string;
+  ddbId: number;
   actorId: string;
   compendiumId: string;
   folderId: string;
@@ -562,7 +562,7 @@ export default class AdventureMunch {
   }
 
 
-  async _getTokenUpdateData(worldActor: Actor.Known, sceneToken: I5eSceneFlagToken) {
+  async _getTokenUpdateData(worldActor: Actor.Known, sceneToken: I5eTokenData) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
     for (const item of ddbItems) {

@@ -113,25 +113,35 @@ global {
    * instance/placement fields a placed token adds (id, position, level, sort,
    * locked/hidden state, linked actor + delta).
    */
-  interface I5eTokenData extends I5ePrototypeToken {
-    _id?: string;
-    /** linked Actor id (idOnly). */
-    actorId?: string | null;
-    /** ActorDelta source (unlinked token overrides). */
-    delta?: Record<string, unknown> | null;
-    /** integer canvas x. */
-    x?: number;
-    /** integer canvas y. */
-    y?: number;
-    elevation?: number;
-    depth?: number;
-    /** one of CONST.TOKEN_SHAPES. */
-    shape?: number;
-    /** owning Level id. */
-    level?: string;
-    sort?: number;
-    locked?: boolean;
-    hidden?: boolean;
+  // interface I5eTokenData extends I5ePrototypeToken {
+  //   _id?: string;
+  //   /** linked Actor id (idOnly). */
+  //   actorId?: string | null;
+  //   /** ActorDelta source (unlinked token overrides). */
+  //   delta?: Record<string, unknown> | null;
+  //   /** integer canvas x. */
+  //   x?: number;
+  //   /** integer canvas y. */
+  //   y?: number;
+  //   elevation?: number;
+  //   depth?: number;
+  //   /** one of CONST.TOKEN_SHAPES. */
+  //   shape?: number;
+  //   /** owning Level id. */
+  //   level?: string;
+  //   sort?: number;
+  //   locked?: boolean;
+  //   hidden?: boolean;
+  // }
+
+  interface I5eTokenData extends TokenDocument5e {
+    flags: {
+      ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
+      ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
+      ddbActorEffects?: I5eEffectData[];
+      actorFolderId?: string;
+      compendiumActorId?: string;
+    };
   }
 
   /**
@@ -405,16 +415,6 @@ global {
     customItem?: boolean;
     data?: DeepPartial<I5eInventoryItem | I5eFeatItem>;
   }
-  interface I5eSceneFlagToken extends TokenDocument5e {
-    flags: {
-      ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;
-      ddbItems?: IDDBSceneFlagTokenDDBItemFlags[];
-      ddbActorEffects?: I5eEffectData[];
-      actorFolderId?: string;
-    };
-    // delta?: ActorDelta | null;
-    // actorId: string;
-  }
 
   interface I5eSceneDDBFlagsDDBMetaDataVersions {
     lastUpdate?: string;
@@ -454,8 +454,8 @@ global {
     source?: string;
     player?: boolean;
     imageFilename?: string | null;
-    tokens?: I5eSceneFlagToken[];
-    notes?: any[];
+    tokens?: I5eTokenData[];
+    notes?: I5eNoteData[];
     versions?: {
       importer?: IDDBFlagsVersionUpdates;
       ddbMetaData?: {
@@ -484,6 +484,7 @@ global {
   interface I5eSceneDataFlags {
     ddbimporter?: I5eSceneDDBImporterFlags;
     ddb?: I5eSceneDDBFlags;
+    stairways?: any[] | { data?: any[] };
   }
 
   // replace this when a ddb tables is revised
