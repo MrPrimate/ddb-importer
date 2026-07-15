@@ -186,7 +186,7 @@ global {
 
   export interface IDDBTargetUpdateMacroChange {
     macroPass?: string;
-    macroType?: string;
+    macroType?: DDBMacroType;
     macroName?: string;
     document: TDDBImporterDocument;
     priority?: number;

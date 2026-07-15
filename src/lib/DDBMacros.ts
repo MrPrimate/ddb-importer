@@ -102,7 +102,7 @@ export default class DDBMacros {
     return true;
   }
 
-  static async loadMacroFile(type: string, fileName: string, forceLoad = false, forceDDB = false): Promise<string> {
+  static async loadMacroFile(type: DDBMacroType, fileName: string, forceLoad = false, forceDDB = false): Promise<string> {
     const embedMacros = utils.getSetting<boolean>("embed-macros");
     logger.debug(`Getting macro for ${type} ${fileName}`);
     const fileExists = forceLoad || (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge)
@@ -138,7 +138,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return document;
   }
 
-  static async setItemMacroFlag(document: TDDBImporterDocument, macroType: string, macroName: string): Promise<TDDBImporterDocument> {
+  static async setItemMacroFlag(document: TDDBImporterDocument, macroType: DDBMacroType, macroName: string): Promise<TDDBImporterDocument> {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     if (!useDDBFunctions) {
       const itemMacroText = await DDBMacros.loadMacroFile(macroType, macroName);
@@ -151,7 +151,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20, ddbFunctions = null,
     functionCall = null, functionParams = "",
   }: {
-    macroValues?: string; macroType?: string | null; macroName?: string | null; keyPostfix?: string;
+    macroValues?: string; macroType?: DDBMacroType | null; macroName?: string | null; keyPostfix?: string;
     priority?: number; ddbFunctions?: boolean | null; functionCall?: string | null; functionParams?: string;
   }): IActiveEffectChangeData {
 
@@ -176,7 +176,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateMidiOnUseMacroFlagValueV2({
     macroType, macroName, triggerPoints = [], macroUuid = null, functionCall = null,
   }: {
-    macroType: string; macroName: string; triggerPoints?: string[]; macroUuid?: string | null; functionCall?: string | null;
+    macroType: DDBMacroType; macroName: string; triggerPoints?: string[]; macroUuid?: string | null; functionCall?: string | null;
   }): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
@@ -188,7 +188,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
-  static generateMidiOnUseMacroFlagValue(macroType: string, macroName: string, triggerPoints: string[] = [], macroUuid = null as string | null): string {
+  static generateMidiOnUseMacroFlagValue(macroType: DDBMacroType, macroName: string, triggerPoints: string[] = [], macroUuid = null as string | null): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
     const valueContent = (useDDBFunctions)
@@ -200,21 +200,21 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static setMidiOnUseMacroFlagV2({
     document, macroType = null, macroName = null, triggerPoints = [], functionCall = null,
   }: {
-    document: TDDBImporterDocument; macroType?: string | null; macroName?: string | null;
+    document: TDDBImporterDocument; macroType?: DDBMacroType | null; macroName?: string | null;
     triggerPoints?: string[]; functionCall?: string | null;
   }) {
     const value = DDBMacros.generateMidiOnUseMacroFlagValueV2({ macroType, macroName, triggerPoints, functionCall });
     foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
-  static setMidiOnUseMacroFlag(document: TDDBImporterDocument, macroType: string, macroName: string, triggerPoints: string[] = []) {
+  static setMidiOnUseMacroFlag(document: TDDBImporterDocument, macroType: DDBMacroType, macroName: string, triggerPoints: string[] = []) {
     const value = DDBMacros.generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
     foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
   static generateItemMacroValue({
     macroType = null, macroName = null, document = null, functionCall = null,
-  }:  { macroType?: string | null; macroName?: string | null; document?: TDDBImporterDocument;
+  }:  { macroType?: DDBMacroType | null; macroName?: string | null; document?: TDDBImporterDocument;
     functionCall?: string | null; },
   ): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
@@ -230,7 +230,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateOnUseMacroChange({
     macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "",
     functionCall = null, functionParams = "",
-  }: { macroPass: string; macroType?: string | null; macroName?: string | null; priority?: number;
+  }: { macroPass: string; macroType?: DDBMacroType | null; macroName?: string | null; priority?: number;
     document?: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
     functionParams?: string; },
   ): IActiveEffectChangeData {
@@ -247,7 +247,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
 
   static generateDamageBonusMacroChange({
     macroType = null, macroName = null, priority = 20, document = null, functionCall = null,
-  }: { macroType?: string | null; macroName?: string | null; priority?: number;
+  }: { macroType?: DDBMacroType | null; macroName?: string | null; priority?: number;
     document?: TDDBImporterDocument; functionCall?: string | null; },
   ): IActiveEffectChangeData {
     const value = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
@@ -299,7 +299,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateOptionalMacroChange({
     optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null,
     macroParams = "", functionCall = null, functionParams = "",
-  }: { optionPostfix: string; macroPass?: string | null; macroType?: string | null; macroName?: string | null;
+  }: { optionPostfix: string; macroPass?: string | null; macroType?: DDBMacroType | null; macroName?: string | null;
     priority?: number; document?: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
     functionParams?: string; },
   ): IActiveEffectChangeData {
@@ -386,7 +386,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   }
 
 
-  static async getMacroBody(type: string, fileName: string): Promise<string> {
+  static async getMacroBody(type: DDBMacroType, fileName: string): Promise<string> {
     const macroText = await DDBMacros.loadMacroFile(type, fileName, true);
     if (!macroText) {
       ui.notifications.error(`Unable to load macro (${type}) ${fileName}`);
@@ -396,7 +396,10 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return macroText;
   }
 
-  static _getMacroFileNameFromName(name: string): { name: string; fileName: string } {
+  static _getMacroFileNameFromName(name: string): {
+    name: string;
+    fileName: string;
+  } {
     const strippedName = name.split(".js")[0]; // sanitise name
     const fileName = `${strippedName}.js`;
     return {
@@ -405,7 +408,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     };
   }
 
-  static async loadDDBMacroToConfig(type: string, name: string, fileName: string): Promise<Macro> {
+  static async loadDDBMacroToConfig(type: DDBMacroType, name: string, fileName: string): Promise<Macro> {
     const macroText = await DDBMacros.getMacroBody(type, fileName);
     const macro = await DDBMacros.createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
     foundry.utils.setProperty(CONFIG.DDBI.MACROS, `${type}.${name}`, macro);
@@ -413,14 +416,14 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return macro;
   }
 
-  static async getMacro(type: string, name: string): Promise<Macro> {
+  static async getMacro(type: DDBMacroType, name: string): Promise<Macro> {
     const names = DDBMacros._getMacroFileNameFromName(name);
     const macro = CONFIG.DDBI.MACROS[type]?.[names.name]
       ?? (await DDBMacros.loadDDBMacroToConfig(type, names.name, names.fileName));
     return macro;
   }
 
-  static async executeDDBMacro(type: string, name: string, ...params: any[]): Promise<any> {
+  static async executeDDBMacro(type: DDBMacroType, name: string, ...params: any[]): Promise<any> {
     // console.warn("executeDDBMacro", {type, name, parms: [...params] });
     const macro = await DDBMacros.getMacro(type, name);
     logger.debug(`Calling (${type}) macro "${name}" with spread params`, ...params);
@@ -478,7 +481,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
    * @param {...any} params Any additional information/parameters in an array to pass to the macro
    * @returns {Promise<any>} The result of the macro function.
    */
-  static async executeDDBMacroAsGM(type: string, name: string, ids = {}, ...params: any[]): Promise<any> {
+  static async executeDDBMacroAsGM(type: DDBMacroType, name: string, ids = {}, ...params: any[]): Promise<any> {
     const gmUser = game.users.find((user) => user.active && user.isGM);
     if (!gmUser) {
       ui.notifications.error("No GM user found");
@@ -494,7 +497,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     }
   }
 
-  static getMacroFunction(type: string, name: string): (...params: any[]) => Promise<any> {
+  static getMacroFunction(type: DDBMacroType, name: string): (...params: any[]) => Promise<any> {
     const macroFunction = async (...params: any[]) => {
       const macro = await DDBMacros.getMacro(type, name);
       return macro.execute(...params);

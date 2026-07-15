@@ -1,4 +1,5 @@
 import { COMPENDIUM_LOOKUP } from "./CompendiumHelper";
+import { COMPENDIUMS } from "../config/settings/compendiums/compendiums";
 
 export {};
 
@@ -7,6 +8,8 @@ global {
   type TCompendiumTypes = typeof COMPENDIUM_LOOKUP[number]["type"];
 
   type TDDBCompendiumSetting = typeof COMPENDIUMS[number];
+
+  type DDBMacroType = "spell" | "gm" | "item" | "feat" | "generic" | "monsterFeature";
 
   interface IConfiguredCompendium {
     setting: string;

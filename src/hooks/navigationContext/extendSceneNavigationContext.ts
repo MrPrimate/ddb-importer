@@ -5,28 +5,28 @@ import { resolveSceneGridImageSource } from "../../apps/SceneGridDetector";
 import SceneCopyApp from "../../apps/SceneCopyApp";
 import SceneLevelCopyApp from "../../apps/SceneLevelCopyApp";
 
-function getSceneId(li) {
+function getSceneId(li: HTMLLIElement): string {
   return $(li).attr("data-entry-id")
     ?? $(li).attr("data-document-id")
     ?? $(li).attr("data-scene-id")
     ?? $(li).attr("data-entity-id");
 }
 
-export default function (_html, contextOptions) {
+export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOptions: Record<string, any>[]) {
   contextOptions.push({
     name: "ddb-importer.scenes.download",
-    callback: (li) => {
-      const scene = game.scenes.get(getSceneId(li)) as unknown as I5eSceneData;
+    callback: (li: HTMLLIElement) => {
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
       const data = collectSceneData(scene, scene.flags.ddb.bookCode);
       const bookCode = `${scene.flags.ddb.bookCode}-${scene.flags.ddb.ddbId}`;
       const cobaltId = scene.flags.ddb?.cobaltId ? `-${scene.flags.ddb.cobaltId}` : "";
       const parentId = scene.flags.ddb?.parentId ? `-${scene.flags.ddb.parentId}` : "";
       const contentChunkId = scene.flags.ddb?.contentChunkId ? `-${scene.flags.ddb.contentChunkId}` : "";
-      const name = scene.name.replace(/[^a-z0-9_-]/gi, "").toLowerCase();
+      const name = (scene.name as string).replace(/[^a-z0-9_-]/gi, "").toLowerCase();
       const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
       return FileHelper.download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
     },
-    condition: (li) => {
+    condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = utils.getSetting<boolean>("allow-scene-download");
       const allowDownload = game.user.isGM && sceneDownload && scene.flags?.ddb?.ddbId;
@@ -37,11 +37,11 @@ export default function (_html, contextOptions) {
 
   contextOptions.push({
     name: "ddb-importer.scenes.third-party-download",
-    callback: (li) => {
+    callback: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li))as Scene;
       if (scene) new SceneEnhancerExport(scene).render(true);
     },
-    condition: (li) => {
+    condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = utils.getSetting<boolean>("allow-third-party-scene-download")
         || utils.getSetting<boolean>("developer-mode");
@@ -53,12 +53,12 @@ export default function (_html, contextOptions) {
 
   contextOptions.push({
     name: "ddb-importer.scenes.detect-grid",
-    callback: async (li) => {
+    callback: async (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
       if (!scene) return;
       await SceneGridPickerApp.open(scene);
     },
-    condition: (li) => {
+    condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
       return Boolean(game.user.isGM && scene && resolveSceneGridImageSource(scene));
     },
@@ -67,11 +67,11 @@ export default function (_html, contextOptions) {
 
   contextOptions.push({
     name: "ddb-importer.scenes.copy-fields",
-    callback: (li) => {
+    callback: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
       if (scene) new SceneCopyApp(scene).render({ force: true });
     },
-    condition: (li) => {
+    condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = utils.getSetting<boolean>("allow-scene-download")
         || utils.getSetting<boolean>("developer-mode");
@@ -82,12 +82,12 @@ export default function (_html, contextOptions) {
 
   contextOptions.push({
     name: "ddb-importer.scenes.copy-level-objects",
-    callback: (li) => {
+    callback: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
       if (scene) new SceneLevelCopyApp(scene).render({ force: true });
     },
-    condition: (li) => {
-      const scene = game.scenes.get(getSceneId(li)) as any;
+    condition: (li: HTMLLIElement) => {
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
       const sceneDownload = utils.getSetting<boolean>("allow-scene-download")
         || utils.getSetting<boolean>("developer-mode");
       const hasLevels = Array.isArray(scene?.levels?.contents)

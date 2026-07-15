@@ -9,6 +9,8 @@ interface IDDBIMacros {
   gm: Record<string, any>;
   item: Record<string, any>;
   feat: Record<string, any>;
+  generic: Record<string, any>;
+  monsterFeature: Record<string, any>;
 }
 
 interface IDDBIKnownForge {
