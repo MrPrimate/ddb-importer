@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, utils } from "../../lib/_module";
+import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
@@ -46,8 +46,15 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: 
 
 DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DDBCharacter, abilityLongName, type,
   { restriction = ["", null], includeExcludedEffects = false, effectOnly = false,
-    classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {},
-): IDDBModifier[] {
+    classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: {
+    restriction?: (string | null)[];
+    includeExcludedEffects?: boolean;
+    effectOnly?: boolean;
+    classId?: any;
+    availableToMulticlass?: any;
+    useUnfilteredModifiers?: any;
+  } = {},
+): IModifiersMod[] {
 
   const subType = `${abilityLongName}-score`;
 
@@ -76,7 +83,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
     modifiers.push(featMods.filter((mod) => !backgroundFeatIds.includes(mod.componentId)));
   }
 
-  return DDBModifiers.filterModifiers(modifiers.flat(), type, { subType, restriction }) as IDDBModifier[];
+  return DDBModifiers.filterModifiers(modifiers.flat(), type, { subType, restriction });
 };
 
 /**
@@ -91,11 +98,11 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
  * @returns {object} abilities populated with character abilities
  */
 DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter, includeExcludedEffects = false) {
-  const result = {};
+  const result: Partial<I5eAbilities> = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
       value: 0,
-      min: 3,
+      // min: 3,
       max: 20,
       proficient: 0,
     };
@@ -121,11 +128,12 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
     ];
 
     const bonus = this._filterAbilityMods(ability.long, "bonus", { restriction: bonusStatRestrictions, includeExcludedEffects })
-      .filter((mod) => mod.entityId === ability.id)
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .filter((mod) => mod.entityId === ability.id && Number.isInteger(mod.value))
+      .reduce((prev, cur) => prev + (cur.value as number), 0);
 
     const setAbilities = this._filterAbilityMods(ability.long, "set", { restriction: [null, "", "if not already higher"], includeExcludedEffects })
-      .map((mod) => mod.value);
+      .filter((mod) => Number.isInteger(mod.value))
+      .map((mod) => mod.value) as number[];
 
     const modRestrictions = ["Your maximum is now ", "Maximum of ", "maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
@@ -134,6 +142,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
         (mod) =>
           mod.entityId === ability.id
           && mod.restriction
+          && Number.isInteger(mod.value)
           && modRestrictions.some((m) => mod.restriction.startsWith(m)),
       )
       .reduce(
@@ -141,7 +150,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
           const restricted = cur.restriction ? cappedBonusExp.exec(cur.restriction) : undefined;
           const max = restricted ? parseInt(restricted[1]) : 20;
           return {
-            value: prev.value + cur.value,
+            value: (prev.value as number) + (cur.value as number),
             cap: Math.max(prev.cap, max),
           };
         },
@@ -171,14 +180,14 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
         ? 1
         : 0;
 
-    // update value, mod and proficiency
+    // update value, max and proficiency
     result[ability.value].value = overRiddenStat;
-    result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
+    // result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
     result[ability.value].proficient = proficient;
     result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
   });
 
-  return result;
+  return result as I5eAbilities;
 };
 
 /**
@@ -193,9 +202,9 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
  */
 DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, includeExcludedEffects = false) {
 
-  const result = {};
+  const result: Partial<I5eAbilities> = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
-    result[ability.value] = {
+    (result as Record<string, any>)[ability.value] = {
       bonuses: {
         check: "",
         save: "",
@@ -208,7 +217,7 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-ability-checks`, includeExcludedEffects });
     const checkBonus = DDBModifiers.getModifierSum(checkBonusModifiers, this.raw.character);
     if (checkBonus && checkBonus !== "") {
-      result[ability.value].bonuses.check = `+ ${checkBonus}`;
+      (result as Record<string, any>)[ability.value].bonuses.check = `+ ${checkBonus}`;
     }
 
     const saveBonusModifiers = DDBModifiers
@@ -220,22 +229,22 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
       if (customSaveBonus) {
         const totalSave = parseInt(customSaveBonus) + parseInt(modifiersSaveBonus);
         // console.warn("totalSave", totalSave);
-        result[ability.value].bonuses.save = `+ ${totalSave}`;
+        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${totalSave}`;
       } else {
-        result[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
+        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
       }
     } else if (modifiersSaveBonus && modifiersSaveBonus !== "") {
       if (customSaveBonus) {
-        result[ability.value].bonuses.save = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
+        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
       } else {
-        result[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
+        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
       }
     } else if (customSaveBonus) {
-      result[ability.value].bonuses.save = `+ ${customSaveBonus}`;
+      (result as Record<string, any>)[ability.value].bonuses.save = `+ ${customSaveBonus}`;
     }
   });
 
-  return result;
+  return result as I5eAbilities;
 };
 
 /**
@@ -256,8 +265,8 @@ DDBCharacter.prototype._generateAbilities = function _generateAbilities(this: DD
   // we need to populate some base abilities to work out bonuses
   this._generateBaseAbilities(false);
 
-  this.abilities.core = foundry.utils.mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false));
-  this.abilities.withEffects = foundry.utils.mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true));
+  this.abilities.core = foundry.utils.mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false)) as I5eAbilities;
+  this.abilities.withEffects = foundry.utils.mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true)) as I5eAbilities;
   this.raw.character.system.abilities = this.abilities.core;
   this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this.abilities.withEffects;
 

@@ -360,7 +360,8 @@ global {
     resetDice: any | null;
   }
 
-  type IActionTypes = "feat" | "class" | "race" | "background" | "item";
+  type ICoreSourceTypes = "background" | "class" | "feat" | "item" | "race";
+  type IActionTypes = ICoreSourceTypes;
 
   export interface IDDBAction extends IDDBCommonDefinition {
     entityTypeId: number;

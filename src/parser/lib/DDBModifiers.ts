@@ -1,6 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import { logger, utils, Utils } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
+import type { IExcludedEffectModifier } from "../../config/dictionary/effects/excluded";
 
 interface IModFilterOptions {
   classFeatureIds?: number[] | null;
@@ -24,7 +25,7 @@ interface IChosenBaseModifiersOptions extends IBaseOptions {
 }
 
 interface IChosenTypeModifiersOptions extends IChosenBaseModifiersOptions {
-  type?: string;
+  type?: ICoreSourceTypes;
 }
 
 interface IFilterBaseModifiersOptions extends IBaseOptions {
@@ -35,9 +36,9 @@ interface IFilterBaseModifiersOptions extends IBaseOptions {
 
 export default class DDBModifiers {
 
-  static getEffectExcludedModifiers(type, features, ac) {
+  static getEffectExcludedModifiers(type: ICoreSourceTypes, features: boolean, ac: boolean) {
     const EXCLUDED = DICTIONARY.effects.excludedModifiers;
-    let modifiers = [];
+    let modifiers: IExcludedEffectModifier[] = [];
 
     if (type !== "item") {
       // features represent core non ac features
@@ -105,7 +106,7 @@ export default class DDBModifiers {
     );
   }
 
-  static getModifiers(ddb: IDDBData, type: string, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false): IModifiersMod[] {
+  static getModifiers(ddb: IDDBData, type: ICoreSourceTypes, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false): IModifiersMod[] {
     // are we adding effects to documents?
     const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
       ? DDBModifiers.getEffectExcludedModifiers(type, true, true)
@@ -132,7 +133,10 @@ export default class DDBModifiers {
     return modifiers;
   }
 
-  static filterModifiers(modifiers: IModifiersMod[], type: string, { subType = null, restriction = ["", null] }: { subType?: string | null; restriction?: (string | null)[] } = {}): IModifiersMod[] {
+  static filterModifiers(modifiers: IModifiersMod[], type: string, { subType = null, restriction = ["", null] }: {
+    subType?: string | null;
+    restriction?: (string | null)[];
+  } = {}): IModifiersMod[] {
     return modifiers
       .flat()
       .filter(
@@ -240,7 +244,7 @@ export default class DDBModifiers {
     { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null }: IModFilterOptions = {},
   ) {
     // const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
-    const feats = [];
+    const feats: IDDBClassFeatureGrantedFeat[] = [];
     ddb.character.classes.forEach((klass) => {
       const validClass = classId === null
         ? true
@@ -337,8 +341,17 @@ export default class DDBModifiers {
     return isFeatMod;
   }
 
-  static getChosenTypeModifiers(ddb: IDDBData,
-    { type = "class", includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] }: IChosenTypeModifiersOptions = {},
+  static getChosenTypeModifiers(ddb: IDDBData, {
+    type = "class",
+    includeExcludedEffects = false,
+    effectOnly = false,
+    classId = null,
+    requiredLevel = null,
+    exactLevel = null,
+    availableToMulticlass = null,
+    useUnfilteredModifiers = null,
+    filterOnFeatureIds = [],
+  }: IChosenTypeModifiersOptions = {},
   ) {
     const classFeatureIds = DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel })
       .filter((id) => {
@@ -528,8 +541,8 @@ export default class DDBModifiers {
     return value;
   }
 
-  static getValueFromModifiers(modifiers: IModifiersMod[], name: string, modifierSubType: string, modifierType = "bonus") {
-    let bonuses;
+  static getValueFromModifiers(modifiers: IModifiersMod[], name: string, modifierSubType: string, modifierType = "bonus"): string {
+    let bonuses: string | undefined = undefined;
     const bonusEffects = DDBModifiers.filterModifiersOld(modifiers, modifierType, modifierSubType, null);
 
     if (bonusEffects.length > 0) {

@@ -149,7 +149,7 @@ interface DDBCharacter {
   _generateAbilitiesOverrides(): void;
   _getCustomSaveProficiency(ability: any): any;
   _getCustomSaveBonus(ability: any): any;
-  _filterAbilityMods(abilityLongName: any, type: any, options?: { restriction?: any; includeExcludedEffects?: boolean; effectOnly?: boolean; classId?: any; availableToMulticlass?: any; useUnfilteredModifiers?: any }): any;
+  _filterAbilityMods(abilityLongName: any, type: any, options?: { restriction?: any; includeExcludedEffects?: boolean; effectOnly?: boolean; classId?: any; availableToMulticlass?: any; useUnfilteredModifiers?: any }): IModifiersMod[];
   _getAbilities(includeExcludedEffects?: boolean): any;
   _getAbilitiesBonuses(includeExcludedEffects?: boolean): any;
   _generateBaseAbilities(includeExcludedEffects?: boolean): void;
@@ -250,9 +250,9 @@ class DDBCharacter {
   resourceChoices: ResourceChoices;
   raw: IDDBCharacterDataStub;
   abilities: {
-    overrides: Partial<I5eAbilities>;
-    core: Partial<I5eAbilities>;
-    withEffects: Partial<I5eAbilities>;
+    overrides: Record<T5eAbility, number>;
+    core: I5eAbilities;
+    withEffects: I5eAbilities;
   };
   totalLevels: number;
   enableCompanions: boolean;
@@ -260,7 +260,7 @@ class DDBCharacter {
   _itemCurrency: I5eCurrency;
   itemCompendium: CompendiumCollection.Any;
   spellCompendium: CompendiumCollection.Any;
-  possibleFeatures: Actor.Embedded.CollectionFor<"Item">;
+  possibleFeatures: Item.Implementation[];
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;
@@ -318,9 +318,9 @@ class DDBCharacter {
 
     // Character data
     this.abilities = {
-      overrides: {},
-      core: {},
-      withEffects: {},
+      overrides: undefined,
+      core: undefined,
+      withEffects: undefined,
     };
     this.spellSlots = {};
     this.totalLevels = 0;
@@ -351,7 +351,7 @@ class DDBCharacter {
 
     this.matchedFeatures = [];
     // 5e types produce a circular error on getEmbeddedCollection here
-    this.possibleFeatures = (this.currentActor?.getEmbeddedCollection("Item") ?? []) as typeof this.possibleFeatures;
+    this.possibleFeatures = (this.currentActor?.getEmbeddedCollection("Item") ?? []) as unknown as Item.Implementation[];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
