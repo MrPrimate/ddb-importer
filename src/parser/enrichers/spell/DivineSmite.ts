@@ -29,7 +29,7 @@ export default class DivineSmite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "vs Fiends or Undead",
-          midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
+          midiUseCondition: `["fiend", "undead"].includes(raceOrType)`,
           data: {
             damage: {
               parts: [
