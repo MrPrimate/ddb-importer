@@ -60,7 +60,7 @@ export default class RagingStormTundra extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "ragingStormTundra.js",

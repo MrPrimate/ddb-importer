@@ -15,7 +15,7 @@ export default class AncestralProtectors extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "ancestralProtectors.js",

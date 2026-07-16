@@ -82,14 +82,14 @@ export default class FuryOfTheSmall extends DDBEnricherData {
   //   return true;
   // }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "furyOfTheSmall.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "feat",
       name: "furyOfTheSmall.js",

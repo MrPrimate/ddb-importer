@@ -20,7 +20,7 @@ export default class CloakOfDisplacement extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "item",
       name: "cloakOfDisplacement.js",

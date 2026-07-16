@@ -79,7 +79,7 @@ export default class PlanarWarrior extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "feat",
       name: "planarWarrior.js",
@@ -87,7 +87,7 @@ export default class PlanarWarrior extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "planarWarrior.js",

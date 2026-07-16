@@ -54,7 +54,7 @@ export default class SneakAttack extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return this.is2014
       ? {
         type: "feat",

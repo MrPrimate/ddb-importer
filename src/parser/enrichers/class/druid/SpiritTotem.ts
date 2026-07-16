@@ -217,7 +217,7 @@ export default class SpiritTotem extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "generic",
       name: "activeAuraOnly.js",
@@ -225,7 +225,7 @@ export default class SpiritTotem extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "generic",
       name: "activeAuraOnly.js",

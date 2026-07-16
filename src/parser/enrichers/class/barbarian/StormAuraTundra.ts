@@ -45,7 +45,7 @@ export default class StormAuraTundra extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "stormAuraTundra.js",

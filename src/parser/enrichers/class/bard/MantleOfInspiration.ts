@@ -40,7 +40,7 @@ export default class MantleOfInspiration extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "feat",
       name: "mantleOfInspiration.js",
@@ -48,7 +48,7 @@ export default class MantleOfInspiration extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "mantleOfInspiration.js",
