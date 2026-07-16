@@ -90,4 +90,34 @@ global {
     };
     riderStatuses: string[];
   }
+
+  interface IModFilterOptions {
+    classFeatureIds?: number[] | null;
+    classId?: number | null;
+    requiredLevel?: number | null;
+    exactLevel?: number | null;
+  }
+
+  interface IDDBModifiersBaseOptions {
+    includeExcludedEffects?: boolean;
+    effectOnly?: boolean;
+    classId?: number | null;
+    availableToMulticlass?: boolean | null;
+    useUnfilteredModifiers?: boolean | null;
+  }
+
+  interface IDDBModifiersChosenBaseModifiersOptions extends IDDBModifiersBaseOptions {
+    requiredLevel?: number | null;
+    exactLevel?: number | null;
+    filterOnFeatureIds?: number[];
+  }
+
+  interface IDDBModifiersChosenTypeModifiersOptions extends IDDBModifiersChosenBaseModifiersOptions {
+    type?: ICoreSourceTypes;
+  }
+
+  interface IDDBModifiersFilterBaseModifiersOptions extends IDDBModifiersBaseOptions {
+    subType?: string | null;
+    restriction?: (string | null)[];
+  }
 }

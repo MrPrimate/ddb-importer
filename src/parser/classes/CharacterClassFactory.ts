@@ -13,11 +13,9 @@ interface ICharacterClassFactoryOptions {
 
 export default class CharacterClassFactory {
 
-  addToCompendium = null;
-
+  addToCompendium: boolean | null = null;
   compendiumImportTypes = ["classes", "subclasses"];
-
-  updateCompendiumItems = null;
+  updateCompendiumItems: boolean | null = null;
   collectOnly = false;
   source: IDDBData;
   ddbCharacter: DDBCharacter;
@@ -76,14 +74,14 @@ export default class CharacterClassFactory {
     return documents;
   }
 
-  #itemGrantLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem, id: string) {
+  #itemGrantLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem | I5eSubclassItem, id: string) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
-    const advancement = klass.system.advancement[id];
+    const advancement: I5eAdvancement = klass.system.advancement[id];
     const aData = ddbClass._advancementMatches.features[id];
-    const added = {};
+    const added: Record<string, string> = {};
 
     if (!aData || !advancement) {
       logger.warn(`Advancement for ${klass.name} (id ${id}) missing required data for linking`, {
@@ -119,16 +117,16 @@ export default class CharacterClassFactory {
     }
   }
 
-  #abilityScoreFeatLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem, id: string) {
+  #abilityScoreFeatLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem | I5eSubclassItem, id: string) {
     // "value": {
     //   "type": "feat",
     //   "feat": {
     //     "B09QLNujzaGh6zt7": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
     //   }
     // }
-    const advancement = klass.system.advancement[id];
+    const advancement: I5eAdvancement = klass.system.advancement[id];
     const aData = ddbClass._advancementMatches.features[id];
-    const feats = {};
+    const feats: Record<string, string> = {};
 
     if (!aData || !advancement) {
       logger.debug(`Advancement for ${klass.name} (id ${id}) missing required data for linking ${advancement?.type}`, {

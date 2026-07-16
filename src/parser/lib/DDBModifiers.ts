@@ -3,37 +3,6 @@ import { logger, utils, Utils } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
 import type { IExcludedEffectModifier } from "../../config/dictionary/effects/excluded";
 
-interface IModFilterOptions {
-  classFeatureIds?: number[] | null;
-  classId?: number | null;
-  requiredLevel?: number | null;
-  exactLevel?: number | null;
-}
-
-interface IBaseOptions {
-  includeExcludedEffects?: boolean;
-  effectOnly?: boolean;
-  classId?: number | null;
-  availableToMulticlass?: boolean | null;
-  useUnfilteredModifiers?: boolean | null;
-}
-
-interface IChosenBaseModifiersOptions extends IBaseOptions {
-  requiredLevel?: number | null;
-  exactLevel?: number | null;
-  filterOnFeatureIds?: number[];
-}
-
-interface IChosenTypeModifiersOptions extends IChosenBaseModifiersOptions {
-  type?: ICoreSourceTypes;
-}
-
-interface IFilterBaseModifiersOptions extends IBaseOptions {
-  subType?: string | null;
-  restriction?: (string | null)[];
-}
-
-
 export default class DDBModifiers {
 
   static getEffectExcludedModifiers(type: ICoreSourceTypes, features: boolean, ac: boolean) {
@@ -351,7 +320,7 @@ export default class DDBModifiers {
     availableToMulticlass = null,
     useUnfilteredModifiers = null,
     filterOnFeatureIds = [],
-  }: IChosenTypeModifiersOptions = {},
+  }: IDDBModifiersChosenTypeModifiersOptions = {},
   ) {
     const classFeatureIds = DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel })
       .filter((id) => {
@@ -380,7 +349,7 @@ export default class DDBModifiers {
   }
 
   static getChosenClassModifiers(ddb: IDDBData,
-    { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] }: IChosenTypeModifiersOptions = {},
+    { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] }: IDDBModifiersChosenTypeModifiersOptions = {},
   ) {
     return DDBModifiers.getChosenTypeModifiers(ddb, {
       type: "class",
@@ -396,7 +365,7 @@ export default class DDBModifiers {
   }
 
   static filterBaseCharacterModifiers(ddb: IDDBData, type: string,
-    { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IFilterBaseModifiersOptions = {},
+    { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IDDBModifiersFilterBaseModifiersOptions = {},
   ): IModifiersMod[] {
     const modifiers: IModifiersMod[] = [
       DDBModifiers.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),
@@ -409,7 +378,7 @@ export default class DDBModifiers {
   }
 
   static getAllModifiers(ddb: IDDBData,
-    { includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IBaseOptions = {},
+    { includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IDDBModifiersBaseOptions = {},
   ): IModifiersMod[] {
     return [
       DDBModifiers.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),
@@ -423,7 +392,7 @@ export default class DDBModifiers {
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
   static filterBaseModifiers(ddb: IDDBData, type: string,
-    { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IFilterBaseModifiersOptions = {},
+    { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IDDBModifiersFilterBaseModifiersOptions = {},
   ): IModifiersMod[] {
     const modifiers: IModifiersMod[] = [
       DDBModifiers.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),

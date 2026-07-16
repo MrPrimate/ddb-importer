@@ -1342,7 +1342,7 @@ export default abstract class DDBBaseClass {
   }
 
   _generateWeaponMasteryAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
-    const modFilters = {
+    const modFilters: IDDBModifiersChosenTypeModifiersOptions = {
       type: "feat",
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,

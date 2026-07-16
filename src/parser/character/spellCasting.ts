@@ -4,16 +4,16 @@ import DDBCharacter from "../DDBCharacter";
 
 
 // convert spellcasting ability id to string used by foundry
-function convertSpellCastingAbilityId(spellCastingAbilityId) {
-  return DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId)?.value;
+function convertSpellCastingAbilityId(spellCastingAbilityId: number | string) {
+  return DICTIONARY.actor.abilities.find((ability) => ability.id === parseInt(String(spellCastingAbilityId)))?.value;
 };
 
-function getSpellCastingAbility(klass: IDDBClass): string | undefined {
-  const subClassAbilityId = foundry.utils.getProperty(klass, "subclassDefinition.spellCastingAbilityId");
+function getSpellCastingAbility(klass: IDDBClass): T5eAbility | undefined {
+  const subClassAbilityId = foundry.utils.getProperty(klass, "subclassDefinition.spellCastingAbilityId") as number;
   const subClassAbility = subClassAbilityId ? convertSpellCastingAbilityId(subClassAbilityId) : undefined;
   if (subClassAbility) return subClassAbility;
 
-  const classAbilityId = foundry.utils.getProperty(klass, "definition.spellCastingAbilityId");
+  const classAbilityId = foundry.utils.getProperty(klass, "definition.spellCastingAbilityId") as number;
   const classAbility = classAbilityId ? convertSpellCastingAbilityId(classAbilityId) : undefined;
 
   if (classAbility) return classAbility;
@@ -22,7 +22,7 @@ function getSpellCastingAbility(klass: IDDBClass): string | undefined {
 }
 
 DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting(this: DDBCharacter) {
-  const result = [];
+  const result: { label: string; value: number }[] = [];
   this.source.ddb.character.classSpells.forEach((playerClass) => {
     const classInfo = this.source.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
     const spellCastingAbility = getSpellCastingAbility(classInfo);

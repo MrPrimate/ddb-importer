@@ -709,7 +709,7 @@ class DDBCharacter {
     }
   }
 
-  updateItemIds(items: I5eItemData[]): I5eItemData[] {
+  updateItemIds<T extends I5eItemData>(items: T[]): T[] {
     if (!this.currentActor) return items;
     items.forEach((item) => {
       this.updateItemId(item);
