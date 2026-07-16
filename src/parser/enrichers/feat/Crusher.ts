@@ -33,7 +33,7 @@ export default class Crusher extends DDBEnricherData {
 
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "crusher.js",

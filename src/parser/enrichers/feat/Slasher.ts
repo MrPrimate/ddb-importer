@@ -88,7 +88,7 @@ export default class Slasher extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "slasher.js",

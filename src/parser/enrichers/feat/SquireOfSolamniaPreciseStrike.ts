@@ -57,7 +57,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "squireOfSolamnia.js",
