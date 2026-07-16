@@ -155,7 +155,7 @@ global {
 
   interface I5eConsumptionTarget {
     type: "itemUses" | "activityUses" | "spellSlots" | "attribute" | string;
-    target: string;
+    // target?: string;
     value: string | number;
     scaling?: I5eConsumptionTargetScaling;
   }
@@ -195,6 +195,7 @@ global {
     range: I5eWeaponRange;
     rarity: TItemRarity;
     requirements: string;
+    container?: string;
     source: I5eSourceInfo;
     type: {
       value: TWeaponType;
@@ -348,6 +349,7 @@ global {
     rarity: TItemRarity;
     source: I5eSourceInfo;
     strength: number;
+    container?: string;
     type: {
       value: TEquipmentTypes;
       baseItem: string;
@@ -398,6 +400,7 @@ global {
     currency: I5eCurrency;
     capacity: I5eContainerCapacity;
     properties: TContainerProperties[];
+    container?: string;
     attuned: boolean;
     equipped: boolean;
     // not sure this is right
@@ -432,6 +435,7 @@ global {
     proficient: number;
     properties: TToolProperties[];
     type: { value: string; baseItem: string };
+    container?: string;
     attuned: boolean;
     equipped: boolean;
   }
@@ -472,6 +476,7 @@ global {
     damage: I5eConsumableDamage;
     properties: TConsumableProperties[];
     type: { value: string; subtype: string };
+    container?: string;
   }
 
   interface I5eConsumableItem extends I5eSystemBaseDocumentData {
@@ -500,6 +505,7 @@ global {
       value: TLootTypes;
       subtype: string;
     };
+    container?: string;
   }
 
   interface I5eLootItem extends I5eSystemBaseDocumentData {
@@ -814,6 +820,8 @@ global {
     arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
     isSpellItem?: boolean;
     spellName?: string;
+    shadowBlade?: boolean;
+    shadowBladeTier?: string;
 
     // Compendium/import
     overrideId?: string;
@@ -921,4 +929,9 @@ global {
     | I5eSubclassItem
     | I5eRaceItem;
 
+
+  // Live Item with the flag shapes; Item.Implementation's
+  type TImporterItem = Omit<Item.Implementation, "flags"> & {
+    flags: IItemFlagConfig;
+  };
 }

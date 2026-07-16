@@ -2,16 +2,29 @@ import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, Patre
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
-import DDBCharacter from "../parser/DDBCharacter";
+import DDBCharacter, { type DDBCharacterImportOptions } from "../parser/DDBCharacter";
 import DDBPartyInventory from "../muncher/DDBPartyInventory";
+import { IDDBConditionMapping } from "../config/dictionary/actor/conditions";
 
 const CHARACTER_CONTAINER_ENTITY_TYPE_ID = 1581111423;
 const PARTY_CONTAINER_ENTITY_TYPE_ID = DDBPartyInventory.PARTY_CONTAINER_ENTITY_TYPE_ID;
 const PARTY_CAMPAIGN_FLAG = "partyCampaignId";
 const RECENT_EVENT_TTL_MS = 250;
 
-const recentCharacterDeletes = new Map<number, { actor: any; ts: number; document: any }>();
-const recentPartyDeletes = new Map<number, { actor: any; campaignId: string; ts: number }>();
+interface IRecentCharacterDelete {
+  actor: any;
+  ts: number;
+  document: any;
+};
+
+interface IRecentPartyDelete {
+  actor: any;
+  campaignId: string;
+  ts: number;
+};
+
+const recentCharacterDeletes = new Map<number, IRecentCharacterDelete>();
+const recentPartyDeletes = new Map<number, IRecentPartyDelete>();
 
 function pruneRecentEvents(map: Map<number, { ts: number }>) {
   const cutoff = Date.now() - RECENT_EVENT_TTL_MS;
@@ -41,9 +54,9 @@ function findCharacterOwningDDBItem(ddbItemId: number) {
   return null;
 }
 
-function getContainerItems(actor) {
+function getContainerItems(actor: TSyncCharacterActor): TImporterItem[] {
   return actor.items
-    .filter((item) =>
+    .filter((item: TImporterItem) =>
       foundry.utils.hasProperty(item, "flags.ddbimporter.id")
       && foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)
       && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport")
@@ -51,12 +64,27 @@ function getContainerItems(actor) {
     );
 }
 
-function setContainerDetails(actor, item, containerItems = null) {
+function setDefaultActorContainerFlags(actor: TSyncCharacterActor, item: I5eItemData) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
+  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
+  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", CHARACTER_CONTAINER_ENTITY_TYPE_ID);
+}
+
+function setContainerDetails(
+  actor: TSyncCharacterActor,
+  item: I5eItemData,
+  containerItems: TImporterItem[] | null = null,
+): I5eItemData {
+  if (!("container" in item.system)) {
+    setDefaultActorContainerFlags(actor, item);
+    return item;
+  }
+
   const ddbContainers = containerItems ?? getContainerItems(actor);
 
-  const containerItem = item.system.container
-    ? ddbContainers.find((container) => container._id === item.system.container)
+  const containerId = item.system.container;
+  const containerItem = containerId
+    ? ddbContainers.find((container) => container._id === containerId)
     : null;
 
   if (containerItem) {
@@ -72,30 +100,42 @@ function setContainerDetails(actor, item, containerItems = null) {
     return item;
   }
 
-  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
-  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", CHARACTER_CONTAINER_ENTITY_TYPE_ID);
+  setDefaultActorContainerFlags(actor, item);
   return item;
 }
 
-function getFoundryItems(actor) {
+function getFoundryItems(actor: TSyncCharacterActor): I5eItemData[] {
   const ddbContainers = getContainerItems(actor);
 
-  const actorItems = foundry.utils.duplicate(actor.items)
+  const actorItems = (foundry.utils.duplicate(actor.items) as unknown  as I5eItemData[])
     .filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false))
     .map((rawItem) => {
-      const item = actor.items.get(rawItem._id).toObject();
+      const item = actor.items.get(rawItem._id).toObject() as unknown as I5eItemData;
       return setContainerDetails(actor, item, ddbContainers);
     });
   // don't return update ignored items
   return actorItems;
 }
 
-function getCustomItemDescription(text) {
+function getCustomItemDescription(text: string) {
   return utils.stripHtml(text).substring(0, 2055);
 }
 
-async function getUpdateItemIndex() {
-  if (foundry.utils.hasProperty(CONFIG, "DDBI.update.itemIndex")) return foundry.utils.getProperty(CONFIG, "DDBI.update.itemIndex");
+interface IUpdateItemIndex extends Collection<CompendiumCollection.IndexEntry<"Item">> {
+  name?: string;
+  type?: string;
+  flags?: {
+    ddbimporter?: {
+      definitionId?: number;
+      definitionEntityTypeId?: number;
+    };
+  };
+}
+
+async function getUpdateItemIndex(): Promise<IUpdateItemIndex> {
+  if (foundry.utils.hasProperty(CONFIG, "DDBI.update.itemIndex")) {
+    return foundry.utils.getProperty(CONFIG, "DDBI.update.itemIndex") as IUpdateItemIndex;
+  }
   const compendium = await CompendiumHelper.getCompendiumType("item", false);
 
   const indexFields = [
@@ -104,20 +144,25 @@ async function getUpdateItemIndex() {
     "flags.ddbimporter.definitionId",
     "flags.ddbimporter.definitionEntityTypeId",
   ];
-  const itemIndex = await compendium.getIndex({ fields: indexFields });
+  const itemIndex = await compendium.getIndex({ fields: indexFields }) as IUpdateItemIndex;
   foundry.utils.setProperty(CONFIG, "DDBI.update.itemIndex", itemIndex);
 
   return itemIndex;
 }
 
-async function getCompendiumItemInfo(item) {
+async function getCompendiumItemInfo(item: TImporterItem | I5eItemData) {
   const index = await getUpdateItemIndex();
-  const match = NameMatcher.looseItemNameMatch(item, index, true, false, true);
+  const match = NameMatcher.looseItemNameMatch(item, index.contents, true, false, true);
   return match;
 }
 
 // flavor is just useful for debugging
-async function updateCharacterCall(actor, path, bodyContent, flavor?: string | Record<string, unknown>) {
+async function updateCharacterCall(
+  actor: TSyncCharacterActor,
+  path: string,
+  bodyContent: Record<string, any>,
+  flavor?: string | Record<string, unknown>,
+) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = Secrets.getCobalt(actor.id);
   const dynamicSync = SETTINGS.STATUS.activeUpdate();
@@ -136,7 +181,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor?: string | R
     dynamicSync,
     customApiVersion: 5.1,
   };
-  const body = { ...coreBody, ...bodyContent };
+  const body = { ...coreBody, ...(bodyContent as Record<string, any>) };
 
   const url = dynamicSync
     ? `${parsingApi}/dynamic/update/${path}`
@@ -181,23 +226,24 @@ async function updateCharacterCall(actor, path, bodyContent, flavor?: string | R
   }
 }
 
-async function updateDDBSpellSlotsPact(actor) {
+async function updateDDBSpellSlotsPact(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     const spellSlotPackData = {
-      spellslots: {},
+      spellslots: {} as Record<string, number>,
       pact: true,
     };
-    spellSlotPackData.spellslots[`level${actor.system.spells.pact.level}`] = actor.system.spells.pact.value;
+    const num = foundry.utils.getProperty(actor, "system.spells.pact.level") as number;
+    spellSlotPackData.spellslots[`level${num}`] = actor.system.spells.pact.value;
     const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData, "Pact Spell Slots");
     resolve(spellPactSlots);
   });
 }
 
-async function spellSlotsPact(actor, ddbCharacter) {
+async function spellSlotsPact(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-spells-slots")) resolve(undefined);
     if (
-      actor.system.spells.pact.max > 0
+      Number(actor.system.spells.pact.max) > 0
       && ddbCharacter.data.character.system.spells.pact.value !== actor.system.spells.pact.value
     ) {
       resolve(updateDDBSpellSlotsPact(actor));
@@ -207,13 +253,13 @@ async function spellSlotsPact(actor, ddbCharacter) {
   });
 }
 
-async function updateDynamicDDBSpellSlots(actor, update) {
+async function updateDynamicDDBSpellSlots(actor: TSyncCharacterActor, update: Record<string, any>) {
   return new Promise((resolve) => {
-    const spellSlotData = { spellslots: {}, update: false };
+    const spellSlotData = { spellslots: {} as Record<string, number>, update: false };
     for (let i = 1; i <= 9; i++) {
-      const spellData = actor.system.spells[`spell${i}`];
-      if (spellData.max > 0 && update.system.spells[`spell${i}`]) {
-        const used = spellData.max - spellData.value;
+      const spellData = actor.system.spells[`spell${i}` as keyof I5eSpellSlots];
+      if (Number(spellData.max) > 0 && update.system.spells[`spell${i}`]) {
+        const used = Number(spellData.max) - spellData.value;
         spellSlotData.spellslots[`level${i}`] = used;
         spellSlotData["update"] = true;
       }
@@ -226,15 +272,17 @@ async function updateDynamicDDBSpellSlots(actor, update) {
   });
 }
 
-async function spellSlots(actor, ddbCharacter) {
+async function spellSlots(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-spells-slots")) resolve(undefined);
 
-    const spellSlotData = { spellslots: {}, update: false };
+    const spellSlotData = { spellslots: {} as Record<string, number>, update: false };
     for (let i = 1; i <= 9; i++) {
-      const spellData = actor.system.spells[`spell${i}`];
-      if (spellData.max > 0 && ddbCharacter.data.character.system.spells[`spell${i}`].value !== spellData.value) {
-        const used = spellData.max - spellData.value;
+      const spellData = actor.system.spells[`spell${i}` as keyof I5eSpellSlots];
+      if (Number(spellData.max) > 0
+      && ddbCharacter.data.character.system.spells[`spell${i}` as keyof I5eSpellSlots].value !== spellData.value
+      ) {
+        const used = Number(spellData.max) - spellData.value;
         spellSlotData.spellslots[`level${i}`] = used;
         spellSlotData["update"] = true;
       }
@@ -247,7 +295,7 @@ async function spellSlots(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBCurrency(actor) {
+async function updateDDBCurrency(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     const value = {
       pp: Number.isInteger(actor.system.currency.pp) ? actor.system.currency.pp : 0,
@@ -262,7 +310,7 @@ async function updateDDBCurrency(actor) {
   });
 }
 
-async function currency(actor, ddbCharacter) {
+async function currency(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-currency")) resolve({});
 
@@ -314,13 +362,13 @@ async function currency(actor, ddbCharacter) {
 //   return Promise.all(promises);
 // }
 
-async function updateDDBXP(actor) {
+async function updateDDBXP(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     resolve(updateCharacterCall(actor, "xp", { currentXp: actor.system.details.xp.value ?? 0 }, "XP"));
   });
 }
 
-async function xp(actor, ddbCharacter) {
+async function xp(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-xp")) resolve(undefined);
     const same = ddbCharacter.data.character.system.details.xp.value === actor.system.details.xp.value;
@@ -333,7 +381,7 @@ async function xp(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBHitPoints(actor) {
+async function updateDDBHitPoints(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     const temporaryHitPoints = actor.system.attributes.hp.temp ?? 0;
     const bonusHitPoints = actor.system.attributes.hp.tempmax ?? 0;
@@ -346,7 +394,7 @@ async function updateDDBHitPoints(actor) {
   });
 }
 
-async function updateTempMaxDDBHitPoints(actor) {
+async function updateTempMaxDDBHitPoints(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
 
     const bonusHitPoints = {
@@ -357,18 +405,20 @@ async function updateTempMaxDDBHitPoints(actor) {
 }
 
 
-async function hitPoints(actor, ddbCharacter) {
+async function hitPoints(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   if (!utils.getSetting<boolean>("sync-policy-hitpoints")) return [];
-  const promises = [];
-  const same
-    = ddbCharacter.data.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
-    && (ddbCharacter.data.character.system.attributes.hp.temp ?? 0) === (actor.system.attributes.hp.temp ?? 0);
+  const promises: Promise<any>[] = [];
+  const hpValue = actor.system.attributes.hp.value ?? 0;
+  const tempHP = actor.system.attributes.hp.temp ?? 0;
+  const same = ddbCharacter.data.character.system.attributes.hp.value === hpValue
+    && (ddbCharacter.data.character.system.attributes.hp.temp ?? 0) === tempHP;
 
   if (!same) {
     promises.push(updateDDBHitPoints(actor));
   }
 
-  const hpSame = ddbCharacter.data.character.system.attributes.hp.tempmax === (actor.system.attributes.hp.tempmax ?? 0);
+  const tempMax = actor.system.attributes.hp.tempmax ?? 0;
+  const hpSame = ddbCharacter.data.character.system.attributes.hp.tempmax === tempMax;
 
   if (!hpSame) {
     promises.push(updateTempMaxDDBHitPoints(actor));
@@ -377,7 +427,7 @@ async function hitPoints(actor, ddbCharacter) {
   return Promise.all(promises);
 }
 
-async function updateDDBInspiration(actor) {
+async function updateDDBInspiration(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     const inspiration = updateCharacterCall(actor, "inspiration", {
       inspiration: actor.system.attributes.inspiration,
@@ -386,7 +436,7 @@ async function updateDDBInspiration(actor) {
   });
 }
 
-async function inspiration(actor, ddbCharacter) {
+async function inspiration(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-inspiration")) resolve(undefined);
     const same = ddbCharacter.data.character.system.attributes.inspiration === actor.system.attributes.inspiration;
@@ -399,23 +449,23 @@ async function inspiration(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBExhaustion(actor) {
+async function updateDDBExhaustion(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
-    const exhaustionData = {
+    const exhaustionData: { conditionId: number; addCondition: boolean; level?: number; totalHP?: number } = {
       conditionId: 4,
       addCondition: false,
     };
     if (actor.system.attributes.exhaustion !== 0) {
-      exhaustionData["level"] = actor.system.attributes.exhaustion;
-      exhaustionData["totalHP"] = actor.system.attributes.hp.max;
-      exhaustionData["addCondition"] = true;
+      exhaustionData.level = actor.system.attributes.exhaustion;
+      exhaustionData.totalHP = actor.system.attributes.hp.max;
+      exhaustionData.addCondition = true;
     }
     resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion"));
   });
 }
 
 
-async function exhaustion(actor, ddbCharacter) {
+async function exhaustion(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-condition")) resolve({});
     const same = ddbCharacter.data.character.system.attributes.exhaustion === actor.system.attributes.exhaustion;
@@ -429,12 +479,12 @@ async function exhaustion(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBCondition(actor, condition) {
+async function updateDDBCondition(actor: TSyncCharacterActor, condition: IDDBConditionState | IDDBConditionMapping) {
   return new Promise((resolve) => {
     const conditionData = {
       conditionId: condition.ddbId,
       addCondition: condition.applied,
-      level: null,
+      level: null as number | null,
       totalHP: actor.system.attributes.hp.max,
     };
 
@@ -442,11 +492,11 @@ async function updateDDBCondition(actor, condition) {
   });
 }
 
-async function conditions(actor, ddbCharacter) {
+async function conditions(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-condition")) resolve([]);
-    const conditions = getActorConditionStates(actor, ddbCharacter.source.ddb);
-    const results = [];
+    const conditions = getActorConditionStates(actor as Actor.Known, ddbCharacter.source.ddb);
+    const results: Promise<unknown>[] = [];
     conditions.forEach((condition) => {
       // exhaustion handled separately
       if (condition.needsUpdate && condition.ddbId !== 4) {
@@ -457,7 +507,7 @@ async function conditions(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBDeathSaves(actor) {
+async function updateDDBDeathSaves(actor: TSyncCharacterActor) {
   return new Promise((resolve) => {
     const deathSaveData = {
       failCount: actor.system.attributes.death.failure ?? 0,
@@ -467,10 +517,11 @@ async function updateDDBDeathSaves(actor) {
   });
 }
 
-async function deathSaves(actor, ddbCharacter) {
+async function deathSaves(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
+  const death = actor.system.attributes.death;
   return new Promise((resolve) => {
     if (utils.getSetting<boolean>("sync-policy-deathsaves")) {
-      const same = isEqual(ddbCharacter.data.character.system.attributes.death, actor.system.attributes.death);
+      const same = isEqual(ddbCharacter.data.character.system.attributes.death, death);
       if (!same) {
         resolve(updateDDBDeathSaves(actor));
       } else {
@@ -482,11 +533,11 @@ async function deathSaves(actor, ddbCharacter) {
   });
 }
 
-async function updateDDBHitDice(actor, klass, update) {
+async function updateDDBHitDice(actor: TSyncCharacterActor, klass: TImporterItem, update: Record<string, any>) {
   return new Promise((resolve) => {
     if (klass.flags?.ddbimporter?.id) {
       const hitDiceData = {
-        classHitDiceUsed: {},
+        classHitDiceUsed: {} as Record<string, number>,
         resetMaxHpModifier: false,
       };
       hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = update.system.hd.spent;
@@ -497,24 +548,26 @@ async function updateDDBHitDice(actor, klass, update) {
   });
 }
 
-async function hitDice(actor, ddbCharacter) {
+async function hitDice(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-hitdice")) resolve(undefined);
 
     const ddbClasses = ddbCharacter.data.classes;
 
-    const klasses = actor.items.filter(
-      (item) => item.type === "class" && item.flags.ddbimporter.id && item.flags.ddbimporter.definitionId,
+    const klasses = actor.items.filter((item) => item.type === "class"
+        && !!foundry.utils.getProperty(item, "flags.ddbimporter.id")
+        && !!foundry.utils.getProperty(item, "flags.ddbimporter.definitionId"),
     );
 
     const hitDiceData = {
-      classHitDiceUsed: {},
+      classHitDiceUsed: {} as Record<string, number>,
       resetMaxHpModifier: false,
     };
 
     klasses.forEach((klass) => {
-      const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.flags.ddbimporter.id);
-      if (classMatch && classMatch.system.hitDiceUsed !== klass.system.hitDiceUsed) {
+      const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.flags.ddbimporter.id) as I5eClassItem | undefined;
+      // hitDiceUsed no longer exists on either side; the parser stamps hd.spent
+      if (classMatch && classMatch.system.hd.spent !== klass.system.hd.spent) {
         hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = klass.system.hd.spent;
       }
     });
@@ -528,14 +581,14 @@ async function hitDice(actor, ddbCharacter) {
   });
 }
 
-async function updateSpellsPrepared(actor, spellPreparedData) {
+async function updateSpellsPrepared(actor: TSyncCharacterActor, spellPreparedData: Record<string, any>) {
   return new Promise((resolve) => {
     resolve(updateCharacterCall(actor, "spell/prepare", spellPreparedData, "Spells Prepared"));
   });
 }
 
-async function updateDDBSpellsPrepared(actor, spells) {
-  const promises = [];
+async function updateDDBSpellsPrepared(actor: TSyncCharacterActor, spells: TImporterItem[]) {
+  const promises: Promise<any>[] = [];
 
   const preparedSpells = spells.filter((spell) =>
     spell.type === "spell"
@@ -564,22 +617,22 @@ async function updateDDBSpellsPrepared(actor, spells) {
   return Promise.all(promises);
 }
 
-async function spellsPrepared(actor, ddbCharacter) {
+async function spellsPrepared(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   if (!utils.getSetting<boolean>("sync-policy-spells-prepared")) return [];
   const ddbSpells = ddbCharacter.data.spells;
 
-  const preparedSpells = actor.items.filter((item) => {
+  const preparedSpells = actor.items.filter((item: TImporterItem) => {
     const spellMatch = ddbSpells.find((s) =>
       s.name === item.name
       && item.system.method === "spell"
       && item.system.prepared !== CONFIG.DND5E.spellPreparationStates.always.value
-      && item.flags.ddbimporter?.dndbeyond?.characterClassId
+      && foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.characterClassId")
       && item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId,
     );
     if (!spellMatch) return false;
     const select = item.type === "spell"
-      && item.system.method === "spell"
-      && item.system.prepared !== spellMatch.system.prepared;
+      && (item as any).system.method === "spell"
+      && (item as any).system.prepared !== spellMatch.system.prepared;
     return spellMatch && select;
   });
 
@@ -588,7 +641,7 @@ async function spellsPrepared(actor, ddbCharacter) {
   return results;
 }
 
-async function updateItemsWithDDBInfo(itemsToAdd) {
+async function updateItemsWithDDBInfo<T extends I5eItemData>(itemsToAdd: T[]) {
   return Promise.all(itemsToAdd.map(async (item) => {
     if (!item.flags.ddbimporter?.definitionId && !item.flags.ddbimporter?.definitionEntityTypeId) {
       const ddbCompendiumMatch = await getCompendiumItemInfo(item);
@@ -608,15 +661,29 @@ async function updateItemsWithDDBInfo(itemsToAdd) {
   }));
 }
 
-function getValidContainer(actor, containerEntityId) {
+function getValidContainer(actor: TSyncCharacterActor, containerEntityId: number | string) {
   if (!containerEntityId) return undefined;
-  if (parseInt(containerEntityId) === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)) return true;
-  const containers = actor.items.filter((i) => foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.isContainer") === true);
-  return containers.find((c) => parseInt(foundry.utils.getProperty(c, "flags.ddbimporter.id") as string) === parseInt(containerEntityId));
+  if (parseInt(String(containerEntityId)) === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)) return true;
+  const containers = actor.items.filter((i) =>
+    foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.isContainer") === true,
+  );
+  return containers.find((c) => parseInt(foundry.utils.getProperty(c, "flags.ddbimporter.id") as string) === parseInt(String(containerEntityId)));
 }
 
-function generateItemsToAdd(actor, itemsToAdd) {
-  const results = {
+interface IGenerateItemsToAddResult {
+  containerEntityId: number;
+  containerEntityTypeId: number;
+  entityId: number;
+  entityTypeId: number;
+  quantity: number;
+}
+
+function generateItemsToAdd<T extends I5eInventoryItem>(actor: TSyncCharacterActor, itemsToAdd: T[]) {
+  const results: {
+    items: T[];
+    toAdd: IGenerateItemsToAddResult[];
+    custom: T[];
+  } = {
     items: [],
     toAdd: [],
     custom: [],
@@ -627,19 +694,21 @@ function generateItemsToAdd(actor, itemsToAdd) {
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
-      const containerItem = getValidContainer(actor, foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId"));
-      const containerEntityId = containerItem
+      // was hasProperty, which passed a boolean and made the lookup always miss
+      const containerItem = getValidContainer(actor, foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") as number | string);
+      // getValidContainer returns true when the container is the character itself
+      const containerEntityId = containerItem && containerItem !== true
         ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id") as string)
         : characterId;
-      const containerEntityTypeId = containerItem && containerEntityId !== characterId
+      const containerEntityTypeId = containerItem && containerItem !== true && containerEntityId !== characterId
         ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId") as string)
         : parseInt("1581111423");
       results.toAdd.push({
         containerEntityId,
         containerEntityTypeId,
-        entityId: parseInt(item.flags.ddbimporter.definitionId),
-        entityTypeId: parseInt(item.flags.ddbimporter.definitionEntityTypeId),
-        quantity: parseInt(item.system.quantity),
+        entityId: parseInt(String(item.flags.ddbimporter.definitionId)),
+        entityTypeId: parseInt(String(item.flags.ddbimporter.definitionEntityTypeId)),
+        quantity: parseInt(String(item.system.quantity)),
       });
     } else {
       results.custom.push(item);
@@ -649,7 +718,7 @@ function generateItemsToAdd(actor, itemsToAdd) {
   return results;
 }
 
-async function deleteDDBCustomItems(actor, itemsToDelete) {
+async function deleteDDBCustomItems(actor: TSyncCharacterActor, itemsToDelete: I5eInventoryItem[]) {
   return new Promise((resolve) => {
     const customItemResults = [];
     for (let i = 0; i < itemsToDelete.length; i++) {
@@ -660,7 +729,7 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
           characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
           id: item.flags.ddbimporter.definitionId,
           mappingId: item.flags.ddbimporter.id,
-          partyId: null,
+          partyId: null as string | number | null,
         },
       };
       if (foundry.utils.getProperty(customData, "customValues.id") !== undefined
@@ -697,15 +766,15 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
  * @returns {Array} A n array of the added
  * custom items, each enriched with DDB information.
  */
-async function addDDBCustomItems(actor, itemsToAdd) {
+async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInventoryItem[] | TImporterItem[]) {
   const customItemResults = [];
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
     const containerEntityId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-      ? parseInt(item.flags.ddbimporter.containerEntityId as string)
-      : parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
+      ? parseInt(String(item.flags.ddbimporter.containerEntityId))
+      : parseInt(String(actor.flags.ddbimporter.dndbeyond.characterId));
     const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
-      ? parseInt(item.flags.ddbimporter.containerEntityTypeId as string)
+      ? parseInt(String(item.flags.ddbimporter.containerEntityTypeId))
       : parseInt("1581111423");
     const customData = {
       itemState: "NEW",
@@ -715,9 +784,9 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         containerEntityTypeId,
         name: item.name,
         description: getCustomItemDescription(item.system.description.value),
-        quantity: parseInt(item.system.quantity),
-        cost: null,
-        weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
+        quantity: item.system.quantity,
+        cost: null as number | null,
+        weight: Number.isInteger(item.system.weight) ? item.system.weight : 0,
       },
     };
 
@@ -738,7 +807,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
   return customItemResults;
 }
 
-async function addDDBEquipment(actor, itemsToAdd) {
+async function addDDBEquipment(actor: TSyncCharacterActor, itemsToAdd: I5eInventoryItem[]) {
   const ddbEnrichedItems = await updateItemsWithDDBInfo(itemsToAdd);
   const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems);
 
@@ -778,13 +847,13 @@ async function addDDBEquipment(actor, itemsToAdd) {
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData, "Adding equipment");
     try {
-      const itemUpdates = itemResults.data.addItems
-        .filter((addedItem) => ddbEnrichedItems.some((i) =>
+      const itemUpdates: IDDBInventoryItem[] = itemResults.data.addItems
+        .filter((addedItem: IDDBInventoryItem) => ddbEnrichedItems.some((i) =>
           i.flags.ddbimporter
           && i.flags.ddbimporter.definitionId === addedItem.definition.id
           && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId,
         ))
-        .map((addedItem) => {
+        .map((addedItem: IDDBInventoryItem) => {
           const updatedItem = ddbEnrichedItems.find((i) =>
             i.flags.ddbimporter
             && i.flags.ddbimporter.definitionId === addedItem.definition.id
@@ -800,7 +869,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
       logger.debug("Character custom item updates:", customItems);
 
       try {
-        if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates);
+        if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates as any);
         if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems);
       } catch (err) {
         logger.error(`Unable to update character with equipment, got the error:`, err);
@@ -825,7 +894,14 @@ async function addDDBEquipment(actor, itemsToAdd) {
   }
 }
 
-async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
+interface IItemsToMoveEntry {
+  itemId: number;
+  containerEntityId: number;
+  containerEntityTypeId: number;
+  name: string;
+}
+
+async function addEquipment(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
@@ -833,20 +909,20 @@ async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
   const items = getFoundryItems(actor);
   const candidates = items.filter((item) =>
     !(item.flags.ddbimporter?.action ?? false)
-    && item.system.quantity !== 0
+    && (!("quantity" in item.system) || item.system.quantity !== 0)
     && DICTIONARY.types.inventory.includes(item.type)
     && !item.flags.ddbimporter?.custom
     && (!item.flags.ddbimporter?.id
     || !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type)),
-  );
+  ) as I5eInventoryItem[];
 
   const partyDDBItemIds: Set<number> = partyContext?.partyDDBItemIds ?? new Set();
   const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
-  const itemsToMoveFromParty: any[] = [];
-  const itemsToAdd: any[] = [];
+  const itemsToMoveFromParty: IItemsToMoveEntry[] = [];
+  const itemsToAdd: I5eInventoryItem[] = [];
 
   for (const item of candidates) {
-    const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
+    const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id") as number;
     if (ddbItemId && partyDDBItemIds.has(parseInt(`${ddbItemId}`))) {
       itemsToMoveFromParty.push({
         itemId: ddbItemId,
@@ -874,16 +950,16 @@ async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
 
 
 // updates custom names on regular items
-async function updateDDBCustomNames(actor, items) {
-  const promises = [];
+async function updateDDBCustomNames(actor: TSyncCharacterActor, items: I5eInventoryItem[]) {
+  const promises: Promise<any>[] = [];
 
   items.forEach((item) => {
     const customData = {
       customValues: {
         characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
-        contextId: null,
-        contextTypeId: null,
-        notes: null,
+        contextId: null as number | null,
+        contextTypeId: null as number | null,
+        notes: null as string | null,
         typeId: 8,
         value: item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
@@ -899,7 +975,7 @@ async function updateDDBCustomNames(actor, items) {
 }
 
 // updates names of items and actions
-async function updateCustomNames(actor, ddbCharacter) {
+async function updateCustomNames(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
@@ -907,7 +983,7 @@ async function updateCustomNames(actor, ddbCharacter) {
   const foundryItems = getFoundryItems(actor);
 
   const itemsToName = foundryItems.filter((item) =>
-    item.system.quantity !== 0
+    (!("quantity" in item.system) || item.system.quantity !== 0)
     && (DICTIONARY.types.inventory.includes(item.type) || item.flags.ddbimporter?.action)
     && item.flags.ddbimporter?.id
     && ddbItems.some((ddbItem) =>
@@ -915,13 +991,13 @@ async function updateCustomNames(actor, ddbCharacter) {
       && ddbItem.type === item.type
       && ddbItem.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim() !== item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
     ),
-  );
+  ) as I5eInventoryItem[];
 
   return updateDDBCustomNames(actor, itemsToName);
 }
 
-async function removeDDBEquipment(actor, itemsToRemove) {
-  const promises = [];
+async function removeDDBEquipment(actor: TSyncCharacterActor, itemsToRemove: I5eInventoryItem[]) {
+  const promises: Promise<any>[] = [];
 
   itemsToRemove.forEach((item) => {
     if (item.flags?.ddbimporter?.id) {
@@ -929,7 +1005,7 @@ async function removeDDBEquipment(actor, itemsToRemove) {
       if (item.flags?.ddbimporter?.custom) {
         promises.push(deleteDDBCustomItems(actor, [item]));
       } else {
-        promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }, "Removing equipment"));
+        promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(String(item.flags.ddbimporter.id)) }, "Removing equipment"));
       }
     }
   });
@@ -937,32 +1013,32 @@ async function removeDDBEquipment(actor, itemsToRemove) {
   return Promise.all(promises);
 }
 
-async function moveDDBEquipment(actor, moves) {
-  const promises = [];
+async function moveDDBEquipment(actor: TSyncCharacterActor, moves: IItemsToMoveEntry[]) {
+  const promises: Promise<any>[] = [];
   for (const move of moves) {
     if (!move?.itemId) continue;
     const itemData = {
-      itemId: parseInt(move.itemId),
-      containerEntityId: parseInt(move.containerEntityId),
-      containerEntityTypeId: parseInt(move.containerEntityTypeId),
+      itemId: parseInt(String(move.itemId)),
+      containerEntityId: parseInt(String(move.containerEntityId)),
+      containerEntityTypeId: parseInt(String(move.containerEntityTypeId)),
     };
     promises.push(updateCharacterCall(actor, "equipment/move", itemData, { name: move.name ?? "" }));
   }
   return Promise.all(promises);
 }
 
-async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
+async function removeEquipment(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
   const actorItems = getFoundryItems(actor).filter((item) =>
     foundry.utils.getProperty(item, "flags.ddbimporter.action") !== true
     && DICTIONARY.types.inventory.includes(item.type),
-  );
+  ) as I5eInventoryItem[];
 
   const partyDDBItemIds: Set<number> = partyContext?.partyDDBItemIds ?? new Set();
   const partyCampaignId = partyContext?.campaignId ?? null;
-  const itemsToMoveToParty: any[] = [];
+  const itemsToMoveToParty: IItemsToMoveEntry[] = [];
 
   const itemsToRemove = ddbItems.filter((item) => {
     const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id") as number;
@@ -972,7 +1048,7 @@ async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
 
     const actorItemTypeMatch = actorItems.find((s) =>
       item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type,
-    );
+    ) as I5eInventoryItem | undefined;
     if (actorItemTypeMatch) {
       // found an item but zero quantity, remove
       if (actorItemTypeMatch.system.quantity == 0) return true;
@@ -999,7 +1075,7 @@ async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
           itemId: ddbItemId,
           containerEntityId: parseInt(`${partyCampaignId}`),
           containerEntityTypeId: PARTY_CONTAINER_ENTITY_TYPE_ID,
-          name: item.definition?.name ?? item.name,
+          name: foundry.utils.getProperty(item, "definition.name") as string ?? item.name,
         });
         return false;
       }
@@ -1025,7 +1101,7 @@ async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
   return [...(moveResults as any[]), ...(removeResults as any[])];
 }
 
-async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
+async function updateDDBEquipmentStatus(actor: TSyncCharacterActor, updateItemDetails: Record<string, I5eInventoryItem[]>, ddbItems: IDDBInventoryItem[]) {
   logger.debug("Updating DDB Equipment Status", {
     updateItemDetails,
     actor,
@@ -1040,14 +1116,14 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   const itemsToMove = updateItemDetails.itemsToMove || [];
   const currencyItems = updateItemDetails.itemsToCurrency || [];
 
-  const promises = [];
+  const promises: Promise<any>[] = [];
 
   itemsToMove.forEach((item) => {
     const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
     const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-      && parseInt(item.flags.ddbimporter.containerEntityId as string) === characterId
+      && parseInt(String(item.flags.ddbimporter.containerEntityId)) === characterId
       ? parseInt("1581111423") // default to character inventory
-      : parseInt(item.flags.ddbimporter.containerEntityTypeId);
+      : parseInt(String(item.flags.ddbimporter.containerEntityTypeId));
 
     const itemData = {
       itemId: item.flags.ddbimporter.id,
@@ -1057,13 +1133,17 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/move", itemData, { name: item.name }));
   });
   itemsToEquip.forEach((item) => {
-    const itemData = { itemId: item.flags.ddbimporter.id, value: item.system.equipped };
-    promises.push(updateCharacterCall(actor, "equipment/equipped", itemData, { name: item.name }));
+    if ("equipped" in item.system) {
+      const itemData = { itemId: item.flags.ddbimporter.id, value: item.system.equipped };
+      promises.push(updateCharacterCall(actor, "equipment/equipped", itemData, { name: item.name }));
+    }
   });
   itemsToAttune.forEach((item) => {
     // console.warn(item)
-    const itemData = { itemId: item.flags.ddbimporter.id, value: item.system.attuned };
-    promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
+    if ("attuned" in item.system) {
+      const itemData = { itemId: item.flags.ddbimporter.id, value: item.system.attuned };
+      promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
+    }
   });
   itemsToCharge.forEach((rawItem) => {
     const item = actor.items.get(rawItem._id);
@@ -1076,11 +1156,13 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     }
   });
   itemsToQuantity.forEach((item) => {
-    const itemData = {
-      itemId: item.flags.ddbimporter.id,
-      quantity: parseInt(item.system.quantity),
-    };
-    promises.push(updateCharacterCall(actor, "equipment/quantity", itemData, { name: item.name }));
+    if ("quantity" in item.system) {
+      const itemData = {
+        itemId: item.flags.ddbimporter.id,
+        quantity: item.system.quantity,
+      };
+      promises.push(updateCharacterCall(actor, "equipment/quantity", itemData, { name: item.name }));
+    }
   });
   itemsToName.forEach((item) => {
     // historically items may not have this metadata
@@ -1090,9 +1172,9 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     const customData = {
       customValues: {
         characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
-        contextId: null,
-        contextTypeId: null,
-        notes: null,
+        contextId: null as number | null,
+        contextTypeId: null as number | null,
+        notes: null as string | null,
         typeId: 8,
         value: item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
@@ -1112,14 +1194,14 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 
     if (ddbItem && !foundry.utils.hasProperty(ddbItem, "currency.gp")) continue;
     ["pp", "gp", "ep", "sp", "cp"].forEach((t) => {
-      if (foundry.utils.getProperty(item, `system.currency.${t}`) !== ddbItem.currency[t]) {
+      if (foundry.utils.getProperty(item, `system.currency.${t}`) !== foundry.utils.getProperty(ddbItem, `currency.${t}`)) {
         const currency = {
           amount: foundry.utils.getProperty(item, `system.currency.${t}`),
           characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
           destinationEntityId: foundry.utils.getProperty(item, "flags.ddbimporter.id"),
           destinationEntityTypeId: foundry.utils.getProperty(item, "flags.ddbimporter.entityTypeId"),
         };
-        const type = DICTIONARY.currency[t];
+        const type = DICTIONARY.currency[t as TCurrencyUnit];
         promises.push(updateCharacterCall(actor, `currency/individual`, { type, currency }, `Currency - ${t}`));
       }
     });
@@ -1147,9 +1229,9 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
           // revist these need to be ints
           // weight: `${item.data.weight}`,
           // cost: item.data.price.value,
-          cost: null,
-          weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
-          quantity: parseInt(item.system.quantity),
+          cost: null as number | null,
+          weight: Number.isInteger(item.system.weight) ? item.system.weight : 0,
+          quantity: item.system.quantity,
         },
       };
       promises.push(updateCharacterCall(actor, "custom/item", customData, "Updating Custom Item"));
@@ -1159,20 +1241,20 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 }
 
 
-async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
+async function equipmentStatus(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter, addEquipmentResults: Record<string, any>) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
   let ddbItems = ddbCharacter.source.ddb.character.inventory;
   const customDDBItems = ddbCharacter.source.ddb.character.customItems;
   if (addEquipmentResults?.system) {
-    actor = game.actors.get(actor.id);
+    actor = game.actors.get(actor.id) as TSyncCharacterActor;
     ddbItems = ddbItems.concat(addEquipmentResults.system.addItems);
   }
 
   const foundryItems = getFoundryItems(actor);
 
-  const itemsToEquip = foundryItems.filter((item) =>
+  const itemsToEquip: I5eInventoryItem[] = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "system.equipped")
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
@@ -1181,8 +1263,8 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.system.equipped !== dItem.equipped,
     ),
-  );
-  const itemsToAttune = foundryItems.filter((item) =>
+  ) as I5eInventoryItem[];
+  const itemsToAttune: I5eInventoryItem[] = foundryItems.filter((item) =>
     ["optional", "required"].includes(foundry.utils.getProperty(item, "system.attunement") as string)
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
@@ -1191,8 +1273,8 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && foundry.utils.getProperty(item, "system.attuned") !== dItem.isAttuned,
     ),
-  );
-  const itemsToCharge = foundryItems.filter((rawItem) => {
+  ) as I5eInventoryItem[];
+  const itemsToCharge: I5eInventoryItem[] = foundryItems.filter((rawItem) => {
     const item = actor.items.get(rawItem._id);
     return foundry.utils.hasProperty(item, "system.uses")
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
@@ -1201,11 +1283,11 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     && ddbItems.some((dItem) =>
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && Number.isInteger(parseInt(foundry.utils.getProperty(item, "system.uses.max") as string))
-      && Number.isInteger(parseInt(dItem.limitedUse?.numberUsed))
+      && Number.isInteger(parseInt(String(dItem.limitedUse?.numberUsed)))
       && ((parseInt(foundry.utils.getProperty(item, "system.uses.max") as string) - parseInt(foundry.utils.getProperty(item, "system.uses.value") as string)) !== dItem.limitedUse.numberUsed),
     );
-  });
-  const itemsToQuantity = foundryItems.filter((item) =>
+  }) as I5eInventoryItem[];
+  const itemsToQuantity: I5eInventoryItem[] = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "system.quantity")
     && foundry.utils.getProperty(item, "system.quantity") !== 0
     && !foundry.utils.getProperty(item, "system.armor.type")
@@ -1217,9 +1299,9 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && foundry.utils.getProperty(item, "system.quantity") !== dItem.quantity,
     ),
-  );
+  ) as I5eInventoryItem[];
   // this is for items that have been added and might have a different name
-  const itemsToName = foundryItems.filter((item) =>
+  const itemsToName: I5eInventoryItem[] = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && foundry.utils.getProperty(item, "system.quantity") !== 0
     && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
@@ -1229,35 +1311,35 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       && foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && (foundry.utils.getProperty(item, "name") as string).replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim() !== dItem.definition.name,
     ),
-  );
+  ) as I5eInventoryItem[];
 
   // update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity
-  const customItems = foundryItems.filter((item) =>
+  const customItems: I5eInventoryItem[] = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && foundry.utils.getProperty(item, "system.quantity") !== 0
     && (foundry.utils.getProperty(item, "flags.ddbimporter.custom") === true || foundry.utils.getProperty(item, "flags.ddbimporter.isCustom") === true)
     && customDDBItems.some((dItem) => dItem.id === foundry.utils.getProperty(item, "flags.ddbimporter.id")
       && (
         foundry.utils.getProperty(item, "name") !== dItem.name
-        || getCustomItemDescription(foundry.utils.getProperty(item, "system.description.value")) != dItem.description
+        || getCustomItemDescription(foundry.utils.getProperty(item, "system.description.value") as string) != dItem.description
         || (foundry.utils.hasProperty(item, "system.quantity") && foundry.utils.getProperty(item, "system.quantity") != dItem.quantity)
         || (foundry.utils.hasProperty(item, "system.weight") && foundry.utils.getProperty(item, "system.weight") != dItem.weight)
         //  ||
         // item.data.price != dItem.cost
       ),
     ),
-  );
+  ) as I5eInventoryItem[];
 
-  const itemsToMove = foundryItems.filter((item) =>
+  const itemsToMove: I5eInventoryItem[] = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
     && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
     && ddbItems.some((dItem) =>
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
-      && parseInt(foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") as string) !== parseInt(dItem.containerEntityId),
-    ));
+      && parseInt(foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") as string) !== parseInt(String(dItem.containerEntityId)),
+    )) as I5eInventoryItem[];
 
-  const itemsToCurrency = utils.getSetting<boolean>("sync-policy-currency")
+  const itemsToCurrency: I5eInventoryItem[] = utils.getSetting<boolean>("sync-policy-currency")
     ? foundryItems.filter((item) =>
       foundry.utils.hasProperty(item, "flags.ddbimporter.id")
       && foundry.utils.hasProperty(item, "flags.ddbimporter.entityTypeId")
@@ -1267,10 +1349,10 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       && ddbItems.some((dItem) =>
         item.flags.ddbimporter.id === dItem.id
         && !isEqual(dItem.currency, item.system.currency),
-      ))
+      )) as I5eInventoryItem[]
     : [];
 
-  const itemsToUpdate = {
+  const itemsToUpdate: Record<string, I5eInventoryItem[]> = {
     itemsToEquip,
     itemsToAttune,
     itemsToCharge,
@@ -1291,14 +1373,14 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
 
 }
 
-async function updateActionUseStatus(actor, actionData, actionName) {
+async function updateActionUseStatus(actor: TSyncCharacterActor, actionData: Record<string, any>, actionName: string) {
   return new Promise((resolve) => {
     resolve(updateCharacterCall(actor, "action/use", actionData, `Action Use for ${actionName}`));
   });
 }
 
-async function updateDDBActionUseStatus(actor, actions) {
-  const promises = [];
+async function updateDDBActionUseStatus(actor: TSyncCharacterActor, actions: (I5eInventoryItem | I5eFeatItem)[]) {
+  const promises: Promise<any>[] = [];
   actions.forEach((rawAction) => {
     const action = actor.items.get(rawAction._id);
     const actionData = {
@@ -1311,34 +1393,34 @@ async function updateDDBActionUseStatus(actor, actions) {
   return Promise.all(promises);
 }
 
-async function actionUseStatus(actor, ddbCharacter) {
+async function actionUseStatus(_actor: TSyncCharacterActor, _ddbCharacter: DDBCharacter): Promise<unknown[]> {
   return [];
   // action use disabled until feature/action parser sync
 
-  const syncActionReady = actor.flags.ddbimporter?.syncActionReady;
-  if (syncActionReady && !utils.getSetting<boolean>("sync-policy-action-use")) return [];
+  // const syncActionReady = actor.flags.ddbimporter?.syncActionReady;
+  // if (syncActionReady && !utils.getSetting<boolean>("sync-policy-action-use")) return [];
 
-  const ddbActions = ddbCharacter.data.actions;
+  // const ddbActions = ddbCharacter.data.actions;
 
-  const foundryItems = getFoundryItems(actor);
+  // const foundryItems = getFoundryItems(actor);
 
-  const actionsToChange = foundryItems.filter((item) =>
-    (item.flags.ddbimporter?.action || item.type === "feat")
-    && item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId
-    && ddbActions.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.flags.ddbimporter.id
-      && item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId
-      && item.name === dItem.name && item.type === dItem.type
-      && Number.isInteger(parseInt(item.system.uses?.value))
-      && Number.parseInt(item.system.uses.value) !== Number.parseInt(dItem.system.uses.value),
-    ),
-  );
-  const actionChanges = updateDDBActionUseStatus(actor, actionsToChange);
+  // const actionsToChange = foundryItems.filter((item) =>
+  //   (item.flags.ddbimporter?.action || item.type === "feat")
+  //   && item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId
+  //   && ddbActions.some((dItem) =>
+  //     item.flags.ddbimporter.id === dItem.flags.ddbimporter.id
+  //     && item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId
+  //     && item.name === dItem.name && item.type === dItem.type
+  //     && Number.isInteger(parseInt(foundry.utils.getProperty(item, "system.uses.value") as string))
+  //     && Number.parseInt(foundry.utils.getProperty(item, "system.uses.value") as string) !== Number.parseInt(foundry.utils.getProperty(dItem, "system.uses.value") as string),
+  //   ),
+  // );
+  // const actionChanges = updateDDBActionUseStatus(actor, actionsToChange);
 
-  return actionChanges;
+  // return actionChanges;
 }
 
-async function _updateDDBCharacter(actor) {
+async function _updateDDBCharacter(actor: TSyncCharacterActor) {
   const cobaltCheck = await Secrets.checkCobalt(actor.id);
 
   if (cobaltCheck.success) {
@@ -1428,7 +1510,7 @@ async function _updateDDBCharacter(actor) {
   // const spellSlots = updateCharacterCall(actor, "spells", spellsData);
   // promises.push(spellSlots);
 
-  actor.setFlag("ddb-importer", "syncId", syncId);
+  actor.setFlag("ddb-importer", "syncId" as never, syncId as never);
   await ddbCharacter.setActiveSyncSpellsFlag(true);
 
   // we can now process item attunements and uses (not yet done)
@@ -1454,7 +1536,7 @@ async function _updateDDBCharacter(actor) {
   return results;
 }
 
-export async function updateDDBCharacter(actor) {
+export async function updateDDBCharacter(actor: TSyncCharacterActor) {
   try {
     return await DDBRunContext.runWith({
       ignoreEnrichedImages: true,
@@ -1469,11 +1551,11 @@ export async function updateDDBCharacter(actor) {
 
 // Called when characters are updated
 // will dynamically sync status back to DDB
-async function activeUpdateActor(actor, update) {
+async function activeUpdateActor(actor: TSyncCharacterActor, update: Record<string, any>) {
 
   return new Promise((resolve) => {
 
-    const promises = [];
+    const promises: Promise<any>[] = [];
 
     const actorActiveUpdate = actor.flags.ddbimporter?.activeUpdate;
 
@@ -1545,8 +1627,8 @@ const DISABLE_FOUNDRY_UPGRADE = {
 };
 
 
-async function generateDynamicItemChange(actor, document, update) {
-  const updateItemDetails = {
+async function generateDynamicItemChange(actor: TSyncCharacterActor, document: TImporterItem, update: Record<string, any>) {
+  const updateItemDetails: Record<string, I5eInventoryItem[]> = {
     itemsToEquip: [],
     itemsToAttune: [],
     itemsToCharge: [],
@@ -1560,53 +1642,55 @@ async function generateDynamicItemChange(actor, document, update) {
   // console.warn("Document", document);
   // console.warn("ItemUpdate", update);
 
-  if (foundry.utils.getProperty(document, "flags.ddbimporter.custom") === true || foundry.utils.getProperty(document, "flags.ddbimporter.isCustom") === true) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.custom") === true
+    || foundry.utils.getProperty(document, "flags.ddbimporter.isCustom") === true
+  ) {
     if (update.name || update.system?.description || update.system?.weight || update.system?.price || update.system?.quantity) {
-      updateItemDetails.customItems.push(foundry.utils.duplicate(document));
+      updateItemDetails.customItems.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
   } else if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")) {
     if (update.system?.uses) {
-      updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document));
+      updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
     if (update.system?.attuned) {
-      updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document));
+      updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
     if (update.system?.quantity) {
       // if its a weapon or armor we actually need to push a new one
       if (!foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.stackable") && update.system.quantity > 1) {
         // Some items are not stackable on DDB
 
-        const itemDocument = document as unknown as Item.Implementation;
+        const itemDocument = document as unknown as TImporterItem;
         await itemDocument.update({ system: { quantity: 1 } } as Item.UpdateInput);
-        const newDocument = foundry.utils.duplicate(itemDocument.toObject()) as Record<string, any>;
+        const newDocument = foundry.utils.duplicate(itemDocument.toObject()) as unknown as I5eInventoryItem;
         delete newDocument._id;
         delete newDocument.flags.ddbimporter.id;
 
         const results = [];
         for (let i = 1; i < update.system.quantity; i++) {
           logger.debug(`Adding item # ${i}`);
-          const newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
+          const newDoc = await actor.createEmbeddedDocuments("Item", [newDocument as unknown as Item.CreateData], DISABLE_FOUNDRY_UPGRADE as any);
           results.push(newDoc);
           // new doc/item push to ddb handled by the add item hook
         }
         return results;
       } else {
-        updateItemDetails.itemsToQuantity.push(foundry.utils.duplicate(document));
+        updateItemDetails.itemsToQuantity.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
       }
     }
     if (update.system?.equipped) {
-      updateItemDetails.itemsToEquip.push(foundry.utils.duplicate(document));
+      updateItemDetails.itemsToEquip.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
     if (update.name) {
-      updateItemDetails.itemsToName.push(foundry.utils.duplicate(document));
+      updateItemDetails.itemsToName.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
     if (update.system?.container) {
-      const containerisedDocument = foundry.utils.duplicate(document);
+      const containerisedDocument = foundry.utils.duplicate(document) as unknown as I5eInventoryItem;
       setContainerDetails(actor, containerisedDocument);
       updateItemDetails.itemsToMove.push(containerisedDocument);
     }
     if (update.system?.currency) {
-      updateItemDetails.itemsToCurrency.push(foundry.utils.duplicate(document));
+      updateItemDetails.itemsToCurrency.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
   }
 
@@ -1616,7 +1700,7 @@ async function generateDynamicItemChange(actor, document, update) {
 
 }
 
-async function updateSpellPrep(actor, document) {
+async function updateSpellPrep(actor: TSyncCharacterActor, document: TImporterItem) {
   return new Promise((resolve) => {
     const spellSyncFlag = actor.flags.ddbimporter?.activeSyncSpells;
     if (spellSyncFlag) {
@@ -1638,12 +1722,12 @@ async function updateSpellPrep(actor, document) {
 
 // Called when characters items are updated
 // will dynamically sync status back to DDB
-async function activeUpdateUpdateItem(document, update) {
+async function activeUpdateUpdateItem(document: TImporterItem, update: Record<string, any>) {
 
   return new Promise((resolve) => {
 
     // we check to see if this is actually an embedded item
-    const parentActor = document.parent;
+    const parentActor = document.parent as TSyncCharacterActor;
     const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
     const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
@@ -1662,7 +1746,7 @@ async function activeUpdateUpdateItem(document, update) {
 
       const customNameAllowed = DICTIONARY.types.inventory.includes(document.type) || document.flags.ddbimporter?.action;
       if (!customItem && update.name && customNameAllowed) {
-        updateDDBCustomNames(parentActor, [document.toObject()]);
+        updateDDBCustomNames(parentActor, [document.toObject() as unknown as I5eInventoryItem]);
       }
 
       logger.debug("active update item details", { action, syncActionUse, isDDBItem });
@@ -1670,7 +1754,7 @@ async function activeUpdateUpdateItem(document, update) {
       if (action && syncActionUse && isDDBItem) {
         if (update.system?.uses) {
           logger.debug("Updating action uses", update);
-          updateDDBActionUseStatus(parentActor, [foundry.utils.duplicate(document)]);
+          updateDDBActionUseStatus(parentActor, [foundry.utils.duplicate(document) as unknown as (I5eInventoryItem | I5eFeatItem)]);
         } else {
           resolve([]);
         }
@@ -1678,15 +1762,15 @@ async function activeUpdateUpdateItem(document, update) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
       } else if (document.type === "spell" && syncSpellsPrepared
-        && document.system.method === "prepared"
+        && document.system.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value
       ) {
         logger.debug("Updating DDB SpellsPrepared...");
         updateSpellPrep(parentActor, document).then((results: { success?: boolean }[]) => {
           logger.debug("Spell prep results", results);
           const failures = results.find((result) => result.success !== true);
-          const ddbCharacterOptions = {
+          const ddbCharacterOptions: DDBCharacterImportOptions = {
             currentActor: parentActor,
-            characterId: undefined,
+            characterId: null,
             selectResources: false,
           };
           // when update is refactored to a class, change this
@@ -1704,11 +1788,11 @@ async function activeUpdateUpdateItem(document, update) {
 
 // Called when characters items are added/deleted
 // will dynamically sync status back to DDB
-async function activeUpdateAddOrDeleteItem(document, state) {
-  pruneRecentEvents(recentCharacterDeletes as any);
-  pruneRecentEvents(recentPartyDeletes as any);
+async function activeUpdateAddOrDeleteItem(document: TImporterItem, state: string) {
+  pruneRecentEvents(recentCharacterDeletes as Map<number, IRecentCharacterDelete>);
+  pruneRecentEvents(recentPartyDeletes as Map<number, IRecentPartyDelete>);
 
-  const parentActor = document.parent;
+  const parentActor = document.parent as TSyncCharacterActor;
   if (!parentActor) return [];
 
   const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
@@ -1794,7 +1878,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
       }
     }
     logger.debug(`Creating item`, document);
-    return addDDBEquipment(parentActor, [document.toObject()]);
+    return addDDBEquipment(parentActor, [document.toObject() as unknown as I5eInventoryItem]);
   }
 
   // Item deleted from a character
@@ -1815,7 +1899,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
       }
 
       // Defer: a paired party CREATE may still arrive within the TTL
-      const documentSnapshot = document.toObject();
+      const documentSnapshot = document.toObject() as unknown as I5eInventoryItem;
       recentCharacterDeletes.set(ddbItemId, { actor: parentActor, document: documentSnapshot, ts: Date.now() });
       return new Promise((resolve) => {
         setTimeout(async () => {
@@ -1832,29 +1916,31 @@ async function activeUpdateAddOrDeleteItem(document, state) {
       });
     }
     logger.debug(`Deleting item`, document);
-    return removeDDBEquipment(parentActor, [document.toObject()]);
+    return removeDDBEquipment(parentActor, [document.toObject() as unknown as I5eInventoryItem]);
   }
 
   return [];
 }
 
 // called when effects are added/deleted/updated
-async function activeUpdateEffectTrigger(document, state) {
+async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: string) {
   return new Promise((resolve) => {
-    const promises = [];
+    const promises: Promise<any>[] = [];
 
     const syncConditions = utils.getSetting<boolean>("dynamic-sync-policy-condition");
     // we check to see if this is actually an embedded item
-    const parentActor = document.parent;
+    const parentActor = document.parent as TSyncCharacterActor;
     const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
 
     if (parentActor && actorActiveUpdate && syncConditions) {
       logger.debug(`Preparing to ${state.toLowerCase()} condition on DDB...`);
       // is it a condition?
       // is it a suitable type?
-      const condition = getCondition(document.system?.name ?? document.system?.label);
+      const condition = getCondition(document?.name);
       // exhaustion is a special case, but also a condition effect, handled by character update
       const notExhaustion = condition ? condition.ddbId !== 4 : false;
+
+      // to do - we should manage the statuses better here
 
       if (condition && notExhaustion) {
         logger.debug(`Attempting to ${state.toLowerCase()} Condition`, document);
@@ -1864,7 +1950,7 @@ async function activeUpdateEffectTrigger(document, state) {
             promises.push(updateDDBCondition(parentActor, condition));
             break;
           case "UPDATE":
-            condition.applied = !document.system.disabled;
+            condition.applied = !document.disabled;
             promises.push(updateDDBCondition(parentActor, condition));
             break;
           case "DELETE":
@@ -1886,8 +1972,8 @@ export function activateUpdateHooks() {
     Hooks.on("updateItem", activeUpdateUpdateItem);
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
     Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
-    Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
-    Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));
-    Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document, "DELETE"));
+    Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "CREATE"));
+    Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "UPDATE"));
+    Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "DELETE"));
   }
 }

@@ -1156,13 +1156,16 @@ global {
   type I5eActorData = I5eMonsterData | I5ePCData | I5eVehicleData;
 
   /** Implementation Actor with the ddbimporter flag shape the importer reads/writes. */
-  type TImporterActor = Actor.Implementation & {
+  type TImporterActor = Omit<Actor.Implementation, "flags"> & {
     flags: I5ePCActorFlags;
   };
 
   /** Live character Actor with the PC system/flag shapes; Actor.Implementation's
-   * system union does not narrow, so the updater/sync code uses this view. */
-  type TSyncCharacterActor = Actor.Implementation & {
+   * system union does not narrow, so the updater/sync code uses this view.
+   * Omit the overridden keys before intersecting so the original system/flags
+   * unions are never merged (avoids "excessively deep" instantiation). */
+  type TSyncCharacterActor = Omit<Actor.Implementation, "system" | "flags" | "items"> & {
+    items: Collection<TImporterItem>;
     system: I5ePCSystemData;
     flags: I5ePCActorFlags;
   };

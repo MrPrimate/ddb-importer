@@ -194,10 +194,11 @@ function ruleReplacer(baseType: string, text: string, slug: string, forceTrimChe
   const rules = getRuleLookups()[type];
   if (!rules) return text;
 
-  if (forceTrimCheck || ["abilities", "skills", "spellSchools"].includes("type")) {
+  // was includes("type") / type[trimmedSlug], literal string and string-index typos
+  if (forceTrimCheck || ["abilities", "skills", "spellSchools"].includes(type)) {
     // ensure it's not a trimmed slug
     const trimmedSlug = slug.substring(0, 3).toLowerCase();
-    if (rules[trimmedSlug] && type[trimmedSlug].reference) {
+    if (rules[trimmedSlug] && rules[trimmedSlug].reference) {
       const result = `&Reference[${trimmedSlug}]{${text}}`;
       return result;
     }
@@ -256,7 +257,7 @@ function parseLooseRuleReferences(text: string, superLoose = false) {
     for (const [key, value] of Object.entries(entries)) {
       if (!value.reference) continue;
       const newLinkRegex = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
-      const replaceRuleNew = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
+      const replaceRuleNew = (match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string, p8: string, p9: string) => {
         if (p1 || (p5 && p5.includes("average="))) return match; // already a reference match don't match this
         if (p5 && ["saving throw:", "check:"].includes(p5.toLowerCase().trim())) {
           const rollType = p5.toLowerCase() === "check:" ? "check" : "save";
@@ -274,7 +275,7 @@ function parseLooseRuleReferences(text: string, superLoose = false) {
       text = text.replaceAll(newLinkRegex, replaceRuleNew);
 
       const linkRegEx = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
-      const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
+      const replaceRule = (match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string, p8: string, p9: string) => {
         if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
         if (p7 && ["saving throw", "check"].includes(p7.toLowerCase())) {
           const rollType = p7.toLowerCase() === "check" ? "check" : "save";
@@ -531,7 +532,7 @@ export async function importCacheLoad() {
   getRuleLookups();
 }
 
-const COMPENDIUM_MAP = {
+const COMPENDIUM_MAP: Record<string, string> = {
   "spells": "spells",
   "magicitems": "items",
   "weapons": "items",
@@ -646,11 +647,11 @@ const TOOLTIP_MAP = {
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#CharmedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/2-tooltip\" data-tooltip-json-href=\"/conditions/2/tooltip-json\">Charmed</a>
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#PoisonedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/11-tooltip\" data-tooltip-json-href=\"/conditions/11/tooltip-json\">Poisoned</a>
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#ExhaustionCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/4-tooltip\" data-tooltip-json-href=\"/conditions/4/tooltip-json\">Exhaustion</a>
-function replaceHREFRules(doc) {
+function replaceHREFRules(doc: Document): Document {
   for (const [lookupKey, lookupData] of Object.entries(TOOLTIP_MAP)) {
     const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-json-href*="/${lookupKey}/"]`);
     const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)/`);
-    compendiumLinks.forEach((node) => {
+    compendiumLinks.forEach((node: HTMLLinkElement) => {
       const lookupMatch = node.outerHTML.match(lookupRegExp);
       const dict = foundry.utils.getProperty(CONFIG, lookupData.path) as Record<string, any>[];
       const data = dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]));
@@ -716,14 +717,14 @@ export async function replaceMonsterNameBadLinks(str: string, actor: I5eActorDat
   const pack = CompendiumHelper.getCompendiumType("monsters", false);
   await pack.getIndex({ fields: ["name", "system.source.rules"] });
 
-  const packs = {
+  const packs: Record<string, typeof pack> = {
     "monsters": pack,
   };
 
   str = utils.nameString(str);
 
   const functionReplaceMatch = (str: string, search: string, substitute: string, type: string) => {
-    const indexMatch = packs[type]?.index.find((i) =>
+    const indexMatch = packs[type]?.index.find((i: any) =>
       i.name.toLowerCase() === search.toLowerCase()
       && i.system?.source?.rules === rules,
     );
