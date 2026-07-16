@@ -95,12 +95,13 @@ export default class GenericSpellFactory {
       } else if (spell.spellCastingAbilityId) {
         // If the spell has an ability attached, use that
         // if there is no ability on spell, we default to wis
-        let spellCastingAbility = "wis";
+        let spellCastingAbility: T5eAbility = "wis";
         if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
           spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
         }
 
-        const abilityModifier = utils.calculateModifier(character.flags.ddbimporter.dndbeyond.effectAbilities[spellCastingAbility].value);
+        const ability = character.flags.ddbimporter.dndbeyond.effectAbilities[spellCastingAbility];
+        const abilityModifier = utils.calculateModifier(ability.value);
         spellDC = 8 + proficiencyModifier + abilityModifier;
       } else {
         spellDC = null;

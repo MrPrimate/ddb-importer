@@ -1,4 +1,4 @@
-export const CR_DATA = {
+export const CR_DATA: Record<string, { profiles: I5eSummonProfile[]; creatureTypes?: TCreatureTypes[] }> = {
   "Conjure Animals": {
     profiles: [
       {

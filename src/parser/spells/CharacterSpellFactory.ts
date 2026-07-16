@@ -15,16 +15,7 @@ const SPELLIST_ADDITION_MATCHES = [
   "using any spell slots you have",
 ];
 
-interface IGrantedSpellHolder {
-  class: I5eSpellItem[];
-  feat: I5eSpellItem[];
-  race: I5eSpellItem[];
-  background: I5eSpellItem[];
-}
-
-interface IGeneratedSpellHolder extends IGrantedSpellHolder {
-  other: I5eSpellItem[];
-}
+type ISpellFactorySpellHolder = IDDBSourceCategorized<I5eSpellItem[]>;
 
 interface IHandleGrantedSpellsFlags {
   forceCopy?: boolean;
@@ -51,19 +42,20 @@ export default class CharacterSpellFactory {
 
   spellCounts: Record<string, number> = {};
 
-  _generated: IGeneratedSpellHolder = {
+  _generated: ISpellFactorySpellHolder = {
     class: [],
     feat: [],
     race: [],
     background: [],
-    other: [],
+    item: [],
   };
 
-  _granted: IGrantedSpellHolder = {
+  _granted: ISpellFactorySpellHolder = {
     class: [],
     feat: [],
     race: [],
     background: [],
+    item: [],
   };
 
   ddb: IDDBData;
@@ -89,9 +81,10 @@ export default class CharacterSpellFactory {
       .reduce((a, b) => a + parseInt(String(b.value)), 0);
     this.slots = foundry.utils.getProperty(this.character, "system.spells") as I5eSpellSlots;
     this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
-      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+      const slot = this.slots[`spell${i}` as keyof I5eSpellSlots];
+      return slot && Number(slot.max) !== 0;
     });
-    this.pactSlots = this.slots.pact?.max && parseInt(this.slots.pact.max) > 0;
+    this.pactSlots = this.slots.pact?.max && parseInt(String(this.slots.pact.max)) > 0;
     this.hasSlots = this.levelSlots || this.pactSlots;
     this.generateSummons = ddbCharacter.enableSummons;
   }
@@ -242,13 +235,11 @@ export default class CharacterSpellFactory {
     return lookup;
   }
 
-
-  getLookup(type, id) {
+  getLookup(type: string, id: number) {
     return CharacterSpellFactory.getDDBSpellLookup(this.ddb, type, id);
   }
 
-
-  _getSpellCount(name) {
+  _getSpellCount(name: string) {
     if (!this.spellCounts[name]) {
       this.spellCounts[name] = 0;
     }
@@ -350,7 +341,7 @@ export default class CharacterSpellFactory {
     }
   }
 
-  filterSpellsByAllowedCategories(spells) {
+  filterSpellsByAllowedCategories(spells: IDDBSpellEntry[]) {
     return spells.filter((s) => {
       const sourceIds = s.definition.sources.map((sm) => sm.sourceId);
       const hasActiveCategory = CONFIG.DDB.sources.some((ddbSource) =>
@@ -361,8 +352,7 @@ export default class CharacterSpellFactory {
     });
   }
 
-
-  removeSpellsBySourceCategoryIds(spells, ids = []) {
+  removeSpellsBySourceCategoryIds(spells: IDDBSpellEntry[], ids: number[] = []) {
     return spells.filter((s) => {
       const sourceIds = s.definition.sources.map((sm) => sm.sourceId);
       const isInRestrictedCategory = CONFIG.DDB.sources.some((ddbSource) =>
@@ -506,7 +496,7 @@ export default class CharacterSpellFactory {
     for (const spell of this.ddb.character.spells.class) {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
-      let spellCastingAbility;
+      let spellCastingAbility: T5eAbility;
       const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
       const classInfo = this.getLookup("classFeature", featureId);
 
@@ -656,13 +646,14 @@ export default class CharacterSpellFactory {
     if (this.pactSlots) return true;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       if (spell.definition.level > i) return false;
-      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+      const slot = this.slots[`spell${i}` as keyof I5eSpellSlots];
+      return slot && Number(slot.max) !== 0;
     });
     return levelSlots;
   }
 
   async handleGrantedSpells(spell: IDDBSpellEntry,
-    type: string,
+    type: keyof ISpellFactorySpellHolder,
     flagData: IParseSpellFlagData,
     { forceCopy = false, flags = {} }: IHandleGrantedSpellsFlags = {},
   ) {
@@ -671,7 +662,8 @@ export default class CharacterSpellFactory {
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       if (spell.definition.level > i) return false;
-      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+      const slot = this.slots[`spell${i}` as keyof I5eSpellSlots];
+      return slot && Number(slot.max) !== 0;
     });
 
     if (!levelSlots && !this.pactSlots) return;
@@ -682,8 +674,8 @@ export default class CharacterSpellFactory {
 
     if (dups) {
       for (const spells of Object.values(this._generated)) {
-        const duplicateSpell = spells.some(
-          (existingSpell) =>
+        const duplicateSpell: I5eSpellItem = spells.some(
+          (existingSpell: I5eSpellItem) =>
             (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name) === spell.definition.name
             && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
         );
@@ -728,7 +720,7 @@ export default class CharacterSpellFactory {
       if (!spell.definition) continue;
       // for race spells the spell spellCastingAbilityId is on the spell
       // if there is no ability on spell, we default to wis
-      let spellCastingAbility = "wis";
+      let spellCastingAbility: T5eAbility = "wis";
       if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
       }
@@ -743,7 +735,7 @@ export default class CharacterSpellFactory {
         raceInfo = {
           name: "Racial spell",
           id: spell.componentId,
-        };
+        } as typeof raceInfo;
       }
 
       // add some data for the parsing of the spells into the data structure
@@ -792,7 +784,7 @@ export default class CharacterSpellFactory {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
       // if there is no ability on spell, we default to wis
-      let spellCastingAbility = "wis";
+      let spellCastingAbility: T5eAbility = "wis";
       if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
       }
@@ -807,7 +799,7 @@ export default class CharacterSpellFactory {
         featInfo = {
           name: "Feat option spell",
           id: spell.componentId,
-        };
+        } as typeof featInfo;
       }
 
       const featName = featInfo.data?.definition?.name ?? featInfo.data?.name;
@@ -874,7 +866,7 @@ export default class CharacterSpellFactory {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
       // if there is no ability on spell, we default to wis
-      let spellCastingAbility = "wis";
+      let spellCastingAbility: T5eAbility = "wis";
       if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
       }
@@ -944,14 +936,14 @@ export default class CharacterSpellFactory {
       for (const spell of spells) {
         setLink(spell);
       }
-      this._generated[key] = spells;
+      this._generated[key as keyof ISpellFactorySpellHolder] = spells;
     }
 
     for (const [key, spells] of Object.entries(this._granted)) {
       for (const spell of spells) {
         setLink(spell);
       }
-      this._granted[key] = spells;
+      this._granted[key as keyof ISpellFactorySpellHolder] = spells;
     }
   }
 

@@ -339,7 +339,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
+      const baseAbility = this.ddbMonster.abilities[this.actionData.baseAbility];
+      const baseAbilityMod = utils.calculateModifier(baseAbility.value);
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -604,12 +605,14 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     };
 
     for (const ability of abilitiesToCheck) {
-      if (this.toHit == this.ddbMonster.proficiencyBonus + this.ddbMonster.abilities[ability].mod) {
+      const monsterAbility = this.ddbMonster.abilities[ability];
+      const abilityMod = utils.calculateModifier(monsterAbility.value);
+      if (this.toHit == this.ddbMonster.proficiencyBonus + abilityMod) {
         result.success = true;
         result.ability = ability;
         result.proficient = true;
         break;
-      } else if (this.toHit == this.ddbMonster.abilities[ability].mod) {
+      } else if (this.toHit == abilityMod) {
         result.success = true;
         result.ability = ability;
         result.proficient = false;
@@ -633,18 +636,20 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         proficient: null,
         bonus: 0,
       };
-      if (this.toHit > this.ddbMonster.proficiencyBonus + this.ddbMonster.abilities[ability].mod) {
+      const monsterAbility = this.ddbMonster.abilities[ability];
+      const abilityMod = utils.calculateModifier(monsterAbility.value);
+      if (this.toHit > this.ddbMonster.proficiencyBonus + abilityMod) {
         result.success = true;
         result.proficient = true;
-        result.bonus = this.toHit - this.ddbMonster.proficiencyBonus - this.ddbMonster.abilities[ability].mod;
-      } else if (this.toHit > this.ddbMonster.abilities[ability].mod) {
+        result.bonus = this.toHit - this.ddbMonster.proficiencyBonus - abilityMod;
+      } else if (this.toHit > abilityMod) {
         result.success = true;
         result.proficient = false;
-        result.bonus = this.toHit - this.ddbMonster.abilities[ability].mod;
+        result.bonus = this.toHit - abilityMod;
       } else if (negatives) {
         result.success = true;
         result.proficient = false;
-        result.bonus = this.toHit - this.ddbMonster.abilities[ability].mod;
+        result.bonus = this.toHit - abilityMod;
       }
       return result;
     });
@@ -665,8 +670,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         // logger.info(`${key}: ${value}`);
         (this.actionData.properties as Record<string, any>)[key] = value;
       }
-      const versatileWeapon = this.actionData.properties.ver
-        && this.ddbMonster.abilities["dex"].mod > this.ddbMonster.abilities["str"].mod;
+      const strMod = utils.calculateModifier(this.ddbMonster.abilities["str"].value);
+      const dexMod = utils.calculateModifier(this.ddbMonster.abilities["dex"].value);
+      const versatileWeapon = this.actionData.properties.ver &&  dexMod > strMod;
       if (versatileWeapon || this.weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (this.weaponLookup.actionType == "mwak") {
