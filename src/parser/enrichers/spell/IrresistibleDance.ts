@@ -42,7 +42,7 @@ export default class IrresistibleDance extends DDBEnricherData {
     return true;
   }
 
-  get effects2014() {
+  get effects2014(): IDDBEffectHint[] {
     return [
       {
         name: "Comic Dancing",
@@ -68,7 +68,7 @@ export default class IrresistibleDance extends DDBEnricherData {
     ];
   }
 
-  get effects2024() {
+  get effects2024(): IDDBEffectHint[] {
     return [
       {
         name: "Comic Dancing",
