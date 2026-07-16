@@ -63,7 +63,7 @@ export default class Silence extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "generic",
       name: "activeAuraOnly.js",
@@ -71,7 +71,7 @@ export default class Silence extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "generic",
       name: "activeAuraOnly.js",

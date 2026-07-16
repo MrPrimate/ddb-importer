@@ -191,7 +191,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",

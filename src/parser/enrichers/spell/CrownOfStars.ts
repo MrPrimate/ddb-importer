@@ -90,7 +90,7 @@ export default class CrownOfStars extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "crownOfStars.js",
@@ -112,7 +112,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       name: "crownOfStars.js",
       type: "spell",

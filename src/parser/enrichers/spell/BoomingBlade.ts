@@ -113,14 +113,14 @@ export default class BoomingBlade extends DDBEnricherData {
     }];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "boomingBlade.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "boomingBlade.js",

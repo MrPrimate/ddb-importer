@@ -95,14 +95,14 @@ export default class HailOfThorns extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "hailOfThorns.js",
     };
   }
 
-  // get setMidiOnUseMacroFlag() {
+  // get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
   //   return {
   //     type: "spell",
   //     name: "hailOfThorns.js",

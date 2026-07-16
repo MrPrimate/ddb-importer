@@ -25,7 +25,7 @@ export default class HideousLaughter extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       macroType: "spell",
       macroName: "hideousLaughter.js",

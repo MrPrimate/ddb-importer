@@ -68,7 +68,7 @@ export default class Hex extends DDBEnricherData {
     });
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       name: "hex.js",
       type: "spell",
@@ -76,7 +76,7 @@ export default class Hex extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       name: "hex.js",
       type: "spell",

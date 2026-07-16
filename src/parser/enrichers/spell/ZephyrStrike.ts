@@ -44,7 +44,7 @@ export default class ZephyrStrike extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       name: "zephyrStrike.js",
       type: "spell",

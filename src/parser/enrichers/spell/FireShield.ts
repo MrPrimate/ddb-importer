@@ -77,7 +77,7 @@ export default class FireShield extends DDBEnricherData {
     });
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "fireShield.js",

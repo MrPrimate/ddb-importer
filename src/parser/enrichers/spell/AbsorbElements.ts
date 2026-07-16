@@ -90,14 +90,14 @@ export default class AbsorbElements extends DDBEnricherData {
     return [...noMidiEffects, ...midiEffects];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "absorbElements.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "absorbElements.js",

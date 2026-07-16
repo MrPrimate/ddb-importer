@@ -54,7 +54,7 @@ export default class Banishment extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "banishment.js",

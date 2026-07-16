@@ -76,7 +76,7 @@ export default class Grease extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
       triggerPoints: ["preActiveEffects"],

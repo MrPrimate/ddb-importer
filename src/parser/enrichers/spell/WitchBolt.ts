@@ -56,14 +56,14 @@ export default class WitchBolt extends DDBEnricherData {
     }];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "witchBolt.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "witchBolt.js",

@@ -108,7 +108,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     if (!this.is2014) return null;
     return {
       type: "spell",

@@ -73,7 +73,7 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "armorOfAgathys.js",

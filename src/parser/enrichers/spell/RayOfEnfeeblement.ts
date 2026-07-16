@@ -93,7 +93,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
   }
 
   // macro needs updating to activities based damaged halfing
-  // get itemMacro() {
+  // get itemMacro(): IDDBItemMacro {
   //   if (this.is2014) {
   //     return {
   //       type: "spell",

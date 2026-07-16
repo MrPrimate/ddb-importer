@@ -94,7 +94,7 @@ export default class SpellfireStorm extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
       triggerPoints: ["preActiveEffects"],

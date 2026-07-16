@@ -110,7 +110,7 @@ export default class IrresistibleDance extends DDBEnricherData {
     return this.is2014 ? this.effects2014 : this.effects2024;
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "irresistibleDance.js",

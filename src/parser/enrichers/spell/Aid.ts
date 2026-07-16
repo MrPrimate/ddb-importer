@@ -23,7 +23,7 @@ export default class Aid extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const noMidiEffects = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
+    const noMidiEffects: IDDBEffectHint[] = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
       return {
         name: `Aid: Level ${level} Max HP Bonus`,
         midiNever: true,
@@ -33,7 +33,7 @@ export default class Aid extends DDBEnricherData {
       };
     });
 
-    const midiEffects = [
+    const midiEffects: IDDBEffectHint[] = [
       {
         name: "Aid: Max HP Bonus",
         midiOnly: true,
@@ -49,7 +49,7 @@ export default class Aid extends DDBEnricherData {
     return [...noMidiEffects, ...midiEffects];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "aid.js",

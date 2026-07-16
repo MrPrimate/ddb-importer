@@ -87,14 +87,14 @@ export default class GreenFlameBlade extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "greenFlameBlade.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "greenFlameBlade.js",

@@ -100,7 +100,7 @@ export default class HuntersMark extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "huntersMark.js",
@@ -108,7 +108,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "huntersMark.js",

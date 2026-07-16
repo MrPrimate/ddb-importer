@@ -36,7 +36,7 @@ export default class Contagion extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       name: this.is2014 ? "contagion2014.js" : "contagion2024.js",
       type: "spell",
@@ -56,7 +56,7 @@ export default class Contagion extends DDBEnricherData {
   //   };
   // }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     if (this.is2014) return null;
     return {
       name: "contagion2024.js",

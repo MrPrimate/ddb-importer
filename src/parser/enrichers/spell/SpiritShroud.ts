@@ -121,7 +121,7 @@ export default class SpiritShroud extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "spiritShroud.js",
@@ -129,7 +129,7 @@ export default class SpiritShroud extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "spiritShroud.js",

@@ -27,7 +27,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     if (this.is2014) {
       return {
         name: "colorSpray.js",
@@ -38,7 +38,7 @@ export default class ColorSpray extends DDBEnricherData {
     return null;
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     if (this.is2014) {
       return {
         name: "colorSpray.js",

@@ -25,14 +25,14 @@ export default class Command extends DDBEnricherData {
     return true;
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "command.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     if (this.is2014) return null;
     return {
       name: "command.js",

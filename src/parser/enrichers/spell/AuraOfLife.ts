@@ -59,7 +59,7 @@ export default class AuraOfLife extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "auraOfLife.js",
