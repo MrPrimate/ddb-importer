@@ -46,7 +46,7 @@ DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting(th
   }
 };
 
-DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter) {
+DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter): IDDBCasterInfo[] {
   return this.source.ddb.character.classes
     .filter((cls) => {
       return cls.definition.canCastSpells || (cls.subclassDefinition && cls.subclassDefinition.canCastSpells);
@@ -137,8 +137,8 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
       [4, 3, 3, 3, 3, 2, 1, 1, 1], // 19
       [4, 3, 3, 3, 3, 2, 2, 1, 1], // 20
     ];
-    const casterLevelTotal = casterInfo.reduce((prev, cur) => prev + cur.casterLevel, 0);
-    const cantripsTotal = casterInfo.reduce((prev, cur) => prev + cur.cantrips, 0);
+    const casterLevelTotal = casterInfo.reduce((prev: number, cur) => prev + cur.casterLevel, 0);
+    const cantripsTotal = casterInfo.reduce((prev: number, cur) => prev + cur.cantrips, 0);
     result = [cantripsTotal, ...multiClassSpellSlots[casterLevelTotal]];
   } else {
     result = [casterInfo[0].cantrips, ...casterInfo[0].slots];
@@ -146,9 +146,9 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
 
   for (let i = 1; i < result.length; i++) {
     const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used).reduce((a, b) => a + b, 0) ?? 0;
-    this.spellSlots["spell" + i] = {
-      value: result[i] ? (result[i] - currentSlots) : 0,
-      max: result[i] ?? 0,
+    this.spellSlots[`spell${i}` as keyof I5eSpellSlots] = {
+      value: Number.isInteger(result[i]) ? (result[i] - currentSlots) : 0,
+      max: Number.isInteger(result[i]) ? String(result[i]) : String(0),
     };
   }
   this.raw.character.system.spells = this.spellSlots;

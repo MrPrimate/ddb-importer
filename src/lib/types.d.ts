@@ -9,7 +9,7 @@ global {
 
   type TDDBCompendiumSetting = typeof COMPENDIUMS[number];
 
-  type DDBMacroType = "spell" | "gm" | "item" | "feat" | "generic" | "monsterFeature";
+  type TDDBMacroType = "spell" | "gm" | "item" | "feat" | "generic" | "monsterFeature";
 
   interface IConfiguredCompendium {
     setting: string;

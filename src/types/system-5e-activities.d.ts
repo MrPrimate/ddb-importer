@@ -123,7 +123,7 @@ global {
     effectConditionText?: string;
   }
 
-  type T5eActivityAttackAbility = T5eAbility | "";
+  type T5eActivityAttackAbility = T5eAbility | "spellcasting" | "";
 
   interface I5eActivityAttack {
     ability?: T5eActivityAttackAbility;

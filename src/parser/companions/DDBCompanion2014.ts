@@ -13,7 +13,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const abilityNodes = this.block.querySelector("div.stat-block-ability-scores");
 
     abilityNodes.querySelectorAll("div.stat-block-ability-scores-stat").forEach((aNode) => {
-      const ability = (aNode.querySelector("div.stat-block-ability-scores-heading") as HTMLElement).innerText.toLowerCase();
+      const ability = (aNode.querySelector("div.stat-block-ability-scores-heading") as HTMLElement).innerText.toLowerCase() as T5eAbility;
 
       const getFallbackAbility = () => {
         const clone = aNode.querySelector("div.stat-block-ability-scores-data").cloneNode(true) as HTMLElement;
@@ -25,10 +25,10 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
         ?? getFallbackAbility();
 
       const value = Number.parseInt(abilityScore);
-      const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
+      // const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
       this.npc.system.abilities[ability]["value"] = value;
-      this.npc.system.abilities[ability]["mod"] = mod;
+      // this.npc.system.abilities[ability]["mod"] = mod;
     });
   }
 
@@ -61,7 +61,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const saves = saveString.split(",");
 
     saves.forEach((save) => {
-      const ability = save.trim().split(" ")[0].toLowerCase();
+      const ability = save.trim().split(" ")[0].toLowerCase() as T5eAbility;
       if (save.includes("plus PB") || save.includes("+ PB")) {
         this.npc.system.abilities[ability]["proficient"] = 1;
       }
@@ -182,7 +182,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     this._handleSpeed(data);
   }
 
-  async _processFeatureElement(element, featType) {
+  async _processFeatureElement(element: any, featType: any) {
     const next = element.nextElementSibling;
 
     if (!next) return { next, featType };

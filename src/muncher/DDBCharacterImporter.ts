@@ -1058,7 +1058,7 @@ ${item.system.description.chat}
       }
       this.notifier(`Updating conditions...`);
       logger.debug("Updating conditions...");
-      await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
+      await setConditions(this.actor as Actor.Known, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
 
       logger.debug("Final hit point adjustments");
       this.resetHitPoints();

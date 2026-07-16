@@ -33,7 +33,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     const tables = this.block.querySelectorAll("tbody");
 
     // Initialize an object to store the ability scores
-    const abilityScores: Record<string, { score: string; mod: string; save: string }> = {};
+    const abilityScores: Partial<Record<T5eAbility, { score: string; mod: string; save: string }>> = {};
 
     // Loop through each table
     tables.forEach((table) => {
@@ -47,7 +47,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
         // If the row has at least two cells, extract the ability score
         if (cells.length >= 2) {
-          const ability = cells[0].textContent.trim().toLowerCase();
+          const ability = cells[0].textContent.trim().toLowerCase() as T5eAbility;
           const score = cells[1].textContent.trim();
           const mod = cells[2].textContent.trim().replace("&minus;", "-");
           const save = cells[2].textContent.trim().replace("&minus;", "-");
@@ -62,13 +62,13 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       });
     });
 
-    for (const [ability, data] of Object.entries(abilityScores)) {
+    for (const [ability, data] of Object.entries(abilityScores) as [T5eAbility, typeof abilityScores[T5eAbility]][]) {
       const save = Number.parseInt(data.save.replace("−", "-"));
-      const mod = Number.parseInt(data.mod.replace("−", "-"));
+      // const mod = Number.parseInt(data.mod.replace("−", "-"));
       const score = Number.parseInt(data.score);
 
-      foundry.utils.setProperty(this.npc, `system.abilities.${ability}.value`, score);
-      foundry.utils.setProperty(this.npc, `system.abilities.${ability}.mod`, mod);
+      this.npc.system.abilities[ability].value = score;
+      // foundry.utils.setProperty(this.npc, `system.abilities.${ability}.mod`, mod);
       if (save > score) {
         this.npc.system.abilities[ability]["proficient"] = 1;
       }
@@ -201,7 +201,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     this._handleSpeed(speedString);
   }
 
-  static _getActionType(featType) {
+  static _getActionType(featType: string) {
     switch (featType.toLowerCase().trim()) {
       case "special":
       case "trait":
@@ -221,7 +221,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     return "special";
   }
 
-  async _processFeatureElement(html, featType) {
+  async _processFeatureElement(html: string, featType: string) {
     const features = await this.getFeature(html, featType);
     features.forEach((feature) => {
       if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")

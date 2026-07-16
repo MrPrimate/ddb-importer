@@ -186,7 +186,7 @@ interface DDBCharacter {
   _generateSize(): void;
   // spellCasting.ts
   _generateSpellCasting(): void;
-  getCasterInfo(): any;
+  getCasterInfo(): IDDBCasterInfo[];
   _generateSpellSlots(): void;
   _generateMaxPreparedSpells(): void;
   // race.ts

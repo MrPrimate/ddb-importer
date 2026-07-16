@@ -156,7 +156,7 @@ global {
 
   export interface IDDBMacroChange {
     macroValues?: string;
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
     keyPostfix?: string;
     priority?: number;
@@ -167,7 +167,7 @@ global {
 
   export interface IDDBOnUseMacroChange {
     macroPass: string;
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
     document?: any;
     priority?: number;
@@ -177,7 +177,7 @@ global {
   }
 
   export interface IDDBDamageBonusMacroChange {
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
     document?: any;
     priority?: number;
@@ -186,7 +186,7 @@ global {
 
   export interface IDDBTargetUpdateMacroChange {
     macroPass?: string;
-    macroType?: DDBMacroType;
+    macroType?: TDDBMacroType;
     macroName?: string;
     document: TDDBImporterDocument;
     priority?: number;
@@ -204,7 +204,7 @@ global {
   export interface IDDBOptionalMacroChange {
     optionPostfix: string;
     macroPass?: string | null;
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
     document?: any;
     priority?: number;
@@ -377,18 +377,18 @@ global {
   // -- Item Macro -------------------------------------------------------------
 
   export interface IDDBItemMacro {
-    type?: string;
+    type?: TDDBMacroType;
     name?: string;
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
   }
 
   // -- Set MIDI On Use Macro Flag ---------------------------------------------
 
   export interface IDDBSetMidiOnUseMacroFlag {
-    type?: string;
+    type?: TDDBMacroType;
     name?: string;
-    macroType?: string;
+    macroType?: TDDBMacroType;
     macroName?: string;
     triggerPoints?: string[];
     functionCall?: string | null;
