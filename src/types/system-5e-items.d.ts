@@ -155,7 +155,7 @@ global {
 
   interface I5eConsumptionTarget {
     type: "itemUses" | "activityUses" | "spellSlots" | "attribute" | string;
-    // target?: string;
+    target?: string;
     value: string | number;
     scaling?: I5eConsumptionTargetScaling;
   }
