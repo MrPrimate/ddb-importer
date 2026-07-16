@@ -1,43 +1,43 @@
 import { DICTIONARY } from "../../config/_module";
+import { utils } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 /**
  * Retrieves character abilities, including proficiency on saving throws
  */
 DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBMonster) {
-  // go through every ability
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
   const proficiencyBonus = cr.proficiencyBonus;
 
-  this.abilities = foundry.utils.deepClone(this.npc.system.abilities) as any;
+  this.abilities = foundry.utils.deepClone(this.npc.system.abilities) as I5eAbilities;
   DICTIONARY.actor.abilities.forEach((ability) => {
     const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
     this.npc.system.abilities[ability.value]["value"] = value;
     this.npc.system.abilities[ability.value]["proficient"] = proficient;
 
     if (proficient) {
-      this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
+      // this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
       const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
       if (saveBonus !== 0) {
         this.npc.system.abilities[ability.value].bonuses.save = String(saveBonus);
       }
     }
 
-    this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
+    // this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
 
     this.abilities[ability.value] = foundry.utils.deepClone(this.npc.system.abilities[ability.value]) as any;
-    this.abilities[ability.value].mod = mod;
+    // this.abilities[ability.value].mod = mod;
   });
 
   let initBonus = null;
 
+  const dexMod = utils.calculateModifier(this.abilities.dex.value);
   if (foundry.utils.hasProperty(this.source, "initiativeBonus") && Number.isInteger(parseInt(String(this.source.initiativeBonus)))) {
-    initBonus = parseInt(String(this.source.initiativeBonus)) - this.abilities.dex.mod;
+    initBonus = parseInt(String(this.source.initiativeBonus)) - dexMod;
   } else if (foundry.utils.hasProperty(this.source, "extraInitiative") && Number.isInteger(parseInt(String(this.source.extraInitiative)))) {
-    initBonus = parseInt(String(this.source.extraInitiative)) - this.abilities.dex.mod;
+    initBonus = parseInt(String(this.source.extraInitiative)) - dexMod;
   }
 
   if (initBonus !== null && Number.isInteger(parseInt(String(initBonus)))) {

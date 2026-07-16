@@ -137,9 +137,7 @@ class DDBMonster {
     concentration: boolean;
     overrideData?: DeepPartial<I5eSpellItem> | null;
   };
-  abilities: I5eAbilities & Record<string, {
-    mod: number;
-  }>;
+  abilities: I5eAbilities;
   movement: {
     movement: I5eMovement;
     special: string[];

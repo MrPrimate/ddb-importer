@@ -41,14 +41,14 @@ const INDEX_COMPENDIUMS: TCompendiumTypes[] = [
   "vehicles",
 ];
 
-const ATTACK_ACTION_HINTS = {
+const ATTACK_ACTION_HINTS: Record<string, string> = {
   "Opportunity Attack": "Opportunity Attacks",
   "Grapple": "Grappling",
   "Shove": "Shoving",
   "Interact with an Object": "Use an Object",
 };
 
-const RULE_ADJUSTMENT = {
+const RULE_ADJUSTMENT: Record<string, string> = {
   "rule": "rules",
   "skill": "skills",
   "ability": "abilities",
@@ -105,9 +105,8 @@ function findMatchingTagInIndex(type: string, tag: string): string {
   return tag;
 }
 
-
-function generateDDBRuleLinks() {
-  const rules = {
+function generateDDBRuleLinks(): IDDBRuleLinksLookup {
+  const rules: IDDBRuleLinksLookup = {
     "senses": { // CONFIG.DDB.senses
     },
     "actions": { // CONFIG.DDB.basicActions
@@ -118,7 +117,7 @@ function generateDDBRuleLinks() {
   };
 
   for (const sense of CONFIG.DDB.senses) {
-    const slug = utils.normalizeString(sense.name);
+    const slug = utils.normalizeString(sense.name) as string;
     if (CONFIG.DND5E.rules[slug]) {
       rules.senses[slug] = {
         reference: CONFIG.DND5E.rules[slug],
@@ -147,8 +146,11 @@ function generateDDBRuleLinks() {
 function getRuleLookups() {
   if (CONFIG.DDBI.RULE_MATCHES) return CONFIG.DDBI.RULE_MATCHES;
 
-  const baseRules = {
+  const baseRules: IDDBRuleLinksLookup = {
     "rules": {},
+    senses: undefined,
+    actions: undefined,
+    weaponproperties: undefined,
     "conditions": CONFIG.DND5E.conditionTypes ?? {},
     "skills": CONFIG.DND5E.skills ?? {},
     "abilities": CONFIG.DND5E.abilities ?? {},
@@ -161,7 +163,7 @@ function getRuleLookups() {
     "weaponMasteries": CONFIG.DND5E.weaponMasteries ?? {},
   };
 
-  const rules = {};
+  const rules: Record<string, IDDBRuleLink> = {};
   for (const [key, value] of Object.entries(CONFIG.DND5E.rules)) {
     rules[key] = {
       label: utils.capitalize(key),
@@ -340,7 +342,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     .map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
-  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as string;
+  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as T5eAbility;
   const mods = extraMods.join(" + ");
 
   if (baseAbility) {

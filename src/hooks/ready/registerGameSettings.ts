@@ -33,7 +33,7 @@ interface IDDBISRDLoad {
     "2014": boolean;
     "2024": boolean;
   };
-  iconMap: Record<"2014" | "2024", IIconMapEntry[]>;
+  iconMap: Record<T5eRulesVersion, IIconMapEntry[]>;
   packsLoaded: Record<string, any>;
   packs: Record<string, any>;
 }
@@ -83,8 +83,8 @@ export interface IDDBIConfig {
   ignoreEnrichedImages?: boolean;
   keyPostfix?: string;
   useLocal?: boolean;
-  EXTRA_IMAGES?: Record<string, Record<string, any>> | null;
-  RULE_MATCHES?: Record<string, Record<string, any>> | null;
+  EXTRA_IMAGES?: { summons?: Record<string, any> } & Record<string, Record<string, any>> | null;
+  RULE_MATCHES?: IDDBRuleLinksLookup | null;
   remaining?: Record<string, any>[];
   monsterURL?: string;
   version?: string;

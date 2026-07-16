@@ -120,4 +120,21 @@ global {
     subType?: string | null;
     restriction?: (string | null)[];
   }
+
+
+  interface IDDBRuleLink {
+    reference?: {
+      label: string;
+      reference?: string;
+    } | string;
+    label?: string;
+    id?: number;
+  }
+
+  interface IDDBRuleLinksLookup {
+    [key: string]: Record<string, IDDBRuleLink>;
+    senses: Record<string, IDDBRuleLink>;
+    actions: Record<string, IDDBRuleLink>;
+    weaponproperties: Record<string, IDDBRuleLink>;
+  }
 }
