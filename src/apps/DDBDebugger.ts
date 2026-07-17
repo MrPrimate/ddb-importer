@@ -77,7 +77,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
 
     let context = this.debug.data as DDBAppV2Context;
     const parentContext = await super._prepareContext(options);
@@ -87,7 +87,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  async _preparePartContext(partId, context) {
+  async _preparePartContext(partId: string, context: any) {
     switch (partId) {
       default: {
         context.tab = context.tabs[partId];
@@ -97,7 +97,7 @@ export default class DDBDebugger extends DDBAppV2 {
     return context;
   }
 
-  static async downloadDebug(this: DDBDebugger, _event, _target) {
+  static async downloadDebug(this: DDBDebugger, _event: any, _target: any) {
     await this.debug.fetch();
     this.debug.download();
   }

@@ -333,7 +333,7 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
 
   it("returns null when no match", () => {
     const character = {
-      flags: { ddbimporter: { dndbeyond: { characterValues: [] } } },
+      flags: { ddbimporter: { dndbeyond: { characterValues: [] as any[] } } },
     };
     const item = { id: 42, entityTypeId: 1 };
     expect(DDBDataUtils.getCustomValueFromCharacter(item, character as any, 8)).toBeNull();

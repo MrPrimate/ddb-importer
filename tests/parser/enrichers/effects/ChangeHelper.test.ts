@@ -20,6 +20,7 @@ describe("ChangeHelper.change", () => {
     const result = ChangeHelper.change({ value: "5", priority: 20, key: "system.bonuses.mwak.attack", type: "add" });
     expect(result).toEqual({
       key: "system.bonuses.mwak.attack",
+      phase: null,
       value: "5",
       type: "add",
       priority: 20,
@@ -230,7 +231,7 @@ describe("ChangeHelper.daeStatusEffectChange", () => {
   it("lowercases the status name", () => {
     const result = ChangeHelper.daeStatusEffectChange("Blinded");
     expect(result.key).toBe("macro.StatusEffect");
-    expect(result.type).toBe("add");
+    expect(result.type).toBe("custom");
     expect(result.value).toBe("blinded");
     expect(result.priority).toBe(20);
   });

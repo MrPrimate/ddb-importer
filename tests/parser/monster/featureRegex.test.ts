@@ -10,15 +10,15 @@ vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({
 }));
 vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => ({
   default: class {
-    additionalActivities = [];
-    documentType = null;
+    additionalActivities: any[] = [];
+    documentType: any = null;
     useMidiAutomations = false;
     usesOnActivity = false;
     ignoreActivityGeneration = false;
     forceDefaultActionBuild = false;
-    data = null;
-    activityTypes = [];
-    activities = [];
+    data: any = null;
+    activityTypes: any[] = [];
+    activities: any[] = [];
   },
 }));
 vi.mock("../../../src/parser/enrichers/DDBMonsterFeatureEnricher", () => ({

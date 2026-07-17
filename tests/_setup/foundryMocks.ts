@@ -121,11 +121,11 @@ const noopClass = class {};
     register: () => {},
   },
   modules: {
-    get: () => undefined,
+    get: (): undefined => undefined,
   },
   user: { id: "testUser", isGM: true },
   packs: {
-    get: () => undefined,
+    get: (): undefined => undefined,
   },
   i18n: {
     localize: (s: string) => s,
@@ -242,7 +242,7 @@ import { fallbackDDBConfig } from "../../src/hooks/ready/fallbackConfig";
     length: 0,
     append: () => {},
   }),
-  { parseHTML: () => [] },
+  { parseHTML: (): unknown[] => [] },
 );
 
 // -- Dialog --

@@ -15,7 +15,7 @@ describe("AdventureMunch._migrateSceneDataToV14 - levels-present reconciliation"
       rotation: 0,
       scaleX: 1,
       scaleY: 1,
-      tint: null,
+      tint: null as string | null,
       src: "assets/map-02-001.terror-in-tepest.jpg",
     },
     levels: [

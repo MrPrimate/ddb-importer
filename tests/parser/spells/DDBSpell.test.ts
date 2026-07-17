@@ -10,11 +10,11 @@ vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({
 }));
 vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => ({
   default: class {
-    additionalActivities = [];
-    data = null;
-    activities = [];
-    activityTypes = [];
-    documentType = null;
+    additionalActivities: any[] = [];
+    data: any = null;
+    activities: any[] = [];
+    activityTypes: any[] = [];
+    documentType: any = null;
     useMidiAutomations = false;
   },
 }));

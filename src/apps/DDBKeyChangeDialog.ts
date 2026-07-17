@@ -80,7 +80,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
   }
 
 
-  async _prepareContext(_options) {
+  async _prepareContext(_options: any) {
     const newKey = !this.key || this.key === "";
     const check = newKey
       ? { success: true, message: "" }
@@ -109,7 +109,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
    * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(this: DDBKeyChangeDialog, _event, _form, formData) {
+  static async #handleFormSubmission(this: DDBKeyChangeDialog, _event: any, _form: any, formData: any) {
     const currentKey = PatreonHelper.getPatreonKey(this.local);
     if (currentKey !== formData.object["patreon-key"]) {
       await PatreonHelper.setPatreonKey(formData.object["patreon-key"], this.local);
@@ -138,7 +138,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
    * @param {object} [options={}]              Additional options for the application.
    * @returns {Promise<object|null>}           Form data object with results of the dialog.
    */
-  static async create(spell, config, options = {}) {
+  static async create(spell: any, config: any, options = {}) {
     return new Promise((resolve) => {
       const dialog = new this({ spell, config, ...options });
       dialog.addEventListener("close", (_event) => resolve(dialog.config), { once: true });

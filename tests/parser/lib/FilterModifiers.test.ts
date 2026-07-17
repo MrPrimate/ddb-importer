@@ -11,19 +11,26 @@ import { getClassFeatures, getAllClassFeatures } from "../../../src/parser/lib/F
 // =============================================================================
 // Helper: mock class data
 // =============================================================================
-function makeClass({ name, level, subclassName = null, classFeatures = [], subclassFeatures = [], isStartingClass = true }) {
+function makeClass({ name, level, subclassName = null, classFeatures = [], subclassFeatures = [], isStartingClass = true }: {
+  name: string;
+  level: number;
+  subclassName?: string | null;
+  classFeatures?: any[];
+  subclassFeatures?: any[];
+  isStartingClass?: boolean;
+}) {
   const cls: any = {
     definition: { name },
     level,
     isStartingClass,
-    classFeatures: classFeatures.map((f) => ({
+    classFeatures: classFeatures.map((f: any) => ({
       definition: { ...f, className: null, subclassName: null },
     })),
   };
   if (subclassName) {
     cls.subclassDefinition = {
       name: subclassName,
-      classFeatures: subclassFeatures.map((f) => ({ ...f, className: null, subclassName: null })),
+      classFeatures: subclassFeatures.map((f: any) => ({ ...f, className: null, subclassName: null })),
     };
   } else {
     cls.subclassDefinition = null;
@@ -55,7 +62,7 @@ describe("getClassFeatures", () => {
 
   it("returns features up to class level", () => {
     const features = getClassFeatures(fighter, 5);
-    const names = features.map((f) => f.name);
+    const names = features.map((f: any) => f.name);
     expect(names).toContain("Fighting Style");
     expect(names).toContain("Second Wind");
     expect(names).toContain("Action Surge");
@@ -65,7 +72,7 @@ describe("getClassFeatures", () => {
 
   it("excludes features above class level", () => {
     const features = getClassFeatures(fighter, 5);
-    const names = features.map((f) => f.name);
+    const names = features.map((f: any) => f.name);
     expect(names).not.toContain("Indomitable"); // level 9
     expect(names).not.toContain("Remarkable Athlete"); // level 7
     expect(names).not.toContain("Superior Critical"); // level 15
@@ -73,7 +80,7 @@ describe("getClassFeatures", () => {
 
   it("sorts by required level ascending", () => {
     const features = getClassFeatures(fighter, 5);
-    const levels = features.map((f) => f.requiredLevel);
+    const levels = features.map((f: any) => f.requiredLevel);
     expect(levels).toEqual([...levels].sort((a, b) => a - b));
   });
 
@@ -89,20 +96,20 @@ describe("getClassFeatures", () => {
 
   it("annotates features with className", () => {
     const features = getClassFeatures(fighter, 5);
-    features.forEach((f) => {
+    features.forEach((f: any) => {
       expect(f.className).toBe("Fighter");
     });
   });
 
   it("annotates subclass features with subclassName", () => {
     const features = getClassFeatures(fighter, 5);
-    const subFeature = features.find((f) => f.name === "Improved Critical");
+    const subFeature = features.find((f: any) => f.name === "Improved Critical");
     expect(subFeature.subclassName).toBe("Champion");
   });
 
   it("annotates class features with null subclassName", () => {
     const features = getClassFeatures(fighter, 5);
-    const classFeature = features.find((f) => f.name === "Fighting Style");
+    const classFeature = features.find((f: any) => f.name === "Fighting Style");
     expect(classFeature.subclassName).toBeNull();
   });
 
@@ -117,7 +124,7 @@ describe("getClassFeatures", () => {
     });
     const features = getClassFeatures(noSubclass, 3);
     expect(features).toHaveLength(2);
-    const names = features.map((f) => f.name);
+    const names = features.map((f: any) => f.name);
     expect(names).toContain("Sneak Attack");
     expect(names).toContain("Cunning Action");
   });
@@ -160,9 +167,9 @@ describe("getAllClassFeatures", () => {
         }),
       ],
     };
-    const features = getAllClassFeatures(data);
+    const features = getAllClassFeatures(data as IDDBCharacterData);
     expect(features).toHaveLength(4);
-    const names = features.map((f) => f.name);
+    const names = features.map((f: any) => f.name);
     expect(names).toContain("Fighting Style");
     expect(names).toContain("Action Surge");
     expect(names).toContain("Sneak Attack");
@@ -182,13 +189,13 @@ describe("getAllClassFeatures", () => {
         }),
       ],
     };
-    const features = getAllClassFeatures(data);
+    const features = getAllClassFeatures(data as IDDBCharacterData);
     expect(features).toHaveLength(1);
     expect(features[0].name).toBe("Fighting Style");
   });
 
   it("returns empty for no classes", () => {
-    const features = getAllClassFeatures({ classes: [] });
+    const features = getAllClassFeatures({ classes: [] } as unknown as IDDBCharacterData);
     expect(features).toHaveLength(0);
   });
 });

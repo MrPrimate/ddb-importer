@@ -95,18 +95,7 @@ export interface IDDBIConfig {
   CAMPAIGNS?: IDDBListCampaign[] | null;
   METADATA_SUMMARY?: IMetaDataSummary | null;
   vehicleURL?: string;
-  MAPS?: {
-    catalog: IDDBMapCatalog | null;
-    sourceMaps: Record<string, IDDBSourceMaps>;
-    fetchedAt: number | null;
-    // In-memory cache of per-source total scene counts populated by
-    // DDBMapBrowser's auto-prefetch after catalog load. Keyed by sourceId.
-    // Missing key = unknown (don't hide); value 0 = empty source (hide
-    // when the filter is on).
-    sceneCountsBySource?: Record<string, number>;
-    // Auto-prefetch progress so the sidebar can show "counting N of M".
-    sceneCountProgress?: { done: number; total: number; inFlight: boolean };
-  };
+  MAPS?: IDDBMapsStorage;
   META?: {
     matches: Map<string, any>;
     results: Map<string, any>;

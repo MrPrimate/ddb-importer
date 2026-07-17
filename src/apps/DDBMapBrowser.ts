@@ -23,11 +23,79 @@ interface IBrowserSelection {
   chapterId: string | null;
 }
 
+interface IMapBrowserGroupCategory {
+  id: string;
+  name: string;
+  selected: boolean;
+}
+
+interface IMapBrowserGroupSource {
+  sourceId: string;
+  name: string;
+  description: string;
+  type: DDBMapSourceType;
+  released: boolean;
+  backgroundImage: string | null;
+  expanded: boolean;
+  selected: boolean;
+  hasQuickplay: boolean;
+  hasCategories: boolean;
+  categories: IMapBrowserGroupCategory[];
+}
+
+interface IMapBrowserGroup {
+  type: string;
+  label: string;
+  expanded: boolean;
+  count: number;
+  sources: IMapBrowserGroupSource[];
+}
+
+interface IMapBrowserDetailMap {
+  id: string;
+  name: string;
+  description: string;
+  imageKey: string;
+  thumbnailKey: string;
+  thumbnail: string | null;
+  order: number;
+  hasPreparedMap: boolean;
+  preparedMapDescription: string | null;
+  dimensions: string | null;
+  hasMetaMatch: boolean;
+  metaMatchedBy: string | null;
+}
+
+interface IMapBrowserDetailChapterGroup {
+  id: string;
+  name: string;
+  order: number;
+  showHeader: boolean;
+  mapCount: number;
+  mapCountLabel: string;
+  maps: IMapBrowserDetailMap[];
+}
+
+interface IMapBrowserDetail {
+  state: "empty" | "loading" | "missing" | "ready";
+  isEmpty: boolean;
+  isLoading: boolean;
+  isMissing: boolean;
+  isReady: boolean;
+  sourceTitle?: string;
+  sourceCover?: string | null;
+  chapterTitle?: string | null;
+  mapCount?: number;
+  hiddenCount?: number;
+  chapterGroups?: IMapBrowserDetailChapterGroup[];
+  anyPreparedMap?: boolean;
+}
+
 function sourceKey(sel: IBrowserSelection): string {
   return sel.chapterId ? `${sel.sourceId}::${sel.chapterId}` : sel.sourceId;
 }
 
-function emptyMapsStorage() {
+function emptyMapsStorage(): IDDBMapsStorage {
   return {
     catalog: null,
     sourceMaps: {},
@@ -105,7 +173,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     return {};
   }
 
-  static async reloadCatalog(this: DDBMapBrowser, _event, _target) {
+  static async reloadCatalog(this: DDBMapBrowser, _event: any, _target: any) {
     DDBMapMetaData.clearCache();
     clearNativeSessionCache();
     await this._loadCatalog({ force: true });
@@ -170,7 +238,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
   // long decrypt + asset-download phases show progress instead of looking hung.
   // Maps the primary phase progress to the bar pct and folds the phase label +
   // secondary per-asset detail into the toast message. One toast per book.
-  _makeJournalNotifier(bookLabel: string): { notifier: (props: NotifierV2Props) => void; finish: () => void } {
+  _makeJournalNotifier(bookLabel: string): { notifier: INotifierV2; finish: () => void } {
     const note: any = ui.notifications.info(`Importing ${bookLabel} journals...`, { progress: true });
     let pct = 0;
     let phase = "";
@@ -267,7 +335,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     }
   }
 
-  static toggleType(this: DDBMapBrowser, _event, target) {
+  static toggleType(this: DDBMapBrowser, _event: any, target: any) {
     const type = target?.dataset?.type;
     if (!type) return;
     if (this.expandedTypes.has(type)) this.expandedTypes.delete(type);
@@ -275,7 +343,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     this.render();
   }
 
-  static toggleSource(this: DDBMapBrowser, _event, target) {
+  static toggleSource(this: DDBMapBrowser, _event: any, target: any) {
     const sourceId = target?.dataset?.sourceId;
     if (!sourceId) return;
     if (this.expandedSources.has(sourceId)) this.expandedSources.delete(sourceId);
@@ -283,7 +351,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     this.render();
   }
 
-  static async selectSource(this: DDBMapBrowser, _event, target) {
+  static async selectSource(this: DDBMapBrowser, _event: any, target: any) {
     const sourceId = target?.dataset?.sourceId;
     const chapterId = target?.dataset?.chapterId || null;
     if (!sourceId) return;
@@ -293,7 +361,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     await this._loadSelectedSource();
   }
 
-  static async importMap(this: DDBMapBrowser, _event, target) {
+  static async importMap(this: DDBMapBrowser, _event: any, target: any) {
     const imageKey = target?.dataset?.imageKey;
     if (!imageKey) {
       logger.error("DDBMapBrowser.importMap: missing imageKey on target");
@@ -307,7 +375,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     await this._importMaps([map]);
   }
 
-  static async importAllInSource(this: DDBMapBrowser, _event, _target) {
+  static async importAllInSource(this: DDBMapBrowser, _event: any, _target: any) {
     if (!this.selection) return;
     const key = sourceKey(this.selection);
     const payload = ensureMapsStorage().sourceMaps[key];
@@ -666,14 +734,14 @@ export default class DDBMapBrowser extends DDBAppV2 {
     }
   }
 
-  async _onFirstRender(context, options) {
+  async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     if (!ensureMapsStorage().catalog) {
       this._loadCatalog();
     }
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     // Campaign dropdown (when the list fetched successfully) / free-text
@@ -791,7 +859,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     const storage = ensureMapsStorage();
@@ -831,7 +899,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     context.detail = await this._buildDetail(storage, context.excludeDm);
     context.hasCatalog = !!catalog;
     context.totalSources = catalog?.sources.length ?? 0;
-    context.filteredSources = context.groups.reduce((acc, g) => acc + g.sources.length, 0);
+    context.filteredSources = context.groups.reduce((acc: any, g: any) => acc + g.sources.length, 0);
 
     // Campaign picker: read the maps-specific setting, lazily fetch the
     // available-campaigns list once per session. Empty list -> the template
@@ -880,7 +948,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  _buildGroups(catalog: IDDBMapCatalog | null, includedSet: Set<string>, search: string) {
+  _buildGroups(catalog: IDDBMapCatalog | null, includedSet: Set<string>, search: string): IMapBrowserGroup[] {
     if (!catalog) return [];
     const matchesSearch = (src: IDDBMapSource) => {
       if (!search) return true;
@@ -956,8 +1024,8 @@ export default class DDBMapBrowser extends DDBAppV2 {
       }));
   }
 
-  async _buildDetail(storage: NonNullable<typeof CONFIG.DDBI.MAPS>, excludeDm: boolean) {
-    const empty = { state: "empty", isEmpty: true, isLoading: false, isMissing: false, isReady: false };
+  async _buildDetail(storage: NonNullable<typeof CONFIG.DDBI.MAPS>, excludeDm: boolean): Promise<IMapBrowserDetail> {
+    const empty: IMapBrowserDetail = { state: "empty", isEmpty: true, isLoading: false, isMissing: false, isReady: false };
     if (!this.selection) return empty;
     const catalog = storage.catalog;
     const sel = this.selection;

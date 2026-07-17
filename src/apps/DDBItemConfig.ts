@@ -63,7 +63,7 @@ export class DDBItemConfig extends FormApplication {
       },
     ];
 
-    const overrides = {
+    const overrides: Record<string, { label: string; selected: boolean }> = {
       "NONE": {
         label: `None`,
         selected: true,
@@ -105,7 +105,7 @@ export class DDBItemConfig extends FormApplication {
 
   /** @override */
 
-  async _updateObject(event, formData) {
+  async _updateObject(event: any, formData: any) {
     event.preventDefault();
 
     const configItem = this.object as IConfigItem;

@@ -54,7 +54,7 @@ export default class DDBCookie extends FormApplication {
   }
 
   /** @override */
-  async _updateObject(event, formData) {
+  async _updateObject(event: any, formData: any) {
     event.preventDefault();
     const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
     await Secrets.setCobalt(formData["cobalt-cookie"], keyPostFix);

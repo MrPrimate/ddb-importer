@@ -98,8 +98,8 @@ describe("isGridDetectionCandidate", () => {
   it("returns false when scene dims are not finite numbers", async () => {
     const scene = {
       background: { src: "scene.png" },
-      width: null,
-      height: undefined,
+      width: null as number | null,
+      height: undefined as number | undefined,
     };
     const ok = await isGridDetectionCandidate(scene, makeDims(2000, 1500));
     expect(ok).toBe(false);

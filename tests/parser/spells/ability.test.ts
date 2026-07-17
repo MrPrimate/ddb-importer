@@ -44,14 +44,14 @@ describe("getSpellCastingAbility", () => {
   it("returns class spellcasting ability when present", () => {
     const classInfo = {
       definition: { spellCastingAbilityId: 4 }, // INT
-      subclassDefinition: null,
+      subclassDefinition: null as { spellCastingAbilityId?: number | null } | null,
     };
     expect(getSpellCastingAbility(classInfo)).toBe("int");
   });
 
   it("falls back to subclass ability when class has none", () => {
     const classInfo = {
-      definition: { spellCastingAbilityId: null },
+      definition: { spellCastingAbilityId: null as number | null },
       subclassDefinition: { spellCastingAbilityId: 6 }, // CHA
     };
     expect(getSpellCastingAbility(classInfo)).toBe("cha");
@@ -59,8 +59,8 @@ describe("getSpellCastingAbility", () => {
 
   it("defaults to 'wis' when neither class nor subclass has ability", () => {
     const classInfo = {
-      definition: { spellCastingAbilityId: null },
-      subclassDefinition: null,
+      definition: { spellCastingAbilityId: null as number | null },
+      subclassDefinition: null as { spellCastingAbilityId?: number | null } | null,
     };
     expect(getSpellCastingAbility(classInfo)).toBe("wis");
   });

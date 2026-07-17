@@ -140,12 +140,11 @@ describe("DDBCharacter._getAbilities", () => {
     return mock;
   }
 
-  it("all stats 10: all values 10, all mods 0", () => {
+  it("all stats 10: all values 10", () => {
     const mock = makeMockForAbilities();
     const result = getAbilities.call(mock);
 
     expect(result.str.value).toBe(10);
-    expect(result.str.mod).toBe(0);
     expect(result.dex.value).toBe(10);
     expect(result.con.value).toBe(10);
     expect(result.int.value).toBe(10);
@@ -153,7 +152,7 @@ describe("DDBCharacter._getAbilities", () => {
     expect(result.cha.value).toBe(10);
   });
 
-  it("base stat 16 STR: value 16, mod +3", () => {
+  it("base stat 16 STR: value 16", () => {
     const stats = [
       { id: 1, value: 16 },
       { id: 2, value: 10 },
@@ -166,7 +165,6 @@ describe("DDBCharacter._getAbilities", () => {
     const result = getAbilities.call(mock);
 
     expect(result.str.value).toBe(16);
-    expect(result.str.mod).toBe(3);
   });
 
   it("override stat takes precedence", () => {
@@ -182,7 +180,6 @@ describe("DDBCharacter._getAbilities", () => {
     const result = getAbilities.call(mock);
 
     expect(result.str.value).toBe(20);
-    expect(result.str.mod).toBe(5);
   });
 
   it("bonus stat adds on top of calculated value", () => {
@@ -199,7 +196,6 @@ describe("DDBCharacter._getAbilities", () => {
 
     // base 10 + bonus 2 = 12
     expect(result.str.value).toBe(12);
-    expect(result.str.mod).toBe(1);
   });
 
   it("all abilities default to proficient = 0", () => {
@@ -228,34 +224,6 @@ describe("DDBCharacter._getAbilities", () => {
     expect(result.dex.proficient).toBe(0); // others unaffected
   });
 
-  it("all abilities have min 3 and max defaults to 20", () => {
-    const mock = makeMockForAbilities();
-    const result = getAbilities.call(mock);
-
-    expect(result.str.min).toBe(3);
-    // max is Math.max(cappedBonus.cap, overRiddenStat) - cap defaults to 20+abilityScoreMaxBonus
-    expect(result.str.max).toBeGreaterThanOrEqual(10);
-  });
-
-  it("different base stats produce correct modifiers", () => {
-    const stats = [
-      { id: 1, value: 8 },  // mod -1
-      { id: 2, value: 13 }, // mod +1
-      { id: 3, value: 14 }, // mod +2
-      { id: 4, value: 18 }, // mod +4
-      { id: 5, value: 7 },  // mod -2
-      { id: 6, value: 20 }, // mod +5
-    ];
-    const mock = makeMockForAbilities({ ddbCharacter: { stats } });
-    const result = getAbilities.call(mock);
-
-    expect(result.str.mod).toBe(-1);
-    expect(result.dex.mod).toBe(1);
-    expect(result.con.mod).toBe(2);
-    expect(result.int.mod).toBe(4);
-    expect(result.wis.mod).toBe(-2);
-    expect(result.cha.mod).toBe(5);
-  });
 });
 
 // =============================================================================

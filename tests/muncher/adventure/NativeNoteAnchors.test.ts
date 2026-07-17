@@ -80,7 +80,7 @@ describe("resolveNote", () => {
   it("matches a section slug verbatim (the `#section` is part of the page slug)", () => {
     // LMoP Redbrand Hideout: note slug == section page slug, must NOT collapse to the chapter.
     const flags = {
-      ddb: { slug: "phandalin#RedbrandHideout", slugLink: null, contentChunkId: "not-in-any-body" },
+      ddb: { slug: "phandalin#RedbrandHideout", slugLink: null as string | null, contentChunkId: "not-in-any-body" },
     };
     expect(resolveNote(flags, lookup)).toEqual({ entryId: "J2", pageId: "Predbrand", anchor: null });
   });
@@ -110,7 +110,7 @@ describe("resolveNote", () => {
   it("guesses slugLink from the note name when the flags omit it", () => {
     // "01. Guarded Tunnel" -> "1GuardedTunnel"... but the element id in the
     // fixture is "GuardedTunnel"; use a name that matches it.
-    const flags = { ddb: { slugLink: null, slug: "chapter-1-death" } };
+    const flags = { ddb: { slugLink: null as string | null, slug: "chapter-1-death" } };
     expect(resolveNote(flags, lookup, "Guarded Tunnel")).toEqual({ entryId: "J1", pageId: "Pelement", anchor: "GuardedTunnel" });
   });
 });

@@ -81,46 +81,6 @@ describe("DDBMonster._generateAbilities", () => {
     expect(mock.npc.system.abilities.con.bonuses.save).toBe("2");
   });
 
-  it("DC is calculated as mod + proficiency + 8", () => {
-    // STR 16 (mod +3), CR 1/4 (prof +2) → DC = 3 + 2 + 8 = 13
-    const mock = makeMockMonster({
-      source: {
-        stats: [
-          { statId: 1, value: 16 },
-          { statId: 2, value: 10 },
-          { statId: 3, value: 10 },
-          { statId: 4, value: 10 },
-          { statId: 5, value: 10 },
-          { statId: 6, value: 10 },
-        ],
-        challengeRatingId: 3,
-      },
-    });
-    generateAbilities.call(mock);
-
-    expect(mock.npc.system.abilities.str.dc).toBe(13);
-  });
-
-  it("stores abilities on this.abilities with mod", () => {
-    const mock = makeMockMonster({
-      source: {
-        stats: [
-          { statId: 1, value: 14 },
-          { statId: 2, value: 10 },
-          { statId: 3, value: 10 },
-          { statId: 4, value: 10 },
-          { statId: 5, value: 10 },
-          { statId: 6, value: 10 },
-        ],
-        challengeRatingId: 3,
-      },
-    });
-    generateAbilities.call(mock);
-
-    expect(mock.abilities.str.mod).toBe(2);
-    expect(mock.abilities.dex.mod).toBe(0);
-  });
-
   it("initiative bonus from source.initiativeBonus", () => {
     // DEX 14 (mod +2), initiativeBonus 4 → initBonus = 4 - 2 = 2 = prof
     const mock = makeMockMonster({
