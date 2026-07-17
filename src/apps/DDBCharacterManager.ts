@@ -458,7 +458,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   static async updateCharacterClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
     try {
       this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = true;
-      await updateDDBCharacter(this.actor).then((result) => {
+      await updateDDBCharacter(this.actor as TSyncCharacterActor).then((result) => {
         const flatResults = result.flat().filter((r) => r !== undefined);
         const updateNotes = flatResults.map((r) => r.message).join(" ");
         const failures = flatResults.filter((r) => r && r.success === false);

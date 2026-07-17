@@ -1,7 +1,7 @@
 import { logger } from "../../lib/_module";
 
-async function linkSelectedEnchantment(item: Item.Implementation, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
-  const effectData = effect.toObject() as unknown as any;
+async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
+  const effectData = effect.toObject() as unknown as I5eEffectData;
   effectData.origin = activity.uuid;
 
   const createOperation = {
@@ -13,7 +13,7 @@ async function linkSelectedEnchantment(item: Item.Implementation, effect: Active
     },
   } as unknown as any;
 
-  const applied = await ActiveEffect.create(effectData, createOperation);
+  const applied = await ActiveEffect.create(effectData as any, createOperation);
   logger.debug(`Applied enchantment effect from ${featureName} to ${item.name}`, {
     effect: effectData,
     applied,
@@ -30,7 +30,7 @@ function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantme
 }
 
 
-export async function linkSelectedEnchantments(actor: Actor.Implementation) {
+export async function linkSelectedEnchantments(actor: TImporterActor) {
   const items = actor.getEmbeddedCollection("Item");
 
   for (const item of items) {
@@ -50,12 +50,12 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
     // loot items don't have activities, so we can't link the enchantment to them
     if (!item.system.activities) continue;
 
-    const activity = item.system.activities.getByType("enchant")
-      .find((a) => a._id === enchantmentFlag.activityId);
+    const activity: I5eEnchantActivity = item.system.activities.getByType("enchant")
+      .find((a: I5eEnchantActivity) => a._id === enchantmentFlag.activityId);
 
     if (!activity) continue;
 
-    let targetItem: Item.Implementation | null = null;
+    let targetItem: TImporterItem | null = null;
 
     if (enchantmentFlag) {
       if ("equipped" in item.system && item.system.equipped === false) continue;
@@ -63,9 +63,9 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
         if (item.system.attunement === "required") continue;
       }
       if (enchantmentFlag.targetItemId === "self") {
-        targetItem = item as Item.Implementation;
+        targetItem = item as TImporterItem;
       } else if (enchantmentFlag.targetItemName) {
-        targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as Item.Implementation ?? null;
+        targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as TImporterItem ?? null;
       } else if (enchantmentFlag.targetItemMatches) {
         const matchedFields = enchantmentFlag.targetItemMatches;
         const targetItems = items.filter((i) => matchFields(i as unknown as TAll5eDocuments, matchedFields));
@@ -77,14 +77,14 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
           });
         } else {
           for (const matchedItem of targetItems) {
-            await linkSelectedEnchantment(matchedItem as Item.Implementation, effect, activity, item.name);
+            await linkSelectedEnchantment(matchedItem as TImporterItem, effect, activity, item.name);
           }
           continue;
         }
       }
     } else {
       targetItem = (items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
-        foundry.utils.getProperty(i, "flags.ddbimporter.enchantmentLinkId") === enchantmentFlag.targetItemId)) as Item.Implementation | null;
+        foundry.utils.getProperty(i, "flags.ddbimporter.enchantmentLinkId") === enchantmentFlag.targetItemId)) as TImporterItem | null;
     }
 
     if (!targetItem) continue;
@@ -93,13 +93,14 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
   }
 }
 
-export async function createInfusedItems(ddb, actor) {
+export async function createInfusedItems(ddb: IDDBData, actor: TImporterActor) {
   if (!ddb.infusions?.item || !ddb.infusions?.infusions?.definitionData) return;
 
   const rollData = actor.getRollData();
 
-  for (const item of actor.getEmbeddedCollection("Item")) {
+  for (const i of actor.getEmbeddedCollection("Item")) {
 
+    const item = i as TImporterItem;
     const infusedItem = ddb.infusions.item.find((mapping) =>
       mapping.itemId === item.flags?.ddbimporter?.definitionId
       && mapping.inventoryMappingId === item.flags?.ddbimporter?.id
@@ -107,16 +108,16 @@ export async function createInfusedItems(ddb, actor) {
     );
     if (!infusedItem) continue;
     // add infused item effect
-    const infusionFeature = actor.items.find((i) =>
+    const infusionFeature = actor.getEmbeddedCollection("Item").find((i) =>
       foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.defintionKey") === infusedItem.definitionKey,
     );
 
-    if (!infusionFeature) continue;
-    const infusionActivities = infusionFeature.system.activities.getByType("enchant");
+    if (!infusionFeature?.system.activities) continue;
+    const infusionActivities: I5eEnchantActivity[] = infusionFeature.system.activities.getByType("enchant");
 
     for (const activity of infusionActivities) {
-      const infusionEffectCount = activity.effects.size;
-      const artificerLevel = rollData.classes.artificer?.levels ?? 0;
+      const infusionEffectCount = activity.effects.length;
+      const artificerLevel = (rollData.classes as Record<string, any>)?.artificer?.levels ?? 0;
 
       const infusionEffectIds = activity.effects.filter((e) => {
         if (infusionEffectCount === 1) return true;
@@ -125,7 +126,7 @@ export async function createInfusedItems(ddb, actor) {
         return appropriateLevel;
       }).map((e) => e._id);
 
-      const infusionEffects = (infusionFeature.getEmbeddedCollection("ActiveEffect") ?? [])
+      const infusionEffects = infusionFeature.getEmbeddedCollection("ActiveEffect")
         .filter((e) => infusionEffectIds.includes(e._id));
 
       if (infusionEffects.length === 0) continue;
