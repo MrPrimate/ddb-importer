@@ -766,8 +766,9 @@ async function deleteDDBCustomItems(actor: TSyncCharacterActor, itemsToDelete: I
  * @returns {Array} A n array of the added
  * custom items, each enriched with DDB information.
  */
-async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInventoryItem[] | TImporterItem[]) {
-  const customItemResults = [];
+async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInventoryItem[] | TImporterItem[]): Promise<I5eInventoryItem[]> {
+  // Mutated in place by setProperty below, then handed to updateEmbeddedDocuments.
+  const customItemResults: I5eInventoryItem[] = [];
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
     const containerEntityId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
@@ -790,9 +791,9 @@ async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInve
       },
     };
 
-    const itemData = (typeof item.toObject === "function")
-      ? item.toObject()
-      : foundry.utils.duplicate(item);
+    const itemData = ("toObject" in item && typeof item.toObject === "function")
+      ? item.toObject() as unknown as I5eInventoryItem
+      : foundry.utils.duplicate(item) as unknown as I5eInventoryItem;
     const data = await updateCharacterCall(actor, "custom/item", customData, { name: itemData.name });
     foundry.utils.setProperty(itemData, "flags.ddbimporter.id", data.data.addItems[0].id);
     foundry.utils.setProperty(itemData, "flags.ddbimporter.custom", true);
@@ -836,7 +837,7 @@ async function addDDBEquipment(actor: TSyncCharacterActor, itemsToAdd: I5eInvent
       ddbData: generatedItemsToAddData.custom,
       customItems,
     });
-    const customItemResults = await actor.updateEmbeddedDocuments("Item", customItems);
+    const customItemResults = await actor.updateEmbeddedDocuments("Item", customItems as any);
     logger.debug("customItemResults", customItemResults);
   } catch (err) {
     logger.error(`Unable to update character with equipment, got the error:`, err);
@@ -870,7 +871,7 @@ async function addDDBEquipment(actor: TSyncCharacterActor, itemsToAdd: I5eInvent
 
       try {
         if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates as any);
-        if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems);
+        if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems as any);
       } catch (err) {
         logger.error(`Unable to update character with equipment, got the error:`, err);
         logger.error(`Update payload:`, itemUpdates);
@@ -1968,7 +1969,7 @@ async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: st
 export function activateUpdateHooks() {
   // check to make sure we can sync back, currently only works for 1 gm user
   if (SETTINGS.STATUS.activeUpdate()) {
-    Hooks.on("updateActor", activeUpdateActor);
+    Hooks.on("updateActor", (document, update) => activeUpdateActor(document as unknown as TSyncCharacterActor, update));
     Hooks.on("updateItem", activeUpdateUpdateItem);
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
     Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
