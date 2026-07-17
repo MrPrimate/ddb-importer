@@ -288,4 +288,17 @@ global {
     stickers: IDDBSticker[];
   }
 
+  interface IDDBMuleHandlerOptions {
+    characterId: string | null;
+    classId?: number | null;
+    sources?: number[];
+    homebrew?: boolean;
+    onlyHomebrew?: boolean;
+    type?: string | null;
+    filterIds?: number[];
+    cleanup?: boolean;
+    backgroundId?: string | null;
+    ddbMuncher?: DDBMuncher | null;
+  }
+
 }

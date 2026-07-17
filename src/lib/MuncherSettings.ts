@@ -30,7 +30,7 @@ const MuncherSettings = {
   },
 
   getInstalledIcon: (name: string) => {
-    return SystemHelpers.effectModules()[name] ? "<i class='fas fa-check-circle' style='color: green'></i>" : "<i class='fas fa-times-circle' style='color: red'></i> ";
+    return foundry.utils.getProperty(SystemHelpers.effectModules(), name) ? "<i class='fas fa-check-circle' style='color: green'></i>" : "<i class='fas fa-times-circle' style='color: red'></i> ";
   },
 
   getCharacterImportSettings: (): ICharacterImportSettings => {
@@ -402,12 +402,12 @@ const MuncherSettings = {
   },
 
 
-  updateActorSettings: async (_html, event) => {
-    const selection = event.currentTarget.dataset.section;
-    const checked = event.currentTarget.checked;
+  updateActorSettings: async (_html: unknown, event: Event) => {
+    const selection = (event.currentTarget as HTMLElement).dataset.section;
+    const checked = (event.currentTarget as HTMLInputElement).checked;
+    if (!selection) return;
 
-    await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
-
+    await utils.setSetting(selection, checked);
     logger.debug(`Updating munching-policy-${selection} to ${checked}`);
 
     switch (selection) {
@@ -440,13 +440,13 @@ const MuncherSettings = {
     }
   },
 
-  getCompendiumFolderLookups: (type) => {
+  getCompendiumFolderLookups: (type: string): ICompendiumFolderStyle[] => {
     // dynamic setting name, so it cannot key into the registered settings type
     const compendiumFolderSetting = (game.settings.settings as Map<string, any>).get(`ddb-importer.munching-selection-compendium-folders-${type}`);
     const settingValue = utils.getSetting<string>(`munching-selection-compendium-folders-${type}`);
 
-    const selections = [];
-    for (const [key, value] of Object.entries(compendiumFolderSetting.choices)) {
+    const selections: ICompendiumFolderStyle[] = [];
+    for (const [key, value] of Object.entries(compendiumFolderSetting.choices as Record<string, string>)) {
       selections.push({
         key: key,
         label: value,
@@ -982,8 +982,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return encounterSettings;
   },
 
-  getSourcesLookups: (overrideSelected = null): IIdLabelBoolAcronymLookup[] => {
-    const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(id));
+  getSourcesLookups: (overrideSelected = null as (string | number)[] | null): IIdLabelBoolAcronymLookup[] => {
+    const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(String(id)));
     const selections = DDBSources.getDisplaySources()
       .map((source) => {
         const details = {
@@ -1219,7 +1219,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const disableUse = !tiers.experimentalMid;
 
     const muleURL = utils.getSetting<string>("munching-policy-character-url");
-    let rulesVersion = utils.getSetting<"2014" | "2024" | "">("munching-policy-character-class-rules-version") ?? "";
+    let rulesVersion = utils.getSetting<T5eRulesVersion | "">("munching-policy-character-class-rules-version") ?? "";
     if (rulesVersion === "") {
       rulesVersion = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern"
         ? "2024"
@@ -1233,8 +1233,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const result: {
       selectedClasses: any[];
       subclassSelection: any[];
-      rulesVersion: "2014" | "2024";
-      otherRulesVersion: "2014" | "2024";
+      rulesVersion: T5eRulesVersion;
+      otherRulesVersion: T5eRulesVersion;
       classFilterEnabled: boolean;
       muleURL: string;
       classMunchEnabled: boolean;
@@ -1258,12 +1258,12 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const klassInChosenSources = (klass: any) =>
       klass.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
 
-    const classes = await DDBMuleHandler.getList("class", Array.from(chosenSourceIds));
+    const classes = await DDBMuleHandler.getList<IDDBMuleClassDefinition>("class", Array.from(chosenSourceIds));
     const selectedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
       .map((id) => parseInt(String(id)));
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
 
-    const isKlass2014 = (klass: any) => klass.sources.every((s: any) => DDBSources.is2014Source(s));
+    const isKlass2014 = (klass: IDDBMuleClassDefinition) => klass.sources.every((s) => DDBSources.is2014Source(s));
 
     result.selectedClasses = classes
       .filter((klass) => (rulesVersion === "2014" ? isKlass2014(klass) : !isKlass2014(klass)))
@@ -1278,7 +1278,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
           selected: selectedClassIds.includes(klass.id) ? "selected" : "",
         };
       })
-      .sort((a, b) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
+      .sort((a: any, b: any) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
 
     const cache = app?.subClassMap ?? {};
 

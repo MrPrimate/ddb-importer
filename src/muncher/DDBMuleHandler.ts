@@ -75,12 +75,12 @@ interface IDDBMuleHandlerQuickBase {
 }
 
 interface IDDBMuleHandlerQuickClass extends IDDBMuleHandlerQuickBase {
-  classId: string;
+  classId: number;
   cleanup?: boolean;
 }
 
 interface IDDBMuleHandlerQuickClassList extends IDDBMuleHandlerQuickBase {
-  classIds: string[];
+  classIds: number[];
   cleanup?: boolean;
 }
 
@@ -108,24 +108,11 @@ interface IDDBMuleRequestBody {
   include2014Adjusted: boolean;
 }
 
-interface DDBMuleHandlerOptions {
-  characterId: string | null;
-  classId?: string | null;
-  sources?: number[];
-  homebrew?: boolean;
-  onlyHomebrew?: boolean;
-  type?: string | null;
-  filterIds?: number[];
-  cleanup?: boolean;
-  backgroundId?: string | null;
-  ddbMuncher?: DDBMuncher | null;
-}
-
 export default class DDBMuleHandler {
 
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
   characterId: string | null = null;
-  classId: string | null = null;
+  classId: number | null = null;
   source: IDDBMuleClassSource;
   allowedSourceIds: number[] = [];
   allowedHomebrew = false;
@@ -189,7 +176,7 @@ export default class DDBMuleHandler {
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
-  }: DDBMuleHandlerOptions) {
+  }: IDDBMuleHandlerOptions) {
     if (!characterId) {
       throw new Error("characterId is required");
     }
@@ -590,7 +577,7 @@ export default class DDBMuleHandler {
     switch (event.kind) {
       case "subClassChoices": {
         const payload = event.payload;
-        const subClassList = ((this.source as any)?.subClasses?.[this.classId ?? ""] ?? []) as any[];
+        const subClassList = (this.source?.subClasses?.[this.classId ?? ""] ?? []);
         if (subClassList.length > 0) this._streamSecondaryTotal = subClassList.length;
         const subClassId = payload?.debug?.subClassId ?? null;
         const desc = `${payload?.debug?.subclassName ?? "subclass"} pass ${event.pass ?? "?"}`;
@@ -1154,7 +1141,7 @@ export default class DDBMuleHandler {
   }
 
   static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds, cleanup }: IDDBMuleHandlerQuickClassList) {
-    const classList = await DDBMuleHandler.getList("class", sources);
+    const classList = await DDBMuleHandler.getList<IDDBMuleClassDefinition>("class", sources);
 
     for (const klass of classList) {
       if (classIds.length > 0 && !classIds.includes(klass.id)) {
@@ -1178,10 +1165,10 @@ export default class DDBMuleHandler {
   // Life domain parsing errors
   // Light domain parsing errors
 
-  static async getList(type: string, sources: number[] | null = null) {
+  static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
     const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
     if (cacheHit) {
-      return cacheHit;
+      return cacheHit as T[];
     }
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
@@ -1223,10 +1210,10 @@ export default class DDBMuleHandler {
     }
 
     await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
-    return data.data;
+    return data.data as T[];
   }
 
-  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
+  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
     const cobaltCookie = Secrets.getCobalt();
     const resolvedCampaignId = campaignId ?? DDBCampaigns.getCampaignId();
     const parsingApi = DDBProxy.getProxy();
@@ -1240,7 +1227,7 @@ export default class DDBMuleHandler {
       includeHomebrew,
     };
 
-    const data = await postJson(`${parsingApi}/proxy/subclass`, body);
+    const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
     if (!data.success) {
       logger.error(`Failure: ${data.message}`);
       throw new Error(data.message);
@@ -1249,9 +1236,15 @@ export default class DDBMuleHandler {
 
   }
 
-  static async getSubclassesCached({ className, classId, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses & { classId: number | string }) {
+  static async getSubclassesCached({
+    className,
+    classId,
+    rulesVersion = "2024",
+    includeHomebrew = false,
+    campaignId = null,
+  }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
     const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey);
+    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey) as IDDBMuleSubclassDefinition[] | undefined;
     if (cacheHit) return cacheHit;
     const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
     await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
