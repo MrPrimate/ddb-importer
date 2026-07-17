@@ -125,7 +125,6 @@ const SETTINGS = {
   URLS,
   POPUPS,
   DISABLE_FOUNDRY_UPGRADE,
-  FILTER_SECTIONS,
   MUNCH_DEFAULTS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab

@@ -245,7 +245,7 @@ export function collectSceneData(scene: Scene, bookCode: string) {
       delete (token.flags as Record<string, any>)["elevation-drag-ruler"];
 
       return result;
-    }) as unknown as I5eSceneFlagToken[];
+    }) as unknown as I5eTokenData[];
 
 
   // removed un-needed userdata

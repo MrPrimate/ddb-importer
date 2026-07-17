@@ -84,17 +84,17 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     return {};
   }
 
-  static async reloadCatalog(this: DDBStickerBrowser, _event, _target) {
+  static async reloadCatalog(this: DDBStickerBrowser, _event: any, _target: any) {
     await this._loadCatalog({ force: true });
   }
 
-  static async selectSource(this: DDBStickerBrowser, _event, target) {
+  static async selectSource(this: DDBStickerBrowser, _event: any, target: any) {
     const raw = target?.dataset?.sourceId;
     this.selectedSourceId = raw == null || raw === "" ? null : Number(raw);
     await this.render();
   }
 
-  static async selectKeyword(this: DDBStickerBrowser, _event, target) {
+  static async selectKeyword(this: DDBStickerBrowser, _event: any, target: any) {
     const kw = target?.dataset?.keyword || null;
     this.selectedKeyword = this.selectedKeyword === kw ? null : kw;
     await this.render();
@@ -107,7 +107,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  static async importSticker(this: DDBStickerBrowser, _event, target) {
+  static async importSticker(this: DDBStickerBrowser, _event: any, target: any) {
     const id = target?.dataset?.stickerId;
     if (!id) return;
     const storage = ensureStorage();
@@ -119,7 +119,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     await this._importStickers([sticker]);
   }
 
-  static async placeSticker(this: DDBStickerBrowser, _event, target) {
+  static async placeSticker(this: DDBStickerBrowser, _event: any, target: any) {
     if (this._placementInFlight) {
       ui.notifications.info("A sticker placement is already in progress.");
       return;
@@ -401,11 +401,11 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     await Promise.all([
       ...v2State.map(({ app, wasMinimized, minimizable, rendered }) => {
         if (wasMinimized || !minimizable || !rendered) return Promise.resolve();
-        return Promise.resolve(app.minimize()).catch(() => undefined);
+        return Promise.resolve(app.minimize()).catch((): undefined => undefined);
       }),
       ...v1State.map(({ app, wasMinimized, popOut, rendered }) => {
         if (wasMinimized || !popOut || !rendered) return Promise.resolve();
-        return Promise.resolve(app.minimize()).catch(() => undefined);
+        return Promise.resolve(app.minimize()).catch((): undefined => undefined);
       }),
     ]);
 
@@ -413,11 +413,11 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       await Promise.all([
         ...v2State.map(({ app, wasMinimized }) => {
           if (wasMinimized || !app.rendered) return Promise.resolve();
-          return Promise.resolve(app.maximize()).catch(() => undefined);
+          return Promise.resolve(app.maximize()).catch((): undefined => undefined);
         }),
         ...v1State.map(({ app, wasMinimized }) => {
           if (wasMinimized || !app.rendered) return Promise.resolve();
-          return Promise.resolve(app.maximize()).catch(() => undefined);
+          return Promise.resolve(app.maximize()).catch((): undefined => undefined);
         }),
       ]);
       try {
@@ -712,7 +712,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true });
     const storage = ensureStorage();
     const all = storage.payload?.stickers ?? [];
@@ -806,7 +806,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  async _onFirstRender(context, options) {
+  async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     // Only auto-load when a campaign id is already set; otherwise wait for
     // the user to pick one.
@@ -814,7 +814,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     if (!ensureStorage().payload && campaignId !== "") this._loadCatalog();
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     this.element.querySelectorAll<HTMLSelectElement>(".ddb-sticker-browser-campaign-select").forEach((sel) => {

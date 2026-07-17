@@ -83,7 +83,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(options) {
+  async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     const configured = CompendiumHelper.getConfiguredCompendiums();
@@ -128,7 +128,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
     return context;
   }
 
-  static async scanCompendiums(this: DDBSourcePruner, _event, _target) {
+  static async scanCompendiums(this: DDBSourcePruner, _event: any, _target: any) {
     this._captureSelections();
 
     if (this.selectedCategoryIds.length === 0 && this.selectedBookIds.length === 0) {
@@ -198,7 +198,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
     this.render();
   }
 
-  static async deleteMatched(this: DDBSourcePruner, _event, _target) {
+  static async deleteMatched(this: DDBSourcePruner, _event: any, _target: any) {
     if (this.scanResults.length === 0) {
       ui.notifications.warn("No scan results to delete. Run a scan first.");
       return;

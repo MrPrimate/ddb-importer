@@ -64,7 +64,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     return {};
   }
 
-  async _prepareContext(options): Promise<ISelectiveMonsterUpdateContext> {
+  async _prepareContext(options: any): Promise<ISelectiveMonsterUpdateContext> {
     const context: ISelectiveMonsterUpdateContext = await super._prepareContext({ ...options, noCacheLoad: true }) as ISelectiveMonsterUpdateContext;
 
     const worldMonsters = game.actors.filter((a) =>
@@ -111,7 +111,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     return context;
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     const sourceFilter = this.element.querySelector(".ddb-filter-source");
@@ -172,7 +172,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
 
     const monsterIndices = ["name", "flags.ddbimporter.id"];
     const index = await monsterCompendium.getIndex({ fields: monsterIndices });
-    const selectedActors = actorIds.map((id) => game.actors.get(id)).filter(Boolean);
+    const selectedActors = actorIds.map((id) => game.actors.get(id)).filter(Boolean) as TImporterActor[];
 
     const totalTargets = selectedActors.length;
     let count = 0;
@@ -188,7 +188,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
       if (compendiumMatch) {
         count++;
         utils.munchNote(`Updating ${count}/${totalTargets}: ${actor.name}`, { nameField: true });
-        const monster = await monsterCompendium.getDocument(compendiumMatch._id);
+        const monster = await monsterCompendium.getDocument(compendiumMatch._id) as TImporterActor;
         await DDBSelectiveMonsterUpdate._updateActorWithSource(actor, monster);
       } else {
         count++;
@@ -202,38 +202,41 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     await this.close();
   }
 
-  static async _updateActorWithSource(targetActor, sourceActor) {
-    const monsterItems = sourceActor.items.toObject().map((item) => {
-      delete item._id;
-      return item;
-    });
-    const actorUpdate = foundry.utils.duplicate(sourceActor);
-    delete actorUpdate.items;
+  static async _updateActorWithSource(targetActor: TImporterActor, sourceActor: TImporterActor) {
+    const monsterItems = ((sourceActor.items as Actor.Implementation["items"]).toObject() as unknown as I5eMonsterItem[])
+      .map((item) => {
+        delete item._id;
+        return item;
+      });
+    const actorUpdate = foundry.utils.duplicate(sourceActor) as unknown as I5eMonsterData;
+    delete (actorUpdate as { items?: I5eMonsterItem[] }).items;
 
     const updateImages = utils.getSetting<boolean>("munching-policy-update-world-monster-update-images");
-    if (!updateImages) {
-      actorUpdate.img = targetActor.img;
-      actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture;
-      actorUpdate.prototypeToken.randomImg = targetActor.prototypeToken.randomImg;
-      actorUpdate.prototypeToken.lockRotation = targetActor.prototypeToken.lockRotation;
-      actorUpdate.prototypeToken.rotation = targetActor.prototypeToken.rotation;
-      actorUpdate.prototypeToken.alpha = targetActor.prototypeToken.alpha;
-      actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring;
+    if (!updateImages && actorUpdate.prototypeToken) {
+      const sourceToken = targetActor.prototypeToken as unknown as I5ePrototypeToken;
+      const targetToken = actorUpdate.prototypeToken;
+      actorUpdate.img = targetActor.img as unknown as string;
+      targetToken.texture = sourceToken.texture;
+      targetToken.randomImg = sourceToken.randomImg;
+      targetToken.lockRotation = sourceToken.lockRotation;
+      targetToken.rotation = sourceToken.rotation;
+      targetToken.alpha = sourceToken.alpha;
+      targetToken.ring = sourceToken.ring;
     }
 
     const retainBiography = utils.getSetting<boolean>("munching-policy-update-world-monster-retain-biography");
-    if (retainBiography) {
-      actorUpdate.system.details.biography = targetActor.system.details.biography;
+    if (retainBiography && actorUpdate.system.details) {
+      actorUpdate.system.details.biography = (targetActor.system as I5eMonsterSystemData).details?.biography;
     }
 
-    actorUpdate._id = targetActor.id;
-    if (targetActor.folder) actorUpdate.folder = targetActor.folder._id;
+    actorUpdate._id = targetActor.id ?? undefined;
+    if (targetActor.folder) actorUpdate.folder = targetActor.folder._id ?? undefined;
     actorUpdate.sort = targetActor.sort;
     actorUpdate.ownership = targetActor.ownership;
-    DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
+    DDBItemImporter.copySupportedItemFlags(targetActor as unknown as Actor.Implementation, actorUpdate);
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-    await targetActor.update(actorUpdate);
-    await targetActor.createEmbeddedDocuments("Item", monsterItems);
+    await targetActor.update(actorUpdate as unknown as Actor.UpdateInput);
+    await targetActor.createEmbeddedDocuments("Item", monsterItems as any);
   }
 
   static async updateSelected(this: DDBSelectiveMonsterUpdate) {

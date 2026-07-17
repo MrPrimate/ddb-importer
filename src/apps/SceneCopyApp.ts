@@ -212,7 +212,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     return this._groups().flatMap((g) => g.fields);
   }
 
-  async _prepareContext(_options): Promise<any> {
+  async _prepareContext(_options: any): Promise<any> {
     const context = await super._prepareContext({ ..._options, noCacheLoad: true });
 
     const targetScenes = (Array.from(game.scenes) as any[])
@@ -253,7 +253,7 @@ export default class SceneCopyApp extends DDBAppV2 {
   // ApplicationV2 re-renders on any data-action click, which would discard a
   // <select> choice. Bind the target dropdown via a change listener instead and
   // do NOT re-render - we just stash the id and toggle the copy button.
-  async _onRender(context, options) {
+  async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
 
     const select = this.element.querySelector<HTMLSelectElement>(".ddb-scene-copy-target");
@@ -276,7 +276,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     }
   }
 
-  static toggleGroup(this: SceneCopyApp, _event, target: HTMLElement) {
+  static toggleGroup(this: SceneCopyApp, _event: any, target: HTMLElement) {
     const id = target?.dataset?.group;
     if (!id) return;
     if (this.expanded.has(id)) this.expanded.delete(id);
@@ -284,7 +284,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     this.render();
   }
 
-  static toggleField(this: SceneCopyApp, _event, target: HTMLElement) {
+  static toggleField(this: SceneCopyApp, _event: any, target: HTMLElement) {
     const id = target?.dataset?.field;
     if (!id) return;
     if (this.selected.has(id)) this.selected.delete(id);
@@ -292,7 +292,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     this.render();
   }
 
-  static toggleGroupAll(this: SceneCopyApp, _event, target: HTMLElement) {
+  static toggleGroupAll(this: SceneCopyApp, _event: any, target: HTMLElement) {
     const id = target?.dataset?.group;
     const group = this._groups().find((g) => g.id === id);
     if (!group) return;
@@ -366,11 +366,11 @@ export default class SceneCopyApp extends DDBAppV2 {
         continue;
       }
       const docName = srcColl.documentName;
-      const existingIds = (target[coll] ?? []).map((d) => d.id);
+      const existingIds = (target[coll] ?? []).map((d: any) => d.id);
       const srcDocs = coll === "tokens"
-        ? srcColl.filter((t) => !t.actorLink)
+        ? srcColl.filter((t: any) => !t.actorLink)
         : Array.from(srcColl);
-      const docs = srcDocs.map((d) => {
+      const docs = srcDocs.map((d: any) => {
         const o = d.toObject();
         delete o._id;
         return o;
