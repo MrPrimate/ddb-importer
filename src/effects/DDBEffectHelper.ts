@@ -428,7 +428,7 @@ export default class DDBEffectHelper {
     return actor.effects.getName(name);
   }
 
-  static getActorEffects(actor: Actor.Known | Actor.Implementation) {
+  static getActorEffects(actor: Actor.Known | Actor.Implementation | TImporterActor) {
     return Array.from(actor?.allApplicableEffects() ?? []);
   }
 
@@ -948,7 +948,7 @@ export default class DDBEffectHelper {
     (game.user as unknown as ITokenTargetUser).updateTokenTargets(targets);
   }
 
-  static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation) {
+  static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
@@ -956,7 +956,7 @@ export default class DDBEffectHelper {
     );
   }
 
-  static getConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation) {
+  static getConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())

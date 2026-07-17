@@ -82,7 +82,7 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
   return extra;
 }
 
-function generateArtificerDamageEffect(actor: Actor.OfType<"character">, extra: I5eMonsterData): I5eMonsterData {
+function generateArtificerDamageEffect(actor: TImporterActor, extra: I5eMonsterData): I5eMonsterData {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
@@ -307,7 +307,7 @@ function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatur
   return mock;
 }
 
-function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: Actor.OfType<"character">, creature: any, mock: IDDBCreatureDefinition) {
+function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImporterActor, creature: IDDBCreature, mock: IDDBCreatureDefinition) {
   // hp
   const hpMaxChange = getCustomValue(ddbCharacterData, 43, creature.id, creature.entityTypeId);
   if (hpMaxChange) mock.averageHitPoints = hpMaxChange;
@@ -351,7 +351,7 @@ function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: Actor.O
   return mock;
 }
 
-function addCreatureStats(mock: IDDBCreatureDefinition, actor: Actor.OfType<"character">,) {
+function addCreatureStats(mock: IDDBCreatureDefinition, actor: TImporterActor) {
   const creatureStats = mock.stats.filter((stat) => !mock.creatureGroup.ownerStats.includes(stat.statId));
   const characterStats = mock.stats
     .filter((stat) => mock.creatureGroup.ownerStats.includes(stat.statId))
@@ -397,7 +397,7 @@ function addCreatureFlags(creature: IDDBCreature, mock: IDDBCreatureDefinition) 
 
 }
 
-function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: Actor.OfType<"character">, creature: IDDBCreature): IDDBCreatureDefinition {
+function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporterActor, creature: IDDBCreature): IDDBCreatureDefinition {
   const ddbCharacterData: IDDBCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
   let mock: IDDBCreatureDefinition = foundry.utils.duplicate(creature.definition) as IDDBCreatureDefinition;
@@ -481,7 +481,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: Actor.Of
 
 }
 
-function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterData) {
+function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
   // `TODO: this probably is a flag now
   const characterProficiencyBonus = actor.flags.ddbimporter.dndbeyond.profBonus ?? 0;
   const artificerBonusGroup = [10, 12];
@@ -509,6 +509,8 @@ function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterD
     || extra.flags?.ddbimporter?.creatureGroupId === 12
   ) {
     const isArtificer = artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId);
+    const intMod = utils.calculateModifier(actor.system.abilities.int.value);
+    const globalMod = Number(actor.system.bonuses.rsak.attack || 0);
 
     extra.items = extra.items.map((item) => {
       if (item.type !== "weapon" || !isArtificer) return item;
@@ -524,16 +526,14 @@ function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterD
       // Attacks should use the character's spell attack (int + global rsak bonus)
       // rather than the companion's own ability. Attack data now lives on the
       // attack activity, so correct each attack activity's flat bonus.
-      const characterMod = utils.calculateModifier((actor.system as I5ePCSystemData).abilities!.int.value!);
-      const globalMod = Number((actor.system as I5ePCSystemData).bonuses.rsak.attack || 0);
-
       for (const activity of Object.values(item.system.activities ?? {})) {
         if (activity.type !== "attack" || !activity.attack) continue;
         const ability = activity.attack.ability === ""
           ? "str"
           : activity.attack.ability as T5eAbility;
-        const extraMod = utils.calculateModifier(extra.system.abilities[ability].value);        const mod = ability ? extraMod : 0;
-        activity.attack.bonus = `${characterMod + globalMod - mod}`;
+        const extraMod = utils.calculateModifier(extra.system.abilities[ability].value);
+        const mod = ability ? extraMod : 0;
+        activity.attack.bonus = `${intMod + globalMod - mod}`;
       }
 
       return item;
@@ -543,7 +543,7 @@ function enhanceParsedExtra(actor: Actor.OfType<"character">, extra: I5eMonsterD
   return extra;
 }
 
-export async function generateCharacterExtras(_html: any, ddbCharacter: DDBCharacter, actor: Actor.OfType<"character">) {
+export async function generateCharacterExtras(_html: any, ddbCharacter: DDBCharacter, actor: TImporterActor) {
   const munchSettings = setExtraMunchDefaults();
 
   try {
@@ -573,7 +573,7 @@ export async function generateCharacterExtras(_html: any, ddbCharacter: DDBChara
     const parsedExtras = await monsterFactory.parse();
     logger.debug("Parsed Extras:", foundry.utils.duplicate(parsedExtras.actors));
 
-    const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));
+    const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor as TSyncCharacterActor, extra));
     logger.debug("Enhanced Parsed Extras:", foundry.utils.duplicate(enhancedExtras));
 
     const ddbCompanionFactory = new DDBCompanionFactory("", {

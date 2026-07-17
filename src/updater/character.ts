@@ -495,7 +495,7 @@ async function updateDDBCondition(actor: TSyncCharacterActor, condition: IDDBCon
 async function conditions(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter) {
   return new Promise((resolve) => {
     if (!utils.getSetting<boolean>("sync-policy-condition")) resolve([]);
-    const conditions = getActorConditionStates(actor as Actor.Known, ddbCharacter.source.ddb);
+    const conditions = getActorConditionStates(actor, ddbCharacter.source.ddb);
     const results: Promise<unknown>[] = [];
     conditions.forEach((condition) => {
       // exhaustion handled separately

@@ -22,7 +22,7 @@ interface DDBCompanionFactoryOptions {
   is2014?: boolean;
   is2024?: boolean;
   notifier?: any;
-  actor?: Actor.Implementation | null;
+  actor?: TImporterActor | null;
   data?: I5eMonsterData[];
   folderHint?: string;
   createCompanions?: boolean;
@@ -33,7 +33,7 @@ interface DDBCompanionFactoryOptions {
 }
 
 export default class DDBCompanionFactory {
-  actor: Actor.Implementation | null;
+  actor: TImporterActor | null;
   originDocument: TDDBOriginDocument | null;
   options: DDBCompanionFactoryOptions;
   doc: Document;

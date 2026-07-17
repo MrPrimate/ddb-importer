@@ -1,28 +1,13 @@
 import { DICTIONARY } from "../../config/_module";
-import { IDDBConditionMapping } from "../../config/dictionary/actor/conditions";
 import { DDBEffectHelper } from "../../effects/_module";
 import { logger } from "../../lib/_module";
-
-export interface DDBConditionState extends IDDBConditionMapping {
-  label: string;
-  foundry: string;
-  ddbId: number | null;
-  levelId: number | null;
-  ddbType: number | null;
-  ddbCondition: boolean;
-  applied: boolean;
-  conditionApplied: ActiveEffect | undefined;
-  needsAdd: boolean;
-  needsRemove: boolean;
-  needsUpdate: boolean;
-}
 
 export function getCondition(conditionDDBName: string) {
   return DICTIONARY.conditions.find((condition) => condition.label === conditionDDBName);
 }
 
-export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false): DDBConditionState[] {
-  const conditions: DDBConditionState[] = DICTIONARY.conditions
+export function getActorConditionStates(actor: TImporterActor, ddb: IDDBData, keepLocal = false): IDDBConditionState[] {
+  const conditions: IDDBConditionState[] = DICTIONARY.conditions
     .filter((condition) => Number.isInteger(condition.ddbId)) // only ddb conditions
     .map((condition) => {
       const conditionApplied = DDBEffectHelper.getConditionEffectAppliedAndActive(condition.label, actor);
@@ -30,15 +15,17 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
         conditionState.id === condition.ddbId
         && conditionState.level === condition.levelId,
       );
-      const conditionData = {
+      const conditionData: Partial<IDDBConditionState> = {
         ddbCondition: ddbCondition,
         applied: conditionApplied !== undefined,
-        conditionApplied: conditionApplied !== undefined ? foundry.utils.duplicate(conditionApplied) : undefined,
+        conditionApplied: conditionApplied !== undefined
+          ? foundry.utils.duplicate(conditionApplied) as unknown as I5eEffectData
+          : undefined,
         needsAdd: ddbCondition && !conditionApplied,
         needsRemove: !ddbCondition && conditionApplied && !keepLocal,
         needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
       };
-      const conditionState: DDBConditionState = foundry.utils.mergeObject(condition, conditionData) as DDBConditionState;
+      const conditionState: IDDBConditionState = foundry.utils.mergeObject(condition, conditionData) as IDDBConditionState;
       return conditionState;
     });
   return conditions;
@@ -51,32 +38,32 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
  * @param {boolean} [keepLocal=false] if true, will not remove conditions that are not in DDB
  * @returns {Promise<void>}
  */
-export async function setConditions(actor, ddb, keepLocal = false) {
+export async function setConditions(actor: TImporterActor, ddb: IDDBData, keepLocal = false) {
   const conditionStates = getActorConditionStates(actor, ddb, keepLocal);
   // console.warn(conditionStates);
-  logger.debug(`Condition states for ${actor.name}`, conditionStates);
+  logger.debug(`Condition states for ${actor.name as string}`, conditionStates);
 
   // remove conditions first
   for (const condition of conditionStates.filter((c) => c.needsRemove)) {
     logger.debug(`removing ${condition.label}`, { condition });
-    const existing = actor.document?.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.foundry}`));
+    const existing: ActiveEffect = actor.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.foundry}`)) as ActiveEffect;
     if (existing) await existing.delete();
     if (condition.foundry === "exhaustion") {
       logger.debug("Removing exhaustion", condition.levelId);
-      await actor.update({ "system.attributes.exhaustion": 0 });
+      await actor.update({ "system.attributes.exhaustion": 0 } as unknown as  Actor.UpdateData);
     }
   }
   for (const condition of conditionStates.filter((c) => c.needsAdd)) {
     logger.debug(`adding ${condition.label}`, { condition });
-    const effect = await ActiveEffect.implementation.fromStatusEffect(condition.foundry);
-    effect.updateSource({ "flags.dnd5e.exhaustionLevel": condition.levelId } as unknown as Parameters<typeof effect.updateSource>[0]);
-    const effectData = effect.toObject();
+    const effect = await ActiveEffect.implementation.fromStatusEffect(condition.foundry) as unknown as ActiveEffect;
+    effect.updateSource({ "flags.dnd5e.exhaustionLevel": condition.levelId } as unknown as ActiveEffect.UpdateData);
+    const effectData = effect.toObject() as unknown as I5eEffectData;
     // console.warn("effect", {effect, effectData});
     // await ActiveEffect.implementation.create(effectData, { parent: actor.document, keepId: true });
-    await actor.createEmbeddedDocuments("ActiveEffect", [effectData], { keepId: true });
+    await actor.createEmbeddedDocuments("ActiveEffect", [effectData as ActiveEffect.CreateData], { keepId: true });
     if (condition.foundry === "exhaustion") {
       logger.debug("Updating actor exhaustion", condition.levelId);
-      await actor.update({ "system.attributes.exhaustion": condition.levelId });
+      await actor.update({ "system.attributes.exhaustion": condition.levelId } as Actor.UpdateData);
     }
   }
 }

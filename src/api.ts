@@ -102,7 +102,7 @@ async function updateDDBCharacters(debug = false) {
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
       if (debug) lib.logger.error(`Updating ${actor.name} to DDB`, { actor });
-      await updateDDBCharacter(actor);
+      await updateDDBCharacter(actor as TSyncCharacterActor);
     }
   }
 }

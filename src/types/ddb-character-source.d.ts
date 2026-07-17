@@ -931,7 +931,7 @@ global {
     creatureFlags?: string[];
     removedHitPoints?: number;
     temporaryHitPoints?: number;
-    ownership?: { default: number } | null;
+    ownership?: any;
   }
 
   /** A single entry in a character's `creatures[]` (a companion/summon instance). */

@@ -1155,8 +1155,12 @@ global {
 
   type I5eActorData = I5eMonsterData | I5ePCData | I5eVehicleData;
 
-  /** Implementation Actor with the ddbimporter flag shape the importer reads/writes. */
-  type TImporterActor = Omit<Actor.Implementation, "flags"> & {
+  /** Implementation Actor with the ddbimporter flag shape the importer reads/writes.
+   * The system/items unions keep this a supertype of TSyncCharacterActor while still
+   * accepting a bare Actor.Implementation from the muncher call sites. */
+  type TImporterActor = Omit<Actor.Implementation, "system" | "flags" | "items"> & {
+    items: Actor.Implementation["items"] | Collection<TImporterItem>;
+    system: Actor.Implementation["system"] | I5ePCSystemData;
     flags: I5ePCActorFlags;
   };
 
