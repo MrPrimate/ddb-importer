@@ -97,7 +97,7 @@ export default class DDBCompanionMixin {
     return data;
   }
 
-  static async addEnrichedImageData(document) {
+  static async addEnrichedImageData(document: I5eMonsterData): Promise<I5eMonsterData> {
     if (!game.user.isGM && !DDBRunContext.keyPostfix) return document;
     if (DDBRunContext.ignoreEnrichedImages) return document;
 
@@ -303,7 +303,7 @@ export default class DDBCompanionMixin {
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    const data = await DDBCompanionMixin.addEnrichedImageData(foundry.utils.duplicate(this.npc));
+    const data = await DDBCompanionMixin.addEnrichedImageData(foundry.utils.duplicate(this.npc) as unknown as I5eMonsterData);
 
     this.data = data;
     this.parsed = true;
@@ -311,7 +311,7 @@ export default class DDBCompanionMixin {
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
   }
 
-  _handleAc(acString) {
+  _handleAc(acString: string) {
     const ac = Number.parseInt(acString.split(",")[0].split("plus")[0].trim());
 
     if (Number.isInteger(ac)) {

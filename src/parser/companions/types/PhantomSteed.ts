@@ -52,7 +52,7 @@ export async function getPhantomSteed({
 
     stub.system.attributes = {
       movement: {
-        walk: 100,
+        walk: "100",
       },
       hp: {
         value: 1,
@@ -75,7 +75,7 @@ export async function getPhantomSteed({
       needsJB2A: false,
       needsJB2APatreon: false,
       folderName: `Phantom Steed`,
-      data: stub,
+      data: stub as unknown as I5eMonsterData,
     };
 
   }

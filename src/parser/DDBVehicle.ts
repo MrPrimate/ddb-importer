@@ -122,14 +122,14 @@ export const FLIGHT_IDS = [
   "8",
 ];
 
-const MOVEMENT_DICT = {
+const MOVEMENT_DICT: Record<string, string> = {
   "land": "walk",
   "water": "swim",
   "air": "fly",
   "magical": "Magical",
 };
 
-const MOVEMENT_ID = {
+const MOVEMENT_ID: Record<number, string | null> = {
   1: "walk",
   2: "burrowing",
   3: null,
@@ -303,14 +303,8 @@ export default class DDBVehicle {
     if (this.source.stats.length === 0) return;
     DICTIONARY.actor.abilities.forEach((ability) => {
       const value = this.source.stats.find((stat) => stat.id === ability.id)?.value || 10;
-      const mod = value === 0
-        ? -5
-        : CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
-
       this.data.system.abilities[ability.value]["value"] = value;
       this.data.system.abilities[ability.value]["proficient"] = 0;
-      this.data.system.abilities[ability.value]["mod"] = mod;
-
     });
 
     foundry.utils.setProperty(this.data, "flags.dnd5e.showVehicleAbilities", true);
@@ -335,8 +329,8 @@ export default class DDBVehicle {
   #generateDamageImmunities() {
     const config = CONFIG.DDB.damageAdjustments.filter((adj) => adj.type == 2);
 
-    const values = [];
-    const custom = [];
+    const values: string[] = [];
+    const custom: string[] = [];
 
     const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
 
@@ -380,8 +374,8 @@ export default class DDBVehicle {
       };
     });
 
-    const values = [];
-    const custom = [];
+    const values: string[] = [];
+    const custom: string[] = [];
 
     this.source.conditionImmunities.forEach((adj) => {
       const adjustment = config.find((cadj) => adj === cadj.id);
@@ -400,7 +394,7 @@ export default class DDBVehicle {
   }
 
   #generateCapacity() {
-    const capacity = {
+    const capacity: I5eVehicleCapacity = {
       creature: "",
       cargo: null,
     };
@@ -448,7 +442,7 @@ export default class DDBVehicle {
 
   #generateMovement() {
 
-    const movement = foundry.utils.duplicate(this.data.system.attributes.movement);
+    const movement: I5eMovement = foundry.utils.duplicate(this.data.system.attributes.movement);
     const travel: I5eVehicleTravel = foundry.utils.duplicate(this.data.system.attributes.travel);
 
     // is it travel pace?
@@ -500,7 +494,7 @@ export default class DDBVehicle {
       const movementModes = comp.definition.speeds[0].modes.some((m) => Number.isInteger(m.movementId));
 
       if (speedType) {
-        const type = DDBVehicle.MOVEMENT_DICT[speedType];
+        const type: keyof I5eMovement = DDBVehicle.MOVEMENT_DICT[speedType] as keyof I5eMovement;
         if (!type || speedsChecked.has(type)) continue;
         speedsChecked.add(type);
         movement[type] = mode.value;
@@ -516,7 +510,7 @@ export default class DDBVehicle {
         const restrictionRegex = /Fly Speed (\d+) ft/i;
         const restrictionMatch = mode.restrictionsText.match(restrictionRegex);
         if (restrictionMatch) {
-          movement["fly"] = parseInt(restrictionMatch[1]);
+          movement["fly"] = restrictionMatch[1];
           speedsChecked.add("fly");
         }
       }
@@ -653,8 +647,8 @@ export default class DDBVehicle {
   async #generateComponents() {
     const components = this.source.components.sort((c) => c.displayOrder);
 
-    const componentCount = {};
-    const uniqueComponents = [];
+    const componentCount: Record<string, number> = {};
+    const uniqueComponents: IDDBVehicleComponent[] = [];
     components.forEach((component) => {
       const key = component.definitionKey;
       const count = componentCount[key] || 0;
@@ -664,8 +658,8 @@ export default class DDBVehicle {
 
     const results = [];
     for (const component of uniqueComponents.filter((f) => f.definition.name)) {
-      for (let i = 0; i < componentCount[component.definitionKey]; i++) {
-        const clonedComponent = foundry.utils.duplicate(component);
+      for (let i = 0; i < (componentCount as Record<string, any>)[component.definitionKey]; i++) {
+        const clonedComponent: IDDBVehicleComponent = foundry.utils.duplicate(component) as IDDBVehicleComponent;
         clonedComponent.count = i;
         const builtItems = await this.#buildComponent(clonedComponent);
         results.push(...builtItems);

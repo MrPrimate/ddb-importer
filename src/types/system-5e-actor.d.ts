@@ -90,8 +90,9 @@ global {
 
   type I5eMovementType = "walk" | "burrow" | "climb" | "fly" | "swim";
 
-  interface I5eMovement {
-    [key: I5eMovementType]: string | null;
+  type I5eMovementRecord = Partial<Record<I5eMovementType, string | null>>;
+
+  interface I5eMovement extends I5eMovementRecord {
     hover?: boolean;
     units?: string;
     ignoredDifficultTerrain?: string[];
@@ -104,7 +105,7 @@ global {
 
   type TSenseType = "darkvision" | "blindsight" | "tremorsense" | "truesight";
 
-  type T5eSenseRanges = Record<TSenseType?, number | undefined>;
+  type T5eSenseRanges = Partial<Record<TSenseType, number | undefined>>;
 
   interface I5eSenses {
     ranges?: T5eSenseRanges;

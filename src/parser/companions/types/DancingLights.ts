@@ -1,13 +1,13 @@
 import { utils } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-const DANCING_LIGHTS_BASE = {
+const DANCING_LIGHTS_BASE: Partial<I5eMonsterData> = {
   "name": "Dancing Lights",
   "img": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_Thumb.webp",
   "system": {
     "attributes": {
       "movement": {
-        "fly": 60,
+        "fly": "60",
       },
     },
   },
@@ -67,7 +67,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_Thumb.webp",
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsGreen: {
       name: "Dancing Lights (Green)",

@@ -68,7 +68,7 @@ export async function getFlamingSphere({
       },
       "attributes": {
         "movement": {
-          "walk": 30,
+          "walk": "30",
         },
       },
     },
