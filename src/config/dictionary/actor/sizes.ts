@@ -1,11 +1,3 @@
-export interface IDDBActorSizeData {
-  name: string;
-  value: TActorSizes;
-  size: number;
-  id: number;
-  scale: number;
-}
-
 export const SIZES = [
   { id: 2, name: "Tiny", value: "tiny", size: 0.5, scale: 1 },
   { id: 3, name: "Small", value: "sm", size: 1, scale: 0.8 },

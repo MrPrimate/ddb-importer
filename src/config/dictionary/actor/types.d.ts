@@ -35,4 +35,12 @@ global {
 
   type TDDBBClassSkillVersionDictionary = Record<T5eRulesVersion, IDDBClassSkillDictionary[]>;
 
+  interface IDDBActorSizeData {
+    name: string;
+    value: TActorSizes;
+    size: number;
+    id: number;
+    scale: number;
+  }
+
 }

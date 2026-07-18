@@ -5,7 +5,7 @@ import ACBonusEffects from "../enrichers/effects/ACBonusEffects";
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
 
-DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, additionalItems = []) {
+DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, additionalItems: string[] = []) {
   const originalAc = parseInt(String(this.source.armorClass));
   const ac = {
     flat: originalAc,
@@ -39,8 +39,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
-  const itemsToCheck = [];
-  descriptionItems.push(...additionalItems.map((item) => item));
+  const itemsToCheck: DeepPartial<I5eEquipmentItem[]> = [];
+  descriptionItems.push(...additionalItems);
 
   if (descriptionItems.length > 0) {
 
@@ -100,7 +100,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", {
+  const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck as unknown as TAll5eDocuments[], "inventory", {
     looseMatch: true,
     monsterMatch: true,
   }) as I5eMonsterItem[];

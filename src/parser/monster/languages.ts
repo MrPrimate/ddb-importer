@@ -12,7 +12,7 @@ import { ProficiencyFinder } from "../lib/_module";
 DDBMonster.prototype._generateLanguages = function _generateLanguages (this: DDBMonster) {
   const config = CONFIG.DDB.languages;
 
-  const values = [];
+  const values: string[] = [];
   const custom = [];
 
   this.source.languages.forEach((lng) => {

@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../../config/_module";
-import DDBMonster, { IMonsterSpellEdgeCase } from "../DDBMonster";
+import DDBMonster from "../DDBMonster";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
-DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
+DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text: string) {
   // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
@@ -10,8 +10,8 @@ DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
   const innateMatch = text.match(innateSearch);
   // console.log(innateMatch);
   if (innateMatch) {
-    const spellArray = innateMatch[3].split(",").map((spell) => spell.trim());
-    spellArray.forEach((spell) => {
+    const spellArray = innateMatch[3].split(",").map((spell: any) => spell.trim());
+    spellArray.forEach((spell: any) => {
       this.spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1], innate: this.spellList.innateMatch });
     });
   }
@@ -20,8 +20,8 @@ DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
   const atWillSearch = /^At (?:will):\s+(.*$)/i;
   const atWillMatch = text.match(atWillSearch);
   if (atWillMatch) {
-    const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
-    spellArray.forEach((spell) => {
+    const spellArray = atWillMatch[1].split(",").map((spell: any) => spell.trim());
+    spellArray.forEach((spell: any) => {
       if (this.spellList.innateMatch) {
         this.spellList.innate.push({ name: spell, type: "atwill", value: null, innate: this.spellList.innateMatch });
       } else {
@@ -43,12 +43,12 @@ DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
 
 
 // e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
-DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster, text) {
+DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster, text: string) {
   const atWillSearch = /can cast (.*?) at will/i;
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];
   if (atWillMatch) {
-    atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell) => spell.split("(", 1)[0].trim());
+    atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell: any) => spell.split("(", 1)[0].trim());
   }
 
   this.spellList.atwill.push(...atWillSpells);
@@ -63,7 +63,7 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster, te
  * @returns {void}
  */
 
-DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text, { pactText = null } = {}) {
+DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text: string, { pactText = null }: { pactText?: string | null } = {}) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
   const match = text.match(spellLevelSearch);
@@ -110,22 +110,25 @@ DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text, { pactTex
   //   slots,
   //   spellMatches,
   // });
-  if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
+  const intSlots = parseInt(String(slots));
+  if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(intSlots)) {
     logger.debug("Spell level parsing");
-    this.npc.system.spells[`spell${spellLevel}`]["value"] = parseInt(slots);
-    this.npc.system.spells[`spell${spellLevel}`]["max"] = slots ?? "";
-    this.npc.system.spells[`spell${spellLevel}`]["override"] = parseInt(slots) ?? null;
-    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
+    const slotKey = `spell${spellLevel}` as keyof I5eSpellSlots;
+    this.npc.system.spells[slotKey]["value"] = intSlots;
+    this.npc.system.spells[slotKey]["max"] = String(slots);
+    this.npc.system.spells[slotKey]["override"] = intSlots ?? null;
+    const spellArray = spellMatches.split(",").map((spell: any) => spell.trim());
     this.spellList.class.push(...spellArray);
-  } else if (spellLevel === "pact" && Number.isInteger(parseInt(slots))) {
+  } else if (spellLevel === "pact" && Number.isInteger(intSlots)) {
     logger.debug("Spell pact parsing");
-    this.npc.system.spells[spellLevel]["value"] = parseInt(slots);
-    this.npc.system.spells[spellLevel]["max"] = slots ?? "";
-    this.npc.system.spells[spellLevel]["override"] = parseInt(slots) ?? null;
-    this.npc.system.spells[spellLevel]["level"] = warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2];
-    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
+    const pactSlot = this.npc.system.spells[spellLevel as "pact"];
+    pactSlot["value"] = intSlots;
+    pactSlot["max"] = String(slots);
+    pactSlot["override"] = intSlots;
+    foundry.utils.setProperty(pactSlot, "level", warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2]);
+    const spellArray = spellMatches.split(",").map((spell: any) => spell.trim());
     this.spellList.pact.push(...spellArray);
-  } else if (["at will", "at-will"].includes(slots)) {
+  } else if (["at will", "at-will"].includes(String(slots))) {
     logger.debug("Spell at-will parsing");
     // at will spells
     const spellArray = spellMatches.replace(/\*/g, "").split(",").map((spell) => spell.trim());
@@ -134,9 +137,13 @@ DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text, { pactTex
 
 };
 
+interface ISpellEdgeCase {
+  name: string;
+  edge: string | null;
+}
 
-function splitEdgeCase(spell: string): { name: string; edge: string | null } {
-  const result = {
+function splitEdgeCase(spell: string): ISpellEdgeCase {
+  const result: ISpellEdgeCase = {
     name: spell,
     edge: null,
   };
@@ -152,7 +159,7 @@ function splitEdgeCase(spell: string): { name: string; edge: string | null } {
 
 DDBMonster.prototype._generateSpellEdgeCases = function(this: DDBMonster) {
   ["pact", "class", "atwill"].forEach((spellType) => {
-    for (const spellName of this.spellList[spellType]) {
+    for (const spellName of (this.spellList as Record<string, any>)[spellType]) {
       const edgeCheck = splitEdgeCase(`${spellName}`);
       if (edgeCheck.edge) {
         const edgeEntry = {
@@ -279,7 +286,7 @@ DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
  * @param {string[]} spells List of spell names to search for.
  * @returns {<Item[]>} A list of spells objects that were found.
  */
-DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster, spells) {
+DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster, spells: string[]): Promise<I5eSpellItem[]> {
   const compendiumName = await utils.getSetting<string>("entity-spell-compendium");
   const compendiumSpells = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName, {
     "system.source.rules": this.use2024Spells ? "2024" : "2014",
@@ -288,21 +295,21 @@ DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster,
     delete i._id;
     delete i.uuid;
     return i;
-  });
+  }) as I5eSpellItem[];
 
   return itemData;
 };
 
-DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, spellList) {
-  const edgeCases = spellList.edgeCases;
-  const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
+DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell: I5eSpellItem, type: string) {
+  const edgeCases = this.spellList.edgeCases;
+  const edgeCase = edgeCases.find((edge: any) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
   if (edgeCase) {
     logger.debug(`Spell edge case for ${spell.name}`);
     switch (edgeCase.edge.toLowerCase()) {
       case "self":
       case "self only":
-        spell.system.target.type = "self";
+        spell.system.target.affects.type = "self";
         logger.debug("spell target changed to self");
         break;
       // no default
@@ -319,7 +326,8 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, 
     if (diceMatch) {
       for (const key of Object.keys(spell.system.activities)) {
         const activity = spell.system.activities[key];
-        if (!activity.damage?.parts || activity.damage.parts.length === 0) continue;
+        if (!("damage" in activity)) continue;
+        if (activity.damage.parts.length === 0) continue;
         activity.damage.parts[0].number = null;
         activity.damage.parts[0].denomination = null;
         activity.damage.parts[0].custom = {
@@ -336,7 +344,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, 
     if (saveMatch) {
       for (const key of Object.keys(spell.system.activities)) {
         const activity = spell.system.activities[key];
-        if (!activity?.save) continue;
+        if (!("save" in activity)) continue;
         activity.save.dc = {
           formula: saveMatch[1],
           calculation: "",
@@ -347,7 +355,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, 
   }
 
   // remove material components?
-  if (!spellList.material) {
+  if (!this.spellList.material) {
     spell.system.materials = {
       value: "",
       consumed: false,
@@ -357,12 +365,13 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, 
     spell.system.properties = utils.removeFromProperties(spell.system.properties, "material");
   }
 
-  if (!spellList.concentration) {
+  if (!this.spellList.concentration) {
     spell.system.properties = utils.removeFromProperties(spell.system.properties, "concentration");
   }
 
-  if (spellList.overrideData) {
-    spell = foundry.utils.mergeObject(spell, spellList.overrideData);
+  if (this.spellList.overrideData) {
+    const overrideData = this.spellList.overrideData as unknown as I5eSpellItem;
+    spell = foundry.utils.mergeObject(spell, overrideData) as I5eSpellItem;
   }
 
 };
@@ -485,7 +494,7 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
           recovery: [],
         };
       }
-      this.getSpellEdgeCase(spell, "atwill", this.spellList);
+      this.getSpellEdgeCase(spell, "atwill");
       return spell;
     });
     this.items.push(...spells);
@@ -498,7 +507,7 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       spell.system.method = "spell";
       spell.system.prepared = CONFIG.DND5E.spellPreparationStates.prepared.value;
-      this.getSpellEdgeCase(spell, "class", this.spellList);
+      this.getSpellEdgeCase(spell, "class");
       return spell;
     });
     this.items.push(...spells);
@@ -511,7 +520,7 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       spell.system.method = "pact";
       spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
-      this.getSpellEdgeCase(spell, "pact", this.spellList);
+      this.getSpellEdgeCase(spell, "pact");
       return spell;
     });
     this.items.push(...spells);
@@ -522,7 +531,8 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
     // innate:
     // {name: "", type: "srt/lng/day", value: 0}
     logger.debug("Retrieving innate spells:", innate);
-    const spells = await this.retrieveCompendiumSpells(innate);
+    const innateSpellNames = innate.map((s) => s.name);
+    const spells = await this.retrieveCompendiumSpells(innateSpellNames);
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
         const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
@@ -574,7 +584,7 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
               spell.system.activities[key] = activity;
             }
           }
-          this.getSpellEdgeCase(spell, "innate", this.spellList);
+          this.getSpellEdgeCase(spell, "innate");
         }
         return spell;
       });

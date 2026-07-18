@@ -34,10 +34,10 @@ interface DDBMonster {
   _generateAbilities(): void;
   // ac.ts
   BAD_AC_MONSTERS: string[];
-  _generateAC(additionalItems?: any[]): Promise<void>;
+  _generateAC(additionalItems?: string[]): Promise<void>;
   // conditions.ts
-  getAdjustmentsConfig(type: any): any;
-  getDamageAdjustments(type: any): any;
+  getAdjustmentsConfig(type: string): TAdjustmentsConfigResult;
+  getDamageAdjustments(type: string): I5eDamageTraitSet;
   _generateDamageImmunities(): void;
   _generateDamageResistances(): void;
   _generateDamageVulnerabilities(): void;
@@ -59,28 +59,28 @@ interface DDBMonster {
   _generateTokenSenses(): void;
   _generateSenses(): void;
   // size.ts
-  getSizeFromId(sizeId: any): any;
+  getSizeFromId(sizeId: number): IDDBActorSizeData;
   _generateSize(): void;
   // skills.ts
-  _generateSkills(): any;
-  _generateSkillsHTML(): any;
+  _generateSkills(): I5eSkills;
+  _generateSkillsHTML(): I5eSkills;
   // source.ts
   _generateSource(): void;
   // spellcasting.ts
-  getSpellcasting(text: any): any;
-  _generateSpellcastingAbility(text: any): void;
-  _generateSpellLevel(text: any): void;
-  _generateSpelldc(text: any): void;
-  _generateSpellAttackBonus(text: any): void;
+  getSpellcasting(text: string): T5eAbility;
+  _generateSpellcastingAbility(text: string): void;
+  _generateSpellLevel(text: string): void;
+  _generateSpelldc(text: string): void;
+  _generateSpellAttackBonus(text: string): void;
   _generateSpellcasting(): void;
   // spells.ts
-  parseOutInnateSpells(text: any): any;
-  parseAdditionalAtWillSpells(text: any): any;
-  parseOutSpells(text: any, options?: { pactText?: any }): any;
+  parseOutInnateSpells(text: string): void;
+  parseAdditionalAtWillSpells(text: string): void;
+  parseOutSpells(text: string, options?: { pactText?: string }): void;
   _generateSpellEdgeCases(): void;
   _generateSpells(): void;
-  retrieveCompendiumSpells(spells: any): Promise<any>;
-  getSpellEdgeCase(spell: any, type: any, spellList: any): any;
+  retrieveCompendiumSpells(spells: string[]): Promise<I5eSpellItem[]>;
+  getSpellEdgeCase(spell: I5eSpellItem, type: string): void;
   _addSpellHints(): void;
   addSpells(): Promise<void>;
   // treasure.ts

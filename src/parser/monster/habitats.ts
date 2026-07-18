@@ -10,13 +10,13 @@ DDBMonster.prototype._generateHabitats = function _generateHabitats(this: DDBMon
 
   const foundryValues = Object.keys(CONFIG.DND5E.habitats);
 
-  const values = [];
-  const custom = [];
+  const values: I5eHabitatEntry[] = [];
+  const custom: string[] = [];
 
   for (const habitat of ddbValues) {
     const splitHabitat = habitat.split("(");
     const habitatName = splitHabitat[0].trim().toLowerCase();
-    const value = { type: null, subtype: null };
+    const value: I5eHabitatEntry = { type: null, subtype: null };
 
     if (foundryValues.includes(habitatName)) {
       value.type = habitatName;

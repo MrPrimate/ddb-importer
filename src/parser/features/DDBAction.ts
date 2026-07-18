@@ -35,7 +35,7 @@ export default class DDBAction extends DDBFeatureMixin {
     }
   }
 
-  _generateSystemType(typeNudge = null) {
+  _generateSystemType(typeNudge: ICoreSourceTypes = null) {
     if (this.documentType === "weapon") {
       this._generateWeaponType();
     } else if (this.ddbData.character.actions.class.some((a) =>
@@ -121,6 +121,7 @@ export default class DDBAction extends DDBFeatureMixin {
   }
 
   _generateProperties() {
+    if (!("properties" in this.data.system)) return;
     const kiEmpowered = this.ddbData.character.classes
       // is a martial artist
       .some((cls) =>
@@ -130,9 +131,7 @@ export default class DDBAction extends DDBFeatureMixin {
         ));
 
     if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
-      // addToProperties returns a new array; the result must be assigned back
-      const properties = foundry.utils.getProperty(this.data, "system.properties") as string[];
-      foundry.utils.setProperty(this.data, "system.properties", utils.addToProperties(properties, "mgc"));
+      this.data.system.properties = utils.addToProperties(this.data.system.properties as TWeaponProperties[], "mgc");
     }
   }
 

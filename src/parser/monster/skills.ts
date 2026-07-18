@@ -18,11 +18,11 @@ import DDBMonster from "../DDBMonster";
 // }],
 
 
-DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonster) {
+DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonster): I5eSkills {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
   const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
 
-  const keys = Object.keys(this.npc.system.skills);
+  const keys = Object.keys(this.npc.system.skills) as T5eSkillKey[];
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
@@ -68,7 +68,7 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
 };
 
 
-DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: DDBMonster) {
+DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: DDBMonster): I5eSkills {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(",");
@@ -90,7 +90,7 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
   }).filter((s) => foundry.utils.hasProperty(s, "name")
     && foundry.utils.hasProperty(s, "value")) as { name: string; value: string }[];
 
-  const keys = Object.keys(this.npc.system.skills);
+  const keys = Object.keys(this.npc.system.skills) as T5eSkillKey[];
   const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
   keys
     .filter((key) => validSkills.includes(key))

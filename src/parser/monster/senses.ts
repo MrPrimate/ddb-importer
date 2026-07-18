@@ -42,7 +42,8 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
         if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
           foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
           foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
-          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+          const visionModeDefaults = foundry.utils.getProperty(CONFIG.Canvas.visionModes, `${senseType}.vision.defaults`) as object;
+          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, visionModeDefaults);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
           const detectionModeId = DICTIONARY.detectionMap[senseMatch.name.toLowerCase()];
@@ -78,15 +79,16 @@ DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster
     units: "ft",
     special: "",
   };
-  const special = [];
+  const special: string[] = [];
   const senseLookup = CONFIG.DDB.senses;
 
   this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses.ranges) {
+      const senseKey = senseMatch.name.toLowerCase() as TSenseType;
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        senses.ranges[senseMatch.name.toLowerCase()] = parseInt(rangeMatch[1]);
+        senses.ranges[senseKey] = parseInt(rangeMatch[1]);
         if (sense.notes.includes("blind beyond this radius")) {
           special.push(`Blind beyond this radius`);
         }

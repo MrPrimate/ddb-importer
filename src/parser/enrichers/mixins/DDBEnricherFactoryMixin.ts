@@ -818,7 +818,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
               foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
             }
           }
-          const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as TDAESpecialDuration[];
+          const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []);
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 

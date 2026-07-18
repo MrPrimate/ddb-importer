@@ -488,23 +488,23 @@ export default class Utils {
     return true;
   }
 
-  static addToProperties(properties: string[], value: string): string[] {
+  static addToProperties<T extends string>(properties: T[], value: T): T[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set<string>(properties)
+        ? new Set<T>(properties)
         : properties
-      : new Set<string>();
+      : new Set<T>();
 
     setProperties.add(value);
     return Array.from(setProperties);
   }
 
-  static addArrayToProperties(properties: string[], values: string[]): string[] {
+  static addArrayToProperties<T extends string>(properties: T[], values: T[]): T[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set<string>(properties)
+        ? new Set<T>(properties)
         : properties
-      : new Set<string>();
+      : new Set<T>();
 
     values.forEach((value) => {
       setProperties.add(value);
@@ -512,23 +512,23 @@ export default class Utils {
     return Array.from(setProperties);
   }
 
-  static removeFromProperties(properties: string[], value: string): string[] {
+  static removeFromProperties<T extends string>(properties: T[], value: T): T[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set<string>(properties)
+        ? new Set<T>(properties)
         : properties
-      : new Set<string>();
+      : new Set<T>();
 
     setProperties.delete(value);
     return Array.from(setProperties);
   }
 
-  static removeArrayFromProperties(properties: string[], values: string[]): string[] {
+  static removeArrayFromProperties<T extends string>(properties: T[], values: T[]): T[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set<string>(properties)
+        ? new Set<T>(properties)
         : properties
-      : new Set<string>();
+      : new Set<T>();
 
     values.forEach((value) => {
       setProperties.delete(value);

@@ -88,12 +88,10 @@ global {
     roll?: I5eRollConfig;
   }
 
+  type I5eMovementType = "walk" | "burrow" | "climb" | "fly" | "swim";
+
   interface I5eMovement {
-    walk?: string | number | null;
-    burrow?: string | number | null;
-    climb?: string | number | null;
-    fly?: string | number | null;
-    swim?: string | number | null;
+    [key: I5eMovementType]: string | null;
     hover?: boolean;
     units?: string;
     ignoredDifficultTerrain?: string[];
@@ -104,15 +102,12 @@ global {
     value?: number | null;
   }
 
-  interface I5eSenseRanges {
-    darkvision?: number;
-    blindsight?: number;
-    tremorsense?: number;
-    truesight?: number;
-  }
+  type TSenseType = "darkvision" | "blindsight" | "tremorsense" | "truesight";
+
+  type T5eSenseRanges = Record<TSenseType?, number | undefined>;
 
   interface I5eSenses {
-    ranges?: I5eSenseRanges;
+    ranges?: T5eSenseRanges;
     special?: string;
     units?: string;
   }

@@ -137,7 +137,7 @@ export default class DDBDescriptions {
       durations.push("turnStartSource");
     }
 
-    const currentSpecialDurations: string[] = foundry.utils.getProperty(effect, "flags.dae.specialDuration") as string[] ?? [];
+    const currentSpecialDurations: TDAESpecialDuration[] = foundry.utils.getProperty(effect, "flags.dae.specialDuration") as TDAESpecialDuration[] ?? [];
     const specialDurations = utils.addArrayToProperties(currentSpecialDurations, durations ?? []);
     foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
     return effect;

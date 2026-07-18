@@ -13,13 +13,13 @@ import { DICTIONARY } from "../../config/_module";
 import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, sizeId) {
+DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, sizeId: number): IDDBActorSizeData {
   const size = CONFIG.DDB.creatureSizes.find((s) => s.id === sizeId)?.name;
   const sizeData = DICTIONARY.sizes.find((s) => size === s.name);
 
   if (!sizeData) {
     logger.warn(`No foundry size found for "${size}" (${this.name}), using medium`);
-    return { name: "Medium", value: "med", size: 1 };
+    return { name: "Medium", value: "med", size: 1, id: sizeId, scale: 1 };
   }
   return sizeData;
 };

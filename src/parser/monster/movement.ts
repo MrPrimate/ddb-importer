@@ -23,13 +23,14 @@ import DDBMonster from "../DDBMonster";
 //   "special": "Fly 80 ft., Swim 40 ft."
 // },
 DDBMonster.prototype._generateMovement = function (this: DDBMonster) {
-  const special = [];
+  const special: string[] = [];
 
   this.npc.system.attributes.movement.units = "ft";
 
   this.source.movements.forEach((monsterMovement) => {
     const movement = CONFIG.DDB.movements.find((mv) => mv.id == monsterMovement.movementId);
-    this.npc.system.attributes.movement[movement.name.toLowerCase()] = monsterMovement.speed;
+    const movementName: I5eMovementType = movement?.name.toLowerCase() as I5eMovementType ?? "walk";
+    this.npc.system.attributes.movement[movementName] = String(monsterMovement.speed);
 
     if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes("hover")) {
       this.npc.system.attributes.movement.hover = true;

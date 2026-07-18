@@ -98,7 +98,7 @@ DDBMonster.prototype._generateConditionImmunities = function _generateConditionI
   const custom: string[] = [];
 
   this.source.conditionImmunities.forEach((adj) => {
-    const adjustment = config.find((cadj) => adj === cadj.id);
+    const adjustment = config.find((cadj: any) => adj === cadj.id);
     const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adjustment.name.toLowerCase());
     if (adjustment && valueAdjustment) {
       values.add(valueAdjustment.foundry);
