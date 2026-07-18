@@ -169,7 +169,7 @@ export default class CharacterFeatureFactory {
     return nameAllowed;
   }
 
-  _getCustomActions(displayedAsAttack: boolean) {
+  _getCustomActions(displayedAsAttack: boolean): IDDBCustomAction[] {
     const customActions = this.ddbData.character.customActions
       .filter((action) => action.displayAsAttack === displayedAsAttack)
       .map((action) => {
@@ -178,10 +178,10 @@ export default class CharacterFeatureFactory {
           fixedValue: action.fixedValue,
         };
 
-        const range = {
+        const range: IDDBCustomActionRange = {
           aoeType: action.aoeType,
           aoeSize: action.aoeSize,
-          range: action.range,
+          range: action.range as number,
           long: action.longRange,
         };
         action.range = range;
@@ -310,7 +310,7 @@ export default class CharacterFeatureFactory {
     this.parsed.actions = this.parsed.actions.concat(attackActions);
   }
 
-  actionParsed(actionName) {
+  actionParsed(actionName: string) {
     // const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
     const exists = this.parsed.actions.some((attack) =>
       (foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name) === actionName,
@@ -771,7 +771,7 @@ export default class CharacterFeatureFactory {
     logger.debug("Parsing background");
     const backgroundFeature = this.ddbCharacter.getBackgroundData();
     const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature, "background");
-    this.parsed[type].push(...backgroundFeats);
+    (this.parsed as Record<string, any>)[type].push(...backgroundFeats);
   }
 
   getValidOptionalClassFeatures({ requireLevel = true } = {}) {
@@ -918,7 +918,7 @@ export default class CharacterFeatureFactory {
     action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null, usesOnActivity = undefined,
   }: {
     action: IDDBAction | IDDBConfigNaturalAction;
-    type?: string;
+    type?: IActionTypes | null;
     isAttack?: boolean | null;
     manager?: DDBSummonsManager | null;
     extraFlags?: IItemFlagConfig;
@@ -954,7 +954,7 @@ export default class CharacterFeatureFactory {
     return ddbAction.data;
   }
 
-  getActions({ name, type }: { name: string; type: "class" | "race" | "feat" | "background" }): IDDBAction[] {
+  getActions({ name, type }: { name: string; type: IActionTypes }): IDDBAction[] {
     const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === utils.nameString(name));
     const levelAdjustedActions = nameMatchedActions.length > 1
       ? nameMatchedActions.filter((a) =>
@@ -1010,7 +1010,8 @@ export default class CharacterFeatureFactory {
     matchFlags: ["id", "is2014"],
   };
 
-  static _stripAdvancementValues(doc) {
+  static _stripAdvancementValues<T extends TAll5eDocuments>(doc: T): T {
+    if (!("advancement" in doc.system)) return doc;
     if (!doc.system.advancement) return doc;
     for (const [id, advancement] of Object.entries(doc.system.advancement) as [string, any][]) {
       delete advancement.value;
@@ -1168,7 +1169,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  async addToCompendiums(update = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"], { collectOnly = false } = {}) {
+  async addToCompendiums(update: boolean = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"], { collectOnly = false } = {}) {
     logger.verbose("Adding features to compendiums", { update, compendiumImportTypes, collectOnly, this: this });
 
     this.collectCompendiumDocuments(compendiumImportTypes);
@@ -1326,7 +1327,7 @@ export default class CharacterFeatureFactory {
 
   async addSpellAdvancement({
     feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
-  }: { feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
+  }: { feature: T5eFeatureMixinDataTypes; type: TGrantedSpellTypeOrigins; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
   ) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,
@@ -1337,10 +1338,10 @@ export default class CharacterFeatureFactory {
     });
   }
 
-  async _addSpellAdvancementTypeWithFilter(type, filters = []) {
+  async _addSpellAdvancementTypeWithFilter(type: TGrantedSpellTypeOrigins, filters: string[] = []) {
     logger.debug(`Adding spell advancements for type ${type} with filters`, { type, filters, this: this });
     if (!this.spellsGranted[type]) this.spellsGranted[type] = [];
-    const featuresToCheck = [];
+    const featuresToCheck: { feature: T5eFeatureMixinDataTypes; type: TGrantedSpellTypeOrigins; version: T5eRulesVersion }[] = [];
     for (const feature of this.processed.features) {
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
       if (filters.length > 0) {
@@ -1378,7 +1379,7 @@ export default class CharacterFeatureFactory {
     //   grantedSpells: this.spellsGranted[type],
     // });
     for (const spell of this.ddbCharacter._spellParser._granted[type]) {
-      const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name;
+      const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") as string ?? spell.name;
 
       if (this.spellsGranted[type].some((sg) =>
         featuresToCheck.some((f) => {
@@ -1409,7 +1410,7 @@ export default class CharacterFeatureFactory {
   }
 
   async addSpellAdvancements() {
-    const types = Object.keys(this.ddbCharacter._spellParser._granted);
+    const types = Object.keys(this.ddbCharacter._spellParser._granted) as TGrantedSpellTypeOrigins[];
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
       this.spellsGranted[type] = [];
@@ -1417,7 +1418,7 @@ export default class CharacterFeatureFactory {
     }
 
     for (const feature of this.processed.features) {
-      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as string;
+      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as TGrantedSpellTypeOrigins;
       const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement") as boolean;
       if (featureType && forceSpellAdvancement) {
         if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
@@ -1427,7 +1428,7 @@ export default class CharacterFeatureFactory {
 
     for (const [type, filters] of Object.entries(this.spellAdvancementsForce)) {
       if (filters.length > 0) {
-        await this._addSpellAdvancementTypeWithFilter(type, filters);
+        await this._addSpellAdvancementTypeWithFilter(type as TGrantedSpellTypeOrigins, filters);
       }
     }
   }

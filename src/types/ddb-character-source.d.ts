@@ -391,6 +391,8 @@ global {
     limitedUse: IDDBActionLimitedUse | null;
     // we inject this, but isn't always present
     actionSource?: IActionTypes | null;
+    // set on custom actions injected into the action pipeline (see CharacterFeatureFactory)
+    isCustomAction?: boolean;
   }
 
   export interface IDDBActions {
@@ -947,6 +949,105 @@ global {
     definition: IDDBCreatureDefinition;
   }
 
+  // ---- Custom adjustments ---------------------------------------------------
+
+  export interface IDDBCustomSense {
+    senseId: number;
+    distance: number | null;
+    source: string | null;
+  }
+
+  export interface IDDBCustomSpeed {
+    movementId: number;
+    distance: number | null;
+    source: string | null;
+  }
+
+  export interface IDDBCustomProficiency {
+    id: number;
+    name: string;
+    type: number;
+    statId: number | null;
+    proficiencyLevel: number;
+    notes: string | null;
+    description: string | null;
+    override: number | null;
+    magicBonus: number | null;
+    miscBonus: number | null;
+  }
+
+  // Injected onto a custom action by CharacterFeatureFactory._getCustomActions.
+  export interface IDDBCustomActionRange {
+    aoeType: number | null;
+    aoeSize: number | null;
+    range: number | null;
+    long: number | null;
+  }
+
+  // Injected onto a custom action by CharacterFeatureFactory._getCustomActions.
+  export interface IDDBCustomActionDice {
+    diceString: string | null;
+    fixedValue: number | null;
+  }
+
+  export interface IDDBCustomAction {
+    id: string;
+    entityTypeId: string;
+    name: string;
+    toHitBonus: number | null;
+    description: string | null;
+    snippet: string | null;
+    isProficient: boolean;
+    isOffhand: boolean;
+    statId: number | null;
+    rangeId: number | null;
+    diceCount: number | null;
+    diceType: number | null;
+    fixedValue: number | null;
+    damageTypeId: number | null;
+    onMissDescription: string | null;
+    saveFailDescription: string | null;
+    saveSuccessDescription: string | null;
+    saveStatId: number | null;
+    fixedSaveDc: number | null;
+    actionType: number | null;
+    attackSubtype: number | null;
+    // number as sent by DDB; the parser reassigns it to an IDDBCustomActionRange
+    range: number | IDDBCustomActionRange | null;
+    longRange: number | null;
+    aoeType: number | null;
+    aoeSize: number | null;
+    activationTime: number | null;
+    activationType: number | null;
+    isSilvered: boolean;
+    damageBonus: number | null;
+    isMartialArts: boolean;
+    spellRangeType: number | null;
+    displayAsAttack: boolean;
+
+    // fields injected by CharacterFeatureFactory._getCustomActions during parsing
+    dice?: IDDBCustomActionDice;
+    activation?: IDDBActionActivation;
+    abilityModifierStatId?: number | null;
+    isCustomAction?: boolean;
+  }
+
+  export interface IDDBCharacterValue {
+    typeId: number;
+    // polymorphic: DDB sends a number or a string keyed on typeId
+    value: any;
+    notes: string | null;
+    valueId: number | string | null;
+    valueTypeId: number | string | null;
+    contextId: number | string | null;
+    contextTypeId: number | string | null;
+  }
+
+  export interface IDDBCharacterCondition {
+    id: number;
+    level: number | null;
+  }
+
   // ---- Character (main) -----------------------------------------------------
 
   export interface IDDBCharacterData {
@@ -1020,14 +1121,14 @@ global {
 
     // Custom adjustments
     customDefenseAdjustments: any[];
-    customSenses: any[];
-    customSpeeds: any[];
-    customProficiencies: any[];
-    customActions: any[];
+    customSenses: IDDBCustomSense[];
+    customSpeeds: IDDBCustomSpeed[];
+    customProficiencies: IDDBCustomProficiency[];
+    customActions: IDDBCustomAction[];
 
     // Character values & conditions
-    characterValues: any[];
-    conditions: any[];
+    characterValues: IDDBCharacterValue[];
+    conditions: IDDBCharacterCondition[];
 
     // Death saves
     deathSaves: IDDBDeathSaves;

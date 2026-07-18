@@ -54,7 +54,7 @@ export default class DDBDataUtils {
       ).map((feat) => feat.definition.id);
   }
 
-  static getCustomValueFromCharacter(ddbItem, character: I5ePCData, type: number) {
+  static getCustomValueFromCharacter(ddbItem: TNameTypes, character: I5ePCData, type: number) {
     if (!character) return null;
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
     const customValue = characterValues.filter((value) =>

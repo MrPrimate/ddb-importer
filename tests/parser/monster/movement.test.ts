@@ -29,7 +29,7 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.walk).toBe(30);
+    expect(mock.npc.system.attributes.movement.walk).toBe("30");
   });
 
   // Giant Wolf Spider: walk 40, climb 40
@@ -44,8 +44,8 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.walk).toBe(40);
-    expect(mock.npc.system.attributes.movement.climb).toBe(40);
+    expect(mock.npc.system.attributes.movement.walk).toBe("40");
+    expect(mock.npc.system.attributes.movement.climb).toBe("40");
   });
 
   // Dragon with fly speed
@@ -60,8 +60,8 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.walk).toBe(40);
-    expect(mock.npc.system.attributes.movement.fly).toBe(80);
+    expect(mock.npc.system.attributes.movement.walk).toBe("40");
+    expect(mock.npc.system.attributes.movement.fly).toBe("80");
   });
 
   it("hover flight sets hover flag", () => {
@@ -74,7 +74,7 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.fly).toBe(30);
+    expect(mock.npc.system.attributes.movement.fly).toBe("30");
     expect(mock.npc.system.attributes.movement.hover).toBe(true);
   });
 
@@ -89,8 +89,8 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.walk).toBe(10);
-    expect(mock.npc.system.attributes.movement.swim).toBe(40);
+    expect(mock.npc.system.attributes.movement.walk).toBe("10");
+    expect(mock.npc.system.attributes.movement.swim).toBe("40");
   });
 
   it("burrow speed", () => {
@@ -104,8 +104,8 @@ describe("DDBMonster._generateMovement", () => {
     });
     generateMovement.call(mock);
 
-    expect(mock.npc.system.attributes.movement.walk).toBe(30);
-    expect(mock.npc.system.attributes.movement.burrow).toBe(15);
+    expect(mock.npc.system.attributes.movement.walk).toBe("30");
+    expect(mock.npc.system.attributes.movement.burrow).toBe("15");
   });
 
   it("movement notes added to special array", () => {
