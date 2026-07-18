@@ -494,16 +494,16 @@ export default class DDBVehicle {
       const movementModes = comp.definition.speeds[0].modes.some((m) => Number.isInteger(m.movementId));
 
       if (speedType) {
-        const type: keyof I5eMovement = DDBVehicle.MOVEMENT_DICT[speedType] as keyof I5eMovement;
+        const type: I5eMovementType = DDBVehicle.MOVEMENT_DICT[speedType] as I5eMovementType;
         if (!type || speedsChecked.has(type)) continue;
         speedsChecked.add(type);
-        movement[type] = mode.value;
+        movement[type] = String(mode.value);
       } else if (movementModes) {
         for (const m of comp.definition.speeds[0].modes) {
-          const modeMovementType = MOVEMENT_ID[m.movementId];
+          const modeMovementType: I5eMovementType = MOVEMENT_ID[m.movementId] as I5eMovementType;
           if (!modeMovementType || speedsChecked.has(modeMovementType)) continue;
           speedsChecked.add(modeMovementType);
-          if (modeMovementType) movement[modeMovementType] = m.value;
+          if (modeMovementType) movement[modeMovementType] = String(m.value);
         }
       } else if (mode.restrictionsText) {
         if (speedsChecked.has("fly")) continue;
@@ -596,12 +596,12 @@ export default class DDBVehicle {
     }
   }
 
-  async #buildComponent(component) {
+  async #buildComponent(component: IDDBVehicleComponent | IDDBVehicleFeatureComponent) {
     const results = [];
 
-    const actions = component.definition?.actions?.length > 0
+    const actions: IDDBVehicleAction[] = component.definition?.actions?.length > 0
       ? component.definition.actions
-      : [{}];
+      : [{}] as IDDBVehicleAction[];
 
     let actionFeature;
     for (const action of actions) {

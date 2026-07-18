@@ -211,7 +211,7 @@ export default class CharacterFeatureFactory {
       return null;
     }
     const is2014 = DDBSources.is2014Source(primaryClass.definition.sources[0]);
-    const sources = is2014
+    const sources: IDDBSource[] = is2014
       ? [
         {
           "sourceId": 1,

@@ -472,7 +472,7 @@ const CompendiumHelper = {
     documents: (string | { name: string })[],
     compendiumName: string,
     matchedProperties: Record<string, any> = {},
-  ): Promise<(T5eCompendiumDocuments | ICompendiumLookup)[]> {
+  ): Promise<(T5eCompendiumDocuments)[]> {
     const documentNames = documents.map((item) => {
       if (typeof item === "string") return item;
       if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;

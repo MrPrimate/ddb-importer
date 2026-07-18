@@ -11,18 +11,20 @@ interface IDDBDataUtilsLimitedUses {
   scaleValue?: string | null;
 }
 
+type TNameTypes = IDDBAction | IDDBCustomAction | TDDBFeatureMixinDefinitions | IDDBInventoryItem;
+
 export default class DDBDataUtils {
 
-  static getName(ddb, item, character = null, allowCustom = true) {
+  static getName(ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true) {
     // spell name
     const customName = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 8)
       : DDBDataUtils.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
       return utils.nameString(customName);
-    } else if (item.definition?.name) {
+    } else if ("definition" in item && item.definition?.name) {
       return utils.nameString(item.definition.name);
-    } else if (item.name) {
+    } else if ("name" in item && item.name) {
       return utils.nameString(item.name);
     } else {
       logger.error("Unable to determine name for:", item);
