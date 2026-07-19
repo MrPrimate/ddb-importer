@@ -18,7 +18,7 @@ export async function getConjureConstructs2024({
 
   const result: ICompanionResult = {};
 
-  let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+  let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": `Conjured Construct`,
     "prototypeToken": {
       name: `Conjured Construct`,

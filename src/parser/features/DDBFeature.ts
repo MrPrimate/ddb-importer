@@ -711,7 +711,7 @@ export default class DDBFeature extends DDBFeatureMixin {
           is2024: this.is2024,
         }, this.spellLinks);
         if (advancements) {
-          advancements.forEach((advancement) => this._addAdvancement(advancement));
+          advancements.forEach((advancement) => this._addAdvancement(advancement as dnd5e.types.Advancement.Any));
         }
       }
       // no default

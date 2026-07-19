@@ -42,6 +42,19 @@ global {
 
   type TDDBActionTypes = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction;
 
+  // Raw DDB shapes accepted by scale-value lookup. It reads only componentId /
+  // levelScale / flags defensively, so it does not need the action-backed mixin
+  // intersection (which conflicts on IDDBCustomAction.range).
+  type TDDBScaleValueSource =
+    | TDDBFeatureMixinAll
+    | IDDBClass
+    | TDDBActionTypes
+    | IDDBInfusionDefinition
+    | IDDBClassFeatureDefinition
+    | IDDBRacialTraitDefinition
+    | IDDBFeatDefinition
+    | IDDBBackgroundDefinition;
+
   interface IDDBFeaturesAdvancementLinkData {
     _id: string;
     features: Record<string, string>;

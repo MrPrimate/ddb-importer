@@ -46,7 +46,7 @@ export async function getConjureElemental({
   const result: ICompanionResult = {};
   for (const elemental of elementals) {
 
-    let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+    let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
       "name": `Conjured ${elemental.name} Elemental`,
       "prototypeToken": {
         name: `Conjured ${elemental.name} Elemental`,

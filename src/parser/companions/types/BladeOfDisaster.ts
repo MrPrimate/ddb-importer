@@ -16,7 +16,7 @@ export async function getBladeOfDisaster({
     text,
   });
 
-  let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+  let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": "Blade of Disaster",
     "prototypeToken": {
       name: "Blade of Disaster",

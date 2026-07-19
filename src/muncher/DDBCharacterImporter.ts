@@ -555,7 +555,7 @@ ${item.system.description.chat}
   // checks for existing items, and depending on options will keep or replace with imported item
   async mergeExistingItems(items: I5ePCItem[]) {
     if (this.actorOriginal.flags.ddbimporter) {
-      const ownedItems = this.actor.getEmbeddedCollection("Item");
+      const ownedItems = this.actor.getEmbeddedCollection("Item") as unknown as TImporterItem[];
 
       const nonMatchedItems = [];
       const matchedItems = [];

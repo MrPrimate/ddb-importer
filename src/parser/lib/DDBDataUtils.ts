@@ -315,7 +315,7 @@ export default class DDBDataUtils {
 
   }
 
-  static getScaleValueString(ddb: IDDBData, feature: TDDBFeatureMixinAll | IDDBClass) {
+  static getScaleValueString(ddb: IDDBData, feature: TDDBScaleValueSource) {
     const componentId = "componentId" in feature ? feature.componentId : undefined;
     const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
