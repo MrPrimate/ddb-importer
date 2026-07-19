@@ -11,15 +11,16 @@ interface IDDBDataUtilsLimitedUses {
   scaleValue?: string | null;
 }
 
-type TNameTypes = IDDBAction | IDDBCustomAction | TDDBFeatureMixinDefinitions | IDDBInventoryItem;
+type TNameTypes = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction | TDDBFeatureMixinDefinitions | IDDBInventoryItem;
 
 export default class DDBDataUtils {
 
-  static getName(ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true) {
+  static getName(_ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true) {
     // spell name
     const customName = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 8)
-      : DDBDataUtils.getCustomValue(item, ddb, 8);
+      : null;
+      // : DDBDataUtils.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
       return utils.nameString(customName);
     } else if ("definition" in item && item.definition?.name) {
@@ -131,8 +132,9 @@ export default class DDBDataUtils {
         }
         if (activity.type === "save") {
           if (dcBonus) {
-            if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-              activity.save.dc.formula = `${parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus}`;
+            const dc = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.dc") as string | undefined;
+            if (dc) {
+              activity.save.dc.formula = `${parseInt(dc) + dcBonus}`;
               activity.save.dc.calculation = "";
             }
           }
@@ -159,10 +161,10 @@ export default class DDBDataUtils {
     return foundryItem;
   }
 
-  static displayAsAttack(ddb: IDDBData, item: IDDBAction, character: I5ePCData | null = null) {
+  static displayAsAttack(_ddb: IDDBData, item: TDDBActionTypes, character: I5ePCData | null = null) {
     const customDisplay = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 16)
-      : DDBDataUtils.getCustomValue(item, ddb, 16);
+      : null; // DDBDataUtils.getCustomValue(item, ddb, 16);
     if (typeof customDisplay == "boolean") {
       return customDisplay;
     } else if (foundry.utils.hasProperty(item, "displayAsAttack")) {
@@ -204,7 +206,7 @@ export default class DDBDataUtils {
     return undefined;
   }
 
-  static getFeatureFromOptionId(ddb: IDDBData, optionId: number, type: "race" | "class" | "feat"): IDDBOptionEntry | IDDBRacialTrait {
+  static getFeatureFromOptionId(ddb: IDDBData, optionId: number, type: "race" | "class" | "feat"):  IDDBRacialTrait {
     const option = ddb.character.options[type].find((option) => option.definition.id === optionId);
 
     if (!option) return undefined;
@@ -225,8 +227,8 @@ export default class DDBDataUtils {
    * @param {*} featureId
    */
 
-  static findComponentByComponentId(ddb: IDDBData, componentId: number): IDDBClassFeature | IDDBRacialTrait | IDDBOptionEntry | undefined {
-    let result: IDDBClassFeature | IDDBRacialTrait | IDDBOptionEntry | undefined = undefined;
+  static findComponentByComponentId(ddb: IDDBData, componentId: number): IDDBClassFeature | IDDBRacialTrait | undefined {
+    let result: IDDBClassFeature | IDDBRacialTrait | undefined = undefined;
 
     ddb.character.classes.forEach((cls) => {
       const feature = cls.classFeatures.find((component) => component.definition.id === componentId);
@@ -313,12 +315,15 @@ export default class DDBDataUtils {
 
   }
 
-  static getScaleValueString(ddb: IDDBData, feature) {
+  static getScaleValueString(ddb: IDDBData, feature: TDDBFeatureMixinAll | IDDBClass) {
+    const componentId = "componentId" in feature ? feature.componentId : undefined;
     const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
-      .find((option) => option.definition.id === feature.componentId);
+      .find((option) => option.definition.id === componentId);
 
-    let feat = feature.levelScale ? feature : DDBDataUtils.findComponentByComponentId(ddb, feature.componentId);
+    let feat = "levelScale" in feature && feature.levelScale && componentId
+      ? feature
+      : DDBDataUtils.findComponentByComponentId(ddb, componentId);
     if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
       const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId") as number;
       feat = DDBDataUtils.findComponentByComponentId(ddb, componentId);
@@ -330,21 +335,22 @@ export default class DDBDataUtils {
       logger.debug("no scale value for ", feature);
       return { name: undefined, value: undefined };
     }
-    const scaleValue = DDBDataUtils.getScaleValueLink(ddb, feat);
+    const featDefinition = "definition" in feat ? feat.definition : feat as TDDBFeatureMixinDefinitions;
+    const scaleValue = DDBDataUtils.getScaleValueLink(ddb, featDefinition);
     if (scaleValue) {
       return {
-        name: feat.definition?.name ? feat.definition?.name : feat.name,
+        name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
         value: scaleValue,
       };
     }
     // final fallback if scale value extraction fails
     return {
-      name: feat.definition?.name ? feat.definition?.name : feat.name,
-      value: DDBDataUtils.getExactScalingValue(feat),
+      name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
+      value: DDBDataUtils.getExactScalingValue(feat as { levelScale?: IDDBClassFeatureLevelScale | null }),
     };
   }
 
-  static classIdentifierName(className) {
+  static classIdentifierName(className: string) {
     let result = utils.referenceNameString(className.split("(")[0].trim());
     const removals = [
       "circle-of-the-", "circle-of-",
@@ -368,7 +374,12 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : { ddbData: IDDBData; featureName: string; className?: string | null; subClassName?: string | null }) {
+  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
+    ddbData: IDDBData;
+    featureName: string;
+    className?: string | null;
+    subClassName?: string | null;
+  }) {
     const result = ddbData.character.classes.some((klass) =>
       klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
       && ((className === null || klass.definition.name === className)
@@ -403,10 +414,26 @@ export default class DDBDataUtils {
    */
   static getChoices(
     { ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
-      parentChoiceId = null } : { ddb: IDDBData; type: string; feat: any; selectionOnly?: boolean; filterByParentChoice?: boolean; parentChoiceId?: string | null },
+      parentChoiceId = null } : {
+      ddb: IDDBData;
+      type: ICoreSourceTypes;
+      feat: TDDBFeatureMixinDefinitions | IDDBRacialTrait | IDDBRacialTraitDefinition;
+      selectionOnly?: boolean;
+      filterByParentChoice?: boolean;
+      parentChoiceId?: string | null;
+    },
   ): IDDBChoiceResult[] {
-    const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
-    const featDefinition = feat.definition ? feat.definition : feat;
+    let id = null;
+    if ("id" in feat && feat.id) {
+      id = feat.id;
+    } else if ("definition" in feat && feat.definition.id) {
+      id = feat.definition.id;
+    }
+
+    const featDefinition: IDDBFeatureDefinitionKindFields
+      = "definition" in feat ? feat.definition : feat;
+    // const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
+    //  const featDefinition = feat.definition ? feat.definition : feat;
 
     // console.warn("getChoices", {
     //   id,
@@ -451,7 +478,7 @@ export default class DDBDataUtils {
             const options: IDDBChoiceResult[] = optionChoice.options
               .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
               .map((option) => {
-                const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+                const choiceOption: IDDBChoiceResult = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
                   componentId: choice.componentId,
                   componentTypeId: choice.componentTypeId,
                   choiceId: choice.id,
@@ -474,7 +501,7 @@ export default class DDBDataUtils {
           if (results.length > 0) return results;
         }
 
-        const options = validChoices.map((choice) => {
+        const options: IDDBChoiceResult[] = validChoices.map((choice) => {
           const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
           // console.warn("details", {
           //   choices,
@@ -485,7 +512,7 @@ export default class DDBDataUtils {
           const option = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
-          const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+          const choiceOption: IDDBChoiceResult = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
             optionId: option.id,
             optionComponentId: null,
             componentId: choice.componentId,
@@ -508,7 +535,7 @@ export default class DDBDataUtils {
 
         if (ddb.character.options[type]?.length > 0) {
           // if it is a choice option, try and see if the mod matches
-          const optionMatch = ddb.character.options[type]
+          const optionMatch: IDDBChoiceResult[] = ddb.character.options[type]
             .filter(
               (option) =>
                 // id match
@@ -524,7 +551,7 @@ export default class DDBDataUtils {
               // option.componentTypeId == featDefinition.entityTypeId
             )
             .map((option) => {
-              return {
+              const result: IDDBChoiceResult = {
                 id: option.definition.id,
                 entityTypeId: option.definition.entityTypeId,
                 label: option.definition.name,
@@ -540,6 +567,7 @@ export default class DDBDataUtils {
                 optionId: option.definition.id,
                 optionComponentId: option.componentId,
               };
+              return result;
             });
 
           // console.warn("optionMatch", {
@@ -553,7 +581,7 @@ export default class DDBDataUtils {
     return [];
   }
 
-  static getComponentIdFromOptionValue(ddb, type, optionId) {
+  static getComponentIdFromOptionValue(ddb: IDDBData, type: IActionTypes, optionId: number | string) {
     if (ddb.character?.choices && ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choice = ddb.character.choices[type].find(
@@ -565,7 +593,7 @@ export default class DDBDataUtils {
     return undefined;
   }
 
-  static determineActualFeatureId(ddb: IDDBData, featureId: number, type = "class") {
+  static determineActualFeatureId(ddb: IDDBData, featureId: number, type: IActionTypes = "class") {
     const optionalFeatureReplacement = ddb.character?.optionalClassFeatures
       ? ddb.character.optionalClassFeatures
         .filter((f) => f.classFeatureId === featureId && f.affectedClassFeatureId)
@@ -674,7 +702,7 @@ export default class DDBDataUtils {
     return klass;
   }
 
-  static findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) : Item.Implementation {
+  static findMatchedDDBItem(item: I5eItemData, ownedItems: TImporterItem[], existingMatchedItems: TImporterItem[] | I5eItemData[] = []) : TImporterItem {
     const itemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
     const itemDefinitionId = foundry.utils.getProperty(item, "flags.ddbimporter.definitionId");
     return ownedItems.find((owned) => {
