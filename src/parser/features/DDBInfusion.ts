@@ -226,7 +226,7 @@ export class DDBInfusion {
     await this.compendiumFolders.createClassFeatureFolder(this.originClass, this.data.system.source.rules);
   }
 
-  async addInfusionsToCompendium(documents) {
+  async addInfusionsToCompendium(documents: I5ePCItem[]) {
     const handlerOptions = {
       chrisPremades: false,
       deleteBeforeUpdate: false,
@@ -369,7 +369,7 @@ export class DDBInfusion {
 
   }
 
-  _getEnchantmentEffect(modifierData, { useModifierLabelName = false, useOrigin = false } = {}) {
+  _getEnchantmentEffect(modifierData: IDDBInfusionModifierData, { useModifierLabelName = false, useOrigin = false } = {}) {
     const label = modifierData.name ?? this.name;
     const foundryItem = foundry.utils.deepClone(this.data);
     foundryItem.effects = [];
@@ -427,10 +427,10 @@ export class DDBInfusion {
 
   _generateEnchantmentStubEffect() {
     const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
-    const effect = this._getEnchantmentEffect([], {
+    const effect = this._getEnchantmentEffect({}, {
       useModifierLabelName,
     });
-    const effectLink = {
+    const effectLink: I5eActivityEffect = {
       _id: effect._id,
       level: {
         min: null,
@@ -446,7 +446,7 @@ export class DDBInfusion {
     this.data.effects.push(effect);
   }
 
-  _addDescriptionToEffect(effect) {
+  _addDescriptionToEffect(effect: I5eEffectData) {
     const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
     effect.system.changes.push({
       key: "system.description.value",
@@ -462,7 +462,7 @@ export class DDBInfusion {
         useModifierLabelName,
       });
 
-      const effectLink = {
+      const effectLink: I5eActivityEffect = {
         _id: effect._id,
         level: {
           min: null,
@@ -514,7 +514,7 @@ export class DDBInfusion {
 
   }
 
-  _getMagicBonusChanges(modifiers) {
+  _getMagicBonusChanges(modifiers: IDDBInfusionModifier[]) {
     const filteredModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", "magic");
     const magicBonus = DDBModifiers.getModifierSum(filteredModifiers, this.rawCharacter);
 

@@ -185,10 +185,10 @@ global {
   }
 
   export interface IDDBInfusionModifierData {
-    id: string;
-    name: string;
-    value: number;
-    modifiers: IDDBInfusionModifier[];
+    id?: string;
+    name?: string;
+    value?: number;
+    modifiers?: IDDBInfusionModifier[];
   }
 
   export interface IDDBInfusionCreatureData {
@@ -214,7 +214,7 @@ global {
     itemRuleData: IDDBInfusionItemRuleData | null;
     modifierDataType: string | null;
     modifierData: IDDBInfusionModifierData[];
-    actions: any[];
+    actions: IDDBAction[];
     level: number;
     creatureData: IDDBInfusionCreatureData[];
     requiresAttunement: boolean;
