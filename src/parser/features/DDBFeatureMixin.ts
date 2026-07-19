@@ -90,7 +90,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   snippet: string;
   description: string;
   resourceCharges: number | null;
-  ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
+  ddbFeature: TDDBFeatureMixinAll;
   // current choice option context, set transiently during DDBChoiceFeature.build()
   _currentChoice: IDDBChoiceResult | null;
   declare ddbDefinition: TDDBFeatureMixinDefinitions;
@@ -289,7 +289,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _getRules() {
-    const sources = this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [];
+    const sources = "sources" in this.ddbDefinition
+      ? (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
+      : (this._parent?.definition?.sources ?? []);
     const sourceIds = sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some(
       (ddbSource) =>
@@ -398,7 +400,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     // object sources are usable as document source data
     const localSource = (this.source && utils.isObject(this.source)
       ? this.source
-      : DDBSources.parseSource(this.ddbDefinition)) as IDDBSourceResponse;
+      : DDBSources.parseSource(this.ddbDefinition as unknown as IDDBSourcesDefinition)) as IDDBSourceResponse;
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
@@ -779,7 +781,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
               : undefined;
 
           if (levelScaleDie?.diceString) {
-            const scaleValueLink = DDBDataUtils.getScaleValueLink(this.ddbData, feature);
+            const scaleValueLink = DDBDataUtils.getScaleValueLink(this.ddbData, feature.definition);
             const scaleString
               = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}" ? scaleValueLink : levelScaleDie.diceString;
             if (actionDie?.diceValue > levelScaleDie.diceValue) {
@@ -944,6 +946,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _addCustomValues() {
+    if (this.data.type === "background") return;
     DDBDataUtils.addCustomValues(this.ddbData, this.data);
   }
 

@@ -64,7 +64,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
     const scaleValue = DDBDataUtils.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     if (scaleValue && scaleValue.value) {
-      result = result.replace("scalevalue", scaleValue.value);
+      result = result.replace("scalevalue", String(scaleValue.value));
       linktext = result.replace("scalevalue", " (Scaled Value) ");
     } else {
       logger.warn("Unable to parse scalevalue", {
@@ -228,7 +228,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
  * @param {string} constraint The constraint string, in the format of a template string
  * @returns {number|string} The value with the constraint applied
  */
-const applyConstraint = (value, constraint) => {
+const applyConstraint = (value: string | number, constraint: string): string => {
   // {{(classlevel/2)@rounddown#unsigned}}
   // @ features
   // @roundup
@@ -239,24 +239,25 @@ const applyConstraint = (value, constraint) => {
   const multiConstraint = splitConstraint[0].split("*");
   const match = multiConstraint[0];
 
-  let result = value;
+  let result = String(value);
+  const intValue = parseInt(String(result));
 
   switch (match) {
     case "max": {
-      result = Math.min(splitConstraint[1], result);
+      result = String(Math.min(parseInt(splitConstraint[1]), intValue));
       break;
     }
     case "min": {
-      result = Math.max(splitConstraint[1], result);
+      result = String(Math.max(parseInt(splitConstraint[1]), intValue));
       break;
     }
     case "roundup": {
-      result = Math.ceil(result);
+      result = String(Math.ceil(intValue));
       break;
     }
     case "rounddown":
     case "roundown": {
-      result = Math.floor(result);
+      result = String(Math.floor(intValue));
       break;
     }
     case "unsigned":
@@ -272,7 +273,7 @@ const applyConstraint = (value, constraint) => {
 
   if (multiConstraint.length > 1) {
     const evalStatement = `${result}*${multiConstraint[1]}`;
-    result = evaluateMath(evalStatement.replace(")", ""));
+    result = String(evaluateMath(evalStatement.replace(")", "")));
   }
 
   if (match == "unsigned") {
@@ -294,7 +295,7 @@ const applyConstraint = (value, constraint) => {
  * @param {string} constraintList a comma-separated list of constraints
  * @returns {*} the value with any constraints applied
  */
-const addConstraintEvaluations = (value, constraintList) => {
+const addConstraintEvaluations = (value: string | number, constraintList: string): string => {
   let result = `${value}`;
 
   // {{@rounddown,max:9}}
@@ -304,7 +305,7 @@ const addConstraintEvaluations = (value, constraintList) => {
   // @roundown
   // min:1
   // max:3
-  constraintList.split(",").forEach((constraint) => {
+  constraintList.split(",").forEach((constraint: any) => {
     const splitConstraint = constraint.split(":");
     const multiConstraint = splitConstraint[0].split("*");
     const match = multiConstraint[0];
@@ -348,18 +349,19 @@ const addConstraintEvaluations = (value, constraintList) => {
   return result;
 };
 
-const escapeRegExp = (string) => {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 };
 
-const getNumber = (theNumber, signed) => {
+const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | string) => {
+  let result = String(theNumber);
   if (signed == "unsigned") {
-    theNumber = `${theNumber}`.trim().replace(/^\+\s*/, "");
+    result = `${theNumber}`.trim().replace(/^\+\s*/, "");
   } else if (signed == "signed" && !`${theNumber}`.trim().startsWith("+") && !`${theNumber}`.trim().startsWith("-")) {
-    theNumber = `+ ${theNumber}`;
+    result = `+ ${theNumber}`;
   }
 
-  return theNumber.toString();
+  return result;
 };
 
 
@@ -426,7 +428,7 @@ type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDD
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
 
-type TActions = IDDBAction | IDDBConfigNaturalAction;
+type TActions = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction;
 
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.

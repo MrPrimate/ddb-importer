@@ -20,8 +20,6 @@ function htmlToText(html: string) {
     .replace(/<[A-Za-z/][^<>]*>/g, "");
 }
 
-type IActionTypes = "feat" | "class" | "race" | "background";
-
 interface IAdvancementHelper {
   ddbData: IDDBData;
   type: string;
@@ -51,7 +49,7 @@ export default class AdvancementHelper {
 
   // the dnd5e AssignmentType-derived updateSource parameter types collapse to
   // unusable shapes (e.g. `identifier?: null`), so expose a looser overload
-  static createAdvancement<T>(AdvancementClass: new () => T): T & { updateSource: (data: Record<string, unknown>) => void } {
+  static createAdvancement<T>(AdvancementClass: new () => T): T {
     try {
       return new AdvancementWrapper(AdvancementClass) as unknown as T & { updateSource: (data: Record<string, unknown>) => void };
     } catch (error) {
@@ -2662,7 +2660,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return htmlData;
   }
 
-  static async getTraitSpellAdvancements({ name, species, description, is2024 }: { name: string; species: string; description: string; is2024: boolean }, spellLinks: TSpellLinks) {
+  static async getTraitSpellAdvancements({ name, species, description, is2024 }: { name: string; species: string; description: string; is2024: boolean }, spellLinks: IDDBSpellLink[]) {
     const advancements = [];
     const htmlData = AdvancementHelper.getHTMLDataForSpellAdvancements(description, species);
 
@@ -2988,16 +2986,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return spells;
   }
 
-  static async _getSpellUuidsFromFeatureSpellData(names: string[], spellData: I5eSpellItem[], is2024: boolean) {
+  static async _getSpellUuidsFromFeatureSpellData(names: string[], spellData: I5eSpellItem[], is2024: boolean): Promise<ISpellUuidLookup[]> {
     const lookupSpellNames = [];
-    const uuids = [];
+    const uuids: ISpellUuidLookup[] = [];
     for (const spell of names) {
       const spellDataMatch = spellData.find((s) => {
         const spellName = (foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string) || s.name;
         return spellName.toLowerCase() === spell.toLowerCase() && foundry.utils.hasProperty(s, "_stats.compendiumSource");
       });
       if (spellDataMatch) {
-        const spellName = foundry.utils.getProperty(spellDataMatch, "flags.ddbimporter.originalName") || spellDataMatch.name;
+        const spellName = foundry.utils.getProperty(spellDataMatch, "flags.ddbimporter.originalName") as string || spellDataMatch.name;
         uuids.push({
           name: spellName,
           uuid: spellDataMatch._stats.compendiumSource,
@@ -3008,7 +3006,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     }
     if (lookupSpellNames.length > 0) {
       const remainingUuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(lookupSpellNames, { use2024Spells: is2024 });
-      uuids.push(...remainingUuids);
+      uuids.push(...remainingUuids.map((s) => {
+        return {
+          name: s.name,
+          uuid: s.uuid,
+        };
+      }));
     }
     return uuids;
   }
@@ -3257,7 +3260,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async addSpellAdvancement({
     ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
-  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: IActionTypes; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
+  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: TGrantedSpellTypeOrigins; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
   ) {
     // console.warn(`Spell advancment check for ${feature.name}`, {
     //   feature,

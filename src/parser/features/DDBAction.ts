@@ -6,16 +6,14 @@ import DDBFeatureMixin from "./DDBFeatureMixin";
 export default class DDBAction extends DDBFeatureMixin {
 
   static KEEP_ACTIONS = DICTIONARY.parsing.actions.KEEP_ACTIONS;
-
   static KEEP_ACTIONS_STARTSWITH = DICTIONARY.parsing.actions.KEEP_ACTIONS_STARTSWITH;
-
   static KEEP_ACTIONS_2024 = DICTIONARY.parsing.actions.KEEP_ACTIONS_2024;
-
   static SKIPPED_2014_ONLY_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_2014_ONLY_ACTIONS;
-
   static SKIPPED_2024_ONLY_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_2024_ONLY_ACTIONS;
-
   static HIGHEST_LEVEL_ONLY_ACTION_MATCH = DICTIONARY.parsing.actions.HIGHEST_LEVEL_ONLY_ACTION_MATCH;
+
+  declare ddbFeature: IDDBAction | IDDBConfigNaturalAction;
+  declare ddbDefinition: TDDBActionTypes & IDDBActionBackedDefinition;
 
   _init() {
     this.isAction = true;
@@ -23,16 +21,7 @@ export default class DDBAction extends DDBFeatureMixin {
   }
 
   displayAsAttack() {
-    const customDisplay = this.rawCharacter
-      ? DDBDataUtils.getCustomValueFromCharacter(this.ddbDefinition, this.rawCharacter, 16)
-      : DDBDataUtils.getCustomValue(this.ddbDefinition, this.ddbData, 16);
-    if (typeof customDisplay == "boolean") {
-      return customDisplay;
-    } else if (foundry.utils.hasProperty(this.ddbDefinition, "displayAsAttack")) {
-      return this.ddbDefinition.displayAsAttack;
-    } else {
-      return false;
-    }
+    return DDBDataUtils.displayAsAttack(this.ddbData, this.ddbDefinition, this.rawCharacter);
   }
 
   _generateSystemType(typeNudge: ICoreSourceTypes = null) {

@@ -35,14 +35,12 @@ global {
   interface IDDBSpellLink {
     type: "choice" | "grant";
     advancementId: string;
-    choices: string[] | IDDBSpellLinkGrant[] | IDDBSpellLinkChoice;
+    choices: string[] | IDDBSpellLinkGrant[] | IDDBSpellLinkChoice | ISpellAdvancementGrant[];
     uuids?: IDDBSpellLinkUuid[];
     level: number | string;
   }
 
-  type TSpellLinks = ISpellLink[];
-
-  type TAdvancementFeatureDefinitions = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBClassDefinitionFeature | IDDBBackgroundDefinition | IDDBFeatDefinition;
+  type TAdvancementFeatureDefinitions = TDDBFeatureMixinDefinitions;
 
   interface ISpellAdvancementGrant {
     level: number;

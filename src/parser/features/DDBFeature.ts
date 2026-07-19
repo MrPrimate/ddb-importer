@@ -46,7 +46,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   _init() {
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       ? "weapon" as const
-      : DDBFeature.DOC_TYPE[this.type];
+      : (DDBFeature.DOC_TYPE as Record<string, string>)[this.type] as typeof this.documentType;
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
     this._class = this.ddbData.character.classes.find((klass) =>
@@ -142,7 +142,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name)
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH.some((f) => this.originalName.startsWith(f));
 
-    this.scaleValueUsesLink = DDBDataUtils.getScaleValueLink(this.ddbData, this.ddbFeature, true);
+    this.scaleValueUsesLink = DDBDataUtils.getScaleValueLink(this.ddbData, this.ddbDefinition, true);
 
     this.useUsesScaleValueLink = !this.excludedScaleUses
       && this.scaleValueUsesLink
@@ -175,19 +175,18 @@ export default class DDBFeature extends DDBFeatureMixin {
     logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
-  _addAdvancement(advancement) {
+  _addAdvancement(advancement: dnd5e.types.Advancement.Any) {
     if (!advancement) return;
-    const advancementData = advancement.toObject();
+    const advancementData = advancement.toObject() as unknown as I5eAdvancement;
     if (
       (advancementData.value && Object.keys(advancementData.value).length !== 0)
-      || advancementData.configuration.choices?.length !== 0
-      || advancementData.configuration.grants?.length !== 0
-      || advancementData.configuration.items?.length !== 0
+      || (foundry.utils.getProperty(advancementData, "configuration.choices") as any[])?.length !== 0
+      || (foundry.utils.getProperty(advancementData, "configuration.grants") as any[])?.length !== 0
+      || (foundry.utils.getProperty(advancementData, "configuration.items") as any[])?.length !== 0
     ) {
       this.data.system.advancement[advancementData._id] = advancementData;
     }
   }
-
 
   generateBackgroundAbilityScoreAdvancement() {
     const advancements: I5eAdvancement[] = [];
@@ -297,7 +296,8 @@ export default class DDBFeature extends DDBFeatureMixin {
       : [];
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
-    advancement.updateSource({
+
+    const update: I5eAdvancementAbilityScoreImprovement = {
       configuration: {
         points: 3,
         cap: 2,
@@ -308,7 +308,9 @@ export default class DDBFeature extends DDBFeatureMixin {
       value: {
         type: "asi",
       },
-    });
+    };
+
+    advancement.updateSource(update as any);
 
     // Only populate assignments when DDB actually has assigned score modifiers;
     // otherwise emit an empty advancement for the player to assign in Foundry.
@@ -316,14 +318,16 @@ export default class DDBFeature extends DDBFeatureMixin {
       const assignments = {};
       DICTIONARY.actor.abilities.forEach((ability) => {
         const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
-        if (count > 0) assignments[ability.value] = count;
+        if (count > 0) (assignments as Record<string, any>)[ability.value] = count;
       });
 
-      advancement.updateSource({
+      const update2: I5eAdvancementAbilityScoreImprovement = {
         value: {
           assignments,
         },
-      });
+      };
+
+      advancement.updateSource(update2 as any);
     }
     advancements.push(advancement.toObject() as I5eAdvancement);
 
@@ -334,8 +338,8 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
 
-  _addFeatAbilityScoreAdvancement(update, advancement) {
-    advancement.updateSource(update);
+  _addFeatAbilityScoreAdvancement(update: I5eAdvancementAbilityScoreImprovement, advancement: dnd5e.types.Advancement.Any) {
+    advancement.updateSource(update as any);
     if (!this.isMuncher) {
       const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
         m.componentId == this.ddbDefinition.id
@@ -346,14 +350,15 @@ export default class DDBFeature extends DDBFeatureMixin {
         const assignments = {};
         DICTIONARY.actor.abilities.forEach((ability) => {
           const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
-          if (count > 0) assignments[ability.value] = count;
+          if (count > 0) (assignments as Record<string, any>)[ability.value] = count;
         });
 
-        advancement.updateSource({
+        const update = {
           value: {
             assignments,
           },
-        });
+        };
+        advancement.updateSource(update as any);
       }
     }
 
@@ -546,8 +551,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     const slots = this.ddbData.backgroundEquipment?.slots ?? [];
     if (slots.length === 0) return;
 
-    const isItemRule = (rule) => (rule.definitions ?? []).length > 0;
-    const ruleSlotHasItems = (ruleSlot) => (ruleSlot.rules ?? []).some((rule) => isItemRule(rule));
+    const isItemRule = (rule: IDDBEquipmentRule) => (rule.definitions ?? []).length > 0;
+    const ruleSlotHasItems = (ruleSlot: IDDBEquipmentRuleSlot) => (ruleSlot.rules ?? []).some((rule) => isItemRule(rule));
 
     // collect unique item definitions for a single batch of compendium lookups; only
     // single-definition rules are specific items, multi-definition rules are category
@@ -571,7 +576,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     let sort = 0;
     const nextSort = () => (sort += 100000);
 
-    const buildLinked = (rule, group) => {
+    const buildLinked = (rule: IDDBEquipmentRule, group: string) => {
       const definition = (rule.definitions ?? [])[0];
       const uuid = definition ? uuidMap[`${definition.id}-${definition.entityTypeId}`] : undefined;
       if (!uuid) return;
@@ -586,7 +591,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       });
     };
 
-    const buildCurrency = (rule, group) => {
+    const buildCurrency = (rule: IDDBEquipmentRule, group: string) => {
       entries.push({
         type: "currency",
         count: rule.gold,
@@ -600,11 +605,11 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     // a rule with multiple definitions is a category choice (e.g. any gaming set, any
     // simple weapon); classify a definition to a dnd5e category option type + key
-    const WEAPON_CATEGORY = { 1: "sim", 2: "mar", 3: "mar" };
-    const FOCUS_SUBTYPES = { "Arcane Focus": "arcane", "Druidic Focus": "druidic", "Holy Symbol": "holy" };
+    const WEAPON_CATEGORY: Record<number, string> = { 1: "sim", 2: "mar", 3: "mar" };
+    const FOCUS_SUBTYPES: Record<string, string> = { "Arcane Focus": "arcane", "Druidic Focus": "druidic", "Holy Symbol": "holy" };
     const ARMOR_KEYS = new Set(["light", "medium", "heavy", "shield", "natural"]);
 
-    const classifyDefinition = (def) => {
+    const classifyDefinition = (def: IDDBItemDefinition) => {
       if (def.entityTypeId === 1782728300 || def.filterType === "Weapon") {
         return { type: "weapon", key: WEAPON_CATEGORY[def.categoryId] ?? "sim" };
       }
@@ -621,12 +626,12 @@ export default class DDBFeature extends DDBFeatureMixin {
       return null;
     };
 
-    const buildCategoryChoice = (rule, group) => {
+    const buildCategoryChoice = (rule: IDDBEquipmentRule, group: string) => {
       const classified = (rule.definitions ?? []).map(classifyDefinition).filter(Boolean);
-      const distinct = new Set(classified.map((c) => `${c.type}:${c.key}`));
+      const distinct = new Set(classified.map((c: any) => `${c.type}:${c.key}`));
       if (distinct.size !== 1) {
         logger.warn("Could not resolve background equipment category choice", {
-          defs: (rule.definitions ?? []).map((d) => d.name),
+          defs: (rule.definitions ?? []).map((d: any) => d.name),
         });
         return;
       }
@@ -642,7 +647,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       });
     };
 
-    const buildEquipmentOption = (ruleSlot, group) => {
+    const buildEquipmentOption = (ruleSlot: IDDBEquipmentRuleSlot, group: string) => {
       const andId = foundry.utils.randomID();
       entries.push({
         type: "AND",
@@ -696,7 +701,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
   async _generateSpellAdvancements() {
-    switch (this.type) {
+    switch (this.type as string) {
       case "trait":
       case "race": {
         const advancements = await AdvancementHelper.getTraitSpellAdvancements({
@@ -754,7 +759,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     const compendium = CompendiumHelper.getCompendiumType("feats", false);
     if (compendium) await compendium.getIndex(indexFilter);
 
-    const matchFeatId = (id) => compendium
+    const matchFeatId = (id: number) => compendium
       ? compendium.index.find((f) => foundry.utils.getProperty(f, "flags.ddbimporter.id") === id)
       : undefined;
 
@@ -872,7 +877,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     // this._generateLimitedUse();
     // this._generateRange();
 
-    const listItems = [];
+    const listItems: string[] = [];
     const chosenOnly = DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
     const choices = chosenOnly
       ? this._chosen

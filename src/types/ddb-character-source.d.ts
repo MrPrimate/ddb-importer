@@ -25,8 +25,8 @@ global {
     backgroundEquipment: IDDBEquipmentSlots;
     startingEquipment: IDDBEquipmentSlots;
     infusions: IDDBInfusions;
-    classOptions: any[];
-    originOptions: any[];
+    classOptions: IDDBClassFeatureDefinition[];
+    originOptions: IDDBOriginOption[];
     unequippedItemSpells?: IDDBSpellEntry[];
   }
 
@@ -132,8 +132,29 @@ global {
 
   // ---- Equipment / Infusions ------------------------------------------------
 
+  export interface IDDBEquipmentRule {
+    data: any[];
+    definitions: IDDBItemDefinition[];
+    custom: string | null;
+    instruction: string | null;
+    gold: number | null;
+    ruleType: number;
+    proficiencyRequired: boolean;
+    quantity: number | null;
+  }
+
+  export interface IDDBEquipmentRuleSlot {
+    name: string;
+    rules: IDDBEquipmentRule[];
+  }
+
+  export interface IDDBEquipmentSlot {
+    name: string;
+    ruleSlots: IDDBEquipmentRuleSlot[];
+  }
+
   export interface IDDBEquipmentSlots {
-    slots: any[];
+    slots: IDDBEquipmentSlot[];
   }
 
   export interface IDDBInfusionKnown {
@@ -603,6 +624,14 @@ global {
     definition: IDDBRacialTraitDefinition;
   }
 
+  // Optional (selectable) racial trait definitions offered to the character.
+  // Same shape as a racial trait definition, plus a details-page flag, and the
+  // display configuration may be absent.
+  export type IDDBOriginOption = Omit<IDDBRacialTraitDefinition, "displayConfiguration"> & {
+    hideOnDetailsPage: boolean;
+    displayConfiguration: IDDBRacialTraitDisplayConfiguration | null;
+  };
+
   export interface IDDBRace {
     entityRaceId: number;
     entityRaceTypeId: number;
@@ -1048,6 +1077,22 @@ global {
     level: number | null;
   }
 
+  // ---- Optional features (Tasha-style opt-in swaps) -------------------------
+
+  export interface IDDBOptionalClassFeature {
+    classFeatureId: number;
+    affectedClassFeatureId: number | null;
+    classFeatureDefinitionKey: string;
+    affectedClassFeatureDefinitionKey: string | null;
+  }
+
+  export interface IDDBOptionalOrigin {
+    racialTraitId: number;
+    affectedRacialTraitId: number | null;
+    racialTraitDefinitionKey: string;
+    affectedRacialTraitDefinitionKey: string | null;
+  }
+
   // ---- Character (main) -----------------------------------------------------
 
   export interface IDDBCharacterData {
@@ -1116,8 +1161,8 @@ global {
     updateClassSpells: any[];
     feats: IDDBFeat[];
     features: any[];
-    optionalClassFeatures: any[];
-    optionalOrigins: any[];
+    optionalClassFeatures: IDDBOptionalClassFeature[];
+    optionalOrigins: IDDBOptionalOrigin[];
 
     // Custom adjustments
     customDefenseAdjustments: any[];

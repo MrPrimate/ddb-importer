@@ -42,7 +42,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   activityTypes: string[] = [];
   ddbDefinition: IDDBCommonDefinition;
   ddbData: IDDBData;
-  activities: IDDBActivityTypes[] = [];
+  activities: TDDBActivityTypes[] = [];
 
   constructor({
     enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,

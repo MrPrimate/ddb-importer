@@ -18,7 +18,8 @@ global {
     entityId?: number | null;
     entityRaceId?: number | null;
     entityType?: string | null;
-    entityTypeId?: number | null;
+    // custom actions carry a string entityTypeId; all other kinds send a number
+    entityTypeId?: number | string | null;
     grantedFeats?: IDDBClassFeatureGrantedFeat[];
     primaryAbilities?: number[] | null;
     // injected by the infusion parser
@@ -29,17 +30,20 @@ global {
 
   // action payload data is merged onto these definitions by the parser, so
   // intersect with the action-backed shape for the fields feature parsing reads
-  type TDDBFeatureMixinDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition) & IDDBActionBackedDefinition & IDDBFeatureDefinitionKindFields;
+  type TDDBFeatureMixinDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition | TDDBActionTypes) & IDDBActionBackedDefinition & IDDBFeatureDefinitionKindFields;
 
   type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
+
+  type TDDBFeatureMixinAll = TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions;
 
   type TDDBFeatureMixinEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 
   type T5eFeatureMixinDataTypes = I5eBackgroundItem | I5eWeaponItem | I5eFeatItem | I5eBackgroundItem;
 
+  type TDDBActionTypes = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction;
+
   interface IDDBFeaturesAdvancementLinkData {
     _id: string;
     features: Record<string, string>;
   }
-
 }

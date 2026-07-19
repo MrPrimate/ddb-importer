@@ -69,7 +69,7 @@ export default class DDBDataUtils {
     return null;
   }
 
-  static getCustomValue(foundryItem, ddb, type) {
+  static getCustomValue(foundryItem: I5ePCItem, ddb: IDDBData, type: number) {
     const characterValues = ddb.character?.characterValues;
     if (!characterValues) return null;
     const customValue = characterValues.filter(
@@ -87,8 +87,7 @@ export default class DDBDataUtils {
     return null;
   }
 
-
-  static addCustomValues(ddb: IDDBData, foundryItem) {
+  static addCustomValues(ddb: IDDBData, foundryItem: I5ePCConsumptionItems) {
     // to hit override requires a lot of crunching
     // const toHitOverride = DDBDataUtils.getCustomValue(item, character, 13);
     const toHitBonus = DDBDataUtils.getCustomValue(foundryItem, ddb, 12);
@@ -106,9 +105,10 @@ export default class DDBDataUtils {
     const dcOverride = DDBDataUtils.getCustomValue(foundryItem, ddb, 15);
     const dcBonus = DDBDataUtils.getCustomValue(foundryItem, ddb, 14);
 
-    if (foundryItem.system.activities) {
-      Object.keys(foundryItem.system.activities).forEach((id) => {
-        const activity: I5eActivity = foundryItem.system.activities[id];
+    if ("activities" in foundryItem.system) {
+      const { activities } = foundryItem.system;
+      Object.keys(activities).forEach((id) => {
+        const activity = activities[id];
 
         if (activity.type === "attack") {
           if (toHitBonus) {
@@ -142,12 +142,14 @@ export default class DDBDataUtils {
           }
         }
 
-        foundryItem.system.activities[id] = activity;
+        activities[id] = activity;
       });
     }
 
-    if (costOverride) foundryItem.system.cost = costOverride;
-    if (weightOverride) foundryItem.system.weight = weightOverride;
+    if ("cost" in foundryItem.system && costOverride)
+      foundryItem.system.cost = costOverride;
+    if ("weight" in foundryItem.system && weightOverride)
+      foundryItem.system.weight = weightOverride;
     if (silvered) {
       foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "sil");
     }
@@ -157,7 +159,7 @@ export default class DDBDataUtils {
     return foundryItem;
   }
 
-  static displayAsAttack(ddb: IDDBData, item, character = null) {
+  static displayAsAttack(ddb: IDDBData, item: IDDBAction, character: I5ePCData | null = null) {
     const customDisplay = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 16)
       : DDBDataUtils.getCustomValue(item, ddb, 16);
@@ -223,8 +225,8 @@ export default class DDBDataUtils {
    * @param {*} featureId
    */
 
-  static findComponentByComponentId(ddb: IDDBData, componentId: number): IDDBClassFeature | IDDBRacialTrait | undefined {
-    let result;
+  static findComponentByComponentId(ddb: IDDBData, componentId: number): IDDBClassFeature | IDDBRacialTrait | IDDBOptionEntry | undefined {
+    let result: IDDBClassFeature | IDDBRacialTrait | IDDBOptionEntry | undefined = undefined;
 
     ddb.character.classes.forEach((cls) => {
       const feature = cls.classFeatures.find((component) => component.definition.id === componentId);
@@ -233,22 +235,25 @@ export default class DDBDataUtils {
 
     const optionalClassFeature = ddb.classOptions.find((option) => option.id == componentId);
     if (optionalClassFeature && !result) {
-      result = optionalClassFeature;
-      const optionalLevelScales = optionalClassFeature.levelScales && optionalClassFeature.levelScales.length > 0;
-      if (result && !result.levelScale && optionalLevelScales) {
+      // An optional class feature is a bare definition; wrap it in a synthetic
+      // IDDBClassFeature so consumers see the same { definition, levelScale } shape
+      // as real class features. Do not mutate the shared classOptions element.
+      let levelScale: IDDBClassFeatureLevelScale | null = null;
+      if (optionalClassFeature.levelScales && optionalClassFeature.levelScales.length > 0) {
         const klass = ddb.character.classes.find((cls) => cls.definition.id === optionalClassFeature.classId);
         const klassLevel = klass ? klass.level : undefined;
         if (klassLevel) {
           const levelFilteredScales = optionalClassFeature.levelScales.filter((scale) => scale.level <= klassLevel);
           if (levelFilteredScales.length > 0) {
-            result.levelScale = levelFilteredScales
-              .reduce((previous, current) => {
+            levelScale = levelFilteredScales
+              .reduce((previous: IDDBClassFeatureLevelScale, current: IDDBClassFeatureLevelScale) => {
                 if (previous.level > current.level) return previous;
                 return current;
               });
           }
         }
       }
+      result = { definition: optionalClassFeature, levelScale };
     }
 
     if (!result) {
@@ -264,7 +269,7 @@ export default class DDBDataUtils {
    * @param {*} feature
    * @returns {string}
    */
-  static getExactScalingValue(feature) {
+  static getExactScalingValue(feature: { levelScale?: IDDBClassFeatureLevelScale | null }) {
     const die = feature.levelScale?.dice ? feature.levelScale.dice : feature.levelScale?.die ? feature.levelScale.die : undefined;
     if (feature && feature.levelScale && feature.levelScale.fixedValue) {
       return feature.levelScale.fixedValue;
@@ -275,15 +280,15 @@ export default class DDBDataUtils {
     }
   }
 
-  static getScaleValueLink(ddb, feature, noDice = false) {
-    const featDefinition = feature.definition ? feature.definition : feature;
-
+  static getScaleValueLink(ddb: IDDBData, featDefinition: TDDBFeatureMixinDefinitions, noDice = false) {
+    const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales : [];
+    // only handles classes so far
     const klass = ddb.character.classes.find((cls) =>
       (cls.definition.id === featDefinition.classId
       || cls.subclassDefinition?.id === featDefinition.classId)
-      && featDefinition.levelScales?.length > 0
+      && levelScales.length > 0
       && (!noDice
-        || (noDice && !featDefinition.levelScales.every((s) => s.dice !== null && s.dice !== undefined))),
+        || (noDice && !levelScales.every((s) => s.dice !== null && s.dice !== undefined))),
     );
 
     if (klass) {
