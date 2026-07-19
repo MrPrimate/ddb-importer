@@ -384,7 +384,7 @@ export default class AdvancementHelper {
       .some((text) => feature.description.includes(text));
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       classRestriction: (level > 1 || this.isSubclass)
         ? ""
         : availableToMulticlass ? "secondary" : "primary",
@@ -393,15 +393,17 @@ export default class AdvancementHelper {
         allowReplacements,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // add selection
     if (updates.length > 0) {
-      advancement.updateSource({
+      const chosenUpdate: I5eAdvancementTrait = {
         value: {
           chosen: updates,
         },
-      });
+      };
+      advancement.updateSource(chosenUpdate as any);
     }
 
     return advancement;
@@ -457,14 +459,15 @@ export default class AdvancementHelper {
       ? feature.name
       : "Skill Proficiencies";
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title,
       classRestriction,
       configuration: {
         allowReplacements: true,
       },
       level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     const pool = parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.choices.map((skill) => `skills:${skill}`)
@@ -637,7 +640,7 @@ export default class AdvancementHelper {
       grants.push(...parsedTools.grants.map((grant) => `tool:${grant}`));
     }
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Tool Proficiencies",
@@ -646,7 +649,8 @@ export default class AdvancementHelper {
         allowReplacements: true,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // console.warn("tools", {
     //   pool,
@@ -675,7 +679,7 @@ export default class AdvancementHelper {
     if (toolChoices.choices.length === 0) return null;
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Tool Proficiencies",
@@ -683,7 +687,8 @@ export default class AdvancementHelper {
         allowReplacements: true,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // prefer the player's actual selection, then the rules default; only fall back to
     // the full swap pool when there is neither
@@ -770,7 +775,7 @@ export default class AdvancementHelper {
       grants.push(...parsedArmors.grants.map((grant) => `armor:${grant}`));
     }
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Armor Training",
@@ -779,7 +784,8 @@ export default class AdvancementHelper {
         allowReplacements: false,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // console.warn("armor", {
     //   pool,
@@ -857,7 +863,7 @@ export default class AdvancementHelper {
         .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Proficiencies",
@@ -867,7 +873,8 @@ export default class AdvancementHelper {
         allowReplacements: false,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // console.warn("weapons", {
     //   pool,
@@ -979,7 +986,7 @@ export default class AdvancementHelper {
         .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Masteries",
@@ -988,7 +995,8 @@ export default class AdvancementHelper {
         allowReplacements: true,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // console.warn("weapons", {
     //   pool,
@@ -1030,14 +1038,15 @@ export default class AdvancementHelper {
     else if (feature.name === "Scholar") count = 1;
     else if (expertiseOptionCount > 0) count = expertiseOptionCount;
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
       configuration: {
         allowReplacements: false,
         mode: "expertise",
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
     const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
@@ -1100,7 +1109,7 @@ export default class AdvancementHelper {
       ? parsedConditions.grants.map((grant) => grant)
       : conditionsFromMods.map((choice) => choice);
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "",
@@ -1109,7 +1118,8 @@ export default class AdvancementHelper {
         hint: parsedConditions.hint,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     // console.warn("conditions", {
     //   pool,
@@ -3114,7 +3124,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       }
     }
 
-    advancement.updateSource({
+    const update: I5eAdvancementItemChoice = {
       title: name,
       level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
       configuration: {
@@ -3152,7 +3162,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         },
       },
       hint,
-    });
+    };
+    advancement.updateSource(update as any);
 
     return advancement;
   }
