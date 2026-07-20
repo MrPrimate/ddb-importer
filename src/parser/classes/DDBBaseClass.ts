@@ -37,7 +37,7 @@ export default abstract class DDBBaseClass {
   isSubClass = false;
   choiceMap = new Map();
   featureAdvancementUuids = new Set();
-  spellLinks: TSpellLinks = [];
+  spellLinks: IDDBSpellLink[] = [];
   configChoices: Record<string, TI5eAdvItemChoiceConfigChoices> = {};
   featureAdvancements: I5eAdvancement[] = [];
 

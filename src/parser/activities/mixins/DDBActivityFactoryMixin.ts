@@ -5,8 +5,6 @@ import SystemHelpers from "../../lib/SystemHelpers";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
-type TAFMDocTypes = TFeatureType | T5eInventoryTypes | "spell";
-
 interface IDDBActivityFactoryMixin<TDoc extends string = TAFMDocTypes> {
   enricher?: any;
   activityGenerator?: any;
@@ -26,7 +24,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   abstract originalName: string;
   abstract rawCharacter: I5ePCData | I5eMonsterData | null;
   enricher: DDBEnricherFactoryMixin<any>;
-  activityGenerator: new (...args: any[]) => IDDBActivityTypes;
+  activityGenerator: new (...args: any[]) => TDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];
   documentType: TDoc | null = null;
   useMidiAutomations = false;
@@ -36,7 +34,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   data: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
-  // These properties are used throughout the class but defined in subclasses
+  // These properties are used throughout the class but defined in subclasses.
+  // Subclasses use narrower unions (IActionTypes, TDDBMonsterActionType, "spell", ...)
   type: string;
   activityType: IDDBActivityType;
   activityTypes: string[] = [];
@@ -59,7 +58,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   async loadEnricher(): Promise<void> {
     await this.enricher.init();
     await this.enricher.load({
-      ddbParser: this,
+      ddbParser: this as unknown as TDDBParsers,
     });
   }
 

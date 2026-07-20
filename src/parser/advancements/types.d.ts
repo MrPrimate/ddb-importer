@@ -40,7 +40,7 @@ global {
     level: number | string;
   }
 
-  type TAdvancementFeatureDefinitions = TDDBFeatureMixinDefinitions;
+  type TAdvancementFeatureDefinitions = TDDBFeatureMixinDefinitions | IDDBClassDefinitionFeature;
 
   interface ISpellAdvancementGrant {
     level: number;

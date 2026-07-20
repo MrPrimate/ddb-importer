@@ -1115,8 +1115,8 @@ export default class AdvancementHelper {
         : "",
       configuration: {
         allowReplacements: false,
-        hint: parsedConditions.hint,
       },
+      hint: parsedConditions.hint,
       level: level,
     };
     advancement.updateSource(update as any);
@@ -3128,11 +3128,6 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       title: name,
       level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
       configuration: {
-        replacement: {
-          count: null,
-          replacement: false,
-          list: spellListChoice ? [`class:${spellListChoice}`] : [],
-        },
         allowDrops: true,
         pool: uuids.map((s) => {
           return { uuid: s.uuid };
