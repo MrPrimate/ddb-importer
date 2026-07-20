@@ -32,7 +32,7 @@ global {
   // intersect with the action-backed shape for the fields feature parsing reads
   type TDDBFeatureMixinDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition | TDDBActionTypes) & IDDBActionBackedDefinition & IDDBFeatureDefinitionKindFields;
 
-  type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
+  type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBGeneratedBackground;
 
   type TDDBFeatureMixinAll = TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | TDDBActionTypes;
 

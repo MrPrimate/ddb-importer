@@ -609,8 +609,13 @@ export default class CharacterFeatureFactory {
     this.#addGenericAdvancementOrigins(types);
   }
 
-  async getFeaturesFromDefinition(featDefinition: any, type: ICoreSourceTypes, flags = {}) {
-    const source = DDBSources.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
+  async getFeaturesFromDefinition(
+    featDefinition: IDDBRacialTrait | IDDBFeat | IDDBGeneratedBackground | IDDBClassFeatureDefinition,
+    type: ICoreSourceTypes,
+    flags = {},
+  ) {
+    const rawDefinition = "definition" in featDefinition ? featDefinition.definition : featDefinition;
+    const source = DDBSources.parseSource(rawDefinition);
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
