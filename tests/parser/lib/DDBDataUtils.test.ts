@@ -74,29 +74,25 @@ describe("DDBDataUtils.getName", () => {
   });
 
   it("uses custom name from characterValues when present", () => {
-    const ddb = makeDDB({
-      character: {
-        characterValues: [
-          { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
-        ],
-      },
-    });
-    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" },
-      flags: { ddbimporter: { dndbeyond: { id: 42, entityTypeId: 1 }, id: 42, entityTypeId: 1 } } };
-    expect(DDBDataUtils.getName(ddb, item)).toBe("My Custom Sword");
+    const ddb = makeDDB();
+    const character = {
+      flags: { ddbimporter: { dndbeyond: { characterValues: [
+        { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
+      ] } } },
+    };
+    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
+    expect(DDBDataUtils.getName(ddb, item, character)).toBe("My Custom Sword");
   });
 
   it("ignores custom name when allowCustom is false", () => {
-    const ddb = makeDDB({
-      character: {
-        characterValues: [
-          { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
-        ],
-      },
-    });
-    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" },
-      flags: { ddbimporter: { dndbeyond: { id: 42, entityTypeId: 1 }, id: 42, entityTypeId: 1 } } };
-    expect(DDBDataUtils.getName(ddb, item, null, false)).toBe("Longsword");
+    const ddb = makeDDB();
+    const character = {
+      flags: { ddbimporter: { dndbeyond: { characterValues: [
+        { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
+      ] } } },
+    };
+    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
+    expect(DDBDataUtils.getName(ddb, item, character, false)).toBe("Longsword");
   });
 });
 
@@ -120,6 +116,61 @@ describe("DDBDataUtils.isComponentIdInClassFeatures", () => {
 
   it("returns false when classId does not match", () => {
     expect(DDBDataUtils.isComponentIdInClassFeatures(ddb, 100, 999)).toBe(false);
+  });
+});
+
+// =============================================================================
+// findComponentByComponentId
+// =============================================================================
+describe("DDBDataUtils.findComponentByComponentId", () => {
+  const optionScales = [
+    { id: 1, level: 1, description: "", dice: null, fixedValue: 1 },
+    { id: 2, level: 5, description: "", dice: null, fixedValue: 2 },
+    { id: 3, level: 9, description: "", dice: null, fixedValue: 3 },
+  ];
+
+  function makeOptionalDDB() {
+    return makeDDB({
+      classOptions: [
+        { id: 500, classId: 1, name: "Optional Feature", levelScales: optionScales, limitedUse: [] },
+        { id: 501, classId: 1, name: "No Scale Option", levelScales: [], limitedUse: [] },
+      ],
+    });
+  }
+
+  it("returns the real IDDBClassFeature wrapper for a class feature id", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const result: any = DDBDataUtils.findComponentByComponentId(ddb, 100);
+    expect(result?.definition?.id).toBe(100);
+    expect(result?.definition?.name).toBe("Action Surge");
+  });
+
+  it("wraps an optional class feature in a synthetic { definition, levelScale }", () => {
+    const ddb = makeOptionalDDB();
+    const result: any = DDBDataUtils.findComponentByComponentId(ddb, 500);
+    // definition is the classOptions element itself (same reference)
+    expect(result.definition).toBe(ddb.classOptions[0]);
+    // levelScale is the highest scale at/below the owning class level (5)
+    expect(result.levelScale.level).toBe(5);
+    expect(result.levelScale.fixedValue).toBe(2);
+  });
+
+  it("does NOT mutate the shared classOptions element", () => {
+    const ddb = makeOptionalDDB();
+    DDBDataUtils.findComponentByComponentId(ddb, 500);
+    expect("levelScale" in ddb.classOptions[0]).toBe(false);
+  });
+
+  it("returns null levelScale for an optional feature with no scales", () => {
+    const ddb = makeOptionalDDB();
+    const result: any = DDBDataUtils.findComponentByComponentId(ddb, 501);
+    expect(result.definition).toBe(ddb.classOptions[1]);
+    expect(result.levelScale).toBeNull();
+  });
+
+  it("returns undefined for an unknown component id", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    expect(DDBDataUtils.findComponentByComponentId(ddb, 99999)).toBeUndefined();
   });
 });
 
