@@ -57,41 +57,41 @@ function makeDDB(overrides: any = {}): any {
 describe("DDBDataUtils.getName", () => {
   it("returns definition.name", () => {
     const ddb = makeDDB();
-    const item = { definition: { name: "Longsword" } };
+    const item: any = { definition: { name: "Longsword" } };
     expect(DDBDataUtils.getName(ddb, item)).toBe("Longsword");
   });
 
   it("returns item.name when no definition", () => {
     const ddb = makeDDB();
-    const item = { name: "Shield" };
+    const item: any = { name: "Shield" };
     expect(DDBDataUtils.getName(ddb, item)).toBe("Shield");
   });
 
   it("decodes HTML entities via nameString", () => {
     const ddb = makeDDB();
-    const item = { definition: { name: "Fire &amp; Ice" } };
+    const item: any = { definition: { name: "Fire &amp; Ice" } };
     expect(DDBDataUtils.getName(ddb, item)).toBe("Fire & Ice");
   });
 
   it("uses custom name from characterValues when present", () => {
     const ddb = makeDDB();
-    const character = {
+    const character: any = {
       flags: { ddbimporter: { dndbeyond: { characterValues: [
         { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
       ] } } },
     };
-    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
+    const item: any = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
     expect(DDBDataUtils.getName(ddb, item, character)).toBe("My Custom Sword");
   });
 
   it("ignores custom name when allowCustom is false", () => {
     const ddb = makeDDB();
-    const character = {
+    const character: any = {
       flags: { ddbimporter: { dndbeyond: { characterValues: [
         { valueId: 42, valueTypeId: 1, typeId: 8, value: "My Custom Sword" },
       ] } } },
     };
-    const item = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
+    const item: any = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
     expect(DDBDataUtils.getName(ddb, item, character, false)).toBe("Longsword");
   });
 });
@@ -123,7 +123,7 @@ describe("DDBDataUtils.isComponentIdInClassFeatures", () => {
 // findComponentByComponentId
 // =============================================================================
 describe("DDBDataUtils.findComponentByComponentId", () => {
-  const optionScales = [
+  const optionScales: any[] = [
     { id: 1, level: 1, description: "", dice: null, fixedValue: 1 },
     { id: 2, level: 5, description: "", dice: null, fixedValue: 2 },
     { id: 3, level: 9, description: "", dice: null, fixedValue: 3 },
@@ -377,7 +377,7 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
         },
       },
     };
-    const item = { id: 42, entityTypeId: 1 };
+    const item: any = { id: 42, entityTypeId: 1 };
     expect(DDBDataUtils.getCustomValueFromCharacter(item, character as any, 8)).toBe("Custom Name");
     expect(DDBDataUtils.getCustomValueFromCharacter(item, character as any, 12)).toBe("+2");
   });
@@ -386,11 +386,11 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
     const character = {
       flags: { ddbimporter: { dndbeyond: { characterValues: [] as any[] } } },
     };
-    const item = { id: 42, entityTypeId: 1 };
+    const item: any = { id: 42, entityTypeId: 1 };
     expect(DDBDataUtils.getCustomValueFromCharacter(item, character as any, 8)).toBeNull();
   });
 
   it("returns null when character is null", () => {
-    expect(DDBDataUtils.getCustomValueFromCharacter({}, null, 8)).toBeNull();
+    expect(DDBDataUtils.getCustomValueFromCharacter({} as any, null, 8)).toBeNull();
   });
 });
