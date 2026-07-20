@@ -61,33 +61,34 @@ DDBCharacter.prototype._generateAlignment = function _generateAlignment(this: DD
   if (alignment) this.raw.character.system.details.alignment = alignment.name;
 };
 
-function getBackgroundTemplate() {
+function getBackgroundTemplate(): IDDBGeneratedBackground {
   return {
     name: "Background",
     description: "",
-    id: null,
-    entityTypeId: null,
-    featuresId: null,
-    featuresEntityTypeId: null,
-    characteristicsId: null,
-    characteristicsEntityTypeId: null,
+    id: null as any as any,
+    entityTypeId: null as any as any,
+    featuresId: null as any as any,
+    featuresEntityTypeId: null as any as any,
+    characteristicsId: null as any as any,
+    characteristicsEntityTypeId: null as any as any,
     definition: {
       name: "Background",
       description: "",
-      originalDescription: null,
-      id: null,
-      entityTypeId: null,
-      sources: null,
+      originalDescription: null as any as any,
+      id: null as any as any,
+      entityTypeId: null as any as any,
+      sources: null as any as any,
     },
   };
 }
 
-export function generateBackground(bg) {
+export function generateBackground(bg: IDDBBackgroundInput): IDDBGeneratedBackground {
   const result = getBackgroundTemplate();
 
   // console.warn(bg)
-  if (bg.definition) result.definition = bg.definition;
-  else result.definition = bg;
+  // bg is a leaf definition/custom-background, never a wrapper: the source object
+  // is mutated into the generated definition on the lines that follow.
+  result.definition = bg as IDDBGeneratedBackgroundDefinition;
 
   result.definition.originalDescription = bg.description;
 
@@ -148,11 +149,11 @@ export function generateBackground(bg) {
   return result;
 }
 
-DDBCharacter.prototype.getBackgroundData = function getBackgroundData(this: DDBCharacter) {
+DDBCharacter.prototype.getBackgroundData = function getBackgroundData(this: DDBCharacter): IDDBGeneratedBackground {
   let bg;
   if (this.source.ddb.character.background.hasCustomBackground === true) {
     bg = this.source.ddb.character.background.customBackground;
-    bg.isHomebrew = true;
+    foundry.utils.setProperty(bg, "isHomebrew", true);
   } else if (this.source.ddb.character.background.definition !== null) {
     bg = this.source.ddb.character.background.definition;
   } else {

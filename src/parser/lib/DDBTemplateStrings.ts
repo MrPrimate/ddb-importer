@@ -47,10 +47,10 @@ function evaluateMath(obj: string): number {
  * @param {IDDBData} ddb The DDB data object.
  * @param {I5ePCData} _character The character data object.
  * @param {string} match The match string containing template values.
- * @param {TFeatures | TDefinitions | TActions} feature The feature object associated with the match.
+ * @param {TFeatures | TDefinitions | TDDBActionTypes} feature The feature object associated with the match.
  * @returns {IDDBTemplateStringDisplayString} An object containing the parsed string and link text.
  */
-function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringDisplayString {
+function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: TFeatures | TDefinitions | TDDBActionTypes): IDDBTemplateStringDisplayString {
   const featureDef = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
@@ -428,8 +428,6 @@ type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDD
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
 
-type TActions = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction;
-
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
@@ -439,7 +437,7 @@ type TActions = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction;
  * @param {TFeatures | TDefinitions} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringResult | undefined {
+export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TDDBActionTypes): IDDBTemplateStringResult | undefined {
   if (!text) return;
   const featureDefinition = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
 

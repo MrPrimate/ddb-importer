@@ -11,7 +11,7 @@ interface IDDBDataUtilsLimitedUses {
   scaleValue?: string | null;
 }
 
-type TNameTypes = IDDBAction | IDDBConfigNaturalAction | IDDBCustomAction | TDDBFeatureMixinDefinitions | IDDBInventoryItem;
+type TNameTypes = TDDBActionTypes | TDDBFeatureMixinDefinitions | IDDBInventoryItem;
 
 export default class DDBDataUtils {
 

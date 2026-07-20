@@ -34,7 +34,7 @@ global {
 
   type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
-  type TDDBFeatureMixinAll = TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions;
+  type TDDBFeatureMixinAll = TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | TDDBActionTypes;
 
   type TDDBFeatureMixinEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 

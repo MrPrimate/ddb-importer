@@ -179,7 +179,7 @@ interface DDBCharacter {
   getCharacteristics(): any;
   _generateAppearance(): void;
   _generateAlignment(): void;
-  getBackgroundData(): any;
+  getBackgroundData(): IDDBGeneratedBackground;
   _generateBiography(): void;
   _generateDescription(): void;
   // size.ts
@@ -260,7 +260,7 @@ class DDBCharacter {
   _itemCurrency: I5eCurrency;
   itemCompendium: CompendiumCollection.Any;
   spellCompendium: CompendiumCollection.Any;
-  possibleFeatures: Item.Implementation[];
+  possibleFeatures: TImporterItem[];
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;
@@ -270,7 +270,7 @@ class DDBCharacter {
   _classParser: CharacterClassFactory;
   _ddbRace: DDBRace;
   data: IDDBCharacterDataStub;
-  matchedFeatures: Item.Implementation[];
+  matchedFeatures: TImporterItem[];
   resources: I5ePCResources;
   spellSlots: I5eSpellSlots;
   armor: IDDBCharacterArmor;

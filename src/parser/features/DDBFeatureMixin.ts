@@ -36,7 +36,7 @@ type TDocumentType = Extract<TFeatureType, "background" | "feat"> | "weapon";
 
 interface IDDBFeatureMixin {
   ddbData: IDDBData;
-  ddbDefinition: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
+  ddbDefinition: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | TDDBActionTypes;
   type: IActionTypes;
   source?: IDDBSourceResponse | string | null;
   documentType?: TDocumentType;

@@ -12,7 +12,7 @@ export default class DDBAction extends DDBFeatureMixin {
   static SKIPPED_2024_ONLY_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_2024_ONLY_ACTIONS;
   static HIGHEST_LEVEL_ONLY_ACTION_MATCH = DICTIONARY.parsing.actions.HIGHEST_LEVEL_ONLY_ACTION_MATCH;
 
-  declare ddbFeature: IDDBAction | IDDBConfigNaturalAction;
+  declare ddbFeature: TDDBActionTypes;
   declare ddbDefinition: TDDBActionTypes & IDDBActionBackedDefinition;
 
   _init() {

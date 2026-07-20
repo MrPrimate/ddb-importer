@@ -125,9 +125,9 @@ export default class CharacterFeatureFactory {
     };
   }
 
-  static isDuplicateFeature(items, item, { matchClass = false } = {}) {
+  static isDuplicateFeature(items: T5eFeatureMixinDataTypes[], item: T5eFeatureMixinDataTypes, { matchClass = false } = {}) {
     const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
-    return items.some((dup) => {
+    return items.some((dup: any) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
         && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
@@ -137,9 +137,9 @@ export default class CharacterFeatureFactory {
     });
   }
 
-  static getNameMatchedFeature(items, item, { matchClass = false } = {}) {
+  static getNameMatchedFeature(items: T5eFeatureMixinDataTypes[], item: T5eFeatureMixinDataTypes, { matchClass = false } = {}) {
     const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
-    return items.find((dup) => {
+    return items.find((dup: any) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
         && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
@@ -201,7 +201,7 @@ export default class CharacterFeatureFactory {
     return customActions;
   }
 
-  async getUnarmedStrike(overrides = {}) {
+  async getUnarmedStrike(overrides: Partial<IDDBConfigNaturalAction> = {}) {
     const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
@@ -243,14 +243,14 @@ export default class CharacterFeatureFactory {
 
   }
 
-  async _generateUnarmedStrikeAction(overrides = {}) {
+  async _generateUnarmedStrikeAction(overrides: Partial<IDDBConfigNaturalAction> = {}) {
     const action = await this.getUnarmedStrike(overrides);
     if (action) {
       this.parsed.actions.push(action);
     }
   }
 
-  static DDB_TYPE_ENRICHERS = {
+  static DDB_TYPE_ENRICHERS: Record<string, new (...args: any[]) => TDDBEnricher> = {
     "class": DDBClassFeatureEnricher,
     "race": DDBSpeciesTraitEnricher,
     "feat": DDBFeatEnricher,
@@ -291,14 +291,16 @@ export default class CharacterFeatureFactory {
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
-        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource ?? "other"];
+        const enricherType = "actionSource" in action && action.actionSource ? action.actionSource : "other";
+        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[enricherType];
         const enricher = new enricherClass({
           activityGenerator: DDBFeatureActivity,
         });
         await enricher.init();
+        const featureType = "actionSource" in action && action.actionSource ? action.actionSource : "class";
         const feature = await this.getFeatureFromAction({
           action,
-          type: action.actionSource,
+          type: featureType,
           enricher,
           isAttack: true,
         });
@@ -319,22 +321,24 @@ export default class CharacterFeatureFactory {
     // return attacksAsFeatures && exists;
   }
 
-  _highestLevelActionFeature(action, type) {
-    const feature = this.ddbData.character.actions[type]
+  _highestLevelActionFeature(action: IDDBAction, type: ICoreSourceTypes): IDDBClassFeature | null {
+    const feature: IDDBClassFeature = this.ddbData.character.actions[type]
       .filter((a) => a.name === action.name)
-      .reduce((prev, cur) => {
+      .reduce((prev: IDDBClassFeature, cur: IDDBAction) => {
         const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, cur.componentId);
         if (!klass) return prev;
         const feature = klass.classFeatures.find((f) => f.definition.id === cur.componentId);
         if (!feature) return prev;
         if (feature.definition.requiredLevel > klass.level) return prev;
         return prev.definition.requiredLevel > feature.definition.requiredLevel ? prev : feature;
-      }, { componentId: null, definition: { requiredLevel: 0 } });
+      }, { componentId: null, definition: { requiredLevel: 0 } } as unknown as IDDBClassFeature);
 
     return feature;
   }
 
-  isAction2014(action) {
+  isAction2014(action: TDDBActionTypes) {
+    // treat custom actions as 2024, since they are not in the DDB data and we don't have a source to check against
+    if (!("componentId" in action) || !action.componentId) return false;
     const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId);
     return klass.definition.sources.every((s) => DDBSources.is2014Source(s));
   }
@@ -351,7 +355,7 @@ export default class CharacterFeatureFactory {
       return t;
     });
 
-    const actionsToBuild = [
+    const actionsToBuild: TDDBActionTypes[] = [
       classActions,
       this.ddbData.character.actions.race.map((t) => {
         t.actionSource = "race";
@@ -392,15 +396,17 @@ export default class CharacterFeatureFactory {
       .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource ?? "other"];
+        const enricherType = "actionSource" in action && action.actionSource ? action.actionSource : "other";
+        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[enricherType];
         const enricher = new enricherClass({
           activityGenerator: DDBFeatureActivity,
         });
         await enricher.init();
 
+        const featureType = "actionSource" in action && action.actionSource ? action.actionSource : "class";
         const feature = await this.getFeatureFromAction({
           action,
-          type: action.actionSource,
+          type: featureType,
           enricher,
           isAttack: false,
         });
@@ -453,7 +459,7 @@ export default class CharacterFeatureFactory {
     this.updateIds("actions");
   }
 
-  updateIds(type) {
+  updateIds(type: keyof CharacterFeatureFactory["processed"]) {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
@@ -475,7 +481,7 @@ export default class CharacterFeatureFactory {
       return;
     }
 
-    const added = {};
+    const added: Record<string, string> = {};
     for (const [advancementFeatureName, uuid] of Object.entries(dataLink.features)) {
       logger.debug(`Advancement ${advancement._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
         advancement,
@@ -518,7 +524,7 @@ export default class CharacterFeatureFactory {
       return;
     }
 
-    const added = {};
+    const added: Record<string, string> = {};
     for (const [advancementFeatureName, uuid] of Object.entries(dataLink.features)) {
       const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName);
       if (characterFeature) {
@@ -545,7 +551,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  #addGenericAdvancementOrigins(types = ["actions", "features"]) {
+  #addGenericAdvancementOrigins(types: (keyof CharacterFeatureFactory["processed"])[] = ["actions", "features"]) {
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
 
@@ -574,7 +580,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  linkFeatures(types = ["actions", "features"]) {
+  linkFeatures(types: (keyof CharacterFeatureFactory["processed"])[] = ["actions", "features"]) {
     logger.debug("Linking Feature Factory Advancements to Features", {
       CharacterFeatureFactory: this,
       types,
@@ -603,7 +609,7 @@ export default class CharacterFeatureFactory {
     this.#addGenericAdvancementOrigins(types);
   }
 
-  async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
+  async getFeaturesFromDefinition(featDefinition: any, type: ICoreSourceTypes, flags = {}) {
     const source = DDBSources.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
@@ -650,7 +656,7 @@ export default class CharacterFeatureFactory {
     return results;
   }
 
-  fixAcEffects(type = "features") {
+  fixAcEffects(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     for (const feature of this.parsed[type]) {
       logger.debug(`Checking ${feature.name} for AC effects`);
       for (const effect of (feature.effects ?? [])) {
@@ -677,7 +683,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  async _buildRacialTraits(type = "features") {
+  async _buildRacialTraits(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     logger.debug("Parsing racial traits");
     const traits = this.ddbData.character.race.racialTraits
       .filter(
@@ -726,7 +732,7 @@ export default class CharacterFeatureFactory {
     };
   }
 
-  async _addFeats(type = "features") {
+  async _addFeats(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     // add feats
     logger.debug("Parsing feats");
     const validFeats = this.ddbData.character.feats.filter((feat) =>
@@ -742,7 +748,7 @@ export default class CharacterFeatureFactory {
       for (const [key, choices] of Object.entries(this.ddbData.character.choices)) {
         if (!choices) continue;
         if (!["feat", "background", "class", "item", "race"].includes(key)) continue;
-        const match = choices.some((choice) =>
+        const match = choices.some((choice: IDDBChoiceEntry) =>
           choice.componentId === feat.componentId
           && choice.componentTypeId === feat.componentTypeId
           && choice.optionValue === feat.definition.id,
@@ -752,7 +758,7 @@ export default class CharacterFeatureFactory {
 
       if (feat.definition.categories.some((c) => ["__DISPLAY_WITH_DATA_ORIGIN", "__DISGUISE_FEAT"].includes(c.tagName))) {
         const classOptions = this.getValidOptionalClassFeatures({ requireLevel: true });
-        const grantedFeat = classOptions.some((co) => co.grantedFeats.some((gf) => gf.featIds.some((id) => id === feat.definition.id)));
+        const grantedFeat = classOptions.some((co) => co.grantedFeats.some((gf: any) => gf.featIds.some((id: any) => id === feat.definition.id)));
         return grantedFeat;
       }
 
@@ -767,11 +773,11 @@ export default class CharacterFeatureFactory {
     };
   }
 
-  async _addBackground(type = "features") {
+  async _addBackground(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     logger.debug("Parsing background");
     const backgroundFeature = this.ddbCharacter.getBackgroundData();
     const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature, "background");
-    (this.parsed as Record<string, any>)[type].push(...backgroundFeats);
+    this.parsed[type].push(...backgroundFeats);
   }
 
   getValidOptionalClassFeatures({ requireLevel = true } = {}) {
@@ -790,7 +796,10 @@ export default class CharacterFeatureFactory {
       });
   }
 
-  async _buildOptionalClassFeatures({ type = "features", requireLevel = true } = {}) {
+  async _buildOptionalClassFeatures({ type = "features", requireLevel = true }: {
+    type?: keyof CharacterFeatureFactory["parsed"];
+    requireLevel?: boolean;
+  } = {}) {
     // optional class features
     logger.debug("Parsing optional class features");
     if (this.ddbData.classOptions) {
@@ -814,7 +823,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  _setLevelScales(type = "features") {
+  _setLevelScales(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     for (const feature of this.parsed[type] as (T5eFeatureMixinDataTypes)[]) {
       if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) continue;
 
@@ -917,7 +926,7 @@ export default class CharacterFeatureFactory {
   async getFeatureFromAction({
     action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null, usesOnActivity = undefined,
   }: {
-    action: IDDBAction | IDDBConfigNaturalAction;
+    action: TDDBActionTypes;
     type?: IActionTypes | null;
     isAttack?: boolean | null;
     manager?: DDBSummonsManager | null;
@@ -926,13 +935,14 @@ export default class CharacterFeatureFactory {
     usesOnActivity?: boolean | undefined;
   }) {
     const isAttackAction = isAttack ?? DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
+    const fallbackActionSource = "actionSource" in action && action.actionSource ? action.actionSource : "class";
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
         ddbCharacter: this.ddbCharacter,
         ddbData: this.ddbData,
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
-        type: type ?? action.actionSource,
+        type: type ?? fallbackActionSource,
         extraFlags,
         enricher,
         usesOnActivity,
@@ -942,7 +952,7 @@ export default class CharacterFeatureFactory {
         ddbData: this.ddbData,
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
-        type: type ?? action.actionSource,
+        type: type ?? fallbackActionSource,
         extraFlags,
         enricher,
         usesOnActivity,
