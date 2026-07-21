@@ -1,11 +1,12 @@
 import { SETTINGS } from "../../config/_module";
 import { CompendiumHelper, FolderHelper, utils } from "../../lib/_module";
+import type { CompendiumCreationOptions } from "../../lib/_module";
 
 
-export async function createDDBCompendium(compendiumSetting): Promise<string> {
+export async function createDDBCompendium(compendiumSetting: ICompendiumSetting): Promise<string> {
   const compendiumName = utils.getSetting<string>(compendiumSetting.setting);
   const createCompendiumBanner = utils.getSetting<boolean>("ddb-compendium-banner");
-  const compendiumData = {
+  const compendiumData: CompendiumCreationOptions = {
     id: compendiumName,
     type: compendiumSetting.type,
     label: `DDB ${compendiumSetting.title}`,
@@ -26,7 +27,7 @@ export async function createDDBCompendium(compendiumSetting): Promise<string> {
   const result = await CompendiumHelper.createIfNotExists(compendiumData);
 
   if (result.created) {
-    await game.settings.set(SETTINGS.MODULE_ID, compendiumSetting.setting, result.compendium.metadata.id);
+    await utils.setSetting(compendiumSetting.setting, result.compendium.metadata.id);
   } else if (result.compendium?.folder === null && createCompendiumFolder && compendiumFolder) {
     await result.compendium.setFolder(compendiumFolder._id);
   }

@@ -1,5 +1,4 @@
-
-export const COMPENDIUMS = [
+export const COMPENDIUMS: ICompendiumSetting[] = [
   {
     title: "Backgrounds",
     setting: "entity-background-compendium",

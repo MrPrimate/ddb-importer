@@ -87,7 +87,7 @@ export default class MacroActivity extends BaseMacroActivity {
       macroParts,
     });
 
-    await DDBSimpleMacro.execute(macroParts[1] as DDBMacroType, macroParts[2], context, ids, scope);
+    await DDBSimpleMacro.execute(macroParts[1] as TDDBMacroType, macroParts[2], context, ids, scope);
 
   }
 

@@ -6,8 +6,8 @@ import { logger, DDBSimpleMacro } from "../../lib/_module";
  * @param {string} match  Matched configuration string.
  * @returns {object}
  */
-function parseConfig(match) {
-  const config = { _config: match, values: [] };
+function parseConfig(match: string) {
+  const config: Record<string, any> = { _config: match, values: [] as string[] };
   for (const part of match.match(/(?:[^\s"]+|"[^"]*")+/g)) {
     if (!part) continue;
     const [key, value] = part.split("=");
@@ -26,7 +26,7 @@ function parseConfig(match) {
  * @param {object} dataset       Data properties to add.
  * @private
  */
-function _addDataset(element, dataset) {
+function _addDataset(element: HTMLElement, dataset: Record<string, any>) {
   for (const [key, value] of Object.entries(dataset)) {
     if (!key.startsWith("_") && (key !== "values") && value) element.dataset[key] = value;
   }
@@ -40,7 +40,7 @@ function _addDataset(element, dataset) {
  * @param {object} dataset  Data that will be added to the link for the rolling method.
  * @returns {HTMLElement}
  */
-function createFunctionLink(label, dataset) {
+function createFunctionLink(label: string, dataset: Record<string, any>) {
   const span = document.createElement("span");
   span.classList.add("roll-link");
   _addDataset(span, dataset);
@@ -55,7 +55,7 @@ function createFunctionLink(label, dataset) {
 }
 
 
-async function enrichFunction(config, label, options) {
+async function enrichFunction(config: Record<string, any>, label: string, options: Record<string, any>) {
   // console.warn("ENRICHER DEGUG", {
   //   config,
   //   label,
@@ -99,7 +99,7 @@ async function enrichFunction(config, label, options) {
   }
 
   if (foundItem) {
-    if (!label) label = foundItem.name;
+    if (!label) label = foundry.utils.getProperty(foundItem, "name") as string;
     dataset.rollItemUuid = foundItem.uuid;
     return createFunctionLink(label, dataset);
   }
@@ -124,10 +124,9 @@ async function enrichFunction(config, label, options) {
  * @returns {Promise<HTMLElement|null>}  An HTML element to insert in place of the matched text or null to
  *                                       indicate that no replacement should be made.
  */
-async function macroEnricher(match, options) {
-  // eslint-disable-next-line prefer-const
-  let { type, config, label } = match.groups;
-  config = parseConfig(config);
+async function macroEnricher(match: RegExpMatchArray, options: Record<string, any>) {
+  const { type, label } = match.groups as Record<string, string>;
+  const config = parseConfig((match.groups as Record<string, string>).config);
   config._input = match[0];
   switch (type.toLowerCase()) {
     case "dbbfunc":
@@ -145,7 +144,7 @@ async function macroEnricher(match, options) {
  * @param {Event} event  The click event triggering the action.
  * @returns {Promise}
  */
-async function runFunction(event) {
+async function runFunction(event: any) {
   const target = event.target.closest(".roll-link, [data-action=\"rollRequest\"], [data-action=\"concentration\"]");
   if (!target) return;
   event.stopPropagation();
@@ -164,7 +163,7 @@ async function runFunction(event) {
 
   try {
     const ids = {
-      effect: null,
+      effect: null as string | null,
       actor: rollItemActor,
       token: actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
       item: rollItemUuid,

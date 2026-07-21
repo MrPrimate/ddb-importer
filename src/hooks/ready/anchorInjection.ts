@@ -36,7 +36,7 @@ function getSlug(doc: NoteDocument) {
       ?? "";
 }
 
-function updateNotePage(noteConfig, slug: string) {
+function updateNotePage(noteConfig: any, slug: string) {
   const journalId = noteConfig.form.elements.entryId?.value;
   const pageId = noteConfig.form.elements.pageId?.value;
   const journal = game.journal.get(journalId);
@@ -71,7 +71,7 @@ export function anchorInjection() {
         noteConfig.setPosition(pos);
       }
     }
-    noteConfig.element[0].style.height = "auto";
+    (noteConfig.element as any)[0].style.height = "auto";
     const isExistingNote = noteConfig.document.id !== null;
 
     const entryIdSelect = form.querySelector("select[name='entryId']");

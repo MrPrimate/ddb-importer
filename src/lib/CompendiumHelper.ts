@@ -5,6 +5,18 @@ import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
+export interface ICompendiumCreationOptions {
+  label?: string;
+  type?: string;
+  id?: string;
+  packageType?: string;
+  folderId?: string | null;
+  dnd5eTypeTags?: string[];
+  version?: number | null;
+  image?: string | null;
+  title?: string;
+}
+
 // a mapping of compendiums with content type
 export const COMPENDIUM_LOOKUP = [
   { type: "adventure", compendium: "entity-adventure-compendium" },
@@ -218,17 +230,7 @@ const CompendiumHelper = {
     version = null,
     image = null,
     title,
-  }: {
-    label?: string;
-    type?: string;
-    id?: string;
-    packageType?: string;
-    folderId?: string | null;
-    dnd5eTypeTags?: string[];
-    version?: number | null;
-    image?: string | null;
-    title?: string;
-  }) => {
+  }: ICompendiumCreationOptions) => {
     if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     const compendium = (await game.packs.get(id)) ?? game.packs.find((p) => p.metadata.label === label);

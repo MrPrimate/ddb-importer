@@ -69,7 +69,7 @@ export default async () => {
       const text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
-      (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(text, null);
+      (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(text as unknown as string, null);
     }
   } catch (error) {
     logger.warn(error);

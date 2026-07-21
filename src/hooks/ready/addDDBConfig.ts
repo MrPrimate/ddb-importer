@@ -3,22 +3,36 @@ import { DDBSources, utils } from "../../lib/_module";
 import { DDBRuleJournalFactory } from "../../parser/lib/_module";
 import SpellListFactory from "../../parser/spells/SpellListFactory";
 
+type LanguageConfigNode = string | LanguageConfigCategory;
+
+interface LanguageConfigCategory {
+  label?: string;
+  selectable?: boolean;
+  children?: Record<string, LanguageConfigNode>;
+}
+
+interface LanguageGroup {
+  label?: string;
+  children: unknown[];
+}
+
 function filterLanguages(languages: IDDBConfigLanguage[]): { name: string; value: string }[] {
   const result = new Set<{ name: string; value: string }>();
 
-  const systemLanguageValues = new Set();
+  const systemLanguageValues = new Set<string>();
 
-  const processCategory = (key, data, group = null) => {
+  const processCategory = (key: string, data: LanguageConfigNode, group: LanguageGroup | null = null) => {
 
-    if (!data.children) {
+    if (typeof data === "string" || !data.children) {
       systemLanguageValues.add(key);
+      return;
     }
 
-    if (data.children && (data.selectable !== false)) {
+    if (data.selectable !== false) {
       systemLanguageValues.add(key);
       group ??= { label: data.label, children: [] };
       Object.entries(data.children).forEach(([k, d]) => processCategory(k, d, group));
-    } else if (data.children) {
+    } else {
       Object.entries(data.children).forEach(([k, d]) => processCategory(k, d));
     }
   };
