@@ -8,7 +8,7 @@ import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
-const TYPE_MAP = {
+const TYPE_MAP: Record<string, string> = {
   items: "items",
   weapons: "items",
   weapon: "items",
@@ -47,7 +47,7 @@ const TYPE_MAP = {
   null: "null",
 };
 
-const FILE_MAP = {
+const FILE_MAP: Record<string, string[]> = {
   null: [],
   character: [],
   npc: [],
@@ -71,7 +71,7 @@ function sanitiseName(name: string): string {
   return utils.nameString(name).toLowerCase();
 }
 
-async function loadDataFile(fileName: string) {
+async function loadDataFile(fileName: string): Promise<IIconizerMapEntry[]> {
   logger.debug(`Getting icon mapping for ${fileName}`);
   const fileExists = await FileHelper.fileExists("[data] modules/ddb-importer/data", fileName);
 
@@ -81,7 +81,7 @@ async function loadDataFile(fileName: string) {
   }
 
   const data = await foundry.utils.fetchJsonWithTimeout(url);
-  return data;
+  return data as IIconizerMapEntry[];
 }
 
 async function loadIconMap(type: string) {
@@ -89,9 +89,9 @@ async function loadIconMap(type: string) {
   if (CONFIG.DDBI.ICONS[type]) return;
 
   logger.debug(`Loading Inbuilt Icon Map for ${type}`);
-  let data = [];
+  let data: IIconizerMapEntry[] = [];
   for (const fileName of FILE_MAP[type]) {
-    const dataLoad = await loadDataFile(fileName);
+    const dataLoad: IIconizerMapEntry[] = await loadDataFile(fileName);
     data = data.concat(dataLoad);
   }
 
@@ -171,7 +171,7 @@ function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName?:
 
 
 async function loadIconMaps(types: string[]) {
-  const promises = [];
+  const promises: Promise<any>[] = [];
 
   const mapTypes = types
     .filter((type) => TYPE_MAP[type as keyof typeof TYPE_MAP])
@@ -183,10 +183,10 @@ async function loadIconMaps(types: string[]) {
     promises.push(loadIconMap(type));
   });
 
-  return Promise.all(promises);
+  await Promise.all(promises);
 }
 
-const STUBS = {
+const STUBS: Record<number, string> = {
   1: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
   viewBox="0 0 512 512" width="512" height="512">
     <g>
@@ -221,11 +221,11 @@ const STUBS = {
   </svg>`,
 };
 
-function unPad(_match, p1) {
+function unPad(_match: string, p1: string) {
   if (isNaN(parseInt(p1))) {
     return p1;
   } else {
-    return parseInt(p1);
+    return String(parseInt(p1));
   }
 }
 
@@ -413,29 +413,29 @@ export default class Iconizer {
     });
   }
 
-  static async getSRDIconMatch(type: string, version: "2014" | "2024" = "2014"): Promise<IIconMapEntry[]> {
+  static async getSRDIconMatch(type: string, version: T5eRulesVersion = "2014"): Promise<ICompendiumIconMapEntry[]> {
     const compendiumName = SETTINGS.SRD_COMPENDIUMS[version].find((c) => c.type == type).name;
     const srdPack = CompendiumHelper.getCompendium(compendiumName, false);
     if (!srdPack) return [];
     const index = await srdPack.getIndex({ fields: ICON_MAP_INDICIES });
-    return index as unknown as IIconMapEntry[];
+    return index as unknown as ICompendiumIconMapEntry[];
   }
 
-  static async getOfficialIconMatch(type: string): Promise<IIconMapEntry[]> {
-    const indexes: IIconMapEntry[] = [];
+  static async getOfficialIconMatch(type: string): Promise<ICompendiumIconMapEntry[]> {
+    const indexes: ICompendiumIconMapEntry[] = [];
     for (const bookKey of Object.keys(SETTINGS.FOUNDRY_COMPENDIUMS)) {
       const compendiumName = SETTINGS.FOUNDRY_COMPENDIUMS[bookKey].find((c) => c.type == type)?.name;
       if (!compendiumName) continue;
       const officialPack = CompendiumHelper.getCompendium(compendiumName, false);
       if (!officialPack) continue;
       const index = await officialPack.getIndex({ fields: ICON_MAP_INDICIES });
-      indexes.push(...(index as unknown as IIconMapEntry[]));
+      indexes.push(...(index as unknown as ICompendiumIconMapEntry[]));
     }
 
-    return Array.from(new Set(indexes)) as unknown as IIconMapEntry[];
+    return Array.from(new Set(indexes)) as unknown as ICompendiumIconMapEntry[];
   }
 
-  static async getSRDImageLibrary(version: "2014" | "2024" = "2014"): Promise<IIconMapEntry[]> {
+  static async getSRDImageLibrary(version: T5eRulesVersion = "2014"): Promise<ICompendiumIconMapEntry[]> {
     const mapLoaded = foundry.utils.getProperty(CONFIG.DDBI, `SRD_LOAD.mapLoaded.${version}`) as boolean;
     if (mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap[version];
     const officialFeatureItems = await Iconizer.getOfficialIconMatch("features");
@@ -469,11 +469,11 @@ export default class Iconizer {
     return CONFIG.DDBI.SRD_LOAD.iconMap[version];
   }
 
-  async _copySRDIcons(srdImageLibrary = null, nameMatchList = []) {
+  async _copySRDIcons(srdImageLibrary: ICompendiumIconMapEntry[] | null = null, nameMatchList: Record<string, any>[] = []) {
     this.documents = await Iconizer.copySRDIcons(this.documents, srdImageLibrary, nameMatchList);
   }
 
-  static async copySRDIcons(items: TDDBItemImporterDocument[], srdImageLibrary = null, nameMatchList = []) {
+  static async copySRDIcons(items: TDDBItemImporterDocument[], srdImageLibrary: ICompendiumIconMapEntry[] | null = null, nameMatchList: Record<string, any>[] = []) {
     let srdImageLibrary2014 = null;
     if (!srdImageLibrary) srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
     let srdImageLibrary2024 = null;
@@ -519,8 +519,8 @@ export default class Iconizer {
       const itemImage = {
         name: item.name,
         type: item.type,
-        img: null,
-        large: null,
+        img: null as string | null,
+        large: null as string | null,
       };
 
       const rules = foundry.utils.getProperty(item, "system.source.rules") as string ?? "2024";

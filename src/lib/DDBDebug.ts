@@ -52,7 +52,7 @@ export default class DDBDebug {
     exclusionString: string;
   };
 
-  actor: Actor.Implementation | null | undefined;
+  actor: TImporterActor | null | undefined;
 
   secrets: IDDBDebugSecrets | null;
 
@@ -110,7 +110,7 @@ export default class DDBDebug {
     ];
 
     const defs = new Map();
-    return (k, v) => {
+    return (k: unknown, v: unknown) => {
       if (k && v == obj) return "[" + k + " is the same as original object]";
       if (v === undefined) return undefined;
       if (v === null) return null;
@@ -128,7 +128,7 @@ export default class DDBDebug {
     };
   }
 
-  constructor({ actor, extra = {} }: { actor?: Actor.Implementation | null; extra?: Record<string, unknown> } = {}) {
+  constructor({ actor, extra = {} }: { actor?: TImporterActor | null; extra?: Record<string, unknown> } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
     this.monsterTypes = MuncherSettings.getMonsterTypeLookups();
@@ -177,9 +177,10 @@ export default class DDBDebug {
     const types = ["character", "muncher", "encounter"];
 
     for (const type of types) {
-      for (const [key, setting] of Object.entries(this.muncherSettings[type])) {
+      const typeSettings = foundry.utils.getProperty(this.muncherSettings, type) as Record<string, any>;
+      for (const [key, setting] of Object.entries(typeSettings)) {
         if (!utils.isArray(setting)) continue;
-        this.muncherSettings[type][key] = setting.map((s) => {
+        typeSettings[key] = setting.map((s: Record<string, any>) => {
           delete s.hint;
           return s;
         });
@@ -237,7 +238,7 @@ export default class DDBDebug {
     }
   }
 
-  static async generateDebug({ actor, extra }: { actor?: Actor.Implementation | null; extra?: Record<string, unknown> } = {}) {
+  static async generateDebug({ actor, extra }: { actor?: TImporterActor | null; extra?: Record<string, unknown> } = {}) {
     const debug = new DDBDebug({ actor, extra });
     await debug.fetch();
     return debug.data;

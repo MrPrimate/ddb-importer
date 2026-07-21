@@ -39,7 +39,7 @@ export class FileHelper {
     a.click();
   }
 
-  static addFileToKnown(parsedDir, file) {
+  static addFileToKnown(parsedDir: ParsedDirectory, file: string) {
     if (!file) return;
     CONFIG.DDBI.KNOWN.FILES.add(file);
     const split = file.split(parsedDir.current);
@@ -50,21 +50,21 @@ export class FileHelper {
     }
   }
 
-  static fileExistsUpdate(parsedDir, fileList) {
-    const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
+  static fileExistsUpdate(parsedDir: ParsedDirectory, fileList: string[]) {
+    const targetFiles = fileList.filter((f: string) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
       FileHelper.addFileToKnown(parsedDir, file);
     }
   }
 
-  static dirExistsUpdate(dirList) {
-    const targetFiles = dirList.filter((f) => !CONFIG.DDBI.KNOWN.DIRS.has(f));
+  static dirExistsUpdate(dirList: string[]) {
+    const targetFiles = dirList.filter((f: string) => !CONFIG.DDBI.KNOWN.DIRS.has(f));
     for (const file of targetFiles) {
       CONFIG.DDBI.KNOWN.DIRS.add(file);
     }
   }
 
-  static async doesDirExist(directoryPath) {
+  static async doesDirExist(directoryPath: string) {
     const dir = FileHelper.parseDirectory(directoryPath);
     try {
       await FPClass.browse(dir.activeSource, dir.current, {
@@ -76,7 +76,7 @@ export class FileHelper {
     }
   }
 
-  static async generateCurrentFilesFromParsedDir(parsedDir, verbose = true) {
+  static async generateCurrentFilesFromParsedDir(parsedDir: ParsedDirectory, verbose = true) {
     if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
       logger.debug(`Skipping full dir scan for ${parsedDir.fullPath}...`);
       return;
@@ -148,7 +148,7 @@ export class FileHelper {
     return filePresent;
   }
 
-  static async convertImageToWebp(file, filename): Promise<BlobPart> {
+  static async convertImageToWebp(file: File | Blob, filename: string): Promise<BlobPart> {
     logger.info(`Converting file ${filename} to webp`);
 
     const timeoutSeconds = utils.getSetting<number>("webp-timeout") || 30;
@@ -206,7 +206,7 @@ export class FileHelper {
     });
   }
 
-  static async uploadFile(data, path, filename, forceWebp = false): Promise<FilePicker.UploadReturn> {
+  static async uploadFile(data: File | Blob, path: string, filename: string, forceWebp = false): Promise<FilePicker.UploadReturn> {
     const useWebP = utils.getSetting<boolean>("use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
@@ -237,7 +237,7 @@ export class FileHelper {
     return typeof result === "object" && result !== null && "path" in result && typeof result.path === "string";
   }
 
-  static async uploadImage(data, path: string, filename: string, forceWebp = false): Promise<string> {
+  static async uploadImage(data: File | Blob, path: string, filename: string, forceWebp = false): Promise<string> {
     try {
       const result = await FileHelper.uploadFile(data, path, filename, forceWebp);
       if (!FileHelper.isUploadSuccess(result)) {
@@ -377,8 +377,8 @@ export class FileHelper {
     return encodeURI(uri);
   }
 
-  static async getImagePath(imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
-    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {},
+  static async getImagePath(imageUrl: string, { type = "ddb", imageNamePrefix = "", name = undefined as string | undefined, download = false,
+    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined as string | undefined } = {},
   ) {
     if (!name || !targetDirectory) {
       logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });
@@ -439,7 +439,7 @@ export class FileHelper {
     return null;
   }
 
-  static async forgeCreateDirectory(target) {
+  static async forgeCreateDirectory(target: string) {
     if (!target) return undefined;
     const response = await ForgeAPI.call("assets/new-folder", { path: target });
     if (!response || response.error) {
@@ -457,7 +457,7 @@ export class FileHelper {
    * @returns {Promise<string|undefined>} path to the created directory, or undefined if
    * failure
    */
-  static async createDirectory(source, target, options = {}) {
+  static async createDirectory(source: string, target: string, options = {}) {
     if (!target) {
       throw new Error("No directory name provided");
     }
@@ -514,12 +514,12 @@ export class FileHelper {
     return true;
   }
 
-  static async verifyDirectory(parsedPath, targetPath = null) {
+  static async verifyDirectory(parsedPath: ParsedDirectory, targetPath = null as string | null) {
     if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
     return FileHelper.verifyPath(parsedPath, targetPath);
   }
 
-  static async uploadToPath(path, file): Promise<FilePicker.UploadReturn> {
+  static async uploadToPath(path: string, file: File): Promise<FilePicker.UploadReturn> {
     const options = FileHelper.parseDirectory(path);
     return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }

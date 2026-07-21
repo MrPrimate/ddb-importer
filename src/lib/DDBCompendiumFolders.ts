@@ -24,10 +24,12 @@ interface IItemTypeFolderOptions {
   color?: string | null;
   bookCode?: string;
   categoryId?: number;
+  // categoryId?: number | string;
   categoryFolderId?: string | null;
   sourceFolderId?: string | null;
   createSubFolder?: boolean;
   subFolderName?: string;
+  // subKey?: string | number;
   subKey?: string;
   flagList?: Set<string> | null;
   subFolderColor?: string | null;
@@ -40,10 +42,12 @@ interface ISourceFolderNameOptions {
   noSourceNameOverride?: string | null;
   nameSuffix?: string;
   flagSuffix?: string;
+  // flagSuffix?: string | number;
 }
 
 interface ISourceCategoryFolderNameOptions extends ISourceFolderNameOptions {
   categoryId?: number;
+  // categoryId?: number | string;
 }
 
 interface ISourceFolderNameFromDocumentOptions {
@@ -52,17 +56,20 @@ interface ISourceFolderNameFromDocumentOptions {
   noSourceNameOverride?: string | null;
   nameSuffix?: string;
   flagSuffix?: string;
+  // flagSuffix?: string | number;
   // getFeatFolderName passes a stray `suffix` argument that is never destructured
   suffix?: string;
 }
 
 interface ICreatureTypeFolderOptions {
   categoryFolderKey?: number;
+  // categoryFolderKey?: number | string;
   categoryFolderId?: string | null;
   monsterType?: { name: string };
 }
 
 interface IChallengeRatingFolderOptions {
+  // categoryFolderKey?: number | string;
   categoryFolderKey?: number;
   categoryFolderId?: string | null;
   cr?: string | number;
@@ -71,6 +78,7 @@ interface IChallengeRatingFolderOptions {
 interface ISpellLevelFolderOptions {
   levelName?: string;
   categoryFolderKey?: number;
+  // categoryFolderKey?: number | string;
   categoryFolderId?: string | null;
 }
 
@@ -123,7 +131,7 @@ export class DDBCompendiumFolders {
     this.vehicleFolders = {};
   }
 
-  constructor(type: TCompendiumTypes, { packName = null } = {}) {
+  constructor(type: TCompendiumTypes, { packName = null as string | null } = {}) {
     this.type = type;
     this.packName = packName;
     this.resetFolderLookups();
@@ -589,6 +597,13 @@ export class DDBCompendiumFolders {
   async createItemTypeCompendiumFolders({
     categoryFolderKey = undefined, categoryFolderId = undefined,
     sourceFolderKey = undefined, sourceFolderId = undefined, flagList = null,
+  }: {
+    categoryFolderKey?: number;
+    // categoryFolderKey?: string | number;
+    categoryFolderId?: string;
+    sourceFolderKey?: string;
+    sourceFolderId?: string;
+    flagList?: Set<string> | null;
   } = {}) {
     const TYPE_FOLDERS: Record<string, ICompendiumFolderTypeDefinition> = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders;
     for (const [key, data] of Object.entries(TYPE_FOLDERS)) {
@@ -649,7 +664,7 @@ export class DDBCompendiumFolders {
 
     const sources = new Set();
     const categories = new Set();
-    const flagList = new Set();
+    const flagList = new Set<string>();
 
     if (restrict) {
       for (const i of index) {
@@ -1144,7 +1159,8 @@ export class DDBCompendiumFolders {
       name: typeFolderRoot?.folderName
         ?? "Unknown",
       type: document.type || "tattoo",
-      suffix: null,
+      suffix: null as string | null,
+      // suffix: null as string | number | null,
       color: typeFolderRoot?.color ?? null,
       parentFolderName: typeFolderRoot?.folderName
         ?? "Unknown",
@@ -1208,7 +1224,7 @@ export class DDBCompendiumFolders {
 
   }
 
-  static getItemFolderNameForTypeSourceCategory(document: I5eInventoryItem, sourceType = null) {
+  static getItemFolderNameForTypeSourceCategory(document: I5eInventoryItem, sourceType = null as string | null) {
     const folderData = DDBCompendiumFolders.getItemFolderNameForType(document);
 
     const parent = folderData.subTypeFolder
@@ -1247,8 +1263,8 @@ export class DDBCompendiumFolders {
     return {
       name: spellName,
       type: "spell",
-      suffix: null,
-      color: null,
+      suffix: null as string | number | null,
+      color: null as string | null,
       parentFolderName: "Spell Items",
       flagTag: `spellitem/${is2014 ? "2014" : "2024"}/${utils.idString(spellName)}`,
     };
@@ -1287,7 +1303,7 @@ export class DDBCompendiumFolders {
 
   getClassFeatureFolderName(document: I5eFeatItem) {
     const result = {
-      name: undefined,
+      name: undefined as string | undefined,
       flagTag: "",
     };
     const version = foundry.utils.getProperty(document, "system.source.rules");
@@ -1366,7 +1382,7 @@ export class DDBCompendiumFolders {
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName") as string;
     const isLineage = foundry.utils.getProperty(document, "flags.ddbimporter.isLineage");
 
-    const source = foundry.utils.getProperty(document, "system.source.book") ?? "Unknown";
+    const source = (foundry.utils.getProperty(document, "system.source.book") as string) ?? "Unknown";
     const ddbCode = DDBSources.getDDBSourceBook(source);
     const bookData = CONFIG.DDB.sources.find((b) => b.name === ddbCode);
     const resolvedCategoryId = bookData?.sourceCategoryId ?? undefined;
@@ -1405,7 +1421,7 @@ export class DDBCompendiumFolders {
 
   getSummonFolderName(document: I5eMonsterData) {
     const result = {
-      name: undefined,
+      name: undefined as string | undefined,
       flagTag: "",
     };
 
@@ -1423,7 +1439,7 @@ export class DDBCompendiumFolders {
 
   getClassFolderName(document: I5eClassItem) {
     const result = {
-      name: undefined,
+      name: undefined as string | undefined,
       flagTag: "",
     };
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class") as string;
@@ -1444,16 +1460,16 @@ export class DDBCompendiumFolders {
     categoryId, bookCode, isLegacy = false, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "",
   }: ISourceCategoryFolderNameOptions = {}) {
     const result = {
-      name: undefined,
+      name: undefined as string | undefined,
       flagTag: "",
       parent: false,
       bookCode,
       categoryId,
-      categoryName: null,
+      categoryName: null as string | null,
       color: "",
     };
 
-    const suffix = flagSuffix && flagSuffix.trim() !== ""
+    const suffix = flagSuffix && String(flagSuffix).trim() !== ""
       ? `/${flagSuffix}`
       : "";
 
@@ -1506,13 +1522,13 @@ export class DDBCompendiumFolders {
 
   static getSourceFolderName({ bookCode, isLegacy = false, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "" }: ISourceFolderNameOptions = {}) {
     const result = {
-      name: undefined,
+      name: undefined as string | undefined,
       flagTag: "",
       parent: false,
       bookCode,
     };
 
-    const suffix = flagSuffix && flagSuffix.trim() !== ""
+    const suffix = flagSuffix && String(flagSuffix).trim() !== ""
       ? `/${flagSuffix}`
       : "";
 
@@ -1550,8 +1566,8 @@ export class DDBCompendiumFolders {
     });
   }
 
-  static getAllSourceFolders(type) {
-    const results = [];
+  static getAllSourceFolders(type: string) {
+    const results: Record<string, any>[] = [];
     for (const key of Object.keys(CONFIG.DND5E.sourceBooks)) {
       results.push(DDBCompendiumFolders.getSourceFolderName({
         type,
@@ -1561,8 +1577,8 @@ export class DDBCompendiumFolders {
     return results;
   }
 
-  static getAllSourceCategoryFolders(type) {
-    const results = [];
+  static getAllSourceCategoryFolders(type: string) {
+    const results: Record<string, any>[] = [];
     for (const data of DDBSources.getDisplaySourceCategories(true)) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
@@ -1572,7 +1588,7 @@ export class DDBCompendiumFolders {
     return results;
   }
 
-  static getFeatFolderName(document) {
+  static getFeatFolderName(document: I5eFeatItem) {
     const type = foundry.utils.getProperty(document, "system.type.subtype") as string;
     const typeName = CONFIG.DND5E.featureTypes.feat.subtypes[type];
 
@@ -1587,17 +1603,17 @@ export class DDBCompendiumFolders {
     });
   }
 
-  static getBackgroundFolderName(document) {
+  static getBackgroundFolderName(document: I5eBackgroundItem) {
     return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "background" });
   }
 
-  static getVehicleFolderName(document) {
+  static getVehicleFolderName(document: I5eVehicleData) {
     return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "vehicle" });
   }
 
 
   getCompendiumFolderData(document: T5eCompendiumDocuments) {
-    let data;
+    let data: any;
     switch (this.type) {
       case "background":
       case "backgrounds": {
@@ -1736,7 +1752,7 @@ export class DDBCompendiumFolders {
     return data;
   }
 
-  getFolder(folderName, flagTag = "") {
+  getFolder(folderName: string, flagTag = "") {
     const folder = this.compendium.folders.find((f) =>
       f.name === folderName
       && (f.flags as { ddbimporter?: { flagTag?: string } })?.ddbimporter?.flagTag === flagTag,
@@ -1744,7 +1760,7 @@ export class DDBCompendiumFolders {
     return folder;
   }
 
-  getFolderId(document) {
+  getFolderId(document: T5eCompendiumDocuments) {
     const folderName = this.getCompendiumFolderData(document);
     if (folderName) {
       const folder = this.getFolder((folderName.name ?? folderName), (folderName.flagTag ?? ""));
@@ -1753,20 +1769,20 @@ export class DDBCompendiumFolders {
     return undefined;
   }
 
-  async addToCompendiumFolder(document) {
-    logger.debug(`Checking ${document.name} in ${this.packName}`);
+  // async addToCompendiumFolder(document: TImporterItem) {
+  //   logger.debug(`Checking ${document.name} in ${this.packName}`);
 
-    const folderName = this.getCompendiumFolderData(document);
-    if (folderName) {
-      const folder = this.compendium.folders.find((f) => f.name == (folderName.name ?? folderName));
-      if (folder) {
-        logger.info(`Moving ${this.type} ${document.name} to folder ${folder.name}`);
-        await document.update({ folder: folder._id });
-      } else {
-        logger.error(`Unable to find folder "${folderName}" in "${this.packName}" for ${this.type}`);
-      }
-    }
-  }
+  //   const folderName = this.getCompendiumFolderData(document);
+  //   if (folderName) {
+  //     const folder = this.compendium.folders.find((f) => f.name == (folderName.name ?? folderName));
+  //     if (folder) {
+  //       logger.info(`Moving ${this.type} ${document.name} to folder ${folder.name}`);
+  //       await document.update({ folder: folder._id } as any);
+  //     } else {
+  //       logger.error(`Unable to find folder "${folderName}" in "${this.packName}" for ${this.type}`);
+  //     }
+  //   }
+  // }
 
 
   #getIndexFields() {
@@ -1932,7 +1948,7 @@ export class DDBCompendiumFolders {
 
     await this.createCompendiumFolders();
 
-    const results = [];
+    const results: { _id: string; folder: string }[] = [];
     for (const i of index) {
       const folderId = this.getFolderId(i);
       if (folderId) {
@@ -1957,7 +1973,7 @@ export class DDBCompendiumFolders {
         for (let i = 0; i < results.length; i += chunkSize) {
           const chunk = results.slice(i, i + chunkSize);
           logger.debug("Updating chunk actors", chunk);
-          await Actor.updateDocuments(chunk, { pack: this.packName });
+          await Actor.updateDocuments(chunk as unknown as Actor.UpdateData[], { pack: this.packName });
         }
         break;
       }
@@ -1966,7 +1982,7 @@ export class DDBCompendiumFolders {
         for (let i = 0; i < results.length; i += chunkSize) {
           const chunk = results.slice(i, i + chunkSize);
           logger.debug("Updating chunk items", chunk);
-          await Item.updateDocuments(chunk, { pack: this.packName });
+          await Item.updateDocuments(chunk as unknown as Item.UpdateInput[], { pack: this.packName });
         }
         break;
       }
@@ -1977,7 +1993,7 @@ export class DDBCompendiumFolders {
     return this.compendium.folders;
   }
 
-  static async migrateExistingCompendium(type: TCompendiumTypes, { folderStructure = null, cleanup = true, deleteExisting = true } = {}) {
+  static async migrateExistingCompendium(type: TCompendiumTypes, { folderStructure = null as string | null, cleanup = true, deleteExisting = true } = {}) {
     if (folderStructure) {
       await utils.setSetting(`munching-selection-compendium-folders-${type.replace(/s+$/, "")}`, folderStructure as string);
     }

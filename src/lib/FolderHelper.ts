@@ -42,7 +42,7 @@ export default class FolderHelper {
   }
 
 
-  static async getFolder(kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true): Promise<Folder.Implementation> {
+  static async getFolder(kind: string, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true): Promise<Folder.Implementation> {
     const entityTypes = utils.entityMap();
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);
@@ -66,7 +66,7 @@ export default class FolderHelper {
    * @param {string} compendiumName The name of the compendium to search within.
    * @returns {Promise<string|undefined>} The ID of the folder if found, otherwise undefined.
    */
-  static async getCompendiumFolderId(name, compendiumName): Promise<string | undefined> {
+  static async getCompendiumFolderId(name: string, compendiumName: string): Promise<string | undefined> {
     const compendium = game.packs.get(compendiumName);
     return compendium.folders.find((f) => f.name === name)?._id;
   }

@@ -47,7 +47,7 @@ global {
     download: () => void;
   }
 
-  interface IIconMapEntry {
+  interface ICompendiumIconMapEntry {
     type: string;
     folder: string | null;
     _id: string;
@@ -63,12 +63,23 @@ global {
     };
   }
 
+  interface IIconizerMapEntry {
+    name: string;
+    path: string;
+    monster?: string;
+  }
+
   interface ICompendiumLookup {
     _id: string;
     name: string;
     uuid: string;
     img: string;
     [key: string]: any;
+  }
+
+  interface ISpellUuidLookup {
+    name: string;
+    uuid: string;
   }
 
   type TGridSource =

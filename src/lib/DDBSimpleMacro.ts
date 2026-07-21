@@ -37,7 +37,7 @@ export default class DDBSimpleMacro {
     },
   };
 
-  static getDescriptionAddition(name: string, type: DDBMacroType, params = null as string | null): string {
+  static getDescriptionAddition(name: string, type: TDDBMacroType, params = null as string | null): string {
     const safeName = utils.referenceNameString(name).toLowerCase();
     const macroDetails = foundry.utils.getProperty(DDBSimpleMacro.MACROS, `${type}.${safeName}`) as { name?: string; label?: string; parameters?: string } | undefined;
     if (!macroDetails) return "";
@@ -60,7 +60,7 @@ export default class DDBSimpleMacro {
    * @param {object} scope ANy additional information/parameters in an object to pass to the macro
    * @returns {Promise<any>} The result of the macro function.
    */
-  static async execute(type: DDBMacroType, name: string, context = {}, ids: ISimpleMacroIds = {}, { ...scope } = {}) {
+  static async execute(type: TDDBMacroType, name: string, context = {}, ids: ISimpleMacroIds = {}, { ...scope } = {}) {
     const names = DDBMacros._getMacroFileNameFromName(name);
     const script = await DDBMacros.getMacroBody(type, names.fileName);
 

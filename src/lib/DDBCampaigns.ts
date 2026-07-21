@@ -7,8 +7,7 @@ import utils from "./Utils";
 
 export default class DDBCampaigns {
 
-
-  static getCampaignId(notifier = null): string {
+  static getCampaignId(notifier = null as ((msg: string, opts?: NotifierV1Props) => void) | null): string {
     const campaignId = utils.getSetting<string>("campaign-id").split("/").pop();
 
     if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
@@ -42,7 +41,7 @@ export default class DDBCampaigns {
     }
   }
 
-  static async refreshCampaigns(cobalt = null) {
+  static async refreshCampaigns(cobalt = null as string | null) {
     if (cobalt) {
       const results = await DDBCampaigns.getDDBCampaigns(cobalt);
       CONFIG.DDBI.CAMPAIGNS = results;
@@ -50,7 +49,11 @@ export default class DDBCampaigns {
     return CONFIG.DDBI.CAMPAIGNS;
   }
 
-  static async getAvailableCampaigns({ notifier = null, cobalt = null, campaignId = null } = {}) {
+  static async getAvailableCampaigns({ notifier = null, cobalt = null, campaignId = null }: {
+    notifier?: ((msg: string, opts?: NotifierV1Props) => void) | null;
+    cobalt?: string | null;
+    campaignId?: string | null;
+  } = {}) {
     if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
     CONFIG.DDBI.CAMPAIGNS = [];
     if (!campaignId) campaignId = DDBCampaigns.getCampaignId(notifier);
@@ -65,7 +68,7 @@ export default class DDBCampaigns {
       if (campaignId && campaignId.trim() !== "") {
         CONFIG.DDBI.CAMPAIGNS = [
           {
-            id: campaignId,
+            id: parseInt(campaignId),
             name: "Unable to fetch campaigns, showing only selected",
             dmUsername: campaignId,
             dateCreated: null,

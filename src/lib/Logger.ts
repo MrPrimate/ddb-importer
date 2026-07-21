@@ -17,7 +17,7 @@ const logger = {
   LOG_PREFIX: "DDB Importer",
   LOG_MSG_DEFAULT: "No logging message provided. Please see the payload for more information.",
 
-  _showMessage: (logLevel, data) => {
+  _showMessage: (logLevel: string, data: unknown[]) => {
     if (!logLevel || !data || typeof (logLevel) !== "string") {
       return false;
     }
@@ -40,7 +40,7 @@ const logger = {
 
   },
 
-  _addToLogFile: (logLevel, data) => {
+  _addToLogFile: (logLevel: string, data: unknown[]) => {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
       ddbDebug().log.push({
         level: logLevel,
@@ -49,7 +49,7 @@ const logger = {
     }
   },
 
-  log: (logLevel, ...data) => {
+  log: (logLevel: string, ...data: unknown[]) => {
     logger._addToLogFile(logLevel, data);
     if (!logger._showMessage(logLevel, data)) {
       return;
@@ -129,35 +129,35 @@ const logger = {
     }
   },
 
-  debug: (...data) => {
+  debug: (...data: unknown[]) => {
     logger.log("DEBUG", ...data);
   },
 
-  info: (...data) => {
+  info: (...data: unknown[]) => {
     logger.log("INFO", ...data);
   },
 
-  warn: (...data) => {
+  warn: (...data: unknown[]) => {
     logger.log("WARN", ...data);
   },
 
-  error: (...data) => {
+  error: (...data: unknown[]) => {
     logger.log("ERR", ...data);
   },
 
-  time: (...data) => {
+  time: (...data: unknown[]) => {
     logger.log("TIME", ...data);
   },
 
-  verbose: (...data) => {
+  verbose: (...data: unknown[]) => {
     logger.log("VERBOSE", ...data);
   },
 
-  timeEnd: (...data) => {
+  timeEnd: (...data: unknown[]) => {
     logger.log("TIMEEND", ...data);
   },
 
-  timeLog: (...data) => {
+  timeLog: (...data: unknown[]) => {
     logger.log("TIMELOG", ...data);
   },
 
@@ -166,7 +166,7 @@ export default logger;
 
 const getCircularReplacer = () => {
   const seen = new WeakSet();
-  return (_key, value) => {
+  return (_key: string, value: unknown) => {
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
         return;

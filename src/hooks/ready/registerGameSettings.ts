@@ -33,7 +33,7 @@ interface IDDBISRDLoad {
     "2014": boolean;
     "2024": boolean;
   };
-  iconMap: Record<T5eRulesVersion, IIconMapEntry[]>;
+  iconMap: Record<T5eRulesVersion, ICompendiumIconMapEntry[]>;
   packsLoaded: Record<string, any>;
   packs: Record<string, any>;
 }
@@ -74,7 +74,7 @@ export interface IDDBIConfig {
   MACROS: IDDBIMacros;
   CAPTURED_ERRORS: any[];
   KNOWN: IDDBIKnown;
-  ICONS: Record<string, any>;
+  ICONS: Record<string, IIconizerMapEntry[]>;
   TABLES: Record<string, any>;
   SRD_LOAD: IDDBISRDLoad;
   DEV: IDDBIDev;

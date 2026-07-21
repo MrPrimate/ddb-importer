@@ -77,8 +77,8 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;
-  srdImageLibrary2014: IIconMapEntry[] | null;
-  srdImageLibrary2024: IIconMapEntry[] | null;
+  srdImageLibrary2014: ICompendiumIconMapEntry[] | null;
+  srdImageLibrary2024: ICompendiumIconMapEntry[] | null;
   _documents: TType[];
   type: TDDBImporterTypes;
   recursive: boolean | null;
@@ -731,7 +731,7 @@ ${item.system.description.chat}
       const srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
       const srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
       this.notifier(`Updating SRD Icons`, { nameField: true });
-      const itemMap: IIconMapEntry[] = [];
+      const itemMap: ICompendiumIconMapEntry[] = [];
 
       for (const doc of this.documents) {
         if (!("items" in doc)) continue;
