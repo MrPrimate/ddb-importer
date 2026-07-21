@@ -15,7 +15,7 @@ const JournalEntrySheet5eBase = (dnd5e.applications.journal as unknown as
   } & Record<string, any>>).JournalEntrySheet5e;
 
 class DDBJournalSheet extends JournalEntrySheet5eBase {
-  constructor(doc, options) {
+  constructor(doc: any, options: Record<string, any>) {
     super(doc, options);
     this.options.classes.push("ddb-journal", "themed", "theme-light");
   }
@@ -44,8 +44,8 @@ class DDBJournalSheet extends JournalEntrySheet5eBase {
           yes: async () => {
             const name = await utils.namePrompt("What would you like to call the Handout?");
             if (name && name !== "") {
-              const bookCode = data.flags?.ddb?.bookCode;
-              createAndShowPlayerHandout(name, src, "image", bookCode);
+              const bookCode = (data.flags?.ddb?.bookCode ?? null) as string | null;
+              createAndShowPlayerHandout(name as string, src, "image", bookCode);
             }
           },
           no: () => {
@@ -134,7 +134,7 @@ class DDBJournalSheet extends JournalEntrySheet5eBase {
   // Re-scroll to the anchor heading once page images have loaded, so it lands
   // at the top instead of mid-page. Mirrors core goToPage/_onRender:
   // getPageSheet(pageId).toc[anchor].element + plain scrollIntoView().
-  async _scrollToAnchorAfterImages(anchor) {
+  async _scrollToAnchorAfterImages(anchor: string) {
     if (!anchor) return;
     const pageSheet = this.getPageSheet(this.pageId);
     if (!pageSheet?.toc?.[anchor]?.element) return;
@@ -152,7 +152,7 @@ class DDBJournalSheet extends JournalEntrySheet5eBase {
     this.getPageSheet(this.pageId)?.toc?.[anchor]?.element?.scrollIntoView();
   }
 
-  async _onRender(context, options) {
+  async _onRender(context: Record<string, any>, options: Record<string, any>) {
     await super._onRender(context, options);
 
     // Run before the GM guard so the anchor scroll applies to players too.

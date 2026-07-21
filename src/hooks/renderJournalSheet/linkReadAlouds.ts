@@ -1,7 +1,7 @@
 import { utils } from "../../lib/_module";
 import { createAndShowPlayerHandout } from "./shared";
 
-export function showReadAlouds(html, data) {
+export function showReadAlouds(html: HTMLElement | JQuery<HTMLElement>, data: Record<string, any>) {
   if (!game.user.isGM) return;
   const displayImages = utils.getSetting<boolean>("show-read-alouds-button");
   if (!displayImages) return;
@@ -25,8 +25,8 @@ export function showReadAlouds(html, data) {
             event.stopPropagation();
             const name = await utils.namePrompt("What would you like to call the Handout?");
             if (name && name !== "") {
-              const bookCode = data.data?.flags?.ddb?.bookCode;
-              createAndShowPlayerHandout(name, element.outerHTML, "text", bookCode);
+              const bookCode = (data.data?.flags?.ddb?.bookCode ?? null) as string | null;
+              createAndShowPlayerHandout(name as string, element.outerHTML, "text", bookCode);
             }
           });
 

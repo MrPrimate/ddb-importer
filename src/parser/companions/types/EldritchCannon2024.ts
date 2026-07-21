@@ -30,7 +30,7 @@ import DDBCompanionMixin from "../DDBCompanionMixin";
 //   componentTypeId: 0,
 // };
 
-function extractEldritchCannonAbilities(html) {
+function extractEldritchCannonAbilities(html: string) {
   // Create a DOM parser
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
@@ -38,7 +38,7 @@ function extractEldritchCannonAbilities(html) {
   // Get all paragraph elements
   const paragraphs = doc.querySelectorAll("p");
 
-  const abilities = [];
+  const abilities: { name: string; content: string }[] = [];
 
   paragraphs.forEach((p) => {
     // Look for paragraphs with <strong> tags that contain ability names
@@ -148,7 +148,7 @@ export async function getEldritchCannons2024({
 
   const results: ICompanionResult = {};
 
-  const cannons = [
+  const cannons: { name: string; min: number | null; max: number | null }[] = [
     { name: "Force Ballista", min: null, max: 9 },
     { name: "Flamethrower", min: null, max: 9 },
     { name: "Protector", min: null, max: 9 },

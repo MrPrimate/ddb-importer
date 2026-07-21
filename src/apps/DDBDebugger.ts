@@ -5,13 +5,13 @@ import {
 import DDBAppV2 from "./DDBAppV2";
 
 interface IDDBDebuggerOptions {
-  actor?: Actor.Implementation | null;
+  actor?: TImporterActor | null;
   extra?: Record<string, unknown>;
 }
 
 export default class DDBDebugger extends DDBAppV2 {
 
-  actor: Actor.Implementation | null;
+  actor: TImporterActor | null;
 
   debug: DDBDebug;
 

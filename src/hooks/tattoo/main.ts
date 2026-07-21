@@ -27,7 +27,7 @@ async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
       tattooUuid = id;
     }
   }
-  const tattooItem = await fromUuid(tattooUuid) as Item.Implementation | undefined;
+  const tattooItem = await fromUuid(tattooUuid) as unknown as TImporterItem | undefined;
   if (!tattooItem) return undefined;
   const tattooData = game.items.fromCompendium(tattooItem as Item.Implementation);
   return tattooData as unknown as I5eConsumableItem;
@@ -37,7 +37,7 @@ async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
  * Create a consumable spell tattoo Item from a spell Item.
  * @param {string} uuid                           UUID of the spell to add to the tattoo.
  * @param {SpellTattooConfiguration} [config={}]  Configuration options for tattoo creation.
- * @returns {Promise<Item.Implementation|void>}   The created tattoo consumable item.
+ * @returns {Promise<TImporterItem|void>}   The created tattoo consumable item.
  */
 async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfiguration = {}) {
   const spell = await fromUuid(uuid) as unknown as I5eSpellItem | undefined;
@@ -51,7 +51,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
   }, config);
 
   if (config.dialog !== false) {
-    const result = await CreateSpellwroughtTattooDialog.create(spell, config);
+    const result = await CreateSpellwroughtTattooDialog.create(spell as unknown as TImporterItem, config);
     if (!result) return undefined;
     foundry.utils.mergeObject(config, result as object);
   }
@@ -60,11 +60,11 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    * A hook event that fires before the item data for a tattoo is created for a compendium spell.
    * @function dnd5e.preCreateTattooFromCompendiumSpell
    * @memberof hookEvents
-   * @param {Item.Implementation} spell        Spell to add to the tattoo.
+   * @param {TImporterItem} spell        Spell to add to the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @returns {boolean}                        Explicitly return `false` to prevent the tattoo to be created.
    */
-  if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell as unknown as Item.Implementation, config) === false) return undefined;
+  if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell as unknown as TImporterItem, config) === false) return undefined;
 
   // Get tattoo data
   const tattooData = await getBaseTattooData(config.level);
@@ -127,17 +127,17 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    * A hook event that fires after the item data for a tattoo is created but before the item is returned.
    * @function dnd5e.createTattooFromSpell
    * @memberof hookEvents
-   * @param {Item.Implementation} spell        The spell or item data to be made into a tattoo.
+   * @param {TImporterItem} spell        The spell or item data to be made into a tattoo.
    * @param {object} spellTattooData           The final item data used to make the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    */
-  Hooks.callAll("ddb-importer.createTattooFromSpell", spell as unknown as Item.Implementation, spellTattooData, config);
+  Hooks.callAll("ddb-importer.createTattooFromSpell", spell as unknown as TImporterItem, spellTattooData, config);
 
   return new (Item.implementation as any)(spellTattooData);
 }
 
 
-async function compendiumContext(app, options) {
+async function compendiumContext(app: any, options: Record<string, any>[]) {
   if (!game.user.hasPermission("ITEM_CREATE")) return;
 
   const collectionType = foundry.documents?.collections?.CompendiumCollection ?? CompendiumCollection;
@@ -148,7 +148,7 @@ async function compendiumContext(app, options) {
     });
   }
 
-  const getSpellDetailsFromLi = (li) => {
+  const getSpellDetailsFromLi = (li: any) => {
     const id = li.dataset.documentId ?? li.dataset.entryId;
     let spell = game.items.get(id) as unknown as I5eSpellItem | undefined;
     if (app.collection instanceof collectionType) {
@@ -163,13 +163,13 @@ async function compendiumContext(app, options) {
   options.push({
     name: "Create Spellwrought Tattoo",
     icon: "<i class=\"fa-solid fa-user-pen\"></i>",
-    callback: async (li) => {
+    callback: async (li: any) => {
       const spell = getSpellDetailsFromLi(li);
       if (!spell) return;
       const tattoo = await createTattooFromSpellUuid(spell.uuid);
       if (tattoo) dnd5e.documents.Item5e.create(tattoo);
     },
-    condition: (li) => {
+    condition: (li: any) => {
       const spell = getSpellDetailsFromLi(li);
       if (!spell) return false;
       return spell.type === "spell"
@@ -180,7 +180,7 @@ async function compendiumContext(app, options) {
 
 }
 
-function addCharacterSheetContext(doc, buttons) {
+function addCharacterSheetContext(doc: any, buttons: Record<string, any>[]) {
   if (doc.type !== "spell") return;
   if (doc.system.level > 5) return;
   buttons.push({

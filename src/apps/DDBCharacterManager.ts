@@ -20,7 +20,7 @@ import DDBKeyChangeDialog from "./DDBKeyChangeDialog";
 import type { DDBCharacterImportOptions } from "../parser/DDBCharacter";
 
 export default class DDBCharacterManager extends DDBAppV2 {
-  actor: Actor.Implementation;
+  actor: TImporterActor;
   actorOriginal: I5ePCData;
   characterImporter: DDBCharacterImporter;
   ddbCharacter: DDBCharacter;
@@ -33,9 +33,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
   itemsMunched: boolean;
   actorSettings: Record<string, any>;
 
-  constructor(actor: Actor.Implementation | I5ePCData, ddbCharacter: DDBCharacter = null) {
+  constructor(actor: TImporterActor | I5ePCData, ddbCharacter: DDBCharacter = null) {
     super();
-    this.actor = game.actors.get(actor._id) as Actor.Implementation;
+    this.actor = game.actors.get(actor._id) as TImporterActor;
     // I5ePCData is our own type definition
     this.actorOriginal = foundry.utils.duplicate(this.actor) as unknown as I5ePCData;
     logger.debug("Current Actor (Original):", this.actorOriginal);

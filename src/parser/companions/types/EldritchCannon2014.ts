@@ -79,7 +79,11 @@ export async function getEldritchCannons2014({
 
   const results: ICompanionResult = {};
 
-  const cannons = [
+  const cannons: {
+    name: string;
+    min: number | null;
+    max: number | null;
+  }[] = [
     { name: "Force Ballista", min: null, max: 9 },
     { name: "Flamethrower", min: null, max: 9 },
     { name: "Protector", min: null, max: 9 },
@@ -92,7 +96,7 @@ export async function getEldritchCannons2014({
 
   const cannonTable = doc.querySelectorAll("tbody")[0];
 
-  const actionData = [];
+  const actionData: { name: string; content: string }[] = [];
   const rows = cannonTable.querySelectorAll("tr");
   rows.forEach((row) => {
     const cells = row.querySelectorAll("td");

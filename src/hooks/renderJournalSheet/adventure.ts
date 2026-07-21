@@ -3,11 +3,11 @@ import { utils } from "../../lib/_module";
 import buildNotes from "./buildNotes";
 import { ensureBookThemeStyle } from "../../muncher/adventure/native/NativeBookStyles";
 
-const POPUPS = {
+const POPUPS: Record<string, Window | null> = {
   json: null,
   web: null,
 };
-const renderPopup = (type, url) => {
+const renderPopup = (type: string, url: string) => {
   if (POPUPS[type] && !POPUPS[type].close) {
     POPUPS[type].focus();
     POPUPS[type].location.href = url;
@@ -24,7 +24,7 @@ const renderPopup = (type, url) => {
   return true;
 };
 
-export function adventureFlags(app, html, data) {
+export function adventureFlags(app: any, html: HTMLElement, data: Record<string, any>) {
   if (!app.document.flags.ddb) return;
   const journalContent = html.querySelector("section.journal-page-content");
   journalContent.classList.add("ddb");
@@ -42,7 +42,7 @@ export function adventureFlags(app, html, data) {
 
 }
 
-function onClick(config, event) {
+function onClick(config: Record<string, any>, event: MouseEvent) {
   if (event.shiftKey && event.ctrlKey) {
     new DDBAdventureFlags(config.document, {}).render(true);
     return true;
@@ -54,12 +54,12 @@ function onClick(config, event) {
   }
 }
 
-function onClickV2(event) {
+function onClickV2(event: MouseEvent) {
   onClick(this, event);
 }
 
 
-export function getJournalSheet5eHeaderButtons(config, buttons) {
+export function getJournalSheet5eHeaderButtons(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.object.isOwner) return;
   if (!(config.object instanceof JournalEntry)) return;
 
@@ -69,11 +69,11 @@ export function getJournalSheet5eHeaderButtons(config, buttons) {
     label: undefined,
     class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-    onclick: (event) => onClick(config, event),
+    onclick: (event: MouseEvent) => onClick(config, event),
   });
 }
 
-export function getHeaderControlsJournalEntrySheetButtons(config, buttons) {
+export function getHeaderControlsJournalEntrySheetButtons(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.entry.isOwner) return;
   if (!(config.entry instanceof JournalEntry)) return;
 

@@ -2,7 +2,7 @@ const { NumberField } = foundry.data.fields;
 
 interface ICreateSpellwroughtTattooDialogOptions {
   config?: SpellTattooConfiguration;
-  spell?: Item.Implementation;
+  spell?: TImporterItem;
   classes?: string[];
 }
 
@@ -26,9 +26,9 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   /**
    * Spell from which the tattoo will be created.
-   * @type {Item.Implementation}
+   * @type {TImporterItem}
    */
-  #spell: Item.Implementation;
+  #spell: TImporterItem;
 
   get spell() {
     return this.#spell;
@@ -60,7 +60,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
       default: true,
     }],
     config: null as SpellTattooConfiguration | null,
-    spell: null as Item.Implementation | null,
+    spell: null as TImporterItem | null,
   };
 
   /** @inheritDoc */
@@ -149,12 +149,12 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   /**
    * Display the create spell scroll dialog.
-   * @param {Item.Implementation|object} spell              The spell or item data to be made into a tattoo.
+   * @param {TImporterItem|object} spell              The spell or item data to be made into a tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @param {object} [options={}]              Additional options for the application.
    * @returns {Promise<object|null>}           Form data object with results of the dialog.
    */
-  static async create(spell: Item.Implementation, config: SpellTattooConfiguration, options = {}) {
+  static async create(spell: TImporterItem, config: SpellTattooConfiguration, options = {}) {
     return new Promise((resolve) => {
       const dialog = new this({ spell, config, ...options });
       dialog.addEventListener("close", (_event) => resolve(dialog.config), { once: true });

@@ -1,6 +1,6 @@
 import { logger, utils } from "../../lib/_module";
 
-function copyToClipboard(text) {
+function copyToClipboard(text: string) {
   logger.debug("Copy block", text);
   const dummy = document.createElement("textarea");
   document.body.appendChild(dummy);
@@ -10,7 +10,7 @@ function copyToClipboard(text) {
   document.body.removeChild(dummy);
 }
 
-function getNoteButton(name, type) {
+function getNoteButton(name: string, type: string) {
   return $(
     `<a id='ddb-note-${name}' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy ${type} ${name} </a>`,
   );
@@ -22,7 +22,7 @@ function getTableButton() {
   );
 }
 
-function buildNotes(html, data) {
+function buildNotes(html: HTMLElement, data: Record<string, any>) {
   if (!game.user.isGM) return;
   const allow = utils.getSetting<boolean>("allow-dev-generation");
   if (!allow) return;

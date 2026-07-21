@@ -5,14 +5,14 @@ export default class DDBCookie extends FormApplication {
 
   localCobalt: boolean;
 
-  actor: Actor.Implementation | null;
+  actor: TImporterActor | null;
 
   callMuncher: boolean;
 
   callback: (() => Promise<void> | void) | null;
 
   constructor({ actor = null, localCobalt = false, callMuncher = false, callback = null }: {
-    actor?: Actor.Implementation | null;
+    actor?: TImporterActor | null;
     localCobalt?: boolean;
     callMuncher?: boolean;
     callback?: (() => Promise<void> | void) | null;

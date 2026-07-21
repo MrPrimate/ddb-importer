@@ -7,11 +7,11 @@ import DDBPartySync from "../../apps/DDBPartySync";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup
-const POPUPS = {
+const POPUPS: Record<string, Window | null> = {
   json: null,
   web: null,
 };
-const renderPopup = (type, url) => {
+const renderPopup = (type: string, url: string) => {
   if (POPUPS[type] && !POPUPS[type].close) {
     POPUPS[type].focus();
     POPUPS[type].location.href = url;
@@ -28,18 +28,18 @@ const renderPopup = (type, url) => {
   return true;
 };
 
-function callDDBCharacterManager(actor) {
+function callDDBCharacterManager(actor: TImporterActor) {
   const characterImport = new DDBCharacterManager(actor);
   characterImport.render({ force: true });
 }
 
-async function characterButtonClick(event, document, actor) {
+async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, document: Record<string, any>, actor: TImporterActor) {
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.url") as string
     : null;
 
   const jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
-    ? document.flags.ddbimporter.dndbeyond.json
+    ? foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.json") as string
     : null;
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
     new DDBAdventureFlags(document, {}).render(true);
@@ -98,11 +98,11 @@ async function characterButtonClick(event, document, actor) {
   return false;
 }
 
-function characterButtonClickV2(event, _target) {
+function characterButtonClickV2(event: MouseEvent, _target: HTMLElement) {
   characterButtonClick(event, this.document, this.actor);
 }
 
-function getCharacterButton(document, actor) {
+function getCharacterButton(document: Record<string, any>, actor: TImporterActor) {
   const buttonText = "<button type=\"button\" id=\"ddbImporterButton\" class=\"inactive\"><i class=\"fab fa-d-and-d-beyond\"></button>";
 
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
@@ -117,7 +117,7 @@ function getCharacterButton(document, actor) {
   return button;
 }
 
-function npcButtonClick(event, document) {
+function npcButtonClick(event: MouseEvent | JQuery.ClickEvent, document: Record<string, any>) {
   const url = document.flags.monsterMunch.url;
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
     new DDBAdventureFlags(document, {}).render(true);
@@ -127,57 +127,57 @@ function npcButtonClick(event, document) {
   }
 }
 
-function npcButtonClickV2(event, _target) {
+function npcButtonClickV2(event: MouseEvent, _target: HTMLElement) {
   npcButtonClick(event, this.document);
 }
 
-function getNPCButton(document) {
+function getNPCButton(document: Record<string, any>) {
   const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
   button.click((event) => npcButtonClick(event, document));
   return button;
 }
 
-function groupButtonClickV2(_event, _target) {
+function groupButtonClickV2(_event: MouseEvent, _target: HTMLElement) {
   const actor = this.document ?? this.actor;
   if (!actor) return false;
   DDBPartySync.open({ actor });
   return true;
 }
 
-function groupButtonClick(_event, document) {
+function groupButtonClick(_event: MouseEvent | JQuery.ClickEvent, document: Record<string, any>) {
   if (!document) return false;
   DDBPartySync.open({ actor: document });
   return true;
 }
 
-function getGroupButton(document) {
+function getGroupButton(document: Record<string, any>) {
   const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
   button.click((event) => groupButtonClick(event, document));
   return button;
 }
 
 
-function handlePCHeaderButton(config, buttons, label = true) {
+function handlePCHeaderButton(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
     class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-    onclick: (event) => characterButtonClick(event, config.document, config.actor),
+    onclick: (event: MouseEvent) => characterButtonClick(event, config.document, config.actor),
   });
 }
 
-function handleNPCHeaderButton(config, buttons, label = true) {
+function handleNPCHeaderButton(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
     class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-    onclick: (event) => npcButtonClick(event, config.document),
+    onclick: (event: MouseEvent) => npcButtonClick(event, config.document),
   });
 }
 
-function createActorHeaderButtons(config, buttons, label = true) {
+function createActorHeaderButtons(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const isCharacterSheet = config.actor?.type === "character";
   const isNpcSheet = config.actor?.type === "npc";
 
@@ -194,7 +194,7 @@ function createActorHeaderButtons(config, buttons, label = true) {
   }
 }
 
-function handlePCHeaderButtonV2(config, buttons, label = true) {
+function handlePCHeaderButtonV2(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbclick"] = characterButtonClickV2;
   buttons.unshift({
@@ -205,7 +205,7 @@ function handlePCHeaderButtonV2(config, buttons, label = true) {
   });
 }
 
-function handleNPCHeaderButtonV2(config, buttons, label = true) {
+function handleNPCHeaderButtonV2(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbclick"] = npcButtonClickV2;
   buttons.unshift({
@@ -216,7 +216,7 @@ function handleNPCHeaderButtonV2(config, buttons, label = true) {
   });
 }
 
-function handleGroupHeaderButtonV2(config, buttons, label = true) {
+function handleGroupHeaderButtonV2(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbpartysync"] = groupButtonClickV2;
   buttons.unshift({
@@ -228,7 +228,7 @@ function handleGroupHeaderButtonV2(config, buttons, label = true) {
 }
 
 
-function createActorHeaderButtonsV2(config, buttons, label = true) {
+function createActorHeaderButtonsV2(config: Record<string, any>, buttons: Record<string, any>[], label = true) {
   const actor = config.actor ?? config.document;
   const isCharacterSheet = actor?.type === "character";
   const isNpcSheet = actor?.type === "npc";
@@ -244,7 +244,7 @@ function createActorHeaderButtonsV2(config, buttons, label = true) {
   }
 }
 
-function createOldSheetHeaderButtons(config, buttons) {
+function createOldSheetHeaderButtons(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.object.isOwner) return;
   if (!(config.object instanceof Actor)) return;
 
@@ -255,7 +255,7 @@ function createOldSheetHeaderButtons(config, buttons) {
   createActorHeaderButtons(config, buttons, false);
 }
 
-function createDefault5eButtons(config, buttons) {
+function createDefault5eButtons(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.object.isOwner) return;
   if (!(config.object instanceof Actor)) return;
 
@@ -271,7 +271,7 @@ function createDefault5eButtons(config, buttons) {
   createActorHeaderButtons(config, buttons, true);
 }
 
-function createDefault5eButtonsV2(config, buttons) {
+function createDefault5eButtonsV2(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.document.isOwner) return;
   if (!(config.document instanceof Actor)) return;
 
@@ -293,12 +293,12 @@ function tidySheets() {
    * All Tidy integrations for DDBI
    * @param {*} api the Tidy 5e Sheets API found at https://kgar.github.io/foundry-vtt-tidy-5e-sheets/classes/Tidy5eSheetsApi.html
    */
-  function runTidyIntegrations(api) {
+  function runTidyIntegrations(api: any) {
 
     // Prepare content injections for non-title DDBI logo on character sheets.
     const html = `<div class="ddbCharacterName"></div>`;
 
-    const enabled = (data) => {
+    const enabled = (data: Record<string, any>) => {
       const trustedUsersOnly = utils.getSetting<boolean>("restrict-to-trusted");
       const allowAllSync = utils.getSetting<boolean>("allow-all-sync");
       const titleLink = utils.getSetting<boolean>("character-link-title");
@@ -306,7 +306,7 @@ function tidySheets() {
       return (data.owner || onlyTrustedUser) && !titleLink;
     };
 
-    const onRender = (params) => {
+    const onRender = (params: Record<string, any>) => {
       const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
       const button = getCharacterButton(params.app.document, params.data.actor);
       $ddbCharacterName.append(button);
@@ -372,18 +372,18 @@ function tidySheets() {
   }
 }
 
-const addPartySyncContext = (_html, options: any[]) => {
+const addPartySyncContext = (_html: HTMLElement | JQuery<HTMLElement>, options: any[]) => {
   options.push({
     name: "DDB Party Sync",
     icon: "<i class=\"fa-duotone fa-solid fa-rotate\"></i>",
-    condition: (li) => {
+    condition: (li: any) => {
       const actorId = li instanceof HTMLElement
         ? li.dataset.entryId ?? li.dataset.documentId
         : li.data?.("entryId") ?? li.data?.("documentId");
       const actor = actorId ? game.actors.get(actorId) : null;
       return actor?.type === "group" && actor.isOwner;
     },
-    callback: (li) => {
+    callback: (li: any) => {
       const actorId = li instanceof HTMLElement
         ? li.dataset.entryId ?? li.dataset.documentId
         : li.data?.("entryId") ?? li.data?.("documentId");

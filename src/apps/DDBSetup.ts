@@ -84,7 +84,7 @@ export default class DDBSetup extends DDBAppV2 {
   useWebP: boolean;
   useDeepFilePaths: boolean;
   dynamicEnabled: boolean;
-  actor: Actor.Implementation | null;
+  actor: TImporterActor | null;
   campaignId: string;
   reloadApplication: boolean;
   isLocalCobalt: boolean;
@@ -109,7 +109,7 @@ export default class DDBSetup extends DDBAppV2 {
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
     showDiscouraged = false,
   }: {
-    actor?: Actor.Implementation | null;
+    actor?: TImporterActor | null;
     callMuncher?: boolean;
     sheetTab?: string;
     coreTab?: string;

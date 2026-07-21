@@ -12,7 +12,7 @@ export class DDBSocket {
 
   functions: Map<string, (...args: any[]) => unknown>;
 
-  requests: Map<string, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void; functionName?: string; recipient?: string }>;
+  requests: Map<string, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void; functionName?: string; recipient?: string | string[] }>;
 
   name: string;
 
@@ -24,7 +24,7 @@ export class DDBSocket {
     game.socket.on(this.name, this._received.bind(this));
   }
 
-  register(name, f) {
+  register(name: string, f: (...args: any[]) => unknown) {
     this.functions.set(name, f);
   }
 
@@ -35,7 +35,7 @@ export class DDBSocket {
     return !online.some((u) => u.id < game.user.id);
   }
 
-  #getFunction(func) {
+  #getFunction(func: string | ((...args: any[]) => unknown)): [string, (...args: any[]) => unknown] {
     if (func instanceof Function) {
       for (const [key, value] of this.functions.entries()) {
         if (value === func) return [key, func];
@@ -48,7 +48,7 @@ export class DDBSocket {
     }
   }
 
-  async _receiveRequest(message, senderId) {
+  async _receiveRequest(message: Record<string, any>, senderId: string) {
     const { functionName, args, recipient, id } = message;
     if (recipient instanceof Array) {
       if (!recipient.includes(game.userId)) return;
@@ -80,7 +80,7 @@ export class DDBSocket {
   }
 
    
-  _receiveResponse(message, _senderId) {
+  _receiveResponse(message: Record<string, any>, _senderId: string) {
     const { id, result, type } = message;
     const request = this.requests.get(id);
     if (!request) return;
@@ -102,7 +102,7 @@ export class DDBSocket {
     this.requests.delete(id);
   }
 
-  _received(message, senderId) {
+  _received(message: Record<string, any>, senderId: string) {
     if (["REQUEST"].includes(message.type)) {
       this._receiveRequest(message, senderId);
     } else {
@@ -110,7 +110,7 @@ export class DDBSocket {
     }
   }
 
-  _sendRequest(functionName, args, recipient) {
+  _sendRequest(functionName: string, args: unknown[], recipient: string | string[]) {
     const message = {
       functionName,
       args,
@@ -125,12 +125,12 @@ export class DDBSocket {
     return promise;
   }
 
-  static _executeLocal(func, ...args) {
+  static _executeLocal(func: (...args: any[]) => unknown, ...args: any[]) {
     const socketData = { userId: game.userId };
     return func.call({ socketData }, ...args);
   }
 
-  async executeAsGM(functionName, ...args) {
+  async executeAsGM(functionName: string | ((...args: any[]) => unknown), ...args: any[]) {
     const [name, func] = this.#getFunction(functionName);
     if (game.user.isGM) {
       return DDBSocket._executeLocal(func, ...args);
@@ -142,7 +142,7 @@ export class DDBSocket {
     }
   }
 
-  async executeAsUser(functionName, userId, ...args) {
+  async executeAsUser(functionName: string | ((...args: any[]) => unknown), userId: string, ...args: any[]) {
     const [name, func] = this.#getFunction(functionName);
     if (userId === game.userId) return DDBSocket._executeLocal(func, ...args);
     const user = game.users.get(userId);

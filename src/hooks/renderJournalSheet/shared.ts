@@ -1,6 +1,6 @@
 import { DDBSources, FolderHelper } from "../../lib/_module";
 
-export function imageToChat(src) {
+export function imageToChat(src: string) {
   const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
 
   ChatMessage.create({
@@ -8,7 +8,7 @@ export function imageToChat(src) {
   } as unknown as ChatMessage.CreateInput);
 }
 
-async function getJournal(bookCode): Promise<JournalEntry.Implementation> {
+async function getJournal(bookCode: string | null): Promise<JournalEntry.Implementation> {
   const folder = await FolderHelper.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
   const journalName = bookCode
     ? DDBSources.getBookName(bookCode)
@@ -40,7 +40,7 @@ async function getJournal(bookCode): Promise<JournalEntry.Implementation> {
   }
 }
 
-async function createPage(journal, name, type, content) {
+async function createPage(journal: JournalEntry.Implementation, name: string, type: string, content: string) {
   const page: Record<string, any> = {
     _id: foundry.utils.randomID(),
     name,
@@ -69,7 +69,7 @@ async function createPage(journal, name, type, content) {
   return journal.pages.find((jp) => page._id === jp._id);
 }
 
-export async function createAndShowPlayerHandout(name, content, type, bookCode) {
+export async function createAndShowPlayerHandout(name: string, content: string, type: string, bookCode: string | null) {
 
   const journal = await getJournal(bookCode);
 
@@ -87,5 +87,5 @@ export async function createAndShowPlayerHandout(name, content, type, bookCode) 
     ? existingPage
     : await createPage(journal, name, type, content);
 
-  Journal.showDialog(page);
+  foundry.documents.collections.Journal.showDialog(page);
 }

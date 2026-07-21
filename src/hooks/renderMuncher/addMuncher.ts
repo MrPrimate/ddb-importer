@@ -3,7 +3,7 @@ import DDBSetup from "../../apps/DDBSetup";
 import { PatreonHelper, Secrets, utils } from "../../lib/_module";
 import DDBMuncher from "../../apps/DDBMuncher";
 
-export function addMuncher(app, html) {
+export function addMuncher(app: any, html: HTMLElement) {
   if (app.id !== "compendium" || !game.user.isGM) return;
   const button = document.createElement("button");
   button.type = "button";

@@ -1,6 +1,6 @@
 import { CompendiumHelper, logger } from "../../../lib/_module";
 
-async function updateJournalSheetToDDB(sheet, { force = false, sheetClass = "ddb-importer.DDBJournalSheet" } = {}) {
+async function updateJournalSheetToDDB(sheet: any, { force = false, sheetClass = "ddb-importer.DDBJournalSheet" } = {}) {
   if (force || sheet.flags?.core?.sheetClass !== sheetClass) {
     logger.info("Updating journal sheet", sheet);
     await sheet.update({
