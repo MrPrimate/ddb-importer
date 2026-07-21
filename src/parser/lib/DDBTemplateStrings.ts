@@ -50,7 +50,12 @@ function evaluateMath(obj: string): number {
  * @param {TFeatures | TDefinitions | TDDBActionTypes} feature The feature object associated with the match.
  * @returns {IDDBTemplateStringDisplayString} An object containing the parsed string and link text.
  */
-function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: TFeatures | TDefinitions | TDDBActionTypes): IDDBTemplateStringDisplayString {
+function parseMatch(
+  ddb: IDDBData,
+  _character: I5ePCData,
+  match: string,
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll,
+): IDDBTemplateStringDisplayString {
   const featureDef = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
@@ -437,7 +442,12 @@ type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground 
  * @param {TFeatures | TDefinitions} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TDDBActionTypes): IDDBTemplateStringResult | undefined {
+export function parse(
+  ddb: IDDBData,
+  character: I5ePCData,
+  text: string,
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll,
+): IDDBTemplateStringResult | undefined {
   if (!text) return;
   const featureDefinition = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
 

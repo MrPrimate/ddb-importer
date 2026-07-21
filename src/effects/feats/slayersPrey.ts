@@ -3,7 +3,7 @@ import { DDBMacros } from "../../lib/_module";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
-export async function slayersPreyEffect(document) {
+export async function slayersPreyEffect(document: I5eFeatItem): Promise<I5eFeatItem> {
   const effect = baseFeatEffect(document, `Marked by ${document.name}`, { transfer: true });
   effect.system.changes.push(
     {
@@ -30,18 +30,18 @@ export async function slayersPreyEffect(document) {
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "slayersPrey.js", ["postActiveEffects"]);
 
   foundry.utils.setProperty(document, "system.actionType", "util");
-  document.system.damage.parts = [];
-  document.system.target = {
-    value: 1,
-    width: null,
-    units: "",
-    type: "creature",
-  };
-  document.system.range = {
-    value: null,
-    long: null,
-    units: "",
-  };
+  // document.system.damage.parts = [];
+  // document.system.target = {
+  //   value: 1,
+  //   width: null,
+  //   units: "",
+  //   type: "creature",
+  // };
+  // document.system.range = {
+  //   value: null,
+  //   long: null,
+  //   units: "",
+  // };
 
   return document;
 }

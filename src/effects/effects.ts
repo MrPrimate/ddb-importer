@@ -1,31 +1,31 @@
 import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module";
 
- 
+
 export function effectModules() {
   return AutoEffects.effectModules();
 }
 
-export function baseEffect(foundryItem, name,
+export function baseEffect(foundryItem: I5ePCConsumptionItems, name: string,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
 ) {
   return AutoEffects.BaseEffect(foundryItem, name, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 
-export function baseItemEffect(foundryItem, name,
+export function baseItemEffect(foundryItem: I5ePCConsumptionItems, name: string,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
 ) {
   return AutoEffects.BaseEffect(foundryItem, name, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 
-export function baseFeatEffect(document, label,
+export function baseFeatEffect(document: I5ePCConsumptionItems, label: string,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
 ) {
   return AutoEffects.BaseEffect(document, label, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
@@ -36,11 +36,11 @@ export function getMidiCEOnFlags(midiFlags = {}) {
   return MidiEffects.getMidiCEOnFlags(midiFlags);
 }
 
-export function applyDefaultMidiFlags(document) {
+export function applyDefaultMidiFlags(document: I5ePCConsumptionItems) {
   return MidiEffects.applyDefaultMidiFlags(document);
 }
 
-export function forceItemEffect(document) {
+export function forceItemEffect(document: I5ePCConsumptionItems) {
   return AutoEffects.forceDocumentEffect(document);
 }
 
@@ -56,49 +56,49 @@ export function forceItemEffect(document) {
 
 
 export function addStatusEffectChange({ effect, statusName, priority = 20, level = null }: {
-  effect?: any; statusName?: string; priority?: number; level?: number | null;
+  effect?: I5eEffectData; statusName?: string; priority?: number; level?: number | null;
 } = {}) {
   return ChangeHelper.addStatusEffectChange({ effect, statusName, priority, level });
 }
 
 // Refactored functions
 
-export function generateSignedAddChange(value, priority, key) {
+export function generateSignedAddChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.signedAddChange(value, priority, key);
 }
 
-export function generateUnsignedAddChange(value, priority, key) {
+export function generateUnsignedAddChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.unsignedAddChange(value, priority, key);
 }
 
-export function generateCustomChange(value, priority, key) {
+export function generateCustomChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.customChange(value, priority, key);
 }
 
-export function generateCustomBonusChange(value, priority, key) {
+export function generateCustomBonusChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.customBonusChange(value, priority, key);
 }
 
-export function generateUpgradeChange(value, priority, key) {
+export function generateUpgradeChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.upgradeChange(value, priority, key);
 }
 
-export function generateOverrideChange(value, priority, key) {
+export function generateOverrideChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.overrideChange(value, priority, key);
 }
 
-export function generateMultiplyChange(value, priority, key) {
+export function generateMultiplyChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.multiplyChange(value, priority, key);
 }
 
-export function generateDowngradeChange(value, priority, key) {
+export function generateDowngradeChange(value: string | number, priority: number, key: string) {
   return ChangeHelper.downgradeChange(value, priority, key);
 }
 
-export function generateTokenMagicFXChange(macroValue, priority = 20) {
+export function generateTokenMagicFXChange(macroValue: string, priority = 20) {
   return ChangeHelper.tokenMagicFXChange(macroValue, priority);
 }
 
-export function generateATLChange(atlKey, mode, value, priority = 20) {
+export function generateATLChange(atlKey: string, mode: TActiveEffectChangeType, value: string | number, priority = 20) {
   return ChangeHelper.atlChange(atlKey, mode, value, priority);
 }

@@ -15,7 +15,7 @@ global {
   interface IActiveEffectChangeData {
     key: string;
     type: TActiveEffectChangeType;
-    value: string | number | boolean | null;
+    value: string | null;
     phase?: TActiveEffectChangePhase;
     priority?: number;
   }

@@ -1,7 +1,7 @@
 import { logger, DDBMacros } from "../../lib/_module";
 
 
-function daeStubEffects(actor, change, _current, _delta, _changes) {
+function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, _current: unknown, _delta: unknown, _changes: unknown) {
 
   if (typeof change?.key !== "string") return true;
 
@@ -38,6 +38,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
       return true;
     }
     case "system.attributes.movement.all": {
+      if (!("attributes" in actor.system)) break;
       const movement = actor.system.attributes.movement;
       let op = "";
       if (typeof change.value === "string") {
@@ -46,7 +47,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
           op = change.value[0];
         }
       }
-      for (const key of Object.keys(movement)) {
+      for (const key of Object.keys(movement) as (keyof I5eMovementRecord)[]) {
         if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
         let valueString = change.value;
         if (op !== "") {
@@ -60,7 +61,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
           }
 
           const result = roll.evaluateSync({ strict: false }).total;
-          movement[key] = Math.floor(Math.max(0, result) + 0.5);
+          movement[key] = String(Math.floor(Math.max(0, result) + 0.5));
         } catch (err) {
           logger.warn(`Error evaluating custom movement.all = ${valueString}`, key, err);
         }
@@ -76,15 +77,15 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
 export default class DDBEffectHooks {
 
 
-  static ddbMacro(actor, change, ..._params) {
-    const scope = { actor, token: null };
+  static ddbMacro(actor: Actor.Implementation, change: Record<string, any>, ..._params: unknown[]) {
+    const scope = { actor, token: null as Token.Implementation | null };
     const data = JSON.parse(change.value);
 
     DDBMacros.executeDDBMacro(data.type, data.name, scope);
   }
 
 
-  static processCustomApplyEffectHooks(_actor, change, _current, _delta, _changes) {
+  static processCustomApplyEffectHooks(_actor: Actor.Implementation, change: Record<string, any>, _current: unknown, _delta: unknown, _changes: unknown) {
 
     if (change.type !== "custom") return;
 

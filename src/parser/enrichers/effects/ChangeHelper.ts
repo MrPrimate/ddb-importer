@@ -56,7 +56,7 @@ export default class ChangeHelper {
       : value;
     return {
       key,
-      value: bonusValue,
+      value: String(bonusValue),
       type: "add",
       priority,
     };
@@ -93,7 +93,7 @@ export default class ChangeHelper {
   static customChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
-      value,
+      value: String(value).trim(),
       type: "custom",
       priority,
     };
@@ -110,7 +110,7 @@ export default class ChangeHelper {
   static upgradeChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
-      value,
+      value: String(value).trim(),
       type: "upgrade",
       priority,
     };
@@ -119,7 +119,7 @@ export default class ChangeHelper {
   static overrideChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
-      value,
+      value: String(value).trim(),
       type: "override",
       priority,
     };
@@ -128,7 +128,7 @@ export default class ChangeHelper {
   static multiplyChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
-      value,
+      value: String(value).trim(),
       type: "multiply",
       priority,
     };
@@ -137,7 +137,7 @@ export default class ChangeHelper {
   static downgradeChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
-      value,
+      value: String(value).trim(),
       type: "downgrade",
       priority,
     };
@@ -189,7 +189,7 @@ export default class ChangeHelper {
     return {
       key,
       type,
-      value,
+      value: String(value).trim(),
       priority,
     };
   }

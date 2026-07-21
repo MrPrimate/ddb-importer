@@ -1,7 +1,7 @@
 import { AutoEffects } from "../parser/enrichers/effects/_module";
 import { DDBMacros } from "../lib/_module";
 
-async function woundingWeaponEffect(document) {
+async function woundingWeaponEffect(document: I5eInventoryItem) {
   const effect = AutoEffects.ItemEffect(document, document.name);
 
   effect.transfer = false;
@@ -20,7 +20,7 @@ async function woundingWeaponEffect(document) {
   return document;
 }
 
-async function lifeStealingEffect(document) {
+async function lifeStealingEffect(document: I5eInventoryItem) {
   const effect = AutoEffects.ItemEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "item", "lifeStealing.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
@@ -33,13 +33,13 @@ interface IRestrictionMapping {
   ddb: string[];
   restriction: string;
   effect?: boolean;
-  effectFunction?: (document: any) => Promise<any>;
+  effectFunction?: (document: I5eInventoryItem) => Promise<I5eInventoryItem>;
   save?: boolean;
   macro?: boolean;
   nameMatch?: string;
   removeOther?: boolean;
   replaceFlavor?: string;
-  damageParts?: any[];
+  // damageParts?: any[];
   effectRestrictionActivation?: boolean;
 }
 
@@ -175,7 +175,7 @@ const RESTRICTION_MAPPINGS: IRestrictionMapping[] = [
   },
 ];
 
-export async function addRestrictionFlags(document, addEffects) {
+export async function addRestrictionFlags(document: I5eInventoryItem, addEffects: boolean): Promise<I5eInventoryItem> {
 
   const restrictions = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.restrictions") as string[] | undefined;
   if (!restrictions || restrictions.length == 0) return document;
@@ -197,16 +197,22 @@ export async function addRestrictionFlags(document, addEffects) {
     if (restriction.replaceFlavor) {
       foundry.utils.setProperty(document, "system.chatFlavor", restriction.replaceFlavor);
     }
-    if (restriction.damageParts) {
-      document.system.damage.parts.push(...restriction.damageParts);
-    }
+    // disabled for now, these would need to be injected into the activity
+    // if ("damage" in document.system && restriction.damageParts) {
+    //   document.system.damage.base.parts.push(...restriction.damageParts);
+    // }
 
     if (!game.modules.get("midi-qol")?.active || !addEffects) return document;
 
     let restrictionText = restriction.restriction;
 
-    if (document.system.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
-      restrictionText += ` && @item.attunement !== 1`;
+    if ("attunement" in document.system
+      && "attuned" in document.system
+      && document.system.attunement !== ""
+      && !["", "false"].includes(restriction.restriction)
+      && document.system.attuned
+    ) {
+      restrictionText += ` && @item.attuned`;
     }
     // foundry.utils.setProperty(document, "system.activation.condition", restrictionText);
     foundry.utils.setProperty(document, "flags.midi-qol.effectCondition", restrictionText);

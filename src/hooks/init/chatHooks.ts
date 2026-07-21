@@ -1,5 +1,5 @@
 
-function addAppButtonClickEvent(event) {
+function addAppButtonClickEvent(event: any) {
   const menu = game.settings.menus.get(event.currentTarget.dataset.key);
   const MenuApplication = menu.type as new (options?: Record<string, any>) => { render: (force?: boolean) => unknown };
   const app = new MenuApplication({
@@ -8,7 +8,7 @@ function addAppButtonClickEvent(event) {
   return app.render(true);
 }
 
-function addChatImgButtonClickEvent(chatImg) {
+function addChatImgButtonClickEvent(chatImg: HTMLElement) {
   new foundry.applications.apps.ImagePopout({
     src: $(chatImg).attr("src"),
     showTitle: false,
@@ -24,7 +24,7 @@ export function chatHooks() {
     if (chatImg) chatImg.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      addChatImgButtonClickEvent(chatImg);
+      addChatImgButtonClickEvent(chatImg as HTMLElement);
     });
     if (settingsButton) settingsButton.addEventListener("click", addAppButtonClickEvent);
   });

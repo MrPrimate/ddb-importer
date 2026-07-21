@@ -37,7 +37,7 @@ describe("ChangeHelper.signedAddChange", () => {
 
   it("does not double-sign negative integers", () => {
     const result = ChangeHelper.signedAddChange(-3, 20, "system.bonuses.mwak.attack");
-    expect(result.value).toBe(-3);
+    expect(result.value).toBe("-3");
   });
 
   it("does not double-sign strings starting with +", () => {

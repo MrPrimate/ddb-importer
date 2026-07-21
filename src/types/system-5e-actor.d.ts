@@ -291,8 +291,11 @@ global {
 
   interface I5eSpellSlot {
     value: number;
+    // string in source data, number once the live actor derives it
     max?: string;
     override?: number;
+    // derived pact slot level on the live actor
+    // level?: number;
   }
 
   interface I5eSpellSlots {

@@ -1,6 +1,6 @@
 import { logger, FolderHelper, utils } from "../lib/_module";
 import DDBMonsterFactory from "./DDBMonsterFactory";
-import { getAbilityMods, IDDBAbilityMods } from "./monster/helpers";
+import { getAbilityMods, TDDBAbilityMods } from "./monster/helpers";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCompanionFactory from "./companions/DDBCompanionFactory";
 import DDBCharacter from "./DDBCharacter";
@@ -64,7 +64,7 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
     const boost = {
       key: `data.abilities.${ability.value}.save`,
       type: "add" as const,
-      value: characterProficiencyBonus,
+      value: String(characterProficiencyBonus),
       priority: 20,
     };
     effect.system.changes.push(boost);
@@ -73,7 +73,7 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
     const boost = {
       key: `data.skills.${skill.name}.mod`,
       type: "add" as const,
-      value: characterProficiencyBonus,
+      value: String(characterProficiencyBonus),
       priority: 20,
     };
     effect.system.changes.push(boost);
@@ -344,7 +344,7 @@ function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImport
 
   // Max Hit Points Add Monster CON Modifier
   if (mock.creatureFlags.includes("MHPAMCM")) {
-    const monsterConModifier: IDDBAbilityMods = getAbilityMods(mock);
+    const monsterConModifier: TDDBAbilityMods = getAbilityMods(mock);
     mock.averageHitPoints += monsterConModifier.con;
   }
 
