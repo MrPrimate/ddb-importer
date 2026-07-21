@@ -106,7 +106,7 @@ async function getItemMap() {
   return Promise.all(results);
 }
 
-const ATTACK_ACTION_MAP = {
+const ATTACK_ACTION_MAP: Record<string, { hint: string; page: string }> = {
   "Opportunity Attack": {
     hint: "Opportunity Attacks",
     page: "Making an Attack",
@@ -224,7 +224,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
             compendium: rulesCompendium,
             documentName: senseEntryDocument.name,
             pageId: senseEntryPage._id,
-            headerLink: null,
+            headerLink: null as string | null,
           };
         });
     }
@@ -243,7 +243,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
             slug: condition.definition.slug,
             documentName: conditionEntryDocument.name,
             pageId: conditionEntryPage._id,
-            headerLink: null,
+            headerLink: null as string | null,
           };
         });
     }
@@ -303,7 +303,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
             compendium: rulesCompendium,
             documentName: document.name,
             pageId: page._id,
-            headerLink: null,
+            headerLink: null as string | null,
           });
         });
       });

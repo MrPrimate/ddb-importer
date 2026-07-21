@@ -258,7 +258,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
         : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster));
 
       if (matched) {
-        const match = foundry.utils.duplicate(matched) as TAll5eDocuments;
+        const match = foundry.utils.duplicate(matched) as unknown as TAll5eDocuments;
         // in some instances we want to keep the ddb id
         if (keepDDBId && foundry.utils.hasProperty(item, "flags.ddbimporter.id")) {
           foundry.utils.setProperty(match, "flags.ddbimporter.id", foundry.utils.duplicate(item.flags.ddbimporter.id));

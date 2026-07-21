@@ -39,7 +39,7 @@ let activePatreonLinkSocket: any = null;
 
 const PatreonHelper = {
 
-  isValidKey: async (local = false, setKey = true, overrideKey = null) => {
+  isValidKey: async (local = false, setKey = true, overrideKey = null as string | null) => {
     // eslint-disable-next-line no-useless-assignment
     let validKey = false;
 
@@ -114,7 +114,7 @@ const PatreonHelper = {
     }
   },
 
-  fetchPatreonTier: async (local = false, overrideKey = null): Promise<IPatreonTierResponse> => {
+  fetchPatreonTier: async (local = false, overrideKey = null as string | null): Promise<IPatreonTierResponse> => {
     if (DDBProxy.isCustom(true)) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = overrideKey ?? PatreonHelper.getPatreonKey(local);
     const parsingApi = DDBProxy.getProxy();
@@ -190,7 +190,7 @@ const PatreonHelper = {
     return matrix;
   },
 
-  linkToPatreon: async (callback) => {
+  linkToPatreon: async (callback: ((data: IPatreonLinkResponse) => void) | null) => {
 
     if (activePatreonLinkSocket) {
       logger.debug("Disconnecting prior Patreon link socket");

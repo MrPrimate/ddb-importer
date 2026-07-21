@@ -10,31 +10,32 @@ export default class OriginFixer {
 
   static TOKEN_ORIGIN_RE = /(Scene.[^.]+.Token.[^.]+.Actor\.[^.]+)(.*)$/g;
 
-  static _getEffectOrigin(effect, actorUuid, compendium = false) {
+  static _getEffectOrigin(effectOrigin: string, actorUuid: string, compendium = false) {
     if (compendium) {
-      return effect.origin.replace(OriginFixer.COMPENDIUM_ORIGIN_RE, `${actorUuid}.$2$3`);
-    } else if (effect.origin.match(OriginFixer.TOKEN_ORIGIN_RE)) {
-      return effect.origin.replace(OriginFixer.TOKEN_ORIGIN_RE, `${actorUuid}$2`);
+      return effectOrigin.replace(OriginFixer.COMPENDIUM_ORIGIN_RE, `${actorUuid}.$2$3`);
+    } else if (effectOrigin.match(OriginFixer.TOKEN_ORIGIN_RE)) {
+      return effectOrigin.replace(OriginFixer.TOKEN_ORIGIN_RE, `${actorUuid}$2`);
     } else {
-      return effect.origin.replace(OriginFixer.ORIGIN_RE, `${actorUuid}$3`);
+      return effectOrigin.replace(OriginFixer.ORIGIN_RE, `${actorUuid}$3`);
     }
   }
 
-  static async updateActorEffects(actor, compendiumOnly = false) {
+  static async updateActorEffects(actor: Actor.Implementation | null, compendiumOnly = false) {
     if (!actor) return;
     const newEffects = [];
     const actorUuid = actor.uuid.replace("..", ".");
     let changesMade = false;
 
     for (const effect of actor.effects) {
-      const newEffect = effect.toObject();
-      const isDDBMonsterCompendium = effect.origin?.startsWith(`Compendium.${CompendiumHelper.getCompendiumLabel("monsters")}.`);
+      const newEffect = effect.toObject() as I5eEffectData;
+      const isDDBMonsterCompendium = (effect.origin as string | null)?.startsWith(`Compendium.${CompendiumHelper.getCompendiumLabel("monsters")}.`);
       const matchRe = compendiumOnly || isDDBMonsterCompendium ? OriginFixer.COMPENDIUM_ORIGIN_RE : OriginFixer.ORIGIN_RE;
-      if (typeof effect.origin === "string"
-        && effect.origin.match(matchRe)
-        && (!effect.origin.startsWith("Compendium") || isDDBMonsterCompendium)
+      const effectOrigin = effect.origin as string | null;
+      if (typeof effectOrigin === "string"
+        && effectOrigin.match(matchRe)
+        && (!effectOrigin.startsWith("Compendium") || isDDBMonsterCompendium)
       ) {
-        const testOrigin = OriginFixer._getEffectOrigin(effect, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
+        const testOrigin = OriginFixer._getEffectOrigin(effect.origin, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
         const originLoaded = await fromUuid(testOrigin);
         if (originLoaded && testOrigin !== effect.origin) {
           changesMade = true;
@@ -46,15 +47,15 @@ export default class OriginFixer {
     }
     if (changesMade) {
       logger.debug(`Replacing effects on actor ${actor.name} [${actorUuid}]`, newEffects);
-      await actor.updateEmbeddedDocuments("ActiveEffect", newEffects);
+      await actor.updateEmbeddedDocuments("ActiveEffect", newEffects as any[]);
     }
   }
 
-  static async fixActorOrigins(actor) {
+  static async fixActorOrigins(actor: Actor.Implementation) {
     await OriginFixer.updateActorEffects(actor);
   }
 
-  static async fixTokenOrigins(tokenOrTokenDocument) {
+  static async fixTokenOrigins(tokenOrTokenDocument: Record<string, any>) {
     if (!tokenOrTokenDocument.actor) return;
     await OriginFixer.updateActorEffects(tokenOrTokenDocument.actor);
   }
@@ -65,7 +66,7 @@ export default class OriginFixer {
     }
   }
 
-  static async fixTokenOriginsForScene(scene) {
+  static async fixTokenOriginsForScene(scene: Scene.Implementation) {
     for (const token of scene.tokens) {
       await OriginFixer.updateActorEffects(token.actor);
     }

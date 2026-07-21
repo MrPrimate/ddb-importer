@@ -10,7 +10,7 @@ export const NOTIFICATION_API = {
       $("#ddbimporter-notifications").empty();
     });
   },
-  show: (message, timeout = 4000) => {
+  show: (message: string, timeout = 4000) => {
     $("#ddbimporter-notifications").css("left", $("#players").css("left"));
     // prettier-ignore
     $("#ddbimporter-notifications").css("bottom", $("#players").height() + (2 * MARGIN));
@@ -42,7 +42,7 @@ export const HINT_API = {
       $("#ddbimporter-hints").empty();
     });
   },
-  show: (message, options: {
+  show: (message: string | JQuery<HTMLElement>, options: {
     width?: number;
     align?: string;
     element?: HTMLElement | JQuery<HTMLElement>;

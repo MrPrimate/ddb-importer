@@ -72,7 +72,7 @@ export async function moveCobaltToSettings() {
   game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
 }
 
-export async function checkCobalt(keyPostfix = "", alternativeKey = null) : Promise<{ success: boolean; message: string }> {
+export async function checkCobalt(keyPostfix = "", alternativeKey = null as string | null) : Promise<{ success: boolean; message: string }> {
   const cobaltCookie = alternativeKey
     ? isJSON(alternativeKey)
       ? JSON.parse(alternativeKey).cbt
@@ -117,7 +117,7 @@ interface IDDBUserDataResponse {
   };
 }
 
-export async function getUserData(keyPostfix = "", alternativeKey = null): Promise<IDDBUserDataResponse> {
+export async function getUserData(keyPostfix = "", alternativeKey = null as string | null): Promise<IDDBUserDataResponse> {
   const cobaltCookie = alternativeKey
     ? isJSON(alternativeKey)
       ? JSON.parse(alternativeKey).cbt

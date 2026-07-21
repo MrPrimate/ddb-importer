@@ -32,7 +32,8 @@ global {
   interface IDDBImporterFlagsBase {
     // Core identifiers
     id?: number;
-    entityTypeId?: number;
+    // custom actions carry a string entityTypeId; all other kinds send a number
+    entityTypeId?: number | string;
     compendiumId?: string;
 
     // Type/classification

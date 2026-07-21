@@ -484,10 +484,10 @@ export default class Iconizer {
       const nameMatch = nameMatchList.find((m) => m.name === item.name);
       if (nameMatch) {
         item.img = nameMatch.img;
-      } else {
+      } else if (item.type !== "rolltable") {
         const systemSource = foundry.utils.getProperty(item, "system.source.rules") as string;
         const localLibrary = srdImageLibrary || (systemSource === "2014" ? srdImageLibrary2014 : srdImageLibrary2024);
-        const match = NameMatcher.looseItemNameMatch(item, localLibrary, true);
+        const match = NameMatcher.looseItemNameMatch(item as TAll5eDocuments, localLibrary, true);
         if (match) {
           item.img = match.img;
         }

@@ -3,7 +3,7 @@ import logger from "./Logger";
 
 export default class NameMatcher {
 
-  static getMonsterNames(name) {
+  static getMonsterNames(name: string) {
     const magicNames = [name, name.toLowerCase()];
 
     // +2 sword
@@ -21,7 +21,7 @@ export default class NameMatcher {
     return magicNames;
   }
 
-  static getLooseNames(name, extraNames = [], removeMagic = true) {
+  static getLooseNames(name: string, extraNames: string[] = [], removeMagic = true) {
     const looseNames = new Set(extraNames.map((n) => n.toLowerCase()));
     looseNames.add(name.toLowerCase());
     looseNames.add(name.replace(",", "").toLowerCase());
@@ -100,16 +100,16 @@ export default class NameMatcher {
   }
 
   // The monster setting is less vigorous!
-  static looseItemNameMatch(item, items, loose = false, monster = false, magicMatch = false) {
+  static looseItemNameMatch<T extends (TAll5eDocuments | TImporterItem)>(item: T, items: ICompendiumIconMapEntry[] | T[] | IUpdateItemIndex["contents"], loose = false, monster = false, magicMatch = false): T | undefined {
     // first pass is a strict match
-    let matchingItem = items.find((matchItem) => {
+    let matchingItem = items.find((matchItem: T) => {
       let activationMatch = false;
       const extraNames = (foundry.utils.getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
 
       const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
       const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
 
-      if (itemActivationProperty && item.system?.activation?.type == "") {
+      if (itemActivationProperty && "activation" in item.system && item.system?.activation?.type == "") {
         activationMatch = true;
       } else if (matchItemActivationProperty && itemActivationProperty) {
         // I can't remember why I added this. Maybe I was concerned about identical named items with
@@ -128,7 +128,7 @@ export default class NameMatcher {
     });
 
     if (!matchingItem && monster) {
-      matchingItem = items.find((matchItem) => {
+      matchingItem = items.find((matchItem: T) => {
         const monsterNames = NameMatcher.getMonsterNames(matchItem.name);
         const monsterMatch = monsterNames.includes(item.name.toLowerCase())
           && DICTIONARY.types.monster.includes(matchItem.type)
@@ -156,7 +156,7 @@ export default class NameMatcher {
       const looseNames = NameMatcher.getLooseNames(item.name, extraNames, !magicMatch);
       // console.warn("loose names", looseNames);
       for (const looseName of looseNames) {
-        matchingItem = items.find((matchItem) => {
+        matchingItem = items.find((matchItem: T) => {
           const looseItemMatch = (looseName === matchItem.name.toLowerCase()
             || looseName === matchItem.name.toLowerCase().replace(" armor", ""))
             && DICTIONARY.types.inventory.includes(item.type)
@@ -172,11 +172,11 @@ export default class NameMatcher {
       // super loose name match!
       if (!matchingItem) {
         // still no matching item, lets do a final pass
-        matchingItem = items.find((matchItem) =>
+        matchingItem = items.find((matchItem: T) =>
           looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase()),
         );
       }
     }
-    return matchingItem;
+    return matchingItem as T | undefined;
   }
 }
