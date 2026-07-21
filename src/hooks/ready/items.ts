@@ -2,17 +2,16 @@ import { DDBItemConfig } from "../../apps/DDBItemConfig";
 import { utils } from "../../lib/_module";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 
-function onClickV2(event) {
+function onClickV2(event: MouseEvent) {
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
-     
     new DDBAdventureFlags(this.document, {}).render(true);
   } else {
-     
+
     new DDBItemConfig(this.document, {}).render(true);
   }
 }
 
-function createItemHeaderButtonV1(config, buttons) {
+function createItemHeaderButtonV1(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.document.isOwned) return;
   const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   if (config.object instanceof Item) {
@@ -20,7 +19,7 @@ function createItemHeaderButtonV1(config, buttons) {
       label: `DDB Importer Item Config`,
       class: "open-item-ddb-importer",
       icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-      onclick: (event) => {
+      onclick: (event: MouseEvent) => {
         if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
           new DDBAdventureFlags(config.object, {}).render(true);
         } else {
@@ -31,7 +30,7 @@ function createItemHeaderButtonV1(config, buttons) {
   }
 }
 
-function createItemHeaderButtonV2(config, buttons) {
+function createItemHeaderButtonV2(config: Record<string, any>, buttons: Record<string, any>[]) {
   if (!config.document.isOwned) return;
   if (!(config.document instanceof Item)) return;
   config.options.actions["ddbclick"] = onClickV2;

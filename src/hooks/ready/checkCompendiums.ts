@@ -1,12 +1,12 @@
 import { SETTINGS } from "../../config/_module";
 import { CompendiumHelper, FolderHelper, utils } from "../../lib/_module";
-import type { CompendiumCreationOptions } from "../../lib/_module";
+import type { ICompendiumCreationOptions } from "../../lib/_module";
 
 
 export async function createDDBCompendium(compendiumSetting: ICompendiumSetting): Promise<string> {
   const compendiumName = utils.getSetting<string>(compendiumSetting.setting);
   const createCompendiumBanner = utils.getSetting<boolean>("ddb-compendium-banner");
-  const compendiumData: CompendiumCreationOptions = {
+  const compendiumData: ICompendiumCreationOptions = {
     id: compendiumName,
     type: compendiumSetting.type,
     label: `DDB ${compendiumSetting.title}`,

@@ -1,4 +1,4 @@
-export const RULE_DATA = {
+export const RULE_DATA: IDDBRuleData = {
   minExhaustionLevel: 1,
   maxExhaustionLevel: 6,
   maxDeathsavesFail: 3,
