@@ -34,8 +34,8 @@ global {
   export interface IDDBItemDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     entityTypeId: number;
     definitionKey: string;
-    snippet: string;
-    type: string;
+    snippet: string | null;
+    type: string | null;
     filterType: string;
     subType: string | null;
     rarity: string;
@@ -72,7 +72,7 @@ global {
     weightMultiplier: number;
     cost: number | null;
     // Container
-    capacity: string;
+    capacity: string | null;
     capacityWeight: number;
     // Category / grouping
     categoryId: number | null;
@@ -86,6 +86,9 @@ global {
     // Modifiers & sources
     grantedModifiers: IDDBModifier[];
     tags: string[];
+    // Always present on the /items response (narrower than IDDBSourcesDefinition)
+    sources: IDDBSource[];
+    isHomebrew: boolean;
     // Infusion
     levelInfusionGranted: number | null;
     version: string | null;
@@ -122,6 +125,51 @@ global {
     originDefinitionKey: string | null;
     originEntityId: number | null;
     originEntityTypeId: number | null;
+  }
+
+  // ---- Proxy /items response ------------------------------------------------
+  // Models the JSON returned by the DDB proxy `/proxy/items` call.
+
+  // A spell entry as wrapped inside the /items response.
+  export interface IDDBItemsResponseSpell {
+    id: number;
+    component_id: number;
+    data: IDDBSpellEntry;
+  }
+
+  // Limited-use / attunement info keyed by item id, returned alongside items.
+  export interface IDDBItemsResponseExtra {
+    id: number;
+    data: {
+      limitedUse: IDDBInventoryLimitedUse | null;
+      definition: {
+        id: number;
+        name: string;
+      };
+    };
+  }
+
+  // Payload under `data` in the proxy response. Custom proxies return the raw
+  // item array directly instead of this wrapper.
+  export interface IDDBItemsResponseData {
+    items: IDDBItemDefinition[];
+    spells: IDDBItemsResponseSpell[];
+    extra: IDDBItemsResponseExtra[];
+  }
+
+  // Full proxy `/proxy/items` HTTP response.
+  export interface IDDBItemsProxyResponse {
+    success: boolean;
+    message: string;
+    data: IDDBItemsResponseData | IDDBItemDefinition[];
+  }
+
+  // Normalised payload used internally after `normaliseItemPayload`: spells are
+  // unwrapped to their `data`, extra is passed through unchanged.
+  export interface IDDBItemsSource {
+    items: IDDBItemDefinition[];
+    spells: IDDBSpellEntry[];
+    extra: IDDBItemsResponseExtra[];
   }
 
 }

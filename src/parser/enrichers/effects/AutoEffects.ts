@@ -326,7 +326,7 @@ export default class AutoEffects {
     effect.statuses.push(...conditionEffect.statuses);
     if (conditionEffect.name && conditionEffect.name !== "") effect.name = conditionEffect.name;
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
-    if (conditionEffect.duration?.value != null) {
+    if (Number.isFinite(conditionEffect.duration?.value)) {
       effect.duration.value = conditionEffect.duration.value;
       effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units);
       effect.duration.expiry = conditionEffect.duration.expiry;

@@ -421,7 +421,7 @@ export default class DDBDescriptions {
       result.success = true;
       const duration = DDBDescriptions.getDuration(parserText);
 
-      if (duration.type) {
+      if (duration.type && duration.value !== null) {
         result.duration.value = parseInt(duration.value);
         result.duration.units = AutoEffects.adjustDurationUnits(duration.units);
       }

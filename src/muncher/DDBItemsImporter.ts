@@ -19,11 +19,59 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
 import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
 
+type TItemsNotifier = (note: any, opts?: NotifierV1Props) => void;
+
+// Parsed documents generated from the raw DDB item data by _processDDBItemData.
+export interface IDDBItemsSynthetic {
+  items: I5eInventoryItem[];
+  spells: I5eSpellItem[];
+}
+
+export interface IDDBItemsImporter {
+  source: IDDBItemsSource;
+  synthetic: IDDBItemsSynthetic | null;
+  data: TDDBItemImporterDocument[];
+  updateResults: (Item.Implementation | RollTable.Implementation)[] | null;
+  notifier: TItemsNotifier;
+  notifierV2: INotifierV2 | null;
+  updateBool: boolean;
+  uploadDirectory: string;
+  ready: boolean;
+  deleteBeforeUpdate: boolean | null;
+  sources: number[] | null;
+  useSourceFilter: boolean;
+  ids: (number | string)[];
+  searchFilter: string | null;
+  itemHandler: DDBItemImporter | null;
+
+  init(): Promise<void>;
+  _processDDBItemData(): Promise<void>;
+  _getDDBItems(): Promise<void>;
+  _importSyntheticItems(): Promise<(Item.Implementation | RollTable.Implementation)[] | null>;
+  process(): Promise<void>;
+}
+
 // Custom proxies may not expose the /items socket namespace. After one failed
 // streaming attempt for the session we latch this and stick to HTTP.
 let _itemSocketDisabled = false;
 
-function applyItemFilters(input, { ids, useSourceFilter, useGenerics, sources, exactMatch, searchFilter }) {
+interface IApplyItemFilters {
+  ids: (number | string)[];
+  useSourceFilter: boolean;
+  useGenerics: boolean;
+  sources: number[];
+  exactMatch: boolean;
+  searchFilter: string | null;
+}
+
+function applyItemFilters(input: IDDBItemsSource, {
+  ids,
+  useSourceFilter,
+  useGenerics,
+  sources,
+  exactMatch,
+  searchFilter,
+}: IApplyItemFilters): IDDBItemsSource {
   let data = input;
   // category filtering
   if (ids.length === 0) {
@@ -72,75 +120,60 @@ function applyItemFilters(input, { ids, useSourceFilter, useGenerics, sources, e
   return data;
 }
 
-function normaliseItemPayload(payload) {
+function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinition[]): IDDBItemsSource {
   // Official proxy returns { items, spells, extra }; custom proxies return a raw array.
   if (DDBProxy.isCustom(true)) {
-    return { items: payload, spells: [], extra: [] };
+    return { items: payload as IDDBItemDefinition[], spells: [], extra: [] };
   }
+  const raw = payload as IDDBItemsResponseData;
   return {
-    items: payload.items,
-    spells: (payload.spells ?? []).map((s) => s.data),
-    extra: payload.extra ?? [],
+    items: raw.items,
+    spells: (raw.spells ?? []).map((s) => s.data),
+    extra: raw.extra ?? [],
   };
 }
 
 
-export default class DDBItemsImporter {
+export default class DDBItemsImporter implements IDDBItemsImporter {
 
-  source = {
+  source: IDDBItemsSource = {
     items: [],
     extra: [],
     spells: [],
   };
-
-  synthetic = null;
-
-  mock = null;
-
-  data = [];
-
-  updateResults = null;
-
-  notifier = utils.munchNote;
-
-  notifierV2 = null;
-
+  synthetic: IDDBItemsSynthetic | null = null;
+  data: TDDBItemImporterDocument[] = [];
+  updateResults: (Item.Implementation | RollTable.Implementation)[] | null = null;
+  notifier: TItemsNotifier = utils.munchNote;
+  notifierV2: INotifierV2 | null = null;
   updateBool = false;
-
-  uploadDirectory = null;
-
+  uploadDirectory = "";
   ready = false;
-
-  deleteBeforeUpdate = null;
-
+  deleteBeforeUpdate: boolean | null = null;
   sources: number[] | null = null;
-
   useSourceFilter = true;
-
-  ids = [];
-
-  searchFilter = null;
-
-  itemHandler = null;
+  ids: (number | string)[] = [];
+  searchFilter: string | null = null;
+  itemHandler: DDBItemImporter | null = null;
 
   constructor({
     source = {
       items: [],
       extra: [],
       spells: [],
-    },
-    notifier = null,
-    notifierV2 = null,
-    deleteBeforeUpdate = null,
+    } as IDDBItemsSource,
+    notifier = null as TItemsNotifier | null,
+    notifierV2 = null as INotifierV2 | null,
+    deleteBeforeUpdate = null as boolean | null,
     useSourceFilter = true,
-    ids = [],
-    searchFilter = null,
-    sources = null,
+    ids = [] as (number | string)[],
+    searchFilter = null as string | null,
+    sources = null as number[] | null,
   } = {}) {
     this.source = source;
     if (notifier) this.notifier = notifier;
     if (notifierV2) this.notifierV2 = notifierV2;
-    if (this.deleteBeforeUpdate !== null) this.deleteBeforeUpdate = deleteBeforeUpdate;
+    if (deleteBeforeUpdate !== null) this.deleteBeforeUpdate = deleteBeforeUpdate;
     this.useSourceFilter = useSourceFilter;
     this.ids = ids;
     this.searchFilter = searchFilter;
@@ -169,7 +202,7 @@ export default class DDBItemsImporter {
     this.ready = true;
   }
 
-  static _resolveItemFetchContext({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
+  static _resolveItemFetchContext({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}) {
     const cobaltCookie = Secrets.getCobalt();
     const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
     const parsingApi = DDBProxy.getProxy();
@@ -188,7 +221,7 @@ export default class DDBItemsImporter {
     };
   }
 
-  static _getItemDataHttp({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
+  static _getItemDataHttp({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IDDBItemsSource> {
     const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
     const body = { cobalt: cobaltCookie, campaignId, betaKey, addSpells: true };
@@ -198,9 +231,9 @@ export default class DDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
-    return new Promise((resolve, reject) => {
+    return new Promise<IDDBItemsSource>((resolve, reject) => {
       postJson(`${parsingApi}/proxy/items`, body)
-        .then((data) => {
+        .then((data: IDDBItemsProxyResponse) => {
           if (debugJson) {
             FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
           }
@@ -219,7 +252,7 @@ export default class DDBItemsImporter {
     });
   }
 
-  static _getItemDataStreaming({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
+  static _getItemDataStreaming({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IDDBItemsSource> {
     const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
 
@@ -260,7 +293,12 @@ export default class DDBItemsImporter {
     })();
   }
 
-  static async _getItemData(args = {}) {
+  static async _getItemData(args: {
+    useSourceFilter?: boolean;
+    ids?: (number | string)[];
+    searchFilter?: string | null;
+    sourcesOverride?: number[] | null;
+  } = {}): Promise<IDDBItemsSource> {
     if (!_itemSocketDisabled) {
       try {
         return await DDBItemsImporter._getItemDataStreaming(args);
@@ -273,7 +311,7 @@ export default class DDBItemsImporter {
     return DDBItemsImporter._getItemDataHttp(args);
   }
 
-  static getCharacterInventory(items, extra = []) {
+  static getCharacterInventory(items: IDDBItemDefinition[], extra: IDDBItemsResponseExtra[] = []) {
     return items.map((item) => {
       const extraItem = extra.find((e) => e.id == item.id);
       const limitedUse = extraItem
@@ -283,7 +321,7 @@ export default class DDBItemsImporter {
         chargesUsed: 0,
         definitionId: 0,
         definitionTypeId: 0,
-        displayAsAttack: null,
+        displayAsAttack: null as boolean | null,
         entityTypeId: 0,
         equipped: false,
         id: 0,
@@ -375,7 +413,6 @@ export default class DDBItemsImporter {
 
     this.notifier("Downloading item data..");
 
-    // TO DO: add types
     // disable source filter if ids provided
     const sourceFilter = (this.ids === null || this.ids.length === 0) && this.useSourceFilter;
     this.source = await DDBItemsImporter._getItemData({
@@ -383,43 +420,45 @@ export default class DDBItemsImporter {
       ids: this.ids,
       searchFilter: this.searchFilter,
       sourcesOverride: this.sources,
-    }) as any;
+    });
   }
 
   async _importSyntheticItems() {
-    if (!this.ready) {
+    if (!this.ready || this.synthetic === null) {
       throw new Error("DDBItems not initialized. Please run init() before enriching synthetic items.");
     }
 
     this.notifier("Analysing generated items...", { nameField: true });
-    this.itemHandler = new DDBItemImporter("items", this.synthetic.items, {
+    const itemHandler = new DDBItemImporter<TDDBItemImporterDocument>("items", this.synthetic.items, {
       deleteBeforeUpdate: this.deleteBeforeUpdate,
       matchFlags: ["is2014", "is2024"],
       notifier: this.notifier,
-      notifierV2: this.notifierV2,
+      notifierV2: this.notifierV2 ?? undefined,
     });
-    await this.itemHandler.init();
-    this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
-    await this.itemHandler.iconAdditions();
+    this.itemHandler = itemHandler;
+    await itemHandler.init();
+    this.notifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
+    await itemHandler.iconAdditions();
     this.data = (this.ids !== null && this.ids.length > 0)
-      ? this.itemHandler.documents.filter((s) =>
+      // definitionId only exists on item-flavoured ddbimporter flags, not the full union
+      ? itemHandler.documents.filter((s: any) =>
         s.flags?.ddbimporter?.definitionId
         && this.ids.includes(String(s.flags.ddbimporter.definitionId)),
       )
-      : this.itemHandler.documents;
-    this.itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({
-      documents: this.data,
+      : itemHandler.documents;
+    itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({
+      documents: this.data as TExternalAutomationDocuments[],
       compendiumItem: true,
     });
 
-    const finalCount = this.itemHandler.documents.length;
+    const finalCount = itemHandler.documents.length;
     this.notifier(`Preparing to import ${finalCount} items!`, { nameField: true });
     logger.time("Item Import Time");
 
-    await this.itemHandler.compendiumFolders.loadCompendium("items", true);
-    await this.itemHandler.compendiumFolders.createItemFoldersForDocuments({ documents: this.itemHandler.documents });
+    await itemHandler.compendiumFolders.loadCompendium("items", true);
+    await itemHandler.compendiumFolders.createItemFoldersForDocuments({ documents: itemHandler.documents as I5eInventoryItem[] });
 
-    this.updateResults = await this.itemHandler.updateCompendium(this.updateBool);
+    this.updateResults = await itemHandler.updateCompendium(this.updateBool);
     const updatePromiseResults = await Promise.all(this.updateResults);
 
     await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
@@ -427,7 +466,7 @@ export default class DDBItemsImporter {
     DDBRuleJournalFactory.registerWeaponIds();
 
     logger.debug("Final Item Import Data", {
-      finalItems: this.itemHandler.documents,
+      finalItems: itemHandler.documents,
       updateResults: this.updateResults,
       updatePromiseResults,
     });
@@ -448,12 +487,12 @@ export default class DDBItemsImporter {
 
   static async fetchAndImportItems({
     useSourceFilter = true,
-    ids = [],
-    deleteBeforeUpdate = null,
-    notifier = null,
-    notifierV2 = null,
-    searchFilter = null,
-    sources = null,
+    ids = [] as (number | string)[],
+    deleteBeforeUpdate = null as boolean | null,
+    notifier = null as TItemsNotifier | null,
+    notifierV2 = null as INotifierV2 | null,
+    searchFilter = null as string | null,
+    sources = null as number[] | null,
   } = {}) {
     const ddbItems = new DDBItemsImporter({
       useSourceFilter,
