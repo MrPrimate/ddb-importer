@@ -92,7 +92,7 @@ global {
     abilities?: string[];
     hint?: string;
     name: string;
-    spellLinks?: TSpellLinks;
+    spellLinks?: IDDBSpellLink[];
     is2024?: boolean;
     spellData?: I5eSpellItem[];
   }
@@ -115,7 +115,7 @@ global {
     abilities?: string[];
     hint?: string;
     name: string;
-    spellLinks: TSpellLinks;
+    spellLinks: IDDBSpellLink[];
     method?: "innate" | "spell" | "pact";
     requireSlot?: boolean;
     prepared?: TPreparedSpellValue;
@@ -130,7 +130,7 @@ global {
     abilities?: string[];
     hint?: string;
     name: string;
-    spellLinks: TSpellLinks;
+    spellLinks: IDDBSpellLink[];
     method?: "innate" | "spell" | "pact";
     requireSlot?: boolean;
     prepared?: TPreparedSpellValue;

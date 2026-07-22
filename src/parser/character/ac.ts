@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import { logger, utils } from "../../lib/_module";
-import DDBCharacter, { IDDBACResults, IDDBACValue, IDDBCalculatedArmor } from "../DDBCharacter";
+import DDBCharacter, { IDDBACResults, IDDBACValue, IDDBCalculatedArmor, type IDDBArmorEntry } from "../DDBCharacter";
 import { ACBonusEffects } from "../enrichers/effects/_module";
 import { DDBDataUtils, DDBModifiers, FilterModifiers } from "../lib/_module";
 
@@ -26,25 +26,25 @@ DDBCharacter.prototype.isUnArmored = function isUnArmored(this: DDBCharacter) {
   return !this.isArmored();
 };
 
-function getMinimumBaseAC(modifiers): number[] {
+function getMinimumBaseAC(modifiers: IDDBModifier[]): number[] {
   const hasBaseArmor = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted,
   );
-  const baseAC = [];
+  const baseAC: number[] = [];
   hasBaseArmor.forEach((base) => {
-    baseAC.push(base.value);
+    baseAC.push(Number(base.value));
   });
   return baseAC;
 }
 
-function getBaseArmor(ac, armorType, name = "Racial", formula = null) {
+function getBaseArmor(ac: number, armorType: string, name = "Racial", formula: string | null = null) {
   return {
     definition: {
       name: `Base Armor - ${name}`,
       type: armorType,
       armorClass: ac,
       armorTypeId: DICTIONARY.equipment.armorType.find((id) => id.name === armorType)?.id ?? 0,
-      grantedModifiers: [],
+      grantedModifiers: [] as IDDBModifier[],
       canAttune: false,
       filterType: "Armor",
       formula,
@@ -53,8 +53,9 @@ function getBaseArmor(ac, armorType, name = "Racial", formula = null) {
   };
 }
 
-function getEquippedAC(equippedGear): number {
-  return equippedGear.reduce((prev, item) => {
+// accepts real inventory items or the synthetic base-armor entries built above
+function getEquippedAC(equippedGear: (IDDBInventoryItem | IDDBArmorEntry)[]): number {
+  return equippedGear.reduce((prev: number, item) => {
     let ac = 0;
     // regular armor
     if (item.definition.armorClass) {
@@ -76,10 +77,10 @@ function getEquippedAC(equippedGear): number {
       }
 
       if (isAvailable) {
-        item.definition.grantedModifiers.forEach((modifier) => {
+        item.definition.grantedModifiers.forEach((modifier: IDDBModifier) => {
           if (modifier.type === "bonus" && modifier.subType === "armor-class") {
             // add this to armor AC
-            ac += modifier.value;
+            ac += Number(modifier.value);
           }
         });
       }
@@ -89,8 +90,8 @@ function getEquippedAC(equippedGear): number {
 }
 
 // returns an array of ac values from provided array of modifiers
-function getUnarmoredAC(modifiers, character): number[] {
-  const unarmoredACValues = [];
+function getUnarmoredAC(modifiers: IModifiersMod[], character: I5ePCData): number[] {
+  const unarmoredACValues: number[] = [];
   const isUnarmored = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted,
   );
@@ -107,7 +108,7 @@ function getUnarmoredAC(modifiers, character): number[] {
 
   const maxUnamoredDexMods = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "ac-max-dex-modifier" && modifier.isGranted,
-  ).map((mods) => mods.value);
+  ).map((mods) => Number(mods.value));
   const maxUnamoredDexMod = ignoreDex ? 0 : Math.min(...maxUnamoredDexMods, 20);
 
   // console.log(`Max Dex: ${maxUnamoredDexMod}`);
@@ -127,14 +128,14 @@ function getUnarmoredAC(modifiers, character): number[] {
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === unarmored.statId);
       unarmoredACValue += utils.calculateModifier(characterAbilities[ability.value].value);
     }
-    if (unarmored.value) unarmoredACValue += unarmored.value;
+    if (unarmored.value) unarmoredACValue += Number(unarmored.value);
     unarmoredACValues.push(unarmoredACValue);
   });
   // console.warn(unarmoredACValues);
   return unarmoredACValues;
 }
 
-function getDualWieldAC(data, modifiers) {
+function getDualWieldAC(data: IDDBData, modifiers: IDDBModifier[]) {
   const dualWielding = data.character.characterValues.some((cv) => {
     // loose equality intentional: DDB sends characterValues.valueId as a string, item.id is a number
     const equipped = data.character.inventory.some((item) => item.equipped && item.id == cv.valueId);

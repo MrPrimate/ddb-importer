@@ -124,7 +124,7 @@ async function restoreEdgeBackgroundColor(liveScene: Scene): Promise<boolean> {
     return DEFAULTS.has(s.toLowerCase());
   };
 
-  const firstLevel = liveScene.levels?.contents?.[0] ?? liveScene.levels?.[0];
+  const firstLevel = liveScene.levels?.contents?.[0] ?? (liveScene.levels as unknown as I5eSceneLevel[])?.[0];
   if (!firstLevel?._id) return false;
   const levelColor = firstLevel?.background?.color;
   if (!isDefault(levelColor)) return false;

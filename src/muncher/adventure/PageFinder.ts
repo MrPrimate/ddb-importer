@@ -27,7 +27,7 @@ export class PageFinder {
     }
   }
 
-  constructor(journal) {
+  constructor(journal: JournalEntry.Implementation) {
     this.journal = journal;
     this.contentChunkIds = {};
     this.elementIds = {};
@@ -36,7 +36,7 @@ export class PageFinder {
 
 
   // returns page Id if content chunk id known in contents
-  getPageIdForContentChunkId(chunkId) {
+  getPageIdForContentChunkId(chunkId: string) {
     for (const [key, value] of Object.entries(this.contentChunkIds)) {
       if (value.has(chunkId)) return key;
     }
@@ -44,7 +44,7 @@ export class PageFinder {
   }
 
   // returns page Id if element id known in contents
-  getPageIdForElementId(elementId) {
+  getPageIdForElementId(elementId: string) {
     for (const [key, value] of Object.entries(this.elementIds)) {
       if (value.has(elementId)) return key;
       // if (value.has(elementId.replace(/^0+/, ""))) return key;

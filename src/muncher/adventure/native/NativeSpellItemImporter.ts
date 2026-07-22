@@ -30,7 +30,7 @@ function resolveRulebookSources(bookCode: string): number[] {
   if (cat === 1 || cat === 26) return [1, 2];
   if (cat === 24 || cat === 38) return [148, 145];
   // is2014/is2024Source read source.sourceId; the book source uses `id`.
-  if (DDBSources.is2024Source({ sourceId: source.id })) return [148, 145];
+  if (DDBSources.is2024Source({ sourceId: source.id } as IDDBSource)) return [148, 145];
   return [1, 2];
 }
 

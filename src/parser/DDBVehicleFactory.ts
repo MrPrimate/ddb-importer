@@ -297,7 +297,7 @@ export default class DDBVehicleFactory {
     for (const doc of documents) {
       this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${doc.name} to compendium`, { monsterNote: true });
       logger.debug(`Preparing ${doc.name} data for import`);
-      const munched = await DDBMonsterImporter.addNPC(doc, "vehicle", {}, {
+      const munched = await DDBMonsterImporter.addNPC(doc, "vehicles", {}, {
         fullWipe: true,
       });
       if (munched) this.vehiclesParsed.push(munched);
@@ -317,7 +317,7 @@ export default class DDBVehicleFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of vehicles processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed vehicle documents
    */
-  async processIntoCompendium(ids: any[] = null, searchTerm: any = null) {
+  async processIntoCompendium(ids: number[] = null, searchTerm: any = null) {
 
     logger.time("Vehicle Import Time");
     await this.#prepareImporter();

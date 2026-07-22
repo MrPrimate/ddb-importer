@@ -66,7 +66,7 @@ export async function importAssets(
       p = FileHelper.downloadImage(BookData.corsUrl(url))
         // proxy returns access-denied as application/xml  treat as a miss
         .then((blob) => (blob && blob.type !== "application/xml" ? blob : null))
-        .catch(() => null);
+        .catch((): null => null);
       urlCache.set(url, p);
     }
     return p;

@@ -10,22 +10,6 @@ export interface IDDBMonsterOverrides {
   [key: string]: any;
 }
 
-interface IMonsterSpellInnate {
-  name: string;
-  type: string;
-  value: string | number | null;
-  innate?: boolean;
-  edge?: string;
-  edgeDescription?: string;
-}
-
-export interface IMonsterSpellEdgeCase {
-  name: string;
-  type: string;   // "atwill" | "class" | "pact" | "innate"
-  edge: string;
-  edgeDescription?: string;
-}
-
 // Declaration merging: these methods are added to DDBMonster.prototype
 // by the files imported via extendParsers.ts
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -122,21 +106,11 @@ class DDBMonster {
   extra: boolean;
   spellcasting: {
     spelldc: number;
-    spellcasting: "str" | "dex" | "con" | "int" | "wis" | "cha" | string;
+    spellcasting: T5eAbility | "";
     spellLevel: number;
     spellAttackBonus: number;
   };
-  spellList: {
-    atwill: string[];
-    class: string[];
-    pact: string[];
-    innate: IMonsterSpellInnate[];
-    edgeCases: IMonsterSpellEdgeCase[];
-    material: boolean;
-    innateMatch: boolean;
-    concentration: boolean;
-    overrideData?: DeepPartial<I5eSpellItem> | null;
-  };
+  spellList: IDDBMonsterSpellListTracker;
   abilities: I5eAbilities;
   movement: {
     movement: I5eMovement;

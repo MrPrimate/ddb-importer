@@ -200,7 +200,7 @@ interface DDBCharacter {
   setDefaultResources(sortedResources: any): void;
   resourceSelectionDialog(): Promise<I5ePCData>;
   // inventory.ts
-  getInventory(notifier?: any): Promise<any>;
+  getInventory(notifier?: any): Promise<I5eInventoryItem[]>;
   _generateInventory(): Promise<void>;
   // globalBonuses.ts
   getGlobalBonusAttackModifiers(lookupTable: any): any;
@@ -228,7 +228,7 @@ export interface IDDBCharacterDataStub {
   features: TFeatureActionItem[];
   race: I5eRaceItem;
   classes: (I5eClassItem | I5eSubclassItem)[];
-  inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
+  inventory: I5eInventoryItem[];
   spells: I5eSpellItem[];
   actions: TFeatureActionItem[];
   itemSpells: I5eSpellItem[];

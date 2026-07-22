@@ -239,7 +239,7 @@ export default class DDBQuickplay {
     const tiles = (scene?.tiles?.contents ?? scene?.tiles ?? []) as TileDocument[];
     const tilesOut = [];
     for (const t of tiles) {
-      const f = t.flags?.["ddbimporter"];
+      const f = (t.flags as Record<string, any>)?.["ddbimporter"];
       if (!f?.quickplayStickerId) continue;
       tilesOut.push({
         name: f.quickplayStickerName,

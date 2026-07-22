@@ -3,7 +3,7 @@ import { DICTIONARY } from "../config/_module";
 import { logger, CompendiumHelper } from "../lib/_module";
 
 // Function to calculate the new price
-export async function calculatePrice(rarity, consumable = false) {
+export async function calculatePrice(rarity: string, consumable = false) {
   if (!DICTIONARY.equipment.priceFormulas[rarity]) return null;
   const roll = new Roll(DICTIONARY.equipment.priceFormulas[rarity]);
   await roll.evaluate();
@@ -35,7 +35,11 @@ interface IUpdatePriceIndexItem {
 }
 
 // Function to update item prices
-export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepExistingDDBPrices = true, compendiumName = null } = {}) {
+export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepExistingDDBPrices = true, compendiumName = null }:{
+  keepExistingNonDDBPrices?: boolean;
+  keepExistingDDBPrices?: boolean;
+  compendiumName?: string | null;
+} = {}) {
   const packName = compendiumName ?? CompendiumHelper.getCompendiumLabel("equipment");
   const pack = CompendiumHelper.getCompendium(packName, false);
   if (!pack) {
@@ -90,7 +94,7 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
     }
   }
 
-  await Item.updateDocuments(updates, { pack: packName });
+  await Item.updateDocuments(updates as unknown as Item.UpdateInput[], { pack: packName });
 
   ui.notifications.info(`Attempted to update prices for ${updates.length} items.`);
   return filteredItems;

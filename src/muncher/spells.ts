@@ -97,7 +97,7 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
 
   return new Promise<IDDBSpellEntry[]>((resolve, reject) => {
     postJson(`${parsingApi}/proxy/class/spells`, body)
-      .then((data) => {
+      .then((data: IDDBClassSpellsProxyResponse) => {
         if (debugJson) {
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
@@ -165,7 +165,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
           exactMatch, rulesVersion: rules, className, searchFilter,
         });
 
-        let raw: any[] = [];
+        let raw: IDDBSpellEntry[] = [];
         await socket.runJob(
           "class-spells",
           { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie },
@@ -203,7 +203,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
 // path first; on connect/auth/start failure fall through to the HTTP endpoint.
 let _spellSocketDisabled = false;
 
-export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null, sources = null } = {}) {
+export async function parseSpells({ ids = null as any, deleteBeforeUpdate = null as any, notifier = null as any, notifierV2 = null as any, searchFilter = null as any, sources = null as any } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = utils.getSetting<boolean>("munching-policy-update-existing");

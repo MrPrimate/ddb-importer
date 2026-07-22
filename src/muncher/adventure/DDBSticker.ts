@@ -13,7 +13,7 @@ const META_CHAINS = new Map<string, Promise<unknown>>();
 function chainMetaWrite<T>(dir: string, fn: () => Promise<T>): Promise<T> {
   const prev = META_CHAINS.get(dir) ?? Promise.resolve();
   const next = prev.then(fn, fn);
-  META_CHAINS.set(dir, next.then(() => undefined, () => undefined));
+  META_CHAINS.set(dir, next.then((): undefined => undefined, (): undefined => undefined));
   return next as Promise<T>;
 }
 
@@ -74,7 +74,7 @@ export default class DDBSticker {
 
   private static _runOnUploadChain<T>(fn: () => Promise<T>): Promise<T> {
     const next = DDBSticker._uploadChain.then(fn, fn);
-    DDBSticker._uploadChain = next.then(() => undefined, () => undefined);
+    DDBSticker._uploadChain = next.then((): undefined => undefined, (): undefined => undefined);
     return next as Promise<T>;
   }
 

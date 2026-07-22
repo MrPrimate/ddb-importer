@@ -43,7 +43,7 @@ export default class DDBMap {
 
   private static _runOnUploadChain<T>(fn: () => Promise<T>): Promise<T> {
     const next = DDBMap._uploadChain.then(fn, fn);
-    DDBMap._uploadChain = next.then(() => undefined, () => undefined);
+    DDBMap._uploadChain = next.then((): undefined => undefined, (): undefined => undefined);
     return next as Promise<T>;
   }
 

@@ -59,7 +59,7 @@ export function replaceLookupLinks(doc: Document, options: LinkReplaceOptions): 
       const worldActorLink = journalWorldActors && ["monsters"].includes(lookupKey);
       let ddbId = lookupMatch[1];
       const dictionaryName = CONFIG_MAP[lookupKey]
-        ? CONFIG.DDB[lookupKey]?.find((e: any) => e.id == ddbId)?.name
+        ? CONFIG.DDB[lookupKey as keyof typeof CONFIG.DDB]?.find((e: any) => e.id == ddbId)?.name
         : null;
       const replacedMonster = monstersToReplace.find((m) => m.id2014 === parseInt(ddbId));
       if (replacedMonster) ddbId = String(replacedMonster.id2024);

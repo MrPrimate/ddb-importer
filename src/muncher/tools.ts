@@ -12,35 +12,35 @@ import DDBMonsterImporter from "./DDBMonsterImporter";
 let totalTargets = 0;
 let count = 0;
 
-async function updateActorsWithActor(targetActors, sourceActor) {
-  const results = [];
+async function updateActorsWithActor(targetActors: TImporterActor[], sourceActor: Actor.Implementation) {
+  const results: any[] = [];
   count++;
 
   for (const targetActor of targetActors) {
     utils.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
-    const monsterItems = sourceActor.items.toObject().map((item) => {
+    const monsterItems = (sourceActor.items.toObject() as unknown as I5eMonsterItem[]).map((item) => {
       delete item._id;
       return item;
     });
-    const actorUpdate = foundry.utils.duplicate(sourceActor);
+    const actorUpdate = foundry.utils.duplicate(sourceActor) as unknown as I5eMonsterData;
     // pop items in later
     delete actorUpdate.items;
 
     const updateImages = utils.getSetting<boolean>("munching-policy-update-world-monster-update-images");
     if (!updateImages) {
       actorUpdate.img = targetActor.img;
-      actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture;
+      actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture as unknown as I5eTokenTexture;
       actorUpdate.prototypeToken.randomImg = targetActor.prototypeToken.randomImg;
       actorUpdate.prototypeToken.lockRotation = targetActor.prototypeToken.lockRotation;
       actorUpdate.prototypeToken.rotation = targetActor.prototypeToken.rotation;
       actorUpdate.prototypeToken.alpha = targetActor.prototypeToken.alpha;
-      actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring;
+      actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring as unknown as I5eTokenRing;
     }
 
     const retainBiography = utils.getSetting<boolean>("munching-policy-update-world-monster-retain-biography");
     if (retainBiography) {
-      actorUpdate.system.details.biography = targetActor.system.details.biography;
+      actorUpdate.system.details.biography = foundry.utils.getProperty(targetActor, "system.details.biography") as I5eBiography;
     }
 
     actorUpdate._id = targetActor.id;
@@ -49,9 +49,9 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     actorUpdate.ownership = targetActor.ownership;
     DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-    await targetActor.update(actorUpdate);
+    await targetActor.update(actorUpdate as any);
     // console.warn("afterdelete", foundry.utils.duplicate(targetActor));
-    await targetActor.createEmbeddedDocuments("Item", monsterItems);
+    await targetActor.createEmbeddedDocuments("Item", monsterItems as any[]);
     // console.warn("after create", foundry.utils.duplicate(targetActor));
 
   };
@@ -75,7 +75,7 @@ export async function updateWorldMonsters() {
 
     for (const [key, value] of index.entries()) {
 
-      const worldMatches = game.actors.filter((actor) =>
+      const worldMatches = game.actors.filter((actor: TImporterActor) =>
         foundry.utils.getProperty(actor, "flags.ddbimporter.id")
         && actor.name === value.name
         && foundry.utils.getProperty(actor, "flags.ddbimporter.id") == foundry.utils.getProperty(value, "flags.ddbimporter.id"),
@@ -84,7 +84,7 @@ export async function updateWorldMonsters() {
       if (worldMatches.length > 0) {
         utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
         logger.debug(`Matched ${value.name} (${key})`);
-        const monster = await monsterCompendium.getDocument(value._id);
+        const monster = await monsterCompendium.getDocument(value._id) as Actor.Implementation;
         const updatedActors = await updateActorsWithActor(worldMatches, monster);
         results.push(updatedActors);
       }
@@ -98,7 +98,7 @@ export async function updateWorldMonsters() {
   return results;
 }
 
-export async function resetCompendiumActorImages(compendiumName = null, type: TMonsterImporterTypes = "monsters") {
+export async function resetCompendiumActorImages(compendiumName: string = null, type: TMonsterImporterTypes = "monsters") {
   const monsterCompendiumLabel = compendiumName ? compendiumName : CompendiumHelper.getCompendiumLabel(type);
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
@@ -125,13 +125,13 @@ export async function resetCompendiumActorImages(compendiumName = null, type: TM
   return results;
 }
 
-export async function parseCritters(ids = null) {
+export async function parseCritters(ids: number[] = null) {
   const monsterFactory = new DDBMonsterFactory();
   const parsedExtras = await monsterFactory.processIntoCompendium(ids);
   return parsedExtras;
 }
 
-export async function parseTransports(ids = null) {
+export async function parseTransports(ids: number[] = null) {
   const vehicleFactory = new DDBVehicleFactory();
   const parsedVehicles = await vehicleFactory.processIntoCompendium(ids);
   return parsedVehicles;
