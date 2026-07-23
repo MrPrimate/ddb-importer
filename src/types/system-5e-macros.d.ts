@@ -38,7 +38,7 @@ global {
     folder?: string;
     sort?: number;
     /** ownership level map; builder sets `{ default: 0 | 2 }`. */
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     flags?: I5eMacroFlags;
     uuid?: string;
   }

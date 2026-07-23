@@ -1,6 +1,6 @@
 import { utils } from "../../../lib/_module";
 
-export function newNPC(name, ddbId = null) {
+export function newNPC(name: string, ddbId: number | string = null) {
   const options = {
     temporary: true,
     displaySheet: false,

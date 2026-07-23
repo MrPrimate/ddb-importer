@@ -10,7 +10,7 @@ const UNSEEN_SERVANT_INSTANCES = [
 
 export async function getUnseenServant(name = "Unseen Servant", postfix = ""): Promise<ICompanionResult> {
 
-  const results = {};
+  const results: ICompanionResult = {};
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
 
@@ -24,7 +24,7 @@ export async function getUnseenServant(name = "Unseen Servant", postfix = ""): P
       "name": `${name}`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,
-    });
+    }) as I5eMonsterData;
 
     results[`${idString}${data.name}${postfix}`] = {
       name: `${name}`,

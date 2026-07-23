@@ -4,6 +4,19 @@
 
 // Provides some helper functions for Magic Items modules
 
+interface IMagicItemSpell {
+  id: string;
+  name: string;
+  img: string;
+  pack: string;
+  baseLevel: number;
+  level: number;
+  consumption: number;
+  upcast: number;
+  upcastCost: number;
+  limitedUse: IDDBSpellLimitedUse | undefined;
+}
+
 export default class MagicItemMaker {
 
   static MAGICITEMS = {
@@ -18,7 +31,7 @@ export default class MagicItemMaker {
     DestroyCheck1D20: "d2",
   };
 
-  static checkDestroy(description) {
+  static checkDestroy(description: string) {
     const destroy = /expend the .* last charge/i;
     if (description.search(destroy) !== -1) {
       return true;
@@ -27,7 +40,7 @@ export default class MagicItemMaker {
     }
   }
 
-  static checkD20Destroy(description) {
+  static checkD20Destroy(description: string) {
     const destroy = /roll a d20.*destroyed/i;
     if (description.search(destroy) !== -1) {
       return MagicItemMaker.MAGICITEMS.DestroyCheck1D20;
@@ -36,7 +49,7 @@ export default class MagicItemMaker {
     }
   }
 
-  static buildMagicItemSpell(chargeType, itemSpell) {
+  static buildMagicItemSpell(chargeType: string, itemSpell: I5eSpellItem): IMagicItemSpell {
     let consumption = chargeType == MagicItemMaker.MAGICITEMS.CHARGE_TYPE_PER_SPELL
       ? 1
       : itemSpell.system.level;

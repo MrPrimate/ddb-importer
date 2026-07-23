@@ -321,7 +321,7 @@ global {
     displayMeasurements?: boolean;
     hidden?: boolean;
     locked?: boolean;
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     flags?: Record<string, unknown>;
   }
 
@@ -550,7 +550,7 @@ global {
     // Permissions / metadata
     folder?: string;
     sort?: number;
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     /** carried by the importer; not a core Scene schema field. */
     type?: string;
     _stats?: Scene["_stats"];

@@ -5,7 +5,7 @@ import { logger } from "../../lib/_module";
  * @param {object[]} arr The array of objects, each containing `friendlyTypeName` and `friendlySubtypeName` properties.
  * @returns {string[]} An array of strings formatted as "friendlyTypeName (friendlySubtypeName)".
  */
-function extractInfo(arr) {
+function extractInfo(arr: IDDBModifier[]) {
   return arr.map((e) => `${e.friendlyTypeName} (${e.friendlySubtypeName})`);
 }
 
@@ -20,7 +20,14 @@ function extractInfo(arr) {
  * - {boolean} isStartingClass - Whether this class is the character's starting class
  * - {object[]} modifiers - An empty array, to be filled with modifiers later
  */
-function getClassInfo(data) {
+interface IClassModifierInfo {
+  name: string;
+  level: number;
+  isStartingClass: boolean;
+  modifiers: IDDBModifier[];
+}
+
+function getClassInfo(data: IDDBCharacterData): IClassModifierInfo[] {
   return data.classes.map((cls) => {
     return {
       name:
@@ -29,7 +36,7 @@ function getClassInfo(data) {
           : cls.definition.name,
       level: cls.level,
       isStartingClass: cls.isStartingClass,
-      modifiers: [],
+      modifiers: [] as IDDBModifier[],
     };
   });
 }
@@ -41,20 +48,24 @@ function getClassInfo(data) {
  * @param {*} [classLevel=20] level requirement up to which the class features should be extracted
  * @returns {object[]} An array of class feature definitions, sorted by required level
  */
-export function getClassFeatures(cls, classLevel = 20) {
+// class feature definitions with the parser-injected className/subclassName
+type TAnnotatedClassFeature = IDDBClassDefinitionFeature & { className: string; subclassName: string | null };
+
+export function getClassFeatures(cls: IDDBClass, classLevel = 20): TAnnotatedClassFeature[] {
   if (
     cls.subclassDefinition
     && cls.subclassDefinition.classFeatures
     && Array.isArray(cls.subclassDefinition.classFeatures)
   ) {
     const subclassFeatures = cls.subclassDefinition.classFeatures.map((subclassFeature) => {
-      subclassFeature.className = cls.definition.name;
-      subclassFeature.subclassName = cls.subclassDefinition.name;
-      return subclassFeature;
+      const f = subclassFeature as unknown as TAnnotatedClassFeature;
+      f.className = cls.definition.name;
+      f.subclassName = cls.subclassDefinition.name;
+      return f;
     });
     const result = cls.classFeatures
       .map((feature) => {
-        const f = feature.definition;
+        const f = feature.definition as unknown as TAnnotatedClassFeature;
         f.className = cls.definition.name;
         f.subclassName = null;
         return f;
@@ -66,7 +77,7 @@ export function getClassFeatures(cls, classLevel = 20) {
   } else {
     const result = cls.classFeatures
       .map((feature) => {
-        const f = feature.definition;
+        const f = feature.definition as unknown as TAnnotatedClassFeature;
         f.className = cls.definition.name;
         f.subclassName = null;
         return f;
@@ -84,7 +95,7 @@ export function getClassFeatures(cls, classLevel = 20) {
  * @param {string} className name of the class to check
  * @returns {boolean} true of the class is a starting class, false otherwise
  */
-function isStartingClass(data, className) {
+function isStartingClass(data: IDDBCharacterData, className: string) {
   return data.classes.find((cls) => cls.definition.name === className && cls.isStartingClass);
 }
 
@@ -98,7 +109,7 @@ function isStartingClass(data, className) {
  * @param {boolean} [isStartingClass=false] whether this class is the starting class or not
  * @returns {Array} array of class modifiers that are available for the given class
  */
-function getClassModifiers(data, classFeatures, isStartingClass = false) {
+function getClassModifiers(data: IDDBCharacterData, classFeatures: TAnnotatedClassFeature[], isStartingClass = false) {
   const modifiers = data.modifiers.class.filter((classModifier) => {
     // check the class from which this modifier came
     const feature = classFeatures.find((feature) => feature.id === classModifier.componentId);
@@ -117,7 +128,7 @@ function getClassModifiers(data, classFeatures, isStartingClass = false) {
   return modifiers;
 }
 
-export function getAllClassFeatures(data) {
+export function getAllClassFeatures(data: IDDBCharacterData): TAnnotatedClassFeature[] {
   return data.classes
     .map((cls) => {
       return getClassFeatures(cls, cls.level);
@@ -125,7 +136,7 @@ export function getAllClassFeatures(data) {
     .flat();
 }
 
-function getClassOptionModifiers(data) {
+function getClassOptionModifiers(data: IDDBCharacterData) {
   const classFeatures = getAllClassFeatures(data);
 
   const modifiers = data.modifiers.class.filter((classModifier) => {
@@ -153,11 +164,11 @@ function getClassOptionModifiers(data) {
  * - {object[]} modifiers - An empty array, to be filled with modifiers by this function
  * @returns {Array} the same array as `classInfo`, but with modifiers populated
  */
-function filterModifiers(data, classInfo) {
+function filterModifiers(data: IDDBCharacterData, classInfo: IClassModifierInfo[]) {
   // get the classFeatures for all classes
   data.classes.forEach((cls, index) => {
     const features = getClassFeatures(cls, cls.level);
-    classInfo[index].modifiers = getClassModifiers(data, features, isStartingClass(data, cls.definition.name));
+    classInfo[index].modifiers = getClassModifiers(data, features, !!isStartingClass(data, cls.definition.name));
   });
   return classInfo;
 }

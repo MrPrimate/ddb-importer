@@ -47,7 +47,8 @@ global {
 declare module "fvtt-types/configuration" {
   namespace Scene {
     interface Schema {
-      name: foundry.data.fields.StringField<{ required: true }>;
+      // NOTE: do not redeclare fields fvtt-types already has (e.g. `name`) -- a merged
+      // duplicate with different StringField options collapses the Source type to never.
       // v14 common/documents/scene.mjs:86 -- new fields.DocumentIdField({readonly: false})
       initialLevel: foundry.data.fields.DocumentIdField<{ readonly: false }>;
 

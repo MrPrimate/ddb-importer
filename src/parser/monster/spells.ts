@@ -370,8 +370,8 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell: I5eSpe
   }
 
   if (this.spellList.overrideData) {
-    const overrideData = this.spellList.overrideData as unknown as I5eSpellItem;
-    spell = foundry.utils.mergeObject(spell, overrideData) as I5eSpellItem;
+    const overrideData = this.spellList.overrideData;
+    spell = foundry.utils.mergeObject(spell, overrideData) as unknown as I5eSpellItem;
   }
 
 };

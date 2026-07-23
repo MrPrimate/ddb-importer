@@ -1,14 +1,6 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-type TFvttBonusType = "attack" | "damage" | "check" | "save" | "skill" | "dc";
-
-interface IGlobalBonusLookup {
-  fvttType: TFvttBonusType;
-  ddbSubType: string;
-}
-
-
 /**
  * Given a list of lookup tables, e.g. { fvttType: "attack", ddbSubType: "magic" }
  * returns an object with attack and damage properties that contain a string

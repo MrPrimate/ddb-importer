@@ -4,12 +4,12 @@ import DDBEncounter from "./encounters/DDBEncounter";
 
 export default class DDBEncounterFactory {
 
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-  notifierV2: ((props: NotifierV2Props) => void) | null;
+  notifier: NotifierV1;
+  notifierV2: INotifierV2 | null;
   encountersData: IDDBEncounter[];
   encounters: Record<string, DDBEncounter>;
 
-  constructor({ notifier = null } = {}) {
+  constructor({ notifier = null as any } = {}) {
     this.notifier = notifier;
 
     if (!notifier) {
@@ -21,7 +21,7 @@ export default class DDBEncounterFactory {
     this.encounters = {};
   }
 
-  static async getEncountersData(notifier = null): Promise<IDDBEncounter[]> {
+  static async getEncountersData(notifier: NotifierV1 | null = null): Promise<IDDBEncounter[]> {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();

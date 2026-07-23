@@ -16,6 +16,8 @@ global {
     message?: string | boolean;
   }
 
+  type NotifierV1 = ((note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void);
+
   interface NotifierV2Props {
     progress?: {
       current: number;

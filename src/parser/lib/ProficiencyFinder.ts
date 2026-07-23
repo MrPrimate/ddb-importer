@@ -6,20 +6,32 @@ interface IProficiencyBasic {
   name: string;
 }
 
+const CUSTOM_PROFICIENCY_CONFIG_KEYS = {
+  Armor: "armor",
+  Tools: "tools",
+  Weapons: "weapons",
+  Languages: "languages",
+} as const satisfies Record<string, keyof IDDBConfig>;
+
+type TCustomProficiencyType = keyof typeof CUSTOM_PROFICIENCY_CONFIG_KEYS;
+
 export default class ProficiencyFinder {
 
   ddb: IDDBData | null;
   excludeCustom: boolean;
 
-  constructor({ ddb = null, excludeCustom = false } = {}) {
+  constructor({ ddb = null, excludeCustom = false }:{
+    ddb?: IDDBData | null;
+    excludeCustom?: boolean;
+  } = {}) {
     this.ddb = ddb;
     this.excludeCustom = excludeCustom;
   }
 
-  isHalfProficiencyRoundedUp(skill, modifiers = null) {
+  isHalfProficiencyRoundedUp(ability: T5eAbility, modifiers: IModifiersMod[] = null) {
     const longAbility = DICTIONARY.actor.abilities
-      .filter((ability) => skill.ability === ability.value)
-      .map((ability) => ability.long)[0];
+      .filter((a) => ability === a.value)
+      .map((a) => a.long)[0];
 
     const roundUp = (modifiers)
       ? DDBModifiers.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
@@ -27,18 +39,19 @@ export default class ProficiencyFinder {
     return Array.isArray(roundUp) && roundUp.length;
   }
 
-  getCustomProficiencies(type: string) {
+  getCustomProficiencies(type: TCustomProficiencyType) {
     if (!this.ddb?.character) return [];
     if (this.excludeCustom) return [];
     const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
     const profCharacterValues = this.ddb.character.characterValues.filter(
       (value) =>
-        profGroup.customAdjustments.includes(parseInt(value.typeId))
-        && profGroup.entityTypeIds.includes(parseInt(value.valueTypeId))
+        profGroup.customAdjustments.includes(parseInt(`${value.typeId}`))
+        && profGroup.entityTypeIds.includes(parseInt(`${value.valueTypeId}`))
         && value.value == 3,
     );
-    const customProfs = CONFIG.DDB[type.toLowerCase()]
-      .filter((prof) => profCharacterValues.some((value) => parseInt(value.valueId) == prof.id))
+    const configProfs: IDDBConfigIdName[] = CONFIG.DDB[CUSTOM_PROFICIENCY_CONFIG_KEYS[type]];
+    const customProfs = configProfs
+      .filter((prof) => profCharacterValues.some((value) => parseInt(`${value.valueId}`) == prof.id))
       .map((prof) => prof.name);
 
     return customProfs;
@@ -53,7 +66,7 @@ export default class ProficiencyFinder {
       prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue"),
     );
 
-    const processArmorProficiency = (prof) => {
+    const processArmorProficiency = (prof: IProficiencyBasic) => {
       if (prof.name === "Light Armor") values.add("lgt");
       else if (prof.name === "Medium Armor") values.add("med");
       else if (prof.name === "Heavy Armor") values.add("hvy");
@@ -100,14 +113,14 @@ export default class ProficiencyFinder {
         : 1
       : 1;
 
-    const processToolProficiency = (prof) => {
+    const processToolProficiency = (prof: { name: string; customExpertise?: boolean; customProficiency?: boolean }) => {
       const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
       if (profMatch && profMatch.baseTool) {
         const modifiers = mods
           .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
           .map((mod) => mod.type);
 
-        const defaultAbility = profMatch?.ability ?? "dex";
+        const defaultAbility: T5eAbility = (profMatch?.ability as T5eAbility) ?? "dex";
 
         const halfProficiency = this.ddb
           ? DDBModifiers.getChosenClassModifiers(this.ddb).find(
@@ -115,7 +128,7 @@ export default class ProficiencyFinder {
               // Jack of All trades/half-rounded down
               (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
               // e.g. champion for specific ability checks
-              || this.isHalfProficiencyRoundedUp({ ability: defaultAbility }),
+              || this.isHalfProficiencyRoundedUp(defaultAbility),
           ) !== undefined
             ? 0.5
             : 0
@@ -129,7 +142,7 @@ export default class ProficiencyFinder {
 
         results[profMatch.baseTool] = {
           value: proficient,
-          ability: profMatch.ability,
+          ability: profMatch.ability as T5eAbility,
           bonuses: {
             check: "",
           },
@@ -171,7 +184,7 @@ export default class ProficiencyFinder {
     // }
   }
 
-  getWeaponProficiencies(proficiencyArray: IProficiencyBasic[], masteriesArray = []): I5eWeaponProf {
+  getWeaponProficiencies(proficiencyArray: IProficiencyBasic[], masteriesArray: any[] = []): I5eWeaponProf {
     const values = new Set<string>();
     const custom: string[] = [];
     const masteries: string[] = [];
@@ -179,7 +192,7 @@ export default class ProficiencyFinder {
     // lookup the characters's proficiencies in the DICT
     const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) => prof.type === "Weapon");
 
-    const processWeaponProficiency = (prof) => {
+    const processWeaponProficiency = (prof: IProficiencyBasic) => {
       if (prof.name === "Simple Weapons") {
         values.add("sim");
       } else if (prof.name === "Martial Weapons") {
@@ -304,7 +317,7 @@ export default class ProficiencyFinder {
     };
   }
 
-  getSkillProficiency(skill, modifiers: IModifiersMod[] | null = null): number {
+  getSkillProficiency(skill: IDDBSkillsLookup, modifiers: IModifiersMod[] | null = null): number {
     if (!modifiers && !this.ddb) return null;
     if (!modifiers) {
       modifiers = DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true });
@@ -319,7 +332,7 @@ export default class ProficiencyFinder {
       // Jack of All trades/half-rounded down
         (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
           // e.g. champion for specific ability checks
-          || this.isHalfProficiencyRoundedUp(skill, modifiers),
+          || this.isHalfProficiencyRoundedUp(skill.ability, modifiers),
     ) !== undefined
       ? 0.5
       : 0;

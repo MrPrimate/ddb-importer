@@ -16,7 +16,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     return super.PARTS;
   }
 
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
 
   // subclasses pass app options for typing purposes; ApplicationV2 configuration
   // comes from static DEFAULT_OPTIONS, so they are not forwarded

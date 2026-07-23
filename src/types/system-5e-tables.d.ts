@@ -63,7 +63,7 @@ global {
     displayRoll?: boolean;
     type?: string;
     folder?: string;
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     _stats?: Partial<RollTable["_stats"]>;
     uuid?: string;
     flags?: I5eRollTableFlags;

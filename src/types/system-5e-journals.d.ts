@@ -97,7 +97,7 @@ global {
     src?: string | null;
     category?: string;
     sort?: number;
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     flags?: I5eJournalPageFlags;
   }
 
@@ -107,12 +107,29 @@ global {
     core?: { sheetClass: string };
   }
 
+  /** Keys of CONFIG.DND5E.ruleTypes (dnd5e module/config.mjs). */
+  type I5eRuleType =
+    | "rule" | "ability" | "areaOfEffect" | "condition" | "creatureType"
+    | "damage" | "skill" | "spellComponent" | "spellSchool" | "spellTag"
+    | "weaponMastery";
+
+  /** Mirrors dnd5e RuleJournalPageData schema (module/data/journal/rule.mjs). */
+  interface I5eRuleJournalPageSystem {
+    type?: I5eRuleType;
+    tooltip?: string;
+  }
+
+  interface I5eRuleJournalPageData extends I5eJournalPageData {
+    type?: "rule";
+    system: I5eRuleJournalPageSystem;
+  }
+
   interface I5eJournalData {
     _id?: string;
     name?: string;
     folder?: string;
     sort?: number;
-    ownership?: { default: number };
+    ownership?: IFoundryOwnership;
     flags?: I5eJournalEntryFlags;
     pages?: I5eJournalPageData[];
   }

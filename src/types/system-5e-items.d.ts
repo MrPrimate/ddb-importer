@@ -225,7 +225,7 @@ global {
     description: I5eItemDescription;
     enchant?: Record<string, any>;
     identifier: string;
-    prerequisites: { items: any[]; repeatable: boolean };
+    prerequisites: { items?: any[]; repeatable?: boolean; level?: number };
     proficient?: boolean;
     properties: TFeatProperties[];
     requirements: string;

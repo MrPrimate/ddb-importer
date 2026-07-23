@@ -69,4 +69,5 @@ global {
     availableToMulticlass?: any;
     useUnfilteredModifiers?: any;
   };
+
 }

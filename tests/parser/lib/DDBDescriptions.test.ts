@@ -285,6 +285,25 @@ describe("DDBDescriptions.dcParser", () => {
 });
 
 // =============================================================================
+// parseStatusCondition
+// =============================================================================
+describe("DDBDescriptions.parseStatusCondition", () => {
+  it("leaves duration.value null (not NaN) when the condition has no duration phrase", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "DC 15 Strength saving throw or be knocked prone" });
+    expect(result.success).toBe(true);
+    expect(Number.isNaN(result.duration.value)).toBe(false);
+    expect(result.duration.value).toBeNull();
+  });
+
+  it("parses a numeric duration.value when a duration phrase is present", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "DC 14 Constitution saving throw or be poisoned for 1 minute" });
+    expect(result.success).toBe(true);
+    expect(result.duration.value).toBe(1);
+    expect(result.duration.units).toBe("minutes");
+  });
+});
+
+// =============================================================================
 // featureBasics
 // =============================================================================
 describe("DDBDescriptions.featureBasics", () => {

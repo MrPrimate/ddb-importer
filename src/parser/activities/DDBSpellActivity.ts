@@ -65,7 +65,17 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.additionalActivityDamageParts = [];
   }
 
-  _generateConsumption({ consumptionOverride = null, additionalTargets = [], consumeActivity = false, consumeItem = null } = {}) {
+  _generateConsumption({
+    consumptionOverride = null,
+    additionalTargets = [],
+    consumeActivity = false,
+    consumeItem = null,
+  }: {
+    consumptionOverride?: I5eActivityConsumption | null;
+    additionalTargets?: I5eConsumptionTarget[];
+    consumeActivity?: boolean;
+    consumeItem?: boolean | null;
+  } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -127,7 +137,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  getScaleType(mod) {
+  getScaleType(mod: IDDBSpellModifier) {
     // scaleTypes:
     // SPELLSCALE - typical spells that scale
     // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
@@ -365,8 +375,14 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
 
   _generateDamage({ damageParts = null, onSave = null, partialDamageParts = null, modRestrictionFilter = null,
-    modRestrictionFilterExcludes = null, allowCritical = null } = {},
-  ) {
+    modRestrictionFilterExcludes = null, allowCritical = null }: {
+    damageParts?: I5eDamagePart[] | null;
+    onSave?: string | null;
+    partialDamageParts?: number[] | null;
+    modRestrictionFilter?: string[] | null;
+    modRestrictionFilterExcludes?: string[] | null;
+    allowCritical?: boolean | null;
+  } = {}) {
     if (!("damage" in this.data)) return;
     if (damageParts) {
       this.data.damage = {
@@ -376,9 +392,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       return;
     }
 
-    let parts = [];
+    let parts: I5eDamagePart[] = [];
     let versatile = "";
-    const chatFlavor = [];
+    const chatFlavor: string[] = [];
 
     // damage
     const damageMods = this.ddbDefinition.modifiers
@@ -440,7 +456,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
 
     if (this.ddbParent.enricher?.combineDamageTypes) {
-      const types = new Set();
+      const types = new Set<string>();
       parts.forEach((part) => {
         part.types.forEach((type) => types.add(type));
       });

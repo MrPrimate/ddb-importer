@@ -240,7 +240,7 @@ interface IIconizerSettings {
 
 export default class Iconizer {
   documents: TDDBItemImporterDocument[];
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
   isMonster: boolean;
   monsterName: string;
   srdIconUpdate: boolean;
@@ -262,7 +262,7 @@ export default class Iconizer {
     srdIconUpdate = true, isMonster = false, monsterName = "",
   }:
   {
-    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+    notifier?: NotifierV1;
     settings?: IIconizerSettings;
     documents?: TDDBItemImporterDocument[];
     srdIconUpdate?: boolean;
@@ -771,7 +771,7 @@ export default class Iconizer {
     srdIconUpdate?: boolean;
     monster?: boolean;
     monsterName?: string;
-    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+    notifier?: NotifierV1;
     settings?: IIconizerSettings;
     preFetch?: boolean;
   }) {

@@ -136,7 +136,7 @@ interface IDDBMonsterFactoryFetchOptions {
 export default class DDBMonsterFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
   notifierV2: INotifierV2 | null;
   type: TMonsterImporterTypes;
   compendiumFolders: DDBCompendiumFolders;

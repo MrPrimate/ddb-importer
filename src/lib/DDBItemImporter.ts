@@ -14,7 +14,7 @@ interface IDDBItemImporterOptions {
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
   recursive?: boolean | null;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier?: NotifierV1;
   notifierV2?: INotifierV2;
 }
 
@@ -72,7 +72,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
   notifierV2: INotifierV2 | null;
   totalDocuments: number;
   currentDocumentCount: number;

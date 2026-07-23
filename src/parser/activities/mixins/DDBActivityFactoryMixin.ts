@@ -9,7 +9,7 @@ interface IDDBActivityFactoryMixin<TDoc extends string = TAFMDocTypes> {
   enricher?: any;
   activityGenerator?: any;
   documentType?: TDoc | null;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier?: NotifierV1;
   useMidiAutomations?: boolean;
   usesOnActivity?: boolean;
 }
@@ -32,7 +32,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
   data: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
 
   // These properties are used throughout the class but defined in subclasses.
   // Subclasses use narrower unions (IActionTypes, TDDBMonsterActionType, "spell", ...)

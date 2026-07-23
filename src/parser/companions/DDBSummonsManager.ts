@@ -60,13 +60,13 @@ export default class DDBSummonsManager {
 
   itemHandler: DDBItemImporter<I5eMonsterData> | null;
   ddbData: IDDBData;
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: NotifierV1;
   indexFilter: { fields: string[] };
   compendiumFolders: DDBCompendiumFolders;
 
   constructor({ ddbData = null, notifier = null }: {
     ddbData?: IDDBData;
-    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+    notifier?: NotifierV1;
   } = {}) {
     this.ddbData = ddbData;
     this.indexFilter = { fields: SUMMONS_INDEX_KEYS };

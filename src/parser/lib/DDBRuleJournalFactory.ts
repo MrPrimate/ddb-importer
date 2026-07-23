@@ -2,16 +2,30 @@ import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "./_module";
 
-const BASE_RULE_PAGE = {
+
+type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
+
+// type TRaceChoiceDocumentTypes = I5eFeatItem | I5eWeaponItem;
+
+const JOURNAL_INDEX_FIELDS = [
+  "name",
+  "flags.ddbimporter",
+];
+
+const ITEM_INDEX_FIELDS = ["name", "type", "flags.ddbimporter", "system.source.book"];
+
+interface IIndexEntry extends TIndexEntry {
+  flags: {
+    ddbimporter: IDDBImporterItemFlags;
+  };
+}
+
+const BASE_RULE_PAGE: I5eRuleJournalPageData = {
   sort: 1,
   name: "",
   type: "rule",
   system: {
     type: "rule",
-    description: {
-      value: "",
-    },
-    identifier: "",
   },
   title: {
     show: true,
@@ -31,7 +45,7 @@ const BASE_RULE_PAGE = {
   },
 };
 
-const WEAPON_MASTERY = {
+const WEAPON_MASTERY: Record<string, number[]> = {
   "PHB 2024": [
     18, // cleave
     19, // graze
@@ -60,7 +74,7 @@ const WEAPON_MASTERY = {
   ],
 };
 
-const WEAPON_PROPERTIES = {
+const WEAPON_PROPERTIES: Record<string, number[]> = {
   "PHB 2024": [
     1, // ammunition
     2, // finesse
@@ -139,32 +153,31 @@ function getAllowedSourceIds() {
   return utils.getSetting<string[]>("allowed-weapon-property-sources").map((id) => parseInt(id));
 }
 
+interface IRuleFactorySource {
+  id: number;
+  acronym: string;
+  label: string;
+}
+
 export default class DDBRuleJournalFactory {
 
-  journalCompendium = null;
-
+  journalCompendium: CompendiumCollection.Any | null = null;
   nameBit = "";
-
   flagName = "";
-
   flagTag = "";
-
-  sources = null;
-
-  filteredSources = null;
-
-  journalFolder = null;
-
+  sources: IRuleFactorySource[] | null = null;
+  filteredSources: IRuleFactorySource[] | null = null;
+  journalFolder: ({ _id: string; name: string } & Folder) | null = null;
   available = false;
 
   /** set by subclasses; used as the rule page system type */
-  declare type?: string;
+  declare type?: I5eRuleType;
 
-  static getSources() {
-    const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
+  static getSources(): IRuleFactorySource[] {
+    const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[];
     if (!ddbSources) return [];
 
-    const sources = (ddbSources as IDDBConfigSource[])
+    const sources: IRuleFactorySource[] = ddbSources
       .filter((s) => s.isReleased)
       .map((s) => {
         return {
@@ -211,7 +224,7 @@ export default class DDBRuleJournalFactory {
 
   async _getIndexes() {
     await this.journalCompendium.getIndex({
-      fields: ["name", "flags.ddbimporter"],
+      fields: JOURNAL_INDEX_FIELDS,
     });
 
   }
@@ -229,7 +242,7 @@ export default class DDBRuleJournalFactory {
     });
   }
 
-  async _createRuleJournal(source) {
+  async _createRuleJournal(source: IRuleFactorySource): Promise<JournalEntry> {
     const journalData = {
       _id: utils.namedIDStub(this.flagTag, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
       name: source.label,
@@ -259,37 +272,37 @@ export default class DDBRuleJournalFactory {
     return journal;
   }
 
-  async _getRuleJournal(source) {
-    const journalHit = this.journalCompendium.index.find((j) =>
+  async _getRuleJournal(source: IRuleFactorySource): Promise<JournalEntry> {
+    const journalHit = this.journalCompendium.index.find((j: IIndexEntry) =>
       j.flags?.ddbimporter?.type === this.flagName
       && j.flags?.ddbimporter?.sourceCode === source.acronym,
     );
     if (journalHit) {
       logger.debug(`Found existing Rule Journal for ${source.acronym} (${this.flagName})`);
-      return this.journalCompendium.getDocument(journalHit._id);
+      return this.journalCompendium.getDocument(journalHit._id) as unknown as JournalEntry;
     }
     logger.debug(`Creating Rule Journal for ${source.acronym} (${this.flagName})`);
     const journal = await this._createRuleJournal(source);
     return journal;
   }
 
-  async _getJournalRulePage(journal, rulePageName, source) {
+  async _getJournalRulePage(journal: JournalEntry, rulePageName: string, source: IRuleFactorySource) {
     const ruleIdentifier = DDBDataUtils.classIdentifierName(rulePageName);
     const page = journal.pages.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     if (page) return page;
 
-    const pageData: typeof BASE_RULE_PAGE & { _id?: string } = foundry.utils.deepClone(BASE_RULE_PAGE);
+    const pageData: I5eRuleJournalPageData = foundry.utils.deepClone(BASE_RULE_PAGE);
     pageData.system.type = this.type;
     pageData.name = rulePageName;
     pageData._id = utils.namedIDStub(rulePageName, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
 
     logger.debug(`Creating Rule Journal Page ${pageData.name}`);
-    await journal.createEmbeddedDocuments("JournalEntryPage", [pageData], { keepId: true });
+    await journal.createEmbeddedDocuments("JournalEntryPage", [pageData] as any, { keepId: true });
     const newPage = journal.pages.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     return newPage;
   }
 
-  async _generateJournalRulePage(journal, { ruleName, source, ruleContent = "" }: { ruleName?: string; source?: { label?: string }; ruleContent?: string } = {}) {
+  async _generateJournalRulePage(journal: JournalEntry, { ruleName, source, ruleContent = "" }: { ruleName?: string; source?: IRuleFactorySource; ruleContent?: string } = {}) {
     if (!ruleName && !source) return;
     if (!journal) {
       logger.error(`Journal not found for ${source.label}`);
@@ -304,11 +317,11 @@ export default class DDBRuleJournalFactory {
     };
 
     logger.debug(`Updating Journal Page`, { update, page });
-    await journal.updateEmbeddedDocuments("JournalEntryPage", [update]);
+    await journal.updateEmbeddedDocuments("JournalEntryPage", [update] as any);
 
   }
 
-  async buildRule(source, name, content) {
+  async buildRule(source: IRuleFactorySource, name: string, content: string) {
     if (!this.available) return;
     if (!this.sources) return;
     logger.debug(`Building Rule Journal for ${name} from source ${source.label}`);
@@ -320,21 +333,21 @@ export default class DDBRuleJournalFactory {
     if (!this.available) return;
     await this.init();
 
-    const ruleJournals = this.journalCompendium.index.filter((j) =>
+    const ruleJournals = this.journalCompendium.index.filter((j: IIndexEntry) =>
       j.flags?.ddbimporter?.type === this.flagName,
     );
 
     for (const journal of ruleJournals) {
       logger.debug(`Processing journal ${journal.name} with ID ${journal._id} for rule injection`);
-      const journalEntry = await this.journalCompendium.getDocument(journal._id);
+      const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
       const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId") as number;
       const allowedSourceIds = getAllowedSourceIds();
       if (!allowedSourceIds.includes(sourceId)) continue;
-      const rulePages = journalEntry.pages.filter((p) => p.type === "rule");
+      const rulePages = journalEntry.pages.filter((p) => p.type === "rule") as unknown as JournalEntryPage.Implementation[];
       switch (this.flagTag) {
         case "weapon-masteries": {
           for (const page of rulePages) {
-            const masteryId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
+            const masteryId = (foundry.utils.getProperty(page, "name") as string).toLowerCase().replaceAll(" ", "").replaceAll("-", "");
             if (CONFIG.DND5E.weaponMasteries[masteryId]) continue;
             CONFIG.DND5E.weaponMasteries[masteryId] = {
               label: page.name,
@@ -345,7 +358,7 @@ export default class DDBRuleJournalFactory {
         }
         case "weapon-properties": {
           for (const page of rulePages) {
-            const propertyId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
+            const propertyId = (foundry.utils.getProperty(page, "name") as string).toLowerCase().replaceAll(" ", "").replaceAll("-", "");
             const shortId = DICTIONARY.weapon.properties.find((p) => p.name.toLowerCase() === propertyId)?.value
               ?? propertyId.slice(0, 3);
             const isPHBProperty = ["PHB 2024", "BR", "PHB", "SRD 5.1", "SRD 5.2"].includes(foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode") as string);
@@ -453,7 +466,7 @@ export default class DDBRuleJournalFactory {
     const allowedSources = sources.filter((s) => allowedSourceIds.includes(s.id));
 
     const itemCompendium = CompendiumHelper.getCompendiumType("items");
-    await itemCompendium.getIndex({ fields: ["name", "type", "flags.ddbimporter", "system.source.book"] });
+    await itemCompendium.getIndex({ fields: ITEM_INDEX_FIELDS });
     for (const weapon of CONFIG.DDB.weapons) {
       logger.verbose(`Processing DDB weapon: ${weapon.name}`);
       const handledCase = DICTIONARY.actor.proficiencies

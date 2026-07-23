@@ -90,7 +90,7 @@ export default class DDBSubClass extends DDBBaseClass {
 
   isSubClass = true;
 
-  constructor(ddb, classId, options = {}) {
+  constructor(ddb: IDDBData, classId: number, options = {}) {
     super(ddb, classId, options);
 
     // adjustments for subclass
@@ -722,7 +722,7 @@ export default class DDBSubClass extends DDBBaseClass {
     await this._bardFixes();
   }
 
-  async _generateSpellListAdvancement(feature) {
+  async _generateSpellListAdvancement(feature: IDDBClassDefinitionFeature) {
     const advancements: I5eAdvancement[] = [];
 
     const extractor = new SpellListExtractor({
@@ -730,7 +730,7 @@ export default class DDBSubClass extends DDBBaseClass {
       description: feature.description,
       is2014: this.is2014,
       is2024: this.is2024,
-      sourceId: feature.sourceId,
+      sourceId: foundry.utils.getProperty(feature, "sourceId") as number,
     });
 
     const extractedSpells = extractor.extractSpells(true);
@@ -796,7 +796,7 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
-  async generateFromCharacter(character) {
+  async generateFromCharacter(character: I5ePCData) {
     await this._buildCompendiumIndex("features");
     await this._buildCompendiumIndex("feats");
     this._fleshOutCommonDataStub();

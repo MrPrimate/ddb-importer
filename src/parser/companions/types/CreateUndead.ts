@@ -77,10 +77,10 @@ export async function getCreateUndead({
 
   for (const data of animated) {
 
-    const stub = monsterResults.actors.find((m) =>
+    const stub: I5eMonsterData | undefined = monsterResults.actors.find((m) =>
       m.name === data.name
       && m.system.source?.rules === data.source,
-    );
+    ) as unknown as I5eMonsterData | undefined;
 
     if (!stub) continue;
 

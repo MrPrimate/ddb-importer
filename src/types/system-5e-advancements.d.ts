@@ -52,11 +52,14 @@ global {
     spell?: Record<string, any> | null;
     type?: string | null;
   }
+
+  type I5eAdvancementItemGrantValueAdded = Record<string, string>;
+
   interface I5eAdvancementItemGrant extends I5eAdvancementBase {
     type?: "ItemGrant";
     configuration: I5eAdvItemGrantConfig;
     /** Keys are local item IDs; values are compendium UUIDs, populated after grant. */
-    value?: { added?: Record<string, string> };
+    value?: { added?: I5eAdvancementItemGrantValueAdded };
   }
 
   interface I5eAdvASIConfig {
@@ -118,11 +121,14 @@ global {
     spell?: Record<string, any> | null;
     restriction?: I5eAdvItemChoiceRestriction;
   }
+
+  type I5eAdvancementItemChoiceValueAdded = Record<string, Record<string, string>>;
+
   interface I5eAdvancementItemChoice extends I5eAdvancementBase {
     type?: "ItemChoice";
     configuration: I5eAdvItemChoiceConfig;
     value?: {
-      added?: Record<string, Record<string, string>>;
+      added?: I5eAdvancementItemChoiceValueAdded;
       replaced?: Record<string, string>;
     };
   }
