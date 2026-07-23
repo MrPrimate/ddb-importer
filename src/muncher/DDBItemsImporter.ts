@@ -19,7 +19,6 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
 import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
 
-type TItemsNotifier = (note: any, opts?: NotifierV1Props) => void;
 
 // Parsed documents generated from the raw DDB item data by _processDDBItemData.
 export interface IDDBItemsSynthetic {

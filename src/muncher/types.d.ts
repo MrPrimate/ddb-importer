@@ -301,4 +301,12 @@ global {
     ddbMuncher?: DDBMuncher | null;
   }
 
+  type TItemsNotifier = (note: any, opts?: NotifierV1Props) => void;
+
+  type TFvttBonusType = "attack" | "damage" | "check" | "save" | "skill" | "dc";
+
+  interface IGlobalBonusLookup {
+    fvttType: TFvttBonusType;
+    ddbSubType: string;
+  }
 }

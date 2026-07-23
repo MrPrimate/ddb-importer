@@ -14,7 +14,7 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
     units: "ft",
     special: "",
   };
-  const special = [];
+  const special: string[] = [];
 
   // custom senses
   if (this.source.ddb.character.customSenses) {
@@ -23,7 +23,8 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
       .forEach((sense) => {
         const s = DICTIONARY.actor.senses.find((s) => s.id === sense.senseId);
         if (s && sense.distance && Number.isInteger(sense.distance)) {
-          senses.ranges[s.name.toLowerCase()] = parseInt(sense.distance);
+          const senseType = s.name.toLowerCase() as TSenseType;
+          senses.ranges[senseType] = parseInt(String(sense.distance));
         } else {
           senses.special += `${sense.distance}; `;
         }
@@ -41,8 +42,9 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
         ),
       )
       .forEach((sense) => {
-        if (Number.isInteger(sense.value) && sense.value > senses.ranges[senseName]) {
-          senses.ranges[senseName] = parseInt(String(sense.value));
+        const senseKey = senseName as TSenseType;
+        if (Number.isInteger(sense.value) && parseInt(String(sense.value)) > senses.ranges[senseKey]) {
+          senses.ranges[senseKey] = parseInt(String(sense.value));
         }
       });
   }
@@ -58,7 +60,9 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
   DDBModifiers
     .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
     .forEach((sense) => {
-      if (Number.isInteger(parseInt(String(sense.value))) && parseInt(String(sense.value)) > senses["darkvision"]) {
+      if (Number.isInteger(parseInt(String(sense.value)))
+        && parseInt(String(sense.value)) > senses.ranges["darkvision"]
+      ) {
         senses.ranges["darkvision"] = parseInt(String(sense.value));
         special.push("You can see normally in darkness, both magical and nonmagical.");
       }
@@ -80,7 +84,8 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
     .forEach((mod) => {
       const hasSense = mod.subType in senses.ranges;
       if (hasSense && mod.value && Number.isInteger(mod.value)) {
-        senses.ranges[mod.subType] += parseInt(String(mod.value));
+        const senseType = mod.subType as TSenseType;
+        senses.ranges[senseType] += parseInt(String(mod.value));
       } else if (mod.value) {
         special.push(`${mod.friendlySubtypeName} (${mod.value})`);
       } else if (mod.friendlySubtypeName) {

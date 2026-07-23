@@ -46,7 +46,7 @@ async function updateActorsWithActor(targetActors: TImporterActor[], sourceActor
     actorUpdate._id = targetActor.id;
     if (targetActor.folder) actorUpdate.folder = targetActor.folder._id;
     actorUpdate.sort = targetActor.sort;
-    actorUpdate.ownership = targetActor.ownership;
+    actorUpdate.ownership = targetActor.ownership as unknown as IFoundryOwnership;
     DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
     await targetActor.update(actorUpdate as any);

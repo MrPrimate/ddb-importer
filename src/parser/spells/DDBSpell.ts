@@ -151,7 +151,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
   }
 
-  getCustomName(data) {
+  getCustomName(data: IDDBSpellEntry): string | null {
     if (!this.rawCharacter
       || (this.rawCharacter && !foundry.utils.hasProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.characterValues"))
     ) return null;
@@ -162,8 +162,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       const customName = customValue.find((value) => value.typeId == 8);
 
       if (customName) {
-        data.name = customName.value;
-        return customName.value;
+        // data.name = String(customName.value);
+        return String(customName.value);
       }
     }
     return null;
@@ -174,7 +174,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     // spell name
     const customName = this.getCustomName(this.spellData);
     if (customName) {
-      return utils.nameString(customName);
+      return utils.nameString(String(customName));
     } else if (this.nameOverride) {
       return utils.nameString(this.nameOverride);
     } else {

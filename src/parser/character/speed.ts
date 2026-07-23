@@ -5,12 +5,13 @@ import { DDBModifiers } from "../lib/_module";
 DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharacter) {
 
   // For all processing, we take into account the regular movement types of this character
-  const movementTypes = {};
-  const setToWalking = {};
+  const movementTypes: Partial<Record<I5eMovementType, number>> = {};
+  const setToWalking: Partial<Record<I5eMovementType, boolean>> = {};
   for (const type in this.source.ddb.character.race.weightSpeeds.normal) {
     // if (data.character.race.weightSpeeds.normal[type] !== 0) {
-    movementTypes[type] = this.source.ddb.character.race.weightSpeeds.normal[type];
-    setToWalking[type] = false;
+    const movementType = type as I5eMovementType;
+    movementTypes[movementType] = this.source.ddb.character.race.weightSpeeds.normal[movementType];
+    setToWalking[movementType] = false;
     // }
   }
 
@@ -29,19 +30,20 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
     const innateSpeeds = this.source.ddb.character.modifiers.race.filter(
       (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`,
     );
-    let base = movementTypes[type];
+    const movementType = type as I5eMovementType;
+    let base = movementTypes[movementType];
 
     innateSpeeds.forEach((speed) => {
       // take the highest value
       if (speed.value === null && speed.modifierSubTypeId == 182 && speed.modifierTypeId == 9) {
-        setToWalking[type] = true;
-      } else if (speed.value > base) {
-        base = speed.value;
+        setToWalking[movementType] = true;
+      } else if (parseInt(String(speed.value)) > base) {
+        base = parseInt(String(speed.value));
       }
     });
 
     // overwrite the (perhaps) changed value
-    movementTypes[type] = base;
+    (movementTypes as Record<string, any>)[type] = base;
   }
 
   const bonusSpeed = DDBModifiers
@@ -55,7 +57,8 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
       .reduce((speed, feat) => speed + parseInt(String(feat.value)), 0);
 
     // overwrite the (perhaps) changed value
-    if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed + innateBonus;
+    const movementType = type as I5eMovementType;
+    if (movementTypes[movementType] !== 0) movementTypes[movementType] += bonusSpeed + innateBonus;
   }
 
   // unarmored movement for barbarians and monks
@@ -64,7 +67,8 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
         for (const type in movementTypes) {
-          if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed.value;
+          const movementType = type as I5eMovementType;
+          if (movementTypes[movementType] !== 0) movementTypes[movementType] += parseInt(String(bonusSpeed.value));
         }
       });
   }
@@ -75,19 +79,20 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     const innateSpeeds = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "set", { subType: `innate-speed-${innateType}`, restriction });
-    let base = movementTypes[type];
+    const movementType = type as I5eMovementType;
+    let base = movementTypes[movementType];
 
     innateSpeeds.forEach((speed) => {
       // take the highest value
-      if (speed.value > base) {
-        base = speed.value;
+      if (parseInt(String(speed.value)) > base) {
+        base = parseInt(String(speed.value));
       } else if (!speed.value && movementTypes["walk"]) {
         base = movementTypes["walk"];
       }
     });
 
     // overwrite the (perhaps) changed value
-    movementTypes[type] = base;
+    movementTypes[movementType] = base;
   }
 
 
@@ -102,17 +107,18 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
   }
 
   for (const type in setToWalking) {
-    if (setToWalking[type] && movementTypes["walk"] > movementTypes[type]) {
-      movementTypes[type] = movementTypes["walk"];
+    const movementType = type as I5eMovementType;
+    if (setToWalking[movementType] && movementTypes["walk"] > movementTypes[movementType]) {
+      movementTypes[movementType] = movementTypes["walk"];
     }
   }
 
   this.raw.character.system.attributes.movement = {
-    burrow: movementTypes["burrow"] || 0,
-    climb: movementTypes["climb"] || 0,
-    fly: movementTypes["fly"] || 0,
-    swim: movementTypes["swim"] || 0,
-    walk: movementTypes["walk"] || 0,
+    burrow: movementTypes["burrow"] ? String(movementTypes["burrow"]) : "",
+    climb: movementTypes["climb"] ? String(movementTypes["climb"]) : "",
+    fly: movementTypes["fly"] ? String(movementTypes["fly"]) : "",
+    swim: movementTypes["swim"] ? String(movementTypes["swim"]) : "",
+    walk: movementTypes["walk"] ? String(movementTypes["walk"]) : "",
     units: "ft",
     hover: false,
   };

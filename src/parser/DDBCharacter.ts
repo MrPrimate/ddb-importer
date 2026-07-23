@@ -128,7 +128,7 @@ interface DDBCharacter {
   // ac.ts
   isArmored(): boolean;
   isUnArmored(): boolean;
-  _generateOverrideArmorClass(overRideAC: any): void;
+  _generateOverrideArmorClass(overRideAC: IDDBCharacterValue): void;
   _generateArmorClass(): void;
   // specialTraits.ts
   _setSpecialTraitFlags(): void;
@@ -138,18 +138,18 @@ interface DDBCharacter {
   _generateLanguages(): void;
   _generateProficiencies(): void;
   // skills.ts
-  getSkillProficiency(skill: any, modifiers?: any): any;
-  getCustomSkillProficiency(skill: any): any;
-  getCustomSkillAbility(skill: any): any;
-  getCustomSkillBonus(skill: any): any;
+  getSkillProficiency(skill: IDDBSkillsLookup, modifiers?: IModifiersMod[]): number;
+  getCustomSkillProficiency(skill: IDDBSkillsLookup): number;
+  getCustomSkillAbility(skill: IDDBSkillsLookup): T5eAbility | undefined;
+  getCustomSkillBonus(skill: IDDBSkillsLookup): number;
   _setSpecialSkills(): void;
   _generateCustomSkills(): Promise<void>;
   _generateSkills(): Promise<void>;
   // abilities.ts
   _generateAbilitiesOverrides(): void;
-  _getCustomSaveProficiency(ability: any): any;
-  _getCustomSaveBonus(ability: any): any;
-  _filterAbilityMods(abilityLongName: any, type: any, options?: { restriction?: any; includeExcludedEffects?: boolean; effectOnly?: boolean; classId?: any; availableToMulticlass?: any; useUnfilteredModifiers?: any }): IModifiersMod[];
+  _getCustomSaveProficiency(ability: DDBAbilityLookup): number | undefined;
+  _getCustomSaveBonus(ability: DDBAbilityLookup): number;
+  _filterAbilityMods(abilityLongName: string, type: string, options?: IFilterAbilityModsOptions): IModifiersMod[];
   _getAbilities(includeExcludedEffects?: boolean): any;
   _getAbilitiesBonuses(includeExcludedEffects?: boolean): any;
   _generateBaseAbilities(includeExcludedEffects?: boolean): void;
@@ -161,22 +161,22 @@ interface DDBCharacter {
   // effects.ts
   _generateDeathSaves(): void;
   _generateExhaustion(): void;
-  getCharacterGenericConditionAffectData(condition: any, typeId: any): any;
+  getCharacterGenericConditionAffectData(condition: TDDBDamageConditionType, typeId: number): I5eDamageTraitSet | I5eConditionTraitSet;
   _generateConditions(): void;
   // currency.ts
   _generateCurrency(): void;
   // senses.ts
-  getSenses(options?: { includeEffects?: boolean }): any;
+  getSenses(options?: { includeEffects?: boolean }): I5eSenses;
   _generateSenses(): void;
   // speed.ts
   _generateSpeed(): void;
   // bio.ts
-  getBackgroundName(): any;
+  getBackgroundName(): string;
   _generateTrait(): void;
   _generateIdeal(): void;
   _generateBond(): void;
   _generateFlaw(): void;
-  getCharacteristics(): any;
+  getCharacteristics(): string;
   _generateAppearance(): void;
   _generateAlignment(): void;
   getBackgroundData(): IDDBGeneratedBackground;
@@ -192,30 +192,30 @@ interface DDBCharacter {
   // race.ts
   _generateRace(addToCompendium?: boolean): Promise<void>;
   // resources.ts
-  resourceList(): any;
-  getSortedByUsedResourceList(): any;
+  resourceList(): IDDBAction[];
+  getSortedByUsedResourceList(): I5ePCResource[];
   _generateResources(numberOfResources?: number): void;
-  getResourceList(): any;
-  _generateResourceSelectionFromForm(formData: any, type: any): void;
-  setDefaultResources(sortedResources: any): void;
+  getResourceList(): I5ePCResource[];
+  _generateResourceSelectionFromForm(formData: JQuery.NameValuePair[], type: string): void;
+  setDefaultResources(sortedResources: I5ePCResource[]): void;
   resourceSelectionDialog(): Promise<I5ePCData>;
   // inventory.ts
-  getInventory(notifier?: any): Promise<I5eInventoryItem[]>;
+  getInventory(notifier?: TItemsNotifier): Promise<I5eInventoryItem[]>;
   _generateInventory(): Promise<void>;
   // globalBonuses.ts
-  getGlobalBonusAttackModifiers(lookupTable: any): any;
-  getBonusSpellAttacks(type: any): any;
+  getGlobalBonusAttackModifiers(lookupTable: IGlobalBonusLookup[]): I5eAttackBonus;
+  getBonusSpellAttacks(type: "melee" | "ranged"): I5eAttackBonus;
   _generateBonusSpellAttacks(): void;
-  getBonusWeaponAttacks(type: any): any;
+  getBonusWeaponAttacks(type: "melee" | "ranged"): any;
   _generateBonusWeaponAttacks(): void;
   _generateBonusAbilities(): void;
   _generateBonusSpellDC(): void;
   // special/special.ts
   _addSpecialAdditions(): void;
   // consumptionLinking.ts
-  _getAutoLinkActivityDictionarySpellLinkUpdates(): Promise<any>;
-  _getAutoLinkActivityDictionaryUpdates(): Promise<any>;
-  _getAutoLinkActivityFlagDocUpdates(): Promise<any>;
+  _getAutoLinkActivityDictionarySpellLinkUpdates(): Promise<Partial<I5ePCConsumptionItems>[]>;
+  _getAutoLinkActivityDictionaryUpdates(): Promise<Partial<I5ePCConsumptionItems>[]>;
+  _getAutoLinkActivityFlagDocUpdates(): Promise<Partial<I5ePCConsumptionItems>[]>;
   _flagCleanup(): Promise<void>;
   autoLinkConsumption(): Promise<void>;
 }

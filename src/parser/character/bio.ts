@@ -30,7 +30,7 @@ DDBCharacter.prototype._generateFlaw = function _generateFlaw(this: DDBCharacter
   this.raw.character.system.details.flaw = this.source.ddb.character.traits.flaws ?? "";
 };
 
-DDBCharacter.prototype.getCharacteristics = function getCharacteristics(this: DDBCharacter) {
+DDBCharacter.prototype.getCharacteristics = function getCharacteristics(this: DDBCharacter): string {
   let characteristicBlurb = "";
   if (this.source.ddb.character.gender) characteristicBlurb += `Gender: ${this.source.ddb.character.gender}\n`;
   if (this.source.ddb.character.eyes) characteristicBlurb += `Eyes: ${this.source.ddb.character.eyes}\n`;

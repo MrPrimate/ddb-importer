@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
-DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter) {
+DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter): IDDBAction[] {
   const resources = [this.source.ddb.character.actions.race, this.source.ddb.character.actions.class, this.source.ddb.character.actions.feat]
     .flat()
     .filter((action) =>
@@ -13,10 +13,10 @@ DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter) 
   return resources;
 };
 
-DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList(this: DDBCharacter) {
+DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList(this: DDBCharacter): I5ePCResource[] {
   // get all resources
   const allResources = this.resourceList();
-  const resources = allResources
+  const resources: I5ePCResource[] = allResources
     .map((action) => {
       let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
 
@@ -65,7 +65,7 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
   return resources;
 };
 
-const sheetResources = [
+const sheetResources: string[] = [
   "primary",
   "secondary",
   "tertiary",
@@ -92,52 +92,56 @@ DDBCharacter.prototype._generateResources = function _generateResources(this: DD
   // get all resources
   const allResources = this.getSortedByUsedResourceList();
 
-  const result = {};
+  const result: I5ePCResources = {};
 
   switch (this.resourceChoices.type) {
     case "custom": {
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
-        const resourceLookupName = this.resourceChoices[sheetResources[i]];
+        const key = sheetResources[i] as keyof I5ePCResources;
+        const resourceLookupName = this.resourceChoices[key] as string;
 
         const resource = resourceLookupName && resourceLookupName !== ""
           ? allResources.find((r) => r.label === resourceLookupName)
           : { value: 0, max: 0, sr: false, lr: false, label: "" };
-        result[sheetResources[i]] = resource || { value: 0, max: 0, sr: false, lr: false, label: "" };
+        result[key] = resource || { value: 0, max: 0, sr: false, lr: false, label: "" };
       };
       break;
     }
     case "disable": {
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
-        result[sheetResources[i]] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+        const key = sheetResources[i] as keyof I5ePCResources;
+        result[key] = { value: 0, max: 0, sr: false, lr: false, label: "" };
       };
       break;
     }
     case "remove": {
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
-        result[sheetResources[i]] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+        const key = sheetResources[i] as keyof I5ePCResources;
+        result[key] = { value: 0, max: 0, sr: false, lr: false, label: "" };
       };
       break;
     }
     default: {
       const usedResources = allResources.slice(0, numberOfResources);
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
+        const key = sheetResources[i] as keyof I5ePCResources;
         const resource = usedResources.length > i ? usedResources[i] : { value: 0, max: 0, sr: false, lr: false, label: "" };
-        result[sheetResources[i]] = resource;
+        result[key] = resource;
       };
       break;
     }
   }
 
   this.resources = result;
-  foundry.utils.setProperty(this.raw.character, "flags.ddbimporter.resources", this.resourceChoices);
-  foundry.utils.setProperty(this.raw.character, "system.resources", result);
+  this.raw.character.flags.ddbimporter.resources = this.resourceChoices;
+  this.raw.character.system.resources = result;
 };
 
 DDBCharacter.prototype.getResourceList = function getResourceList(this: DDBCharacter) {
   return this.getSortedByUsedResourceList();
 };
 
-DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateResourceSelectionFromForm(this: DDBCharacter, formData, type) {
+DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateResourceSelectionFromForm(this: DDBCharacter, formData: JQuery.NameValuePair[], type: string) {
   const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
   const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
   const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
@@ -154,7 +158,7 @@ DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateRe
   this.resourceChoices = resourceSelection;
 };
 
-DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: DDBCharacter, sortedResources) {
+DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: DDBCharacter, sortedResources: I5ePCResource[]) {
   if (sortedResources.length >= 1) {
     this.resourceChoices.primary = sortedResources[0].label;
   }
@@ -166,6 +170,12 @@ DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: 
   }
 };
 
+interface IResourcesFormData extends I5ePCResource {
+  primary: boolean;
+  secondary: boolean;
+  tertiary: boolean;
+}
+
 // this.source.ddb, this.raw.character
 DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog(this: DDBCharacter): Promise<I5ePCData> {
   return new Promise((resolve) => {
@@ -176,12 +186,13 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
     }
 
     if (this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask")) {
-      const resources = sortedResources.map((resource) => {
+      // we mutate the data here
+      const resources = sortedResources.map((resource: IResourcesFormData) => {
         const resourceArray = [];
         if (resource.sr) resourceArray.push("SR");
         if (resource.lr) resourceArray.push("LR");
         if (!resource.sr && !resource.lr) resourceArray.push("Other");
-        resource.resetString = resourceArray.join(", ");
+        // resource.resetString = resourceArray.join(", ");
         switch (resource.label) {
           case this.resourceChoices.primary:
             resource.primary = true;

@@ -12,9 +12,9 @@ DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves (this:
 };
 
 DDBCharacter.prototype._generateExhaustion = function _generateExhaustion(this: DDBCharacter) {
-  const condition = this.source.ddb.character.conditions.find((condition) => parseInt(condition.id) === 4);
+  const condition = this.source.ddb.character.conditions.find((condition) => condition.id === 4);
   this.raw.character.system.attributes.exhaustion = condition
-    ? parseInt(condition.level)
+    ? condition.level ?? 0
     : 0;
 };
 
@@ -22,7 +22,7 @@ interface IMidiValueAdjustment extends I5eDamageTraitSet {
   midiValues?: string[];
 }
 
-DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(this: DDBCharacter, condition, typeId) {
+DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(this: DDBCharacter, condition: TDDBDamageConditionType, typeId: number): I5eDamageTraitSet | I5eConditionTraitSet {
 
   const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, condition);
   const standardResults = AutoEffects.getGenericConditionAffectData(modifiers, condition, typeId);

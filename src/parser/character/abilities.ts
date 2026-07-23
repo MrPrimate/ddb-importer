@@ -11,7 +11,7 @@ DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilities
   this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = this.abilities.overrides;
 };
 
-DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProficiency(this: DDBCharacter, ability) {
+DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProficiency(this: DDBCharacter, ability: DDBAbilityLookup): number | undefined {
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
@@ -28,13 +28,15 @@ DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProfic
   return undefined;
 };
 
-DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: DDBCharacter, ability) {
+DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: DDBCharacter, ability: DDBAbilityLookup): number {
   // Get any custom skill bonuses
   if (this.source.ddb.character.characterValues) {
     const customBonus = this.source.ddb.character.characterValues
       .filter((value) => (value.typeId == 40 || value.typeId == 39) && value.valueId == ability.id)
+      .filter((value) => Number.isInteger(String(value.value)))
       .reduce((total, bonus) => {
-        return total + bonus.value;
+        const value = parseInt(String(bonus.value));
+        return total + value;
       }, 0);
 
     if (customBonus) {
@@ -44,16 +46,9 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: 
   return 0;
 };
 
-DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DDBCharacter, abilityLongName, type,
+DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DDBCharacter, abilityLongName: string, type: string,
   { restriction = ["", null], includeExcludedEffects = false, effectOnly = false,
-    classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: {
-    restriction?: (string | null)[];
-    includeExcludedEffects?: boolean;
-    effectOnly?: boolean;
-    classId?: any;
-    availableToMulticlass?: any;
-    useUnfilteredModifiers?: any;
-  } = {},
+    classId = null, availableToMulticlass = null, useUnfilteredModifiers = null }: IFilterAbilityModsOptions = {},
 ): IModifiersMod[] {
 
   const subType = `${abilityLongName}-score`;
@@ -137,7 +132,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
 
     const modRestrictions = ["Your maximum is now ", "Maximum of ", "maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
-    const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: false, includeExcludedEffects })
+    const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: null, includeExcludedEffects })
       .filter(
         (mod) =>
           mod.entityId === ability.id
@@ -227,7 +222,7 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
 
     if (modifiersSaveBonus && modifiersSaveBonus !== "" && parseInt(modifiersSaveBonus)) {
       if (customSaveBonus) {
-        const totalSave = parseInt(customSaveBonus) + parseInt(modifiersSaveBonus);
+        const totalSave = customSaveBonus + parseInt(modifiersSaveBonus);
         // console.warn("totalSave", totalSave);
         (result as Record<string, any>)[ability.value].bonuses.save = `+ ${totalSave}`;
       } else {

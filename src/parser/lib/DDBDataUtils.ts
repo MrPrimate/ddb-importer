@@ -15,14 +15,14 @@ type TNameTypes = TDDBActionTypes | TDDBFeatureMixinDefinitions | IDDBInventoryI
 
 export default class DDBDataUtils {
 
-  static getName(_ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true) {
+  static getName(_ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true): string {
     // spell name
     const customName = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 8)
       : null;
       // : DDBDataUtils.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
-      return utils.nameString(customName);
+      return utils.nameString(String(customName));
     } else if ("definition" in item && item.definition?.name) {
       return utils.nameString(item.definition.name);
     } else if ("name" in item && item.name) {
@@ -88,7 +88,7 @@ export default class DDBDataUtils {
     return null;
   }
 
-  static addCustomValues(ddb: IDDBData, foundryItem: I5ePCConsumptionItems) {
+  static addCustomValues<T extends I5ePCConsumptionItems>(ddb: IDDBData, foundryItem: T): T {
     // to hit override requires a lot of crunching
     // const toHitOverride = DDBDataUtils.getCustomValue(item, character, 13);
     const toHitBonus = DDBDataUtils.getCustomValue(foundryItem, ddb, 12);
@@ -118,7 +118,7 @@ export default class DDBDataUtils {
               && (parseInt(activity.attack.bonus) === 0
               || activity.attack.bonus === "")
             ) {
-              activity.attack.bonus = toHitBonus;
+              activity.attack.bonus = String(toHitBonus);
             } else if (existingBonus) {
               activity.attack.bonus += ` + ${toHitBonus}`;
             } else {
@@ -127,19 +127,19 @@ export default class DDBDataUtils {
           }
         }
         if ("damage" in activity && damageBonus) {
-          const part = SystemHelpers.buildDamagePart({ damageString: damageBonus });
+          const part = SystemHelpers.buildDamagePart({ damageString: String(damageBonus) });
           activity.damage.parts.push(part);
         }
         if (activity.type === "save") {
           if (dcBonus) {
             const dc = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.dc") as string | undefined;
             if (dc) {
-              activity.save.dc.formula = `${parseInt(dc) + dcBonus}`;
+              activity.save.dc.formula = `${dc + dcBonus}`;
               activity.save.dc.calculation = "";
             }
           }
           if (dcOverride) {
-            activity.save.dc.formula = dcOverride;
+            activity.save.dc.formula = String(dcOverride);
             activity.save.dc.calculation = "";
           }
         }
@@ -151,7 +151,7 @@ export default class DDBDataUtils {
     if ("cost" in foundryItem.system && costOverride)
       foundryItem.system.cost = costOverride;
     if ("weight" in foundryItem.system && weightOverride)
-      foundryItem.system.weight = weightOverride;
+      foundryItem.system.weight.value = parseInt(String(weightOverride));
     if (silvered) {
       foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "sil");
     }

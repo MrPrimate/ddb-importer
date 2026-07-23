@@ -70,7 +70,7 @@ global {
 
   export interface IDDBSpellDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     definitionKey: string;
-    snippet: string;
+    snippet: string | null;
     level: number;
     school: string;
     ritual: boolean;
@@ -149,10 +149,20 @@ global {
     componentId: number;
     componentTypeId: number;
     spellListId: number | null;
-    unPreparedCantrip: boolean | null;
+    // absent from the /proxy/class/spells payload
+    unPreparedCantrip?: boolean | null;
   }
 
   type IDDBSpells = IDDBSourceCategorized<IDDBSpellEntry[] | null>;
+
+  // ---- Proxy /class/spells response -----------------------------------------
+
+  // Full proxy `/proxy/class/spells` HTTP response.
+  export interface IDDBClassSpellsProxyResponse {
+    success: boolean;
+    message: string;
+    data: IDDBSpellEntry[];
+  }
 
 
 }

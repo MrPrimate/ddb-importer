@@ -6,6 +6,26 @@ import { DICTIONARY } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
 
 
+type SupportedOverrideKey = "name" | "weight" | "price";
+
+function applyItemOverride(
+  definition: IDDBItemDefinition,
+  key: SupportedOverrideKey,
+  value: unknown,
+): void {
+  switch (key) {
+    case "name":
+      if (typeof value === "string") definition.name = value;
+      break;
+    case "weight":
+      if (typeof value === "number") definition.weight = value;
+      break;
+    case "price":
+      if (typeof value === "number") definition.cost = Number(value);
+      break;
+  }
+}
+
 DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier = null): Promise<I5eInventoryItem[]> {
 
   const items: I5eInventoryItem[] = [];
@@ -18,7 +38,10 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
       // check if this property is in the list of supported ones, based on our DICT
       const property = DICTIONARY.item.characterValues.find((entry) => entry.typeId === cv.typeId);
       // overwrite the name, weight or price with the custom value
-      if (property && cv.value.length !== 0) item.definition[property.value] = cv.value;
+      const key = property.value as SupportedOverrideKey;
+      if (key === "name" || key === "weight" || key === "price") {
+        applyItemOverride(item.definition, key, cv.value);
+      }
     }
   });
 

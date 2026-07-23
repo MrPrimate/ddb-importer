@@ -4,7 +4,7 @@ import DDBCharacter from "../DDBCharacter";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this: DDBCharacter, skill, modifiers = null) {
+DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this: DDBCharacter, skill: IDDBSkillsLookup, modifiers: IModifiersMod[] | null = null): number {
   if (!modifiers) {
     modifiers = DDBModifiers.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
   }
@@ -28,7 +28,7 @@ DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this:
   return proficient;
 };
 
-DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(this: DDBCharacter, skill) {
+DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(this: DDBCharacter, skill: IDDBSkillsLookup): number | undefined {
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
@@ -42,7 +42,7 @@ DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProfic
   return undefined;
 };
 
-DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(this: DDBCharacter, skill) {
+DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(this: DDBCharacter, skill: IDDBSkillsLookup): T5eAbility | undefined {
   // Overwrite the proficient value with any custom set over rides
   let mod;
   if (this.source.ddb.character.characterValues) {
@@ -58,13 +58,14 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(th
   return mod;
 };
 
-DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(this: DDBCharacter, skill) {
+DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(this: DDBCharacter, skill: IDDBSkillsLookup): number {
   // Get any custom skill bonuses
   if (this.source.ddb.character.characterValues) {
     const customBonus = this.source.ddb.character.characterValues.filter(
       (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId,
     ).reduce((total, bonus) => {
-      return total + bonus.value;
+      const value = parseInt(String(bonus.value));
+      return total + value;
     }, 0);
 
     if (customBonus) {
@@ -97,9 +98,9 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   const customSkillData = this.source.ddb.character.customProficiencies
     .filter((prof) => prof.type === 1 && Number.isInteger(prof.statId))
     .map((prof) => {
-      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id == prof.statId);
+      const ability = DICTIONARY.actor.abilities.find((a) => a.id == prof.statId);
       return {
-        ability: ability.value,
+        ability: ability?.value,
         label: prof.name,
         proficiencyLevel: prof.proficiencyLevel,
         miscBonus: prof.miscBonus,
@@ -111,13 +112,16 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   const skillData = {};
 
   for (let i = 0; i < customSkillData.length; i++) {
-    skillData[i] = customSkillData[i];
+    (skillData as Record<string, any>)[i] = customSkillData[i];
   }
 
-  const customSkills = await window.dnd5eCustomSkills("add", { skills: skillData });
+  const customSkills: {
+    skills: {
+      list: Record<string, { applied?: number | boolean; label?: string; ability?: T5eAbility }>;
+    };
+  } = await window.dnd5eCustomSkills("add", { skills: skillData });
 
-  const customSkillList = customSkills.skills.list as Record<string, { applied?: number | boolean; label?: string; ability?: string }>;
-  for (const [key, value] of Object.entries(customSkillList)) {
+  for (const [key, value] of Object.entries(customSkills.skills.list)) {
     if (value.applied || value.applied === 1) {
       const customSkillMatch = customSkillData.find((customSkill) => customSkill.label === value.label);
       if (customSkillMatch) {
@@ -125,15 +129,15 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
         const prof = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
           proficiency.value === customSkillMatch.proficiencyLevel,
         ).proficient;
-        const miscBonus = customSkillMatch.miscBonus && customSkillMatch.miscBonus !== "" && customSkillMatch.miscBonus !== 0
+        const miscBonus = customSkillMatch.miscBonus && customSkillMatch.miscBonus !== 0
           ? `+ ${customSkillMatch.miscBonus}`
           : "";
-        const magicBonus = customSkillMatch.magicBonus && customSkillMatch.magicBonus !== "" && customSkillMatch.magicBonus !== 0
+        const magicBonus = customSkillMatch.magicBonus && customSkillMatch.magicBonus !== 0
           ? ` + ${customSkillMatch.magicBonus}`
           : "";
         if (customSkillMatch) {
           const checkBonus = (miscBonus + magicBonus).trim();
-          this.raw.character.system.skills[key] = {
+          this.raw.character.system.skills[key as T5eSkillKey] = {
             ability: value.ability,
             value: prof,
             bonuses: {
@@ -155,7 +159,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
 DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DDBCharacter) {
   const addEffects = game.modules.get("dae")?.active;
 
-  if (!addEffects) this.raw.character.flags["skill-customization-5e"] = {};
+  if (!addEffects) (this.raw.character.flags as Record<string, any>)["skill-customization-5e"] = {};
   DICTIONARY.actor.skills.forEach((skill) => {
     const customProficient = this.getCustomSkillProficiency(skill);
     // we use !== undefined because the return value could be 0, which is falsey
@@ -199,7 +203,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
       value: proficient,
       ability: ability,
       bonuses: {
-        check: `${parseInt(skillBonus) === 0 ? "" : skillBonus}`,
+        check: `${skillBonus === 0 ? "" : skillBonus}`,
         passive: passiveBonus === 0 ? "" : String(passiveBonus),
       },
       roll: {

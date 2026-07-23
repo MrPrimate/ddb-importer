@@ -1,3 +1,9 @@
+interface TDDBDictionaryActorSpeeds {
+  id: number;
+  type: I5eMovementType;
+  innate: string;
+}
+
 export const ACTOR = {
   class: {
     "2014": [
@@ -74,7 +80,7 @@ export const ACTOR = {
     { id: 3, type: "climb", innate: "climbing" },
     { id: 4, type: "fly", innate: "flying" },
     { id: 5, type: "swim", innate: "swimming" },
-  ],
+  ] as TDDBDictionaryActorSpeeds[],
   languages: [
     { name: "Common", value: "common", type: "standard" },
     { name: "Aarakocra", value: "aarakocra", advancement: "exotic" },

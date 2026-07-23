@@ -1,6 +1,13 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
+type TFvttBonusType = "attack" | "damage" | "check" | "save" | "skill" | "dc";
+
+interface IGlobalBonusLookup {
+  fvttType: TFvttBonusType;
+  ddbSubType: string;
+}
+
 
 /**
  * Given a list of lookup tables, e.g. { fvttType: "attack", ddbSubType: "magic" }
@@ -11,8 +18,8 @@ import { DDBModifiers } from "../lib/_module";
  * @param {Array} lookupTable list of lookup tables
  * @returns {object} { attack: string, damage: string }
  */
-DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharacter, lookupTable) {
-  const result = {
+DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharacter, lookupTable: IGlobalBonusLookup[]): I5eAttackBonus {
+  const result: I5eAttackBonus = {
     attack: "",
     damage: "",
   };
@@ -32,17 +39,19 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
   lookupTable.forEach((b) => {
     const lookupResult = DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
     const lookupMatch = diceFormula.test(lookupResult);
+    // we know these keys are right as this is only called from a lookup table that is attack based
+    const key = b.fvttType as keyof typeof lookupResults;
 
     // if a match then a dice string
     if (lookupMatch || !Number.isInteger(parseInt(lookupResult))) {
-      lookupResults[b.fvttType].diceString += lookupResult === "" ? lookupResult : " + " + lookupResult;
+      lookupResults[key].diceString += lookupResult === "" ? lookupResult : " + " + lookupResult;
     } else {
-      lookupResults[b.fvttType].sum += parseInt(lookupResult);
+      lookupResults[key].sum += parseInt(lookupResult);
     }
   });
 
   // loop through outputs from lookups and build a response
-  ["attack", "damage"].forEach((fvttType) => {
+  ["attack", "damage"].forEach((fvttType: keyof typeof lookupResults) => {
     if (lookupResults[fvttType].diceString === "") {
       if (lookupResults[fvttType].sum !== 0) {
         result[fvttType] = `${lookupResults[fvttType].sum}`;
@@ -67,9 +76,9 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
  * @param {string} type The type of spell attack, either 'ranged' or 'melee'.
  * @returns {object} An object containing the calculated global bonus for spell attacks.
  */
-DDBCharacter.prototype.getBonusSpellAttacks = function(this: DDBCharacter, type) {
+DDBCharacter.prototype.getBonusSpellAttacks = function(this: DDBCharacter, type: "melee" | "ranged"): I5eAttackBonus {
   // I haven't found any matching global spell damage boosting mods in ddb
-  const bonusLookups = [
+  const bonusLookups: IGlobalBonusLookup[] = [
     { fvttType: "attack", ddbSubType: "spell-attacks" },
     { fvttType: "attack", ddbSubType: `${type}-spell-attacks` },
     { fvttType: "attack", ddbSubType: "warlock-spell-attacks" },
@@ -92,11 +101,11 @@ DDBCharacter.prototype._generateBonusSpellAttacks = function(this: DDBCharacter)
  * @param {string} type The type of attack, either 'ranged' or 'melee'.
  * @returns {object} An object containing the calculated global bonus for the given attack type.
  */
-DDBCharacter.prototype.getBonusWeaponAttacks = function(this: DDBCharacter, type) {
+DDBCharacter.prototype.getBonusWeaponAttacks = function(this: DDBCharacter, type: "melee" | "ranged") {
   // global melee damage is not a ddb type, in that it's likely to be
   // type specific. The only class one I know of is the Paladin Improved Smite
   // which will be handled in the weapon import later.
-  const bonusLookups = [
+  const bonusLookups: IGlobalBonusLookup[] = [
     { fvttType: "attack", ddbSubType: `${type}-attacks` },
     { fvttType: "attack", ddbSubType: "weapon-attacks" },
     { fvttType: "attack", ddbSubType: `${type}-weapon-attacks` },
@@ -122,12 +131,12 @@ DDBCharacter.prototype._generateBonusWeaponAttacks = function(this: DDBCharacter
  * "system.bonuses.abilities" property.
  */
 DDBCharacter.prototype._generateBonusAbilities = function(this: DDBCharacter) {
-  const result = {
+  const result: I5eAbilityBonusGroup = {
     "check": "",
     "save": "",
     "skill": "",
   };
-  const bonusLookup = [
+  const bonusLookup: IGlobalBonusLookup[] = [
     { fvttType: "check", ddbSubType: "ability-checks" },
     { fvttType: "save", ddbSubType: "saving-throws" },
     { fvttType: "skill", ddbSubType: "skill-checks" },
@@ -136,7 +145,7 @@ DDBCharacter.prototype._generateBonusAbilities = function(this: DDBCharacter) {
   bonusLookup.forEach((b) => {
     const mods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType });
     const bonus = DDBModifiers.getModifierSum(mods, this.raw.character);
-    if (bonus !== "") result[b.fvttType] = `+ ${bonus}`.trim().replace(/\+\s*\+/, "+");
+    if (bonus !== "") result[b.fvttType as keyof I5eAbilityBonusGroup] = `+ ${bonus}`.trim().replace(/\+\s*\+/, "+");
   });
   this.raw.character.system.bonuses.abilities = result;
 };
@@ -152,10 +161,10 @@ DDBCharacter.prototype._generateBonusAbilities = function(this: DDBCharacter) {
  * "system.bonuses.spell.dc" property.
  */
 DDBCharacter.prototype._generateBonusSpellDC = function(this: DDBCharacter) {
-  const result = {
+  const result: I5eSpellBonus = {
     "dc": "",
   };
-  const bonusLookup = [
+  const bonusLookup: IGlobalBonusLookup[] = [
     { fvttType: "dc", ddbSubType: "spell-save-dc" },
     { fvttType: "dc", ddbSubType: "warlock-spell-save-dc" },
     { fvttType: "dc", ddbSubType: "druid-spell-save-dc" },

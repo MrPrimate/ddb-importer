@@ -91,7 +91,7 @@ global {
     effects?: I5eEffectData[];
     folder?: string | null;
     sort?: number;
-    ownership?: Record<string, number>;
+    ownership?: { default: number };
     _stats?: I5eDocumentStats;
     uuid?: string;
   }

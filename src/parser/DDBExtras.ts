@@ -310,7 +310,7 @@ function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatur
 function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImporterActor, creature: IDDBCreature, mock: IDDBCreatureDefinition) {
   // hp
   const hpMaxChange = getCustomValue(ddbCharacterData, 43, creature.id, creature.entityTypeId);
-  if (hpMaxChange) mock.averageHitPoints = hpMaxChange;
+  if (hpMaxChange) mock.averageHitPoints = parseInt(String(hpMaxChange));
 
   // assume this is beast master
   if (mock.creatureFlags.includes("HPLM")) {
@@ -412,7 +412,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporte
 
   // size
   const sizeChange = getCustomValue(ddbCharacterData, 46, creature.id, creature.entityTypeId);
-  if (sizeChange) mock.sizeId = sizeChange;
+  if (sizeChange) mock.sizeId = parseInt(String(sizeChange));
 
   // hp
   mock = addAverageHitPoints(ddbCharacterData, actor, creature, mock);
@@ -421,15 +421,15 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporte
 
   // creature type
   const typeChange = getCustomValue(ddbCharacterData, 44, creature.id, creature.entityTypeId);
-  if (typeChange) mock.typeId = typeChange;
+  if (typeChange) mock.typeId = parseInt(String(typeChange));
 
   // ac
   const acChange = getCustomValue(ddbCharacterData, 42, creature.id, creature.entityTypeId);
-  if (acChange) mock.armorClass = acChange;
+  if (acChange) mock.armorClass = parseInt(String(acChange));
 
   // alignment
   const alignmentChange = getCustomValue(ddbCharacterData, 45, creature.id, creature.entityTypeId);
-  if (alignmentChange) mock.alignmentId = alignmentChange;
+  if (alignmentChange) mock.alignmentId = parseInt(String(alignmentChange));
 
   // notes
   const extraNotes = getCustomValue(ddbCharacterData, 47, creature.id, creature.entityTypeId);
@@ -439,7 +439,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporte
   mock = addCreatureStats(mock, actor);
 
   // ownership the same as actor
-  mock.ownership = actor.ownership;
+  mock.ownership = actor.ownership as unknown as IFoundryOwnership;
 
   if (mock.creatureGroup.description !== "") {
     mock.characteristicsDescription = `${mock.creatureGroup.description}\n\n${mock.characteristicsDescription}`;

@@ -567,20 +567,14 @@ global {
 
   // ---- Race -----------------------------------------------------------------
 
-  export interface IDDBWeightSpeedSet {
-    walk: number;
-    fly: number;
-    burrow: number;
-    swim: number;
-    climb: number;
-  }
+  type TDDBWeightSpeedSet = Record<I5eMovementType, number>;
 
   export interface IDDBWeightSpeeds {
-    normal: IDDBWeightSpeedSet;
-    encumbered: IDDBWeightSpeedSet | null;
-    heavilyEncumbered: IDDBWeightSpeedSet | null;
-    override: IDDBWeightSpeedSet | null;
-    pushDragLift: IDDBWeightSpeedSet | null;
+    normal: TDDBWeightSpeedSet;
+    encumbered: TDDBWeightSpeedSet | null;
+    heavilyEncumbered: TDDBWeightSpeedSet | null;
+    override: TDDBWeightSpeedSet | null;
+    pushDragLift: TDDBWeightSpeedSet | null;
   }
 
   export interface IDDBEntityCategory {
@@ -962,7 +956,12 @@ global {
     creatureFlags?: string[];
     removedHitPoints?: number;
     temporaryHitPoints?: number;
-    ownership?: any;
+    ownership?: IFoundryOwnership;
+  }
+
+  interface IFoundryOwnership {
+    default: number;
+    [key: string]: number;
   }
 
   /** A single entry in a character's `creatures[]` (a companion/summon instance). */
@@ -1064,7 +1063,7 @@ global {
   export interface IDDBCharacterValue {
     typeId: number;
     // polymorphic: DDB sends a number or a string keyed on typeId
-    value: any;
+    value: string | number;
     notes: string | null;
     valueId: number | string | null;
     valueTypeId: number | string | null;

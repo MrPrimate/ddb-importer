@@ -372,20 +372,21 @@ function calculateACOptions(data: IDDBData, character: I5ePCData, calculatedArmo
 }
 
 
-DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(this: DDBCharacter, overRideAC) {
-  const overRideEffect = ACBonusEffects.generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
+DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(this: DDBCharacter, overRideAC: IDDBCharacterValue) {
+  const overRideEffect = ACBonusEffects.generateFixedACEffect(String(overRideAC.value), `AC Override: ${overRideAC.value}`);
+  const flatIntAc = parseInt(String(overRideAC.value));
 
   this.raw.character.system.attributes.ac = {
-    flat: overRideAC.value,
+    flat: flatIntAc,
     calc: "flat",
     formula: "",
   };
   this.raw.character.effects = this.raw.character.effects.concat(overRideEffect);
   this.raw.character.flags.ddbimporter.acEffects = [overRideEffect];
-  this.raw.character.flags.ddbimporter.baseAC = overRideAC.value;
+  this.raw.character.flags.ddbimporter.baseAC = flatIntAc;
   this.raw.character.flags.ddbimporter.autoAC = foundry.utils.deepClone(this.raw.character.system.attributes.ac);
   this.raw.character.flags.ddbimporter.overrideAC = {
-    flat: overRideAC.value,
+    flat: flatIntAc,
     calc: "flat",
     formula: "",
   };
@@ -396,7 +397,7 @@ DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideA
   // };
 
   this.armor.results = {
-    maxValue: parseInt(String(overRideAC.value)),
+    maxValue: flatIntAc,
     maxType: "override",
     // actorBase,
     // armorClassValues,
@@ -487,7 +488,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
   ).forEach((custom) => {
     const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
     const effect = ACBonusEffects.generateBonusACEffect([], name, "custom", null);
-    if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(custom.value) !== 0) || `${custom.value}`.trim() !== "")) {
+    if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(String(custom.value)) !== 0) || `${custom.value}`.trim() !== "")) {
       effect.system.changes.push({
         key: "system.attributes.ac.bonus",
         value: `+ ${custom.value}`,

@@ -232,7 +232,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     actorUpdate._id = targetActor.id ?? undefined;
     if (targetActor.folder) actorUpdate.folder = targetActor.folder._id ?? undefined;
     actorUpdate.sort = targetActor.sort;
-    actorUpdate.ownership = targetActor.ownership;
+    actorUpdate.ownership = targetActor.ownership as unknown as IFoundryOwnership;
     DDBItemImporter.copySupportedItemFlags(targetActor as unknown as Actor.Implementation, actorUpdate);
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
     await targetActor.update(actorUpdate as unknown as Actor.UpdateInput);

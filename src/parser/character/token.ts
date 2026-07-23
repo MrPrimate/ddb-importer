@@ -30,7 +30,7 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
         const visionMode = DICTIONARY.senseMap()[key];
         foundry.utils.setProperty(tokenData, "sight.visionMode", visionMode);
         foundry.utils.setProperty(tokenData, "sight.range", value);
-        tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
+        tokenData.sight = foundry.utils.mergeObject(tokenData.sight, foundry.utils.getProperty(CONFIG.Canvas.visionModes, String(visionMode) + ".vision.defaults") as object);
       }
       if (!game.modules.get("vision-5e")?.active
         && value > 0
