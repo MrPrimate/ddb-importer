@@ -5,6 +5,8 @@ import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory";
 import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
+import { DDBMonsterFeatureActivity } from "../activities/_module";
+
 
 export default class DDBCompanionMixin {
   npc: I5eMonsterData;
@@ -187,7 +189,7 @@ export default class DDBCompanionMixin {
   }
 
   async getFeature(text: string, type: TDDBMonsterActionType) {
-    const enricher = new DDBMonsterFeatureEnricher();
+    const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity });
     await enricher.init();
     const options = {
       enricher: enricher,
@@ -480,7 +482,7 @@ export default class DDBCompanionMixin {
       const match = speed.match(/(\w+ )*(\d+)/i);
       if (match) {
         const type = (match[1]?.trim() ?? "walk") as I5eMovementType;
-        this.npc.system.attributes.movement[type] = parseInt(match[2]);
+        this.npc.system.attributes.movement[type] = `${match[2]}`;
         if (speed.includes("hover")) this.npc.system.attributes.movement.hover = true;
       }
     });
