@@ -9,23 +9,24 @@ export default class JavelinOfLightning extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
-    const override: IDDBOverrideData = {
-      retainUseSpent: true,
-      data: {
-        system: {
-          uses: {
-            spent: null,
-            max: "",
-            recovery: [],
-            autoDestroy: false,
-          },
+    const overrideData: Record<string, any> = {
+      system: {
+        uses: {
+          spent: null,
+          max: "",
+          recovery: [],
+          autoDestroy: false,
         },
       },
+    };
+    const override: IDDBOverrideData = {
+      retainUseSpent: true,
+      data: overrideData,
     };
 
     if (this.is2014) return override;
 
-    override.data.system.damage = {
+    overrideData.system.damage = {
       base: DDBEnricherData.basicDamagePart({
         number: 1,
         denomination: 6,

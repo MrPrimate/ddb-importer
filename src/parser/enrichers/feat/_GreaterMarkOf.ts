@@ -10,14 +10,14 @@ export default class _GreaterMarkOf extends DDBEnricherData {
       {
         options: {
           transfer: true,
-          durationSeconds: null,
-          durationRounds: null,
+          durationSeconds: undefined,
+          durationRounds: undefined,
         },
         data: {
           duration: {
             value: null,
             expiry: null,
-            expired: null,
+            expired: undefined,
           },
         },
         changes: [

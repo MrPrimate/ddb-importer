@@ -40,7 +40,7 @@ export default class AlchemistsFire extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) {
       return [
         {
@@ -66,7 +66,7 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) {
       return null;
     } else {

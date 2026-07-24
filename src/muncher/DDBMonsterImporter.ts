@@ -34,6 +34,12 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
     fullWipe?: boolean;
     notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
   } = {}) {
+    if (!monster) {
+      throw new Error("DDBMonsterImporter requires a monster");
+    }
+    if (!type) {
+      throw new Error("DDBMonsterImporter requires a type");
+    }
     this.monster = monster;
     this.type = type;
     this.fullWipe = fullWipe;
@@ -50,30 +56,40 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
   // this generates any missing spell data for actors
   // it wont appear in the compendium but will upon import
   async generateCastSpells() {
-    const items = this.compendiumActor.items as unknown as Item.Implementation[];
+    const compendiumActor = this.compendiumActor;
+    if (!compendiumActor) {
+      logger.warn("generateCastSpells called without a compendium actor, skipping");
+      return;
+    }
+    const items = compendiumActor.items as unknown as Item.Implementation[];
     for (const item of items) {
       if (!("activities" in item.system)) continue;
       const spells = (
         await Promise.all(
           // TODO: what is the dnd5e activity type here?
           item.system.activities.getByType("cast").map((a: any) => a.getCachedSpellData()),
-        )).filter((spell: any) => !(this.compendiumActor.items as unknown as Item.Implementation[]).find((i) =>
+        )).filter((spell: any) => !(compendiumActor.items as unknown as Item.Implementation[]).find((i) =>
         i.type === "spell" && foundry.utils.hasProperty(i, "flags.dnd5e.cachedFor")
         && i.flags?.dnd5e?.cachedFor === spell.flags?.dnd5e?.cachedFor,
       ));
-      if (spells.length) this.compendiumActor.createEmbeddedDocuments("Item", spells);
+      if (spells.length) compendiumActor.createEmbeddedDocuments("Item", spells);
     }
   }
 
   // check items to see if retaining item, img or resources
   async existingItemRetentionCheck(checkId = true) {
+    const compendiumActor = this.compendiumActor;
+    if (!compendiumActor) {
+      logger.warn("existingItemRetentionCheck called without a compendium actor, skipping");
+      return;
+    }
 
     const newItems = this.monster.items.map((item) => {
       foundry.utils.setProperty(item, "flags.ddbimporter.parentId", this.monster._id);
       return item;
     });
 
-    const currentItems = this.compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
+    const currentItems = compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
     const fiddledItems: any[] = [];
 
     await newItems.forEach((item) => {
@@ -93,7 +109,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreItemImport")) {
           fiddledItems.push(foundry.utils.duplicate(existingItem));
         } else {
-          item["_id"] = existingItem.id;
+          item["_id"] = existingItem.id ?? undefined;
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
             item.img = existingItem.img;
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
@@ -135,9 +151,10 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
     const duplicate: T = foundry.utils.duplicate(this.monster) as unknown as T;
     this.monster = (await this.itemImporter.addCompendiumFolderIds([duplicate]))[0] as T;
 
-    if (foundry.utils.hasProperty(this.monster, "_id") && this.itemImporter.compendium.index.has(this.monster._id)) {
+    const monsterId = this.monster._id;
+    if (monsterId && this.itemImporter.compendium.index.has(monsterId)) {
       if (this.updateExisting) {
-        this.compendiumActor = await this.itemImporter.compendium.getDocument(this.monster._id) as Actor.Implementation;
+        this.compendiumActor = await this.itemImporter.compendium.getDocument(monsterId) as Actor.Implementation;
 
         if (foundry.utils.hasProperty(this.monster, "prototypeToken.flags.tagger.tags")
           && foundry.utils.hasProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags")
@@ -151,7 +168,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
 
         const existing3dModel: string = foundry.utils.getProperty(this.compendiumActor.prototypeToken, "flags.levels-3d-preview.model3d") as string;
         if (existing3dModel && existing3dModel.trim() !== "") {
-          foundry.utils.setProperty(this.monster.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
+          foundry.utils.setProperty(this.monster, "prototypeToken.flags.levels-3d-preview.model3d", existing3dModel);
         }
 
         if (this.fullWipe) {
@@ -161,7 +178,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         }
 
         if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
-          FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source.rules}.json`, "application/json");
+          FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source?.rules ?? ""}.json`, "application/json");
         }
         logger.debug("NPC Update Data", foundry.utils.duplicate(this.monster));
         await this.compendiumActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
@@ -177,13 +194,15 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
           // keepId: true,
         } as unknown as Parameters<typeof this.compendiumActor.update>[1]);
         // console.warn("UpdatedNPC", { updatedNPC: updatedNPC.toObject(), items });
-        await updatedNPC.createEmbeddedDocuments("Item", items as any, { keepId: true });
-
-        // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
-        await this.generateCastSpells();
         if (!updatedNPC) {
           logger.debug("No changes made to base character", this.monster);
         }
+        // update() resolves undefined when nothing changed; the items were
+        // wiped above so recreate them on the existing compendium actor
+        await (updatedNPC ?? this.compendiumActor).createEmbeddedDocuments("Item", items as any, { keepId: true });
+
+        // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
+        await this.generateCastSpells();
       }
     } else {
       // create the new npc
@@ -195,7 +214,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       };
       logger.debug("NPC New Data", foundry.utils.duplicate(this.monster));
       if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
-        FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source.rules}.json`, "application/json");
+        FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source?.rules ?? ""}.json`, "application/json");
       }
       this.compendiumActor = await Actor.create(this.monster as any, options) as typeof this.compendiumActor;
       await this.generateCastSpells();
@@ -226,15 +245,22 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       return this.monster;
     }
 
+    const protoToken = this.monster.prototypeToken;
+    const protoTexture = protoToken?.texture;
+    if (!protoToken || !protoTexture) {
+      logger.warn(`Monster ${this.monster.name} has no prototype token texture data, skipping image processing`);
+      return this.monster;
+    }
+
     const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
     if (!forceUpdate && !updateImages
       && !utils.isDefaultOrPlaceholderImage(this.monster.img)
-      && !utils.isDefaultOrPlaceholderImage(this.monster.prototypeToken.texture.src)
+      && !utils.isDefaultOrPlaceholderImage(protoTexture.src)
     ) {
       return this.monster;
     }
 
-    const isStock = this.monster.flags.monsterMunch.isStockImg;
+    const isStock = this.monster.flags?.monsterMunch?.isStockImg;
     const useAvatarAsToken = utils.getSetting<boolean>("munching-policy-use-full-token-image") || forceUseFullToken;
     const useTokenAsAvatar = utils.getSetting<boolean>("munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
 
@@ -251,7 +277,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
     const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
     const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
 
-    const detailsType = this.monster.system.details.type;
+    const detailsType = this.monster.system.details?.type;
     const npcType = this.type.startsWith("vehicle")
       ? "vehicle"
       : (typeof detailsType === "object"
@@ -275,7 +301,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       if (hasAvatarProcessedAlready) {
         this.monster.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
       } else {
-        const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
+        const ext = ddbAvatarUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
         const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
         const name = genericNpc ? genericNPCName : npcName;
         const nameType = genericNpc ? "npc-generic" : "npc";
@@ -305,10 +331,10 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
     if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
         monsterTokenImgPath = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
-        this.monster.prototypeToken.texture.src = monsterTokenImgPath;
-        if (useWildcard && this.monster.prototypeToken.texture.src.includes("*")) this.monster.prototypeToken.randomImg = true;
+        protoTexture.src = monsterTokenImgPath;
+        if (useWildcard && protoTexture.src?.includes("*")) protoToken.randomImg = true;
       } else {
-        const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
+        const tokenExt = ddbTokenUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
         const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
         const name = genericNpc ? genericNPCName : npcName;
         tokenName = name;
@@ -331,21 +357,21 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
           targetDirectory,
         };
         monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
-        this.monster.prototypeToken.texture.src = monsterTokenImgPath;
+        protoTexture.src = monsterTokenImgPath;
         if (monsterTokenImgPath && useWildcard && !useTokenizer) {
           const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
           if (lastSlashIndex !== -1) {
             // const postFix = useTokenizer ? `/${name}/*` : "/*";
-            // this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + postFix;
-            this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + "*";
-            this.monster.prototypeToken.randomImg = true;
+            // protoTexture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + postFix;
+            protoTexture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + "*";
+            protoToken.randomImg = true;
           }
         }
       }
     }
 
     // check avatar, if not use token image
-    if (!this.monster.img && this.monster.prototypeToken.texture.src) {
+    if (!this.monster.img && protoTexture.src) {
       this.monster.img = monsterTokenImgPath;
     }
 
@@ -354,7 +380,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
     }
     if (monsterTokenImgPath === null && tokenImgSet !== true) {
-      this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type]
+      protoTexture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type]
         ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
     }
 
@@ -390,18 +416,23 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       let tokenizerResult;
 
       if (game.modules.get("tokenizer-2")?.active) {
-        const filename = `${tokenizerName}-${bookRuleStub}${compendiumLabel}`;
-        const cfg = {
-          "saveFolder": targetTokenizerFolder,
-          useActorImg: false,
-          portraitFit: "contain",
-          wildcardMode: "keep",
-        };
-        const { prototypeToken, layers } = await (game.modules.get("tokenizer-2") as { api?: ITokenizer2API }).api.tokenize(this.monster, {
-          ...cfg, filename, updateActor: false,
-        });
-        foundry.utils.mergeObject(this.monster, foundry.utils.expandObject(prototypeToken));
-        foundry.utils.setProperty(this.monster, "flags.tokenizer-2", { layerStack: layers });
+        const tokenizer2Api = (game.modules.get("tokenizer-2") as { api?: ITokenizer2API }).api;
+        if (tokenizer2Api) {
+          const filename = `${tokenizerName}-${bookRuleStub}${compendiumLabel}`;
+          const cfg = {
+            "saveFolder": targetTokenizerFolder,
+            useActorImg: false,
+            portraitFit: "contain",
+            wildcardMode: "keep",
+          };
+          const { prototypeToken, layers } = await tokenizer2Api.tokenize(this.monster, {
+            ...cfg, filename, updateActor: false,
+          });
+          foundry.utils.mergeObject(this.monster, foundry.utils.expandObject(prototypeToken));
+          foundry.utils.setProperty(this.monster, "flags.tokenizer-2", { layerStack: layers });
+        } else {
+          logger.warn("tokenizer-2 module is active but exposes no api, skipping tokenize");
+        }
 
       } else if (game.modules.get("vtta-tokenizer")?.active) {
 
@@ -414,18 +445,18 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         };
         logger.debug("Tokenizing monster image", { monster: this.monster.name, autoOptions });
         tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
-        this.monster.prototypeToken.texture.src = tokenizerResult;
+        protoTexture.src = tokenizerResult;
       }
 
       if (useWildcard) {
-        this.monster.prototypeToken.texture.src = `${wildcardPath}*`;
-        this.monster.prototypeToken.randomImg = true;
+        protoTexture.src = `${wildcardPath}*`;
+        protoToken.randomImg = true;
       }
       logger.debug(`Generated tokenizer image at ${tokenizerResult}`);
     }
 
     if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(ddbAvatarUrl, this.monster.img);
-    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(ddbTokenUrl, this.monster.prototypeToken.texture.src);
+    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(ddbTokenUrl, protoTexture.src);
 
     return this.monster;
   }
@@ -453,6 +484,9 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
     // create the new npc
     logger.debug("Creating NPC actor");
     if (update) {
+      if (!this.monster._id) {
+        throw new Error(`Unable to update world actor for ${this.monster.name}: monster has no _id`);
+      }
       const npc = game.actors.get(this.monster._id);
       await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
       await Actor.updateDocuments([this.monster as any]);
@@ -481,8 +515,8 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       const monsterImporter = new DDBMonsterImporter<typeof data>({
         monster: data,
         type,
-        updateExisting,
-        fullWipe,
+        updateExisting: updateExisting ?? undefined,
+        fullWipe: fullWipe ?? undefined,
       });
       await monsterImporter.build(buildOptions);
       logger.info(`Processing ${type} ${monsterImporter.monster.name} for the compendium`);

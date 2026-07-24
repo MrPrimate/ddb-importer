@@ -7,19 +7,20 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   get activity(): IDDBActivityData {
-    const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass)}.energy-die.die`;
+    const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
+    const activityData: Partial<I5eActivity> = {
+      roll: {
+        prompt: false,
+        visible: false,
+        formula,
+        name: "Roll Bonus",
+      },
+    };
     const result: IDDBActivityData = {
       name: "",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
-      data: {
-        roll: {
-          prompt: false,
-          visible: false,
-          formula,
-          name: "Roll Bonus",
-        },
-      },
+      data: activityData,
     };
 
     if (this.isSubclass("Soulknife")) {
@@ -28,7 +29,7 @@ export default class PsionicPower extends DDBEnricherData {
       result.name = "Protective Field";
       result.activationType = "reaction";
       result.targetType = "creature";
-      result.data.range = {
+      activityData.range = {
         units: "ft",
         value: "30",
       };

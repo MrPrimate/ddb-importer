@@ -39,7 +39,7 @@ export default class PactOfTheChain extends DDBEnricherData {
         overrides: {
           noTemplate: true,
           func: async ({ activity }) => {
-            await this.ddbParser.ddbCompanionFactory.addCRSummoning(activity);
+            await this.ddbParser.ddbCompanionFactory?.addCRSummoning(activity);
           },
         },
       },

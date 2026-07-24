@@ -19,10 +19,10 @@ export default class Illumination extends DDBEnricherData {
     // The sphere is bright light, sheds dim light for an additional 30 feet, and moves with the faerie
     // The faerie sheds dim light in a 15-foot radius.
     const basicRegex = /sheds bright light in a (?<bright>\d+)-\s?foot radius and dim light (in a|for an additional) (?<dim>\d+)-?\s?(foot radius|feet)/i;
-    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml);
+    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     const justDimRegex = /sheds dim light in a (?<dim>\d+)-\s?foot radius/i;
-    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml);
+    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     // console.warn("Illumination", {
     //   this: this,
@@ -32,6 +32,7 @@ export default class Illumination extends DDBEnricherData {
 
     const match = basicMatch ?? justDimMatch;
     if (match) {
+      const groups = match.groups ?? {};
       const effect = {
         options: {
           transfer: true,
@@ -42,13 +43,13 @@ export default class Illumination extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
         ],
       };
-      if (match.groups.bright) {
+      if (groups.bright) {
         effect.changes.push(
-          DDBEnricherData.ChangeHelper.upgradeChange(match.groups.bright, 10, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange(groups.bright, 10, "token.light.bright"),
         );
       }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
+      if (groups.dim) {
+        const dim = groups.bright ? parseInt(groups.bright) + parseInt(groups.dim) : groups.dim;
         effect.changes.push(
           DDBEnricherData.ChangeHelper.upgradeChange(dim, 10, "token.light.dim"),
         );

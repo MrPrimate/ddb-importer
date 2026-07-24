@@ -10,7 +10,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return {
         data: {
@@ -27,7 +27,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) {
       return {
         name: "colorSpray.js",
@@ -38,7 +38,7 @@ export default class ColorSpray extends DDBEnricherData {
     return null;
   }
 
-  get itemMacro(): IDDBItemMacro {
+  get itemMacro(): IDDBItemMacro | null {
     if (this.is2014) {
       return {
         name: "colorSpray.js",

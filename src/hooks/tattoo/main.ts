@@ -85,7 +85,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
   }
 
   for (const level of Array.fromRange(config.level + 1).reverse()) {
-    const values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[level];
+    const values = CONFIG.DDBI.SPELLWROUGHT_TATTOO?.[level];
     if (values) {
       config.values.bonus ??= values.bonus;
       config.values.dc ??= values.dc;

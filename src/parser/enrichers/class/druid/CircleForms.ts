@@ -27,9 +27,9 @@ export default class CircleForms extends DDBEnricherData {
         },
         profiles: [
           {
-            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -39,9 +39,9 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -51,9 +51,9 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: [],

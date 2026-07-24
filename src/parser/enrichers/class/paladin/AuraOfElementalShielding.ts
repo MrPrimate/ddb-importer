@@ -24,7 +24,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
         ],
         options: {
           transfer: true,
-          disabled: !activeType.includes(element),
+          disabled: !activeType?.includes(element),
         },
         data: {
           flags: {

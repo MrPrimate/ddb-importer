@@ -69,7 +69,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
 
     const hitDiceSize = this.ddbParser.isMuncher
       ? []
-      : this.ddbParser.ddbCharacter.source.ddb.character.classes
+      : (this.ddbParser.ddbCharacter?.source?.ddb?.character.classes ?? [])
         .map((klass) => klass.definition.hitDice)
         .filter((hd) => hd && hd !== 6);
 
@@ -155,7 +155,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
         data: {
           flags: {
             ddbimporter: {
-              activityRiders: this.hdActivities.map((r) => r.overrides.id).concat(["ddbSpellAvoidanc"]),
+              activityRiders: this.hdActivities.map((r) => r.overrides?.id ?? "").concat(["ddbSpellAvoidanc"]),
               effectRiders: ["CrownOfSpellfire"],
             },
           },

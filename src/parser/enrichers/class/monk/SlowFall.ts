@@ -7,7 +7,7 @@ export default class SlowFall extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     return {
       activationType: "reaction",

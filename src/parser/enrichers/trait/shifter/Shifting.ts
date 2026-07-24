@@ -5,7 +5,7 @@ export default class Shifting extends DDBEnricherData {
 
   get shifterType() {
     if (!this.ddbParser._chosen || this.ddbParser._chosen.length === 0) {
-      return this.ddbParser.ddbCharacter._ddbRace.fullName;
+      return this.ddbParser.ddbCharacter?._ddbRace.fullName ?? "";
     }
 
     return this.ddbParser._chosen[0].label;
@@ -51,7 +51,7 @@ export default class Shifting extends DDBEnricherData {
           activationType: "bonus",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: this.ddbParser.ddbCharacter._ddbRace.isLegacy
+              customFormula: this.ddbParser.ddbCharacter?._ddbRace.isLegacy
                 ? "max(1, @abilities.con.mod) + @detail.level"
                 : shifterType === "Beasthide"
                   ? "(2 * @prof) + 1d6"
@@ -135,6 +135,7 @@ export default class Shifting extends DDBEnricherData {
     const results: IDDBEffectHint[] = [];
 
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
+      const activityRiders = [utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" })];
       const effect: IDDBEffectHint = {
         name: `Type: ${shifterType}`,
         type: "enchant",
@@ -149,20 +150,20 @@ export default class Shifting extends DDBEnricherData {
           _id: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
           duration: {
             value: null,
-            units: null,
+            units: undefined,
           },
           flags: {
             ddbimporter: {
-              activityRiders: [utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" })],
+              activityRiders,
               effectRiders: [utils.namedIDStub(shifterType, { postfix: "ef" })],
             },
           },
         },
       };
       if (shifterType === "Longtooth") {
-        effect.data.flags.ddbimporter.activityRiders.push("ddblongtoothatta");
+        activityRiders.push("ddblongtoothatta");
       } else if (shifterType === "Swiftstride") {
-        effect.data.flags.ddbimporter.activityRiders.push("ddbswiftstridemo");
+        activityRiders.push("ddbswiftstridemo");
       }
       results.push(effect);
     }
@@ -214,7 +215,7 @@ export default class Shifting extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
-    const uses = this.ddbParser.ddbCharacter._ddbRace.isLegacy
+    const uses = this.ddbParser.ddbCharacter?._ddbRace.isLegacy
       ? {}
       : this._getUsesWithSpent({
         type: "race",

@@ -18,6 +18,12 @@ interface IAdventureIndexEntry {
   system?: { source?: { rules?: string } };
 }
 
+/** minimal journal entry page shape used by the srd rules lookups */
+interface IAdventureJournalPage {
+  _id: string;
+  name: string;
+}
+
 interface IAdventureConfigResult {
   schemaVersion: number;
   debug: boolean;
@@ -37,6 +43,11 @@ async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
+  if (!monsterCompendium) {
+    // getCompendium throws when it fails to find the compendium, so this is unreachable
+    logger.warn(`Unable to find monster compendium ${monsterCompendiumLabel}`);
+    return [];
+  }
   const monsterIndices = ["name", "flags.ddbimporter.id", "flags.ddbbimporter.originalName", "system.source.rules"];
   const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices }) as unknown as IAdventureIndexEntry[];
 
@@ -44,7 +55,7 @@ async function getMonsterMap () {
     .filter((monster) => monster.flags?.ddbimporter?.id)
     .map((monster) => {
       return {
-        id: monster.flags.ddbimporter.id,
+        id: monster.flags?.ddbimporter?.id,
         _id: monster._id,
         compendium: monsterCompendiumLabel,
         name: monster.name,
@@ -62,6 +73,10 @@ async function getSpellMap() {
   // mm 2176
   const spellCompendiumLabel = await utils.getSetting<string>("entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
+  if (!spellCompendium) {
+    logger.warn(`Unable to find spell compendium ${spellCompendiumLabel}`);
+    return [];
+  }
   const spellIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const spellIndex = await spellCompendium.getIndex({ fields: spellIndices }) as unknown as IAdventureIndexEntry[];
 
@@ -69,7 +84,7 @@ async function getSpellMap() {
     .filter((spell) => spell.flags?.ddbimporter?.definitionId)
     .map((spell) => {
       return {
-        id: spell.flags.ddbimporter.definitionId,
+        id: spell.flags?.ddbimporter?.definitionId,
         _id: spell._id,
         compendium: spellCompendiumLabel,
         name: spell.flags?.ddbimporter?.originalName ?? spell.name,
@@ -86,6 +101,10 @@ async function getItemMap() {
   // ddb://magicitems
   const itemCompendiumLabel = await utils.getSetting<string>("entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
+  if (!itemCompendium) {
+    logger.warn(`Unable to find item compendium ${itemCompendiumLabel}`);
+    return [];
+  }
   const itemIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const itemIndex = await itemCompendium.getIndex({ fields: itemIndices }) as unknown as IAdventureIndexEntry[];
 
@@ -93,7 +112,7 @@ async function getItemMap() {
     .filter((i) => i.flags?.ddbimporter?.definitionId)
     .map((i) => {
       return {
-        id: i.flags.ddbimporter.definitionId,
+        id: i.flags?.ddbimporter?.definitionId,
         _id: i._id,
         compendium: itemCompendiumLabel,
         name: i.name,
@@ -137,7 +156,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     schemaVersion: CONFIG.DDBI.schemaVersion,
     debug: false,
     observeAll: false,
-    version: game.modules.get("ddb-importer").version as string,
+    version: game.modules.get("ddb-importer")?.version as string,
     lookups: {
       monsters: [],
       items: [],
@@ -173,7 +192,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
   if (getVehicles) {
     const vehicleFactory = new DDBVehicleFactory();
     await vehicleFactory.fetchDDBVehicleSourceData();
-    result.lookups.vehicles = vehicleFactory.source.map((v) => {
+    result.lookups.vehicles = (vehicleFactory.source ?? []).map((v) => {
       return {
         id: v.id,
         url: v.url,
@@ -196,16 +215,16 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     const skillEntryDocument = srdDocuments.find((d) => d.name === "Chapter 7: Using Ability Scores");
     if (skillEntryDocument) {
       result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
-        const skillEntryPage = skillEntryDocument.pages.find((p) => p.name === "Using Each Ability");
+        const skillEntryPage = skillEntryDocument.pages.find((p: IAdventureJournalPage) => p.name === "Using Each Ability");
         const stat = CONFIG.DDB.stats.find((s) => s.id === skill.stat);
-        const headerLink = `${stat.name} Checks`;
+        const headerLink = `${stat?.name ?? ""} Checks`;
         return {
           id: skill.id,
           _id: skillEntryDocument._id,
           name: skill.name,
           compendium: rulesCompendium,
           documentName: skillEntryDocument.name,
-          pageId: skillEntryPage._id,
+          pageId: skillEntryPage?._id,
           headerLink,
         };
       });
@@ -214,16 +233,16 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     const senseEntryDocument = srdDocuments.find((d) => d.name === "Appendix D: Senses and Speeds");
     if (senseEntryDocument) {
       result.lookups.senses = CONFIG.DDB.senses
-        .filter((sense) => senseEntryDocument.pages.some((p) => p.name === sense.name))
+        .filter((sense) => senseEntryDocument.pages.some((p: IAdventureJournalPage) => p.name === sense.name))
         .map((sense) => {
-          const senseEntryPage = senseEntryDocument.pages.find((p) => p.name === sense.name);
+          const senseEntryPage = senseEntryDocument.pages.find((p: IAdventureJournalPage) => p.name === sense.name);
           return {
             id: sense.id,
             _id: senseEntryDocument._id,
             name: sense.name,
             compendium: rulesCompendium,
             documentName: senseEntryDocument.name,
-            pageId: senseEntryPage._id,
+            pageId: senseEntryPage?._id,
             headerLink: null as string | null,
           };
         });
@@ -232,9 +251,9 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     const conditionEntryDocument = srdDocuments.find((d) => d.name === "Appendix A: Conditions");
     if (conditionEntryDocument) {
       result.lookups.conditions = CONFIG.DDB.conditions
-        .filter((condition) => conditionEntryDocument.pages.some((p) => (p.name as string).trim() === condition.definition.name.trim()))
+        .filter((condition) => conditionEntryDocument.pages.some((p: IAdventureJournalPage) => p.name.trim() === condition.definition.name.trim()))
         .map((condition) => {
-          const conditionEntryPage = conditionEntryDocument.pages.find((p) => (p.name as string).trim() === condition.definition.name.trim());
+          const conditionEntryPage = conditionEntryDocument.pages.find((p: IAdventureJournalPage) => p.name.trim() === condition.definition.name.trim());
           return {
             id: condition.definition.id,
             _id: conditionEntryDocument.id,
@@ -242,7 +261,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
             compendium: rulesCompendium,
             slug: condition.definition.slug,
             documentName: conditionEntryDocument.name,
-            pageId: conditionEntryPage._id,
+            pageId: conditionEntryPage?._id,
             headerLink: null as string | null,
           };
         });
@@ -250,17 +269,17 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
 
     const actionEntryDocument = srdDocuments.find((d) => d.name === "Chapter 9: Combat");
     if (actionEntryDocument) {
-      const actionEntryPage = actionEntryDocument.pages.find((p) => p.name === "Actions in Combat");
+      const actionEntryPage = actionEntryDocument.pages.find((p: IAdventureJournalPage) => p.name === "Actions in Combat");
       CONFIG.DDB.basicActions.forEach((action) => {
         if (ATTACK_ACTION_MAP[action.name]) {
-          const attackEntryPage = actionEntryDocument.pages.find((p) => p.name === ATTACK_ACTION_MAP[action.name].page);
+          const attackEntryPage = actionEntryDocument.pages.find((p: IAdventureJournalPage) => p.name === ATTACK_ACTION_MAP[action.name].page);
           result.lookups.actions.push({
             id: action.id,
             _id: actionEntryDocument._id,
             name: action.name,
             compendium: rulesCompendium,
             documentName: actionEntryDocument.name,
-            pageId: attackEntryPage._id,
+            pageId: attackEntryPage?._id,
             headerLink: ATTACK_ACTION_MAP[action.name].hint,
           });
         } else if (action.id < 100) {
@@ -270,7 +289,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
             name: action.name,
             compendium: rulesCompendium,
             documentName: actionEntryDocument.name,
-            pageId: actionEntryPage._id,
+            pageId: actionEntryPage?._id,
             headerLink: action.name,
           });
         }
@@ -279,7 +298,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
 
     const equipmentDocument = srdDocuments.find((d) => d.name === "Chapter 5: Equipment");
     if (equipmentDocument) {
-      const weaponPropertiesPage = equipmentDocument.pages.find((p) => p.name === "Weapons");
+      const weaponPropertiesPage = equipmentDocument.pages.find((p: IAdventureJournalPage) => p.name === "Weapons");
       result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
         return {
           id: prop.id,
@@ -287,7 +306,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
           name: prop.name,
           compendium: rulesCompendium,
           documentName: equipmentDocument.name,
-          pageId: weaponPropertiesPage._id,
+          pageId: weaponPropertiesPage?._id,
           headerLink: "Weapon Properties",
         };
       });
@@ -295,7 +314,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
 
     if (fullPageMap) {
       srdDocuments.forEach((document) => {
-        document.pages.forEach((page) => {
+        document.pages.forEach((page: IAdventureJournalPage) => {
           result.fullPageMap.push({
             id: null,
             _id: document.id,

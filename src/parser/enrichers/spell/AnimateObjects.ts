@@ -7,7 +7,7 @@ export default class AnimateObjects extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     const spellMod = `@attributes.spell.mod`;
     return {
@@ -36,7 +36,7 @@ export default class AnimateObjects extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       data: {

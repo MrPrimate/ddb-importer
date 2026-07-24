@@ -2,8 +2,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StaffOfHealing extends DDBEnricherData {
   async customFunction({ name, activity } : ICustomFunctionOptions) {
-    if (name === "Cure Wounds") {
-      activity.data = foundry.utils.mergeObject(activity.data, {
+    if (name === "Cure Wounds" && activity?.data) {
+      const update = {
         consumption: {
           spellSlot: false,
           targets: [
@@ -22,7 +22,8 @@ export default class StaffOfHealing extends DDBEnricherData {
             max: "4",
           },
         },
-      });
+      } as Partial<I5eActivity>;
+      activity.data = foundry.utils.mergeObject(activity.data, update) as Partial<I5eActivity>;
     }
   }
 }

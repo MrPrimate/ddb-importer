@@ -55,18 +55,19 @@ export default class AlterSelf extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     const effects = [];
+    const naturalWeaponChanges = [
+      DDBEnricherData.ChangeHelper.overrideChange(`{} [Natural Weapons]`, 20, "name"),
+      DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
+      DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.damage.base.number"),
+      DDBEnricherData.ChangeHelper.overrideChange("6", 20, "system.damage.base.denomination"),
+      DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
+      DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.damage.base.types"),
+      DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.damage.base.types"),
+    ];
     const naturalWeaponEffect: IDDBEffectHint = {
       name: "Natural Weapons",
       type: "enchant",
-      changes: [
-        DDBEnricherData.ChangeHelper.overrideChange(`{} [Natural Weapons]`, 20, "name"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
-        DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.damage.base.number"),
-        DDBEnricherData.ChangeHelper.overrideChange("6", 20, "system.damage.base.denomination"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.damage.base.types"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.damage.base.types"),
-      ],
+      changes: naturalWeaponChanges,
       activityMatch: "Natural Weapons",
       magicalBonus: undefined,
     };
@@ -76,7 +77,7 @@ export default class AlterSelf extends DDBEnricherData {
         bonus: "1",
       };
     } else {
-      naturalWeaponEffect.changes.push(
+      naturalWeaponChanges.push(
         DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "system.ability"));
     }
 

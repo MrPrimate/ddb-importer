@@ -9,7 +9,7 @@ export default class FindFamiliar extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    if (!["Pact of the Chain"].includes(this.ddbParser.lookupName)) return [];
+    if (!["Pact of the Chain"].includes(this.ddbParser.lookupName ?? "")) return [];
     return [
       {
         init: {
@@ -22,7 +22,7 @@ export default class FindFamiliar extends DDBEnricherData {
         overrides: {
           noTemplate: true,
           func: async ({ activity }) => {
-            await this.ddbParser.ddbCompanionFactory.addCRSummoning(activity);
+            await this.ddbParser.ddbCompanionFactory?.addCRSummoning(activity);
           },
         },
       },

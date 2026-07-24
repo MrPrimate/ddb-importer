@@ -71,7 +71,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
           duration: {
             value: null,
             expiry: null,
-            expired: null,
+            expired: undefined,
           },
         },
       },

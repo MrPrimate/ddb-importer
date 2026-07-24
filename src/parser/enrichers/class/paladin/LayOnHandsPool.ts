@@ -6,7 +6,7 @@ export default class LayOnHandsPool extends DDBEnricherData {
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     return null;
   }
 

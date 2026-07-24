@@ -15,7 +15,7 @@ export default class ConjureFey extends DDBEnricherData {
     return !this.is2014;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,

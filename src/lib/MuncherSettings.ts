@@ -395,7 +395,7 @@ const MuncherSettings = {
       dataDirSet,
       syncConfig,
       tiers,
-      version: CONFIG.DDBI.version,
+      version: CONFIG.DDBI.version ?? "",
     };
 
     return result;
@@ -906,7 +906,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       sourcesSelected,
       sourceDescription,
       enableSources,
-      version: CONFIG.DDBI.version,
+      version: CONFIG.DDBI.version ?? "",
       campaignId,
       isCampaign,
     };
@@ -1037,7 +1037,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const availableCats = DDBSources.getDisplaySourceCategories();
 
     const includedCategories = availableCats.map((cat) => {
-      const doc = utils.htmlToDoc(cat.description);
+      const doc = utils.htmlToDoc(cat.description ?? "");
       doc.querySelectorAll("span").forEach((el) => el.removeAttribute("style"));
       return {
         id: cat.id,

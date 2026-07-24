@@ -33,7 +33,9 @@ export default class EnhanceAbility extends DDBEnricherData {
               denomination: 6,
               scalingMode: "none",
               type: "temphp",
-              scalingNumber: null,
+              // IDDBBasicDamage types scalingNumber as number, but basicDamagePart accepts
+              // null at runtime to suppress scaling; undefined would trigger the default of 1
+              scalingNumber: null as unknown as number,
             }),
           },
         };

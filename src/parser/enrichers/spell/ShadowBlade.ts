@@ -174,8 +174,8 @@ export default class ShadowBlade extends DDBEnricherData {
   linkUpItemUUIDs() {
     const links: string[] = [];
     for (const blade of this.shadowBlades) {
-      const uuid = this.handler.compendiumIndex.find((e: TIndexEntry) => e._id === blade._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e: TIndexEntry) =>
+      const uuid = this.handler.compendiumIndex?.find((e: TIndexEntry) => e._id === blade._id)?.uuid
+        ?? this.handler.compendiumIndex?.find((e: TIndexEntry) =>
           foundry.utils.getProperty(e, "name") === blade.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === blade.flags?.ddbimporter?.is2014,
         )?.uuid;

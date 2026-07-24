@@ -49,8 +49,8 @@ export default class BondOfFangAndScale extends DDBEnricherData {
       return {
         name: ` Bond of Fang and Scale, Resistance: ${utils.capitalize(type)}`,
         options: {
-          transfer: activeType.includes(type),
-          disabled: !activeType.includes(type),
+          transfer: activeType?.includes(type) ?? false,
+          disabled: !activeType?.includes(type),
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(type),

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ElementalAdept extends DDBEnricherData {
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
 
     const types = [

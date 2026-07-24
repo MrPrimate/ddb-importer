@@ -21,7 +21,7 @@ export default class ReversalOfFortune extends DDBEnricherData {
           duration: {
             value: 6,
             expiry: "turnStart",
-            expired: null,
+            expired: undefined,
           },
         },
         midiOnly: true,

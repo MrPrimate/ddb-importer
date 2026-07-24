@@ -25,7 +25,7 @@ export default class EyeRays extends DDBEnricherData {
   }
 
   get rayText() {
-    const text = this.ddbParser.html
+    const text = (this.ddbParser.html ?? "")
       .replace(/<strong> \.<\/strong>/, "").trim()
       .replaceAll("<strong></strong>", "")
       .replaceAll("<em></em>", "")
@@ -146,8 +146,8 @@ export default class EyeRays extends DDBEnricherData {
       const name = EyeRays.rayName(ray);
       results.push(...this.effectExtras(name));
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
-      const overtimeGenerator = this.ddbParser._generateAutoEffects({ html: strippedHtml, addToMonster: false });
-      if (overtimeGenerator.effect?.changes?.length > 0 || overtimeGenerator.effect?.statuses?.length > 0) {
+      const overtimeGenerator = this.ddbParser._generateAutoEffects?.({ html: strippedHtml, addToMonster: false });
+      if (overtimeGenerator && (overtimeGenerator.effect?.changes?.length > 0 || overtimeGenerator.effect?.statuses?.length > 0)) {
         const effect = foundry.utils.deepClone(overtimeGenerator.effect);
         results.push({
           raw: effect,
@@ -158,13 +158,15 @@ export default class EyeRays extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
+    const description = this.ddbEnricher.data?.system?.description?.value;
+    if (description === undefined) return null;
     return {
       data: {
         system: {
           description: {
-            value: this.ddbEnricher.data.system.description.value.replaceAll("<br> <strong>", "</p><p><strong>"),
+            value: description.replaceAll("<br> <strong>", "</p><p><strong>"),
           },
         },
       },

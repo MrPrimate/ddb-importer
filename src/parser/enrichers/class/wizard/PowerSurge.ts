@@ -21,7 +21,7 @@ export default class PowerSurge extends DDBEnricherData {
     });
 
     // uses are inverted here
-    uses.spent = Math.max((foundry.utils.getProperty(this.ddbParser.ddbCharacter, "abilities.withEffects.int.mod") as number) - uses.spent, 0);
+    uses.spent = Math.max((foundry.utils.getProperty(this.ddbParser.ddbCharacter ?? {}, "abilities.withEffects.int.mod") as number) - (uses.spent ?? 0), 0);
     uses.recovery = [
       { "period": "lr", "type": "formula", "formula": "1 - @item.uses.value" },
     ];

@@ -216,8 +216,8 @@ global {
   // -- Effect Options ---------------------------------------------------------
   interface IDDBEffectOptions {
     description?: string;
-    durationSeconds?: number;
-    durationRounds?: number;
+    durationSeconds?: number | null;
+    durationRounds?: number | null;
     durationTurns?: number | null;
     transfer?: boolean;
     disabled?: boolean;

@@ -74,7 +74,7 @@ export default class BrandingSmite extends DDBEnricherData {
       : [];
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) {
       return {
         type: "spell",
@@ -85,7 +85,7 @@ export default class BrandingSmite extends DDBEnricherData {
     return null;
   }
 
-  get itemMacro(): IDDBItemMacro {
+  get itemMacro(): IDDBItemMacro | null {
     if (this.is2014) {
       return {
         type: "spell",

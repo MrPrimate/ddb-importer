@@ -46,7 +46,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       retainResourceConsumption: true,
@@ -209,7 +209,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       DDBEnricherData.ChangeHelper.overrideChange("charges", 20, "system.uses.per"),
       DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.uses.prompt"),
       DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.uses.autoDestroy"),
-      DDBEnricherData.ChangeHelper.overrideChange(data.description, 20, "system.description.value"),
+      DDBEnricherData.ChangeHelper.overrideChange(data?.description ?? "", 20, "system.description.value"),
       DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.activation.cost"),
       DDBEnricherData.ChangeHelper.overrideChange((this.is2014 ? "action" : "bonus"), 20, "system.activation.type"),
     ];
@@ -276,7 +276,12 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   generateElixirAdditionalActivity(name: string): IDDBAdditionalActivity[] {
     const results = this.activityMap[name].map((a, i) => {
-      const result: IDDBAdditionalActivity = {
+      // narrow the optional members that are always present on the constructed hint
+      const result: IDDBAdditionalActivity & {
+        init: IDDBActivityInit;
+        build: IDDBActivityBuild;
+        overrides: IDDBActivityData & { data: Record<string, any> };
+      } = {
         init: {
           name: `Use ${name}`,
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -394,7 +399,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             transfer: false,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.addChange(data.bonus, 20, "system.attributes.movement.walk"),
+            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.walk"),
           ],
           data: {
             "_id": utils.namedIDStub(name, {
@@ -485,7 +490,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             transfer: false,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.addChange(data.bonus, 20, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.fly"),
           ],
           data: {
             "_id": utils.namedIDStub(name, {
@@ -642,13 +647,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
     const itemData = this.getSkeletonItem(row);
     for (const [key, value] of Object.entries(this.data.system.activities as Record<string, I5eActivity>)) {
       if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
-      if (!value.name.endsWith(row.name)) continue;
+      if (!value.name?.endsWith(row.name)) continue;
       foundry.utils.setProperty(itemData, `system.activities.${key}`, value);
     }
 
     for (const effect of this.data.effects) {
       if (effect.name.startsWith(`Experimental Elixir: ${row.name}`)) {
-        itemData.effects.push(effect);
+        itemData.effects?.push(effect);
       }
     }
 
@@ -674,8 +679,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
   };
 
   async importElixirs() {
-    const updateFeatures = foundry.utils.getProperty(this.ddbParser.ddbCharacter, "updateCompendiumItems") as boolean | undefined
-      ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
+    const updateFeatures = foundry.utils.getProperty(this.ddbParser.ddbCharacter ?? {}, "updateCompendiumItems") as boolean | undefined
+      ?? this.ddbParser.ddbCharacter?.forceCompendiumUpdate
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     const featureHandler = await DDBItemImporter.buildHandler<I5eInventoryItem>("features", this.elixirs, updateFeatures, ExperimentalElixir.featureHandlerOptions, this.handler);
@@ -730,13 +735,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
   linkUpItemUUIDs() {
     const updates = [];
     for (const elixir of this.elixirs) {
-      const uuid = this.handler.compendiumIndex.find((e) => e._id === elixir._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e) =>
+      const uuid = this.handler.compendiumIndex?.find((e) => e._id === elixir._id)?.uuid
+        ?? this.handler.compendiumIndex?.find((e) =>
           foundry.utils.getProperty(e, "name") === elixir.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014,
         )?.uuid;
       if (!uuid) continue;
-      updates.push({ name: elixir.name.split(":").pop().trim(), uuid });
+      updates.push({ name: (elixir.name.split(":").pop() ?? "").trim(), uuid });
     }
 
     this.updateDescriptionTable(updates);

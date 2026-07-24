@@ -69,7 +69,7 @@ export default class PsychicBlade extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (!this.isClass("Rogue")) return null;
 
     if (this.document.type === "feat") {

@@ -41,7 +41,7 @@ export default class Grease extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "All",
-              radius: null,
+              radius: undefined,
               displayTemp: true,
             },
           },

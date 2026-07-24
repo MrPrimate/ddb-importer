@@ -30,7 +30,8 @@ export interface IDDBItemsImporter {
   source: IDDBItemsSource;
   synthetic: IDDBItemsSynthetic | null;
   data: TDDBItemImporterDocument[];
-  updateResults: (Item.Implementation | RollTable.Implementation)[] | null;
+  // update calls can resolve null/undefined (e.g. an update with no diff)
+  updateResults: (Item.Implementation | RollTable.Implementation | null | undefined)[] | null;
   notifier: TItemsNotifier;
   notifierV2: INotifierV2 | null;
   updateBool: boolean;
@@ -46,7 +47,7 @@ export interface IDDBItemsImporter {
   init(): Promise<void>;
   _processDDBItemData(): Promise<void>;
   _getDDBItems(): Promise<void>;
-  _importSyntheticItems(): Promise<(Item.Implementation | RollTable.Implementation)[] | null>;
+  _importSyntheticItems(): Promise<(Item.Implementation | RollTable.Implementation | null | undefined)[] | null>;
   process(): Promise<void>;
 }
 
@@ -142,7 +143,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
   };
   synthetic: IDDBItemsSynthetic | null = null;
   data: TDDBItemImporterDocument[] = [];
-  updateResults: (Item.Implementation | RollTable.Implementation)[] | null = null;
+  // update calls can resolve null/undefined (e.g. an update with no diff)
+  updateResults: (Item.Implementation | RollTable.Implementation | null | undefined)[] | null = null;
   notifier: TItemsNotifier = utils.munchNote;
   notifierV2: INotifierV2 | null = null;
   updateBool = false;
@@ -353,7 +355,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
           },
         },
       },
-    } as I5ePCData;
+      // deliberately partial mock; strict comparability rejects the direct cast
+    } as unknown as I5ePCData;
     const mockDDB = {
       character: {
         classes: [],
@@ -381,7 +384,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         },
         feats: [],
       },
-    } as IDDBData;
+      // deliberately partial mock; strict comparability rejects the direct cast
+    } as unknown as IDDBData;
     const ddbCharacter = new DDBCharacter();
     ddbCharacter.raw.character = mockCharacter;
     ddbCharacter.source = {

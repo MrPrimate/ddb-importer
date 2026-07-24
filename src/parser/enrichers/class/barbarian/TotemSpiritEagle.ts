@@ -50,7 +50,7 @@ export default class TotemSpiritEagle extends DDBEnricherData {
           transfer: true,
           disabled: true,
           durationSeconds: this.is2014 ? 60 : 600,
-          description: this.ddbEnricher.data.system.description.value,
+          description: this.ddbEnricher.data.system.description?.value,
         },
         activityMatch: "Activate",
       },

@@ -43,7 +43,7 @@ export default class CreateBonfire extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "All",
-              radius: null,
+              radius: undefined,
               alignment: "",
               type: "",
               ignoreSelf: false,

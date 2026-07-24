@@ -10,9 +10,9 @@ export default class ConjureCelestial extends DDBEnricherData {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
-    if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type)) return null;
+    if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type ?? "")) return null;
     return {
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Searing Light" : "Healing Light",
       noSpellslot: true,
@@ -41,7 +41,7 @@ export default class ConjureCelestial extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) return null;
     return [
       {

@@ -13,7 +13,7 @@ export default class SpellStoringItem extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       uses: {

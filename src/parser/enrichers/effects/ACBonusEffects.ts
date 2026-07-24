@@ -12,8 +12,9 @@ const BASE_RESTRICTIONS = [
 
 export default class ACBonusEffects {
 
+  // public signature stays I5eEffectData: external callers reset/guard `system` themselves
   static ACEffect(name: string): I5eEffectData {
-    const effect: I5eEffectData = {
+    const effect: TChangeEffect = {
       name,
       system: { changes: [] },
       duration: {
@@ -22,7 +23,6 @@ export default class ACBonusEffects {
         expiry: null,
         expired: false,
       },
-      origin: null,
       tint: "",
       disabled: true,
       transfer: true,
@@ -62,7 +62,7 @@ export default class ACBonusEffects {
     effect.origin = "AC";
 
     const changes = ACBonusEffects.addACBonusEffect(modifiers, label, subType, restrictions);
-    if (changes.length > 0) effect.system.changes = changes;
+    if (changes.length > 0) (effect.system ??= {}).changes = changes;
 
     return effect;
   }
@@ -91,7 +91,8 @@ export default class ACBonusEffects {
 
     const formulaChange: IActiveEffectChangeData = { key: "system.attributes.ac.formula", value: formula, type, priority };
     const calcChange: IActiveEffectChangeData = { key: "system.attributes.ac.calc", value: "custom", type, priority };
-    effect.system.changes.push(calcChange, formulaChange);
+    const system = (effect.system ??= {});
+    (system.changes ??= []).push(calcChange, formulaChange);
 
     return effect;
   }

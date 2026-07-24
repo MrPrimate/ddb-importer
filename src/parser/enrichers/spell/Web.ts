@@ -67,7 +67,7 @@ export default class Web extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "All",
-              radius: null,
+              radius: undefined,
               alignment: "",
               type: "",
               ignoreSelf: false,

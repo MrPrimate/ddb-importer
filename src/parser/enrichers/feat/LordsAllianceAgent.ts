@@ -24,7 +24,7 @@ export default class LordsAllianceAgent extends DDBEnricherData {
           duration: {
             value: 6,
             expiry: "turnStart",
-            expired: null,
+            expired: undefined,
           },
         },
         midiChanges: [

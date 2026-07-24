@@ -168,7 +168,7 @@ export default class MacabreModifications extends DDBEnricherData {
         data: {
           duration: {
             value: null,
-            units: null,
+            units: null as unknown as TEffectDurationUnit, // null clears the duration units; local type is narrower
           },
         },
       },
@@ -190,7 +190,7 @@ export default class MacabreModifications extends DDBEnricherData {
         data: {
           duration: {
             value: null,
-            units: null,
+            units: null as unknown as TEffectDurationUnit, // null clears the duration units; local type is narrower
           },
         },
       },

@@ -162,8 +162,11 @@ export default class EerieToken extends DDBEnricherData {
   };
 
   async importToken() {
-    const updateFeatures = foundry.utils.getProperty(this.ddbParser.ddbCharacter, "updateCompendiumItems") as boolean | undefined
-      ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
+    const ddbCharacter = this.ddbParser.ddbCharacter;
+    const updateFeatures = (ddbCharacter
+      ? foundry.utils.getProperty(ddbCharacter, "updateCompendiumItems") as boolean | undefined
+        ?? ddbCharacter.forceCompendiumUpdate
+      : undefined)
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     const featureHandler = await DDBItemImporter.buildHandler<I5eLootItem>("features", this.tokens, updateFeatures, EerieToken.handlerOptions, this.handler);
@@ -174,7 +177,8 @@ export default class EerieToken extends DDBEnricherData {
   async buildCompendiumFolders() {
     this.compendiumFolders = new DDBCompendiumFolders("traits");
     await this.compendiumFolders.loadCompendium("traits");
-    await this.compendiumFolders.createSubTraitFolders(this.ddbParser.ddbCharacter.raw.race);
+    const race = this.ddbParser.ddbCharacter?.raw.race;
+    if (race) await this.compendiumFolders.createSubTraitFolders(race);
   }
 
   async generateToken() {
@@ -189,13 +193,13 @@ export default class EerieToken extends DDBEnricherData {
   linkUpItemUUIDs() {
     const updates = [];
     for (const token of this.tokens) {
-      const uuid = this.handler.compendiumIndex.find((e) => e._id === token._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e) =>
+      const uuid = this.handler.compendiumIndex?.find((e) => e._id === token._id)?.uuid
+        ?? this.handler.compendiumIndex?.find((e) =>
           foundry.utils.getProperty(e, "name") === token.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === token.flags?.ddbimporter?.is2014,
         )?.uuid;
       if (!uuid) continue;
-      updates.push({ name: token.name.split(":").pop().trim(), uuid });
+      updates.push({ name: (token.name.split(":").pop() ?? "").trim(), uuid });
     }
   }
 

@@ -14,8 +14,8 @@ export default class Crusher extends DDBEnricherData {
         midiOnly: true,
         options: {
           transfer: true,
-          durationSeconds: null,
-          durationRounds: null,
+          durationSeconds: undefined,
+          durationRounds: undefined,
         },
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "crusher.js", document: this.data },
@@ -24,7 +24,7 @@ export default class Crusher extends DDBEnricherData {
           duration: {
             value: null,
             expiry: null,
-            expired: null,
+            expired: undefined,
           },
         },
         daeSpecialDurations: [],

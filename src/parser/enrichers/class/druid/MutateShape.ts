@@ -77,7 +77,7 @@ export default class MutateShape extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: ": Mutation Points",
-      max: `${action?.limitedUse.maxUses ?? "9"}`,
+      max: `${action?.limitedUse?.maxUses ?? "9"}`,
       period: "lr",
       includesName: true,
     });

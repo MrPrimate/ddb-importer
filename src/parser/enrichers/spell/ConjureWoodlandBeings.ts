@@ -7,7 +7,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     return {
       name: "Cast",
@@ -27,7 +27,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) return null;
     return [
       {
@@ -77,7 +77,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
   }
 
   get effects() : IDDBEffectHint[] {
-    if (this.is2014) return null;
+    if (this.is2014) return [];
     const flagName = `${utils.idString(this.data.name)}Called`;
     const overtimeOptions = [
       `label=${this.data.name} (End of Turn)`,
@@ -135,7 +135,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       data: {

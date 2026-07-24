@@ -6,7 +6,7 @@ export default class Lineage extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.data.name.startsWith("Gnomish ")) return null;
     return {
       data: {

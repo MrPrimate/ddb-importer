@@ -10,7 +10,7 @@ export default class Counterspell extends DDBEnricherData {
     }
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.CHECK,

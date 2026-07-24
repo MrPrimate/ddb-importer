@@ -37,7 +37,7 @@ export default class FingerGuns extends DDBEnricherData {
         sort: 2,
         duration: {
           override: true,
-          value: null,
+          value: undefined,
           units: "inst",
         },
         attack: {

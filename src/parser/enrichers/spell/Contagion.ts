@@ -56,7 +56,7 @@ export default class Contagion extends DDBEnricherData {
   //   };
   // }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) return null;
     return {
       name: "contagion2024.js",

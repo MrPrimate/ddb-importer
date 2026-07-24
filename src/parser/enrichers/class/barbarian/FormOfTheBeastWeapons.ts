@@ -15,7 +15,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  get activity(): IDDBActivityData | null {
     const name = this.ddbParser.originalName;
 
     switch (name) {

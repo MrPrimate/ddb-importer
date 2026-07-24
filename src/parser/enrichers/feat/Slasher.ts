@@ -70,8 +70,8 @@ export default class Slasher extends DDBEnricherData {
         midiOnly: true,
         options: {
           transfer: true,
-          durationSeconds: null,
-          durationRounds: null,
+          durationSeconds: undefined,
+          durationRounds: undefined,
         },
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "slasher.js", document: this.data },
@@ -80,7 +80,7 @@ export default class Slasher extends DDBEnricherData {
           duration: {
             value: null,
             expiry: null,
-            expired: null,
+            expired: undefined,
           },
         },
         daeSpecialDurations: [],

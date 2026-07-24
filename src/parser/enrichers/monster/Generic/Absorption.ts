@@ -4,7 +4,7 @@ export default class Absorption extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     const absRegEx = /is subjected to (\w+) damage, it takes no damage and (?:instead )?regains a number of hit points equal to (half )?the (\w+) damage/i;
-    const match = absRegEx.exec(this.ddbParser.strippedHtml);
+    const match = absRegEx.exec(this.ddbParser.strippedHtml ?? "");
 
     if (!match) return [];
     const value = match[2] ? "0.5" : "1";

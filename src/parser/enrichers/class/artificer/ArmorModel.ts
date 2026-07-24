@@ -87,7 +87,7 @@ export default class ArmorModel extends DDBEnricherData {
                   customFormula: this.is2014 ? null : "@scale.armorer.thunder-pulse + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 8 : null,
-                  bonus: this.is2014 ? "max(@abilities.str.mod, @abilities.int.mod)" : null,
+                  bonus: this.is2014 ? "max(@abilities.str.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
                   type: "thunder",
                 }),
               ],
@@ -252,7 +252,7 @@ export default class ArmorModel extends DDBEnricherData {
                   customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 6 : null,
-                  bonus: this.is2014 ? "max(@abilities.dex.mod, @abilities.int.mod)" : null,
+                  bonus: this.is2014 ? "max(@abilities.dex.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
                   type: "lightning",
                 }),
               ],

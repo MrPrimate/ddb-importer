@@ -153,10 +153,11 @@ export default class ChannelDivinity extends DDBEnricherData {
 
     }
 
-    return null;
+    // unreachable: a feature is always 2014 or 2024; the consumer treats null and [] identically
+    return [];
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
 
     const uses = this._getUsesWithSpent({

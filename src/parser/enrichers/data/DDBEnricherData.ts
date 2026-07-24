@@ -30,23 +30,24 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   is2014: boolean;
   is2024: boolean;
   useLookupName: boolean;
-  activityGenerator: TActivityGenerator;
+  activityGenerator: TActivityGenerator | null;
   effectType: string;
   document: any;
   name: string;
   isCustomAction: boolean;
-  manager: DDBSummonsManager;
+  manager: DDBSummonsManager | null;
 
   constructor({ ddbEnricher }: { ddbEnricher: T }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
-    this.is2014 = ddbEnricher.is2014;
-    this.is2024 = ddbEnricher.is2024;
+    // enrichers are constructed after load(); before that the enricher flags are null
+    this.is2014 = ddbEnricher.is2014 ?? false;
+    this.is2024 = ddbEnricher.is2024 ?? !this.is2014;
     this.useLookupName = ddbEnricher.useLookupName;
     this.activityGenerator = ddbEnricher.activityGenerator;
     this.effectType = ddbEnricher.effectType;
     this.document = ddbEnricher.document;
-    this.name = ddbEnricher.name;
+    this.name = ddbEnricher.name ?? "";
     this.isCustomAction = ddbEnricher.isCustomAction;
     this.manager = ddbEnricher.manager;
   }
@@ -142,18 +143,24 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     );
 
+    if (!action) {
+      logger.warn(`No action found generating uses for "${name}" (${type})`, { this: this });
+      return {};
+    }
+
     const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
-      data: action.limitedUse,
+      // getLimitedUses treats a null limitedUse and an empty object identically
+      data: action.limitedUse ?? ({} as IDDBActionLimitedUse),
       description: action.description,
       scaleValue: scaleLink
         ?? ((foundry.utils.getProperty(this.ddbParser, "useUsesScaleValueLink") && foundry.utils.getProperty(this.ddbParser, "scaleValueUsesLink"))
           ? foundry.utils.getProperty(this.ddbParser, "scaleValueUsesLink") as string
           : null),
-    });
+    }) ?? {};
     return uses;
   }
 
-  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: IActionTypes; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null; matchSubClass?: string | null; includesName?: boolean }): I5eSystemLimitedUses {
+  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null; matchSubClass?: string | null; includesName?: boolean }): I5eSystemLimitedUses {
     const uses: I5eSystemLimitedUses = {
       spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
       max,
@@ -177,14 +184,16 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: IActionTypes; name: string; onlyLimitedUse?: boolean }): any[] {
-    const spells = this.ddbParser.ddbData.character.spells[type].filter((s) => {
+    const ddbData = this.ddbParser?.ddbData;
+    if (!ddbData) return [];
+    const spells = (ddbData.character.spells[type] ?? []).filter((s) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
-        ? DDBDataUtils.determineActualFeatureId(this.ddbParser.ddbData, s.componentId)
+        ? DDBDataUtils.determineActualFeatureId(ddbData, s.componentId)
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
-      const lookup = CharacterSpellFactory.getDDBSpellLookup(this.ddbParser.ddbData, lookupType, id);
-      if (lookup.name === name) return true;
+      const lookup = CharacterSpellFactory.getDDBSpellLookup(ddbData, lookupType, id);
+      if (lookup?.name === name) return true;
       return false;
     });
     return spells;
@@ -244,10 +253,11 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
       types: type ? [type] : types,
       custom: {
         enabled: customFormula !== null,
-        formula: customFormula,
+        // dnd5e's FormulaField coerces null to "" so this is output equivalent
+        formula: customFormula ?? "",
       },
       scaling: {
-        mode: scalingMode as I5eDamagePart["scaling"]["mode"],
+        mode: scalingMode,
         number: scalingNumber,
         formula: `${scalingFormula}`,
       },

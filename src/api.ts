@@ -310,7 +310,12 @@ export const API_BASE = {
 
 export function registerApi() {
   globalThis["DDBImporter"] = API_BASE;
+  const ddbModule = game.modules.get(config.SETTINGS.MODULE_ID);
+  if (!ddbModule) {
+    lib.logger.warn(`Module ${config.SETTINGS.MODULE_ID} not found in game.modules, unable to attach api`);
+    return;
+  }
   // intentionally attaching to the game module; not part of the Module type
-  foundry.utils.setProperty(game.modules.get(config.SETTINGS.MODULE_ID), "api", API_BASE);
-  foundry.utils.setProperty(game.modules.get(config.SETTINGS.MODULE_ID), "DICTIONARY", config.DICTIONARY);
+  foundry.utils.setProperty(ddbModule, "api", API_BASE);
+  foundry.utils.setProperty(ddbModule, "DICTIONARY", config.DICTIONARY);
 }

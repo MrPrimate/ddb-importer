@@ -30,7 +30,7 @@ export default class SurpriseAttack extends DDBEnricherData {
     return [];
   }
 
-  get override(): IDDBOverrideData {
+  get override(): IDDBOverrideData | null {
     return null;
   }
 

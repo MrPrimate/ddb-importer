@@ -3,7 +3,7 @@ import DDBEnricherData, { IDDBBasicDamage } from "../../data/DDBEnricherData";
 export default class Slam extends DDBEnricherData {
 
   get damage(): IDDBBasicDamage {
-    const name = this.ddbParser.ddbMonster?.npc?.name;
+    const name = this.ddbParser.ddbMonster?.npc?.name ?? "";
     if (name.includes("Large")) {
       return {
         customFormula: "(@flags.dnd5e.summon.level - 3)d6 + @mod + @flags.dnd5e.summon.mod",
@@ -26,7 +26,7 @@ export default class Slam extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart(foundry.utils.mergeObject(this.damage, {
               types: ["force"],
-            })),
+            }) as IDDBBasicDamage),
           ],
         },
       },

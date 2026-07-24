@@ -41,9 +41,11 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
-  get fighterAbility() {
-    const characterAbilities = this.ddbParser.ddbCharacter.abilities.withEffects;
-    const ability = characterAbilities.str?.value > characterAbilities.dex?.value ? "str" : "dex";
+  get fighterAbility(): T5eAbility {
+    const characterAbilities = this.ddbParser.ddbCharacter?.abilities.withEffects;
+    const strValue = characterAbilities?.str?.value;
+    const dexValue = characterAbilities?.dex?.value;
+    const ability = strValue !== undefined && dexValue !== undefined && strValue > dexValue ? "str" : "dex";
     return ability;
   }
 

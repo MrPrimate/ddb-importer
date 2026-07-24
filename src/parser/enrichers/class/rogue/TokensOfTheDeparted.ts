@@ -64,7 +64,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
   }
 
   get _2024SoulTrinketMax() {
-    const level = this.ddbParser._class.level;
+    const level = this.ddbParser._class?.level ?? 0;
     if (level >= 17) return 4;
     if (level >= 13) return 3;
     return 2;
@@ -81,8 +81,8 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
 
     // uses are inverted here
     uses.spent = this.is2014
-      ? Math.max(maxInt - uses.spent, 0)
-      : Math.max(maxInt - uses.spent, 0);
+      ? Math.max(maxInt - (uses.spent ?? 0), 0)
+      : Math.max(maxInt - (uses.spent ?? 0), 0);
 
     if (this.is2014) {
       uses.recovery = [{ period: "lr", type: "formula", formula: "max(0, min(2,  2 -@item.uses.value))" }];
