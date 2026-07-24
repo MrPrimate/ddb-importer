@@ -35,7 +35,7 @@ export class DDBInfusionFactory {
     return ++this.infusionCount[name];
   }
 
-  updateIds(type) {
+  updateIds(type: keyof DDBInfusionFactory["processed"]) {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 

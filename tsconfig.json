@@ -4,6 +4,7 @@
     "target": "ES2022",
     "moduleResolution": "bundler",
     "strict": false,
+    "noImplicitAny": true,
     "noEmit": true,
     "allowJs": true,
     "esModuleInterop": true,

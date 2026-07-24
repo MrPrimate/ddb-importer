@@ -35,8 +35,8 @@ export function replaceRollLinks(text: string): string {
   return text;
 }
 
-export function findDiceColumns(table) {
-  const result = [];
+export function findDiceColumns(table: HTMLTableElement) {
+  const result: string[] = [];
   if (table.tHead) {
     const headings = getHeadings(table);
     headings.forEach((h) => {
@@ -72,7 +72,7 @@ export function guessTableName(parentName: string, htmlDocument: Document, table
 }
 
 
-function tableReplacer(htmlDocument: Document, tableNum: number, compendiumTables: any[], compendiumLabel: string): Document {
+function tableReplacer(htmlDocument: Document, tableNum: number, compendiumTables: RollTable.Implementation[], compendiumLabel: string): Document {
   // future enhancement - replace liks to DDB spells, monsters, items etc to munched compendium
   const element = htmlDocument.querySelectorAll("table");
   const tablePoint = element[tableNum];
@@ -104,7 +104,7 @@ function diceInt(text: string): number {
  * @param {*} value
  * @returns {Array} array of range
  */
-function getDiceTableRange(value) {
+function getDiceTableRange(value: string) {
   const document = utils.htmlToDoc(value);
   const text = document.body.textContent.replace(/[­––−-]/gu, "-").replace(/-+/g, "-").replace(/\s/g, "").trim();
   // eslint-disable-next-line no-useless-escape
@@ -196,7 +196,7 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
       };
       Object.entries(entry).forEach(([key, value]) => {
         if (key === diceKey) {
-          result.range = getDiceTableRange(value);
+          result.range = getDiceTableRange(String(value));
         } else if (diceKeys.includes(key)) return;
         if (concatKeys) {
           if (result.description != "") result.description += "\n\n";
@@ -410,7 +410,7 @@ async function buildAndImportTable({
   sourceBook?: string;
   updateExisting?: boolean;
   html: string;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier?: NotifierV1;
 }) {
   const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, sourceBook, html });
   const handlerOptions = { srdFidding: false, updateIcons: false, notifier };
@@ -425,7 +425,7 @@ async function buildAndImportTable({
   }
 
   const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
-  return handler.results;
+  return handler.results as RollTable.Implementation[];
 }
 
 export async function generateTable({ parentName, html, updateExisting, type = "", sourceBook, notifier = null }: {
@@ -434,7 +434,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
   updateExisting?: boolean;
   type?: string;
   sourceBook?: string;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier?: NotifierV1;
 }): Promise<string> {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
@@ -452,9 +452,8 @@ export async function generateTable({ parentName, html, updateExisting, type = "
 
   const tableCompendiumLabel = CompendiumHelper.getCompendiumLabel("tables");
   let tableNum = 0;
-  const foundTables = [];
   for (const node of tableNodes) {
-    const parsedTable = parseTable(node);
+    const parsedTable = parseTable(node) as I5eParsedTable;
     const keys = getHeadings(node);
     const diceKeys = findDiceColumns(node);
     let nameGuess = guessTableName(name, document, tableNum);
@@ -473,15 +472,14 @@ export async function generateTable({ parentName, html, updateExisting, type = "
       node,
       html,
       parsedTable,
-      foundTables,
       nameGuess,
       tableGenerated,
     });
 
     try {
-      const builtTables = tableGenerated
+      const builtTables = (tableGenerated
         ? [tableGenerated]
-        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier });
+        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier })) as RollTable.Implementation[];
 
       if (builtTables.length > 0) {
         const tableData = {

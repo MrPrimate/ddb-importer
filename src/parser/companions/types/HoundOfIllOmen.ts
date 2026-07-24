@@ -35,7 +35,7 @@ export async function getHoundOfIllOmen(): Promise<ICompanionResult> {
       },
       "prototypeToken.name": "Hound of Ill Omen",
       "system.traits.size": "med",
-    }) as I5eMonsterData,
+    }) as unknown as I5eMonsterData,
   };
 
   return results;

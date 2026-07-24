@@ -26,6 +26,24 @@ interface IHandleGrantedSpellsFlags {
 
 const SPELL_COMPENDIUM_INDEX_FIELDS = ["name", "flags.ddbimporter.definitionId"] as const;
 
+// result of getDDBSpellLookup; `data` is the matched DDB entry (trait, feat, class,
+// class option or inventory item) typed structurally for what call sites read
+interface IDDBSpellLookup {
+  id: number;
+  name: string;
+  classId?: number;
+  componentId?: number | null;
+  limitedUse?: unknown;
+  equipped?: boolean;
+  isAttuned?: boolean;
+  canAttune?: boolean;
+  canEquip?: boolean;
+  data?: {
+    name?: string;
+    definition?: { id?: number; name?: string; description?: string | null };
+  };
+}
+
 interface ISpellCompendiumIndexEntry {
   name: string;
   uuid: string;
@@ -89,8 +107,8 @@ export default class CharacterSpellFactory {
     this.generateSummons = ddbCharacter.enableSummons;
   }
 
-  static getDDBSpellLookup(ddb: IDDBData, type: string, id: number) {
-    let lookup;
+  static getDDBSpellLookup(ddb: IDDBData, type: string, id: number): IDDBSpellLookup | undefined {
+    let lookup: IDDBSpellLookup | undefined;
 
     switch (type) {
       case "race": {
@@ -837,7 +855,7 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition.description ?? "").toLowerCase().includes(t));
+        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition?.description ?? "").toLowerCase().includes(t));
         if (forceCopy) {
           await this.handleGrantedSpells(spell, "feat", flagData, {
             forceCopy,

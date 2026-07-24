@@ -5,7 +5,6 @@ import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory";
 import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
-import { IDDBActorSizeData } from "../../config/dictionary/actor/sizes";
 
 export default class DDBCompanionMixin {
   npc: I5eMonsterData;
@@ -72,7 +71,7 @@ export default class DDBCompanionMixin {
     };
   }
 
-  static async getEnrichedImageData(document) {
+  static async getEnrichedImageData(document: I5eMonsterData) {
     const tiers = await PatreonHelper.checkPatreon({ cacheBust: false });
     if (!tiers.all || DDBProxy.isCustom(true)) return null;
     const name = document.name;
@@ -130,10 +129,10 @@ export default class DDBCompanionMixin {
     return document;
   }
 
-  static getDamageAdjustments(data) {
-    const values = [];
-    const custom = [];
-    const bypasses = [];
+  static getDamageAdjustments(data: string[]) {
+    const values: string[] = [];
+    const custom: string[] = [];
+    const bypasses: string[] = [];
     const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
 
     data.forEach((adj) => {
@@ -156,7 +155,7 @@ export default class DDBCompanionMixin {
     return adjustments;
   }
 
-  filterDamageConditions(data) {
+  filterDamageConditions(data: string) {
     const onlyFiltered = data.split(/[;,]/).filter((state) => {
       if (state.includes("only")) {
         if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
@@ -169,7 +168,7 @@ export default class DDBCompanionMixin {
       }
     });
 
-    const conditions = [];
+    const conditions: string[] = [];
 
     onlyFiltered.forEach((state) => {
       const results = state
@@ -187,7 +186,7 @@ export default class DDBCompanionMixin {
     return conditions;
   }
 
-  async getFeature(text, type) {
+  async getFeature(text: string, type: TDDBMonsterActionType) {
     const enricher = new DDBMonsterFeatureEnricher();
     await enricher.init();
     const options = {
@@ -333,7 +332,7 @@ export default class DDBCompanionMixin {
     }
   }
 
-  _getBaseHitPoints(hpString) {
+  _getBaseHitPoints(hpString: string) {
     const hpPrepared = hpString.toLowerCase().replaceAll(", ", " or ");
     const subType = this.subType?.toLowerCase();
     const baseString = subType && hpString.includes(" or ") && hpPrepared.includes(subType)
@@ -341,11 +340,11 @@ export default class DDBCompanionMixin {
       : hpPrepared.trim();
 
     const hpFind = baseString.trim().match(/(\d*)/);
-    const hpInt = Number.parseInt(hpFind);
+    const hpInt = hpFind ? Number.parseInt(hpFind[0]) : NaN;
     return Number.isInteger(hpInt) ? hpInt : 0;
   }
 
-  _handleHitPoints(hpString) {
+  _handleHitPoints(hpString: string) {
     const hpInt = this._getBaseHitPoints(hpString);
     this.npc.system.attributes.hp.max = hpInt;
     this.npc.system.attributes.hp.value = hpInt;
@@ -361,7 +360,7 @@ export default class DDBCompanionMixin {
     // 5 + 5 per spell level
 
     // additional summon points
-    const hpAdjustments = [];
+    const hpAdjustments: string[] = [];
     const modMatch = hpString.match(/\+ your (\w+) modifier/);
 
     if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
@@ -395,7 +394,7 @@ export default class DDBCompanionMixin {
     }
   }
 
-  _handleHitDice(hpString) {
+  _handleHitDice(hpString: string) {
     // (the beast has a number of Hit Dice [d8s] equal to your ranger level)
     // (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
     if (!hpString || !hpString.includes("number of Hit Dice")) return;
@@ -438,19 +437,19 @@ export default class DDBCompanionMixin {
     this.npc.prototypeToken.texture.scaleY = finalSize.scale;
   }
 
-  _handleType(typeString) {
-    if (CONFIG.DND5E.creatureTypes[typeString]) {
+  _handleType(typeString: string) {
+    if (CONFIG.DND5E.creatureTypes[typeString as keyof typeof CONFIG.DND5E.creatureTypes]) {
       this.npc.system.details.type.value = typeString;
     } else {
       this.npc.system.details.type.value = "Unknown";
     }
   }
 
-  _handleAlignment(alignment) {
+  _handleAlignment(alignment: string | undefined) {
     if (alignment && alignment !== "") this.npc.system.details.alignment = alignment;
   }
 
-  _handleSpeed(speedString) {
+  _handleSpeed(speedString: string) {
     // 30 ft.; fly 40 ft. (hover) (Ghostly only)
     // 40 ft.; climb 40 ft. (Demon only); fly 60 ft. (Devil only)
     // 30 ft., fly 40 ft.
@@ -467,7 +466,7 @@ export default class DDBCompanionMixin {
       }
     });
 
-    const speeds = [];
+    const speeds: string[] = [];
     onlyFiltered.forEach((state) => {
       const results = state
         .split("and")
@@ -480,19 +479,19 @@ export default class DDBCompanionMixin {
     speeds.forEach((speed) => {
       const match = speed.match(/(\w+ )*(\d+)/i);
       if (match) {
-        const type = match[1]?.trim() ?? "walk";
+        const type = (match[1]?.trim() ?? "walk") as I5eMovementType;
         this.npc.system.attributes.movement[type] = parseInt(match[2]);
-        if (speed.includes("hover")) this.npc.system.attributes.movement["hover"] = true;
+        if (speed.includes("hover")) this.npc.system.attributes.movement.hover = true;
       }
     });
   }
 
-  _handleLanguages(languagesString) {
+  _handleLanguages(languagesString: string) {
     // loop back to add small chance they have non-custom language support
     this.npc.system.traits.languages.custom = languagesString;
   }
 
-  _handleSenses(sensesString) {
+  _handleSenses(sensesString: string) {
     // darkvision 60 ft., passive Perception 10 + (PB &times; 2)
     // darkvision 60 ft., passive Perception 10 + (PB × 2)
     sensesString.split(",").forEach((sense) => {
@@ -500,15 +499,17 @@ export default class DDBCompanionMixin {
 
       if (match) {
         const value = parseInt(match[2]);
-        this.npc.system.attributes.senses["units"] = "ft";
-        this.npc.system.attributes.senses[match[1].toLowerCase()] = value;
+        const senses = this.npc.system.attributes.senses;
+        senses.units = "ft";
+        senses.ranges ??= {};
+        senses.ranges[match[1].toLowerCase() as TSenseType] = value;
 
         const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
 
         if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
           foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
           foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
-          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, foundry.utils.getProperty(CONFIG.Canvas.visionModes, `${senseType}.vision.defaults`) as object);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
           const detectionModeId = DICTIONARY.detectionMap[match[1].toLowerCase()];
@@ -521,9 +522,9 @@ export default class DDBCompanionMixin {
     });
   }
 
-  _handleConditions(conditionsString) {
-    const values = [];
-    const custom = [];
+  _handleConditions(conditionsString: string) {
+    const values: string[] = [];
+    const custom: string[] = [];
 
     conditionsString.split(",").forEach((adj) => {
       const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adj.trim().toLowerCase());
@@ -541,22 +542,22 @@ export default class DDBCompanionMixin {
     };
   }
 
-  _handleDamageImmunities(damageImmunitiesString) {
+  _handleDamageImmunities(damageImmunitiesString: string) {
     const filtered = this.filterDamageConditions(damageImmunitiesString);
     this.npc.system.traits.di = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
-  _handleDamageResistances(damageResistancesString) {
+  _handleDamageResistances(damageResistancesString: string) {
     const filtered = this.filterDamageConditions(damageResistancesString);
     this.npc.system.traits.dr = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
-  _handleDamageVulnerabilities(damageVulnerabilitiesString) {
+  _handleDamageVulnerabilities(damageVulnerabilitiesString: string) {
     const filtered = this.filterDamageConditions(damageVulnerabilitiesString);
     this.npc.system.traits.dv = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
-  _handleSkills(skillsString) {
+  _handleSkills(skillsString: string) {
 
     //  "History + 12, Perception +0 plus PB &times; 2"
     const skillsMaps = skillsString.split(",").filter((str) => str != "").map((str) => {
@@ -565,7 +566,7 @@ export default class DDBCompanionMixin {
         .replaceAll("[/skill]", "")
         .trim()
         .match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;x|×|times)? *(\d*)?/);
-      let result = {};
+      let result: { name?: string; value?: string; proficient?: boolean; expertise?: boolean; pbMultiplier?: string } = {};
       if (skillMatch) {
         result = {
           name: skillMatch[1].trim(),
@@ -586,7 +587,7 @@ export default class DDBCompanionMixin {
 
     const keys = Object.keys(this.npc.system.skills);
     const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
-    keys
+    (keys as T5eSkillKey[])
       .filter((key) => validSkills.includes(key))
       .forEach((key) => {
         const skill = this.npc.system.skills[key];

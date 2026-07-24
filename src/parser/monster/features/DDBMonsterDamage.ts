@@ -2,6 +2,9 @@ import { logger, utils } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
 
+// a DAMAGE_EXPRESSION match; the regex uses named groups so `groups` is always present
+type TDamageMatch = RegExpExecArray & { groups: NonNullable<RegExpExecArray["groups"]> };
+
 export class DDBMonsterDamage {
 
   ddbMonsterFeature: DDBMonsterFeature;
@@ -26,7 +29,7 @@ export class DDBMonsterDamage {
   templateType: string;
   saves: { type: string; hit: string };
   hitsMatch: string[];
-  hitMatches: RegExpExecArray[];
+  hitMatches: TDamageMatch[];
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;
@@ -53,7 +56,7 @@ export class DDBMonsterDamage {
   }
 
 
-  static damageMatchSave(dmg) {
+  static damageMatchSave(dmg: Pick<RegExpExecArray, "groups">) {
     const savePart1 = dmg.groups.prefix && dmg.groups.prefix.includes("saving throw");
     const savePart5 = (dmg.groups.suffix ?? "").trim() == "on a failed save";
     if ((savePart5 && (dmg.groups.prefix ?? "").trim() !== "and")
@@ -70,7 +73,7 @@ export class DDBMonsterDamage {
 
     const result = new Set<string>();
 
-    const processMatches = ((str) => {
+    const processMatches = ((str: string) => {
       const matches = str.replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
 
       for (const match of matches) {
@@ -94,7 +97,7 @@ export class DDBMonsterDamage {
   _generateHitMatches() {
     const startEndRegex = /At the (start|end) of/ig;
     this.hitsMatch = this.hit.split(startEndRegex);
-    const matches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)];
+    const matches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)] as TDamageMatch[];
 
     logger.debug(`${this.ddbMonsterFeature.name} Damage matches`, { hit: this.hit, matches, hitsMatch: this.hitsMatch });
 
@@ -105,7 +108,7 @@ export class DDBMonsterDamage {
     } else {
       const saveRegex = /(saving throw)/ig;
       this.hitsMatch = this.hit.split(saveRegex);
-      const saveMatches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)];
+      const saveMatches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)] as TDamageMatch[];
       logger.debug(`${this.ddbMonsterFeature.name} Damage matches`, { hit: this.hit, saveMatches, hitsMatch: this.hitsMatch });
       if (this.splitSaves) this.hitMatches = saveMatches;
       this.saves.type = this.hitsMatch[1];
@@ -113,7 +116,7 @@ export class DDBMonsterDamage {
     }
   }
 
-  _getHitMatchDamage(dmg) {
+  _getHitMatchDamage(dmg: TDamageMatch) {
     let damage;
 
     const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
@@ -145,7 +148,7 @@ export class DDBMonsterDamage {
   }
 
 
-  _generateHitMatch(dmg: RegExpExecArray) {
+  _generateHitMatch(dmg: TDamageMatch) {
     let other = false;
     let save = null;
     if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
@@ -231,7 +234,7 @@ export class DDBMonsterDamage {
     }
   }
 
-  _generateSaveParts(matches: RegExpExecArray[]) {
+  _generateSaveParts(matches: TDamageMatch[]) {
     for (const dmg of matches) {
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;
@@ -247,7 +250,7 @@ export class DDBMonsterDamage {
 
   _generateOnStartEndDamage() {
     const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
-    const matches = [...allMatches];
+    const matches = [...allMatches] as TDamageMatch[];
     logger.debug(`${this.ddbMonsterFeature.name} Start/End Damage matches`, {
       type: this.saves.type.toLowerCase(),
       hit: this.saves.hit,
@@ -259,7 +262,7 @@ export class DDBMonsterDamage {
 
   _generateOtherSaveDamage() {
     const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
-    const matches = [...allMatches];
+    const matches = [...allMatches] as TDamageMatch[];
     logger.debug(`${this.ddbMonsterFeature.name} Other Save Damage matches`, {
       type: null,
       hit: this.saves.hit,

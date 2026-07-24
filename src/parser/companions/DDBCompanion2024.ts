@@ -201,7 +201,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     this._handleSpeed(speedString);
   }
 
-  static _getActionType(featType: string) {
+  static _getActionType(featType: string): TDDBMonsterActionType {
     switch (featType.toLowerCase().trim()) {
       case "special":
       case "trait":
@@ -221,7 +221,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     return "special";
   }
 
-  async _processFeatureElement(html: string, featType: string) {
+  async _processFeatureElement(html: string, featType: TDDBMonsterActionType) {
     const features = await this.getFeature(html, featType);
     features.forEach((feature) => {
       if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")

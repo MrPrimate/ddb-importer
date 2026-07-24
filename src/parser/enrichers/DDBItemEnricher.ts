@@ -1,9 +1,17 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { GenericEnrichers, ItemEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
+import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null }: { activityGenerator: any; notifier?: any } = {} as any) {
+  constructor({
+    activityGenerator,
+    notifier = null,
+  }: {
+    activityGenerator: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string;
+  }) {
     super({
       activityGenerator,
       effectType: "item",
@@ -13,12 +21,14 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData | null {
     const itemName = utils.pascalCase(this.name);
-    if (!ItemEnrichers[itemName]) {
+    // via unknown: the namespace exports an abstract base (TomeOf) that is not newable
+    const Enricher = (ItemEnrichers as unknown as Record<string, EnricherConstructor | undefined>)[itemName];
+    if (!Enricher) {
       return null;
     }
-    return new ItemEnrichers[itemName]({
+    return new Enricher({
       ddbEnricher: this,
     });
   }

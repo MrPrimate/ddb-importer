@@ -40,9 +40,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   enricherType: string;
   fallbackEnricher: string | null;
   manager: DDBSummonsManager;
-  loadedEnricher: DDBEnricherData<any> | null;
+  loadedEnricher: DDBEnricherData | null;
   _originalActivity: I5eActivity | null;
-  notifier: ((note: string, opts?: Record<string, unknown>) => void) | null;
+  notifier: NotifierV1 | null;
   hintName: string | null;
   defaultActionFeatures: Record<string, any>;
   customActionFeatures: Record<string, any>;
@@ -51,7 +51,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   // set when _buildFeaturesFromAction generates a matching feature
   activityNameMatchFeature: Record<string, any> | null;
 
-  _loadEnricherData(): DDBEnricherData<any> | null {
+  _loadEnricherData(): DDBEnricherData | null {
     const isHomebrew = foundry.utils.getProperty(this.ddbParser, "ddbDefinition.isHomebrew");
     if (isHomebrew) return null;
     if (!this.ENRICHERS?.[this.hintName!]) {
@@ -343,7 +343,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     activityGenerator?: TActivityGenerator;
     effectType?: string;
     enricherType?: string;
-    notifier?: ((note: string, opts?: Record<string, unknown>) => void) | null;
+    notifier?: NotifierV1 | null;
     fallbackEnricher?: string | null;
     ddbActionType?: IActionTypes | "spell" | null;
   } = {}) {

@@ -7,7 +7,15 @@ import type DDBEnricherData from "./data/DDBEnricherData";
 type TClassEnricherLookup = Record<string, Record<string, EnricherConstructor | undefined> | EnricherConstructor | undefined>;
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
+  constructor({
+    activityGenerator,
+    notifier = null,
+    fallbackEnricher = null,
+  }: {
+    activityGenerator: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string;
+  }) {
     super({
       activityGenerator,
       effectType: "feat",
@@ -39,7 +47,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return this.ddbParser.subKlass;
   }
 
-  _defaultClassLoader(): DDBEnricherData<any> | null {
+  _defaultClassLoader(): DDBEnricherData | null {
     if (!this.className) {
       return null;
     }
@@ -55,7 +63,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  _defaultNameLoader(): DDBEnricherData<any> | null {
+  _defaultNameLoader(): DDBEnricherData | null {
     const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
     // mixed one- and two-deep registry; the guard keeps the two-deep access safe
     const enricherGroups = this.ENRICHERS as Record<string, Record<string, EnricherConstructor>>;

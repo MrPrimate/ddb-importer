@@ -182,8 +182,8 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     this._handleSpeed(data);
   }
 
-  async _processFeatureElement(element: any, featType: any) {
-    const next = element.nextElementSibling;
+  async _processFeatureElement(element: HTMLElement, featType: TDDBMonsterActionType): Promise<{ next: HTMLElement | null; featType: TDDBMonsterActionType }> {
+    const next = element.nextElementSibling as HTMLElement | null;
 
     if (!next) return { next, featType };
 
@@ -233,8 +233,8 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
       return;
     }
 
-    let now = data;
-    let featType = "special";
+    let now = data as HTMLElement | null;
+    let featType: TDDBMonsterActionType = "special";
     while (now !== null) {
       const result = await this._processFeatureElement(now, featType);
       now = result.next;

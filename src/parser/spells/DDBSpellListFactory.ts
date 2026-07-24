@@ -3,9 +3,9 @@ import SpellListFactory from "./SpellListFactory";
 
 export default class DDBSpellListFactory extends SpellListFactory {
 
-  spellListsData = {};
+  spellListsData: Record<string, IDDBSpellListEntry[]> = {};
 
-  spellsBySourceAndClass = {};
+  spellsBySourceAndClass: Record<string, Record<string, IDDBSpellListEntry[]>> = {};
 
   constructor() {
     super();
@@ -52,12 +52,12 @@ export default class DDBSpellListFactory extends SpellListFactory {
     ],
   };
 
-  _addSpellListOutline(spellListName, sourceAcronym) {
+  _addSpellListOutline(spellListName: string, sourceAcronym: string) {
     this.spellsBySourceAndClass[sourceAcronym][spellListName] = [];
     super._addSpellListOutline(spellListName, sourceAcronym);
   }
 
-  _generateSpellsBySourceAndSpellListName(spellListName) {
+  _generateSpellsBySourceAndSpellListName(spellListName: string) {
     for (const source of this.sources) {
       for (const spell of this.spellListsData[spellListName]) {
         if (spell.isHomebrew) {
@@ -71,7 +71,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     }
   }
 
-  extractClassSpellListData(className, spellData) {
+  extractClassSpellListData(className: string, spellData: IDDBSpellEntry[]) {
     this.spellListsData[className] = spellData
       .filter((s) => !DDBSpellListFactory.WIZARD_FILTER.includes(className)
         || (DDBSpellListFactory.WIZARD_FILTER.includes(className)
@@ -100,7 +100,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     foundry.utils.setProperty(CONFIG, "DDBI.SPELL_LISTS", this.spellListsData);
   }
 
-  #generateUuidsFromDefinitionId(source, className) {
+  #generateUuidsFromDefinitionId(source: ISpellListSource, className: string) {
     const spells = new Set<string>();
     for (const spell of this.spellsBySourceAndClass[source.acronym][className]) {
       const sourceMatch = this.spellCompendium.index.find((s) => foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id);
@@ -121,7 +121,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     }
   }
 
-  #sourceHasSpells(source) {
+  #sourceHasSpells(source: ISpellListSource) {
     for (const className of this.ALL_SPELL_LISTS) {
       const spellNumber = this.uuidsBySourceAndSpellListName[source.acronym][className].length;
       if (spellNumber > 0) return true;

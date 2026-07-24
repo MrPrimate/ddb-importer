@@ -2839,7 +2839,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     //   spellData,
     // });
 
-    foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
+    foundry.utils.setProperty(spell, "system.level", Number(spellData.level));
 
     const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
     const scalingValue = this.data.system.uses.max ?? "";

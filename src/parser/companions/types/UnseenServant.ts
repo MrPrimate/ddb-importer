@@ -24,7 +24,7 @@ export async function getUnseenServant(name = "Unseen Servant", postfix = ""): P
       "name": `${name}`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,
-    }) as I5eMonsterData;
+    }) as unknown as I5eMonsterData;
 
     results[`${idString}${data.name}${postfix}`] = {
       name: `${name}`,

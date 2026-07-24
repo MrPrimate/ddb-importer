@@ -50,13 +50,13 @@ export default class DDBMonsterFeatureFactory {
   characterDescription: IFeatureTextStore;
   html: IFeatureTextStore;
   resources: IResourceStore;
-  features: Record<string, DDBMonsterFeature[]>;
+  features: Record<TDDBMonsterActionType, DDBMonsterFeature[]>;
   featureBlocks: Record<TDDBMonsterActionType, IFeatureBlock[]>;
   gear: string[] = [];
 
   // some monsters now have [rollable] tags - if these exist we need to parse them out
   // in the future we may be able to use them, but not consistent yet
-  static replaceRollable(text) {
+  static replaceRollable(text: string) {
     const rollableRegex = new RegExp(/(\[rollable\])([^;]*);(.*)(\[\/rollable\])/g);
     return text.replaceAll(rollableRegex, "$2");
   }
@@ -130,7 +130,7 @@ export default class DDBMonsterFeatureFactory {
     // this.resistance = {};
   }
 
-  getFeatures(type) {
+  getFeatures(type: TDDBMonsterActionType) {
     return this.features[type].map((feature) => foundry.utils.deepClone(feature.data));
   }
 
@@ -166,7 +166,7 @@ export default class DDBMonsterFeatureFactory {
     return this.getFeatures("villain");
   }
 
-  #buildDom(type) {
+  #buildDom(type: TDDBMonsterActionType) {
     const dom = utils.htmlToDocumentFragment(this.html[type]);
     dom.childNodes.forEach((node) => {
       if (node.textContent == "\n" || node.textContent == "\r\n") {
@@ -180,7 +180,7 @@ export default class DDBMonsterFeatureFactory {
     "Yeenoghu",
   ];
 
-  static namePassMatch(name) {
+  static namePassMatch(name: string) {
     const regex = /^(\d+)[–-–−](\d+)/;
     const rollMatch = regex.test(name);
 
@@ -193,7 +193,7 @@ export default class DDBMonsterFeatureFactory {
     return false;
   }
 
-  #generateActionActions(type) {
+  #generateActionActions(type: TDDBMonsterActionType) {
     const splitActions1 = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions1.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions1[1]}`;
@@ -319,7 +319,7 @@ export default class DDBMonsterFeatureFactory {
     });
   }
 
-  #generateLairActions(type = "lair") {
+  #generateLairActions(type: TDDBMonsterActionType = "lair") {
     const dom = this.#buildDom(type);
 
     if (this.ddbMonster.is2014) {
@@ -386,7 +386,7 @@ export default class DDBMonsterFeatureFactory {
     });
   }
 
-  #generateLegendaryActions(type) {
+  #generateLegendaryActions(type: TDDBMonsterActionType) {
     const dom = this.#buildDom(type);
 
     // Base feat
@@ -464,7 +464,7 @@ export default class DDBMonsterFeatureFactory {
       });
   }
 
-  #generateVillainActions(type = "villain") {
+  #generateVillainActions(type: TDDBMonsterActionType = "villain") {
     const dom = this.#buildDom(type);
 
     // Base feat
@@ -511,7 +511,7 @@ export default class DDBMonsterFeatureFactory {
       });
   }
 
-  static splitName(name, nodeText) {
+  static splitName(name: string, nodeText: string) {
     if (!name.includes("Spell;") && !name.includes("Psionics;") && !name.includes("Mythic Trait;")) {
       const split = name.split(";");
       if (split.length > 1 && split[0].includes("(") && !split[0].includes(")")) {
@@ -534,7 +534,7 @@ export default class DDBMonsterFeatureFactory {
     this.gear.push(...gearArray);
   }
 
-  #generateSpecialActions(type) {
+  #generateSpecialActions(type: TDDBMonsterActionType) {
     const splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
@@ -619,7 +619,7 @@ export default class DDBMonsterFeatureFactory {
         let outerHTML = node.outerHTML as string;
         if (switchAction && startFlag) {
           if (action.options.fullName) {
-            outerHTML = outerHTML.replace(action.fullName, "");
+            outerHTML = outerHTML.replace(action.options.fullName, "");
           } else {
             outerHTML = outerHTML.replace(nodeName, "");
           }
@@ -652,7 +652,7 @@ export default class DDBMonsterFeatureFactory {
   // this.ddbMonster.source.bonusActionsDescription
   // this.ddbMonster.source.mythicActionsDescription
 
-  async generateActions(html, type = "action") {
+  async generateActions(html: string, type: TDDBMonsterActionType = "action") {
     if (!html || html.trim() == "") return;
 
     this.html[type] = DDBMonsterFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))

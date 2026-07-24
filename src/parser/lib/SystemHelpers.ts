@@ -35,7 +35,7 @@ export default class SystemHelpers {
     return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
   }
 
-  static parseBasicDamageFormula(data, formula, { stripMod = false } = {}) {
+  static parseBasicDamageFormula(data: I5eDamagePart, formula: string | number, { stripMod = false } = {}) {
     const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
     const damageMatch = `${formula}`.match(basicMatchRegex);
 
@@ -44,11 +44,11 @@ export default class SystemHelpers {
       data.denomination = Number(damageMatch[2]);
       if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
       if (stripMod) data.bonus = data.bonus.replace(/@mod/, "").trim().replace(/^\+/, "").trim();
-    } else if (Number.isInteger(Number.parseInt(formula))) {
-      data.bonus = formula;
+    } else if (Number.isInteger(Number.parseInt(`${formula}`))) {
+      data.bonus = `${formula}`;
     } else {
       data.custom.enabled = true;
-      data.custom.formula = formula;
+      data.custom.formula = `${formula}`;
     }
 
     if (utils.isString(data.bonus)) {
@@ -57,7 +57,20 @@ export default class SystemHelpers {
 
   }
 
-  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}): I5eDamagePart {
+  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false }: {
+    // DDB die shape; looser than IDDBDamageDice (multiplier vs diceMultiplier, extra value field)
+    dice?: {
+      multiplier?: number | null;
+      diceCount?: number | null;
+      diceValue?: number | null;
+      fixedValue?: number | null;
+      value?: number | null;
+    } | null;
+    damageString?: string | number;
+    type?: string | null;
+    types?: string[] | null;
+    stripMod?: boolean;
+  } = {}): I5eDamagePart {
     const damage: I5eDamagePart = {
       number: null,
       denomination: 0,
@@ -75,10 +88,10 @@ export default class SystemHelpers {
     };
 
     if (dice && !dice.multiplier) {
-      damage.number = dice.diceCount;
-      damage.denomination = dice.diceValue;
-      if (dice.fixedValue) damage.bonus = dice.fixedValue;
-      if (dice.value) damage.bonus = dice.value;
+      damage.number = dice.diceCount ?? undefined;
+      damage.denomination = dice.diceValue ?? undefined;
+      if (dice.fixedValue) damage.bonus = `${dice.fixedValue}`;
+      if (dice.value) damage.bonus = `${dice.value}`;
     } else {
       SystemHelpers.parseBasicDamageFormula(damage, damageString, { stripMod });
     }

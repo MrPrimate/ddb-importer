@@ -76,9 +76,14 @@ global {
     encounterId?: string;
   }
 
+  interface I5eJournalPageDnd5eFlags {
+    tocHidden?: boolean;
+  }
+
   interface I5eJournalPageFlags {
     ddb?: I5eJournalDDBFlags;
     ddbimporter?: I5eJournalDDBImporterFlags;
+    dnd5e?: I5eJournalPageDnd5eFlags;
     parentId?: number | string;
     slug?: string;
     contentChunkId?: string;
@@ -122,6 +127,55 @@ global {
   interface I5eRuleJournalPageData extends I5eJournalPageData {
     type?: "rule";
     system: I5eRuleJournalPageSystem;
+  }
+
+  /** Keys of SpellListJournalPageData.GROUPING_MODES (dnd5e module/data/journal/spells.mjs). */
+  type I5eSpellListGrouping = "none" | "alphabetical" | "level" | "school";
+
+  /**
+   * Source sub-schema for an unlinked spell. Mirrors the SourceField used in
+   * spells.mjs with license/revision/rules removed and uuid added.
+   */
+  interface I5eUnlinkedSpellSource {
+    book?: string;
+    page?: string;
+    custom?: string;
+    uuid?: string;
+  }
+
+  /**
+   * Mirrors UnlinkedSpellConfiguration (dnd5e module/data/journal/_types.mjs):
+   * spells that can't be linked (outside SRD & current module).
+   */
+  interface I5eUnlinkedSpellConfiguration {
+    _id?: string;
+    identifier?: string;
+    name: string;
+    system?: {
+      level?: number;
+      school?: string;
+    };
+    source?: I5eUnlinkedSpellSource;
+  }
+
+  /** Mirrors SpellsJournalPageSystemData schema (module/data/journal/spells.mjs). */
+  interface I5eSpellsJournalPageSystem {
+    /** Type of spell list (e.g. class, subclass, race). */
+    type?: string;
+    /** Common identifier matching the associated type (e.g. bard, cleric). */
+    identifier?: string;
+    grouping?: I5eSpellListGrouping;
+    description?: {
+      value?: string;
+    };
+    /** UUIDs of spells to display. Stored as a Set, accepts an array on create. */
+    spells?: Set<string> | string[];
+    unlinkedSpells?: I5eUnlinkedSpellConfiguration[];
+  }
+
+  interface I5eSpellsJournalPageData extends I5eJournalPageData {
+    type?: "spells";
+    system: I5eSpellsJournalPageSystem;
   }
 
   interface I5eJournalData {

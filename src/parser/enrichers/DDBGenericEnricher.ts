@@ -2,7 +2,15 @@ import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { GenericEnrichers } from "./_module";
 
 export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
+  constructor({
+    activityGenerator,
+    notifier = null,
+    fallbackEnricher = null,
+  }: {
+    activityGenerator: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string;
+  }) {
     super({
       activityGenerator,
       effectType: "feat",

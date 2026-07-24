@@ -1,9 +1,18 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { ClassEnrichers, FeatEnrichers, GenericEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
+import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
+  constructor({
+    activityGenerator,
+    notifier = null,
+    fallbackEnricher = null,
+  }: {
+    activityGenerator: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string;
+  }) {
     super({
       activityGenerator,
       effectType: "feat",
@@ -14,12 +23,13 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData | null {
     const featName = utils.pascalCase(this.name);
-    if (!FeatEnrichers[featName]) {
+    const Enricher = (FeatEnrichers as Record<string, EnricherConstructor | undefined>)[featName];
+    if (!Enricher) {
       return null;
     }
-    return new FeatEnrichers[featName]({
+    return new Enricher({
       ddbEnricher: this,
     });
   }

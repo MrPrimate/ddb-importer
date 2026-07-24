@@ -1,9 +1,14 @@
 import { utils } from "../../lib/_module";
 import { SpellEnrichers } from "./_module";
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
+import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null }: { activityGenerator: any; notifier?: any } = {} as any) {
+  constructor({ activityGenerator, notifier = null }: {
+    activityGenerator?: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string | null;
+  } = {}) {
     super({
       activityGenerator,
       effectType: "spell",
@@ -13,12 +18,13 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData | null {
     const spellName = utils.pascalCase(this.name);
-    if (!SpellEnrichers[spellName]) {
+    const Enricher = (SpellEnrichers as Record<string, EnricherConstructor | undefined>)[spellName];
+    if (!Enricher) {
       return null;
     }
-    return new SpellEnrichers[spellName]({
+    return new Enricher({
       ddbEnricher: this,
     });
   }

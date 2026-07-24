@@ -2,6 +2,7 @@ import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { GenericEnrichers, MonsterEnrichers } from "./_module";
 import { logger, utils } from "../../lib/_module";
 import DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
+import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<Record<string, string>> {
   monster: I5eMonsterData;
@@ -12,15 +13,16 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     featName: string;
   };
 
-  _splitNameLoader(): any {
+  _splitNameLoader(): DDBEnricherData | null {
     this.name = this.name.split("(")[0].trim();
     return this._loadEnricherData();
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData | null {
     const monsterHintName = utils.pascalCase(this.monsterHintName ?? this.monsterName);
     const featName = utils.pascalCase(this.name);
-    if (!MonsterEnrichers[monsterHintName]?.[featName]) {
+    const Enricher = (MonsterEnrichers as TEnricherGroupMap)[monsterHintName]?.[featName];
+    if (!Enricher) {
       if (this.name.includes("(")) {
         return this._splitNameLoader();
       }
@@ -30,12 +32,12 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
       monsterHintName,
       featName,
     };
-    return new MonsterEnrichers[monsterHintName][featName]({
+    return new Enricher({
       ddbEnricher: this,
     });
   }
 
-  _loadEnricherData(): any {
+  _loadEnricherData(): DDBEnricherData | null {
     const monsterHintName = this.monsterHintName ?? this.monsterName;
     if (!this.ENRICHERS?.[monsterHintName]?.[this.hintName]) {
       return this._defaultNameLoader();
@@ -117,7 +119,14 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     this.hintName = this.name;
   }
 
-  constructor({ activityGenerator, notifier = null }: { activityGenerator: any; notifier?: any } = {} as any) {
+  constructor({
+    activityGenerator,
+    notifier = null,
+  }: {
+    activityGenerator: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string;
+  }) {
     super({
       activityGenerator,
       effectType: "feat",
@@ -127,7 +136,13 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     this.monsterHintName = null;
   }
 
-  async load({ ddbParser, document, name = null, monster, is2014 = null }: { ddbParser: DDBMonsterFeature; document?: I5eWeaponItem | I5eFeatItem | I5eInventoryItem; name?: any; monster: I5eMonsterData; is2014?: any }): Promise<void> {
+  async load({ ddbParser, document, name = null, monster, is2014 = null }: {
+    ddbParser: DDBMonsterFeature;
+    document?: I5eWeaponItem | I5eFeatItem | I5eInventoryItem;
+    name?: string | null;
+    monster: I5eMonsterData;
+    is2014?: boolean | null;
+  }): Promise<void> {
     this.monster = monster;
     this.monsterName = this.monster.name;
     await super.load({ ddbParser, document, name, is2014 });

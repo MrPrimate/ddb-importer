@@ -1,9 +1,14 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { SpeciesEnrichers, GenericEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
+import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
-  constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
+  constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: {
+    activityGenerator?: TActivityGenerator;
+    notifier?: NotifierV1 | null;
+    fallbackEnricher?: string | null;
+  } = {}) {
     super({
       activityGenerator,
       effectType: "feat",
@@ -14,18 +19,20 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  get speciesGroupName(): any {
-    return this.ddbParser.species?.groupName;
+  get speciesGroupName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.groupName : undefined;
   }
 
-  _defaultClassLoader(): any {
+  _defaultClassLoader(): DDBEnricherData | null {
     if (this.speciesGroupName) {
       const speciesGroupNameHint = utils.pascalCase(this.speciesGroupName);
       const featName = utils.pascalCase(this.hintName);
-      if (!SpeciesEnrichers[speciesGroupNameHint]?.[featName]) {
+      const Enricher = (SpeciesEnrichers as TEnricherGroupMap)[speciesGroupNameHint]?.[featName];
+      if (!Enricher) {
         return null;
       }
-      return new SpeciesEnrichers[speciesGroupNameHint][featName]({
+      return new Enricher({
         ddbEnricher: this,
       });
     } else {
@@ -33,7 +40,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     }
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData | null {
     if (!this.ENRICHERS[this.hintName]) {
       return this._defaultClassLoader();
     }

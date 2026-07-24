@@ -102,7 +102,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _class: IDDBClass | undefined;
   klass: string | undefined;
   subKlass: string | undefined;
-  species: string | undefined;
+  species: string | IDDBSpeciesFlagInfo | undefined;
   isCompanionFeature: boolean;
   isCompanionFeatureOption: boolean;
   isCompanionFeature2014: boolean;
@@ -368,7 +368,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     // callers nest these under ddbimporter; the bare reads are a legacy fallback
     this.klass = this.extraFlags.ddbimporter?.class ?? (foundry.utils.getProperty(this.extraFlags, "class") as string | undefined);
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? (foundry.utils.getProperty(this.extraFlags, "subClass") as string | undefined);
-    this.species = this.extraFlags.ddbimporter?.species ?? (foundry.utils.getProperty(this.extraFlags, "species") as string | undefined);
+    this.species = this.extraFlags.ddbimporter?.species ?? (foundry.utils.getProperty(this.extraFlags, "species") as string | IDDBSpeciesFlagInfo | undefined);
 
     this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this._getRules();

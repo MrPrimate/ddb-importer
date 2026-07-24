@@ -87,7 +87,7 @@ export default class DDBClass extends DDBBaseClass {
     //   "1": "max",
     //   "2": "avg"
     // },
-    const value = {};
+    const value: I5eAdvancementHitPoints["value"] = {};
 
     const rolledHP = foundry.utils.getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
     const startingClass = foundry.utils.getProperty(this.data, "flags.ddbimporter.isStartingClass") === true;
@@ -576,7 +576,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _generatePrimaryAbility() {
-    const primaryAbilities = [];
+    const primaryAbilities: T5eAbility[] = [];
     for (const prerequisite of this.ddbClassDefinition.prerequisites) {
       for (const mapping of prerequisite.prerequisiteMappings) {
         if (mapping.type !== "ability-score") continue;
@@ -595,7 +595,7 @@ export default class DDBClass extends DDBBaseClass {
     };
   };
 
-  static CLASS_HANDLER_OPTIONS = {
+  static CLASS_HANDLER_OPTIONS: IDDBItemImporterBuildHandlerOptions = {
     chrisPremades: false,
     filterDuplicates: false,
     deleteBeforeUpdate: false,
