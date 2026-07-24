@@ -13,6 +13,7 @@ export function generateSuaveDefenseEffect(_ddbMonster: DDBMonster, document: I5
     },
   );
 
+  document.effects ??= [];
   document.effects.push(effect);
   return document;
 }

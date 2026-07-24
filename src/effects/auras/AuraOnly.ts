@@ -8,6 +8,11 @@ export default async function auraOnly({
   args, scope, workflow,
 }: IMidiMacroFunctionContext = {}) {
 
+  if (!args || !item) {
+    logger.warn("auraOnly: missing expected midi macro context", { args, item });
+    return args;
+  }
+
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras"]);
 
   const lastArg = args[args.length - 1];

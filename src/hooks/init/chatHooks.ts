@@ -1,6 +1,7 @@
 
 function addAppButtonClickEvent(event: any) {
   const menu = game.settings.menus.get(event.currentTarget.dataset.key);
+  if (!menu) return undefined;
   const MenuApplication = menu.type as new (options?: Record<string, any>) => { render: (force?: boolean) => unknown };
   const app = new MenuApplication({
     sheetTab: "core",
@@ -9,8 +10,10 @@ function addAppButtonClickEvent(event: any) {
 }
 
 function addChatImgButtonClickEvent(chatImg: HTMLElement) {
+  const src = $(chatImg).attr("src");
+  if (!src) return;
   new foundry.applications.apps.ImagePopout({
-    src: $(chatImg).attr("src"),
+    src,
     showTitle: false,
   }).render({ force: true});
 }

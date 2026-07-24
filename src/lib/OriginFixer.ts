@@ -23,7 +23,7 @@ export default class OriginFixer {
   static async updateActorEffects(actor: Actor.Implementation | null, compendiumOnly = false) {
     if (!actor) return;
     const newEffects = [];
-    const actorUuid = actor.uuid.replace("..", ".");
+    const actorUuid = (actor.uuid ?? "").replace("..", ".");
     let changesMade = false;
 
     for (const effect of actor.effects) {
@@ -73,6 +73,7 @@ export default class OriginFixer {
   }
 
   static async fixTokenOriginsForActiveScene() {
+    if (!game.scenes.active) return;
     await OriginFixer.fixTokenOriginsForScene(game.scenes.active);
   }
 

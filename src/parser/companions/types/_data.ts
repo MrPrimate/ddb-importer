@@ -31,7 +31,8 @@ export function SUMMONS_ACTOR_STUB(): I5eMonsterData {
           "fly": null,
           "swim": null,
           "walk": null,
-          "units": null,
+          // dnd5e allows null here (use default units), the local movement type does not
+          "units": null as unknown as string,
           "hover": true,
         },
         "ac": {
@@ -83,10 +84,12 @@ export function SUMMONS_ACTOR_STUB(): I5eMonsterData {
       "disposition": CONST.TOKEN_DISPOSITIONS.SECRET,
       "displayBars": 0,
       "bar1": {
-        "attribute": null,
+        // foundry token bar attributes are nullable, the local token bar type is not
+        "attribute": null as unknown as string,
       },
       "bar2": {
-        "attribute": null,
+        // foundry token bar attributes are nullable, the local token bar type is not
+        "attribute": null as unknown as string,
       },
       "ring": {
         "enabled": false,

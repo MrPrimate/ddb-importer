@@ -164,7 +164,7 @@ class AdvancedDialog {
             return html.find(`input#ddb-${idx}`)[0].valueAsNumber;
           case "select":
             // the value is the index of the selected option
-            return input.options[html.find(`select#ddb-${idx}`).val()].value;
+            return input.options?.[html.find(`select#ddb-${idx}`).val()].value;
           default:
             return html.find(`input#ddb-${idx}`)[0].value;
         }
@@ -310,7 +310,7 @@ export class ChooserDialog extends AdvancedDialog {
           default: this.buttons.find((b) => b.default)?.label ?? this.config.defaultButtonLabel,
           close: (...abc) => this.config.close(resolve, ...abc),
           buttons: buttonObject,
-          render: this.config.render,
+          render: (this.config.render ?? undefined) as ((element: JQuery<HTMLElement>) => void) | undefined,
         },
         {
           classes: this.config.classes,

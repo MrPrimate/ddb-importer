@@ -31,6 +31,10 @@ async function getCompatibility() {
 
 export default async () => {
   const moduleInfo = game.modules.get(MODULE_NAME);
+  if (!moduleInfo) {
+    logger.error(`Unable to find module information for ${MODULE_NAME}`);
+    return;
+  }
   const installedVersion = moduleInfo.version;
   foundry.utils.setProperty(CONFIG, "DDBI.version", installedVersion);
   try {
@@ -45,8 +49,12 @@ export default async () => {
     // check version number only for GMs
     const coreCheck = utils.getSetting<boolean>("update-check");
     if (!coreCheck) return;
-    const { minimumCoreVersion, minimumSystemVersion } = await getCompatibility();
-    const { latestVersion, prerelease: preRelease } = await getLatestModuleVersion();
+    const compatibility = await getCompatibility();
+    const latest = await getLatestModuleVersion();
+    // the helpers log and return undefined on fetch failure; the throw lands in the catch below
+    if (!compatibility || !latest) throw new Error("Unable to fetch DDB Importer version information");
+    const { minimumCoreVersion, minimumSystemVersion } = compatibility;
+    const { latestVersion, prerelease: preRelease } = latest;
 
     const newModuleVersion = utils.versionCompare(latestVersion, installedVersion) === 1;
     const compatibleSystem = utils.versionCompare(game.version, minimumSystemVersion) >= 0;
@@ -69,10 +77,11 @@ export default async () => {
       const text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
-      (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(text as unknown as string, null);
+      // a timeout of 0 is treated as "no timeout" by NOTIFICATION_API.show, matching the previous null
+      (foundry.utils.getProperty(moduleInfo, "api") as typeof API_BASE)?.notification.show(text as unknown as string, 0);
     }
   } catch (error) {
     logger.warn(error);
-    (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(`Could not retrieve latest  version`);
+    (foundry.utils.getProperty(moduleInfo, "api") as typeof API_BASE)?.notification.show(`Could not retrieve latest  version`);
   }
 };

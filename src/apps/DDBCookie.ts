@@ -40,7 +40,7 @@ export default class DDBCookie extends FormApplication {
 
   /** @override */
   async getData() {
-    const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
+    const keyPostFix = this.localCobalt && this.actor ? this.actor.id ?? undefined : undefined;
     const cobalt = Secrets.getCobalt(keyPostFix);
     const cobaltStatus = cobalt == "" ? { success: true } : await Secrets.checkCobalt();
     const expired = !cobaltStatus.success;
@@ -56,7 +56,7 @@ export default class DDBCookie extends FormApplication {
   /** @override */
   async _updateObject(event: any, formData: any) {
     event.preventDefault();
-    const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
+    const keyPostFix = this.localCobalt && this.actor ? this.actor.id ?? undefined : undefined;
     await Secrets.setCobalt(formData["cobalt-cookie"], keyPostFix);
 
     const cobaltStatus = await Secrets.checkCobalt(keyPostFix);

@@ -208,16 +208,23 @@ export default class ChrisPremadesHelper {
 
   removeDDBImplementationNotes() {
     if (!("description" in this.document.system)) return;
-    const description = foundry.utils.getProperty(this.document, "system.description.value") as string;
+    const descriptionData = this.document.system.description;
+    if (!descriptionData) return;
+    const description = descriptionData.value;
     if (!description || description.trim() === "") return;
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = description;
     const notes = tempDiv.querySelectorAll("section.ddbSecret");
     notes.forEach((note) => note.remove());
-    this.document.system.description.value = tempDiv.innerHTML;
+    descriptionData.value = tempDiv.innerHTML;
   }
 
   updateOriginalDocument() {
+    const chrisDoc = this.chrisDoc;
+    if (!chrisDoc) {
+      logger.warn(`updateOriginalDocument called for ${this.original.name} without a matched CPR document`);
+      return;
+    }
     ChrisPremadesHelper.DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
       delete (this.document.flags as Record<string, any>)[flagName];
     });
@@ -225,13 +232,13 @@ export default class ChrisPremadesHelper {
     this.document.effects = [];
 
     ChrisPremadesHelper.CP_FLAGS_TO_REMOVE.forEach((flagName) => {
-      delete (this.chrisDoc.flags as Record<string, any>)[flagName];
+      delete (chrisDoc.flags as Record<string, any>)[flagName];
     });
 
-    this.document.flags = foundry.utils.mergeObject(this.document.flags, this.chrisDoc.flags) as unknown as typeof this.document.flags;
+    this.document.flags = foundry.utils.mergeObject(this.document.flags ?? {}, chrisDoc.flags ?? {}) as unknown as typeof this.document.flags;
 
     ChrisPremadesHelper.CP_FIELDS_TO_COPY.forEach((field) => {
-      const values = foundry.utils.getProperty(this.chrisDoc, field) as any;
+      const values = foundry.utils.getProperty(chrisDoc, field) as any;
       if (field === "effects") {
         values.forEach((effect: I5eEffectData) => {
           if (!effect._id) effect._id = foundry.utils.randomID();
@@ -245,7 +252,7 @@ export default class ChrisPremadesHelper {
     foundry.utils.setProperty(this.document, "flags.ddbimporter.chrisPreEffectName", this.ddbName);
 
     if (utils.isDefaultOrPlaceholderImage(this.document.img)) {
-      this.document.img = this.chrisDoc.img;
+      this.document.img = chrisDoc.img;
     }
 
     const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`) as unknown as any;
@@ -294,7 +301,7 @@ export default class ChrisPremadesHelper {
   }
 
 
-  static async addAndReplaceRedundantChrisDocuments(actor: Actor, monsterName: string = null) {
+  static async addAndReplaceRedundantChrisDocuments(actor: Actor, monsterName: string | null = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
     const itemCollection = actor.getEmbeddedCollection("Item") as unknown as { toObject: () => TExternalAutomationDocuments[] };
@@ -362,7 +369,7 @@ export default class ChrisPremadesHelper {
         for (const removeItemName of itemsToRemoveNames) {
           logger.debug(`Removing item ${removeItemName}`);
           const deleteDoc = documents.find((d: any) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
-          if (deleteDoc) toDelete.add(deleteDoc._id);
+          if (deleteDoc?._id) toDelete.add(deleteDoc._id);
         }
       }
     }
@@ -377,7 +384,7 @@ export default class ChrisPremadesHelper {
   }
 
 
-  static async restrictedItemReplacer(actor: Actor, monsterName: string = null) {
+  static async restrictedItemReplacer(actor: Actor, monsterName: string | null = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of restricted effects.");
 
@@ -455,7 +462,7 @@ export default class ChrisPremadesHelper {
           monsterName,
           chrisNameOverride: chrisName,
         });
-        if (updateDocument) {
+        if (updateDocument && doc._id) {
           await actor.deleteEmbeddedDocuments("Item", [doc._id]);
           await actor.createEmbeddedDocuments("Item", [updateDocument as any], { keepId: true });
         }
@@ -500,7 +507,7 @@ export default class ChrisPremadesHelper {
         for (const removeItemName of restrictedItem.removedItems) {
           logger.debug(`Removing item ${removeItemName}`);
           const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments) === removeItemName);
-          if (deleteDoc) toDelete.add(deleteDoc._id);
+          if (deleteDoc?._id) toDelete.add(deleteDoc._id);
         }
       }
 

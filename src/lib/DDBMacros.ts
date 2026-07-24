@@ -5,9 +5,21 @@ import FileHelper from "./FileHelper";
 
 type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 
+interface IDDBWorldMacro {
+  name: string;
+  type: TDDBMacroType;
+  file: string;
+  isGM: boolean;
+  img: string | null;
+  world: boolean;
+}
+
 export default class DDBMacros {
 
-  static MACROS = {
+  static MACROS: {
+    WORLD: Record<string, IDDBWorldMacro>;
+    ACTIVE_AURAS: Record<string, IDDBWorldMacro>;
+  } = {
     WORLD: {
       // DARKNESS_GM: {
       //   name: "Darkness (DDB - GM)",
@@ -109,7 +121,7 @@ export default class DDBMacros {
       ? true
       : await FileHelper.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
 
-    let data;
+    let data: string;
     if (fileExists && (forceLoad || embedMacros) && !forceDDB) {
       const url = await FileHelper.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
       const response = await fetch(url, { method: "GET" });
@@ -119,7 +131,8 @@ export default class DDBMacros {
       data = `// Execute DDB Importer dynamic macro
 return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}", "${fileName}", scope);
 `;
-    } else if (!fileExists) {
+    } else {
+      // !fileExists; the two branches above are exhaustive when the file exists
       data = "// Unable to load the macro file";
     }
     return data;
@@ -176,7 +189,11 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateMidiOnUseMacroFlagValueV2({
     macroType, macroName, triggerPoints = [], macroUuid = null, functionCall = null,
   }: {
-    macroType: TDDBMacroType; macroName: string; triggerPoints?: string[]; macroUuid?: string | null; functionCall?: string | null;
+    macroType: TDDBMacroType | null;
+    macroName: string | null;
+    triggerPoints?: string[];
+    macroUuid?: string | null;
+    functionCall?: string | null;
   }): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
@@ -214,7 +231,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
 
   static generateItemMacroValue({
     macroType = null, macroName = null, document = null, functionCall = null,
-  }:  { macroType?: TDDBMacroType | null; macroName?: string | null; document?: TDDBImporterDocument;
+  }:  { macroType?: TDDBMacroType | null; macroName?: string | null; document?: TDDBImporterDocument | null;
     functionCall?: string | null; },
   ): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
@@ -231,7 +248,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "",
     functionCall = null, functionParams = "",
   }: { macroPass: string; macroType?: TDDBMacroType | null; macroName?: string | null; priority?: number;
-    document?: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
+    document?: TDDBImporterDocument | null; macroParams?: string; functionCall?: string | null;
     functionParams?: string; },
   ): IActiveEffectChangeData {
     const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
@@ -248,7 +265,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateDamageBonusMacroChange({
     macroType = null, macroName = null, priority = 20, document = null, functionCall = null,
   }: { macroType?: TDDBMacroType | null; macroName?: string | null; priority?: number;
-    document?: TDDBImporterDocument; functionCall?: string | null; },
+    document?: TDDBImporterDocument | null; functionCall?: string | null; },
   ): IActiveEffectChangeData {
     const value = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
 
@@ -263,7 +280,9 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateTargetUpdateMacroChange({
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
-  }: IDDBTargetUpdateMacroChange): IActiveEffectChangeData {
+  }: Omit<IDDBTargetUpdateMacroChange, "macroType" | "macroName"> & {
+    macroType?: TDDBMacroType | null; macroName?: string | null;
+  }): IActiveEffectChangeData {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
@@ -281,7 +300,9 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateSourceUpdateMacroChange({
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
-  }: IDDBTargetUpdateMacroChange): IActiveEffectChangeData {
+  }: Omit<IDDBTargetUpdateMacroChange, "macroType" | "macroName"> & {
+    macroType?: TDDBMacroType | null; macroName?: string | null;
+  }): IActiveEffectChangeData {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
@@ -300,7 +321,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null,
     macroParams = "", functionCall = null, functionParams = "",
   }: { optionPostfix: string; macroPass?: string | null; macroType?: TDDBMacroType | null; macroName?: string | null;
-    priority?: number; document?: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
+    priority?: number; document?: TDDBImporterDocument | null; macroParams?: string; functionCall?: string | null;
     functionParams?: string; },
   ): IActiveEffectChangeData {
     const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
@@ -351,9 +372,11 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     } else if (existingMacro) {
       logger.debug(`Macro ${name} already exists but is out of date, updating.`);
       existingMacro.update(data as unknown as Macro.UpdateInput);
+      return existingMacro;
     } else {
       logger.debug(`Creating new macro ${name}.`);
       const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false, temporary: isTemp });
+      if (!macro) throw new Error(`Unable to create macro ${name}`);
       return macro;
     }
   }
@@ -364,7 +387,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     if (game.user.isGM && !disabled && createMacros) {
       await DDBMacros.checkMacroFolder();
 
-      const worldMacros = [].concat(
+      const worldMacros = ([] as IDDBWorldMacro[]).concat(
         Object.values(DDBMacros.MACROS.WORLD),
         // Object.values(DDBMacros.MACROS.ACTIVE_AURAS),
       ).filter((m) => m.world);
@@ -446,11 +469,11 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   } {
     const actor: Actor.Implementation | null = effect.parent instanceof Actor
       ? effect.parent
-      : ((effect.parent.parent as unknown) as Actor.Implementation) ?? null;
+      : ((effect.parent?.parent as unknown) as Actor.Implementation | null) ?? null;
     const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
     const scene = token?.scene ?? game.scenes.active ?? null;
     const origin = "origin" in effect ? fromUuidSync(effect.origin) : null;
-    const speaker: ChatMessage.SpeakerData = actor
+    const speaker: ChatMessage.SpeakerData | null = actor
       ? ChatMessage.implementation.getSpeaker({ actor: actor as Actor.Stored, token })
       : null;
     const item: Item.Implementation | null = effect.parent instanceof Item ? effect.parent : null;

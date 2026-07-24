@@ -4,6 +4,9 @@ import { SUMMONS_ACTOR_STUB } from "./_data";
 export async function getClairvoyance(): Promise<ICompanionResult> {
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Clairvoyance")) return {} as ICompanionResult;
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
+  const effects = condition
+    ? [(await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject()]
+    : [];
   const results: ICompanionResult = {
     Clairvoyance: {
       name: "Invisible Sensor",
@@ -17,9 +20,7 @@ export async function getClairvoyance(): Promise<ICompanionResult> {
         "prototypeToken.name": "Invisible Sensor",
         "prototypeToken.texture.src": "icons/magic/perception/eye-tendrils-web-purple.webp",
         "img": "icons/magic/perception/eye-tendrils-web-purple.webp",
-        "effects": [
-          (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
-        ],
+        "effects": effects,
       }) as unknown as I5eMonsterData,
     },
   };

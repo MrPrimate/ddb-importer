@@ -25,6 +25,9 @@ export async function createDDBCompendium(compendiumSetting: ICompendiumSetting)
     : null;
   if (createCompendiumFolder && compendiumFolder) compendiumData.folderId = compendiumFolder._id;
   const result = await CompendiumHelper.createIfNotExists(compendiumData);
+  if (!result.compendium) {
+    throw new Error(`Unable to create or load DDB compendium for setting "${compendiumSetting.setting}". Please check your DDB Importer compendium setup.`);
+  }
 
   if (result.created) {
     await utils.setSetting(compendiumSetting.setting, result.compendium.metadata.id);

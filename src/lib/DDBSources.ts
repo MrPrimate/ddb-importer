@@ -85,6 +85,7 @@ export default class DDBSources {
   }
 
   static tweakSourceData(source: IDDBSourceResponse) {
+    if (source.book === undefined) return;
     source.book = DDBSources.getAdjustedSourceBook(source.book);
     if (source.book === "BR") {
       source.license = "CC-BY-4.0";
@@ -113,21 +114,22 @@ export default class DDBSources {
 
   static getSourceData(definition: TDDBSourceTypes): IDDBSourceResponse[] {
     const results = [];
-    if ("sources" in definition && definition.sources?.length > 0) {
-      const typeOneSources = definition.sources.filter((source) => source.sourceType === 1);
-      const typeTwoSources = definition.sources.filter((source) => source.sourceType === 2);
+    if ("sources" in definition && definition.sources && definition.sources.length > 0) {
+      const definitionSources = definition.sources;
+      const typeOneSources = definitionSources.filter((source) => source.sourceType === 1);
+      const typeTwoSources = definitionSources.filter((source) => source.sourceType === 2);
       // is basic rules (e.g. SRD)
       const basicRules2014 = typeTwoSources.filter((source) => source.sourceId === 1);
       // should be type 2 but aren't for core weapons
-      const basicRules2024 = definition.sources.filter((source) => source.sourceId === 148);
-      const coreRules = definition.sources.filter((source) => source.sourceId === 198);
-      const hasPage = definition.sources.some((source) => source.pageNumber !== null);
+      const basicRules2024 = definitionSources.filter((source) => source.sourceId === 148);
+      const coreRules = definitionSources.filter((source) => source.sourceId === 198);
+      const hasPage = definitionSources.some((source) => source.pageNumber !== null);
       const usePages = utils.getSetting<boolean>("no-source-book-pages") === false;
       const useBasicRules = utils.getSetting<boolean>("use-basic-rules");
 
-      let sources = definition.sources;
+      let sources = definitionSources;
       if (usePages && hasPage) {
-        sources = definition.sources.filter((source) => source.pageNumber !== null);
+        sources = definitionSources.filter((source) => source.pageNumber !== null);
       }
 
       // if just SRD on a source, lets add the PHB as well to avoid some _issues_
@@ -216,7 +218,7 @@ export default class DDBSources {
     const sources = DDBSources.getSourceData(definition);
     const latestSource = sources.length > 0
       ? sources.reduce((prev, current) => {
-        return prev.id > current.id ? prev : current;
+        return (prev.id ?? 0) > (current.id ?? 0) ? prev : current;
       })
       : null;
 

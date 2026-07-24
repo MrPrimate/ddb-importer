@@ -5,6 +5,7 @@ export async function multiAttackEffect(document: I5eMonsterItem): Promise<I5eMo
   const effect = baseEffect(document, document.name, { transfer: true, disabled: false });
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "multiAttack.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "monsterFeature", "multiAttack.js", ["preCompleted"]);
+  document.effects ??= [];
   document.effects.push(effect);
   return document;
 }

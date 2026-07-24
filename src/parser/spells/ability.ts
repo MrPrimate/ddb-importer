@@ -1,13 +1,16 @@
 import { DICTIONARY } from "../../config/_module";
 
 // is there a spell casting ability?
-export function hasSpellCastingAbility(spellCastingAbilityId: number | string): boolean {
+export function hasSpellCastingAbility(spellCastingAbilityId: number | string | null): boolean {
   return DICTIONARY.actor.abilities.some((ability) => ability.id === spellCastingAbilityId);
 }
 
 // convert spellcasting ability id to string used by foundry
-export function convertSpellCastingAbilityId(spellCastingAbilityId: number | string): T5eAbility {
-  return DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
+export function convertSpellCastingAbilityId(spellCastingAbilityId: number | string | null): T5eAbility {
+  const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId);
+  // callers check hasSpellCastingAbility first; if that invariant is broken fall
+  // back to wis, matching the "no spellcasting ability" default used elsewhere
+  return ability?.value ?? "wis";
 }
 
 // search through classinfo and determine spellcasting ability

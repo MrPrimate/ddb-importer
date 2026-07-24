@@ -71,7 +71,7 @@ export async function getConjureElemental({
         },
       },
       img: elemental.avatar,
-    });
+    }) as I5eMonsterData;
 
     const text = raw.split("the duration.</p>\n").pop();
     const action = `<p><em><strong>${elemental.name} Element.</strong></em> ${text}</p>`;

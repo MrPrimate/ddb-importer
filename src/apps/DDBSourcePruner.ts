@@ -148,9 +148,12 @@ export default class DDBSourcePruner extends DDBAppV2 {
     utils.munchNote(`Scanning ${toScan.length} compendiums...`);
 
     for (const entry of toScan) {
+      const pack = entry.pack;
+      // toScan is filtered on entry.pack above; TS cannot narrow through the filter
+      if (!pack) continue;
       utils.munchNote(`Scanning ${entry.title}...`, { nameField: true });
       const indexFields = ["name", "flags.ddbimporter", "system.source.book"];
-      const index = await entry.pack.getIndex({ fields: indexFields });
+      const index = await pack.getIndex({ fields: indexFields });
       const matched: IMatchedDocument[] = [];
 
       for (const doc of index) {
@@ -162,7 +165,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
         })) {
           matched.push({
             _id: doc._id,
-            name: doc.name,
+            name: doc.name ?? "",
             sourceBook: DDBSources.getDocumentSourceBookName(docData),
           });
         }
@@ -178,7 +181,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
         this.scanResults.push({
           title: entry.title,
           setting: entry.setting,
-          packId: entry.pack.metadata.id,
+          packId: pack.metadata.id,
           documents: matched,
           bySource,
         });

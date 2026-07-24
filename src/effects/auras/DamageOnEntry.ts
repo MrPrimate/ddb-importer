@@ -13,6 +13,11 @@ export default async function damageOnEntry({
   args, scope, workflow,
 }: IMidiMacroFunctionContext = {}) {
 
+  if (!args || !item) {
+    logger.warn("damageOnEntry: missing expected midi macro context", { args, item });
+    return args;
+  }
+
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras", "ddb-importer", "midi-qol"]);
 
   const lastArg = args[args.length - 1];

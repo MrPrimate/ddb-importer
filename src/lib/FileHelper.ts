@@ -8,7 +8,7 @@ interface ParsedDirectory {
   activeSource: string;
   bucket: string | null;
   current: string;
-  fullPath?: string;
+  fullPath: string;
 }
 
 export class FileHelper {
@@ -68,7 +68,7 @@ export class FileHelper {
     const dir = FileHelper.parseDirectory(directoryPath);
     try {
       await FPClass.browse(dir.activeSource, dir.current, {
-        bucket: dir.bucket,
+        bucket: dir.bucket ?? undefined,
       });
       return true;
     } catch (_error) {
@@ -96,7 +96,7 @@ export class FileHelper {
         if (foundry.utils.getProperty(fileList, "bazaar")) {
           CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath] = {};
           fileList.files.forEach((file) => {
-            const fileName = file.split("/").pop();
+            const fileName = file.split("/").pop() ?? "";
             CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath][fileName] = file;
             FileHelper.addFileToKnown(parsedDir, file);
           });
@@ -183,6 +183,10 @@ export class FileHelper {
         try {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            fail(`WebP conversion could not create a canvas context for ${filename}`);
+            return;
+          }
           const quality = utils.getSetting<number>("webp-quality");
 
           canvas.width = rawImage.width;
@@ -269,7 +273,7 @@ export class FileHelper {
     }
   }
 
-  static async uploadBlob(blob: Blob, targetDirectory: string, baseFilename: string, extension: string): Promise<string> {
+  static async uploadBlob(blob: Blob, targetDirectory: string, baseFilename: string, extension: string): Promise<string | null> {
     try {
       const filename = `${baseFilename}.${extension}`;
       const file = new File([blob], filename, { type: blob.type });
@@ -279,22 +283,22 @@ export class FileHelper {
         FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), path);
         CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, path);
       }
-      return path;
+      return path ?? null;
     } catch (error) {
       logger.error("Blob upload error", error);
       return null;
     }
   }
 
-  static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string> {
+  static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string | null> {
     // prepare filenames
     const filename = baseFilename;
     const useWebP = utils.getSetting<boolean>("use-webp");
     const ext = useWebP
       ? "webp"
-      : originalUrl
+      : (originalUrl
         .split(".")
-        .pop()
+        .pop() ?? "")
         .split(/#|\?|&/)[0];
     const urlEncode = utils.getSetting<boolean>("cors-encode");
     const stripProtocol = utils.getSetting<boolean>("cors-strip-protocol");
@@ -364,9 +368,12 @@ export class FileHelper {
           uri = `https://assets.forge-vtt.com/${userId}/${dir.current}/${filename}`;
         } else if (dir.activeSource == "s3") {
           // S3 Bucket
-          uri = `https://${dir.bucket}.${game.data.files.s3.endpoint.hostname}/${dir.current}/${filename}`;
+          const s3 = game.data.files.s3;
+          if (!s3) throw new Error("S3 file storage is not configured on this server");
+          uri = `https://${dir.bucket}.${s3.endpoint.hostname}/${dir.current}/${filename}`;
         } else {
           logger.error("DDB Importer cannot handle files stored in that location", dir);
+          throw new Error(`DDB Importer cannot handle files stored in source "${dir.activeSource}"`);
         }
       }
     } catch (exception) {
@@ -407,8 +414,8 @@ export class FileHelper {
     if (imageUrl && downloadImage) {
       const ext = useWebP
         ? "webp"
-        : imageUrl.split(".").pop().split(/#|\?|&/)[0];
-      if (!name) name = imageUrl.split("/").pop();
+        : (imageUrl.split(".").pop() ?? "").split(/#|\?|&/)[0];
+      if (!name) name = imageUrl.split("/").pop() ?? "";
 
       // image upload
       const fileNamePrefix = !imageNamePrefix || imageNamePrefix.trim() === "" ? "" : `${imageNamePrefix}-`;
@@ -474,7 +481,7 @@ export class FileHelper {
    * @param  {string} targetPath if set will check this path, else check parsedPath.current
    * @returns {boolean} true if verified, false if unable to create/verify
    */
-  static async verifyPath(parsedPath: ParsedDirectory, targetPath: string = null) {
+  static async verifyPath(parsedPath: ParsedDirectory, targetPath: string | null = null) {
     try {
       if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
       const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
@@ -552,6 +559,7 @@ export class FileHelper {
       activeSource: "data",
       bucket: null,
       current: str,
+      fullPath: str,
     };
   }
 

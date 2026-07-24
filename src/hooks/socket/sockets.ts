@@ -90,7 +90,7 @@ export class DDBSocket {
         break;
       case "EXCEPTION":
         request.reject(
-          new Error(`An exception occurred during remote execution of DDB function '${request.functionName}'. Please see ${game.users.get(message.userId).name}'s error console for details.`),
+          new Error(`An exception occurred during remote execution of DDB function '${request.functionName}'. Please see ${game.users.get(message.userId)?.name ?? message.userId}'s error console for details.`),
         );
         break;
       default:

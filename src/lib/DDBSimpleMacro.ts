@@ -75,7 +75,7 @@ export default class DDBSimpleMacro {
     const effect = ids.effect
       ? await fromUuid(ids.effect) as ActiveEffect.Implementation
       : null;
-    const effectVariables: IMacroEffectVariables = ids.effect
+    const effectVariables: IMacroEffectVariables = effect
       ? DDBMacros._getEffectVariables(effect)
       : {
         actor: null,
@@ -113,7 +113,7 @@ export default class DDBSimpleMacro {
     }
 
     if (!effectVariables.scene) {
-      const scene = game.scenes.get(ids.scene) ?? (await fromUuid(ids.token));
+      const scene = (ids.scene ? game.scenes.get(ids.scene) : undefined) ?? (await fromUuid(ids.token));
       if (scene) effectVariables.scene = scene;
     }
 

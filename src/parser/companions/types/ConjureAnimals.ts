@@ -41,7 +41,7 @@ export async function getConjureAnimals({
       },
     },
     img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
-  });
+  }) as I5eMonsterData;
   const packDamage = `<p><em><strong>Pack Damage.</strong></em> Dexterity Saving Throw: against your spell save DC. A creature with 10 feet. Failure: 15 (3d10) Slashing damage.</p>`;
   const manager = new DDBCompanionMixin(packDamage, {}, { addMonsterEffects: true });
   manager.npc = stub;

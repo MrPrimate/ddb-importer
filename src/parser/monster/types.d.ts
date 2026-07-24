@@ -39,4 +39,20 @@ global {
     overrideData?: DeepPartial<I5eSpellItem> | null;
   }
 
+  /**
+   * The NPC stub is generated from a full Actor document (newNPC template), so
+   * these template fields are always present once parse() has created it.
+    */
+  type TParsedMonsterData = I5eMonsterData & {
+    system: I5eMonsterSystemData & {
+      attributes: I5eMonsterAttributes;
+      details: I5eDetails & {
+        type: I5eCreatureType;
+        biography: I5eBiography;
+      };
+    };
+    flags: I5eNPCActorFlags;
+    prototypeToken: I5ePrototypeToken & { name: string };
+  };
+
 }

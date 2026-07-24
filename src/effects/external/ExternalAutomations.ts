@@ -111,7 +111,7 @@ export default class ExternalAutomations {
         foundry.utils.getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
         && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item"),
       );
-    const dataIds = data.map((d) => d._id);
+    const dataIds = data.map((d) => d._id).filter((id): id is string => typeof id === "string");
     logger.debug("Cauldron of Plentiful Resources generation complete, beginning replace", {
       isMonster,
       monsterName,

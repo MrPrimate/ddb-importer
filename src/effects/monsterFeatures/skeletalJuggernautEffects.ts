@@ -12,6 +12,7 @@ function avalancheOfBonesEffect(document: I5eMonsterItem): I5eMonsterItem {
   foundry.utils.setProperty(effect, "duration.units", "turns");
   effect.transfer = false;
 
+  document.effects ??= [];
   document.effects.push(effect);
   document = forceItemEffect(document);
   return document;
@@ -28,6 +29,7 @@ function fallingApartEffect(document: I5eMonsterItem): I5eMonsterItem {
     },
   );
   effect.transfer = true;
+  document.effects ??= [];
   document.effects.push(effect);
   document = forceItemEffect(document);
   return document;
@@ -40,6 +42,7 @@ async function disassembleEffect(document: I5eMonsterItem): Promise<I5eMonsterIt
   effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "disassemble.js", priority: 0 }));
   effect.transfer = true;
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);
+  document.effects ??= [];
   document.effects.push(effect);
   document = forceItemEffect(document);
   return document;

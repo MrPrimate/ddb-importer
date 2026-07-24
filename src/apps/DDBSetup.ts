@@ -443,7 +443,7 @@ export default class DDBSetup extends DDBAppV2 {
     context.setupConfig["campaign-id"] = this.campaignId;
     context.tier = this.patreonTier;
     context.patreonUser = this.patreonUser;
-    context.patreonLinked = this.patreonUser && this.patreonUser != "";
+    context.patreonLinked = !!this.patreonUser && this.patreonUser != "";
     const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(this.patreonKey)) : false;
     context.validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
@@ -526,7 +526,7 @@ export default class DDBSetup extends DDBAppV2 {
       }
       // no default
     };
-    context.tab = context.tabs[partId];
+    context.tab = context.tabs?.[partId];
     return context;
   }
 
@@ -556,7 +556,7 @@ export default class DDBSetup extends DDBAppV2 {
   async patreonRefresh() {
     const tierData = await PatreonHelper.fetchPatreonTier(false, this.patreonKey);
     this.patreonTier = tierData.data;
-    this.patreonUser = tierData.email;
+    this.patreonUser = tierData.email ?? "";
   }
 
   static async connectToPatreonButton(this: DDBSetup, event: Event) {
@@ -565,7 +565,7 @@ export default class DDBSetup extends DDBAppV2 {
       // Callback after linking to Patreon
       this.patreonKey = data.key;
       this.patreonTier = data.tier;
-      this.patreonTier = data.email;
+      this.patreonUser = data.email;
       this.render();
     });
   }
@@ -573,6 +573,10 @@ export default class DDBSetup extends DDBAppV2 {
   static async fetchCampaignsButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     const cookie = this.element.querySelector<HTMLInputElement>("#cobalt-cookie-input");
+    if (!cookie) {
+      logger.warn("Cobalt cookie input not found in setup form");
+      return;
+    }
     const cookieStatus = await DDBSetup.checkCobaltCookie(cookie.value);
     if (!cookieStatus.success) return;
     let campaigns = null;
@@ -582,12 +586,16 @@ export default class DDBSetup extends DDBAppV2 {
       logger.warn("Campaign fetch failed, showing fallback input", error);
     }
     const list = this.element.querySelector("#campaign-select");
+    if (!list) {
+      logger.warn("Campaign select element not found in setup form");
+      return;
+    }
     let campaignList = `<option value="">Select campaign:</option>`;
     if (!campaigns || (Array.isArray(campaigns) && campaigns.length === 0)) {
       this.campaignFallback = true;
       const fallback = this.element.querySelector("#ddb-campaign-fallback");
       list.classList.add("ddbimporter-none");
-      fallback.classList.remove("ddbimporter-none");
+      fallback?.classList.remove("ddbimporter-none");
       logger.warn("Unable to fetch campaigns", campaigns);
     } else {
       if (Array.isArray(campaigns) && campaigns.length > 0) {
@@ -603,7 +611,7 @@ export default class DDBSetup extends DDBAppV2 {
   static async checkCobaltButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     const cookie = this.element.querySelector<HTMLInputElement>("#cobalt-cookie-input");
-    if (cookie.value === undefined) throw new Error("undefined");
+    if (!cookie || cookie.value === undefined) throw new Error("undefined");
     const cobaltStatus = await Secrets.checkCobalt("", cookie.value);
     if (cobaltStatus.success) {
       this.cobaltCheckMessage = " - Success!";
@@ -616,7 +624,12 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async checkPatreonButton(this: DDBSetup, event: Event) {
     event.preventDefault();
-    const key = this.element.querySelector<HTMLInputElement>("#ddb-patreon-key").value;
+    const keyInput = this.element.querySelector<HTMLInputElement>("#ddb-patreon-key");
+    if (!keyInput) {
+      logger.warn("Patreon key input not found in setup form");
+      return;
+    }
+    const key = keyInput.value;
     this.patreonKey = key;
     const success = await PatreonHelper.isValidKey(false, false, key);
     this.patreonCheckMessage = success ? " - Success!" : " - Failure!";
@@ -774,9 +787,11 @@ export default class DDBSetup extends DDBAppV2 {
           activeSource,
           bucket,
           current: path,
+          fullPath: path,
         });
 
-        this.element.querySelector<HTMLInputElement>(`input[name='${targetDirSetting}']`).value = formattedPath;
+        const dirInput = this.element.querySelector<HTMLInputElement>(`input[name='${targetDirSetting}']`);
+        if (dirInput) dirInput.value = formattedPath;
       },
     });
     filePicker.render();

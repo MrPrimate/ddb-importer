@@ -12,6 +12,11 @@ export default async function actorDamageOnEntry({
   args, scope, workflow,
 }: IMidiMacroFunctionContext = {}) {
 
+  if (!args || !actor) {
+    logger.warn("actorDamageOnEntry: missing expected midi macro context", { args, actor });
+    return;
+  }
+
   const lastArg = args[args.length - 1];
 
   // console.warn({
@@ -52,6 +57,10 @@ export default async function actorDamageOnEntry({
 
   if (args[0] === "on") {
     // console.warn("on", { args, lastArg, scope, item });
+    if (!token) {
+      logger.warn(`actorDamageOnEntry: no token in macro context for ${itemName}, skipping aura damage`);
+      return;
+    }
     const turnFlag = (DDBEffectHelper.getFlag(actor, flagNameTurn) ?? {}) as { id?: string; turn?: number; round?: number };
 
     if (turnFlag

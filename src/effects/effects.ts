@@ -1,35 +1,34 @@
 import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module";
 
-
 export function effectModules() {
   return AutoEffects.effectModules();
 }
 
 export function baseEffect(foundryItem: I5ePCConsumptionItems, name: string,
-  { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-) {
+  { transfer = true, disabled = false, description, durationSeconds,
+    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+): TInitializedEffect {
   return AutoEffects.BaseEffect(foundryItem, name, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
-  });
+  }) as TInitializedEffect;
 }
 
 export function baseItemEffect(foundryItem: I5ePCConsumptionItems, name: string,
-  { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-) {
+  { transfer = true, disabled = false, description, durationSeconds,
+    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+): TInitializedEffect {
   return AutoEffects.BaseEffect(foundryItem, name, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
-  });
+  }) as TInitializedEffect;
 }
 
 export function baseFeatEffect(document: I5ePCConsumptionItems, label: string,
-  { transfer = false, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-) {
+  { transfer = false, disabled = false, description, durationSeconds,
+    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+): TInitializedEffect {
   return AutoEffects.BaseEffect(document, label, {
     transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
-  });
+  }) as TInitializedEffect;
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
@@ -56,8 +55,8 @@ export function forceItemEffect(document: I5ePCConsumptionItems) {
 
 
 export function addStatusEffectChange({ effect, statusName, priority = 20, level = null }: {
-  effect?: I5eEffectData; statusName?: string; priority?: number; level?: number | null;
-} = {}) {
+  effect: I5eEffectData; statusName: string; priority?: number; level?: number | null;
+}) {
   return ChangeHelper.addStatusEffectChange({ effect, statusName, priority, level });
 }
 

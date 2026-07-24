@@ -14,7 +14,7 @@ async function getJournal(bookCode: string | null): Promise<JournalEntry.Impleme
     ? DDBSources.getBookName(bookCode)
     : "Handout Pages";
   const existingJournal = game.journal.find((journal) =>
-    journal.name === journalName && journal.folder.id === folder.id,
+    journal.name === journalName && journal.folder?.id === folder.id,
   );
   if (existingJournal) {
     return existingJournal;
@@ -66,14 +66,14 @@ async function createPage(journal: JournalEntry.Implementation, name: string, ty
   }
 
   await JournalEntryPage.create(page as unknown as JournalEntryPage.CreateInput, { parent: journal, keepId: true, displaySheet: false } as Parameters<typeof JournalEntryPage.create>[1]);
-  return journal.pages.find((jp) => page._id === jp._id);
+  return journal.pages.find((jp: JournalEntryPage) => page._id === jp._id);
 }
 
 export async function createAndShowPlayerHandout(name: string, content: string, type: string, bookCode: string | null) {
 
   const journal = await getJournal(bookCode);
 
-  const existingPage = journal.pages.find((page) => {
+  const existingPage = journal.pages.find((page: JournalEntryPage) => {
     const nameCheck = page.name === name;
     const typeCheck = type === "image"
       ? page.src === content

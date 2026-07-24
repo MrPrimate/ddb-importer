@@ -4,7 +4,7 @@ export default class ArcaneWard {
 
   wardDocument: Item.Implementation | undefined;
 
-  static getEnricher({ actor }: { actor?: Actor.Implementation } = {}): ArcaneWard {
+  static getEnricher({ actor }: { actor: Actor.Implementation }): ArcaneWard {
     const property = `DDBI.ENRICHERS.class.wizard.ArcaneWard.${actor.uuid}`;
     const ward = foundry.utils.getProperty(CONFIG, property) as ArcaneWard | undefined;
     if (ward) return ward;
@@ -17,20 +17,24 @@ export default class ArcaneWard {
   static wardDocumentName = "Arcane Ward";
 
   get wardStrength(): number {
+    if (!this.wardDocument) return 0;
     return (foundry.utils.getProperty(this.wardDocument, "system.uses.value") as number) ?? 0;
   }
 
   get wardStrengthMax(): number {
+    if (!this.wardDocument) return 0;
     return (foundry.utils.getProperty(this.wardDocument, "system.uses.max") as number) ?? 0;
   }
 
   async updateWardStrength(wardStrength: number) {
-    return this.wardDocument.update({ "system.uses.spent": this.wardStrengthMax - wardStrength } as Item.UpdateInput);
+    if (!this.wardDocument) return undefined;
+    // fvtt-types UpdateInput does not model flattened dotted update keys
+    return this.wardDocument.update({ "system.uses.spent": this.wardStrengthMax - wardStrength } as unknown as Item.UpdateInput);
   }
 
-  constructor({ actor }: { actor?: Actor.Implementation } = {}) {
+  constructor({ actor }: { actor: Actor.Implementation }) {
     this.actor = actor;
-    this.wardDocument = actor.items.find((i) => i.name === ArcaneWard.wardDocumentName);
+    this.wardDocument = actor.items.find((i: Item.Implementation) => i.name === ArcaneWard.wardDocumentName);
   }
 
   async applyDamage(update: any) {
@@ -66,7 +70,7 @@ export default class ArcaneWard {
     await this.updateWardStrength(newWardStrength);
   }
 
-  async addWard({ spellLevel }: { spellLevel?: number } = {}) {
+  async addWard({ spellLevel }: { spellLevel: number }) {
     const wardStrength = this.wardStrength;
     const wardStrengthMax = this.wardStrengthMax;
     const newWardStrength = Math.min(wardStrength + (spellLevel * 2), wardStrengthMax);

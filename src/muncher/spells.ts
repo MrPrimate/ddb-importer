@@ -25,25 +25,25 @@ function applySpellFilters(raw: IDDBSpellEntry[], { sourceFilter, sources, exact
   sourceFilter: boolean;
   sources: number[];
   exactMatch: boolean;
-  searchFilter: string;
+  searchFilter?: string;
 }): IDDBSpellEntry[] {
   let data = raw;
   if (sourceFilter) {
     data = data
       .map((spell) => {
-        spell.definition.sources = spell.definition.sources.filter((source) =>
+        spell.definition.sources = (spell.definition.sources ?? []).filter((source) =>
           DDBSources.isSourceInAllowedCategory(source),
         );
         return spell;
       })
       .filter((spell) => {
         if (spell.definition.isHomebrew) return true;
-        return spell.definition.sources.length > 0;
+        return (spell.definition.sources?.length ?? 0) > 0;
       });
   }
   if (sources.length > 0 && sourceFilter) {
     data = data.filter((spell) =>
-      spell.definition.sources.some((source) => sources.includes(source.sourceId)),
+      spell.definition.sources?.some((source) => sources.includes(source.sourceId)) ?? false,
     );
   } else if (sources.length === 0) {
     if (utils.getSetting<boolean>("munching-policy-spell-homebrew-only")) {
@@ -290,8 +290,8 @@ export async function parseSpells({ ids = null as any, deleteBeforeUpdate = null
   await Iconizer.preFetchDDBIconImages();
 
   const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name
-    && t.flags.ddbimporter.is2014 === v.flags.ddbimporter.is2014
-    && t.flags.ddbimporter.is2024 === v.flags.ddbimporter.is2024) === i);
+    && t.flags.ddbimporter?.is2014 === v.flags.ddbimporter?.is2014
+    && t.flags.ddbimporter?.is2024 === v.flags.ddbimporter?.is2024) === i);
 
   const itemHandler = new DDBItemImporter<I5eSpellItem>("spells", uniqueSpells, {
     deleteBeforeUpdate,

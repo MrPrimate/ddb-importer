@@ -7,7 +7,12 @@ export async function calculatePrice(rarity: string, consumable = false) {
   if (!DICTIONARY.equipment.priceFormulas[rarity]) return null;
   const roll = new Roll(DICTIONARY.equipment.priceFormulas[rarity]);
   await roll.evaluate();
-  return consumable ? Math.floor(roll.total / 2) : roll.total;
+  const total = roll.total;
+  if (total === undefined) {
+    logger.warn(`Price roll for rarity ${rarity} did not evaluate to a total`);
+    return null;
+  }
+  return consumable ? Math.floor(total / 2) : total;
 }
 
 const UPDATE_PRICE_INDEX_FIELDS = [

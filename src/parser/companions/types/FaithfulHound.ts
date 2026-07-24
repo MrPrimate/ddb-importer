@@ -19,6 +19,9 @@ export async function getFaithfulHound({
 
   const version = ddbParser.is2014 ? "2014" : "2024";
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
+  const effects = condition
+    ? [(await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject() as unknown as I5eEffectData]
+    : [];
 
   let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": "Faithful Hound",
@@ -46,10 +49,8 @@ export async function getFaithfulHound({
         rules: version,
       },
     },
-    "effects": [
-      (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject() as unknown as I5eEffectData,
-    ],
-  });
+    "effects": effects,
+  }) as I5eMonsterData;
 
   const actionText = raw.split("<p>At the start").pop();
   const biteDamage = `<p><em><strong>Bite.</strong></em> <p>At the start${actionText}`;

@@ -105,6 +105,10 @@ export default class SceneSnipProcessor {
       throw new Error(`Snip region is outside the background image bounds`);
     }
 
+    if (!canvas.app) {
+      throw new Error("Canvas application is not ready");
+    }
+
     // Force NEAREST on the source to eliminate GPU texture filtering
     const origScaleMode = texture.baseTexture.scaleMode;
     texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;

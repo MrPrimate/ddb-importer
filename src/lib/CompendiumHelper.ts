@@ -125,6 +125,10 @@ const CompendiumHelper = {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
     if (utils.getSetting<boolean>("munching-policy-update-existing")) {
+      if (!compendium || !foundryActor._id) {
+        logger.warn("Unable to copy existing actor properties, missing compendium or actor id", { type, actorId: foundryActor._id });
+        return foundryActor;
+      }
       const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
       const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
@@ -136,11 +140,11 @@ const CompendiumHelper = {
         delete oldValues.name;
         delete oldValues.sight;
         delete oldValues.light;
-        foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken, oldValues) as I5ePrototypeToken;
+        foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken ?? {}, oldValues) as I5ePrototypeToken;
       }
 
       const retainBiography = utils.getSetting<boolean>("munching-policy-monster-retain-biography");
-      if (retainBiography) {
+      if (retainBiography && foundryActor.system.details) {
         foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
@@ -155,6 +159,7 @@ const CompendiumHelper = {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
     const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
+    if (!index) return undefined;
     const npcMatch = index.contents.find((entity) => {
       const entityName = (foundry.utils.getProperty(entity, "name") as string).toLowerCase();
       return foundry.utils.hasProperty(entity, "flags.ddbimporter.id")
@@ -191,7 +196,7 @@ const CompendiumHelper = {
     return name;
   },
 
-  async getCompendiumBannerImage(url: string, name: string) {
+  async getCompendiumBannerImage(url: string, name: string | undefined) {
     const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
 
     const downloadOptions = {
@@ -233,7 +238,7 @@ const CompendiumHelper = {
   }: ICompendiumCreationOptions) => {
     if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
-    const compendium = (await game.packs.get(id)) ?? game.packs.find((p) => p.metadata.label === label);
+    const compendium = (id ? await game.packs.get(id) : undefined) ?? game.packs.find((p) => p.metadata.label === label);
     if (compendium) {
       logger.debug(`Compendium '${id}' (${compendium.metadata.label}) found, will not create compendium.`);
       return {
@@ -242,6 +247,7 @@ const CompendiumHelper = {
       };
     } else {
       logger.info(`Compendium for ${label}, was not found, creating it now.`);
+      if (!label) throw new Error("A label is required to create a new DDB Importer compendium");
       const name = CompendiumHelper.getDefaultCompendiumName(label);
       const defaultCompendium = await game.packs.get(`${packageType}.${name}`);
       if (defaultCompendium) {
@@ -323,7 +329,7 @@ const CompendiumHelper = {
     // retrieve the compendium index
     const index = await compendium.getIndex();
 
-    const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    const id = index.find((entity) => utils.normalizeString(entity.name ?? "") === documentName);
     if (id && getDocument) {
       const entity = await compendium.getDocument(id._id);
       return entity;
@@ -349,7 +355,7 @@ const CompendiumHelper = {
     documentNames: string[];
     matchedProperties?: Record<string, any>;
     useParenthesisMatch?: boolean;
-  }): Promise<(ICompendiumLookup)[] | null> => {
+  }): Promise<(ICompendiumLookup | null)[] | null> => {
     // get the compendium
     const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
@@ -365,11 +371,11 @@ const CompendiumHelper = {
     });
 
     // get the indices of all the entitynames, filter un
-    const indices: ICompendiumLookup[] = documentNames
+    const indices: (ICompendiumLookup | null)[] = documentNames
       .map((entityName) => {
         // sometimes spells do have restricted use in paranthesis after the name. Let's try to find those restrictions and add them later
-        if (useParenthesisMatch && entityName.search(/(.+)\(([^()]+)\)*/) !== -1) {
-          const match = entityName.match(/(.+)\(([^()]+)\)*/);
+        const match = useParenthesisMatch ? entityName.match(/(.+)\(([^()]+)\)*/) : null;
+        if (match) {
           return {
             name: utils.normalizeString(match[1].trim()),
             restriction: match[2].trim(),
@@ -427,18 +433,19 @@ const CompendiumHelper = {
     documentNames: string[];
     matchedProperties?: Record<string, any>;
     useParenthesisMatch?: boolean;
-  }): Promise<T5eCompendiumDocuments[] | null> => {
+  }): Promise<(T5eCompendiumDocuments | null)[] | null> => {
     // get the compendium
     const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
 
     // get the indices of all the entitynames, filter un
-    const indices: ICompendiumLookup[] = await CompendiumHelper.queryCompendiumEntries({
+    const indices = await CompendiumHelper.queryCompendiumEntries({
       compendiumName,
       documentNames,
       matchedProperties,
       useParenthesisMatch,
-    }) as unknown as ICompendiumLookup[];
+    });
+    if (!indices) return null;
 
     // replace non-null values with the complete entity from the compendium
     const entities = await Promise.all(
@@ -486,7 +493,8 @@ const CompendiumHelper = {
       documentNames,
       matchedProperties,
     });
-    const cleanResults = results.filter((item) => item !== null);
+    if (!results) return [];
+    const cleanResults = results.filter((item): item is T5eCompendiumDocuments => item !== null);
 
     return cleanResults;
   },
@@ -497,13 +505,14 @@ const CompendiumHelper = {
     pack?: CompendiumCollection.Any;
     name?: string;
     parentId?: string | null;
-    color?: string;
+    color?: string | null;
     folderId?: string | null;
     flagTag?: string;
     flags?: Record<string, any>;
     entityType?: string;
     // foundry-vtt-types' Folder union hides _id on some members; callers read it
   } = {}): Promise<{ _id: string; name: string } & Folder> {
+    if (!pack) throw new Error(`Unable to create the folder "${name}", no compendium pack was provided`);
     logger.debug("Finding folder", {
       folders: pack.folders,
       name,
@@ -538,7 +547,8 @@ const CompendiumHelper = {
       },
     } as unknown as Folder.CreateInput, { pack: pack.metadata.id, keepId: true });
 
-    return newFolder;
+    if (!newFolder) throw new Error(`Unable to create the folder "${name}" in pack "${pack.metadata.id}"`);
+    return newFolder as { _id: string; name: string } & Folder;
   },
 
   async retrieveCompendiumSpellReferences(spellNames: string[], { use2024Spells = false } = {}) {
@@ -551,7 +561,8 @@ const CompendiumHelper = {
         "system.source.rules": use2024Spells ? "2024" : "2014",
       },
     });
-    const cleanResults = results.filter((item) => item !== null);
+    if (!results) return [];
+    const cleanResults = results.filter((item): item is ICompendiumLookup => item !== null);
 
     return cleanResults;
   },

@@ -1,11 +1,11 @@
 // A modified version of the spell scroll code from the 5e system
 
 import CreateSpellwroughtTattooDialog from "../../apps/CreateSpellwroughtTattooDialog";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import CompendiumHelper from "../../lib/CompendiumHelper";
 
-async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
-  const spellWroughtIdentity = CONFIG.DDBI.SPELLWROUGHT_TATTOO[level]?.identity;
+async function getBaseTattooData(level: number): Promise<I5eConsumableItem | undefined> {
+  const spellWroughtIdentity = CONFIG.DDBI.SPELLWROUGHT_TATTOO?.[level]?.identity;
 
   let tattooUuid;
 
@@ -15,14 +15,14 @@ async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
     await CompendiumHelper.loadCompendiumIndex("items", {
       fields: ["name", "system.identifier"],
     });
-    const indexMatch = ddbCompendium.index.find((i) => (foundry.utils.getProperty(i, "system.identifier") as string)?.startsWith(spellWroughtIdentity));
+    const indexMatch = ddbCompendium?.index.find((i) => (foundry.utils.getProperty(i, "system.identifier") as string)?.startsWith(spellWroughtIdentity));
     if (indexMatch) tattooUuid = indexMatch.uuid;
   }
   // fallback to scroll item
   if (!tattooUuid) {
     const id = CONFIG.DND5E.spellScrollIds[level];
     if (foundry.data.validators.isValidId(id)) {
-      tattooUuid = game.packs.get(CONFIG.DND5E.sourcePacks.ITEMS).index.get(id).uuid;
+      tattooUuid = game.packs.get(CONFIG.DND5E.sourcePacks.ITEMS)?.index.get(id)?.uuid;
     } else {
       tattooUuid = id;
     }
@@ -43,7 +43,13 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
   const spell = await fromUuid(uuid) as unknown as I5eSpellItem | undefined;
   if (!spell) return undefined;
 
-  const values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[spell.system.level];
+  const tattooConfigs = CONFIG.DDBI.SPELLWROUGHT_TATTOO;
+  if (!tattooConfigs) {
+    logger.warn("Spellwrought tattoo configuration is not registered, unable to create tattoo");
+    return undefined;
+  }
+
+  const values = tattooConfigs[spell.system.level];
 
   config = foundry.utils.mergeObject({
     level: spell.system.level,
@@ -66,8 +72,17 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    */
   if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell as unknown as TImporterItem, config) === false) return undefined;
 
+  if (config.level === undefined || !config.values) {
+    logger.warn("Spellwrought tattoo configuration is missing level or values, unable to create tattoo", { config });
+    return undefined;
+  }
+
   // Get tattoo data
   const tattooData = await getBaseTattooData(config.level);
+  if (!tattooData) {
+    logger.warn("Unable to find base tattoo item data, unable to create tattoo", { config });
+    return undefined;
+  }
 
   for (const level of Array.fromRange(config.level + 1).reverse()) {
     const values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[level];
@@ -92,8 +107,9 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
 </p>
 `;
   }
+  const tattooSpellActivityId = dnd5e.utils.staticID("ddbitattoospell");
   const activity: I5eCastActivity = {
-    _id: dnd5e.utils.staticID("ddbitattoospell"),
+    _id: tattooSpellActivityId,
     type: "cast",
     consumption: {
       targets: [{ type: "itemUses", value: "1", target: "" }],
@@ -116,7 +132,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
     img: "icons/tools/scribal/ink-quill-red.webp",
     system: {
       uses: { spent: 0, max: "1", autoDestroy: true },
-      activities: { ...(tattooData.system.activities ?? {}), [activity._id]: activity },
+      activities: { ...(tattooData.system.activities ?? {}), [tattooSpellActivityId]: activity },
       properties: ["mgc"],
       type: { value: "tattoo" },
     },
@@ -165,7 +181,7 @@ async function compendiumContext(app: any, options: Record<string, any>[]) {
     icon: "<i class=\"fa-solid fa-user-pen\"></i>",
     callback: async (li: any) => {
       const spell = getSpellDetailsFromLi(li);
-      if (!spell) return;
+      if (!spell?.uuid) return;
       const tattoo = await createTattooFromSpellUuid(spell.uuid);
       if (tattoo) dnd5e.documents.Item5e.create(tattoo);
     },

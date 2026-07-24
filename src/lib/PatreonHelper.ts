@@ -66,23 +66,24 @@ const PatreonHelper = {
 
   getPatreonKey: (local = false): string => {
     if (local) {
-      return localStorage.getItem("ddb-patreon-key");
+      return localStorage.getItem("ddb-patreon-key") ?? "";
     } else {
       return utils.getSetting<string>("beta-key");
     }
   },
 
-  setPatreonKey: async (key: string, local = false) => {
+  // null removes the stored key (see setLocalStorage)
+  setPatreonKey: async (key: string | null, local = false) => {
     if (local) {
       setLocalStorage("ddb-patreon-key", key);
     } else {
-      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", key);
+      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", key ?? "");
     }
   },
 
   getPatreonUser: (local = false): string => {
     if (local) {
-      return localStorage.getItem("ddb-patreon-user");
+      return localStorage.getItem("ddb-patreon-user") ?? "";
     } else {
       return utils.getSetting<string>("patreon-user");
     }
@@ -99,7 +100,7 @@ const PatreonHelper = {
   getPatreonTier: (local = false): string => {
     if (DDBProxy.isCustom(true)) return "CUSTOM";
     if (local) {
-      return localStorage.getItem("ddb-patreon-tier");
+      return localStorage.getItem("ddb-patreon-tier") ?? "";
     } else {
       return utils.getSetting<string>("patreon-tier");
     }
@@ -131,7 +132,7 @@ const PatreonHelper = {
       tier: data.data,
       data,
     });
-    if (data.email !== currentEmail) {
+    if (data.email && data.email !== currentEmail) {
       await PatreonHelper.setPatreonUser(data.email, local);
     }
     return data;

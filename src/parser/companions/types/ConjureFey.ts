@@ -41,9 +41,9 @@ export async function getConjureFey({
       },
     },
     img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
-  });
+  }) as I5eMonsterData;
 
-  const descriptionArray1 = raw.split("Fey creature of your choice.").pop().trim();
+  const descriptionArray1 = raw.split("Fey creature of your choice.").pop()?.trim() ?? "";
   const descriptionArray2 = descriptionArray1.split("</p>");
 
   const description = `<p><em><strong>Psychic Attack.</strong></em> ${descriptionArray2[0]}</p>`;

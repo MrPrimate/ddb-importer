@@ -46,6 +46,9 @@ export default class FolderHelper {
     const entityTypes = utils.entityMap();
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);
+    if (!entityType) {
+      throw new Error(`Unknown entity type for folder kind "${kind}"`);
+    }
     const baseFolder = await FolderHelper.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
     const entityFolder = typeFolder
       ? await FolderHelper.getOrCreateFolder(baseFolder, entityType, folderName, subColor)
@@ -68,7 +71,7 @@ export default class FolderHelper {
    */
   static async getCompendiumFolderId(name: string, compendiumName: string): Promise<string | undefined> {
     const compendium = game.packs.get(compendiumName);
-    return compendium.folders.find((f) => f.name === name)?._id;
+    return compendium?.folders.find((f) => f.name === name)?._id;
   }
 
 }

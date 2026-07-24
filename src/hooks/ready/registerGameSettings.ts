@@ -9,8 +9,9 @@ interface IDDBIMacros {
   gm: Record<string, any>;
   item: Record<string, any>;
   feat: Record<string, any>;
-  generic: Record<string, any>;
-  monsterFeature: Record<string, any>;
+  // these buckets are populated lazily by DDBMacros.loadDDBMacroToConfig via setProperty
+  generic?: Record<string, any>;
+  monsterFeature?: Record<string, any>;
 }
 
 interface IDDBIKnownForge {
@@ -124,7 +125,7 @@ export interface IDDBIConfig {
 }
 
 if (!CONFIG.DDBI) {
-  CONFIG.DDBI = {
+  const initialDDBIConfig: IDDBIConfig = {
     module: "DDB Importer",
     schemaVersion: 5.0,
     DICTIONARY: DICTIONARY,
@@ -155,7 +156,7 @@ if (!CONFIG.DDBI) {
         "2014": false,
         "2024": false,
       },
-      iconMap: {},
+      iconMap: { "2014": [], "2024": [] },
       packsLoaded: {},
       packs: {},
     },
@@ -207,7 +208,8 @@ if (!CONFIG.DDBI) {
       tier: null,
       tierLocal: null,
     },
-  } as IDDBIConfig;
+  };
+  CONFIG.DDBI = initialDDBIConfig;
 }
 
 async function createFolderPaths() {

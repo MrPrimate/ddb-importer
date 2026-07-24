@@ -26,6 +26,7 @@ export function giantSpiderEffects(npc: I5eMonsterData): I5eMonsterData {
       foundry.utils.setProperty(effect, "duration.units", "seconds");
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
+      item.effects ??= [];
       item.effects.push(effect);
       item = forceItemEffect(item);
     }

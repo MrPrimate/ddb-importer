@@ -61,7 +61,7 @@ export async function getPhantomSteed({
     };
 
     stub.name = "Phantom Steed";
-    stub.prototypeToken.name = "Phantom Steed";
+    foundry.utils.setProperty(stub, "prototypeToken.name", "Phantom Steed");
 
     stub = await DDBCompanionMixin.addEnrichedImageData(stub);
 

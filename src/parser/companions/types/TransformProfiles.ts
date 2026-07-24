@@ -91,7 +91,7 @@ export async function resolveTransformProfileUuids(
       await monsterFactory.processIntoCompendium([...new Set(idMisses)]);
     }
     for (const name of nameMisses) {
-      await monsterFactory.processIntoCompendium(null, name);
+      await monsterFactory.processIntoCompendium(undefined, name);
     }
 
     await compendium.getIndex(indexOptions);

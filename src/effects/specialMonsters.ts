@@ -10,9 +10,9 @@ import AutoEffects from "../parser/enrichers/effects/AutoEffects";
 import type DDBMonster from "../parser/DDBMonster";
 
 export function baseMonsterFeatureEffect(document: any, label: string,
-  { transfer = false, disabled = false, showIcon = null as TEffectShowIcon | null } = {},
-) {
-  return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled, showIcon });
+  { transfer = false, disabled = false, showIcon }: IDDBEffectOptions = {},
+): TInitializedEffect {
+  return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled, showIcon }) as TInitializedEffect;
 }
 
 

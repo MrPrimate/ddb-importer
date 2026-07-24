@@ -1,4 +1,4 @@
-import { CompendiumHelper } from "../lib/_module";
+import { CompendiumHelper, logger } from "../lib/_module";
 
 type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }>;
 
@@ -72,14 +72,18 @@ export class DDBItemConfig extends FormApplication {
 
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
-    const index = await compendium.getIndex();
-
-    index.forEach((entry) => {
-      overrides[entry._id] = {
-        label: `${entry.name} (${foundry.utils.getProperty(entry, "type")})`,
-        selected: false,
-      };
-    });
+    if (compendium) {
+      const index = await compendium.getIndex();
+      index.forEach((entry) => {
+        overrides[entry._id] = {
+          label: `${entry.name} (${foundry.utils.getProperty(entry, "type")})`,
+          selected: false,
+        };
+      });
+    } else {
+      ui.notifications.warn(`Unable to open custom compendium "${label}", override choices unavailable`);
+      logger.warn(`DDBItemConfig: unable to open custom compendium "${label}", override choices unavailable`);
+    }
 
     const selectedOverrideId = overrideId ?? "NONE";
     if (overrideId && overrides[selectedOverrideId]) {

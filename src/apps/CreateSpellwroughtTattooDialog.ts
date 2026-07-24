@@ -14,9 +14,10 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   /**
    * Configuration options for tattoo creation.
-   * @type {SpellTattooConfiguration}
+   * Nulled on close without submission so `create` resolves null on cancel.
+   * @type {SpellTattooConfiguration | null}
    */
-  #config: SpellTattooConfiguration;
+  #config: SpellTattooConfiguration | null;
 
   get config() {
     return this.#config;
@@ -36,6 +37,9 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   constructor(options: ICreateSpellwroughtTattooDialogOptions = {}) {
     super(options);
+    if (!options.config || !options.spell) {
+      throw new Error("CreateSpellwroughtTattooDialog requires both config and spell options");
+    }
     this.#config = options.config;
     this.#spell = options.spell;
   }
@@ -83,24 +87,27 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @protected
    */
   async _prepareContentContext(context: any, _options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
+    const config = this.#config;
+    // config is only null after close without submission; no further renders happen then
+    if (!config) return context;
     const spell = this.spell as unknown as I5eSpellItem;
     context.anchor = this.spell instanceof Item ? this.spell.toAnchor().outerHTML : `<span>${spell.name}</span>`;
-    context.config = this.config;
+    context.config = config;
     context.fields = [{
       field: new NumberField({ label: game.i18n.localize("DND5E.SpellLevel") }),
       name: "level",
       options: Object.entries(CONFIG.DND5E.spellLevels)
         .map(([level, label]) => ({ value: level, label }))
         .filter((l) => Number(l.value) >= spell.system.level && Number(l.value) <= 5),
-      value: this.config.level ?? spell.system.level,
+      value: config.level ?? spell.system.level,
     }];
     context.values = {
       bonus: new NumberField({ label: game.i18n.localize("DND5E.BonusAttack") }),
       dc: new NumberField({ label: game.i18n.localize("DND5E.Scroll.SaveDC") }),
     };
     context.valuePlaceholders = {};
-    for (const level of Array.fromRange(this.config.level + 1).reverse()) {
-      context.valuePlaceholders = CONFIG.DDBI.SPELLWROUGHT_TATTOO[level];
+    for (const level of Array.fromRange((config.level ?? spell.system.level) + 1).reverse()) {
+      context.valuePlaceholders = CONFIG.DDBI.SPELLWROUGHT_TATTOO?.[level];
       if (context.valuePlaceholders) break;
     }
     return context;
@@ -119,8 +126,10 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @param {FormDataExtended} formData  Data from the dialog.
    */
   static async #handleFormSubmission(this: CreateSpellwroughtTattooDialog, _event: Event, _form: any, formData: any) {
-    foundry.utils.mergeObject(this.#config, formData.object);
-    this.#config.level = Number(this.#config.level);
+    if (this.#config) {
+      foundry.utils.mergeObject(this.#config, formData.object);
+      this.#config.level = Number(this.#config.level);
+    }
     await this.close({ dnd5e: { submitted: true } } as unknown as { submitted?: boolean });
   }
 
@@ -129,10 +138,13 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /** @inheritDoc */
   _onChangeForm(formConfig: any, event: any) {
     super._onChangeForm(formConfig, event);
-    const formData = new foundry.applications.ux.FormDataExtended(this.form);
-    foundry.utils.mergeObject(this.#config, formData.object);
-    this.#config.level = Number(this.#config.level);
-    this.#config.values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[this.#config.level];
+    const form = this.form;
+    const config = this.#config;
+    if (!form || !config) return;
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    foundry.utils.mergeObject(config, formData.object);
+    config.level = Number(config.level);
+    config.values = CONFIG.DDBI.SPELLWROUGHT_TATTOO?.[config.level];
     this.render({ parts: ["content"] });
   }
 

@@ -84,7 +84,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsBlueTeal: {
       name: "Dancing Lights (Blue Teal)",
@@ -101,7 +101,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsBlueYellow: {
       name: "Dancing Lights (Blue Yellow)",
@@ -118,7 +118,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsPink: {
       name: "Dancing Lights (Pink)",
@@ -135,7 +135,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsPurpleGreen: {
       name: "Dancing Lights (Purple Green)",
@@ -152,7 +152,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
     DancingLightsRed: {
       name: "Dancing Lights (Red)",
@@ -169,7 +169,7 @@ export function getDancingLights(): ICompanionResult {
           "alpha": 0.25,
         },
         "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_Thumb.webp`,
-      }),
+      }) as I5eMonsterData,
     },
   };
 

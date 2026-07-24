@@ -7,7 +7,7 @@ export default class MonsterReplacer {
   constructor({
     name,
   }: { name?: string } = {}) {
-    this.name = name;
+    this.name = name ?? "";
   }
 
   static async fetchUpdatedMonsterInfo(ids: (string | number)[] = []): Promise<IMonsterReplacerData[]> {
@@ -67,7 +67,8 @@ export default class MonsterReplacer {
           action: "select",
           label: "Change Selected",
           icon: "fa-solid fa-floppy-disk",
-          callback: (_event, button, _dialog) => new foundry.applications.ux.FormDataExtended(button.form).object,
+          callback: (_event, button, _dialog) =>
+            (button.form ? new foundry.applications.ux.FormDataExtended(button.form).object : { ids: [] }),
         },
         {
           action: "all",

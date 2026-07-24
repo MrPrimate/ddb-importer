@@ -1,6 +1,13 @@
 import { SETTINGS } from "../config/_module";
+import { logger } from "../lib/_module";
 
 const Sheet = foundry?.appv1?.sheets?.AdventureImporter ?? AdventureImporter;
+
+// surface of the legacy (pre-v11) AdventureImporter this class was written
+// against; modern cores only expose the deprecated _importContent
+interface ILegacyAdventureImporterMembers {
+  importContent?: (toCreate: unknown, toUpdate: unknown, documentCount: unknown) => Promise<unknown>;
+}
 
 export class DDBAdventureImporter extends Sheet {
 
@@ -9,6 +16,9 @@ export class DDBAdventureImporter extends Sheet {
     default?: boolean;
     handler?: (document: any, option: any, submitted: any) => Promise<unknown> | unknown;
   }>;
+
+  // populated by the legacy AdventureImporter submit flow; absent on modern cores
+  declare submitOptions?: Record<string, unknown>;
 
   constructor(adventure: any, options: any) {
     super(adventure, options);
@@ -44,10 +54,15 @@ export class DDBAdventureImporter extends Sheet {
 
   /** @inheritDoc */
   async importContent(toCreate: any, toUpdate: any, documentCount: any) {
-    const importResult = await super.importContent(toCreate, toUpdate, documentCount);
+    const superImportContent = (Sheet.prototype as ILegacyAdventureImporterMembers).importContent;
+    if (!superImportContent) {
+      logger.warn("AdventureImporter#importContent is not available on this Foundry version, skipping import option handlers.");
+      return undefined;
+    }
+    const importResult = await superImportContent.call(this, toCreate, toUpdate, documentCount);
     for (const [name, option] of Object.entries(this.importOptions || {})) {
       if (option.handler) {
-        await option.handler(this.document, option, this.submitOptions[name]);
+        await option.handler(this.document, option, this.submitOptions?.[name]);
       }
     }
     return importResult;

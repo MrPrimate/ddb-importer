@@ -3,6 +3,9 @@ import { SUMMONS_ACTOR_STUB } from "./_data";
 
 export async function getArcaneEyes(): Promise<ICompanionResult> {
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
+  const effects = condition
+    ? [(await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject()]
+    : [];
   const results: ICompanionResult = {
     ArcaneEye: {
       name: "Arcane Eye",
@@ -23,9 +26,7 @@ export async function getArcaneEyes(): Promise<ICompanionResult> {
             },
           },
         },
-        "effects": [
-          (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
-        ],
+        "effects": effects,
       }) as unknown as I5eMonsterData,
     },
   };

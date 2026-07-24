@@ -30,9 +30,9 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
   _markTabs(tabs: IDDBTabs): IDDBTabs {
     for (const v of Object.values(tabs)) {
-      v.active = this.tabGroups[v.group] === v.id;
+      v.active = v.group ? this.tabGroups[v.group] === v.id : false;
       v.cssClass = v.active ? "active" : "";
-      if ("tabs" in v) this._markTabs(v.tabs);
+      if (v.tabs) this._markTabs(v.tabs as IDDBTabs);
     }
     return tabs;
   }
@@ -85,7 +85,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
     // Add special styling for label-top hints.
     this.element.querySelectorAll<HTMLElement>(".label-top > p.hint").forEach((hint) => {
-      const label = hint.parentElement.querySelector(":scope > label");
+      const label = hint.parentElement?.querySelector(":scope > label");
       if (!label) return;
       hint.ariaLabel = hint.innerText;
       hint.dataset.tooltip = hint.innerHTML;
@@ -173,7 +173,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
    *   - `#munching-task-monster` if `options.monsterNote` is true
    *   - `#munching-task-notes` otherwise
    */
-  munchNote(note: string, { nameField = false, monsterNote = false, isError = false, message = null }: { nameField?: boolean; monsterNote?: boolean; isError?: boolean; message?: string } = {}) {
+  munchNote(note: string, { nameField = false, monsterNote = false, isError = false, message = null }: { nameField?: boolean; monsterNote?: boolean; isError?: boolean; message?: string | boolean | null } = {}) {
     if (!this.element) {
       logger.info("PreRenderNote:", { note, nameField, monsterNote, message, isError });
       return;

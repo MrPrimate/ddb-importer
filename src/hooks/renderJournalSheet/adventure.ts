@@ -1,5 +1,5 @@
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import buildNotes from "./buildNotes";
 import { ensureBookThemeStyle } from "../../muncher/adventure/native/NativeBookStyles";
 
@@ -27,6 +27,7 @@ const renderPopup = (type: string, url: string) => {
 export function adventureFlags(app: any, html: HTMLElement, data: Record<string, any>) {
   if (!app.document.flags.ddb) return;
   const journalContent = html.querySelector("section.journal-page-content");
+  if (!journalContent) return;
   journalContent.classList.add("ddb");
   const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode") as string | undefined;
   if (bookCode) {
@@ -50,6 +51,10 @@ function onClick(config: Record<string, any>, event: MouseEvent) {
     event.preventDefault();
     const flags = config.document.flags.ddb;
     const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
+    if (!bookSource) {
+      logger.warn(`Unable to find DDB book source for ${flags.bookCode}`);
+      return false;
+    }
     return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
   }
 }

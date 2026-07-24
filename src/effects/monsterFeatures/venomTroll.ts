@@ -13,6 +13,7 @@ export async function venomTrollEffects(npc: I5eMonsterData): Promise<I5eMonster
       effect.transfer = true;
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "poisonSplash.js");
+      item.effects ??= [];
       item.effects.push(effect);
 
     } else if (item.name === "Regeneration") {
@@ -27,6 +28,7 @@ export async function venomTrollEffects(npc: I5eMonsterData): Promise<I5eMonster
       );
       foundry.utils.setProperty(effect, "flags.dae.transfer", true);
       effect.transfer = true;
+      item.effects ??= [];
       item.effects.push(effect);
     }
     item = forceItemEffect(item);

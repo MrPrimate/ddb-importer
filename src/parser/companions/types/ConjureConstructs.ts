@@ -45,11 +45,11 @@ export async function getConjureConstructs2024({
       },
     },
     img: "icons/creatures/magical/construct-stone-earth-gray.webp",
-  });
+  }) as I5eMonsterData;
 
-  const text1 = raw.split("effects:</p>\r\n").pop().split("</p>\r\n")[0];
+  const text1 = raw.split("effects:</p>\r\n").pop()?.split("</p>\r\n")[0] ?? "";
   const action1 = `${text1}</p>`;
-  const text2 = raw.split("successful one.</p>\r\n").pop().split("</p>\r\n")[0];
+  const text2 = raw.split("successful one.</p>\r\n").pop()?.split("</p>\r\n")[0] ?? "";
   const action2 = `${text2}</p>`;
 
   const manager = new DDBCompanionMixin(raw, {}, { addMonsterEffects: true });

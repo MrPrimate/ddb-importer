@@ -444,7 +444,7 @@ export default class DDBPartySync extends DDBAppV2 {
     let imported = 0;
     for (const c of targets) {
       try {
-        await DDBCharacterImporter.importCharacterById(c.characterId, undefined, null);
+        await DDBCharacterImporter.importCharacterById(c.characterId, undefined, undefined);
         imported += 1;
       } catch (err) {
         logger.error(`Failed to import ${c.characterName} (${c.characterId})`, err);

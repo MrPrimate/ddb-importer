@@ -34,10 +34,8 @@ export function addMuncher(app: any, html: HTMLElement) {
 
   const top = utils.getSetting<boolean>("show-munch-top");
   if (top) {
-    const headerActions = html.querySelector(".header-actions");
-    headerActions.append(button);
+    html.querySelector(".header-actions")?.append(button);
   } else {
-    const headerActions = html.querySelector(".directory-footer");
-    headerActions.append(button);
+    html.querySelector(".directory-footer")?.append(button);
   }
 }

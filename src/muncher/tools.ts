@@ -17,6 +17,10 @@ async function updateActorsWithActor(targetActors: TImporterActor[], sourceActor
   count++;
 
   for (const targetActor of targetActors) {
+    if (!targetActor.id) {
+      logger.warn("Skipping world monster update for actor without an id", targetActor);
+      continue;
+    }
     utils.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = (sourceActor.items.toObject() as unknown as I5eMonsterItem[]).map((item) => {
@@ -25,21 +29,24 @@ async function updateActorsWithActor(targetActors: TImporterActor[], sourceActor
     });
     const actorUpdate = foundry.utils.duplicate(sourceActor) as unknown as I5eMonsterData;
     // pop items in later
-    delete actorUpdate.items;
+    delete (actorUpdate as { items?: I5eMonsterItem[] }).items;
 
     const updateImages = utils.getSetting<boolean>("munching-policy-update-world-monster-update-images");
     if (!updateImages) {
-      actorUpdate.img = targetActor.img;
-      actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture as unknown as I5eTokenTexture;
-      actorUpdate.prototypeToken.randomImg = targetActor.prototypeToken.randomImg;
-      actorUpdate.prototypeToken.lockRotation = targetActor.prototypeToken.lockRotation;
-      actorUpdate.prototypeToken.rotation = targetActor.prototypeToken.rotation;
-      actorUpdate.prototypeToken.alpha = targetActor.prototypeToken.alpha;
-      actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring as unknown as I5eTokenRing;
+      actorUpdate.img = targetActor.img ?? undefined;
+      const updateToken = actorUpdate.prototypeToken;
+      if (updateToken) {
+        updateToken.texture = targetActor.prototypeToken.texture as unknown as I5eTokenTexture;
+        updateToken.randomImg = targetActor.prototypeToken.randomImg;
+        updateToken.lockRotation = targetActor.prototypeToken.lockRotation;
+        updateToken.rotation = targetActor.prototypeToken.rotation;
+        updateToken.alpha = targetActor.prototypeToken.alpha;
+        updateToken.ring = targetActor.prototypeToken.ring as unknown as I5eTokenRing;
+      }
     }
 
     const retainBiography = utils.getSetting<boolean>("munching-policy-update-world-monster-retain-biography");
-    if (retainBiography) {
+    if (retainBiography && actorUpdate.system.details) {
       actorUpdate.system.details.biography = foundry.utils.getProperty(targetActor, "system.details.biography") as I5eBiography;
     }
 
@@ -75,11 +82,13 @@ export async function updateWorldMonsters() {
 
     for (const [key, value] of index.entries()) {
 
-      const worldMatches = game.actors.filter((actor: TImporterActor) =>
-        foundry.utils.getProperty(actor, "flags.ddbimporter.id")
+      // fvtt-types Actor.Implementation union does not structurally satisfy the
+      // importer flag view, but these are the same runtime documents
+      const worldMatches = game.actors.filter((actor) =>
+        !!foundry.utils.getProperty(actor, "flags.ddbimporter.id")
         && actor.name === value.name
         && foundry.utils.getProperty(actor, "flags.ddbimporter.id") == foundry.utils.getProperty(value, "flags.ddbimporter.id"),
-      );
+      ) as unknown as TImporterActor[];
 
       if (worldMatches.length > 0) {
         utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
@@ -98,9 +107,13 @@ export async function updateWorldMonsters() {
   return results;
 }
 
-export async function resetCompendiumActorImages(compendiumName: string = null, type: TMonsterImporterTypes = "monsters") {
+export async function resetCompendiumActorImages(compendiumName: string | null = null, type: TMonsterImporterTypes = "monsters") {
   const monsterCompendiumLabel = compendiumName ? compendiumName : CompendiumHelper.getCompendiumLabel(type);
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
+  if (!monsterCompendium) {
+    logger.error("Error opening compendium, check your settings", monsterCompendiumLabel);
+    return [];
+  }
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
   const index = await monsterCompendium.getIndex({ fields });
 
@@ -125,14 +138,14 @@ export async function resetCompendiumActorImages(compendiumName: string = null, 
   return results;
 }
 
-export async function parseCritters(ids: number[] = null) {
+export async function parseCritters(ids: number[] | null = null) {
   const monsterFactory = new DDBMonsterFactory();
-  const parsedExtras = await monsterFactory.processIntoCompendium(ids);
+  const parsedExtras = await monsterFactory.processIntoCompendium(ids ?? undefined);
   return parsedExtras;
 }
 
-export async function parseTransports(ids: number[] = null) {
+export async function parseTransports(ids: number[] | null = null) {
   const vehicleFactory = new DDBVehicleFactory();
-  const parsedVehicles = await vehicleFactory.processIntoCompendium(ids);
+  const parsedVehicles = await vehicleFactory.processIntoCompendium(ids ?? undefined);
   return parsedVehicles;
 }

@@ -12,9 +12,9 @@ export default class DDBCompanionMixin {
   npc: I5eMonsterData;
   data: I5eMonsterData;
   parsed: boolean;
-  type: string;
-  subType: string;
-  rules: string;
+  type: string | undefined;
+  subType: string | undefined;
+  rules: T5eRulesVersion | undefined;
   options: IDDBCompanionMixinOptions;
   block: HTMLElement;
   useItemAC: boolean;
@@ -23,7 +23,7 @@ export default class DDBCompanionMixin {
   removeSplitCreatureActions: boolean;
   removeCreatureOnlyNames: boolean;
   addChrisPremades: boolean;
-  summons: I5eSummonActivity;
+  summons: IDDBCompanionSummons;
   name: string;
 
   constructor(block: HTMLElement | string, options: IDDBCompanionMixinOptions = {}, {
@@ -91,9 +91,10 @@ export default class DDBCompanionMixin {
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }
 
-    if (!foundry.utils.hasProperty(CONFIG, "DDBI.EXTRA_IMAGES.summons")) return null;
-    const data = CONFIG.DDBI.EXTRA_IMAGES.summons[name]
-      ?? CONFIG.DDBI.EXTRA_IMAGES.summons[name.split("(")[0].trim()];
+    const summonsImages = CONFIG.DDBI.EXTRA_IMAGES?.summons;
+    if (!summonsImages) return null;
+    const data = summonsImages[name]
+      ?? summonsImages[name.split("(")[0].trim()];
 
     return data;
   }
@@ -158,9 +159,10 @@ export default class DDBCompanionMixin {
   }
 
   filterDamageConditions(data: string) {
+    const subType = this.options.subType?.toLowerCase() ?? "";
     const onlyFiltered = data.split(/[;,]/).filter((state) => {
       if (state.includes("only")) {
-        if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
+        if (state.toLowerCase().includes(subType)) {
           return true;
         } else {
           return false;
@@ -177,7 +179,7 @@ export default class DDBCompanionMixin {
         .split("and")
         .map((s) => {
           if (s.includes("determined by the")) {
-            return this.options.subType.toLowerCase();
+            return subType;
           } else {
             return s.split("(")[0].trim().toLowerCase();
           }
@@ -202,7 +204,8 @@ export default class DDBCompanionMixin {
     };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
-    ddbMonster.npc = this.npc;
+    // the companion npc stub is also built from a full Actor document
+    ddbMonster.npc = this.npc as TParsedMonsterData;
     ddbMonster.abilities = ddbMonster.npc.system.abilities as typeof ddbMonster.abilities;
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBMonsterFeatureFactory({
@@ -276,7 +279,7 @@ export default class DDBCompanionMixin {
 
   async parse() {
     // console.warn("PARSE COMPANION", { block: this.block, aThis: this });
-    const name = this.options.name ?? this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
+    const name = this.options.name ?? this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Title")?.innerHTML;
     const namePostfix = this.options.subType
       ? `(${this.options.subType})`
       : "";
@@ -288,7 +291,7 @@ export default class DDBCompanionMixin {
     const actorName = `${name} ${namePostfix}`.trim();
     this.npc = newNPC(actorName);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
-    this.npc.prototypeToken.name = actorName;
+    foundry.utils.setProperty(this.npc, "prototypeToken.name", actorName);
 
     const summonsKey = `companion-${utils.normalizeString(actorName)}-${this.rules}`;
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
@@ -314,9 +317,14 @@ export default class DDBCompanionMixin {
 
   _handleAc(acString: string) {
     const ac = Number.parseInt(acString.split(",")[0].split("plus")[0].trim());
+    const attributes = this.npc.system.attributes;
+    if (!attributes) {
+      logger.warn(`Companion ${this.npc.name} has no system attributes, unable to set AC`);
+      return;
+    }
 
     if (Number.isInteger(ac)) {
-      this.npc.system.attributes.ac = {
+      attributes.ac = {
         flat: ac,
         calc: "natural",
         formula: "",
@@ -341,15 +349,20 @@ export default class DDBCompanionMixin {
       ? hpPrepared.split(" or ").find((s) => s.includes(subType))
       : hpPrepared.trim();
 
-    const hpFind = baseString.trim().match(/(\d*)/);
+    const hpFind = baseString?.trim().match(/(\d*)/);
     const hpInt = hpFind ? Number.parseInt(hpFind[0]) : NaN;
     return Number.isInteger(hpInt) ? hpInt : 0;
   }
 
   _handleHitPoints(hpString: string) {
     const hpInt = this._getBaseHitPoints(hpString);
-    this.npc.system.attributes.hp.max = hpInt;
-    this.npc.system.attributes.hp.value = hpInt;
+    const hp = this.npc.system.attributes?.hp;
+    if (!hp) {
+      logger.warn(`Companion ${this.npc.name} has no hp attributes, unable to set hit points`);
+      return;
+    }
+    hp.max = hpInt;
+    hp.value = hpInt;
 
     // conditions
     // 5 + five times your druid level
@@ -373,7 +386,7 @@ export default class DDBCompanionMixin {
     if (klassMultiMatch) {
       const klass = klassMultiMatch[3].trim().toLowerCase();
       const multiplier = klassMultiMatch[1]
-        ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase()).num
+        ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase())?.num ?? null
         : null;
       const multiplierString = multiplier ? ` * ${multiplier}` : "";
       hpAdjustments.push(`@classes.${klass}.levels${multiplierString}`);
@@ -407,48 +420,77 @@ export default class DDBCompanionMixin {
         "key": "system.attributes.hp.formula",
         "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
       };
-      this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
+      const changes = this.npc.flags?.ddbimporter?.summons?.changes;
+      if (changes) {
+        changes.push(hitDiceAdjustment);
+      } else {
+        logger.warn(`Companion ${this.npc.name} has no summons changes flags, unable to add hit dice adjustment`);
+      }
     }
 
     const spellHitDice = hpString.match(/number of Hit Dice \[d(\d+)s\] equal to the spell's level/i);
     if (spellHitDice) {
-      this.npc.system.attributes.hp.formula = `0d${spellHitDice[1]}`;
+      const hp = this.npc.system.attributes?.hp;
+      if (hp) {
+        hp.formula = `0d${spellHitDice[1]}`;
+      } else {
+        logger.warn(`Companion ${this.npc.name} has no hp attributes, unable to set hit dice formula`);
+      }
       this.summons.bonuses.hd = "@item.level";
     }
   }
 
   _handleSize(sizeString: string) {
     const subType = this.subType?.toLowerCase();
-    const baseString = subType && sizeString.toLowerCase().includes(subType)
+    const baseString = (subType && sizeString.toLowerCase().includes(subType)
       ? sizeString.toLowerCase().replaceAll(" (", " or ").split(" or ").find((s) => s.includes(subType))
-      : sizeString.toLowerCase();
+      : sizeString.toLowerCase())
+      ?? sizeString.toLowerCase();
 
     const size = baseString.split(" ")[0];
-    const nameSize = this.subType
-      ? DICTIONARY.sizes.find((s) => this.subType.toLowerCase() == s.name.toLowerCase())
+    const nameSize = subType
+      ? DICTIONARY.sizes.find((s) => subType == s.name.toLowerCase())
       : null;
     const sizeData: IDDBActorSizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
       ?? { name: "Medium", value: "med", size: 1, scale: 1 } as IDDBActorSizeData;
 
     const finalSize = nameSize ?? sizeData;
 
-    this.npc.system.traits.size = finalSize.value;
-    this.npc.prototypeToken.width = finalSize.size;
-    this.npc.prototypeToken.height = finalSize.size;
-    this.npc.prototypeToken.texture.scaleX = finalSize.scale;
-    this.npc.prototypeToken.texture.scaleY = finalSize.scale;
+    const traits = this.npc.system.traits;
+    const token = this.npc.prototypeToken;
+    if (!traits || !token?.texture) {
+      logger.warn(`Companion ${this.npc.name} is missing traits or token data, unable to set size`);
+      return;
+    }
+    traits.size = finalSize.value;
+    token.width = finalSize.size;
+    token.height = finalSize.size;
+    token.texture.scaleX = finalSize.scale;
+    token.texture.scaleY = finalSize.scale;
   }
 
   _handleType(typeString: string) {
+    const type = this.npc.system.details?.type;
+    if (!type) {
+      logger.warn(`Companion ${this.npc.name} has no details type, unable to set creature type`);
+      return;
+    }
     if (CONFIG.DND5E.creatureTypes[typeString as keyof typeof CONFIG.DND5E.creatureTypes]) {
-      this.npc.system.details.type.value = typeString;
+      type.value = typeString;
     } else {
-      this.npc.system.details.type.value = "Unknown";
+      type.value = "Unknown";
     }
   }
 
   _handleAlignment(alignment: string | undefined) {
-    if (alignment && alignment !== "") this.npc.system.details.alignment = alignment;
+    if (alignment && alignment !== "") {
+      const details = this.npc.system.details;
+      if (!details) {
+        logger.warn(`Companion ${this.npc.name} has no details, unable to set alignment`);
+        return;
+      }
+      details.alignment = alignment;
+    }
   }
 
   _handleSpeed(speedString: string) {
@@ -456,9 +498,10 @@ export default class DDBCompanionMixin {
     // 40 ft.; climb 40 ft. (Demon only); fly 60 ft. (Devil only)
     // 30 ft., fly 40 ft.
 
+    const subType = this.options.subType?.toLowerCase() ?? "";
     const onlyFiltered = speedString.split(/[;,]/).filter((speed) => {
       if (speed.toLowerCase().includes("only")) {
-        if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
+        if (speed.toLowerCase().includes(subType)) {
           return true;
         } else {
           return false;
@@ -478,44 +521,61 @@ export default class DDBCompanionMixin {
       speeds.push(...results);
     });
 
+    const movement = this.npc.system.attributes?.movement;
+    if (!movement) {
+      logger.warn(`Companion ${this.npc.name} has no movement attributes, unable to set speed`);
+      return;
+    }
     speeds.forEach((speed) => {
       const match = speed.match(/(\w+ )*(\d+)/i);
       if (match) {
         const type = (match[1]?.trim() ?? "walk") as I5eMovementType;
-        this.npc.system.attributes.movement[type] = `${match[2]}`;
-        if (speed.includes("hover")) this.npc.system.attributes.movement.hover = true;
+        movement[type] = `${match[2]}`;
+        if (speed.includes("hover")) movement.hover = true;
       }
     });
   }
 
   _handleLanguages(languagesString: string) {
     // loop back to add small chance they have non-custom language support
-    this.npc.system.traits.languages.custom = languagesString;
+    const languages = this.npc.system.traits?.languages;
+    if (!languages) {
+      logger.warn(`Companion ${this.npc.name} has no languages trait, unable to set languages`);
+      return;
+    }
+    languages.custom = languagesString;
   }
 
   _handleSenses(sensesString: string) {
     // darkvision 60 ft., passive Perception 10 + (PB &times; 2)
     // darkvision 60 ft., passive Perception 10 + (PB × 2)
+    const senses = this.npc.system.attributes?.senses;
+    const token = this.npc.prototypeToken;
+    if (!senses || !token) {
+      logger.warn(`Companion ${this.npc.name} is missing senses or token data, unable to set senses`);
+      return;
+    }
     sensesString.split(",").forEach((sense) => {
       const match = sense.match(/(darkvision|blindsight|tremorsense|truesight)\s+(\d+)/i);
 
       if (match) {
         const value = parseInt(match[2]);
-        const senses = this.npc.system.attributes.senses;
         senses.units = "ft";
         senses.ranges ??= {};
         senses.ranges[match[1].toLowerCase() as TSenseType] = value;
 
         const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
 
-        if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
-          foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
-          foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
-          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, foundry.utils.getProperty(CONFIG.Canvas.visionModes, `${senseType}.vision.defaults`) as object);
+        const sight = token.sight;
+        if (sight && value > 0 && sight.range !== undefined && value > sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          foundry.utils.setProperty(sight, "visionMode", senseType);
+          foundry.utils.setProperty(sight, "range", value);
+          token.sight = foundry.utils.mergeObject(sight, foundry.utils.getProperty(CONFIG.Canvas.visionModes, `${senseType}.vision.defaults`) as object);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
           const detectionModeId = DICTIONARY.detectionMap[match[1].toLowerCase()];
-          this.npc.prototypeToken.detectionModes[detectionModeId] = {
+          token.detectionModes ??= {};
+          token.detectionModes[detectionModeId] = {
             range: value,
             enabled: true,
           };
@@ -538,25 +598,45 @@ export default class DDBCompanionMixin {
     });
 
     // Condition Immunities charmed, exhaustion, frightened, incapacitated, paralyzed, petrified, poisoned
-    this.npc.system.traits.ci = {
+    const traits = this.npc.system.traits;
+    if (!traits) {
+      logger.warn(`Companion ${this.npc.name} has no traits, unable to set condition immunities`);
+      return;
+    }
+    traits.ci = {
       value: values,
       custom: custom.join("; "),
     };
   }
 
   _handleDamageImmunities(damageImmunitiesString: string) {
+    const traits = this.npc.system.traits;
+    if (!traits) {
+      logger.warn(`Companion ${this.npc.name} has no traits, unable to set damage immunities`);
+      return;
+    }
     const filtered = this.filterDamageConditions(damageImmunitiesString);
-    this.npc.system.traits.di = DDBCompanionMixin.getDamageAdjustments(filtered);
+    traits.di = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
   _handleDamageResistances(damageResistancesString: string) {
+    const traits = this.npc.system.traits;
+    if (!traits) {
+      logger.warn(`Companion ${this.npc.name} has no traits, unable to set damage resistances`);
+      return;
+    }
     const filtered = this.filterDamageConditions(damageResistancesString);
-    this.npc.system.traits.dr = DDBCompanionMixin.getDamageAdjustments(filtered);
+    traits.dr = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
   _handleDamageVulnerabilities(damageVulnerabilitiesString: string) {
+    const traits = this.npc.system.traits;
+    if (!traits) {
+      logger.warn(`Companion ${this.npc.name} has no traits, unable to set damage vulnerabilities`);
+      return;
+    }
     const filtered = this.filterDamageConditions(damageVulnerabilitiesString);
-    this.npc.system.traits.dv = DDBCompanionMixin.getDamageAdjustments(filtered);
+    traits.dv = DDBCompanionMixin.getDamageAdjustments(filtered);
   }
 
   _handleSkills(skillsString: string) {
@@ -587,25 +667,41 @@ export default class DDBCompanionMixin {
       return result;
     });
 
-    const keys = Object.keys(this.npc.system.skills);
+    const skills = this.npc.system.skills;
+    const abilities = this.npc.system.abilities;
+    if (!skills || !abilities) {
+      logger.warn(`Companion ${this.npc.name} is missing skills or abilities data, unable to parse skills`);
+      return;
+    }
+
+    const keys = Object.keys(skills);
     const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
     (keys as T5eSkillKey[])
       .filter((key) => validSkills.includes(key))
       .forEach((key) => {
-        const skill = this.npc.system.skills[key];
+        const skill = skills[key];
         const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
+        if (!lookupSkill) {
+          logger.warn(`Unable to find skill lookup for companion skill ${key}`);
+          return;
+        }
         const skillData = skillsMaps.find((skl) => skl.name == lookupSkill.label);
 
-        if (skillData) {
+        if (skillData && skillData.value !== undefined) {
           skill.value = skillData.expertise ? 2 : skillData.proficient ? 1 : 0;
-          const ability = this.npc.system.abilities[skill.ability];
-          const mod = CONFIG.DDB.statModifiers.find((s) => s.value == ability.value).modifier;
-          if (parseInt(String(mod)) !== parseInt(skillData.value.trim())) {
+          const ability = skill.ability ? abilities[skill.ability] : undefined;
+          const mod = ability
+            ? CONFIG.DDB.statModifiers.find((s) => s.value == ability.value)?.modifier
+            : undefined;
+          if (mod === undefined) {
+            logger.warn(`Unable to determine ability modifier for companion skill ${key}`);
+          } else if (parseInt(String(mod)) !== parseInt(skillData.value.trim())) {
+            skill.bonuses ??= {};
             skill.bonuses.check = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
             skill.bonuses.passive = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
           }
 
-          this.npc.system.skills[key] = skill;
+          skills[key] = skill;
         }
 
       });

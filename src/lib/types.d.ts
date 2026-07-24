@@ -172,9 +172,10 @@ global {
     id: number;
     name: string;
     dmUsername: string;
-    dateCreated: string;
-    playerCount: number;
-    dmId: number;
+    // null in the locally synthesised fallback entry when campaign fetch fails
+    dateCreated: string | null;
+    playerCount: number | null;
+    dmId: number | null;
     selected?: boolean;
   };
 

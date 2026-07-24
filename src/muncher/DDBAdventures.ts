@@ -67,7 +67,7 @@ export default class DDBAdventures {
    * that happens we fall back to `/proxy/library`, whose item `id` matches the
    * source id the primary endpoint returns, so it maps straight to bookIds.
    */
-  static async fetchOwnedBookIds({ cobalt = null }: { cobalt?: string | null } = {}): Promise<{ bookIds: number[] | null; enhancementBookIds: number[] | null }> {
+  static async fetchOwnedBookIds({ cobalt = null }: { cobalt?: string | null } = {}): Promise<{ bookIds: number[] | null; enhancementBookIds: number[] | null } | null> {
     const resolved = cobalt ?? Secrets.getCobalt();
     if (!resolved) return null;
 

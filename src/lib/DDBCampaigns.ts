@@ -8,7 +8,7 @@ import utils from "./Utils";
 export default class DDBCampaigns {
 
   static getCampaignId(notifier = null as ((msg: string, opts?: NotifierV1Props) => void) | null): string {
-    const campaignId = utils.getSetting<string>("campaign-id").split("/").pop();
+    const campaignId = utils.getSetting<string>("campaign-id").split("/").pop() ?? "";
 
     if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
       if (notifier) notifier(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, { nameField: true });
@@ -81,12 +81,13 @@ export default class DDBCampaigns {
       CONFIG.DDBI.CAMPAIGNS = campaigns;
     }
 
-    CONFIG.DDBI.CAMPAIGNS.forEach((campaign) => {
+    const availableCampaigns = CONFIG.DDBI.CAMPAIGNS ?? [];
+    availableCampaigns.forEach((campaign) => {
       const selected = parseInt(String(campaign.id)) === parseInt(campaignId);
       campaign.selected = selected;
     });
 
-    return CONFIG.DDBI.CAMPAIGNS;
+    return availableCampaigns;
   }
 
 }

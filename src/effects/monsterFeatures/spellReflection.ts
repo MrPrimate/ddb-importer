@@ -13,6 +13,7 @@ export async function spellReflectionEffect(document: I5eMonsterItem) {
     DDBMacros.generateOnUseMacroChange({ macroPass: "isSaveSuccess", macroType: "monsterFeature", macroName: "spellReflection.js", document }),
     DDBMacros.generateOnUseMacroChange({ macroPass: "isAttacked", macroType: "monsterFeature", macroName: "spellReflection.js", document }),
   );
+  document.effects ??= [];
   document.effects.push(effect);
 
   return document;

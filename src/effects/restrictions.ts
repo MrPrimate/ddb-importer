@@ -2,7 +2,7 @@ import { AutoEffects } from "../parser/enrichers/effects/_module";
 import { DDBMacros } from "../lib/_module";
 
 async function woundingWeaponEffect(document: I5eInventoryItem) {
-  const effect = AutoEffects.ItemEffect(document, document.name);
+  const effect = AutoEffects.ItemEffect(document, document.name) as TInitializedEffect;
 
   effect.transfer = false;
   effect.flags.dae.macroRepeat = "startEveryTurn";
@@ -15,6 +15,7 @@ async function woundingWeaponEffect(document: I5eInventoryItem) {
 
   await DDBMacros.setItemMacroFlag(document, "item", "wounding.js");
   effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "item", macroName: "wounding.js" }));
+  document.effects ??= [];
   document.effects.push(effect);
 
   return document;
@@ -24,6 +25,7 @@ async function lifeStealingEffect(document: I5eInventoryItem) {
   const effect = AutoEffects.ItemEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "item", "lifeStealing.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
+  document.effects ??= [];
   document.effects.push(effect);
   return document;
 }
@@ -221,7 +223,7 @@ export async function addRestrictionFlags(document: I5eInventoryItem, addEffects
       foundry.utils.setProperty(document, "flags.midi-qol.effectActivation", true);
     }
 
-    if (restriction.effect) {
+    if (restriction.effect && restriction.effectFunction) {
       document = await restriction.effectFunction(document);
     }
   }

@@ -41,7 +41,7 @@ interface ISourceFolderNameOptions {
   type?: string;
   noSourceNameOverride?: string | null;
   nameSuffix?: string;
-  flagSuffix?: string;
+  flagSuffix?: string | null;
   // flagSuffix?: string | number;
 }
 
@@ -55,7 +55,7 @@ interface ISourceFolderNameFromDocumentOptions {
   type?: string;
   noSourceNameOverride?: string | null;
   nameSuffix?: string;
-  flagSuffix?: string;
+  flagSuffix?: string | null;
   // flagSuffix?: string | number;
   // getFeatFolderName passes a stray `suffix` argument that is never destructured
   suffix?: string;
@@ -158,7 +158,10 @@ export class DDBCompendiumFolders {
       this.packName = await CompendiumHelper.getCompendiumLabel(type);
       this.entityType = this.entityTypes.get(type) as TCompendiumEntityType;
     }
-    this.compendium = CompendiumHelper.getCompendium(this.packName);
+    if (!this.packName) throw new Error(`Unable to load compendium for ${this.type}, no pack name is set`);
+    const compendium = CompendiumHelper.getCompendium(this.packName);
+    if (!compendium) throw new Error(`Unable to load compendium ${this.packName}`);
+    this.compendium = compendium;
     if (!noCreate) await this.createCompendiumFolders();
   }
 
@@ -181,6 +184,7 @@ export class DDBCompendiumFolders {
   }
 
   async createCreatureTypeFolder({ categoryFolderKey = undefined, categoryFolderId = undefined, monsterType }: ICreatureTypeFolderOptions = {}) {
+    if (!monsterType) throw new Error("createCreatureTypeFolder requires a monsterType");
     const flagTag = categoryFolderId
       ? DDBCompendiumFolders.getSourceCategoryFolderName({
         categoryId: categoryFolderKey,
@@ -273,7 +277,7 @@ export class DDBCompendiumFolders {
   }
 
   static getChallengeRatingFolderNameForTypeSourceCategory(document: I5eMonsterData) {
-    const paddedCR = String(document.system.details.cr ?? "0").padStart(2, "0");
+    const paddedCR = String(document.system.details?.cr ?? "0").padStart(2, "0");
 
     const result = DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "monster",
@@ -360,6 +364,7 @@ export class DDBCompendiumFolders {
   }
 
   async createSpellLevelFolder({ levelName, categoryFolderKey = undefined, categoryFolderId = undefined }: ISpellLevelFolderOptions = {}) {
+    if (!levelName) throw new Error("createSpellLevelFolder requires a levelName");
     logger.debug(`Checking for folder '${levelName}'`);
     const flagTag = categoryFolderId
       ? DDBCompendiumFolders.getSourceCategoryFolderName({
@@ -468,13 +473,17 @@ export class DDBCompendiumFolders {
   }
 
   async generateFolderFromData({ sourceKey = "", parentKeyData, parentKey, flagPrefix = "", data }: IGenerateFolderFromDataOptions = {}) {
+    if (!data || !parentKeyData) {
+      logger.warn("generateFolderFromData called without data or parentKeyData", { data, parentKeyData, parentKey });
+      return;
+    }
     const sourceKeyFlagPrefix = sourceKey !== "" && !sourceKey.endsWith("/")
       ? `${sourceKey}/`
       : sourceKey;
     const parentKeyFlagPrefix = flagPrefix !== "" && !flagPrefix.endsWith("/")
       ? `${flagPrefix}/`
       : flagPrefix;
-    for (const [key, folderData] of Object.entries(data.subFolders)) {
+    for (const [key, folderData] of Object.entries(data.subFolders ?? {})) {
       const flagTag = `${sourceKeyFlagPrefix}${parentKeyFlagPrefix}${key}/${folderData.folderName}`;
       logger.debug(`Checking for folder '${folderData.folderName}' with key '${key}' with parent key '${parentKey}' and flag tag '${flagTag}'`);
 
@@ -557,6 +566,7 @@ export class DDBCompendiumFolders {
     createSubFolder = false,
     subFolderName, subKey, flagList, subFolderColor,
   }: IItemTypeFolderOptions = {}) {
+    if (!folderName) throw new Error("createItemTypeCompendiumFolder requires a folderName");
     logger.debug(`Checking for root folder '${folderName}' with key '${type}'`);
     const flagTag = categoryFolderId
       ? DDBCompendiumFolders.getSourceCategoryFolderName({
@@ -579,6 +589,7 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(folder._id);
 
     if (!createSubFolder) return;
+    if (!subFolderName) throw new Error("createItemTypeCompendiumFolder requires a subFolderName when creating a sub folder");
     logger.debug(`Checking for ${categoryId}, ${flagTag} sub folder '${subFolderName}' with key '${subKey}'`);
 
     const subFlagTag = `${flagTag}/${subKey}`;
@@ -1158,7 +1169,7 @@ export class DDBCompendiumFolders {
     const parsed = {
       name: typeFolderRoot?.folderName
         ?? "Unknown",
-      type: document.type || "tattoo",
+      type: (document.type as string) || "tattoo",
       suffix: null as string | null,
       // suffix: null as string | number | null,
       color: typeFolderRoot?.color ?? null,
@@ -1173,7 +1184,7 @@ export class DDBCompendiumFolders {
     if (typeFolderRoot?.subFolders?.[ddbTypeId]) {
       subTypeFolder = typeFolderRoot.subFolders[ddbTypeId];
       parsed.suffix = ddbTypeId;
-    } else if (typeFolderRoot?.subFolders?.[systemType]) {
+    } else if (systemType && typeFolderRoot?.subFolders?.[systemType]) {
       subTypeFolder = typeFolderRoot.subFolders[systemType];
       parsed.suffix = systemType;
     }
@@ -1191,22 +1202,30 @@ export class DDBCompendiumFolders {
 
     if (document.type === "equipment" && systemType === "trinket") {
       const isContainer = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
-      if (isContainer) {
-        parsed.name = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders["container"].subFolders[ddbTypeId].folderName;
+      const containerFolder = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders["container"];
+      const containerSubFolder = containerFolder?.subFolders?.[ddbTypeId];
+      if (isContainer && containerSubFolder) {
+        parsed.name = containerSubFolder.folderName;
         // parsed.suffix = utils.idString(parsed.name).toLowerCase();
         parsed.suffix = ddbTypeId;
         parsed.type = "container";
-        parsed.parentFolderName = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders["container"].folderName;
+        parsed.parentFolderName = containerFolder.folderName;
       }
     } else if (document.type === "tool") {
-      const instrument = document.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
-      const ddbTypes = ["art", "music", "game"].includes(systemType);
+      const instrument = document.flags?.ddbimporter?.dndbeyond?.tags?.includes("Instrument");
+      const ddbTypes = systemType !== undefined && ["art", "music", "game"].includes(systemType);
       if (instrument) {
-        parsed.name = typeFolderRoot.subFolders["music"].folderName;
-        parsed.suffix = "music";
-      } else if (ddbTypes) {
-        parsed.name = typeFolderRoot.subFolders[systemType].folderName;
-        parsed.suffix = systemType;
+        const musicFolder = typeFolderRoot?.subFolders?.["music"];
+        if (musicFolder) {
+          parsed.name = musicFolder.folderName;
+          parsed.suffix = "music";
+        }
+      } else if (ddbTypes && systemType) {
+        const systemTypeFolder = typeFolderRoot?.subFolders?.[systemType];
+        if (systemTypeFolder) {
+          parsed.name = systemTypeFolder.folderName;
+          parsed.suffix = systemType;
+        }
       }
     } else if (document.type === "consumable") {
       if (document.system.type?.value === "ammo") {
@@ -1389,7 +1408,7 @@ export class DDBCompendiumFolders {
 
     const nameSuffix = fullRaceName === groupName
       || isLineage
-      || [26, 24, 35].includes(resolvedCategoryId)
+      || (resolvedCategoryId !== undefined && [26, 24, 35].includes(resolvedCategoryId))
       ? "Traits"
       : `${fullRaceName} Traits`;
 
@@ -1420,8 +1439,9 @@ export class DDBCompendiumFolders {
 
 
   getSummonFolderName(document: I5eMonsterData) {
+    // name is always assigned below
     const result = {
-      name: undefined as string | undefined,
+      name: "",
       flagTag: "",
     };
 
@@ -1459,8 +1479,9 @@ export class DDBCompendiumFolders {
   static getSourceCategoryFolderName({
     categoryId, bookCode, isLegacy = false, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "",
   }: ISourceCategoryFolderNameOptions = {}) {
+    // name is always assigned by one of the branches below
     const result = {
-      name: undefined as string | undefined,
+      name: "Unknown",
       flagTag: "",
       parent: false,
       bookCode,
@@ -1484,14 +1505,13 @@ export class DDBCompendiumFolders {
     }
 
     const categoryData = CONFIG.DDB.sourceCategories.find((c) => c.id === resolvedCategoryId);
-    const categoryName = categoryData?.name;
 
-    if (categoryName) {
-      result.color = DICTIONARY.COMPENDIUM_FOLDERS.SOURCE_CATEGORY_FOLDERS[resolvedCategoryId]?.color ?? "";
-      result.name = nameSuffix === "" ? categoryName : nameSuffix;
+    if (categoryData?.name) {
+      result.color = DICTIONARY.COMPENDIUM_FOLDERS.SOURCE_CATEGORY_FOLDERS[categoryData.id]?.color ?? "";
+      result.name = nameSuffix === "" ? categoryData.name : nameSuffix;
       result.flagTag = `${type}/${resolvedCategoryId}${suffix}`;
       result.parent = true;
-      result.categoryName = categoryName;
+      result.categoryName = categoryData.name;
     } else {
       const name = noSourceNameOverride ?? (isLegacy ? "Legacy" : "Unknown");
       result.name = name;
@@ -1507,8 +1527,8 @@ export class DDBCompendiumFolders {
   static getSourceCategoryFolderNameFromDocument({
     document, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "",
   }: ISourceFolderNameFromDocumentOptions = {}) {
-    const source = foundry.utils.getProperty(document, "system.source.book") as string ?? "Unknown";
-    const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy") as boolean;
+    const source = foundry.utils.getProperty(document ?? {}, "system.source.book") as string ?? "Unknown";
+    const legacy = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.legacy") as boolean;
 
     return DDBCompendiumFolders.getSourceCategoryFolderName({
       bookCode: source,
@@ -1521,8 +1541,9 @@ export class DDBCompendiumFolders {
   }
 
   static getSourceFolderName({ bookCode, isLegacy = false, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "" }: ISourceFolderNameOptions = {}) {
+    // name is always assigned by one of the branches below
     const result = {
-      name: undefined as string | undefined,
+      name: "Unknown",
       flagTag: "",
       parent: false,
       bookCode,
@@ -1553,8 +1574,8 @@ export class DDBCompendiumFolders {
   static getSourceFolderNameFromDocument({
     document, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "",
   }: ISourceFolderNameFromDocumentOptions = {}) {
-    const source = foundry.utils.getProperty(document, "system.source.book") as string;
-    const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy") as boolean;
+    const source = foundry.utils.getProperty(document ?? {}, "system.source.book") as string;
+    const legacy = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.legacy") as boolean;
 
     return DDBCompendiumFolders.getSourceFolderName({
       bookCode: source,
@@ -1681,8 +1702,9 @@ export class DDBCompendiumFolders {
             break;
           }
           case "CR": {
-            if (monster.system.details.cr !== undefined) {
-              const paddedCR = String(monster.system.details.cr).padStart(2, "0");
+            const cr = monster.system.details?.cr;
+            if (cr !== undefined) {
+              const paddedCR = String(cr).padStart(2, "0");
               data = {
                 name: `CR ${paddedCR}`,
                 flagTag: "",
@@ -1704,8 +1726,9 @@ export class DDBCompendiumFolders {
         switch (this.compendiumFolderTypeSpell) {
           case "SCHOOL": {
             const school = spell.system?.school;
-            if (school) {
-              data = utils.capitalize(DICTIONARY.spell.schools.find((sch) => school == sch.id).name);
+            const schoolData = school ? DICTIONARY.spell.schools.find((sch) => school == sch.id) : undefined;
+            if (schoolData) {
+              data = utils.capitalize(schoolData.name);
             }
             break;
           }
@@ -1950,7 +1973,8 @@ export class DDBCompendiumFolders {
 
     const results: { _id: string; folder: string }[] = [];
     for (const i of index) {
-      const folderId = this.getFolderId(i);
+      // index entries carry the fields getCompendiumFolderData reads, fvtt-types cannot express this
+      const folderId = this.getFolderId(i as unknown as T5eCompendiumDocuments);
       if (folderId) {
         results.push({
           _id: i._id,

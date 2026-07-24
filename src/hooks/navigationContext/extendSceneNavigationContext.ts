@@ -9,7 +9,8 @@ function getSceneId(li: HTMLLIElement): string {
   return $(li).attr("data-entry-id")
     ?? $(li).attr("data-document-id")
     ?? $(li).attr("data-scene-id")
-    ?? $(li).attr("data-entity-id");
+    ?? $(li).attr("data-entity-id")
+    ?? "";
 }
 
 export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOptions: Record<string, any>[]) {
@@ -17,11 +18,14 @@ export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOption
     name: "ddb-importer.scenes.download",
     callback: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
-      const data = collectSceneData(scene, scene.flags.ddb.bookCode);
-      const bookCode = `${scene.flags.ddb.bookCode}-${scene.flags.ddb.ddbId}`;
-      const cobaltId = scene.flags.ddb?.cobaltId ? `-${scene.flags.ddb.cobaltId}` : "";
-      const parentId = scene.flags.ddb?.parentId ? `-${scene.flags.ddb.parentId}` : "";
-      const contentChunkId = scene.flags.ddb?.contentChunkId ? `-${scene.flags.ddb.contentChunkId}` : "";
+      const ddbFlags = scene.flags.ddb;
+      // the condition below only offers this entry for scenes with ddb flags
+      if (!ddbFlags?.bookCode) return undefined;
+      const data = collectSceneData(scene, ddbFlags.bookCode);
+      const bookCode = `${ddbFlags.bookCode}-${ddbFlags.ddbId}`;
+      const cobaltId = ddbFlags.cobaltId ? `-${ddbFlags.cobaltId}` : "";
+      const parentId = ddbFlags.parentId ? `-${ddbFlags.parentId}` : "";
+      const contentChunkId = ddbFlags.contentChunkId ? `-${ddbFlags.contentChunkId}` : "";
       const name = (scene.name as string).replace(/[^a-z0-9_-]/gi, "").toLowerCase();
       const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
       return FileHelper.download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
@@ -29,7 +33,7 @@ export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOption
     condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = utils.getSetting<boolean>("allow-scene-download");
-      const allowDownload = game.user.isGM && sceneDownload && scene.flags?.ddb?.ddbId;
+      const allowDownload = game.user.isGM && sceneDownload && scene?.flags?.ddb?.ddbId;
       return allowDownload;
     },
     icon: "<i class=\"fas fa-share-alt\"></i>",
@@ -45,7 +49,7 @@ export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOption
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = utils.getSetting<boolean>("allow-third-party-scene-download")
         || utils.getSetting<boolean>("developer-mode");
-      const allowDownload = game.user.isGM && sceneDownload && !scene.flags?.ddb?.ddbId;
+      const allowDownload = game.user.isGM && sceneDownload && !scene?.flags?.ddb?.ddbId;
       return allowDownload;
     },
     icon: "<i class=\"fas fa-share-alt\"></i>",

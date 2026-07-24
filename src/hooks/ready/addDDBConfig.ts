@@ -63,14 +63,14 @@ function addLanguages() {
 
   const ddbFiltered = filterLanguages(ddbRaw);
 
-  CONFIG.DND5E.languages.ddb = {
+  const ddbLanguages = {
     label: "D&D Beyond Rare Languages",
-    children: {
-    },
+    children: {} as Record<string, string>,
     selectable: false,
   };
+  CONFIG.DND5E.languages.ddb = ddbLanguages;
   ddbFiltered.forEach((lang) => {
-    CONFIG.DND5E.languages.ddb.children[lang.value] = lang.name;
+    ddbLanguages.children[lang.value] = lang.name;
     DICTIONARY.actor.languages.push({
       name: lang.name,
       value: lang.value,

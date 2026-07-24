@@ -33,7 +33,8 @@ import DDBAdventureBrowser from "./DDBAdventureBrowser";
 
 
 interface IDDBMuncherContext extends
-  DeepPartial<foundry.applications.api.Application.RenderContext>,
+  // tabs is redeclared below with the project's IDDBTabs shape
+  Omit<DeepPartial<foundry.applications.api.Application.RenderContext>, "tabs">,
   IMuncherSettings,
   ICharacterImportSettings,
   IEncounterSettings {
@@ -85,7 +86,7 @@ export default class DDBMuncher extends DDBAppV2 {
   searchTermSpell = "";
   muleURL = "";
   characterId: string | null = null;
-  actor: Actor.Implementation | null = null;
+  actor: TImporterActor | null = null;
   encounterFactory: DDBEncounterFactory;
 
 
@@ -461,6 +462,7 @@ export default class DDBMuncher extends DDBAppV2 {
         }</option>\n`;
       });
       const list = this.element.querySelector("#encounter-select");
+      if (!list) return;
       list.innerHTML = encounterList;
       this.resetEncounter();
     });
@@ -708,7 +710,7 @@ export default class DDBMuncher extends DDBAppV2 {
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
       });
-      const result = await monsterFactory.processIntoCompendium(null, this.searchTermMonster);
+      const result = await monsterFactory.processIntoCompendium(undefined, this.searchTermMonster);
       this.notifier(`Finished importing ${result} monsters!`, { nameField: true });
       this.notifier("");
     } catch (error) {
@@ -726,7 +728,7 @@ export default class DDBMuncher extends DDBAppV2 {
       const vehicleFactory = new DDBVehicleFactory({
         notifier: this.notifier.bind(this),
       });
-      const result = await vehicleFactory.processIntoCompendium(null, this.searchTermMonster);
+      const result = await vehicleFactory.processIntoCompendium(undefined, this.searchTermMonster);
       this.notifier(`Finished importing ${result} vehicles!`, { nameField: true });
       this.notifier("");
     } catch (error) {
@@ -818,16 +820,20 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew }: {
-    baseOptions?: IDDBMuleHandlerOptions;
-    classList?: IDDBMuleClassDefinition[];
+    baseOptions: IDDBMuleHandlerOptions;
+    classList: IDDBMuleClassDefinition[];
     onlyHomebrew?: boolean;
-  } = {}) {
+  }) {
     logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
     });
     const options = foundry.utils.deepClone(baseOptions);
     for (const classId of this.homebrewClasses) {
       const klass = classList.find((c) => c.id === classId);
+      if (!klass) {
+        logger.warn(`Homebrew class ${classId} not found in class list, skipping`, { classList });
+        continue;
+      }
       const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
       logger.debug("Munching homebrew subclasses for class", {
         classId,
@@ -886,11 +892,11 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections }: {
-    sourceIdArrays?: { categoryId: number; sourceIds: number[] }[];
-    baseOptions?: IDDBMuleHandlerOptions;
-    classList?: IDDBMuleClassDefinition[];
+    sourceIdArrays: { categoryId: number; sourceIds: number[] }[];
+    baseOptions: IDDBMuleHandlerOptions;
+    classList: IDDBMuleClassDefinition[];
     subclassSelections?: Record<string, number[]>;
-  } = {}) {
+  }) {
     for (const sourceIdArray of sourceIdArrays) {
       const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
       const options = foundry.utils.deepClone(baseOptions);
@@ -955,12 +961,18 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   async _parseClassesWithMule() {
+    // callers check this, guard here so the id stays narrowed across awaits
+    const characterId = this.characterId;
+    if (!characterId) {
+      ui.notifications.error("You must enter a valid D&D Beyond character URL to import classes.");
+      return;
+    }
     this.autoRotateMessage("class");
     // prepare sources to munch from
     const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     const baseOptions: IDDBMuleHandlerOptions = {
-      characterId: this.characterId,
+      characterId,
       homebrew: false,
       onlyHomebrew: false,
       type: "class",
@@ -1003,7 +1015,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     try {
       // determine campaign id for the character to fetch appropriate subclass list
-      const slimData = await DDBMuleHandler.getSlimCharacters([this.characterId]);
+      const slimData = await DDBMuleHandler.getSlimCharacters([characterId]);
       const campaignId = slimData && slimData.length > 0 ? slimData[0]?.campaign?.id : null;
 
       // generate subclasses to parse (parallel, using the cached helper)
@@ -1244,8 +1256,13 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Generating adventure config!");
       this._disableButtons();
 
+      const importFile = this.element.querySelector<HTMLInputElement>(`#munch-adventure-file`)?.files?.[0];
+      if (!importFile) {
+        throw new Error("No adventure file selected");
+      }
+
       const adventureMuncher = new AdventureMunch({
-        importFile: this.element.querySelector<HTMLInputElement>(`#munch-adventure-file`).files[0],
+        importFile,
         notifierV2: this.notifierV2.bind(this),
       });
 
@@ -1353,37 +1370,45 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   resetEncounter() {
-    const nameHtml = this.element.querySelector("#ddb-encounter-name");
-    const summaryHtml = this.element.querySelector("#ddb-encounter-summary");
-    const charactersHtml = this.element.querySelector("#ddb-encounter-characters");
-    const monstersHtml = this.element.querySelector("#ddb-encounter-monsters");
-    const difficultyHtml = this.element.querySelector("#ddb-encounter-difficulty");
-    const rewardsHtml = this.element.querySelector("#ddb-encounter-rewards");
-    const progressHtml = this.element.querySelector("#ddb-encounter-progress");
+    // encounter elements are only present when the encounter tab has rendered
+    const setHtml = (selector: string, html: string) => {
+      const element = this.element.querySelector(selector);
+      if (element) element.innerHTML = html;
+    };
 
-    nameHtml.innerHTML = `<p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>`;
-    summaryHtml.innerHTML = `<p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>`;
-    charactersHtml.innerHTML = `<p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>`;
-    monstersHtml.innerHTML = `<p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>`;
-    difficultyHtml.innerHTML = `<p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>`;
-    rewardsHtml.innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
-    progressHtml.innerHTML = `<p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>`;
+    setHtml("#ddb-encounter-name", `<p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>`);
+    setHtml("#ddb-encounter-summary", `<p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>`);
+    setHtml("#ddb-encounter-characters", `<p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>`);
+    setHtml("#ddb-encounter-monsters", `<p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>`);
+    setHtml("#ddb-encounter-difficulty", `<p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>`);
+    setHtml("#ddb-encounter-rewards", `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`);
+    setHtml("#ddb-encounter-progress", `<p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>`);
 
     const importButton = this.element.querySelector<HTMLButtonElement>("#encounter-button");
-    importButton.disabled = true;
-    importButton.innerText = "Import Encounter";
+    if (importButton) {
+      importButton.disabled = true;
+      importButton.innerText = "Import Encounter";
+    }
 
     // $("#ddb-importer-encounters").css("height", "auto");
-    this.element.querySelector<HTMLInputElement>("#encounter-import-policy-use-ddb-save").disabled = true;
+    const useDDBSave = this.element.querySelector<HTMLInputElement>("#encounter-import-policy-use-ddb-save");
+    if (useDDBSave) useDDBSave.disabled = true;
 
     this.encounterFactory.resetEncounters();
   }
 
   static async importEncounter(this: DDBMuncher, _event: any, _target: any) {
 
-    const img = this.element.querySelector<HTMLSelectElement>("#encounter-scene-img-select").value;
-    const sceneId = this.element.querySelector<HTMLSelectElement>("#encounter-scene-select").value;
-    const id = this.element.querySelector<HTMLSelectElement>("#encounter-select").value;
+    const imgSelect = this.element.querySelector<HTMLSelectElement>("#encounter-scene-img-select");
+    const sceneSelect = this.element.querySelector<HTMLSelectElement>("#encounter-scene-select");
+    const encounterSelect = this.element.querySelector<HTMLSelectElement>("#encounter-select");
+    if (!imgSelect || !sceneSelect || !encounterSelect) {
+      logger.warn("DDBMuncher: encounter import selectors missing, aborting import");
+      return;
+    }
+    const img = imgSelect.value;
+    const sceneId = sceneSelect.value;
+    const id = encounterSelect.value;
 
     // console.warn("Munching encounter!", {
     //   encounterFactory: this.encounterFactory,
@@ -1440,6 +1465,7 @@ export default class DDBMuncher extends DDBAppV2 {
     this.getCharacterId(URL);
 
     const status = this.element.querySelector<HTMLElement>(".ddb-muncher .dndbeyond-url-status i");
+    if (!status) return;
 
     if (URL === "") {
       status.classList.remove("fa-exclamation-triangle");

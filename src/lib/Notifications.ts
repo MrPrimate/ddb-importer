@@ -13,7 +13,7 @@ export const NOTIFICATION_API = {
   show: (message: string, timeout = 4000) => {
     $("#ddbimporter-notifications").css("left", $("#players").css("left"));
     // prettier-ignore
-    $("#ddbimporter-notifications").css("bottom", $("#players").height() + (2 * MARGIN));
+    $("#ddbimporter-notifications").css("bottom", ($("#players").height() ?? 0) + (2 * MARGIN));
 
     const note = $(`<div style="display: none"></div>`).append(message);
     $("#ddbimporter-notifications").append(note);
@@ -70,12 +70,12 @@ export const HINT_API = {
 
       if (options.element) {
         anchor = Object.assign(
-          { width: $(options.element).width(), height: $(options.element).height() },
-          $(options.element).offset(),
+          { width: $(options.element).width() ?? 0, height: $(options.element).height() ?? 0 },
+          $(options.element).offset() ?? { top: anchor.top, left: anchor.left },
         );
       }
       const noteInfo = Object.assign(
-        { width: $("#ddbimporter-hints").width(), height: $("#ddbimporter-hints").height() },
+        { width: $("#ddbimporter-hints").width() ?? 0, height: $("#ddbimporter-hints").height() ?? 0 },
         $("#ddbimporter-hints").position(),
       );
 

@@ -26,12 +26,12 @@ export default class NameMatcher {
     looseNames.add(name.toLowerCase());
     looseNames.add(name.replace(",", "").toLowerCase());
     const refactNameArray = name.split("(")[0].trim().split(", ");
-    refactNameArray.unshift(refactNameArray.pop());
+    refactNameArray.unshift(refactNameArray.pop()!);
     const refactName = refactNameArray.join(" ").trim();
     looseNames.add(refactName.toLowerCase());
 
     const deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
-    deconNameArray.unshift(deconNameArray.pop());
+    deconNameArray.unshift(deconNameArray.pop()!);
     const deconName = deconNameArray.join(" ").trim();
     looseNames.add(deconName.toLowerCase());
 
@@ -78,7 +78,7 @@ export default class NameMatcher {
         .split("(")[0]
         .trim()
         .split(", ");
-      refactNamePlusArray.unshift(refactNamePlusArray.pop());
+      refactNamePlusArray.unshift(refactNamePlusArray.pop()!);
       const refactNamePlus = refactNamePlusArray.join(" ").trim();
       looseNames.add(refactNamePlus.toLowerCase());
       looseNames.add(
@@ -148,7 +148,7 @@ export default class NameMatcher {
         .replace(/(.*)\s+(\+\d*)\s*/, "$2 $1")
         .trim()
         .toLowerCase();
-      matchingItem = items.find((matchItem) => [magicName, magicName2].includes(matchItem.name.trim().toLowerCase()));
+      matchingItem = items.find((matchItem) => [magicName, magicName2].includes(matchItem.name?.trim().toLowerCase() ?? ""));
     }
 
     if (!matchingItem && loose) {

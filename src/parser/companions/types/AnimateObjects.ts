@@ -90,7 +90,7 @@ export async function getAnimateObjects2014({
         "ac.flat": 15,
       },
       img: data.img ?? "icons/sundries/books/book-clasp-spiral-green.webp",
-    });
+    }) as I5eMonsterData;
 
     const text = raw.split("Slam.").pop();
     const action = `<p><em><strong>Slam.</strong></em> ${text}</p>`;

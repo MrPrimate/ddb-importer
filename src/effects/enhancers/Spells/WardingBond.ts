@@ -1,4 +1,5 @@
 import DDBEffectHelper from "../../DDBEffectHelper";
+import { logger } from "../../../lib/_module";
 
 interface IWardingBondTargetFlag {
   targetID?: string;
@@ -18,8 +19,12 @@ export default class WardingBond {
     targetUuid, actor, originUuid,
   }: { targetUuid: string; actor: Actor.Implementation; originUuid: string }) {
     const targetActor = await fromUuid(targetUuid) as unknown as Actor.Implementation;
-    const effectsToDelete = actor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid)
-      .concat(targetActor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid));
+    const effectsToDelete = actor.effects
+      .filter((e: ActiveEffect.Implementation) => e.origin === originUuid)
+      .map((t: ActiveEffect.Implementation) => t.uuid)
+      .concat(targetActor.effects
+        .filter((e: ActiveEffect.Implementation) => e.origin === originUuid)
+        .map((t: ActiveEffect.Implementation) => t.uuid));
 
     await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
       effectsToDelete,
@@ -38,12 +43,12 @@ export default class WardingBond {
   }
 
   static async checkEffects({ targetActor, casterActor, originUuid }: {
-    targetActor?: Actor.Implementation;
-    casterActor?: Actor.Implementation;
+    targetActor: Actor.Implementation;
+    casterActor: Actor.Implementation;
     originUuid?: string;
-  } = {}) {
-    const targetEffect = targetActor.effects.find((e) => e.origin === originUuid);
-    const casterEffect = casterActor.effects.find((e) => e.origin === originUuid);
+  }) {
+    const targetEffect = targetActor.effects.find((e: ActiveEffect.Implementation) => e.origin === originUuid);
+    const casterEffect = casterActor.effects.find((e: ActiveEffect.Implementation) => e.origin === originUuid);
 
     if (targetEffect && casterEffect) return true;
 
@@ -85,6 +90,10 @@ export default class WardingBond {
 
     // damage applied to caster, evaluate if warding bond remains in effect
     if (casterFlag && subject.id === casterFlag.casterID && newHP <= 0) {
+      if (!casterFlag.targetUuid || !casterFlag.originUuid) {
+        logger.warn("Warding Bond caster flag is missing target or origin uuid", { casterFlag });
+        return true;
+      }
       const targetActor = await fromUuid(casterFlag.targetUuid) as Actor.Implementation;
       const matchingEffects = await this.checkEffects({ targetActor, casterActor: subject, originUuid: casterFlag.originUuid });
       if (!matchingEffects) return true;
@@ -99,6 +108,10 @@ export default class WardingBond {
 
     // damage applied to target, roll against caster
     if (targetFlag && Number.isInteger(hpChange) && hpChange > 0) {
+      if (!targetFlag.casterUuid) {
+        logger.warn("Warding Bond target flag is missing caster uuid", { targetFlag });
+        return true;
+      }
       const casterActor = await fromUuid(targetFlag.casterUuid) as Actor.Implementation;
       const matchingEffects = await this.checkEffects({ targetActor: subject, casterActor, originUuid: targetFlag.originUuid });
       if (!matchingEffects) return true;

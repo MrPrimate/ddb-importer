@@ -15,6 +15,7 @@ export async function favoredFoeEffect(document: I5eFeatItem): Promise<I5eFeatIt
   );
   effect.duration.value = 60;
   effect.duration.units = "seconds";
+  document.effects ??= [];
   document.effects.push(effect);
 
   const damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });

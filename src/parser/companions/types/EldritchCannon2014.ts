@@ -109,7 +109,7 @@ export async function getEldritchCannons2014({
     let stub = foundry.utils.deepClone(cannonStub);
 
     stub.name = `${cannon.name}`;
-    stub.prototypeToken.name = `${cannon.name}`;
+    foundry.utils.setProperty(stub, "prototypeToken.name", `${cannon.name}`);
 
     const actionText = actionData.find((a) => cannon.name.includes(a.name))?.content ?? "";
     const description = `<p><em><strong>${cannon.name}.</strong></em> ${actionText}`;

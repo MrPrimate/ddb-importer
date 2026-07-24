@@ -43,7 +43,7 @@ async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, docum
     : null;
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
     new DDBAdventureFlags(document, {}).render(true);
-  } else if (event.shiftKey) {
+  } else if (event.shiftKey && url) {
     event.preventDefault();
     return renderPopup("web", url);
   } else if (event.altKey && jsonURL) {
@@ -51,7 +51,7 @@ async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, docum
     return renderPopup("json", jsonURL);
   } else if (event.altKey && !jsonURL) {
     // get the character ID
-    const characterId = url.split("/").pop();
+    const characterId = url?.split("/").pop();
     if (characterId) {
       event.preventDefault();
       return renderPopup("json", API_ENDPOINT + characterId);
@@ -69,7 +69,7 @@ async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, docum
             actor: actor,
           }).render({ force: true });
         }, 10000);
-        const checkCobalt = await Secrets.checkCobalt(actor.id);
+        const checkCobalt = await Secrets.checkCobalt(actor.id ?? undefined);
         clearTimeout(timeout);
         if (checkCobalt.success) {
           callDDBCharacterManager(actor);

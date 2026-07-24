@@ -57,11 +57,12 @@ export default class MacroActivity extends BaseMacroActivity {
 
   async _executeDDBMacro(targetUuids: string[] = []) {
 
+    // DDBSimpleMacro.execute treats absent ids by truthiness, so undefined is equivalent to null here
     const ids = {
-      effect: null as string | null,
-      actor: this.actor.uuid,
-      token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
-      item: this.item.uuid,
+      effect: undefined as string | undefined,
+      actor: this.actor?.uuid ?? undefined,
+      token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : undefined,
+      item: this.item.uuid ?? undefined,
       origin: this.uuid,
     };
     const context = {};

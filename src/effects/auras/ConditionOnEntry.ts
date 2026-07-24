@@ -13,6 +13,11 @@ export default async function conditionOnEntry({
   args, scope, workflow,
 }: IMidiMacroFunctionContext = {}) {
 
+  if (!args || !item) {
+    logger.warn("conditionOnEntry: missing expected midi macro context", { args, item });
+    return args;
+  }
+
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras", "ddb-importer", "midi-qol"]);
 
   const flags = (foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {}) as IDDBImporterFlagsEffect;

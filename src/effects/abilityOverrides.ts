@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../config/_module";
 import { generateOverrideChange } from "./effects";
 
-function buildBaseOverrideEffect(label: string): I5eEffectData {
-  const effect: I5eEffectData = {
+function buildBaseOverrideEffect(label: string): TInitializedEffect {
+  const effect: TInitializedEffect = {
     system: {
       changes: [],
     },

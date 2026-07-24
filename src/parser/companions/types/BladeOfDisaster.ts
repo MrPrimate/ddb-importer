@@ -38,7 +38,7 @@ export async function getBladeOfDisaster({
       },
     },
     img: "icons/skills/melee/strike-sword-blood-red.webp",
-  });
+  }) as I5eMonsterData;
 
   const action = `<p><em><strong>Move and Attack.</strong></em> ${raw}</p>`;
 

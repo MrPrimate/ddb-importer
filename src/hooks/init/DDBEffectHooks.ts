@@ -11,6 +11,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.attributes.movement.climb":
     case "system.attributes.movement.burrow":
     case "system.attributes.movement.swim": {
+      if (change.value == null) return true;
       const rollData = actor.getRollData();
       const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
@@ -31,6 +32,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
       foundry.utils.setProperty(actor, "system.traits.languages.value", ["standard:*", "exotic:*", "ddb:*"]);
       return true;
     case "system.traits.languages.communication.telepathy.value": {
+      if (change.value == null) return true;
       const rollData = actor.getRollData();
       const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
@@ -38,6 +40,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
       return true;
     }
     case "system.attributes.movement.all": {
+      if (change.value == null) return true;
       if (!("attributes" in actor.system)) break;
       const movement = actor.system.attributes.movement;
       let op = "";
@@ -95,7 +98,18 @@ export default class DDBEffectHooks {
     // special effect functions
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
-      Hooks.on("applyActiveEffect", daeStubEffects);
+      // the hook types the actor as Actor5e with optional flags; TImporterActor requires flags
+      // but daeStubEffects never reads them, so the cast is safe
+      Hooks.on(
+        "applyActiveEffect",
+        daeStubEffects as unknown as (
+          actor: Actor.Implementation,
+          change: IActiveEffectChangeData,
+          current: unknown,
+          delta: unknown,
+          changes: unknown,
+        ) => boolean,
+      );
     }
   }
 

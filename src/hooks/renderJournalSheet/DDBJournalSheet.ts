@@ -38,6 +38,7 @@ class DDBJournalSheet extends JournalEntrySheet5eBase {
         event.preventDefault();
         event.stopPropagation();
         const src = element.getAttribute("src");
+        if (!src) return;
         Dialog.confirm({
           title: "Would you like to create a handout for the image?",
           content: "<p>Create a player viewable handout? (No will show the image only)</p>",
@@ -59,13 +60,16 @@ class DDBJournalSheet extends JournalEntrySheet5eBase {
       toChatButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
-        imageToChat(element.getAttribute("src"));
+        const src = element.getAttribute("src");
+        if (src) imageToChat(src);
       });
 
       // Wrap image in container
+      const parentNode = element.parentNode;
+      if (!parentNode) return;
       const container = document.createElement("div");
       container.className = "ddbimporter-image-container";
-      element.parentNode.insertBefore(container, element);
+      parentNode.insertBefore(container, element);
       container.appendChild(element);
 
       // Mouse enter event

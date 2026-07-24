@@ -161,7 +161,7 @@ export default class DDBDebug {
     this.versions = {
       game: game.version,
       system: game.system.version,
-      ddbimporter: game.modules.get("ddb-importer").version,
+      ddbimporter: game.modules.get("ddb-importer")?.version ?? "unknown",
     };
 
     this.modules = {
@@ -172,7 +172,7 @@ export default class DDBDebug {
 
     this.actor = actor;
 
-    delete this.muncherSettings.character.installedModulesText;
+    delete (this.muncherSettings.character as Partial<ICharacterImportSettings>).installedModulesText;
 
     const types = ["character", "muncher", "encounter"];
 
@@ -215,9 +215,9 @@ export default class DDBDebug {
 
   async fetch() {
     this.secrets = foundry.utils.duplicate({
-      cobalt: await Secrets.checkCobalt(this.actor?.id),
-      isLocalCobalt: Secrets.isLocalCobalt(this.actor?.id),
-      ddbUser: await Secrets.getUserData(this.actor?.id),
+      cobalt: await Secrets.checkCobalt(this.actor?.id ?? undefined),
+      isLocalCobalt: Secrets.isLocalCobalt(this.actor?.id ?? null),
+      ddbUser: await Secrets.getUserData(this.actor?.id ?? undefined),
       proxy: {
         isCustom: await DDBProxy.isCustom(),
         proxy: await DDBProxy.getProxy(),
@@ -230,11 +230,13 @@ export default class DDBDebug {
         version: utils.getSetting<string>("rulesVersion", "dnd5e"),
       },
     }) as IDDBDebugSecrets;
-    if (this.secrets.ddbUser?.data) {
-      delete this.secrets.ddbUser.data.firstName;
-      delete this.secrets.ddbUser.data.lastName;
-      delete this.secrets.ddbUser.data.email;
-      delete this.secrets.ddbUser.data.twitchUserName;
+    const ddbUserData = this.secrets.ddbUser?.data;
+    if (ddbUserData) {
+      const redactable: Partial<typeof ddbUserData> = ddbUserData;
+      delete redactable.firstName;
+      delete redactable.lastName;
+      delete redactable.email;
+      delete redactable.twitchUserName;
     }
   }
 

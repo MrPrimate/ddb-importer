@@ -816,6 +816,7 @@ export async function detectAndApplyGridToScene(scene: Scene): Promise<ISceneGri
         icon: "fas fa-check",
         default: true,
         callback: (_event, button, _dialog) => {
+          if (!button.form) return run.recommendedKey ?? null;
           const formData = new foundry.applications.ux.FormDataExtended(button.form).object as { candidate?: string };
           return formData.candidate ?? run.recommendedKey ?? null;
         },

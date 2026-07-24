@@ -210,7 +210,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return names.length ? `${names.join(" / ")} / ` : "";
   }
 
-  _levelsOf(scene: Scene): any[] {
+  _levelsOf(scene: Scene | null): any[] {
     return levelsArray(scene?.levels);
   }
 
@@ -218,13 +218,13 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return this.targetId ? game.scenes.get(this.targetId) as Scene : null;
   }
 
-  _levelById(scene: Scene, id: string | null): any | null {
+  _levelById(scene: Scene | null, id: string | null): any | null {
     if (!scene || !id) return null;
     return this._levelsOf(scene).find((l) => levelId(l) === id) ?? null;
   }
 
   // Background image src for a level (used as the hint-draw surface).
-  _levelImageUrl(scene: Scene, id: string | null): string {
+  _levelImageUrl(scene: Scene | null, id: string | null): string {
     const level = this._levelById(scene, id);
     const src = level?.background?.src;
     return typeof src === "string" ? src : "";
@@ -526,7 +526,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
   }
 
   // Build SVG primitives (in target-image space) for the projected placeables.
-  _buildPreview(target: Scene, transform: ITransform | null): any {
+  _buildPreview(target: Scene | null, transform: ITransform | null): any {
     const out = { lines: [] as any[], dots: [] as any[], totalCount: 0, ready: !!transform };
     if (!target || !transform) return out;
     const tgtLevel = this._levelById(target, this.targetLevelId);

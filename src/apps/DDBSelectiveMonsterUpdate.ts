@@ -135,9 +135,10 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     let visibleCount = 0;
 
     entries.forEach((entry) => {
-      const matchSource = this.selectedSources.length === 0 || this.selectedSources.includes(entry.dataset.source);
-      const matchType = this.selectedTypes.length === 0 || this.selectedTypes.includes(entry.dataset.type);
-      const matchName = !this.nameFilter || entry.dataset.name.includes(this.nameFilter);
+      const { source = "", type = "", name = "" } = entry.dataset;
+      const matchSource = this.selectedSources.length === 0 || this.selectedSources.includes(source);
+      const matchType = this.selectedTypes.length === 0 || this.selectedTypes.includes(type);
+      const matchName = !this.nameFilter || name.includes(this.nameFilter);
       const visible = matchSource && matchType && matchName;
       entry.style.display = visible ? "" : "none";
       if (visible) visibleCount++;

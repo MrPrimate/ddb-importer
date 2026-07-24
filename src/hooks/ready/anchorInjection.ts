@@ -20,10 +20,15 @@ function addSlugField(element: HTMLElement, slug: string, document: NoteDocument
 </div>`;
 
   const div = utils.htmlToElement(slugHTML);
-  titleInput.parentNode.parentNode.parentNode.insertBefore(div, titleInput.parentNode.parentNode.nextSibling.nextSibling);
+  const formGroup = titleInput?.parentNode?.parentNode;
+  const container = formGroup?.parentNode;
+  if (!div || !formGroup || !container) return;
+  const anchorNode = formGroup.nextSibling?.nextSibling;
+  if (anchorNode) container.insertBefore(div, anchorNode);
+  else container.appendChild(div);
 }
 
-function setSlugProperties(doc: Partial<NoteDocument>, slug: string, label: string) {
+function setSlugProperties(doc: Partial<NoteDocument>, slug: string, label: string | undefined) {
   foundry.utils.setProperty(doc, "flags.anchor.slug", slug);
   foundry.utils.setProperty(doc, "flags.ddb.slugLink", slug);
   foundry.utils.setProperty(doc, "flags.ddb.labelName", label);
@@ -77,8 +82,8 @@ export function anchorInjection() {
     const entryIdSelect = form.querySelector("select[name='entryId']");
     const pageIdSelect = form.querySelector("select[name='pageId']");
 
-    entryIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
-    pageIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
+    entryIdSelect?.addEventListener("change", () => updateNotePage(noteConfig, slug));
+    pageIdSelect?.addEventListener("change", () => updateNotePage(noteConfig, slug));
 
     if (isExistingNote) {
       const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
@@ -88,7 +93,7 @@ export function anchorInjection() {
         const selectedSlug = foundry.utils.getProperty(documentSheet.document, "flags.ddb.slugLink") as string;
         if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== slug) {
           const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
-          await canvas.scene.updateEmbeddedDocuments("Note", [update as any]);
+          await canvas.scene?.updateEmbeddedDocuments("Note", [update as any]);
         }
         game.canvas.notes.draw();
       });
@@ -111,13 +116,14 @@ export function anchorInjection() {
     // the anchor name and set the slug value to the anchor slug
     Hooks.once("renderNoteConfig", (noteConfig, form, app) => {
       const titleInput = form.querySelector("input[name='text']");
+      if (!titleInput) return;
       const anchor = dropData.anchor as { slug?: string; name?: string };
       const noteApp = app as { document?: { pageId?: string }; pages?: Record<string, string>; label?: string };
       if (anchor.slug && anchor.name) {
         titleInput.setAttribute("value", anchor.name);
         updateNotePage(noteConfig, anchor.slug);
-      } else if (noteApp.document.pageId) {
-        titleInput.setAttribute("value", noteApp.pages[noteApp.document.pageId] ?? "");
+      } else if (noteApp.document?.pageId) {
+        titleInput.setAttribute("value", noteApp.pages?.[noteApp.document.pageId] ?? "");
       } else if (noteApp.label) {
         titleInput.setAttribute("value", noteApp.label);
       }

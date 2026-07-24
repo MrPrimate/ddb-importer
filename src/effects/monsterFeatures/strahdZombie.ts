@@ -14,6 +14,7 @@ export async function strahdZombieEffects(npc: I5eMonsterData): Promise<I5eMonst
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "loathsomeLimbs.js");
 
+      item.effects ??= [];
       item.effects.push(effect);
     }
     item = forceItemEffect(item);

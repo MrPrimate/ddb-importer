@@ -106,17 +106,26 @@ export default class DDBEffectHelper {
     return ChangeHelper.atlChange;
   }
 
-  static getMonsterFeatureDamage(damageText: string, featureDoc: TAll5eItemDocuments = null): IDDBMonsterActionDataDamagePart[] {
-    const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined;
+  static getMonsterFeatureDamage(damageText: string, featureDoc: TAll5eItemDocuments | null = null): IDDBMonsterActionDataDamagePart[] {
+    const preParsed = featureDoc
+      ? foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined
+      : undefined;
     if (preParsed) return preParsed;
     logger.debug("Monster feature damage miss", { damageText, featureDoc });
+    // DDBMonsterFeature requires a ddbMonster; this fallback has never had one,
+    // so it always threw. Degrade to no damage parts instead of crashing mid-macro.
+    try {
     const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
     feature.prepare();
     feature.generateDamageInfo();
     return feature.actionData.damageParts;
+    } catch (err) {
+      logger.warn("Unable to parse monster feature damage without a monster context", { damageText, err });
+      return [];
+    }
   }
 
-  static getOvertimeDamage(text: string, featureDoc: TAll5eItemDocuments = null): IDDBMonsterActionDataDamagePart[] | undefined {
+  static getOvertimeDamage(text: string, featureDoc: TAll5eItemDocuments | null = null): IDDBMonsterActionDataDamagePart[] | undefined {
     if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
       const damageText = text.split("taking")[1];
       return DDBEffectHelper.getMonsterFeatureDamage(damageText, featureDoc);
@@ -125,7 +134,7 @@ export default class DDBEffectHelper {
   }
 
 
-  static generateConditionOnlyEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string = null) {
+  static generateConditionOnlyEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string | null = null) {
     const generator = new MidiOverTimeEffect({
       document,
       actor,
@@ -135,7 +144,7 @@ export default class DDBEffectHelper {
   }
 
 
-  static generateOverTimeEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string = null) {
+  static generateOverTimeEffect(actor: I5eActorData, document: TAll5eItemDocuments, otherDescription: string | null = null) {
     const generator = new MidiOverTimeEffect({
       document,
       actor,
@@ -150,7 +159,9 @@ export default class DDBEffectHelper {
   ) {
     const generator = new MidiOverTimeEffect({
       document,
-      actor: null,
+      // generateDamageOverTimeEffect never dereferences actor; the options type
+      // requires one but this call path has no actor to give
+      actor: null as unknown as I5eActorData,
       otherDescription: null,
     });
     return generator.generateDamageOverTimeEffect({
@@ -189,7 +200,7 @@ export default class DDBEffectHelper {
    * @param {string} [icon=null] An icon to use for the effect.
    * @returns {Promise<void>}
    */
-  static async addSaveAdvantageToTarget(targetActor: Actor.Known, originItem: Item.Known, ability: T5eAbility, additionLabel = "", icon: string = null) {
+  static async addSaveAdvantageToTarget(targetActor: Actor.Known, originItem: Item.Known, ability: T5eAbility, additionLabel = "", icon: string | null = null) {
 
     const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
@@ -203,10 +214,10 @@ export default class DDBEffectHelper {
           },
         ],
       },
-      origin: originItem.uuid,
+      origin: originItem.uuid ?? undefined,
       disabled: false,
       transfer: false,
-      img: icon,
+      img: icon ?? undefined,
       duration: { value: 1, units: "turns" },
       flags: {
         dae: {
@@ -222,13 +233,19 @@ export default class DDBEffectHelper {
     if (game.modules.get("sequencer")?.active) {
       if (Sequencer.Database.entryExists(sequencerFile)) {
         logger.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
+        const grid = canvas.grid;
+        const dimensions = canvas.dimensions;
+        if (!grid || !dimensions) {
+          logger.warn("attachSequencerFileToTemplate: canvas is not ready, skipping sequencer effect");
+          return;
+        }
         const template = await fromUuid(templateUuid) as unknown as { width: number };
         new Sequence()
           .effect()
           .file(Sequencer.Database.entryExists(sequencerFile))
           .size({
-            width: canvas.grid.size * (template.width / canvas.dimensions.distance),
-            height: canvas.grid.size * (template.width / canvas.dimensions.distance),
+            width: grid.size * (template.width / dimensions.distance),
+            height: grid.size * (template.width / dimensions.distance),
           })
           .persist(true)
           .origin(originUuid)
@@ -387,7 +404,7 @@ export default class DDBEffectHelper {
     const msg = await item.displayCard({ create: false });
     const DIV = document.createElement("DIV");
     DIV.innerHTML = msg.content;
-    DIV.querySelector("div.card-buttons").remove();
+    DIV.querySelector("div.card-buttons")?.remove();
     await ChatMessage.create({ content: DIV.innerHTML } as unknown as ChatMessage.CreateInput);
   }
 
@@ -400,16 +417,22 @@ export default class DDBEffectHelper {
   static findContainedTokensInTemplate(templateDoc: MeasuredTemplateDocument) {
     // TODO: this needs refactoring for v14
     const contained = new Set();
-    for (const tokenDoc of templateDoc.parent.tokens) {
+    const scene = templateDoc.parent;
+    const shape = templateDoc.object?.shape;
+    if (!scene || !shape) {
+      logger.warn("findContainedTokensInTemplate: template has no scene or rendered shape", { templateDoc });
+      return [];
+    }
+    for (const tokenDoc of scene.tokens) {
       const startX = tokenDoc.width >= 1 ? 0.5 : tokenDoc.width / 2;
       const startY = tokenDoc.height >= 1 ? 0.5 : tokenDoc.height / 2;
       for (let x = startX; x < tokenDoc.width; x++) {
         for (let y = startY; y < tokenDoc.width; y++) {
           const curr = {
-            x: tokenDoc.x + (x * templateDoc.parent.grid.size) - templateDoc.x,
-            y: tokenDoc.y + (y * templateDoc.parent.grid.size) - templateDoc.y,
+            x: tokenDoc.x + (x * scene.grid.size) - templateDoc.x,
+            y: tokenDoc.y + (y * scene.grid.size) - templateDoc.y,
           };
-          const contains = templateDoc.object.shape.contains(curr.x, curr.y);
+          const contains = shape.contains(curr.x, curr.y);
           if (contains) contained.add(tokenDoc.id);
         }
       }
@@ -442,7 +465,7 @@ export default class DDBEffectHelper {
    *
    * @returns {foundry.canvas.placeables.Token|undefined} The new target, or undefined if no new target is found
    */
-  static async getNewMidiQOLWorkflowTarget(workflow: any, item: any, oldToken: foundry.canvas.placeables.Token, targetTitle: string = undefined) {
+  static async getNewMidiQOLWorkflowTarget(workflow: any, item: any, oldToken: foundry.canvas.placeables.Token, targetTitle: string | undefined = undefined) {
     workflow.targets.delete(oldToken);
     workflow.saves.delete(oldToken);
     workflow.hitTargets.delete(oldToken);
@@ -530,17 +553,23 @@ export default class DDBEffectHelper {
     const t2StartY = t2.document.height >= 1 ? 0.5 : t2.document.height / 2;
     let x, x1, y, y1;
     const segments: { origin: Canvas.Point; dest: Canvas.Point }[] = [];
+    const grid = canvas.grid;
+    const dimensions = canvas.dimensions;
+    if (!grid || !dimensions) {
+      logger.warn("_getDistanceSegments: canvas is not ready");
+      return segments;
+    }
     for (x = t1StartX; x < t1.document.width; x++) {
       for (y = t1StartY; y < t1.document.height; y++) {
-        const origin = canvas.grid.getCenterPoint({
-          x: Math.round(t1.document.x + (canvas.dimensions.size * x)),
-          y: Math.round(t1.document.y + (canvas.dimensions.size * y)),
+        const origin = grid.getCenterPoint({
+          x: Math.round(t1.document.x + (dimensions.size * x)),
+          y: Math.round(t1.document.y + (dimensions.size * y)),
         });
         for (x1 = t2StartX; x1 < t2.document.width; x1++) {
           for (y1 = t2StartY; y1 < t2.document.height; y1++) {
-            const dest = canvas.grid.getCenterPoint({
-              x: Math.round(t2.document.x + (canvas.dimensions.size * x1)),
-              y: Math.round(t2.document.y + (canvas.dimensions.size * y1)),
+            const dest = grid.getCenterPoint({
+              x: Math.round(t2.document.x + (dimensions.size * x1)),
+              y: Math.round(t2.document.y + (dimensions.size * y1)),
             });
 
             if (wallBlocking) {
@@ -600,6 +629,7 @@ export default class DDBEffectHelper {
     const t2 = DDBEffectHelper.getToken(token2);
     if (!t1 || !t2) return -1;
     if (!canvas || !canvas.grid || !canvas.dimensions) return -1;
+    const grid = canvas.grid;
 
     const segments = DDBEffectHelper._getDistanceSegments(t1, t2, wallBlocking);
     if (segments.length === 0) return -1;
@@ -608,7 +638,7 @@ export default class DDBEffectHelper {
 
     // measurePath applies the scene's configured diagonal rule (CONST.GRID_DIAGONALS) in 3D
     const distances = segments.map(({ origin, dest }) =>
-      canvas.grid.measurePath([
+      grid.measurePath([
         { x: origin.x, y: origin.y, elevation: 0 },
         { x: dest.x, y: dest.y, elevation: heightDifference },
       ], {}).distance,
@@ -658,7 +688,7 @@ export default class DDBEffectHelper {
     if (systemData.details.race) {
       return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
     }
-    return systemData.details.type?.value.toLocaleLowerCase() ?? "";
+    return systemData.details.type?.value?.toLocaleLowerCase() ?? "";
   }
 
   /**
@@ -725,8 +755,8 @@ export default class DDBEffectHelper {
     if (!target) return result;
     canvas.tokens.placeables.forEach((t) => {
       const nearby = t.actor
-        && !excludedActorIds.includes(t.actor?.id) // typically the origin actor
-        && !excludedTokenIds.includes(t.id) // token ids excluded
+        && !excludedActorIds.includes(t.actor?.id ?? "") // typically the origin actor
+        && !excludedTokenIds.includes(t.id ?? "") // token ids excluded
         && t.id !== target.id // not the target
         && (includeIncapacitated || ((t.actor as unknown as { system: { attributes?: { hp?: { value?: number } } } })?.system.attributes?.hp?.value ?? 0) > 0) // not incapacitated
         && DDBEffectHelper.getDistance(t, target) <= distance; // close to the target;
@@ -791,10 +821,12 @@ export default class DDBEffectHelper {
     orHasProperties?: string[];
     andHasProperties?: string[];
   } = {}) {
+    if (!activity) return false;
     if (activity.type !== "attack") return false;
     if (classification && activity.attack?.type?.classification !== classification) return false;
-    if (andHasProperties.length > 0 && !andHasProperties.every((p) => activity.parent.properties.has(p))) return false;
-    const orHas = orHasProperties.some((p) => activity.parent.properties.has(p));
+    const properties = activity.parent?.properties;
+    if (andHasProperties.length > 0 && !andHasProperties.every((p) => properties?.has(p))) return false;
+    const orHas = orHasProperties.some((p) => properties?.has(p));
     if ((type && activity.attack?.type?.value !== type)
       || ((orHas as unknown as string[]).length > 0 && !orHas)) return false;
 
@@ -822,6 +854,7 @@ export default class DDBEffectHelper {
       classification: "weapon",
     })) return false;
 
+    if (!sourceToken || !targetToken) return false;
     const distance = DDBEffectHelper.getDistance(sourceToken, targetToken, true);
     const meleeDistance = 5; // Would it be possible to have creatures with reach and thrown weapon?
     return distance >= 0 && distance > meleeDistance;
@@ -853,6 +886,8 @@ export default class DDBEffectHelper {
   static isSmaller (a: Actor.Implementation, b: Actor.Implementation) {
     const sizeA = DICTIONARY.sizes.find((s) => s.value === (a as any).system.traits.size)?.size;
     const sizeB = DICTIONARY.sizes.find((s) => s.value === (b as any).system.traits.size)?.size;
+    // unknown sizes compared as not smaller, matching the previous undefined < undefined behaviour
+    if (sizeA === undefined || sizeB === undefined) return false;
     return sizeA < sizeB;
   }
 
@@ -908,7 +943,11 @@ export default class DDBEffectHelper {
     const { ability, dc } = foundry.utils.duplicate(item.system.save);
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
-      : game.users.activeGM.id;
+      : game.users.activeGM?.id;
+    if (!userID) {
+      logger.warn("rollSaveForItem: no active player or GM found to roll the save", { item, targetToken });
+      return undefined;
+    }
     const data = {
       request: "save",
       targetUuid: targetToken.document.uuid,
@@ -951,7 +990,7 @@ export default class DDBEffectHelper {
   static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect: { name?: string; disabled?: boolean }) =>
-        (activeEffect?.name.toLowerCase() == condition.toLowerCase())
+        (activeEffect?.name?.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled,
     );
   }
@@ -959,7 +998,7 @@ export default class DDBEffectHelper {
   static getConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect: { name?: string; disabled?: boolean }) =>
-        (activeEffect?.name.toLowerCase() == condition.toLowerCase())
+        (activeEffect?.name?.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled,
     );
   }
@@ -973,6 +1012,10 @@ export default class DDBEffectHelper {
     if (!actor) actor = await fromUuid(actorUuid) as unknown as Actor.Implementation;
     if (!actor) {
       logger.error("No actor passed to remove condition");
+      return;
+    }
+    if (!conditionName) {
+      logger.error("No conditionName passed to remove condition");
       return;
     }
 
@@ -1026,6 +1069,10 @@ export default class DDBEffectHelper {
       logger.error("No actor passed to remove condition");
       return;
     }
+    if (!conditionName) {
+      logger.error("No conditionName passed to add condition");
+      return;
+    }
 
     const condition = DDBEffectHelper.findCondition({ conditionName, forceSystemCondition: true });
 
@@ -1067,6 +1114,10 @@ export default class DDBEffectHelper {
       logger.warn("You must specify if you want to add or remove the condition");
       return;
     }
+    if (!actor) {
+      logger.warn("adjustCondition: no actor supplied, unable to adjust condition");
+      return;
+    }
     logger.debug("Adjusting condition", { add, remove, actor, conditionName, level, origin });
     if (remove) {
       logger.debug("Removing condition", { actor, conditionName, level });
@@ -1089,11 +1140,12 @@ export default class DDBEffectHelper {
       listItems.forEach((item, index) => {
         // console.log('Item ' + (index + 1) + ': ' + item.textContent);
         const title = item.querySelector(titleType);
-        const content = title.nextSibling;
+        const content = title?.nextSibling;
+        if (!title || !content) return;
         results.push({
           number: index + 1,
-          title: title.textContent.replace(/\.$/, "").trim(),
-          content: (content as HTMLElement).innerHTML ?? (content as Text).wholeText ?? content.textContent,
+          title: title.textContent?.replace(/\.$/, "").trim() ?? "",
+          content: (content as HTMLElement).innerHTML ?? (content as Text).wholeText ?? content.textContent ?? "",
           full: item.innerHTML,
         });
       });
@@ -1113,10 +1165,11 @@ export default class DDBEffectHelper {
 
       if (!title) continue;
       const content = title.nextSibling;
+      if (!content) continue;
       results.push({
         number: i,
-        title: title.textContent.replace(/\.$/, "").trim(),
-        content: (content as HTMLElement).innerHTML?.trim() ?? (content as Text).wholeText?.trim() ?? content.textContent?.trim(),
+        title: title.textContent?.replace(/\.$/, "").trim() ?? "",
+        content: (content as HTMLElement).innerHTML?.trim() ?? (content as Text).wholeText?.trim() ?? content.textContent?.trim() ?? "",
         full: item.innerHTML,
       });
       i++;
@@ -1134,6 +1187,10 @@ export default class DDBEffectHelper {
     itemId?: string;
     itemUuid?: string;
   } = {}) {
+    if (!formula) {
+      logger.warn("_verySimpleDamageRollToChat: no formula provided, skipping roll");
+      return;
+    }
     const roll = new CONFIG.Dice.DamageRoll(formula, {}, { type: damageType } as unknown as ConstructorParameters<typeof CONFIG.Dice.DamageRoll>[2]);
     await roll.evaluate({ async: true } as unknown as Parameters<typeof roll.evaluate>[0]);
 
@@ -1144,8 +1201,8 @@ export default class DDBEffectHelper {
       item = await fromUuid(itemUuid) as unknown as Item.Implementation;
     }
 
-    if (item && !itemId) itemId = item._id;
-    if (item && !itemUuid) itemUuid = item.uuid;
+    if (item && !itemId) itemId = item._id ?? undefined;
+    if (item && !itemUuid) itemUuid = item.uuid ?? undefined;
 
     roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: actor as unknown as any }),
@@ -1181,8 +1238,8 @@ export default class DDBEffectHelper {
       item = await fromUuid(itemUuid) as unknown as Item.Implementation;
     }
 
-    if (item && !itemId) itemId = item._id;
-    if (item && !itemUuid) itemUuid = item.uuid;
+    if (item && !itemId) itemId = item._id ?? undefined;
+    if (item && !itemUuid) itemUuid = item.uuid ?? undefined;
 
     const isHealing = damageType in CONFIG.DND5E.healingTypes;
     const title = game.i18n.localize(`DND5E.${isHealing ? "Healing" : "Damage"}Roll`);
@@ -1277,26 +1334,26 @@ export default class DDBEffectHelper {
 
   static getConcentrationEffect(actor: Actor.Implementation, documentName = "") {
     const concentrationEffectNames = DDBEffectHelper.getConcentrationNames(documentName);
-    return actor.effects.find((ef: ActiveEffect) => concentrationEffectNames.some((c) => (ef as unknown as I5eEffectData).name.startsWith(c)));
+    return actor.effects.find((ef: ActiveEffect) => concentrationEffectNames.some((c) => (ef as unknown as I5eEffectData).name?.startsWith(c)));
   }
 
   static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: {
-    document?: TAll5eItemDocuments;
-    turn?: string;
-    damage?: string;
-    damageType?: string;
-    saveAbility?: string | string[];
-    saveRemove?: boolean;
-    saveDamage?: string;
+    document: TAll5eItemDocuments;
+    turn: string;
+    damage: string;
+    damageType: string;
+    saveAbility: string | string[];
+    saveRemove: boolean;
+    saveDamage: string;
     dc?: number;
   } = {}) {
     return ChangeHelper.overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc });
   }
 
   static overTimeSave({ document, turn, saveAbility, saveRemove = true, dc }: {
-    document?: TAll5eItemDocuments;
-    turn?: string;
-    saveAbility?: string | string[];
+    document: TAll5eItemDocuments;
+    turn: string;
+    saveAbility: string | string[];
     saveRemove?: boolean;
     dc?: number;
   } = {}) {
@@ -1327,7 +1384,7 @@ export default class DDBEffectHelper {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static parseStatusCondition({ text, nameHint = null } : { text: string; nameHint?: string }) {
+  static parseStatusCondition({ text, nameHint = null } : { text: string; nameHint?: string | null }) {
     return DDBDescriptions.parseStatusCondition({ text });
   }
 
@@ -1394,7 +1451,7 @@ export default class DDBEffectHelper {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid) as unknown as Item | null;
     if (!base) return null;
-    const newDocumentData = document.toObject() as unknown as TAll5eItemDocuments;
+    const newDocumentData = base.toObject() as unknown as TAll5eItemDocuments;
     if (clearId) delete newDocumentData._id;
     if (newId) newDocumentData._id = foundry.utils.randomID();
     if ("activities" in newDocumentData.system) {
@@ -1405,7 +1462,7 @@ export default class DDBEffectHelper {
     }
 
     if (clearActiveAuraEffects) {
-      newDocumentData.effects = newDocumentData.effects.filter((e: any) =>
+      newDocumentData.effects = (newDocumentData.effects ?? []).filter((e: any) =>
         !foundry.utils.getProperty(e.flags, "ActiveAura.isAura"),
       );
     }
@@ -1424,7 +1481,7 @@ export default class DDBEffectHelper {
       const a = activities[key];
 
       if (a.consumption) a.consumption.targets = [];
-      if (overrideTarget) a.target.override = true;
+      if (overrideTarget && a.target) a.target.override = true;
       if (setTargetTo) {
         foundry.utils.setProperty(a, "target.affects.type", {
           count: "1",
@@ -1444,16 +1501,18 @@ export default class DDBEffectHelper {
           units: "ft",
         });
       }
+      if (a.duration) {
       if (overrideDuration) a.duration.override = true;
       if (durationUnits) {
         a.duration.units = durationUnits;
         a.duration.value = String(durationValue);
+        }
       }
 
       if (clearTargets) foundry.utils.setProperty(a, "consumption.targets", []);
       if (noSpellslot) foundry.utils.setProperty(a, "consumption.spellSlot", false);
 
-      if (filterActivityDamageTypes.length > 0 && "damage" in a) {
+      if (filterActivityDamageTypes.length > 0 && "damage" in a && a.damage?.parts) {
         a.damage.parts = a.damage.parts.filter((part: any) =>
           part.types.some((partType: any) => filterActivityDamageTypes.includes(partType)),
         ).map((part: any) => {
@@ -1462,7 +1521,7 @@ export default class DDBEffectHelper {
         });
       }
 
-      a.effects = a.effects.filter((e: any) => newDocumentData.effects.some((f: any) => f._id === e._id));
+      a.effects = (a.effects ?? []).filter((e: any) => (newDocumentData.effects ?? []).some((f: any) => f._id === e._id));
 
       if ("activities" in newDocumentData.system) newDocumentData.system.activities[key] = a;
     }
@@ -1478,14 +1537,14 @@ export default class DDBEffectHelper {
       const allowedIds = Object.values(newDocumentData.system.activities).map((a) => {
         return ((a as { effects?: { _id: string }[] }).effects ?? []).map((e) => e._id);
       }).flat();
-      newDocumentData.effects = newDocumentData.effects.filter((e: any) => allowedIds.includes(e._id));
+      newDocumentData.effects = (newDocumentData.effects ?? []).filter((e: any) => allowedIds.includes(e._id));
     }
     if ("properties" in newDocumentData.system) {
       for (const prop of removeProperties) {
-        newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties, prop);
+        newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties ?? [], prop);
       }
       for (const prop of addProperties) {
-        newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties, prop);
+        newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties ?? [], prop);
       }
     }
     if (setToAtWill) {
@@ -1519,7 +1578,7 @@ export default class DDBEffectHelper {
     targetIds = [] as string[], applyFailureConditions = [] as string[],
   } = {}) {
     const saveTargets = game.user?.targets
-      ? [...game.user.targets].map((t) => t.id)
+      ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
     if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
 
@@ -1551,7 +1610,7 @@ export default class DDBEffectHelper {
     targetIds = [] as string[], applyFailureConditions = [] as string[],
   } = {}) {
     const saveTargets = game.user?.targets
-      ? [...game.user.targets].map((t) => t.id)
+      ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
     if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
 
@@ -1705,7 +1764,8 @@ export default class DDBEffectHelper {
       const effect = await fromUuid(effectUuid);
       if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
         if ((effect as ActiveEffect.Implementation).transfer)
-          await (effect as ActiveEffect.Implementation).update({ disabled: true });
+          // fvtt-types UpdateInput for ActiveEffect does not accept a plain partial under strictNullChecks
+          await (effect as ActiveEffect.Implementation).update({ disabled: true } as unknown as Parameters<ActiveEffect.Implementation["update"]>[0]);
         else
           await effect.delete();
       }
@@ -1717,6 +1777,10 @@ export default class DDBEffectHelper {
     effects?: { transfer?: boolean }[];
     options?: Record<string, unknown>;
   } = {}) {
+    if (!actorUuid) {
+      logger.warn("createEffects: no actorUuid provided");
+      return undefined;
+    }
     const actor = DDBEffectHelper.fromActorUuid(actorUuid);
     for (const effect of effects) { // override default foundry behaviour of blank being transfer
       if (effect.transfer === undefined) effect.transfer = false;
@@ -1730,6 +1794,10 @@ export default class DDBEffectHelper {
     actorUuid?: string;
     updates?: Record<string, unknown>[];
   } = {}) {
+    if (!actorUuid) {
+      logger.warn("updateEffects: no actorUuid provided");
+      return undefined;
+    }
     const actor = DDBEffectHelper.fromActorUuid(actorUuid);
     return (actor as unknown as {
       updateEmbeddedDocuments(embeddedName: string, updates: object[]): Promise<unknown>;
@@ -1770,9 +1838,12 @@ export default class DDBEffectHelper {
     flagId?: string;
     value?: unknown;
   } = {}) {
+    if (!flagId) return logger.error(`_setFlag: no flagId provided`);
     const actor = actorUuid
       ? await DDBEffectHelper.fromActorUuid(actorUuid)
-      : await game.actors?.get(actorId);
+      : actorId
+        ? await game.actors?.get(actorId)
+        : undefined;
     if (!actor) return logger.error(`_setFlag: actor not discovered, please provide actorUuid or actorId`);
 
     const flags = {
@@ -1799,6 +1870,7 @@ export default class DDBEffectHelper {
     actorUuid?: string;
     flagId?: string;
   } = {}) {
+    if (!actorUuid || !flagId) return logger.error(`_unsetFlag: actorUuid and flagId are required`);
     const actor = await DDBEffectHelper.fromActorUuid(actorUuid);
     if (!actor) return logger.error(`_unsetFlag: actor not defined`);
     const head = flagId.split(".");

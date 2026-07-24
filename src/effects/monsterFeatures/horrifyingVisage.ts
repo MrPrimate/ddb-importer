@@ -17,6 +17,7 @@ export function horrifyingVisageEffect(document: I5eMonsterItem): I5eMonsterItem
   addStatusEffectChange({ effect, statusName: "Frightened" });
   effect.transfer = false;
 
+  document.effects ??= [];
   document.effects.push(effect);
   return document;
 }

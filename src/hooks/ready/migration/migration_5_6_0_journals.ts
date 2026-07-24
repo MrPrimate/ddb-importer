@@ -21,6 +21,10 @@ export async function migrateJournalsToDDBSheet(force = false) {
   }
 
   const journalCompendium = CompendiumHelper.getCompendiumType("JournalEntry");
+  if (!journalCompendium) {
+    logger.warn("Unable to find DDB journal compendium, skipping journal sheet migration");
+    return;
+  }
   await journalCompendium.getIndex({ fields: ["name", "flags.ddb", "flags.core.sheetClass"] });
 
   for (const i of journalCompendium.index) {

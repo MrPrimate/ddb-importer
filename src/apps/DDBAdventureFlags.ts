@@ -54,7 +54,7 @@ export class DDBAdventureFlags extends FormApplication {
 
     flagGroups.forEach((flagGroup) => {
       logger.debug(`Flag group ${flagGroup}`, item.flags);
-      generateFlagLookup(foundry.utils.getProperty(item.flags, flagGroup), flagGroup, flagGroup);
+      generateFlagLookup(foundry.utils.getProperty(item.flags ?? {}, flagGroup), flagGroup, flagGroup);
     });
 
     const result = {
@@ -112,6 +112,10 @@ export class DDBAdventureFlags extends FormApplication {
       .on("change", async (event) => {
         const target = event.currentTarget as HTMLInputElement;
         const selection = target.dataset.section;
+        if (!selection) {
+          logger.warn("DDBAdventureFlags: checkbox is missing its data-section attribute", target);
+          return;
+        }
         const checked = target.checked;
         const doc = this.object as IFlagDocument;
         logger.debug(`Updating flag-policy for ${doc.name}, ${selection} to ${checked}`);

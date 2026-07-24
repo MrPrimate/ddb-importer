@@ -106,6 +106,7 @@ function looseMatch(item: TDDBItemImporterDocument, typeValue: string) {
     if (originalMatch) return originalMatch.path;
   }
 
+  if (!item.name) return null;
   const sanitisedName = sanitiseName(item.name);
   if (item.name.includes(":")) {
     const nameArray = sanitisedName.split(":");
@@ -120,7 +121,7 @@ function looseMatch(item: TDDBItemImporterDocument, typeValue: string) {
   const startsMatchItem = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
 
-  if (item.type === "subclass" && "system" in item && "classIdentifier" in item.system) {
+  if (item.type === "subclass" && "system" in item && "classIdentifier" in item.system && item.system.classIdentifier) {
     const sanitisedClassName = sanitiseName(item.system.classIdentifier);
     const subClassMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
     if (subClassMatch) return subClassMatch.path;
@@ -129,14 +130,17 @@ function looseMatch(item: TDDBItemImporterDocument, typeValue: string) {
   return null;
 }
 
-function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName?: string): string | null {
+function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName = ""): string | null {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
   if (!typeValue || !CONFIG.DDBI.ICONS[typeValue]) return null;
 
+  const itemName = item.name;
+  if (!itemName) return null;
+
   const iconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
     const sanitisedName = sanitiseName(entry.name);
-    const sanitisedItemName = sanitiseName(item.name);
+    const sanitisedItemName = sanitiseName(itemName);
     if (type === "monster") {
       return sanitisedName === sanitisedItemName.split("(")[0].trim()
         && entry.monster && sanitiseName(entry.monster) == sanitiseName(monsterName);
@@ -149,14 +153,14 @@ function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName?:
       .filter((entry) => !entry.monster)
       .find((entry) => {
         const sanitisedName = sanitiseName(entry.name);
-        const sanitisedItemName = sanitiseName(item.name);
+        const sanitisedItemName = sanitiseName(itemName);
         return sanitisedName === sanitisedItemName;
       });
     if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
 
     const anyMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
       const sanitisedName = sanitiseName(entry.name);
-      const sanitisedItemName = sanitiseName(item.name);
+      const sanitisedItemName = sanitiseName(itemName);
       return sanitisedName === sanitisedItemName;
     });
     if (anyMonsterIconMatch) return anyMonsterIconMatch.path;
@@ -262,19 +266,16 @@ export default class Iconizer {
     srdIconUpdate = true, isMonster = false, monsterName = "",
   }:
   {
-    notifier?: NotifierV1;
+    notifier?: NotifierV1 | null;
     settings?: IIconizerSettings;
     documents?: TDDBItemImporterDocument[];
     srdIconUpdate?: boolean;
     isMonster?: boolean;
     monsterName?: string;
   } = {}) {
-    this.notifier = notifier;
-    if (!notifier) {
-      this.notifier = (note, { nameField = false, monsterNote = false } = {}) => {
-        logger.info(note, { nameField, monsterNote });
-      };
-    }
+    this.notifier = notifier ?? ((note, { nameField = false, monsterNote = false } = {}) => {
+      logger.info(note, { nameField, monsterNote });
+    });
     this.settings = foundry.utils.mergeObject(Iconizer.SETTINGS(), settings);
     this.documents = documents;
     this.isMonster = isMonster;
@@ -283,7 +284,7 @@ export default class Iconizer {
   }
 
   async _addDDBEquipmentIcons() {
-    const targetDocs = this.documents.filter((item) => DICTIONARY.types.inventory.includes(item.type));
+    const targetDocs = this.documents.filter((item) => DICTIONARY.types.inventory.includes(item.type ?? ""));
     const itemImages = await Iconizer.getDDBItemImages(targetDocs, true);
 
     this.documents = await Promise.all(this.documents.map((item: I5eInventoryItem) => {
@@ -297,7 +298,7 @@ export default class Iconizer {
             item.img = imageMatch.img;
             foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
           }
-          if (imageMatch && imageMatch.large) {
+          if (imageMatch && imageMatch.large && item.flags?.ddbimporter?.dndbeyond) {
             item.flags.ddbimporter.dndbeyond.pictureUrl = imageMatch.large;
           }
         }
@@ -382,7 +383,8 @@ export default class Iconizer {
 
   async _copyInbuiltIcons() {
     // get unique array of item types to be matching
-    const itemTypes: string[] = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
+    // indexing TYPE_MAP with undefined stringifies to the "undefined" key, keep that behaviour
+    const itemTypes: string[] = this.documents.map((item) => item.type ?? "undefined").filter((item, i, ar) => ar.indexOf(item) === i);
 
     if (this.isMonster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
@@ -391,14 +393,14 @@ export default class Iconizer {
       if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") === true) return item;
       // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
       // if we have a monster lets check the monster dict first
-      if (this.isMonster && !["spell"].includes(item.type)) {
+      if (this.isMonster && !["spell"].includes(item.type ?? "")) {
         const monsterPath = getIconPath(item, "monster", this.monsterName);
         if (monsterPath) {
           item.img = monsterPath;
           return item;
         }
       }
-      const pathMatched = getIconPath(item, item.type);
+      const pathMatched = getIconPath(item, item.type ?? "undefined");
       if (pathMatched) {
         item.img = pathMatched;
         if ("effects" in item && Array.isArray(item.effects)) {
@@ -414,8 +416,9 @@ export default class Iconizer {
   }
 
   static async getSRDIconMatch(type: string, version: T5eRulesVersion = "2014"): Promise<ICompendiumIconMapEntry[]> {
-    const compendiumName = SETTINGS.SRD_COMPENDIUMS[version].find((c) => c.type == type).name;
-    const srdPack = CompendiumHelper.getCompendium(compendiumName, false);
+    const compendiumEntry = SETTINGS.SRD_COMPENDIUMS[version].find((c) => c.type == type);
+    if (!compendiumEntry) return [];
+    const srdPack = CompendiumHelper.getCompendium(compendiumEntry.name, false);
     if (!srdPack) return [];
     const index = await srdPack.getIndex({ fields: ICON_MAP_INDICIES });
     return index as unknown as ICompendiumIconMapEntry[];
@@ -486,7 +489,7 @@ export default class Iconizer {
         item.img = nameMatch.img;
       } else if (item.type !== "rolltable") {
         const systemSource = foundry.utils.getProperty(item, "system.source.rules") as string;
-        const localLibrary = srdImageLibrary || (systemSource === "2014" ? srdImageLibrary2014 : srdImageLibrary2024);
+        const localLibrary = srdImageLibrary ?? (systemSource === "2014" ? srdImageLibrary2014 : srdImageLibrary2024) ?? [];
         const match = NameMatcher.looseItemNameMatch(item as TAll5eDocuments, localLibrary, true);
         if (match) {
           item.img = match.img;
@@ -671,7 +674,7 @@ export default class Iconizer {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond.filterType);
       const excludedItems = ["spell", "feat", "class"];
-      if (!excludedItems.includes(item.type)
+      if (!excludedItems.includes(item.type ?? "")
           && item.flags
           && item.flags.ddbimporter
           && item.flags.ddbimporter.dndbeyond) {
@@ -754,7 +757,7 @@ export default class Iconizer {
     actor.effects.forEach((effect) => {
       const name = foundry.utils.getProperty(effect, "flags.ddbimporter.originName");
       if (name) {
-        const actorItem = actor.items.find((i) => i.name === name);
+        const actorItem = actor.items?.find((i) => i.name === name);
         if (actorItem) {
           effect.img = actorItem.img;
         }
@@ -771,7 +774,7 @@ export default class Iconizer {
     srdIconUpdate?: boolean;
     monster?: boolean;
     monsterName?: string;
-    notifier?: NotifierV1;
+    notifier?: NotifierV1 | null;
     settings?: IIconizerSettings;
     preFetch?: boolean;
   }) {

@@ -1,5 +1,34 @@
 import { logger, FileHelper, MuncherSettings } from "../lib/_module";
 
+interface IExportNotePin {
+  index: number;
+  pageId: string | null;
+  texture: NoteDocument["texture"];
+  label: string | undefined;
+  flags: { ddb: I5eJournalPageFlags };
+  levels: string[];
+  iconSize: NoteDocument["iconSize"];
+  textColor: NoteDocument["textColor"];
+  textAnchor: NoteDocument["textAnchor"];
+  x: number;
+  y: number;
+}
+
+interface IExportNoteGroup {
+  label: string | undefined;
+  texture: NoteDocument["texture"];
+  flags: { ddb: I5eJournalPageFlags | { noLink: boolean } };
+  levels: string[];
+  index: number;
+  iconSize: NoteDocument["iconSize"];
+  textColor: NoteDocument["textColor"];
+  textAnchor: NoteDocument["textAnchor"];
+  positions: { x: number; y: number }[];
+}
+
+// unlinked user-placed notes have no journal, so no index to group or sort on
+type TExportNoteUnlinked = Omit<IExportNoteGroup, "index">;
+
 
 /**
  * Extracts all notes that have been placed by ddb-importer
@@ -20,20 +49,23 @@ import { logger, FileHelper, MuncherSettings } from "../lib/_module";
 function getNotes(scene: Scene, bookCode: string) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode,
+    !!journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode,
   );
 
   // get all notes placed on the map
   const journalNotes = scene.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
-    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.entryId))
-    .map((note) => {
+    .filter((note: NoteDocument) => relatedJournalEntries.some((journal) => journal.id === note.entryId))
+    .map((note: NoteDocument): IExportNotePin => {
       const journal = relatedJournalEntries.find((journal) => journal.id === note.entryId);
+      // the preceding filter only keeps notes whose entryId matches a related journal
+      if (!journal) throw new Error(`No journal entry found for note ${note.id}`);
       const page = note.pageId
-        ? journal.pages.find((page) => page._id === note.pageId)
+        ? journal.pages.find((page: JournalEntryPage) => page._id === note.pageId)
         : journal;
-      const index = parseInt(journal.flags.ddb.ddbId);
+      if (!page) throw new Error(`No journal page found for note ${note.id} (pageId ${note.pageId})`);
+      const index = parseInt(journal.flags.ddb?.ddbId ?? "");
       // removed un-needed userdata
       const pageFlags = page.flags.ddb;
       const noteFlags = note.flags.ddb;
@@ -73,8 +105,8 @@ function getNotes(scene: Scene, bookCode: string) {
         y: note.y,
       };
     })
-    .reduce((notes, note) => {
-      const idx = notes.find((n: any) => n.index === note.index && n.pageId === note.pageId && note.label === n.label);
+    .reduce((notes: (IExportNoteGroup & { pageId?: string | null })[], note: IExportNotePin) => {
+      const idx = notes.find((n) => n.index === note.index && n.pageId === note.pageId && note.label === n.label);
       if (idx) {
         idx.positions.push({ x: note.x, y: note.y });
       } else {
@@ -93,13 +125,13 @@ function getNotes(scene: Scene, bookCode: string) {
       }
       return notes;
     }, [])
-    .sort((a, b) => {
+    .sort((a: IExportNoteGroup, b: IExportNoteGroup) => {
       return a.index - b.index;
     });
 
-  const unLinkedNotes = scene.notes
-    .filter((note) => !note.entryId)
-    .map((note) => ({
+  const unLinkedNotes: TExportNoteUnlinked[] = scene.notes
+    .filter((note: NoteDocument) => !note.entryId)
+    .map((note: NoteDocument): TExportNoteUnlinked => ({
       label: note.text,
       texture: note.texture,
       flags: { ddb: {
@@ -112,8 +144,8 @@ function getNotes(scene: Scene, bookCode: string) {
       positions: [{ x: note.x, y: note.y }],
     }));
 
-  const notes = journalNotes.concat(unLinkedNotes)
-    .map((note) => ({
+  const notes = [...journalNotes, ...unLinkedNotes]
+    .map((note: TExportNoteUnlinked) => ({
       label: note.label,
       flags: note.flags,
       levels: note.levels,
@@ -134,23 +166,21 @@ export function collectSceneData(scene: Scene, bookCode: string) {
   // Export levels from scene, stripping background.src from each
   const levels = scene.levels.map((level) => {
     const l = level.toObject();
-    delete l.background.src;
+    delete l.background?.src;
     return l;
   });
 
-  const walls = scene.walls.map((wall) => {
-    const w = wall.toObject();
-    delete w._id;
+  const walls = scene.walls.map((wall: WallDocument) => {
+    const { _id, ...w } = wall.toObject();
     return w;
   });
 
-  const lights = scene.lights.map((light) => {
-    const l = light.toObject();
-    delete l._id;
+  const lights = scene.lights.map((light: AmbientLightDocument) => {
+    const { _id, ...l } = light.toObject();
     return l;
   });
 
-  const data = {
+  const fullData = {
     // flags carry arbitrary module keys (stripped against allow-lists on export),
     // so widen beyond the declared scene flag interfaces to allow string indexing
     flags: scene._source.flags as I5eSceneDataFlags & Record<string, unknown>,
@@ -186,13 +216,19 @@ export function collectSceneData(scene: Scene, bookCode: string) {
     transition: scene._source.transition,
   };
 
+  // these keys are deleted from the export when the "config" option is not
+  // selected, so they must be optional on the exported data shape
+  type TConfigKey = "navName" | "width" | "height" | "shiftX" | "shiftY" | "grid" | "padding" | "initial"
+    | "initialLevel" | "levels" | "weather" | "tokenVision" | "fog" | "environment" | "regions";
+  const data: Omit<typeof fullData, TConfigKey> & { [K in TConfigKey]?: (typeof fullData)[K] } = fullData;
+
   if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.foundryVersion = game.version;
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.tokens
-    .filter((token) => !token.actorLink)
-    .map((token) => {
+    .filter((token: TokenDocument) => !token.actorLink)
+    .map((token: TokenDocument) => {
       const result = {
         _id: token._id,
         name: token.name,
@@ -209,22 +245,24 @@ export function collectSceneData(scene: Scene, bookCode: string) {
         level: token.level,
         depth: token.depth,
         hidden: token.hidden,
-        actorData: token.delta.toObject(),
+        actorData: token.delta?.toObject(),
         light: token.light,
       };
 
       // the token actor flags here help us match up actors using the DDB ID
+      const actor = token.actor;
       const ddbFlags = foundry.utils.getProperty(token, "actor.flags.ddbimporter") as Record<string, any>;
-      if (ddbFlags) {
-        if (ddbFlags.keepAvatar) {
-          const image = token.actor.img.split("assets/").pop();
+      // ddbFlags come from the token actor, so a hit implies the actor exists
+      if (ddbFlags && actor) {
+        if (ddbFlags.keepAvatar && actor.img) {
+          const image = actor.img.split("assets/").pop();
           ddbFlags.avatarImage = `assets/${image}`;
         }
-        if (ddbFlags.keepToken) {
+        if (ddbFlags.keepToken && token.texture.src) {
           const image = token.texture.src.split("assets/").pop();
           ddbFlags.tokenImage = `assets/${image}`;
         }
-        ddbFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
+        ddbFlags.name = actor.prototypeToken?.name ? actor.prototypeToken.name : actor.name;
         result.flags.ddbActorFlags = ddbFlags;
       }
 
@@ -251,22 +289,27 @@ export function collectSceneData(scene: Scene, bookCode: string) {
   // removed un-needed userdata
   if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
-  data.flags.ddb.notes = notes;
+  // the note shapes carry live document values (e.g. texture.tint as Color)
+  // where I5eNoteData declares the serialized string forms
+  data.flags.ddb.notes = notes as unknown as I5eNoteData[];
+  if (!scene.background.src) {
+    throw new Error(`Scene "${scene.name}" has no background image to export`);
+  }
   data.flags.ddb.img = `assets/${scene.background.src.split("assets/").pop()}`;
   data.flags.ddb.levelImages = {};
   for (const level of scene.levels) {
-    if (level.background?.src) {
+    if (level._id && level.background?.src) {
       data.flags.ddb.levelImages[level._id] = `assets/${level.background.src.split("assets/").pop()}`;
     }
   }
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
-  data.flags.ddbimporter.version = game.modules.get("ddb-importer").version;
+  data.flags.ddbimporter.version = game.modules.get("ddb-importer")?.version;
 
   return data;
 }
 
-function getCompendiumScenes(compendiumCollection: string, selectedId: string = null, selectedName: string = null) {
+function getCompendiumScenes(compendiumCollection: string, selectedId: string | null = null, selectedName: string | null = null) {
   const scenes: any[] = [];
   const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
   if (compendium) {
@@ -274,7 +317,8 @@ function getCompendiumScenes(compendiumCollection: string, selectedId: string = 
       const option = {
         _id: scene._id,
         name: scene.name,
-        selected: (selectedId && selectedId == scene._id) || (selectedName && selectedName.trim().includes(scene.name)),
+        selected: (!!selectedId && selectedId == scene._id)
+          || (!!selectedName && !!scene.name && selectedName.trim().includes(scene.name)),
       };
       scenes.push(option);
     });
@@ -425,12 +469,14 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#compendium-form").submit(async (event: any) => {
       const form = document.querySelector<HTMLFormElement>("#compendium-form");
+      if (!form) return;
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
 
     html.find("#download-form").submit(async (event: any) => {
       const form = document.querySelector<HTMLFormElement>("#download-form");
+      if (!form) return;
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
@@ -462,7 +508,7 @@ export class SceneEnhancerExport extends Application {
       const scene = (sceneSelection[0] as HTMLSelectElement).selectedOptions[0]
         ? (sceneSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
-      this.sceneSet = scene && scene !== "";
+      this.sceneSet = !!scene && scene !== "";
       this.checkState();
     });
 
@@ -471,7 +517,7 @@ export class SceneEnhancerExport extends Application {
       const book = (bookSelection[0] as HTMLSelectElement).selectedOptions[0]
         ? (bookSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
-      this.compendiumBookSet = book && book !== "";
+      this.compendiumBookSet = !!book && book !== "";
       this.checkState();
     });
 
@@ -480,7 +526,7 @@ export class SceneEnhancerExport extends Application {
       const book = (bookSelection[0] as HTMLSelectElement).selectedOptions[0]
         ? (bookSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
-      this.downloadBookSet = book && book !== "";
+      this.downloadBookSet = !!book && book !== "";
       this.checkState();
     });
 
@@ -531,8 +577,8 @@ export class SceneEnhancerExport extends Application {
       if (!allowedFlags.includes(flag) && !ddbFlags.includes(flag)) delete sceneData.flags[flag];
     });
 
-    if (formData["export-actors"] !== "on") delete sceneData.flags.ddb.tokens;
-    if (formData["export-notes"] !== "on") delete sceneData.flags.ddb.notes;
+    if (formData["export-actors"] !== "on") delete sceneData.flags.ddb?.tokens;
+    if (formData["export-notes"] !== "on") delete sceneData.flags.ddb?.notes;
     if (formData["export-lights"] !== "on") delete sceneData.lights;
     if (formData["export-walls"] !== "on") delete sceneData.walls;
     if (formData["export-drawings"] !== "on") delete sceneData.drawings;

@@ -8,7 +8,7 @@ import { logger, DDBSimpleMacro } from "../../lib/_module";
  */
 function parseConfig(match: string) {
   const config: Record<string, any> = { _config: match, values: [] as string[] };
-  for (const part of match.match(/(?:[^\s"]+|"[^"]*")+/g)) {
+  for (const part of match.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []) {
     if (!part) continue;
     const [key, value] = part.split("=");
     const valueLower = value?.toLowerCase();
@@ -105,7 +105,7 @@ async function enrichFunction(config: Record<string, any>, label: string, option
   }
 
   // if itemName is provided, use that as the relative item
-  dataset.rollItemActor = foundActor?.uuid;
+  dataset.rollItemActor = foundActor?.uuid ?? undefined;
   if (!label) label = `DDB Macro`;
   if (config.itemName) {
     dataset.rollItemName = config.itemName;
@@ -162,10 +162,11 @@ async function runFunction(event: any) {
   const actor = rollItemActor ? await fromUuid(rollItemActor) as Actor.Implementation : null;
 
   try {
+    // DDBSimpleMacro.execute treats absent ids by truthiness, so undefined is equivalent to null here
     const ids = {
-      effect: null as string | null,
+      effect: undefined as string | undefined,
       actor: rollItemActor,
-      token: actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
+      token: actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : undefined,
       item: rollItemUuid,
       origin: rollItemUuid,
     };

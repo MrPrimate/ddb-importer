@@ -9,9 +9,11 @@ export function multiSelectHover() {
     const select = this.querySelector("select");
     for (const tag of this.querySelectorAll<HTMLElement>(".tags .tag")) {
       const key = tag.dataset.key;
+      if (!key) continue;
       const option = select?.querySelector<HTMLElement>(`option[value="${CSS.escape(key)}"]`);
-      if (option?.dataset.tooltip) {
-        tag.querySelector<HTMLElement>("span").dataset.tooltip = option.dataset.tooltip;
+      const span = tag.querySelector<HTMLElement>("span");
+      if (option?.dataset.tooltip && span) {
+        span.dataset.tooltip = option.dataset.tooltip;
       }
     }
   };

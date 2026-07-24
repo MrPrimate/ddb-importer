@@ -93,17 +93,30 @@ DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text: string, {
     return;
   }
 
+  const spells = this.npc.system.spells;
+  if (!spells) {
+    logger.warn(`parseOutSpells: missing npc spell slot data for ${this.source.name}`);
+    return;
+  }
+
   const spellLevel = (match) ? match[1] : "pact";
   const slots = (match)
     ? match[2]
     : (warlockMatch)
       ? warlockMatch[2]
-      : DICTIONARY.numbers.find((n) => n.natural === pactTextSlotsMatch[1])?.num;
+      : (pactTextSlotsMatch)
+        ? DICTIONARY.numbers.find((n) => n.natural === pactTextSlotsMatch[1])?.num
+        : undefined;
   const spellMatches = (match)
     ? match[3]
     : (warlockMatch)
       ? warlockMatch[4]
-      : otherWarlockMatch[2];
+      : otherWarlockMatch?.[2];
+
+  if (spellMatches === undefined) {
+    logger.warn(`parseOutSpells: unable to determine spell list for ${this.source.name}`, { text });
+    return;
+  }
 
   // console.warn("Processing spells", {
   //   spellLevel,
@@ -114,19 +127,28 @@ DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text: string, {
   if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(intSlots)) {
     logger.debug("Spell level parsing");
     const slotKey = `spell${spellLevel}` as keyof I5eSpellSlots;
-    this.npc.system.spells[slotKey]["value"] = intSlots;
-    this.npc.system.spells[slotKey]["max"] = String(slots);
-    this.npc.system.spells[slotKey]["override"] = intSlots ?? null;
-    const spellArray = spellMatches.split(",").map((spell: any) => spell.trim());
+    const slot = spells[slotKey];
+    if (slot) {
+      slot["value"] = intSlots;
+      slot["max"] = String(slots);
+      slot["override"] = intSlots;
+    } else {
+      logger.warn(`parseOutSpells: no ${String(slotKey)} slot data found for ${this.source.name}`);
+    }
+    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.class.push(...spellArray);
   } else if (spellLevel === "pact" && Number.isInteger(intSlots)) {
     logger.debug("Spell pact parsing");
-    const pactSlot = this.npc.system.spells[spellLevel as "pact"];
-    pactSlot["value"] = intSlots;
-    pactSlot["max"] = String(slots);
-    pactSlot["override"] = intSlots;
-    foundry.utils.setProperty(pactSlot, "level", warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2]);
-    const spellArray = spellMatches.split(",").map((spell: any) => spell.trim());
+    const pactSlot = spells.pact;
+    if (pactSlot) {
+      pactSlot["value"] = intSlots;
+      pactSlot["max"] = String(slots);
+      pactSlot["override"] = intSlots;
+      foundry.utils.setProperty(pactSlot, "level", warlockMatch ? warlockMatch[3] : pactTextSlotsMatch?.[2]);
+    } else {
+      logger.warn(`parseOutSpells: no pact slot data found for ${this.source.name}`);
+    }
+    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.pact.push(...spellArray);
   } else if (["at will", "at-will"].includes(String(slots))) {
     logger.debug("Spell at-will parsing");
@@ -227,10 +249,10 @@ DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
 
   const pactText = specialTraits.includes("knows the following warlock spells")
     ? specialTraits
-    : null;
+    : undefined;
 
   dom.childNodes.forEach((node) => {
-    const spellText = utils.nameString(node.textContent);
+    const spellText = utils.nameString(node.textContent ?? "");
     const trimmedText = spellText.trim();
 
     const spellCastingRegEx = new RegExp(/^Spellcasting|^(?:(?!Innate).)(\w+)\sSpellcasting/);
@@ -276,7 +298,12 @@ DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
   //   spellAttackBonus,
   // };
 
-  this.npc.flags.monsterMunch["spellList"] = this.spellList;
+  const monsterMunch = this.npc.flags?.monsterMunch;
+  if (monsterMunch) {
+    monsterMunch["spellList"] = this.spellList;
+  } else {
+    logger.warn(`_generateSpells: missing monsterMunch flags for ${this.source.name}`);
+  }
 
 };
 
@@ -309,8 +336,10 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell: I5eSpe
     switch (edgeCase.edge.toLowerCase()) {
       case "self":
       case "self only":
-        spell.system.target.affects.type = "self";
-        logger.debug("spell target changed to self");
+        if (spell.system.target.affects) {
+          spell.system.target.affects.type = "self";
+          logger.debug("spell target changed to self");
+        }
         break;
       // no default
     }
@@ -327,10 +356,11 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell: I5eSpe
       for (const key of Object.keys(spell.system.activities)) {
         const activity = spell.system.activities[key];
         if (!("damage" in activity)) continue;
-        if (activity.damage.parts.length === 0) continue;
-        activity.damage.parts[0].number = null;
-        activity.damage.parts[0].denomination = null;
-        activity.damage.parts[0].custom = {
+        const damageParts = activity.damage?.parts;
+        if (!damageParts || damageParts.length === 0) continue;
+        damageParts[0].number = null;
+        damageParts[0].denomination = null;
+        damageParts[0].custom = {
           enabled: true,
           formula: diceMatch[0],
         };

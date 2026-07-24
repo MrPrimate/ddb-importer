@@ -669,7 +669,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
             resolve(null);
             return;
           }
-          if (!canvas.dimensions.rect.contains(x, y)) {
+          if (!canvas.dimensions?.rect.contains(x, y)) {
             ui.notifications.warn("Placement outside scene bounds; tile not created.");
             resolve(null);
             return;

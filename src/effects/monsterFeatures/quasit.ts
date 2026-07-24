@@ -20,6 +20,7 @@ export function quasitEffects(npc: I5eMonsterData): I5eMonsterData {
       foundry.utils.setProperty(effect, "duration.units", "seconds");
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
+      item.effects ??= [];
       item.effects.push(effect);
       foundry.utils.setProperty(item, "flags.midiProperties.fulldam", true);
       item = forceItemEffect(item);
