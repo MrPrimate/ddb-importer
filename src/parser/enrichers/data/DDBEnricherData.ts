@@ -13,7 +13,7 @@ export interface IDDBBasicDamage {
   types?: string[];
   bonus?: string;
   scalingMode?: "whole" | "half" | "none";
-  scalingNumber?: number;
+  scalingNumber?: number | null;
   scalingFormula?: string | number;
   customFormula?: string | null;
 }
@@ -361,7 +361,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return false;
   }
 
-  async customFunction(_options: { name?: string; activity?: IDDBActivityData } = {}): Promise<void> {
+  async customFunction(_options: ICustomFunctionOptions = { name: null, activity: null }): Promise<void> {
     // noop
   }
 

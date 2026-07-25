@@ -81,7 +81,7 @@ interface IEffectGenerator {
 }
 
 export default class EffectGenerator {
-  effect: I5eEffectData;
+  effect: TAutoEffect;
   ddb: IDDBData;
   character: I5eActorData;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
@@ -122,8 +122,8 @@ export default class EffectGenerator {
     this.character = character;
     this.ddbItem = ddbItem;
     this.document = document;
-    this.isCompendiumItem = isCompendiumItem;
-    this.labelOverride = labelOverride;
+    this.isCompendiumItem = isCompendiumItem ?? false;
+    this.labelOverride = labelOverride ?? null;
     this.labelSuffix = labelSuffix;
     this.description = description;
 
@@ -132,7 +132,7 @@ export default class EffectGenerator {
     }
 
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
-    if ("grantedModifiers" in ddbItem.definition) {
+    if (ddbItem.definition && "grantedModifiers" in ddbItem.definition) {
       this.grantedModifiers = ddbItem.definition.grantedModifiers;
     }
 
@@ -174,11 +174,11 @@ export default class EffectGenerator {
   _addLanguages() {
     const languages = this.proficiencyFinder.getLanguagesFromModifiers(this.grantedModifiers);
 
-    languages.value.forEach((prof) => {
+    languages.value?.forEach((prof) => {
       logger.debug(`Generating language ${prof} for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 0, "system.traits.languages.value"));
     });
-    if (languages?.custom != "") {
+    if (languages.custom) {
       logger.debug(`Generating language ${languages.custom} for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
     }
@@ -335,7 +335,7 @@ export default class EffectGenerator {
       }
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
-        this.effect.system.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
+        this.effect.system.changes.push(ChangeHelper.upgradeChange(String(bonus.value), 3, `system.abilities.${ability}.value`));
       });
     }
   }
@@ -370,6 +370,10 @@ export default class EffectGenerator {
       this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check", "advantage");
       this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save", "disadvantage");
       this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check", "disadvantage");
+      if (!ability) {
+        logger.warn(`Unable to determine ability for "${stat}", skipping stat bonus changes for ${this.document.name}`);
+        return;
+      }
       this._addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
       this._addAddBonusChanges(this.grantedModifiers, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
     });
@@ -384,13 +388,17 @@ export default class EffectGenerator {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat bonus for ${this.document.name}`);
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]);
+        if (!ability) {
+          logger.warn(`Unable to determine ability for "${subType}", skipping stat bonus effect for ${this.document.name}`);
+          return;
+        }
 
         if (game.modules.get("dae")?.active) {
           const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
           // min(20, @abilities.con.value + 2)
           this.effect.system.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
         } else {
-          this.effect.system.changes.push(ChangeHelper.signedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
+          this.effect.system.changes.push(ChangeHelper.signedAddChange(String(bonus.value), 5, `system.abilities.${ability.value}.value`));
         }
       });
     }
@@ -454,7 +462,12 @@ export default class EffectGenerator {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} speed set for ${this.document.name}`);
         const innate = subType.split("-").slice(-1)[0];
-        const speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
+        const speedEntry = DICTIONARY.actor.speeds.find((s) => s.innate === innate);
+        if (!speedEntry) {
+          logger.warn(`Unable to determine speed type for "${subType}", skipping speed set effect for ${this.document.name}`);
+          return;
+        }
+        const speedType = speedEntry.type;
         // current assumption if no speed provided, set to walking speed
         const speed = bonus.value
           ? bonus.value
@@ -510,7 +523,7 @@ export default class EffectGenerator {
   _addSkillProficiencies() {
     DICTIONARY.actor.skills.forEach((skill) => {
       const prof = this.proficiencyFinder.getSkillProficiency(skill, this.grantedModifiers);
-      if (prof != 0) {
+      if (prof) {
         this.effect.system.changes.push(ChangeHelper.upgradeChange(prof, 9, `system.skills.${skill.name}.value`));
       }
     });
@@ -531,23 +544,23 @@ export default class EffectGenerator {
 
     for (const [key, value] of Object.entries(toolProf)) {
       logger.debug(`Generating tool proficiencies for ${this.document.name}`);
-      this.effect.system.changes.push(ChangeHelper.customChange(value.value, 8, `system.tools.${key}.value`));
+      this.effect.system.changes.push(ChangeHelper.customChange(String(value.value), 8, `system.tools.${key}.value`));
       this.effect.system.changes.push(ChangeHelper.customChange(`${value.ability}`, 8, `system.tools.${key}.ability`));
       this.effect.system.changes.push(ChangeHelper.customChange("0", 8, `system.tools.${key}.bonuses.check`));
     }
-    weaponProf.value.forEach((prof) => {
+    weaponProf.value?.forEach((prof) => {
       logger.debug(`Generating weapon proficiencies for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.weaponProf.value"));
     });
-    armorProf.value.forEach((prof) => {
+    armorProf.value?.forEach((prof) => {
       logger.debug(`Generating armor proficiencies for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.armorProf.value"));
     });
     // if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
-    if (weaponProf?.custom != "") {
+    if (weaponProf.custom) {
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
     }
-    if (armorProf?.custom != "") {
+    if (armorProf.custom) {
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
     }
   }
@@ -561,12 +574,14 @@ export default class EffectGenerator {
         this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
       } else {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for all levels`);
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(String(bonus.value), 14, "system.attributes.hp.bonuses.level"));
       }
     });
 
     const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
-    if (hpBonusModifiers.length > 0 && (!("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)) {
+    if (hpBonusModifiers.length > 0
+      && (!this.ddbItem.definition || !("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)
+    ) {
       let hpBonus = "";
       hpBonusModifiers.forEach((modifier) => {
         const hpParse = DDBModifiers.extractModifierValue(modifier);
@@ -680,7 +695,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addBonusSpeedChanges(subType: string, speedType: string = null) {
+  _addBonusSpeedChanges(subType: string, speedType: string | null = null) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
     // "Equal to Walking Speed"
     // max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)
@@ -688,7 +703,12 @@ export default class EffectGenerator {
       logger.debug(`Generating ${subType} speed bonus for ${this.document.name}`);
       if (!speedType) {
         const innate = subType.split("-").slice(-1)[0];
-        speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
+        const speedEntry = DICTIONARY.actor.speeds.find((s) => s.innate === innate);
+        if (!speedEntry) {
+          logger.warn(`Unable to determine speed type for "${subType}", skipping speed bonus effect for ${this.document.name}`);
+          return;
+        }
+        speedType = speedEntry.type;
       }
       const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
       if (speedType === "all") {
@@ -748,10 +768,11 @@ export default class EffectGenerator {
       .filter((mod) => mod.dice || mod.die || mod.value)
       .map((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+        // parseDiceString joins mods with "", so undefined behaves identically to the previous null
         if (die) {
-          return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+          return utils.parseDiceString(die.diceString, undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
         } else {
-          return utils.parseDiceString(String(mod.value), null, mod.subType ? `[${mod.subType}]` : null).diceString;
+          return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
         }
       });
     if (bonus && bonus.length > 0) {
@@ -814,12 +835,13 @@ export default class EffectGenerator {
 
   _addEffectFlags(effect: I5eEffectData) {
     // check attunement status etc
-    const canEquip = ("canEquip" in this.ddbItem.definition && this.ddbItem.definition?.canEquip) ?? false;
-    const canAttune = ("canAttune" in this.ddbItem.definition && this.ddbItem.definition?.canAttune) ?? false;
-    const isConsumable = ("isConsumable" in this.ddbItem.definition && this.ddbItem.definition?.isConsumable) ?? false;
+    const definition = this.ddbItem.definition;
+    const canEquip = (definition && "canEquip" in definition && definition.canEquip) ?? false;
+    const canAttune = (definition && "canAttune" in definition && definition.canAttune) ?? false;
+    const isConsumable = (definition && "isConsumable" in definition && definition.isConsumable) ?? false;
     const isEquipped = ("equipped" in this.ddbItem && this.ddbItem.equipped) ?? false;
     const isAttuned = ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned) ?? false;
-    const filterType = ("filterType" in this.ddbItem.definition && this.ddbItem.definition?.filterType) ?? null;
+    const filterType = (definition && "filterType" in definition && definition.filterType) ?? null;
 
     if (
       !canEquip && !canAttune && !isConsumable
@@ -911,7 +933,7 @@ export default class EffectGenerator {
     if (this.effect.system.changes.length === 0) return;
 
     this._addEffectFlags(this.effect);
-    this.document.effects.push(this.effect);
+    (this.document.effects ??= []).push(this.effect);
 
   }
 
@@ -919,7 +941,7 @@ export default class EffectGenerator {
 
 
   _addACSetChange(subType: string) {
-    let bonuses: string | number;
+    let bonuses: string | number = 0;
 
     const setMods = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType);
     const grantedStatMods = setMods.filter((mod) => mod.statId !== null);
@@ -930,6 +952,10 @@ export default class EffectGenerator {
     if (grantedStatMods.length > 0) {
       grantedStatMods.forEach((mod) => {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
+        if (!ability) {
+          logger.warn(`Unable to determine ability for stat id "${mod.statId}", skipping AC set stat for ${this.document.name}`);
+          return;
+        }
         bonusStats.push(`@abilities.${ability.value}.mod`);
         if (mod.value && Number.isInteger(mod.value)) {
           bonusValues.push(parseInt(String(mod.value)));
@@ -1075,7 +1101,7 @@ export default class EffectGenerator {
     if (this.effect.system.changes.length === 0) return;
     // generate flags for effect (e.g. checking attunement and equipped status)
     this._addEffectFlags(this.effect);
-    this.document.effects.push(this.effect);
+    (this.document.effects ??= []).push(this.effect);
   }
 
   generate() {
@@ -1092,7 +1118,8 @@ export default class EffectGenerator {
 
     this.generateACEffects();
 
-    if (this.document.effects?.length > 0
+    const effects = this.document.effects ?? [];
+    if (effects.length > 0
       || foundry.utils.hasProperty(document, "flags.dae")
       || foundry.utils.hasProperty(document, "flags.midi-qol.onUseMacroName")
     ) {
@@ -1101,17 +1128,18 @@ export default class EffectGenerator {
       });
       foundry.utils.setProperty(this.document, "flags.ddbimporter.effectsApplied", true);
 
-      if (this.document.effects.every((e) =>
-        e.name === this.document.effects[0].name
-        && e.disabled === this.document.effects[0].disabled
-        && e.transfer === this.document.effects[0].transfer
-        && isEqual(e.duration, this.document.effects[0].duration))
+      const firstEffect = effects[0];
+      if (firstEffect && effects.every((e) =>
+        e.name === firstEffect.name
+        && e.disabled === firstEffect.disabled
+        && e.transfer === firstEffect.transfer
+        && isEqual(e.duration, firstEffect.duration))
       ) {
-        const baseEffect = this.document.effects[0];
-        baseEffect.system.changes = this.document.effects.flatMap((e) => e.system?.changes ?? []);
-        baseEffect.statuses = Array.from(new Set(this.document.effects.flatMap((e) => e.statuses)));
+        const baseEffect = firstEffect;
+        (baseEffect.system ??= {}).changes = effects.flatMap((e) => e.system?.changes ?? []);
+        baseEffect.statuses = Array.from(new Set(effects.flatMap((e) => e.statuses ?? [])));
         const flags = {};
-        this.document.effects.forEach((e) => {
+        effects.forEach((e) => {
           foundry.utils.mergeObject(flags, e.flags, {
             inplace: true,
             insertValues: true,
@@ -1146,7 +1174,7 @@ export default class EffectGenerator {
 
     generator.generate();
 
-    logger.debug(`Adding effects to ${foundry.utils.getProperty(ddbItem, "name") ?? ddbItem.definition.name}`, {
+    logger.debug(`Adding effects to ${foundry.utils.getProperty(ddbItem, "name") ?? ddbItem.definition?.name}`, {
       generator,
       ddbItem,
     });
@@ -1155,7 +1183,7 @@ export default class EffectGenerator {
   }
 
   static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
-    const daeActive: boolean = game.modules.get("dae")?.active;
+    const daeActive: boolean = game.modules.get("dae")?.active ?? false;
     const daeManagesTurnExpiry: boolean = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
     const deprecatedSpecialDurMap: Record<string, TDAEEffectExpiryTypes> = daeManagesTurnExpiry ? {
       "turnStart": "targetStart",
@@ -1178,6 +1206,8 @@ export default class EffectGenerator {
       "targetStart": "turnStart",
       "targetEnd": "turnEnd",
     };
+
+    effect.duration ??= {};
 
     if (durations.includes("turnStart")) {
       effect.duration.expiry = deprecatedSpecialDurMap["turnStart"];

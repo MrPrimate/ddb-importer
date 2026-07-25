@@ -11,12 +11,20 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
 
   #generateAbilities() {
     const abilityNodes = this.block.querySelector("div.stat-block-ability-scores");
+    const abilities = this.npc.system.abilities;
+
+    if (!abilityNodes || !abilities) {
+      logger.warn(`Companion ${this.npc.name} is missing ability scores data, unable to parse abilities`);
+      return;
+    }
 
     abilityNodes.querySelectorAll("div.stat-block-ability-scores-stat").forEach((aNode) => {
       const ability = (aNode.querySelector("div.stat-block-ability-scores-heading") as HTMLElement).innerText.toLowerCase() as T5eAbility;
 
       const getFallbackAbility = () => {
-        const clone = aNode.querySelector("div.stat-block-ability-scores-data").cloneNode(true) as HTMLElement;
+        const dataNode = aNode.querySelector("div.stat-block-ability-scores-data");
+        if (!dataNode) return "";
+        const clone = dataNode.cloneNode(true) as HTMLElement;
         clone.getElementsByTagName("span")[0].innerHTML = "";
         return clone.innerText.trim();
       };
@@ -27,24 +35,25 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
       const value = Number.parseInt(abilityScore);
       // const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
-      this.npc.system.abilities[ability]["value"] = value;
-      // this.npc.system.abilities[ability]["mod"] = mod;
+      abilities[ability]["value"] = value;
+      // abilities[ability]["mod"] = mod;
     });
   }
 
   getBlockData(type: string): string | undefined {
+    const subType = this.options.subType?.toLowerCase() ?? "";
     const block = Array.from(this.blockDatas).find((el) => {
       const elementName = el.innerText.trim();
       const elementStartsWith = elementName.startsWith(type);
       const isOnly = elementName.toLowerCase().includes("only")
-        ? elementName.toLowerCase().includes(this.options.subType.toLowerCase())
+        ? elementName.toLowerCase().includes(subType)
         : true;
       return elementStartsWith && isOnly;
     });
     if (!block) return undefined;
 
     const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
-    if (header.includes("only") && !header.includes(this.options.subType.toLowerCase())) {
+    if (header.includes("only") && !header.includes(subType)) {
       return undefined;
     }
 
@@ -58,12 +67,18 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const saveString = this.getBlockData("Saving Throws");
     if (!saveString) return;
 
+    const abilities = this.npc.system.abilities;
+    if (!abilities) {
+      logger.warn(`Companion ${this.npc.name} has no abilities data, unable to parse saving throws`);
+      return;
+    }
+
     const saves = saveString.split(",");
 
     saves.forEach((save) => {
       const ability = save.trim().split(" ")[0].toLowerCase() as T5eAbility;
       if (save.includes("plus PB") || save.includes("+ PB")) {
-        this.npc.system.abilities[ability]["proficient"] = 1;
+        abilities[ability]["proficient"] = 1;
       }
     });
   }
@@ -106,24 +121,24 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
   }
 
   #generateSize() {
-    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
+    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata")?.innerHTML;
 
     if (!data) return;
     this._handleSize(data);
   }
 
   #generateType() {
-    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
+    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata")?.innerHTML;
     if (!data) return;
-    const typeName = data.split(",")[0].split(" ").pop().toLowerCase();
+    const typeName = data.split(",")[0].split(" ").pop()?.toLowerCase() ?? "";
 
     this._handleType(typeName);
   }
 
   #generateAlignment() {
-    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
+    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata")?.innerHTML;
     if (!data) return;
-    const alignment = data.split(",").pop().toLowerCase().trim();
+    const alignment = data.split(",").pop()?.toLowerCase().trim();
 
     this._handleAlignment(alignment);
   }
@@ -204,10 +219,11 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
       // no default
     }
 
+    const subType = this.options.subType?.toLowerCase() ?? "";
     const features = await this.getFeature(next.outerHTML, featType);
     features.forEach((feature) => {
       if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
-        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
+        && feature.name.toLowerCase().includes(subType)
       ) {
         if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
         this.npc.items.push(feature);

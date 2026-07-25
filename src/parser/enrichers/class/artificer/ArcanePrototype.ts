@@ -163,7 +163,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     spellUuid: string;
     imbuedLevel: number;
   }): Promise<void> {
-    const spellOverride = {
+    const spellOverride: I5eActivitySpell = {
       uuid: spellUuid,
       properties: ["vocal", "somatic"],
       level: imbuedLevel,
@@ -174,7 +174,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     await DDBBasicActivity.createActivity(
       {
         type: DDBEnricherData.ACTIVITY_TYPES.CAST,
-        character: this.ddbParser,
+        character: this.ddbParser?.ddbCharacter?.raw.character,
         document: item,
         name: `Cast ${spellName} (Destroy Prototype)`,
       },
@@ -194,7 +194,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     await DDBBasicActivity.createActivity(
       {
         type: DDBEnricherData.ACTIVITY_TYPES.CAST,
-        character: this.ddbParser,
+        character: this.ddbParser?.ddbCharacter?.raw.character,
         document: item,
         name: `Cast ${spellName} (Spell Slot)`,
       },

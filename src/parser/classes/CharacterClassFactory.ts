@@ -27,14 +27,18 @@ export default class CharacterClassFactory {
     const { addToCompendium, compendiumImportTypes, updateCompendiumItems, collectOnly } = options;
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
-    this.source = this.ddbCharacter.source.ddb;
+    const source = this.ddbCharacter.source;
+    if (!source) {
+      throw new Error("CharacterClassFactory requires a parsed DDB character source");
+    }
+    this.source = source.ddb;
     this.ddbClasses = {
     };
     this.originalClass = null;
-    this.addToCompendium = addToCompendium;
+    this.addToCompendium = addToCompendium ?? null;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.updateCompendiumItems = updateCompendiumItems ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
-    this.collectOnly = collectOnly;
+    this.collectOnly = collectOnly ?? false;
   }
 
   async processCharacter() {
@@ -63,7 +67,7 @@ export default class CharacterClassFactory {
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;
         documents.push(foundry.utils.deepClone(ddbSubClass.data));
       }
-      if (ddbClass.isStartingClass) this.originalClass = ddbClass.data._id;
+      if (ddbClass.isStartingClass) this.originalClass = ddbClass.data._id ?? null;
     }
 
     logger.debug(`Processed ${documents.length} classes`, { documents });
@@ -79,7 +83,8 @@ export default class CharacterClassFactory {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
-    const advancement: I5eAdvancement = klass.system.advancement[id];
+    const advancementData = klass.system.advancement ?? {};
+    const advancement: I5eAdvancement | undefined = advancementData[id];
     const aData = ddbClass._advancementMatches.features[id];
     const added: Record<string, string> = {};
 
@@ -113,7 +118,7 @@ export default class CharacterClassFactory {
       advancement.value = {
         added,
       };
-      klass.system.advancement[id] = advancement;
+      advancementData[id] = advancement;
     }
   }
 
@@ -124,7 +129,8 @@ export default class CharacterClassFactory {
     //     "B09QLNujzaGh6zt7": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
     //   }
     // }
-    const advancement: I5eAdvancement = klass.system.advancement[id];
+    const advancementData = klass.system.advancement ?? {};
+    const advancement: I5eAdvancement | undefined = advancementData[id];
     const aData = ddbClass._advancementMatches.features[id];
     const feats: Record<string, string> = {};
 
@@ -156,7 +162,7 @@ export default class CharacterClassFactory {
     }
 
     if (Object.keys(feats).length > 0) {
-      klass.system.advancement[id].value = {
+      advancement.value = {
         type: "feat",
         feat: feats,
       };
@@ -174,10 +180,10 @@ export default class CharacterClassFactory {
         ddbClass,
       });
 
-      for (const [id, a] of Object.entries(klass.system.advancement)) {
-        if (a.type === "ItemGrant" && a.level <= ddbClass.ddbClass.level) {
+      for (const [id, a] of Object.entries(klass.system.advancement ?? {})) {
+        if (a.type === "ItemGrant" && a.level !== undefined && a.level <= ddbClass.ddbClass.level) {
           this.#itemGrantLink(ddbClass, klass, id);
-        } else if (a.type === "AbilityScoreImprovement" && a.value.type === "feat") {
+        } else if (a.type === "AbilityScoreImprovement" && a.value?.type === "feat") {
           this.#abilityScoreFeatLink(ddbClass, klass, id);
         }
       }

@@ -13,7 +13,7 @@ export default class DDBBasicActivity {
   nameIdPostfix: string;
   id: string | null;
   data: I5eActivity;
-  actor: I5ePCData | I5eMonsterData | null;
+  actor: I5ePCData | I5eMonsterData | I5eVehicleData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
   ddbParent: DDBActivityFactoryMixin<any> | null;
   // 5e class
@@ -67,7 +67,7 @@ export default class DDBBasicActivity {
   }: {
     type: IDDBActivityType;
     name?: string | null;
-    actor?: I5ePCData | I5eMonsterData | null;
+    actor?: I5ePCData | I5eMonsterData | I5eVehicleData | null;
     ddbParent?: DDBActivityFactoryMixin | null;
     nameIdPrefix?: string | null;
     nameIdPostfix?: string | null;
@@ -608,7 +608,9 @@ export default class DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, character, enricher, nameIdPostfix }: { document?: any; type: IDDBActivityType; name?: string | null; character?: any; enricher?: any; nameIdPostfix?: string | null }, options: any = {}): Promise<string> {
+  static async createActivity({ document, type, name, character, enricher, nameIdPostfix }: IDDBBasicActivityCreateOptions,
+    options: IDDBActivityBuild = {},
+  ): Promise<string> {
     const activity = new DDBBasicActivity({
       name: name ?? null,
       type,
@@ -619,13 +621,13 @@ export default class DDBBasicActivity {
 
     activity.build(options);
     await enricher?.applyActivityOverride(activity.data);
-
+    document.effects ??= [];
     const effects = (await enricher?.createEffects()) ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
     await enricher?.addDocumentOverride();
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
-    await enricher?.addAdditionalActivities(enricher?.ddbParent);
+    await enricher?.addAdditionalActivities(enricher?.ddbParser);
 
     // _generateDataStub always assigns data._id in the constructor
     return activity.data._id ?? "";

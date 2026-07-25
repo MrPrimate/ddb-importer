@@ -70,13 +70,12 @@ export default class MagicItemMaker {
         }
       }
 
-      if (itemSpell.flags.ddbimporter.dndbeyond.castAtLevel) {
-        castLevel = itemSpell.flags.ddbimporter.dndbeyond.castAtLevel;
+      const castAtLevel = itemSpell.flags.ddbimporter?.dndbeyond?.castAtLevel;
+      if (castAtLevel) {
+        castLevel = castAtLevel;
       }
     }
-    const spellName: string = foundry.utils.hasProperty(itemSpell, "flags.ddbimporter.originalName")
-      ? itemSpell.flags.ddbimporter.originalName
-      : itemSpell.name;
+    const spellName: string = itemSpell.flags.ddbimporter?.originalName ?? itemSpell.name;
 
     return {
       id: "",

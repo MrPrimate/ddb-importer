@@ -24,7 +24,7 @@ export default class DDBAction extends DDBFeatureMixin {
     return DDBDataUtils.displayAsAttack(this.ddbData, this.ddbDefinition, this.rawCharacter);
   }
 
-  _generateSystemType(typeNudge: ICoreSourceTypes = null) {
+  _generateSystemType(typeNudge: ICoreSourceTypes | null = null) {
     if (this.documentType === "weapon") {
       this._generateWeaponType();
     } else if (this.ddbData.character.actions.class.some((a) =>
@@ -71,10 +71,14 @@ export default class DDBAction extends DDBFeatureMixin {
       ? super.getMartialArtsDamage(bonuses.concat((unarmedDamageBonus === 0 ? [] : [`+ ${unarmedDamageBonus}`])))
       : super.getDamage(bonuses.concat([modBonus]));
 
-    if (damage.number || damage.custom.enabled) {
+    if (damage.number || damage.custom?.enabled) {
       return damage;
     } else {
-      return undefined;
+      // DDBFeatureMixin.getDamage is declared as always returning an I5eDamagePart, but every
+      // caller (DDBFeatureMixin._generateDamage, DDBFeatureActivity) guards against a missing
+      // part; widening the base signature belongs to that file's strict pass, so keep the
+      // runtime undefined sentinel and satisfy the inherited signature here.
+      return undefined as unknown as I5eDamagePart;
     }
   }
 
@@ -82,7 +86,7 @@ export default class DDBAction extends DDBFeatureMixin {
     const defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.actor.abilities.find(
         (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
-      ).value
+      )?.value ?? ""
       : "";
 
     if (this.ddbDefinition.abilityModifierStatId
@@ -90,8 +94,9 @@ export default class DDBAction extends DDBFeatureMixin {
     ) {
       return defaultAbility;
     } else if (this.ddbDefinition.isMartialArts) {
+      const effectAbilities = this.rawCharacter.flags?.ddbimporter?.dndbeyond?.effectAbilities;
       return this.ddbDefinition.isMartialArts && this.isMartialArtist()
-        ? this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.str.value
+        ? (effectAbilities?.dex?.value ?? 0) >= (effectAbilities?.str?.value ?? 0)
           ? "dex"
           : "str"
         : defaultAbility !== ""
@@ -148,7 +153,10 @@ export default class DDBAction extends DDBFeatureMixin {
       this.cleanup();
       await this.enricher.addDocumentAdvancements();
       await this.enricher.addDocumentOverride();
-      await this._addEffects(undefined, this.type);
+      // DDBFeatureMixin._addEffects requires a choice, but actions have none and the base
+      // handles the runtime undefined; widening the base parameter belongs to that file's
+      // strict pass.
+      await this._addEffects(undefined as unknown as IDDBChoiceResult, this.type);
       this._addCustomValues();
 
       this._final();

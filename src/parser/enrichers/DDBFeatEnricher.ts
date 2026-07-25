@@ -11,7 +11,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   }: {
     activityGenerator: TActivityGenerator;
     notifier?: NotifierV1 | null;
-    fallbackEnricher?: string;
+    fallbackEnricher?: string | null;
   }) {
     super({
       activityGenerator,
@@ -24,6 +24,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
+    if (!this.name) return null;
     const featName = utils.pascalCase(this.name);
     const Enricher = (FeatEnrichers as Record<string, EnricherConstructor | undefined>)[featName];
     if (!Enricher) {

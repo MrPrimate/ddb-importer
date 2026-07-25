@@ -22,7 +22,7 @@ interface IDDBKlassFeatures {
 
 export default class DDBClassFeatures {
 
-  rawCharacter: I5ePCData;
+  rawCharacter: I5ePCData | null;
   ddbCharacter: DDBCharacter | null;
   ddbData: IDDBData;
   excludedFeatures: number[];
@@ -49,12 +49,13 @@ export default class DDBClassFeatures {
     this.ddbData.character.classes.forEach((klass) => {
       const derived = klass.classFeatures;
       const klassDefinitionFeatures = klass.definition.classFeatures;
-      const subKlassDefinitionFeatures = klass.subclassDefinition?.classFeatures;
+      const subclassDefinition = klass.subclassDefinition;
+      const subKlassDefinitionFeatures = subclassDefinition?.classFeatures;
 
       const klassDefinitionFeatureIds = klassDefinitionFeatures.map((f) => f.id);
-      const subKlassDefinitionFeatureIds = klass.subclassDefinition
+      const subKlassDefinitionFeatureIds = subclassDefinition
         ? derived
-          .filter((f) => f.definition.classId === klass.subclassDefinition.id)
+          .filter((f) => f.definition.classId === subclassDefinition.id)
           .map((f) => f.definition.id)
         : [];
 
@@ -116,8 +117,8 @@ export default class DDBClassFeatures {
     });
 
     this.excludedFeatures = this.ddbData.character.optionalClassFeatures
-      .filter((f) => f.affectedClassFeatureId)
-      .map((f) => f.affectedClassFeatureId);
+      .map((f) => f.affectedClassFeatureId)
+      .filter((id): id is number => Boolean(id));
 
     this.deriveFeatures();
   }
@@ -217,19 +218,19 @@ export default class DDBClassFeatures {
 
     parsedFeatures
       .sort((a, b) => {
-        return a.flags.ddbimporter.dndbeyond.displayOrder - b.flags.ddbimporter.dndbeyond.displayOrder;
+        return (a.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0) - (b.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0);
       })
       .forEach((item) => {
         // have we already processed an identical item?
         if (!CharacterFeatureFactory.isDuplicateFeature(this._generated, item)) {
-          const name = item.flags.ddbimporter.originalName ?? item.name;
+          const name = item.flags.ddbimporter?.originalName ?? item.name;
           const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
           const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
             || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
           if (existingFeature && !duplicateFeature) {
-            const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-            existingFeature.system.description.value += levelAdjustment;
-            existingFeature.effects.push(...item.effects);
+            const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
+            if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
+            existingFeature.effects?.push(...(item.effects ?? []));
           } else if (!existingFeature) {
             this._processed.push(item);
           }
@@ -241,7 +242,12 @@ export default class DDBClassFeatures {
 
   async _generateSubClassFeatures(klass: IDDBClass) {
     const className = klass.definition.name;
-    const subClassName = `${klass.subclassDefinition.name}`;
+    const subclassDefinition = klass.subclassDefinition;
+    if (!subclassDefinition) {
+      logger.warn(`No subclass definition found for ${className}, skipping subclass feature generation`);
+      return;
+    }
+    const subClassName = `${subclassDefinition.name}`;
     const parsedFeatures: T5eFeatureMixinDataTypes[] = [];
     const subClassFeatures = this.klassFeatures[klass.definition.name].filtered.subclass;
     const subClass = foundry.utils.getProperty(klass, "subclassDefinition") as IDDBClassDefinition;
@@ -250,7 +256,7 @@ export default class DDBClassFeatures {
       const features = await this._getFeatures({
         featureDefinition: feature,
         type: "class",
-        source: `${className} : ${klass.subclassDefinition.name}`,
+        source: `${className} : ${subclassDefinition.name}`,
         flags: {
           "ddbimporter": {
             class: klass.definition.name,
@@ -269,16 +275,18 @@ export default class DDBClassFeatures {
     // parse out duplicate features from class features
     parsedFeatures.forEach((item) => {
       if (!CharacterFeatureFactory.isDuplicateFeature(this._parsed[className], item)) {
-        const name = item.flags.ddbimporter.originalName ?? item.name;
+        const name = item.flags.ddbimporter?.originalName ?? item.name;
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(subClassDocs, item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(subClassDocs, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
           if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(name)) {
-            existingFeature.system.description.value = `${item.system.description.value}`;
+            if (existingFeature.system.description) {
+              existingFeature.system.description.value = `${item.system.description?.value ?? ""}`;
+            }
           } else {
-            const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-            existingFeature.system.description.value += levelAdjustment;
+            const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
+            if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
           }
         } else if (!existingFeature) {
           subClassDocs.push(item);
@@ -291,19 +299,21 @@ export default class DDBClassFeatures {
     // now we take the unique subclass features and add to class
     subClassDocs
       .sort((a, b) => {
-        return a.flags.ddbimporter.dndbeyond.displayOrder - b.flags.ddbimporter.dndbeyond.displayOrder;
+        return (a.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0) - (b.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0);
       })
       .forEach((item) => {
-        const name = item.flags.ddbimporter.originalName ?? item.name;
+        const name = item.flags.ddbimporter?.originalName ?? item.name;
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
           if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(name)) {
-            existingFeature.system.description.value = `${item.system.description.value}`;
+            if (existingFeature.system.description) {
+              existingFeature.system.description.value = `${item.system.description?.value ?? ""}`;
+            }
           } else {
-            const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-            existingFeature.system.description.value += levelAdjustment;
+            const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
+            if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
           }
         } else if (!existingFeature) {
           this._processed.push(item);

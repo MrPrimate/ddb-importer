@@ -19,25 +19,25 @@ interface StatusEffectChangeParams {
 interface OverTimeDamageParams {
   document: TAll5eItemDocuments;
   turn: string;
-  damage: string;
-  damageType: string;
-  saveAbility: string | string[];
+  damage?: string;
+  damageType?: string;
+  saveAbility?: string | string[] | null;
   saveRemove: boolean;
-  saveDamage: string;
-  dc: string | number | { calculation?: string; formula?: string };
+  saveDamage?: string;
+  dc?: number | string;
 }
 
 interface OverTimeSaveParams {
   document: TAll5eItemDocuments;
   turn: string;
-  saveAbility: string | string[];
+  saveAbility?: string | string[] | null;
   saveRemove?: boolean;
-  dc: string | number | { calculation?: string; formula?: string };
+  dc?: number | string;
 }
 
 export default class ChangeHelper {
 
-  static change({ value, priority, key, type, phase = null }: ChangeParams): IActiveEffectChangeData {
+  static change({ value, priority, key, type, phase }: ChangeParams): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -207,14 +207,15 @@ export default class ChangeHelper {
   static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): I5eEffectData {
     if (AutoEffects.effectModules().daeInstalled && utils.getSetting<boolean>("effects-uses-macro-status-effects")) {
       const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
-      effect.system.changes.push(key);
+      const system = (effect.system ??= {});
+      (system.changes ??= []).push(key);
     } else {
       if (effect.description && effect.description.trim() === "") {
         effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
       } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
         effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
       }
-      effect.statuses.push(utils.camelCase(statusName));
+      (effect.statuses ??= []).push(utils.camelCase(statusName));
       if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
     }
     return effect;

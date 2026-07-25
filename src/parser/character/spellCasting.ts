@@ -22,21 +22,36 @@ function getSpellCastingAbility(klass: IDDBClass): T5eAbility | undefined {
 }
 
 DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting(this: DDBCharacter) {
+  const attributes = this.raw.character.system.attributes;
+  const characterAbilities = this.raw.character.flags?.ddbimporter?.dndbeyond?.effectAbilities;
+  if (!this.source || !attributes || !characterAbilities) {
+    logger.warn("_generateSpellCasting: missing DDB source data, character attributes, or effect abilities");
+    return;
+  }
+  const ddbCharacter = this.source.ddb.character;
   const result: { label: string; value: number }[] = [];
-  this.source.ddb.character.classSpells.forEach((playerClass) => {
-    const classInfo = this.source.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
+  ddbCharacter.classSpells.forEach((playerClass) => {
+    const classInfo = ddbCharacter.classes.find((cls) => cls.id === playerClass.characterClassId);
+    if (!classInfo) {
+      logger.warn(`_generateSpellCasting: unable to find class for class spell id ${playerClass.characterClassId}`);
+      return;
+    }
     const spellCastingAbility = getSpellCastingAbility(classInfo);
     if (spellCastingAbility !== undefined) {
-      const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
-      const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+      const abilityScore = characterAbilities[spellCastingAbility].value;
+      if (abilityScore === undefined) {
+        logger.warn(`_generateSpellCasting: missing ability score for ${spellCastingAbility}`);
+        return;
+      }
+      const abilityModifier = utils.calculateModifier(abilityScore);
       result.push({ label: spellCastingAbility, value: abilityModifier });
     }
   });
   // we need to decide on one spellcasting ability, so we take the one with the highest modifier
   if (result.length === 0) {
-    this.raw.character.system.attributes.spellcasting = "";
+    attributes.spellcasting = "";
   } else {
-    this.raw.character.system.attributes.spellcasting = result
+    attributes.spellcasting = result
       .sort((a, b) => {
         if (a.value > b.value) return -1;
         if (a.value < b.value) return 1;
@@ -47,19 +62,25 @@ DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting(th
 };
 
 DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter): IDDBCasterInfo[] {
-  return this.source.ddb.character.classes
+  if (!this.source) {
+    logger.warn("getCasterInfo called before DDB source data was loaded");
+    return [];
+  }
+  const ddbCharacter = this.source.ddb.character;
+  return ddbCharacter.classes
     .filter((cls) => {
       return cls.definition.canCastSpells || (cls.subclassDefinition && cls.subclassDefinition.canCastSpells);
     })
     .map((cls) => {
+      const spellRules = cls.definition.spellRules;
       // the class total level
       let casterLevel = cls.level;
       // class name
       const name = cls.definition.name;
 
       // get the casting level if the character is a multiclassed spellcaster
-      if (cls.definition.spellRules && cls.definition.spellRules.multiClassSpellSlotDivisor) {
-        casterLevel = Math.floor(casterLevel / cls.definition.spellRules.multiClassSpellSlotDivisor);
+      if (spellRules && spellRules.multiClassSpellSlotDivisor) {
+        casterLevel = Math.floor(casterLevel / spellRules.multiClassSpellSlotDivisor);
       } else {
         casterLevel = 0;
       }
@@ -69,19 +90,28 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
       }
 
       const cantrips
-        = cls.definition.spellRules
-        && cls.definition.spellRules.levelCantripsKnownMaxes
-        && Array.isArray(cls.definition.spellRules.levelCantripsKnownMaxes)
-          ? cls.definition.spellRules.levelCantripsKnownMaxes[casterLevel + 1]
+        = spellRules
+        && spellRules.levelCantripsKnownMaxes
+        && Array.isArray(spellRules.levelCantripsKnownMaxes)
+          ? spellRules.levelCantripsKnownMaxes[casterLevel + 1]
           : 0;
 
       if (["Warlock", "Blood Hunter"].includes(name)) {
         // pact casting doesn't count towards multiclass spells casting
         // we still add an entry to get cantrip info
-        const levelSpellSlots = cls.definition.spellRules.levelSpellSlots[casterLevel];
+        const levelSpellSlots = spellRules?.levelSpellSlots[casterLevel];
+        if (!spellRules || !levelSpellSlots) {
+          logger.warn(`getCasterInfo: missing pact spell slot data for ${name}`, { class: cls });
+          return {
+            name,
+            casterLevel: 0,
+            slots: [],
+            cantrips,
+          };
+        }
         const maxLevel = levelSpellSlots.indexOf(Math.max(...levelSpellSlots)) + 1;
         const maxSlots = Math.max(...levelSpellSlots);
-        const pactEntry = this.source.ddb.character.pactMagic.find((pact) => pact.level === maxLevel);
+        const pactEntry = ddbCharacter.pactMagic.find((pact) => pact.level === maxLevel);
         if (!pactEntry) {
           logger.warn(`No pact magic entry found for level ${maxLevel} on ${name}, assuming no slots used`);
         }
@@ -94,14 +124,17 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
         return {
           name,
           casterLevel: 0,
-          slots: cls.definition.spellRules.levelSpellSlots[0],
+          slots: spellRules.levelSpellSlots[0],
           cantrips,
         };
       } else {
+        if (!spellRules) {
+          logger.warn(`getCasterInfo: missing spell slot data for ${name}`, { class: cls });
+        }
         return {
           name,
           casterLevel,
-          slots: cls.definition.spellRules.levelSpellSlots[cls.level],
+          slots: spellRules?.levelSpellSlots[cls.level] ?? [],
           cantrips,
         };
       }
@@ -109,6 +142,11 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
 };
 
 DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: DDBCharacter) {
+  if (!this.source) {
+    logger.warn("_generateSpellSlots called before DDB source data was loaded");
+    return;
+  }
+  const ddbCharacter = this.source.ddb.character;
   // get the caster information from all classes and subclasses
   const casterInfo = this.getCasterInfo();
 
@@ -145,7 +183,7 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
   }
 
   for (let i = 1; i < result.length; i++) {
-    const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used).reduce((a, b) => a + b, 0) ?? 0;
+    const currentSlots = ddbCharacter.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used).reduce((a, b) => a + b, 0) ?? 0;
     this.spellSlots[`spell${i}` as keyof I5eSpellSlots] = {
       value: Number.isInteger(result[i]) ? (result[i] - currentSlots) : 0,
       max: Number.isInteger(result[i]) ? String(result[i]) : String(0),
@@ -155,6 +193,11 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
 };
 
 DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPreparedSpells(this: DDBCharacter) {
+  const characterAbilities = this.raw.character.flags?.ddbimporter?.dndbeyond?.effectAbilities;
+  if (!this.source || !characterAbilities) {
+    logger.warn("_generateMaxPreparedSpells: missing DDB source data or effect abilities");
+    return;
+  }
   let max = 0;
 
   this.source.ddb.character.classes
@@ -164,8 +207,12 @@ DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPrepare
     .forEach((klass) => {
       const spellCastingAbility = getSpellCastingAbility(klass);
       if (spellCastingAbility !== undefined) {
-        const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
-        const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+        const abilityScore = characterAbilities[spellCastingAbility].value;
+        if (abilityScore === undefined) {
+          logger.warn(`_generateMaxPreparedSpells: missing ability score for ${spellCastingAbility}`);
+          return;
+        }
+        const abilityModifier = utils.calculateModifier(abilityScore);
         if (klass.definition.spellPrepareType === 1 || klass.subclassDefinition?.spellPrepareType === 1) {
           max += abilityModifier + klass.level;
         } else if (klass.definition.spellPrepareType === 2 || klass.subclassDefinition?.spellPrepareType === 2) {

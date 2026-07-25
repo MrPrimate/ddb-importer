@@ -266,7 +266,7 @@ global {
     concentration?: boolean;
     special?: string;
     units?: TDurationUnit;
-    value?: string;
+    value?: string | null;
   }
 
   interface I5eSystemTargetData {
@@ -609,7 +609,7 @@ global {
     characterClassId?: number;
     granted?: boolean;
     tags?: string[];
-    sources?: { sourceId?: number; pageNumber?: number; sourceType?: number }[];
+    sources?: { sourceId?: number; pageNumber?: number | null; sourceType?: number }[];
     restrictions?: string[];
     stackable?: boolean;
     isContainer?: boolean;

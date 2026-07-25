@@ -1,11 +1,18 @@
+import { logger } from "../../lib/_module";
 import { DDBModifiers } from "../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
 DDBCharacter.prototype._generateInitiative = function _generateInitiative(this: DDBCharacter) {
-  const initMods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "initiative" });
+  const ddb = this.source?.ddb;
+  const attributes = this.raw.character.system.attributes;
+  if (!ddb || !attributes) {
+    logger.warn("_generateInitiative: missing DDB source data or character attributes, skipping initiative generation");
+    return;
+  }
+  const initMods = DDBModifiers.filterBaseModifiers(ddb, "bonus", { subType: "initiative" });
   // const initiativeBonus = DDBModifiers.getModifierSum(initMods, this.raw.character);
 
-  let initiativeBonus = DDBModifiers.getValueFromModifiers(initMods, "initiative", "initiative", "bonus");
+  let initiativeBonus = DDBModifiers.getValueFromModifiers(initMods, "initiative", "initiative", "bonus") ?? "";
 
   // if (initiativeBonus && this.raw.character.flags.dnd5e.initiativeAlert) {
   //   if (initiativeBonus.includes("+ 5")) {
@@ -19,9 +26,9 @@ DDBCharacter.prototype._generateInitiative = function _generateInitiative(this: 
   }
 
   // If we have the alert Feat set, lets sub 5 so it's correct
-  this.raw.character.system.attributes.init = {
+  attributes.init = {
     ability: "dex",
-    bonus: initiativeBonus ?? "",
+    bonus: initiativeBonus,
   };
 
 };

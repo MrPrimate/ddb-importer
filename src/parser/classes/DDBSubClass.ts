@@ -63,27 +63,33 @@ export default class DDBSubClass extends DDBBaseClass {
   }
 
   _generateDataStub() {
+    const subclassDefinition = this.ddbClass.subclassDefinition;
+    if (!subclassDefinition) {
+      throw new Error(`DDBSubClass: no subclass definition found for class ${this.ddbClass.definition.name}`);
+    }
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.ddbClass.subclassDefinition.name.replace("(2014)", "").trim(),
+      name: subclassDefinition.name.replace("(2014)", "").trim(),
       type: "subclass",
       system: SystemHelpers.getTemplate("subclass"),
       flags: {
         ddbimporter: {
           class: this.ddbClass.definition.name,
-          subclass: this.ddbClass.subclassDefinition.name,
+          subclass: subclassDefinition.name,
           id: this.ddbClass.id,
           classDefinitionId: this.ddbClass.definition.id,
-          definitionId: this.ddbClass.subclassDefinition.id,
-          subclassDefinitionId: this.ddbClass.subclassDefinition.id,
+          definitionId: subclassDefinition.id,
+          subclassDefinitionId: subclassDefinition.id,
           type: "class",
-          ddbImg: this.ddbClass.subclassDefinition.portraitAvatarUrl ?? this.ddbClass.definition.portraitAvatarUrl,
+          ddbImg: subclassDefinition.portraitAvatarUrl ?? this.ddbClass.definition.portraitAvatarUrl,
           is2014: this.is2014,
           is2024: !this.is2014,
         },
       },
       img: null,
-    } as I5eSubclassItem;
+      // img and flags.ddbimporter.ddbImg are legitimately null at this stage, but the shared
+      // document/flag types only allow string, so the direct cast fails overlap checks
+    } as unknown as I5eSubclassItem;
   }
 
   subClassName;
@@ -94,10 +100,15 @@ export default class DDBSubClass extends DDBBaseClass {
     super(ddb, classId, options);
 
     // adjustments for subclass
-    this.ddbClassDefinition = this.ddbClass.subclassDefinition;
+    const subclassDefinition = this.ddbClass.subclassDefinition;
+    if (!subclassDefinition) {
+      // unreachable in practice: _generateDataStub in the super constructor has already thrown
+      throw new Error(`DDBSubClass: no subclass definition found for class ${this.ddbClass.definition.name}`);
+    }
+    this.ddbClassDefinition = subclassDefinition;
     this.isSubClass = true;
-    this.name = this.ddbClass.subclassDefinition.name;
-    this.subClassName = this.ddbClass.subclassDefinition.name;
+    this.name = subclassDefinition.name;
+    this.subClassName = subclassDefinition.name;
     this._processSources();
     this.advancementHelper.isSubclass = true;
 
@@ -219,6 +230,13 @@ export default class DDBSubClass extends DDBBaseClass {
 
   _druidFixes() {
     if (this.data.name.startsWith("Circle of the Moon")) {
+      const crScale: Record<string, I5eAdvScaleValueEntry> = {
+        6: { value: 2 },
+        9: { value: 3 },
+        12: { value: 4 },
+        15: { value: 5 },
+        18: { value: 6 },
+      };
       const cr: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -226,24 +244,18 @@ export default class DDBSubClass extends DDBBaseClass {
           distance: { units: "" },
           identifier: `wild-shape-cr`,
           type: "cr",
-          scale: {
-            6: { value: 2 },
-            9: { value: 3 },
-            12: { value: 4 },
-            15: { value: 5 },
-            18: { value: 6 },
-          },
+          scale: crScale,
         },
         value: {},
         title: `Wild Shape CR`,
         icon: null,
       };
       if (this.is2014) {
-        cr.configuration.scale[2] = {
+        crScale[2] = {
           value: 1,
         };
       } else {
-        cr.configuration.scale[3] = {
+        crScale[3] = {
           value: 1,
         };
       }
@@ -308,7 +320,8 @@ export default class DDBSubClass extends DDBBaseClass {
 
   _fighterFixes() {
     if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
-      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+      const advancementData = this._advancementData;
+      for (const [id, advancement] of Object.entries(advancementData)) {
         if (advancement.title !== "Energy Die") continue;
         if (!AdvancementHelper.hasScaleConfiguration(advancement)) continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
@@ -319,7 +332,7 @@ export default class DDBSubClass extends DDBBaseClass {
           13: { number: 10, faces: 10 },
           17: { number: 12, faces: 12 },
         });
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Rune Knight")) {
       const number: I5eAdvancement = {
@@ -341,7 +354,8 @@ export default class DDBSubClass extends DDBBaseClass {
 
       this._addAdvancement(number);
     } else if (this.data.name.startsWith("Steel Hawk")) {
-      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+      const advancementData = this._advancementData;
+      for (const [id, advancement] of Object.entries(advancementData)) {
         if (advancement.title !== "Launch") continue;
         if (!AdvancementHelper.hasScaleConfiguration(advancement)) continue;
         advancement.configuration.scale = {
@@ -351,7 +365,7 @@ export default class DDBSubClass extends DDBBaseClass {
           15: { number: 5, faces: 10 },
           18: { number: 5, faces: 12 },
         };
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Arcane Archer") && this.is2014) {
       const secondary: I5eAdvancement = {
@@ -392,14 +406,16 @@ export default class DDBSubClass extends DDBBaseClass {
 
   _rangerFixes() {
     if (this.data.name.startsWith("Drakewarden")) {
-      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+      const advancementData = this._advancementData;
+      for (const [id, advancement] of Object.entries(advancementData)) {
         if (advancement.title !== "Drake Companion") continue;
-        (advancement as I5eAdvancementScaleValue).configuration.type = "dice";
-        (advancement as I5eAdvancementScaleValue).configuration.scale = {
+        const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
+        configuration.type = "dice";
+        configuration.scale = {
           7: { number: 1, faces: 6 },
           15: { number: 2, faces: 6 },
         };
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Grim Harbinger")) {
       const minor: I5eAdvancementScaleValue = {
@@ -500,10 +516,12 @@ export default class DDBSubClass extends DDBBaseClass {
         this._addAdvancement(elixir);
       }
     } else if (this.data.name.startsWith("Armorer") && this.is2024) {
-      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+      const advancementData = this._advancementData;
+      for (const [id, advancement] of Object.entries(advancementData)) {
         if (advancement.title !== "Improved Armorer") continue;
-        (advancement as I5eAdvancementScaleValue).configuration.scale[3] = { value: 0 };
-        this.data.system.advancement[id] = advancement;
+        const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
+        (configuration.scale ??= {})[3] = { value: 0 };
+        advancementData[id] = advancement;
       }
       const forceDemolisher: I5eAdvancement = {
         type: "ScaleValue",
@@ -624,14 +642,15 @@ export default class DDBSubClass extends DDBBaseClass {
       };
       this._addAdvancement(arcaneCharges);
     } else if (this.data.name.startsWith("Forge Adept")) {
-      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+      const advancementData = this._advancementData;
+      for (const [id, advancement] of Object.entries(advancementData)) {
         if (advancement.title !== "Ghaal'Shaarat") continue;
-        (advancement as I5eAdvancementScaleValue).configuration.scale = {
+        ((advancement as I5eAdvancementScaleValue).configuration ??= {}).scale = {
           "3": { "value": 1 },
           "9": { "value": 2 },
           "15": { "value": 3 },
         };
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       }
     }
   }

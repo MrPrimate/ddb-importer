@@ -15,6 +15,9 @@ export class DDBInfusionFactory {
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
+    if (!ddbCharacter.source) {
+      throw new Error("DDBInfusionFactory requires a character with parsed source data");
+    }
     this.ddbData = ddbCharacter.source.ddb;
     this.rawCharacter = ddbCharacter.raw.character;
 

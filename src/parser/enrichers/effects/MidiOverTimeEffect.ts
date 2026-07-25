@@ -13,7 +13,7 @@ interface IGenerateDamageOverTimeEffectOptions {
   saveAbility?: string | string[];
   saveRemove?: boolean;
   saveDamage?: string;
-  dc?: number;
+  dc?: number | string;
 }
 
 interface IMidiOverTimeEffectOptions {
@@ -28,7 +28,7 @@ export default class MidiOverTimeEffect {
   parsedDescription: IFeatureBasicsResult;
   document: TAll5eItemDocuments;
   actor: I5eActorData;
-  effect: I5eEffectData;
+  effect: TAutoEffect;
   conditionStatus: ReturnType<typeof DDBDescriptions.parseStatusCondition>;
   conditionEffect: ReturnType<typeof AutoEffects.getStatusConditionEffect> | null;
   description: string;
@@ -39,7 +39,7 @@ export default class MidiOverTimeEffect {
     this.document = document;
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
-    this.description = otherDescription ?? document.system.description.value;
+    this.description = otherDescription ?? document.system.description?.value ?? "";
     this.conditionStatus = DDBDescriptions.parseStatusCondition({ text: this.description });
     this.conditionEffect = this.conditionStatus.success
       ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus, flags })
@@ -56,20 +56,37 @@ export default class MidiOverTimeEffect {
     // });
   }
 
-  static getOverTimeSaveEndChange({ document = undefined, save = undefined, text = undefined  }:{
+  // The DC parsers (dcParser/parseStatusCondition/featureBasics) produce an
+  // activity-save DC object { formula, calculation }. The midi overtime change
+  // string needs a scalar saveDC: a number when the stat block gives a literal
+  // DC, otherwise a rollData reference so the actor computes it at runtime.
+  static resolveOverTimeDc(save: { dc?: { formula?: string; calculation?: string } } | null | undefined): number | string | null {
+    const dc = save?.dc;
+    const numeric = Number.parseInt(String(dc?.formula ?? ""));
+    if (Number.isInteger(numeric)) return numeric;
+    const calc = dc?.calculation;
+    if (calc === "spellcasting") return "@attributes.spell.dc";
+    if (typeof calc === "string" && (/^(?:str|dex|con|int|wis|cha)$/).test(calc)) return `@abilities.${calc}.dc`;
+    return null;
+  }
+
+  static getOverTimeSaveEndChange({ document, save, text }:{
     document: TAll5eItemDocuments;
     text: string;
-    save: I5eActivitySave;
+    // parseStatusCondition produces a save whose ability may be null
+    save: Omit<I5eActivitySave, "ability"> & { ability?: string[] | null };
   }) {
+    const dc = MidiOverTimeEffect.resolveOverTimeDc(save);
+    if (dc === null) return null;
     const saveSearch = /repeat the saving throw at the (end|start) of each/;
     const match = text.match(saveSearch);
     if (match) {
-      return ChangeHelper.overTimeSaveChange({ document, turn: match[1], saveAbility: save.ability, dc: save.dc });
+      return ChangeHelper.overTimeSaveChange({ document, turn: match[1], saveAbility: save.ability, dc });
     } else {
       const actionSaveSearch = /can use its action to repeat the saving throw/;
       const actionSaveMatch = text.match(actionSaveSearch);
       if (actionSaveMatch) {
-        return ChangeHelper.overTimeSaveChange({ document, turn: "action", saveAbility: save.ability, dc: save.dc });
+        return ChangeHelper.overTimeSaveChange({ document, turn: "action", saveAbility: save.ability, dc });
       }
     }
     return null;
@@ -78,7 +95,7 @@ export default class MidiOverTimeEffect {
   effectCleanup() {
     if (!this.addToMonster) return;
     if (this.effect.system.changes.length > 0 || this.effect.statuses.length > 0) {
-      this.document.effects.push(this.effect);
+      (this.document.effects ??= []).push(this.effect);
       const overTimeFlags: string[] = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
         ? foundry.utils.getProperty(this.actor, "flags.monsterMunch.overTime") as string[]
         : [];
@@ -135,13 +152,13 @@ export default class MidiOverTimeEffect {
     }
 
     const save = this.parsedDescription.save;
-    if (!Number.isInteger(Number.parseInt(String(save.dc)))) {
+    const dc = MidiOverTimeEffect.resolveOverTimeDc(save);
+    if (dc === null) {
       this.effectCleanup();
       return;
     }
 
     const saveAbility = save.ability;
-    const dc = save.dc;
 
     const dmg = DDBEffectHelper.getOvertimeDamage(this.description, this.document);
     if (!dmg) {
@@ -247,7 +264,7 @@ export default class MidiOverTimeEffect {
     foundry.utils.setProperty(this.effect, "duration.value", durationSeconds);
     foundry.utils.setProperty(this.effect, "duration.units", "seconds");
 
-    this.document.effects.push(this.effect);
+    (this.document.effects ??= []).push(this.effect);
   }
 
 }

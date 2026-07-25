@@ -26,17 +26,25 @@ function applyItemOverride(
   }
 }
 
-DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier = null): Promise<I5eInventoryItem[]> {
+DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier?: TItemsNotifier): Promise<I5eInventoryItem[]> {
+
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to generate inventory, no DDB source data");
+    return [];
+  }
 
   const items: I5eInventoryItem[] = [];
 
   // first, check custom name, price or weight
-  this.source.ddb.character.characterValues.forEach((cv) => {
+  ddb.character.characterValues.forEach((cv) => {
     // try to find a matching item based on the characterValues (an array of custom adjustements to different parts of the character)
-    const item = this.source.ddb.character.inventory.find((item) => item.id === cv.valueId);
+    const item = ddb.character.inventory.find((item) => item.id === cv.valueId);
     if (item) {
       // check if this property is in the list of supported ones, based on our DICT
       const property = DICTIONARY.item.characterValues.find((entry) => entry.typeId === cv.typeId);
+      // unsupported customizations (e.g. notes) have no dictionary entry and are skipped
+      if (!property) return;
       // overwrite the name, weight or price with the custom value
       const key = property.value as SupportedOverrideKey;
       if (key === "name" || key === "weight" || key === "price") {
@@ -52,13 +60,13 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   const discardMissingContainerItems = utils.getSetting<boolean>("character-import-policy-ignore-items-with-non-existing-containers");
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
-  const length = this.source.ddb.character.inventory.length;
-  for (const ddbItem of this.source.ddb.character.inventory) {
-    if (discardMissingContainerItems && this.source.ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
+  const length = ddb.character.inventory.length;
+  for (const ddbItem of ddb.character.inventory) {
+    if (discardMissingContainerItems && ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
     ) {
       logger.error(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have`, {
         ddbItem,
-        container: this.source.ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
+        container: ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
       });
       continue;
     }
@@ -89,7 +97,12 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
 
 
 DDBCharacter.prototype._generateInventory = async function _generateInventory(this: DDBCharacter) {
-  this.raw.itemSpells = await GenericSpellFactory.getItemSpells(this.source.ddb, this.raw.character, {
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to generate inventory, no DDB source data");
+    return;
+  }
+  this.raw.itemSpells = await GenericSpellFactory.getItemSpells(ddb, this.raw.character, {
     generateSummons: this.generateSummons,
   });
   logger.debug("Item Spells parse complete");

@@ -17,8 +17,8 @@ export {};
 global {
 
   interface ICustomFunctionOptions {
-    name: string;
-    activity?: IDDBActivityData;
+    name?: string | null;
+    activity?: IDDBActivityData | null;
   }
 
   interface IAdditionalActivityOutline {

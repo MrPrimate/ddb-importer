@@ -10,7 +10,7 @@ interface IGenericConditionAdjustment {
   midiValues?: any[];
 }
 
-const UNIT_MAP: Record<string, TEffectDurationUnit> = {
+const UNIT_MAP: Record<string, TEffectDurationUnit | null> = {
   turn: "turns",
   turns: "turns",
   round: "rounds",
@@ -48,7 +48,7 @@ export default class AutoEffects {
   }
 
   static adjustDuration(duration: IEffectDuration) {
-    duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "");
+    duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "") ?? undefined;
   }
 
   static generateBasicEffectDuration(document: TAll5eItemDocuments, activity?: IActivityData): IEffectDuration {
@@ -61,7 +61,7 @@ export default class AutoEffects {
     const docData: I5eSystemDurationData | I5eActivityDuration | null = foundry.utils.getProperty(document, "system.duration") as I5eSystemDurationData ?? activity?.duration;
     if (!docData) return duration;
 
-    const mappedUnit = UNIT_MAP[docData.units];
+    const mappedUnit = docData.units ? UNIT_MAP[docData.units] : undefined;
     if (mappedUnit && docData.value) {
       duration.value = parseInt(docData.value);
       duration.units = AutoEffects.adjustDurationUnits(mappedUnit);
@@ -77,14 +77,14 @@ export default class AutoEffects {
     {
       transfer = true,
       disabled = false,
-      description = null,
-      durationSeconds = null,
-      durationRounds = null,
-      durationTurns = null,
+      description,
+      durationSeconds,
+      durationRounds,
+      durationTurns,
       showIcon,
     }: IDDBEffectOptions = {},
-  ): I5eEffectData {
-    const effect: I5eEffectData = {
+  ): TAutoEffect {
+    const effect: TAutoEffect = {
       img: document.img,
       name,
       statuses: [],
@@ -129,31 +129,31 @@ export default class AutoEffects {
   }
 
   static SpellEffect(document: TEffectDocument, label: string,
-    { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): I5eEffectData {
+    { transfer = false, disabled = false, description, durationSeconds,
+      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  ): TAutoEffect {
     const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
     return AutoEffects.BaseEffect(document, label, options);
   }
 
   static FeatEffect(document: TEffectDocument, label: string,
-    { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): I5eEffectData {
+    { transfer = false, disabled = false, description, durationSeconds,
+      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  ): TAutoEffect {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
   }
 
   static MonsterFeatureEffect(document: TEffectDocument, label: string,
-    { transfer = false, disabled = false, showIcon = null }: IDDBEffectOptions = {},
-  ): I5eEffectData {
+    { transfer = false, disabled = false, showIcon }: IDDBEffectOptions = {},
+  ): TAutoEffect {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, showIcon });
   }
 
 
   static ItemEffect(document: TEffectDocument, label: string,
-    { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): I5eEffectData {
+    { transfer = true, disabled = false, description, durationSeconds,
+      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  ): TAutoEffect {
     const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
     return effect;
   }
@@ -180,7 +180,7 @@ export default class AutoEffects {
   }
 
   static forceDocumentEffect<T extends TEffectDocument>(document: T): T {
-    if (document.effects.length > 0
+    if ((document.effects?.length ?? 0) > 0
       || foundry.utils.hasProperty(document.flags, "dae")
       || foundry.utils.hasProperty(document.flags, "midi-qol.onUseMacroName")
     ) {
@@ -237,12 +237,14 @@ export default class AutoEffects {
       })
       .map((modifier: IModifiersMod) => {
         const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+        // the filter above guarantees a lookup match exists
+        if (!ddbLookup) return undefined;
         const entry = DICTIONARY.actor.damageAdjustments.find((adj) =>
           adj.type === typeId
           && ddbLookup.id === adj.id,
         );
         if (!entry) return undefined;
-        const valueData: IGenericConditionAdjustment = foundry.utils.hasProperty(entry, "foundryValues")
+        const valueData: IGenericConditionAdjustment | undefined = foundry.utils.hasProperty(entry, "foundryValues")
           ? foundry.utils.getProperty(entry, "foundryValues") as IGenericConditionAdjustment
           : foundry.utils.hasProperty(entry, "foundryValue")
             ? { value: [entry.foundryValue], bypasses: [] }
@@ -265,11 +267,11 @@ export default class AutoEffects {
   }
 
 
-  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: IStatusConditionEffectOptions = {}): I5eEffectData | null {
-    const parsedStatus: IParseStatusConditionResult = status ?? DDBDescriptions.parseStatusCondition({ text });
+  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: IStatusConditionEffectOptions = {}): TAutoEffect | null {
+    const parsedStatus: IParseStatusConditionResult = status ?? DDBDescriptions.parseStatusCondition({ text: text ?? "" });
     if (!parsedStatus.success) return null;
 
-    const effect: I5eEffectData = {
+    const effect: TAutoEffect = {
       name: "",
       system: { changes: [] },
       flags: foundry.utils.mergeObject({
@@ -278,15 +280,19 @@ export default class AutoEffects {
         },
       }, flags),
       statuses: [],
-      duration: parsedStatus.duration,
+      duration: {
+        value: parsedStatus.duration.value,
+        units: parsedStatus.duration.units ?? undefined,
+      },
     };
 
     if (parsedStatus.group4) {
-      ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.condition });
+      const condition = parsedStatus.condition ?? "";
+      ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
       DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
       else effect.name = `Status: ${parsedStatus.conditionName}`;
-      effect.img = CONFIG.DND5E.conditionTypes[parsedStatus.condition]?.icon ?? null;
+      effect.img = CONFIG.DND5E.conditionTypes[condition]?.icon ?? undefined;
     } else if (parsedStatus.condition === "dead") {
       ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
       effect.img = "systems/dnd5e/icons/svg/statuses/dead.svg";
@@ -328,14 +334,15 @@ export default class AutoEffects {
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
     if (Number.isFinite(conditionEffect.duration?.value)) {
       effect.duration.value = conditionEffect.duration.value;
-      effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units);
+      effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units ?? "") ?? undefined;
       effect.duration.expiry = conditionEffect.duration.expiry;
     }
 
     if (!effect.name || effect.name === "") {
-      const condition = utils.capitalize(conditionResult.condition);
+      const conditionName = conditionResult.condition ?? "";
+      const condition = utils.capitalize(conditionName);
       effect.name = `Status: ${condition}`;
-      effect.img = CONFIG.DND5E.conditionTypes[conditionResult.condition]?.icon;
+      effect.img = CONFIG.DND5E.conditionTypes[conditionName]?.icon;
     }
     return effect;
   }
@@ -354,7 +361,7 @@ export default class AutoEffects {
     };
     const skillEffect = this.ItemEffect(mockItem as TEffectDocument, label);
     skillEffect.flags.dae = {};
-    skillEffect.flags.ddbimporter.characterEffect = true;
+    (skillEffect.flags.ddbimporter ??= {}).characterEffect = true;
     skillEffect.origin = `Actor.${id}`;
     delete skillEffect.transfer;
     return skillEffect;

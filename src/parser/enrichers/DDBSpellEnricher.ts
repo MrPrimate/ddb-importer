@@ -19,6 +19,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
+    if (!this.name) return null;
     const spellName = utils.pascalCase(this.name);
     const Enricher = (SpellEnrichers as Record<string, EnricherConstructor | undefined>)[spellName];
     if (!Enricher) {

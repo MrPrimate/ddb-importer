@@ -1,3 +1,4 @@
+import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
@@ -17,6 +18,12 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
   };
   const diceFormula = /\d*d\d*/;
 
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to generate global bonus attack modifiers, no DDB source data");
+    return result;
+  }
+
   const lookupResults = {
     attack: {
       sum: 0,
@@ -29,7 +36,7 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
   };
 
   lookupTable.forEach((b) => {
-    const lookupResult = DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
+    const lookupResult = DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
     const lookupMatch = diceFormula.test(lookupResult);
     // we know these keys are right as this is only called from a lookup table that is attack based
     const key = b.fvttType as keyof typeof lookupResults;
@@ -81,8 +88,13 @@ DDBCharacter.prototype.getBonusSpellAttacks = function(this: DDBCharacter, type:
 };
 
 DDBCharacter.prototype._generateBonusSpellAttacks = function(this: DDBCharacter) {
-  this.raw.character.system.bonuses.rsak = this.getBonusSpellAttacks("ranged");
-  this.raw.character.system.bonuses.msak = this.getBonusSpellAttacks("melee");
+  const bonuses = this.raw.character.system.bonuses;
+  if (!bonuses) {
+    logger.warn("Unable to generate bonus spell attacks, no character bonuses data");
+    return;
+  }
+  bonuses.rsak = this.getBonusSpellAttacks("ranged");
+  bonuses.msak = this.getBonusSpellAttacks("melee");
 };
 
 
@@ -107,8 +119,13 @@ DDBCharacter.prototype.getBonusWeaponAttacks = function(this: DDBCharacter, type
 };
 
 DDBCharacter.prototype._generateBonusWeaponAttacks = function(this: DDBCharacter) {
-  this.raw.character.system.bonuses.mwak = this.getBonusWeaponAttacks("melee");
-  this.raw.character.system.bonuses.rwak = this.getBonusWeaponAttacks("ranged");
+  const bonuses = this.raw.character.system.bonuses;
+  if (!bonuses) {
+    logger.warn("Unable to generate bonus weapon attacks, no character bonuses data");
+    return;
+  }
+  bonuses.mwak = this.getBonusWeaponAttacks("melee");
+  bonuses.rwak = this.getBonusWeaponAttacks("ranged");
 };
 
 /**
@@ -134,12 +151,19 @@ DDBCharacter.prototype._generateBonusAbilities = function(this: DDBCharacter) {
     { fvttType: "skill", ddbSubType: "skill-checks" },
   ];
 
+  const ddb = this.source?.ddb;
+  const bonuses = this.raw.character.system.bonuses;
+  if (!ddb || !bonuses) {
+    logger.warn("Unable to generate bonus abilities, missing DDB source data or character bonuses data");
+    return;
+  }
+
   bonusLookup.forEach((b) => {
-    const mods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType });
+    const mods = DDBModifiers.filterBaseModifiers(ddb, "bonus", { subType: b.ddbSubType });
     const bonus = DDBModifiers.getModifierSum(mods, this.raw.character);
     if (bonus !== "") result[b.fvttType as keyof I5eAbilityBonusGroup] = `+ ${bonus}`.trim().replace(/\+\s*\+/, "+");
   });
-  this.raw.character.system.bonuses.abilities = result;
+  bonuses.abilities = result;
 };
 
 
@@ -162,8 +186,15 @@ DDBCharacter.prototype._generateBonusSpellDC = function(this: DDBCharacter) {
     { fvttType: "dc", ddbSubType: "druid-spell-save-dc" },
   ];
 
+  const ddb = this.source?.ddb;
+  const bonuses = this.raw.character.system.bonuses;
+  if (!ddb || !bonuses) {
+    logger.warn("Unable to generate bonus spell DC, missing DDB source data or character bonuses data");
+    return;
+  }
+
   const bonus = bonusLookup.map((b) => {
-    return DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
+    return DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
   })
     .filter((b) => b && parseInt(String(b)) !== 0 && String(b).trim() !== "")
     .reduce((previous, current) => {
@@ -174,5 +205,5 @@ DDBCharacter.prototype._generateBonusSpellDC = function(this: DDBCharacter) {
     result["dc"] = bonus;
   }
 
-  this.raw.character.system.bonuses.spell = result;
+  bonuses.spell = result;
 };

@@ -92,7 +92,7 @@ global {
     abilities?: string[];
     hint?: string;
     name: string;
-    spellLinks?: IDDBSpellLink[];
+    spellLinks: IDDBSpellLink[];
     is2024?: boolean;
     spellData?: I5eSpellItem[];
   }

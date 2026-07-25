@@ -8,6 +8,10 @@ const notReplace = {
 
 
 DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates(this: DDBCharacter): Promise<Partial<I5ePCConsumptionItems>[]> {
+  if (!this.currentActor) {
+    logger.warn("Unable to link spell consumption, no current actor");
+    return [];
+  }
   const items = this.currentActor.items as Actor.Implementation["items"];
   const possibleItems = items.toObject() as unknown as I5ePCConsumptionItems[];
   const toUpdate: Partial<I5ePCConsumptionItems>[] = [];
@@ -60,8 +64,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
         for (const id of Object.keys(child.system.activities)) {
 
-          if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
-          const targets = child.system.activities[id].consumption.targets;
+          const activity = child.system.activities[id];
+          if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+          const targets = activity.consumption?.targets ?? [];
           const cost = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? spellData.cost;
 
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
@@ -97,9 +102,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
 
 
 function _generateChildUpdate({ child, parent }: {
-  child?: I5ePCConsumptionItems;
-  parent?: I5ePCConsumptionItems;
-} = {}): Partial<I5ePCConsumptionItems> {
+  child: I5ePCConsumptionItems;
+  parent: I5ePCConsumptionItems;
+}): Partial<I5ePCConsumptionItems> {
   const update: Partial<I5ePCConsumptionItems> = {
     _id: child._id,
   };
@@ -113,8 +118,9 @@ function _generateChildUpdate({ child, parent }: {
   if (!("activities" in child.system)) return update;
   const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
   for (const id of Object.keys(child.system.activities)) {
-    if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
-    const targets = child.system.activities[id].consumption.targets;
+    const activity = child.system.activities[id];
+    if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+    const targets = activity.consumption?.targets ?? [];
     const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") as string ?? "1";
     if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
       targets.push({
@@ -142,10 +148,10 @@ function _generateChildUpdate({ child, parent }: {
 
 
 function _findChildUpdates({ consumingDocs, possibleItems, parent }: {
-  consumingDocs?: string[];
-  possibleItems?: I5ePCConsumptionItems[];
-  parent?: I5ePCConsumptionItems;
-} = {}) {
+  consumingDocs: string[];
+  possibleItems: I5ePCConsumptionItems[];
+  parent: I5ePCConsumptionItems;
+}) {
   const toUpdate: Partial<I5ePCConsumptionItems>[] = [];
   logger.debug("parent", parent);
   consumingDocs.forEach((consumingDocName) => {
@@ -158,7 +164,7 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent }: {
 
       const additional = foundry.utils.getProperty(doc, "flags.ddbimporter.defaultAdditionalActivities") as { enabled?: boolean; data?: { featureName?: string } } | undefined;
       if (!additional?.enabled) return false;
-      if (!additional.data.featureName) return false;
+      if (!additional.data?.featureName) return false;
       return additional.data.featureName.startsWith(consumingDocName);
     });
 
@@ -180,6 +186,10 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent }: {
 
 
 DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _getAutoLinkActivityDictionaryUpdates(this: DDBCharacter): Promise<Partial<I5ePCConsumptionItems>[]> {
+  if (!this.currentActor) {
+    logger.warn("Unable to link consumption, no current actor");
+    return [];
+  }
   const items = this.currentActor.items as Actor.Implementation["items"];
   const possibleItems = items.toObject() as unknown as I5ePCConsumptionItems[];
   const toUpdate: Partial<I5ePCConsumptionItems>[] = [];
@@ -201,6 +211,10 @@ DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _g
 };
 
 DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getAutoLinkActivityFlagDocUpdates(this: DDBCharacter): Promise<Partial<I5ePCConsumptionItems>[]> {
+  if (!this.currentActor) {
+    logger.warn("Unable to link activity flag consumption, no current actor");
+    return [];
+  }
   const items = this.currentActor.items as Actor.Implementation["items"];
   const possibleItems = items.toObject() as unknown as I5ePCConsumptionItems[];
   const toUpdate: Partial<I5ePCConsumptionItems>[] = [];
@@ -218,19 +232,22 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
     if(!("activities" in childDoc.system)) continue;
     const ignoredConsumptionActivities = foundry.utils.getProperty(childDoc, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
     for (const id of Object.keys(childDoc.system.activities)) {
-      if (ignoredConsumptionActivities?.includes(childDoc.system.activities[id].name)) continue;
-      const targets = childDoc.system.activities[id].consumption.targets;
+      const activity = childDoc.system.activities[id];
+      if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+      const targets = activity.consumption?.targets ?? [];
 
       for (const target of targets) {
         if (target.type !== "itemUses") continue;
+        const targetName = target.target;
+        if (!targetName) continue;
         const parent = possibleItems.find((doc) => {
           const name = doc.flags.ddbimporter?.originalName ?? doc.name;
-          return name === target.target;
+          return name === targetName;
         });
         if (parent) {
           target.target = `${parent.type}:${parent.system.identifier}`;
         } else {
-          target.target = utils.referenceNameString(target.target).toLowerCase();
+          target.target = utils.referenceNameString(targetName).toLowerCase();
         }
       }
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
@@ -243,6 +260,10 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
 };
 
 DDBCharacter.prototype._flagCleanup = async function _flagCleanup(this: DDBCharacter) {
+  if (!this.currentActor) {
+    logger.warn("Unable to clean up consumption flags, no current actor");
+    return;
+  }
   const items = this.currentActor.items as Actor.Implementation["items"];
   const possibleItems = items.toObject() as unknown as I5ePCConsumptionItems[];
   const toUpdate = possibleItems
@@ -263,6 +284,10 @@ DDBCharacter.prototype._flagCleanup = async function _flagCleanup(this: DDBChara
 };
 
 DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption(this: DDBCharacter) {
+  if (!this.currentActor) {
+    logger.warn("Unable to auto link consumption, no current actor");
+    return;
+  }
   const toUpdate = [];
 
   const activityFlagUpdates = await this._getAutoLinkActivityFlagDocUpdates();

@@ -28,7 +28,7 @@ interface IDamageOverTimeEffectOptions {
   saveAbility?: string | string[];
   saveRemove?: boolean;
   saveDamage?: string;
-  dc?: number;
+  dc?: number | string;
 }
 
 type THookCallback = (...args: never[]) => unknown;
@@ -115,10 +115,10 @@ export default class DDBEffectHelper {
     // DDBMonsterFeature requires a ddbMonster; this fallback has never had one,
     // so it always threw. Degrade to no damage parts instead of crashing mid-macro.
     try {
-    const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
-    feature.prepare();
-    feature.generateDamageInfo();
-    return feature.actionData.damageParts;
+      const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
+      feature.prepare();
+      feature.generateDamageInfo();
+      return feature.actionData.damageParts;
     } catch (err) {
       logger.warn("Unable to parse monster feature damage without a monster context", { damageText, err });
       return [];
@@ -1345,8 +1345,8 @@ export default class DDBEffectHelper {
     saveAbility: string | string[];
     saveRemove: boolean;
     saveDamage: string;
-    dc?: number;
-  } = {}) {
+    dc: number | string;
+  }) {
     return ChangeHelper.overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc });
   }
 
@@ -1355,8 +1355,8 @@ export default class DDBEffectHelper {
     turn: string;
     saveAbility: string | string[];
     saveRemove?: boolean;
-    dc?: number;
-  } = {}) {
+    dc: number | string;
+  }) {
     return ChangeHelper.overTimeSaveChange({ document, turn, saveAbility, saveRemove, dc });
   }
 
@@ -1502,10 +1502,10 @@ export default class DDBEffectHelper {
         });
       }
       if (a.duration) {
-      if (overrideDuration) a.duration.override = true;
-      if (durationUnits) {
-        a.duration.units = durationUnits;
-        a.duration.value = String(durationValue);
+        if (overrideDuration) a.duration.override = true;
+        if (durationUnits) {
+          a.duration.units = durationUnits;
+          a.duration.value = String(durationValue);
         }
       }
 

@@ -25,6 +25,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultClassLoader(): DDBEnricherData | null {
+    if (!this.hintName) return null;
     if (this.speciesGroupName) {
       const speciesGroupNameHint = utils.pascalCase(this.speciesGroupName);
       const featName = utils.pascalCase(this.hintName);
@@ -41,10 +42,11 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
-    if (!this.ENRICHERS[this.hintName]) {
+    const hintName = this.hintName;
+    if (!hintName || !this.ENRICHERS[hintName]) {
       return this._defaultClassLoader();
     }
-    return new this.ENRICHERS[this.hintName]({
+    return new this.ENRICHERS[hintName]({
       ddbEnricher: this,
     });
   }

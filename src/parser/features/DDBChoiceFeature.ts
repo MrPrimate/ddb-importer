@@ -44,9 +44,9 @@ export default class DDBChoiceFeature extends DDBFeature {
 
     if (!this._classFeatureComponent) {
       this._classOption = [
-        this.ddbData.character.options.race,
-        this.ddbData.character.options.class,
-        this.ddbData.character.options.feat,
+        this.ddbData.character.options.race ?? [],
+        this.ddbData.character.options.class ?? [],
+        this.ddbData.character.options.feat ?? [],
       ]
         .flat()
         .find((option) => option.definition.id === this.ddbDefinition.componentId);
@@ -122,7 +122,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._generateSystemSubType();
 
       // get description for chris premades
-      this.ddbDefinition.description = choice.description;
+      this.ddbDefinition.description = choice.description ?? "";
       this.ddbDefinition.snippet = foundry.utils.getProperty(choice, "snippet") as string ?? "";
       this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
@@ -138,7 +138,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._generateLimitedUse();
       this._generateDescription({ forceFull: false });
 
-      this.data.flags.ddbimporter.dndbeyond.choice = {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", {
         parentName: originalName,
         label: choice.label,
         choiceId: choice.choiceId,
@@ -151,7 +151,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         type: choice.type,
         optionId: String(choice.optionId),
         optionComponentId: choice.optionComponentId,
-      };
+      });
 
       this.data._id = foundry.utils.randomID();
 
@@ -277,7 +277,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         ) {
           featureSystem.activities = choiceSystem.activities;
         }
-        if (ddbFeature.data.effects.length === 0
+        if ((ddbFeature.data.effects?.length ?? 0) === 0
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
           ddbFeature.data.effects = choiceFeature.data.effects;
@@ -288,7 +288,11 @@ export default class DDBChoiceFeature extends DDBFeature {
           featureSystem.uses = choiceSystem.uses;
         }
         if (foundry.utils.hasProperty(choiceFeature.data, "flags.ddbimporter.dndbeyond.choice")) {
-          ddbFeature.data.flags.ddbimporter.dndbeyond.choice = choiceFeature.data.flags.ddbimporter.dndbeyond.choice;
+          foundry.utils.setProperty(
+            ddbFeature.data,
+            "flags.ddbimporter.dndbeyond.choice",
+            choiceFeature.data.flags.ddbimporter?.dndbeyond?.choice,
+          );
         }
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
@@ -301,7 +305,8 @@ export default class DDBChoiceFeature extends DDBFeature {
             if (cActivity.type !== "summon") continue;
             activity.bonuses = cActivity.bonuses;
             activity.match = cActivity.match;
-            activity.profiles.push(...cActivity.profiles);
+            if (!activity.profiles) activity.profiles = [];
+            activity.profiles.push(...(cActivity.profiles ?? []));
           }
         }
       } else {

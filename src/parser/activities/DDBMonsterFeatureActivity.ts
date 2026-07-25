@@ -13,15 +13,10 @@ interface IDDBMonsterFeatureActivity {
   actor?: I5eMonsterData | null;
 }
 
-interface IDDBMonsterFeatureActivityCreate {
-  document?: any;
-  type: IDDBActivityType;
-  name?: string | null;
-  character?: any;
-  enricher?: any;
-  nameIdPostfix?: string | null;
+interface IDDBMonsterFeatureActivityCreate extends Omit<IDDBBasicActivityCreateOptions, "document" | "character"> {
+  document: I5eMonsterItem;
+  character?: I5eMonsterData | null;
 }
-
 
 export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 

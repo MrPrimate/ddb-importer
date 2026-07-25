@@ -1,9 +1,14 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
 DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter): IDDBAction[] {
-  const resources = [this.source.ddb.character.actions.race, this.source.ddb.character.actions.class, this.source.ddb.character.actions.feat]
+  if (!this.source) {
+    logger.warn("resourceList called before DDB source data was loaded");
+    return [];
+  }
+  const actions = this.source.ddb.character.actions;
+  const resources = [actions.race, actions.class, actions.feat]
     .flat()
     .filter((action) =>
       action.limitedUse
@@ -16,28 +21,40 @@ DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter):
 DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList(this: DDBCharacter): I5ePCResource[] {
   // get all resources
   const allResources = this.resourceList();
+  const effectAbilities = this.raw.character.flags?.ddbimporter?.dndbeyond?.effectAbilities;
   const resources: I5ePCResource[] = allResources
     .map((action) => {
-      let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
+      const limitedUse = action.limitedUse;
+      if (!limitedUse) {
+        // resourceList only returns actions with limitedUse data
+        logger.warn(`Resource action ${action.name} is missing limited use data`, { action });
+        return { label: action.name, value: 0, max: 0, sr: false, lr: false };
+      }
+      let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : 0;
 
-      if (action.limitedUse.statModifierUsesId) {
+      if (limitedUse.statModifierUsesId) {
         const ability = DICTIONARY.actor.abilities.find(
-          (ability) => ability.id === action.limitedUse.statModifierUsesId,
-        ).value;
+          (ability) => ability.id === limitedUse.statModifierUsesId,
+        )?.value;
+        const abilityScore = ability ? effectAbilities?.[ability]?.value : undefined;
 
-        switch (action.limitedUse.operator) {
-          case 2: {
-            maxUses *= utils.calculateModifier(this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].value);
-            break;
+        if (abilityScore === undefined) {
+          logger.warn(`Unable to determine limited use ability modifier for ${action.name}`, { action });
+        } else {
+          switch (limitedUse.operator) {
+            case 2: {
+              maxUses *= utils.calculateModifier(abilityScore);
+              break;
+            }
+            case 1:
+            default:
+              maxUses += utils.calculateModifier(abilityScore);
           }
-          case 1:
-          default:
-            maxUses += utils.calculateModifier(this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].value);
         }
       }
 
-      if (action.limitedUse.useProficiencyBonus) {
-        switch (action.limitedUse.proficiencyBonusOperator) {
+      if (limitedUse.useProficiencyBonus) {
+        switch (limitedUse.proficiencyBonusOperator) {
           case 2: {
             maxUses *= this.profBonus;
             break;
@@ -50,10 +67,10 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
 
       return {
         label: action.name,
-        value: maxUses - action.limitedUse.numberUsed,
+        value: maxUses - limitedUse.numberUsed,
         max: maxUses,
-        sr: action.limitedUse.resetType === 1,
-        lr: action.limitedUse.resetType === 1 || action.limitedUse.resetType === 2 || action.limitedUse.resetType === 3,
+        sr: limitedUse.resetType === 1,
+        lr: limitedUse.resetType === 1 || limitedUse.resetType === 2 || limitedUse.resetType === 3,
       };
     })
     // sort by maxUses, I guess one wants to track the most uses first, because it's used more often
@@ -133,7 +150,12 @@ DDBCharacter.prototype._generateResources = function _generateResources(this: DD
   }
 
   this.resources = result;
-  this.raw.character.flags.ddbimporter.resources = this.resourceChoices;
+  const ddbImporterFlags = this.raw.character.flags?.ddbimporter;
+  if (ddbImporterFlags) {
+    ddbImporterFlags.resources = this.resourceChoices;
+  } else {
+    logger.warn("_generateResources: ddbimporter flags not present on character, unable to store resource choices");
+  }
   this.raw.character.system.resources = result;
 };
 
@@ -160,13 +182,13 @@ DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateRe
 
 DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: DDBCharacter, sortedResources: I5ePCResource[]) {
   if (sortedResources.length >= 1) {
-    this.resourceChoices.primary = sortedResources[0].label;
+    this.resourceChoices.primary = sortedResources[0].label ?? "";
   }
   if (sortedResources.length >= 2) {
-    this.resourceChoices.secondary = sortedResources[1].label;
+    this.resourceChoices.secondary = sortedResources[1].label ?? "";
   }
   if (sortedResources.length >= 3) {
-    this.resourceChoices.tertiary = sortedResources[2].label;
+    this.resourceChoices.tertiary = sortedResources[2].label ?? "";
   }
 };
 
@@ -215,9 +237,8 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
         content: {
           "resources": resources,
           "character": this.raw.character.name,
-          "img": this.source.ddb.character.decorations?.avatarUrl
-            ? this.source.ddb.character.decorations.avatarUrl
-            : CONFIG.DND5E.defaultArtwork.Actor.character,
+          "img": this.source?.ddb.character.decorations?.avatarUrl
+            || CONFIG.DND5E.defaultArtwork.Actor.character,
           "cssClass": "character-resource-selection sheet",
         },
         buttons: {

@@ -15,7 +15,7 @@ export const SPELL = {
   components: {
     MATERIAL: "material",
     SOMATIC: "somatic",
-    VERBAL: "verbal",
+    VERBAL: "vocal",
     CONCENTRATION: "concentration",
     RITUAL: "ritual",
   } as const,

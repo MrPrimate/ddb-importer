@@ -1,3 +1,4 @@
+import { logger } from "../../lib/_module";
 import DDBCompanionMixin from "./DDBCompanionMixin";
 
 export default class DDBCompanion2024 extends DDBCompanionMixin {
@@ -62,15 +63,22 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       });
     });
 
+    const abilities = this.npc.system.abilities;
+    if (!abilities) {
+      logger.warn(`Companion ${this.npc.name} has no abilities data, unable to parse abilities`);
+      return;
+    }
+
     for (const [ability, data] of Object.entries(abilityScores) as [T5eAbility, typeof abilityScores[T5eAbility]][]) {
+      if (!data) continue;
       const save = Number.parseInt(data.save.replace("−", "-"));
       // const mod = Number.parseInt(data.mod.replace("−", "-"));
       const score = Number.parseInt(data.score);
 
-      this.npc.system.abilities[ability].value = score;
+      abilities[ability].value = score;
       // foundry.utils.setProperty(this.npc, `system.abilities.${ability}.mod`, mod);
       if (save > score) {
-        this.npc.system.abilities[ability]["proficient"] = 1;
+        abilities[ability]["proficient"] = 1;
       }
     }
   }
@@ -131,7 +139,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   #generateType() {
     if (this.infoTag) {
       const first = this.infoTag.textContent.split(",")[0];
-      const typeCheck = first.split(" ").pop().trim().toLowerCase();
+      const typeCheck = first.split(" ").pop()?.trim().toLowerCase() ?? "";
       this._handleType(typeCheck);
     }
   }
@@ -222,10 +230,11 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   }
 
   async _processFeatureElement(html: string, featType: TDDBMonsterActionType) {
+    const subType = this.options.subType?.toLowerCase() ?? "";
     const features = await this.getFeature(html, featType);
     features.forEach((feature) => {
       if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
-        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
+        && feature.name.toLowerCase().includes(subType)
       ) {
         if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
         this.npc.items.push(feature);
@@ -243,8 +252,13 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
         this.summons.match.saves = true;
       }
       if (html.includes("your Proficiency Bonus to any ability check or saving throw")) {
-        this.npc.system.bonuses.abilities.check = "@prof";
-        this.npc.system.bonuses.abilities.save = "@prof";
+        const abilityBonuses = this.npc.system.bonuses?.abilities;
+        if (abilityBonuses) {
+          abilityBonuses.check = "@prof";
+          abilityBonuses.save = "@prof";
+        } else {
+          logger.warn(`Companion ${this.npc.name} has no ability bonuses data, unable to set proficiency bonuses`);
+        }
       }
     });
   }
@@ -252,6 +266,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   async #generateFeatures() {
     for (const header of this.block.querySelectorAll(".monster-header")) {
       let now = header.nextElementSibling as HTMLElement | null;
+      if (!now) continue;
       const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText);
       let block = now.outerHTML;
       while (now !== null) {

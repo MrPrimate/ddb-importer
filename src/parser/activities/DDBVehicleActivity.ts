@@ -1,6 +1,11 @@
 import { logger } from "../../lib/_module";
 import DDBBasicActivity from "./DDBBasicActivity";
 
+interface IDDBVehicleFeatureActivityCreate extends Omit<IDDBBasicActivityCreateOptions, "document" | "character"> {
+  document: I5eVehicleItem;
+  character?: I5eVehicleData | null;
+}
+
 export default class DDBVehicleActivity extends DDBBasicActivity {
 
   actionData: Record<string, any>;
@@ -11,17 +16,17 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
   }
 
   _init() {
-    logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
+    logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor?.name}`);
   }
 
   constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null }: {
-    type?: IDDBActivityType;
+    type: IDDBActivityType;
     name?: string | null;
     ddbParent?: any;
     nameIdPrefix?: string | null;
     nameIdPostfix?: string | null;
     id?: string | null;
-  } = {}) {
+  }) {
     super({
       type,
       name,
@@ -106,7 +111,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
     // override set to false on object if overriding
 
-    logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
+    logger.debug(`Generating Activity for ${this.ddbParent?.name}`, {
       damageParts,
       healingPart,
       generateActivation,
@@ -182,23 +187,19 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, vehicle }: {
-    document?: I5eVehicleItem;
-    type?: IDDBActivityType;
-    name?: string | null;
-    vehicle?: any;
-  } = {}, options: Record<string, any> = {}): Promise<string> {
+  static async createActivity({ document, type, name, character }: IDDBVehicleFeatureActivityCreate, options: Record<string, any> = {}): Promise<string> {
     const activity = new DDBVehicleActivity({
       name: name ?? null,
       type,
       foundryFeature: document,
-      actor: vehicle,
+      actor: character,
     } as ConstructorParameters<typeof DDBVehicleActivity>[0]);
 
     activity.build(options);
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
 
-    return activity.data._id;
+    // _generateDataStub always assigns data._id in the constructor
+    return activity.data._id ?? "";
 
   }
 

@@ -112,7 +112,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   isSummons: boolean;
   _generatedUses: I5eSystemLimitedUses;
   _actionType: IDDBFeatureMixinActionType;
-  _descriptionSave: I5eActivitySave;
+  _descriptionSave: I5eActivitySave | null;
   extraFlags: IItemFlagConfig;
   declare documentType: TDocumentType;
   companionFeatureOption: { parentFeature: string; childName: string };
@@ -135,8 +135,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           id: this.ddbDefinition.id,
           entityTypeId: this.ddbDefinition.entityTypeId,
           action: this.isAction,
-          componentId: this.ddbDefinition.componentId,
-          componentTypeId: this.ddbDefinition.componentTypeId,
+          // DDB uses null for unset ids; the flag types declare these optional
+          // only, keep the runtime null values unchanged
+          componentId: this.ddbDefinition.componentId as number | undefined,
+          componentTypeId: this.ddbDefinition.componentTypeId as number | undefined,
           originalName: this.originalName,
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
@@ -161,7 +163,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
     this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value as string;
     this.useScaleValueLink
-      = !this.excludedScale && this.scaleValueLink && this.scaleValueLink !== "{{scalevalue-unknown}}";
+      = !this.excludedScale && Boolean(this.scaleValueLink) && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   _generateFlagHints() {
@@ -169,17 +171,25 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     foundry.utils.mergeObject(this.data.flags, this.extraFlags);
 
     if (this._actionType.class) {
+      // _actionType.class is only set when findClassByFeatureId matched during
+      // _generateActionTypes, so a miss here is unexpected
       const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      this.klass = klass.definition.name;
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
-      const subKlass: IDDBClass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      this.subKlass = subKlass?.definition.name;
-      const subClass : IDDBClassDefinition = foundry.utils.getProperty(subKlass, "subclassDefinition") as IDDBClassDefinition;
-      if (subClass) {
-        foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
-        foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);
+      if (!klass) {
+        logger.warn(`Unable to find class for class action feature ${this.data.name}`, { feature: this });
+      } else {
+        this.klass = klass.definition.name;
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
+        const subKlass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+        this.subKlass = subKlass?.definition.name;
+        const subClass = subKlass
+          ? foundry.utils.getProperty(subKlass, "subclassDefinition") as IDDBClassDefinition
+          : undefined;
+        if (subClass) {
+          foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
+          foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);
+        }
       }
     } else if (this._actionType.race) {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
@@ -192,7 +202,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     // scaling details
     const klassActionComponent
       = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
-      ?? DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+      ?? (this.ddbDefinition.componentId
+        ? DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId)
+        : undefined);
     if (klassActionComponent) {
       if ("levelScale" in klassActionComponent) {
         foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
@@ -266,7 +278,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         parent = DDBDataUtils.findComponentByComponentId(this.ddbData, choiceElement.componentId);
       }
     }
-    return parent;
+    return parent ?? undefined;
   }
 
   _checkSummons() {
@@ -301,8 +313,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.is2024 = !this.is2014;
 
     this.isClass2014 = this.type === "class"
-      && this._class
-      && this._class.definition?.sources.every((s) => DDBSources.is2014Source(s));
+      && (this._class?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false);
   }
 
   constructor({
@@ -349,7 +360,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;
-    this.rawCharacter = rawCharacter;
+    // rawCharacter defaults to null for constructor convenience, but every
+    // feature parsing flow (character parse and muncher mock characters)
+    // supplies one; description template parsing requires it at runtime
+    this.rawCharacter = rawCharacter as I5ePCData;
     this.ddbFeature = ddbDefinition;
     this._currentChoice = null;
     this.extraFlags = extraFlags;
@@ -360,10 +374,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
-    this.isMuncher = isMuncher || this.isMuncher || this.ddbCharacter?.isMuncher;
+    this.isMuncher = isMuncher || this.isMuncher || (this.ddbCharacter?.isMuncher ?? false);
     this._parent = this._getActionParent();
     this._init();
-    this.activityType = activityType;
+    // the base class field is typed non-null and treats a falsy value as unset
+    if (activityType) this.activityType = activityType;
 
     // callers nest these under ddbimporter; the bare reads are a legacy fallback
     this.klass = this.extraFlags.ddbimporter?.class ?? (foundry.utils.getProperty(this.extraFlags, "class") as string | undefined);
@@ -453,7 +468,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           this.rawCharacter,
           feature.definition.description,
           this.ddbFeature as any,
-        ).text;
+        )?.text ?? "";
       }
     }
     return "";
@@ -469,7 +484,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     if (feature) {
       return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature)
-        .text;
+        ?.text ?? "";
     }
     return "";
   }
@@ -494,7 +509,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return undefined;
   }
 
-  static buildFullDescription(main: string, summary: string, title: string | null = null): string {
+  static buildFullDescription(main: string, summary: string | null, title: string | null = null): string {
     let result = "";
 
     if (summary && !utils.stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
@@ -524,14 +539,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     this.snippet
       = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature)?.text ?? ""
         : "";
     const rawSnippet = this.ddbDefinition.snippet ? this.snippet : "";
 
     this.description
       = this.ddbDefinition.description && this.ddbDefinition.description !== ""
         ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
-          .text
+          ?.text ?? ""
         : !useCombinedSetting || forceFull
           ? this.type === "race"
             ? this._getRaceFeatureDescription()
@@ -540,7 +555,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     const extraDescription
       = extra && extra !== ""
-        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, extra, this.ddbFeature)?.text ?? ""
         : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
@@ -594,11 +609,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       for (const prereq of this.ddbDefinition.prerequisites) {
         for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "feat")) {
           if (mapping.shouldExclude) continue;
-          if (!("prerequisites" in this.data.system)) {
+          const prerequisites = "prerequisites" in this.data.system ? this.data.system.prerequisites : undefined;
+          if (!prerequisites) {
             logger.error(`Prerequisites not set up correctly for ${this.data.name}`, this.ddbDefinition);
             continue;
           }
-          this.data.system.prerequisites.items.push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
+          prerequisites.items ??= [];
+          prerequisites.items.push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
         }
       }
     }
@@ -613,8 +630,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       ? (rawLimitedUse[0] ?? null)
       : rawLimitedUse ?? null;
 
-    const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
-      data: limitedUse,
+    const uses: I5eSystemLimitedUses | null = DDBDataUtils.getLimitedUses({
+      // getLimitedUses handles null data (description/scaleValue only paths)
+      data: limitedUse as TDDBLimitedUses,
       description: this.ddbDefinition.description ?? "",
       scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,
     });
@@ -659,7 +677,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-  isMartialArtist(klass: IDDBClass = null) {
+  isMartialArtist(klass: IDDBClass | null = null) {
     if (klass) {
       return klass.classFeatures.some((feature) => feature.definition.name === "Martial Arts");
     } else {
@@ -710,23 +728,21 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     const bonusString = bonuses.join(" ");
 
-    if (die || this.useScaleValueLink) {
-      if (this.useScaleValueLink) {
-        SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
-      } else if (die.diceString) {
-        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(
-          (b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0),
-        )?.bonus;
-        const replaceProf
-          = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
-          && Number.parseInt(String(die.fixedValue)) === Number.parseInt(String(profBonus));
-        const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
-        const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
-        const damageString = utils.parseDiceString(diceString, mods).diceString;
-        SystemHelpers.parseBasicDamageFormula(damage, damageString);
-      } else if (fixedBonus) {
-        SystemHelpers.parseBasicDamageFormula(damage, fixedBonus + bonusString);
-      }
+    if (this.useScaleValueLink) {
+      SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+    } else if (die?.diceString) {
+      const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(
+        (b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0),
+      )?.bonus;
+      const replaceProf
+        = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
+        && Number.parseInt(String(die.fixedValue)) === Number.parseInt(String(profBonus));
+      const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
+      const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
+      const damageString = utils.parseDiceString(diceString, mods).diceString;
+      SystemHelpers.parseBasicDamageFormula(damage, damageString);
+    } else if (die && fixedBonus) {
+      SystemHelpers.parseBasicDamageFormula(damage, fixedBonus + bonusString);
     }
 
     return damage;
@@ -774,17 +790,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         .filter((klass) => this.isMartialArtist(klass))
         .map((klass) => {
           const feature = klass.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
-          const levelScaleDie = feature?.levelScale?.dice
-            ? feature.levelScale.dice
-            : feature?.levelScale.die
-              ? feature.levelScale.die
-              : undefined;
+          const levelScaleDie = feature?.levelScale?.dice ?? feature?.levelScale?.die ?? undefined;
 
-          if (levelScaleDie?.diceString) {
+          if (feature && levelScaleDie?.diceString) {
             const scaleValueLink = DDBDataUtils.getScaleValueLink(this.ddbData, feature.definition);
             const scaleString
               = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}" ? scaleValueLink : levelScaleDie.diceString;
-            if (actionDie?.diceValue > levelScaleDie.diceValue) {
+            // Number() preserves the loose comparison semantics for null/undefined dice values
+            if (actionDie && Number(actionDie.diceValue) > Number(levelScaleDie.diceValue)) {
               return actionDie.diceString;
             }
             return scaleString;
@@ -808,7 +821,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       const empowered = this.hasClassFeature({ featureName: "Empowered Strikes", className: "Monk" });
       // handle 2024 empowered strike adding force damage to unarmed strikes
       if (this.is2024 && this.originalName === "Unarmed Strike" && empowered) {
-        damage.types.push("force");
+        damage.types?.push("force");
       }
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
@@ -826,13 +839,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _generateResourceFlags() {
     const linkItems = game.modules.get("link-item-resource-5e")?.active;
     const resourceType = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.resources.type");
+    const resources = this.rawCharacter.system.resources;
+    if (!resources) return;
     if (resourceType !== "disable" && linkItems) {
       const hasResourceLink = foundry.utils.getProperty(this.data.flags, "link-item-resource-5e.resource-link");
-      Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-        const detail = foundry.utils.getProperty(this.rawCharacter.system.resources, resource) as I5ePCResource;
+      Object.keys(resources).forEach((resource) => {
+        const detail = foundry.utils.getProperty(resources, resource) as I5ePCResource;
         if (this.ddbDefinition.name === detail.label) {
           foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", resource);
-          (this.rawCharacter.system.resources as Record<string, any>)[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+          (resources as Record<string, any>)[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
         } else if (hasResourceLink === resource) {
           foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", undefined);
         }
@@ -844,12 +859,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return "";
   }
 
-  _filterModForChoice(mod: IModifiersMod, choice: IDDBChoiceResult, type: IActionTypes): boolean {
+  _filterModForChoice(mod: IModifiersMod, choice: IDDBChoiceResult | undefined, type: IActionTypes): boolean {
     if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
       return true;
-    if (choice && this.ddbData.character.options[type]?.length > 0) {
+    const typeOptions = this.ddbData.character.options[type];
+    if (choice && typeOptions && typeOptions.length > 0) {
       // if it is a choice option, try and see if the mod matches
-      const choiceMatch = this.ddbData.character.options[type].some(
+      const choiceMatch = typeOptions.some(
         (option) =>
           // id match
           choice.componentId == option.componentId // the choice id matches the option componentID
@@ -863,8 +879,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       if (choiceMatch) return true;
     } else if (choice) {
       // && choice.parentChoiceId
-      const choiceIdSplit = choice.choiceId.split("-").pop();
-      if (mod.id == choiceIdSplit) return true;
+      const choiceIdSplit = choice.choiceId?.split("-").pop();
+      if (choiceIdSplit && mod.id == choiceIdSplit) return true;
     }
 
     if (mod.componentId === this.ddbDefinition.id) {
@@ -894,7 +910,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  _getFeatModifierItem(choice: IDDBChoiceResult, type: IActionTypes) {
+  _getFeatModifierItem(choice: IDDBChoiceResult | undefined, type: IActionTypes) {
     if ("grantedModifiers" in this.ddbDefinition && this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     const modifierItem = foundry.utils.duplicate(this.ddbDefinition) as any;
     const modifiers = [
@@ -924,9 +940,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return modifierItem;
   }
 
-  async _addEffects(choice: IDDBChoiceResult, type: IActionTypes) {
+  async _addEffects(choice: IDDBChoiceResult | undefined, type: IActionTypes) {
     // can we apply any auto-generated effects to this feature
-    const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
+    const compendiumItem = this.rawCharacter.flags?.ddbimporter?.compendium ?? false;
     const modifierItem = this._getFeatModifierItem(choice, type);
     this.data = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
@@ -940,6 +956,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
+    this.data.effects ??= [];
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
@@ -951,7 +968,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
-  static getFeatureSubtype(name: string, type: string, includePartial = true, categories: IDDBEntityCategory[] = null) {
+  static getFeatureSubtype(name: string, type: string, includePartial = true, categories: IDDBEntityCategory[] | null = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
       // many ki abilities do not start with ki
@@ -1080,7 +1097,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _getFullSummonsDescription(): string | null {
     if (this.isCompanionFeatureOption) {
-      const ddbOption = this.ddbData.character.options.class.find(
+      const ddbOption = this.ddbData.character.options.class?.find(
         (o) => o.definition.name == this.companionFeatureOption.childName,
       );
       if (!ddbOption) return null;
@@ -1125,7 +1142,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       else return "roll";
     }
     if ("uses" in this.data.system && this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
-    if (this.data.effects.length > 0 || this.enricher.effects?.length > 0) return "utility";
+    if ((this.data.effects?.length ?? 0) > 0 || (this.enricher.effects?.length ?? 0) > 0) return "utility";
     if (DDBFeatureMixin.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     if (this.isForceResourceLinked()) return "utility";
     if (this.getParsedActionType()) return "utility";
@@ -1146,7 +1163,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   ) {
     if (this.enricher.activity?.type === "none") {
       await this.enricher.customFunction({
-        name,
+        // ICustomFunctionOptions types name as string, but enrichers handle null
+        name: name as string,
       });
       return undefined;
     }
@@ -1156,12 +1174,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         ddbDefinition: this.ddbDefinition,
         foundryItem: this.data,
       });
-      if (statusEffect) this.data.effects.push(statusEffect);
+      if (statusEffect) {
+        this.data.effects ??= [];
+        this.data.effects.push(statusEffect);
+      }
     }
 
     if (hintsOnly && !this.enricher.activity) {
       await this.enricher.customFunction({
-        name,
+        name: name as string,
       });
       return undefined;
     }
@@ -1177,7 +1198,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     );
 
     await this.enricher.customFunction({
-      name,
+      name: name as string,
       activity: activity && "activities" in this.data.system ? this.data.system.activities[activity] : undefined,
     });
 
@@ -1186,7 +1207,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`) as I5eActivity | undefined;
     if (activityData?.type === "summon") {
       if (this.isCompanionFeature2014 || this.isCompanionFeature2024) {
-        await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity);
+        await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity ?? undefined);
       } else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014) {
         await this.ddbCompanionFactory.addCRSummoning(activityData);
       }
@@ -1206,24 +1227,29 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   static async finalFixes(feature: T5eFeatureMixinDataTypes, notifier: ((note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void) | null = null) {
+    const description = feature.system.description;
+    if (!description) {
+      logger.warn(`No description found for feature ${feature.name} during final fixes`, { feature });
+      return;
+    }
     const tableDescription = await DDBTable.generateTable({
       parentName: feature.name,
-      html: feature.system.description.value,
+      html: description.value,
       updateExisting: true,
       type: feature.type,
       sourceBook: feature.system.source?.book,
       notifier,
     });
-    feature.system.description.value = tableDescription;
+    description.value = tableDescription;
   }
 
   async _generateSummons() {
-    if (this.enricher.generateSummons) {
+    if (this.enricher.generateSummons && this.enricher.summonsFunction) {
       const summons = await this.enricher.summonsFunction({
         ddbParser: this,
         document: this.data,
         raw: this.ddbDefinition.description,
-        text: this.data.system.description,
+        text: this.data.system.description ?? { value: "", chat: "" },
       });
 
       await DDBSummonsManager.addGeneratedSummons(summons);
@@ -1234,7 +1260,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     const createOrUpdate
       = this.isMuncher
       || utils.getSetting<boolean>("character-update-policy-create-companions")
-      || this.ddbCharacter.enableCompanions;
+      || (this.ddbCharacter?.enableCompanions ?? false);
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "features",
       originDocument: this.data,

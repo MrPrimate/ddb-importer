@@ -6,13 +6,13 @@ import type DDBSpell from "../spells/DDBSpell";
 
 interface IDDBSpellActivity {
   type: IDDBActivityType;
-  name?: string;
+  name?: string | null;
   ddbParent: DDBSpell;
   nameIdPrefix?: string | null;
   nameIdPostfix?: string | null;
-  spellEffects?: boolean;
-  cantripBoost?: boolean;
-  healingBoost?: string;
+  spellEffects?: boolean | null;
+  cantripBoost?: boolean | null;
+  healingBoost?: string | null;
   id?: string | null;
 }
 
@@ -72,7 +72,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     consumeItem = null,
   }: {
     consumptionOverride?: I5eActivityConsumption | null;
-    additionalTargets?: I5eConsumptionTarget[];
+    additionalTargets?: I5eConsumptionTarget[] | null;
     consumeActivity?: boolean;
     consumeItem?: boolean | null;
   } = {}) {
@@ -215,7 +215,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     // assumptions: these are going to be dice strings, and we don't care
     // about dice value, just number of dice
     const diceFormula = /(\d*)d\d*/;
-    const existingMatch = diceFormula.exec(scaleDamage);
+    const existingMatch = diceFormula.exec(scaleDamage ?? "");
     const modMatch = diceFormula.exec(String(modScaleDamage));
 
     const modMatchValue = modMatch
@@ -225,14 +225,14 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
     if (!existingMatch && !modMatch) {
       scaleDamage = String(modScaleDamage);
-    } else if (!existingMatch || modMatchValue > existingMatch[1]) {
+    } else if (!existingMatch || (modMatchValue ?? "") > existingMatch[1]) {
       scaleDamage = String(modScaleDamage);
     }
     return scaleDamage;
   }
 
 
-  getScaling({ damageMod = null }: { damageMod?: IDDBSpellModifier }) {
+  getScaling({ damageMod = null }: { damageMod?: IDDBSpellModifier | null }) {
     let baseDamage = "";
     let scaleDamage = "";
     let scaleType = null; // defaults to null, so will be picked up as a None scaling spell.
@@ -337,7 +337,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  buildDamagePart({ damageString, type, damageMod = null }: { damageString: string; type?: string; damageMod?: IDDBSpellModifier }) {
+  buildDamagePart({ damageString, type, damageMod = null }: { damageString: string; type?: string; damageMod?: IDDBSpellModifier | null }) {
     // const damage = {
     //   number: null,
     //   denomination: null,
@@ -357,6 +357,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     const damage = SystemHelpers.buildDamagePart({ damageString, type });
 
     const scaling = this.getScaling({ damageMod });
+    damage.scaling ??= {};
     damage.scaling.mode = scaling.mode;
 
     if (scaling.old === "none") {
@@ -399,18 +400,18 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     // damage
     const damageMods = this.ddbDefinition.modifiers
       .filter((mod) => mod.type === "damage")
-      .filter((mod) =>
-        modRestrictionFilterExcludes === null
-        || ((
-          !mod.restriction
-          || mod.restriction === ""
-          || (mod.restriction && !modRestrictionFilterExcludes.some((exclude) => mod.restriction.toLowerCase().includes(exclude.toLowerCase())))
-        )),
-      )
-      .filter((mod) =>
-        modRestrictionFilter === null
-        || (mod.restriction && modRestrictionFilter.some((exclude) => mod.restriction.toLowerCase().includes(exclude.toLowerCase()))),
-      );
+      .filter((mod) => {
+        if (modRestrictionFilterExcludes === null) return true;
+        const restriction = mod.restriction;
+        return !restriction
+          || restriction === ""
+          || !modRestrictionFilterExcludes.some((exclude) => restriction.toLowerCase().includes(exclude.toLowerCase()));
+      })
+      .filter((mod) => {
+        if (modRestrictionFilter === null) return true;
+        const restriction = mod.restriction;
+        return Boolean(restriction && modRestrictionFilter.some((exclude) => restriction.toLowerCase().includes(exclude.toLowerCase())));
+      });
 
     if (damageMods.length !== 0) {
       damageMods.forEach((damageMod) => {
@@ -419,7 +420,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           chatFlavor.push(`Restriction: ${restrictionText}`);
         }
         const addMod = damageMod.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
-        const diceString = utils.parseDiceString(damageMod.die.diceString, addMod).diceString;
+        // parseDiceString stringifies its input, so a missing die keeps the historic "null" handling below
+        const diceString = utils.parseDiceString(String(damageMod.die?.diceString ?? null), addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
           const damage = this.buildDamagePart({
             damageString: diceString,
@@ -437,6 +439,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         : alternativeFormula;
     }
 
+    this.data.description ??= { chatFlavor: "" };
     this.data.description.chatFlavor = chatFlavor.join(", ");
     if (versatile) {
       const damage = this.buildDamagePart({ damageString: versatile });
@@ -458,7 +461,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     if (this.ddbParent.enricher?.combineDamageTypes) {
       const types = new Set<string>();
       parts.forEach((part) => {
-        part.types.forEach((type) => types.add(type));
+        part.types?.forEach((type) => types.add(type));
       });
       const part = parts[0];
       part.types = Array.from(types);
@@ -485,7 +488,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   }
 
-  _generateSave({ saveOverride = null } = {}) {
+  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (!("save" in this.data)) return;
     if (saveOverride) {
       this.data.save = saveOverride;
@@ -493,7 +496,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
     if (this.ddbDefinition.requiresSavingThrow && this.ddbDefinition.saveDcAbilityId) {
       const saveAbility = DICTIONARY.actor.abilities
-        .find((ability) => ability.id === this.ddbDefinition.saveDcAbilityId)?.value;
+        .find((ability) => ability.id === this.ddbDefinition.saveDcAbilityId)?.value ?? "";
       if (this.spellData.overrideSaveDc) {
         this.data.save = {
           ability: [saveAbility],

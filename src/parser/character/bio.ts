@@ -1,53 +1,88 @@
 import DDBCharacter from "../DDBCharacter";
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 
 DDBCharacter.prototype.getBackgroundName = function getBackgroundName(this: DDBCharacter) {
-  if (this.source.ddb.character.background.hasCustomBackground === false) {
-    if (this.source.ddb.character.background.definition !== null) {
-      return this.source.ddb.character.background.definition.name || "";
+  if (!this.source) {
+    logger.warn("getBackgroundName called before DDB source data was loaded");
+    return "";
+  }
+  const background = this.source.ddb.character.background;
+  if (background.hasCustomBackground === false) {
+    if (background.definition !== null) {
+      return background.definition.name || "";
     } else {
       return "";
     }
   } else {
-    return this.source.ddb.character.background.customBackground.name || "";
+    return background.customBackground.name || "";
   }
 };
 
 DDBCharacter.prototype._generateTrait = function _generateTrait(this: DDBCharacter) {
-  this.raw.character.system.details.trait = this.source.ddb.character.traits.personalityTraits ?? "";
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateTrait: missing DDB source data or character details");
+    return;
+  }
+  details.trait = this.source.ddb.character.traits.personalityTraits ?? "";
 };
 
 DDBCharacter.prototype._generateIdeal = function _generateIdeal(this: DDBCharacter) {
-  this.raw.character.system.details.ideal = this.source.ddb.character.traits.ideals ?? "";
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateIdeal: missing DDB source data or character details");
+    return;
+  }
+  details.ideal = this.source.ddb.character.traits.ideals ?? "";
 };
 
 DDBCharacter.prototype._generateBond = function _generateBond(this: DDBCharacter) {
-  this.raw.character.system.details.bond = this.source.ddb.character.traits.bonds ?? "";
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateBond: missing DDB source data or character details");
+    return;
+  }
+  details.bond = this.source.ddb.character.traits.bonds ?? "";
 };
 
 DDBCharacter.prototype._generateFlaw = function _generateFlaw(this: DDBCharacter) {
-  this.raw.character.system.details.flaw = this.source.ddb.character.traits.flaws ?? "";
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateFlaw: missing DDB source data or character details");
+    return;
+  }
+  details.flaw = this.source.ddb.character.traits.flaws ?? "";
 };
 
 DDBCharacter.prototype.getCharacteristics = function getCharacteristics(this: DDBCharacter): string {
+  if (!this.source) {
+    logger.warn("getCharacteristics called before DDB source data was loaded");
+    return "";
+  }
+  const character = this.source.ddb.character;
   let characteristicBlurb = "";
-  if (this.source.ddb.character.gender) characteristicBlurb += `Gender: ${this.source.ddb.character.gender}\n`;
-  if (this.source.ddb.character.eyes) characteristicBlurb += `Eyes: ${this.source.ddb.character.eyes}\n`;
-  if (this.source.ddb.character.height) characteristicBlurb += `Height: ${this.source.ddb.character.height}\n`;
-  if (this.source.ddb.character.faith) characteristicBlurb += `Faith: ${this.source.ddb.character.faith}\n`;
-  if (this.source.ddb.character.hair) characteristicBlurb += `Hair: ${this.source.ddb.character.hair}\n`;
-  if (this.source.ddb.character.skin) characteristicBlurb += `Skin: ${this.source.ddb.character.skin}\n`;
-  if (this.source.ddb.character.age) characteristicBlurb += `Age: ${this.source.ddb.character.age}\n`;
-  if (this.source.ddb.character.weight) characteristicBlurb += `Weight: ${this.source.ddb.character.weight}\n`;
+  if (character.gender) characteristicBlurb += `Gender: ${character.gender}\n`;
+  if (character.eyes) characteristicBlurb += `Eyes: ${character.eyes}\n`;
+  if (character.height) characteristicBlurb += `Height: ${character.height}\n`;
+  if (character.faith) characteristicBlurb += `Faith: ${character.faith}\n`;
+  if (character.hair) characteristicBlurb += `Hair: ${character.hair}\n`;
+  if (character.skin) characteristicBlurb += `Skin: ${character.skin}\n`;
+  if (character.age) characteristicBlurb += `Age: ${character.age}\n`;
+  if (character.weight) characteristicBlurb += `Weight: ${character.weight}\n`;
   return characteristicBlurb;
 };
 
 DDBCharacter.prototype._generateAppearance = function _generateAppearance(this: DDBCharacter) {
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateAppearance: missing DDB source data or character details");
+    return;
+  }
   let result = this.getCharacteristics();
   if (result && result !== "") result += "\n";
   if (this.source.ddb.character.traits.appearance) result += this.source.ddb.character.traits.appearance;
-  this.raw.character.system.details.appearance = result ?? "";
+  details.appearance = result ?? "";
 };
 
 /**
@@ -56,9 +91,14 @@ DDBCharacter.prototype._generateAppearance = function _generateAppearance(this: 
  * returns .name right now, should switch to .value once the DND5E options are fully implemented
  */
 DDBCharacter.prototype._generateAlignment = function _generateAlignment(this: DDBCharacter) {
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateAlignment: missing DDB source data or character details");
+    return;
+  }
   const alignmentID = this.source.ddb.character.alignmentId || 5;
   const alignment = DICTIONARY.actor.alignments.find((alignment) => alignment.id === alignmentID);
-  if (alignment) this.raw.character.system.details.alignment = alignment.name;
+  if (alignment) details.alignment = alignment.name;
 };
 
 function getBackgroundTemplate(): IDDBGeneratedBackground {
@@ -136,9 +176,10 @@ export function generateBackground(bg: IDDBBackgroundInput): IDDBGeneratedBackgr
     }
   }
 
-  if (bg.featureName && utils.stripHtml(bg.featureDescription ?? "").trim()) {
+  const featureDescription = bg.featureDescription ?? "";
+  if (bg.featureName && utils.stripHtml(featureDescription).trim()) {
     result.description += `<h2>${bg.featureName}</h2>`;
-    result.description += bg.featureDescription.replace("\r\n", "");
+    result.description += featureDescription.replace("\r\n", "");
   }
 
   // update definition
@@ -150,14 +191,19 @@ export function generateBackground(bg: IDDBBackgroundInput): IDDBGeneratedBackgr
 }
 
 DDBCharacter.prototype.getBackgroundData = function getBackgroundData(this: DDBCharacter): IDDBGeneratedBackground {
+  if (!this.source) {
+    logger.warn("getBackgroundData called before DDB source data was loaded");
+    return getBackgroundTemplate();
+  }
+  const background = this.source.ddb.character.background;
   let bg;
-  if (this.source.ddb.character.background.hasCustomBackground === true) {
-    bg = this.source.ddb.character.background.customBackground;
+  if (background.hasCustomBackground === true) {
+    bg = background.customBackground;
     foundry.utils.setProperty(bg, "isHomebrew", true);
-  } else if (this.source.ddb.character.background.definition !== null) {
-    bg = this.source.ddb.character.background.definition;
+  } else if (background.definition !== null) {
+    bg = background.definition;
   } else {
-    bg = this.source.ddb.character.background.customBackground;
+    bg = background.customBackground;
     const result = getBackgroundTemplate();
     if (bg.id) {
       result.id = bg.id;
@@ -174,22 +220,33 @@ DDBCharacter.prototype.getBackgroundData = function getBackgroundData(this: DDBC
 };
 
 DDBCharacter.prototype._generateBiography = function _generateBiography(this: DDBCharacter) {
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateBiography: missing DDB source data or character details");
+    return;
+  }
   const backstory = this.source.ddb.character.notes.backstory
     ? "<h1>Backstory</h1><p>" + this.source.ddb.character.notes.backstory + "</p>"
     : "";
 
-  this.raw.character.system.details.biography = {
+  details.biography = {
     public: backstory,
     value: backstory,
   };
 };
 
 DDBCharacter.prototype._generateDescription = function _generateDescription(this: DDBCharacter) {
-  this.raw.character.system.details["gender"] = this.source.ddb.character.gender || "";
-  this.raw.character.system.details["age"] = this.source.ddb.character.age || "";
-  this.raw.character.system.details["height"] = this.source.ddb.character.height || "";
-  this.raw.character.system.details["weight"] = this.source.ddb.character.weight || "";
-  this.raw.character.system.details["eyes"] = this.source.ddb.character.eyes || "";
-  this.raw.character.system.details["skin"] = this.source.ddb.character.skin || "";
-  this.raw.character.system.details["hair"] = this.source.ddb.character.hair || "";
+  const details = this.raw.character.system.details;
+  if (!this.source || !details) {
+    logger.warn("_generateDescription: missing DDB source data or character details");
+    return;
+  }
+  const character = this.source.ddb.character;
+  details["gender"] = character.gender || "";
+  details["age"] = character.age || "";
+  details["height"] = character.height || "";
+  details["weight"] = character.weight || "";
+  details["eyes"] = character.eyes || "";
+  details["skin"] = character.skin || "";
+  details["hair"] = character.hair || "";
 };

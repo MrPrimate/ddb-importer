@@ -1,17 +1,28 @@
+import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
 DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(this: DDBCharacter, includeItemEffects = false): IDDBPCDnDBeyondProficiencyFlags[] {
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to get core proficiencies, no DDB source data");
+    return [];
+  }
   return DDBModifiers
-    .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
+    .filterBaseModifiers(ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((proficiency) => {
       return { name: proficiency.friendlySubtypeName, custom: false };
     });
 };
 
 DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this: DDBCharacter, includeItemEffects = false): IDDBPCDnDBeyondWeaponMasteryFlags[] {
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to get core masteries, no DDB source data");
+    return [];
+  }
   return DDBModifiers
-    .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
+    .filterBaseModifiers(ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
       try {
         const weaponRegex = /(.*) \(([\w-, ]+)\)$/ig;
@@ -37,11 +48,24 @@ DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this: DDBC
 };
 
 DDBCharacter.prototype._generateLanguages = function _generateLanguages(this: DDBCharacter) {
-  const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, "language");
-  this.raw.character.system.traits.languages = this.proficiencyFinder.getLanguagesFromModifiers(modifiers);
+  const ddb = this.source?.ddb;
+  const traits = this.raw.character.system.traits;
+  if (!ddb || !traits) {
+    logger.warn("Unable to generate languages, missing DDB source data or character traits");
+    return;
+  }
+  const modifiers = DDBModifiers.filterBaseModifiers(ddb, "language");
+  traits.languages = this.proficiencyFinder.getLanguagesFromModifiers(modifiers);
 };
 
 DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(this: DDBCharacter) {
+  const ddb = this.source?.ddb;
+  const dndbeyondFlags = this.raw.character.flags?.ddbimporter?.dndbeyond;
+  const traits = this.raw.character.system.traits;
+  if (!ddb || !dndbeyondFlags || !traits) {
+    logger.warn("Unable to generate proficiencies, missing DDB source data or character skeleton data");
+    return;
+  }
   const customProficiencies: IDDBPCDnDBeyondProficiencyFlags[] = [
     ...this.proficiencyFinder.getCustomProficiencies("Armor"),
     ...this.proficiencyFinder.getCustomProficiencies("Tools"),
@@ -55,17 +79,17 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
   this.proficienciesIncludingEffects = this._getCoreProficiencies(true).concat(customProficiencies);
   this.weaponMasteries = this._getCoreMasteries(false);
 
-  if (this.source.ddb.character.feats.some((f) => f.definition.name === "Advanced Weapon Proficiency")) {
+  if (ddb.character.feats.some((f) => f.definition.name === "Advanced Weapon Proficiency")) {
     this.proficiencies.push({ name: "Advanced Weapons", custom: false });
     this.proficienciesIncludingEffects.push({ name: "Advanced Weapons", custom: false });
   }
 
-  this.raw.character.flags.ddbimporter.dndbeyond.proficiencies = this.proficiencies;
-  this.raw.character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects = this.proficienciesIncludingEffects;
-  this.raw.character.flags.ddbimporter.dndbeyond.weaponMasteries = this.weaponMasteries;
+  dndbeyondFlags.proficiencies = this.proficiencies;
+  dndbeyondFlags.proficienciesIncludingEffects = this.proficienciesIncludingEffects;
+  dndbeyondFlags.weaponMasteries = this.weaponMasteries;
 
-  this.raw.character.system.traits.weaponProf = this.proficiencyFinder.getWeaponProficiencies(this.proficiencies, this.weaponMasteries);
-  this.raw.character.system.traits.armorProf = this.proficiencyFinder.getArmorProficiencies(this.proficiencies);
+  traits.weaponProf = this.proficiencyFinder.getWeaponProficiencies(this.proficiencies, this.weaponMasteries);
+  traits.armorProf = this.proficiencyFinder.getArmorProficiencies(this.proficiencies);
   this.raw.character.system.tools = this.proficiencyFinder.getToolProficiencies(this.proficiencies);
   this._generateLanguages();
 };

@@ -9,7 +9,7 @@ interface IDDBActivityFactoryMixin<TDoc extends string = TAFMDocTypes> {
   enricher?: any;
   activityGenerator?: any;
   documentType?: TDoc | null;
-  notifier?: NotifierV1;
+  notifier?: NotifierV1 | null;
   useMidiAutomations?: boolean;
   usesOnActivity?: boolean;
 }
@@ -32,7 +32,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
   data: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
-  notifier: NotifierV1;
+  notifier: NotifierV1 | null;
 
   // These properties are used throughout the class but defined in subclasses.
   // Subclasses use narrower unions (IActionTypes, TDDBMonsterActionType, "spell", ...)
@@ -386,10 +386,14 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     ) as TDDBActivityBuildOptions;
 
     if (this.usesOnActivity || this.enricher.usesOnActivity) {
-      const uses = foundry.utils.getProperty(this.data, "system.uses");
-      options.usesOverride = foundry.utils.deepClone(uses);
-      options.usesOverride.override = true;
-      options.generateUses = true;
+      const uses = foundry.utils.getProperty(this.data, "system.uses") as I5eSystemLimitedUses | I5eConsumableUses | undefined;
+      if (uses) {
+        options.usesOverride = foundry.utils.deepClone(uses);
+        options.usesOverride.override = true;
+        options.generateUses = true;
+      } else {
+        logger.warn(`No system.uses found on ${this.data.name} when generating activity uses override`);
+      }
     }
 
     const activity = this.getActivity({
@@ -442,7 +446,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity.data._id;
   }
 
-  async _generateAdditionalActivities(): Promise<string[]> {
+  // subclasses such as DDBSpell may return undefined when generation is skipped
+  async _generateAdditionalActivities(): Promise<string[] | undefined> {
     if (!this.enricher.addAutoAdditionalActivities) return [];
     if (this.additionalActivities.length === 0) return [];
     let i = 0;
@@ -467,13 +472,14 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
 
 
   _activityEffectLinking(): void {
-    if (this.data.effects.length === 0) return;
+    const documentEffects = this.data.effects;
+    if (!documentEffects || documentEffects.length === 0) return;
     if (!foundry.utils.hasProperty(this.data, "system.activities")) return;
     for (const activityId of Object.keys(this.data.system.activities)) {
       const activity = this.data.system.activities[activityId];
       if (!activity.effects || activity.effects.length !== 0) continue;
       if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
-      for (const effect of this.data.effects) {
+      for (const effect of documentEffects) {
         const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
         if (effect.transfer && !ignoreTransfer) continue;
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
@@ -482,7 +488,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
           : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
             ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")] as string[]
             : [] as string[];
-        if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
+        if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
         activity.effects.push({
           _id: effect._id,
@@ -502,11 +508,11 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     for (const activityId of Object.keys(this.data.system.activities)) {
       const activity = this.data.system.activities[activityId];
       if (activity.type !== "enchant") continue;
-      for (const e of activity.effects) {
-        e.riders.activity.forEach((activity: string) => {
+      for (const e of activity.effects ?? []) {
+        e.riders?.activity?.forEach((activity: string) => {
           riders.activity.add(activity);
         });
-        e.riders.effect.forEach((effect: string) => {
+        e.riders?.effect?.forEach((effect: string) => {
           riders.effect.add(effect);
         });
       }

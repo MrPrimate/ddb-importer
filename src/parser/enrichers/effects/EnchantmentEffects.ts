@@ -1,3 +1,4 @@
+import { ChangeHelper } from "./_module";
 import AutoEffects from "./AutoEffects";
 
 export default class EnchantmentEffects {
@@ -6,10 +7,17 @@ export default class EnchantmentEffects {
     { transfer = false, disabled = false, origin = null as string | null, id = null as string | null, description = null as string | null, durationSeconds = null as number | null,
       durationRounds = null as number | null, durationTurns = null as number | null } = {},
   ) {
-    const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+    const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, {
+      transfer,
+      disabled,
+      description: description ?? undefined,
+      durationSeconds: durationSeconds ?? undefined,
+      durationRounds: durationRounds ?? undefined,
+      durationTurns,
+    });
     foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
     effect._id = id ?? foundry.utils.randomID();
-    effect.origin = origin ?? null;
+    effect.origin = origin ?? undefined;
     return effect;
   }
 
@@ -20,16 +28,12 @@ export default class EnchantmentEffects {
     const name = nameAddition
       ? `, ${nameAddition}`
       : ` (${effect.name})`;
-    effect.system.changes.push(
-      {
-        key: "name",
-        type: "override" as TActiveEffectChangeType,
-        value: `{}${name}`,
-        priority: 20,
-      },
-    );
+    const system = (effect.system ??= {});
+    const changes = (system.changes ??= []);
+    const change = ChangeHelper.overrideChange(`{}${name}`, 20, "name");
+    changes.push(change);
     if (bonus !== null) {
-      effect.system.changes.push(
+      changes.push(
         {
           key: "system.magicalBonus",
           type: bonusMode,
@@ -40,14 +44,8 @@ export default class EnchantmentEffects {
     }
 
     if (makeMagical) {
-      effect.system.changes.push(
-        {
-          key: "system.properties",
-          type: "add" as TActiveEffectChangeType,
-          value: "mgc",
-          priority: 20,
-        },
-      );
+      const magicalChange = ChangeHelper.addChange("mgc", 20, "system.properties");
+      changes.push(magicalChange);
     }
     return effect;
   }

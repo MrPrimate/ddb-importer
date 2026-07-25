@@ -81,6 +81,9 @@ export default class CharacterFeatureFactory {
   };
 
   constructor(ddbCharacter: DDBCharacter) {
+    if (!ddbCharacter.source) {
+      throw new Error("CharacterFeatureFactory requires a DDBCharacter with loaded source data");
+    }
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.rawCharacter = ddbCharacter.raw.character;
@@ -112,8 +115,8 @@ export default class CharacterFeatureFactory {
     };
 
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
-      .filter((f) => f.affectedRacialTraitId)
-      .map((f) => f.affectedRacialTraitId);
+      .map((f) => f.affectedRacialTraitId)
+      .filter((id): id is number => Boolean(id));
 
     this.pendingCompendiumDocuments = {
       features: [],
@@ -130,10 +133,10 @@ export default class CharacterFeatureFactory {
     return items.some((dup: any) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
-        && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
-        && dup.flags.ddbimporter.class === item.flags.ddbimporter.class);
+        && foundry.utils.hasProperty(item.flags.ddbimporter ?? {}, "class")
+        && dup.flags.ddbimporter.class === item.flags.ddbimporter?.class);
 
-      return dup.name === item.name && dup.system.description.value === item.system.description.value && classMatched;
+      return dup.name === item.name && dup.system.description.value === item.system.description?.value && classMatched;
     });
   }
 
@@ -142,11 +145,11 @@ export default class CharacterFeatureFactory {
     return items.find((dup: any) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
-        && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
-        && dup.flags.ddbimporter.class === item.flags.ddbimporter.class);
+        && foundry.utils.hasProperty(item.flags.ddbimporter ?? {}, "class")
+        && dup.flags.ddbimporter.class === item.flags.ddbimporter?.class);
 
       return dup.name === item.name
-        && item.flags.ddbimporter.type === dup.flags.ddbimporter.type
+        && item.flags.ddbimporter?.type === dup.flags.ddbimporter.type
         && classMatched;
     });
   }
@@ -210,7 +213,9 @@ export default class CharacterFeatureFactory {
       logger.debug("getUnarmedStrike: no starting class on character, skipping action generation");
       return null;
     }
-    const is2014 = DDBSources.is2014Source(primaryClass.definition.sources[0]);
+    const firstSource = primaryClass.definition.sources?.[0];
+    // no source data on the class, treat as 2024 (matches the custom content convention)
+    const is2014 = firstSource ? DDBSources.is2014Source(firstSource) : false;
     const sources: IDDBSource[] = is2014
       ? [
         {
@@ -340,7 +345,8 @@ export default class CharacterFeatureFactory {
     // treat custom actions as 2024, since they are not in the DDB data and we don't have a source to check against
     if (!("componentId" in action) || !action.componentId) return false;
     const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId);
-    return klass.definition.sources.every((s) => DDBSources.is2014Source(s));
+    // no matching class (e.g. race/feat actions) or no source data: treat as 2024
+    return klass?.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   async _generateOtherActions() {
@@ -432,16 +438,19 @@ export default class CharacterFeatureFactory {
       } else if (!Object.values(b.system.activities).some((b) => foundry.utils.hasProperty(b, "activation.type"))) {
         return -1;
       } else {
+        // guaranteed by the some() checks above
+        const aActivity = Object.values(a.system.activities)
+          .find((act) => foundry.utils.hasProperty(act, "activation.type"));
+        const bActivity = Object.values(b.system.activities)
+          .find((act) => foundry.utils.hasProperty(act, "activation.type"));
+        if (!aActivity || !bActivity) return 0;
         const aActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => "activities" in a.system
-            && type.value === Object.values(a.system.activities)
-              .find((a) => foundry.utils.hasProperty(a, "activation.type")).activation.type,
-        ).id;
+          (type) => type.value === aActivity.activation.type,
+        )?.id;
         const bActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => "activities" in b.system
-            && type.value === Object.values(b.system.activities)
-              .find((b) => foundry.utils.hasProperty(b, "activation.type")).activation.type,
-        ).id;
+          (type) => type.value === bActivity.activation.type,
+        )?.id;
+        if (aActionTypeID === undefined || bActionTypeID === undefined) return 0;
         if (aActionTypeID > bActionTypeID) {
           return 1;
         } else if (aActionTypeID < bActionTypeID) {
@@ -468,11 +477,12 @@ export default class CharacterFeatureFactory {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
-    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[];
-    const advancement = feature.system.advancement[id];
-    const dataLink = linkingData.find((d) => d._id === advancement._id);
+    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[] | undefined;
+    const advancements = feature.system.advancement;
+    const advancement = advancements?.[id];
+    const dataLink = linkingData?.find((d) => d._id === advancement?._id);
 
-    if (!dataLink || !linkingData || !advancement) {
+    if (!dataLink || !linkingData || !advancement || !advancements) {
       logger.warn(`Advancement for ${feature.name} (id ${id}) missing required data for linking`, {
         advancement,
         linkingData,
@@ -506,16 +516,17 @@ export default class CharacterFeatureFactory {
       advancement.value = {
         added,
       };
-      feature.system.advancement[id] = advancement;
+      advancements[id] = advancement;
     }
   }
 
   #itemChoiceLink(feature: T5eFeatureMixinDataTypes, id:string) {
-    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[];
-    const advancement = feature.system.advancement[id];
-    const dataLink = linkingData.find((d) => d._id === advancement._id);
+    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[] | undefined;
+    const advancements = feature.system.advancement;
+    const advancement = advancements?.[id];
+    const dataLink = linkingData?.find((d) => d._id === advancement?._id);
 
-    if (!dataLink || !linkingData || !advancement) {
+    if (!dataLink || !linkingData || !advancement || !advancements) {
       logger.warn(`Advancement for ${feature.name} (id ${id}) missing required data for linking`, {
         advancement,
         linkingData,
@@ -547,7 +558,7 @@ export default class CharacterFeatureFactory {
           "0": added,
         },
       };
-      feature.system.advancement[id] = advancement;
+      advancements[id] = advancement;
     }
   }
 
@@ -594,7 +605,7 @@ export default class CharacterFeatureFactory {
             feature,
             linkingData,
           });
-          for (const [id, a] of Object.entries(feature.system.advancement)) {
+          for (const [id, a] of Object.entries(feature.system.advancement ?? {})) {
             const dataLink = linkingData.find((d) => d._id === a._id);
 
             if (a.type === "ItemGrant" && dataLink) {
@@ -615,7 +626,12 @@ export default class CharacterFeatureFactory {
     flags = {},
   ) {
     const rawDefinition = "definition" in featDefinition ? featDefinition.definition : featDefinition;
-    const source = DDBSources.parseSource(rawDefinition);
+    // generated background definitions use `sources: IDDBSource[] | null` rather than the
+    // optional sources of the other definition shapes; normalise null to undefined for parseSource
+    const source = DDBSources.parseSource({
+      ...rawDefinition,
+      sources: rawDefinition.sources ?? undefined,
+    });
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
@@ -662,25 +678,31 @@ export default class CharacterFeatureFactory {
   }
 
   fixAcEffects(type: keyof CharacterFeatureFactory["parsed"] = "features") {
+    const armorResults = this.ddbCharacter.armor.results;
+    if (!armorResults) {
+      logger.warn("fixAcEffects: no armor calculation results available, skipping AC effect fixes");
+      return;
+    }
     for (const feature of this.parsed[type]) {
       logger.debug(`Checking ${feature.name} for AC effects`);
       for (const effect of (feature.effects ?? [])) {
+        const changes = effect.system?.changes ?? [];
         if (
-          !["Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
+          !["Custom", "Unarmored"].includes(armorResults.maxType)
           && (
-            (effect.system.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
-            && effect.system.changes.some((change) => change.key === "system.attributes.ac.formula")
-            && effect.system.changes.some((change) => change.key === "system.attributes.ac.calc"))
-            || (effect.system.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
-              && effect.system.changes.some((change) => change.key === "system.attributes.ac.calc"))
+            (changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
+            && changes.some((change) => change.key === "system.attributes.ac.formula")
+            && changes.some((change) => change.key === "system.attributes.ac.calc"))
+            || (changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
+              && changes.some((change) => change.key === "system.attributes.ac.calc"))
           )
         ) {
-          if ((feature.flags.ddbimporter.type === "race" && this.ddbCharacter.armor.results.maxType === "Natural")
-            || (feature.flags.ddbimporter.type === "class" && this.ddbCharacter.armor.results.maxType === "Unarmored Defense")
+          if ((feature.flags.ddbimporter?.type === "race" && armorResults.maxType === "Natural")
+            || (feature.flags.ddbimporter?.type === "class" && armorResults.maxType === "Unarmored Defense")
           ) {
             effect.disabled = false;
           } else {
-            logger.debug(`Disabling AC effect on ${feature.name} as not applicable for armor type ${this.ddbCharacter.armor.results.maxType}`);
+            logger.debug(`Disabling AC effect on ${feature.name} as not applicable for armor type ${armorResults.maxType}`);
             effect.disabled = true;
           }
         }
@@ -712,7 +734,7 @@ export default class CharacterFeatureFactory {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
           // ||
-          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
+          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter?.originalName ?? item.name);
         logger.debug(`Processing racial trait ${item.name}`, {
           trait,
           existingFeature,
@@ -720,7 +742,9 @@ export default class CharacterFeatureFactory {
           item,
         });
         if (existingFeature && !duplicateFeature) {
-          existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
+          if (existingFeature.system.description) {
+            existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description?.value ?? ""}`;
+          }
         } else if (existingFeature) {
           logger.debug(`Duplicate feature found for ${item.name}, skipping`, {
             existingFeature,
@@ -815,6 +839,10 @@ export default class CharacterFeatureFactory {
         const featClassId = foundry.utils.getProperty(feat, "classId") as number;
         const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === featClassId
           || cls.subclassDefinition?.id === featClassId);
+        if (!klass) {
+          logger.warn(`Unable to determine class for optional feature ${feat.name}, skipping`, { feat });
+          continue;
+        }
         const flags = {
           "ddbimporter": {
             class: klass.definition.name,
@@ -836,14 +864,14 @@ export default class CharacterFeatureFactory {
 
       const featureName = utils.referenceNameString(feature.name).toLowerCase();
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
-        Object.values(klass.system.advancement)
+        Object.values(klass.system.advancement ?? {})
           .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration.identifier === featureName,
+            && advancement.configuration?.identifier === featureName,
           ));
 
       if (!scaleKlass) continue;
 
-      const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
+      const identifier = utils.referenceNameString(scaleKlass.system.identifier ?? "").toLowerCase();
       const damage = SystemHelpers.buildDamagePart({
         damageString: `@scale.${identifier}.${featureName}`,
       });
@@ -851,10 +879,13 @@ export default class CharacterFeatureFactory {
         foundry.utils.setProperty(feature, "system.damage.base.custom", damage.custom);
       } else if (foundry.utils.hasProperty(feature, "system.activities")) {
         for (const [key, activity] of Object.entries(feature.system.activities)) {
-          if ("damage" in activity && activity.damage.parts.length === 0) {
-            activity.damage.parts = [damage];
-          } else if ("damage" in activity && activity.damage.parts.length > 0) {
-            activity.damage.parts[0].custom = damage.custom;
+          if ("damage" in activity && activity.damage) {
+            const parts = activity.damage.parts ?? [];
+            if (parts.length === 0) {
+              activity.damage.parts = [damage];
+            } else {
+              parts[0].custom = damage.custom;
+            }
           }
           feature.system.activities[key] = activity;
         }
@@ -881,16 +912,18 @@ export default class CharacterFeatureFactory {
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     this._ddbClassFeatures.data.forEach((doc) => {
-      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter.originalName ?? doc.name);
+      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
       const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
       const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
-        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter.originalName ?? doc.name);
+        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
       if (existingFeature && !duplicateFeature) {
-        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(doc.flags.ddbimporter.originalName ?? doc.name)) {
-          existingFeature.system.description.value = `${doc.system.description.value}`;
+        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(doc.flags.ddbimporter?.originalName ?? doc.name)) {
+          if (existingFeature.system.description) {
+            existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
+          }
         } else {
-          const klassAdjustment = `<h3>${doc.flags.ddbimporter.dndbeyond.class}</h3>${doc.system.description.value}`;
-          existingFeature.system.description.value += klassAdjustment;
+          const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
+          if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
         }
       } else if (!existingFeature) {
         this.parsed.features.push(doc);
@@ -1048,7 +1081,8 @@ export default class CharacterFeatureFactory {
 
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
       for (const classDef of this.ddbData.character.classes) {
-        const version = classDef.definition.sources.every((s) => DDBSources.is2014Source(s))
+        // no source data: treat as 2024 (matches the custom content convention)
+        const version = classDef.definition.sources?.every((s) => DDBSources.is2014Source(s))
           ? "2014"
           : "2024";
         this.pendingCompendiumDocuments.classMeta.push({
@@ -1184,7 +1218,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  async addToCompendiums(update: boolean = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"], { collectOnly = false } = {}) {
+  async addToCompendiums(update: boolean | null = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"], { collectOnly = false } = {}) {
     logger.verbose("Adding features to compendiums", { update, compendiumImportTypes, collectOnly, this: this });
 
     this.collectCompendiumDocuments(compendiumImportTypes);
@@ -1192,7 +1226,7 @@ export default class CharacterFeatureFactory {
 
     await CharacterFeatureFactory.writePendingCompendiumDocuments(
       this.pendingCompendiumDocuments,
-      update,
+      update ?? false,
       compendiumImportTypes,
     );
   }
@@ -1233,12 +1267,14 @@ export default class CharacterFeatureFactory {
       if (featureMatch) {
         const originalFeatureName = foundry.utils.getProperty(featureMatch, "flags.ddbimporter.originalName") ?? featureMatch.name;
         foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", originalFeatureName);
-        if (action.system.description.value === "" || alwaysUseFeatureDescription) {
-          action.system.description.value = featureMatch.system.description.value;
-        }
+        if (action.system.description && featureMatch.system.description) {
+          if (action.system.description.value === "" || alwaysUseFeatureDescription) {
+            action.system.description.value = featureMatch.system.description.value;
+          }
 
-        if (action.system.description.chat === "") {
-          action.system.description.chat = featureMatch.system.description.chat;
+          if (action.system.description.chat === "") {
+            action.system.description.chat = featureMatch.system.description.chat;
+          }
         }
 
         action.system.source = featureMatch.system.source;
@@ -1273,7 +1309,9 @@ export default class CharacterFeatureFactory {
 
           if (Object.keys(featureMatch.system.activities).length === 0
             && Object.keys(action.system.activities).length > 0
+            && featureMatch.effects
             && featureMatch.effects.length > 0
+            && action.effects
             && action.effects.length === 0
           ) {
             for (const key of Object.keys(action.system.activities)) {

@@ -14,11 +14,13 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
   };
 
   _splitNameLoader(): DDBEnricherData | null {
+    if (!this.name) return null;
     this.name = this.name.split("(")[0].trim();
     return this._loadEnricherData();
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
+    if (!this.name) return null;
     const monsterHintName = utils.pascalCase(this.monsterHintName ?? this.monsterName);
     const featName = utils.pascalCase(this.name);
     const Enricher = (MonsterEnrichers as TEnricherGroupMap)[monsterHintName]?.[featName];
@@ -39,10 +41,11 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
 
   _loadEnricherData(): DDBEnricherData | null {
     const monsterHintName = this.monsterHintName ?? this.monsterName;
-    if (!this.ENRICHERS?.[monsterHintName]?.[this.hintName]) {
+    const hintName = this.hintName;
+    if (!hintName || !this.ENRICHERS?.[monsterHintName]?.[hintName]) {
       return this._defaultNameLoader();
     }
-    return new this.ENRICHERS[monsterHintName][this.hintName]({
+    return new this.ENRICHERS[monsterHintName][hintName]({
       ddbEnricher: this,
     });
   }
@@ -67,8 +70,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
 
     // no monster or monster partial match, check generic options
     const genericKeys = Object.keys(this.GENERIC_FEATURE_NAME);
-    const splitName = this.name.split("(")[0].trim();
-    const genericHint = genericKeys.find((key: string) => this.name === key || splitName === key);
+    const name = this.name ?? "";
+    const splitName = name.split("(")[0].trim();
+    const genericHint = genericKeys.find((key: string) => name === key || splitName === key);
 
     if (genericHint) {
       this.monsterHintName = "Generic";
@@ -77,7 +81,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     }
 
     const startsWithKeys = Object.keys(this.GENERIC_FEATURE_NAME_STARTS_WITH);
-    const startsWithHint = startsWithKeys.find((key: string) => this.name.startsWith(key));
+    const startsWithHint = startsWithKeys.find((key: string) => name.startsWith(key));
     if (startsWithHint) {
       this.monsterHintName = "Generic";
       this.hintName = this.GENERIC_FEATURE_NAME_STARTS_WITH[startsWithHint];
@@ -85,7 +89,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     }
 
     const includesKeys = Object.keys(this.GENERIC_FEATURE_NAME_INCLUDES);
-    const includesHint = includesKeys.find((key: string) => this.name.includes(key));
+    const includesHint = includesKeys.find((key: string) => name.includes(key));
     if (includesHint) {
       this.monsterHintName = "Generic";
       this.hintName = this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
@@ -98,8 +102,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
   }
 
   _getNameHint(): void {
-    const fullHint = (this.is2014 ? this.NAME_HINTS_2014[this.monsterName]?.[this.name] : null)
-      ?? this.NAME_HINTS[this.monsterName]?.[this.name];
+    const name = this.name ?? "";
+    const fullHint = (this.is2014 ? this.NAME_HINTS_2014[this.monsterName]?.[name] : null)
+      ?? this.NAME_HINTS[this.monsterName]?.[name];
 
     if (fullHint) {
       this.hintName = fullHint;
@@ -109,8 +114,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     this._getMonsterNameHint();
     if (this.monsterHintName === "Generic") return;
 
-    const partialHint = (this.is2014 ? this.NAME_HINTS_2014[this.monsterHintName]?.[this.name] : null)
-      ?? this.NAME_HINTS[this.monsterHintName]?.[this.name];
+    // _getMonsterNameHint always sets monsterHintName; the fallback mirrors its final branch
+    const monsterHintName = this.monsterHintName ?? this.monsterName;
+    const partialHint = (this.is2014 ? this.NAME_HINTS_2014[monsterHintName]?.[name] : null)
+      ?? this.NAME_HINTS[monsterHintName]?.[name];
     if (partialHint) {
       this.hintName = partialHint;
       return;

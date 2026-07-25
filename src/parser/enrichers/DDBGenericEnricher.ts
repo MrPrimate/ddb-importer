@@ -9,7 +9,7 @@ export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
   }: {
     activityGenerator: TActivityGenerator;
     notifier?: NotifierV1 | null;
-    fallbackEnricher?: string;
+    fallbackEnricher?: string | null;
   }) {
     super({
       activityGenerator,

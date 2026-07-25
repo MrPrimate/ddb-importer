@@ -66,7 +66,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       if (c.parentChoiceId !== null) return p;
       if (!p.some((e) => e.id === c.id)) p.push(c);
       return p;
-    }, []);
+    }, [] as IDDBChoiceResult[]);
     this._chosen = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
@@ -89,12 +89,13 @@ export default class DDBFeature extends DDBFeatureMixin {
     });
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
-    this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
+    // Number() preserves the loose comparison semantics for a null/undefined requiredLevel
+    this.hasRequiredLevel = !this._class || (this._class && this._class.level >= Number(this.ddbDefinition.requiredLevel));
 
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      isMuncher: this.ddbCharacter.isMuncher,
+      isMuncher: this.ddbCharacter?.isMuncher ?? this.isMuncher,
     });
   }
 
@@ -114,18 +115,20 @@ export default class DDBFeature extends DDBFeatureMixin {
           is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
           is2024: this.type === "class" && this._class ? !this.isClass2014 : !this.is2014,
           legacy: this.legacy,
-          componentId: this.ddbDefinition.componentId,
-          componentTypeId: this.ddbDefinition.componentTypeId,
+          // DDB uses null for unset ids; the flag types declare these optional
+          // only, keep the runtime null values unchanged
+          componentId: this.ddbDefinition.componentId as number | undefined,
+          componentTypeId: this.ddbDefinition.componentTypeId as number | undefined,
           originalName: this.originalName,
           dndbeyond: {
-            requiredLevel: this.ddbDefinition.requiredLevel,
-            displayOrder: this.ddbDefinition.displayOrder,
-            featureType: this.ddbDefinition.featureType,
-            class: this.ddbDefinition.className,
-            classId: this.ddbDefinition.classId,
-            entityId: this.ddbDefinition.entityId,
-            entityRaceId: this.ddbDefinition.entityRaceId,
-            entityType: this.ddbDefinition.entityType,
+            requiredLevel: this.ddbDefinition.requiredLevel as number | undefined,
+            displayOrder: this.ddbDefinition.displayOrder as number | undefined,
+            featureType: this.ddbDefinition.featureType as number | undefined,
+            class: this.ddbDefinition.className as string | undefined,
+            classId: this.ddbDefinition.classId as number | undefined,
+            entityId: this.ddbDefinition.entityId as number | undefined,
+            entityRaceId: this.ddbDefinition.entityRaceId as number | undefined,
+            entityType: this.ddbDefinition.entityType as string | undefined,
           },
         },
       },
@@ -142,10 +145,9 @@ export default class DDBFeature extends DDBFeatureMixin {
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name)
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH.some((f) => this.originalName.startsWith(f));
 
-    this.scaleValueUsesLink = DDBDataUtils.getScaleValueLink(this.ddbData, this.ddbDefinition, true);
+    this.scaleValueUsesLink = DDBDataUtils.getScaleValueLink(this.ddbData, this.ddbDefinition, true) ?? "";
 
     this.useUsesScaleValueLink = !this.excludedScaleUses
-      && this.scaleValueUsesLink
       && this.scaleValueUsesLink !== ""
       && this.scaleValueUsesLink !== "{{scalevalue-unknown}}";
   }
@@ -175,7 +177,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
-  _addAdvancement(advancement: dnd5e.types.Advancement.Any) {
+  _addAdvancement(advancement: dnd5e.types.Advancement.Any | null) {
     if (!advancement) return;
     const advancementData = advancement.toObject() as unknown as I5eAdvancement;
     if (
@@ -184,6 +186,8 @@ export default class DDBFeature extends DDBFeatureMixin {
       || (foundry.utils.getProperty(advancementData, "configuration.grants") as any[])?.length !== 0
       || (foundry.utils.getProperty(advancementData, "configuration.items") as any[])?.length !== 0
     ) {
+      if (!advancementData._id) advancementData._id = foundry.utils.randomID();
+      this.data.system.advancement ??= {};
       this.data.system.advancement[advancementData._id] = advancementData;
     }
   }
@@ -331,6 +335,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     }
     advancements.push(advancement.toObject() as I5eAdvancement);
 
+    this.data.system.advancement ??= {};
     for (const advancement of advancements) {
       if (!advancement._id) advancement._id = foundry.utils.randomID();
       this.data.system.advancement[advancement._id] = advancement;
@@ -362,13 +367,17 @@ export default class DDBFeature extends DDBFeatureMixin {
       }
     }
 
-    this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
+    this.data.system.advancement ??= {};
+    // the Advancement _id schema initial is a randomID, so it is always set
+    const advancementId = advancement._id as string;
+    this.data.system.advancement[advancementId] = advancement.toObject() as I5eAdvancement;
   }
 
 
   generateFeatAbilityScoreAdvancement() {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
-    const configuration: I5eAdvASIConfig = foundry.utils.duplicate(advancement.configuration);
+    // the fvtt-types duplicate() mapped type mangles the configuration shape
+    const configuration = foundry.utils.duplicate(advancement.configuration) as unknown as I5eAdvASIConfig;
     configuration.points = 0;
     configuration.cap = 1;
     advancement.level = 0;
@@ -425,6 +434,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       hasMatch = true;
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].trim().toLowerCase());
       if (ability) {
+        configuration.fixed ??= {};
         configuration.fixed[ability.value] = parseInt(fixedMatch[2]);
       }
       this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
@@ -582,7 +592,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       if (!uuid) return;
       entries.push({
         type: "linked",
-        count: rule.quantity > 1 ? rule.quantity : null,
+        count: (rule.quantity ?? 0) > 1 ? rule.quantity : null,
         key: uuid,
         requiresProficiency: false,
         _id: foundry.utils.randomID(),
@@ -611,7 +621,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     const classifyDefinition = (def: IDDBItemDefinition) => {
       if (def.entityTypeId === 1782728300 || def.filterType === "Weapon") {
-        return { type: "weapon", key: WEAPON_CATEGORY[def.categoryId] ?? "sim" };
+        return { type: "weapon", key: WEAPON_CATEGORY[def.categoryId ?? -1] ?? "sim" };
       }
       if (def.armorTypeId != null) {
         const entry = DICTIONARY.equipment.armorType.find((a) => a.id === def.armorTypeId);
@@ -627,18 +637,20 @@ export default class DDBFeature extends DDBFeatureMixin {
     };
 
     const buildCategoryChoice = (rule: IDDBEquipmentRule, group: string) => {
-      const classified = (rule.definitions ?? []).map(classifyDefinition).filter(Boolean);
-      const distinct = new Set(classified.map((c: any) => `${c.type}:${c.key}`));
+      const classified = (rule.definitions ?? [])
+        .map(classifyDefinition)
+        .filter((c): c is NonNullable<ReturnType<typeof classifyDefinition>> => c !== null);
+      const distinct = new Set(classified.map((c) => `${c.type}:${c.key}`));
       if (distinct.size !== 1) {
         logger.warn("Could not resolve background equipment category choice", {
-          defs: (rule.definitions ?? []).map((d: any) => d.name),
+          defs: (rule.definitions ?? []).map((d) => d.name),
         });
         return;
       }
       const { type, key } = classified[0];
       entries.push({
         type,
-        count: rule.quantity > 1 ? rule.quantity : null,
+        count: (rule.quantity ?? 0) > 1 ? rule.quantity : null,
         key,
         requiresProficiency: false,
         _id: foundry.utils.randomID(),
@@ -706,7 +718,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       case "race": {
         const advancements = await AdvancementHelper.getTraitSpellAdvancements({
           name: this.ddbDefinition.name,
-          species: this.ddbCharacter?._ddbRace.fullName,
+          species: this.ddbCharacter?._ddbRace.fullName ?? "",
           description: this.ddbDefinition.description,
           is2024: this.is2024,
         }, this.spellLinks);
@@ -782,7 +794,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       if (isChoice) {
         const uuids = (bgFeat?.featIds ?? [])
           .map((id) => matchFeatId(id)?.uuid)
-          .filter((uuid) => uuid);
+          .filter((uuid): uuid is string => Boolean(uuid));
         const update: I5eAdvancementItemChoice = {
           title: "Feat",
           configuration: {
@@ -814,14 +826,17 @@ export default class DDBFeature extends DDBFeatureMixin {
         advancement.updateSource(update as any);
       }
 
-      this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
+      this.data.system.advancement ??= {};
+      // the Advancement _id schema initial is a randomID, so it is always set
+      const advancementId = advancement._id as string;
+      this.data.system.advancement[advancementId] = advancement.toObject() as I5eAdvancement;
 
       // Only record link data when matched. Key by the DDB feat name (`definition.name`), since
       // the post-import linker (getDataFeature) matches on `flags.ddbimporter.originalName ?? name`,
       // not the compendium name.
       if (chosenMatch) {
         advancementLinkData.push({
-          _id: advancement._id,
+          _id: advancementId,
           features: {
             [ddbFeat.definition.name]: chosenMatch.uuid,
           },
@@ -847,9 +862,9 @@ export default class DDBFeature extends DDBFeatureMixin {
       //   this.data.system.description.value += `<li>${choice.label}</li>`;
       // }
 
-      this.data.system.description.value += `</ul>`;
+      if (this.data.system.description) this.data.system.description.value += `</ul>`;
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
-      this.data.name = this.data.name.split("Background: ").pop();
+      this.data.name = this.data.name.split("Background: ").pop() ?? this.data.name;
 
       await this.enricher.addDocumentOverride();
       this._final();
@@ -895,7 +910,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       .reduce((p, c) => {
         if (!p.some((e) => e.label === c.label)) p.push(c);
         return p;
-      }, [])
+      }, [] as IDDBChoiceResult[])
       .reduce((p, c) => {
         if (c.description) {
           const nameReg = new RegExp(`^(<p>)?(?:<em><strong>|<strong>|<strong><em>)${c.label}\\.(?:<\\/strong><\\/em>|<\\/strong>|<\\/em><\\/strong>)`);

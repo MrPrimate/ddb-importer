@@ -11,7 +11,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
         sort: 2,
         duration: {
           override: true,
-          value: undefined,
+          value: null,
           units: "inst",
         },
         attack: {

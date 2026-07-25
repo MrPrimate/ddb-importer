@@ -3,18 +3,36 @@ import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
+// Passing restriction: null disables restriction filtering entirely in
+// DDBModifiers.filterModifiers (the ["", null] default instead keeps only
+// unrestricted modifiers). The filter option types do not yet admit null in
+// the strict migration, so keep the load-bearing runtime null behind a
+// targeted cast.
+const NULL_RESTRICTION = null as unknown as (string | null)[];
+
 DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides(this: DDBCharacter) {
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("_generateAbilitiesOverrides: no DDB source data available, skipping");
+    return;
+  }
   DICTIONARY.actor.abilities.forEach((ability) => {
     this.abilities.overrides[ability.value]
-      = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
+      = ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
   });
-  this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = this.abilities.overrides;
+  const dndbeyondFlags = this.raw.character.flags?.ddbimporter?.dndbeyond;
+  if (dndbeyondFlags) {
+    dndbeyondFlags.abilityOverrides = this.abilities.overrides;
+  } else {
+    logger.warn("_generateAbilitiesOverrides: missing ddbimporter.dndbeyond flags on character, unable to store ability overrides");
+  }
 };
 
 DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProficiency(this: DDBCharacter, ability: DDBAbilityLookup): number | undefined {
   // Overwrite the proficient value with any custom set over rides
-  if (this.source.ddb.character.characterValues) {
-    const customProficiency = this.source.ddb.character.characterValues.find(
+  const characterValues = this.source?.ddb.character.characterValues;
+  if (characterValues) {
+    const customProficiency = characterValues.find(
       (value) => value.typeId === 41 && value.valueId == ability.id && value.value,
     );
     if (customProficiency) {
@@ -30,10 +48,11 @@ DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProfic
 
 DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: DDBCharacter, ability: DDBAbilityLookup): number {
   // Get any custom skill bonuses
-  if (this.source.ddb.character.characterValues) {
-    const customBonus = this.source.ddb.character.characterValues
+  const characterValues = this.source?.ddb.character.characterValues;
+  if (characterValues) {
+    const customBonus = characterValues
       .filter((value) => (value.typeId == 40 || value.typeId == 39) && value.valueId == ability.id)
-      .filter((value) => Number.isInteger(String(value.value)))
+      .filter((value) => Number.isInteger(parseInt(String(value.value))))
       .reduce((total, bonus) => {
         const value = parseInt(String(bonus.value));
         return total + value;
@@ -53,11 +72,17 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
 
   const subType = `${abilityLongName}-score`;
 
-  const classMods = DDBModifiers.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers });
-  const raceMods = DDBModifiers.getModifiers(this.source.ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const backgroundMods = DDBModifiers.getModifiers(this.source.ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const featMods = DDBModifiers.getModifiers(this.source.ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const activeItemMods = DDBModifiers.getActiveItemModifiers(this.source.ddb, includeExcludedEffects);
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("_filterAbilityMods: no DDB source data available");
+    return [];
+  }
+
+  const classMods = DDBModifiers.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers });
+  const raceMods = DDBModifiers.getModifiers(ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const backgroundMods = DDBModifiers.getModifiers(ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const featMods = DDBModifiers.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const activeItemMods = DDBModifiers.getActiveItemModifiers(ddb, includeExcludedEffects);
 
   const modifiers = [
     classMods,
@@ -67,7 +92,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
     activeItemMods,
   ];
 
-  const backgroundFeatIds = this.source.ddb.character.background.definition?.grantedFeats.filter((f) => {
+  const backgroundFeatIds = ddb.character.background.definition?.grantedFeats.filter((f) => {
     return f.name.includes("Ability Score");
   }).map((f) => f.featIds).flat() ?? [];
 
@@ -94,21 +119,27 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
  */
 DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter, includeExcludedEffects = false) {
   const result: Partial<I5eAbilities> = {};
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("_getAbilities: no DDB source data available");
+    return result as I5eAbilities;
+  }
   DICTIONARY.actor.abilities.forEach((ability) => {
-    result[ability.value] = {
+    const abilityEntry: I5eAbilityScore = {
       value: 0,
       // min: 3,
       max: 20,
       proficient: 0,
     };
+    result[ability.value] = abilityEntry;
 
-    const statEntry = this.source.ddb.character.stats.find((stat) => stat.id === ability.id);
+    const statEntry = ddb.character.stats.find((stat) => stat.id === ability.id);
     if (!statEntry) {
       logger.warn(`No base stat entry found for ability "${ability.value}" (id ${ability.id}), defaulting to 0`);
     }
     const stat = statEntry?.value || 0;
     const abilityScoreMaxBonus = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects: true })
+      .filterBaseModifiers(ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects: true })
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + parseInt(String(cur.value)), 0);
     const bonusStatRestrictions = [
@@ -132,13 +163,13 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
 
     const modRestrictions = ["Your maximum is now ", "Maximum of ", "maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
-    const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: null, includeExcludedEffects })
+    const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: NULL_RESTRICTION, includeExcludedEffects })
       .filter(
         (mod) =>
           mod.entityId === ability.id
           && mod.restriction
           && Number.isInteger(mod.value)
-          && modRestrictions.some((m) => mod.restriction.startsWith(m)),
+          && modRestrictions.some((m) => mod.restriction?.startsWith(m)),
       )
       .reduce(
         (prev, cur) => {
@@ -152,9 +183,9 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
         { value: 0, cap: 20 + abilityScoreMaxBonus },
       );
     // applied regardless of cap
-    const bonusStat = this.source.ddb.character.bonusStats.find((stat) => stat.id === ability.id)?.value || 0;
+    const bonusStat = ddb.character.bonusStats.find((stat) => stat.id === ability.id)?.value || 0;
     // over rides all other calculations if present
-    const overrideStat = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
+    const overrideStat = ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
 
     const setAbility = Math.max(...[0, ...setAbilities]);
     const calculatedStat = stat + bonus + cappedBonus.value;
@@ -167,19 +198,19 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
     const customProficiency = this._getCustomSaveProficiency(ability);
     const proficient = customProficiency
       ? customProficiency
-      : DDBModifiers.filterBaseModifiers(this.source.ddb, "proficiency", {
+      : DDBModifiers.filterBaseModifiers(ddb, "proficiency", {
         subType: `${ability.long}-saving-throws`,
         includeExcludedEffects,
-        restriction: null,
+        restriction: NULL_RESTRICTION,
       }).length > 0
         ? 1
         : 0;
 
     // update value, max and proficiency
-    result[ability.value].value = overRiddenStat;
-    // result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
-    result[ability.value].proficient = proficient;
-    result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
+    abilityEntry.value = overRiddenStat;
+    // abilityEntry.mod = utils.calculateModifier(abilityEntry.value);
+    abilityEntry.proficient = proficient;
+    abilityEntry.max = Math.max(cappedBonus.cap, overRiddenStat);
   });
 
   return result as I5eAbilities;
@@ -198,25 +229,29 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
 DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, includeExcludedEffects = false) {
 
   const result: Partial<I5eAbilities> = {};
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("_getAbilitiesBonuses: no DDB source data available");
+    return result as I5eAbilities;
+  }
   DICTIONARY.actor.abilities.forEach((ability) => {
-    (result as Record<string, any>)[ability.value] = {
+    const entry = {
       bonuses: {
         check: "",
         save: "",
-        checkMinimum: null,
-        saveMinimum: null,
       },
     };
+    result[ability.value] = entry;
 
     const checkBonusModifiers = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-ability-checks`, includeExcludedEffects });
+      .filterBaseModifiers(ddb, "bonus", { subType: `${ability.long}-ability-checks`, includeExcludedEffects });
     const checkBonus = DDBModifiers.getModifierSum(checkBonusModifiers, this.raw.character);
     if (checkBonus && checkBonus !== "") {
       (result as Record<string, any>)[ability.value].bonuses.check = `+ ${checkBonus}`;
     }
 
     const saveBonusModifiers = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-saving-throws`, includeExcludedEffects });
+      .filterBaseModifiers(ddb, "bonus", { subType: `${ability.long}-saving-throws`, includeExcludedEffects });
     const modifiersSaveBonus = DDBModifiers.getModifierSum(saveBonusModifiers, this.raw.character);
     const customSaveBonus = this._getCustomSaveBonus(ability);
 
@@ -224,18 +259,18 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
       if (customSaveBonus) {
         const totalSave = customSaveBonus + parseInt(modifiersSaveBonus);
         // console.warn("totalSave", totalSave);
-        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${totalSave}`;
+        entry.bonuses.save = `+ ${totalSave}`;
       } else {
-        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
+        entry.bonuses.save = `+ ${modifiersSaveBonus}`;
       }
     } else if (modifiersSaveBonus && modifiersSaveBonus !== "") {
       if (customSaveBonus) {
-        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
+        entry.bonuses.save = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
       } else {
-        (result as Record<string, any>)[ability.value].bonuses.save = `+ ${modifiersSaveBonus}`;
+        entry.bonuses.save = `+ ${modifiersSaveBonus}`;
       }
     } else if (customSaveBonus) {
-      (result as Record<string, any>)[ability.value].bonuses.save = `+ ${customSaveBonus}`;
+      entry.bonuses.save = `+ ${customSaveBonus}`;
     }
   });
 
@@ -263,7 +298,12 @@ DDBCharacter.prototype._generateAbilities = function _generateAbilities(this: DD
   this.abilities.core = foundry.utils.mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false)) as I5eAbilities;
   this.abilities.withEffects = foundry.utils.mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true)) as I5eAbilities;
   this.raw.character.system.abilities = this.abilities.core;
-  this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this.abilities.withEffects;
+  const dndbeyondFlags = this.raw.character.flags?.ddbimporter?.dndbeyond;
+  if (dndbeyondFlags) {
+    dndbeyondFlags.effectAbilities = this.abilities.withEffects;
+  } else {
+    logger.warn("_generateAbilities: missing ddbimporter.dndbeyond flags on character, unable to store effect abilities");
+  }
 
   this._generateAbilitiesOverrides();
 

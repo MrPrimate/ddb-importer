@@ -57,13 +57,6 @@ export default class DDBCompanionFactory {
 
   constructor(html: string, options: DDBCompanionFactoryOptions = {}) {
     const defaultOptions: DDBCompanionFactoryOptions = {
-      originDocument: null,
-      is2014: null,
-      is2024: null,
-      notifier: null,
-      actor: null,
-      data: null,
-      folderHint: null,
       createCompanions: true,
       updateCompanions: true,
       updateImages: false,
@@ -73,21 +66,23 @@ export default class DDBCompanionFactory {
     this.html = html;
     this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), "text/html");
     this.companions = [];
-    this.actor = this.options.actor;
+    this.actor = this.options.actor ?? null;
     this.folderIds = new Set();
-    this.createCompanions = this.options.createCompanions;
-    this.updateCompanions = this.options.updateCompanions; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
-    this.updateImages = this.options.updateImages; // game.settings.get("ddb-importer", "munching-policy-update-images");
+    this.createCompanions = this.options.createCompanions ?? true;
+    this.updateCompanions = this.options.updateCompanions ?? true; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.updateImages = this.options.updateImages ?? false; // game.settings.get("ddb-importer", "munching-policy-update-images");
     this.results = {
       created: [],
       updated: [],
     };
-    this.originDocument = this.options.originDocument;
-    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName") as string
-      ?? this.originDocument?.name
-      ?? null;
-    this.is2014 = this.options.is2014;
-    this.is2024 = !this.options.is2014 || this.options.is2024;
+    this.originDocument = this.options.originDocument ?? null;
+    this.originName = (this.originDocument
+      ? foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName") as string
+        ?? this.originDocument.name
+      : undefined)
+      ?? "";
+    this.is2014 = this.options.is2014 ?? false;
+    this.is2024 = !this.options.is2014 || (this.options.is2024 ?? false);
     this.summons = null;
     this.badSummons = false;
     this.noCompendiums = this.options.noCompendiums ?? false;
@@ -170,9 +165,9 @@ export default class DDBCompanionFactory {
 
     // console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
-      const name = block
+      const name = (block
         .querySelector("p.Stat-Block-Styles_Stat-Block-Title")
-        .textContent
+        ?.textContent ?? "")
         .trim()
         .toLowerCase()
         .split(/\s/)
@@ -185,7 +180,7 @@ export default class DDBCompanionFactory {
           await this.#buildCompanion(block as HTMLElement, { name, subType });
         }
       } else {
-        await this.#buildCompanion(block as HTMLElement, { name, subType: null });
+        await this.#buildCompanion(block as HTMLElement, { name, subType: undefined });
       }
 
     }
@@ -201,9 +196,9 @@ export default class DDBCompanionFactory {
     const statBlockDivs = this.doc.querySelectorAll("div.stat-block");
 
     for (const block of statBlockDivs) {
-      const name = block
+      const name = (block
         .querySelector("h4.compendium-hr, h5.compendium-hr, h4")
-        .textContent
+        ?.textContent ?? "")
         .trim()
         .toLowerCase()
         .split(/\s/)
@@ -215,7 +210,7 @@ export default class DDBCompanionFactory {
           await this.#buildCompanion(block as HTMLElement, { name, subType });
         }
       } else {
-        await this.#buildCompanion(block as HTMLElement, { name, subType: null });
+        await this.#buildCompanion(block as HTMLElement, { name, subType: undefined });
       }
 
     }
@@ -233,18 +228,28 @@ export default class DDBCompanionFactory {
     for (const companion of this.companions) {
       const folder = await FolderHelper.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
       companion.data.folder = folder._id;
-      this.folderIds.add(folder._id);
+      if (folder._id) this.folderIds.add(folder._id);
     }
   }
 
   async getExistingCompendiumCompanions(): Promise<Actor.Implementation[]> {
-    await this.itemHandler.buildIndex(this.indexFilter);
+    const itemHandler = this.itemHandler;
+    if (!itemHandler) {
+      logger.warn("Companion item handler not initialised, unable to fetch existing compendium companions");
+      return [];
+    }
+    await itemHandler.buildIndex(this.indexFilter);
+    const compendiumIndex = itemHandler.compendiumIndex;
+    if (!compendiumIndex) {
+      logger.warn("Companion compendium index not built, unable to fetch existing compendium companions");
+      return [];
+    }
 
-    const existingCompanions: Actor.Implementation[] = await Promise.all(this.itemHandler.compendiumIndex
+    const existingCompanions: Actor.Implementation[] = await Promise.all(compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
         && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id),
       )
-      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id) as Promise<Actor.Implementation>),
+      .map(async (companion) => itemHandler.compendium.getDocument(companion._id) as Promise<Actor.Implementation>),
     );
 
     return existingCompanions;
@@ -262,11 +267,13 @@ export default class DDBCompanionFactory {
     logger.debug("Matched companion names", companionNames);
 
     const existingCompanions = await game.actors.contents
-      .filter((companion) => foundry.utils.hasProperty(companion, "folder.id")
-        && ((!folderOverride && this.folderIds.has(companion.folder.id))
-          || folderOverride?.id === companion.folder.id)
-        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name))),
-      )
+      .filter((companion) => {
+        const folderId = companion.folder?.id;
+        if (!folderId) return false;
+        return ((!folderOverride && this.folderIds.has(folderId))
+          || folderOverride?.id === folderId)
+          && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name)));
+      })
       .map((companion) => companion);
     return existingCompanions;
   }
@@ -281,7 +288,11 @@ export default class DDBCompanionFactory {
       addToWorld: true,
     });
     const npc = npcBuilder.data;
-    results.push(npc);
+    if (npc) {
+      results.push(npc);
+    } else {
+      logger.warn(`Companion ${companion.name} did not build an actor, unable to add to world`);
+    }
     return results;
   }
 
@@ -298,13 +309,22 @@ export default class DDBCompanionFactory {
 
     // console.warn("Updating companions", { updateCompanions, existingCompanions, companions });
     for (const companion of updateCompanions) {
-      const existingCompanion = await existingCompanions.find((exist: any) =>
-        exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
-        && companion.system.source.rules === exist.system.source.rules,
+      const companionId = companion.flags?.ddbimporter?.id;
+      if (!companionId) {
+        logger.warn(`Companion ${companion.name} has no ddbimporter id flag, skipping update`);
+        continue;
+      }
+      const existingCompanion = existingCompanions.find((exist: any) =>
+        exist.flags?.ddbimporter?.id === companionId
+        && companion.flags?.ddbimporter?.entityTypeId === companion.flags?.ddbimporter?.entityTypeId
+        && companion.system.source?.rules === exist.system.source.rules,
       );
-      companion.folder = existingCompanion.folder?.id;
-      companion._id = existingCompanion._id;
+      if (!existingCompanion) {
+        logger.warn(`Unable to find existing companion match for ${companion.name}, skipping update`);
+        continue;
+      }
+      companion.folder = existingCompanion.folder?.id ?? undefined;
+      companion._id = existingCompanion._id ?? undefined;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
       const npc = !this.noCompendiums
@@ -316,7 +336,7 @@ export default class DDBCompanionFactory {
     return results as unknown as Actor.Implementation[];
   }
 
-  async #createCompanions(companions: I5eMonsterData[], existingCompanions: Actor.Implementation[], folderId: string) {
+  async #createCompanions(companions: I5eMonsterData[], existingCompanions: Actor.Implementation[], folderId?: string) {
     if (!game.user.can("ITEM_CREATE")) {
       ui.notifications.warn(`User is unable to create world items, and cannot create companions`);
       return [];
@@ -350,6 +370,12 @@ export default class DDBCompanionFactory {
     folderOverride?: Folder | null;
     rootFolderNameOverride?: string | undefined;
   } = {}) {
+    const itemHandler = this.itemHandler;
+    if (!itemHandler) {
+      logger.warn("Companion item handler not initialised, unable to update or create companions");
+      return;
+    }
+
     const existingCompanions = this.noCompendiums
       ? await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride })
       : await this.getExistingCompendiumCompanions();
@@ -357,7 +383,7 @@ export default class DDBCompanionFactory {
     let companionData = this.data;
 
     if (!game.user.isGM) {
-      this.itemHandler.documents = companionData;
+      itemHandler.documents = companionData;
       return;
     }
 
@@ -368,15 +394,15 @@ export default class DDBCompanionFactory {
       }
     }
 
-    this.itemHandler.documents = companionData;
-    await this.itemHandler.iconAdditions();
-    await this.itemHandler.generateIconMap();
+    itemHandler.documents = companionData;
+    await itemHandler.iconAdditions();
+    await itemHandler.generateIconMap();
 
     if (this.updateCompanions) {
-      this.results.updated = await this.#updateCompanions(this.itemHandler.documents, existingCompanions);
+      this.results.updated = await this.#updateCompanions(itemHandler.documents, existingCompanions);
     }
     if (this.createCompanions) {
-      this.results.created = await this.#createCompanions(this.itemHandler.documents, existingCompanions, folderOverride?.id);
+      this.results.created = await this.#createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id ?? undefined);
     }
   }
 
@@ -385,7 +411,7 @@ export default class DDBCompanionFactory {
     "Artificer Infusions": "Infusion: Homunculus Servant",
   };
 
-  #getDocumentActivity(document: TAll5eItemDocuments = null): I5eActivity {
+  #getDocumentActivity(document: TAll5eItemDocuments | null = null): I5eActivity {
     const foundryDocument = (document ?? this.originDocument) as TAll5eItemDocuments;
     if (!("activities" in foundryDocument.system)) return {};
     for (const id of Object.keys(foundryDocument.system.activities)) {
@@ -397,7 +423,7 @@ export default class DDBCompanionFactory {
     return activity.data;
   }
 
-  async addCompanionsToDocuments(otherDocuments: I5ePCItem[], activity: I5eSummonActivity = null, _enricherActivity: IDDBActivityData = null) {
+  async addCompanionsToDocuments(otherDocuments: I5ePCItem[], activity: I5eSummonActivity | null = null, _enricherActivity: IDDBActivityData | null = null) {
     if (!this.originDocument || !this.summons) return;
     const compendiumSummons = await this.getExistingCompendiumCompanions() as Actor.Implementation[];
     const summonActors: Actor.Implementation[] = compendiumSummons.length > 0
@@ -429,17 +455,17 @@ export default class DDBCompanionFactory {
       summons: this.summons,
     });
     const summonsData = foundry.utils.deepClone(this.summons);
-    if (!activity || activity.profiles.length === 0) {
+    if (!activity?.profiles || activity.profiles.length === 0) {
       summonsData.profiles = profiles;
     } else {
       summonsData.profiles = activity.profiles;
     }
 
     if (activity) {
-      if (activity.creatureTypes.length > 0) {
+      if (activity.creatureTypes && activity.creatureTypes.length > 0) {
         summonsData.creatureTypes = activity.creatureTypes;
       }
-      if (activity.creatureSizes.length > 0) {
+      if (activity.creatureSizes && activity.creatureSizes.length > 0) {
         summonsData.creatureSizes = activity.creatureSizes;
       }
       if (activity.bonuses) {
@@ -464,9 +490,10 @@ export default class DDBCompanionFactory {
     logger.debug("Final Activity Data", {
       activityData: foundry.utils.deepClone(activityData),
     });
-    if ("activities" in this.originDocument.system &&  "activities" in updateDocument.system) {
-      delete this.originDocument.system.activities[activityData._id];
-      updateDocument.system.activities[activityData._id] = activityData;
+    const activityDataId = activityData._id;
+    if (activityDataId && "activities" in this.originDocument.system && "activities" in updateDocument.system) {
+      delete this.originDocument.system.activities[activityDataId];
+      updateDocument.system.activities[activityDataId] = activityData;
     }
 
   }
@@ -491,11 +518,16 @@ export default class DDBCompanionFactory {
         : null;
 
     if (!summonsData) return;
+    if (!this.originDocument) {
+      logger.warn(`No origin document for ${this.originName}, unable to add CR summoning`);
+      return;
+    }
     const activityData = foundry.utils.mergeObject(activity, summonsData);
     // console.warn("Final summons Activity Data", foundry.utils.deepClone(activityData));
-    if ("activities" in this.originDocument.system) {
-      delete this.originDocument.system.activities[activity._id];
-      this.originDocument.system.activities[activity._id] = activityData as unknown as I5eActivity;
+    const activityId = activity._id;
+    if (activityId && "activities" in this.originDocument.system) {
+      delete this.originDocument.system.activities[activityId];
+      this.originDocument.system.activities[activityId] = activityData as unknown as I5eActivity;
     }
   }
 

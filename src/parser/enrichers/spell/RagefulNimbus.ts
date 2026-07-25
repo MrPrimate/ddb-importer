@@ -33,7 +33,7 @@ export default class RagefulNimbus extends DDBEnricherData {
           overrideActivation: true,
           data: {
             duration: {
-              value: undefined,
+              value: null,
               units: "inst",
             },
           },

@@ -27,10 +27,10 @@ global {
     turnNum?: number;
     roundNum?: number;
     difficulty?: number | null;
-    description?: string;
-    rewards?: string;
-    flavorText?: string;
-    campaign?: { id?: number; name?: string };
+    description?: string | null;
+    rewards?: string | null;
+    flavorText?: string | null;
+    campaign?: { id?: number; name?: string } | null;
     monsters: IDDBEncounterMonster[];
     players: IDDBEncounterPlayer[];
   }
@@ -58,10 +58,10 @@ global {
     // difficulty is a DIFFICULTY_LEVELS entry, but is also compared against "" at
     // use sites, so it is left as any
     difficulty?: any;
-    description?: string;
-    rewards?: string;
-    summary?: string;
-    campaign?: { id?: number; name?: string };
+    description?: string | null;
+    rewards?: string | null;
+    summary?: string | null;
+    campaign?: { id?: number; name?: string } | null;
     monsters?: IDDBEncounterMonster[];
     characters?: IDDBEncounterPlayer[];
     goodMonsterIds?: { ddbId: number; name: string; id: string; quantity: number }[];
@@ -75,7 +75,8 @@ global {
   }
 
   interface ICombatantData {
-    tokenId: string;
+    // token placeables report `id` as string | null in fvtt-types
+    tokenId: string | null;
     actorId: string;
     hidden: boolean;
     initiative?: number;

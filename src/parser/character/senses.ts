@@ -1,10 +1,11 @@
 import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
+import { logger } from "../../lib/_module";
 import { DDBModifiers } from "../lib/_module";
 
 
 DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { includeEffects = false } = {}): I5eSenses {
-  const senses: I5eSenses = {
+  const senses: I5eSenses & { ranges: Record<TSenseType, number>; special: string } = {
     ranges: {
       darkvision: 0,
       blindsight: 0,
@@ -16,9 +17,15 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
   };
   const special: string[] = [];
 
+  if (!this.source) {
+    logger.warn("getSenses called before DDB source data was loaded");
+    return senses;
+  }
+  const ddb = this.source.ddb;
+
   // custom senses
-  if (this.source.ddb.character.customSenses) {
-    this.source.ddb.character.customSenses
+  if (ddb.character.customSenses) {
+    ddb.character.customSenses
       .filter((sense) => sense.distance)
       .forEach((sense) => {
         const s = DICTIONARY.actor.senses.find((s) => s.id === sense.senseId);
@@ -35,9 +42,9 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
   for (const senseName in senses.ranges) {
     const basicOptions = { subType: senseName, includeExcludedEffects: includeEffects };
     DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "set-base", basicOptions)
+      .filterBaseModifiers(ddb, "set-base", basicOptions)
       .filter((mod) =>
-        !this.source.ddb.character.choices.choiceDefinitions.some((def) =>
+        !ddb.character.choices.choiceDefinitions.some((def) =>
           def.options.some((opt) => opt.id === mod.componentId),
         ),
       )
@@ -58,7 +65,7 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
     includeExcludedEffects: includeEffects,
   };
   DDBModifiers
-    .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
+    .filterBaseModifiers(ddb, "set-base", devilsSightFilters)
     .forEach((sense) => {
       if (Number.isInteger(parseInt(String(sense.value)))
         && parseInt(String(sense.value)) > senses.ranges["darkvision"]
@@ -75,9 +82,9 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
     includeExcludedEffects: includeEffects,
   };
   DDBModifiers
-    .filterBaseModifiers(this.source.ddb, "sense", magicalBonusFilters)
+    .filterBaseModifiers(ddb, "sense", magicalBonusFilters)
     .filter((mod) =>
-      !this.source.ddb.character.choices.choiceDefinitions.some((def) =>
+      !ddb.character.choices.choiceDefinitions.some((def) =>
         def.options.some((opt) => opt.id === mod.componentId),
       ),
     )
@@ -99,5 +106,10 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
 };
 
 DDBCharacter.prototype._generateSenses = function _generateSenses(this: DDBCharacter) {
-  this.raw.character.system.attributes.senses = this.getSenses();
+  const attributes = this.raw.character.system.attributes;
+  if (!attributes) {
+    logger.warn("_generateSenses: character attributes not present");
+    return;
+  }
+  attributes.senses = this.getSenses();
 };

@@ -8,7 +8,7 @@ global {
 
   interface I5eActivityActivation {
     type?: TActivationCost;
-    value?: number;
+    value?: number | null;
     condition?: string;
     override?: boolean;
   }

@@ -15,16 +15,16 @@ global {
 
   interface IDDBActivityBuild {
     // --- Activation / attack ---
-    activationOverride?: I5eActivityActivation;
+    activationOverride?: I5eActivityActivation | null;
     attackData?: any;
     noManualActivation?: boolean;
 
     // --- Additional targets / consumption ---
-    additionalTargets?: any[];
+    additionalTargets?: any[] | null;
     consumeActivity?: any;
     consumeItem?: any;
-    consumptionOverride?: I5eActivityConsumption;
-    consumptionTargetOverrides?: I5eConsumptionTarget[];
+    consumptionOverride?: I5eActivityConsumption | null;
+    consumptionTargetOverrides?: I5eConsumptionTarget[] | null;
 
     // --- Damage ---
     allowCritical?: boolean | null;
@@ -35,40 +35,40 @@ global {
     onSave?: string | null;
     /** @deprecated use onSave */
     onsave?: boolean | string;
-    partialDamageParts?: number[];
+    partialDamageParts?: number[] | null;
     includeBase?: boolean;
 
     // --- Description / flavor ---
     chatFlavor?: string | null;
-    data?: Partial<I5eActivity>;
+    data?: Partial<I5eActivity> | null;
     img?: string | null;
 
     // attacks
-    attackOverride?: I5eActivityAttack;
+    attackOverride?: I5eActivityAttack | null;
 
     // --- Duration / range / target ---
-    durationOverride?: I5eActivityDuration;
-    rangeOverride?: I5eActivityRange;
-    targetOverride?: I5eActivityTarget;
+    durationOverride?: I5eActivityDuration | null;
+    rangeOverride?: I5eActivityRange | null;
+    targetOverride?: I5eActivityTarget | null;
 
     // --- Save / spell / check ---
-    checkOverride?: I5eActivityCheck;
-    saveOverride?: I5eActivitySave;
-    spellOverride?: I5eActivitySpell;
+    checkOverride?: I5eActivityCheck | null;
+    saveOverride?: I5eActivitySave | null;
+    spellOverride?: I5eActivitySpell | null;
 
     // --- Healing ---
     healingChatFlavor?: string | null;
     /** either a raw damage part, or the parser's wrapper carrying the part plus chat flavor */
-    healingPart?: I5eDamagePart | { part?: I5eDamagePart; chatFlavor?: string | null };
+    healingPart?: I5eDamagePart | { part?: I5eDamagePart; chatFlavor?: string | null } | null;
 
     // --- Roll ---
-    rollOverride?: I5eActivityRoll;
+    rollOverride?: I5eActivityRoll | null;
 
     // --- Uses ---
-    usesOverride?: I5eSystemLimitedUses | I5eConsumableUses;
+    usesOverride?: I5eSystemLimitedUses | I5eConsumableUses | null;
 
     // --- Macro ---
-    ddbMacroOverride?: IDDBActivityMacro;
+    ddbMacroOverride?: IDDBActivityMacro | null;
 
     // --- Spell-specific ---
     modRestrictionFilter?: any;
@@ -128,5 +128,14 @@ global {
     | IDDBFeatureActivityBuild
     | IDDBSpellActivityBuild
     | IDDBVehicleActivityBuild;
+
+  interface IDDBBasicActivityCreateOptions {
+    document: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
+    type: IDDBActivityType;
+    name?: string | null;
+    character?: I5ePCData | I5eMonsterData | I5eVehicleData | null;
+    enricher?: TDDBEnricher;
+    nameIdPostfix?: string | null;
+  }
 
 }

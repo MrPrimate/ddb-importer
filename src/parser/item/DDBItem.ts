@@ -65,7 +65,7 @@ interface IDDBItem {
   isCompendium?: boolean;
   enricher?: DDBItemEnricher | null;
   spellCompendium?: any;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  notifier?: NotifierV1 | null;
 }
 
 export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> {
@@ -136,14 +136,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   spellCompendium: CompendiumCollection<"Item"> | null;
   activityOptions: IDDBActivityBuild;
   flags: IDDBItemFlags;
-  infusionItemMap: IDDBInfusionItem;
-  infusionDetail: IDDBInfusionDefinition;
+  infusionItemMap: IDDBInfusionItem | undefined;
+  infusionDetail: IDDBInfusionDefinition | null | undefined;
   declare documentType: T5eInventoryTypes;
 
   constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
     if (!ddbCharacter || !ddbItem) {
       logger.error("DDBCharacter and DDBItem are required to create DDBItem");
       throw new Error("DDBCharacter and DDBItem are required to create DDBItem");
+    }
+    if (!ddbCharacter.source) {
+      logger.error("DDBCharacter source data must be loaded before creating DDBItem");
+      throw new Error("DDBCharacter source data must be loaded before creating DDBItem");
     }
     const addEffects = isCompendium
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
@@ -177,7 +181,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.name = DDBDataUtils.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
 
-    this.documentType = null;
+    // this.documentType is initialised to null by the mixin constructor
     this.parsingType = null;
 
     this.overrides = {
@@ -197,7 +201,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.isOuterwearTag = this.ddbDefinition.tags.includes("Outerwear")
       || this.ddbDefinition.tags.includes("Footwear");
     this.isClothingTag = this.isOuterwearTag || this.ddbDefinition.tags.includes("Clothing");
-    this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
+    this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active ?? false;
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
     this.isSpellwrought = this.ddbDefinition.name.toLowerCase().includes("spellwrought");
@@ -297,7 +301,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   async #generateDataStub() {
     if (this.enricher.documentStub?.documentType) this.documentType = this.enricher.documentStub.documentType as T5eInventoryTypes;
-    if (this.enricher.documentStub?.systemType) this.systemType = foundry.utils.mergeObject(this.systemType, this.enricher.documentStub.systemType);
+    // mergeObject mutates this.systemType in place (inplace defaults to true)
+    if (this.enricher.documentStub?.systemType) foundry.utils.mergeObject(this.systemType, this.enricher.documentStub.systemType);
     if (this.enricher.documentStub?.parsingType) this.parsingType = this.enricher.documentStub.parsingType;
 
     if (!this.documentType) {
@@ -320,7 +325,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           originalName: this.originalName,
           version: CONFIG.DDBI.version,
           dndbeyond: {
-            type: this.ddbDefinition.type,
+            type: this.ddbDefinition.type ?? undefined,
           },
           is2014: this.is2014,
           is2024: !this.is2014,
@@ -331,10 +336,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (this.enricher.documentStub?.copySRD) {
       const srdDoc = await fromUuid(this.enricher.documentStub.copySRD.uuid);
-      const systemData = (srdDoc.toObject() as I5eInventoryItem).system;
-      systemData.source.book = "";
-      systemData.source.license = "";
-      this.data.system = systemData;
+      if (srdDoc) {
+        const systemData = (srdDoc.toObject() as I5eInventoryItem).system;
+        systemData.source.book = "";
+        systemData.source.license = "";
+        this.data.system = systemData;
+      } else {
+        logger.warn(`Unable to load SRD document ${this.enricher.documentStub.copySRD.uuid} for ${this.ddbDefinition.name}`);
+      }
     }
 
     if (this.enricher.documentStub?.replaceDefaultActivity) {
@@ -350,7 +359,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // and all items will still have limited uses (but no consumption)
 
     if (foundry.utils.hasProperty(this.data, "system.type.value")) {
-      this.data.system.type.value = this.systemType.value;
+      this.data.system.type.value = this.systemType.value ?? "";
     } else if (this.systemType.value) {
       logger.error(`Unable to set type ${this.systemType.value} for ${this.ddbDefinition.name}`, {
         this: this,
@@ -396,20 +405,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const durationMatch = (this.ddbDefinition.description ?? "").match(durationExpression);
 
     if (durationMatch) {
-      duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
-      duration.value = durationMatch[1];
+      const durationUnit = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2]));
+      if (durationUnit) {
+        duration.units = durationUnit.foundryUnit;
+        duration.value = durationMatch[1];
+      }
     }
     return duration;
   }
 
   #generateSave() {
-    const save: I5eActivitySave = {
-      ability: [],
+    const save = {
+      ability: [] as string[],
       dc: {
         calculation: "",
         formula: "",
       },
-    };
+    } satisfies I5eActivitySave;
 
     const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
     if (spellSaveCheck && spellSaveCheck[1]) {
@@ -431,12 +443,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #generateActivityActivation() {
     // default
-    this.actionData.activation = ["armor"].includes(this.parsingType)
+    this.actionData.activation = ["armor"].includes(this.parsingType ?? "")
       ? { type: "none", value: 1, condition: "" }
       : { type: "action", value: 1, condition: "" };
 
-    if (["wondrous", "armor"].includes(this.parsingType)) {
-      let action: TActivationCost = ["wondrous"].includes(this.parsingType) ? "special" : "none";
+    if (["wondrous", "armor"].includes(this.parsingType ?? "")) {
+      let action: TActivationCost = ["wondrous"].includes(this.parsingType ?? "") ? "special" : "none";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
 
       const match = (this.ddbDefinition.description ?? "").match(actionRegex);
@@ -446,7 +458,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         else if (match[3]) action = "action";
       }
 
-      this.actionData.activation = { type: action ?? "none", value: action ? 1 : null, condition: "" };
+      this.actionData.activation = { type: action ?? "none", value: action ? 1 : undefined, condition: "" };
     }
 
   }
@@ -508,6 +520,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.ddbDefinition.grantedModifiers
       .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
+        if (!mod.restriction) return; // filtered above, narrow for typing
         const damageParts = DDBItem.getDamageParts([mod]);
 
         if (damageParts.length === 0) {
@@ -612,7 +625,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const versatile = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
       this.versatileDamage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
+        damageString: utils.parseDiceString(versatile.notes, "", "", greatWeaponFighting).diceString,
       });
     }
 
@@ -632,7 +645,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.damageParts.push(damage);
     } else if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && damageType) {
       let diceString = this.ddbDefinition.damage.diceString;
-      if (martialArtsDie.diceValue && this.ddbDefinition.damage.diceValue && martialArtsDie.diceValue > this.ddbDefinition.damage.diceValue) {
+      if (martialArtsDie.diceValue && martialArtsDie.diceString && this.ddbDefinition.damage.diceValue
+        && martialArtsDie.diceValue > this.ddbDefinition.damage.diceValue
+      ) {
         diceString = martialArtsDie.diceString;
       }
       const damage = SystemHelpers.buildDamagePart({
@@ -689,6 +704,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     unfilteredDamageMods
       .filter((mod) => mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
+        if (!mod.restriction) return; // filtered above, narrow for typing
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die
           ? die.diceString
@@ -781,6 +797,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #generateArmorMaxDex() {
     if (!("armor" in this.data.system)) return;
+    const armorData = this.data.system.armor;
+    if (!armorData) return;
     let maxDexModifier;
     switch (this.systemType.value) {
       case "heavy":
@@ -799,7 +817,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       maxDexModifier = Number(itemDexMaxAdjustment);
     }
 
-    this.data.system.armor.dex = maxDexModifier;
+    armorData.dex = maxDexModifier;
   }
 
   #determineOtherGearTypeIdOneType() {
@@ -878,14 +896,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
-  #getLootType(typeHint: string) {
+  #getLootType(typeHint: string | null) {
     this.overrides.ddbType = typeHint ?? this.ddbDefinition.subType;
     this.parsingType = "loot";
     this.documentType = "loot";
 
     if (this.isContainer
-      || (!DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name) && (["Mount", "Vehicle"].includes(this.ddbDefinition.subType)
-      || ["Vehicle", "Mount"].includes(typeHint)))
+      || (!DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name) && (["Mount", "Vehicle"].includes(this.ddbDefinition.subType ?? "")
+      || ["Vehicle", "Mount"].includes(typeHint ?? "")))
     ) {
       this.overrides.ddbType = typeHint;
       this.documentType = "container";
@@ -919,7 +937,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ) as T5eInventoryTypes;
 
     if (!itemType && this.ddbDefinition.type === "Gear"
-      && ["Adventuring Gear"].includes(this.ddbDefinition.subType)
+      && ["Adventuring Gear"].includes(this.ddbDefinition.subType ?? "")
       && !DDBItem.LOOT_ITEM.includes(this.ddbDefinition.name)
     ) {
       // && data.definition.subType === "Adventuring Gear"
@@ -946,8 +964,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     if (this.documentType === "loot") {
-      const lookup = DDBItem.LOOT_TYPES[typeHint]
-        ?? DDBItem.LOOT_TYPES[this.ddbDefinition.subType];
+      const lookup = DDBItem.LOOT_TYPES[typeHint ?? ""]
+        ?? DDBItem.LOOT_TYPES[this.ddbDefinition.subType ?? ""];
       if (lookup) this.systemType.value = lookup;
       else {
         logger.warn(`Failed to find loot type for ${this.ddbDefinition.name}, this is unlikely to be a problem`, {
@@ -1161,13 +1179,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       )
       .map(
         (characterValue) =>
+          // the filter above guarantees a matching lookup entry exists
           DICTIONARY.actor.characterValuesLookup.find(
             (entry) => entry.typeId == characterValue.typeId,
-          ).name,
+          )!.name,
       );
 
     // Any Pact Weapon Features
-    const pactFeatures = this.ddbData.character.options.class
+    const pactFeatures = (this.ddbData.character.options.class ?? [])
       .filter(
         (option) =>
           warlockFeatures.includes("pactWeapon")
@@ -1220,8 +1239,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       .flat()
       // filter relevant features, those that are martial arts and have a levelscaling hd
       .filter((feature) => feature.definition.name === "Martial Arts" && feature.levelScale && feature.levelScale.dice)
-      // get this dice object
-      .map((feature) => feature.levelScale.dice);
+      // get this dice object (the filter above guarantees levelScale.dice exists)
+      .map((feature) => feature.levelScale!.dice!);
 
     if (die && die.length > 0) {
       result = die[0];
@@ -1324,11 +1343,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? `<div class="item-attunement"><i>(Requires attunement by a ${this.ddbDefinition.attunementDescription})</i></div>`
       : "";
 
-    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbDefinition.description, document: this.data, actor: null });
-    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: chatSnippet, document: this.data, actor: null }) : "";
+    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbDefinition.description, document: this.data });
+    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: chatSnippet, document: this.data }) : "";
     return {
       value: DDBReferenceLinker.parseTags(attunementText + valueDamageText),
-      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText) : "",
+      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText ?? "") : "",
     };
   }
 
@@ -1455,7 +1474,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     let toolType;
 
     if (this.ddbDefinition.filterType === "Weapon") {
-      baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+      baseItem = this.ddbDefinition.type?.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
       baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Other Gear"
@@ -1591,14 +1610,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   _getUses(): I5eSystemLimitedUses {
-    if (this.ddbItem.limitedUse !== undefined && this.ddbItem.limitedUse !== null && this.ddbItem.limitedUse.resetTypeDescription !== null) {
-      const resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
+    const limitedUse = this.ddbItem.limitedUse;
+    if (limitedUse !== undefined && limitedUse !== null && limitedUse.resetTypeDescription !== null) {
+      const resetType = DICTIONARY.resets.find((reset) => reset.id == limitedUse.resetType);
 
-      const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.limitedUse.resetTypeDescription, this.ddbItem.limitedUse.maxUses);
-      const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
+      const recoveryFormula = DDBItem.getRechargeFormula(limitedUse.resetTypeDescription, limitedUse.maxUses);
+      const recoveryIsMax = `${recoveryFormula}` === `${limitedUse.maxUses}`;
 
       const recovery: I5eSystemLimitedUsesRecovery[] = [];
-      if (!resetType.isCharges && resetType.value && ![""].includes(resetType.value)) {
+      if (!resetType) {
+        logger.warn(`Unknown reset type ${limitedUse.resetType} for ${this.ddbDefinition.name}`);
+      } else if (!resetType.isCharges && resetType.value && ![""].includes(resetType.value)) {
         recovery.push({
           period: resetType.value,
           type: recoveryIsMax ? "recoverAll" : "formula",
@@ -1606,8 +1628,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         });
       }
       return {
-        max: `${this.ddbItem.limitedUse.maxUses}`,
-        spent: this.ddbItem.limitedUse.numberUsed ?? 0,
+        max: `${limitedUse.maxUses}`,
+        spent: limitedUse.numberUsed ?? 0,
         recovery,
       };
     } else {
@@ -1693,7 +1715,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
   // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
   // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
-  _generateUses(defaultMax: string = null) {
+  _generateUses(defaultMax: string | null = null) {
     if (!("uses" in this.data.system)) return;
     this.data.system.uses = this.isMuncher
       ? this._getCompendiumUses(defaultMax)
@@ -1718,7 +1740,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         autoDestroy: true,
       };
     }
-    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value) || this.isSpellwrought;
+    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value ?? "") || this.isSpellwrought;
     foundry.utils.setProperty(this.data, "system.uses.autoDestroy", autoDestroyValue);
   }
 
@@ -1746,6 +1768,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`${this.name} Description Damage matches`, { description, matches });
     const otherParts = [];
     for (const dmg of matches) {
+      if (!dmg.groups) continue; // the regex defines named groups, so this always exists
       let other = false;
       if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
         continue;
@@ -1759,7 +1782,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
         const finalDamage = (this.actionData && includesDice)
-          ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
+          ? utils.parseDiceString(damage.replace("plus", "+"), "").diceString
           : damage.replace("plus", "+");
 
         const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
@@ -1788,7 +1811,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue, null).diceString,
+        damageString: utils.parseDiceString(damageValue, "").diceString,
         type: "healing",
       });
       this.healingParts.push(part);
@@ -1821,31 +1844,33 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateTargets() {
+    const affects = {
+      count: "",
+      type: "" as TTarget,
+      choice: false,
+      special: "",
+    };
+    const template = {
+      count: "",
+      contiguous: false,
+      type: "" as TTemplate,
+      size: "",
+      width: "",
+      height: "",
+      units: "ft" as TTemplateUnits,
+    };
     this.actionData.target = {
       prompt: true,
-      affects: {
-        count: "",
-        type: "",
-        choice: false,
-        special: "",
-      },
-      template: {
-        count: "",
-        contiguous: false,
-        type: "",
-        size: "",
-        width: "",
-        height: "",
-        units: "ft",
-      },
+      affects,
+      template,
     };
 
     const targetsCreature = this.targetsCreature();
     const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(this.ddbDefinition.description);
 
     if (targetsCreature || creatureTargetCount) {
-      this.actionData.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
-      this.actionData.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+      affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
     const aoeSizeRegex = /(?<!creature you can see |an object you can see |one creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
@@ -1858,9 +1883,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-      this.actionData.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
-      this.actionData.target.template.size = aoeSizeMatch[1] ?? "";
-      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+      template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
+      template.size = aoeSizeMatch[1] ?? "";
+      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you" && this.actionData.range) {
         this.actionData.range.units = "self";
       }
     }
@@ -2078,7 +2103,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return true;
     } else {
       const proficient = this.characterProficiencies.some((proficiency) =>
-        proficiency.name.toLowerCase() === this.ddbDefinition.type.toLowerCase(),
+        proficiency.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
       );
       if (proficient) return proficient;
     }
@@ -2099,7 +2124,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     // if it's a ranged weapon, and mot a reach weapon (long = 10 (?))
     const longRange = foundry.utils.getProperty(this.data, "system.range.long") as number | undefined;
-    if (Number.isInteger(longRange) && longRange > 5 && !properties.includes("rch")) {
+    if (longRange !== undefined && Number.isInteger(longRange) && longRange > 5 && !properties.includes("rch")) {
       return "dex";
     }
 
@@ -2114,20 +2139,26 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? (this.data.system.properties as string[]).includes("fin") ? "dex" : "str"
       : ability;
 
+    const abilityValue = (ab: T5eAbility): number | undefined => this.characterEffectAbilities[ab]?.value;
+    const mockAbilityValue = abilityValue(mockAbility);
+
     // warlocks can use cha for their Hex weapon
     if (this.flags.classFeatures.includes("hexWarrior") || (!this.is2014 && this.flags.classFeatures.includes("pactWeapon"))) {
-      if (this.characterEffectAbilities.cha.value >= this.characterEffectAbilities[mockAbility].value) {
+      const chaValue = abilityValue("cha");
+      if (chaValue !== undefined && mockAbilityValue !== undefined && chaValue >= mockAbilityValue) {
         result = "cha";
       }
     }
     // kensai monks
     if (this.flags.classFeatures.includes("kensaiWeapon") || this.flags.classFeatures.includes("monkWeapon")) {
-      if (this.characterEffectAbilities.dex.value >= this.characterEffectAbilities[mockAbility].value) {
+      const dexValue = abilityValue("dex");
+      if (dexValue !== undefined && mockAbilityValue !== undefined && dexValue >= mockAbilityValue) {
         result = "dex";
       }
     }
     if (this.flags.magicItemAttackInt && (this.ddbDefinition.magic || this.data.system.properties.includes("mgc") || this.infusionDetail)) {
-      if (this.characterEffectAbilities.int.value > this.characterEffectAbilities[mockAbility].value) {
+      const intValue = abilityValue("int");
+      if (intValue !== undefined && mockAbilityValue !== undefined && intValue > mockAbilityValue) {
         result = "int";
       }
     }
@@ -2209,7 +2240,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #generateArmorSpecifics() {
     if (!("armor" in this.data.system)) return;
-    this.data.system.armor.value = this.ddbDefinition.armorClass;
+    const armorData = this.data.system.armor;
+    if (!armorData) return;
+    armorData.value = this.ddbDefinition.armorClass;
     foundry.utils.setProperty(this.data, "system.strength", this.ddbDefinition.strengthRequirement ?? 0);
     if (this.ddbDefinition.stealthCheck === 2)
       foundry.utils.setProperty(this.data, "system.properties", utils.addToProperties(this.data.system.properties as string[], "stealthDisadvantage"));
@@ -2225,7 +2258,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (!("type" in this.data.system)) return;
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
-    if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
+    if (["Potion", "Poison"].includes(this.overrides.ddbType ?? this.ddbDefinition.subType ?? "")) {
       this.actionData.target = {
         "template": {
           "contiguous": false,
@@ -2285,7 +2318,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.damageParts.length > 0 && "damage" in this.data.system) {
       this.data.system.damage = {
         base: this.damageParts[0],
-        versatile: this.versatileDamage,
+        versatile: this.versatileDamage ?? undefined,
         // parts: this.actionData.save
         //   ? []
         //   : this.damageParts.slice(1),
@@ -2315,7 +2348,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ? true
         : this.#getWeaponProficient();
 
-    if (this.flags.classFeatures.includes("OffHand")) this.actionData.activation.type = "bonus";
+    if (this.flags.classFeatures.includes("OffHand") && this.actionData.activation) this.actionData.activation.type = "bonus";
     if ("range" in this.data.system)
       this.data.system.range = this.#getWeaponRange();
     this._generateUses();
@@ -2328,7 +2361,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.damageParts.length > 0 && "damage" in this.data.system) {
       this.data.system.damage = {
         base: this.damageParts[0],
-        versatile: this.versatileDamage,
+        versatile: this.versatileDamage ?? undefined,
         // parts: this.actionData.save
         //   ? []
         //   : this.damageParts.slice(1),
@@ -2357,7 +2390,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         foundry.utils.setProperty(this.data, "system.mastery", masteryPropertyKey);
       }
     }
-    if (dictionaryWeapon?.properties.fir
+    if (dictionaryWeapon?.properties?.fir
       && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")
       && "proficient" in this.data.system
     ) {
@@ -2527,40 +2560,42 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return false;
     }
 
+    const challenge: NonNullable<I5eActivitySpell["challenge"]> = {
+      attack: undefined,
+      save: undefined,
+      override: false,
+    };
     const spellOverride: I5eActivitySpell = {
       uuid: compendiumSpell.uuid,
-      properties: ["verbal", "somatic", "material"],
+      properties: ["vocal", "somatic", "material"],
       level: null,
-      challenge: {
-        attack: null,
-        save: null,
-        override: false,
-      },
+      challenge,
       spellbook: true,
     };
 
-    const usesOverride:  I5eSystemLimitedUses = {
+    const usesOverride = {
       spent: 0,
-      recovery: [],
+      recovery: [] as I5eSystemLimitedUsesRecovery[],
       max: "",
-    };
+    } satisfies I5eSystemLimitedUses;
     const generateActivityUses = this.perSpell.isPerSpell;
-    const consumptionOverride: I5eActivityConsumption = {
+    const consumptionOverride = {
       spellSlot: false,
-      targets: [],
+      targets: [] as I5eConsumptionTarget[],
       scaling: {
-        allowed: false,
+        allowed: false as boolean,
         max: "",
       },
-    };
+    } satisfies I5eActivityConsumption;
 
     if (generateActivityUses && "uses" in this.data.system) {
       this.data.system.uses = foundry.utils.deepClone(usesOverride);
     }
 
-    const resetType = this.ddbItem.limitedUse?.resetType
+    const itemLimitedUse = this.ddbItem.limitedUse;
+    const resetType = itemLimitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
+        reset.id == itemLimitedUse.resetType,
       )?.value ?? undefined
       : undefined;
 
@@ -2570,14 +2605,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // spells manage charges
       usesOverride.max = maxNumberConsumed;
       usesOverride.recovery.push({
-        period: resetType,
+        period: resetType ?? null,
         type: "recoverAll",
       });
     }
 
     const scalingAmount = maxNumberConsumed > minNumberConsumed;
 
-    const activityConsumptionTarget: I5eConsumptionTarget = this.perSpell.isPerSpell
+    const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
         target: "",
@@ -2598,8 +2633,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const saveDCOverride = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") as number ?? null;
     if (Number.isInteger(parseInt(String(saveDCOverride)))) {
-      spellOverride.challenge.save = parseInt(String(saveDCOverride));
-      spellOverride.challenge.override = true;
+      challenge.save = parseInt(String(saveDCOverride));
+      challenge.override = true;
     }
 
     if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel")) {
@@ -2613,7 +2648,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       consumptionOverride.targets = [activityConsumptionTarget];
     }
 
-    if (scalingAllowed) {
+    if (scalingAllowed && spellData.limitedUse) {
       consumptionOverride.scaling.allowed = true;
       consumptionOverride.scaling.max = `min(@item.uses.value,${spellData.limitedUse.maxNumberConsumed})`;
     }
@@ -2661,9 +2696,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const resetType = this.ddbItem.limitedUse?.resetType
+    const itemLimitedUse = this.ddbItem.limitedUse;
+    const resetType = itemLimitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
+        reset.id == itemLimitedUse.resetType,
       )
       : undefined;
 
@@ -2673,7 +2709,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spent: 0,
       recovery: [
         {
-          period: resetType?.value,
+          period: resetType?.value ?? null,
           type: "recoverAll",
         },
       ],
@@ -2683,7 +2719,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
-        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
+        value: spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1,
         scaling: {},
       }
       : spellData.limitedUse
@@ -2699,7 +2735,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: String(spell.flags.ddbimporter.dndbeyond?.dc ?? "") }
+      ? { calculation: "", formula: String(spell.flags.ddbimporter?.dndbeyond?.dc ?? "") }
       : { calculation: "spellcasting", formula: "" };
 
     const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
@@ -2710,7 +2746,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       const currentConsumptionValue = foundry.utils.getProperty(activity, "consumption.value") as number | undefined;
 
-      if (currentConsumptionValue && activityConsumptionTarget.type === "itemUses") {
+      if (currentConsumptionValue && activityConsumptionTarget?.type === "itemUses") {
         activityConsumptionTarget.value = currentConsumptionValue;
       }
 
@@ -2724,7 +2760,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") as string;
       const currentName = activity.name ? `${activity.name}`.trim() : "";
       const adjustedName = currentName === ""
-        ? utils.capitalize(activity.type)
+        ? utils.capitalize(activity.type ?? "")
         : currentName;
       activity.name = `${spellLookupName ?? spell.name} (${adjustedName})`;
       const newId = utils.namedIDStub(spell.name, {
@@ -2739,9 +2775,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       activity._id = newId;
 
-      activity.consumption.targets = [activityConsumptionTarget];
-      spell.system.activities[id].consumption.scaling.allowed = Boolean(scalingAllowed);
-      spell.system.activities[id].consumption.scaling.max = scalingAllowed
+      activity.consumption ??= {};
+      if (activityConsumptionTarget) {
+        activity.consumption.targets = [activityConsumptionTarget];
+      }
+      const sourceConsumption = spell.system.activities[id].consumption ??= {};
+      sourceConsumption.scaling ??= {};
+      sourceConsumption.scaling.allowed = Boolean(scalingAllowed);
+      sourceConsumption.scaling.max = scalingAllowed
         ? scalingValue
         : "";
       activity.consumption.spellSlot = false;
@@ -2757,12 +2798,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
 
+      activity.description ??= { chatFlavor: "" };
       activity.description.chatFlavor = spell.system.description.value;
 
       if (!activity.img || activity.img === "") {
         const mockItem = { name: (spellLookupName ?? spell.name), type: "spell" } as I5eSpellItem;
         const img = await Iconizer.iconPath(mockItem);
-        activity.img = img;
+        if (img) activity.img = img;
       }
 
       await this.enricher.customFunction({
@@ -2782,23 +2824,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const resetType = this.ddbItem.limitedUse?.resetType
+    const itemLimitedUse = this.ddbItem.limitedUse;
+    const resetType = itemLimitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
+        reset.id == itemLimitedUse.resetType,
       )?.value ?? undefined
       : undefined;
 
-    const uses: I5eSystemLimitedUses = {
+    const uses = {
       spent: 0,
-      recovery: [],
-      max: null,
-    };
+      recovery: [] as I5eSystemLimitedUsesRecovery[],
+      max: null as string | null,
+    } satisfies I5eSystemLimitedUses;
 
     if (this.perSpell.isPerSpell) {
       // spells manage charges
-      uses.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
+      uses.max = spellData.limitedUse?.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
       uses.recovery.push({
-        period: resetType,
+        period: resetType ?? null,
         type: "recoverAll",
       });
 
@@ -2809,10 +2852,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       foundry.utils.setProperty(spell, "system.uses.spent", null);
     }
 
-    const activityConsumptionTarget = this.perSpell.isPerSpell
+    const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
       ? {
         type: "itemUses",
-        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
+        value: spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1,
         scaling: {},
       }
       : spellData.limitedUse
@@ -2828,7 +2871,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: String(spell.flags.ddbimporter.dndbeyond?.dc ?? "") }
+      ? { calculation: "", formula: String(spell.flags.ddbimporter?.dndbeyond?.dc ?? "") }
       : { calculation: "spellcasting", formula: "" };
 
     // console.warn(`Spell update details for ${spell.name}`, {
@@ -2842,24 +2885,28 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(spell, "system.level", Number(spellData.level));
 
     const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
-    const scalingValue = this.data.system.uses.max ?? "";
+    const scalingValue = this.data.system.uses?.max ?? "";
     for (const id of Object.keys(spell.system.activities)) {
+      const spellActivity = spell.system.activities[id];
+      const consumption = spellActivity.consumption ??= {};
       if (activityConsumptionTarget)
-        spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
+        consumption.targets = [activityConsumptionTarget];
 
-      spell.system.activities[id].consumption.scaling.allowed = Boolean(scalingAllowed);
-      spell.system.activities[id].consumption.scaling.max = scalingAllowed
+      consumption.scaling ??= {};
+      consumption.scaling.allowed = Boolean(scalingAllowed);
+      consumption.scaling.max = scalingAllowed
         ? scalingValue
         : "";
-      spell.system.activities[id].consumption.spellSlot = false;
-      const spellActivitySave = foundry.utils.getProperty(spell.system.activities[id], "save") as I5eActivitySave | undefined;
+      consumption.spellSlot = false;
+      const spellActivitySave = foundry.utils.getProperty(spellActivity, "save") as I5eActivitySave | undefined;
       if (this.actionData.save?.dc && spellActivitySave?.dc) {
         spellActivitySave.dc = saveDC;
       }
-      spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
+      spellActivity.description ??= { chatFlavor: "" };
+      spellActivity.description.chatFlavor = `Cast from ${this.data.name}`;
       await this.enricher.customFunction({
         name: spell.name,
-        activity: spell.system.activities[id],
+        activity: spellActivity,
       });
     }
 
@@ -2889,8 +2936,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (!this.raw.itemSpells) return;
     for (const spell of this.raw.itemSpells) {
-      const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
-        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+      const isItemSpell = spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
+        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         await this.#addSpellAsCastActivity(spell);
@@ -2901,14 +2948,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     this.raw.itemSpells = this.raw.itemSpells.filter((spell) => {
       const matchedSpell = foundry.utils.getProperty(spell, "flags.ddbimporter.removeSpell")
-        && spell.flags.ddbimporter.dndbeyond.lookup === "item"
-        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+        && spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
+        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
       return !matchedSpell;
     });
 
     for (const spell of this.raw.itemSpells) {
-      const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
-        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+      const isItemSpell = spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
+        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         if (this.spellsAsActivities) await this.#addSpellAsActivity(spell);
@@ -2940,6 +2987,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
     const effects = await this.enricher.createEffects();
+    this.data.effects ??= [];
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
@@ -2976,7 +3024,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.ddbCharacter.updateItemId(this.data);
 
       const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
-      if (statusEffect) this.data.effects.push(statusEffect);
+      if (statusEffect) {
+        this.data.effects ??= [];
+        this.data.effects.push(statusEffect);
+      }
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];
 
@@ -3040,16 +3091,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #addExtraDDBFlags() {
-    this.data.flags.ddbimporter.id = this.ddbItem.id;
-    this.data.flags.ddbimporter.entityTypeId = this.ddbItem.entityTypeId;
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.id", this.ddbItem.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.entityTypeId", this.ddbItem.entityTypeId);
 
     if (this.ddbDefinition.avatarUrl)
-      this.data.flags.ddbimporter.dndbeyond.avatarUrl = this.ddbDefinition.avatarUrl.split("?")[0];
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.avatarUrl", this.ddbDefinition.avatarUrl.split("?")[0]);
     if (this.ddbDefinition.largeAvatarUrl)
-      this.data.flags.ddbimporter.dndbeyond.largeAvatarUrl = this.ddbDefinition.largeAvatarUrl.split("?")[0];
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.largeAvatarUrl", this.ddbDefinition.largeAvatarUrl.split("?")[0]);
     if (this.ddbDefinition.filterType) {
       const filter = DICTIONARY.items.find((i) => i.filterType === this.ddbDefinition.filterType);
-      if (filter) this.data.flags.ddbimporter.dndbeyond.filterType = filter.filterType;
+      if (filter) foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.filterType", filter.filterType);
     }
 
     // container info
@@ -3068,7 +3119,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "flags.infusions", { maps: [], applied: [], infused: false });
 
     this.infusionItemMap = this.#getInfusionItemMap();
-    this.infusionDetail = this.infusionItemMap ? this.getInfusionDetail(this.infusionItemMap.definitionKey) : null;
+    this.infusionDetail = this.infusionItemMap
+      ? this.getInfusionDetail(this.infusionItemMap.definitionKey)
+      : null;
 
     return this.data;
   }
@@ -3078,7 +3131,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       logger.debug(`Infusion detected for ${this.name}`);
 
       // add infusion flags
-      this.data.flags.infusions.infused = true;
+      foundry.utils.setProperty(this.data, "flags.infusions.infused", true);
 
       // if item is loot, lets move it to equipment/trinket so effects will apply
       if (this.data.type === "loot") {
@@ -3100,9 +3153,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         const intSwap = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0
             || DDBModifiers.filterBaseModifiers(this.ddbData, "replace-weapon-ability", { subType: "intelligence-score" }).length > 0;
         if (intSwap) {
-          const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
+          const characterAbilities = this.raw.character.flags?.ddbimporter?.dndbeyond?.effectAbilities;
           const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability") as T5eAbility;
-          if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
+          const intValue = characterAbilities?.int?.value;
+          const mockValue = characterAbilities?.[mockAbility]?.value;
+          if (intValue !== undefined && mockValue !== undefined && intValue > mockValue) {
             // TODO this has moved toactivities now
             // this.data.system.ability = "int";
           }
@@ -3114,29 +3169,30 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #enrichFlags() {
+    const flags = this.data.flags.ddbimporter ?? { dndbeyond: {} };
     if (this.ddbDefinition?.entityTypeId)
-      this.data.flags.ddbimporter.definitionEntityTypeId = this.ddbDefinition.entityTypeId;
+      flags.definitionEntityTypeId = this.ddbDefinition.entityTypeId;
     if (this.ddbDefinition?.id)
-      this.data.flags.ddbimporter.definitionId = this.ddbDefinition.id;
+      flags.definitionId = this.ddbDefinition.id;
     if (this.ddbItem.entityTypeId)
-      this.data.flags.ddbimporter.entityTypeId = this.ddbItem.entityTypeId;
+      flags.entityTypeId = this.ddbItem.entityTypeId;
     if (this.ddbItem.id)
-      this.data.flags.ddbimporter.id = this.ddbItem.id;
+      flags.id = this.ddbItem.id;
     if (this.ddbDefinition?.tags)
-      this.data.flags.ddbimporter.dndbeyond.tags = this.ddbDefinition.tags;
+      flags.dndbeyond!.tags = this.ddbDefinition.tags;
     if (this.ddbDefinition?.sources)
-      this.data.flags.ddbimporter.dndbeyond.sources = this.ddbDefinition.sources;
+      flags.dndbeyond!.sources = this.ddbDefinition.sources;
     if (this.ddbDefinition?.stackable)
-      this.data.flags.ddbimporter.dndbeyond.stackable = this.ddbDefinition.stackable;
+      flags.dndbeyond!.stackable = this.ddbDefinition.stackable;
   }
 
 
   /** @override */
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
-      generateRange: !["weapon", "staff"].includes(this.parsingType),
-      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-      damageParts: ["weapon", "staff"].includes(this.parsingType)
+      generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
+      damageParts: ["weapon", "staff"].includes(this.parsingType ?? "")
         ? this.damageParts.slice(1)
         : null,
     } as IDDBItemActivityBuild, options);
@@ -3147,13 +3203,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   /** @override */
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
-      generateRange: !["weapon", "staff"].includes(this.parsingType),
+      generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       // force default to to generate consumption for attacks if it's a weapon. this might miss some special cases,
       // but mostly we don't want to consume a weapons charges for attacks
-      generateConsumption: !["weapon", "staff"].includes(this.parsingType),
+      generateConsumption: !["weapon", "staff"].includes(this.parsingType ?? ""),
       // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionData.save,
-      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
     } as IDDBItemActivityBuild, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -3162,8 +3218,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   /** @override */
   _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
-      generateRange: !["weapon", "staff"].includes(this.parsingType),
-      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
+      generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
     } as IDDBItemActivityBuild, options);
 
     return super._getUtilityActivity({ name, nameIdPostfix }, itemOptions);
@@ -3172,8 +3228,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   /** @override */
   _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
-      generateRange: !["weapon", "staff"].includes(this.parsingType),
-      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
+      generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
     } as IDDBItemActivityBuild, options);
 
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
@@ -3185,7 +3241,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       type: "save",
       options: {
         generateDamage: this.damageParts.length > 1,
-        damageParts: ["weapon", "staff"].includes(this.parsingType) || includeBase
+        damageParts: ["weapon", "staff"].includes(this.parsingType ?? "") || includeBase
           ? this.damageParts
           : this.damageParts.slice(1),
         includeBaseDamage: false,
@@ -3226,12 +3282,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingParts.length > 0) {
-      if (!this.actionData.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
+      if (!this.actionData.save && !["weapon", "staff"].includes(this.parsingType ?? "") && this.damageParts.length === 0) {
         // we damage healing parts elsewhere
         return null;
       }
     }
-    if (["weapon", "staff"].includes(this.parsingType)) {
+    if (["weapon", "staff"].includes(this.parsingType ?? "")) {
       // some attacks will have a save and attack
       if (this.actionData.save) {
         if (this.damageParts.length > 1) {
@@ -3244,18 +3300,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.actionData.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
     if (this.actionData.activation?.type === "special"
-      && (!("uses" in this.data.system) || this.data.system.uses.max === "")
+      && (!("uses" in this.data.system) || this.data.system.uses?.max === "")
     ) {
       return null;
     }
     if (this.actionData.activation?.type
-      && !["wand", "scroll"].includes(this.systemType.value)
+      && !["wand", "scroll"].includes(this.systemType.value ?? "")
       && this.parsingType !== "armor"
     ) return "utility";
     if (this.parsingType === "armor" && this.actionData.activation?.type && this.actionData.activation.type !== "none") return "utility";
-    if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
-    if (this.data.effects.length > 0) return "utility";
-    if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionData.target?.template?.type)) return "utility";
+    if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value ?? "")) return "utility";
+    if ((this.data.effects?.length ?? 0) > 0) return "utility";
+    if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionData.target?.template?.type ?? "")) return "utility";
     return null;
   }
 

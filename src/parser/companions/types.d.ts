@@ -19,4 +19,15 @@ global {
     legacyName?: boolean;
   }
 
+  // DDBCompanionMixin always initialises these summon sub-objects in its
+  // constructor, so they are required here.
+  interface IDDBCompanionSummons extends I5eSummonActivity {
+    match: I5eSummonsMatch;
+    bonuses: I5eSummonsBonuses;
+    creatureSizes: TActorSizes[];
+    creatureTypes: TCreatureTypes[];
+    profiles: I5eSummonProfile[];
+    summon: I5eActivitiesSummon;
+  }
+
 }

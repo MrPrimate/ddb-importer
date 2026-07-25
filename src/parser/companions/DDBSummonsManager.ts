@@ -59,14 +59,14 @@ export default class DDBSummonsManager {
   };
 
   itemHandler: DDBItemImporter<I5eMonsterData> | null;
-  ddbData: IDDBData;
-  notifier: NotifierV1;
+  ddbData: IDDBData | null;
+  notifier: NotifierV1 | null;
   indexFilter: { fields: string[] };
   compendiumFolders: DDBCompendiumFolders;
 
   constructor({ ddbData = null, notifier = null }: {
-    ddbData?: IDDBData;
-    notifier?: NotifierV1;
+    ddbData?: IDDBData | null;
+    notifier?: NotifierV1 | null;
   } = {}) {
     this.ddbData = ddbData;
     this.indexFilter = { fields: SUMMONS_INDEX_KEYS };
@@ -97,7 +97,11 @@ export default class DDBSummonsManager {
     const npc = await DDBMonsterImporter.addNPC(compendiumCompanion, "summons", {
       forceImageUpdate: true,
     }, { updateExisting });
-    results.push(npc);
+    if (npc) {
+      results.push(npc);
+    } else {
+      logger.warn(`Companion ${compendiumCompanion.name} was not added to the compendium`);
+    }
     return results;
   }
 
@@ -105,7 +109,13 @@ export default class DDBSummonsManager {
 
     const keys = summonsKeys.map((s: any) => s.name);
 
-    const summonActors = this.itemHandler.compendium.index.filter((i) =>
+    const compendium = this.itemHandler?.compendium;
+    if (!compendium) {
+      logger.warn("Summons manager not initialised, unable to add profiles to activity");
+      return activity;
+    }
+
+    const summonActors = compendium.index.filter((i) =>
       keys.includes(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
     ) as unknown as ISummonsIndexMock[];
     const profiles: I5eSummonProfile[] = summonActors
@@ -130,10 +140,15 @@ export default class DDBSummonsManager {
     return activity;
   }
 
-  static async addGeneratedSummons(generatedSummonedActors: ICompanionResult, { notifier = null }: { notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void } = {}): Promise<void> {
+  static async addGeneratedSummons(generatedSummonedActors: ICompanionResult, { notifier = null }: { notifier?: NotifierV1 | null } = {}): Promise<void> {
     if (!game.user.isGM) return;
     const manager = new DDBSummonsManager({ notifier });
     await manager.init();
+    const itemHandler = manager.itemHandler;
+    if (!itemHandler) {
+      logger.warn("Summons item handler failed to initialise, unable to add generated summons");
+      return;
+    }
 
     for (const [key, value] of Object.entries(generatedSummonedActors)) {
       // check for JB2A modules
@@ -142,7 +157,7 @@ export default class DDBSummonsManager {
         && !game.modules.get("JB2A_DnD5e")?.active
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get("jb2a_patreon")?.active) continue;
-      const existingSummons = manager.itemHandler.compendium.index.find((i: ISummonsIndexMock) =>
+      const existingSummons = itemHandler.compendium.index.find((i: ISummonsIndexMock) =>
         i.flags?.ddbimporter?.summons?.summonsKey === key,
       ) as unknown as ISummonsIndexMock;
 

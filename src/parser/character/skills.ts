@@ -6,7 +6,12 @@ import { DDBModifiers } from "../lib/_module";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this: DDBCharacter, skill: IDDBSkillsLookup, modifiers: IModifiersMod[] | null = null): number {
   if (!modifiers) {
-    modifiers = DDBModifiers.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
+    const ddb = this.source?.ddb;
+    if (!ddb) {
+      logger.warn("getSkillProficiency: no DDB source data available, returning no proficiency");
+      return 0;
+    }
+    modifiers = DDBModifiers.getAllModifiers(ddb, { includeExcludedEffects: true });
   }
 
   const skillMatches = modifiers
@@ -30,23 +35,35 @@ DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this:
 
 DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(this: DDBCharacter, skill: IDDBSkillsLookup): number | undefined {
   // Overwrite the proficient value with any custom set over rides
-  if (this.source.ddb.character.characterValues) {
-    const customProficiency = this.source.ddb.character.characterValues.find(
+  const characterValues = this.source?.ddb.character.characterValues;
+  if (characterValues) {
+    const customProficiency = characterValues.find(
       (value) => value.typeId === 26 && value.valueId == skill.valueId && value.value,
     );
     if (customProficiency) {
-      return DICTIONARY.actor.customSkillProficiencies.find((prof) => prof.value === customProficiency.value)
-        .proficient;
+      const proficiencyEntry = DICTIONARY.actor.customSkillProficiencies
+        .find((prof) => prof.value === customProficiency.value);
+      if (!proficiencyEntry) {
+        logger.warn(`getCustomSkillProficiency: no proficiency mapping for custom skill value ${customProficiency.value}`, { customProficiency });
+        return undefined;
+      }
+      return proficiencyEntry.proficient;
     }
   }
   return undefined;
-};
+  // The declaration-merged DDBCharacter interface types this method as returning
+  // number, but undefined is a meaningful "no custom override" result that
+  // callers check with !== undefined. Cast retained so this pass does not touch
+  // DDBCharacter.ts; the declaration there should gain "| undefined" in a
+  // future pass.
+} as typeof DDBCharacter.prototype.getCustomSkillProficiency;
 
 DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(this: DDBCharacter, skill: IDDBSkillsLookup): T5eAbility | undefined {
   // Overwrite the proficient value with any custom set over rides
   let mod;
-  if (this.source.ddb.character.characterValues) {
-    const customAbility = this.source.ddb.character.characterValues.find(
+  const characterValues = this.source?.ddb.character.characterValues;
+  if (characterValues) {
+    const customAbility = characterValues.find(
       (value) => value.typeId === 27 && value.valueId == skill.valueId,
     );
     if (customAbility) {
@@ -60,8 +77,9 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(th
 
 DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(this: DDBCharacter, skill: IDDBSkillsLookup): number {
   // Get any custom skill bonuses
-  if (this.source.ddb.character.characterValues) {
-    const customBonus = this.source.ddb.character.characterValues.filter(
+  const characterValues = this.source?.ddb.character.characterValues;
+  if (characterValues) {
+    const customBonus = characterValues.filter(
       (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId,
     ).reduce((total, bonus) => {
       const value = parseInt(String(bonus.value));
@@ -76,26 +94,46 @@ DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(this: 
 };
 
 DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills(this: DDBCharacter) {
-  this.source.ddb.character.classes.forEach((klass) => {
+  const ddb = this.source?.ddb;
+  const skills = this.raw.character.system.skills;
+  if (!ddb || !skills) {
+    logger.warn("_setSpecialSkills: missing DDB source data or character skills, skipping");
+    return;
+  }
+  ddb.character.classes.forEach((klass) => {
     if (klass.subclassDefinition) {
       const silverTongue = klass.subclassDefinition.classFeatures.some(
         (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel,
       );
       if (silverTongue) {
-        this.raw.character.system.skills["per"].roll.min = 10;
-        this.raw.character.system.skills["dec"].roll.min = 10;
+        const perRoll = skills["per"].roll;
+        const decRoll = skills["dec"].roll;
+        if (perRoll && decRoll) {
+          perRoll.min = 10;
+          decRoll.min = 10;
+        } else {
+          logger.warn("_setSpecialSkills: skill roll data missing, unable to apply Silver Tongue minimum roll");
+        }
       }
     }
   });
 };
 
 DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSkills(this: DDBCharacter) {
-  if (!game.modules.get("dnd5e-custom-skills")?.active) return;
-  const version = game.modules.get("dnd5e-custom-skills")?.version;
-  const newEnough = foundry.utils.isNewerVersion(version, "1.1.2");
+  const customSkillsModule = game.modules?.get("dnd5e-custom-skills");
+  if (!customSkillsModule?.active) return;
+  const version = customSkillsModule.version;
+  const newEnough = version ? foundry.utils.isNewerVersion(version, "1.1.2") : false;
   if (!newEnough) return;
 
-  const customSkillData = this.source.ddb.character.customProficiencies
+  const ddb = this.source?.ddb;
+  const skills = this.raw.character.system.skills;
+  if (!ddb || !skills) {
+    logger.warn("_generateCustomSkills: missing DDB source data or character skills, skipping");
+    return;
+  }
+
+  const customSkillData = ddb.character.customProficiencies
     .filter((prof) => prof.type === 1 && Number.isInteger(prof.statId))
     .map((prof) => {
       const ability = DICTIONARY.actor.abilities.find((a) => a.id == prof.statId);
@@ -126,9 +164,14 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
       const customSkillMatch = customSkillData.find((customSkill) => customSkill.label === value.label);
       if (customSkillMatch) {
         logger.debug(`Adding custom skill ${value.label}`, { key, value, customSkillMatch });
-        const prof = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
+        const proficiencyEntry = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
           proficiency.value === customSkillMatch.proficiencyLevel,
-        ).proficient;
+        );
+        if (!proficiencyEntry) {
+          logger.warn(`_generateCustomSkills: no proficiency mapping for custom skill level ${customSkillMatch.proficiencyLevel}`, { customSkillMatch });
+          continue;
+        }
+        const prof = proficiencyEntry.proficient;
         const miscBonus = customSkillMatch.miscBonus && customSkillMatch.miscBonus !== 0
           ? `+ ${customSkillMatch.miscBonus}`
           : "";
@@ -137,7 +180,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
           : "";
         if (customSkillMatch) {
           const checkBonus = (miscBonus + magicBonus).trim();
-          this.raw.character.system.skills[key as T5eSkillKey] = {
+          skills[key as T5eSkillKey] = {
             ability: value.ability,
             value: prof,
             bonuses: {
@@ -157,7 +200,14 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
 };
 
 DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DDBCharacter) {
-  const addEffects = game.modules.get("dae")?.active;
+  const ddb = this.source?.ddb;
+  const skills = this.raw.character.system.skills;
+  if (!ddb || !skills) {
+    logger.warn("_generateSkills: missing DDB source data or character skills, skipping skill generation");
+    return;
+  }
+
+  const addEffects = game.modules?.get("dae")?.active;
 
   if (!addEffects) (this.raw.character.flags as Record<string, any>)["skill-customization-5e"] = {};
   DICTIONARY.actor.skills.forEach((skill) => {
@@ -167,11 +217,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
 
     // Skill bonuses
     const skillModifierBonus = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: skill.subType })
+      .filterBaseModifiers(ddb, "bonus", { subType: skill.subType })
       .map((skl) => parseInt(String(skl.value)))
       .reduce((a, b) => a + b, 0) ?? 0;
     const passiveBonus = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `passive-${skill.subType}` })
+      .filterBaseModifiers(ddb, "bonus", { subType: `passive-${skill.subType}` })
       .map((skl) => parseInt(String(skl.value)))
       .reduce((a, b) => a + b, 0) ?? 0;
     const customSkillBonus = this.getCustomSkillBonus(skill);
@@ -189,17 +239,27 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
         priority: 20,
       };
 
-      const changeIndex = this.raw.character.effects.findIndex((effect) => effect.name === label);
-      if (changeIndex >= 0) {
-        this.raw.character.effects[changeIndex].system.changes.push(change);
+      const effects = this.raw.character.effects;
+      if (!effects) {
+        logger.warn("_generateSkills: character effects array missing, unable to add skill ability override effect", { skill, change });
       } else {
-        const skillEffect = AutoEffects.generateBaseSkillEffect(this.source.ddb.character.id, label);
-        skillEffect.system.changes.push(change);
-        this.raw.character.effects.push(skillEffect);
+        const changeIndex = effects.findIndex((effect) => effect.name === label);
+        if (changeIndex >= 0) {
+          const existingEffect = effects[changeIndex];
+          existingEffect.system ??= {};
+          existingEffect.system.changes ??= [];
+          existingEffect.system.changes.push(change);
+        } else {
+          const skillEffect = AutoEffects.generateBaseSkillEffect(ddb.character.id, label);
+          skillEffect.system ??= {};
+          skillEffect.system.changes ??= [];
+          skillEffect.system.changes.push(change);
+          effects.push(skillEffect);
+        }
       }
     }
 
-    this.raw.character.system.skills[skill.name] = {
+    skills[skill.name] = {
       value: proficient,
       ability: ability,
       bonuses: {

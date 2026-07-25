@@ -1,8 +1,15 @@
+import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
 DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(this: DDBCharacter) {
-  this.raw.character.flags.dnd5e = {
+  const ddb = this.source?.ddb;
+  const flags = this.raw.character.flags;
+  if (!ddb || !flags) {
+    logger.warn("Unable to set special trait flags, missing DDB source data or character flags");
+    return;
+  }
+  const dnd5e: I5ePCDnd5eFlags = {
     powerfulBuild: false,
     savageAttacks: false,
     elvenAccuracy: false,
@@ -20,25 +27,26 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(th
     spellSniper: false,
     tavernBrawlerFeat: false,
   };
+  flags.dnd5e = dnd5e;
 
   // These are now added via effect flags for the most part
 
   // advantage on initiative
-  this.raw.character.flags.dnd5e.initiativeAdv
-    = DDBModifiers.filterBaseModifiers(this.source.ddb, "advantage", { subType: "initiative" }).length > 0;
+  dnd5e.initiativeAdv
+    = DDBModifiers.filterBaseModifiers(ddb, "advantage", { subType: "initiative" }).length > 0;
 
   // initiative half prof
-  this.raw.character.flags.dnd5e.initiativeHalfProf
-    = DDBModifiers.filterBaseModifiers(this.source.ddb, "half-proficiency", { subType: "initiative" }).length > 0;
+  dnd5e.initiativeHalfProf
+    = DDBModifiers.filterBaseModifiers(ddb, "half-proficiency", { subType: "initiative" }).length > 0;
 
   // observant
   // we now just add this to the skill
-  // this.raw.character.flags.dnd5e.observantFeat = this.source.ddb.character.feats.some(
+  // dnd5e.observantFeat = ddb.character.feats.some(
   //   (feat) => feat.definition.name === "Observant"
   // );
 
   // we set this as the UI does not show AE's effecting Concentration.
-  const warCaster = this.source.ddb.character.feats.some(
+  const warCaster = ddb.character.feats.some(
     (feat) => feat.definition.name === "War Caster",
   );
   if (warCaster) {
@@ -48,7 +56,7 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(th
   // weapon critical threshold
   // fighter improved crit
   // remarkable athlete
-  this.source.ddb.character.classes.forEach((cls) => {
+  ddb.character.classes.forEach((cls) => {
     if (cls.subclassDefinition) {
       // Improved Critical
       // const improvedCritical = cls.subclassDefinition.classFeatures.some(
@@ -59,19 +67,19 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(th
       // );
 
       // if (superiorCritical) {
-      //   this.raw.character.flags.dnd5e.weaponCriticalThreshold = 18;
-      // } else if (improvedCritical && this.raw.character.flags.dnd5e.weaponCriticalThreshold > 19) {
-      //   this.raw.character.flags.dnd5e.weaponCriticalThreshold = 19;
+      //   dnd5e.weaponCriticalThreshold = 18;
+      // } else if (improvedCritical && dnd5e.weaponCriticalThreshold > 19) {
+      //   dnd5e.weaponCriticalThreshold = 19;
       // }
 
       // wild magic surge for 5e Helpers
-      this.raw.character.flags.dnd5e.wildMagic = cls.subclassDefinition.classFeatures.some(
+      dnd5e.wildMagic = cls.subclassDefinition.classFeatures.some(
         (feature) => feature.name === "Wild Magic Surge" && cls.level >= feature.requiredLevel,
       );
     }
 
     // // Brutal Critical
-    // this.raw.character.flags.dnd5e.meleeCriticalDamageDice += cls.definition.classFeatures.filter(
+    // dnd5e.meleeCriticalDamageDice += cls.definition.classFeatures.filter(
     //   (feature) => feature.name === "Brutal Critical" && cls.level >= feature.requiredLevel,
     // ).length;
 

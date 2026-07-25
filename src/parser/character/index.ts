@@ -1,9 +1,15 @@
+import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { SystemHelpers } from "../lib/_module";
 // import { fixCharacterLevels } from "./filterModifiers";
 
 DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBCharacter): Promise<I5ePCData> {
-  const name = (this.source.ddb.character.name === "") ? "Hero With No Name" : this.source.ddb.character.name;
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    // matches the previous behaviour of throwing when no source data has been fetched
+    throw new Error("Unable to build character skeleton, no DDB source data");
+  }
+  const name = (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name;
 
   this.raw.character = {
     system: SystemHelpers.getTemplate("character"),
@@ -20,10 +26,10 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBC
           totalLevels: null,
           proficiencies: null,
           proficienciesIncludingEffects: null,
-          roUrl: this.source.ddb.character.readonlyUrl,
-          characterValues: this.source.ddb.character.characterValues,
+          roUrl: ddb.character.readonlyUrl,
+          characterValues: ddb.character.characterValues,
           templateStrings: [],
-          campaign: this.source.ddb.character.campaign,
+          campaign: ddb.character.campaign,
         },
       },
     },
@@ -42,14 +48,28 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter(th
   //
   // ddb = fixCharacterLevels(ddb);
 
+  const ddb = this.source?.ddb;
+  if (!ddb) {
+    logger.warn("Unable to generate character, no DDB source data");
+    return;
+  }
+
   // build skeleton this.raw.character
   await this._newPCSkeleton();
 
-  this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
-  this.raw.character.flags.ddbimporter.dndbeyond.totalLevels = this.totalLevels;
+  const dndbeyondFlags = this.raw.character.flags?.ddbimporter?.dndbeyond;
+  const attributes = this.raw.character.system.attributes;
+  const details = this.raw.character.system.details;
+  if (!dndbeyondFlags || !attributes || !details?.xp) {
+    logger.warn("Unable to generate character, skeleton is missing expected data", { character: this.raw.character });
+    return;
+  }
+
+  this.totalLevels = ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
+  dndbeyondFlags.totalLevels = this.totalLevels;
   // prettier-ignore
   this.profBonus = Math.ceil(1 + (0.25 * this.totalLevels));
-  this.raw.character.flags.ddbimporter.dndbeyond.profBonus = this.profBonus;
+  dndbeyondFlags.profBonus = this.profBonus;
   this._generateProficiencies();
 
   // Get supported 5e feats and abilities
@@ -59,7 +79,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter(th
   this._generateAbilities();
   this._generateDeathSaves();
   this._generateExhaustion();
-  this.raw.character.system.attributes.inspiration = this.source.ddb.character.inspiration;
+  attributes.inspiration = ddb.character.inspiration;
   this._generateArmorClass();
   this._generateHitPoints();
   this._generateInitiative();
@@ -69,7 +89,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter(th
   // resources
   this._generateResources();
   this._generateMaxPreparedSpells();
-  this.raw.character.system.details.xp.value = this.source.ddb.character.currentXp;
+  details.xp.value = ddb.character.currentXp;
   this._generateTrait();
   this._generateIdeal();
   this._generateFlaw();
@@ -91,4 +111,3 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter(th
   this._generateBonusSpellDC();
   this._generateBonusWeaponAttacks();
 };
-

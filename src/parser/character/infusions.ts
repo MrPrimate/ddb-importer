@@ -43,7 +43,7 @@ export async function linkSelectedEnchantments(actor: TImporterActor) {
     });
 
     const effect = item.getEmbeddedCollection("ActiveEffect")
-      .find((e) => e._id === enchantmentFlag.effectId);
+      .find((e: ActiveEffect.Implementation) => e._id === enchantmentFlag.effectId);
 
     if (!effect) continue;
 
@@ -57,34 +57,29 @@ export async function linkSelectedEnchantments(actor: TImporterActor) {
 
     let targetItem: TImporterItem | null = null;
 
-    if (enchantmentFlag) {
-      if ("equipped" in item.system && item.system.equipped === false) continue;
-      if ("attuned" in item.system && item.system.attuned === false) {
-        if (item.system.attunement === "required") continue;
-      }
-      if (enchantmentFlag.targetItemId === "self") {
-        targetItem = item as TImporterItem;
-      } else if (enchantmentFlag.targetItemName) {
-        targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as TImporterItem ?? null;
-      } else if (enchantmentFlag.targetItemMatches) {
-        const matchedFields = enchantmentFlag.targetItemMatches;
-        const targetItems = items.filter((i) => matchFields(i as unknown as TAll5eDocuments, matchedFields));
-        if (targetItems.length === 0) {
-          logger.warn(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
-            item,
-            enchantmentFlag,
-            items,
-          });
-        } else {
-          for (const matchedItem of targetItems) {
-            await linkSelectedEnchantment(matchedItem as TImporterItem, effect, activity, item.name);
-          }
-          continue;
+    if ("equipped" in item.system && item.system.equipped === false) continue;
+    if ("attuned" in item.system && item.system.attuned === false) {
+      if (item.system.attunement === "required") continue;
+    }
+    if (enchantmentFlag.targetItemId === "self") {
+      targetItem = item as TImporterItem;
+    } else if (enchantmentFlag.targetItemName) {
+      targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as TImporterItem ?? null;
+    } else if (enchantmentFlag.targetItemMatches) {
+      const matchedFields = enchantmentFlag.targetItemMatches;
+      const targetItems = items.filter((i) => matchFields(i as unknown as TAll5eDocuments, matchedFields));
+      if (targetItems.length === 0) {
+        logger.warn(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
+          item,
+          enchantmentFlag,
+          items,
+        });
+      } else {
+        for (const matchedItem of targetItems) {
+          await linkSelectedEnchantment(matchedItem as TImporterItem, effect, activity, item.name);
         }
+        continue;
       }
-    } else {
-      targetItem = (items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
-        foundry.utils.getProperty(i, "flags.ddbimporter.enchantmentLinkId") === enchantmentFlag.targetItemId)) as TImporterItem | null;
     }
 
     if (!targetItem) continue;
@@ -116,18 +111,22 @@ export async function createInfusedItems(ddb: IDDBData, actor: TImporterActor) {
     const infusionActivities: I5eEnchantActivity[] = infusionFeature.system.activities.getByType("enchant");
 
     for (const activity of infusionActivities) {
-      const infusionEffectCount = activity.effects.length;
+      const activityEffects = activity.effects ?? [];
+      const infusionEffectCount = activityEffects.length;
       const artificerLevel = (rollData.classes as Record<string, any>)?.artificer?.levels ?? 0;
 
-      const infusionEffectIds = activity.effects.filter((e) => {
+      const infusionEffectIds = activityEffects.filter((e) => {
         if (infusionEffectCount === 1) return true;
-        const appropriateLevel = artificerLevel >= e.level.min
-          && (artificerLevel <= e.level.max || e.level.max === null);
+        // a null minimum matches the original >= null coercion (treated as 0)
+        const minLevel = e.level?.min ?? 0;
+        const maxLevel = e.level?.max ?? null;
+        const appropriateLevel = artificerLevel >= minLevel
+          && (maxLevel === null || artificerLevel <= maxLevel);
         return appropriateLevel;
       }).map((e) => e._id);
 
       const infusionEffects = infusionFeature.getEmbeddedCollection("ActiveEffect")
-        .filter((e) => infusionEffectIds.includes(e._id));
+        .filter((e: ActiveEffect.Implementation) => e._id !== null && infusionEffectIds.includes(e._id));
 
       if (infusionEffects.length === 0) continue;
 

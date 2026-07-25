@@ -14,7 +14,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   }: {
     activityGenerator: TActivityGenerator;
     notifier?: NotifierV1 | null;
-    fallbackEnricher?: string;
+    fallbackEnricher?: string | null;
   }) {
     super({
       activityGenerator,
@@ -36,7 +36,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
           || (parentDefinition.subclassName && klass.subclassDefinition?.name === parentDefinition.subclassName))
       ),
     );
-    return klass?.definition?.sources.every((s) => DDBSources.is2014Source(s));
+    return klass?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   get className(): string | undefined {
@@ -48,7 +48,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultClassLoader(): DDBEnricherData | null {
-    if (!this.className) {
+    if (!this.className || !this.hintName) {
       return null;
     }
     const classHintName = utils.pascalCase(this.className);

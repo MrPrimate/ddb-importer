@@ -22,6 +22,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
+    if (!this.name) return null;
     const itemName = utils.pascalCase(this.name);
     // via unknown: the namespace exports an abstract base (TomeOf) that is not newable
     const Enricher = (ItemEnrichers as unknown as Record<string, EnricherConstructor | undefined>)[itemName];

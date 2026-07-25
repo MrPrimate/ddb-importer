@@ -68,7 +68,9 @@ export default class DDBClass extends DDBBaseClass {
         },
       },
       img: null,
-    } as I5eClassItem;
+      // img and flags.ddbimporter.ddbImg are legitimately null at this stage, but the shared
+      // document/flag types only allow string, so the direct cast fails overlap checks
+    } as unknown as I5eClassItem;
   }
 
   _generateHitDice() {
@@ -98,11 +100,11 @@ export default class DDBClass extends DDBBaseClass {
       const hpPerLevel = Math.floor(baseHP / totalLevels);
       const leftOvers = Math.floor(baseHP % totalLevels);
 
-      for (let i = 1; i <= this.data.system.levels; i++) {
+      for (let i = 1; i <= (this.data.system.levels ?? 0); i++) {
         value[`${i}`] = i === 1 && startingClass ? (hpPerLevel + leftOvers) : hpPerLevel;
       }
     } else {
-      for (let i = 1; i <= this.data.system.levels; i++) {
+      for (let i = 1; i <= (this.data.system.levels ?? 0); i++) {
         value[`${i}`] = i === 1 && startingClass ? "max" : "avg";
       }
     };
@@ -188,9 +190,11 @@ export default class DDBClass extends DDBBaseClass {
           && f.componentTypeId == abilityAdvancementFeature.entityTypeId,
         );
         const featureMatch = featChoice ? this.getFeatCompendiumMatch(featChoice.definition.name) : null;
-        if (featureMatch) {
-          this._advancementMatches.features[advancement._id] = {};
-          this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+        // dnd5e BaseAdvancement initialises _id via randomID, the field type just allows null
+        const advancementId = advancement._id;
+        if (featureMatch && featureMatch.name && advancementId) {
+          this._advancementMatches.features[advancementId] = {};
+          this._advancementMatches.features[advancementId][featureMatch.name] = featureMatch.uuid;
         } else {
           logger.info("Missing asi feat linking match for", { abilityAdvancementFeature, featChoice, this: this });
         }
@@ -226,6 +230,7 @@ export default class DDBClass extends DDBBaseClass {
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
+      if (!foundryKlass) continue;
       const startingEquipment = foundry.utils.duplicate(foundryKlass.system.startingEquipment);
       this.data.system.startingEquipment = startingEquipment;
       return;
@@ -233,7 +238,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _generateSubclassAdvancement() {
-    const subClassChoices = this.ddbData.character.choices.class.filter((c) => c.type === 7);
+    const subClassChoices = (this.ddbData.character.choices.class ?? []).filter((c) => c.type === 7);
     if (!subClassChoices) {
       logger.warn(`No subclass choices found for ${this.name}`, {
         this: this,
@@ -262,16 +267,17 @@ export default class DDBClass extends DDBBaseClass {
   // fixes
   _druidFixes() {
     if (this.data.name !== "Druid") return;
-    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+    const advancementData = this._advancementData;
+    for (const [id, advancement] of Object.entries(advancementData)) {
       if (advancement.title !== "Wild Shape CR") continue;
-      const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+      const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
       configuration.type = "cr";
       configuration.scale = {
         2: { value: 0.25 },
         4: { value: 0.5 },
         8: { value: 1 },
       };
-      this.data.system.advancement[id] = advancement;
+      advancementData[id] = advancement;
     };
     if (this.is2014) {
       const wildshape: I5eAdvancement = {
@@ -350,6 +356,7 @@ export default class DDBClass extends DDBBaseClass {
 
   _monkFixes() {
     if (this.data.name !== "Monk") return;
+    const kiScale: Record<string, I5eAdvScaleValueEntry> = {};
     const ki: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -357,14 +364,14 @@ export default class DDBClass extends DDBBaseClass {
         distance: { units: "" },
         identifier: this.is2014 ? "ki-points" : "focus-points",
         type: "number",
-        scale: {},
+        scale: kiScale,
       },
       value: {},
       title: this.is2014 ? "Ki Points" : "Focus Points",
       icon: null,
     };
     utils.arrayRange(19, 1, 2).forEach((i) => {
-      ki.configuration.scale[i] = {
+      kiScale[i] = {
         value: i,
       };
     });
@@ -421,7 +428,7 @@ export default class DDBClass extends DDBBaseClass {
   _barbarianFixes() {
     if (this.data.name !== "Barbarian") return;
 
-    if (!Object.values(this.data.system.advancement).some((a) =>
+    if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "rage-damage")
     ) {
       const damage: I5eAdvancement = {
@@ -445,22 +452,23 @@ export default class DDBClass extends DDBBaseClass {
     }
 
     if (this.is2014) return;
-    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+    const advancementData = this._advancementData;
+    for (const [id, advancement] of Object.entries(advancementData)) {
       if (advancement.title !== "Brutal Strike") continue;
-      const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+      const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
       configuration.type = "dice";
       configuration.scale = {
         9: { number: 1, faces: 10 },
         17: { number: 2, faces: 10 },
       };
-      this.data.system.advancement[id] = advancement;
+      advancementData[id] = advancement;
     };
 
   }
 
   _bardFixes() {
     if (this.data.name !== "Bard") return;
-    if (!Object.values(this.data.system.advancement).some((a) =>
+    if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "inspiration")
     ) {
       const bardicInspiration: I5eAdvancement = {
@@ -487,6 +495,7 @@ export default class DDBClass extends DDBBaseClass {
 
   _sorcererFixes() {
     if (this.data.name !== "Sorcerer") return;
+    const pointsScale: Record<string, I5eAdvScaleValueEntry> = {};
     const points: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -494,14 +503,14 @@ export default class DDBClass extends DDBBaseClass {
         distance: { units: "" },
         identifier: "points",
         type: "number",
-        scale: {},
+        scale: pointsScale,
       },
       value: {},
       title: "Sorcery Points",
       icon: null,
     };
     utils.arrayRange(20, 1, 2).forEach((i) => {
-      points.configuration.scale[i] = {
+      pointsScale[i] = {
         value: i,
       };
     });
@@ -512,28 +521,30 @@ export default class DDBClass extends DDBBaseClass {
   _spellFixes() {
     // only run on non-spellcasting classes
     if (!["Fighter", "Rogue", "Barbarian", "Monk", "Gunslinger", "Monster Hunter", "Pugilist", "Illrigger", "Blood Hunter"].includes(this.data.name)) return;
-    const foundCantrips = Object.values(this.data.system.advancement).find((a) => a.title === "Cantrips Known");
-    if (foundCantrips) {
-      delete this.data.system.advancement[foundCantrips._id];
+    const advancementData = this._advancementData;
+    const foundCantrips = Object.values(advancementData).find((a) => a.title === "Cantrips Known");
+    if (foundCantrips?._id) {
+      delete advancementData[foundCantrips._id];
     }
-    const foundSpells = Object.values(this.data.system.advancement).find((a) => a.title === "Spells Known");
-    if (foundSpells) {
-      delete this.data.system.advancement[foundSpells._id];
+    const foundSpells = Object.values(advancementData).find((a) => a.title === "Spells Known");
+    if (foundSpells?._id) {
+      delete advancementData[foundSpells._id];
     }
   }
 
   _artificerFixes() {
     if (this.data.name !== "Artificer") return;
-    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+    const advancementData = this._advancementData;
+    for (const [id, advancement] of Object.entries(advancementData)) {
       if (advancement.title === "Magic Item Plans") {
-        (advancement as I5eAdvancementScaleValue).configuration.scale = {
+        ((advancement as I5eAdvancementScaleValue).configuration ??= {}).scale = {
           2: { value: 4 },
           6: { value: 5 },
           10: { value: 6 },
           14: { value: 7 },
           18: { value: 8 },
         };
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       } else if (advancement.title === "Tool Proficiencies") {
         advancement.configuration = {
           "allowReplacements": true,
@@ -549,7 +560,7 @@ export default class DDBClass extends DDBBaseClass {
           ],
           "mode": "default",
         };
-        this.data.system.advancement[id] = advancement;
+        advancementData[id] = advancement;
       }
       // const chosen = new Set(advancement.value?.chosen || []);
       // if (chosen.size !== 3) {
@@ -577,7 +588,7 @@ export default class DDBClass extends DDBBaseClass {
 
   _generatePrimaryAbility() {
     const primaryAbilities: T5eAbility[] = [];
-    for (const prerequisite of this.ddbClassDefinition.prerequisites) {
+    for (const prerequisite of this.ddbClassDefinition.prerequisites ?? []) {
       for (const mapping of prerequisite.prerequisiteMappings) {
         if (mapping.type !== "ability-score") continue;
         const ability = DICTIONARY.actor.abilities.find((a) => a.id === mapping.entityId);
@@ -607,13 +618,14 @@ export default class DDBClass extends DDBBaseClass {
 
   _buildPendingClassDocument() {
     const data: I5eClassItem = foundry.utils.deepClone(this.data) as I5eClassItem;
-    for (const [id, advancement] of Object.entries(data.system.advancement)) {
+    const advancementData = data.system.advancement ?? {};
+    for (const [id, advancement] of Object.entries(advancementData)) {
       delete (advancement as any).value;
-      data.system.advancement[id] = advancement;
+      advancementData[id] = advancement;
     }
     if (data.system.levels) data.system.levels = 1;
     if (data.system.hd) data.system.hd.spent = 0;
-    const versionStub = this.data.system.source.rules;
+    const versionStub = this.data.system.source?.rules ?? (this.is2014 ? "2014" : "2024");
     return {
       data,
       isSubClass: this.isSubClass,

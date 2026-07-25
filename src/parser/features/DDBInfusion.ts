@@ -15,13 +15,14 @@ import { DDBFeatureActivity } from "../activities/_module";
 import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
 import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import ChangeHelper from "../enrichers/effects/ChangeHelper";
 
 export type IDDBSupportedInfusionDocuments = I5eFeatItem | I5eWeaponItem | I5eEquipmentItem;
 
 export interface IDDBInfusionItemMock {
   definition: {
     name: string;
-    grantedModifiers: IDDBModifier[];
+    grantedModifiers: IDDBInfusionModifier[];
   };
 }
 
@@ -41,7 +42,8 @@ export class DDBInfusion {
   documentType: "feat" | "weapon" | "equipment";
   rawCharacter: I5ePCData | null;
   name: string;
-  data: IDDBSupportedInfusionDocuments;
+  // the data stub always initialises effects
+  data: IDDBSupportedInfusionDocuments & { effects: I5eEffectData[] };
   nameIdPostfix: string | null;
   requiredLevel: number | null;
   originClass: string;
@@ -53,10 +55,16 @@ export class DDBInfusion {
   addToCompendium: boolean;
   activity: DDBBasicActivity;
   enricher: DDBClassFeatureEnricher;
-  activityType: IDDBActivityType;
+  activityType: IDDBActivityType | undefined;
   compendiumFolders: DDBCompendiumFolders;
   actions: IDDBSupportedInfusionDocuments[];
   actionsToAddToCompendium: IDDBSupportedInfusionDocuments[];
+
+  // runtime callers always supply a raw character (infusions are parsed from a
+  // character's data); the constructor default is null for API convenience only
+  get _character(): I5ePCData {
+    return this.rawCharacter as I5ePCData;
+  }
 
   _init() {
     logger.debug(`Generating Infusion Feature ${this.ddbInfusion.name}`);
@@ -80,7 +88,9 @@ export class DDBInfusion {
           dndbeyond: {
             defintionKey: this.ddbInfusion.definitionKey,
             requiredLevel: this.ddbInfusion.level,
-            modifierType: this.ddbInfusion.modifierDataType,
+            // DDB uses null for an unset value; the flag type declares optional
+            // only, keep the runtime null value unchanged
+            modifierType: this.ddbInfusion.modifierDataType as string | undefined,
             type: this.ddbInfusion.type,
             requiresAttunement: this.ddbInfusion.requiresAttunement,
             allowDuplicates: this.ddbInfusion.allowDuplicates,
@@ -146,10 +156,12 @@ export class DDBInfusion {
 
   _buildBaseActivity() {
     this.activity = new DDBBasicActivity({
-      type: this.activityType,
+      // DDB infusion types are always augment/replicate/creature, so this is set
+      type: this.activityType as IDDBActivityType,
       actor: this.rawCharacter,
       foundryFeature: this.data,
     });
+    this.activity.data.consumption ??= {};
     this.activity.data.consumption.targets = [
       {
         type: "itemUses",
@@ -170,6 +182,7 @@ export class DDBInfusion {
     }
 
     if (this.activityType === "summon") {
+      this.activity.data.activation ??= {};
       this.activity.data.activation.type = "action";
       this.activity.data.activation.value = 1;
     }
@@ -187,11 +200,11 @@ export class DDBInfusion {
       ? `<p><i>Item: ${itemText}</i></p>`
       : "";
 
-    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: null });
-    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: this.snippet, document: this.data, actor: null }) : "";
+    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: undefined });
+    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: this.snippet, document: this.data, actor: undefined }) : "";
     this.data.system.description = {
       value: DDBReferenceLinker.parseTags(prerequisitesHeader + itemHeader + valueDamageText),
-      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText) : "",
+      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText ?? "") : "",
     };
 
     const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
@@ -223,7 +236,7 @@ export class DDBInfusion {
   async compendiumInit() {
     this.compendiumFolders = new DDBCompendiumFolders("features");
     await this.compendiumFolders.loadCompendium("features");
-    await this.compendiumFolders.createClassFeatureFolder(this.originClass, this.data.system.source.rules);
+    await this.compendiumFolders.createClassFeatureFolder(this.originClass, this.data.system.source.rules ?? "2014");
   }
 
   async addInfusionsToCompendium(documents: I5ePCItem[]) {
@@ -255,7 +268,12 @@ export class DDBInfusion {
         "flags.ddbimporter.infusionId",
       ],
     });
-    const compendiumFeatures = await featureHandler.compendiumIndex.filter((i) =>
+    const index = featureHandler.compendiumIndex;
+    if (!index) {
+      logger.warn(`No compendium index built for infusion features`, { featureHandler });
+      return [];
+    }
+    const compendiumFeatures = index.filter((i) =>
       featureHandler.documents.some((orig) => i.name === orig.name),
     );
     return compendiumFeatures;
@@ -270,8 +288,9 @@ export class DDBInfusion {
       // const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
       if (!actionData.name) {
         const activationType = foundry.utils.getProperty(actionData, "activation.activationType") as number;
-        const postfix = [3, 4].includes(activationType)
-          ? ` (${utils.capitalize(DICTIONARY.actions.activationTypes.find((a) => a.id === activationType).value)})`
+        const activationName = DICTIONARY.actions.activationTypes.find((a) => a.id === activationType)?.value;
+        const postfix = activationName && [3, 4].includes(activationType)
+          ? ` (${utils.capitalize(activationName)})`
           : "";
         actionData.name = `${this.name}${postfix}`;
       }
@@ -280,7 +299,8 @@ export class DDBInfusion {
           ddbData: this.ddbData,
           ddbDefinition: actionData,
           rawCharacter: this.rawCharacter,
-          type: actionData.actionSource,
+          // the action type param is typed non-null but handles null at runtime
+          type: actionData.actionSource as ICoreSourceTypes,
           enricher: this.enricher,
           usesOnActivity: true,
           isMuncher: this.isMuncher,
@@ -292,7 +312,8 @@ export class DDBInfusion {
           enricher: this.enricher,
           usesOnActivity: true,
           isMuncher: this.isMuncher,
-          type: null, // this might need to be class though
+          // the action type param is typed non-null but handles null at runtime
+          type: null as unknown as ICoreSourceTypes, // this might need to be class though
         });
       await action.loadEnricher();
       await action.build();
@@ -311,14 +332,15 @@ export class DDBInfusion {
 
     for (const actionItem of this.actions) {
       const ids = Object.keys(actionItem.system.activities).map((i) => i);
-      if (this.activity.data.effects?.length > 0) {
-        this.activity.data.effects[0].riders.activity.push(...ids);
+      const activityEffects = this.activity.data.effects;
+      if (activityEffects && activityEffects.length > 0) {
+        activityEffects[0].riders?.activity?.push(...ids);
       } else {
         this.actionsToAddToCompendium.push(actionItem);
       }
       for (const id of ids) {
         this.data.system.activities[id] = actionItem.system.activities[id];
-        this.data.effects.push(...actionItem.effects);
+        this.data.effects.push(...(actionItem.effects ?? []));
       }
     }
 
@@ -330,16 +352,15 @@ export class DDBInfusion {
 
     const uuids = cItems.map((i) => i.uuid);
     // for now just add riders to first effect
-    if (this.activity.data.effects?.length > 0)
-      this.activity.data.effects[0].riders.item = uuids;
+    const riderEffects = this.activity.data.effects;
+    if (riderEffects && riderEffects.length > 0 && riderEffects[0].riders)
+      riderEffects[0].riders.item = uuids;
     this.data.effects.forEach((e) => {
       // if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
-      e.system.changes.push({
-        key: "system.description.value",
-        type: "add",
-        value: `<hr><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
-        priority: 20,
-      });
+      e.system ??= {};
+      e.system.changes ??= [];
+      const change = ChangeHelper.addChange(`<hr><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`, 20, "system.description.value");
+      e.system.changes.push(change);
     });
   }
 
@@ -376,7 +397,7 @@ export class DDBInfusion {
     const effect = Effects.EnchantmentEffects.EnchantmentEffect(foundryItem, label, {
       origin: useOrigin ? `Item.${this.data._id}` : null,
     });
-    effect.flags.ddbimporter.infusion = true;
+    foundry.utils.setProperty(effect, "flags.ddbimporter.infusion", true);
     const modifiers = foundry.utils.deepClone(modifierData.modifiers) ?? [];
     const modifierItem : IDDBInfusionItemMock = {
       definition: {
@@ -390,7 +411,7 @@ export class DDBInfusion {
 
     const mockItem = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
-      character: this.rawCharacter,
+      character: this._character,
       // the mock only carries the fields the effect generator reads
       ddbItem: modifierItem as unknown as IDDBInventoryItem,
       document: foundryItem,
@@ -398,35 +419,28 @@ export class DDBInfusion {
       type: "infusion",
       description: this.snippet,
     });
-    if (mockItem.effects.length > 0) effect.system.changes = mockItem.effects.map((e) => e.system.changes).flat(1);
+    effect.system ??= {};
+    const mockEffects = mockItem.effects ?? [];
+    if (mockEffects.length > 0) effect.system.changes = mockEffects.map((e) => e.system?.changes ?? []).flat(1);
 
+    effect.system.changes ??= [];
     effect.system.changes.push(...this._getMagicBonusChanges(modifiers));
 
     if (this.ddbInfusion.requiresAttunement) {
-      effect.system.changes.push({
-        key: "system.attunement",
-        type: "override",
-        value: "required",
-        priority: 20,
-      });
+      const change = ChangeHelper.overrideChange("required", 20, "system.attunement");
+      effect.system.changes.push(change);
     }
 
     const nameLabel = this.ddbInfusion.type === "replicate"
       ? `: Replicated [Infusion]`
       : `: ${useModifierLabelName ? label : this.name} [Infusion]`;
-    effect.system.changes.push(
-      {
-        key: "name",
-        type: "add",
-        value: nameLabel,
-        priority: 20,
-      },
-    );
+    const nameChange = ChangeHelper.addChange(nameLabel, 20, "name");
+    effect.system.changes.push(nameChange);
     return effect;
   }
 
   _generateEnchantmentStubEffect() {
-    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
+    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType ?? "");
     const effect = this._getEnchantmentEffect({}, {
       useModifierLabelName,
     });
@@ -442,21 +456,21 @@ export class DDBInfusion {
         item: [],
       },
     };
+    this.activity.data.effects ??= [];
     this.activity.data.effects.push(effectLink);
     this.data.effects.push(effect);
   }
 
   _addDescriptionToEffect(effect: I5eEffectData) {
-    const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
-    effect.system.changes.push({
-      key: "system.description.value",
-      type: "add",
-      value: `<hr> <h5>Infusion Details</h5>${description}`,
-    });
+    const description = DDBTemplateStrings.parse(this.ddbData, this._character, this.ddbInfusion.description, this.ddbInfusion)?.text ?? "";
+    effect.system ??= {};
+    effect.system.changes ??= [];
+    const change = ChangeHelper.addChange(`<hr> <h5>Infusion Details</h5>${description}`, 20, "system.description.value");
+    effect.system.changes.push(change);
   }
 
   _generateEnchantmentEffects() {
-    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
+    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType ?? "");
     for (const [index, effectData] of this.ddbInfusion.modifierData.entries()) {
       const effect = this._getEnchantmentEffect(effectData, {
         useModifierLabelName,
@@ -475,13 +489,13 @@ export class DDBInfusion {
         },
       };
 
-      const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
+      const description = DDBTemplateStrings.parse(this.ddbData, this._character, this.ddbInfusion.snippet, this.ddbInfusion)?.text ?? "";
 
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {
           const minLevel = effectData.value;
           const maxLevel = index < (this.ddbInfusion.modifierData.length - 1)
-            ? (this.ddbInfusion.modifierData[index + 1].value ?? null) - 1
+            ? (this.ddbInfusion.modifierData[index + 1].value ?? 0) - 1
             : null;
           effectLink.level = {
             min: minLevel,
@@ -508,6 +522,7 @@ export class DDBInfusion {
         }
       }
 
+      this.activity.data.effects ??= [];
       this.activity.data.effects.push(effectLink);
       this.data.effects.push(effect);
     }
@@ -515,41 +530,27 @@ export class DDBInfusion {
   }
 
   _getMagicBonusChanges(modifiers: IDDBInfusionModifier[]) {
-    const filteredModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", "magic");
-    const magicBonus = DDBModifiers.getModifierSum(filteredModifiers, this.rawCharacter);
+    // infusion modifiers share the shape filterModifiersOld/getModifierSum read
+    const mods = modifiers as unknown as IModifiersMod[];
+    const filteredModifiers = DDBModifiers.filterModifiersOld(mods, "bonus", "magic");
+    const magicBonus = DDBModifiers.getModifierSum(filteredModifiers, this._character);
 
-    const acFilteredModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", "armor-class");
-    const acMagicalBonus = DDBModifiers.getModifierSum(acFilteredModifiers, this.rawCharacter);
+    const acFilteredModifiers = DDBModifiers.filterModifiersOld(mods, "bonus", "armor-class");
+    const acMagicalBonus = DDBModifiers.getModifierSum(acFilteredModifiers, this._character);
 
     const changes = [];
     if (magicBonus && magicBonus !== "") {
-      changes.push(
-        {
-          key: "system.magicalBonus",
-          type: "override" as const,
-          value: magicBonus,
-          priority: 20,
-        },
-      );
+      const change = ChangeHelper.addChange(magicBonus, 20, "system.magicalBonus");
+      changes.push(change);
     }
     if (acMagicalBonus && acMagicalBonus !== "") {
-      changes.push(
-        {
-          key: "system.armor.magicalBonus",
-          type: "override" as const,
-          value: acMagicalBonus,
-          priority: 20,
-        },
-      );
+      const change = ChangeHelper.overrideChange(acMagicalBonus, 20, "system.armor.magicalBonus");
+      changes.push(change);
     }
 
     // all items infused become magical
-    changes.push({
-      key: "system.properties",
-      type: "add" as const,
-      value: "mgc",
-      priority: 20,
-    });
+    const change = ChangeHelper.addChange("mgc", 20, "system.properties");
+    changes.push(change);
     return changes;
   }
 
