@@ -219,7 +219,7 @@ export default class DDBMap {
       width: sceneWidth,
       height: sceneHeight,
       grid: { type: 1, size: gridSize, distance: 5, units: "ft" },
-      folder: folderId,
+      folder: folderId ?? undefined,
       flags: {
         "ddbimporter": {
           mapId: this.map.id ?? null,

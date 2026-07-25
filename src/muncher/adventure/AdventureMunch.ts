@@ -79,8 +79,8 @@ export default class AdventureMunch {
   _itemsToRevisit: string[];
   folders: IAdventureMuncherFolder[] | null;
   zipEntries: IZipEntry[];
-  importFile: File;
-  importFilename: string;
+  importFile?: File;
+  importFilename?: string;
   lookups: IAdventureMunchLookups;
   _pack: CompendiumCollection<"Adventure">;
   declare _importPathData: { current: string };
@@ -116,7 +116,9 @@ export default class AdventureMunch {
     use2024monsters?: boolean | null;
   } = {}) {
     this._itemsToRevisit = [];
-    this.adventure = null;
+    // null placeholder kept for runtime parity: the adventure data is only
+    // parsed from adventure.json during importAdventure (or set by ThirdPartyMunch)
+    this.adventure = null as unknown as IDDBAdventure;
     this.folders = null;
     this.raw = {
       scene: [],
@@ -171,7 +173,7 @@ export default class AdventureMunch {
 
     this.monstersToReplace = [];
 
-    this.notifierV2 = notifierV2;
+    this.notifierV2 = notifierV2 ?? undefined;
   }
 
   findCompendiumEntityByImportId(type: "journal" | "table" | "monster", id: string) {
@@ -180,10 +182,16 @@ export default class AdventureMunch {
   }
 
   replaceUUIDSForCompendium(text: string) {
+    const journalPack = this.compendiums.journal;
+    const tablePack = this.compendiums.table;
+    if (!journalPack || !tablePack) {
+      logger.warn("Compendiums not initialised, unable to replace UUIDs for compendium import");
+      return text;
+    }
     const journalRegex = /@UUID\[JournalEntry/g;
-    text = text.replaceAll(journalRegex, `@UUID[Compendium.${this.compendiums.journal.metadata.id}.JournalEntry`);
+    text = text.replaceAll(journalRegex, `@UUID[Compendium.${journalPack.metadata.id}.JournalEntry`);
     const tableRegex = /@UUID\[RollTable/g;
-    text = text.replaceAll(tableRegex, `@UUID[Compendium.${this.compendiums.table.metadata.id}.RollTable`);
+    text = text.replaceAll(tableRegex, `@UUID[Compendium.${tablePack.metadata.id}.RollTable`);
     return text;
   }
 
@@ -251,6 +259,7 @@ export default class AdventureMunch {
         if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing image from ${path}`, paths);
           const img = await this.getZipFile(path);
+          if (!img) throw new Error(`Unable to find image ${path} in the adventure zip file`);
           const targetPath = await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
           CONFIG.DDBI.KNOWN.LOOKUPS.set(paths.pathKey, targetPath);
@@ -310,21 +319,35 @@ export default class AdventureMunch {
       const folderData = f;
       if (folderData.type === "JournalEntry" || folderData.type === "RollTable") {
         const pack = CompendiumHelper.getCompendiumType(folderData.type);
+        if (!pack) {
+          // getCompendiumType throws when it fails to find the compendium, so this is unreachable
+          logger.warn(`Unable to find compendium for folder type ${folderData.type}`);
+          return;
+        }
+        const folderLookups = (this.lookups.folders ??= {});
         let newFolder = pack.folders.find((folder) =>
           (folder._id === folderData._id || (folder.flags as Record<string, unknown>).importid === folderData._id)
           && folder.type === folderData.type,
         );
+        // capture the element type of pack.folders before narrowing
+        type TPackFolder = NonNullable<typeof newFolder>;
 
         if (!newFolder) {
           if (folderData.parent === null) {
-            folderData.parent = this.lookups.folders[folderData.type];
-          } else {
-            folderData.parent = this.lookups.folders[folderData.parent];
+            folderData.parent = folderLookups[folderData.type];
+          } else if (folderData.parent !== undefined) {
+            folderData.parent = folderLookups[folderData.parent];
           }
-          newFolder = await Folder.create(folderData as unknown as Folder.CreateData, { keepId: true, pack: pack.metadata.id }) as unknown as typeof newFolder;
+          const createdFolder = await Folder.create(folderData as unknown as Folder.CreateData, { keepId: true, pack: pack.metadata.id }) as unknown as TPackFolder | undefined;
+          if (!createdFolder) {
+            logger.warn(`Unable to create compendium folder for ${folderData.name}`, folderData);
+            return;
+          }
+          newFolder = createdFolder;
           logger.debug(`Created new compendium folder ${newFolder._id} with data:`, folderData, newFolder);
         }
-        this.lookups.folders[folderData.flags.importid] = newFolder._id;
+        const importId = folderData.flags?.importid;
+        if (importId && newFolder._id) folderLookups[importId] = newFolder._id;
 
         const childFolders = folderList.filter((folder) => {
           return folder.parent === folderData._id;
@@ -344,6 +367,11 @@ export default class AdventureMunch {
   async _createFolders() {
     this.lookups.folders = {};
     this.lookups.compendiumFolders = {};
+
+    if (!this.folders) {
+      logger.warn("No folder data loaded for adventure, skipping folder creation");
+      return;
+    }
 
     // the folder list could be out of order, we need to create all folders with parent null first
     const firstLevelFolders = this.folders.filter((folder) => folder.parent === null);
@@ -573,6 +601,11 @@ export default class AdventureMunch {
         if (Number.isInteger(ddbId)) {
           // fetch ddbItem
           const compendium = CompendiumHelper.getCompendiumType(item.type);
+          if (!compendium) {
+            // getCompendiumType throws when it fails to find the compendium, so this is unreachable
+            logger.warn(`Unable to find compendium for item type ${item.type}`, { item, sceneToken });
+            continue;
+          }
           const itemRef = compendium.index.find((i) => i.name === item.name && (i as { type?: string }).type === item.type);
           if (itemRef) {
             const compendiumItem = await compendium.getDocument(itemRef._id);
@@ -584,7 +617,7 @@ export default class AdventureMunch {
           }
         } else {
           // fetch actor item here
-          const actorItem = worldActor.items.find((i) => i.name === item.name && i.type === item.type);
+          const actorItem = worldActor.items.find((i: Item.Implementation) => i.name === item.name && i.type === item.type);
           if (actorItem) {
             const jsonItem = actorItem.toObject();
             delete jsonItem._id;
@@ -679,7 +712,12 @@ export default class AdventureMunch {
 
     for (const token of tokens) {
       if (token.actorId && !token.actorLink) {
-        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === foundry.utils.getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
+        const sceneToken = scene.flags.ddb?.tokens?.find((t) => t._id === foundry.utils.getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
+        if (!sceneToken) {
+          logger.warn(`Unable to find ddb token data for token ${token._id} on scene ${scene.name}`, { token });
+          deadTokens.push(token._id);
+          continue;
+        }
         delete (sceneToken as any).scale;
         const worldActor = game.actors.get(token.actorId) as Actor.Known;
         if (worldActor) {
@@ -706,7 +744,7 @@ export default class AdventureMunch {
     const updatedData: Scene.UpdateData = {};
     const scene = foundry.utils.duplicate(document) as unknown as I5eSceneData;
     // this is a scene we need to update links to all items
-    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+    logger.info(`Updating ${scene.name}, ${scene.tokens?.length ?? 0} tokens`);
 
     if (!document.thumb) {
       const thumbData = await document.createThumbnail();
@@ -776,6 +814,9 @@ export default class AdventureMunch {
   }
 
   async _unpackZip() {
+    if (!this.importFile) {
+      throw new Error("No adventure import file provided");
+    }
     const zipReader = new (globalThis.window as TZipWindow).zip.ZipReader(new (globalThis.window as TZipWindow).zip.BlobReader(this.importFile));
     this.zipEntries = await zipReader.getEntries();
     for (const key of Object.keys(this.raw)) {
@@ -824,24 +865,26 @@ export default class AdventureMunch {
       const raw = await this._getTextFileFromZip(file.filename);
       const json = JSON.parse(raw);
       const existingScene = await game.scenes.find((item) => item.id === json._id);
-      const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
+      const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene ?? { flags: {} });
       fileData.push(scene);
     });
 
     const items = fileData
       .filter((scene) => scene.flags?.ddb?.versions?.ddbMetaData)
       .map((scene) => ({
-        _id: scene._id,
-        name: scene.name,
-        label: `v${scene.flags.ddb.versions.ddbMetaData.lastUpdate}`,
+        _id: scene._id ?? "",
+        name: scene.name ?? "",
+        label: `v${scene.flags?.ddb?.versions?.ddbMetaData?.lastUpdate}`,
       }));
 
     const response = await AdventureMunchHelpers.chooseScenesDialog(items);
 
     if (response) {
-      const scenes = [];
+      const scenes: IZipEntry[] = [];
       for (const key of response) {
-        scenes.push(this.raw.scene.find((s) => s.filename.includes(key)));
+        const sceneFile = this.raw.scene.find((s) => s.filename.includes(key));
+        if (sceneFile) scenes.push(sceneFile);
+        else logger.warn(`Unable to find scene file for chosen scene ${key}`);
       }
       logger.debug("scenes to import", scenes);
       this.raw.scene = scenes;
@@ -878,6 +921,7 @@ export default class AdventureMunch {
     this.adventure.required.monsterData = this.adventure.required.monsterData.map((md) => {
       if (!monstersToReplace.includes(md.ddbId)) return md;
       const updatedMonster = monsterData.find((data) => data.id2014 === md.ddbId);
+      if (!updatedMonster) return md;
       md.ddbId = updatedMonster.id2024;
       md.name = updatedMonster.name2024;
       return md;
@@ -886,7 +930,7 @@ export default class AdventureMunch {
     this.adventure.required.monsters = this.adventure.required.monsters.map((id) => {
       if (!monstersToReplace.includes(Number(id))) return id;
       const updatedMonster = monsterData.find((data) => data.id2014 === Number(id));
-      return String(updatedMonster.id2024);
+      return updatedMonster ? String(updatedMonster.id2024) : id;
     });
 
   }
@@ -896,7 +940,8 @@ export default class AdventureMunch {
 
       if (this.addToCompendiums) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
-        await createDDBCompendium(compData);
+        if (compData) await createDDBCompendium(compData);
+        else logger.warn("Unable to find Journals compendium settings");
         const indexFields = { fields: ["name", "flags.ddbimporter.id", "system.source.rules"] };
 
         this.compendiums.journal = CompendiumHelper.getCompendiumType("journal") as CompendiumCollection<"JournalEntry">;
@@ -953,7 +998,8 @@ export default class AdventureMunch {
 
       if (this.addToAdventureCompendium) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Adventures");
-        await createDDBCompendium(compData);
+        if (compData) await createDDBCompendium(compData);
+        else logger.warn("Unable to find Adventures compendium settings");
         await this._importAdventureToCompendium();
       }
       await this._promptGridDetectionForImportedScenes();
@@ -1040,15 +1086,16 @@ export default class AdventureMunch {
    */
   async generateTokenActors(scene: I5eSceneData) {
     logger.debug(`Token Actor generation for ${scene.name} starting`);
-    const tokens = await AdventureMunch.linkDDBActors(scene.tokens);
+    const tokens = await AdventureMunch.linkDDBActors(scene.tokens ?? []);
     const neededActors: INeededTokens[] = tokens
       .map((token) => {
+        // linkDDBActors filters to tokens with ddbActorFlags.id and compendiumActorId set
         return {
-          name: token.name,
-          ddbId: token.flags.ddbActorFlags.id,
-          actorId: token.actorId,
-          compendiumId: token.flags.compendiumActorId,
-          folderId: token.flags.actorFolderId,
+          name: token.name ?? "",
+          ddbId: token.flags.ddbActorFlags?.id ?? 0,
+          actorId: token.actorId ?? "",
+          compendiumId: token.flags.compendiumActorId ?? "",
+          folderId: token.flags.actorFolderId ?? "",
         };
       })
       .filter((obj, pos, arr) => {
@@ -1434,6 +1481,9 @@ export default class AdventureMunch {
       let adventure;
       if (existingAdventure) {
         const loadedAdventure = await this._pack.getDocument(existingAdventure._id);
+        if (!loadedAdventure) {
+          throw new Error(`Unable to load adventure ${adventureData.name} from compendium`);
+        }
         adventureData._id = loadedAdventure._id;
         adventure = await loadedAdventure.update(adventureData as any, { diff: false, recursive: false });
         ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
@@ -1448,8 +1498,15 @@ export default class AdventureMunch {
 
   // import a scene file
   async _importRenderedSceneFile(data: I5eSceneData, overwriteEntity: boolean) {
-    if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.addToAdventureCompendium) {
-      await utils.asyncForEach(data.tokens, async (token) => {
+    const sceneId = data._id;
+    if (!sceneId) {
+      logger.warn(`Scene data for ${data.name} is missing an _id, skipping import`, { data });
+      return;
+    }
+    // TODO: these async entries need expanding to add interfaces, there is some data referenced here, e.g. on token.img that
+    // won't import any more. we don't actually set this in out implementation however
+    if (!AdventureMunchHelpers.findEntityByImportId("scenes", sceneId) || overwriteEntity || this.addToAdventureCompendium) {
+      await utils.asyncForEach(data.tokens ?? [], async (token) => {
         foundry.utils.setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
         if (token.img) token.img = await this.importImage(token.img);
         if (token.prototypeToken?.texture?.src) {
@@ -1457,21 +1514,21 @@ export default class AdventureMunch {
         }
       });
 
-      await utils.asyncForEach(data.sounds, async (sound) => {
+      await utils.asyncForEach(data.sounds ?? [], async (sound) => {
         sound.path = await this.importImage(sound.path);
       });
 
-      await utils.asyncForEach(data.notes, async (note) => {
+      await utils.asyncForEach(data.notes ?? [], async (note) => {
         if (note.icon) note.icon = await this.importImage(note.icon, true);
         if (note.texture?.src) note.texture.src = await this.importImage(note.texture.src, true);
       });
 
-      await utils.asyncForEach(data.tiles, async (tile) => {
+      await utils.asyncForEach(data.tiles ?? [], async (tile) => {
         if (tile.img) tile.img = await this.importImage(tile.img);
         if (tile.texture?.src) tile.texture.src = await this.importImage(tile.texture.src);
       });
 
-      for (const wall of data.walls) {
+      for (const wall of data.walls ?? []) {
         if (wall.door !== 0 && !wall.doorSound && wall.doorSound !== "") {
           wall.doorSound = "woodBasic";
         }
@@ -1480,11 +1537,11 @@ export default class AdventureMunch {
       // Preserve existing snip configurations before overwriting
       let preservedSnips: ReturnType<typeof SceneSnipProcessor.getSnips> = [];
       if (overwriteEntity) {
-        const existingScene = AdventureMunchHelpers.findEntityByImportId<Scene>("scenes", data._id);
+        const existingScene = AdventureMunchHelpers.findEntityByImportId<Scene>("scenes", sceneId);
         if (existingScene) {
           preservedSnips = SceneSnipProcessor.getSnips(existingScene as Scene);
         }
-        await Scene.deleteDocuments([data._id]);
+        await Scene.deleteDocuments([sceneId]);
       }
 
       const options = { keepId: true, keepEmbeddedIds: true };
@@ -1510,6 +1567,7 @@ export default class AdventureMunch {
   }
 
 
+  // todo: this data is one of mutliple types that should be co-erced. get a list and do the dance
   async _importRenderedFile(typeName: string, data: any, needRevisit: any, overwriteIds: string[]) {
     const overwriteEntity = overwriteIds.includes(data._id);
     const options = { keepId: true, keepEmbeddedIds: true };
@@ -1549,7 +1607,7 @@ export default class AdventureMunch {
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           this.temporary.journal.push(journal);
         }
-        if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
+        if (this.addToCompendiums && this.compendiums.journal && !this.findCompendiumEntityByImportId("journal", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
           data.pages.forEach((page: any) => {
             if (page.type == "text") {
@@ -1566,7 +1624,7 @@ export default class AdventureMunch {
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           this.temporary.table.push(rolltable);
         }
-        if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
+        if (this.addToCompendiums && this.compendiums.table && !this.findCompendiumEntityByImportId("table", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
           const cTable = await RollTable.create(data, cOptions) as RollTable.Implementation;
           this._compendiumItemsToRevisit.push(cTable);
@@ -1608,7 +1666,7 @@ export default class AdventureMunch {
       switch (importType) {
         case "Scene": {
           const existingScene = await game.scenes.find((item) => item.id === json._id);
-          const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
+          const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene ?? { flags: {} });
           const sceneVersions = scene.flags?.ddb?.versions?.importer;
           if (existingScene) {
             if (
@@ -1634,13 +1692,18 @@ export default class AdventureMunch {
       const checkboxes = fileData
         .filter((scene) => scene.flags?.ddb?.versions)
         .map((scene) => {
-          const versions = scene.flags.ddb.versions;
-          const importer = versions.importer;
-          const oldVersions = scene.flags.ddb.oldVersions;
+          const versions = scene.flags?.ddb?.versions;
+          const importer = versions?.importer;
+          const oldVersions = scene.flags?.ddb?.oldVersions;
           let label;
 
+          if (!versions || !importer) {
+            logger.warn(`Missing version data for scene ${scene.name}`, { scene });
+            return "";
+          }
+
           if (importer.foundryVersionNewer) {
-            label = `<label for="new_${scene._id}">${scene.name} : <i style="color:red">Foundry v${versions.ddbMetaData.foundry} used to generate this scene!</i></label>`;
+            label = `<label for="new_${scene._id}">${scene.name} : <i style="color:red">Foundry v${versions.ddbMetaData?.foundry} used to generate this scene!</i></label>`;
           } else if (importer.metaVersionChanged) {
             const fromVersion = oldVersions?.ddbMetaData?.lastUpdate ? `v${oldVersions.ddbMetaData.lastUpdate}` : "unknown version";
             const icons = [
@@ -1650,7 +1713,7 @@ export default class AdventureMunch {
               importer.lightVersionChanged ? `<i class="fa fa-lightbulb" title="Lights changed"></i>` : "",
               importer.drawingVersionChanged ? `<i class="fa fa-pen" title="Drawings changed"></i>` : "",
             ].filter(Boolean).join(" ");
-            label = `<label for="new_${scene._id}">${scene.name} : <i>from ${fromVersion} to v${versions.ddbMetaData.lastUpdate}</i> ${icons}</label>`;
+            label = `<label for="new_${scene._id}">${scene.name} : <i>from ${fromVersion} to v${versions.ddbMetaData?.lastUpdate}</i> ${icons}</label>`;
           } else {
             const tooltipParts = [
               importer.importerVersionChanged
@@ -1660,7 +1723,7 @@ export default class AdventureMunch {
                 ? `DDB Adventure Muncher ${versions.adventureMuncher} (previous: ${oldVersions?.adventureMuncher ? `v${oldVersions.adventureMuncher}` : "unknown"})`
                 : "",
             ].filter(Boolean).join("\n");
-            label = `<label for="new_${scene._id}">${scene.name} : <i>v${versions.ddbMetaData.lastUpdate}</i> <i class="fa fa-info" title="${tooltipParts}"></i></label>`;
+            label = `<label for="new_${scene._id}">${scene.name} : <i>v${versions.ddbMetaData?.lastUpdate}</i> <i class="fa fa-info" title="${tooltipParts}"></i></label>`;
           }
 
           return `<div><input id="new_${scene._id}" name="new_${scene._id}" type="checkbox" value="">${label}</div>`;
@@ -1687,6 +1750,7 @@ export default class AdventureMunch {
             label: "Confirm",
             icon: "fas fa-check",
             callback: (_event, button, _dialog) => {
+              if (!button.form) return [];
               const formData = new foundry.applications.ux.FormDataExtended(button.form);
               const ids = [];
               for (const key of Object.keys(formData.object)) {
@@ -1754,8 +1818,8 @@ export default class AdventureMunch {
   }
 
   _updateSceneTokensWithNewMonsters(scene: I5eSceneData) {
-    logger.debug(`Updating Scene Tokens (${scene.tokens.length}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
-    scene.tokens = scene.tokens.map((token: any) => {
+    logger.debug(`Updating Scene Tokens (${scene.tokens?.length ?? 0}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
+    scene.tokens = (scene.tokens ?? []).map((token: any) => {
       const ddbId = token.flags?.ddbActorFlags?.id;
       const name = token.flags?.ddbActorFlags?.name;
       const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);

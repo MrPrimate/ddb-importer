@@ -56,11 +56,12 @@ export default class ThirdPartyMunch extends FormApplication {
   async _updateMonsterData() {
     if (!this.adventureMunch.use2024monsters) return;
 
-    const allTokens = this._scenePackage.scenes
-      .filter((scene) => scene.flags?.ddb?.tokens)
-      .flatMap((scene) => scene.flags.ddb.tokens)
+    const allTokens = (this._scenePackage.scenes ?? [])
+      .flatMap((scene) => scene.flags?.ddb?.tokens ?? [])
       .filter((token) => token.flags?.ddbActorFlags?.id);
-    const ids = Array.from(new Set(allTokens.map((t) => t.flags.ddbActorFlags.id)));
+    const ids = Array.from(new Set(allTokens
+      .map((t) => t.flags.ddbActorFlags?.id)
+      .filter((id): id is number => Boolean(id))));
     if (ids.length === 0) return;
 
     const monsterData = await MonsterReplacer.fetchUpdatedMonsterInfo(ids);
@@ -75,18 +76,19 @@ export default class ThirdPartyMunch extends FormApplication {
     this.monstersToReplace = monsterData.filter((m) => monstersToReplace.includes(m.id2014));
     this.adventureMunch.monstersToReplace = this.monstersToReplace;
 
-    for (const scene of this._scenePackage.scenes) {
+    for (const scene of this._scenePackage.scenes ?? []) {
       if (!scene.flags?.ddb?.tokens) continue;
       for (const token of scene.flags.ddb.tokens) {
-        const ddbId = token.flags?.ddbActorFlags?.id;
+        const ddbActorFlags = token.flags?.ddbActorFlags;
+        const ddbId = ddbActorFlags?.id;
         const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
-        if (!match) continue;
-        const originalName = token.flags.ddbActorFlags.name;
-        token.flags.ddbActorFlags.id = match.id2024;
+        if (!match || !ddbActorFlags) continue;
+        const originalName = ddbActorFlags.name;
+        ddbActorFlags.id = match.id2024;
         if (originalName === match.name2014) {
           token.name = match.name2024;
         }
-        token.flags.ddbActorFlags.name = match.name2024;
+        ddbActorFlags.name = match.name2024;
       }
     }
   }
@@ -311,11 +313,11 @@ export default class ThirdPartyMunch extends FormApplication {
     const monsters = scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens
       ? scene.flags.ddb.tokens
         .filter((token) => token.flags?.ddbActorFlags?.id)
-        .map((token) => String(token.flags.ddbActorFlags.id))
+        .map((token) => String(token.flags.ddbActorFlags?.id))
       : [];
     return {
       id: foundry.utils.randomID(),
-      name: DDBSources.getBookName(scene.flags.ddb.bookCode),
+      name: DDBSources.getBookName(scene.flags?.ddb?.bookCode ?? ""),
       description: "",
       system: "dnd5e",
       modules: [] as any[],
@@ -348,8 +350,9 @@ export default class ThirdPartyMunch extends FormApplication {
       return CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key];
     } else {
       const existingActor = game.actors.find((actor) =>
-        foundry.utils.hasProperty(actor, "flags.ddbimporter.id")
-        && actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId,
+        actor.folder?.id == folderId
+        && foundry.utils.hasProperty(actor, "flags.ddbimporter.id")
+        && actor.flags.ddbimporter.id == ddbId,
       );
       const actorId = existingActor ? existingActor.id : foundry.utils.randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
@@ -358,14 +361,19 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   async _linkSceneTokens(scene: I5eSceneData) {
-    logger.info(`Linking ${scene.name}, ${scene.tokens.length} tokens`);
-    const tokens = await Promise.all(scene.tokens.map(async (token: any) => {
+    const sceneTokens = scene.tokens ?? [];
+    logger.info(`Linking ${scene.name}, ${sceneTokens.length} tokens`);
+    const tokens = await Promise.all(sceneTokens.map(async (token: any) => {
       if (token.actorId) {
         const worldActor = game.actors.get(token.actorId) as Actor.Known;
         if (worldActor) {
           // we merge the override data provided by the token to the actor to get
           // world specific things like img paths and scales etc
-          const sceneToken = scene.flags.ddb.tokens.find((t: any) => t._id === token._id);
+          const sceneToken = scene.flags?.ddb?.tokens?.find((t) => t._id === token._id);
+          if (!sceneToken) {
+            logger.warn(`Unable to find matching ddb token ${token._id} for scene ${scene.name}`, { token, scene });
+            return token;
+          }
           delete (sceneToken as any).scale;
 
           const newToken = await this.adventureMunch._getTokenUpdateData(worldActor, sceneToken);
@@ -380,52 +388,58 @@ export default class ThirdPartyMunch extends FormApplication {
   // this needs reworking as the note data on the thord party scenes is not quite like the data on  the ddb adv muncher scenees
   // see the third party config export
   async _linkSceneNotes(scene: I5eSceneData, adventure: IDDBAdventure) {
-    const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
+    const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags?.ddb?.bookCode);
     this.adventureMunch.adventure = foundry.utils.deepClone(adventure);
 
     const noJournalPinNotes = utils.getSetting<boolean>("third-party-scenes-notes-merged");
 
     const notes = await Promise.all([scene]
-      .filter((scene) => scene.flags?.ddb?.notes)
-      .map((scene) => scene.flags.ddb.notes)
+      .map((scene) => scene.flags?.ddb?.notes ?? [])
       .flat()
       .map(async (note) => {
+        const noteFlags = note.flags;
+        const noteDdbFlags = noteFlags?.ddb;
+        if (!noteFlags || !noteDdbFlags) {
+          logger.warn(`Note on scene ${scene.name} is missing ddb flags, unable to link`, { note, scene });
+          return note;
+        }
         const noteJournal = noJournalPinNotes
-          ? journalNotes.find((journal) => journal.flags.ddb.cobaltId == note.flags.ddb.parentId)
+          ? journalNotes.find((journal) => journal.flags.ddb?.cobaltId == noteDdbFlags.parentId)
           : journalNotes.find((journal) => {
-            const contentChunkIdMatch = note.flags.ddb.contentChunkId
-              ? journal.flags.ddb && note.flags.ddb
-                && journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
+            const journalDdbFlags = journal.flags.ddb;
+            const contentChunkIdMatch = noteDdbFlags.contentChunkId
+              ? journalDdbFlags
+                && journalDdbFlags.contentChunkId == noteDdbFlags.contentChunkId
               : false;
 
-            const noContentChunk = !note.flags.ddb.contentChunkId
-              && note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId
-              && note.flags.ddb.slug && note.flags.ddb.linkName;
-            const originMatch = noContentChunk
-              ? journal.flags.ddb.slug == note.flags.ddb.slug
-                && journal.flags.ddb.ddbId == note.flags.ddbId
-                && journal.flags.ddb.parentId == note.flags.ddb.parentId
-                && journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId
-                && journal.flags.ddb.originalLink == note.flags.ddb.originalLink
-                && journal.flags.ddb.linkName == note.flags.ddb.linkName
+            const noContentChunk = !noteDdbFlags.contentChunkId
+              && noteDdbFlags.originalLink && noteDdbFlags.ddbId && noteDdbFlags.parentId
+              && noteDdbFlags.slug && noteDdbFlags.linkName;
+            const originMatch = noContentChunk && journalDdbFlags
+              ? journalDdbFlags.slug == noteDdbFlags.slug
+                && journalDdbFlags.ddbId == noteFlags.ddbId
+                && journalDdbFlags.parentId == noteDdbFlags.parentId
+                && journalDdbFlags.cobaltId == noteDdbFlags.cobaltId
+                && journalDdbFlags.originalLink == noteDdbFlags.originalLink
+                && journalDdbFlags.linkName == noteDdbFlags.linkName
               : false;
             const journalNameMatch = !contentChunkIdMatch && !originMatch
               ? (journal.name as string).trim() == ((note as any).label ?? note.text).trim() // ||
               //  journal.pages.some((page) => page.name.trim() === note.label.trim())
               : false;
-            return contentChunkIdMatch || originMatch || journalNameMatch;
+            return Boolean(contentChunkIdMatch || originMatch || journalNameMatch);
 
           });
 
         if (noteJournal) {
           logger.info(`Found note "${(note as any).label ?? note.text}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
-          note.flags.ddb.journalId = noteJournal.id;
+          noteDdbFlags.journalId = noteJournal.id;
           (note as any).icon = await Iconizer.generateIcon(this.adventureMunch.adventure.name, (note as any).label ?? note.text);
           if (noJournalPinNotes) {
-            note.flags.ddb.labelName = `${(note as any).label ?? note.text}`;
-            note.flags.ddb.slugLink = (note as any).label ?? note.text.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
-            note.flags.anchor = {
-              slug: note.flags.ddb.slugLink,
+            noteDdbFlags.labelName = `${(note as any).label ?? note.text}`;
+            noteDdbFlags.slugLink = (note as any).label ?? (note.text ?? "").replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
+            noteFlags.anchor = {
+              slug: noteDdbFlags.slugLink,
             };
             note.text = (note as any).label ?? note.text;
 
@@ -433,23 +447,30 @@ export default class ThirdPartyMunch extends FormApplication {
               this._pageFinders[noteJournal._id] = new PageFinder(noteJournal);
             }
             const contentChunkIdPageId = foundry.utils.hasProperty(note, "flags.ddb.contentChunkId")
-              ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(note.flags.ddb.contentChunkId as string)
+              ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(noteDdbFlags.contentChunkId as string)
               : undefined;
             const slugLinkPageId = foundry.utils.hasProperty(note, "flags.ddb.slugLink")
-              ? this._pageFinders[noteJournal._id].getPageIdForElementId(note.flags.ddb.slugLink as string)
+              ? this._pageFinders[noteJournal._id].getPageIdForElementId(noteDdbFlags.slugLink as string)
               : undefined;
 
             // console.warn("MATCHES", { slugLinkPageId, contentChunkIdPageId, noteFlags: note.flags.ddb });
             // console.warn("PageIds", noteJournal.pages.map((p) => {return {id: p._id, flags: p.flags.ddb}}));
-            const journalPage = noteJournal.pages.find((page) =>
-              foundry.utils.hasProperty(page, "flags.ddb")
-              && page.flags.ddb.parentId == note.flags.ddb.parentId
-              && (page.flags.ddb.slug == note.flags.ddb.slug
-              || page.flags.ddb.slug.replace(/^([a-zA-Z]?)0+/, "$1") == note.flags.ddb.slug
-              || page.flags.ddb.slug.startsWith(note.flags.ddb.slug)
-              || note.flags.ddb.slug.startsWith(page.flags.ddb.slug))
-              && (page._id === contentChunkIdPageId || page._id === slugLinkPageId),
-            );
+            const journalPage = noteJournal.pages.find((pageDoc: unknown) => {
+              // pages is typed differently between the base and strict configs; the ddb flag
+              // shape is importer data, so view the page structurally for the match checks
+              const page = pageDoc as { _id?: string | null; flags?: I5eNoteFlags };
+              const pageDdbFlags = page.flags?.ddb;
+              if (!pageDdbFlags) return false;
+              const pageSlug = pageDdbFlags.slug;
+              const noteSlug = noteDdbFlags.slug;
+              const slugMatch = pageSlug == noteSlug
+                || (pageSlug != null && pageSlug.replace(/^([a-zA-Z]?)0+/, "$1") == noteSlug)
+                || (pageSlug != null && noteSlug != null && pageSlug.startsWith(noteSlug))
+                || (pageSlug != null && noteSlug != null && noteSlug.startsWith(pageSlug));
+              return pageDdbFlags.parentId == noteDdbFlags.parentId
+                && slugMatch
+                && (page._id === contentChunkIdPageId || page._id === slugLinkPageId);
+            });
 
             if (journalPage) {
               note.pageId = journalPage._id;
@@ -461,18 +482,19 @@ export default class ThirdPartyMunch extends FormApplication {
 
     const positionedNotes: any[] = [];
     notes.forEach((note) => {
-      if (note.flags?.ddb?.journalId) {
+      const noteDdbFlags = note.flags?.ddb;
+      if (noteDdbFlags?.journalId) {
         (note as any).positions.forEach((position: any) => {
           logger.info(`Matching ${(note as any).label ?? note.text} to position ${position.x}/${position.y}`);
           const noteId = foundry.utils.randomID();
           const n = {
             "_id": noteId,
             "flags": {
-              "ddb": note.flags.ddb,
+              "ddb": noteDdbFlags,
               "importid": noteId,
-              "anchor": note.flags.anchor ?? {},
+              "anchor": note.flags?.anchor ?? {},
             },
-            "entryId": note.flags.ddb.journalId,
+            "entryId": noteDdbFlags.journalId,
             "x": position.x,
             "y": position.y,
             "texture": {
@@ -495,7 +517,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   async _getAdjustedScenes() {
-    const adjustedScenes = this._scenePackage.scenes
+    const adjustedScenes = (this._scenePackage.scenes ?? [])
       .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
 
     await utils.asyncForEach(adjustedScenes, async(scene: I5eSceneData) => {
@@ -503,7 +525,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
       if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
         await this._checkForMissingData(mockAdventure, []);
-        const bookName = DDBSources.getBookName(scene.flags.ddb.bookCode);
+        const bookName = DDBSources.getBookName(scene.flags.ddb.bookCode ?? "");
         const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
         scene.tokens = scene.flags.ddb.tokens.map((token: any) => {
           token.flags.actorFolderId = actorFolder.id;
@@ -524,15 +546,19 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   async _getScene(scene: I5eSceneData): Promise<Scene> {
-    const compendiumId = scene.flags.ddbimporter.export.compendium;
-    const compendium = game.packs.get(compendiumId);
+    const compendiumId = scene.flags?.ddbimporter?.export?.compendium;
+    const compendium = compendiumId ? game.packs.get(compendiumId) : undefined;
+    if (!compendium) {
+      logger.warn(`Unable to find compendium for scene ${scene.name}`, { scene, compendiumId });
+      throw new Error(`Unable to find compendium for scene ${scene.name}`);
+    }
     const folderName = this._scenePackage.folder ? this._scenePackage.folder : compendium.metadata.label;
     const folder = await ThirdPartyMunch._findFolder(folderName, "Scene");
     const compendiumScene = compendium.index.find((s) => s.name === scene.name);
 
     const existingScene = game.scenes.find((s) =>
       s.name === scene.name
-      && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id)),
+      && (s.folder?.id === folder.id || (s.folder?.ancestors?.some((f) => f.id === folder.id) ?? false)),
     );
 
     logger.debug("Third Party Scene Processing", {
@@ -550,7 +576,11 @@ export default class ThirdPartyMunch extends FormApplication {
       await existingScene.update(scene as any);
       return existingScene;
     } else {
-      scene.folder = folder.id;
+      if (!compendiumScene) {
+        logger.warn(`Unable to find compendium scene matching ${scene.name}`, { scene, compendium });
+        throw new Error(`Unable to find compendium scene matching ${scene.name}`);
+      }
+      scene.folder = folder.id ?? undefined;
       const worldScene = await game.scenes.importFromCompendium(compendium as unknown as CompendiumCollection<"Scene">, compendiumScene._id, scene as any, { keepId: true });
       logger.info(`Scene: ${scene.name} folder:`, folder);
       logger.debug("worldScene:", worldScene);
@@ -564,8 +594,9 @@ export default class ThirdPartyMunch extends FormApplication {
       .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
       // does the scene match a compendium scene
       .filter(async (scene) => {
-        const compendium = game.packs.get(scene.flags.ddbimporter.export.compendium);
-        const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+        const compendiumId = scene.flags?.ddbimporter?.export?.compendium;
+        const compendium = compendiumId ? game.packs.get(compendiumId) : undefined;
+        const compendiumScene = compendium?.index.find((s) => s.name === scene.name);
         if (compendiumScene) return true;
         else return false;
       });
@@ -580,13 +611,13 @@ export default class ThirdPartyMunch extends FormApplication {
       const worldScene = await this._getScene(scene);
 
       logger.debug("World scene to add tokens to", worldScene);
-      const existingTokens = tokenUpdates.filter((t) => worldScene.tokens.some((wT) => t._id === wT._id));
+      const existingTokens = tokenUpdates.filter((t) => worldScene.tokens.some((wT: { _id: string | null }) => t._id === wT._id));
       logger.debug("existingTokens", existingTokens);
       await worldScene.updateEmbeddedDocuments("Token", existingTokens as any, {
         keepId: true,
         keepEmbeddedIds: true,
       } as unknown as TokenDocument.Database.UpdateManyDocumentsOperation);
-      const newTokens = tokenUpdates.filter((t) => !worldScene.tokens.some((wT) => t._id === wT._id));
+      const newTokens = tokenUpdates.filter((t) => !worldScene.tokens.some((wT: { _id: string | null }) => t._id === wT._id));
       logger.debug("newTokens", newTokens);
       await worldScene.createEmbeddedDocuments("Token", newTokens as any, { keepId: true, keepEmbeddedIds: true });
 
@@ -624,12 +655,11 @@ export default class ThirdPartyMunch extends FormApplication {
 
       this.folderNames = this._scenePackage.folder
         ? [this._scenePackage.folder]
-        : [...new Set(this._scenePackage.scenes
-          .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
-          .map((scene) => {
-            const compendiumId = scene.flags.ddbimporter.export.compendium;
-            const compendium = game.packs.get(compendiumId);
-            return compendium.metadata.label;
+        : [...new Set((this._scenePackage.scenes ?? [])
+          .flatMap((scene): string[] => {
+            const compendiumId = scene.flags?.ddbimporter?.export?.compendium;
+            const compendium = compendiumId ? game.packs.get(compendiumId) : undefined;
+            return compendium ? [compendium.metadata.label] : [];
           }))];
 
       // We need to check for potential Scene Folders and Create if missing
@@ -640,10 +670,11 @@ export default class ThirdPartyMunch extends FormApplication {
 
       await Promise.all(compendiumLabels);
 
-      const adventureLabels = [...new Set(this._scenePackage.scenes
-        .filter((scene) => scene.flags?.ddb?.bookCode)
-        .map((scene) => {
-          return DDBSources.getBookName(scene.flags.ddb.bookCode);
+      const adventureLabels = [...new Set((this._scenePackage.scenes ?? [])
+        .map((scene) => scene.flags?.ddb?.bookCode)
+        .filter((bookCode): bookCode is string => Boolean(bookCode))
+        .map((bookCode) => {
+          return DDBSources.getBookName(bookCode);
         }))]
         .map((label) => {
           return ThirdPartyMunch._findFolder(label, "Actor");

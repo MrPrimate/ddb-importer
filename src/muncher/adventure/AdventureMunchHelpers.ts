@@ -75,7 +75,7 @@ export default class AdventureMunchHelpers {
     return matches;
   }
 
-  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 = null) {
+  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 | null = null) {
     return new Promise((resolve) => {
       if (docIds && docIds.length > 0) {
         switch (type) {
@@ -97,7 +97,7 @@ export default class AdventureMunchHelpers {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);
                 notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
                 const monsterFactory = new DDBMonsterFactory({
-                  notifierV2,
+                  notifierV2: notifierV2 ?? undefined,
                 });
                 resolve(monsterFactory.processIntoCompendium(docIds));
               } else {
@@ -130,6 +130,8 @@ export default class AdventureMunchHelpers {
 
   static async getCompendiumIndex(type: TCompendiumTypes) {
     const compendium = CompendiumHelper.getCompendiumType(type);
+    // getCompendiumType with fail=true (default) throws when missing, so this is unreachable
+    if (!compendium) throw new Error(`Unable to find compendium for type ${type}`);
     const fields = (type === "monster")
       ? ["flags.ddbimporter.id"]
       : ["flags.ddbimporter.definitionId"];
@@ -150,7 +152,7 @@ export default class AdventureMunchHelpers {
     ).map((i) => parseInt(String(i)));
   }
 
-  static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2: INotifierV2 = null) {
+  static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2: INotifierV2 | null = null) {
     const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
     logger.debug(`${type} missing ids`, missingIds);
     const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
@@ -226,7 +228,7 @@ export default class AdventureMunchHelpers {
 
   // check the document for version data and for update info to see if we can replace it
   static extractDocumentVersionData(newDoc: I5eSceneData, existingDoc: { flags: I5eSceneDataFlags }) {
-    const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID).version;
+    const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID)?.version ?? "0.0.0";
     if (!existingDoc) existingDoc = { flags : {}};
     // do we have versioned metadata?
     foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", {});
@@ -258,7 +260,7 @@ export default class AdventureMunchHelpers {
       const documentVersions = newDoc.flags.ddb.versions;
       const documentFoundryVersion = foundry.utils.getProperty(oldDDBMetaDataVersions, "foundry") as string ?? "0.8.9";
       const importerVersionChanged = foundry.utils.isNewerVersion(ddbIVersion, documentFoundryVersion);
-      const metaVersionChanged = foundry.utils.isNewerVersion(oldDDBMetaDataVersions.lastUpdate, oldDDBMetaDataVersions.lastUpdate);
+      const metaVersionChanged = foundry.utils.isNewerVersion(oldDDBMetaDataVersions.lastUpdate ?? "0.0.1", oldDDBMetaDataVersions.lastUpdate ?? "0.0.1");
 
       const adventureMuncherVersion = foundry.utils.getProperty(documentVersions, "adventureMuncher") as string;
       const muncherVersionChanged = foundry.utils.isNewerVersion(adventureMuncherVersion, oldAdventureMuncherVersion);
@@ -269,11 +271,11 @@ export default class AdventureMunchHelpers {
         metaVersionChanged: metaVersionChanged,
         muncherVersionChanged: muncherVersionChanged,
         foundryVersionNewer: foundryVersionNewer,
-        drawingVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]),
-        noteVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]),
-        tokenVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]),
-        wallVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]),
-        lightVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]),
+        drawingVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]?.["drawings"] ?? "0.0.1", oldVersions["ddbMetaData"]["drawings"] ?? "0.0.1"),
+        noteVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]?.["notes"] ?? "0.0.1", oldVersions["ddbMetaData"]["notes"] ?? "0.0.1"),
+        tokenVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]?.["tokens"] ?? "0.0.1", oldVersions["ddbMetaData"]["tokens"] ?? "0.0.1"),
+        wallVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]?.["walls"] ?? "0.0.1", oldVersions["ddbMetaData"]["walls"] ?? "0.0.1"),
+        lightVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]?.["lights"] ?? "0.0.1", oldVersions["ddbMetaData"]["lights"] ?? "0.0.1"),
       };
       foundry.utils.setProperty(newDoc, "flags.ddb.versions.ddbImporter", ddbIVersion);
       foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", versionUpdates);
@@ -370,8 +372,8 @@ export default class AdventureMunchHelpers {
    * @returns {Promise<Array>} the imported/existing world actors
    */
   static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null }: {
-    folderId?: string;
-    overridesById?: IAdventureMuncherOverridesById;
+    folderId?: string | null;
+    overridesById?: IAdventureMuncherOverridesById | null;
   } = {}): Promise<Actor.Implementation[]> {
     const compendium = CompendiumHelper.getCompendiumType("monster", false);
     if (!compendium) {
@@ -444,6 +446,7 @@ export default class AdventureMunchHelpers {
           label: "Selected",
           icon: "fas fa-list-check",
           callback: (_event, button, _dialog) => {
+            if (!button.form) return [];
             const formData = new foundry.applications.ux.FormDataExtended(button.form);
             return Object.keys(formData.object);
           },

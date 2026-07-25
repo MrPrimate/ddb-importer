@@ -46,8 +46,8 @@ interface DDBMonster {
   getSizeFromId(sizeId: number): IDDBActorSizeData;
   _generateSize(): void;
   // skills.ts
-  _generateSkills(): I5eSkills;
-  _generateSkillsHTML(): I5eSkills;
+  _generateSkills(): I5eSkills | undefined;
+  _generateSkillsHTML(): I5eSkills | undefined;
   // source.ts
   _generateSource(): void;
   // spellcasting.ts
@@ -76,8 +76,8 @@ interface DDBMonster {
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 class DDBMonster {
   name: string;
-  npc: I5eMonsterData;
-  proficiencyBonus: number;
+  npc: TParsedMonsterData;
+  proficiencyBonus: number | null;
   source: IDDBMonsterSourceData;
   useItemAC: boolean;
   legacyName: boolean;
@@ -94,7 +94,7 @@ class DDBMonster {
     xp: number;
   };
   typeName: string;
-  img: string;
+  img: string | null;
   stockImage: boolean;
   featureFactory: DDBMonsterFeatureFactory;
   is2014: boolean;
@@ -346,7 +346,7 @@ class DDBMonster {
 
     this._generateSource();
     this._generateEnvironments();
-    this.npc.system.details.biography.value = this.source.characteristicsDescription;
+    this.npc.system.details.biography.value = this.source.characteristicsDescription ?? "";
     this._generateSpellcasting();
 
     await this._generateFeatures();
@@ -375,9 +375,11 @@ class DDBMonster {
       this.npc.prototypeToken.name += " (Legacy)";
     }
 
-    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc) as I5eMonsterData;
-    this.npc = await monsterFeatureEffectAdjustment(this, this.addMonsterEffects);
-    this.npc = specialCases(this.npc);
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc) as TParsedMonsterData;
+    // monsterFeatureEffectAdjustment mutates and returns this.npc
+    this.npc = await monsterFeatureEffectAdjustment(this, this.addMonsterEffects) as TParsedMonsterData;
+    // specialCases mutates and returns the same npc document
+    this.npc = specialCases(this.npc) as TParsedMonsterData;
 
     if (this.addChrisPremades) {
       for (const item of this.npc.items) {

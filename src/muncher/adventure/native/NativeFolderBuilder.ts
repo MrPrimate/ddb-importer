@@ -20,14 +20,15 @@ export function makeFolderData(args: {
   folder?: string | null;
   sort?: number;
   specialType?: string;
-}): I5eFolderData {
+}): I5eFolderData & { _id: string } {
   const { _id, name, type, cobaltId, bookCode, folder = null, sort = SCENE_FOLDER_SORT, specialType } = args;
   const ddb: INativeFolderDdbFlags = { cobaltId, bookCode };
-  const doc: I5eFolderData = { _id, name, type, folder, sort, sorting: "m", color: "", flags: { ddb } };
+  const flags: INativeFolderFlags = { ddb };
+  const doc: I5eFolderData & { _id: string } = { _id, name, type, folder, sort, sorting: "m", color: "", flags };
   if (specialType) {
     ddb.ddbId = cobaltId;
     ddb.specialType = specialType;
-    doc.flags.importid = _id;
+    flags.importid = _id;
   }
   return doc;
 }
@@ -44,7 +45,7 @@ export function buildMasterJournalFolder(
   idFactory: NativeIdFactory,
   bookCode: string,
   bookName: string,
-): I5eFolderData {
+): I5eFolderData & { _id: string } {
   const _id = idFactory.getId(NativeIdFactory.makeKey({
     docType: "Folder",
     ddbId: -1,
@@ -60,7 +61,7 @@ export function buildMasterSceneFolder(
   idFactory: NativeIdFactory,
   bookCode: string,
   bookName: string,
-): I5eFolderData {
+): I5eFolderData & { _id: string } {
   const _id = idFactory.getId(NativeIdFactory.makeKey({
     docType: "Folder",
     ddbId: -2,
@@ -78,7 +79,7 @@ export function buildSceneChapterFolder(
   bookCode: string,
   chapterKey: number,
   chapterName: string,
-): I5eFolderData {
+): I5eFolderData & { _id: string } {
   const _id = idFactory.getId(NativeIdFactory.makeKey({
     docType: "Folder",
     cobaltId: -2,

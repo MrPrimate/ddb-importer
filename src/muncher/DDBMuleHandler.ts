@@ -184,7 +184,7 @@ export default class DDBMuleHandler {
       throw new Error("type is required");
     }
     this.characterId = characterId;
-    this.classId = classId;
+    this.classId = classId ?? null;
     this.allowedSourceIds = sources;
     this.allowedHomebrew = homebrew;
     this.onlyHomebrew = onlyHomebrew ?? this.allowedHomebrew;
@@ -249,13 +249,15 @@ export default class DDBMuleHandler {
     return actor;
   }
 
-  _createMockActor(name: string): Actor.Implementation {
+  _createMockActor(name: string): TImporterActor {
     const options = {
       temporary: true,
       displaySheet: false,
     };
     const mockData = this._getNewActorData({ name, addFolder: false, addFlags: false });
-    const mockCharacter: Actor.Implementation = new Actor.implementation(mockData as unknown as ConstructorParameters<typeof Actor.implementation>[0], options as unknown as ConstructorParameters<typeof Actor.implementation>[1]) as Actor.Implementation;
+    // fvtt-types Actor.Implementation union does not structurally satisfy the
+    // importer flag view, but it is the same runtime document
+    const mockCharacter = new Actor.implementation(mockData as unknown as ConstructorParameters<typeof Actor.implementation>[0], options as unknown as ConstructorParameters<typeof Actor.implementation>[1]) as unknown as TImporterActor;
     return mockCharacter;
   }
 
@@ -264,7 +266,12 @@ export default class DDBMuleHandler {
     try {
       const actor: Actor.Implementation = await this._createNewActor();
       const actorData = actor.toObject() as unknown as I5ePCData;
-      ddbCharacter.currentActor = actor;
+      if (!actorData._id) {
+        throw new Error("Newly created mule actor has no _id");
+      }
+      // fvtt-types Actor.Implementation union does not structurally satisfy the
+      // importer flag view, but it is the same runtime document
+      ddbCharacter.currentActor = actor as unknown as TImporterActor;
       const importer = new DDBCharacterImporter({
         actorId: actorData._id,
         ddbCharacter,
@@ -808,7 +815,7 @@ export default class DDBMuleHandler {
   }
 
   _getStreamMockActor(key: string | number, name: string) {
-    let actor: Actor.Implementation = this._streamMockActors.get(key);
+    let actor: TImporterActor = this._streamMockActors.get(key);
     if (!actor) {
       actor = this._createMockActor(name);
       this._streamMockActors.set(key, actor);
@@ -824,7 +831,7 @@ export default class DDBMuleHandler {
   }: {
     name: string;
     ddbStub: IDDBData;
-    mockCharacter: Actor.Implementation;
+    mockCharacter: TImporterActor;
     subClassChoiceData: IDDBMuleSubClassChoicesDataEntry;
   }) {
     const newStub = foundry.utils.deepClone(ddbStub);
@@ -879,7 +886,7 @@ export default class DDBMuleHandler {
     ddbStub,
     featData,
   }: {
-    mockCharacter: Actor.Implementation;
+    mockCharacter: TImporterActor;
     ddbStub: IDDBData;
     featData: any;
   }) {
@@ -919,7 +926,7 @@ export default class DDBMuleHandler {
     ddbStub,
     backgroundData,
   }: {
-    mockCharacter: Actor.Implementation;
+    mockCharacter: TImporterActor;
     ddbStub: IDDBData;
     backgroundData: any;
   }) {
@@ -965,7 +972,7 @@ export default class DDBMuleHandler {
     ddbStub,
     speciesData,
   }: {
-    mockCharacter: Actor.Implementation;
+    mockCharacter: TImporterActor;
     ddbStub: IDDBData;
     speciesData: any;
   }) {

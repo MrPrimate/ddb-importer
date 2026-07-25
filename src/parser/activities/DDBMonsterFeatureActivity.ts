@@ -3,7 +3,7 @@ import type DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 import DDBBasicActivity from "./DDBBasicActivity";
 
 interface IDDBMonsterFeatureActivity {
-  type?: IDDBActivityType;
+  type: IDDBActivityType;
   name?: string | null;
   ddbParent?: DDBMonsterFeature;
   nameIdPrefix?: string | null;
@@ -35,7 +35,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   actionData: IDDBMonsterActionData;
 
   _init() {
-    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
+    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor?.name}`);
   }
 
   constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null, foundryFeature = null, actor = null }: IDDBMonsterFeatureActivity) {
@@ -43,21 +43,25 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       type,
       name,
       ddbParent,
-      foundryFeature: foundryFeature ?? ddbParent.data,
+      foundryFeature: foundryFeature ?? ddbParent?.data,
       nameIdPrefix,
       nameIdPostfix,
-      actor: actor ?? ddbParent.ddbMonster.npc,
+      actor: actor ?? ddbParent?.ddbMonster.npc ?? null,
       id,
     });
 
-    this.actionData = ddbParent.actionData;
+    if (!ddbParent) {
+      logger.warn(`DDBMonsterFeatureActivity ${this.name}: constructed without a ddbParent, actionData unavailable`);
+    }
+    // ddbParent is always supplied outside of the static createActivity path
+    this.actionData = ddbParent?.actionData as IDDBMonsterActionData;
   }
 
   _generateActivation() {
     this.data.activation = this.actionData.activation;
   }
 
-  _generateConsumption({ consumptionOverride = null } = {}) {
+  _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -130,26 +134,33 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     return baseParts;
   }
 
-  _generateDamage({ parts = [], includeBase = true, allowCritical = null, onSave = "half" } = {}) {
+  _generateDamage({ parts = [], includeBase = true, allowCritical = null, onSave = "half" }: {
+    parts?: I5eDamagePart[] | null;
+    includeBase?: boolean | null;
+    allowCritical?: boolean | null;
+    onSave?: string | null;
+  } = {}) {
     const companion = foundry.utils.getProperty(this.ddbParent.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
-    let damageParts = parts.length > 0
-      ? parts
+    let damageParts = (parts ?? []).length > 0
+      ? (parts ?? [])
       : this._getFeaturePartsDamage().map((data) => data.part);
 
     if (companion) {
       damageParts = damageParts.map((data) => {
-        data.bonus = data.bonus.replace("@prof", "").replace(/\s*[-+]\s*$/, "");
+        if (data.bonus) data.bonus = data.bonus.replace("@prof", "").replace(/\s*[-+]\s*$/, "");
         return data;
       });
     }
 
+    // the parser intentionally emits null onSave/includeBase values, which the dnd5e
+    // schema cleans, but I5eActivityDamage only allows string/boolean | undefined
     this.buildData.damage = {
       critical: {
         allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
       },
-      onSave,
-      includeBase,
+      onSave: onSave ?? undefined,
+      includeBase: includeBase ?? undefined,
       parts: damageParts,
     };
 
@@ -173,7 +184,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.buildData.healing = healing;
   }
 
-  _generateSave({ saveOverride = null } = {}) {
+  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (saveOverride) {
       this.buildData.save = saveOverride;
       return;
@@ -192,7 +203,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       : "melee";
 
     const attack: I5eActivityAttack = {
-      ability: this.actionData.baseAbility,
+      ability: this.actionData.baseAbility ?? "",
       bonus: this.actionData.extraAttackBonus && `${this.actionData.extraAttackBonus}`.trim() !== "0" ? `${this.actionData.extraAttackBonus}` : "",
       critical: {
         threshold: undefined,
@@ -208,7 +219,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateCheck({ checkOverride = null }) {
+  _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null }) {
     this.buildData.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
       ability: this.actionData.ability,
@@ -373,7 +384,8 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     activity.build(options);
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
 
-    return activity.data._id;
+    // _generateDataStub always assigns data._id in the constructor
+    return activity.data._id ?? "";
 
   }
 

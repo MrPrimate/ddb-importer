@@ -154,6 +154,35 @@ interface IDDBVehicle {
   addMonsterEffects?: boolean;
   addChrisPremades?: boolean;
 }
+
+/**
+ * The vehicle data stub is generated from a full Actor document in
+ * _generateDataStub, so these template fields are always present.
+ */
+type TParsedVehicleData = I5eVehicleData & {
+  system: I5eVehicleSystemData & {
+    abilities: I5eAbilities;
+    attributes: I5eVehicleAttributes & {
+      ac: I5eArmorClass;
+      actions: I5eVehicleActions;
+      hp: I5eVehicleHitPoints;
+      movement: I5eMovement;
+      travel: I5eVehicleTravel & {
+        paces: Record<string, string>;
+        speeds: Record<string, string>;
+      };
+    };
+    crew: I5eVehicleCrewList;
+    details: I5eVehicleDetails & { biography: I5eBiography };
+    passengers: I5eVehicleCrewList;
+    traits: I5eVehicleTraits & {
+      beam: I5eVehicleMeasurement;
+      keel: I5eVehicleMeasurement;
+    };
+  };
+  flags: NonNullable<I5eVehicleData["flags"]>;
+  prototypeToken: I5ePrototypeToken & { texture: I5eTokenTexture };
+};
 export default class DDBVehicle {
 
   static ACTION_THRESHOLDS: { id: string; thresholds: I5eVehicleActionThresholds }[] = ACTION_THRESHOLDS;
@@ -166,15 +195,18 @@ export default class DDBVehicle {
   legacyName: boolean;
   addMonsterEffects: boolean;
   addChrisPremades: boolean;
-  primaryComponent: IDDBVehicleComponent;
+  primaryComponent: IDDBVehicleComponent | undefined;
   mods: Record<string, number>;
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;
-  data: I5eVehicleData;
+  data: TParsedVehicleData;
 
 
-  constructor({ ddbVehicle = null, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle = {}) {
+  constructor({ ddbVehicle, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle = {}) {
+    if (!ddbVehicle) {
+      throw new Error("DDBVehicle constructed without vehicle source data (ddbVehicle)");
+    }
     this.source = ddbVehicle;
 
     this.configurations = {};
@@ -236,7 +268,7 @@ export default class DDBVehicle {
   }
 
 
-  _generateDataStub(ddbId: number = null) {
+  _generateDataStub(ddbId: number | null = null) {
     const options = {
       temporary: true,
       displaySheet: false,
@@ -258,7 +290,7 @@ export default class DDBVehicle {
   };
 
   _imageFlags() {
-    let img = this.source.largeAvatarUrl;
+    let img: string | null = this.source.largeAvatarUrl;
     // foundry doesn't support gifs
     if (img && img.match(/.gif$/)) {
       img = null;
@@ -315,9 +347,10 @@ export default class DDBVehicle {
 
     DICTIONARY.actor.abilities.forEach((ability) => {
       const value = this.source.stats.find((stat) => stat.id === ability.id)?.value || 10;
+      // The statModifiers config table encodes floor((value - 10) / 2); fall back to the formula on a lookup miss.
       const mod = value === 0
         ? -5
-        : CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
+        : (CONFIG.DDB.statModifiers.find((s) => s.value == value)?.modifier ?? Math.floor((value - 10) / 2));
 
       abilities[ability.value] = mod;
     });
@@ -379,10 +412,14 @@ export default class DDBVehicle {
 
     this.source.conditionImmunities.forEach((adj) => {
       const adjustment = config.find((cadj) => adj === cadj.id);
+      if (!adjustment) {
+        logger.warn(`Unknown condition immunity id ${adj}`, { conditionImmunities: this.source.conditionImmunities });
+        return;
+      }
       const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adjustment.name.toLowerCase());
-      if (adjustment && valueAdjustment) {
+      if (valueAdjustment) {
         values.push(valueAdjustment.foundry);
-      } else if (adjustment) {
+      } else {
         custom.push(adjustment.name);
       }
     });
@@ -408,9 +445,10 @@ export default class DDBVehicle {
 
     if (this.source.creatureCapacity && this.source.creatureCapacity.length > 0) {
       const capacityStrings = this.source.creatureCapacity.map((c) => {
-        const size = c.sizeId
-          ? `${CONFIG.DDB.creatureSizes.find((s) => s.id == c.sizeId).name.toLowerCase()} `
-          : "";
+        const sizeName = c.sizeId
+          ? CONFIG.DDB.creatureSizes.find((s) => s.id == c.sizeId)?.name
+          : undefined;
+        const size = sizeName ? `${sizeName.toLowerCase()} ` : "";
 
         return `${c.capacity} ${size}${c.type}`;
       });
@@ -443,12 +481,14 @@ export default class DDBVehicle {
   #generateMovement() {
 
     const movement: I5eMovement = foundry.utils.duplicate(this.data.system.attributes.movement);
-    const travel: I5eVehicleTravel = foundry.utils.duplicate(this.data.system.attributes.travel);
+    // duplicate() maps the fields to optional; the stub always carries paces/speeds
+    const travel = foundry.utils.duplicate(this.data.system.attributes.travel) as TParsedVehicleData["system"]["attributes"]["travel"];
 
     // is it travel pace?
     if (this.configurations.ETP) {
       travel["units"] = "mph";
-      const travelPaceMilesPerDay = this.source.travelPace / 660; // / 220;
+      // a null travelPace coerced to 0 before, keep that result explicit
+      const travelPaceMilesPerDay = (this.source.travelPace ?? 0) / 660; // / 220;
       // const travelPaceMilesPerHour = this.source.travelPace / 5280;
       const travelPaceMilesPerHour = travelPaceMilesPerDay / 24;
       if (DDBVehicle.FLIGHT_IDS.includes(this.source.id)
@@ -500,7 +540,8 @@ export default class DDBVehicle {
         movement[type] = String(mode.value);
       } else if (movementModes) {
         for (const m of comp.definition.speeds[0].modes) {
-          const modeMovementType: I5eMovementType = MOVEMENT_ID[m.movementId] as I5eMovementType;
+          // a null movementId never matches a MOVEMENT_ID key, mirror that with an impossible index
+          const modeMovementType: I5eMovementType = MOVEMENT_ID[m.movementId ?? -1] as I5eMovementType;
           if (!modeMovementType || speedsChecked.has(modeMovementType)) continue;
           speedsChecked.add(modeMovementType);
           if (modeMovementType) movement[modeMovementType] = String(m.value);
@@ -599,8 +640,9 @@ export default class DDBVehicle {
   async #buildComponent(component: IDDBVehicleComponent | IDDBVehicleFeatureComponent) {
     const results = [];
 
-    const actions: IDDBVehicleAction[] = component.definition?.actions?.length > 0
-      ? component.definition.actions
+    const componentActions = component.definition?.actions;
+    const actions: IDDBVehicleAction[] = componentActions && componentActions.length > 0
+      ? componentActions
       : [{}] as IDDBVehicleAction[];
 
     let actionFeature;
@@ -625,11 +667,12 @@ export default class DDBVehicle {
           actionFeature.data.system.description.value += `<br>
 <h3>${ddbFeature.data.name}</h3>\n
 <p>${ddbFeature.data.system.description.value}</p>`;
-          if (ddbFeature.data.system.activities[key] && ddbFeature.data.system.activities[key].effects?.length === 0) {
-            actionFeature.data.system.activities[key].effects = ddbFeature.data.system.activities[key].effects;
+          const activityEffects = ddbFeature.data.system.activities[key]?.effects;
+          if (activityEffects?.length === 0) {
+            actionFeature.data.system.activities[key].effects = activityEffects;
 
-            const effects = ddbFeature.data.effects.filter((e) => ddbFeature.data.system.activities[key].effects.some((effect) => effect._id === e._id));
-            actionFeature.data.effects.push(...effects);
+            const effects = (ddbFeature.data.effects ?? []).filter((e) => activityEffects.some((effect) => effect._id === e._id));
+            (actionFeature.data.effects ??= []).push(...effects);
           }
         }
       } else {
@@ -726,7 +769,7 @@ export default class DDBVehicle {
     await this.#generateComponents();
 
     // finally check for existing actor
-    this.data = await CompendiumHelper.existingActorCheck("vehicle", this.data) as I5eVehicleData;
+    this.data = await CompendiumHelper.existingActorCheck("vehicle", this.data) as TParsedVehicleData;
 
     logger.debug("Finished parsing vehicle", this);
   }

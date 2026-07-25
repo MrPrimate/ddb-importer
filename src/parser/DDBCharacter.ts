@@ -110,10 +110,10 @@ export interface DDBCharacterImportOptions {
   enableCompanions?: boolean;
   isMuncher?: boolean;
   enableSummons?: boolean;
-  addToCompendiums?: boolean;
+  addToCompendiums?: boolean | null;
   collectCompendiumDocumentsOnly?: boolean;
-  compendiumImportTypes?: string[];
-  forceCompendiumUpdate?: boolean;
+  compendiumImportTypes?: string[] | null;
+  forceCompendiumUpdate?: boolean | null;
 }
 
 // Declaration merging: these methods are added to DDBCharacter.prototype
@@ -240,10 +240,11 @@ class DDBCharacter {
 
   source: IDDBCharacterResponse | null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
-  forceCompendiumUpdate: boolean;
+  // null means "use the compendium update setting" downstream
+  forceCompendiumUpdate: boolean | null;
   addToCompendiums: boolean;
   collectCompendiumDocumentsOnly: boolean;
-  characterId: string;
+  characterId: string | null;
   currentActor: TImporterActor | null;
   currentActorId: string | null;
   selectResources: boolean;
@@ -288,7 +289,7 @@ class DDBCharacter {
   }: DDBCharacterImportOptions = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
-    this.currentActorId = currentActor?.id;
+    this.currentActorId = currentActor?.id ?? null;
     // DDBCharacter ID
     this.characterId = characterId;
     // show resource selection prompt?
@@ -306,22 +307,25 @@ class DDBCharacter {
     this.source = null;
     // this is the raw items processed before filtering
     this.raw = {
-      character: null,
+      // character and race are populated by _generateCharacter/_generateRace
+      // before any consumer reads them, the null stands in until then
+      character: null as unknown as I5ePCData,
       classes: [],
       spells: [],
       actions: [],
       features: [],
-      race: null,
+      race: null as unknown as I5eRaceItem,
       inventory: [],
       itemSpells: [],
     };
 
-    // Character data
+    // Character data, populated by _generateAbilities at the start of the
+    // character parse before any consumer reads it
     this.abilities = {
       overrides: undefined,
       core: undefined,
       withEffects: undefined,
-    };
+    } as unknown as DDBCharacter["abilities"];
     this.spellSlots = {};
     this.totalLevels = 0;
     this.companionFactories = [];
@@ -344,24 +348,28 @@ class DDBCharacter {
       cp: 0,
     };
 
-    this.itemCompendium = CompendiumHelper.getCompendiumType("inventory");
-    this.spellCompendium = CompendiumHelper.getCompendiumType("spell");
+    // getCompendiumType with the default fail=true throws rather than returning undefined
+    this.itemCompendium = CompendiumHelper.getCompendiumType("inventory")!;
+    this.spellCompendium = CompendiumHelper.getCompendiumType("spell")!;
 
     this.armor = {};
 
     this.matchedFeatures = [];
     // 5e types produce a circular error on getEmbeddedCollection here
-    this.possibleFeatures = (this.currentActor?.getEmbeddedCollection("Item") ?? []) as unknown as Item.Implementation[];
-    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
+    this.possibleFeatures = (this.currentActor?.getEmbeddedCollection("Item") ?? []) as unknown as TImporterItem[];
+    // this.source is always null at this point; process() replaces this with a character-based finder
+    this.proficiencyFinder = new ProficiencyFinder({ ddb: null });
     this.isMuncher = isMuncher;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
     this.collectCompendiumDocumentsOnly = collectCompendiumDocumentsOnly;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;
-    this._infusionFactory = null;
-    this._classParser = null;
-    this._characterFeatureFactory = null;
-    this._spellParser = null;
+    // these factories are created during _parseCharacter before any consumer
+    // touches them, the nulls stand in until then
+    this._infusionFactory = null as unknown as DDBInfusionFactory;
+    this._classParser = null as unknown as CharacterClassFactory;
+    this._characterFeatureFactory = null as unknown as CharacterFeatureFactory;
+    this._spellParser = null as unknown as CharacterSpellFactory;
   }
 
   /**
@@ -387,6 +395,7 @@ class DDBCharacter {
   }
 
   #sourceFixes() {
+    if (!this.source) return;
     this.source.ddb.character.choices?.choiceDefinitions.forEach((choiceDef) => {
       choiceDef.options?.forEach((option) => {
         if (option.label.includes("Cthonic")) {
@@ -421,15 +430,16 @@ class DDBCharacter {
     }
 
     try {
-      this.source = await postJson(`${parsingApi}/proxy/v5/character`, body, {
+      const characterResponse = await postJson<IDDBCharacterResponse>(`${parsingApi}/proxy/v5/character`, body, {
         redirect: "follow", // manual, *follow, error
       });
-      if (!this.source.success) return;
+      this.source = characterResponse;
+      if (!characterResponse.success) return;
 
       this.#sourceFixes();
 
       if (utils.getSetting<boolean>("debug-json")) {
-        FileHelper.download(JSON.stringify(this.source), `${this.characterId}-${this.source.ddb.character.name}-raw.json`, "application/json");
+        FileHelper.download(JSON.stringify(characterResponse), `${this.characterId}-${characterResponse.ddb.character.name}-raw.json`, "application/json");
       }
     } catch (error) {
       logger.error("JSON Fetch Error");
@@ -440,15 +450,19 @@ class DDBCharacter {
   }
 
   async process() {
+    const source = this.source;
+    if (!source) {
+      throw new Error("No DDB character data found, call getCharacterData before process");
+    }
     try {
-      this.source.ddb = FilterModifiers.fixCharacterLevels(this.source.ddb);
+      source.ddb = FilterModifiers.fixCharacterLevels(source.ddb);
       // update proficiency finder with a character based version
-      this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
+      this.proficiencyFinder = new ProficiencyFinder({ ddb: source.ddb });
 
       // load some required content
       await DDBReferenceLinker.importCacheLoad();
 
-      logger.debug("DDB Data to parse:", foundry.utils.duplicate(this.source.ddb));
+      logger.debug("DDB Data to parse:", foundry.utils.duplicate(source.ddb));
       logger.debug("currentActorId", this.currentActorId);
       // this parses the json and sets the results as this.data
       await this._parseCharacter();
@@ -553,7 +567,7 @@ class DDBCharacter {
       await this.itemCompendium.getIndex();
       await this.spellCompendium.getIndex();
 
-      logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
+      logger.debug("Starting core character parse", { thisDDB: this.source?.ddb });
       await this._generateCharacter();
       if (this.selectResources) {
         logger.debug("Character resources");
@@ -636,7 +650,7 @@ class DDBCharacter {
   getDataFeats(featName: string, { featureTypes = ["actions", "features"], hints = [] }: {
     featureTypes?: ("actions" | "features")[];
     hints?: string[];
-  } = {}): TFeatureActionItem {
+  } = {}): TFeatureActionItem | undefined {
     for (const featureType of featureTypes) {
       const index = (this.data as Record<string, any>)[featureType].findIndex((f: any) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
@@ -690,21 +704,22 @@ class DDBCharacter {
 
   async setActiveSyncSpellsFlag(state: boolean) {
     if (!this.currentActor) return;
-    this.currentActor.flags.ddbimporter.activeSyncSpells = state;
+    foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeSyncSpells", state);
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData as Actor.UpdateData);
   }
 
   isMartialArtist() {
-    return this.source.ddb.character.classes.some((cls) =>
+    return this.source?.ddb.character.classes.some((cls) =>
       cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"),
-    );
+    ) ?? false;
   }
 
   updateItemId(item: I5eItemData) {
     const itemMatch = DDBDataUtils.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
     if (itemMatch) {
-      item._id = itemMatch._id;
+      // an embedded item always carries an id, fvtt-types allows null here
+      item._id = itemMatch._id ?? undefined;
       this.matchedFeatures.push(itemMatch);
     }
   }
@@ -718,21 +733,26 @@ class DDBCharacter {
   }
 
   _linkItemsToContainers() {
+    const source = this.source;
+    if (!source) {
+      logger.warn("No DDB character source data, unable to link items to containers");
+      return;
+    }
     const containerItems = this.data.inventory
       .filter((item) =>
         item.type === "container"
         && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
         && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-        && parseInt(String(item.flags.ddbimporter.containerEntityId)) === parseInt(String(this.source.ddb.character.id))
+        && parseInt(String(item.flags.ddbimporter?.containerEntityId)) === parseInt(String(source.ddb.character.id))
         && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport"),
       );
 
     this.data.inventory.forEach((item) => {
       if (foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-        && parseInt(String(item.flags.ddbimporter.containerEntityId)) !== parseInt(String(this.source.ddb.character.id))
+        && parseInt(String(item.flags.ddbimporter?.containerEntityId)) !== parseInt(String(source.ddb.character.id))
       ) {
         const containerItem = containerItems.find((container) =>
-          parseInt(String(container.flags.ddbimporter.id)) === parseInt(String(item.flags.ddbimporter.containerEntityId)),
+          parseInt(String(container.flags.ddbimporter?.id)) === parseInt(String(item.flags.ddbimporter?.containerEntityId)),
         );
         if (containerItem) {
           foundry.utils.setProperty(item, "system.container", containerItem._id);

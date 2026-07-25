@@ -104,6 +104,7 @@ export default class DDBSticker {
   }
 
   async existsLocally(): Promise<boolean> {
+    if (!this.directory || !this.filename) return false;
     return await FileHelper.fileExists(this.directory, this.filename).catch(() => false);
   }
 
@@ -113,7 +114,10 @@ export default class DDBSticker {
   }
 
   async import(): Promise<IDDBStickerImportResult> {
-    if (!this.imageKey) {
+    // directory and filename are both derived in the constructor whenever
+    // imageKey is present, so all three are missing (or set) together.
+    const { directory, filename, imageKey } = this;
+    if (!imageKey || !directory || !filename) {
       return { imagePath: null, metaPath: null, filename: null, skipped: true, reason: "missing-imageKey" };
     }
 
@@ -123,25 +127,25 @@ export default class DDBSticker {
     // a sticker was uploaded manually or by a prior import that left no meta).
     const existsLocally = await this.existsLocally();
     if (existsLocally) {
-      logger.info(`DDBSticker: file already exists at ${this.directory}/${this.filename}, skipping upload`);
+      logger.info(`DDBSticker: file already exists at ${directory}/${filename}, skipping upload`);
       this._notify(`Sticker "${this.sticker.name}" already on disk; skipping download.`);
       this.uploadedPath = await this.getLocalUrl();
     } else {
       this._notify(`Downloading sticker "${this.sticker.name}"...`);
       const blob = await DDBStickers.downloadImage({
-        key: this.imageKey,
+        key: imageKey,
         cobalt: this.options.cobalt ?? null,
         campaignId: this.options.campaignId ?? null,
       });
       if (!blob) return { imagePath: null, metaPath: null, filename: null, skipped: true, reason: "download-failed" };
 
-      await FileHelper.verifyPath(FileHelper.parseDirectory(this.directory));
+      await FileHelper.verifyPath(FileHelper.parseDirectory(directory));
 
-      this._notify(`Uploading ${this.filename}...`);
+      this._notify(`Uploading ${filename}...`);
       this.uploadedPath = await DDBSticker._runOnUploadChain(() =>
-        FileHelper.uploadImage(blob, this.directory, this.filename),
+        FileHelper.uploadImage(blob, directory, filename),
       );
-      logger.debug(`DDBSticker: uploaded file to ${this.directory}/${this.filename}`);
+      logger.debug(`DDBSticker: uploaded file to ${directory}/${filename}`);
       // Register the freshly uploaded file with FileHelper's in-memory cache
       // so a subsequent same-session fileExists() hits the fast-path. Without
       // this, generateCurrentFiles() would short-circuit (CHECKED_DIRS already
@@ -149,7 +153,7 @@ export default class DDBSticker {
       // repeat placement.
       if (this.uploadedPath) {
         try {
-          FileHelper.addFileToKnown(FileHelper.parseDirectory(this.directory), this.uploadedPath);
+          FileHelper.addFileToKnown(FileHelper.parseDirectory(directory), this.uploadedPath);
         } catch (error) {
           logger.debug(`DDBSticker: addFileToKnown failed for ${this.uploadedPath}: ${(error as Error).message}`);
         }
@@ -158,8 +162,8 @@ export default class DDBSticker {
 
     // Update the per-folder _meta.json. Serialised per directory so two
     // parallel imports into the same set don't lose entries.
-    this.metaPath = await chainMetaWrite(this.directory, async () => {
-      const existing = await readMetaFile(this.directory);
+    this.metaPath = await chainMetaWrite(directory, async () => {
+      const existing = await readMetaFile(directory);
       const meta: IDDBStickerSetMeta = existing ?? {
         setId: this.sticker.primarySourceId ?? null,
         setName: this.options.setName ?? `source-${this.sticker.primarySourceId ?? "unknown"}`,
@@ -171,18 +175,18 @@ export default class DDBSticker {
       meta.setId = this.sticker.primarySourceId ?? meta.setId;
       meta.setName = this.options.setName ?? meta.setName;
       meta.fetchedAt = Date.now();
-      meta.stickers[this.filename] = {
+      meta.stickers[filename] = {
         id: this.sticker.gameElementUri,
         name: this.sticker.name,
         altText: this.sticker.altText ?? null,
         keywords: this.sticker.keywords ?? [],
-        imageKey: this.imageKey,
+        imageKey,
         thumbnailKey: this.sticker.thumbnailKey ?? null,
         aspectRatio: this.sticker.entitledData?.aspectRatio ?? null,
         scale: this.sticker.entitledData?.scale ?? null,
         importedAt: Date.now(),
       };
-      return writeMetaFile(this.directory, meta);
+      return writeMetaFile(directory, meta);
     });
 
     return {

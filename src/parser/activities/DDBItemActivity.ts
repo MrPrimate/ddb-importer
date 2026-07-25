@@ -6,7 +6,7 @@ import type DDBItem from "../item/DDBItem";
 interface IDDBItemActivity {
   name?: string;
   type: IDDBActivityType;
-  ddbParent?: DDBItem;
+  ddbParent: DDBItem;
   nameIdPrefix?: string | null;
   nameIdPostfix?: string | null;
   id?: string | null;
@@ -36,12 +36,17 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
-  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false } = {}) {
+  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false }: {
+    targetOverrides?: I5eConsumptionTarget[] | null;
+    consumptionOverride?: I5eActivityConsumption | null;
+    additionalTargets?: I5eConsumptionTarget[] | null;
+    consumeActivity?: boolean | null;
+  } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
     }
-    let targets = [];
+    let targets: I5eConsumptionTarget[] = [];
     const scaling = false;
 
     // types:
@@ -66,8 +71,8 @@ export default class DDBItemActivity extends DDBBasicActivity {
           formula: "",
         },
       });
-    } else if (this.actionData.consumptionTargets?.length > 0) {
-      targets = this.actionData.consumptionTargets;
+    } else if ((this.actionData.consumptionTargets?.length ?? 0) > 0) {
+      targets = this.actionData.consumptionTargets ?? [];
     } else if (this.actionData.consumptionValue) {
       targets.push({
         type: consumptionType,
@@ -80,7 +85,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       });
     } else if (isStaff) {
       // no op
-    } else if ("uses" in this.ddbParent.data.system && !["0", null, undefined].includes(this.ddbParent.data.system.uses.max)) {
+    } else if ("uses" in this.ddbParent.data.system && !["0", null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
       targets.push({
         type: consumptionType,
         target: "",
@@ -104,13 +109,15 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
-  _generateCheck({ checkOverride = null } = {}) {
+  _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}) {
     if (!("check" in this.data)) return;
-    this.data.check = checkOverride ?? {
+    // the parser intentionally emits a null check ability, which the dnd5e schema cleans,
+    // but I5eActivityCheck.ability only allows string | string[]
+    this.data.check = checkOverride ?? ({
       associated: this.actionData.associatedToolsOrAbilities,
       ability: this.actionData.ability,
       dc: {},
-    };
+    } as unknown as I5eActivityCheck);
   }
 
   build({
@@ -228,7 +235,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
           : undefined,
       damageParts: damageParts
         ? damageParts
-        : ["weapon", "staff"].includes(this.ddbParent.parsingType)
+        : ["weapon", "staff"].includes(this.ddbParent.parsingType ?? "")
           ? this.ddbParent.damageParts.slice(1)
           : this.ddbParent.damageParts,
     });

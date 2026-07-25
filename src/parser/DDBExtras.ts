@@ -4,6 +4,17 @@ import { getAbilityMods, TDDBAbilityMods } from "./monster/helpers";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCompanionFactory from "./companions/DDBCompanionFactory";
 import DDBCharacter from "./DDBCharacter";
+import ChangeHelper from "./enrichers/effects/ChangeHelper";
+
+/**
+ * A creature definition after addCreatureFlags has injected the importer's
+ * creature group data, so those fields are always present downstream.
+ */
+type TCreatureMock = IDDBCreatureDefinition & {
+  creatureFlags: string[];
+  creatureGroup: IDDBConfigCreatureGroup;
+  creatureGroupId: number | null;
+};
 
 function getCustomValue(ddbCharacter: IDDBCharacterData, typeId: number | string, valueId: number | string, valueTypeId: number | string) {
   const characterValues = ddbCharacter.characterValues;
@@ -23,33 +34,13 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect: I5eEffectData = {
+  const effect: I5eEffectData & { system: Required<I5eEffectSystem> } = {
     system: {
       changes: [
-        {
-          key: "system.bonuses.rwak.attack",
-          type: "custom",
-          value: `+${characterProficiencyBonus}`,
-          priority: 20,
-        },
-        {
-          key: "system.bonuses.rwak.damage",
-          type: "custom",
-          value: `+${characterProficiencyBonus}`,
-          priority: 20,
-        },
-        {
-          key: "system.bonuses.mwak.attack",
-          type: "custom",
-          value: `+${characterProficiencyBonus}`,
-          priority: 20,
-        },
-        {
-          key: "system.bonuses.mwak.damage",
-          type: "custom",
-          value: `+${characterProficiencyBonus}`,
-          priority: 20,
-        },
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.attack"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.damage"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.mwak.attack"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.mwak.damage"),
       ],
     },
     duration: {
@@ -60,22 +51,12 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
     disabled: false,
     name: "Beast Companion Effects",
   };
-  DICTIONARY.actor.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
-    const boost = {
-      key: `data.abilities.${ability.value}.save`,
-      type: "add" as const,
-      value: String(characterProficiencyBonus),
-      priority: 20,
-    };
+  DICTIONARY.actor.abilities.filter((ability) => (extra.system.abilities?.[ability.value].proficient ?? 0) >= 1).forEach((ability) => {
+    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.abilities.${ability.value}.save`);
     effect.system.changes.push(boost);
   });
-  DICTIONARY.actor.skills.filter((skill) => extra.system.skills[skill.name].value >= 1).forEach((skill) => {
-    const boost = {
-      key: `data.skills.${skill.name}.mod`,
-      type: "add" as const,
-      value: String(characterProficiencyBonus),
-      priority: 20,
-    };
+  DICTIONARY.actor.skills.filter((skill) => (extra.system.skills?.[skill.name].value ?? 0) >= 1).forEach((skill) => {
+    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.skills.${skill.name}.mod`);
     effect.system.changes.push(boost);
   });
   extra.effects = [effect];
@@ -85,23 +66,15 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
 function generateArtificerDamageEffect(actor: TImporterActor, extra: I5eMonsterData): I5eMonsterData {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
-  extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
+  if (extra.system.details) {
+    extra.system.details.cr = actor.flags.ddbimporter?.dndbeyond?.totalLevels;
+  }
 
   const effect: I5eEffectData = {
     system: {
       changes: [
-        {
-          key: "data.bonuses.rwak.damage",
-          type: "custom",
-          value: "+ @prof",
-          priority: 20,
-        },
-        {
-          key: "data.bonuses.mwak.damage",
-          type: "custom",
-          value: "+ @prof",
-          priority: 20,
-        },
+        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.rwak.damage"),
+        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.mwak.damage"),
       ],
     },
     duration: {
@@ -248,7 +221,7 @@ function revertExtraMunchDefaults(munchSettings: IMuncherDefaultSetting[]) {
   });
 }
 
-function addOwnerSkillProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatureDefinition) {
+function addOwnerSkillProficiencies(ddbCharacter: DDBCharacter, mock: TCreatureMock) {
   const newSkills: IDDBMonsterSkill[] = [];
   const crData = CONFIG.DDB.challengeRatings.find(
     (cr) => cr.id === mock.challengeRatingId,
@@ -260,8 +233,12 @@ function addOwnerSkillProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatu
 
   DICTIONARY.actor.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill: any) => skill.valueId === mockSkill.skillId);
-    const characterProficient = ddbCharacter.data.character.system.skills[skill.name].value;
+    const characterProficient = ddbCharacter.data.character.system.skills?.[skill.name].value;
     const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
+    if (!ability) {
+      logger.warn(`Unknown ability ${skill.ability} for skill ${skill.name}, skipping proficiency check`);
+      return;
+    }
     const stat = mock.stats.find((stat: any) => stat.statId === ability.id)?.value || 10;
     // fall back to the standard 5e formula if the score is outside the DDB config table
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value === stat)?.modifier ?? Math.floor((stat - 10) / 2);
@@ -288,7 +265,7 @@ function addOwnerSkillProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatu
   return mock;
 }
 
-function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatureDefinition) {
+function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock: TCreatureMock) {
 // add owner save profs
   const newSaves: { statId: number; bonusModifier: number | null }[] = [];
   DICTIONARY.actor.abilities.forEach((ability) => {
@@ -307,7 +284,7 @@ function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock: IDDBCreatur
   return mock;
 }
 
-function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImporterActor, creature: IDDBCreature, mock: IDDBCreatureDefinition) {
+function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImporterActor, creature: IDDBCreature, mock: TCreatureMock) {
   // hp
   const hpMaxChange = getCustomValue(ddbCharacterData, 43, creature.id, creature.entityTypeId);
   if (hpMaxChange) mock.averageHitPoints = parseInt(String(hpMaxChange));
@@ -351,20 +328,23 @@ function addAverageHitPoints(ddbCharacterData: IDDBCharacterData, actor: TImport
   return mock;
 }
 
-function addCreatureStats(mock: IDDBCreatureDefinition, actor: TImporterActor) {
+function addCreatureStats(mock: TCreatureMock, actor: TImporterActor) {
   const creatureStats = mock.stats.filter((stat) => !mock.creatureGroup.ownerStats.includes(stat.statId));
   const characterStats = mock.stats
     .filter((stat) => mock.creatureGroup.ownerStats.includes(stat.statId))
     .map((stat) => {
-      const value = (actor.system as I5ePCSystemData).abilities![DICTIONARY.actor.abilities.find((a) => a.id === stat.statId).value].value;
-      return { name: null as any, statId: stat.statId, value: value };
+      const abilityKey = DICTIONARY.actor.abilities.find((a) => a.id === stat.statId)?.value;
+      const value = abilityKey
+        ? (actor.system as I5ePCSystemData).abilities?.[abilityKey].value
+        : undefined;
+      return { name: null as string | null, statId: stat.statId, value: value ?? 10 };
     });
 
   mock.stats = creatureStats.concat(characterStats);
   return mock;
 }
 
-function addCreatureFlags(creature: IDDBCreature, mock: IDDBCreatureDefinition) {
+function addCreatureFlags(creature: IDDBCreature, mock: IDDBCreatureDefinition): TCreatureMock {
   let creatureGroup = CONFIG.DDB.creatureGroups.find((group) => group.id === creature.groupId);
   if (!creatureGroup) {
     logger.warn(`Unknown creature group id ${creature.groupId} for ${creature.definition?.name}, no group flags applied`);
@@ -393,17 +373,21 @@ function addCreatureFlags(creature: IDDBCreature, mock: IDDBCreatureDefinition) 
   mock.creatureGroupId = creature.groupId;
   mock.creatureGroup = creatureGroup;
 
-  return mock;
+  // the three assignments above make this a TCreatureMock
+  return mock as TCreatureMock;
 
 }
 
 function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporterActor, creature: IDDBCreature): IDDBCreatureDefinition {
+  if (!ddbCharacter.source) {
+    throw new Error("DDBCharacter has no source data, unable to transform extra creature");
+  }
   const ddbCharacterData: IDDBCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
-  let mock: IDDBCreatureDefinition = foundry.utils.duplicate(creature.definition) as IDDBCreatureDefinition;
-  mock.id = creature.id;
-  mock.entityTypeId = creature.entityTypeId;
-  mock = addCreatureFlags(creature, mock);
+  const baseMock: IDDBCreatureDefinition = foundry.utils.duplicate(creature.definition) as IDDBCreatureDefinition;
+  baseMock.id = creature.id;
+  baseMock.entityTypeId = creature.entityTypeId;
+  let mock: TCreatureMock = addCreatureFlags(creature, baseMock);
 
   if (creature.name) mock.name = creature.name;
 
@@ -451,7 +435,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporte
 
   // Armor Add Proficiency Bonus
   if (mock.creatureFlags.includes("ACPB")) {
-    mock.armorClass += actor.flags.ddbimporter.dndbeyond.profBonus ?? 0;
+    mock.armorClass += actor.flags.ddbimporter?.dndbeyond?.profBonus ?? 0;
   }
 
   // Evaluate Owner Skill Proficiencies
@@ -483,7 +467,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor: TImporte
 
 function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
   // `TODO: this probably is a flag now
-  const characterProficiencyBonus = actor.flags.ddbimporter.dndbeyond.profBonus ?? 0;
+  const characterProficiencyBonus = actor.flags.ddbimporter?.dndbeyond?.profBonus ?? 0;
   const artificerBonusGroup = [10, 12];
 
   if (
@@ -492,13 +476,13 @@ function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
   ) {
     if (extra.flags?.ddbimporter?.creatureGroupId === 3) {
       extra = generateBeastCompanionEffects(extra, characterProficiencyBonus);
-    } else if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId)) {
+    } else if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId ?? -1)) {
       // artificer uses the actors spell attack bonus, so is a bit trickier
       // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
       extra = generateArtificerDamageEffect(actor, extra);
-    } else {
+    } else if (extra.system.details) {
       // who knows!
-      extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
+      extra.system.details.cr = actor.flags.ddbimporter?.dndbeyond?.totalLevels;
     }
   }
 
@@ -508,9 +492,9 @@ function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
     // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
     || extra.flags?.ddbimporter?.creatureGroupId === 12
   ) {
-    const isArtificer = artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId);
-    const intMod = utils.calculateModifier(actor.system.abilities.int.value);
-    const globalMod = Number(actor.system.bonuses.rsak.attack || 0);
+    const isArtificer = artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId ?? -1);
+    const intMod = utils.calculateModifier(actor.system.abilities?.int.value ?? 10);
+    const globalMod = Number(actor.system.bonuses?.rsak?.attack || 0);
 
     extra.items = extra.items.map((item) => {
       if (item.type !== "weapon" || !isArtificer) return item;
@@ -531,7 +515,7 @@ function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
         const ability = activity.attack.ability === ""
           ? "str"
           : activity.attack.ability as T5eAbility;
-        const extraMod = utils.calculateModifier(extra.system.abilities[ability].value);
+        const extraMod = utils.calculateModifier(extra.system.abilities?.[ability]?.value ?? 10);
         const mod = ability ? extraMod : 0;
         activity.attack.bonus = `${intMod + globalMod - mod}`;
       }
@@ -548,11 +532,17 @@ export async function generateCharacterExtras(_html: any, ddbCharacter: DDBChara
 
   try {
     logger.debug("ddbCharacter", ddbCharacter);
-    if (ddbCharacter.source.ddb.character.creatures.length === 0) return;
+    const source = ddbCharacter.source;
+    if (!source) {
+      logger.error("No DDB source data on character, unable to generate extras");
+      return;
+    }
+    if (source.ddb.character.creatures.length === 0) return;
 
-    const folder = await FolderHelper.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
+    // fvtt-types does not resolve the actor's folder field to Folder.Implementation here
+    const folder = await FolderHelper.getOrCreateFolder(actor.folder as Folder.Implementation | null, "Actor", `[Extras] ${actor.name}`);
 
-    const extractedCreatures = ddbCharacter.source.ddb.character.creatures
+    const extractedCreatures = source.ddb.character.creatures
       .map((creature) => transformExtraToMonsterData(ddbCharacter, actor, creature))
       .map((creature) => {
         creature.folder = folder.id;

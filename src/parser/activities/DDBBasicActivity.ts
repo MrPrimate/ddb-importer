@@ -67,8 +67,8 @@ export default class DDBBasicActivity {
   }: {
     type: IDDBActivityType;
     name?: string | null;
-    actor?: I5ePCData | I5eMonsterData;
-    ddbParent?: DDBActivityFactoryMixin;
+    actor?: I5ePCData | I5eMonsterData | null;
+    ddbParent?: DDBActivityFactoryMixin | null;
     nameIdPrefix?: string | null;
     nameIdPostfix?: string | null;
     id?: string | null;
@@ -84,7 +84,12 @@ export default class DDBBasicActivity {
     const actionName = this.ddbParent?.isAction ? this.ddbParent.name : null;
     this.name = name ?? actionName;
     this.actor = actor;
-    this.foundryFeature = foundryFeature ?? ddbParent?.data;
+    const feature = foundryFeature ?? ddbParent?.data;
+    if (!feature) {
+      logger.warn(`DDBBasicActivity ${this.name}: constructed without a foundry feature or ddbParent data`);
+    }
+    // callers always supply either foundryFeature or a ddbParent with data
+    this.foundryFeature = feature!;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -144,7 +149,7 @@ export default class DDBBasicActivity {
   }: {
     targetOverrides?: I5eConsumptionTarget[] | null;
     consumptionOverride?: I5eActivityConsumption | null;
-    additionalTargets?: I5eConsumptionTarget[];
+    additionalTargets?: I5eConsumptionTarget[] | null;
     consumeActivity?: boolean;
     consumeItem?: boolean | null;
   } = {}): void {
@@ -330,7 +335,10 @@ export default class DDBBasicActivity {
     healingPart?: IDDBActivityBuild["healingPart"];
     healingChatFlavor?: string | null;
   } = {}): void {
-    if (healingChatFlavor) this.data.description.chatFlavor = healingChatFlavor;
+    if (healingChatFlavor) {
+      this.data.description ??= { chatFlavor: "" };
+      this.data.description.chatFlavor = healingChatFlavor;
+    }
     if (!("healing" in this.data)) return;
     this.data.healing = healingPart as I5eDamagePart;
   }
@@ -590,7 +598,8 @@ export default class DDBBasicActivity {
 
     if (noeffect) {
       const ids = (foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? []) as string[];
-      ids.push(this.data._id);
+      // _generateDataStub always assigns data._id in the constructor
+      if (this.data._id) ids.push(this.data._id);
       foundry.utils.setProperty(this.foundryFeature, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
     }
@@ -618,7 +627,8 @@ export default class DDBBasicActivity {
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
     await enricher?.addAdditionalActivities(enricher?.ddbParent);
 
-    return activity.data._id;
+    // _generateDataStub always assigns data._id in the constructor
+    return activity.data._id ?? "";
 
   }
 
@@ -710,9 +720,11 @@ export default class DDBBasicActivity {
       };
     }
 
-    const enchantmentEffect = Effects.EnchantmentEffects.EnchantmentEffect(foundryData, label, {
+    const enchantmentEffect = Effects.EnchantmentEffects.EnchantmentEffect(foundryData, label ?? "", {
       origin: document.uuid,
     });
+    enchantmentEffect.system ??= {};
+    enchantmentEffect.system.changes ??= [];
     enchantmentEffect.system.changes.push(...changes);
     foundry.utils.mergeObject(activity.data, activityData);
 
@@ -728,6 +740,7 @@ export default class DDBBasicActivity {
         item: [],
       },
     };
+    activity.data.effects ??= [];
     activity.data.effects.push(effectLink);
 
     const effects = [enchantmentEffect];
@@ -737,12 +750,15 @@ export default class DDBBasicActivity {
 
     const riderFlags = (foundry.utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] }) as I5eItemRiderFlags;
 
+    riderFlags.activity ??= [];
+    riderFlags.effect ??= [];
     riderFlags.activity.push(...riderActionIds);
     riderFlags.effect.push(...riderEffectIds);
 
     foundry.utils.setProperty(foundryData, "flags.dnd5e.riders", riderFlags);
     await document.update(foundryData);
-    return activity.data._id;
+    // _generateDataStub always assigns data._id in the constructor
+    return activity.data._id ?? "";
 
   }
 

@@ -9,21 +9,24 @@ export class PageFinder {
   elementIds: Record<string, Set<string>>;
 
   generateContentLinks() {
-    for (const page of this.journal.pages.filter((p) => p.type === "text")) {
-      const dom = utils.htmlToDocumentFragment(page.text.content);
+    for (const page of this.journal.pages.filter((p: JournalEntryPage.Implementation) => p.type === "text")) {
+      const pageId = page._id;
+      if (!pageId) continue;
+      const dom = utils.htmlToDocumentFragment(page.text.content ?? "");
       const chunkElements = dom.querySelectorAll<HTMLElement>("[data-content-chunk-id]");
       const chunkIds = new Set<string>();
       chunkElements.forEach((chunk) => {
-        chunkIds.add(chunk.dataset["contentChunkId"]);
+        const chunkId = chunk.dataset["contentChunkId"];
+        if (chunkId !== undefined) chunkIds.add(chunkId);
       });
-      this.contentChunkIds[page._id] = chunkIds;
+      this.contentChunkIds[pageId] = chunkIds;
 
       const idElements = dom.querySelectorAll("[id]");
       const elementIds = new Set<string>();
       idElements.forEach((chunk) => {
         elementIds.add(chunk.id);
       });
-      this.elementIds[page._id] = elementIds;
+      this.elementIds[pageId] = elementIds;
     }
   }
 

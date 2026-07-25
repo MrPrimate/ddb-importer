@@ -1246,6 +1246,7 @@ export default class DDBMapMetaData {
         continue;
       }
       try {
+        if (!monsterCompendium) throw new Error("no monster compendium available");
         const updateData: Record<string, unknown> = {};
         if (actorFolderId) updateData.folder = actorFolderId;
         const worldActor = await game.actors.importFromCompendium(

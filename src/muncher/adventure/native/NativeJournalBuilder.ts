@@ -9,7 +9,7 @@ const JOURNAL_SORT = 1000;
 // AdventureMunch sets on import so journals render with the DDB book styling.
 const DDB_JOURNAL_SHEET = "ddb-importer.DDBJournalSheet";
 
-function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null): I5eJournalPageFlags {
+function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null): I5eJournalPageFlags & { ddb: I5eJournalDDBFlags } {
   const ddb: I5eJournalDDBFlags = buildDdbFlags({
     ddbId: row.id,
     bookCode,
@@ -22,7 +22,7 @@ function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null
   return { ddb };
 }
 
-function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5eJournalPageData {
+function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5eJournalPageData & { title: I5eJournalPageTitle } {
   return {
     _id: id,
     name: row.title,
@@ -94,7 +94,7 @@ export function buildJournals(
   for (const row of rows) {
     if (!isSection(row)) continue;
 
-    const parent = journals.find((j) => j.flags.ddb.cobaltId === row.parentId);
+    const parent = journals.find((j) => j.flags?.ddb?.cobaltId === row.parentId);
     if (!parent) {
       logger.warn(`Native adventure: no parent chapter (cobaltId=${row.parentId}) for section "${row.title}" - page dropped`);
       continue;
@@ -110,7 +110,7 @@ export function buildJournals(
     }));
     const page = makePage(row, pageId, flags);
     if (page.name !== parent.name) page.title.show = true;
-    parent.pages.push(page);
+    (parent.pages ??= []).push(page);
   }
 
   return journals;

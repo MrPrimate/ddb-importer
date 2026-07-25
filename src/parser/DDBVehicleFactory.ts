@@ -45,7 +45,7 @@ interface IFetchDDBVehicleSourceData {
 
 export default class DDBVehicleFactory {
   extra: boolean;
-  keys: { useLocal: boolean; keyPostfix: string };
+  keys: { useLocal?: boolean; keyPostfix?: string };
   notifier: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
   type: "vehicles";
   compendiumFolders: DDBCompendiumFolders;
@@ -62,8 +62,8 @@ export default class DDBVehicleFactory {
   vehiclesParsed: Actor.Implementation[];
 
   constructor ({
-    ddbData = null, extra = false, notifier = null, forceUpdate = null,
-    useLocalKey = null, keyPostfix = null,
+    ddbData = null, extra = false, notifier, forceUpdate,
+    useLocalKey, keyPostfix,
   }: IDDBVehicleFactoryOptions = {}) {
     this.extra = extra;
     this.keys = {
@@ -91,7 +91,7 @@ export default class DDBVehicleFactory {
     logger.info(note, { nameField, monsterNote });
   }
 
-  static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IFetchDDBVehicleSourceData {
+  static defaultFetchOptions(ids: number[] | null, searchTerm: string | null = null): IFetchDDBVehicleSourceData {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
     const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
@@ -111,7 +111,8 @@ export default class DDBVehicleFactory {
     const excludedCategories = DDBSources.getAllExcludedCategoryIds();
 
     const options = {
-      ids,
+      // a null id list behaves identically to an empty one downstream
+      ids: ids ?? [],
       searchTerm: finalSearchTerm.trim(),
       sources,
       homebrew,
@@ -140,7 +141,8 @@ export default class DDBVehicleFactory {
   async fetchDDBVehicleSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [] }: IFetchDDBVehicleSourceData = {},
   ) {
-    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix;
+    // getCobalt treats a null and undefined postfix identically
+    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix ?? undefined;
     const useLocal = this.keys.useLocal ?? DDBRunContext.useLocal;
     const cobaltCookie = Secrets.getCobalt(keyPostfix);
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
@@ -317,7 +319,7 @@ export default class DDBVehicleFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of vehicles processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed vehicle documents
    */
-  async processIntoCompendium(ids: number[] = null, searchTerm: any = null) {
+  async processIntoCompendium(ids: number[] | null = null, searchTerm: any = null) {
 
     logger.time("Vehicle Import Time");
     await this.#prepareImporter();
@@ -331,12 +333,16 @@ export default class DDBVehicleFactory {
     await this.compendiumFolders.loadCompendium("vehicles", true);
     this.notifier("", { nameField: true });
 
-    this.totalDocuments = this.source.length;
+    const source = this.source;
+    if (!source) {
+      throw new Error("No vehicle source data was fetched from DDB");
+    }
+    this.totalDocuments = source.length;
 
-    for (let i = 0; i < this.source.length; i += 100) {
-      const sourceDocuments = this.source.slice(i, i + 100);
+    for (let i = 0; i < source.length; i += 100) {
+      const sourceDocuments = source.slice(i, i + 100);
       logger.debug(`Processing documents for ${i + 1} to ${i + 100}`, { sourceDocuments, this: this });
-      const documents = await this.#createVehicleDocuments({ vehicles: this.source.slice(i, i + 100), i });
+      const documents = await this.#createVehicleDocuments({ vehicles: source.slice(i, i + 100), i });
       const vehicleCount = this.currentDocument + documents.length - 1;
       this.notifier(`Preparing to service vehicles ${i + 1} to ${vehicleCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.compendiumFolders.createVehicleFoldersForDocuments({ documents });
@@ -365,8 +371,12 @@ export default class DDBVehicleFactory {
     const failedVehicleNames: string[] = [];
 
     const vehicleSource = vehicles.length > 0 ? vehicles : this.source;
+    if (!vehicleSource) {
+      logger.warn("No vehicle source data to parse");
+      return { actors: [], failedVehicleNames: [] };
+    }
 
-    const totalVehicles = this.source.length;
+    const totalVehicles = this.source?.length ?? vehicleSource.length;
     let i = this.currentDocument;
     logger.time("Vehicle Parsing");
     for (const vehicle of vehicleSource) {

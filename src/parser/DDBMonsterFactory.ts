@@ -135,7 +135,7 @@ interface IDDBMonsterFactoryFetchOptions {
 
 export default class DDBMonsterFactory {
   extra: boolean;
-  keys: { useLocal: boolean; keyPostfix: string };
+  keys: { useLocal?: boolean | null; keyPostfix?: string | null };
   notifier: NotifierV1;
   notifierV2: INotifierV2 | null;
   type: TMonsterImporterTypes;
@@ -158,7 +158,7 @@ export default class DDBMonsterFactory {
     logger.info(note, { nameField, monsterNote });
   }
 
-  static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
+  static defaultFetchOptions(ids: number[] | null, searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
     const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
@@ -176,7 +176,8 @@ export default class DDBMonsterFactory {
     const monsterTypes = DDBSources.getSelectedMonsterTypeIds();
 
     const options = {
-      ids,
+      // a null id list behaves identically to an empty one downstream
+      ids: ids ?? [],
       searchTerm: finalSearchTerm.trim(),
       sources,
       homebrew,
@@ -193,8 +194,8 @@ export default class DDBMonsterFactory {
   constructor ({
     ddbData = null,
     extra = false,
-    notifier = null,
-    notifierV2 = null,
+    notifier,
+    notifierV2,
     type = "monsters",
     forceUpdate = null,
     useLocalKey = null,
@@ -206,7 +207,8 @@ export default class DDBMonsterFactory {
       keyPostfix,
     };
     this.npcs = [];
-    this.source = ddbData;
+    // a missing source list behaves like an empty one everywhere downstream
+    this.source = ddbData ?? [];
     this.notifier = notifier ?? DDBMonsterFactory.#noteStub;
     this.notifierV2 = notifierV2 ?? null;
     this.type = type;
@@ -247,7 +249,8 @@ export default class DDBMonsterFactory {
     homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [],
     monsterTypes = [] }: IDDBMonsterFactoryFetchOptions,
   ) {
-    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix;
+    // getCobalt treats a null and undefined postfix identically
+    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix ?? undefined;
     const useLocal = this.keys.useLocal ?? DDBRunContext.useLocal;
     const cobaltCookie = Secrets.getCobalt(keyPostfix);
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
@@ -307,7 +310,7 @@ export default class DDBMonsterFactory {
       logger.debug("Processing categories");
       return data
         .map((monster) => {
-          monster.sources = monster.sources.filter((source) =>
+          monster.sources = (monster.sources ?? []).filter((source) =>
             source.sourceType === 1
             && DDBSources.isSourceInAllowedCategory(source),
           );
@@ -315,7 +318,7 @@ export default class DDBMonsterFactory {
         })
         .filter((monster) => {
           if (monster.isHomebrew) return true;
-          return monster.sources.length > 0;
+          return (monster.sources?.length ?? 0) > 0;
         });
     };
 
@@ -618,17 +621,21 @@ export default class DDBMonsterFactory {
     const updated = monsters.map((monster) => {
       const existing = existingMonsters.find((m) =>
         monster.name === m.name
-        && monster.system.source.rules === m.system.source.rules,
+        && monster.system.source?.rules === m.system.source?.rules,
       );
       if (existing) {
         monster.img = existing.img;
         const skipKeys = ["name", "sight", "detectionModes", "flags", "light", "ring", "occludable"];
-        const copyTokenKey = <K extends keyof I5ePrototypeToken>(key: K): void => {
-          monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
-        };
-        for (const key of Object.keys(monster.prototypeToken) as (keyof I5ePrototypeToken)[]) {
-          if (!skipKeys.includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
-            copyTokenKey(key);
+        const monsterToken = monster.prototypeToken;
+        const existingToken = existing.prototypeToken;
+        if (monsterToken && existingToken) {
+          const copyTokenKey = <K extends keyof I5ePrototypeToken>(key: K): void => {
+            monsterToken[key] = foundry.utils.deepClone(existingToken[key]);
+          };
+          for (const key of Object.keys(monsterToken) as (keyof I5ePrototypeToken)[]) {
+            if (!skipKeys.includes(key) && foundry.utils.hasProperty(existingToken, key)) {
+              copyTokenKey(key);
+            }
           }
         }
         return monster;
@@ -646,7 +653,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */
-  async processIntoCompendium(ids: number[] = null, searchTerm: string = null): Promise<number | any[]> {
+  async processIntoCompendium(ids: number[] | null = null, searchTerm: string | null = null): Promise<number | any[]> {
 
     logger.time("Monster Import Time");
     await this.#prepareImporter();

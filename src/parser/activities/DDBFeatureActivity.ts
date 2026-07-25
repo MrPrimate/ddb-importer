@@ -9,9 +9,9 @@ import { DDBDescriptions } from "../lib/_module";
 type TDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition) & IDDBActionBackedDefinition;
 
 interface IDDBFeatureActivity {
-  name?: string;
+  name?: string | null;
   type: IDDBActivityType;
-  ddbParent?: DDBFeature;
+  ddbParent: DDBFeature;
   nameIdPrefix?: string | null;
   nameIdPostfix?: string | null;
   id?: string | null;
@@ -97,7 +97,9 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // "itemUses"
 
     if (this.ddbParent.rawCharacter) {
-      Object.entries(this.ddbParent.rawCharacter.system.resources).forEach(([resource, detail]) => {
+      // character features only consume labelled PC resources; monster raw characters never reach this parser
+      const resources = (this.ddbParent.rawCharacter as I5ePCData).system.resources ?? {};
+      Object.entries(resources).forEach(([resource, detail]) => {
         if (detail && this.ddbDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
@@ -170,7 +172,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDuration({ durationOverride = null } = {}) {
+  _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
     if (durationOverride) {
       this.data.duration = durationOverride;
       return;
@@ -179,8 +181,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const duration = DDBDescriptions.getDuration(description, false);
 
     if (duration.type === null) {
+      // the parser intentionally emits null duration values, which the dnd5e schema accepts,
+      // but I5eSystemDurationData.value only allows string | undefined
       this.data.duration = {
-        value: null,
+        value: "",
         units: "inst",
         special: "",
       };
@@ -188,7 +192,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     }
 
     this.data.duration = {
-      value: duration.value,
+      value: duration.value ?? "",
       units: duration.units as TDurationUnit,
       special: duration.special,
     };
@@ -199,7 +203,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  _generateRange({ rangeOverride = null } = {}) {
+  _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
     if (rangeOverride) {
       this.data.range = rangeOverride;
       return;
@@ -280,8 +284,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (aoeSizeMatch) {
       if (aoeSizeMatch[2] && ["of you"].includes(aoeSizeMatch[2].trim())) {
-        this.data.range.value = aoeSizeMatch.groups.within ?? "";
-        this.data.range.units = "ft";
+        const range = this.data.range ?? {};
+        range.value = aoeSizeMatch.groups?.within ?? "";
+        range.units = "ft";
+        this.data.range = range;
         const aoeSizeSecondaryRegex = /(?:in a) (?<within>\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the)(\w+[. ])?/ig;
         const aoeSizeSecondaryMatch = aoeSizeSecondaryRegex.exec(description);
 
@@ -295,30 +301,31 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
           // some features such as Land's Aid will match both.
           const type = aoeSizeSecondaryMatch[3]?.trim() ?? aoeSizeSecondaryMatch[2]?.trim() ?? "radius";
           target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
-          target.template.size = aoeSizeSecondaryMatch.groups.within ?? "";
+          target.template.size = aoeSizeSecondaryMatch.groups?.within ?? "";
         }
       } else {
         const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
         target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
-        target.template.size = aoeSizeMatch.groups.within ?? "";
+        target.template.size = aoeSizeMatch.groups?.within ?? "";
       }
     }
 
     const chooseRegex = /creature of your choice|choose (?<num>\w+) creatures within/ig;
     const chooseMatch = chooseRegex.exec(description);
     if (chooseMatch) {
-      if (this.buildData.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
+      if ((this.buildData.damage?.parts?.length ?? 0) > 0 || ["save", "attack", "damage"].includes(this.type))
         target.affects.type = "enemy";
       else if (["heal"].includes(this.type))
         target.affects.type = "ally";
       target.affects.choice = true;
-      if (chooseMatch.groups.num) {
-        const number = Number.isInteger(parseInt(chooseMatch.groups.num))
-          ? chooseMatch.groups.num
-          : DICTIONARY.numbers.find((num) => chooseMatch.groups.num.toLowerCase() === num.natural)?.num ?? null;
+      const chooseNum = chooseMatch.groups?.num;
+      if (chooseNum) {
+        const number = Number.isInteger(parseInt(chooseNum))
+          ? chooseNum
+          : DICTIONARY.numbers.find((num) => chooseNum.toLowerCase() === num.natural)?.num ?? null;
         target.affects.count = number ? String(number) : "";
         if (!number) {
-          target.affects.special = chooseMatch.groups.num;
+          target.affects.special = chooseNum;
         }
       }
     }
@@ -326,7 +333,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     return target;
   }
 
-  _generateTarget({ targetOverride = null, targetSelf = null, noTemplate = null } = {}) {
+  _generateTarget({ targetOverride = null, targetSelf = null, noTemplate = null }: {
+    targetOverride?: I5eActivityTarget | null;
+    targetSelf?: IDDBFeatureActivityBuild["targetSelf"];
+    noTemplate?: IDDBFeatureActivityBuild["noTemplate"];
+  } = {}) {
     if (targetOverride) {
       this.data.target = targetOverride;
       return;
@@ -351,14 +362,15 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       prompt: true,
     };
 
-    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      const type = DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "";
-      const size = type === "line" ? this.ddbDefinition.range.range : this.ddbDefinition.range.aoeSize;
+    const ddbRange = this.ddbDefinition.range;
+    if (ddbRange && ddbRange.aoeType && ddbRange.aoeSize) {
+      const type = DICTIONARY.actions.aoeType.find((type) => type.id === ddbRange.aoeType)?.value ?? "";
+      const size = type === "line" ? ddbRange.range : ddbRange.aoeSize;
       data = foundry.utils.mergeObject(data, {
         template: {
           type,
           size: size ? `${size}` : "",
-          width: type === "line" ? `${this.ddbDefinition.range.aoeSize}` : "",
+          width: type === "line" ? `${ddbRange.aoeSize}` : "",
         },
       });
       data.affects.type = "creature";
@@ -400,7 +412,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const damage = (parts ?? [this.ddbParent.getDamage()])
       .filter((part) => {
         if (!part) return false;
-        return part.denomination || part.custom.enabled;
+        return part.denomination || part.custom?.enabled;
       });
 
     if (!damage || damage.length === 0) return;
@@ -435,6 +447,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (!damage) return;
 
+    damage.types ??= [];
     if (damage.types.length === 0) damage.types.push("healing");
     this.buildData.healing = damage;
   }
@@ -448,11 +461,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const calculation = fixedDC
       ? ""
       : (this.ddbDefinition.abilityModifierStatId)
-        ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
+        ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId)?.value ?? "spellcasting"
         : "spellcasting";
 
     const saveAbility = (this.ddbDefinition.saveStatId)
-      ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
+      ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId)?.value ?? null
       : null;
 
     if (!saveAbility) {
@@ -531,11 +544,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (this.ddbDefinition.isMartialArts) {
       const systemData = this.ddbParent.data.system as { properties?: string[] };
-      systemData.properties = utils.addToProperties(systemData.properties, "fin");
+      systemData.properties = utils.addToProperties(systemData.properties ?? [], "fin");
     }
 
     this.buildData.attack = attack;
-    foundry.utils.setProperty(this.buildData.damage, "includeBase", true);
+    if (this.buildData.damage) foundry.utils.setProperty(this.buildData.damage, "includeBase", true);
 
   }
 
@@ -551,7 +564,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     }
     this._generateDamage({ parts: damageParts, includeBase });
 
-    if (this.buildData.damage && this.buildData.damage.parts.length > 0) {
+    const generatedDamageParts = this.buildData.damage?.parts ?? [];
+    if (generatedDamageParts.length > 0) {
       // {
       //   number: null,
       //   denomination: null,
@@ -568,8 +582,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       //   },
       // };
       const formulaParts = [];
-      for (const part of this.buildData.damage.parts) {
-        if (part.custom.enabled && part.custom.formula) {
+      for (const part of generatedDamageParts) {
+        if (part.custom?.enabled && part.custom.formula) {
           formulaParts.push(`(${part.custom.formula})`);
         } else if (part.number && part.denomination) {
           let formulaPart = `${part.number}d${part.denomination}`;
@@ -641,7 +655,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   }: IDDBFeatureActivityBuild = {}) {
 
     if (generateActivation) this._generateActivation({ activationOverride });
-    if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });
+    if (generateAttack) this._generateAttack({ attackOverride });
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateSave) this._generateSave({ saveOverride });

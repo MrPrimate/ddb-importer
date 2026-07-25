@@ -225,16 +225,18 @@ export default class NativeAdventureMunch {
     let selectedIds: string[] | null = options.sceneIds ?? null;
     if (selectedIds === null && !compendiumOnly && !allScenes && builtScenes.length) {
       selectedIds = await AdventureMunchHelpers.chooseScenesDialog(
-        builtScenes.map((s) => ({ _id: s.doc._id, name: s.doc.name })),
+        builtScenes.flatMap((s) => (s.doc._id && s.doc.name ? [{ _id: s.doc._id, name: s.doc.name }] : [])),
       );
     }
     const scenesToImport = selectedIds
-      ? builtScenes.filter((s) => selectedIds!.includes(s.doc._id))
+      ? builtScenes.filter((s) => selectedIds!.includes(s.doc._id ?? ""))
       : builtScenes;
 
     // Keep only the scene folders that still contain a selected scene (walk each
     // doc's folder chain to its parents). Avoids creating empty chapter folders.
-    const folderById = new Map<string, I5eFolderData>(sceneFolders.map((f) => [f._id, f]));
+    const folderById = new Map<string, I5eFolderData>(
+      sceneFolders.flatMap((f) => (f._id ? [[f._id, f] as [string, I5eFolderData]] : [])),
+    );
     const keepFolderIds = new Set<string>();
     for (const s of scenesToImport) {
       let fid: string | null = s.doc.folder ?? null;
@@ -245,7 +247,7 @@ export default class NativeAdventureMunch {
     }
     const sceneFoldersToImport = scenesToImport.length === builtScenes.length
       ? sceneFolders
-      : sceneFolders.filter((f) => keepFolderIds.has(f._id));
+      : sceneFolders.filter((f) => keepFolderIds.has(f._id ?? ""));
 
     const allFolders = [journalFolder, ...tableFolders, ...sceneFoldersToImport];
 
@@ -370,7 +372,7 @@ export default class NativeAdventureMunch {
     const toCreate: any[] = [];
     const toUpdate: any[] = [];
     for (const doc of docs) {
-      if (collection?.get(doc._id)) toUpdate.push(doc);
+      if (collection?.get(doc._id ?? "")) toUpdate.push(doc);
       else toCreate.push(doc);
     }
     try {

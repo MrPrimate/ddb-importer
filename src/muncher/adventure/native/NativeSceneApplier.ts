@@ -170,10 +170,12 @@ async function hideAllTokens(liveScene: Scene): Promise<number> {
 export function captureExistingSnips(scenes: BuiltScene[]): Map<string, PreservedSnips> {
   const preserved = new Map<string, PreservedSnips>();
   for (const scene of scenes) {
-    const liveScene = game.scenes?.get(scene.doc._id);
+    const sceneId = scene.doc._id;
+    if (!sceneId) continue;
+    const liveScene = game.scenes?.get(sceneId);
     if (!liveScene) continue;
     const snips = SceneSnipProcessor.getSnips(liveScene as Scene);
-    if (snips.length) preserved.set(scene.doc._id, snips);
+    if (snips.length) preserved.set(sceneId, snips);
   }
   return preserved;
 }
@@ -241,9 +243,10 @@ export async function applyScenes(
   for (let sceneNum = 0; sceneNum < scenes.length; sceneNum++) {
     const scene = scenes[sceneNum];
     options.notify?.(sceneNum + 1, scenes.length, `Applying scene: ${scene.doc.name}`);
-    const liveScene = game.scenes?.get(scene.doc._id) as Scene | undefined;
-    if (!liveScene) {
-      logger.debug(`NativeSceneApplier: scene ${scene.doc._id} ("${scene.doc.name}") not in world; skipping enrich`);
+    const sceneId = scene.doc._id;
+    const liveScene = sceneId ? game.scenes?.get(sceneId) as Scene | undefined : undefined;
+    if (!sceneId || !liveScene) {
+      logger.debug(`NativeSceneApplier: scene ${sceneId} ("${scene.doc.name}") not in world; skipping enrich`);
       continue;
     }
     const mapStub = mapStubForScene(scene, bookCode, sourceId);
@@ -270,7 +273,7 @@ export async function applyScenes(
     // Reapply preserved scene snips on overwrite: clean up stale snip tiles, then
     // re-extract from the new background. Only fires for scenes that already
     // existed (captureExistingSnips only maps live scenes).
-    const snips = options.preservedSnips?.get(scene.doc._id);
+    const snips = options.preservedSnips?.get(sceneId);
     if (snips?.length) {
       logger.info(`NativeSceneApplier: reapplying ${snips.length} snip(s) for scene "${scene.doc.name}"`);
       if (await reapplyScenesSnips(liveScene, snips)) snipped += 1;
