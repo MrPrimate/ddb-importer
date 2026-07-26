@@ -1120,8 +1120,8 @@ export default class EffectGenerator {
 
     const effects = this.document.effects ?? [];
     if (effects.length > 0
-      || foundry.utils.hasProperty(document, "flags.dae")
-      || foundry.utils.hasProperty(document, "flags.midi-qol.onUseMacroName")
+      || foundry.utils.hasProperty(this.document, "flags.dae")
+      || foundry.utils.hasProperty(this.document, "flags.midi-qol.onUseMacroName")
     ) {
       logger.debug(`${this.type} effect ${this.document.name}:`, {
         document: foundry.utils.duplicate(this.document),
