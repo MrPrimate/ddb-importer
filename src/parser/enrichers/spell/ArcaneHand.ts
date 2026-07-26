@@ -39,9 +39,9 @@ export default class ArcaneHand extends DDBEnricherData {
         ],
       summons: {
         "match": {
-          "proficiency": false,
+          "proficiency": this.is2024,
           "attacks": true,
-          "saves": false,
+          "saves": this.is2024,
         },
         "bonuses": {
           "ac": "",
