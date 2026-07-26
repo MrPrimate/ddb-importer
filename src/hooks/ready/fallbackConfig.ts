@@ -6099,6 +6099,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       sourceURL: "",
     },
     {
+      id: 281,
+      name: "VSSPP2",
+      description: "Valda’s Spire of Secrets: Player Pack 2",
+      sourceCategoryId: 32,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/57396/328/639179374879075343.jpeg",
+      sourceURL: "sources/dnd/vsspp2",
+    },
+    {
       id: 287,
       name: "LoGTTC",
       description: "Legends of Greyhawk: Tales from Turtleback Cove",
