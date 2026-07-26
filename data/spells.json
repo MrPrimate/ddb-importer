@@ -3278,5 +3278,313 @@
   {
     "name": "Jolt to Life",
     "path": "icons/magic/lightning/orb-ball-blue.webp"
+  },
+  {
+    "name": "Aegir's Breath",
+    "path": "icons/magic/water/projectiles-ice-faceted-shard-salvo-gray.webp"
+  },
+  {
+    "name": "Arc Blade",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-blue.webp"
+  },
+  {
+    "name": "Brittle Bone Throw",
+    "path": "icons/commodities/bones/bone-broken-grey.webp"
+  },
+  {
+    "name": "Candy Blast",
+    "path": "icons/consumables/food/candy-pattie-pink-white.webp"
+  },
+  {
+    "name": "Cheat",
+    "path": "icons/creatures/magical/spirit-poison-smoke-green.webp"
+  },
+  {
+    "name": "Frigid Blade",
+    "path": "icons/magic/water/strike-ice-blade-axe.webp"
+  },
+  {
+    "name": "Gravity Spike",
+    "path": "icons/magic/unholy/beams-impact-pink.webp"
+  },
+  {
+    "name": "Obfuscate Object",
+    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+  },
+  {
+    "name": "Crimson Lash",
+    "path": "icons/skills/wounds/injury-triple-slash-bleed.webp"
+  },
+  {
+    "name": "Extinguish",
+    "path": "icons/magic/fire/flame-burning-embers-yellow.webp"
+  },
+  {
+    "name": "Freyja's Grace",
+    "path": "icons/magic/symbols/clover-luck-white-green.webp"
+  },
+  {
+    "name": "Ice Shape",
+    "path": "icons/magic/water/ice-crystal-white.webp"
+  },
+  {
+    "name": "Icewalker",
+    "path": "icons/magic/water/snowflake-ice-green.webp"
+  },
+  {
+    "name": "Initiative",
+    "path": "icons/skills/movement/feet-winged-sandals-tan.webp"
+  },
+  {
+    "name": "Rumor",
+    "path": "icons/magic/symbols/rune-sigil-horned-white-purple.webp"
+  },
+  {
+    "name": "Shadow Hands",
+    "path": "icons/magic/unholy/hand-marked-pink.webp"
+  },
+  {
+    "name": "Spectral Slash",
+    "path": "icons/magic/fire/dagger-rune-enchant-blue-gray.webp"
+  },
+  {
+    "name": "Tide of Darkness",
+    "path": "icons/magic/unholy/orb-glowing-purple.webp"
+  },
+  {
+    "name": "Trickster's Bluff",
+    "path": "icons/magic/symbols/rune-sigil-horned-white-purple.webp"
+  },
+  {
+    "name": "Umbral Tendril",
+    "path": "icons/creatures/tentacles/tentacles-suctioncups-pink.webp"
+  },
+  {
+    "name": "Zephyr's Feather",
+    "path": "icons/commodities/materials/feather-blue-glowing.webp"
+  },
+  {
+    "name": "Ambush Prey",
+    "path": "icons/magic/perception/shadow-stealth-eyes-purple.webp"
+  },
+  {
+    "name": "Blind Ambush",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-white.webp"
+  },
+  {
+    "name": "Call to Action",
+    "path": "icons/magic/movement/acceleration-speed-tech-blue.webp"
+  },
+  {
+    "name": "Chain of Conviction",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Dark Path",
+    "path": "icons/magic/unholy/energy-smoke-pink.webp"
+  },
+  {
+    "name": "Defenestration",
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
+  },
+  {
+    "name": "Disrupt the Wyrd",
+    "path": "icons/magic/symbols/rune-sigil-green-purple.webp"
+  },
+  {
+    "name": "Eelskin",
+    "path": "icons/creatures/fish/fish-bioluminous-blue.webp"
+  },
+  {
+    "name": "Ember Belly",
+    "path": "icons/magic/fire/flame-burning-earth-yellow.webp"
+  },
+  {
+    "name": "Giantbane",
+    "path": "icons/creatures/magical/humanoid-horned-rider.webp"
+  },
+  {
+    "name": "Giantdodge",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Glimpse the Wyrd",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Hangover",
+    "path": "icons/consumables/drinks/alcohol-beer-stein-wooden-brown.webp"
+  },
+  {
+    "name": "Jethro's Instant Reload",
+    "path": "icons/weapons/guns/gun-double-barrel.webp"
+  },
+  {
+    "name": "Obscure Object",
+    "path": "icons/magic/perception/shadow-stealth-eyes-purple.webp"
+  },
+  {
+    "name": "Reaver's Rune",
+    "path": "icons/magic/symbols/runes-carved-stone-red.webp"
+  },
+  {
+    "name": "Reinforce Hull",
+    "path": "icons/magic/defensive/armor-shield-barrier-steel.webp"
+  },
+  {
+    "name": "Sanguine Secrets",
+    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
+  },
+  {
+    "name": "Searing Orb",
+    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
+  },
+  {
+    "name": "Skeletal Tail",
+    "path": "icons/commodities/bones/bone-spine-grey.webp"
+  },
+  {
+    "name": "Stone Bones",
+    "path": "icons/magic/earth/construct-stone.webp"
+  },
+  {
+    "name": "Transparency",
+    "path": "icons/creatures/magical/spirit-undead-ghost-blue.webp"
+  },
+  {
+    "name": "Valkyrie's Vision",
+    "path": "icons/magic/perception/eye-ringed-green.webp"
+  },
+  {
+    "name": "Veil of the Reaper",
+    "path": "icons/magic/unholy/hand-fire-skeleton-pink.webp"
+  },
+  {
+    "name": "Wilting Smite",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-purple-pink.webp"
+  },
+  {
+    "name": "Wotan's Retribution",
+    "path": "icons/skills/movement/portal-silhouette-pink.webp"
+  },
+  {
+    "name": "Compel Avarice",
+    "path": "icons/magic/control/fear-fright-shadow-monster-green.webp"
+  },
+  {
+    "name": "Flashback",
+    "path": "icons/magic/time/clock-spinning-gold-pink.webp"
+  },
+  {
+    "name": "Sif's Grace",
+    "path": "icons/skills/movement/feet-winged-boots-glowing-yellow.webp"
+  },
+  {
+    "name": "Trollblood Infusion",
+    "path": "icons/skills/wounds/blood-cells-disease-green.webp"
+  },
+  {
+    "name": "Truth's Blade",
+    "path": "icons/magic/holy/projectiles-blades-salvo-yellow.webp"
+  },
+  {
+    "name": "Valkyrie's Guidance",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Weave Detonation",
+    "path": "icons/magic/sonic/explosion-shock-sound-wave.webp"
+  },
+  {
+    "name": "Angrboda's Fury",
+    "path": "icons/creatures/magical/humanoid-giant-forest-blue.webp"
+  },
+  {
+    "name": "Aura of Desecration",
+    "path": "icons/magic/unholy/orb-swirling-teal.webp"
+  },
+  {
+    "name": "Beseech the Norns",
+    "path": "icons/creatures/magical/humanoid-silhouette-green.webp"
+  },
+  {
+    "name": "Blinding Radiance",
+    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+  },
+  {
+    "name": "Claws of the Bear",
+    "path": "icons/creatures/abilities/paw-print-orange.webp"
+  },
+  {
+    "name": "Consume Mind",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Dire Warning",
+    "path": "icons/sundries/documents/envelope-sealed-red-brown.webp"
+  },
+  {
+    "name": "Ghostly Crew",
+    "path": "icons/creatures/magical/spirit-undead-masked-blue.webp"
+  },
+  {
+    "name": "Hearthfire",
+    "path": "icons/magic/fire/flame-burning-yellow-orange.webp"
+  },
+  {
+    "name": "Marrow Transplant",
+    "path": "icons/commodities/bones/bones-broken-marrow-white-red.webp"
+  },
+  {
+    "name": "Noble Sacrifice",
+    "path": "icons/magic/control/buff-flight-wings-runes-purple.webp"
+  },
+  {
+    "name": "Pawn of the Wyrd",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Portho's Portal",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Sacrificial Syphon",
+    "path": "icons/magic/control/energy-stream-link-spiral-orange.webp"
+  },
+  {
+    "name": "Sanctum of the Shepherd",
+    "path": "icons/magic/defensive/barrier-shield-dome-pink.webp"
+  },
+  {
+    "name": "Shackles of Pain",
+    "path": "icons/sundries/survival/cuffs-shackles-steel.webp"
+  },
+  {
+    "name": "Shared Judgement",
+    "path": "icons/magic/light/beams-strike-blue.webp"
+  },
+  {
+    "name": "Valhalla's Cohort",
+    "path": "icons/creatures/magical/spirit-undead-winged-ghost.webp"
+  },
+  {
+    "name": "Greater Animate Dead",
+    "path": "icons/magic/death/undead-skeleton-deformed-red.webp"
+  },
+  {
+    "name": "Hero of Fable",
+    "path": "icons/skills/melee/hand-grip-sword-orange.webp"
+  },
+  {
+    "name": "Investiture of Venom",
+    "path": "icons/magic/unholy/projectile-smoke-tendril-green.webp"
+  },
+  {
+    "name": "Spirit Swarm",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "Tamh Gon's Fiery Festival Feast",
+    "path": "icons/consumables/food/plate-fish-grilled-brown.webp"
   }
 ]

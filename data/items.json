@@ -12230,5 +12230,9 @@
   {
     "name": "Rotten Flesh",
     "path": "icons/skills/wounds/illness-disease-glowing-green.webp"
+  },
+  {
+    "name": "Silvered Shortsword",
+    "path": "icons/weapons/swords/shortsword-guard-silver.webp"
   }
 ]

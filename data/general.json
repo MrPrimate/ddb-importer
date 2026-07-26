@@ -350,5 +350,9 @@
   {
     "name": "Vow of Revenge",
     "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Brutal Grip",
+    "path": "icons/skills/melee/hand-grip-staff-yellow-brown.webp"
   }
 ]

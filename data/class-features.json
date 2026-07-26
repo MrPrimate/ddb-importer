@@ -7568,5 +7568,54 @@
   {
     "name": "Undead Spells",
     "path": "icons/magic/death/skull-horned-goat-pentagram-red.webp"
+  },
+  {
+    "name": "Critical Shot",
+    "class_feature": "Critical Shot",
+    "class": "Gunslinger",
+    "subclass": "",
+    "path": "icons/weapons/guns/pistol-fire-orange.webp"
+  },
+  {
+    "name": "Gut Shot",
+    "class_feature": "Gut Shot",
+    "class": "Gunslinger",
+    "subclass": "",
+    "path": "icons/skills/wounds/injury-body-pain-gray.webp"
+  },
+  {
+    "name": "Quick Draw",
+    "class_feature": "Quick Draw",
+    "class": "Gunslinger",
+    "subclass": "",
+    "path": "icons/weapons/guns/gun-pistol-flintlock-metal.webp"
+  },
+  {
+    "name": "Risk",
+    "class_feature": "Risk",
+    "class": "Gunslinger",
+    "subclass": "",
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
+  },
+  {
+    "name": "Liar's Dice",
+    "class_feature": "Liar's Dice",
+    "class": "Gunslinger",
+    "subclass": "High Roller",
+    "path": "icons/sundries/gaming/gaming-set-dice.webp"
+  },
+  {
+    "name": "Poker Face",
+    "class_feature": "Poker Face",
+    "class": "Gunslinger",
+    "subclass": "High Roller",
+    "path": "icons/sundries/gaming/gaming-set-chips.webp"
+  },
+  {
+    "name": "Risky Business",
+    "class_feature": "Risky Business",
+    "class": "Gunslinger",
+    "subclass": "High Roller",
+    "path": "icons/sundries/gaming/gaming-set-cards.webp"
   }
 ]

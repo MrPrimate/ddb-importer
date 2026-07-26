@@ -882,5 +882,13 @@
   {
     "name": "Watchers",
     "path": "icons/creatures/magical/humanoid-silhouette-aliens-green.webp"
+  },
+  {
+    "name": "Close Combat Artillerist",
+    "path": "icons/weapons/guns/gun-double-barrel.webp"
+  },
+  {
+    "name": "Brutal Grip",
+    "path": "icons/skills/melee/hand-grip-staff-yellow-brown.webp"
   }
 ]
