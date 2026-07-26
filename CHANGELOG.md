@@ -3,6 +3,9 @@
 - Under the hood typing improvements
 - Invisibility typo in midiqol status effect for monsters
 - Some books like Heroes of Faerun would not generate all journal pages when importing via native muncher @crimsonedge
+- Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
+- Arcane Hand fixes
+- Vampiric Bite fixes
 
 # 7.3.15
 
