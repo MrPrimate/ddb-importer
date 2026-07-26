@@ -60,7 +60,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   hideDescription: boolean;
   updateExisting: boolean;
   stripFlagData: boolean;
-  titleHTML: string;
+  titleHTML?: string;
   actionCopy: boolean;
   isSpellSave: boolean;
   isSavingThrow: boolean;
@@ -75,7 +75,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   toHit: number;
   yourSpellAttackModToHit: boolean;
   templateType: "feat" | "weapon";
-  weaponLookup: IMonsterWeaponDictionary;
+  weaponLookup: IMonsterWeaponDictionary | undefined;
   identifier: string;
   isCompanion: boolean;
   nameSplit: string;
@@ -118,7 +118,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           },
         },
         monsterMunch: {
-          titleHTML: this.titleHTML,
+          titleHTML: this.titleHTML ?? "",
           fullName: this.fullName,
           actionCopy: this.actionCopy,
           type: this.type,
@@ -129,7 +129,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // these templates not good
     if ("requirements" in this.data.system)
       this.data.system.requirements = "";
-    this.data.sort = this.sort;
+    this.data.sort = this.sort ?? undefined;
     this.levelBonus = false;
     this.profBonus = false;
   }
@@ -208,7 +208,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       baseWeapon: null,
       baseTool: null,
       damage: {
-        base: null,
+        base: undefined,
         onSave: null,
         // parts: [],
         // versatile: "",
@@ -268,7 +268,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         reach: null,
       },
       activation: {
-        type: null,
+        type: undefined,
         value: null,
         condition: "",
       },
@@ -276,7 +276,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         ability: [],
         dc: {
           calculation: "",
-          formula: null,
+          formula: "",
         },
       },
       uses: {
@@ -293,6 +293,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } : IDDBMonsterFeature) {
 
+    // a missing monster previously blew up further down with a TypeError; fail loudly instead
+    if (!ddbMonster) {
+      throw new Error(`DDBMonsterFeature "${name}" constructed without a ddbMonster`);
+    }
+
     const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity });
     super({
       enricher,
@@ -308,7 +313,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.useCastActivity = ddbMonster.useCastActivity;
     this.use2024Spells = ddbMonster.use2024Spells;
 
-    this.type = type;
+    this.type = type ?? "action";
     this.html = html ?? "";
     this.titleHTML = titleHTML ?? undefined;
     this.fullName = fullName ?? this.name;
@@ -337,10 +342,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   damageModReplace(text: string) {
     let result;
-    const diceParse = utils.parseDiceString(text, null);
+    const diceParse = utils.parseDiceString(text);
     if (this.actionData.baseAbility) {
       const baseAbility = this.ddbMonster.abilities[this.actionData.baseAbility];
-      const baseAbilityMod = utils.calculateModifier(baseAbility.value);
+      const baseAbilityMod = utils.calculateModifier(baseAbility.value ?? 10);
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -462,14 +467,14 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
 
   getUses(name = false) {
-    const uses: I5eSystemLimitedUses = {
+    const uses: I5eSystemLimitedUses & { recovery: I5eSystemLimitedUsesRecovery[] } = {
       spent: null,
       max: null,
       recovery: [],
     };
 
     const recovery: I5eSystemLimitedUsesRecovery = {
-      period: null,
+      period: "",
       type: "recoverAll",
       formula: undefined,
     };
@@ -525,7 +530,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   getActivation(): I5eActivityActivation {
     const activation: I5eActivityActivation = foundry.utils.deepClone(this.actionData.activation);
-    activation.value = this.getActivationValue();
+    activation.value = this.getActivationValue() ?? undefined;
     activation.type = this.getActionType();
     return activation;
   }
@@ -606,8 +611,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     for (const ability of abilitiesToCheck) {
       const monsterAbility = this.ddbMonster.abilities[ability];
-      const abilityMod = utils.calculateModifier(monsterAbility.value);
-      if (this.toHit == this.ddbMonster.proficiencyBonus + abilityMod) {
+      const abilityMod = utils.calculateModifier(monsterAbility.value ?? 10);
+      if (this.toHit == (this.ddbMonster.proficiencyBonus ?? 0) + abilityMod) {
         result.success = true;
         result.ability = ability;
         result.proficient = true;
@@ -637,11 +642,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         bonus: 0,
       };
       const monsterAbility = this.ddbMonster.abilities[ability];
-      const abilityMod = utils.calculateModifier(monsterAbility.value);
-      if (this.toHit > this.ddbMonster.proficiencyBonus + abilityMod) {
+      const abilityMod = utils.calculateModifier(monsterAbility.value ?? 10);
+      if (this.toHit > (this.ddbMonster.proficiencyBonus ?? 0) + abilityMod) {
         result.success = true;
         result.proficient = true;
-        result.bonus = this.toHit - this.ddbMonster.proficiencyBonus - abilityMod;
+        result.bonus = this.toHit - (this.ddbMonster.proficiencyBonus ?? 0) - abilityMod;
       } else if (this.toHit > abilityMod) {
         result.success = true;
         result.proficient = false;
@@ -665,22 +670,23 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const spellAbilities: T5eAbility[] = ["cha", "wis", "int"];
 
     // we have a weapon name match so we can infer a bit more
-    if (this.weaponLookup) {
-      for (const [key, value] of Object.entries(this.weaponLookup.properties)) {
+    const weaponLookup = this.weaponLookup;
+    if (weaponLookup) {
+      for (const [key, value] of Object.entries(weaponLookup.properties)) {
         // logger.info(`${key}: ${value}`);
         (this.actionData.properties as Record<string, any>)[key] = value;
       }
-      const strMod = utils.calculateModifier(this.ddbMonster.abilities["str"].value);
-      const dexMod = utils.calculateModifier(this.ddbMonster.abilities["dex"].value);
+      const strMod = utils.calculateModifier(this.ddbMonster.abilities["str"].value ?? 10);
+      const dexMod = utils.calculateModifier(this.ddbMonster.abilities["dex"].value ?? 10);
       const versatileWeapon = this.actionData.properties.ver &&  dexMod > strMod;
-      if (versatileWeapon || this.weaponLookup.actionType == "rwak") {
+      if (versatileWeapon || weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
-      } else if (this.weaponLookup.actionType == "mwak") {
+      } else if (weaponLookup.actionType == "mwak") {
         weaponAbilities = ["str"];
       }
-      this.actionData.weaponType = this.weaponLookup.weaponType;
+      this.actionData.weaponType = weaponLookup.weaponType;
 
-      const characterWeapon = DICTIONARY.actor.proficiencies.find((w) => w.name === this.weaponLookup.name);
+      const characterWeapon = DICTIONARY.actor.proficiencies.find((w) => w.name === weaponLookup.name);
       if (characterWeapon) {
         if (characterWeapon?.ammunitionType) {
           foundry.utils.setProperty(this.data, "system.ammunition.type", characterWeapon.ammunitionType);
@@ -752,7 +758,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
           this.actionData.baseAbility = filteredAbilities[0].ability;
-          this.actionData.proficient = filteredAbilities[0].proficient;
+          this.actionData.proficient = filteredAbilities[0].proficient ?? false;
           this.actionData.extraAttackBonus = filteredAbilities[0].bonus;
         }
       }
@@ -776,7 +782,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
           this.actionData.baseAbility = filteredAbilities[0].ability;
-          this.actionData.proficient = filteredAbilities[0].proficient;
+          this.actionData.proficient = filteredAbilities[0].proficient ?? false;
           this.actionData.extraAttackBonus = filteredAbilities[0].bonus;
         } else {
           logger.error("Unable to calculate attack!", { filteredAbilities, html: this.strippedHtml, ddbFeature: this });
@@ -797,7 +803,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
 
   getTarget(): I5eActivityTarget {
-    const target: I5eActivityTarget = {
+    // fully populated template/affects so the narrowing survives the regex branches below
+    const target: I5eActivityTarget & {
+      template: NonNullable<I5eActivityTarget["template"]>;
+      affects: NonNullable<I5eActivityTarget["affects"]>;
+    } = {
       template: {
         count: "",
         contiguous: false,
@@ -996,13 +1006,14 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       ?? fallbackMakesOrMatch
       ?? superFallbackMatch;
 
-    if (match) {
-      const attackNames = [];
-      if (match.groups.attackNames) attackNames.push(match.groups.attackNames);
-      if (match.groups.attackNames2) attackNames.push(match.groups.attackNames2);
-      if (match.groups.attackNames3) attackNames.push(match.groups.attackNames3);
-      if (match.groups.attackNames4) attackNames.push(match.groups.attackNames4);
-      if (match.groups.replaceName) attackNames.push(match.groups.replaceName);
+    const matchedGroups = match?.groups;
+    if (matchedGroups) {
+      const attackNames: string[] = [];
+      if (matchedGroups.attackNames) attackNames.push(matchedGroups.attackNames);
+      if (matchedGroups.attackNames2) attackNames.push(matchedGroups.attackNames2);
+      if (matchedGroups.attackNames3) attackNames.push(matchedGroups.attackNames3);
+      if (matchedGroups.attackNames4) attackNames.push(matchedGroups.attackNames4);
+      if (matchedGroups.replaceName) attackNames.push(matchedGroups.replaceName);
       for (const attackNameString of attackNames) {
         handleReplaceNames(attackNameString);
       }
@@ -1011,49 +1022,49 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const replaceRegex = /It can replace (?:\w+|the (?:\w+)) attacks? with a use of (?<replaceName>.*?)\./i;
     const replaceRegex2 = /It can replace (?:\w+|the (?:\w+)) attacks? with a (?<replaceName>.*?) attack\./i;
     const replaceMatch = replaceRegex.exec(this.strippedHtml) ?? replaceRegex2.exec(this.strippedHtml);
-    if (replaceMatch) {
+    if (replaceMatch?.groups) {
       handleReplaceNames(replaceMatch.groups.replaceName);
     }
 
     const andRegex = /The (?:.*) can use its (?<attackNames>.*) and makes/i;
     const andMatch = andRegex.exec(this.strippedHtml);
-    if (andMatch) {
+    if (andMatch?.groups) {
       handleReplaceNames(andMatch.groups.attackNames);
     }
 
     const andCanRegex = /(?:and can use|It also uses|and it uses|and it can use) (?<attackNames>.*)\./i;
     const andCanMatch = andCanRegex.exec(this.strippedHtml);
-    if (andCanMatch) {
+    if (andCanMatch?.groups) {
       handleReplaceNames(andCanMatch.groups.attackNames);
     }
 
     const ifItUsedRegex = /if it used (?<attackNames>.*) this turn/i;
     const ifItUsedMatch = ifItUsedRegex.exec(this.strippedHtml);
-    if (ifItUsedMatch) {
+    if (ifItUsedMatch?.groups) {
       handleReplaceNames(ifItUsedMatch.groups.attackNames);
     }
 
     const usesRegex = /The (?:.*) uses (?<attackNames>.*?)(?:\.| twice| three| four| five)/i;
     const usesMatch = usesRegex.exec(this.strippedHtml);
-    if (usesMatch) {
+    if (usesMatch?.groups) {
       handleReplaceNames(usesMatch.groups.attackNames);
     }
 
     if (CONFIG.DDBI.DEV.multiattackNotes) {
       if (actionNames.size === 0) {
-        if (!CONFIG.DDBI.NO_MULTIATTACK) {
-          CONFIG.DDBI.NO_MULTIATTACK = [];
-          CONFIG.DDBI.NO_MULTIATTACK_DETAILS = [];
-        }
-        CONFIG.DDBI.NO_MULTIATTACK.push(this.strippedHtml);
-        CONFIG.DDBI.NO_MULTIATTACK_DETAILS.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
+        const noMultiattack = CONFIG.DDBI.NO_MULTIATTACK ?? [];
+        const noMultiattackDetails = CONFIG.DDBI.NO_MULTIATTACK_DETAILS ?? [];
+        CONFIG.DDBI.NO_MULTIATTACK = noMultiattack;
+        CONFIG.DDBI.NO_MULTIATTACK_DETAILS = noMultiattackDetails;
+        noMultiattack.push(this.strippedHtml);
+        noMultiattackDetails.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
       } else {
-        if (!CONFIG.DDBI.NO_MULTIATTACK) {
-          CONFIG.DDBI.MULTIATTACK_MATCHES = [];
-          CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS = [];
-        }
-        CONFIG.DDBI.MULTIATTACK_MATCHES.push(actionNames);
-        CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
+        const multiattackMatches = CONFIG.DDBI.MULTIATTACK_MATCHES ?? [];
+        const multiattackMatchesDetails = CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS ?? [];
+        CONFIG.DDBI.MULTIATTACK_MATCHES = multiattackMatches;
+        CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS = multiattackMatchesDetails;
+        multiattackMatches.push(actionNames);
+        multiattackMatchesDetails.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
 
       }
     }
@@ -1088,7 +1099,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     }
     description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbMonster.npc);
 
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
+    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc }) ?? description;
     description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
     description = DDBReferenceLinker.parseTags(description);
     description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbMonster.npc);
@@ -1109,7 +1120,7 @@ ${this.data.system.description.value}
 
   #buildAction() {
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
-      this.actionData.consumptionValue = this.actionData.activation.value;
+      this.actionData.consumptionValue = this.actionData.activation.value ?? null;
     } else {
       this.actionData.activation.value = 1;
     }
@@ -1127,7 +1138,9 @@ ${this.data.system.description.value}
     }
 
     if (this.weaponAttack && this.templateType === "weapon") {
-      this.data.system.type.value = this.actionData.weaponType;
+      if (this.actionData.weaponType) {
+        this.data.system.type.value = this.actionData.weaponType;
+      }
     } else if (this.spellAttack) {
       // if (!this.meleeAttack && !this.rangedAttack) {
       //   this.activityType = "save";
@@ -1162,7 +1175,7 @@ ${this.data.system.description.value}
     if (this.data.name.trim() === "Lair Actions") {
       this.actionData.activation.value = 1;
     } else if (this.data.name.trim() === "Regional Effects") {
-      this.actionData.activation.type = null;
+      this.actionData.activation.type = "none";
     }
     return this.data;
   }
@@ -1171,7 +1184,7 @@ ${this.data.system.description.value}
     // for the legendary actions feature itself we don't want to do most processing
     if (this.name === "Legendary Actions") {
       this.activityType = "none";
-      this.actionData.activation.type = null;
+      this.actionData.activation.type = "none";
       return;
     }
 
@@ -1188,7 +1201,7 @@ ${this.data.system.description.value}
     });
 
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
-      this.actionData.consumptionValue = this.actionData.activation.value;
+      this.actionData.consumptionValue = this.actionData.activation.value ?? null;
     } else {
       // this.data.system.activation.cost = 1;
       this.actionData.activation.value = 1;
@@ -1206,7 +1219,8 @@ ${this.data.system.description.value}
     } else {
       for (const id of Object.keys(this.data.system.activities)) {
         this.data.system.activities[id].activation = this.actionData.activation;
-        this.data.system.activities[id].consumption.targets = this.actionData.consumptionTargets;
+        const consumption = this.data.system.activities[id].consumption;
+        if (consumption) consumption.targets = this.actionData.consumptionTargets;
       }
     }
 
@@ -1214,7 +1228,7 @@ ${this.data.system.description.value}
 
   #buildSpecial() {
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
-      this.actionData.consumptionValue = this.actionData.activation.value;
+      this.actionData.consumptionValue = this.actionData.activation.value ?? null;
     } else {
       this.actionData.activation.value = 1;
     }
@@ -1437,7 +1451,7 @@ ${this.data.system.description.value}
   }
 
   _generateAutoEffects({ html, addToMonster = true }: { html: string; addToMonster?: boolean }) {
-    const flags: IItemFlagConfig = {
+    const flags: IItemFlagConfig & { ddbimporter: NonNullable<IItemFlagConfig["ddbimporter"]> } = {
       ddbimporter: {},
     };
 
@@ -1469,6 +1483,7 @@ ${this.data.system.description.value}
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
+    this.data.effects ??= [];
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 
@@ -1523,19 +1538,22 @@ ${this.data.system.description.value}
   }
 
   async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell: any) {
-    const spellOverride: I5eActivitySpell = {
+    const spellOverride: I5eActivitySpell & {
+      properties: NonNullable<I5eActivitySpell["properties"]>;
+      challenge: NonNullable<I5eActivitySpell["challenge"]>;
+    } = {
       uuid: compendiumSpell.uuid,
       properties: [],
       level: null,
       challenge: {
-        attack: null,
-        save: null,
+        attack: undefined,
+        save: undefined,
         override: false,
       },
       spellbook: true,
     };
 
-    const consumptionOverride: I5eActivityConsumption = {
+    const consumptionOverride: I5eActivityConsumption & { targets: I5eConsumptionTarget[] } = {
       spellSlot: false,
       targets: [],
       scaling: {
@@ -1544,7 +1562,7 @@ ${this.data.system.description.value}
       },
     };
 
-    const usesOverride: I5eSystemLimitedUses = {
+    const usesOverride: I5eSystemLimitedUses & { recovery: I5eSystemLimitedUsesRecovery[] } = {
       spent: null,
       recovery: [],
       max: "",
@@ -1591,7 +1609,7 @@ ${this.data.system.description.value}
     }
 
     if (this.spellCastingData.ability
-      && this.spellCastingData.ability !== this.ddbMonster.npc.system.attributes.spellcasting
+      && this.spellCastingData.ability !== this.ddbMonster.npc.system.attributes?.spellcasting
     ) {
       spellOverride.ability = this.spellCastingData.ability;
     }
@@ -1609,7 +1627,7 @@ ${this.data.system.description.value}
       generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
-      generateTarget: spellData.targetSelf,
+      generateTarget: spellData.targetSelf ?? undefined,
     };
 
     const activity = this._getCastActivity({
@@ -1667,7 +1685,7 @@ ${this.data.system.description.value}
     const spells: IDDBParsedMonsterSpell[] = [];
 
     dom.childNodes.forEach((node) => {
-      const spellText = utils.nameString(node.textContent);
+      const spellText = utils.nameString(node.textContent ?? "");
       const trimmedText = spellText.trim();
       const spellData = DDBDescriptions.parseOutMonsterSpells(trimmedText);
       spells.push(...spellData);
@@ -1733,7 +1751,8 @@ ${this.data.system.description.value}
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
     const spells: IMonsterSpellcastingSpell[] = [];
-    if (matches) {
+    const matchGroups = matches?.groups;
+    if (matchGroups) {
       // console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
       //   matches,
       //   strippedHtml: this.strippedHtml,
@@ -1745,7 +1764,7 @@ ${this.data.system.description.value}
       const perUseMatch = this.strippedHtml.match(perUseRegex);
 
       const names = DDBDescriptions
-        .splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "))
+        .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
         .filter((n) => n.trim() !== "");
       for (const name of names) {
         const spell: IMonsterSpellcastingSpell = {
@@ -1760,16 +1779,16 @@ ${this.data.system.description.value}
           // duration: {},
         };
 
-        if (matches.groups.self) {
+        if (matchGroups.self) {
           spell.extra = "on itself";
           spell.targetSelf = true;
         }
-        if (matches.groups.components) {
+        if (matchGroups.components) {
           spell.noComponents = true;
         }
 
-        if (matches.groups.ability) {
-          spell.ability = matches.groups.ability;
+        if (matchGroups.ability) {
+          spell.ability = matchGroups.ability;
         }
 
         if (perUseMatch) {
@@ -1799,7 +1818,9 @@ ${this.data.system.description.value}
       || this.originalName.startsWith("Innate Spellcasting");
 
     if (spellcastingMatch) {
-      const spells = this.#getSpellcastingSpells();
+      // parsed spells use null for a missing duration; the spellcasting shape wants it absent
+      const spells = this.#getSpellcastingSpells()
+        .map((spell): IMonsterSpellcastingSpell => ({ ...spell, duration: spell.duration ?? undefined }));
       await this.#buildSpellcastingActivities(spells);
     } else {
       await this.#buildOtherSpellActivities();

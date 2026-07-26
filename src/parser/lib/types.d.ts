@@ -4,15 +4,28 @@ global {
 
   type TDDBLimitedUses = IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse;
 
+  // dcParser always populates a full save shape; runtime uses null for "unset"
+  // ability in parseStatusCondition, which I5eActivitySave does not allow.
+  interface IDCParserSave {
+    dc: {
+      formula: string;
+      calculation: string;
+    };
+    ability: string[];
+  }
+
   interface IParseStatusConditionResult {
     success: boolean;
     check: boolean;
-    save: I5eActivitySave;
+    save: Omit<I5eActivitySave, "ability"> & { ability: string[] | null };
     condition: string | null;
     group4: boolean | null;
     group4Condition: IDDBConfigDamageAdjustment | null;
     conditionName: string | null;
-    duration: IEffectDuration;
+    duration: {
+      value: number | null;
+      units: TEffectDurationUnit | null;
+    };
     specialDurations: string[];
     match: RegExpExecArray | null;
     riderStatuses: string[];
@@ -75,7 +88,7 @@ global {
   }
 
   interface IDCParserResult {
-    save: I5eActivitySave;
+    save: IDCParserSave;
     match: RegExpExecArray | null;
     damageAndSave: boolean;
     check?: boolean;
@@ -118,7 +131,8 @@ global {
 
   interface IDDBModifiersFilterBaseModifiersOptions extends IDDBModifiersBaseOptions {
     subType?: string | null;
-    restriction?: (string | null)[];
+    // null disables restriction filtering entirely (see DDBModifiers.filterModifiers)
+    restriction?: (string | null)[] | null;
   }
 
 

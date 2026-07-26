@@ -110,7 +110,8 @@ global {
   }
 
   interface I5eSystemLimitedUsesRecovery {
-    period: TLimitedUsePeriod;
+    // null is written for at-will style uses and accepted by the dnd5e schema
+    period: TLimitedUsePeriod | null;
     type: string;
     formula?: string | undefined;
   }

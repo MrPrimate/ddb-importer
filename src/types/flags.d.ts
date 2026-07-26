@@ -52,7 +52,7 @@ global {
     importId?: string;
 
     // Source metadata
-    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
+    sources?: { sourceId: number; pageNumber?: number | null; sourceType?: number }[];
     tags?: string[];
     // number for parsed documents; DDBMap stamps the string map-source id on scenes
     sourceId?: number | string | null;

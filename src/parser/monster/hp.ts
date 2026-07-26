@@ -1,3 +1,4 @@
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 // "hp": {
@@ -18,7 +19,12 @@ import DDBMonster from "../DDBMonster";
 // },
 
 DDBMonster.prototype._generateHitPoints = function _generateHitPoints (this: DDBMonster) {
-  this.npc.system.attributes.hp = {
+  const attributes = this.npc.system.attributes;
+  if (!attributes) {
+    logger.warn(`_generateHitPoints: missing npc attributes for ${this.source.name}`);
+    return;
+  }
+  attributes.hp = {
     value: this.source.averageHitPoints - (this.removedHitPoints ?? 0),
     min: 0,
     max: this.source.averageHitPoints,

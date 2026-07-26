@@ -6,8 +6,15 @@ DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
 
 DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, additionalItems: string[] = []) {
+  const attributes = this.npc.system.attributes;
+  const ddbimporterFlags = this.npc.flags?.ddbimporter;
+  if (!attributes || !ddbimporterFlags) {
+    logger.warn(`_generateAC: missing npc attributes or importer flags for ${this.source.name}`);
+    return;
+  }
+
   const originalAc = parseInt(String(this.source.armorClass));
-  const ac = {
+  const ac: I5eArmorClass = {
     flat: originalAc,
     calc: "",
     formula: "",
@@ -16,8 +23,12 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
 
   let flatAC = true;
 
-  const stat = this.source.stats.find((stat) => stat.statId === 2).value || 10;
-  const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
+  const stat = this.source.stats.find((stat) => stat.statId === 2)?.value || 10;
+  const statModifier = CONFIG.DDB.statModifiers.find((s) => s.value == stat);
+  if (!statModifier) {
+    logger.warn(`_generateAC: no stat modifier found for stat value ${stat} on ${this.source.name}`);
+  }
+  const dexBonus = statModifier?.modifier ?? 0;
   const baseAc = 10 + dexBonus;
 
   const lowerDescription = this.source.armorClassDescription ? this.source.armorClassDescription.toLowerCase() : "";
@@ -50,12 +61,14 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
         ac.calc = "natural";
         flatAC = false;
 
-        if (lowerDescription.includes("shield")) ac.flat = ac.flat - 2;
-        if (lowerDescription.includes("ring of protection")) ac.flat = ac.flat - 1;
-        if (lowerDescription.includes("cloak of protection")) ac.flat = ac.flat - 1;
-        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = ac.flat - 1;
-        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = ac.flat - 2;
-        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = ac.flat - 3;
+        let flat = ac.flat ?? originalAc;
+        if (lowerDescription.includes("shield")) flat -= 2;
+        if (lowerDescription.includes("ring of protection")) flat -= 1;
+        if (lowerDescription.includes("cloak of protection")) flat -= 1;
+        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) flat -= 1;
+        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) flat -= 2;
+        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) flat -= 3;
+        ac.flat = flat;
       } else if (!lowerItem.includes("with mage armor")) {
         lowerItem = lowerItem
           .replace("leather armor", "leather")
@@ -109,9 +122,9 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     .map((item) => {
       if ("attunement" in item.system && item.system.attunement === "required") item.system.attuned = true;
       if (foundry.utils.hasProperty(item, "system.equipped")) item.system.equipped = true;
-      const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-      if (check && "quantity" in item.system) {
-        item.system.quantity = check.system.quantity;
+      const check = itemsToCheck.find((i) => i?.name?.toLowerCase() === item.name.toLowerCase());
+      if (check?.system && "quantity" in item.system) {
+        item.system.quantity = check.system.quantity ?? 1;
       }
       return item;
     });
@@ -121,7 +134,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     if (["light", "medium", "heavy", "shield"].includes(i.system.type.value)) return true;
     if (i.system.type.value === "trinket") {
       const effectHasACChanges = (i.effects ?? []).some((e) => {
-        const changeACKey = e.system.changes.some((c) => c.key.includes("system.attributes.ac"));
+        const changeACKey = (e.system?.changes ?? []).some((c) => c.key.includes("system.attributes.ac"));
         return changeACKey;
       });
       if (effectHasACChanges) return true;
@@ -132,9 +145,9 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   // update weapons imported as features with quantity
   for (const item of this.items) {
     if (item.type !== "weapon") continue;
-    const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-    if (check) {
-      item.system.quantity = check.system.quantity;
+    const check = itemsToCheck.find((i) => i?.name?.toLowerCase() === item.name.toLowerCase());
+    if (check?.system) {
+      item.system.quantity = check.system.quantity ?? 1;
     }
   }
 
@@ -186,13 +199,15 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
       origin: `Compendium.${compendium}.Actor.${this.npc._id}.Item.${spellCastingAC._id}`,
     });
     const maAC = 13 + dexBonus;
-    if (acItems.length === 0 && ac.flat > maAC) {
+    if (acItems.length === 0 && (ac.flat ?? 0) > maAC) {
       const effect = ACBonusEffects.ACEffect("AC Bonus");
       effect.disabled = false;
       effect.transfer = true;
+      effect.system ??= {};
+      effect.system.changes ??= [];
       effect.system.changes.push({
         key: "system.attributes.ac.bonus",
-        value: `${ac.flat - maAC}`,
+        value: `${(ac.flat ?? 0) - maAC}`,
         type: "add",
         priority: 30,
       });
@@ -215,6 +230,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     flatAC = false;
   }
 
+  this.npc.effects ??= [];
   this.npc.effects.push(...effects);
 
   this.ac = {
@@ -231,8 +247,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   };
 
   logger.debug(`${this.source.name} ac calcs`, this.ac);
-  this.npc.system.attributes.ac = ac;
-  this.npc.flags.ddbimporter.flatAC = flatAC;
+  attributes.ac = ac;
+  ddbimporterFlags.flatAC = flatAC;
   if (this.useItemAC) this.items.push(...adjustedItems);
 
 };

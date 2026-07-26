@@ -211,7 +211,7 @@ global {
     alignment?: string;
     biography?: I5eBiography;
     bond?: string;
-    cr?: number;
+    cr?: number | null;
     environment?: string;
     flaw?: string;
     habitat?: I5eHabitat;

@@ -39,8 +39,8 @@ export default class GenericSpellFactory {
           dndbeyond: {
             lookup: "generic",
             lookupName: "generic",
-            level: spellData.castAtLevel,
-            castAtLevel: spellData.castAtLevel,
+            level: spellData.castAtLevel ?? undefined,
+            castAtLevel: spellData.castAtLevel ?? undefined,
             homebrew: spellData.definition.isHomebrew,
           },
         },
@@ -72,11 +72,11 @@ export default class GenericSpellFactory {
     // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 
     const items = [];
-    const proficiencyModifier = character.flags.ddbimporter.dndbeyond.profBonus;
+    const proficiencyModifier = character.flags?.ddbimporter?.dndbeyond?.profBonus ?? 0;
     const spellCountDict = {};
 
     // feat spells are handled slightly differently
-    const spells = [...ddb.character.spells.item];
+    const spells = [...(ddb.character.spells.item ?? [])];
     if (ddb.unequippedItemSpells) spells.push(...ddb.unequippedItemSpells);
     for (const spell of spells) {
       if (!spell.definition) continue;
@@ -100,8 +100,8 @@ export default class GenericSpellFactory {
           spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
         }
 
-        const ability = character.flags.ddbimporter.dndbeyond.effectAbilities[spellCastingAbility];
-        const abilityModifier = utils.calculateModifier(ability.value);
+        const abilityValue = character.flags?.ddbimporter?.dndbeyond?.effectAbilities?.[spellCastingAbility]?.value ?? 10;
+        const abilityModifier = utils.calculateModifier(abilityValue);
         spellDC = 8 + proficiencyModifier + abilityModifier;
       } else {
         spellDC = null;
@@ -114,13 +114,13 @@ export default class GenericSpellFactory {
             lookup: "item",
             lookupName: itemInfo.definition.name,
             lookupId: itemInfo.definition.id,
-            level: spell.castAtLevel,
+            level: spell.castAtLevel ?? undefined,
             dc: spellDC,
-            limitedUse: itemInfo.limitedUse,
+            limitedUse: itemInfo.limitedUse ?? undefined,
             nameOverride: `${spell.definition.name} (${itemInfo.definition.name})`,
             overrideDC: !!spell.overrideSaveDc,
             spellLimitedUse: spell.limitedUse,
-            castAtLevel: spell.castAtLevel,
+            castAtLevel: spell.castAtLevel ?? undefined,
             active: active,
             homebrew: spell.definition.isHomebrew,
           },

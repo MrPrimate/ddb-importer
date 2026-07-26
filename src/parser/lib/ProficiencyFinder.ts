@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBModifiers from "./DDBModifiers";
 
 interface IProficiencyBasic {
@@ -28,14 +28,16 @@ export default class ProficiencyFinder {
     this.excludeCustom = excludeCustom;
   }
 
-  isHalfProficiencyRoundedUp(ability: T5eAbility, modifiers: IModifiersMod[] = null) {
+  isHalfProficiencyRoundedUp(ability: T5eAbility, modifiers: IModifiersMod[] | null = null) {
     const longAbility = DICTIONARY.actor.abilities
       .filter((a) => ability === a.value)
       .map((a) => a.long)[0];
 
     const roundUp = (modifiers)
       ? DDBModifiers.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-      : DDBModifiers.filterBaseModifiers(this.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
+      : this.ddb
+        ? DDBModifiers.filterBaseModifiers(this.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true })
+        : [];
     return Array.isArray(roundUp) && roundUp.length;
   }
 
@@ -43,6 +45,10 @@ export default class ProficiencyFinder {
     if (!this.ddb?.character) return [];
     if (this.excludeCustom) return [];
     const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
+    if (!profGroup) {
+      logger.warn(`getCustomProficiencies: unknown proficiency group ${type}`);
+      return [];
+    }
     const profCharacterValues = this.ddb.character.characterValues.filter(
       (value) =>
         profGroup.customAdjustments.includes(parseInt(`${value.typeId}`))
@@ -73,7 +79,8 @@ export default class ProficiencyFinder {
       else if (prof.name === "Shields") values.add("shl");
       else {
         const entry = allProficiencies.find((p) => p.name === prof.name);
-        if (entry) values.add(entry.foundryValue);
+        // the hasProperty filter above guarantees foundryValue is present
+        if (entry && entry.foundryValue !== undefined) values.add(entry.foundryValue);
       }
     };
     proficiencyArray.forEach((prof) => {
@@ -254,16 +261,18 @@ export default class ProficiencyFinder {
 
     // rare ddb matches
     if (!CONFIG.DND5E.languages.ddb) return null;
+    const ddbLanguageChildren = CONFIG.DND5E.languages.ddb.children;
+    if (!ddbLanguageChildren) return null;
     if (key) {
-      if (CONFIG.DND5E.languages.ddb.children[key]) return key;
+      if (ddbLanguageChildren[key]) return key;
     }
     if (!name) return null;
 
     const simpleNameKey = utils.normalizeString(name);
-    if (CONFIG.DND5E.languages.ddb.children[simpleNameKey]) return simpleNameKey;
+    if (ddbLanguageChildren[simpleNameKey]) return simpleNameKey;
 
     // final fallback, does the key not match the generated key, check name match
-    for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
+    for (const [k, v] of Object.entries(ddbLanguageChildren)) {
       if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
     }
     // must be a custom language, return null
@@ -317,9 +326,9 @@ export default class ProficiencyFinder {
     };
   }
 
-  getSkillProficiency(skill: IDDBSkillsLookup, modifiers: IModifiersMod[] | null = null): number {
-    if (!modifiers && !this.ddb) return null;
+  getSkillProficiency(skill: IDDBSkillsLookup, modifiers: IModifiersMod[] | null = null): number | null {
     if (!modifiers) {
+      if (!this.ddb) return null;
       modifiers = DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true });
     }
 

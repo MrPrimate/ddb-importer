@@ -104,13 +104,13 @@ describe("getClassFeatures", () => {
   it("annotates subclass features with subclassName", () => {
     const features = getClassFeatures(fighter, 5);
     const subFeature = features.find((f: any) => f.name === "Improved Critical");
-    expect(subFeature.subclassName).toBe("Champion");
+    expect(subFeature?.subclassName).toBe("Champion");
   });
 
   it("annotates class features with null subclassName", () => {
     const features = getClassFeatures(fighter, 5);
     const classFeature = features.find((f: any) => f.name === "Fighting Style");
-    expect(classFeature.subclassName).toBeNull();
+    expect(classFeature?.subclassName).toBeNull();
   });
 
   it("handles class with no subclass", () => {

@@ -16,7 +16,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
       this.spellListsData[className] = [];
     }
 
-    for (const source of this.sources) {
+    for (const source of this.sources ?? []) {
       this.spellsBySourceAndClass[source.acronym] = {};
       this.uuidsBySourceAndSpellListName[source.acronym] = {};
       for (const className of this.ALL_SPELL_LISTS) {
@@ -58,7 +58,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
   }
 
   _generateSpellsBySourceAndSpellListName(spellListName: string) {
-    for (const source of this.sources) {
+    for (const source of this.sources ?? []) {
       for (const spell of this.spellListsData[spellListName]) {
         if (spell.isHomebrew) {
           this.spellsBySourceAndClass["Homebrew"][spellListName].push(spell);
@@ -101,6 +101,10 @@ export default class DDBSpellListFactory extends SpellListFactory {
   }
 
   #generateUuidsFromDefinitionId(source: ISpellListSource, className: string) {
+    if (!this.spellCompendium) {
+      logger.warn("Spell compendium not found, unable to generate spell list uuids");
+      return;
+    }
     const spells = new Set<string>();
     for (const spell of this.spellsBySourceAndClass[source.acronym][className]) {
       const sourceMatch = this.spellCompendium.index.find((s) => foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id);
@@ -114,7 +118,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
   }
 
   #generateUuidsBySourceAndClass() {
-    for (const source of this.sources) {
+    for (const source of this.sources ?? []) {
       for (const className of this.ALL_SPELL_LISTS) {
         this.#generateUuidsFromDefinitionId(source, className);
       }

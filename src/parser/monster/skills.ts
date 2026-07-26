@@ -18,29 +18,47 @@ import DDBMonster from "../DDBMonster";
 // }],
 
 
-DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonster): I5eSkills {
-  const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonster): I5eSkills | undefined {
+  const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+  if (!cr) {
+    logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.source.name}, defaulting proficiency bonus to 2`);
+  }
+  const proficiencyBonus = cr?.proficiencyBonus ?? 2;
+  const skills = this.npc.system.skills;
+  if (!skills) {
+    logger.warn(`_generateSkills: missing npc skills for ${this.source.name}`);
+    return undefined;
+  }
   const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
 
-  const keys = Object.keys(this.npc.system.skills) as T5eSkillKey[];
+  const keys = Object.keys(skills) as T5eSkillKey[];
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
-      const skill = this.npc.system.skills[key];
+      const skill = skills[key];
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
-      const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
-      const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
       const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
+      if (!ability || !lookupSkill) {
+        logger.warn(`_generateSkills: no ability or skill lookup found for skill ${key} on ${this.source.name}`);
+        return;
+      }
+      const stat = this.source.stats.find((stat) => stat.statId === ability.id)?.value || 10;
+      const statModifier = CONFIG.DDB.statModifiers.find((s) => s.value == stat);
+      if (!statModifier) {
+        logger.warn(`_generateSkills: no stat modifier found for stat value ${stat} on ${this.source.name}`);
+      }
+      const mod = statModifier?.modifier ?? 0;
       const monsterSkill = this.source.skills.find((s) => s.skillId == lookupSkill.valueId);
 
       const calculatedScore = proficiencyBonus + mod;
       const additionalBonus = monsterSkill?.additionalBonus || 0;
 
       if (monsterSkill) {
-        this.npc.system.skills[key].value = 1;
+        skill.value = 1;
         if (additionalBonus > 0) {
-          this.npc.system.skills[key].bonuses.check = `${additionalBonus}`;
-          this.npc.system.skills[key].bonuses.passive = `${additionalBonus}`;
+          skill.bonuses ??= {};
+          skill.bonuses.check = `${additionalBonus}`;
+          skill.bonuses.passive = `${additionalBonus}`;
         }
       }
 
@@ -48,7 +66,7 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
         if (monsterSkill.value == calculatedScore + proficiencyBonus
           || monsterSkill.value == calculatedScore + proficiencyBonus + additionalBonus
         ) {
-          this.npc.system.skills[key].value = 2;
+          skill.value = 2;
         } else {
           logger.warn(`Calculated skill value of ${calculatedScore} for ${lookupSkill.label} on monster ${this.source.name} does not match source value of ${monsterSkill.value}.`, {
             this: this,
@@ -64,12 +82,21 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
 
     });
 
-  return this.npc.system.skills;
+  return skills;
 };
 
 
-DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: DDBMonster): I5eSkills {
-  const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: DDBMonster): I5eSkills | undefined {
+  const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+  if (!cr) {
+    logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.source.name}, defaulting proficiency bonus to 2`);
+  }
+  const proficiencyBonus = cr?.proficiencyBonus ?? 2;
+  const skills = this.npc.system.skills;
+  if (!skills) {
+    logger.warn(`_generateSkillsHTML: missing npc skills for ${this.source.name}`);
+    return undefined;
+  }
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(",");
   const skillsMaps: { name: string; value: string }[] = skillsHTML.filter((str) => str != "").map((str) => {
@@ -90,24 +117,33 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
   }).filter((s) => foundry.utils.hasProperty(s, "name")
     && foundry.utils.hasProperty(s, "value")) as { name: string; value: string }[];
 
-  const keys = Object.keys(this.npc.system.skills) as T5eSkillKey[];
+  const keys = Object.keys(skills) as T5eSkillKey[];
   const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
-      const skill = this.npc.system.skills[key];
+      const skill = skills[key];
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
-      const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
-      const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
       const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
+      if (!ability || !lookupSkill) {
+        logger.warn(`_generateSkillsHTML: no ability or skill lookup found for skill ${key} on ${this.source.name}`);
+        return;
+      }
+      const stat = this.source.stats.find((stat) => stat.statId === ability.id)?.value || 10;
+      const statModifier = CONFIG.DDB.statModifiers.find((s) => s.value == stat);
+      if (!statModifier) {
+        logger.warn(`_generateSkillsHTML: no stat modifier found for stat value ${stat} on ${this.source.name}`);
+      }
+      const mod = statModifier?.modifier ?? 0;
       const monsterSkill = this.source.skills.find((s) => s.skillId == lookupSkill.valueId);
       const additionalBonus = monsterSkill?.additionalBonus || 0;
 
       if (monsterSkill) {
-        this.npc.system.skills[key].value = 1;
+        skill.value = 1;
         if (additionalBonus > 0) {
-          this.npc.system.skills[key].bonuses.check = `${additionalBonus}`;
-          this.npc.system.skills[key].bonuses.passive = `${additionalBonus}`;
+          skill.bonuses ??= {};
+          skill.bonuses.check = `${additionalBonus}`;
+          skill.bonuses.passive = `${additionalBonus}`;
         }
       }
 
@@ -116,10 +152,10 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
       const htmlSkill = skillsMaps.find((skl) => skl.name == lookupSkill.label);
 
       if (htmlSkill && parseInt(htmlSkill.value) > calculatedScore) {
-        this.npc.system.skills[key].value = 2;
+        skill.value = 2;
       }
 
     });
 
-  return this.npc.system.skills;
+  return skills;
 };

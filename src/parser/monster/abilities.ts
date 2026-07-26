@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 /**
@@ -7,33 +7,45 @@ import DDBMonster from "../DDBMonster";
  */
 DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBMonster) {
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
-  const proficiencyBonus = cr.proficiencyBonus;
+  if (!cr) {
+    logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.source.name}, defaulting proficiency bonus to 2`);
+  }
+  const proficiencyBonus = cr?.proficiencyBonus ?? 2;
 
-  this.abilities = foundry.utils.deepClone(this.npc.system.abilities) as I5eAbilities;
+  const npcAbilities = this.npc.system.abilities;
+  const init = this.npc.system.attributes?.init;
+  if (!npcAbilities || !init) {
+    logger.warn(`_generateAbilities: missing npc abilities or init attribute for ${this.source.name}`);
+    return;
+  }
+
+  this.abilities = foundry.utils.deepClone(npcAbilities);
   DICTIONARY.actor.abilities.forEach((ability) => {
-    const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
+    const value = this.source.stats.find((stat) => stat.statId === ability.id)?.value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
 
-    this.npc.system.abilities[ability.value]["value"] = value;
-    this.npc.system.abilities[ability.value]["proficient"] = proficient;
+    const npcAbility = npcAbilities[ability.value];
+    npcAbility["value"] = value;
+    npcAbility["proficient"] = proficient;
 
     if (proficient) {
-      // this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
-      const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
+      // npcAbility["prof"] = proficiencyBonus;
+      const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id)?.bonusModifier || 0;
       if (saveBonus !== 0) {
-        this.npc.system.abilities[ability.value].bonuses.save = String(saveBonus);
+        npcAbility.bonuses ??= {};
+        npcAbility.bonuses.save = String(saveBonus);
       }
     }
 
-    // this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
+    // npcAbility["dc"] = mod + proficiencyBonus + 8;
 
-    this.abilities[ability.value] = foundry.utils.deepClone(this.npc.system.abilities[ability.value]) as any;
+    this.abilities[ability.value] = foundry.utils.deepClone(npcAbility);
     // this.abilities[ability.value].mod = mod;
   });
 
   let initBonus = null;
 
-  const dexMod = utils.calculateModifier(this.abilities.dex.value);
+  const dexMod = utils.calculateModifier(this.abilities.dex.value ?? 10);
   if (foundry.utils.hasProperty(this.source, "initiativeBonus") && Number.isInteger(parseInt(String(this.source.initiativeBonus)))) {
     initBonus = parseInt(String(this.source.initiativeBonus)) - dexMod;
   } else if (foundry.utils.hasProperty(this.source, "extraInitiative") && Number.isInteger(parseInt(String(this.source.extraInitiative)))) {
@@ -42,11 +54,11 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBM
 
   if (initBonus !== null && Number.isInteger(parseInt(String(initBonus)))) {
     if ((initBonus / 2) === proficiencyBonus) {
-      this.npc.system.attributes.init.bonus = "2 * @prof";
+      init.bonus = "2 * @prof";
     } else if (initBonus === proficiencyBonus) {
-      this.npc.system.attributes.init.bonus = "@prof";
+      init.bonus = "@prof";
     } else {
-      this.npc.system.attributes.init.bonus = `${initBonus}`;
+      init.bonus = `${initBonus}`;
     }
   }
 

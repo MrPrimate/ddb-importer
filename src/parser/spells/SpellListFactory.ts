@@ -81,11 +81,11 @@ export default class SpellListFactory {
 
   constructor({ type = "class" } = {}) {
     this.type = type;
-    this.journalCompendium = CompendiumHelper.getCompendiumType("journals");
-    this.spellCompendium = CompendiumHelper.getCompendiumType("spells");
+    this.journalCompendium = CompendiumHelper.getCompendiumType("journals") ?? null;
+    this.spellCompendium = CompendiumHelper.getCompendiumType("spells") ?? null;
     this.#buildSources();
 
-    for (const source of this.sources) {
+    for (const source of this.sources ?? []) {
       this.uuidsBySourceAndSpellListName[source.acronym] = {};
     }
 
@@ -97,6 +97,7 @@ export default class SpellListFactory {
   }
 
   async _getIndexes() {
+    if (!this.spellCompendium || !this.journalCompendium) return;
     await this.spellCompendium.getIndex({
       fields: ["name", "flags.ddbimporter.originalName", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.is2014", "flags.ddbimporter.is2024"],
     });
@@ -108,6 +109,7 @@ export default class SpellListFactory {
 
   async init() {
     if (!this.available) return;
+    if (!this.journalCompendium) return;
 
     await this._getIndexes();
 
@@ -121,6 +123,10 @@ export default class SpellListFactory {
 
   async generateSpellUuidsForSourceAndSpellList(sourceAcronym: string, spellListName: string, spellNames: string[], trueFlags: string[] = ["is2024"]) {
     this._addSpellListOutline(spellListName, sourceAcronym);
+    if (!this.spellCompendium) {
+      logger.warn("Spell compendium not found, unable to generate spell list uuids");
+      return;
+    }
 
     for (const spellName of spellNames) {
       const spell = this.spellCompendium.index.find((s) => {
@@ -147,6 +153,10 @@ export default class SpellListFactory {
   }
 
   async _createSpellListJournal(source: ISpellListSource) {
+    if (!this.journalCompendium) {
+      logger.error("Journal compendium not found, unable to create spell list journal");
+      return undefined;
+    }
     const journalData = {
       _id: utils.namedIDStub(source.label, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
       name: source.label,
@@ -162,7 +172,7 @@ export default class SpellListFactory {
           sourceName: source.label,
         },
       },
-      folder: this.journalFolder._id,
+      folder: this.journalFolder?._id,
     };
     logger.debug(`Creating Spell Journal: ${source.label}`, { journalData, source });
     const journal = await JournalEntry.create(
@@ -177,6 +187,10 @@ export default class SpellListFactory {
   }
 
   async _getSpellListJournal(source: ISpellListSource): Promise<JournalEntry.Implementation | undefined> {
+    if (!this.journalCompendium) {
+      logger.error("Journal compendium not found, unable to get spell list journal");
+      return undefined;
+    }
     const journalHit = this.journalCompendium.index.find((j) =>
       foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.spellListJournalFlagName
       && foundry.utils.getProperty(j, "flags.ddbimporter.sourceCode") === source.acronym,
@@ -191,7 +205,7 @@ export default class SpellListFactory {
 
   async _getJournalSpellListPage(journal: JournalEntry.Implementation, spellListName: string, source: ISpellListSource) {
     const spellListIdentifier = DDBDataUtils.classIdentifierName(spellListName);
-    const page = journal.pages.find((p) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const page = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE) as typeof BASE_CLASS_PAGE & { _id?: string };
@@ -207,12 +221,13 @@ export default class SpellListFactory {
     // });
     logger.debug(`Creating Spell Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData as unknown as JournalEntryPage.CreateInput], { keepId: true });
-    const newPage = journal.pages.find((p) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const newPage = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     return newPage;
   }
 
-  async _generateJournalSpellListPage(journal: JournalEntry.Implementation, spellListName: string | null = null, source: ISpellListSource | null = null) {
-    if (!spellListName && !source) return;
+  async _generateJournalSpellListPage(journal: JournalEntry.Implementation | undefined, spellListName: string | null = null, source: ISpellListSource | null = null) {
+    // both the spell list name and source are required to generate a page
+    if (!spellListName || !source) return;
     if (!journal) {
       logger.error(`Journal not found for ${source.label}`);
       return;
@@ -257,6 +272,7 @@ export default class SpellListFactory {
   async registerSpellLists() {
     if (!this.available) return;
     await this.init();
+    if (!this.journalCompendium) return;
 
     const spellListJournals = this.journalCompendium.index.filter((j) =>
       foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.spellListJournalFlagName,
@@ -266,8 +282,8 @@ export default class SpellListFactory {
 
     for (const journal of spellListJournals) {
       const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
-      const spellListPages = journalEntry.pages.filter((p) => p.type === "spells");
-      pages.push(...spellListPages.map((p) => p.uuid));
+      const spellListPages = journalEntry.pages.filter((p: JournalEntryPage.Implementation) => p.type === "spells");
+      pages.push(...spellListPages.map((p: JournalEntryPage.Implementation) => p.uuid));
     }
 
     for (const page of pages) {

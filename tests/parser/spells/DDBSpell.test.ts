@@ -19,7 +19,15 @@ vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => (
   },
 }));
 vi.mock("../../../src/parser/enrichers/DDBSpellEnricher", () => ({
-  default: class { init() {} load() {} },
+  default: class {
+    init() {
+      // no-op for tests
+    }
+
+    load() {
+      // no-op for tests
+    }
+  },
 }));
 vi.mock("../../../src/parser/activities/_module", () => ({
   DDBSpellActivity: class {},
@@ -88,7 +96,7 @@ describe("DDBSpell.getUses", () => {
     expect(uses.max).toBe("3");
     expect(uses.spent).toBe(1);
     expect(uses.recovery).toHaveLength(1);
-    expect(uses.recovery[0].period).toBe("sr");
+    expect(uses.recovery?.[0].period).toBe("sr");
   });
 
   it("parses maxUses=1 with long rest reset", () => {
@@ -100,7 +108,7 @@ describe("DDBSpell.getUses", () => {
       useProficiencyBonus: false,
     } as any);
     expect(uses.max).toBe("1");
-    expect(uses.recovery[0].period).toBe("lr");
+    expect(uses.recovery?.[0].period).toBe("lr");
   });
 
   it("appends ability modifier formula with operator 1 (add)", () => {

@@ -282,7 +282,8 @@ export default class DDBMonsterFeatureFactory {
     let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
-      const nodeContextSplit = node.textContent.split(".");
+      const nodeText = node.textContent ?? "";
+      const nodeContextSplit = nodeText.split(".");
       const nodeName = nodeContextSplit[0].trim();
       const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith("("))
         ? `${nodeName} ${nodeContextSplit[1].trim()}`
@@ -292,7 +293,7 @@ export default class DDBMonsterFeatureFactory {
       if (!switchAction) {
         switchAction = this.featureBlocks[type].find((act) =>
           act.options?.fullName
-          && node.textContent.startsWith(act.options.fullName),
+          && nodeText.startsWith(act.options.fullName),
         );
       }
       let startFlag = false;
@@ -350,20 +351,17 @@ export default class DDBMonsterFeatureFactory {
     });
 
     let actionType = "Lair Actions";
-    let action = this.featureBlocks[type].find((act) => act.name == actionType);
-
-    if (!action) {
-      action = this.featureBlocks[type][0];
-      // actionType = action.name;
-    }
+    let action: IFeatureBlock = this.featureBlocks[type].find((act) => act.name == actionType)
+      ?? this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
       // const switchAction = dynamicActions.find((act) => act.name == node.textContent);
-      const nodeName = node.textContent.split(".")[0].trim();
+      const nodeText = node.textContent ?? "";
+      const nodeName = nodeText.split(".")[0].trim();
       const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       let startFlag = false;
       if (switchAction) {
-        actionType = node.textContent;
+        actionType = nodeText;
         action = switchAction;
         if (action.options.html === "") startFlag = true;
       }
@@ -375,7 +373,7 @@ export default class DDBMonsterFeatureFactory {
         action.options.html += outerHTML;
       }
 
-      const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
+      const initiativeMatch = nodeText.match(/initiative count (\d+)/);
       this.resources.lair = {
         value: true,
         initiative: null,
@@ -417,7 +415,8 @@ export default class DDBMonsterFeatureFactory {
         dupFeature.data._id = foundry.utils.randomID();
         dupFeature.data.name = action.name; // fix up name to make sure things like Attack are included
         Object.keys(dupFeature.data.system.activities).forEach((id) => {
-          dupFeature.data.system.activities[id].activation.type = "legendary";
+          const activation = dupFeature.data.system.activities[id].activation;
+          if (activation) activation.type = "legendary";
         });
         dupFeature.data.sort = i + 1;
         this.features[type].push(dupFeature);
@@ -428,20 +427,22 @@ export default class DDBMonsterFeatureFactory {
 
     });
 
-    let action = this.featureBlocks[type].find((act) => act.name == "Legendary Actions");
+    // the base feat pushed above guarantees a match
+    let action: IFeatureBlock = this.featureBlocks[type].find((act) => act.name == "Legendary Actions") ?? feat;
 
     dom.childNodes
       .forEach((node) => {
       // check for action numbers
       // can take 3 legendary actions
         let startFlag = false;
-        const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
+        const nodeText = node.textContent ?? "";
+        const actionMatch = nodeText.match(/can take (d+) legendary actions/);
         if (actionMatch) {
           this.resources.legendary.value = parseInt(actionMatch[1]);
           this.resources.legendary.max = parseInt(actionMatch[1]);
         }
 
-        const nodeName = node.textContent.split(".")[0].trim();
+        const nodeName = nodeText.split(".")[0].trim();
         const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
         if (action.name !== "Legendary Actions" || switchAction) {
 
@@ -480,15 +481,17 @@ export default class DDBMonsterFeatureFactory {
       this.featureBlocks[type].push(action);
     });
 
-    let action = this.featureBlocks[type].find((act) => act.name == "Villain Actions");
+    // the base feat pushed above guarantees a match
+    let action: IFeatureBlock = this.featureBlocks[type].find((act) => act.name == "Villain Actions") ?? feat;
 
     dom.childNodes
       .forEach((node) => {
         let startFlag = false;
 
+        const nodeText = node.textContent ?? "";
         const nameRegex = /^Action (.)+?[.!?]/;
-        const actionMatch = node.textContent.match(nameRegex);
-        const nodeName = actionMatch ? actionMatch[0].split(".")[0].trim() : node.textContent.split(".")[0].trim();
+        const actionMatch = nodeText.match(nameRegex);
+        const nodeName = actionMatch ? actionMatch[0].split(".")[0].trim() : nodeText.split(".")[0].trim();
         const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
 
         if (action.name !== "Villain Actions" || switchAction) {
@@ -517,7 +520,7 @@ export default class DDBMonsterFeatureFactory {
       if (split.length > 1 && split[0].includes("(") && !split[0].includes(")")) {
         return name.trim();
       } else if (split.length > 1) {
-        return split.pop().trim();
+        return (split.pop() ?? "").trim();
       } else {
         return name.trim();
       }
@@ -600,12 +603,15 @@ export default class DDBMonsterFeatureFactory {
     let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
-      const nodeName = node.textContent.split(".")[0].trim();
+      const nodeText = node.textContent ?? "";
+      const nodeName = nodeText.split(".")[0].trim();
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
       if (action.name.includes("; Recharges after a Long Rest")) action.name = action.name.replace("; Recharges after a Long Rest", "");
       if (!switchAction) {
-        switchAction = this.featureBlocks[type].find((act) => node.textContent.startsWith(act.options.fullName));
+        switchAction = this.featureBlocks[type].find((act) =>
+          act.options.fullName !== undefined
+          && nodeText.startsWith(act.options.fullName));
       }
       let startFlag = false;
       if (switchAction) {
@@ -630,7 +636,7 @@ export default class DDBMonsterFeatureFactory {
         action.options.html += outerHTML;
       }
 
-      const resistanceMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day/i);
+      const resistanceMatch = nodeText.match(/Legendary Resistance \((\d+)\/Day/i);
       if (resistanceMatch) {
         this.resources.resistance.value = parseInt(resistanceMatch[1]);
         this.resources.resistance.max = parseInt(resistanceMatch[1]);
@@ -698,8 +704,8 @@ export default class DDBMonsterFeatureFactory {
     // parse remaining feature blocks
     for (const feature of this.featureBlocks[type].filter((feature) => !feature.options.actionCopy)) {
       logger.debug(`Generating Feature ${feature.name} for ${this.ddbMonster.name}`, { feature });
-      feature.options["hideDescription"] = this.hideDescription;
-      feature.options["updateExisting"] = this.updateExisting;
+      feature.options["hideDescription"] = this.hideDescription ?? undefined;
+      feature.options["updateExisting"] = this.updateExisting ?? undefined;
       const ddbFeature = new DDBMonsterFeature(feature.name, feature.options);
       await ddbFeature.loadEnricher();
       await ddbFeature.parse();

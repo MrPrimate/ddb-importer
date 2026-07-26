@@ -1,3 +1,4 @@
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import { ProficiencyFinder } from "../lib/_module";
 
@@ -32,7 +33,12 @@ DDBMonster.prototype._generateLanguages = function _generateLanguages (this: DDB
     custom.push(this.source.languageNote);
   }
 
-  this.npc.system.traits.languages = {
+  const traits = this.npc.system.traits;
+  if (!traits) {
+    logger.warn(`_generateLanguages: missing npc traits for ${this.source.name}`);
+    return;
+  }
+  traits.languages = {
     value: values,
     custom: custom.join("; "),
   };

@@ -10,49 +10,49 @@ import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
 
 interface SpellHealingPart {
-  part: I5eDamagePart;
-  chatFlavor: string;
+  part: I5eDamagePart | null;
+  chatFlavor: string | null;
 };
 
 interface IDDBSpell {
-  ddbData: IDDBData;
+  ddbData: IDDBData | null;
   spellData: IDDBSpellEntry;
-  rawCharacter: I5ePCData;
-  namePrefix?: string;
-  namePostfix?: string;
-  isGeneric?: boolean;
-  updateExisting?: boolean;
+  rawCharacter?: I5ePCData | null;
+  namePrefix?: string | null;
+  namePostfix?: string | null;
+  isGeneric?: boolean | null;
+  updateExisting?: boolean | null;
   limitedUse?: IDDBSpellLimitedUse | null;
-  forceMaterial?: boolean;
-  klass?: string;
-  lookup?: TParseSpellLookup;
-  lookupName?: string;
-  ability?: string;
-  spellClass?: string;
-  dc?: string;
-  overrideDC?: boolean;
-  nameOverride?: string;
-  isHomebrew?: boolean;
-  enricher?: DDBSpellEnricher;
-  generateSummons?: boolean;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  forceMaterial?: boolean | null;
+  klass?: string | null;
+  lookup?: TParseSpellLookup | null;
+  lookupName?: string | null;
+  ability?: string | null;
+  spellClass?: string | null;
+  dc?: string | null;
+  overrideDC?: boolean | null;
+  nameOverride?: string | null;
+  isHomebrew?: boolean | null;
+  enricher?: DDBSpellEnricher | null;
+  generateSummons?: boolean | null;
+  notifier?: NotifierV1 | null;
   healingBoost?: number | string | null;
-  cantripBoost?: boolean;
-  unPreparedCantrip?: boolean;
+  cantripBoost?: boolean | null;
+  unPreparedCantrip?: boolean | null;
   noSpellcasting?: boolean;
-  is2014Class?: boolean;
+  is2014Class?: boolean | null;
   flagData?: IParseSpellFlagData;
 }
 
 interface IDDBSpellParseSpell {
-  namePrefix?: string;
-  namePostfix?: string;
-  ddbData?: IDDBData;
-  isGeneric?: boolean;
-  enricher?: DDBSpellEnricher;
-  generateSummons?: boolean;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
-  unPreparedCantrip?: boolean;
+  namePrefix?: string | null;
+  namePostfix?: string | null;
+  ddbData?: IDDBData | null;
+  isGeneric?: boolean | null;
+  enricher?: DDBSpellEnricher | null;
+  generateSummons?: boolean | null;
+  notifier?: NotifierV1 | null;
+  unPreparedCantrip?: boolean | null;
   noSpellcasting?: boolean;
   flagData?: IParseSpellFlagData;
 }
@@ -60,8 +60,8 @@ interface IDDBSpellParseSpell {
 export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   declare data: I5eSpellItem;
   isGeneric: boolean;
-  namePrefix: string;
-  namePostfix: string;
+  namePrefix: string | null;
+  namePostfix: string | null;
   nameOverride: string;
   originalName: string;
   name: string;
@@ -74,9 +74,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   forcePact: boolean;
   spellClass: string;
   is2014Class: boolean;
-  lookupName: string | null;
+  lookupName: string | undefined;
   ability: string;
-  school: { id: string; name: string; img: string };
+  school: { id: string; name: string; img: string } | undefined;
   dc: string;
   overrideDC: boolean;
   isHomebrew: boolean;
@@ -91,7 +91,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   isCRSummonSpell2024: boolean;
   isSummons: boolean;
   generateSummons: boolean;
-  DDBCompanionFactory: DDBCompanionFactory;
+  DDBCompanionFactory: DDBCompanionFactory | null;
   isCantrip: boolean;
   unPreparedCantrip: boolean;
   cantripBoost: boolean;
@@ -103,8 +103,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   flagData: IParseSpellFlagData;
   limitedUse: IDDBSpellLimitedUse | null;
   lookup: TParseSpellLookup;
-  classPrepMode: ISpellPreparationMode; ;
-  rawCharacter: I5ePCData;
+  classPrepMode: ISpellPreparationMode | undefined;
+  rawCharacter: I5ePCData | null;
   healingParts: SpellHealingPart[];
   declare enricher: DDBSpellEnricher;
 
@@ -113,19 +113,22 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const idPostfix = this.is2014 ? `${this.namePostfix ?? ""}14` : `${this.namePostfix ?? ""}24`;
 
     this.data = {
-      _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: idPostfix }),
+      _id: utils.namedIDStub(this.name, { prefix: this.namePrefix ?? undefined, postfix: idPostfix }),
       type: "spell",
       system: SystemHelpers.getTemplate("spell"),
       effects: [],
       name: this.name,
       flags: {
         ddbimporter: {
-          id: this.spellData.id,
+          id: this.spellData.id ?? undefined,
           definitionId: this.ddbDefinition.id,
-          entityTypeId: this.spellData.entityTypeId,
+          entityTypeId: this.spellData.entityTypeId ?? undefined,
           dndbeyond: this.flagData.ddbimporter.dndbeyond,
           originalName: this.originalName,
-          sources: this.ddbDefinition.sources,
+          // the flag type (types dir, outside this refactor) declares pageNumber as
+          // optional-number but DDB source data supplies number | null; keep the
+          // raw value rather than rewriting the data
+          sources: this.ddbDefinition.sources as unknown as { sourceId: number; pageNumber?: number; sourceType?: number }[] | undefined,
           tags: this.ddbDefinition.tags,
           version: CONFIG.DDBI.version,
           is2014: this.is2014,
@@ -152,10 +155,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   getCustomName(data: IDDBSpellEntry): string | null {
-    if (!this.rawCharacter
-      || (this.rawCharacter && !foundry.utils.hasProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.characterValues"))
-    ) return null;
-    const characterValues = this.rawCharacter.flags.ddbimporter.dndbeyond.characterValues;
+    const characterValues = this.rawCharacter?.flags?.ddbimporter?.dndbeyond?.characterValues;
+    if (!characterValues) return null;
     const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
 
     if (customValue) {
@@ -218,7 +219,10 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     });
 
     this.notifier = notifier;
-    this.ddbData = ddbData;
+    // the activity factory mixin (outside this refactor) declares ddbData as
+    // non-null, but generic muncher spells are parsed without ddb data; all use
+    // sites in this class guard against it being unset
+    this.ddbData = ddbData as IDDBData;
     this.spellData = spellData;
     this.ddbDefinition = spellData.definition;
     this.rawCharacter = rawCharacter;
@@ -228,7 +232,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.nameOverride") as string;
     this.originalName = utils.nameString(this.ddbDefinition.name);
     this.name = this.getName();
-    this.activityType = null;
+    // activityType is left unset here; it is populated by activity generation
     this.healingParts = [];
 
     this.isGeneric = generic ?? false;
@@ -258,7 +262,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       && this.ddbData.character.classes[0].definition.name === "Warlock";
 
     this.legacy = this.ddbDefinition.isLegacy;
-    this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
+    this.is2014 = (this.ddbDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this._generateDataStub();
@@ -276,7 +280,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.DDBCompanionFactory = null; // lazy init
 
     this.isCantrip = this.ddbDefinition.level === 0;
-    this.unPreparedCantrip = this.isCantrip && unPreparedCantrip;
+    this.unPreparedCantrip = this.isCantrip && (unPreparedCantrip ?? false);
     const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost")as boolean;
     this.cantripBoost = this.isCantrip && boost;
 
@@ -506,7 +510,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       .filter((target) => {
         return DICTIONARY.numbers.some((n) => n.natural === target[1].toLowerCase());
       })
-      .map((target) => DICTIONARY.numbers.find((n) => n.natural === target[1].toLowerCase()).num);
+      // the filter above guarantees the find below matches
+      .map((target) => DICTIONARY.numbers.find((n) => n.natural === target[1].toLowerCase())!.num);
 
     if (targetValues.length > 0) {
       return Math.max(...targetValues);
@@ -520,6 +525,10 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
    * Generates the target details for the spell.
    */
   _generateTarget() {
+    type TSpellTargetData = I5eSystemTargetData & {
+      affects: NonNullable<I5eSystemTargetData["affects"]>;
+      template: NonNullable<I5eSystemTargetData["template"]>;
+    };
     let target = {
       prompt: true,
       affects: {
@@ -537,7 +546,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         height: "",
         units: "ft",
       },
-    } as I5eSystemTargetData;
+    } as TSpellTargetData;
 
     const thickReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(thick|wide)/);
     const thickMatch = thickReg.exec(this.ddbDefinition.description);
@@ -647,7 +656,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
           "count": "1",
           "special": "unoccupied",
         },
-      };
+      } as TSpellTargetData;
     }
 
     this.data.system.target = target;
@@ -665,7 +674,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       className: "Wizard",
       subClassName: "Illusionist",
     });
-    if (hasIllusionSavant && this.school.id === "ill" && Number.parseInt(String(this.data.system.range.value)) >= 10) {
+    if (hasIllusionSavant && this.school?.id === "ill" && Number.parseInt(String(this.data.system.range.value)) >= 10) {
       this.data.system.range.value = Number.parseInt(String(this.data.system.range.value)) + 60;
     }
 
@@ -673,7 +682,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
   _generateRange() {
     let value = this.ddbDefinition.range.rangeValue ?? null;
-    let units = "ft";
+    let units: string | null = "ft";
 
     switch (this.ddbDefinition.range.origin) {
       case "Touch":
@@ -717,7 +726,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.#specialRange();
   }
 
-  static getUses(limitedUse: IDDBSpellLimitedUse) : I5eSystemLimitedUses{
+  static getUses(limitedUse: IDDBSpellLimitedUse | null | undefined): I5eSystemLimitedUses {
     let uses: I5eSystemLimitedUses = {
       spent: null,
       max: "",
@@ -740,16 +749,23 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       if (limitedUse.statModifierUsesId) {
         const ability = DICTIONARY.actor.abilities.find(
           (ability) => ability.id === limitedUse.statModifierUsesId,
-        ).value;
+        );
 
-        switch (limitedUse.operator) {
-          case 2: {
-            maxUses = `${maxUses} * @abilities.${ability}.mod`;
-            break;
+        if (!ability) {
+          logger.warn("Unknown stat modifier uses id for spell uses", {
+            statModifierUsesId: limitedUse.statModifierUsesId,
+            limitedUse,
+          });
+        } else {
+          switch (limitedUse.operator) {
+            case 2: {
+              maxUses = `${maxUses} * @abilities.${ability.value}.mod`;
+              break;
+            }
+            case 1:
+            default:
+              maxUses = `${maxUses} + @abilities.${ability.value}.mod`;
           }
-          case 1:
-          default:
-            maxUses = `${maxUses} + @abilities.${ability}.mod`;
         }
       }
 
@@ -806,18 +822,18 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     );
 
     heals.forEach((heal) => {
-      const healingPart = {
+      const healingPart: SpellHealingPart = {
         part: null,
         chatFlavor: null,
-      } as SpellHealingPart;
+      };
       const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
       if (restrictionText !== "") {
         healingPart.chatFlavor = `Restriction: ${restrictionText}`;
       }
 
-      const healValue = heal.die.diceString
+      const healValue = heal.die?.diceString
         ? heal.die.diceString
-        : heal.die.fixedValue
+        : heal.die?.fixedValue
           ? heal.die.fixedValue
           : "";
       const diceString = heal.usePrimaryStat
@@ -835,16 +851,19 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   async _generateSummons() {
-    if (this.enricher.generateSummons) {
-      const summons = await this.enricher.summonsFunction({
-        ddbParser: this,
-        document: this.data,
-        raw: this.ddbDefinition.description,
-        text: this.data.system.description,
-      });
-
-      await DDBSummonsManager.addGeneratedSummons(summons);
+    if (!this.enricher.generateSummons) return;
+    if (!this.enricher.summonsFunction) {
+      logger.warn(`Enricher for ${this.data.name} requested summons generation but has no summons function`);
+      return;
     }
+    const summons = await this.enricher.summonsFunction({
+      ddbParser: this,
+      document: this.data,
+      raw: this.ddbDefinition.description,
+      text: this.data.system.description,
+    });
+
+    await DDBSummonsManager.addGeneratedSummons(summons);
   }
 
   async _generateCompanions() {
@@ -928,8 +947,14 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   /** @override */
-  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = "utility" } = {},
-    optionsOverride = {},
+  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = "utility" }: {
+    hintsOnly?: boolean;
+    name?: string | null;
+    nameIdPostfix?: any;
+    typeOverride?: string | null;
+    typeFallback?: string | null;
+  } = {},
+  optionsOverride: TDDBActivityBuildOptions = {},
   ) {
 
     const activity = await super._generateActivity({
@@ -945,7 +970,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
     if (activityData.type !== "summon") return activity;
     if (this.isCompanionSpell2014 || this.isCompanionSpell2024)
-      await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity);
+      await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity ?? undefined);
     else if (this.isCRSummonSpell2024 || this.isCRSummonSpell2014)
       await this.ddbCompanionFactory.addCRSummoning(activityData);
     return activity;
@@ -953,12 +978,13 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
   #addConditionEffects() {
     if ((this.ddbDefinition.conditions ?? []).length === 0) return;
+    this.data.effects ??= [];
 
     for (const data of this.ddbDefinition.conditions.filter((c) => c.type === 1)) {
       const condition = DICTIONARY.actor.damageAdjustments
         .filter((type) => type.type === 4)
         .find((type) => type.id === data.conditionId);
-      if (condition) {
+      if (condition?.foundryValue) {
         const effect = AutoEffects.SpellEffect(this.data, `${this.data.name}: ${condition.name}`);
         effect._id = foundry.utils.randomID();
 
@@ -971,6 +997,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
   async _applyEffects() {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
+    this.data.effects ??= [];
     if (this.data.effects.length === 0) this.#addConditionEffects();
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
@@ -1027,7 +1054,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const rangeAdjustmentMods = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
 
     const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
-      if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
+      if (mod.fixedValue !== null && Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
         current = mod.fixedValue;
       } else if (Number.isInteger(mod.value) && parseInt(String(mod.value)) > current) {
         current = parseInt(String(mod.value));
@@ -1048,7 +1075,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
   async parse() {
     this.data.system.level = this.ddbDefinition.level;
-    this.data.system.school = (this.school) ? this.school.id : null;
+    // the 5e type declares school as string, but an unknown school is stored as null
+    this.data.system.school = ((this.school) ? this.school.id : null) as string;
     const source = DDBSources.parseSource(this.ddbDefinition);
     this.data.system.source = source;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", source.id);
@@ -1120,7 +1148,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     await this.enricher.cleanup();
   }
 
-  static async parseSpell(data: IDDBSpellEntry, character: I5ePCData,
+  static async parseSpell(data: IDDBSpellEntry, character: I5ePCData | null,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
       isGeneric = null, unPreparedCantrip = null, noSpellcasting = false, flagData = { ddbimporter: { dndbeyond: {} } },

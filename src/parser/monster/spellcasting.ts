@@ -18,7 +18,12 @@ DDBMonster.prototype.getSpellcasting = function(this: DDBMonster, text: string):
 DDBMonster.prototype._generateSpellcastingAbility = function(this: DDBMonster, text: string) {
   const spellcasting = this.getSpellcasting(text);
   this.spellcasting.spellcasting = spellcasting;
-  this.npc.system.attributes.spellcasting = spellcasting;
+  const attributes = this.npc.system.attributes;
+  if (!attributes) {
+    logger.warn(`_generateSpellcastingAbility: missing npc attributes for ${this.source.name}`);
+    return;
+  }
+  attributes.spellcasting = spellcasting;
 };
 
 DDBMonster.prototype._generateSpellLevel = function(this: DDBMonster, text: string) {
@@ -29,7 +34,13 @@ DDBMonster.prototype._generateSpellLevel = function(this: DDBMonster, text: stri
     spellLevel = parseInt(match[1]);
   }
   this.spellcasting.spellLevel = spellLevel;
-  this.npc.system.attributes.spell.level = spellLevel;
+  const attributes = this.npc.system.attributes;
+  if (!attributes) {
+    logger.warn(`_generateSpellLevel: missing npc attributes for ${this.source.name}`);
+    return;
+  }
+  attributes.spell ??= {};
+  attributes.spell.level = spellLevel;
 };
 
 DDBMonster.prototype._generateSpelldc = function(this: DDBMonster, text: string) {
@@ -97,7 +108,7 @@ DDBMonster.prototype._generateSpellcasting = function(this: DDBMonster) {
   });
 
   dom.childNodes.forEach((node) => {
-    const spellText = utils.nameString(node.textContent);
+    const spellText = utils.nameString(node.textContent ?? "");
     const trimmedText = spellText.trim();
 
     const spellCastingRegEx = new RegExp(/^Spellcasting|^(?:(?!Innate).)(\w+)\sSpellcasting/);

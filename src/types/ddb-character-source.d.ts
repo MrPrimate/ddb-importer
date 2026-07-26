@@ -354,8 +354,8 @@ global {
   // ---- Actions --------------------------------------------------------------
 
   export interface IDDBActionActivation {
-    activationTime: number;
-    activationType: number;
+    activationTime: number | null;
+    activationType: number | null;
   }
 
   export interface IDDBActionRange {
@@ -955,7 +955,7 @@ global {
     creatureGroupId?: number | null;
     creatureFlags?: string[];
     removedHitPoints?: number;
-    temporaryHitPoints?: number;
+    temporaryHitPoints?: number | null;
     ownership?: IFoundryOwnership;
   }
 

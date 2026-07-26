@@ -114,10 +114,13 @@ export default class DDBDescriptions {
       // "combatEnd" - expires at the end of combat
       // "joinCombat" - expires at the start of combat
       result.dae = [];
-      if (["its", "the target's"].includes(smallMatch.groups.whos)) {
-        result.dae.push(`turn${utils.capitalize(smallMatch.groups.point)}`);
-      } else if (["your"].includes(smallMatch.groups.whos)) {
-        result.dae.push(`turn${utils.capitalize(smallMatch.groups.point)}Source`);
+      const smallGroups = smallMatch.groups;
+      if (smallGroups) {
+        if (["its", "the target's"].includes(smallGroups.whos)) {
+          result.dae.push(`turn${utils.capitalize(smallGroups.point)}`);
+        } else if (["your"].includes(smallGroups.whos)) {
+          result.dae.push(`turn${utils.capitalize(smallGroups.point)}Source`);
+        }
       }
 
       return result;
@@ -228,7 +231,7 @@ export default class DDBDescriptions {
     if (!match) {
       const rawDamageConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig;
       match = rawDamageConditionSearch.exec(parserText);
-      if (match) {
+      if (match?.groups) {
         results.damageAndSave = true;
         results.damage = {
           type: match.groups.damageType.trim(),
@@ -292,14 +295,15 @@ export default class DDBDescriptions {
       match = paladinMatch2.exec(parserText);
     }
 
-    if (match) {
-      if (match.groups.type === "check") results.check = true;
+    const matchGroups = match?.groups;
+    if (match && matchGroups) {
+      if (matchGroups.type === "check") results.check = true;
       results.save = {
         dc: {
-          formula: match.groups["dc"] ?? "",
-          calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substring(0, 3) ?? ""),
+          formula: matchGroups["dc"] ?? "",
+          calculation: matchGroups["spellcasting"] ? "spellcasting" : (matchGroups["modifier"]?.toLowerCase().substring(0, 3) ?? ""),
         },
-        ability: match.groups["ability"] ? [match.groups["ability"].toLowerCase().substring(0, 3)] : [],
+        ability: matchGroups["ability"] ? [matchGroups["ability"].toLowerCase().substring(0, 3)] : [],
       };
       if (results.save.dc.calculation === "" && results.save.dc.formula === "") {
         if (parserText.toLowerCase().includes("channel divinity)")) {
@@ -308,20 +312,23 @@ export default class DDBDescriptions {
       }
     }
 
-    if (match && match.groups["condition"]) {
+    const conditionGroup = matchGroups?.["condition"];
+    if (conditionGroup) {
       results.riderStatuses = DDBDescriptions.getRiderStatusEffects({
         text,
-        condition: match.groups["condition"],
+        condition: conditionGroup,
       });
     }
 
     results.match = match;
 
-    if (match?.groups.durationUnits) {
-      results.duration.units = match.groups.durationUnits.trim();
+    const durationUnits = matchGroups?.durationUnits;
+    if (durationUnits) {
+      results.duration.units = durationUnits.trim();
     }
-    if (match?.groups.durationType) {
-      results.duration.type = match.groups.durationType.trim();
+    const durationType = matchGroups?.durationType;
+    if (durationType) {
+      results.duration.type = durationType.trim();
     }
 
     return results;
@@ -370,7 +377,7 @@ export default class DDBDescriptions {
           calculation: "",
         },
         ability: null,
-      } as I5eActivitySave,
+      },
       condition: null,
       group4: null,
       group4Condition: null,
@@ -378,7 +385,7 @@ export default class DDBDescriptions {
       duration: {
         value: null,
         units: null,
-      } as IEffectDuration,
+      },
       specialDurations: [],
       match: null,
       riderStatuses: [],
@@ -391,19 +398,20 @@ export default class DDBDescriptions {
     if (matchResults.match) {
       const match = matchResults.match;
       result.match = match;
-      if (match.groups.type === "check") result.check = true;
+      if (match.groups?.type === "check") result.check = true;
       result.save = matchResults.save;
 
-      result.condition = match.groups["condition"];
+      const condition = match.groups?.["condition"];
+      result.condition = condition ?? null;
 
-      if (!result.condition) {
+      if (!condition) {
         logger.debug(`Not condition found`, {
           text,
         });
         return result;
       }
 
-      const parsedCondition = DDBDescriptions.getConditionInfo(match.groups["condition"], match.groups.hint);
+      const parsedCondition = DDBDescriptions.getConditionInfo(condition, match.groups?.hint);
       // console.warn({parsedCondition, matchResults});
       if (parsedCondition.success) {
         result.condition = parsedCondition.condition;
@@ -442,32 +450,36 @@ export default class DDBDescriptions {
     const summonAttackMatches = summonAttackRegex.exec(text);
 
     const match = standardAttackMatches ?? summonAttackMatches;
-    const weaponAttack = match
-      ? (match.groups.type.toLowerCase() === "weapon" || match.groups.type === "")
+    // named groups are always present when these regexes match
+    const matchGroups = match?.groups;
+    const standardGroups = standardAttackMatches?.groups;
+    const summonGroups = summonAttackMatches?.groups;
+    const weaponAttack = matchGroups
+      ? (matchGroups.type.toLowerCase() === "weapon" || matchGroups.type === "")
       : false;
 
-    const spellAttack = match ? match.groups.type.toLowerCase() === "spell" : false;
-    const meleeAttack = match ? match.groups.range.includes("Melee") : false;
-    const rangedAttack = match ? match.groups.range.includes("Ranged") : false;
+    const spellAttack = matchGroups ? matchGroups.type.toLowerCase() === "spell" : false;
+    const meleeAttack = matchGroups ? matchGroups.range.includes("Melee") : false;
+    const rangedAttack = matchGroups ? matchGroups.range.includes("Ranged") : false;
 
-    const pbToAttack = standardAttackMatches ? standardAttackMatches.groups.pb !== undefined : false;
-    const yourSpellAttackModToHit = standardAttackMatches?.groups?.bonus?.startsWith("your spell")
-      ?? Boolean(summonAttackMatches?.groups?.spellAttackMod);
+    const pbToAttack = standardGroups ? standardGroups.pb !== undefined : false;
+    const yourSpellAttackModToHit = standardGroups?.bonus?.startsWith("your spell")
+      ?? Boolean(summonGroups?.spellAttackMod);
 
-    const toHit = standardAttackMatches
-      ? Number.isInteger(parseInt(standardAttackMatches.groups.bonus))
-        ? parseInt(standardAttackMatches.groups.bonus)
+    const toHit = standardGroups
+      ? Number.isInteger(parseInt(standardGroups.bonus))
+        ? parseInt(standardGroups.bonus)
         : 0
       : 0;
 
-    const isSummonAttack = summonAttackMatches
-      ? summonAttackMatches.groups.range !== undefined
+    const isSummonAttack = summonGroups
+      ? summonGroups.range !== undefined
       : false;
 
     const isAttack = isSummonAttack
       ? true
-      : standardAttackMatches
-        ? standardAttackMatches.groups.range !== undefined
+      : standardGroups
+        ? standardGroups.range !== undefined
         : false;
 
     const save: IFeatureBasicsSave = {
@@ -494,15 +506,16 @@ export default class DDBDescriptions {
     const halfMatch = halfSaveSearch.test(text);
     if (halfMatch) save.half = true;
 
-    if (savingThrow) {
+    if (savingThrow?.groups) {
       save.dc.formula = savingThrow.groups.dc;
       save.dc.calculation = "";
       save.ability = [savingThrow.groups.ability.toLowerCase().substring(0, 3)];
-    } else if (spellSave || summonSave) {
+    } else if (spellSave?.groups) {
       // save.dc = 10;
-      save.ability = spellSave
-        ? [spellSave.groups.ability.toLowerCase().substring(0, 3)]
-        : [summonSave.groups.ability.toLowerCase().substring(0, 3)];
+      save.ability = [spellSave.groups.ability.toLowerCase().substring(0, 3)];
+      save.dc.calculation = "spellcasting";
+    } else if (summonSave?.groups) {
+      save.ability = [summonSave.groups.ability.toLowerCase().substring(0, 3)];
       save.dc.calculation = "spellcasting";
     }
 

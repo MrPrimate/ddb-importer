@@ -1,12 +1,17 @@
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 DDBMonster.prototype._generateHabitats = function _generateHabitats(this: DDBMonster) {
 
-  const ddbValues = this.source.environments.filter((env) =>
-    CONFIG.DDB.environments.some((c) => env == c.id),
-  ).map((env) => {
-    return CONFIG.DDB.environments.find((c) => env == c.id).name;
-  });
+  const details = this.npc.system.details;
+  if (!details) {
+    logger.warn(`_generateHabitats: missing npc details for ${this.source.name}`);
+    return;
+  }
+
+  const ddbValues = this.source.environments
+    .map((env) => CONFIG.DDB.environments.find((c) => env == c.id)?.name)
+    .filter((name): name is string => name !== undefined);
 
   const foundryValues = Object.keys(CONFIG.DND5E.habitats);
 
@@ -16,18 +21,16 @@ DDBMonster.prototype._generateHabitats = function _generateHabitats(this: DDBMon
   for (const habitat of ddbValues) {
     const splitHabitat = habitat.split("(");
     const habitatName = splitHabitat[0].trim().toLowerCase();
-    const value: I5eHabitatEntry = { type: null, subtype: null };
 
     if (foundryValues.includes(habitatName)) {
-      value.type = habitatName;
-      if (splitHabitat.length > 1) {
-        value.subtype = splitHabitat[1].split(")")[0].trim();
-      }
-      values.push(value);
+      values.push({
+        type: habitatName,
+        subtype: splitHabitat.length > 1 ? splitHabitat[1].split(")")[0].trim() : null,
+      });
     }
   }
 
-  this.npc.system.details.habitat = {
+  details.habitat = {
     value: values,
     custom: custom.join("; "),
   };

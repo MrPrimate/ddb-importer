@@ -6,18 +6,19 @@ export default class SystemHelpers {
     if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
       return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
     }
-    const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
-    const daeInstalled = game.modules.get("dae")?.active ?? false;
+    const midiQolInstalled = game.modules?.get("midi-qol")?.active ?? false;
+    const daeInstalled = game.modules?.get("dae")?.active ?? false;
 
-    const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
-    const auraeffectsInstalled = game.modules.get("auraeffects")?.active ?? false;
-    const atlInstalled = game.modules.get("ATL")?.active ?? false;
-    const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
-    const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
-    const chrisInstalled = (game.modules.get("chris-premades")?.active
-      && foundry.utils.isNewerVersion(game.modules.get("chris-premades").version, "1.1.10")
+    const activeAurasInstalled = game.modules?.get("ActiveAuras")?.active ?? false;
+    const auraeffectsInstalled = game.modules?.get("auraeffects")?.active ?? false;
+    const atlInstalled = game.modules?.get("ATL")?.active ?? false;
+    const tokenMagicInstalled = game.modules?.get("tokenmagic")?.active ?? false;
+    const autoAnimationsInstalled = game.modules?.get("autoanimations")?.active ?? false;
+    const chrisModule = game.modules?.get("chris-premades");
+    const chrisInstalled = (chrisModule?.active
+      && foundry.utils.isNewerVersion(chrisModule.version, "1.1.10")
     ) ?? false;
-    const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
+    const vision5eInstalled = game.modules?.get("vision-5e")?.active ?? false;
 
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
       hasCore: midiQolInstalled && daeInstalled,
@@ -43,10 +44,11 @@ export default class SystemHelpers {
       data.number = Number(damageMatch[1]);
       data.denomination = Number(damageMatch[2]);
       if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
-      if (stripMod) data.bonus = data.bonus.replace(/@mod/, "").trim().replace(/^\+/, "").trim();
+      if (stripMod && data.bonus !== undefined) data.bonus = data.bonus.replace(/@mod/, "").trim().replace(/^\+/, "").trim();
     } else if (Number.isInteger(Number.parseInt(`${formula}`))) {
       data.bonus = `${formula}`;
     } else {
+      data.custom ??= { enabled: false, formula: "" };
       data.custom.enabled = true;
       data.custom.formula = `${formula}`;
     }
@@ -72,7 +74,9 @@ export default class SystemHelpers {
     stripMod?: boolean;
   } = {}): I5eDamagePart {
     const damage: I5eDamagePart = {
-      number: null,
+      // dnd5e's NumberField accepts null here, but the project I5eDamagePart type
+      // only declares number | undefined; keep the runtime null value unchanged
+      number: null as unknown as undefined,
       denomination: 0,
       bonus: "",
       types: types ?? (type ? [type.toLowerCase()] : []),
@@ -102,48 +106,48 @@ export default class SystemHelpers {
   static getTemplate(type: string) {
     switch (type.toLowerCase()) {
       case "character":
-        return game.dnd5e.dataModels.actor.CharacterData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.actor.CharacterData.schema.getInitialValue();
       case "npc":
-        return game.dnd5e.dataModels.actor.NPCData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.actor.NPCData.schema.getInitialValue();
       case "vehicle":
-        return game.dnd5e.dataModels.actor.VehicleData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.actor.VehicleData.schema.getInitialValue();
       case "class":
-        return game.dnd5e.dataModels.item.ClassData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.ClassData.schema.getInitialValue();
       case "background":
-        return game.dnd5e.dataModels.item.BackgroundData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.BackgroundData.schema.getInitialValue();
       case "consumable":
-        return game.dnd5e.dataModels.item.ConsumableData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.ConsumableData.schema.getInitialValue();
       case "backpack":
       case "container":
-        return game.dnd5e.dataModels.item.ContainerData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.ContainerData.schema.getInitialValue();
       case "equipment":
       case "armor":
-        return game.dnd5e.dataModels.item.EquipmentData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.EquipmentData.schema.getInitialValue();
       case "feat":
-        return game.dnd5e.dataModels.item.FeatData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.FeatData.schema.getInitialValue();
       case "loot":
-        return game.dnd5e.dataModels.item.LootData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.LootData.schema.getInitialValue();
       case "race":
-        return game.dnd5e.dataModels.item.RaceData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.RaceData.schema.getInitialValue();
       case "spell":
-        return game.dnd5e.dataModels.item.SpellData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.SpellData.schema.getInitialValue();
       case "subclass":
-        return game.dnd5e.dataModels.item.SubclassData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.SubclassData.schema.getInitialValue();
       case "tool":
-        return game.dnd5e.dataModels.item.ToolData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.ToolData.schema.getInitialValue();
       case "weapon":
-        return game.dnd5e.dataModels.item.WeaponData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.item.WeaponData.schema.getInitialValue();
       case "journalpage":
       case "classjournalpage":
-        return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.journal.ClassJournalPageData.schema.getInitialValue();
       case "spelllistjournalpage":
-        return game.dnd5e.dataModels.journal.SpellListJournalPageData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.journal.SpellListJournalPageData.schema.getInitialValue();
       case "maplocationjournalpage":
-        return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.journal.MapLocationJournalPageData.schema.getInitialValue();
       case "subclassjournalpage":
-        return game.dnd5e.dataModels.journal.SubclassJournalPageData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.journal.SubclassJournalPageData.schema.getInitialValue();
       case "rulejournalpage":
-        return game.dnd5e.dataModels.journal.RuleJournalPageData.schema.getInitialValue();
+        return game.dnd5e?.dataModels.journal.RuleJournalPageData.schema.getInitialValue();
       case "dnd-tashas-cauldron.tattoo":
       case "tattoo":
         return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.getInitialValue();

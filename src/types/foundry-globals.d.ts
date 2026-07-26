@@ -13,6 +13,15 @@ export {};
 
 declare global {
 
+  // This module's code runs at/after the Foundry "ready" hook for everything that
+  // touches game.* (imports, munching, syncing). Assume the ready state so that
+  // game.settings, game.packs, canvas, ui etc. are not `undefined`-typed at every
+  // call site (official fvtt-types lenient configuration, see
+  // fvtt-types/src/configuration/configuration.d.mts).
+  interface AssumeHookRan {
+    ready: never;
+  }
+
   type Str16 = string & { readonly __brand: "Str16" };
 
   type TCoreFoundryTypes = "Actor" | "Item" | "ActiveEffect" | "JournalEntry" | "JournalEntryPage" | "Macro" | "RollTable" | "Scene" | "Playlist" | "Compendium";

@@ -75,7 +75,7 @@ export default class DDBModifiers {
     );
   }
 
-  static getModifiers(ddb: IDDBData, type: ICoreSourceTypes, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false): IModifiersMod[] {
+  static getModifiers(ddb: IDDBData, type: ICoreSourceTypes, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers: boolean | null = false): IModifiersMod[] {
     // are we adding effects to documents?
     const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
       ? DDBModifiers.getEffectExcludedModifiers(type, true, true)
@@ -104,7 +104,8 @@ export default class DDBModifiers {
 
   static filterModifiers(modifiers: IModifiersMod[], type: string, { subType = null, restriction = ["", null] }: {
     subType?: string | null;
-    restriction?: (string | null)[];
+    // null disables restriction filtering entirely
+    restriction?: (string | null)[] | null;
   } = {}): IModifiersMod[] {
     return modifiers
       .flat()
@@ -116,7 +117,7 @@ export default class DDBModifiers {
       );
   }
 
-  static filterModifiersOld(modifiers: IModifiersMod[], type: string, subType: string | null = null, restriction: (string | null)[] = ["", null]): IModifiersMod[] {
+  static filterModifiersOld(modifiers: IModifiersMod[], type: string, subType: string | null = null, restriction: (string | null)[] | null = ["", null]): IModifiersMod[] {
     return DDBModifiers.filterModifiers(modifiers, type, { subType, restriction });
   }
 
@@ -142,7 +143,7 @@ export default class DDBModifiers {
     { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null }: IModFilterOptions = {},
   ) {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
-    return ddb.character.options.class.some((option) =>
+    return (ddb.character.options.class?.some((option) =>
       // is this option actually part of the class list?
       klassFeatureIds.includes(option.componentId)
       // does this class option match a modifier?
@@ -152,23 +153,23 @@ export default class DDBModifiers {
       && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId)
       // has it been chosen?
       && (
-        ddb.character.choices.class.some((choice) =>
+        (ddb.character.choices.class?.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
           && foundry.utils.hasProperty(choice, "optionValue"),
-        )
-        || !ddb.character.choices.class.some((choice) =>
+        ) ?? false)
+        || !(ddb.character.choices.class?.some((choice) =>
           choice.componentId == option.componentId
-          && choice.componentTypeId == option.componentTypeId)
+          && choice.componentTypeId == option.componentTypeId) ?? false)
       ),
-    );
+    ) ?? false);
   }
 
   static isModOptionalClassFeature(ddb: IDDBData, mod: IModifiersMod,
     { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null }: IModFilterOptions = {},
   ) {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
-    return ddb.character.options.class.some((option) =>
+    return (ddb.character.options.class?.some((option) =>
       // is this option actually part of the class list?
       klassFeatureIds.includes(option.componentId)
       // does this modifier match a class option?
@@ -179,25 +180,25 @@ export default class DDBModifiers {
       && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       // has it been chosen?
       && (
-        ddb.character.choices.class.some((choice) =>
+        (ddb.character.choices.class?.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
           && choice.optionValue,
-        )
+        ) ?? false)
         || ddb.classOptions?.some((classOption) =>
           classOption.id == option.componentId
           && classOption.entityTypeId == option.componentTypeId
           && (classId === null || classId === classOption.classId),
         )
       ),
-    );
+    ) ?? false);
   }
 
   static isModOptionalClassChoice(ddb: IDDBData, mod: IModifiersMod,
     { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null }: IModFilterOptions = {},
   ) {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBDataUtils.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
-    return ddb.character.choices.class.some((choice) =>
+    return (ddb.character.choices.class?.some((choice) =>
       // is this option actually part of the class list?
       // classFeatureIds.includes(choice.componentId)
       choice.componentTypeId == mod.componentTypeId
@@ -206,7 +207,7 @@ export default class DDBModifiers {
         f.classFeatureId == choice.componentId
         && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId)),
       ),
-    );
+    ) ?? false);
   }
 
   static isModAGrantedFeatMod(ddb: IDDBData, mod: IModifiersMod,
@@ -428,7 +429,12 @@ export default class DDBModifiers {
         //   : null;
       if (Number.isInteger(statBonus)) {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId);
-        modBonus += utils.calculateModifier(character.system.abilities[ability.value].value);
+        const abilityValue = ability ? character.system.abilities?.[ability.value]?.value : undefined;
+        if (abilityValue === undefined) {
+          logger.warn(`getModifierSum: unable to resolve ability value for stat id ${modifier.statId}`, { modifier });
+        } else {
+          modBonus += utils.calculateModifier(abilityValue);
+        }
       }
       if (die) {
         const mod = die.diceString;
@@ -476,8 +482,12 @@ export default class DDBModifiers {
       //   : null;
 
     if (statBonus) {
-      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId).value;
-      modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `${modBonus} + @abilities.${ability}.mod`;
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId)?.value;
+      if (ability) {
+        modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `${modBonus} + @abilities.${ability}.mod`;
+      } else {
+        logger.warn(`extractModifierValue: unknown stat id ${modifier.statId}`, { modifier });
+      }
     }
 
     if (modifier.modifierTypeId === 1 && modifier.bonusTypes.includes(1)) {
@@ -510,7 +520,7 @@ export default class DDBModifiers {
     return value;
   }
 
-  static getValueFromModifiers(modifiers: IModifiersMod[], name: string, modifierSubType: string, modifierType = "bonus"): string {
+  static getValueFromModifiers(modifiers: IModifiersMod[], name: string, modifierSubType: string, modifierType = "bonus"): string | undefined {
     let bonuses: string | undefined = undefined;
     const bonusEffects = DDBModifiers.filterModifiersOld(modifiers, modifierType, modifierSubType, null);
 

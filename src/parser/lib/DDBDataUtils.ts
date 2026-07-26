@@ -57,7 +57,8 @@ export default class DDBDataUtils {
 
   static getCustomValueFromCharacter(ddbItem: TNameTypes, character: I5ePCData, type: number) {
     if (!character) return null;
-    const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
+    const characterValues = character.flags?.ddbimporter?.dndbeyond?.characterValues;
+    if (!characterValues) return null;
     const customValue = characterValues.filter((value) =>
       value.valueId == ddbItem.id
       && value.valueTypeId == ddbItem.entityTypeId,
@@ -73,12 +74,14 @@ export default class DDBDataUtils {
   static getCustomValue(foundryItem: I5ePCItem, ddb: IDDBData, type: number) {
     const characterValues = ddb.character?.characterValues;
     if (!characterValues) return null;
+    const ddbImporterFlags = foundryItem.flags.ddbimporter;
+    if (!ddbImporterFlags) return null;
     const customValue = characterValues.filter(
       (value) =>
-        (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id
-          && value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId)
-        || (value.valueId == foundryItem.flags.ddbimporter.id
-          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId),
+        (value.valueId == ddbImporterFlags.dndbeyond?.id
+          && value.valueTypeId == ddbImporterFlags.dndbeyond?.entityTypeId)
+        || (value.valueId == ddbImporterFlags.id
+          && value.valueTypeId == ddbImporterFlags.entityTypeId),
     );
 
     if (customValue) {
@@ -113,34 +116,36 @@ export default class DDBDataUtils {
 
         if (activity.type === "attack") {
           if (toHitBonus) {
-            const existingBonus = foundry.utils.getProperty(activity, "attack.bonus") as string | undefined;
-            if (existingBonus
-              && (parseInt(activity.attack.bonus) === 0
-              || activity.attack.bonus === "")
+            const attack = activity.attack;
+            const existingBonus = attack?.bonus;
+            if (attack && existingBonus
+              && (parseInt(existingBonus) === 0
+              || existingBonus === "")
             ) {
-              activity.attack.bonus = String(toHitBonus);
-            } else if (existingBonus) {
-              activity.attack.bonus += ` + ${toHitBonus}`;
+              attack.bonus = String(toHitBonus);
+            } else if (attack && existingBonus) {
+              attack.bonus += ` + ${toHitBonus}`;
             } else {
               foundry.utils.setProperty(activity, "attack.bonus", toHitBonus);
             }
           }
         }
-        if ("damage" in activity && damageBonus) {
+        if ("damage" in activity && damageBonus && activity.damage?.parts) {
           const part = SystemHelpers.buildDamagePart({ damageString: String(damageBonus) });
           activity.damage.parts.push(part);
         }
         if (activity.type === "save") {
-          if (dcBonus) {
+          const saveDc = activity.save.dc;
+          if (dcBonus && saveDc) {
             const dc = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.dc") as string | undefined;
             if (dc) {
-              activity.save.dc.formula = `${dc + dcBonus}`;
-              activity.save.dc.calculation = "";
+              saveDc.formula = `${dc + dcBonus}`;
+              saveDc.calculation = "";
             }
           }
-          if (dcOverride) {
-            activity.save.dc.formula = String(dcOverride);
-            activity.save.dc.calculation = "";
+          if (dcOverride && saveDc) {
+            saveDc.formula = String(dcOverride);
+            saveDc.calculation = "";
           }
         }
 
@@ -175,9 +180,11 @@ export default class DDBDataUtils {
   }
 
   static hasChosenCharacterOption(ddb: IDDBData, optionName: string): boolean {
-    const hasClassOptions = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
-      .flat()
-      .some((option) => option.definition.name === optionName);
+    const hasClassOptions = [
+      ...(ddb.character.options.race ?? []),
+      ...(ddb.character.options.class ?? []),
+      ...(ddb.character.options.feat ?? []),
+    ].some((option) => option.definition.name === optionName);
     return hasClassOptions;
   }
 
@@ -185,7 +192,7 @@ export default class DDBDataUtils {
     // Use case class spell - which class?
     // componentId on spells.class[0].componentId = options.class[0].definition.id
     // options.class[0].definition.componentId = classes[0].classFeatures[0].definition.id
-    const option = ddb.character.options.class.find((option) => option.definition.id === optionId);
+    const option = ddb.character.options.class?.find((option) => option.definition.id === optionId);
 
     if (option) {
       const klass = ddb.character.classes.find((klass) =>
@@ -206,8 +213,8 @@ export default class DDBDataUtils {
     return undefined;
   }
 
-  static getFeatureFromOptionId(ddb: IDDBData, optionId: number, type: "race" | "class" | "feat"):  IDDBRacialTrait {
-    const option = ddb.character.options[type].find((option) => option.definition.id === optionId);
+  static getFeatureFromOptionId(ddb: IDDBData, optionId: number, type: "race" | "class" | "feat"): IDDBRacialTrait | undefined {
+    const option = ddb.character.options[type]?.find((option) => option.definition.id === optionId);
 
     if (!option) return undefined;
 
@@ -300,12 +307,12 @@ export default class DDBDataUtils {
         ?? DDBSubClass.SPECIAL_ADVANCEMENTS[featDefinition.name];
 
       if (special && special.fixFunction?.name === "rename") {
-        if (special.functionArgs.identifier) {
+        if (special.functionArgs?.identifier) {
           featureName = special.functionArgs.identifier as string;
         }
       }
 
-      const klassName = klass.subclassDefinition?.id === featDefinition.classId
+      const klassName = klass.subclassDefinition && klass.subclassDefinition.id === featDefinition.classId
         ? DDBDataUtils.classIdentifierName(klass.subclassDefinition.name)
         : DDBDataUtils.classIdentifierName(klass.definition.name);
       return `@scale.${klassName}.${featureName}`;
@@ -317,13 +324,19 @@ export default class DDBDataUtils {
 
   static getScaleValueString(ddb: IDDBData, feature: TDDBScaleValueSource) {
     const componentId = "componentId" in feature ? feature.componentId : undefined;
-    const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
-      .flat()
-      .find((option) => option.definition.id === componentId);
+    // each option list can be null in DDB data; a null entry would previously
+    // survive .flat() and crash on .definition
+    const classOption = [
+      ...(ddb.character.options.race ?? []),
+      ...(ddb.character.options.class ?? []),
+      ...(ddb.character.options.feat ?? []),
+    ].find((option) => option.definition.id === componentId);
 
     let feat = "levelScale" in feature && feature.levelScale && componentId
       ? feature
-      : DDBDataUtils.findComponentByComponentId(ddb, componentId);
+      : componentId != null
+        ? DDBDataUtils.findComponentByComponentId(ddb, componentId)
+        : undefined;
     if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
       const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId") as number;
       feat = DDBDataUtils.findComponentByComponentId(ddb, componentId);
@@ -475,10 +488,15 @@ export default class DDBDataUtils {
             const optionChoice = choiceDefinitions.find((selection) =>
               selection.id === `${choice.componentTypeId}-${choice.type}`,
             );
+            // validChoices filtering guarantees a definition match exists
+            if (!optionChoice) continue;
             const options: IDDBChoiceResult[] = optionChoice.options
               .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
               .map((option) => {
-                const choiceOption: IDDBChoiceResult = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+                // mergeObject's InsertKeys inference does not line up with
+                // IDDBChoiceResult (which also declares optionComponentId as
+                // number while non-option results carry null at runtime)
+                const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
                   componentId: choice.componentId,
                   componentTypeId: choice.componentTypeId,
                   choiceId: choice.id,
@@ -488,7 +506,7 @@ export default class DDBDataUtils {
                   subType: choice.subType,
                   type: type,
                   wasOption: false,
-                });
+                }) as unknown as IDDBChoiceResult;
                 return choiceOption;
               });
             // console.warn("validChoice Options", {
@@ -501,18 +519,24 @@ export default class DDBDataUtils {
           if (results.length > 0) return results;
         }
 
-        const options: IDDBChoiceResult[] = validChoices.map((choice) => {
+        const options: IDDBChoiceResult[] = [];
+        for (const choice of validChoices) {
           const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-          // console.warn("details", {
-          //   choices,
-          //   choice,
-          //   optionChoice,
-          //   choiceDefinitions,
-          // });
+          // validChoices filtering guarantees a definition match exists
+          if (!optionChoice) continue;
           const option = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
-          const choiceOption: IDDBChoiceResult = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+          if (!option) {
+            // possible when optionIds excludes the selected optionValue; this
+            // previously crashed mergeObject with an undefined original
+            logger.warn("getChoices: selected option not found in choice definition options", { choice, optionChoice });
+            continue;
+          }
+          // mergeObject's InsertKeys inference does not line up with
+          // IDDBChoiceResult (which also declares optionComponentId as number
+          // while non-option results carry null at runtime)
+          const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
             optionId: option.id,
             optionComponentId: null,
             componentId: choice.componentId,
@@ -522,9 +546,9 @@ export default class DDBDataUtils {
             subType: choice.subType,
             type: type,
             wasOption: false,
-          });
-          return choiceOption;
-        });
+          }) as unknown as IDDBChoiceResult;
+          options.push(choiceOption);
+        }
 
         if (options.length > 0) {
           // console.warn("returning options", {
@@ -533,9 +557,10 @@ export default class DDBDataUtils {
           return options;
         }
 
-        if (ddb.character.options[type]?.length > 0) {
+        const typeOptions = ddb.character.options[type];
+        if (typeOptions && typeOptions.length > 0) {
           // if it is a choice option, try and see if the mod matches
-          const optionMatch: IDDBChoiceResult[] = ddb.character.options[type]
+          const optionMatch: IDDBChoiceResult[] = typeOptions
             .filter(
               (option) =>
                 // id match
@@ -559,7 +584,7 @@ export default class DDBDataUtils {
                 componentId: option.componentId,
                 componentTypeId: option.componentTypeId,
                 choiceId: null,
-                sourceId: option.definition.sourceId,
+                sourceId: option.definition.sourceId ?? null,
                 parentChoiceId: null,
                 subType: `${type}-option`,
                 type: type,
@@ -675,7 +700,7 @@ export default class DDBDataUtils {
     });
     // try class option lookup
     if (!klass) {
-      const option = ddb.character.options.class.find((option) => option.definition.id == featureId);
+      const option = ddb.character.options.class?.find((option) => option.definition.id == featureId);
       if (option) {
         klass = ddb.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
       }
@@ -702,7 +727,7 @@ export default class DDBDataUtils {
     return klass;
   }
 
-  static findMatchedDDBItem(item: I5eItemData, ownedItems: TImporterItem[], existingMatchedItems: TImporterItem[] | I5eItemData[] = []) : TImporterItem {
+  static findMatchedDDBItem(item: I5eItemData, ownedItems: TImporterItem[], existingMatchedItems: TImporterItem[] | I5eItemData[] = []) : TImporterItem | undefined {
     const itemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
     const itemDefinitionId = foundry.utils.getProperty(item, "flags.ddbimporter.definitionId");
     return ownedItems.find((owned) => {
@@ -744,7 +769,7 @@ export default class DDBDataUtils {
 
 
   // TO DO: this ignores charges
-  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses {
+  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses | null {
     let resetType: IResetType | undefined;
 
     if (foundry.utils.hasProperty(data, "resetType")) {
@@ -773,9 +798,11 @@ export default class DDBDataUtils {
       let maxUses: string | number = ("maxUses" in data && data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
       const statModifierUsesId = foundry.utils.getProperty(data, "statModifierUsesId");
       if (statModifierUsesId) {
-        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId)?.value;
 
-        if (maxUses === 0) {
+        if (!ability) {
+          logger.warn(`getLimitedUses: unknown stat modifier uses id ${statModifierUsesId}`, { data });
+        } else if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
         } else {
           const operator = "operator" in data ? data.operator : undefined;

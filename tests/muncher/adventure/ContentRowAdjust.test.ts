@@ -121,6 +121,6 @@ describe("adjustParentRows", () => {
     expect(journals[0].name).toBe("Chapter 2: A Guide to the Realms");
     // chapter's own page + the attached section page
     expect(journals[0].pages).toHaveLength(2);
-    expect(journals[0].pages[1].name).toBe("Some Section");
+    expect(journals[0].pages?.[1].name).toBe("Some Section");
   });
 });

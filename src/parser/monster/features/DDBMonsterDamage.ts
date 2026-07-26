@@ -27,7 +27,7 @@ export class DDBMonsterDamage {
   hit: string;
   splitSaves: boolean;
   templateType: string;
-  saves: { type: string; hit: string };
+  saves: { type: string | null; hit: string };
   hitsMatch: string[];
   hitMatches: TDamageMatch[];
 
@@ -56,7 +56,7 @@ export class DDBMonsterDamage {
   }
 
 
-  static damageMatchSave(dmg: Pick<RegExpExecArray, "groups">) {
+  static damageMatchSave(dmg: Pick<TDamageMatch, "groups">) {
     const savePart1 = dmg.groups.prefix && dmg.groups.prefix.includes("saving throw");
     const savePart5 = (dmg.groups.suffix ?? "").trim() == "on a failed save";
     if ((savePart5 && (dmg.groups.prefix ?? "").trim() !== "and")
@@ -161,7 +161,7 @@ export class DDBMonsterDamage {
 
     const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
     const profBonus = hasProfBonus ? "@prof" : "";
-    const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
+    const levelBonus = dmg.groups.dice ? (/the spell[’']s level/i).test(dmg.groups.dice) : false; // ? "@item.level" : "";
 
     if (hasProfBonus) this.profBonus = true;
     if (levelBonus) this.levelBonus = true;
@@ -252,7 +252,7 @@ export class DDBMonsterDamage {
     const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
     const matches = [...allMatches] as TDamageMatch[];
     logger.debug(`${this.ddbMonsterFeature.name} Start/End Damage matches`, {
-      type: this.saves.type.toLowerCase(),
+      type: this.saves.type?.toLowerCase(),
       hit: this.saves.hit,
       matches,
     });
@@ -281,7 +281,7 @@ export class DDBMonsterDamage {
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue, null).diceString,
+        damageString: utils.parseDiceString(damageValue).diceString,
         type: "healing",
       });
       this.healingParts.push({ versatile: this.versatile, part });
@@ -294,7 +294,7 @@ export class DDBMonsterDamage {
       this._generateHitMatch(match);
     }
 
-    if (["start", "end"].includes(this.saves.type)) {
+    if (["start", "end"].includes(this.saves.type ?? "")) {
       this._generateOnStartEndDamage();
     } else if (this.saves.type) {
       this._generateOtherSaveDamage();

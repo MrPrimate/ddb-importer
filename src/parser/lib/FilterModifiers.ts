@@ -57,10 +57,12 @@ export function getClassFeatures(cls: IDDBClass, classLevel = 20): TAnnotatedCla
     && cls.subclassDefinition.classFeatures
     && Array.isArray(cls.subclassDefinition.classFeatures)
   ) {
+    // capture outside the closure so the narrowing from the if above holds
+    const subclassName = cls.subclassDefinition.name;
     const subclassFeatures = cls.subclassDefinition.classFeatures.map((subclassFeature) => {
       const f = subclassFeature as unknown as TAnnotatedClassFeature;
       f.className = cls.definition.name;
-      f.subclassName = cls.subclassDefinition.name;
+      f.subclassName = subclassName;
       return f;
     });
     const result = cls.classFeatures

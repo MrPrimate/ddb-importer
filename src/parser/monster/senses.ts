@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 DDBMonster.prototype.getTextSenses = function getTextSenses(this: DDBMonster) {
@@ -29,6 +30,12 @@ DDBMonster.prototype.getTextSenses = function getTextSenses(this: DDBMonster) {
 
 DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: DDBMonster) {
   const senseLookup = CONFIG.DDB.senses;
+  const token = this.npc.prototypeToken;
+  const sight = token?.sight;
+  if (!token || !sight) {
+    logger.warn(`_generateTokenSenses: missing prototype token sight data for ${this.source.name}`);
+    return;
+  }
 
   this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
@@ -39,17 +46,19 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
       const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
-        if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
-          foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
-          foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
+        const sightRange = sight.range;
+        if (value > 0 && sightRange !== undefined && value > sightRange && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          foundry.utils.setProperty(sight, "visionMode", senseType);
+          foundry.utils.setProperty(sight, "range", value);
           const visionModeDefaults = foundry.utils.getProperty(CONFIG.Canvas.visionModes, `${senseType}.vision.defaults`) as object;
-          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, visionModeDefaults);
+          token.sight = foundry.utils.mergeObject(sight, visionModeDefaults);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
           const detectionModeId = DICTIONARY.detectionMap[senseMatch.name.toLowerCase()];
           // don't add if vision 5e is installed, as it can handle these detection modes.
           if (!vision5eInstalled) {
-            this.npc.prototypeToken.detectionModes[detectionModeId] = {
+            token.detectionModes ??= {};
+            token.detectionModes[detectionModeId] = {
               range: value,
               enabled: true,
             };
@@ -57,7 +66,8 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
         }
         // add these modes if supported by vision 5e
         if (vision5eInstalled && blindBeyondMatch) {
-          this.npc.prototypeToken.detectionModes["lightPerception"] = {
+          token.detectionModes ??= {};
+          token.detectionModes["lightPerception"] = {
             range: value,
             enabled: true,
           };
@@ -69,13 +79,19 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
 
 
 DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster) {
+  const attributes = this.npc.system.attributes;
+  if (!attributes) {
+    logger.warn(`_generateSenses: missing npc attributes for ${this.source.name}`);
+    return;
+  }
+  const ranges: Record<TSenseType, number> = {
+    darkvision: 0,
+    blindsight: 0,
+    tremorsense: 0,
+    truesight: 0,
+  };
   const senses: I5eSenses = {
-    ranges: {
-      darkvision: 0,
-      blindsight: 0,
-      tremorsense: 0,
-      truesight: 0,
-    },
+    ranges,
     units: "ft",
     special: "",
   };
@@ -84,24 +100,26 @@ DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster
 
   this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
-    if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses.ranges) {
+    if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in ranges) {
       const senseKey = senseMatch.name.toLowerCase() as TSenseType;
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        senses.ranges[senseKey] = parseInt(rangeMatch[1]);
+        ranges[senseKey] = parseInt(rangeMatch[1]);
         if (sense.notes.includes("blind beyond this radius")) {
           special.push(`Blind beyond this radius`);
         }
       } else {
         special.push(`${senseMatch.name}: ${sense.notes}`);
       }
-    } else {
+    } else if (senseMatch) {
       special.push(`${senseMatch.name}: ${sense.notes}`);
+    } else {
+      logger.warn(`_generateSenses: unknown sense id ${sense.senseId} for ${this.source.name}`, { sense });
     }
   });
 
   senses.special = special.join("; ");
-  this.npc.system.attributes.senses = senses;
+  attributes.senses = senses;
 
 };
 

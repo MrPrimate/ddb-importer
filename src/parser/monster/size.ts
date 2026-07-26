@@ -27,10 +27,18 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, si
 DDBMonster.prototype._generateSize = function _generateSize (this: DDBMonster) {
   const sizeData = this.getSizeFromId(this.source.sizeId);
 
-  this.npc.system.traits.size = sizeData.value;
-  this.npc.prototypeToken.width = sizeData.size;
-  this.npc.prototypeToken.height = sizeData.size;
-  this.npc.prototypeToken.texture.scaleX = sizeData.scale;
-  this.npc.prototypeToken.texture.scaleY = sizeData.scale;
+  const traits = this.npc.system.traits;
+  const prototypeToken = this.npc.prototypeToken;
+  const texture = prototypeToken?.texture;
+  if (!traits || !prototypeToken || !texture) {
+    logger.warn(`_generateSize: missing npc traits or prototype token data for ${this.source.name}`);
+    return;
+  }
+
+  traits.size = sizeData.value;
+  prototypeToken.width = sizeData.size;
+  prototypeToken.height = sizeData.size;
+  texture.scaleX = sizeData.scale;
+  texture.scaleY = sizeData.scale;
 
 };

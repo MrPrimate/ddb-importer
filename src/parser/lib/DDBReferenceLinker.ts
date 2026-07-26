@@ -148,9 +148,10 @@ function getRuleLookups() {
 
   const baseRules: IDDBRuleLinksLookup = {
     "rules": {},
-    senses: undefined,
-    actions: undefined,
-    weaponproperties: undefined,
+    // filled by the generateDDBRuleLinks merge below
+    senses: {},
+    actions: {},
+    weaponproperties: {},
     "conditions": CONFIG.DND5E.conditionTypes ?? {},
     "skills": CONFIG.DND5E.skills ?? {},
     "abilities": CONFIG.DND5E.abilities ?? {},
@@ -335,19 +336,22 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   text?: string; damageType?: string; actor?: I5eActorData; document?: TReferenceDocumentTypes; extraMods?: (string | number)[];
 } = {}) {
   let result: string;
-  const types = damageType
+  const types = (damageType ?? "")
     .replace(", or ", ",")
     .replace(" or ", ",")
     .replace("points of ", "")
     .split(",")
     .map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
-  const diceParse = utils.parseDiceString(text, null, "");
-  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as T5eAbility;
+  const diceParse = utils.parseDiceString(text ?? "", undefined, "");
+  const baseAbility = document
+    ? foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as T5eAbility
+    : undefined;
   const mods = extraMods.join(" + ");
 
   if (baseAbility) {
-    const baseAbilityMod = actor ? utils.calculateModifier(actor.system.abilities[baseAbility].value) : diceParse.bonus;
+    const actorAbilityValue = actor?.system.abilities?.[baseAbility]?.value;
+    const baseAbilityMod = actorAbilityValue !== undefined ? utils.calculateModifier(actorAbilityValue) : diceParse.bonus;
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? ` + @abilities.${baseAbility}.mod ` : "";
     const finalMods = extraMods.length > 0
@@ -387,7 +391,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
 }
 
 
-export function parseDamageRolls({ text, document, actor }: { text?: string; document?: TReferenceDocumentTypes; actor?: I5eActorData } = {}) {
+export function parseDamageRolls({ text, document, actor }: { text: string; document?: TReferenceDocumentTypes; actor?: I5eActorData }) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
   // 5 (1d4 + 3) piercing damage plus 10 (3d6) psychic damage, or 1 piercing damage plus 10 (3d6) psychic damage while under the effect of Reduce.
@@ -405,7 +409,7 @@ export function parseDamageRolls({ text, document, actor }: { text?: string; doc
 
   const regainMatch = hit.match(regainExpression);
 
-  logger.debug(`${document.name} Damage matches`, { hit, matches, regainMatch });
+  logger.debug(`${document?.name} Damage matches`, { hit, matches, regainMatch });
 
   const includesDiceRegExp = /[0-9]*d[0-9]+/;
 
@@ -474,7 +478,7 @@ export function parseDamageRolls({ text, document, actor }: { text?: string; doc
   return text;
 }
 
-export function parseToHitRoll({ text, document }: { text?: string; document?: TReferenceDocumentTypes } = {}): string {
+export function parseToHitRoll({ text, document }: { text: string; document?: TReferenceDocumentTypes }): string {
 
   text = text.replace("<strong></strong>", "");
   if (!document) return text;
@@ -484,7 +488,7 @@ export function parseToHitRoll({ text, document }: { text?: string; document?: T
     /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<toHitString>(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit,|,|\(|\.))(?: reach \d+ ft)?/i,
   );
 
-  const toHit = matches && Number.isInteger(parseInt(matches.groups?.bonus));
+  const toHit = matches && Number.isInteger(parseInt(matches.groups?.bonus ?? ""));
 
 
   if (!toHit) return text;
@@ -555,10 +559,10 @@ const COMPENDIUM_MAP: Record<string, string> = {
 // <a class=\"tooltip-hover spell-tooltip\" href=\"/spells/2095-feather-fall\" aria-haspopup=\"true\" data-tooltip-href=\"/spells/2095-tooltip\" data-tooltip-json-href=\"/spells/2095/tooltip-json\">Feather Fall</a>
 // <a class=\"tooltip-hover monster-tooltip\" href=\"/monsters/16781-ancient-green-dragon\" aria-haspopup=\"true\" data-tooltip-href=\"/monsters/16781-tooltip\" data-tooltip-json-href=\"/monsters/16781/tooltip-json\">ancient</a>
 function replaceHREFLookupLinks(doc: Document, actor?: I5eActorData): Document {
-  const sourceRules = foundry.utils.getProperty(actor, "system.source.rules");
-  const flagRules = foundry.utils.getProperty(actor, "flags.ddbimporter.is2014")
+  const sourceRules = actor ? foundry.utils.getProperty(actor, "system.source.rules") : undefined;
+  const flagRules = actor && foundry.utils.getProperty(actor, "flags.ddbimporter.is2014")
     ? "2014"
-    : foundry.utils.getProperty(actor, "flags.ddbimporter.is2024")
+    : actor && foundry.utils.getProperty(actor, "flags.ddbimporter.is2024")
       ? "2024"
       : undefined;
   const rules = sourceRules ?? flagRules ?? "2014";
@@ -654,9 +658,12 @@ function replaceHREFRules(doc: Document): Document {
     compendiumLinks.forEach((node: HTMLLinkElement) => {
       const lookupMatch = node.outerHTML.match(lookupRegExp);
       const dict = foundry.utils.getProperty(CONFIG, lookupData.path) as Record<string, any>[];
-      const data = dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]));
+      const data = lookupMatch
+        ? dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]))
+        : undefined;
 
-      const lookupValue = data[lookupData.foundry];
+      // a missing dictionary match previously crashed here
+      const lookupValue = data?.[lookupData.foundry];
 
       if (lookupValue) {
         const lowerCaseTag = utils.normalizeString(lookupValue);
@@ -715,6 +722,10 @@ export async function replaceMonsterNameBadLinks(str: string, actor: I5eActorDat
   const name = actor?.name ?? "Unknown";
 
   const pack = CompendiumHelper.getCompendiumType("monsters", false);
+  if (!pack) {
+    logger.warn("replaceMonsterNameBadLinks: unable to load monsters compendium");
+    return str;
+  }
   await pack.getIndex({ fields: ["name", "system.source.rules"] });
 
   const packs: Record<string, typeof pack> = {

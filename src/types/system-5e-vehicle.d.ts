@@ -40,7 +40,7 @@ global {
 
   interface I5eVehicleCapacity {
     creature?: string;               // e.g. "30 crew, 20 passengers"
-    cargo?: I5eVehicleCapacityCargo;
+    cargo?: I5eVehicleCapacityCargo | null;
   }
 
   // ---- Vehicle Travel -------------------------------------------------------
@@ -133,8 +133,8 @@ global {
 
   /** HP block for an individual vehicle component item (hull, ballista, etc.). */
   interface I5eVehicleComponentHP {
-    value?: number;
-    max?: number;
+    value?: number | null;
+    max?: number | null;
     dt?: number | null;     // component damage threshold
     conditions?: string;    // text description of damage conditions
   }

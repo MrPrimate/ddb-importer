@@ -9,24 +9,32 @@ import { DDBReferenceLinker } from "../lib/_module";
 // DDBFeature class which tries to parse the feature for details
 DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
 
+  const resources = this.npc.system.resources;
+  const biography = this.npc.system.details?.biography;
+  const prototypeToken = this.npc.prototypeToken;
+  if (!resources || !biography || !prototypeToken) {
+    logger.warn(`_generateFeatures: missing npc resources, biography or prototype token for ${this.source.name}`);
+    return;
+  }
+
   await this.featureFactory.generateActions(this.source.actionsDescription, "action");
 
   if (this.source.hasLair && this.source.lairDescription != "") {
     await this.featureFactory.generateActions(this.source.lairDescription, "lair");
-    this.npc.system.resources["lair"] = this.featureFactory.resources["lair"];
+    resources["lair"] = this.featureFactory.resources["lair"];
   }
 
   if (this.source.legendaryActionsDescription != "") {
     await this.featureFactory.generateActions(this.source.legendaryActionsDescription, "legendary");
-    this.npc.system.resources["legact"] = this.featureFactory.resources["legendary"];
+    resources["legact"] = this.featureFactory.resources["legendary"];
     if (utils.getSetting<boolean>("munching-policy-monster-set-legendary-resource-bar")) {
-      this.npc.prototypeToken.bar2 = { attribute: "resources.legact" };
+      prototypeToken.bar2 = { attribute: "resources.legact" };
     }
   }
 
   if (this.source.specialTraitsDescription != "") {
     await this.featureFactory.generateActions(this.source.specialTraitsDescription, "special");
-    this.npc.system.resources["legres"] = this.featureFactory.resources["resistance"];
+    resources["legres"] = this.featureFactory.resources["resistance"];
   }
 
   await this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
@@ -57,8 +65,8 @@ DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
   this.characterDescription += this.featureFactory.characterDescription.action;
   this.characterDescription += this.featureFactory.characterDescription.reaction;
   this.characterDescription += this.featureFactory.characterDescription.special;
-  this.npc.system.details.biography.value += this.characterDescription;
+  biography.value += this.characterDescription;
 
-  this.npc.system.details.biography.value = DDBReferenceLinker.replaceMonsterALinks(this.npc.system.details.biography.value, this.npc);
-  this.npc.system.details.biography.value = await DDBReferenceLinker.replaceMonsterNameBadLinks(this.npc.system.details.biography.value, this.npc);
+  biography.value = DDBReferenceLinker.replaceMonsterALinks(biography.value, this.npc);
+  biography.value = await DDBReferenceLinker.replaceMonsterNameBadLinks(biography.value, this.npc);
 };

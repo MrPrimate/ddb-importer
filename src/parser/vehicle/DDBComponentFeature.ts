@@ -15,7 +15,7 @@ interface IDDBComponentFeature {
   updateExisting?: boolean;
   hideDescription?: boolean;
   sort?: number;
-  action?: IDDBVehicleAction;
+  action: IDDBVehicleAction;
 }
 
 interface IDDBVehicleActionDataTemplate {
@@ -45,8 +45,8 @@ interface IDDBVehicleActionData {
   diceParts: I5eDamagePart[];
   healingParts: IDDBMonsterActionDataHealingPart[];
   saveParts: I5eDamagePart[];
-  damageParts?: IDDBMonsterActionDataDamagePart[];
-  versatileParts?: I5eDamagePart[];
+  damageParts: IDDBMonsterActionDataDamagePart[];
+  versatileParts: I5eDamagePart[];
   data: {
     damage: {
       base: I5eDamagePart | null;
@@ -146,7 +146,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   primaryType: string;
   isRecharge: RegExpMatchArray | null;
   templateType: "equipment" | "weapon" | "feat";
-  weaponLookup: IMonsterWeaponDictionary;
+  weaponLookup: IMonsterWeaponDictionary | undefined;
   identifier: string;
   summonSave?: boolean;
   isSummonAttack?: boolean;
@@ -230,7 +230,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     };
     // these templates not good
     (this.data.system as I5eFeatSystemData).requirements = "";
-    this.data.sort = this.sort;
+    if (this.sort !== null) this.data.sort = this.sort;
   }
 
   #matchRecharge() {
@@ -322,7 +322,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       consumptionTargets: [],
       diceParts: [],
       healingParts: [],
-      // versatileParts: [],
+      damageParts: [],
+      versatileParts: [],
       saveParts: [],
       data: {
         damage: {
@@ -385,17 +386,15 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   }
 
   getLimitedUse(): I5eSystemLimitedUses {
-    if (
-      this.action.limitedUse
-      && (this.action.limitedUse.maxUses)
-    ) {
-      const resetType = DICTIONARY.resets.find((type) => type.id === this.action.limitedUse.resetType);
-      const maxUses = (this.action.limitedUse.maxUses && this.action.limitedUse.maxUses !== -1) ? this.action.limitedUse.maxUses : 0;
+    const limitedUse = this.action.limitedUse;
+    if (limitedUse && limitedUse.maxUses) {
+      const resetType = DICTIONARY.resets.find((type) => type.id === limitedUse.resetType);
+      const maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : 0;
 
       const finalMaxUses = (maxUses) ? parseInt(maxUses as unknown as string) : null;
 
       return {
-        spent: this.action.limitedUse.numberUsed ?? 0,
+        spent: limitedUse.numberUsed ?? 0,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
         recovery: resetType
           ? [
@@ -415,7 +414,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
 
   damageModReplace(text: string) {
     let result;
-    const diceParse = utils.parseDiceString(text, null);
+    const diceParse = utils.parseDiceString(text);
     if (this.actionData.baseAbility) {
       const baseAbilityMod = (this.ddbVehicle as unknown as { abilities: Record<string, { mod: number }> })
         .abilities[this.actionData.baseAbility].mod;
@@ -468,8 +467,12 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     }
 
     if (this.action.damageTypeId) {
-      const damageType = DICTIONARY.actions.damageType.find((type) => type.id === this.action.damageTypeId).name;
-      this.actionData.damageType = damageType;
+      const damageType = DICTIONARY.actions.damageType.find((type) => type.id === this.action.damageTypeId);
+      if (damageType) {
+        this.actionData.damageType = damageType.name;
+      } else {
+        logger.warn(`Unknown damage type id ${this.action.damageTypeId} for vehicle component feature ${this.name}`);
+      }
     }
 
 
@@ -482,9 +485,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       this.actionData.type = "save";
     }
     if (this.action.saveStatId) {
-      this.actionData.saveAbility = (this.action.saveStatId)
-        ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.action.saveStatId).value
-        : this.descriptionSave.ability;
+      this.actionData.saveAbility = DICTIONARY.actor.abilities.find((stat) => stat.id === this.action.saveStatId)?.value
+        ?? this.descriptionSave.ability;
       this.actionData.data.save.ability = this.actionData.saveAbility;
     }
 
@@ -493,11 +495,12 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       this.actionData.data.save.dc.calculation = this.action.fixedSaveDc;
     }
 
-    if (this.action.range && this.action.range.aoeType && this.action.range.aoeSize) {
+    const actionRange = this.action.range;
+    if (actionRange && actionRange.aoeType && actionRange.aoeSize) {
       if (!this.actionData.range) this.actionData.data.range.units = "self";
       this.actionData.data.target.template = DICTIONARY.actions.aoeType
-        .find((type) => type.id === this.action.range.aoeType)?.value as unknown as IDDBVehicleActionDataTemplate;
-      this.actionData.data.target.template.size = this.action.range.aoeSize;
+        .find((type) => type.id === actionRange.aoeType)?.value as unknown as IDDBVehicleActionDataTemplate;
+      this.actionData.data.target.template.size = actionRange.aoeSize;
       this.actionData.data.target.template.units = "ft";
     }
     if (this.action.range && this.action.range.range) {
@@ -706,7 +709,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     // }
     description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
 
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data });
+    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data })
+      ?? description;
     description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
     description = DDBReferenceLinker.parseTags(description);
     description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
@@ -758,7 +762,7 @@ ${this.data.system.description.value}
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
-    this.data.effects.push(...effects);
+    (this.data.effects ??= []).push(...effects);
     this.enricher.createDefaultEffects();
 
     this._activityEffectLinking();
@@ -790,7 +794,9 @@ ${this.data.system.description.value}
 
     // this.data.system.quantity = this.component.count;
 
-    (this.data.system as I5eVehicleEquipmentSystemData).hp = {
+    const system = this.data.system as I5eVehicleEquipmentSystemData;
+
+    system.hp = {
       value: null,
       max: null,
       dt: null,
@@ -800,28 +806,29 @@ ${this.data.system.description.value}
     if (this.component.groupType === "action-station") {
       switch (this.component.definition.coverType) {
         case "full":
-          (this.data.system as I5eVehicleEquipmentSystemData).cover = 1;
+          system.cover = 1;
           break;
         case "half":
-          (this.data.system as I5eVehicleEquipmentSystemData).cover = 0.5;
+          system.cover = 0.5;
           break;
         case "three-quarters":
-          (this.data.system as I5eVehicleEquipmentSystemData).cover = 0.75;
+          system.cover = 0.75;
           break;
         default:
-          (this.data.system as I5eVehicleEquipmentSystemData).cover = undefined;
+          system.cover = undefined;
           break;
       }
 
     } else if (this.component.definition.groupType === "component") {
 
       if (this.component.definition.speeds && this.component.definition.speeds.length > 0) {
-        (this.data.system as I5eVehicleEquipmentSystemData).speed = {
+        const speed = {
           value: this.component.definition.speeds[0].modes[0].value,
           conditions: this.component.definition.speeds[0].modes[0].description
             ? this.component.definition.speeds[0].modes[0].description
             : "",
         };
+        system.speed = speed;
         if (this.component.definition.speeds[0].modes.length > 1) {
           const speedConditions = [];
           for (let i = 1; i < this.component.definition.speeds[0].modes.length; i++) {
@@ -844,25 +851,25 @@ ${this.data.system.description.value}
             });
           }
           if (speedConditions.length > 0) {
-            (this.data.system as I5eVehicleEquipmentSystemData).speed.conditions += speedConditions.join("; ");
+            speed.conditions += speedConditions.join("; ");
           }
         }
       }
 
       if (Number.isInteger(this.component.definition.armorClass)) {
-        (this.data.system as I5eVehicleEquipmentSystemData).armor.value
-          = parseInt(this.component.definition.armorClass as unknown as string);
+        system.armor.value = parseInt(this.component.definition.armorClass as unknown as string);
       }
 
       if (Number.isInteger(this.component.definition.hitPoints)) {
-        (this.data.system as I5eVehicleEquipmentSystemData).hp = {
+        const hp: I5eVehicleComponentHP = {
           value: parseInt(this.component.definition.hitPoints as unknown as string),
           max: parseInt(this.component.definition.hitPoints as unknown as string),
           dt: null,
           conditions: "",
         };
+        system.hp = hp;
         if (this.component.definition.damageThreshold) {
-          (this.data.system as I5eVehicleEquipmentSystemData).hp.dt = this.component.definition.damageThreshold;
+          hp.dt = this.component.definition.damageThreshold;
         }
       }
     }

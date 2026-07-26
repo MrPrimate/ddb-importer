@@ -11,10 +11,10 @@ function diceRollMatcher(_match: string, p1: string, p2: string, p3: string, p4:
   if (p5 && p5.toLowerCase() === "damage") {
     let dmgString = `${p4} damage`;
     dmgString = dmgString[0].toUpperCase() + dmgString.substring(1);
-    const diceString = utils.parseDiceString(p2, null, `[${p4.toLowerCase()}]`).diceString;
+    const diceString = utils.parseDiceString(p2, undefined, `[${p4.toLowerCase()}]`).diceString;
     return `${p1 ? p1 : ""}[[/r ${diceString} # ${dmgString}]]${p3} damage`;
   } else if (p5 && p1 && p5.toLowerCase() === "points" && p1.toLowerCase() === "regains") {
-    const diceString = utils.parseDiceString(p2, null, "[healing]").diceString;
+    const diceString = utils.parseDiceString(p2, undefined, "[healing]").diceString;
     return `${p1 ? p1 : ""}[[/r ${diceString} # Healing]]${p3} hit points`;
   } else {
     const diceString = utils.parseDiceString(p2).diceString;
@@ -181,6 +181,7 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
     };
 
     const concatKeys = (keys.length - diceKeys.length) > 1;
+    const tableResults: I5eTableResult[] = [];
     // loop through rows and build result entry.
     // if more than one result key then we will concat the results.
     parsedTable.forEach((entry) => {
@@ -205,10 +206,10 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
           result.description = value as string;
         }
       });
-      result.description = replaceRollLinks(result.description);
+      result.description = replaceRollLinks(result.description ?? "");
       const diceRollerRegexp = new RegExp(/\[\[\/r\s*([0-9d+-\s]*)(:?#.*)?\]\]/);
       result.description = result.description.replace(diceRollerRegexp, "[[$1]] ($&)");
-      table.results.push(result);
+      tableResults.push(result);
     });
 
     // Drop any result whose dice range never resolved to a valid [low, high]
@@ -216,11 +217,13 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
     // so an unparseable dice cell (e.g. a blank cell in a malformed/compound
     // table) would otherwise crash document creation. No-op for well-formed
     // tables; the "X+" case is already a 2-element [low, 0] handled below.
-    table.results = table.results.filter((r) => Array.isArray(r.range) && r.range.length === 2);
+    table.results = tableResults.filter((r) => Array.isArray(r.range) && r.range.length === 2);
 
     if (table.results.some((r, i, a) => {
-      const low = r.range[0];
-      const high = r.range[1];
+      const range = r.range;
+      if (!range) return false;
+      const low = range[0];
+      const high = range[1];
       if (low > high) {
         // console.warn(`Low ${low} is greater than high ${high}`, {
         //   low,
@@ -230,7 +233,7 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
         //   i,
         // });
         if (high === 0 && i === (a.length - 1)) {
-          r.range[1] += 100;
+          range[1] += 100;
           a[i] = r;
         } else {
           return true;
@@ -410,13 +413,13 @@ async function buildAndImportTable({
   sourceBook?: string;
   updateExisting?: boolean;
   html: string;
-  notifier?: NotifierV1;
+  notifier?: NotifierV1 | null;
 }) {
   const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, sourceBook, html });
   const handlerOptions = { srdFidding: false, updateIcons: false, notifier };
 
   // create source-book > parent-entity folders before import so they can be assigned
-  if (game.user.isGM) {
+  if (game.user?.isGM) {
     const tableFolders = new DDBCompendiumFolders("tables");
     await tableFolders.loadCompendium("tables");
     for (const table of data) {
@@ -424,7 +427,7 @@ async function buildAndImportTable({
     }
   }
 
-  const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
+  const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting ?? false, handlerOptions);
   return handler.results as RollTable.Implementation[];
 }
 
@@ -434,7 +437,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
   updateExisting?: boolean;
   type?: string;
   sourceBook?: string;
-  notifier?: NotifierV1;
+  notifier?: NotifierV1 | null;
 }): Promise<string> {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);

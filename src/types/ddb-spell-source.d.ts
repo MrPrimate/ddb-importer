@@ -126,7 +126,9 @@ global {
   export interface IDDBSpellEntry {
     overrideSaveDc: number | null;
     limitedUse: IDDBSpellLimitedUse | null;
-    id: number | null;
+    // optional: CharacterSpellFactory.handleGrantedSpells deletes the id on the
+    // duplicated "granted" spell entry before re-parsing it
+    id?: number | null;
     entityTypeId: number | null;
     definition: IDDBSpellDefinition;
     definitionId: number;

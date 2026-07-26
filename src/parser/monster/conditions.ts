@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 interface AdjustmentsConfigCondition {
@@ -41,13 +42,20 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(this: 
   const bypass = new Set<string>();
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
 
+  if (!config) {
+    logger.warn(`getDamageAdjustments: unknown adjustment type ${type} for ${this.source.name}`);
+    return { value: [], bypasses: [], custom: "" };
+  }
+
   this.source.damageAdjustments.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     if (!adjustment) return;
     const ddbValue = DICTIONARY.actor.damageAdjustments.find((d) => d.id === adjustment.id);
     if (ddbValue?.foundryValues) {
-      if (ddbValue.foundryValues.value.length > 0) ddbValue.foundryValues.value.forEach(values.add, values);
-      if (ddbValue.foundryValues.bypasses?.length > 0) ddbValue.foundryValues.bypasses.forEach(bypass.add, bypass);
+      const foundryValues = ddbValue.foundryValues.value ?? [];
+      const foundryBypasses = ddbValue.foundryValues.bypasses ?? [];
+      if (foundryValues.length > 0) foundryValues.forEach(values.add, values);
+      if (foundryBypasses.length > 0) foundryBypasses.forEach(bypass.add, bypass);
       if (midiQolInstalled && ddbValue.midiValues) {
         for (const value of ddbValue.midiValues) {
           values.add(value);
@@ -80,34 +88,59 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(this: 
 };
 
 DDBMonster.prototype._generateDamageImmunities = function _generateDamageImmunities(this: DDBMonster) {
-  this.npc.system.traits.di = this.getDamageAdjustments("immunities");
+  const traits = this.npc.system.traits;
+  if (!traits) {
+    logger.warn(`_generateDamageImmunities: missing npc traits for ${this.source.name}`);
+    return;
+  }
+  traits.di = this.getDamageAdjustments("immunities");
 };
 
 DDBMonster.prototype._generateDamageResistances = function _generateDamageResistances(this: DDBMonster) {
-  this.npc.system.traits.dr = this.getDamageAdjustments("resistances");
+  const traits = this.npc.system.traits;
+  if (!traits) {
+    logger.warn(`_generateDamageResistances: missing npc traits for ${this.source.name}`);
+    return;
+  }
+  traits.dr = this.getDamageAdjustments("resistances");
 };
 
 DDBMonster.prototype._generateDamageVulnerabilities = function _generateDamageVulnerabilities(this: DDBMonster) {
-  this.npc.system.traits.dv = this.getDamageAdjustments("vulnerabilities");
+  const traits = this.npc.system.traits;
+  if (!traits) {
+    logger.warn(`_generateDamageVulnerabilities: missing npc traits for ${this.source.name}`);
+    return;
+  }
+  traits.dv = this.getDamageAdjustments("vulnerabilities");
 };
 
 DDBMonster.prototype._generateConditionImmunities = function _generateConditionImmunities(this: DDBMonster) {
   const config = this.getAdjustmentsConfig("conditions");
+  const traits = this.npc.system.traits;
+
+  if (!config || !traits) {
+    logger.warn(`_generateConditionImmunities: missing conditions config or npc traits for ${this.source.name}`);
+    return;
+  }
 
   const values = new Set<string>();
   const custom: string[] = [];
 
   this.source.conditionImmunities.forEach((adj) => {
-    const adjustment = config.find((cadj: any) => adj === cadj.id);
+    const adjustment = config.find((cadj) => adj === cadj.id);
+    if (!adjustment) {
+      logger.warn(`_generateConditionImmunities: unknown condition immunity id ${adj} for ${this.source.name}`);
+      return;
+    }
     const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adjustment.name.toLowerCase());
-    if (adjustment && valueAdjustment) {
+    if (valueAdjustment) {
       values.add(valueAdjustment.foundry);
-    } else if (adjustment) {
+    } else {
       custom.push(adjustment.name);
     }
   });
 
-  this.npc.system.traits.ci = {
+  traits.ci = {
     value: Array.from(values),
     custom: custom.join("; "),
   };

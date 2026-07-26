@@ -114,9 +114,9 @@ global {
 
   interface IEffectDuration {
     value?: number | null;
-    units?: TEffectDurationUnit;
+    units?: TEffectDurationUnit | null;
     expiry?: TDAEEffectExpiryTypes | null;
-    expired?: boolean;
+    expired?: boolean | null;
   }
 
   interface IEffectStartData {

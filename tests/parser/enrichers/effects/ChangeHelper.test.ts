@@ -20,11 +20,17 @@ describe("ChangeHelper.change", () => {
     const result = ChangeHelper.change({ value: "5", priority: 20, key: "system.bonuses.mwak.attack", type: "add" });
     expect(result).toEqual({
       key: "system.bonuses.mwak.attack",
-      phase: null,
+      // phase is undefined (omitted) unless explicitly provided
+      phase: undefined,
       value: "5",
       type: "add",
       priority: 20,
     });
+  });
+
+  it("passes through an explicit phase", () => {
+    const result = ChangeHelper.change({ value: "5", priority: 20, key: "k", type: "add", phase: "final" });
+    expect(result.phase).toBe("final");
   });
 });
 
@@ -239,5 +245,26 @@ describe("ChangeHelper.daeStatusEffectChange", () => {
   it("accepts custom priority", () => {
     const result = ChangeHelper.daeStatusEffectChange("Prone", 30);
     expect(result.priority).toBe(30);
+  });
+});
+
+describe("ChangeHelper overtime saveDC", () => {
+  const doc = { name: "Wretched" } as any;
+
+  it("renders a numeric saveDC in the damage change", () => {
+    const result = ChangeHelper.overTimeDamageChange({
+      document: doc, turn: "start", damage: "1d6", damageType: "acid",
+      saveAbility: "con", saveRemove: true, saveDamage: "nodamage", dc: 15,
+    });
+    expect(result.value).toContain("saveDC=15,");
+    expect(result.value).not.toContain("[object Object]");
+  });
+
+  it("passes a rollData reference saveDC through the save change", () => {
+    const result = ChangeHelper.overTimeSaveChange({
+      document: doc, turn: "end", saveAbility: ["wis"], dc: "@attributes.spell.dc",
+    });
+    expect(result.value).toContain("saveDC=@attributes.spell.dc,");
+    expect(result.value).not.toContain("[object Object]");
   });
 });

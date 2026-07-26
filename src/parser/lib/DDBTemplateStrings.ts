@@ -59,9 +59,13 @@ function parseMatch(
   const featureDef = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
-  const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
-    .flat()
-    .find((option) => option.definition.id === featureDef.componentId);
+  // each option list can be null in DDB data; a null entry would previously
+  // survive .flat() and crash on .definition
+  const classOption = [
+    ...(ddb.character.options.race ?? []),
+    ...(ddb.character.options.class ?? []),
+    ...(ddb.character.options.feat ?? []),
+  ].find((option) => option.definition.id === featureDef.componentId);
   let linktext = `${result}`;
 
   // scalevalue
@@ -139,7 +143,9 @@ function parseMatch(
         cls.definition.id == featureDef.classId
         || featureDef.classId === cls.subclassDefinition?.id,
       )
-      : DDBDataUtils.findClassByFeatureId(ddb, featureDef.componentId);
+      : featureDef.componentId != null
+        ? DDBDataUtils.findClassByFeatureId(ddb, featureDef.componentId)
+        : undefined;
 
     if (cls) {
       const clsLevel = ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
@@ -358,7 +364,7 @@ const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 };
 
-const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | string) => {
+const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | string | null) => {
   let result = String(theNumber);
   if (signed == "unsigned") {
     result = `${theNumber}`.trim().replace(/^\+\s*/, "");
@@ -615,8 +621,9 @@ export function parse(
   result.text = result.text.replace(/\[\[([^\]]*?)\]\]\[\[\/roll d([^\]]*?)\]\]/g, "[[/roll ($1)d$2]] ");
 
   result.text = parseTags(result.text);
-  if (foundry.utils.hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
-    character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
+  const templateStrings = character.flags?.ddbimporter?.dndbeyond?.templateStrings;
+  if (templateStrings) {
+    templateStrings.push(result);
   }
 
   // console.warn(`${feature.name} tempalte`, result);

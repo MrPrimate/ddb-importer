@@ -391,6 +391,8 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
   });
 
   it("returns null when character is null", () => {
-    expect(DDBDataUtils.getCustomValueFromCharacter({} as any, null, 8)).toBeNull();
+    // getCustomValueFromCharacter guards `if (!character) return null;` but its
+    // signature does not admit null, so cast to exercise that runtime guard
+    expect(DDBDataUtils.getCustomValueFromCharacter({} as any, null as unknown as I5ePCData, 8)).toBeNull();
   });
 });
