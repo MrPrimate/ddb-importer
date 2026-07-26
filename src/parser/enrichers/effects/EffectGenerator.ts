@@ -1003,31 +1003,24 @@ export default class EffectGenerator {
       logger.debug(`Generating ${subType} AC set for ${this.document.name}: ${formula}`);
       this.effect.system.changes.push(
         {
-          key: "system.attributes.ac.min",
+          key: "system.attributes.ac.formula",
           value: formula,
           type: "override",
           priority: 15,
         },
       );
 
-      if ("entityType" in this.ddbItem && this.ddbItem.entityType === "racial-trait") {
-        this.effect.system.changes.push(
-          {
-            key: "system.attributes.ac.calc",
-            value: "natural",
-            type: "override",
-            priority: 10,
-          },
-          // this now only works with DAE installed
-          // {
-          //   key: "system.attributes.ac.flat",
-          //   value: formula,
-          //   type: "override",
-          //   priority: 10,
-          // },
-        );
-        // foundry.utils.setProperty(this.effect, "flags.dae.disableCondition", "attributes?.ac?.equippedArmor");
-      }
+      const calcType = "entityType" in this.ddbItem && this.ddbItem.entityType === "racial-trait"
+        ? "natural"
+        : "custom";
+      this.effect.system.changes.push(
+        {
+          key: "system.attributes.ac.calc",
+          value: calcType,
+          type: "override",
+          priority: 10,
+        },
+      );
     }
   }
 

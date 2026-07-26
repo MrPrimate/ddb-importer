@@ -8,6 +8,7 @@
 - Vampiric Bite fixes @catacomb_dragon
 - Icon Updates (thanks @crimsonedge)
 - Some custom action names would not be used when the character was imported. @catacomb_dragon
+- Some AC effects would be set as minimum when it should be a custom ac effect.
 
 # 7.3.15
 
