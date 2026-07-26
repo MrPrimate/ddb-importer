@@ -19,9 +19,11 @@ function applyItemOverride(
       break;
     case "weight":
       if (typeof value === "number") definition.weight = value;
+      if (typeof value === "string") definition.weight = Number(value);
       break;
     case "price":
       if (typeof value === "number") definition.cost = Number(value);
+      if (typeof value === "string") definition.cost = Number(value);
       break;
   }
 }
@@ -39,10 +41,10 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   // first, check custom name, price or weight
   ddb.character.characterValues.forEach((cv) => {
     // try to find a matching item based on the characterValues (an array of custom adjustements to different parts of the character)
-    const item = ddb.character.inventory.find((item) => item.id === cv.valueId);
+    const item = ddb.character.inventory.find((item) => item.id == cv.valueId);
     if (item) {
       // check if this property is in the list of supported ones, based on our DICT
-      const property = DICTIONARY.item.characterValues.find((entry) => entry.typeId === cv.typeId);
+      const property = DICTIONARY.item.characterValues.find((entry) => entry.typeId == cv.typeId);
       // unsupported customizations (e.g. notes) have no dictionary entry and are skipped
       if (!property) return;
       // overwrite the name, weight or price with the custom value

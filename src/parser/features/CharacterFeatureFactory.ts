@@ -317,11 +317,15 @@ export default class CharacterFeatureFactory {
     this.parsed.actions = this.parsed.actions.concat(attackActions);
   }
 
-  actionParsed(actionName: string) {
+  actionParsed(action: TDDBActionTypes) {
     // const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
-    const exists = this.parsed.actions.some((attack) =>
-      (foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name) === actionName,
-    );
+    // originalName holds the raw DDB name, the document name may be a DDB custom name
+    const rawName = utils.nameString(action.name);
+    const customName = DDBDataUtils.getName(this.ddbData, action, this.rawCharacter);
+    const exists = this.parsed.actions.some((attack) => {
+      const originalName = (foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") as string) ?? attack.name;
+      return originalName === rawName || attack.name === customName;
+    });
     return exists;
     // return attacksAsFeatures && exists;
   }
@@ -384,10 +388,9 @@ export default class CharacterFeatureFactory {
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => {
-        const name = DDBDataUtils.getName(this.ddbData, action, this.rawCharacter);
         // const displayAsAttack = DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-        const isParsed = this.actionParsed(name);
+        const isParsed = this.actionParsed(action);
         // console.warn("isParsed", { action, ddbname: name, isParsed });
         return !isParsed;
       });

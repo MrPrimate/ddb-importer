@@ -15,13 +15,14 @@ type TNameTypes = TDDBActionTypes | TDDBFeatureMixinDefinitions | IDDBInventoryI
 
 export default class DDBDataUtils {
 
-  static getName(_ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true): string {
+  static getName(ddb: IDDBData, item: TNameTypes, character: I5ePCData | null = null, allowCustom = true): string {
     // spell name
-    const customName = character
+    const customName = character && allowCustom
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 8)
+      ?? DDBDataUtils.getLinkedActionCustomValue(ddb, item, character, 8)
       : null;
       // : DDBDataUtils.getCustomValue(item, ddb, 8);
-    if (customName && allowCustom) {
+    if (customName) {
       return utils.nameString(String(customName));
     } else if ("definition" in item && item.definition?.name) {
       return utils.nameString(item.definition.name);
@@ -69,6 +70,28 @@ export default class DDBDataUtils {
       if (value) return value.value;
     }
     return null;
+  }
+
+  /**
+   * DDB attaches custom values (e.g. a renamed action) to the action entity, but most
+   * documents are built from the parent feature/trait definition, which has a different
+   * id and entityTypeId. Actions point back at their parent via componentId/componentTypeId,
+   * so use that link to find a custom value set on the feature's action.
+   */
+  static getLinkedActionCustomValue(ddb: IDDBData, item: TNameTypes, character: I5ePCData, type: number) {
+    const actions = ddb?.character?.actions;
+    // null ids would loosely match null componentIds, so only look up real ids
+    if (!actions || item.id == null || item.entityTypeId == null) return null;
+    const linkedActions = Object.values(actions)
+      .flat()
+      .filter((action) =>
+        action
+        && action.componentId == item.id
+        && action.componentTypeId == item.entityTypeId,
+      );
+    // ambiguous when a feature spawns more than one action (e.g. Breath Weapon), so skip
+    if (linkedActions.length !== 1) return null;
+    return DDBDataUtils.getCustomValueFromCharacter(linkedActions[0], character, type);
   }
 
   static getCustomValue(foundryItem: I5ePCItem, ddb: IDDBData, type: number) {

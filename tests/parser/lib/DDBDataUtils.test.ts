@@ -94,6 +94,97 @@ describe("DDBDataUtils.getName", () => {
     const item: any = { id: 42, entityTypeId: 1, definition: { name: "Longsword" } };
     expect(DDBDataUtils.getName(ddb, item, character, false)).toBe("Longsword");
   });
+
+  // DDB stores a renamed action against the action entity, but the document is built
+  // from the parent trait/feature definition, which has a different id/entityTypeId
+  describe("custom name set on a linked action", () => {
+    // Dhampir: "Vampiric Bite" trait, "Fanged Bite" action
+    const TRAIT = { id: 16553775, entityTypeId: 1960452172, name: "Vampiric Bite" };
+    const ACTION = {
+      id: 12052877,
+      entityTypeId: 222216831,
+      name: "Fanged Bite",
+      componentId: TRAIT.id,
+      componentTypeId: TRAIT.entityTypeId,
+    };
+
+    function makeCharacter(characterValues: any[]): any {
+      return { flags: { ddbimporter: { dndbeyond: { characterValues } } } };
+    }
+
+    function makeActionDDB(actions: any[]): any {
+      return makeDDB({ character: { actions: { race: actions, class: [], feat: [], item: [], background: [] } } });
+    }
+
+    it("uses the custom name from the linked action", () => {
+      const ddb = makeActionDDB([ACTION]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Draining Strike");
+    });
+
+    it("ignores the linked action custom name when allowCustom is false", () => {
+      const ddb = makeActionDDB([ACTION]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character, false)).toBe("Vampiric Bite");
+    });
+
+    it("skips the linked action lookup when a feature has more than one action", () => {
+      const ddb = makeActionDDB([
+        ACTION,
+        { ...ACTION, id: 12052878, name: "Fanged Bite (2)" },
+      ]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Vampiric Bite");
+    });
+
+    it("prefers a custom name set directly on the entity", () => {
+      const ddb = makeActionDDB([ACTION]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+        { valueId: "16553775", valueTypeId: "1960452172", typeId: 8, value: "Blood Drinker" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Blood Drinker");
+    });
+
+    it("returns the raw name when the linked action has no custom name", () => {
+      const ddb = makeActionDDB([ACTION]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 12, value: "2" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Vampiric Bite");
+    });
+
+    it("skips null actions and null action groups", () => {
+      const ddb = makeDDB({ character: { actions: { race: [null, ACTION], class: null, feat: [], item: [], background: [] } } });
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Draining Strike");
+    });
+
+    it("does not match actions with a null componentId when the item has no id", () => {
+      const ddb = makeActionDDB([{ ...ACTION, componentId: null, componentTypeId: null }]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      const item: any = { name: "Some Feature" };
+      expect(DDBDataUtils.getName(ddb, item, character)).toBe("Some Feature");
+    });
+
+    it("does not match an unrelated action", () => {
+      const ddb = makeActionDDB([{ ...ACTION, componentId: 999, componentTypeId: 888 }]);
+      const character = makeCharacter([
+        { valueId: "12052877", valueTypeId: "222216831", typeId: 8, value: "Draining Strike" },
+      ]);
+      expect(DDBDataUtils.getName(ddb, TRAIT as any, character)).toBe("Vampiric Bite");
+    });
+  });
 });
 
 // =============================================================================

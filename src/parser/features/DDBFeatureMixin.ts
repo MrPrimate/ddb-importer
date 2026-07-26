@@ -399,7 +399,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     // Grim Hollow puts points in names. WHY
     const namePointRegex = /(.*) \((\d) points?\)/i;
-    const nameMatch = namePointRegex.exec(this.name);
+    const nameMatch = namePointRegex.exec(this.data.name);
     if (nameMatch) {
       this.data.name = nameMatch[1];
       this.resourceCharges = Number.parseInt(nameMatch[2]);

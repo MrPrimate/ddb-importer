@@ -102,7 +102,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: utils.nameString(this.ddbDefinition.name),
+      name: DDBDataUtils.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
       type: this.documentType,
       effects: [],
       system: SystemHelpers.getTemplate(this.documentType),

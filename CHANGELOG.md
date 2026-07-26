@@ -5,8 +5,9 @@
 - Some books like Heroes of Faerun would not generate all journal pages when importing via native muncher @crimsonedge
 - Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
 - Arcane Hand fixes - @redarchongaming
-- Vampiric Bite fixes
+- Vampiric Bite fixes @catacomb_dragon
 - Icon Updates (thanks @crimsonedge)
+- Some custom action names would not be used when the character was imported. @catacomb_dragon
 
 # 7.3.15
 
