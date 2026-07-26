@@ -16,10 +16,12 @@ DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilities
     logger.warn("_generateAbilitiesOverrides: no DDB source data available, skipping");
     return;
   }
+  const overrides = {} as Record<T5eAbility, number>;
   DICTIONARY.actor.abilities.forEach((ability) => {
-    this.abilities.overrides[ability.value]
-      = ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
+    overrides[ability.value] = ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
   });
+  this.abilities.overrides = overrides;
+
   const dndbeyondFlags = this.raw.character.flags?.ddbimporter?.dndbeyond;
   if (dndbeyondFlags) {
     dndbeyondFlags.abilityOverrides = this.abilities.overrides;

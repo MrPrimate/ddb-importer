@@ -250,6 +250,19 @@ describe("DDBCharacter._generateAbilitiesOverrides", () => {
     expect(mock.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides).toBe(mock.abilities.overrides);
   });
 
+  it("populates overrides when the abilities object has no overrides record yet", () => {
+    // the constructed DDBCharacter shape: core/withEffects are assigned wholesale
+    // later in the parse, overrides must not rely on being pre-initialised
+    const mock = makeMockCharacter({
+      ddbCharacter: { overrideStats: [{ id: 4, value: 19 }] },
+      abilities: { overrides: undefined, core: undefined, withEffects: undefined },
+    });
+    generateOverrides.call(mock);
+
+    expect(mock.abilities.overrides).toEqual({ str: 0, dex: 0, con: 0, int: 19, wis: 0, cha: 0 });
+    expect(mock.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides).toBe(mock.abilities.overrides);
+  });
+
   it("all zeros when no overrides", () => {
     const mock = makeMockCharacter();
     generateOverrides.call(mock);

@@ -322,7 +322,7 @@ class DDBCharacter {
     // Character data, populated by _generateAbilities at the start of the
     // character parse before any consumer reads it
     this.abilities = {
-      overrides: undefined,
+      overrides: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
       core: undefined,
       withEffects: undefined,
     } as unknown as DDBCharacter["abilities"];
