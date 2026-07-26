@@ -134,8 +134,14 @@ const noopClass = class {};
 };
 
 // -- CONFIG --
-// Use the real DDB fallback config data for realistic test fixtures
-import { fallbackDDBConfig } from "../../src/hooks/ready/fallbackConfig";
+// Use the real DDB fallback config data for realistic test fixtures.
+// The typed assignments double as compile-time checks that the shipped JSON
+// assets still match IDDBConfig / IDDBRuleData.
+import fallbackConfigJson from "../../data/fallback-config.json";
+import fallbackRulesJson from "../../data/fallback-rules.json";
+
+const fallbackDDBConfig: IDDBConfig = fallbackConfigJson;
+const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
 
 (globalThis as any).CONFIG = {
   debug: {},
@@ -187,7 +193,7 @@ import { fallbackDDBConfig } from "../../src/hooks/ready/fallbackConfig";
       thunder: { label: "Thunder" },
     },
   },
-  DDB: fallbackDDBConfig,
+  DDB: { ...fallbackDDBConfig, RULE_DATA: fallbackRuleData },
   DDBI: {
     POPUPS: {},
     DEV: { enabled: false },

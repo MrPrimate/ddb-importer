@@ -71,7 +71,7 @@ export async function onceReady() {
 
   // notifications
   Notifications.registerNotifications();
-  loadDDBConfig();
+  await loadDDBConfig();
 
   await migration();
 

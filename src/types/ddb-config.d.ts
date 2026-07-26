@@ -21,7 +21,8 @@ global {
 
   export interface IDDBConfigSpellRules {
     multiClassSpellSlotDivisor: number;
-    multiClassSpellSlotRounding: number;
+    // null for non-caster class configurations
+    multiClassSpellSlotRounding: number | null;
     isRitualSpellCaster: boolean;
     levelCantripsKnownMaxes: number[];
     levelSpellKnownMaxes: number[] | null;
@@ -353,7 +354,8 @@ global {
   export interface IDDBConfigAlignment {
     id: number;
     name: string;
-    description: string;
+    // "Unaligned" ships with a null description
+    description: string | null;
     availableToCharacter: boolean;
   }
 
