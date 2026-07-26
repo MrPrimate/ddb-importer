@@ -74,9 +74,7 @@ export default class SystemHelpers {
     stripMod?: boolean;
   } = {}): I5eDamagePart {
     const damage: I5eDamagePart = {
-      // dnd5e's NumberField accepts null here, but the project I5eDamagePart type
-      // only declares number | undefined; keep the runtime null value unchanged
-      number: null as unknown as undefined,
+      number: null,
       denomination: 0,
       bonus: "",
       types: types ?? (type ? [type.toLowerCase()] : []),
