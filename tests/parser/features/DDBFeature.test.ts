@@ -10,35 +10,7 @@ vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
 import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBFeature from "../../../src/parser/features/DDBFeature";
 
-// -- minimal dnd5e data model stubs, DDBFeature builds a document from a template --
-function systemTemplate() {
-  return {
-    description: { value: "", chat: "" },
-    source: {},
-    type: { value: "", subtype: "" },
-    activities: {},
-    uses: { spent: 0, max: "", recovery: [] },
-    damage: { parts: [] },
-    properties: [],
-    activation: {},
-    duration: {},
-    range: {},
-    target: {},
-    identifier: "",
-    prerequisites: {},
-    requirements: "",
-    proficient: 0,
-    equipped: false,
-    rarity: "",
-    identified: true,
-    advancement: [],
-  };
-}
-
-beforeAll(() => {
-  const dataModel: any = new Proxy({}, { get: () => ({ schema: { getInitialValue: systemTemplate } }) });
-  (globalThis as any).game.dnd5e = { dataModels: { actor: dataModel, item: dataModel } };
-});
+// dnd5e data model stubs now live in tests/_setup/foundryMocks.ts (game.dnd5e).
 
 // Dhampir 2024: the "Vampiric Bite" trait spawns a "Fanged Bite" action, and DDB
 // stores a rename against the action rather than the trait
