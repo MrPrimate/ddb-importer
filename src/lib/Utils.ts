@@ -27,6 +27,10 @@ export default class Utils {
     return s.length === 16;
   }
 
+  static errorMessage(err: unknown): string {
+    return err instanceof Error ? err.message : String(err);
+  }
+
   static capitalize(s: string): string {
     if (typeof s !== "string") return "";
     return s.charAt(0).toUpperCase() + s.slice(1);

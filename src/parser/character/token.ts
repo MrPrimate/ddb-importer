@@ -66,7 +66,7 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     this.raw.character.prototypeToken = tokenData;
   } catch (err) {
     logger.error(err);
-    logger.error(err.stack);
+    if (err instanceof Error) logger.error(err.stack);
     throw new Error("Please update your D&D 5e system to a newer version", {
       cause: err,
     });

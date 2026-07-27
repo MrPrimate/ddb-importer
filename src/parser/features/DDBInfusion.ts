@@ -42,10 +42,11 @@ export class DDBInfusion {
   documentType: "feat" | "weapon" | "equipment";
   rawCharacter: I5ePCData | null;
   name: string;
-  // the data stub always initialises effects
-  data: IDDBSupportedInfusionDocuments & { effects: I5eEffectData[] };
+  // the data stub always initialises effects; assigned by _generateDataStub()
+  // in the constructor
+  data!: IDDBSupportedInfusionDocuments & { effects: I5eEffectData[] };
   nameIdPostfix: string | null;
-  requiredLevel: number | null;
+  requiredLevel: number | null = null;
   originClass: string;
   tagType: string;
   type: string;
@@ -53,10 +54,12 @@ export class DDBInfusion {
   isMuncher: boolean;
   snippet = "";
   addToCompendium: boolean;
-  activity: DDBBasicActivity;
+  // created by _buildBaseActivity() before any activity read
+  activity!: DDBBasicActivity;
   enricher: DDBClassFeatureEnricher;
   activityType: IDDBActivityType | undefined;
-  compendiumFolders: DDBCompendiumFolders;
+  // created in the compendium folder step before any read
+  compendiumFolders!: DDBCompendiumFolders;
   actions: IDDBSupportedInfusionDocuments[];
   actionsToAddToCompendium: IDDBSupportedInfusionDocuments[];
 

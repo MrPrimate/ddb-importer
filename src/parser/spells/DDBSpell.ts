@@ -99,7 +99,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   noSpellcasting: boolean;
   spellData: IDDBSpellEntry;
   declare ddbDefinition: IDDBSpellDefinition;
-  ddbCompanionFactory: DDBCompanionFactory;
+  // created in the companion parse step before any companion read
+  ddbCompanionFactory!: DDBCompanionFactory;
   flagData: IParseSpellFlagData;
   limitedUse: IDDBSpellLimitedUse | null;
   lookup: TParseSpellLookup;
@@ -275,8 +276,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.isCRSummonSpell2024 = !this.is2014 && DICTIONARY.companions.CR_SUMMONING_SPELLS_2024.includes(this.originalName);
     this.isSummons = this.isCompanionSpell2014 || this.isCompanionSpell2024 || this.isCRSummonSpell2014 || this.isCRSummonSpell2024;
     this.generateSummons = this.isGeneric
-      || (generateSummons ?? utils.getSetting<boolean>("character-update-policy-create-companions"))
-      || this.generateSummons;
+      || (generateSummons ?? utils.getSetting<boolean>("character-update-policy-create-companions"));
     this.DDBCompanionFactory = null; // lazy init
 
     this.isCantrip = this.ddbDefinition.level === 0;

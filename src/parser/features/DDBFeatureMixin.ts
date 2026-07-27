@@ -73,10 +73,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   declare type: IActionTypes;
   isMuncher: boolean;
   identifier: string;
-  legacy: boolean;
-  is2014: boolean;
-  is2024: boolean;
-  isClass2014: boolean;
+  // assigned by _getRules() in the constructor before any read
+  legacy!: boolean;
+  is2014!: boolean;
+  is2024!: boolean;
+  isClass2014!: boolean;
   naturalWeapon: boolean;
   isAction: boolean;
   excludedScale: boolean;
@@ -103,20 +104,25 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   klass: string | undefined;
   subKlass: string | undefined;
   species: string | IDDBSpeciesFlagInfo | undefined;
-  isCompanionFeature: boolean;
-  isCompanionFeatureOption: boolean;
-  isCompanionFeature2014: boolean;
-  isCompanionFeature2024: boolean;
-  isCRSummonFeature2014: boolean;
-  isCRSummonFeature2024: boolean;
-  isSummons: boolean;
-  _generatedUses: I5eSystemLimitedUses;
-  _actionType: IDDBFeatureMixinActionType;
-  _descriptionSave: I5eActivitySave | null;
+  // assigned by _checkSummons() in the constructor before any read
+  isCompanionFeature!: boolean;
+  isCompanionFeatureOption!: boolean;
+  isCompanionFeature2014!: boolean;
+  isCompanionFeature2024!: boolean;
+  isCRSummonFeature2014!: boolean;
+  isCRSummonFeature2024!: boolean;
+  isSummons!: boolean;
+  // recorded by _generateLimitedUse() but never read back
+  _generatedUses?: I5eSystemLimitedUses;
+  // assigned by _generateActionTypes() via _prepare() in the constructor
+  _actionType!: IDDBFeatureMixinActionType;
+  _descriptionSave: I5eActivitySave | null = null;
   extraFlags: IItemFlagConfig;
   declare documentType: TDocumentType;
-  companionFeatureOption: { parentFeature: string; childName: string };
-  ddbCompanionFactory: DDBCompanionFactory;
+  // set by _isCompanionFeatureOption() on a match; reads are guarded by isCompanionFeatureOption
+  companionFeatureOption!: { parentFeature: string; childName: string };
+  // created by createCompanionFactory() before any companion read
+  ddbCompanionFactory!: DDBCompanionFactory;
   spellLinks: IDDBSpellLink[];
 
   _init() {
@@ -374,7 +380,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
-    this.isMuncher = isMuncher || this.isMuncher || (this.ddbCharacter?.isMuncher ?? false);
+    this.isMuncher = isMuncher || (this.ddbCharacter?.isMuncher ?? false);
     this._parent = this._getActionParent();
     this._init();
     // the base class field is typed non-null and treats a falsy value as unset

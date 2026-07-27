@@ -576,7 +576,7 @@ export async function generateCharacterExtras(_html: any, ddbCharacter: DDBChara
 
   } catch (err) {
     logger.error("Failure parsing extra", err);
-    logger.error(err.stack);
+    if (err instanceof Error) logger.error(err.stack);
   } finally {
     revertExtraMunchDefaults(munchSettings);
   }

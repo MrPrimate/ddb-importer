@@ -80,8 +80,8 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;
-  srdImageLibrary2014: ICompendiumIconMapEntry[] | null;
-  srdImageLibrary2024: ICompendiumIconMapEntry[] | null;
+  srdImageLibrary2014: ICompendiumIconMapEntry[] | null = null;
+  srdImageLibrary2024: ICompendiumIconMapEntry[] | null = null;
   _documents: TType[];
   type: TDDBImporterTypes;
   recursive: boolean | null;

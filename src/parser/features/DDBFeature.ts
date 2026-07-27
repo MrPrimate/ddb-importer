@@ -871,7 +871,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       await this.enricher.cleanup();
     } catch (err) {
       logger.warn(
-        `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
+        `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${utils.errorMessage(err)}`,
         "extension",
       );
       logger.error("Error", err);
@@ -966,7 +966,7 @@ ${description}`;
       }
     } catch (err) {
       logger.warn(
-        `Unable to Generate Basic Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
+        `Unable to Generate Basic Feature: ${this.name}, please log a bug report. Err: ${utils.errorMessage(err)}`,
         "extension",
       );
       logger.error("Error", err);

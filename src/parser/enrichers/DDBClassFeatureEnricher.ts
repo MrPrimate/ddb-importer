@@ -4,7 +4,8 @@ import { DDBSources, utils } from "../../lib/_module";
 import type DDBEnricherData from "./data/DDBEnricherData";
 
 // ClassEnrichers mixes per-class namespaces with the bare top-level Generic constructor.
-type TClassEnricherLookup = Record<string, Record<string, EnricherConstructor | undefined> | EnricherConstructor | undefined>;
+type TClassEnricherConstructor = EnricherConstructor<DDBClassFeatureEnricher>;
+type TClassEnricherLookup = Record<string, Record<string, TClassEnricherConstructor | undefined> | TClassEnricherConstructor | undefined>;
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({
@@ -66,7 +67,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   _defaultNameLoader(): DDBEnricherData | null {
     const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
     // mixed one- and two-deep registry; the guard keeps the two-deep access safe
-    const enricherGroups = this.ENRICHERS as Record<string, Record<string, EnricherConstructor>>;
+    const enricherGroups = this.ENRICHERS as Record<string, Record<string, TClassEnricherConstructor>>;
     const hintName = this.hintName;
     if (!hintName || !enricherGroups?.[classHintName]?.[hintName]) {
       return this._defaultClassLoader();
@@ -192,7 +193,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   // Mixed map: most keys are flat enricher constructors (looked up by feature hint),
   // but a few class keys (Paladin/Barbarian/Warlock) nest a per-feature sub-map, consumed
   // two-deep in _defaultNameLoader as `new this.ENRICHERS[classHintName][this.hintName]`.
-  ENRICHERS: Record<string, EnricherConstructor | Record<string, EnricherConstructor>> = {
+  ENRICHERS: Record<string, TClassEnricherConstructor | Record<string, TClassEnricherConstructor>> = {
     Paladin: {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
@@ -427,7 +428,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Artificer Spells": ClassEnrichers.Artificer.ArtificerSpells,
   };
 
-  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {
+  FALLBACK_ENRICHERS: Record<string, TClassEnricherConstructor> = {
     Generic: ClassEnrichers.Generic,
   };
 }

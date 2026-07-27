@@ -3,8 +3,6 @@ import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "./_module";
 
 
-type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
-
 // type TRaceChoiceDocumentTypes = I5eFeatItem | I5eWeaponItem;
 
 const JOURNAL_INDEX_FIELDS = [
@@ -13,12 +11,6 @@ const JOURNAL_INDEX_FIELDS = [
 ];
 
 const ITEM_INDEX_FIELDS = ["name", "type", "flags.ddbimporter", "system.source.book"];
-
-interface IIndexEntry extends TIndexEntry {
-  flags: {
-    ddbimporter: IDDBImporterItemFlags;
-  };
-}
 
 const BASE_RULE_PAGE: I5eRuleJournalPageData = {
   sort: 1,
@@ -279,9 +271,9 @@ export default class DDBRuleJournalFactory {
 
   async _getRuleJournal(source: IRuleFactorySource): Promise<JournalEntry | undefined> {
     if (!this.journalCompendium) return undefined;
-    const journalHit = this.journalCompendium.index.find((j: IIndexEntry) =>
-      j.flags?.ddbimporter?.type === this.flagName
-      && j.flags?.ddbimporter?.sourceCode === source.acronym,
+    const journalHit = this.journalCompendium.index.find((j) =>
+      foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.flagName
+      && foundry.utils.getProperty(j, "flags.ddbimporter.sourceCode") === source.acronym,
     );
     if (journalHit) {
       logger.debug(`Found existing Rule Journal for ${source.acronym} (${this.flagName})`);
@@ -341,8 +333,8 @@ export default class DDBRuleJournalFactory {
     if (!this.available || !this.journalCompendium) return;
     await this.init();
 
-    const ruleJournals = this.journalCompendium.index.filter((j: IIndexEntry) =>
-      j.flags?.ddbimporter?.type === this.flagName,
+    const ruleJournals = this.journalCompendium.index.filter((j) =>
+      foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.flagName,
     );
 
     for (const journal of ruleJournals) {

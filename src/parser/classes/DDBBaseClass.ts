@@ -24,7 +24,8 @@ type TAdvancementMatchEntry = Record<TBaseClassCompendiumTypes, Record<string, R
 
 export default abstract class DDBBaseClass {
 
-  data: T5eClassTypes;
+  // assigned by the subclass _generateDataStub() implementation, invoked from the constructor
+  data!: T5eClassTypes;
   addToCompendium: boolean | null = null;
   compendiumImportTypes = ["classes", "subclasses"];
   updateCompendiumItems: boolean | null = null;
@@ -347,40 +348,45 @@ export default abstract class DDBBaseClass {
   ddbClass: IDDBClass;
   ddbClassDefinition: IDDBClassDefinition;
   ddbParentClassDefinition: IDDBClassDefinition;
-  is2014: boolean;
-  is2024: boolean;
-  legacy: boolean;
-  parentIs2014: boolean;
+  // is2014/is2024/legacy are assigned in _processSources(), called from the constructor
+  is2014!: boolean;
+  is2024!: boolean;
+  legacy!: boolean;
+  // assigned in _generateSource() before its only read
+  parentIs2014!: boolean;
   classFeatureIds: number[];
-  classFeatures: IDDBClassDefinitionFeature[];
-  _proficiencyFeatureIds: number[];
-  _expertiseFeatureIds: number[];
-  _languageFeatureIds: number[];
-  _toolFeatureIds: number[];
-  _armorFeatureIds: number[];
-  _weaponFeatureIds: number[];
-  _weaponMasteryFeatureIds: number[];
-  _languageOrSkillFeatureIds: number[];
-  _conditionFeatureIds: number[];
-  _proficiencyFeatures: IDDBClassDefinitionFeature[];
-  _expertiseFeatures: IDDBClassDefinitionFeature[];
-  _languageFeatures: IDDBClassDefinitionFeature[];
-  _toolFeatures: IDDBClassDefinitionFeature[];
-  _armorFeatures: IDDBClassDefinitionFeature[];
-  _weaponFeatures: IDDBClassDefinitionFeature[];
-  _weaponMasteryFeatures: IDDBClassDefinitionFeature[];
-  _languageOrSkillFeatures: IDDBClassDefinitionFeature[];
-  _conditionFeatures: IDDBClassDefinitionFeature[];
+  // fields marked with ! below are populated by _fleshOutCommonDataStub(), which the
+  // generateFromCharacter() flows always call before any advancement generation reads them
+  classFeatures!: IDDBClassDefinitionFeature[];
+  _proficiencyFeatureIds!: number[];
+  _expertiseFeatureIds!: number[];
+  _languageFeatureIds!: number[];
+  _toolFeatureIds!: number[];
+  _armorFeatureIds!: number[];
+  _weaponFeatureIds!: number[];
+  _weaponMasteryFeatureIds!: number[];
+  _languageOrSkillFeatureIds!: number[];
+  _conditionFeatureIds!: number[];
+  _proficiencyFeatures!: IDDBClassDefinitionFeature[];
+  _expertiseFeatures!: IDDBClassDefinitionFeature[];
+  _languageFeatures!: IDDBClassDefinitionFeature[];
+  _toolFeatures!: IDDBClassDefinitionFeature[];
+  _armorFeatures!: IDDBClassDefinitionFeature[];
+  _weaponFeatures!: IDDBClassDefinitionFeature[];
+  _weaponMasteryFeatures!: IDDBClassDefinitionFeature[];
+  _languageOrSkillFeatures!: IDDBClassDefinitionFeature[];
+  _conditionFeatures!: IDDBClassDefinitionFeature[];
   subClassFeatureIds: number[];
   advancementHelper: AdvancementHelper;
   isStartingClass: boolean;
-  _excludedFeatureIds: number[];
+  _excludedFeatureIds!: number[];
   NOT_ADVANCEMENT_FOR_FEATURE: string[];
   NO_ADVANCEMENT_2014: string[];
   NO_ADVANCEMENT_2024: string[];
   SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements;
-  FORCE_SPELL_LIST_ADVANCEMENTS: string[];
-  NOT_SPELL_LIST_ADVANCEMENTS: string[];
+  // only DDBSubClass assigns and reads these; empty lists are the correct default elsewhere
+  FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [];
+  NOT_SPELL_LIST_ADVANCEMENTS: string[] = [];
   dictionary: IDDBClassSkillDictionary;
 
   _generateSource() {
@@ -1003,7 +1009,7 @@ export default abstract class DDBBaseClass {
           logger.warn(`Unable to generate scale value advancement for feature ${feature.name}`, { feature });
           return null;
         }
-        let advancement = generated;
+        let advancement: I5eAdvancement = generated;
         const specialLookup = this.SPECIAL_ADVANCEMENTS[generated.title as string];
         if (specialLookup) {
           if (specialLookup.additionalAdvancements) {

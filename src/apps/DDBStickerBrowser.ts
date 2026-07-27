@@ -193,7 +193,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       return payload;
     } catch (error) {
       logger.error("DDBStickerBrowser: catalog fetch failed", error);
-      ui.notifications.error(`Sticker catalog fetch failed: ${error.message}`);
+      ui.notifications.error(`Sticker catalog fetch failed: ${utils.errorMessage(error)}`);
       return null;
     } finally {
       this.loading = false;

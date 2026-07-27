@@ -98,11 +98,11 @@ async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, docum
   return false;
 }
 
-function characterButtonClickV2(event: MouseEvent, _target: HTMLElement) {
+function characterButtonClickV2(this: { document: I5ePCData; actor: TImporterActor }, event: MouseEvent, _target: HTMLElement) {
   characterButtonClick(event, this.document, this.actor);
 }
 
-function getCharacterButton(document: Record<string, any>, actor: TImporterActor) {
+function getCharacterButton(document: I5ePCData, actor: TImporterActor) {
   const buttonText = "<button type=\"button\" id=\"ddbImporterButton\" class=\"inactive\"><i class=\"fab fa-d-and-d-beyond\"></button>";
 
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
@@ -127,7 +127,7 @@ function npcButtonClick(event: MouseEvent | JQuery.ClickEvent, document: Record<
   }
 }
 
-function npcButtonClickV2(event: MouseEvent, _target: HTMLElement) {
+function npcButtonClickV2(this: { document: I5eMonsterData | I5eVehicleData }, event: MouseEvent, _target: HTMLElement) {
   npcButtonClick(event, this.document);
 }
 
@@ -137,20 +137,20 @@ function getNPCButton(document: Record<string, any>) {
   return button;
 }
 
-function groupButtonClickV2(_event: MouseEvent, _target: HTMLElement) {
+function groupButtonClickV2(this: { document?: TImporterActor | null; actor?: TImporterActor | null }, _event: MouseEvent, _target: HTMLElement) {
   const actor = this.document ?? this.actor;
   if (!actor) return false;
   DDBPartySync.open({ actor });
   return true;
 }
 
-function groupButtonClick(_event: MouseEvent | JQuery.ClickEvent, document: Record<string, any>) {
+function groupButtonClick(_event: MouseEvent | JQuery.ClickEvent, document: TImporterActor) {
   if (!document) return false;
   DDBPartySync.open({ actor: document });
   return true;
 }
 
-function getGroupButton(document: Record<string, any>) {
+function getGroupButton(document: TImporterActor) {
   const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
   button.click((event) => groupButtonClick(event, document));
   return button;
@@ -388,7 +388,7 @@ const addPartySyncContext = (_html: HTMLElement | JQuery<HTMLElement>, options: 
         ? li.dataset.entryId ?? li.dataset.documentId
         : li.data?.("entryId") ?? li.data?.("documentId");
       const actor = actorId ? game.actors.get(actorId) : null;
-      if (actor) DDBPartySync.open({ actor });
+      if (actor) DDBPartySync.open({ actor: actor as TImporterActor });
     },
   });
 };

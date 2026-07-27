@@ -25,13 +25,14 @@ export default class DDBCharacterManager extends DDBAppV2 {
   characterImporter: DDBCharacterImporter;
   ddbCharacter: DDBCharacter | null;
   private _debugContext: any;
-  importSettings: ICharacterImportSettings;
-  dmSyncEnabled: boolean;
-  playerSyncEnabled: boolean;
+  // assigned in _prepareContext before any render-driven read
+  importSettings!: ICharacterImportSettings;
+  dmSyncEnabled = false;
+  playerSyncEnabled = false;
   result: Record<string, unknown>;
   settings: Record<string, unknown>;
-  itemsMunched: boolean;
-  actorSettings: Record<string, any>;
+  itemsMunched = false;
+  actorSettings: Record<string, any> = {};
 
   constructor(actor: TImporterActor | I5ePCData, ddbCharacter: DDBCharacter | null = null) {
     super();
@@ -418,7 +419,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       }
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       this.showCurrentTask("Error setting local patreon key", { message: error, isError: true });
     }
   }
@@ -435,7 +436,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       }
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
     }
   }
@@ -452,7 +453,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       }).render(true);
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       this.showCurrentTask("Error setting local cookie", { message: error, isError: true });
     }
   }
@@ -464,7 +465,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       this.#setText("#set-local-cobalt", "Add Cobalt Cookie");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
     }
   }
@@ -490,7 +491,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       });
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       this.showCurrentTask("Error updating character", { message: error, isError: true });
     }
   }
@@ -535,7 +536,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         }
       });
     } catch (error) {
-      switch (error.message) {
+      switch (utils.errorMessage(error)) {
         case "ImportFailure":
           logger.error("Failure");
           break;
@@ -544,7 +545,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
           break;
         default:
           logger.error(error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
           break;
       }
@@ -564,7 +565,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         this.close();
       }
     } catch (error) {
-      switch (error.message) {
+      switch (utils.errorMessage(error)) {
         case "ImportFailure":
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
@@ -573,7 +574,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
           break;
         default:
           logger.error(error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;

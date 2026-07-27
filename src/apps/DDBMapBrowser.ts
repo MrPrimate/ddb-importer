@@ -632,7 +632,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
       return catalog;
     } catch (error) {
       logger.error("DDBMapBrowser: catalog load failed", error);
-      ui.notifications.error(`Map catalog load failed: ${error.message}`);
+      ui.notifications.error(`Map catalog load failed: ${utils.errorMessage(error)}`);
       return null;
     } finally {
       this.loadingCatalog = false;
@@ -713,7 +713,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
       return payload;
     } catch (error) {
       logger.error("DDBMapBrowser: source maps fetch failed", error);
-      ui.notifications.error(`Source maps fetch failed: ${error.message}`);
+      ui.notifications.error(`Source maps fetch failed: ${utils.errorMessage(error)}`);
       return null;
     } finally {
       this.loadingSource = false;

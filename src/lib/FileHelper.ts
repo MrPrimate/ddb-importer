@@ -505,7 +505,7 @@ export class FileHelper {
             await FileHelper.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
           }
         } catch (err) {
-          const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
+          const errMessage = String(utils.errorMessage(err)).replace(/^Error: /, "").trim();
           if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {
             logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
             logger.error("parsedPath", parsedPath);

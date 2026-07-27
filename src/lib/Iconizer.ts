@@ -287,11 +287,13 @@ export default class Iconizer {
     const targetDocs = this.documents.filter((item) => DICTIONARY.types.inventory.includes(item.type ?? ""));
     const itemImages = await Iconizer.getDDBItemImages(targetDocs, true);
 
-    this.documents = await Promise.all(this.documents.map((item: I5eInventoryItem) => {
-      // logger.debug(item.name);
-      // logger.debug(item.flags.ddbimporter.dndbeyond);
-      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") === true) return item;
-      if (DICTIONARY.types.inventory.includes(item.type)) {
+    this.documents = await Promise.all(this.documents.map((doc: TDDBItemImporterDocument) => {
+      // logger.debug(doc.name);
+      // logger.debug(doc.flags.ddbimporter.dndbeyond);
+      if (foundry.utils.getProperty(doc, "flags.ddbimporter.keepIcon") === true) return doc;
+      if (DICTIONARY.types.inventory.includes(doc.type ?? "")) {
+        // the runtime inventory type guard above narrows doc to an inventory item
+        const item = doc as I5eInventoryItem;
         if (utils.isDefaultOrPlaceholderImage(item.img)) {
           const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
           if (imageMatch && imageMatch.img) {
@@ -303,7 +305,7 @@ export default class Iconizer {
           }
         }
       }
-      return item;
+      return doc;
     }));
   }
 

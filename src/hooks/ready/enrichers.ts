@@ -55,7 +55,7 @@ function createFunctionLink(label: string, dataset: Record<string, any>) {
 }
 
 
-async function enrichFunction(config: Record<string, any>, label: string, options: Record<string, any>) {
+async function enrichFunction(config: Record<string, any>, label: string, options: TextEditor.EnrichmentOptions) {
   // console.warn("ENRICHER DEGUG", {
   //   config,
   //   label,
@@ -113,7 +113,9 @@ async function enrichFunction(config: Record<string, any>, label: string, option
   }
 
   // Finally, use relative item
-  dataset.rollItemUuid = options.relativeTo.uuid;
+  // relativeTo can be absent at the type level; when it is, this line has always
+  // thrown a TypeError, so the assertion preserves the existing runtime behaviour
+  dataset.rollItemUuid = options.relativeTo!.uuid ?? undefined;
   return createFunctionLink(label, dataset);
 }
 
@@ -124,7 +126,7 @@ async function enrichFunction(config: Record<string, any>, label: string, option
  * @returns {Promise<HTMLElement|null>}  An HTML element to insert in place of the matched text or null to
  *                                       indicate that no replacement should be made.
  */
-async function macroEnricher(match: RegExpMatchArray, options: Record<string, any>) {
+async function macroEnricher(match: RegExpMatchArray, options: TextEditor.EnrichmentOptions = {}) {
   const { type, label } = match.groups as Record<string, string>;
   const config = parseConfig((match.groups as Record<string, string>).config);
   config._input = match[0];

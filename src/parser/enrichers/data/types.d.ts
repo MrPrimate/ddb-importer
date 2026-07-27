@@ -20,7 +20,9 @@ global {
   // Construct-signature for enricher class-maps (ENRICHERS / FALLBACK_ENRICHERS / GENERIC_ENRICHERS).
   // DDBEnricherData is abstract, so `typeof DDBEnricherData` is not newable. we use a construct signature
   // matching the base constructor `{ ddbEnricher }`, which concrete subclasses are assignable to.
-  export type EnricherConstructor = new (args: { ddbEnricher: TDDBEnricher }) => DDBEnricherData;
+  // The type parameter narrows the enricher a map's entries are constructed with, so enricher-specific
+  // data classes (e.g. DDBEnricherData<DDBClassFeatureEnricher>) fit their owning enricher's maps.
+  export type EnricherConstructor<T extends TDDBEnricher = TDDBEnricher> = new (args: { ddbEnricher: T }) => DDBEnricherData;
 
   // Typed view over a two-deep enricher namespace (e.g. ClassEnrichers, MonsterEnrichers)
   // indexed by runtime strings; `| undefined` keeps missing-key guards honest.

@@ -26,9 +26,9 @@ export async function monsterFeatureEffectAdjustment(ddbMonster: DDBMonster, add
   switch (npc.name) {
     case "Carrion Crawler":
     case "Reduced-threat Carrion Crawler": {
-      npc.items.forEach(function(item: any, index: number) {
+      npc.items.forEach(function(this: I5eMonsterItem[], item: any, index: number) {
         if (item.name === "Tentacles") {
-          addStatusEffectChange({ effect: this[index].effects[0], statusName: "Paralyzed" });
+          addStatusEffectChange({ effect: this[index].effects![0], statusName: "Paralyzed" });
           this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);

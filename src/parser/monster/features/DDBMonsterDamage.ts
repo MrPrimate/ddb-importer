@@ -28,8 +28,8 @@ export class DDBMonsterDamage {
   splitSaves: boolean;
   templateType: string;
   saves: { type: string | null; hit: string };
-  hitsMatch: string[];
-  hitMatches: TDamageMatch[];
+  hitsMatch: string[] = [];
+  hitMatches: TDamageMatch[] = [];
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;

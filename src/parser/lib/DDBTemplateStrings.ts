@@ -606,7 +606,7 @@ export function parse(
       } catch (err) {
         result.text = result.text.replace(entry.replacePattern, `{{${match}}}`);
         logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, err);
-        logger.warn(err.stack);
+        if (err instanceof Error) logger.warn(err.stack);
       }
     }
     if (entry.parsed && !entry.parsed.includes("NaN")) result.resultStrings.push(entry.parsed);

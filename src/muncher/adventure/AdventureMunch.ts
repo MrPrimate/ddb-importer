@@ -82,7 +82,8 @@ export default class AdventureMunch {
   importFile?: File;
   importFilename?: string;
   lookups: IAdventureMunchLookups;
-  _pack: CompendiumCollection<"Adventure">;
+  // assigned at the start of _importAdventureCompendium before any read
+  _pack!: CompendiumCollection<"Adventure">;
   declare _importPathData: { current: string };
   addToAdventureCompendium: boolean;
   allScenes: boolean;
@@ -271,7 +272,7 @@ export default class AdventureMunch {
         return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(returnKey)}`;
       }
     } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`, { err });
+      logger.error(`Error importing image file ${path} : ${utils.errorMessage(err)}`, { err });
     }
 
     return path;
@@ -1008,7 +1009,7 @@ export default class AdventureMunch {
       ui.notifications.error(`There was an error importing ${this.importFilename}`);
       logger.error(`Error importing file ${this.importFilename}`, err);
       logger.error(err);
-      logger.error(err.stack);
+      if (err instanceof Error) logger.error(err.stack);
     } finally {
       this.lookups = {};
       this.notifierV2?.({ progress: { current: 1, total: 1 }, message: "", progressBar: "primary", clear: true });

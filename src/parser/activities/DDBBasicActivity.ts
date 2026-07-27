@@ -12,7 +12,8 @@ export default class DDBBasicActivity {
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
-  data: I5eActivity;
+  // assigned by _generateDataStub() in the constructor
+  data!: I5eActivity;
   actor: I5ePCData | I5eMonsterData | I5eVehicleData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
   ddbParent: DDBActivityFactoryMixin<any> | null;

@@ -31,16 +31,18 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   usesOnActivity = false;
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
-  data: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
+  // assigned by subclass constructors (data stub generation) before any read
+  data!: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
   notifier: NotifierV1 | null;
 
-  // These properties are used throughout the class but defined in subclasses.
+  // These properties are used throughout the class but defined in subclasses,
+  // whose constructors assign them before any read here.
   // Subclasses use narrower unions (IActionTypes, TDDBMonsterActionType, "spell", ...)
-  type: string;
-  activityType: IDDBActivityType;
+  type!: string;
+  activityType!: IDDBActivityType;
   activityTypes: string[] = [];
-  ddbDefinition: IDDBCommonDefinition;
-  ddbData: IDDBData;
+  ddbDefinition!: IDDBCommonDefinition;
+  ddbData!: IDDBData;
   activities: TDDBActivityTypes[] = [];
 
   constructor({

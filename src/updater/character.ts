@@ -246,7 +246,7 @@ async function updateCharacterCall(
       dynamicSync,
     };
     logger.error(`Setting ${path} failed`, errorData);
-    logger.error(error.stack);
+    if (error instanceof Error) logger.error(error.stack);
     throw error;
   }
 }
@@ -894,7 +894,7 @@ async function addDDBEquipment(actor: TSyncCharacterActor, itemsToAdd: I5eInvent
     logger.debug("customItemResults", customItemResults);
   } catch (err) {
     logger.error(`Unable to update character with equipment, got the error:`, err);
-    logger.error(err.stack);
+    if (err instanceof Error) logger.error(err.stack);
     logger.error(`Update payload:`, customItems);
   }
 
@@ -1795,8 +1795,8 @@ async function generateDynamicItemChange(actor: TSyncCharacterActor, document: T
 
 }
 
-async function updateSpellPrep(actor: TSyncCharacterActor, document: TImporterItem) {
-  return new Promise((resolve) => {
+async function updateSpellPrep(actor: TSyncCharacterActor, document: TImporterItem): Promise<ISyncResult[]> {
+  return new Promise<ISyncResult[]>((resolve) => {
     const spellSyncFlag = actor.flags.ddbimporter?.activeSyncSpells;
     if (spellSyncFlag) {
       logger.debug("Updating DDB SpellsPrepared...");
@@ -1860,7 +1860,7 @@ async function activeUpdateUpdateItem(document: TImporterItem, update: Record<st
         && document.system.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value
       ) {
         logger.debug("Updating DDB SpellsPrepared...");
-        updateSpellPrep(parentActor, document).then((results: { success?: boolean }[]) => {
+        updateSpellPrep(parentActor, document).then((results: ISyncResult[]) => {
           logger.debug("Spell prep results", results);
           const failures = results.find((result) => result.success !== true);
           const ddbCharacterOptions: DDBCharacterImportOptions = {

@@ -5,10 +5,12 @@ import DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 import type DDBEnricherData from "./data/DDBEnricherData";
 
 export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<Record<string, string>> {
-  monster: I5eMonsterData;
-  monsterName: string;
+  // monster and monsterName are assigned in load() before any enricher lookup runs
+  monster!: I5eMonsterData;
+  monsterName!: string;
   monsterHintName: string | null;
-  hints: {
+  // diagnostic data, only set when a monster enricher match is found
+  hints?: {
     monsterHintName: string;
     featName: string;
   };

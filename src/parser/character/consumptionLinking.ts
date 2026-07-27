@@ -33,7 +33,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
     }[];
     for (const spellData of typedSpellArray) {
       logger.debug(`Checking ${spellData.name}`, spellData);
-      const child = possibleItems.find((doc: I5eSpellItem) => {
+      const child = possibleItems.find((doc): doc is I5eSpellItem => {
         if (doc.type !== "spell") return false;
         const name = doc.flags.ddbimporter?.originalName ?? doc.name;
         const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName ?? "NO_LOOKUP_NAME";

@@ -83,9 +83,10 @@ class DDBMonster {
   legacyName: boolean;
   addMonsterEffects: boolean;
   addChrisPremades: boolean;
-  removedHitPoints: number;
-  temporaryHitPoints: number;
-  unexpectedDescription: string | null;
+  // assigned via setProperty() in the constructor
+  removedHitPoints!: number;
+  temporaryHitPoints!: number;
+  unexpectedDescription: string | null = null;
   characterDescription: string;
   cr: {
     id: number;
@@ -94,12 +95,13 @@ class DDBMonster {
     xp: number;
   };
   typeName: string;
-  img: string | null;
+  img: string | null = null;
   stockImage: boolean;
   featureFactory: DDBMonsterFeatureFactory;
-  is2014: boolean;
-  is2024: boolean;
-  legacy: boolean;
+  // assigned by _generateSource() at the start of the parse flow (or forced in the constructor)
+  is2014!: boolean;
+  is2024!: boolean;
+  legacy!: boolean;
   use2024Spells: boolean;
   useCastActivity: boolean;
   forceRulesVersion: boolean;
@@ -111,13 +113,14 @@ class DDBMonster {
     spellAttackBonus: number;
   };
   spellList: IDDBMonsterSpellListTracker;
-  abilities: I5eAbilities;
-  movement: {
+  // abilities/movement/ac are populated by their parse steps before any read
+  abilities!: I5eAbilities;
+  movement!: {
     movement: I5eMovement;
     special: string[];
   };
   items: I5eMonsterItem[];
-  ac: {
+  ac!: {
     ac: I5eArmorClass;
     flatAC: boolean;
     acItems: I5eMonsterItem[];
@@ -132,8 +135,8 @@ class DDBMonster {
   overrides: IDDBMonsterOverrides;
 
   setProperty(name: string, value: any) {
-    if (this.overrides["name"]) {
-      (this as Record<string, any>)[name] = this.overrides["name"];
+    if (this.overrides[name]) {
+      (this as Record<string, any>)[name] = this.overrides[name];
     } else {
       (this as Record<string, any>)[name] = value;
     }

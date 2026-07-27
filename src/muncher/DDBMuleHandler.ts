@@ -113,7 +113,8 @@ export default class DDBMuleHandler {
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
   characterId: string | null = null;
   classId: number | null = null;
-  source: IDDBMuleClassSource;
+  // buffered by _ingestIterationItem() during load, before processing reads it (guarded where load may not have run)
+  source!: IDDBMuleClassSource;
   allowedSourceIds: number[] = [];
   allowedHomebrew = false;
   onlyHomebrew = false;
@@ -278,18 +279,18 @@ export default class DDBMuleHandler {
       });
       await importer.processCharacterData();
     } catch (error) {
-      switch (error.message) {
+      switch (utils.errorMessage(error)) {
         case "ImportFailure":
           logger.error("Failure");
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           break;
         case "Forbidden":
           logger.error("Error retrieving Character: ", error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           break;
         default:
           logger.error("Error processing Character: ", error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           break;
       }
     }

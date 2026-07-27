@@ -494,7 +494,7 @@ export default class DDBMonsterFactory {
       } catch (err) {
         logger.error(`Failed parsing ${name}`);
         logger.error(err);
-        logger.error(err.stack);
+        if (err instanceof Error) logger.error(err.stack);
         failedMonsterNames.push(name);
       }
     }

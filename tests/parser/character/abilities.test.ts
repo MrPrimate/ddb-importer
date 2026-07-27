@@ -15,7 +15,7 @@ import { makeMockCharacter } from "../../_fixtures/mockCharacter";
 // =============================================================================
 describe("DDBCharacter._getCustomSaveProficiency", () => {
   const getCustomSaveProficiency = DDBCharacter.prototype._getCustomSaveProficiency;
-  const strAbility = { id: 1, value: "str", long: "strength" };
+  const strAbility: DDBAbilityLookup = { id: 1, value: "str", long: "strength" };
 
   it("returns undefined when no custom proficiency exists", () => {
     const mock = makeMockCharacter();
@@ -72,7 +72,7 @@ describe("DDBCharacter._getCustomSaveProficiency", () => {
 // =============================================================================
 describe("DDBCharacter._getCustomSaveBonus", () => {
   const getCustomSaveBonus = DDBCharacter.prototype._getCustomSaveBonus;
-  const dexAbility = { id: 2, value: "dex", long: "dexterity" };
+  const dexAbility: DDBAbilityLookup = { id: 2, value: "dex", long: "dexterity" };
 
   it("returns 0 when no custom values exist", () => {
     const mock = makeMockCharacter();

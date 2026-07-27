@@ -316,7 +316,7 @@ export default class DDBMap {
       await this._maybeReapplySnips();
       return { scene: this.scene, imagePath: this.uploadedPath, skipped: false };
     } catch (error) {
-      logger.error(`DDBMap.import failed for ${this.map.name}: ${error.message}`, error);
+      logger.error(`DDBMap.import failed for ${this.map.name}: ${utils.errorMessage(error)}`, error);
       throw error;
     }
   }
@@ -496,7 +496,7 @@ export default class DDBMap {
       try {
         results.push(await DDBMap.importMap(map, options));
       } catch (error) {
-        results.push({ scene: null, imagePath: null, skipped: true, reason: error.message });
+        results.push({ scene: null, imagePath: null, skipped: true, reason: utils.errorMessage(error) });
       }
     }
     return results;

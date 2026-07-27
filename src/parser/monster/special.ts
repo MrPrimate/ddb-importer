@@ -27,7 +27,7 @@ function hasAttackActivity(item: I5eMonsterItem) {
 export function specialCases(monster: I5eMonsterData) {
   const magicWeapons = monster.items.some((item) => item.name === "Magic Weapons");
   if (magicWeapons) {
-    monster.items.forEach(function (item, index) {
+    monster.items.forEach(function (this: I5eMonsterItem[], item, index) {
       const applyMagic = item.type === "weapon" || hasAttackActivity(item);
       if (applyMagic) {
         this[index].system.properties = utils.addToProperties(this[index].system.properties, "mgc");
@@ -37,7 +37,7 @@ export function specialCases(monster: I5eMonsterData) {
 
   switch (monster.name) {
     case "Living Blade of Disaster": {
-      monster.items.forEach(function (item, index) {
+      monster.items.forEach(function (this: I5eMonsterItem[], item, index) {
         if (item.name === "Preemptive Strike") {
           foundry.utils.setProperty(this[index], "flags.midi-qol.reactionCondition", "false");
         }

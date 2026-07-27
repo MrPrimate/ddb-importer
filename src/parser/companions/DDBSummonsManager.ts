@@ -62,7 +62,8 @@ export default class DDBSummonsManager {
   ddbData: IDDBData | null;
   notifier: NotifierV1 | null;
   indexFilter: { fields: string[] };
-  compendiumFolders: DDBCompendiumFolders;
+  // created in init(), which callers run before any use
+  compendiumFolders!: DDBCompendiumFolders;
 
   constructor({ ddbData = null, notifier = null }: {
     ddbData?: IDDBData | null;
@@ -157,8 +158,8 @@ export default class DDBSummonsManager {
         && !game.modules.get("JB2A_DnD5e")?.active
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get("jb2a_patreon")?.active) continue;
-      const existingSummons = itemHandler.compendium.index.find((i: ISummonsIndexMock) =>
-        i.flags?.ddbimporter?.summons?.summonsKey === key,
+      const existingSummons = itemHandler.compendium.index.find((i) =>
+        foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") === key,
       ) as unknown as ISummonsIndexMock;
 
       if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= parseInt(value.version)) continue;

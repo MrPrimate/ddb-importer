@@ -49,7 +49,8 @@ export default class CharacterFeatureFactory {
   ddbCharacter: DDBCharacter;
   ddbData: IDDBData;
   excludedOriginFeatures: number[];
-  _ddbClassFeatures: DDBClassFeatures;
+  // created at the start of the class-features processing before any read
+  _ddbClassFeatures!: DDBClassFeatures;
   parsed: {
     actions: T5eFeatureMixinDataTypes[];
     features: T5eFeatureMixinDataTypes[];

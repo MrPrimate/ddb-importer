@@ -82,7 +82,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
-  rawCharacter: I5ePCData;
+  // never populated for items; activity generation guards its reads
+  rawCharacter: I5ePCData | null = null;
   raw: IDDBCharacterDataStub;
   declare ddbDefinition: IDDBItemDefinition;
   isMuncher: boolean;
@@ -111,7 +112,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   isMealTag: boolean;
   isConsumable: boolean;
   isPotion: boolean;
-  isPerSpell: boolean;
   magicChargeType: string;
   itemTagTypes: string[];
   systemType: {
@@ -135,7 +135,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   healingParts: I5eDamagePart[];
   spellCompendium: CompendiumCollection<"Item"> | null;
   activityOptions: IDDBActivityBuild;
-  flags: IDDBItemFlags;
+  // assigned by #generateItemFlags() in the constructor
+  flags!: IDDBItemFlags;
   infusionItemMap: IDDBInfusionItem | undefined;
   infusionDetail: IDDBInfusionDefinition | null | undefined;
   declare documentType: T5eInventoryTypes;
@@ -3064,12 +3065,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     } catch (err) {
       logger.warn(
-        `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,
+        `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${utils.errorMessage(err)}`,
         {
           this: this,
         },
       );
-      logger.error(err.stack);
+      if (err instanceof Error) logger.error(err.stack);
     }
 
   }

@@ -16,30 +16,30 @@ describe("DDBMonster.getAdjustmentsConfig", () => {
     const mock = makeMockMonster();
     const result = getAdjustmentsConfig.call(mock, "resistances");
     expect(Array.isArray(result)).toBe(true);
-    result.forEach((adj: any) => expect(adj.type).toBe(1));
+    result!.forEach((adj: any) => expect(adj.type).toBe(1));
   });
 
   it("immunities returns type=2 adjustments", () => {
     const mock = makeMockMonster();
     const result = getAdjustmentsConfig.call(mock, "immunities");
     expect(Array.isArray(result)).toBe(true);
-    result.forEach((adj: any) => expect(adj.type).toBe(2));
+    result!.forEach((adj: any) => expect(adj.type).toBe(2));
   });
 
   it("vulnerabilities returns type=3 adjustments", () => {
     const mock = makeMockMonster();
     const result = getAdjustmentsConfig.call(mock, "vulnerabilities");
     expect(Array.isArray(result)).toBe(true);
-    result.forEach((adj: any) => expect(adj.type).toBe(3));
+    result!.forEach((adj: any) => expect(adj.type).toBe(3));
   });
 
   it("conditions returns condition config", () => {
     const mock = makeMockMonster();
     const result = getAdjustmentsConfig.call(mock, "conditions");
     expect(Array.isArray(result)).toBe(true);
-    if (result.length > 0) {
-      expect(result[0]).toHaveProperty("id");
-      expect(result[0]).toHaveProperty("name");
+    if (result!.length > 0) {
+      expect(result![0]).toHaveProperty("id");
+      expect(result![0]).toHaveProperty("name");
     }
   });
 

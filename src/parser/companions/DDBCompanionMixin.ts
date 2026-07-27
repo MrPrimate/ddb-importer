@@ -9,8 +9,9 @@ import { DDBMonsterFeatureActivity } from "../activities/_module";
 
 
 export default class DDBCompanionMixin {
-  npc: I5eMonsterData;
-  data: I5eMonsterData;
+  // npc, data and name are populated by parse() before consumers read them
+  npc!: I5eMonsterData;
+  data!: I5eMonsterData;
   parsed: boolean;
   type: string | undefined;
   subType: string | undefined;
@@ -24,7 +25,7 @@ export default class DDBCompanionMixin {
   removeCreatureOnlyNames: boolean;
   addChrisPremades: boolean;
   summons: IDDBCompanionSummons;
-  name: string;
+  name!: string;
 
   constructor(block: HTMLElement | string, options: IDDBCompanionMixinOptions = {}, {
     addMonsterEffects = false, removeSplitCreatureActions = true, removeCreatureOnlyNames = true,

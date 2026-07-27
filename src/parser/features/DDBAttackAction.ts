@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger } from "../../lib/_module";
+import { utils, logger } from "../../lib/_module";
 import DDBAction from "./DDBAction";
 
 
@@ -64,7 +64,7 @@ export default class DDBAttackAction extends DDBAction {
 
     } catch (err) {
       logger.warn(
-        `Unable to Generate Attack Action: ${this.name}, please log a bug report. Err: ${err.message}`,
+        `Unable to Generate Attack Action: ${this.name}, please log a bug report. Err: ${utils.errorMessage(err)}`,
         "extension",
       );
       logger.error("Error", err);

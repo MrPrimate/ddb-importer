@@ -193,9 +193,9 @@ DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: 
 };
 
 interface IResourcesFormData extends I5ePCResource {
-  primary: boolean;
-  secondary: boolean;
-  tertiary: boolean;
+  primary?: boolean;
+  secondary?: boolean;
+  tertiary?: boolean;
 }
 
 // this.source.ddb, this.raw.character
@@ -209,7 +209,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 
     if (this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask")) {
       // we mutate the data here
-      const resources = sortedResources.map((resource: IResourcesFormData) => {
+      const resources = sortedResources.map((resource: IResourcesFormData): IResourcesFormData => {
         const resourceArray = [];
         if (resource.sr) resourceArray.push("SR");
         if (resource.lr) resourceArray.push("LR");

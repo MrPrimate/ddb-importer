@@ -96,8 +96,9 @@ export default class DDBSetup extends DDBAppV2 {
   defaultAddress: string;
   proxyAddress: string;
   allowedWeaponPropertySources: string[];
-  campaignFallback: boolean;
-  compendiums: { setting: string; name: string; current: string; compendiums: object; auto: boolean; hasCompendium: boolean }[];
+  campaignFallback = false;
+  // assigned via _refreshCompendiumData() in the constructor
+  compendiums!: { setting: string; name: string; current: string; compendiums: object; auto: boolean; hasCompendium: boolean }[];
   directories: { key: string; value: string; name: string; description: string }[];
   compendiumSettings: { name: string; isChecked: boolean; description: string; enabled: boolean }[];
   dynamicEnabledSettings: { name: string; isChecked: boolean; description: string; enabled: boolean }[];
@@ -452,7 +453,7 @@ export default class DDBSetup extends DDBAppV2 {
       context.validCobalt = cobaltStatus.success;
     } catch (error) {
       logger.error("Failed to validate cobalt cookie", { error });
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       context.validCobalt = false;
     }
 
@@ -960,12 +961,12 @@ export default class DDBSetup extends DDBAppV2 {
   /**
    * Process form submission for the sheet
    * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
-   * @param {SubmitEvent} event                   The originating form submission event
+   * @param {Event|SubmitEvent} event             The originating form submission event
    * @param {HTMLFormElement} form                The form element that was submitted
    * @param {FormDataExtended} formData           Processed data for the submitted form
    * @returns {Promise<void>}
    */
-  static async formHandler(this: DDBSetup, event: SubmitEvent, _form: HTMLFormElement, formData: FormDataExtended) {
+  static async formHandler(this: DDBSetup, event: Event | SubmitEvent, _form: HTMLFormElement, formData: FormDataExtended) {
     event.preventDefault();
 
     await this._saveProxy(formData);

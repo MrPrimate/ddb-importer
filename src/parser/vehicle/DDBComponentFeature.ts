@@ -114,21 +114,22 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     feature: "feat",
     // "loot": loot
   };
-  descriptionParse: IFeatureBasicsResult;
-  strippedHtml: string;
-  isAttack: boolean;
-  isSpellSave: boolean;
-  isSavingThrow: boolean;
-  isSave: boolean;
-  halfDamage: boolean;
-  pbToAttack: boolean;
-  weaponAttack: boolean;
-  spellAttack: boolean;
-  meleeAttack: boolean;
-  rangedAttack: boolean;
-  healingAction: boolean;
-  toHit: number;
-  descriptionSave: IFeatureBasicsSave;
+  // fields marked with ! are assigned in prepare(), which the constructor always calls
+  descriptionParse!: IFeatureBasicsResult;
+  strippedHtml!: string;
+  isAttack!: boolean;
+  isSpellSave!: boolean;
+  isSavingThrow!: boolean;
+  isSave!: boolean;
+  halfDamage!: boolean;
+  pbToAttack!: boolean;
+  weaponAttack!: boolean;
+  spellAttack!: boolean;
+  meleeAttack!: boolean;
+  rangedAttack!: boolean;
+  healingAction!: boolean;
+  toHit!: number;
+  descriptionSave!: IFeatureBasicsSave;
   count: number;
   html: string;
   parseHtml: string;
@@ -136,24 +137,26 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   hideDescription: boolean;
   updateExisting: boolean;
   stripName: boolean;
-  nameSplit: string;
+  nameSplit?: string;
   ddbVehicle: DDBVehicle;
   declare data: I5eVehicleItem;
   declare enricher: DDBMonsterFeatureEnricher;
   component: IDDBVehicleComponent | IDDBVehicleFeatureComponent;
   action: IDDBVehicleAction;
-  types: string[];
-  primaryType: string;
-  isRecharge: RegExpMatchArray | null;
-  templateType: "equipment" | "weapon" | "feat";
+  types!: string[];
+  primaryType!: string;
+  isRecharge!: RegExpMatchArray | null;
+  templateType!: "equipment" | "weapon" | "feat";
   weaponLookup: IMonsterWeaponDictionary | undefined;
-  identifier: string;
+  identifier!: string;
   summonSave?: boolean;
   isSummonAttack?: boolean;
-  crew: boolean;
-  fullName: string;
-  ddbVehicleDamage: DDBMonsterDamage;
-  actionData: IDDBVehicleActionData;
+  // assigned in #generateActionData() before its reads in the same method
+  crew!: boolean;
+  // assigned at the start of #generateDamageInfo() before any read
+  ddbVehicleDamage!: DDBMonsterDamage;
+  // assigned by #generateActionDataStub(), which the constructor always calls
+  actionData!: IDDBVehicleActionData;
 
   constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action }: IDDBComponentFeature) {
 
@@ -433,7 +436,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     const hitIndex = this.strippedHtml.indexOf("Hit:");
     let hit = (hitIndex > 0)
       ? `${this.strippedHtml.slice(hitIndex)}`.trim()
-      : `${this.strippedHtml}`.replace(this.fullName, "").trim();
+      : `${this.strippedHtml}`.replace(this.name, "").trim();
     hit = hit.replace(/[–-–−]/g, "-");
 
     this.ddbVehicleDamage = new DDBMonsterDamage(hit, {

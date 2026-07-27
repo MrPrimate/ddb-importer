@@ -81,7 +81,8 @@ export default class DDBRace {
   legacy: boolean;
   advancementHelper: AdvancementHelper;
   name: string;
-  data: I5eRaceItem;
+  // assigned by _generateDataStub() in the constructor before any read
+  data!: I5eRaceItem;
   lineageTrait: IDDBChoiceResult | null;
   compendiumRacialTraits: TIndexEntry[];
   pendingSpeciesDocument: I5eRaceItem | null = null;
@@ -278,6 +279,7 @@ export default class DDBRace {
     this.lineageTrait = this.#getLineageTrait();
     this.fullName = this.#getFullName();
     this.data.name = utils.nameString(this.fullName);
+    this.name = this.fullName;
     this.#appendDescription(`${this.race.description}\n\n`);
 
     this.baseRaceName = this.race.baseRaceName;
@@ -346,15 +348,15 @@ export default class DDBRace {
       }
       logger.verbose(`Searching for trait with flags in ${compendium}:`, flags);
 
-      const filterFunction = ((i: T) => {
+      const filterFunction = ((i: object) => {
         return Object.entries(flags).every(([key, value]) => {
           return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
         });
       });
       const match = findAll
-        ? this._compendiums[compendium].index.filter(filterFunction)
-        : this._compendiums[compendium].index.find(filterFunction);
-      if (match) return match as T;
+        ? this._compendiums[compendium].index.filter(filterFunction) as T[]
+        : this._compendiums[compendium].index.find(filterFunction) as T | undefined;
+      if (match) return match;
     }
     return null;
   }

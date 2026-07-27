@@ -197,10 +197,12 @@ export default class DDBVehicle {
   addChrisPremades: boolean;
   primaryComponent: IDDBVehicleComponent | undefined;
   mods: Record<string, number>;
-  legacy: boolean;
-  is2014: boolean;
-  is2024: boolean;
-  data: TParsedVehicleData;
+  // legacy/is2014/is2024 are assigned in #generateSource(), data in _generateDataStub();
+  // both are always called from the constructor
+  legacy!: boolean;
+  is2014!: boolean;
+  is2024!: boolean;
+  data!: TParsedVehicleData;
 
 
   constructor({ ddbVehicle, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle = {}) {

@@ -2,7 +2,7 @@ import { DDBItemConfig } from "../../apps/DDBItemConfig";
 import { utils } from "../../lib/_module";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 
-function onClickV2(event: MouseEvent) {
+function onClickV2(this: { document: Item }, event: MouseEvent) {
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
     new DDBAdventureFlags(this.document, {}).render(true);
   } else {

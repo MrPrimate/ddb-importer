@@ -142,10 +142,21 @@ describe("DDBCharacter.isArmored / isUnArmored", () => {
 describe("DDBCharacter._generateOverrideArmorClass", () => {
   const generateOverride = DDBCharacter.prototype._generateOverrideArmorClass;
 
+  // typeId 1 is the DDB character value used for AC overrides
+  const acOverrideValue = (value: number): IDDBCharacterValue => ({
+    typeId: 1,
+    value,
+    notes: null,
+    valueId: null,
+    valueTypeId: null,
+    contextId: null,
+    contextTypeId: null,
+  });
+
   it("sets flat AC with override value", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
-    generateOverride.call(mock, { value: 18 });
+    generateOverride.call(mock, acOverrideValue(18));
 
     expect(mock.raw.character.system.attributes.ac.flat).toBe(18);
     expect(mock.raw.character.system.attributes.ac.calc).toBe("flat");
@@ -155,7 +166,7 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
   it("stores override metadata in flags", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
-    generateOverride.call(mock, { value: 15 });
+    generateOverride.call(mock, acOverrideValue(15));
 
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(15);
     expect(mock.raw.character.flags.ddbimporter.overrideAC).toEqual({
@@ -168,7 +179,7 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
   it("stores armor results", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
-    generateOverride.call(mock, { value: 20 });
+    generateOverride.call(mock, acOverrideValue(20));
 
     expect(mock.armor.results.maxValue).toBe(20);
     expect(mock.armor.results.maxType).toBe("override");
@@ -177,7 +188,7 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
   it("adds effect to character effects", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
-    generateOverride.call(mock, { value: 16 });
+    generateOverride.call(mock, acOverrideValue(16));
 
     expect(mock.raw.character.effects.length).toBe(1);
     expect(mock.raw.character.flags.ddbimporter.acEffects).toHaveLength(1);

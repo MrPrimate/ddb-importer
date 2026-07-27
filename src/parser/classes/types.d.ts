@@ -1,14 +1,19 @@
 export {};
 
 global {
-  type TDDBFixFunction = (advancement: I5eAdvancement, args?: Record<string, unknown>) => I5eAdvancement;
+  interface IDDBFixFunctionArgs {
+    newName?: string | null;
+    identifier?: string | null;
+  }
+  type TDDBFixFunction = (advancement: I5eAdvancement, args?: IDDBFixFunctionArgs) => I5eAdvancement;
+  type TDDBScaleValueFixFunction = (advancement: I5eAdvancementScaleValue) => I5eAdvancement;
   type TDDBClassSpecialAdvancements = Record<string, {
     fix: boolean;
     fixFunction?: TDDBFixFunction;
-    functionArgs?: Record<string, unknown>;
+    functionArgs?: IDDBFixFunctionArgs;
     additionalAdvancements?: boolean;
-    additionalFunctions?: TDDBFixFunction[];
-    fixFunctions?: { fn: TDDBFixFunction; args?: Record<string, unknown> }[];
+    additionalFunctions?: TDDBScaleValueFixFunction[];
+    fixFunctions?: { fn: TDDBFixFunction; args?: IDDBFixFunctionArgs }[];
   }>;
 
   interface IDBClassPendingClassDocument {

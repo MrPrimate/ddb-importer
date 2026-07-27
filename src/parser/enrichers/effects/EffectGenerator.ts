@@ -81,7 +81,8 @@ interface IEffectGenerator {
 }
 
 export default class EffectGenerator {
-  effect: TAutoEffect;
+  // assigned by _generateDataStub() at the end of the constructor
+  effect!: TAutoEffect;
   ddb: IDDBData;
   character: I5eActorData;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
@@ -132,9 +133,9 @@ export default class EffectGenerator {
     }
 
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
-    if (ddbItem.definition && "grantedModifiers" in ddbItem.definition) {
-      this.grantedModifiers = ddbItem.definition.grantedModifiers;
-    }
+    this.grantedModifiers = ddbItem.definition && "grantedModifiers" in ddbItem.definition
+      ? ddbItem.definition.grantedModifiers
+      : [];
 
     if (this.grantedModifiers && type === "item") {
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>

@@ -101,8 +101,9 @@ export default class NameMatcher {
 
   // The monster setting is less vigorous!
   static looseItemNameMatch<T extends (TAll5eDocuments | TImporterItem)>(item: T, items: ICompendiumIconMapEntry[] | T[] | IUpdateItemIndex["contents"], loose = false, monster = false, magicMatch = false): T | undefined {
+    type TMatchCandidate = T | ICompendiumIconMapEntry | IUpdateItemIndex["contents"][number];
     // first pass is a strict match
-    let matchingItem = items.find((matchItem: T) => {
+    let matchingItem = items.find((matchItem: TMatchCandidate) => {
       let activationMatch = false;
       const extraNames = (foundry.utils.getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
 
@@ -128,7 +129,9 @@ export default class NameMatcher {
     });
 
     if (!matchingItem && monster) {
-      matchingItem = items.find((matchItem: T) => {
+      matchingItem = items.find((matchItem: TMatchCandidate) => {
+        // index entries can lack a name at the type level, but never in practice
+        if (matchItem.name === undefined) return false;
         const monsterNames = NameMatcher.getMonsterNames(matchItem.name);
         const monsterMatch = monsterNames.includes(item.name.toLowerCase())
           && DICTIONARY.types.monster.includes(matchItem.type)
@@ -156,7 +159,9 @@ export default class NameMatcher {
       const looseNames = NameMatcher.getLooseNames(item.name, extraNames, !magicMatch);
       // console.warn("loose names", looseNames);
       for (const looseName of looseNames) {
-        matchingItem = items.find((matchItem: T) => {
+        matchingItem = items.find((matchItem: TMatchCandidate) => {
+          // index entries can lack a name at the type level, but never in practice
+          if (matchItem.name === undefined) return false;
           const looseItemMatch = (looseName === matchItem.name.toLowerCase()
             || looseName === matchItem.name.toLowerCase().replace(" armor", ""))
             && DICTIONARY.types.inventory.includes(item.type)
@@ -172,8 +177,8 @@ export default class NameMatcher {
       // super loose name match!
       if (!matchingItem) {
         // still no matching item, lets do a final pass
-        matchingItem = items.find((matchItem: T) =>
-          looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase()),
+        matchingItem = items.find((matchItem: TMatchCandidate) =>
+          looseNames.includes(matchItem.name?.split("(")[0].trim().toLowerCase() ?? ""),
         );
       }
     }

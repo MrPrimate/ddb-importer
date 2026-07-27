@@ -653,9 +653,9 @@ const TOOLTIP_MAP = {
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#ExhaustionCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/4-tooltip\" data-tooltip-json-href=\"/conditions/4/tooltip-json\">Exhaustion</a>
 function replaceHREFRules(doc: Document): Document {
   for (const [lookupKey, lookupData] of Object.entries(TOOLTIP_MAP)) {
-    const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-json-href*="/${lookupKey}/"]`);
+    const compendiumLinks = doc.querySelectorAll<HTMLAnchorElement>(`a[data-tooltip-json-href*="/${lookupKey}/"]`);
     const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)/`);
-    compendiumLinks.forEach((node: HTMLLinkElement) => {
+    compendiumLinks.forEach((node) => {
       const lookupMatch = node.outerHTML.match(lookupRegExp);
       const dict = foundry.utils.getProperty(CONFIG, lookupData.path) as Record<string, any>[];
       const data = lookupMatch

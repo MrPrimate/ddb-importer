@@ -65,7 +65,7 @@ global {
       actionData?: any;
       html?: string;
       isMartialArtist?: (klass?: IDDBClass) => boolean;
-      _generateAutoEffects?: (options: Record<string, any>) => any;
+      _generateAutoEffects?: (options: { html: string; addToMonster?: boolean }) => any;
       strippedHtml?: string;
       ddbMonster?: DDBMonster | null;
       // DDBSpell fields read by spell enrichers

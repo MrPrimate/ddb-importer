@@ -715,7 +715,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -733,7 +733,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -752,7 +752,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -772,7 +772,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -792,7 +792,7 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -810,7 +810,7 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     } catch (error) {
       this.processErrors.push({
-        error: error.message,
+        error: utils.errorMessage(error),
         isHomebrew: options.homebrew,
         classId: options.classId,
         message: `Class Mule failure see error messages for details`,
@@ -877,13 +877,13 @@ export default class DDBMuncher extends DDBAppV2 {
           });
         } catch (error) {
           logger.error(error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           this.processErrors.push({
             className: klass.name,
             classId: klass.id,
             filterIds,
             category: "Homebrew",
-            error: error.message,
+            error: utils.errorMessage(error),
             message: `Class ${klass.name} (${klass.id} from ${i}-${i + filterIds.length}) for homebrew subclasses`,
           });
         }
@@ -946,12 +946,12 @@ export default class DDBMuncher extends DDBAppV2 {
           });
         } catch (error) {
           logger.error(error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           this.processErrors.push({
             className: klass.name,
             classId: klass.id,
             category: category?.name ?? sourceIdArray.categoryId,
-            error: error.message,
+            error: utils.errorMessage(error),
             message: `Class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`,
           });
         }
@@ -1046,8 +1046,8 @@ export default class DDBMuncher extends DDBAppV2 {
       }
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
-      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
+      if (error instanceof Error) logger.error(error.stack);
+      this.notifier(`Error during munching: ${utils.errorMessage(error)}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
       if (this.processErrors.length > 0) {
@@ -1102,11 +1102,11 @@ export default class DDBMuncher extends DDBAppV2 {
             });
           } catch (error) {
             logger.error(error);
-            logger.error(error.stack);
+            if (error instanceof Error) logger.error(error.stack);
             processErrors.push({
               type,
               category: category?.name ?? sourceIdArray.categoryId,
-              error: error.message,
+              error: utils.errorMessage(error),
               chunkedIds,
               message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceIds ${chunkedIds.join(", ")}`,
             });
@@ -1140,19 +1140,19 @@ export default class DDBMuncher extends DDBAppV2 {
           });
         } catch (error) {
           logger.error(error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           processErrors.push({
             type,
             category: "Homebrew",
-            error: error.message,
+            error: utils.errorMessage(error),
             message: `${type} in Homebrew`,
           });
         }
       }
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
-      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
+      if (error instanceof Error) logger.error(error.stack);
+      this.notifier(`Error during munching: ${utils.errorMessage(error)}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
       if (processErrors.length > 0) {
@@ -1176,7 +1176,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1195,7 +1195,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1214,7 +1214,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1233,7 +1233,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1247,7 +1247,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("");
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     }
   }
 
@@ -1270,7 +1270,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this.notifierV2({ progress: { current: 1, total: 1 }, message: "", progressBar: "primary", clear: true });
       this._enableButtons();
@@ -1300,7 +1300,7 @@ export default class DDBMuncher extends DDBAppV2 {
       await updateWorldMonsters();
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1333,7 +1333,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(`Migrating complete.`, true as unknown as NotifierV1Props);
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1348,7 +1348,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(notifyString, { nameField: true });
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1363,7 +1363,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(notifyString, { nameField: true });
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }
@@ -1431,7 +1431,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier("Encounter munched!", { nameField: true });
     } catch (error) {
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
     } finally {
       this._enableButtons();
     }

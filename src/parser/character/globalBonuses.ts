@@ -50,7 +50,7 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
   });
 
   // loop through outputs from lookups and build a response
-  ["attack", "damage"].forEach((fvttType: keyof typeof lookupResults) => {
+  (["attack", "damage"] as const).forEach((fvttType) => {
     if (lookupResults[fvttType].diceString === "") {
       if (lookupResults[fvttType].sum !== 0) {
         result[fvttType] = `${lookupResults[fvttType].sum}`;

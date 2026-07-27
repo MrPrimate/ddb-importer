@@ -1,5 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, PatreonHelper, DDBCampaigns, Secrets, MuncherSettings, CompendiumHelper } from "../lib/_module";
+import { logger, PatreonHelper, DDBCampaigns, Secrets, MuncherSettings, CompendiumHelper, utils } from "../lib/_module";
 import DDBPartyInventory, { IDDBCampaignCharacter } from "../muncher/DDBPartyInventory";
 import DDBPartyInventoryImporter from "../muncher/DDBPartyInventoryImporter";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
@@ -34,9 +34,14 @@ interface IPartySyncState {
   campaignsLoading: boolean;
 }
 
+interface IDDBPartySyncOptions {
+  actor: TImporterActor;
+  campaignId?: string | null;
+}
+
 export default class DDBPartySync extends DDBAppV2 {
 
-  actor: any;
+  actor!: TImporterActor;
 
   campaignId = "";
 
@@ -56,15 +61,21 @@ export default class DDBPartySync extends DDBAppV2 {
     campaignsLoading: false,
   };
 
-  importSettings: ICharacterImportSettings;
+  // assigned in _prepareContext before any render-driven read
+  importSettings!: ICharacterImportSettings;
 
-  constructor(options: any = {}) {
+  constructor(options: IDDBPartySyncOptions) {
     super();
-    this.actor = options.actor ?? null;
+    if (!options.actor) {
+      logger.error("DDBPartySync: no actor provided, cannot open party sync");
+      return;
+    }
+    this.actor = options.actor;
     const fromActor = this.actor
       ? `${foundry.utils.getProperty(this.actor, `flags.${FLAG_SCOPE}.${FLAG_CAMPAIGN_KEY}`) ?? ""}`
       : "";
-    const fromSetting = `${(game as any).settings.get("ddb-importer", "campaign-id") ?? ""}`.split("/").pop() ?? "";
+    const gameCampaignId = utils.getSetting<string>("campaign-id");
+    const fromSetting = `${gameCampaignId ?? ""}`.split("/").pop() ?? "";
     this.campaignId = options.campaignId ?? fromActor ?? fromSetting ?? "";
     this.partyState.campaignId = this.campaignId;
   }
@@ -532,7 +543,7 @@ export default class DDBPartySync extends DDBAppV2 {
   /*  Factory                                     */
   /* -------------------------------------------- */
 
-  static open({ actor = null, campaignId = null }: { actor?: any; campaignId?: string | null } = {}) {
+  static open({ actor, campaignId = null }: { actor: TImporterActor; campaignId?: string | null }) {
     const app = new this({ actor, campaignId });
     app.render({ force: true });
     return app;

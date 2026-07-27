@@ -25,8 +25,9 @@ interface IElixirUuidUpdate {
 }
 
 export default class ExperimentalElixir extends DDBEnricherData {
-  handler: DDBItemImporter;
-  compendiumFolders: DDBCompendiumFolders;
+  // assigned at the start of cleanup()/generateElixirs() before any read
+  handler!: DDBItemImporter;
+  compendiumFolders!: DDBCompendiumFolders;
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;

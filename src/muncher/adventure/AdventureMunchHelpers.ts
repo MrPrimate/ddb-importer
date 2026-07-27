@@ -514,7 +514,7 @@ export default class AdventureMunchHelpers {
         return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey)}`;
       }
     } catch (err) {
-      logger.error(`Error importing raw file ${path} : ${err.message}`, { err });
+      logger.error(`Error importing raw file ${path} : ${utils.errorMessage(err)}`, { err });
     }
 
     return path;

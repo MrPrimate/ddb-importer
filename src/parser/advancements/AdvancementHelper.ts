@@ -1171,7 +1171,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  static rename(advancement: I5eAdvancement, { newName = null, identifier = null }: { newName?: string | null; identifier?: string | null }) {
+  static rename(advancement: I5eAdvancement, { newName = null, identifier = null }: IDDBFixFunctionArgs = {}) {
     if (newName) advancement.title = newName;
     // all advancement configurations upcast safely to I5eAdvConfig for the identifier write
     const configuration = "configuration" in advancement ? advancement.configuration as I5eAdvConfig | undefined : undefined;
@@ -1277,7 +1277,7 @@ export default class AdvancementHelper {
 
     advancement.updateSource(update as any);
 
-    return advancement.toObject() as unknown as I5eAdvancement;
+    return advancement.toObject() as unknown as I5eAdvancementScaleValue;
   }
 
   static parseHTMLSaves(description: string) {

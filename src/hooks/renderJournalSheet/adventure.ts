@@ -24,7 +24,7 @@ const renderPopup = (type: string, url: string) => {
   return true;
 };
 
-export function adventureFlags(app: any, html: HTMLElement, data: Record<string, any>) {
+export function adventureFlags(app: any, html: HTMLElement, data: JournalEntry) {
   if (!app.document.flags.ddb) return;
   const journalContent = html.querySelector("section.journal-page-content");
   if (!journalContent) return;
@@ -59,7 +59,7 @@ function onClick(config: Record<string, any>, event: MouseEvent) {
   }
 }
 
-function onClickV2(event: MouseEvent) {
+function onClickV2(this: JournalEntry, event: MouseEvent) {
   onClick(this, event);
 }
 

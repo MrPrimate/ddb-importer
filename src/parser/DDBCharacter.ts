@@ -269,16 +269,19 @@ class DDBCharacter {
   _infusionFactory: DDBInfusionFactory;
   _characterFeatureFactory: CharacterFeatureFactory;
   _classParser: CharacterClassFactory;
-  _ddbRace: DDBRace;
-  data: IDDBCharacterDataStub;
+  // these fields are populated by the prototype-extension parse steps
+  // (character/race.ts, character/index.ts, character/proficiencies.ts,
+  // character/resources.ts) before any consumer reads them
+  _ddbRace!: DDBRace;
+  data!: IDDBCharacterDataStub;
   matchedFeatures: TImporterItem[];
-  resources: I5ePCResources;
+  resources!: I5ePCResources;
   spellSlots: I5eSpellSlots;
   armor: IDDBCharacterArmor;
-  proficiencies: IDDBPCDnDBeyondProficiencyFlags[];
-  proficienciesIncludingEffects: IDDBPCDnDBeyondProficiencyFlags[];
-  weaponMasteries: IDDBPCDnDBeyondWeaponMasteryFlags[];
-  profBonus: number;
+  proficiencies!: IDDBPCDnDBeyondProficiencyFlags[];
+  proficienciesIncludingEffects!: IDDBPCDnDBeyondProficiencyFlags[];
+  weaponMasteries!: IDDBPCDnDBeyondWeaponMasteryFlags[];
+  profBonus!: number;
   generateSummons: boolean;
   _currency: I5eCurrency;
 
@@ -331,6 +334,7 @@ class DDBCharacter {
     this.companionFactories = [];
     this.enableCompanions = enableCompanions;
     this.enableSummons = enableSummons;
+    this.generateSummons = enableSummons;
 
     this._currency = {
       pp: 0,
@@ -444,7 +448,7 @@ class DDBCharacter {
     } catch (error) {
       logger.error("JSON Fetch Error");
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       throw error;
     }
   }
@@ -471,7 +475,7 @@ class DDBCharacter {
     } catch (error) {
       logger.error("Character Parse Error");
       logger.error(error);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       throw error;
     }
   }
@@ -620,7 +624,7 @@ class DDBCharacter {
 
     } catch (error) {
       logger.error(error);
-      logger.error("Error during parse:", error.message);
+      logger.error("Error during parse:", utils.errorMessage(error));
       throw (error);
     }
   }

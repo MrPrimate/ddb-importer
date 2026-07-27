@@ -98,7 +98,8 @@ interface IGenerateFolderFromDataOptions {
 
 export class DDBCompendiumFolders {
 
-  compendium: CompendiumCollection.Any;
+  // populated by loadCompendium() before folder operations read it
+  compendium!: CompendiumCollection.Any;
   type: TCompendiumTypes;
   packName: string | null;
   compendiumFolderTypeMonster: string;

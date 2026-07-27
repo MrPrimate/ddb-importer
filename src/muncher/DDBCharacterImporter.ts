@@ -21,16 +21,18 @@ import { ExternalAutomations } from "../effects/_module";
 interface IDDBCharacterImporter {
   actorId: string;
   ddbCharacter?: DDBCharacter | null;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  notifier?: NotifierV1;
 }
 
 export default class DDBCharacterImporter {
 
   actor: TImporterActor;
   actorOriginal: I5ePCData;
-  ddbCharacter: DDBCharacter;
+  // set in the constructor when provided, otherwise assigned in importCharacter() before processing
+  ddbCharacter!: DDBCharacter;
   notifier: (title: any, { message, isError }?: NotifierV1Props) => void;
-  settings: {
+  // assigned via getSettings() in the constructor
+  settings!: {
     updatePolicyName: boolean;
     updatePolicyHP: boolean;
     updatePolicyHitDie: boolean;
@@ -49,9 +51,10 @@ export default class DDBCharacterImporter {
     midiConfig: any;
   };
   nonMatchedItemIds: string[];
-  result: IDDBCharacterDataStub;
-  effectBackup: I5eEffectData[];
-  importId: string;
+  // the following are assigned at the start of processCharacterData() before any read
+  result!: IDDBCharacterDataStub;
+  effectBackup!: I5eEffectData[];
+  importId!: string;
 
   constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
     this.actor = game.actors.get(actorId) as TImporterActor;
@@ -1083,8 +1086,8 @@ ${itemDescription.chat}
 
     } catch (error) {
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
-      logger.error(error.stack);
-      this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: error, isError: true });
+      if (error instanceof Error) logger.error(error.stack);
+      this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: utils.errorMessage(error), isError: true });
       await this.resetActor();
       throw new Error("ImportFailure", {
         cause: error,
@@ -1141,17 +1144,17 @@ ${itemDescription.chat}
       });
       if (!runResult) return false;
     } catch (error) {
-      switch (error.message) {
+      switch (utils.errorMessage(error)) {
         case "ImportFailure":
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
         case "Forbidden":
-          this.notifier("Error retrieving Character: " + error, { message: error, isError: true });
+          this.notifier("Error retrieving Character: " + error, { message: String(error), isError: true });
           break;
         default:
           logger.error(error);
-          logger.error(error.stack);
-          this.notifier("Error processing Character: " + error, { message: error, isError: true });
+          if (error instanceof Error) logger.error(error.stack);
+          this.notifier("Error processing Character: " + error, { message: String(error), isError: true });
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
       }
@@ -1203,7 +1206,7 @@ ${itemDescription.chat}
         return false;
       }
     } catch (error) {
-      switch (error.message) {
+      switch (utils.errorMessage(error)) {
         case "ImportFailure":
           logger.error("Failure");
           break;
@@ -1212,7 +1215,7 @@ ${itemDescription.chat}
           break;
         default:
           logger.error("Error processing Character: ", error);
-          logger.error(error.stack);
+          if (error instanceof Error) logger.error(error.stack);
           break;
       }
       return false;

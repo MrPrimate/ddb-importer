@@ -25,7 +25,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
   fullWipe: boolean;
   updateExisting: boolean;
   monster: T;
-  data: Actor.Implementation | null;
+  data: Actor.Implementation | null = null;
 
   constructor({ monster, type, updateExisting, notifier, fullWipe = false }: {
     monster?: T;
@@ -524,7 +524,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       return monsterImporter.compendiumActor;
     } catch (error) {
       logger.error(`error parsing NPC type ${type}: ${error} ${data.name}`);
-      logger.error(error.stack);
+      if (error instanceof Error) logger.error(error.stack);
       throw error;
     }
 

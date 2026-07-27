@@ -37,24 +37,25 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   declare enricher: DDBMonsterFeatureEnricher;
   declare type: TDDBMonsterActionType;
   actionData: IDDBMonsterActionData;
-  descriptionParse: IFeatureBasicsResult;
-  descriptionSave: IFeatureBasicsSave;
+  // fields marked with ! are assigned in prepare(), which the constructor always calls
+  descriptionParse!: IFeatureBasicsResult;
+  descriptionSave!: IFeatureBasicsSave;
   name: string;
-  isAction: null;
+  isAction = null;
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;
-  originalName: string;
+  originalName!: string;
   ddbMonster: DDBMonster;
   html: string;
-  strippedHtml: string;
-  levelBonus: boolean;
-  profBonus: boolean;
+  strippedHtml!: string;
+  levelBonus!: boolean;
+  profBonus!: boolean;
   sort: number | null;
-  isAttack: boolean;
-  isSummonAttack: boolean;
-  isSave: boolean;
-  isRecharge: RegExpMatchArray | null;
+  isAttack!: boolean;
+  isSummonAttack!: boolean;
+  isSave!: boolean;
+  isRecharge!: RegExpMatchArray | null;
   fullName: string;
   stripName: boolean;
   hideDescription: boolean;
@@ -62,27 +63,29 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   stripFlagData: boolean;
   titleHTML?: string;
   actionCopy: boolean;
-  isSpellSave: boolean;
-  isSavingThrow: boolean;
-  isSummonSave: boolean;
-  halfDamage: boolean;
-  pbToAttack: boolean;
-  weaponAttack: boolean;
-  spellAttack: boolean;
-  meleeAttack: boolean;
-  rangedAttack: boolean;
-  healingAction: boolean;
-  toHit: number;
-  yourSpellAttackModToHit: boolean;
-  templateType: "feat" | "weapon";
+  isSpellSave!: boolean;
+  isSavingThrow!: boolean;
+  isSummonSave!: boolean;
+  halfDamage!: boolean;
+  pbToAttack!: boolean;
+  weaponAttack!: boolean;
+  spellAttack!: boolean;
+  meleeAttack!: boolean;
+  rangedAttack!: boolean;
+  healingAction!: boolean;
+  toHit!: number;
+  yourSpellAttackModToHit!: boolean;
+  templateType!: "feat" | "weapon";
   weaponLookup: IMonsterWeaponDictionary | undefined;
-  identifier: string;
-  isCompanion: boolean;
-  nameSplit: string;
+  identifier!: string;
+  isCompanion!: boolean;
+  nameSplit?: string;
   use2024Spells: boolean;
   useCastActivity: boolean;
-  ddbMonsterDamage: DDBMonsterDamage;
-  spellCastingData: IMonsterSpellcastingData;
+  // assigned at the start of generateDamageInfo() before any read
+  ddbMonsterDamage!: DDBMonsterDamage;
+  // assigned by #generateSpellcastingData() before spell activity generation reads it
+  spellCastingData!: IMonsterSpellcastingData;
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -310,6 +313,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.rawCharacter = ddbMonster.npc;
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
+    this.legacy = ddbMonster.legacy;
     this.useCastActivity = ddbMonster.useCastActivity;
     this.use2024Spells = ddbMonster.use2024Spells;
 

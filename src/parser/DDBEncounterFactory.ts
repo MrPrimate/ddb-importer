@@ -5,7 +5,7 @@ import DDBEncounter from "./encounters/DDBEncounter";
 export default class DDBEncounterFactory {
 
   notifier: NotifierV1;
-  notifierV2: INotifierV2 | null;
+  notifierV2: INotifierV2 | null = null;
   encountersData: IDDBEncounter[];
   encounters: Record<string, DDBEncounter>;
 

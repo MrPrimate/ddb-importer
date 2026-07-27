@@ -3,8 +3,9 @@ import { DDBCompendiumFolders, DDBItemImporter, utils, CompendiumHelper } from "
 
 
 export default class EerieToken extends DDBEnricherData {
-  handler: DDBItemImporter;
-  compendiumFolders: DDBCompendiumFolders;
+  // assigned at the start of cleanup()/generateToken() before any read
+  handler!: DDBItemImporter;
+  compendiumFolders!: DDBCompendiumFolders;
   tokens: I5eLootItem[] = [];
 
   get type(): IDDBActivityType | null {

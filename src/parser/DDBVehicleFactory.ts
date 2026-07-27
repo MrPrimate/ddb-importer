@@ -398,7 +398,7 @@ export default class DDBVehicleFactory {
       } catch (err) {
         logger.error(`Failed parsing ${name}`);
         logger.error(err);
-        logger.error(err.stack);
+        if (err instanceof Error) logger.error(err.stack);
         failedVehicleNames.push(name);
       }
     }

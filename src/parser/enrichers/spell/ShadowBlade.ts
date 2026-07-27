@@ -9,8 +9,9 @@ interface IShadowBladeVariant {
 }
 
 export default class ShadowBlade extends DDBEnricherData {
-  handler: DDBItemImporter<I5eInventoryItem>;
-  compendiumFolders: DDBCompendiumFolders;
+  // assigned at the start of cleanup()/generateShadowBlades() before any read
+  handler!: DDBItemImporter<I5eInventoryItem>;
+  compendiumFolders!: DDBCompendiumFolders;
   shadowBlades: I5eWeaponItem[] = [];
 
   static VARIANTS: IShadowBladeVariant[] = [

@@ -33,8 +33,9 @@ export default class ThirdPartyMunch extends FormApplication {
   _pageFinders: Record<string, PageFinder>;
   adventureMunch: AdventureMunch;
   monstersToReplace: IMonsterReplacerData[];
-  _defaultRepoData: IThirdPartyRepoData;
-  folderNames: string[];
+  // assigned in getData() during render, before any form-action read
+  _defaultRepoData!: IThirdPartyRepoData;
+  folderNames: string[] = [];
 
   static pattern: RegExp;
 
