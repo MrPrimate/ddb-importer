@@ -321,7 +321,7 @@ export default class DDBPartySync extends DDBAppV2 {
 
       if (this.actor && info?.name) {
         try {
-          await this.actor.update({ [`flags.ddbimporter.${FLAG_CAMPAIGN_NAME}`]: info.name });
+          await this.actor.update({ [`flags.ddbimporter.${FLAG_CAMPAIGN_NAME}`]: info.name } as unknown as Actor.UpdateData);
         } catch (err) {
           logger.warn("Could not persist campaign name flag", err);
         }
@@ -396,7 +396,7 @@ export default class DDBPartySync extends DDBAppV2 {
         await this.actor.update({
           [`flags.ddbimporter.${FLAG_CAMPAIGN_KEY}`]: value,
           [`flags.ddbimporter.-=${FLAG_CAMPAIGN_NAME}`]: null,
-        });
+        } as unknown as Actor.UpdateData);
       } catch (err) {
         logger.warn("Could not persist party campaign flags", err);
       }

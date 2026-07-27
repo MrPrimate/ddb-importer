@@ -24,7 +24,7 @@ const renderPopup = (type: string, url: string) => {
   return true;
 };
 
-export function adventureFlags(app: any, html: HTMLElement, data: JournalEntry) {
+export function adventureFlags(app: any, html: HTMLElement, data: Record<string, any>) {
   if (!app.document.flags.ddb) return;
   const journalContent = html.querySelector("section.journal-page-content");
   if (!journalContent) return;
