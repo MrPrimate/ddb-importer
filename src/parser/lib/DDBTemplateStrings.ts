@@ -125,7 +125,8 @@ function parseMatch(
         });
       const abRegexp = RegExp(match[0], "g");
       if (modValues.length > 1) {
-        result = result.replace(abRegexp, `max(${modValues.join(", ")})`);
+        const bareMods = modValues.map((m) => m.trim().replace(/^\+\s*/, ""));
+        result = result.replace(abRegexp, `max(${bareMods.join(", ")})`);
         linktext = result.replace(abRegexp, " (Modifier) ");
       } else {
         result = result.replace(abRegexp, modValues[0]);
@@ -164,7 +165,7 @@ function parseMatch(
         );
       }
     } else if (["Enhanced Defense", "Enhanced Arcane Focus", "Enhanced Weapon"].includes(featureDef.name)) {
-      result = result.replace("classlevel", "@classes.artificer.levels`");
+      result = result.replace("classlevel", "@classes.artificer.levels");
       linktext = result.replace("classlevel", ` (Artificer Level) `);
     } else {
       if (!featureDef.componentId) {
@@ -323,11 +324,11 @@ const addConstraintEvaluations = (value: string | number, constraintList: string
 
     switch (match) {
       case "max": {
-        result = `min(${result}, ${splitConstraint[1]})`;
+        result = `min(${`${result}`.trim().replace(/^\+\s*/, "")}, ${splitConstraint[1]})`;
         break;
       }
       case "min": {
-        result = `max(${result}, ${splitConstraint[1]})`;
+        result = `max(${`${result}`.trim().replace(/^\+\s*/, "")}, ${splitConstraint[1]})`;
         break;
       }
       case "roundup": {
@@ -408,10 +409,10 @@ function replaceRoll(match: string, _p1: string, p2: string): string {
  * @returns {string} The text with corrected rollables.
  */
 function fixRollables(text: string): string {
-  const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
+  const diceMatchRegex = /(?:<strong>)?\+*(\s*)(\d*d\d\d*)\s*\+*\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {
-    const replaceString = matches[2] ? "[[ $1 + " : "[[/roll $1 + ";
+    const replaceString = matches[2] ? "$1[[ $2 + " : "$1[[/roll $2 + ";
     text = text.replaceAll(diceMatchRegex, replaceString);
   }
 
@@ -421,18 +422,6 @@ function fixRollables(text: string): string {
   text = text.replaceAll(noRollRegex, replaceRoll);
 
   return text;
-}
-
-/**
- * Replaces occurrences of matchString in the text with a roll command where appropriate
- *
- * @param {string} text the input text
- * @param {string} matchString the string to match and replace
- * @returns {string} the text with replacements
- */
-function rollMatch(text: string, matchString: string): string {
-  const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
-  return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
 }
 
 type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
@@ -529,11 +518,7 @@ export function parse(
       //   replacePattern: entry.replacePattern.test(result.text),
       //   match: entry.rollMatch.test(result.text),
       // });
-      if (entry.rollMatchTest) {
-        entry.parsed = rollMatch(text, entry.parsed);
-      } else {
-        entry.parsed = `[[/roll ${entry.parsed}]]`;
-      }
+      entry.parsed = `[[/roll ${entry.parsed}]]`;
 
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
@@ -590,11 +575,7 @@ export function parse(
         } else if (!isRoll && [undefined, null, "unsigned"].includes(signed)) {
           entry.parsed = `[[${entry.parsed.trim()}]]`;
         } else {
-          if (entry.rollMatchTest) {
-            entry.parsed = rollMatch(text, entry.parsed);
-          } else {
-            entry.parsed = `[[${entry.parsed}]]`;
-          }
+          entry.parsed = `[[${entry.parsed}]]`;
           logger.debug("template string odd match", {
             result,
             entry,
