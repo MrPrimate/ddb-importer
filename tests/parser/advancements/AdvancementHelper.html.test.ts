@@ -309,11 +309,9 @@ describe("AdvancementHelper.parseHTMLArmorProficiencies", () => {
     expect(result).toEqual({ choices: [], grants: [], number: 0 });
   });
 
-  it("prose 'You gain proficiency with heavy armor.' yields no grants", () => {
-    // BUG (pinned): the prose branch reads additionalMatch[2] (the terminator
-    // group) instead of additionalMatch[1], so prose armor grants are dropped.
+  it("prose 'You gain proficiency with heavy armor.' grants heavy armor", () => {
     const result = AdvancementHelper.parseHTMLArmorProficiencies("<p>You gain proficiency with heavy armor.</p>");
-    expect(result.grants).toEqual([]);
+    expect(result.grants).toEqual(["hvy"]);
   });
 });
 
@@ -360,11 +358,9 @@ describe("AdvancementHelper.parseHTMLWeaponProficiencies", () => {
     expect(result).toEqual({ choices: [], grants: [], number: 0 });
   });
 
-  it("prose 'You gain proficiency with martial weapons.' yields no grants", () => {
-    // BUG (pinned): like the armor parser, the prose branch reads
-    // additionalMatch[2] (the terminator) instead of the captured weapon list.
+  it("prose 'You gain proficiency with martial weapons.' grants the martial group", () => {
     const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>You gain proficiency with martial weapons.</p>");
-    expect(result.grants).toEqual([]);
+    expect(result.grants).toEqual(["mar"]);
     expect(result.choices).toEqual([]);
   });
 

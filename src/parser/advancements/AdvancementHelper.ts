@@ -1968,7 +1968,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((m) => m.trim());
+      const additionalMatches = additionalMatch[1].replace(" and ", ",").split(",").map((m) => m.trim());
       for (const grant of additionalMatches) {
         const stub = AdvancementHelper.getArmorAdvancementValue(grant);
         if (stub) {
@@ -2181,7 +2181,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[1].replace(" and ", ",").split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const weaponChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(weaponChoiceRegex);
@@ -2209,9 +2209,14 @@ export default class AdvancementHelper {
             logger.warn(`unknown weapon group choices ${choiceMatch[2]}`);
           }
         } else {
-          const stub = AdvancementHelper.getWeaponAdvancementValue(match);
-          if (stub) {
-            parsedWeaponsProficiencies.grants.push(stub);
+          const group = AdvancementHelper.getWeaponGroup(match);
+          if (group) {
+            parsedWeaponsProficiencies.grants.push(group);
+          } else {
+            const stub = AdvancementHelper.getWeaponAdvancementValue(match);
+            if (stub) {
+              parsedWeaponsProficiencies.grants.push(stub);
+            }
           }
         }
       }
