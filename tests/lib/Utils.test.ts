@@ -1,11 +1,3 @@
-// Mock barrel re-exports to break circular dependency chains:
-// Utils → config/_module → settings → lib/_module → DDBSources → config/_module (DICTIONARY not ready)
-// lib/_module → DDBItemImporter → effects/_module → DDBEffectHelper (more circular refs)
-vi.mock("../../src/config/_module", () => ({
-  SETTINGS: { MODULE_ID: "ddb-importer" },
-  DICTIONARY: { sourceCategories: { excluded: [], hidden: [], legacy: [], basicRules: [] } },
-}));
-
 import Utils from "../../src/lib/Utils";
 
 describe("Utils.capitalize", () => {

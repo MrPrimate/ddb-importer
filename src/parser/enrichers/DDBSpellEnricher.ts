@@ -1,5 +1,5 @@
 import { utils } from "../../lib/_module";
-import { SpellEnrichers } from "./_module";
+import * as SpellEnrichers from "./spell/_module";
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import type DDBEnricherData from "./data/DDBEnricherData";
 

@@ -6,7 +6,7 @@ import FileHelper from "./FileHelper";
 import DDBSources from "./DDBSources";
 import DDBProxy from "./DDBProxy";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { SystemHelpers } from "../parser/lib/_module";
+import SystemHelpers from "./SystemHelpers";
 import DDBMuleHandler from "../muncher/DDBMuleHandler";
 
 const MuncherSettings = {

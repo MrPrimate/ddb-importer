@@ -6,8 +6,10 @@ import {
 } from "../lib/_module";
 import { DICTIONARY } from "../config/_module";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature";
-import { DDBDescriptions } from "../parser/lib/_module";
-import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
+import DDBDescriptions from "../parser/lib/DDBDescriptions";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects";
+import ChangeHelper from "../parser/enrichers/effects/ChangeHelper";
+import MidiOverTimeEffect from "../parser/enrichers/effects/MidiOverTimeEffect";
 
 // numbered title/content chunks pulled out of ol/p HTML lists
 // (used for monster ray/option style features)

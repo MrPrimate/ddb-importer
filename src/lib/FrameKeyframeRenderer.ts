@@ -1,4 +1,7 @@
-import { logger, utils, DDBProxy, FileHelper } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import DDBProxy from "./DDBProxy";
+import FileHelper from "./FileHelper";
 
 // Renders DDB's bespoke @keyframes-driven frame animations (fishSwim,
 // eyeballBlink/2, mtofPlanet1/2, mtofGears) by interpreting a subset of

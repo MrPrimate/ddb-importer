@@ -1,18 +1,3 @@
-// Mock barrel re-exports to break circular dependency chains:
-// ChangeHelper → AutoEffects → lib/_module → DDBItemImporter → effects/_module → DDBEffectHelper → ChangeHelper (not ready)
-// MidiOverTimeEffect → DDBEffectHelper (direct import, same circular issue)
-// config/_module → settings → lib/_module → DDBSources → config/_module (DICTIONARY not ready)
-// Import the real DICTIONARY (no circular deps) but stub SETTINGS (which triggers the circular chain)
-vi.mock("../../../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../../../src/config/dictionary/dictionary");
-  return {
-    SETTINGS: { MODULE_ID: "ddb-importer" },
-    DICTIONARY: dict.default,
-  };
-});
-vi.mock("../../../../src/effects/_module", () => ({}));
-vi.mock("../../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
-
 import ChangeHelper from "../../../../src/parser/enrichers/effects/ChangeHelper";
 
 describe("ChangeHelper.change", () => {

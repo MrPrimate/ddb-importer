@@ -1,11 +1,3 @@
-// Mock barrel re-exports to break circular dependency chains
-vi.mock("../../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../../src/config/dictionary/dictionary");
-  return { SETTINGS: { MODULE_ID: "ddb-importer" }, DICTIONARY: dict.default };
-});
-vi.mock("../../../src/effects/_module", () => ({}));
-vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
-
 // Mock ACBonusEffects used by ac.ts - keep other exports from the real module
 vi.mock("../../../src/parser/enrichers/effects/_module", async (importOriginal) => {
   const actual = await importOriginal<any>();

@@ -1,4 +1,4 @@
-import { ChangeHelper } from "./_module";
+import ChangeHelper from "./ChangeHelper";
 import AutoEffects from "./AutoEffects";
 
 export default class EnchantmentEffects {

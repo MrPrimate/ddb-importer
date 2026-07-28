@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
-import { DDBDataUtils } from "./_module";
+import DDBDataUtils from "./DDBDataUtils";
 
 
 // type TRaceChoiceDocumentTypes = I5eFeatItem | I5eWeaponItem;

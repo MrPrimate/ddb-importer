@@ -1,9 +1,3 @@
-vi.mock("../../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../../src/config/dictionary/dictionary");
-  return { SETTINGS: { MODULE_ID: "ddb-importer" }, DICTIONARY: dict.default };
-});
-vi.mock("../../../src/effects/_module", () => ({}));
-vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
 // Mock deep dependency chain for DDBItem
 vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({
   default: class {},

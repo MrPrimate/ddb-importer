@@ -1,10 +1,5 @@
 // Characterization tests for the pure static surface of DDBFeatureMixin:
 // buildFullDescription and getFeatureSubtype.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
-
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 
 // CharacterFeatureFactory must load first, it initialises the feature class chain
 import "../../../src/parser/features/CharacterFeatureFactory";

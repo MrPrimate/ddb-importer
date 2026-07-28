@@ -1,13 +1,3 @@
-// Mock barrel re-exports to break circular dependency chains.
-// The shared mockBarrels factories fail here with "Cannot access
-// '__vi_import_0__' before initialization" (vi.mock hoisting), so this uses
-// the inline triple from hp.test.ts.
-vi.mock("../../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../../src/config/dictionary/dictionary");
-  return { SETTINGS: { MODULE_ID: "ddb-importer" }, DICTIONARY: dict.default };
-});
-vi.mock("../../../src/effects/_module", () => ({}));
-vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
 // Keep the template parser pure: parseTags normally does compendium/rule
 // reference linking, identity is enough here.
 vi.mock("../../../src/parser/lib/DDBReferenceLinker", () => ({

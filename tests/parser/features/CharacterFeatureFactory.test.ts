@@ -1,11 +1,6 @@
 // Characterization tests for the pure static surface of CharacterFeatureFactory:
 // isDuplicateFeature, getNameMatchedFeature and includedFeatureNameCheck.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
 import { setMockSettings, resetMockSettings } from "../../_setup/foundryMocks";
-
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 
 import CharacterFeatureFactory from "../../../src/parser/features/CharacterFeatureFactory";
 

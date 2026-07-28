@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
-import SystemHelpers from "../../lib/SystemHelpers";
+import SystemHelpers from "../../../lib/SystemHelpers";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 

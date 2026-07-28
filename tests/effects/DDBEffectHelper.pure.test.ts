@@ -6,23 +6,11 @@
 // DDBItemImporter), DDBMonsterFeature (heavy monster parser, only used by the
 // non-pre-parsed damage fallback) and the enricher effects barrel (cycle via
 // MidiOverTimeEffect -> DDBEffectHelper).
-import { configModuleMock, effectsModuleMock } from "../_setup/mockBarrels";
 import { setMockModules } from "../_setup/foundryMocks";
 
-vi.mock("../../src/config/_module", () => configModuleMock());
-vi.mock("../../src/effects/_module", () => effectsModuleMock());
 vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
   default: class {},
 }));
-vi.mock("../../src/parser/enrichers/effects/_module", () => ({
-  AutoEffects: {},
-  ChangeHelper: {},
-  MidiOverTimeEffect: class {},
-  MidiEffects: {},
-  EnchantmentEffects: {},
-  EffectGenerator: {},
-}));
-
 import DDBEffectHelper from "../../src/effects/DDBEffectHelper";
 
 const globalAny: any = globalThis;

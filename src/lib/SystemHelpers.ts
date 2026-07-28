@@ -1,4 +1,4 @@
-import { utils } from "../../lib/_module";
+import utils from "./Utils";
 
 export default class SystemHelpers {
 

@@ -1,6 +1,6 @@
 import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
-import { SystemHelpers } from "./_module";
+import SystemHelpers from "../../lib/SystemHelpers";
 import DDBClass from "../classes/DDBClass";
 import DDBSubClass from "../classes/DDBSubClass";
 import { IResetType } from "../../config/dictionary/actor/resets";

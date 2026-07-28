@@ -115,4 +115,54 @@ export default defineConfig(
       "no-restricted-syntax": "off",
     },
   },
+  // Layer guards. These keep the barrel-import cycles from coming back (they
+  // are what forced tests to vi.mock the barrels). NOTE: flat config replaces
+  // rather than merges rule options, so the config/lib blocks below must
+  // repeat the self-barrel pattern.
+  {
+    // importing your own package's barrel re-enters every sibling module and
+    // manufactures cycles; import sibling files directly.
+    files: ["src/**/*.ts"],
+    ignores: ["src/api.ts"], // api.ts re-exports the root barrel as the public surface
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "^\\./_module$",
+          message: "Do not import your own barrel; import the sibling file directly.",
+        }],
+      }],
+    },
+  },
+  {
+    // src/config is a leaf package: pure data only. An import into module code
+    // recreates the config <-> lib barrel cycle.
+    files: ["src/config/**/*.ts"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "^\\./_module$",
+          message: "Do not import your own barrel; import the sibling file directly.",
+        }, {
+          regex: "^(\\.\\./)+(lib|effects|parser|muncher|apps|hooks|updater)/",
+          message: "src/config is a leaf package; do not import module code into it.",
+        }],
+      }],
+    },
+  },
+  {
+    // lib sits below effects and parser; a static import upward recreates the
+    // barrel cycles. Lazy import() at the call site is fine (not flagged).
+    files: ["src/lib/**/*.ts"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "^\\./_module$",
+          message: "Do not import your own barrel; import the sibling file directly.",
+        }, {
+          regex: "^(\\.\\./)+(effects|parser)/",
+          message: "src/lib must not statically import effects or parser; use a lazy import() if needed.",
+        }],
+      }],
+    },
+  },
 );

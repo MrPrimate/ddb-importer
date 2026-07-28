@@ -1,5 +1,6 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
-import { GenericEnrichers, MonsterEnrichers } from "./_module";
+import * as GenericEnrichers from "./generic/_module";
+import * as MonsterEnrichers from "./monster/_module";
 import { logger, utils } from "../../lib/_module";
 import DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 import type DDBEnricherData from "./data/DDBEnricherData";

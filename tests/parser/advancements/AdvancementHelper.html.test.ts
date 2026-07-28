@@ -3,12 +3,6 @@
 // parsers. Descriptions mimic real D&D Beyond class/background/feature markup.
 // These pin CURRENT behavior ahead of a refactor; known oddities are noted inline.
 
-// Mock barrel re-exports to break circular dependency chains
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
-
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 // AdvancementHelper imports the activities barrel (for DDBBasicActivity, only used
 // by the async spell advancement path we do not test); stub it to avoid pulling in
 // the entire enricher tree.

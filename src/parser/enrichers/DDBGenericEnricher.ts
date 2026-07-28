@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
-import { GenericEnrichers } from "./_module";
+import * as GenericEnrichers from "./generic/_module";
 
 export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
   constructor({

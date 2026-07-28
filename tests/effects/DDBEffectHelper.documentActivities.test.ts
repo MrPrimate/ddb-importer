@@ -9,22 +9,10 @@
 //
 // DDBEffectHelper is the unit under test so it is imported un-mocked; the
 // barrels its import chain drags in are stubbed exactly as in the pure test.
-import { configModuleMock, effectsModuleMock } from "../_setup/mockBarrels";
 
-vi.mock("../../src/config/_module", () => configModuleMock());
-vi.mock("../../src/effects/_module", () => effectsModuleMock());
 vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
   default: class {},
 }));
-vi.mock("../../src/parser/enrichers/effects/_module", () => ({
-  AutoEffects: {},
-  ChangeHelper: {},
-  MidiOverTimeEffect: class {},
-  MidiEffects: {},
-  EnchantmentEffects: {},
-  EffectGenerator: {},
-}));
-
 import DDBEffectHelper from "../../src/effects/DDBEffectHelper";
 
 const globalAny: any = globalThis;

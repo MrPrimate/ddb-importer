@@ -19,6 +19,7 @@ export { default as FrameKeyframeRenderer } from "./FrameKeyframeRenderer";
 export { default as FolderHelper } from "./FolderHelper";
 export { default as MuncherSettings } from "./MuncherSettings";
 export { default as NameMatcher } from "./NameMatcher";
+export { default as SystemHelpers } from "./SystemHelpers";
 export { default as OriginFixer } from "./OriginFixer";
 export { default as PatreonHelper } from "./PatreonHelper";
 export * as Secrets from "./Secrets";

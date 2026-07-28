@@ -2,15 +2,11 @@
 // _applyActivityDataOverride (the contract enricher consolidation must
 // preserve), applyActivityOverride, addDocumentOverride and
 // addDocumentAdvancements. These pin CURRENT behavior, oddities included.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
 
 // Mutable module-state for the enricher effects barrel mock; the midi branches
 // in _applyActivityDataOverride gate on AutoEffects.effectModules().
 const effectModulesState = vi.hoisted(() => ({ midiQolInstalled: false }));
 
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 // Heavy companion/summons machinery is irrelevant to the override surface.
 vi.mock("../../../src/parser/companions/DDBSummonsManager", () => ({
   default: class {},

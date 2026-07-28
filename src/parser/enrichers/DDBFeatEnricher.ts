@@ -1,5 +1,7 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
-import { ClassEnrichers, FeatEnrichers, GenericEnrichers } from "./_module";
+import * as ClassEnrichers from "./class/_module";
+import * as FeatEnrichers from "./feat/_module";
+import * as GenericEnrichers from "./generic/_module";
 import { utils } from "../../lib/_module";
 import type DDBEnricherData from "./data/DDBEnricherData";
 

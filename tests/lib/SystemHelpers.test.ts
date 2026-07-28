@@ -1,14 +1,5 @@
-// Mock barrel re-exports to break circular dependency chains (inline triple,
-// see DDBTemplateStrings.test.ts for why the shared factories are not used).
-vi.mock("../../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../../src/config/dictionary/dictionary");
-  return { SETTINGS: { MODULE_ID: "ddb-importer" }, DICTIONARY: dict.default };
-});
-vi.mock("../../../src/effects/_module", () => ({}));
-vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
-
-import SystemHelpers from "../../../src/parser/lib/SystemHelpers";
-import { setMockModules } from "../../_setup/foundryMocks";
+import SystemHelpers from "../../src/lib/SystemHelpers";
+import { setMockModules } from "../_setup/foundryMocks";
 
 const globals: any = globalThis;
 

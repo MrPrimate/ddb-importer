@@ -1,10 +1,6 @@
 // Characterization tests for the pure parts of DDBEnricherFactoryMixin:
 // name-hint resolution, the delegating getters and getFeatureActionsName.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
 
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 // Heavy companion/summons machinery is irrelevant to the pure surface under test.
 vi.mock("../../../src/parser/companions/DDBSummonsManager", () => ({
   default: class {},

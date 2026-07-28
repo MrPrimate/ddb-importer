@@ -1,10 +1,5 @@
 // Characterization tests for DDBAttackAction: weapon/feat document choice and
 // the attack-flavoured build() output.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
-
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
 
 // CharacterFeatureFactory must load first, it initialises the feature class chain
 import "../../../src/parser/features/CharacterFeatureFactory";

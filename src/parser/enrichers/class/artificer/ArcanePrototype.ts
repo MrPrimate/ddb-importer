@@ -1,6 +1,6 @@
 import { logger, CompendiumHelper } from "../../../../lib/_module";
 import { DDBBasicActivity } from "../../../activities/_module";
-import SystemHelpers from "../../../lib/SystemHelpers";
+import SystemHelpers from "../../../../lib/SystemHelpers";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 interface IPrototypeSelection {

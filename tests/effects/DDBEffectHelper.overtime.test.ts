@@ -7,10 +7,7 @@
 // the DDBEffectHelper <-> MidiOverTimeEffect import cycle resolves at runtime
 // because both sides only reference each other inside method bodies. Only the
 // config barrel, the effects barrel and DDBMonsterFeature are stubbed.
-import { configModuleMock, effectsModuleMock } from "../_setup/mockBarrels";
 
-vi.mock("../../src/config/_module", () => configModuleMock());
-vi.mock("../../src/effects/_module", () => effectsModuleMock());
 vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
   default: class {},
 }));

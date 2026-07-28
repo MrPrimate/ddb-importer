@@ -3,7 +3,7 @@ import { specialCases } from "./monster/special";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters";
 import { logger, utils, CompendiumHelper } from "../lib/_module";
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
-import { ExternalAutomations } from "../effects/_module";
+import ExternalAutomations from "../effects/external/ExternalAutomations";
 
 export interface IDDBMonsterOverrides {
   name?: string;

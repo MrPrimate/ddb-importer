@@ -1,4 +1,7 @@
-import { logger, utils, DDBProxy, FileHelper } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import DDBProxy from "./DDBProxy";
+import FileHelper from "./FileHelper";
 
 interface FrameAnimatorInput {
   // Base frame PNG. Usually omitted (pass null) when extras are present

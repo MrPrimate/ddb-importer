@@ -5,7 +5,6 @@ import Iconizer from "./Iconizer";
 import { DDBCompendiumFolders } from "./DDBCompendiumFolders";
 import NameMatcher from "./NameMatcher";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { ExternalAutomations } from "../effects/_module";
 
 interface IDDBItemImporterOptions {
   matchFlags?: string[];
@@ -787,6 +786,8 @@ ${item.system.description.chat}
 
     handler.documents = filteredItems;
     if (chrisPremades) {
+      // Lazy import: a static one would recreate the lib <-> effects barrel cycle.
+      const { default: ExternalAutomations } = await import(/* webpackMode: "eager" */ "../effects/external/ExternalAutomations");
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({
         documents: handler.documents as TExternalAutomationDocuments[],
         compendiumItem: true,

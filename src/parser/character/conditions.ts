@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { DDBEffectHelper } from "../../effects/_module";
+import DDBEffectHelper from "../../effects/DDBEffectHelper";
 import { logger } from "../../lib/_module";
 
 export function getCondition(conditionDDBName: string) {

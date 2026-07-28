@@ -1,10 +1,3 @@
-// mockBarrels factories cannot be used here: vi.mock is hoisted above the
-// import, so the factory binding is in TDZ. Inline triple per hp.test.ts.
-vi.mock("../../src/config/_module", async () => {
-  const dict = await vi.importActual<any>("../../src/config/dictionary/dictionary");
-  return { SETTINGS: { MODULE_ID: "ddb-importer" }, DICTIONARY: dict.default };
-});
-
 import FileHelper from "../../src/lib/FileHelper";
 
 describe("FileHelper.parseDirectory", () => {

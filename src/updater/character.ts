@@ -1,10 +1,20 @@
 import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher, postJson, DDBRunContext } from "../lib/_module";
-import { DICTIONARY, SETTINGS } from "../config/_module";
+import { DICTIONARY } from "../config/_module";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
 import DDBCharacter, { type DDBCharacterImportOptions } from "../parser/DDBCharacter";
 import DDBPartyInventory from "../muncher/DDBPartyInventory";
 import { IDDBConditionMapping } from "../config/dictionary/actor/conditions";
+
+export function activeUpdate() {
+  const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
+  const available = tiers.god || tiers.undying || tiers.experimentalMid;
+  if (!available) return false;
+  const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
+  const updateUser = utils.getSetting<string>("dynamic-sync-user");
+  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+  return dynamicSync && gmSyncUser;
+}
 
 const CHARACTER_CONTAINER_ENTITY_TYPE_ID = 1581111423;
 const PARTY_CONTAINER_ENTITY_TYPE_ID = DDBPartyInventory.PARTY_CONTAINER_ENTITY_TYPE_ID;
@@ -190,7 +200,7 @@ async function updateCharacterCall(
 ) {
   const characterId = getCharacterId(actor);
   const cobaltCookie = Secrets.getCobalt(actor.id ?? "");
-  const dynamicSync = SETTINGS.STATUS.activeUpdate();
+  const dynamicSync = activeUpdate();
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
@@ -2062,7 +2072,7 @@ async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: st
 
 export function activateUpdateHooks() {
   // check to make sure we can sync back, currently only works for 1 gm user
-  if (SETTINGS.STATUS.activeUpdate()) {
+  if (activeUpdate()) {
     Hooks.on("updateActor", (document, update) => activeUpdateActor(document as unknown as TSyncCharacterActor, update));
     // the hook passes an Item.Implementation, TImporterItem is our flag-aware view of it
     Hooks.on("updateItem", (document, update) => activeUpdateUpdateItem(document as unknown as TImporterItem, update));
