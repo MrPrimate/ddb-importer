@@ -1612,7 +1612,7 @@ export default class AdvancementHelper {
           const dictMatch = DICTIONARY.actor.languages.find((l) => l.name.toLowerCase() === grant.toLowerCase());
           if (dictMatch) {
             const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
-            parsedLanguages.grants = [language];
+            parsedLanguages.grants.push(language);
           }
         }
 

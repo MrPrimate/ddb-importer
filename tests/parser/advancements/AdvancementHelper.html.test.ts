@@ -183,11 +183,9 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
     expect(result.choices).toEqual(["standard:elvish", "standard:gnomish", "standard:goblin", "exotic:sylvan"]);
   });
 
-  it("keeps only the last speak/read/write grant (Common is overwritten)", () => {
+  it("keeps all speak/read/write grants", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and Dwarvish.</p>");
-    // BUG (pinned): grants is reassigned per language inside the loop, so the
-    // Common grant is lost and only Dwarvish survives.
-    expect(result.grants).toEqual(["standard:dwarvish"]);
+    expect(result.grants).toEqual(["common", "standard:dwarvish"]);
     expect(result.number).toBe(0);
   });
 
