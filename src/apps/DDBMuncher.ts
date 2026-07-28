@@ -333,14 +333,17 @@ export default class DDBMuncher extends DDBAppV2 {
     // multi-selects
     this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", async (event) => {
       await DDBSources.updateIncludedCategories(DDBMuncher.getMultiSelectValues(event));
+      await this.render();
     });
 
     this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
       await DDBSources.updateSelectedSources(DDBMuncher.getMultiSelectValues(event));
+      await this.render();
     });
 
     this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", async (event) => {
       await DDBSources.updateSelectedMonsterTypes(DDBMuncher.getMultiSelectValues(event));
+      await this.render();
     });
 
     this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
