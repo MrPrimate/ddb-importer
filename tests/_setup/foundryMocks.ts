@@ -412,6 +412,7 @@ const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
       slashing: { label: "Slashing" },
       thunder: { label: "Thunder" },
     },
+    dieSteps: [4, 6, 8, 10, 12, 20, 100],
   },
   DDB: { ...fallbackDDBConfig, RULE_DATA: fallbackRuleData },
   DDBI: {

@@ -314,7 +314,7 @@ describe("DDBEffectHelper.generateOverTimeEffect", () => {
         activities: {},
       },
       flags: {
-        monsterMunch: { actionData: { damage: [{ damageString: "2d6", damageTypes: ["fire"] }] } },
+        monsterMunch: { actionData: { damageParts: [{ damageString: "2d6", damageTypes: ["fire"] }] } },
       },
     });
     const actor = makeActor();
@@ -339,11 +339,9 @@ describe("DDBEffectHelper.generateOverTimeEffect", () => {
     expect(values[0]).toBe(
       "turn=end,label=Toxic Spores (End of Turn),saveRemove=true,saveDC=13,saveAbility=con,killAnim=true",
     );
-    // characterization BUG: the damage reduce indexes into the damageString
-    // ("2d6"[0] and "2d6"[1]) instead of a [damage, type] tuple, producing
-    // " + 2[d]" rather than "2d6[fire]"
+    // damage string is built per part as formula[type], joined with " + "
     expect(values[1]).toBe(
-      "turn=end,label=Toxic Spores (End of Turn),damageRoll= + 2[d],damageType=fire,"
+      "turn=end,label=Toxic Spores (End of Turn),damageRoll=2d6[fire],damageType=fire,"
       + "saveRemove=true,saveDC=13,saveAbility=con,saveDamage=nodamage,killAnim=true",
     );
 

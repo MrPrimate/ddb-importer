@@ -248,10 +248,10 @@ describe("DDBEffectHelper.getMonsterFeatureDamage (pre-parsed branch)", () => {
   ];
 
   function makeFeatureDoc(): any {
-    return { flags: { monsterMunch: { actionData: { damage: damageParts } } } };
+    return { flags: { monsterMunch: { actionData: { damageParts } } } };
   }
 
-  it("returns the pre-parsed damage from flags.monsterMunch.actionData.damage", () => {
+  it("returns the pre-parsed damage from flags.monsterMunch.actionData.damageParts", () => {
     const result = DDBEffectHelper.getMonsterFeatureDamage("taking 7 (2d6) fire damage", makeFeatureDoc());
     expect(result).toBe(damageParts);
   });
@@ -266,7 +266,7 @@ describe("DDBEffectHelper.getOvertimeDamage", () => {
   const damageParts = [{ damage: "3d8", type: "necrotic" }];
 
   function makeFeatureDoc(): any {
-    return { flags: { monsterMunch: { actionData: { damage: damageParts } } } };
+    return { flags: { monsterMunch: { actionData: { damageParts } } } };
   }
 
   it("returns damage for 'taking ... on a failed save' text", () => {

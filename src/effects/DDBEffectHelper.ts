@@ -108,9 +108,9 @@ export default class DDBEffectHelper {
 
   static getMonsterFeatureDamage(damageText: string, featureDoc: TAll5eItemDocuments | null = null): IDDBMonsterActionDataDamagePart[] {
     const preParsed = featureDoc
-      ? foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined
+      ? foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damageParts") as IDDBMonsterActionDataDamagePart[] | undefined
       : undefined;
-    if (preParsed) return preParsed;
+    if (preParsed && preParsed.length > 0) return preParsed;
     logger.debug("Monster feature damage miss", { damageText, featureDoc });
     // DDBMonsterFeature requires a ddbMonster; this fallback has never had one,
     // so it always threw. Degrade to no damage parts instead of crashing mid-macro.

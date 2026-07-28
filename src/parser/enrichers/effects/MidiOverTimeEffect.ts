@@ -167,21 +167,21 @@ export default class MidiOverTimeEffect {
       return;
     }
 
-    const dmgParts = dmg.map((dp) => dp.damageString);
-
     // overtime damage, revert any full damage flag, reset to default on save
     foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", false);
 
     const damage: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damage") as string
       ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damage") as string
-      ?? dmgParts.reduce((total, current) => {
-        total = [total, `${current[0]}[${current[1]}]`].join(" + ");
-        return total;
-      }, "") as string;
+      ?? dmg
+        .map((dp) => {
+          const type = dp.damageTypes[0];
+          return type ? `${dp.damageString}[${type}]` : dp.damageString;
+        })
+        .join(" + ");
 
     const damageType: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damageType") as string
       ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damageType") as string
-      ?? (dmgParts.length > 0
+      ?? (dmg.length > 0
         ? dmg[0].damageTypes[0]
         : "");
 

@@ -172,3 +172,41 @@ describe("DDBMonsterDamage._getDamageTypes", () => {
     expect(DDBMonsterDamage._getDamageTypes("", "unknowntype")).toEqual([]);
   });
 });
+
+// =============================================================================
+// generateDamage - produces the { damageString, damageTypes } parts array that
+// DDBMonsterFeature copies into flags.monsterMunch.actionData.damageParts (the
+// shape DDBEffectHelper.getMonsterFeatureDamage / over-time effects consume)
+// =============================================================================
+describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
+  function makeDamage(hit: string) {
+    // DAMAGE_EXPRESSION is a shared static regex with the /g flag; earlier tests in
+    // this file leave its lastIndex advanced, which matchAll would seed from.
+    DDBMonsterDamage.DAMAGE_EXPRESSION.lastIndex = 0;
+    const feature = {
+      name: "Test",
+      templateType: "monster",
+      actionData: {},
+      damageModReplace: (s: string) => s,
+    };
+    const dmg = new DDBMonsterDamage(hit, { ddbMonsterFeature: feature as any });
+    dmg.generateDamage();
+    return dmg;
+  }
+
+  it("generates a { damageString, damageTypes } part for save-based over-time damage", () => {
+    const dmg = makeDamage("the target keeps taking 7 (2d6) fire damage on a failed save");
+    expect(dmg.damageParts).toHaveLength(1);
+    expect(dmg.damageParts[0].damageString).toBe("2d6");
+    expect(dmg.damageParts[0].damageTypes).toContain("fire");
+    expect(dmg.damageParts[0].part).toBeDefined(); // I5eDamagePart object
+  });
+
+  it("generates a { damageString, damageTypes } part for plain hit damage", () => {
+    const dmg = makeDamage("Hit: 10 (2d6 + 3) slashing damage.");
+    expect(dmg.damageParts).toHaveLength(1);
+    expect(dmg.damageParts[0].damageString).toBe("2d6 + 3");
+    expect(dmg.damageParts[0].damageTypes).toContain("slashing");
+    expect(dmg.damageParts[0].part).toBeDefined();
+  });
+});
