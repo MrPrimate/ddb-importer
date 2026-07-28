@@ -425,13 +425,11 @@ describe("AdvancementHelper.parseHTMLConditions", () => {
     expect(result.grants).toEqual(["ci:poisoned"]);
   });
 
-  it("fails to parse combined poison damage and poisoned condition immunity", () => {
-    // BUG (pinned): this exact sentence appears in the source comments as a use
-    // case, but neither the damage branch (kind 'immune' matches no dictionary
-    // entry) nor the condition branch ('poison damage and the poisoned' does not
-    // match any condition name) produces a grant.
+  it("parses combined poison damage and poisoned condition immunity", () => {
+    // the damage branch normalises the 'immune' kind to 'immunity', matches the
+    // poison damage type (di:poison), and the nested cross-link adds ci:poisoned.
     const result = AdvancementHelper.parseHTMLConditions("<p>You are immune to poison damage and the poisoned condition.</p>");
-    expect(result.grants).toEqual([]);
+    expect(result.grants).toEqual(["di:poison", "ci:poisoned"]);
   });
 
   it("parses dragonborn ancestry resistance as a choice", () => {

@@ -164,7 +164,7 @@ export default class CharacterFeatureFactory {
       && !CharacterFeatureFactory.SKIPPED_FEATURES_STARTS_WITH.some((text) => featName.startsWith(text))
       && !CharacterFeatureFactory.SKIPPED_FEATURES_ENDS_WITH.some((text) => featName.endsWith(text))
       && !CharacterFeatureFactory.SKIPPED_FEATURES_INCLUDES.some((text) => featName.includes(text))
-      && !featName.match(/(?:\w+) Weapon Masteries(?:y|ies)(?:$|:)/igm)
+      && !featName.match(/(?:\w+) Weapon Master(?:y|ies)(?:$|:)/igm)
       && !featName.match(/(?:\d+:) Weapon Master(?:y|ies)(?:$|:)/igm)
       && (includeTashaVersatile || (!includeTashaVersatile && !CharacterFeatureFactory.TASHA_VERSATILE.includes(featName)));
 

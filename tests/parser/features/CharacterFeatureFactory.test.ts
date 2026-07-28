@@ -176,12 +176,11 @@ describe("CharacterFeatureFactory.includedFeatureNameCheck", () => {
     expect(CharacterFeatureFactory.includedFeatureNameCheck("12: Weapon Masteries")).toBe(false);
   });
 
-  it("allows '<word> Weapon Mastery' because the first regex requires 'Masteriesy'/'Masteriesies'", () => {
-    // Suspected bug: /(?:\w+) Weapon Masteries(?:y|ies)(?:$|:)/ can only match the
-    // literal strings "... Weapon Masteriesy" or "... Weapon Masteriesies", so a
-    // plain "Longsword Weapon Mastery" is never skipped by this rule.
-    expect(CharacterFeatureFactory.includedFeatureNameCheck("Longsword Weapon Mastery")).toBe(true);
-    expect(CharacterFeatureFactory.includedFeatureNameCheck("Longsword Weapon Masteriesy")).toBe(false);
+  it("skips '<word> Weapon Mastery' / 'Masteries' names via regex", () => {
+    // /(?:\w+) Weapon Master(?:y|ies)(?:$|:)/ matches a "<word> Weapon Mastery"
+    // (or "Masteries") per-weapon sub-feature so it is dropped on import.
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Longsword Weapon Mastery")).toBe(false);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Longsword Weapon Masteries")).toBe(false);
   });
 
   it("leaks the raw setting value through the && chain for allowed names", () => {

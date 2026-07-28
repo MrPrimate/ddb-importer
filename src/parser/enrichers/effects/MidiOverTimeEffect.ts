@@ -92,6 +92,24 @@ export default class MidiOverTimeEffect {
     return null;
   }
 
+  // AE duration.units (plural) -> dnd5e system.duration (singular). Items have no
+  // "seconds" unit, so whole-minute seconds collapse to minutes, else fall back to rounds.
+  static effectToItemDuration(duration: { units?: string | null; value?: number | null }) {
+    const value = duration.value ?? null;
+    switch (duration.units) {
+      case "turns": return { units: "turn", value };
+      case "rounds": return { units: "round", value };
+      case "minutes": return { units: "minute", value };
+      case "hours": return { units: "hour", value };
+      case "days": return { units: "day", value };
+      case "seconds":
+        if (value !== null && value % 60 === 0) return { units: "minute", value: value / 60 };
+        if (value !== null) return { units: "round", value: Math.round(value / 6) };
+        return { units: "round", value };
+      default: return { units: "round", value };
+    }
+  }
+
   effectCleanup() {
     if (!this.addToMonster) return;
     if (this.effect.system.changes.length > 0 || this.effect.statuses.length > 0) {
@@ -103,10 +121,11 @@ export default class MidiOverTimeEffect {
       foundry.utils.setProperty(this.actor, "flags.monsterMunch.overTime", overTimeFlags);
       // console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
       if (foundry.utils.getProperty(this.document, "system.duration.units") === "inst") {
-        foundry.utils.setProperty(this.document, "system.duration", {
-          units: "round",
-          value: this.effect.duration.value,
-        });
+        foundry.utils.setProperty(
+          this.document,
+          "system.duration",
+          MidiOverTimeEffect.effectToItemDuration(this.effect.duration),
+        );
       }
       logger.debug(`Cleanup of over time effect for ${this.actor.name}, ${this.actor.name} for ${this.document.name}`, this.effect);
     }
@@ -132,6 +151,10 @@ export default class MidiOverTimeEffect {
       foundry.utils.setProperty(this.effect, "duration.units", "rounds");
     } else if (duration.units === "seconds" && duration.value) {
       foundry.utils.setProperty(this.effect, "duration.value", duration.value);
+      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+    } else if (duration.value && duration.units && ["minutes", "hours", "days"].includes(duration.units)) {
+      const multipliers: Record<string, number> = { minutes: 60, hours: 3600, days: 86400 };
+      foundry.utils.setProperty(this.effect, "duration.value", Number(duration.value) * multipliers[duration.units]);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
     } else {
       const duration = DDBDescriptions.getDuration(this.description);
@@ -227,6 +250,10 @@ export default class MidiOverTimeEffect {
       foundry.utils.setProperty(this.effect, "duration.units", "rounds");
     } else if (duration.units === "seconds") {
       foundry.utils.setProperty(this.effect, "duration.value", duration.value);
+      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+    } else if (duration.value && duration.units && ["minutes", "hours", "days"].includes(duration.units)) {
+      const multipliers: Record<string, number> = { minutes: 60, hours: 3600, days: 86400 };
+      foundry.utils.setProperty(this.effect, "duration.value", Number(duration.value) * multipliers[duration.units]);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
     }
 

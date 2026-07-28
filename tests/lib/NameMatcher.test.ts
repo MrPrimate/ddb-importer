@@ -86,11 +86,11 @@ describe("NameMatcher.getLooseNames", () => {
     expect(NameMatcher.getLooseNames("Nolzur’s Marvelous Pigments")).toContain("nolzur's marvelous pigments");
   });
 
-  it("only strips a lowercase ' armor' suffix", () => {
-    // characterization: replace(" armor", "") runs BEFORE toLowerCase, so the
-    // usual title-case "Padded Armor" is never stripped, only "Padded armor"
+  it("strips a case-insensitive ' armor' suffix", () => {
+    // toLowerCase runs BEFORE replace(" armor", ""), so title-case "Padded Armor"
+    // (as DDB names it) is stripped the same as lowercase "Padded armor"
     expect(NameMatcher.getLooseNames("Padded armor")).toContain("padded");
-    expect(NameMatcher.getLooseNames("Padded Armor")).not.toContain("padded");
+    expect(NameMatcher.getLooseNames("Padded Armor")).toContain("padded");
   });
 
   it("adds a trailing-s trimmed variant", () => {

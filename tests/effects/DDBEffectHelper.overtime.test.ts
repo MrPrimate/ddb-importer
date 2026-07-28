@@ -280,15 +280,13 @@ describe("DDBEffectHelper.generateConditionOnlyEffect", () => {
     expect(typeof effect._id).toBe("string");
     expect(effect.name).toBe("Status: Poisoned");
     expect(effect.statuses).toEqual(["poisoned"]);
-    // characterization oddity: "for 1 minute" parses to units "minutes", but
-    // the generator only maps "rounds"/"seconds", so the parsed duration is
-    // dropped and the BaseEffect default (null seconds) survives
-    expect(effect.duration.value).toBeNull();
+    // "for 1 minute" parses to units "minutes" and converts to 60 seconds
+    expect(effect.duration.value).toBe(60);
     expect(effect.duration.units).toBe("seconds");
     // the monster is flagged as carrying an over time effect
     expect(actor.flags.monsterMunch.overTime).toEqual(["Toxic Spores"]);
-    // an instant document duration is upgraded to rounds matching the effect
-    expect(doc.system.duration).toEqual({ units: "round", value: null });
+    // the effect's 60s is translated to a valid dnd5e minute item duration
+    expect(doc.system.duration).toEqual({ units: "minute", value: 1 });
   });
 });
 
@@ -324,11 +322,9 @@ describe("DDBEffectHelper.generateOverTimeEffect", () => {
     const effect = doc.effects[0];
     expect(effect.name).toBe("Status: Poisoned");
     expect(effect.statuses).toEqual(["poisoned"]);
-    // characterization oddity: the parsed "for 1 minute" (units "minutes") is
-    // not handled by the rounds/seconds branches, so the code falls back to
-    // DDBDescriptions.getDuration's default of 10 rounds
-    expect(effect.duration.value).toBe(10);
-    expect(effect.duration.units).toBe("rounds");
+    // the parsed "for 1 minute" (units "minutes") converts to 60 seconds
+    expect(effect.duration.value).toBe(60);
+    expect(effect.duration.units).toBe("seconds");
 
     // damage over time resets fulldam (set true by the condition branch first)
     expect(doc.flags.midiProperties.fulldam).toBe(false);
@@ -346,6 +342,7 @@ describe("DDBEffectHelper.generateOverTimeEffect", () => {
     );
 
     expect(actor.flags.monsterMunch.overTime).toEqual(["Toxic Spores"]);
-    expect(doc.system.duration).toEqual({ units: "round", value: 10 });
+    // the effect's 60s is translated to a valid dnd5e minute item duration
+    expect(doc.system.duration).toEqual({ units: "minute", value: 1 });
   });
 });

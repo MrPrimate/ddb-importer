@@ -2825,7 +2825,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
             .split(",")
             .map((dmg) => dmg.toLowerCase().replace(" damage", "").trim());
           for (const match of additionalMatches) {
-            const conditionKind = damageMatch[1].toLowerCase().trim();
+            const conditionKindRaw = damageMatch[1].toLowerCase().trim();
+            const conditionKind = conditionKindRaw === "immune" ? "immunity" : conditionKindRaw;
             const damageMapping = DICTIONARY.actor.damageAdjustments.find((a) =>
               a.kind === conditionKind // only match the kind
               && a.type !== 4 // don't include conditions

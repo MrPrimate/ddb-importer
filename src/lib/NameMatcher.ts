@@ -38,7 +38,7 @@ export default class NameMatcher {
     // word smart quotes are the worst
     looseNames.add(name.replace("'", "’").toLowerCase());
     looseNames.add(name.replace("’", "'").toLowerCase());
-    looseNames.add(name.replace(" armor", "").toLowerCase());
+    looseNames.add(name.toLowerCase().replace(" armor", ""));
     looseNames.add(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
     looseNames.add(name.replace(",", "").toLowerCase()); // +1 weapons etc
     looseNames.add(`${name} attack`.toLowerCase()); // Claw Attack
