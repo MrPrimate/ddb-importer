@@ -3,6 +3,7 @@
 - Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
 - Arcane Hand fixes
 - Vampiric Bite fixes
+- Spirits from Beyond didn't always import correctly.
 
 # 7.1.36
 
