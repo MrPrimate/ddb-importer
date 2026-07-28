@@ -19,3 +19,7 @@ dnd5e
 
 .fallow/
 coverage/
+
+# Secrets
+.env
+.env.local

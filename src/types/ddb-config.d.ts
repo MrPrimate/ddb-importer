@@ -35,7 +35,7 @@ global {
     entityTypeId: number;
     type: string;
     subType: string;
-    value: number;
+    value: number | null;
     shouldExclude: boolean;
     friendlyTypeName: string;
     friendlySubTypeName: string;

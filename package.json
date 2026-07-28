@@ -17,7 +17,9 @@
     "clear": "rm -rf dist/*",
     "dev:foundryLinks": "node ./tools/create-symlinks.mjs",
     "link": "cd src/parser/enrichers && node _linkBuilder.js",
-    "dev:link": "node ./tools/foundry-dev-link.mjs"
+    "dev:link": "node ./tools/foundry-dev-link.mjs",
+    "data:config": "node --env-file-if-exists=.env ./tools/fetch-ddb-config.mjs",
+    "data:config:dry": "node --env-file-if-exists=.env ./tools/fetch-ddb-config.mjs --dry-run"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
