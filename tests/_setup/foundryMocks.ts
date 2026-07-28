@@ -38,6 +38,15 @@ const noopClass = class {};
     deepClone(obj: any) {
       return JSON.parse(JSON.stringify(obj));
     },
+    // Mirrors foundry's isEmpty: undefined/null are empty, as are zero-length
+    // arrays/strings and objects/Sets/Maps with no entries.
+    isEmpty(value: any) {
+      if (value === undefined || value === null) return true;
+      if (Array.isArray(value) || typeof value === "string") return !value.length;
+      if (value instanceof Set || value instanceof Map) return !value.size;
+      if (typeof value === "object") return !Object.keys(value).length;
+      return false;
+    },
     expandObject(obj: any): any {
       const expanded: any = {};
       for (const [key, value] of Object.entries(obj)) {

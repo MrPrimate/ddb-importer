@@ -389,6 +389,8 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         name: "Channel Spirit",
         type: "class",
+        period: "sr",
+        max: "1",
       }),
     };
   }

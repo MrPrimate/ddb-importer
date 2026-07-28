@@ -688,6 +688,15 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
     expect(result.system.description.value).toBe("Base description.");
   });
 
+  it("leaves parser generated uses alone when the uses override is empty", async () => {
+    const parsed = { spent: 1, max: "4" };
+    const e = makeOverrideEnricher({ uses: {} }, {
+      system: { description: { value: "Base description.", chat: "" }, uses: parsed },
+    });
+    const result = await e.addDocumentOverride();
+    expect(result.system.uses).toEqual(parsed);
+  });
+
   it("appends descriptionSuffix to value, and to chat only when chat is non-empty", async () => {
     const emptyChat = makeOverrideEnricher({ descriptionSuffix: "<p>More.</p>" });
     const r1 = await emptyChat.addDocumentOverride();

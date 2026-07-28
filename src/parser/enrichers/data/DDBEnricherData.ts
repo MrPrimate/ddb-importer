@@ -161,10 +161,13 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null; matchSubClass?: string | null; includesName?: boolean }): I5eSystemLimitedUses {
-    const uses: I5eSystemLimitedUses = {
-      spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
-      max,
-    };
+    const uses: I5eSystemLimitedUses = {};
+
+    // dnd5e's spent is a non-nullable NumberField, so only set it if we have a value
+    const spent = this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent;
+    if (spent !== null) uses.spent = spent;
+
+    if (max) uses.max = max;
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
@@ -173,7 +176,13 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     }
 
     if (!max) {
-      uses.max = String(this._getMaxValue(type, name, matchSubClass, includesName));
+      // a null max would stringify to the literal "null", which is not a valid formula
+      const maxValue = this._getMaxValue(type, name, matchSubClass, includesName);
+      if (maxValue === null) {
+        logger.warn(`No max uses found for "${name}" (${type})`, { this: this });
+      } else {
+        uses.max = String(maxValue);
+      }
     }
 
     if (override) {
