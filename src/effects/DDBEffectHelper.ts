@@ -826,9 +826,11 @@ export default class DDBEffectHelper {
     if (classification && activity.attack?.type?.classification !== classification) return false;
     const properties = activity.parent?.properties;
     if (andHasProperties.length > 0 && !andHasProperties.every((p) => properties?.has(p))) return false;
-    const orHas = orHasProperties.some((p) => properties?.has(p));
-    if ((type && activity.attack?.type?.value !== type)
-      || ((orHas as unknown as string[]).length > 0 && !orHas)) return false;
+    // orHasProperties is an alternative to the type gate: a thrown melee weapon
+    // (attack type "melee" plus the "thr" property) still counts as a ranged attack.
+    const typeMatches = !type || activity.attack?.type?.value === type;
+    const orMatches = orHasProperties.length > 0 && orHasProperties.some((p) => properties?.has(p));
+    if (!typeMatches && !orMatches) return false;
 
     return true;
   }

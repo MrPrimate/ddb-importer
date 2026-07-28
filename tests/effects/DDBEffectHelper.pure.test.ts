@@ -120,13 +120,18 @@ describe("DDBEffectHelper.isAttack", () => {
     expect(DDBEffectHelper.isAttack({ activity, andHasProperties: ["fin", "thr"] })).toBe(false);
   });
 
-  it("ignores orHasProperties entirely (boolean .length is undefined)", () => {
-    // Suspected bug: orHas is a boolean, so (orHas as string[]).length is
-    // undefined and the "no or-property present" rejection can never fire.
-    // A melee attack without "thr" still passes when orHasProperties: ["thr"].
-    const activity = makeAttackActivity({ properties: [] });
-    expect(DDBEffectHelper.isAttack({ activity, orHasProperties: ["thr"] })).toBe(true);
-    expect(DDBEffectHelper.isAttack({ activity, classification: "weapon", orHasProperties: ["thr"] })).toBe(true);
+  it("treats orHasProperties as an alternative to the type gate", () => {
+    // A thrown melee weapon (attack type "melee" plus "thr") counts as a ranged attack.
+    const thrown = makeAttackActivity({ value: "melee", properties: ["thr"] });
+    expect(DDBEffectHelper.isAttack({ activity: thrown, type: "ranged", orHasProperties: ["thr"] })).toBe(true);
+    // A plain melee weapon without "thr" is not a ranged attack.
+    const plainMelee = makeAttackActivity({ value: "melee", properties: [] });
+    expect(DDBEffectHelper.isAttack({ activity: plainMelee, type: "ranged", orHasProperties: ["thr"] })).toBe(false);
+    // A real ranged weapon still matches on type directly.
+    const ranged = makeAttackActivity({ value: "ranged", properties: [] });
+    expect(DDBEffectHelper.isAttack({ activity: ranged, type: "ranged", orHasProperties: ["thr"] })).toBe(true);
+    // With no type gate, orHasProperties does not reject.
+    expect(DDBEffectHelper.isAttack({ activity: plainMelee, orHasProperties: ["thr"] })).toBe(true);
   });
 });
 
@@ -146,6 +151,36 @@ describe("DDBEffectHelper.isMeleeWeaponAttack", () => {
   it("returns false without an activity", () => {
     expect(DDBEffectHelper.isMeleeWeaponAttack()).toBe(false);
     expect(DDBEffectHelper.isMeleeWeaponAttack({})).toBe(false);
+  });
+});
+
+describe("DDBEffectHelper.isRangedWeaponAttack", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("treats a thrown melee weapon beyond melee range as a ranged attack", () => {
+    vi.spyOn(DDBEffectHelper, "getDistance").mockReturnValue(30);
+    const thrown = makeAttackActivity({ value: "melee", properties: ["thr"] });
+    expect(DDBEffectHelper.isRangedWeaponAttack({
+      activity: thrown, sourceToken: {} as any, targetToken: {} as any,
+    })).toBe(true);
+  });
+
+  it("does not count a thrown weapon used within melee range", () => {
+    vi.spyOn(DDBEffectHelper, "getDistance").mockReturnValue(5);
+    const thrown = makeAttackActivity({ value: "melee", properties: ["thr"] });
+    expect(DDBEffectHelper.isRangedWeaponAttack({
+      activity: thrown, sourceToken: {} as any, targetToken: {} as any,
+    })).toBe(false);
+  });
+
+  it("rejects a plain melee weapon with no thrown property", () => {
+    vi.spyOn(DDBEffectHelper, "getDistance").mockReturnValue(30);
+    const greatsword = makeAttackActivity({ value: "melee", properties: [] });
+    expect(DDBEffectHelper.isRangedWeaponAttack({
+      activity: greatsword, sourceToken: {} as any, targetToken: {} as any,
+    })).toBe(false);
   });
 });
 
