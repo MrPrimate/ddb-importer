@@ -10,7 +10,9 @@ describe("barrel smoke imports", () => {
     expect(config.DICTIONARY).toBeDefined();
   });
 
-  it("loads src/lib/_module", async () => {
+  // 30s timeout: the lib barrel transitively transforms most of src on first
+  // load; the canary is the TDZ crash, not speed.
+  it("loads src/lib/_module", { timeout: 30_000 }, async () => {
     const lib = await import("../../src/lib/_module");
     expect(typeof lib.utils.getSetting).toBe("function");
     expect(lib.SystemHelpers).toBeDefined();

@@ -1,8 +1,6 @@
 // Tests for DDBEnricherData._getUsesWithSpent and its _getMaxValue/_getSpentValue
 // lookups. The regression these pin: a DDB action with no limitedUse used to
 // stringify a null max into the literal "null", an invalid dnd5e formula.
-import { configModuleMock, effectsModuleMock, ddbEffectHelperMock } from "../../_setup/mockBarrels";
-
 const loggerMock = vi.hoisted(() => ({
   warn: vi.fn(),
   debug: vi.fn(),
@@ -11,9 +9,11 @@ const loggerMock = vi.hoisted(() => ({
   verbose: vi.fn(),
 }));
 
-vi.mock("../../../src/config/_module", () => configModuleMock());
-vi.mock("../../../src/effects/_module", () => effectsModuleMock());
-vi.mock("../../../src/effects/DDBEffectHelper", () => ddbEffectHelperMock());
+// Whole-barrel stub, not importOriginal: loading the real lib barrel here would
+// pull the apps/muncher tree (and through it enrichers/_module) while
+// DDBEnricherData is still mid-evaluation, crashing SpellListExtractorMixin's
+// `extends DDBEnricherData`. Everything this test's import graph touches in lib
+// is just `logger`.
 vi.mock("../../../src/lib/_module", () => ({ logger: loggerMock }));
 // The spell machinery is only reachable via _getSpellsForFeature, not the uses surface.
 vi.mock("../../../src/parser/spells/CharacterSpellFactory", () => ({ default: class {} }));
