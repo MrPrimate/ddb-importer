@@ -1720,11 +1720,14 @@ export default class DDBEffectHelper {
       return;
 
     if (ask) {
-      new Dialog({
-        title: `Use action to attempt to remove ${condition}?`,
-        buttons: {
-          one: {
+      foundry.applications.api.DialogV2.wait({
+        window: { title: `Use action to attempt to remove ${condition}?` },
+        content: "",
+        buttons: [
+          {
+            action: "one",
             label: "Yes",
+            default: true,
             callback: async () => {
               DDBEffectHelper._conditionRemovalMidiRoll(targetToken, condition, {
                 document,
@@ -1735,7 +1738,8 @@ export default class DDBEffectHelper {
               });
             },
           },
-          two: {
+          {
+            action: "two",
             label: "No",
             callback: () => {
               ChatMessage.create({
@@ -1743,8 +1747,9 @@ export default class DDBEffectHelper {
               } as unknown as ChatMessage.CreateInput);
             },
           },
-        },
-      } as unknown as ConstructorParameters<typeof Dialog>[0]).render(true);
+        ],
+        rejectClose: false,
+      } as any);
     } else {
       DDBEffectHelper._conditionRemovalMidiRoll(targetToken, condition, {
         document,

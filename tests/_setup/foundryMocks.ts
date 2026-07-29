@@ -173,10 +173,28 @@ const noopClass = class {};
     api: {
       ApplicationV2: noopClass,
       HandlebarsApplicationMixin: (cls: any) => cls,
+      // Minimal DialogV2 stub. `wait` resolves undefined by default; tests spy on
+      // it to capture the config passed and to drive button/close callbacks.
+      DialogV2: class DialogV2 {
+        static async wait(_config: any): Promise<any> {
+          return undefined;
+        }
+      },
     },
     apps: {
       FilePicker: {
         implementation: noopClass,
+      },
+    },
+    handlebars: {
+      renderTemplate: async (_path: string, _data: any) => "",
+    },
+    ux: {
+      FormDataExtended: class FormDataExtended {
+        object: Record<string, any>;
+        constructor(_form: any) {
+          this.object = {};
+        }
       },
     },
   },

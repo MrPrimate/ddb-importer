@@ -200,97 +200,105 @@ interface IResourcesFormData extends I5ePCResource {
 
 // this.source.ddb, this.raw.character
 DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog(this: DDBCharacter): Promise<I5ePCData> {
-  return new Promise((resolve) => {
-    const sortedResources = this.getSortedByUsedResourceList();
+  const sortedResources = this.getSortedByUsedResourceList();
 
-    if (this.resourceChoices.type === "default") {
-      this.setDefaultResources(sortedResources);
+  if (this.resourceChoices.type === "default") {
+    this.setDefaultResources(sortedResources);
+  }
+
+  if (!(this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask"))) {
+    this._generateResources();
+    return this.raw.character;
+  }
+
+  // we mutate the data here
+  const resources = sortedResources.map((resource: IResourcesFormData): IResourcesFormData => {
+    const resourceArray = [];
+    if (resource.sr) resourceArray.push("SR");
+    if (resource.lr) resourceArray.push("LR");
+    if (!resource.sr && !resource.lr) resourceArray.push("Other");
+    // resource.resetString = resourceArray.join(", ");
+    switch (resource.label) {
+      case this.resourceChoices.primary:
+        resource.primary = true;
+        break;
+      case this.resourceChoices.secondary:
+        resource.secondary = true;
+        break;
+      case this.resourceChoices.tertiary:
+        resource.tertiary = true;
+        break;
+      // no default
     }
-
-    if (this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask")) {
-      // we mutate the data here
-      const resources = sortedResources.map((resource: IResourcesFormData): IResourcesFormData => {
-        const resourceArray = [];
-        if (resource.sr) resourceArray.push("SR");
-        if (resource.lr) resourceArray.push("LR");
-        if (!resource.sr && !resource.lr) resourceArray.push("Other");
-        // resource.resetString = resourceArray.join(", ");
-        switch (resource.label) {
-          case this.resourceChoices.primary:
-            resource.primary = true;
-            break;
-          case this.resourceChoices.secondary:
-            resource.secondary = true;
-            break;
-          case this.resourceChoices.tertiary:
-            resource.tertiary = true;
-            break;
-          // no default
-        }
-        return resource;
-      });
-
-      // content is an object fed to the resources.hbs template and the buttons
-      // omit icon/label, so this does not match the Dialog.Data type
-      const dialog = new Dialog(({
-        title: `Choose Resources for ${this.raw.character.name}`,
-        content: {
-          "resources": resources,
-          "character": this.raw.character.name,
-          "img": this.source?.ddb.character.decorations?.avatarUrl
-            || CONFIG.DND5E.defaultArtwork.Actor.character,
-          "cssClass": "character-resource-selection sheet",
-        },
-        buttons: {
-          default: {
-            // icon: '<i class="fas fa-list-ol"></i>',
-            // label: "Auto",
-            callback: async () => {
-              const formData = $(".character-resource-selection").serializeArray();
-              this._generateResourceSelectionFromForm(formData, "default");
-              this.setDefaultResources(sortedResources);
-              this._generateResources();
-              resolve(this.raw.character);
-            },
-          },
-          custom: {
-            // icon: '<i class="fas fa-sort"></i>',
-            // label: "Custom",
-            callback: async () => {
-              const formData = $(".character-resource-selection").serializeArray();
-              this._generateResourceSelectionFromForm(formData, "custom");
-              resolve(this.raw.character);
-            },
-          },
-          disable: {
-            callback: async () => {
-              const formData = $(".character-resource-selection").serializeArray();
-              this._generateResourceSelectionFromForm(formData, "disable");
-              this._generateResources();
-              resolve(this.raw.character);
-            },
-          },
-          remove: {
-            callback: async () => {
-              const formData = $(".character-resource-selection").serializeArray();
-              this._generateResourceSelectionFromForm(formData, "remove");
-              this._generateResources();
-              resolve(this.raw.character);
-            },
-          },
-        },
-        default: "default",
-        close: () => resolve(this.raw.character),
-      }) as unknown as ConstructorParameters<typeof Dialog>[0],
-      {
-        width: 400,
-        classes: ["dialog", "character-resource-selection"],
-        template: "modules/ddb-importer/handlebars/resources.hbs",
-      });
-      dialog.render(true);
-    } else {
-      this._generateResources();
-      resolve(this.raw.character);
-    }
+    return resource;
   });
+
+  // resources.hbs reads its data from a `content` key, matching the legacy Dialog template context
+  const dialogContent = await foundry.applications.handlebars.renderTemplate(
+    "modules/ddb-importer/handlebars/resources.hbs",
+    {
+      content: {
+        resources,
+        character: this.raw.character.name,
+        img: this.source?.ddb.character.decorations?.avatarUrl
+          || CONFIG.DND5E.defaultArtwork.Actor.character,
+        cssClass: "character-resource-selection sheet",
+      },
+    },
+  );
+
+  const applyForm = (form: HTMLFormElement | null, type: string) => {
+    // DialogV2 wraps the template in its own <form>; serialize it as before
+    const formData = $(form as HTMLFormElement).serializeArray();
+    this._generateResourceSelectionFromForm(formData, type);
+  };
+
+  await foundry.applications.api.DialogV2.wait({
+    window: { title: `Choose Resources for ${this.raw.character.name}` },
+    content: dialogContent,
+    position: { width: 400 },
+    classes: ["character-resource-selection"],
+    buttons: [
+      {
+        action: "default",
+        label: "Auto",
+        icon: "fas fa-check",
+        default: true,
+        callback: (_event: Event, button: HTMLButtonElement) => {
+          applyForm(button.form, "default");
+          this.setDefaultResources(sortedResources);
+          this._generateResources();
+        },
+      },
+      {
+        action: "custom",
+        label: "Custom",
+        icon: "fas fa-book-open",
+        callback: (_event: Event, button: HTMLButtonElement) => {
+          applyForm(button.form, "custom");
+        },
+      },
+      {
+        action: "disable",
+        label: "Disable",
+        icon: "fas fa-times",
+        callback: (_event: Event, button: HTMLButtonElement) => {
+          applyForm(button.form, "disable");
+          this._generateResources();
+        },
+      },
+      {
+        action: "remove",
+        label: "Remove",
+        icon: "fas fa-times",
+        callback: (_event: Event, button: HTMLButtonElement) => {
+          applyForm(button.form, "remove");
+          this._generateResources();
+        },
+      },
+    ],
+    rejectClose: false,
+  } as any);
+
+  return this.raw.character;
 };

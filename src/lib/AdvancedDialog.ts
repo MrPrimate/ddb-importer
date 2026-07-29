@@ -1,19 +1,29 @@
 import utils from "./Utils";
 
+/**
+ * Maps the legacy Dialog `options` bag (`{ width, height }`) onto a DialogV2
+ * `position` object. Non-numeric values (e.g. the historic `height: "auto"`)
+ * are dropped because DialogV2 auto-sizes.
+ */
+export function optionsToPosition(options: Record<string, any> = {}): Record<string, number> {
+  const position: Record<string, number> = {};
+  if (typeof options?.width === "number") position.width = options.width;
+  if (typeof options?.height === "number") position.height = options.height;
+  return position;
+}
+
 class AdvancedDialog {
 
   inputs: IAdvancedDialogInput[];
 
   buttons: IAdvancedDialogButton[];
 
-  dialog: Dialog | null;
-
   config: {
     title: string;
     defaultButtonLabel: string;
-    close: (resolve: (value: unknown) => void, ...args: any[]) => unknown;
+    close: (...args: any[]) => unknown;
     options: Record<string, any>;
-    render: ((html: unknown) => unknown) | null;
+    render: ((...args: any[]) => unknown) | null;
     classes: string[];
   };
 
@@ -36,11 +46,10 @@ class AdvancedDialog {
    *   @param {Function} config.render Optional function to pass to render call for Dialog.
    */
   constructor(inputs: IAdvancedDialogInput[] = [], buttons: IAdvancedDialogButton[] = [], // prompt information
-    { title = "", defaultButton = "OK", close = (resolve: (value: unknown) => void) => resolve({ success: false }), options = {}, render = null as ((html: unknown) => void) | null } = {}, // dialog config
+    { title = "", defaultButton = "OK", close = () => ({ success: false }), options = {}, render = null as ((...args: any[]) => void) | null } = {}, // dialog config
   ) {
     this.inputs = inputs;
     this.buttons = buttons;
-    this.dialog = null;
 
     this.config = {
       title,
@@ -145,28 +154,29 @@ class AdvancedDialog {
 
 
   /**
-   * Parses the selection results based on the given inputs, HTML, and checked text.
+   * Parses the selection results from the DialogV2 form element.
    *
-   * @param {HTMLElement} html The HTML element to parse.
-   * @returns {Array} The parsed selection results.
+   * @param {HTMLElement} form The `<form>` element of the dialog (from `button.form`).
+   * @returns {Array} The parsed selection results, positionally aligned to `this.inputs`.
    */
-  _parseSelectionResults(html: any) {
+  _parseSelectionResults(form: HTMLElement) {
     const results = this.inputs
       .map((input, idx) => {
         switch (input.type.toLowerCase()) {
           case "label":
             return null;
           case "radio":
-          case "checkbox": {
-            return html.find(`input#ddb-${idx}`)[0].checked;
-          }
+          case "checkbox":
+            return (form.querySelector(`#ddb-${idx}`) as HTMLInputElement).checked;
           case "number":
-            return html.find(`input#ddb-${idx}`)[0].valueAsNumber;
-          case "select":
-            // the value is the index of the selected option
-            return input.options?.[html.find(`select#ddb-${idx}`).val()].value;
+            return (form.querySelector(`#ddb-${idx}`) as HTMLInputElement).valueAsNumber;
+          case "select": {
+            // the select's value is the index of the selected option
+            const select = form.querySelector(`#ddb-${idx}`) as HTMLSelectElement;
+            return input.options?.[Number(select.value)].value;
+          }
           default:
-            return html.find(`input#ddb-${idx}`)[0].value;
+            return (form.querySelector(`#ddb-${idx}`) as HTMLInputElement).value;
         }
       });
     return results;
@@ -263,63 +273,49 @@ export class ChooserDialog extends AdvancedDialog {
    *  let result = await d.ask();
    */
   async ask() {
-    return new Promise((resolve) => {
+    // The label of the button that should be focused/submitted by default.
+    const defaultLabel = this.buttons.find((b) => b.default)?.label ?? this.config.defaultButtonLabel;
 
-      const buttonObject = (this.buttons.length > 0)
-        ? this.buttons.reduce((o, button) => ({
-          ...o,
-          [button.label]: {
-            label: button.label,
-            callback: (html: any) => {
-              const results = {
-                button,
-                results: this._parseSelectionResults(html),
-                inputs: this.inputs,
-                success: true,
-              };
-              if (utils.isFunction(button.callback)) {
-                // button.callback(results, html).then(() => {
-                //   console.warn("Callbacj resykts", results);
-                //   resolve(results);
-                // });
-                resolve(button.callback(results, html));
-              } else {
-                resolve(results);
-              }
-            },
-          },
-        }), {})
-        // inserts default button
-        : {
-          defaultButton: {
-            label: this.config.defaultButtonLabel,
-            callback: (html: any) =>
-              resolve({
-                button: { value: "default", label: this.config.defaultButtonLabel },
-                results: this._parseSelectionResults(html),
-                inputs: this.inputs,
-                success: true,
-              }),
-          },
-        };
-
-      this.dialog = new Dialog(
-        {
-          title: this.config.title,
-          content: this._generateSelectionHtml(),
-          default: this.buttons.find((b) => b.default)?.label ?? this.config.defaultButtonLabel,
-          close: (...abc) => this.config.close(resolve, ...abc),
-          buttons: buttonObject,
-          render: (this.config.render ?? undefined) as ((element: JQuery<HTMLElement>) => void) | undefined,
+    const dialogButtons = (this.buttons.length > 0)
+      ? this.buttons.map((button, index) => ({
+        action: `button-${index}`,
+        label: button.label,
+        default: button.label === defaultLabel,
+        callback: (_event: Event, htmlButton: HTMLButtonElement) => {
+          const results = {
+            button,
+            results: this._parseSelectionResults(htmlButton.form!),
+            inputs: this.inputs,
+            success: true,
+          };
+          return utils.isFunction(button.callback)
+            ? button.callback(results, htmlButton.form)
+            : results;
         },
-        {
-          classes: this.config.classes,
-          focus: true,
-          ...this.config.options,
-        } as unknown as ConstructorParameters<typeof Dialog>[1],
-      );
-      this.dialog.render(true);
-    });
+      }))
+      // inserts default button
+      : [{
+        action: "defaultButton",
+        label: this.config.defaultButtonLabel,
+        default: true,
+        callback: (_event: Event, htmlButton: HTMLButtonElement) => ({
+          button: { value: "default", label: this.config.defaultButtonLabel },
+          results: this._parseSelectionResults(htmlButton.form!),
+          inputs: this.inputs,
+          success: true,
+        }),
+      }];
+
+    return foundry.applications.api.DialogV2.wait({
+      window: { title: this.config.title },
+      content: this._generateSelectionHtml(),
+      classes: this.config.classes,
+      position: optionsToPosition(this.config.options),
+      buttons: dialogButtons,
+      rejectClose: false,
+      close: (...args: any[]) => this.config.close(...args),
+      ...(utils.isFunction(this.config.render) ? { render: this.config.render } : {}),
+    } as any);
   }
 
   static async Ask(...args: any[]) {

@@ -1,4 +1,4 @@
-import { ChooserDialog } from "./AdvancedDialog";
+import { ChooserDialog, optionsToPosition } from "./AdvancedDialog";
 export default class DialogHelper {
 
   /**
@@ -25,25 +25,24 @@ export default class DialogHelper {
      );
      console.warn(`You selected ${selected}`);
    */
-  static async buttonDialog({ title = "", content = "", buttons = [], options = { height: "auto" } }: IDDBDialogHelperButtonDialogConfig = {}, direction = "row") {
+  static async buttonDialog({ title = "", content = "", buttons = [], options = {} }: IDDBDialogHelperButtonDialogConfig = {}, direction = "row") {
+    if (!buttons?.length) return null;
 
-    return new Promise((resolve) => {
-      new Dialog(
-        {
-          title,
-          content,
-          buttons: buttons.reduce((o, button) => ({
-            ...o,
-            [button.label]: { label: button.label, callback: () => resolve(button.value) },
-          }), {}),
-          close: () => resolve(this),
-        },
-        {
-          classes: ["dialog", `ddb-button-dialog-${direction}`],
-          ...options,
-        } as unknown as ConstructorParameters<typeof Dialog>[1],
-      ).render(true);
-    });
+    return foundry.applications.api.DialogV2.wait({
+      window: { title },
+      content,
+      classes: ["ddb-button-dialog", `ddb-button-dialog-${direction}`],
+      position: optionsToPosition(options),
+      buttons: buttons.map((button, index) => ({
+        action: `button-${index}`,
+        label: button.label,
+        callback: () => button.value,
+      })),
+      rejectClose: false,
+      // dismissing the dialog resolves null (was `this` in the legacy Dialog,
+      // a latent bug that also broke socket serialisation)
+      close: () => null,
+    } as any);
   }
 
   static ChooserDialog = ChooserDialog;

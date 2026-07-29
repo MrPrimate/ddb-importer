@@ -1,4 +1,4 @@
-<form class="{{content.cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
+<div class="{{content.cssClass}}">
   <header class="sheet-header">
     <img class="item-icon" src="{{content.img}}" data-edit="img">
     <h3 class="item-title">Resource Selection ({{content.character}})</h3>
@@ -42,24 +42,5 @@
   <label class="import-policy"><input checked type="checkbox"
           name="ask-resources" data-section="ask-resources">Show this dialogue every time (can be re-enabled in Advanced Settings)
   </label>
-  <hr>
-  <div class="dialog-buttons">
-      <button class="dialog-button" data-button="default">
-        <i class="fas fa-check"></i>
-        Auto
-      </button>
-      <button class="dialog-button" data-button="custom">
-        <i class="fas fa-book-open"></i>
-        Custom
-      </button>
-      <button class="dialog-button" data-button="disable">
-        <i class="fas fa-times"></i>
-        Disable
-      </button>
-      <button class="dialog-button" data-button="remove">
-        <i class="fas fa-times"></i>
-        Remove
-      </button>
-    </div>
 
-</form>
+</div>

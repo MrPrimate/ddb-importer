@@ -447,32 +447,27 @@ export default class Utils {
       <input type="text" name="name"/>
     </label>
   `;
-    const name = await new Promise((resolve) => {
-      new Dialog({
-        title: question,
-        content,
-        buttons: {
-          ok: {
-            label: "Okay",
-            callback: async (html) => {
-              const value = html.find("input[type='text'][name='name']").val();
-              resolve(value);
-            },
-          },
-          cancel: {
-            label: "Cancel",
-            callback: () => {
-              resolve("");
-            },
-          },
+    const name = await foundry.applications.api.DialogV2.wait({
+      window: { title: question },
+      content,
+      buttons: [
+        {
+          action: "ok",
+          label: "Okay",
+          default: true,
+          callback: (_event: Event, button: HTMLButtonElement) =>
+            (button.form?.elements.namedItem("name") as HTMLInputElement)?.value ?? "",
         },
-        default: "ok",
-        close: () => {
-          resolve("");
+        {
+          action: "cancel",
+          label: "Cancel",
+          callback: () => "",
         },
-      }).render(true);
-    });
-    return name;
+      ],
+      rejectClose: false,
+      close: () => "",
+    } as any);
+    return name ?? "";
   }
 
   static renderPopup(type: "json" | "web", url: string) {
