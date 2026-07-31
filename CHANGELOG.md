@@ -1,6 +1,9 @@
 # Next Up
 
+# 7.3.16
+
 - Under the hood typing improvements
+- Dozens of tiny fixes that emerged during type fixing.
 - Invisibility typo in midiqol status effect for monsters
 - Some books like Heroes of Faerun would not generate all journal pages when importing via native muncher @crimsonedge
 - Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
@@ -9,6 +12,7 @@
 - Icon Updates (thanks @crimsonedge)
 - Some custom action names would not be used when the character was imported. @catacomb_dragon
 - Some AC effects would be set as minimum when it should be a custom ac effect.
+- Optional class feature import now has a toggle and respect source selection.
 
 # 7.3.15
 
