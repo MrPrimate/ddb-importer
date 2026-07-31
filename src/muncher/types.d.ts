@@ -299,6 +299,12 @@ global {
     cleanup?: boolean;
     backgroundId?: string | null;
     ddbMuncher?: DDBMuncher | null;
+    // import optional class features? defaults to the muncher setting
+    optionalClassFeatures?: boolean;
+    // source ids optional class features are filtered against. Unlike `sources`,
+    // which is narrowed per source category run, this is the union of all chosen
+    // books. Defaults to DDBSources.getChosenSourceIdSet().
+    optionSourceIds?: number[];
   }
 
   type TItemsNotifier = (note: any, opts?: NotifierV1Props) => void;

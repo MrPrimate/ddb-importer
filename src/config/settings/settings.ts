@@ -1177,6 +1177,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-character-optional-class-features": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-character-url": {
             type: String,
             default: "",

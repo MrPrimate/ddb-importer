@@ -72,6 +72,7 @@ interface IDDBMuncherContext extends
   characterId: string | null;
   useCharacterHomebrew: boolean;
   onlyCharacterHomebrew: boolean;
+  characterOptionalClassFeatures: boolean;
 }
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -598,6 +599,7 @@ export default class DDBMuncher extends DDBAppV2 {
     context.characterId = this.characterId;
     context.useCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     context.onlyCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
+    context.characterOptionalClassFeatures = utils.getSetting<boolean>("munching-policy-character-optional-class-features");
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -974,14 +976,20 @@ export default class DDBMuncher extends DDBAppV2 {
     // prepare sources to munch from
     const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
+    const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
+    // union of every chosen book (plus core), used to filter content that is not
+    // partitioned per category run, e.g. optional class features
+    const allSourceIds = DDBSources.getChosenSourceIdSet();
+
     const baseOptions: IDDBMuleHandlerOptions = {
       characterId,
       homebrew: false,
       onlyHomebrew: false,
       type: "class",
       ddbMuncher: this,
+      optionalClassFeatures: utils.getSetting<boolean>("munching-policy-character-optional-class-features"),
+      optionSourceIds: Array.from(allSourceIds),
     };
-    const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
     const allowedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
       .map((id) => parseInt(String(id)));
@@ -993,13 +1001,6 @@ export default class DDBMuncher extends DDBAppV2 {
     }
 
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
-
-    const allSourceIds = sourceIdArrays.reduce((acc, curr) => {
-      for (const sourceId of curr.sourceIds) {
-        acc.add(sourceId);
-      }
-      return acc;
-    }, new Set([1, 2, 148, 145]));
 
     // determine classes to parse
     const classList = (await DDBMuleHandler.getList<IDDBMuleClassDefinition>("class", Array.from(allSourceIds)))

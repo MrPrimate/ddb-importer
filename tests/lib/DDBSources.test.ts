@@ -96,6 +96,71 @@ describe("DDBSources.getAdjustedSourceBook", () => {
   });
 });
 
+describe("DDBSources.getChosenSourceIdSet", () => {
+  // PHB (2) sits in category 26, the Kobold Press Northlands books (238, 239) in category 21
+  const chooseCategories = (overrides: Record<string, unknown> = {}) => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [26, 21],
+      "munching-policy-use-source-filter": false,
+      "munching-policy-muncher-sources": [],
+      ...overrides,
+    });
+  };
+
+  it("includes every book of the chosen categories when no source filter is used", () => {
+    chooseCategories();
+    const ids = DDBSources.getChosenSourceIdSet();
+    expect(ids.has(2)).toBe(true);
+    expect(ids.has(238)).toBe(true);
+    expect(ids.has(239)).toBe(true);
+  });
+
+  it("always seeds the core books", () => {
+    chooseCategories({ "munching-policy-muncher-included-source-categories": [] });
+    const ids = DDBSources.getChosenSourceIdSet();
+    expect([...ids].sort((a, b) => a - b)).toEqual([1, 2, 145, 148]);
+  });
+
+  it("honours the source filter selection", () => {
+    chooseCategories({
+      "munching-policy-use-source-filter": true,
+      "munching-policy-muncher-sources": [2],
+    });
+    const ids = DDBSources.getChosenSourceIdSet();
+    expect(ids.has(2)).toBe(true);
+    expect(ids.has(238)).toBe(false);
+    expect(ids.has(239)).toBe(false);
+  });
+
+  it("can skip the core books and ignore the filter override", () => {
+    chooseCategories({
+      "munching-policy-use-source-filter": true,
+      "munching-policy-muncher-sources": [2],
+    });
+    expect(DDBSources.getChosenSourceIdSet({ includeCore: false })).toEqual(new Set([2]));
+    expect(DDBSources.getChosenSourceIdSet({ includeCore: false, useOverride: false }).has(238)).toBe(true);
+  });
+});
+
+describe("DDBSources.isDefinitionInSourceIds", () => {
+  it("matches when any source is allowed", () => {
+    const definition: IDDBSourcesDefinition = { sources: [makeSource(238), makeSource(2)] };
+    expect(DDBSources.isDefinitionInSourceIds(definition, new Set([2]))).toBe(true);
+  });
+
+  it("rejects definitions from other sources", () => {
+    const definition: IDDBSourcesDefinition = { sources: [makeSource(238)] };
+    expect(DDBSources.isDefinitionInSourceIds(definition, new Set([2]))).toBe(false);
+    expect(DDBSources.isDefinitionInSourceIds(definition, [2])).toBe(false);
+  });
+
+  it("allows definitions without source data unless told not to", () => {
+    expect(DDBSources.isDefinitionInSourceIds({}, [2])).toBe(true);
+    expect(DDBSources.isDefinitionInSourceIds({ sources: [] }, [2])).toBe(true);
+    expect(DDBSources.isDefinitionInSourceIds({}, [2], { allowMissingSources: false })).toBe(false);
+  });
+});
+
 describe("DDBSources.getDDBSourceBook", () => {
   it("maps SRD 5.1 back to BR", () => {
     expect(DDBSources.getDDBSourceBook("SRD 5.1")).toBe("BR");

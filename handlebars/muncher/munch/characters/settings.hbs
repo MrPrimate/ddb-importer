@@ -43,7 +43,18 @@
           {{#if this.onlyCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-only-homebrew" ></dnd5e-checkbox>
         </div>
       </div>
+      <div class="character-homebrew-options">
+        <label>Import Optional Class Features?</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="munching-policy-character-optional-class-features"
+          id="munching-policy-character-optional-class-features"
+          {{#if this.characterOptionalClassFeatures}}checked{{/if}}
+          data-section="munching-policy-character-optional-class-features" ></dnd5e-checkbox>
+        </div>
+      </div>
     </div>
+    <p class="hint">Optional class features (e.g. those from Tasha's Cauldron of Everything) are only imported
+      when this is enabled, and are filtered by the source categories and books selected in Settings.</p>
   </fieldset>
   {{/if}}
 

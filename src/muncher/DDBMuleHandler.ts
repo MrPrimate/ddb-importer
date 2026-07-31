@@ -58,7 +58,7 @@
  */
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
-import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
+import { DDBCampaigns, DDBProxy, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
@@ -106,6 +106,8 @@ interface IDDBMuleRequestBody {
   backgroundId: string | null;
   systemRules: string;
   include2014Adjusted: boolean;
+  includeOptionalClassFeatures: boolean;
+  optionSources: number[];
 }
 
 export default class DDBMuleHandler {
@@ -118,6 +120,8 @@ export default class DDBMuleHandler {
   allowedSourceIds: number[] = [];
   allowedHomebrew = false;
   onlyHomebrew = false;
+  includeOptionalClassFeatures = false;
+  optionSourceIds: number[] = [];
   type: string | null = null;
   filterIds: number[] = [];
   cleanup = true;
@@ -177,6 +181,8 @@ export default class DDBMuleHandler {
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
+    optionalClassFeatures,
+    optionSourceIds,
   }: IDDBMuleHandlerOptions) {
     if (!characterId) {
       throw new Error("characterId is required");
@@ -193,6 +199,9 @@ export default class DDBMuleHandler {
     this.filterIds = filterIds;
     this.cleanup = cleanup;
     this.backgroundId = backgroundId;
+    this.includeOptionalClassFeatures = optionalClassFeatures
+      ?? utils.getSetting<boolean>("munching-policy-character-optional-class-features");
+    this.optionSourceIds = optionSourceIds ?? Array.from(DDBSources.getChosenSourceIdSet());
     foundry.utils.setProperty(CONFIG, `DDB.MULE.${this.type}`, this);
     this.ddbMuncher = ddbMuncher;
   }
@@ -470,6 +479,8 @@ export default class DDBMuleHandler {
       backgroundId: this.backgroundId,
       systemRules: isModern ? "2024" : "2014",
       include2014Adjusted: isModern && is2024Import,
+      includeOptionalClassFeatures: this.includeOptionalClassFeatures,
+      optionSources: this.optionSourceIds,
     };
 
     await this.#fetchMuleDataStreaming(parsingApi, body);
@@ -491,6 +502,8 @@ export default class DDBMuleHandler {
       include2014Adjusted: body.include2014Adjusted,
       useCache: true,
       cobalt: body.cobalt,
+      includeOptionalClassFeatures: this.includeOptionalClassFeatures,
+      optionSources: this.optionSourceIds,
     };
 
     this._ensureSource();
@@ -643,6 +656,8 @@ export default class DDBMuleHandler {
         break;
       }
       case "optionData": {
+        // these are discarded when optional class features are not being imported
+        if (!this.includeOptionalClassFeatures) break;
         this.notifier({
           section: "level3",
           message: ` Fetching optional feature ${event.payload?.debug?.optionName ?? "?"}`,
@@ -684,10 +699,45 @@ export default class DDBMuleHandler {
     }
   }
 
+  /**
+   * Optional class features arrive from the mule unfiltered: the mule character can
+   * see every option DDB offers it. Gate them behind the muncher setting, and when
+   * enabled restrict them to the chosen sources (homebrew options follow the
+   * homebrew toggle).
+   */
+  _filterClassOptions(options: IDDBClassFeatureDefinition[]): IDDBClassFeatureDefinition[] {
+    if (!this.includeOptionalClassFeatures) {
+      if (options.length > 0) {
+        logger.debug(`Skipping ${options.length} optional class features, import disabled`);
+      }
+      return [];
+    }
+    const allowedSourceIds = new Set(this.optionSourceIds);
+    const kept = options.filter((option) => option.isHomebrew
+      ? this.allowedHomebrew
+      : DDBSources.isDefinitionInSourceIds(option, allowedSourceIds));
+
+    if (kept.length !== options.length) {
+      const dropped = options.filter((option) => !kept.includes(option));
+      logger.debug(`Filtered out ${dropped.length} optional class features not in the selected sources`, {
+        dropped: dropped.map((option) => ({
+          name: option.name,
+          isHomebrew: option.isHomebrew,
+          sourceIds: (option.sources ?? []).map((source) => source.sourceId),
+        })),
+        allowedSourceIds: this.optionSourceIds,
+        allowedHomebrew: this.allowedHomebrew,
+      });
+    }
+
+    return kept;
+  }
+
   async _buildDDBStub(): Promise<IDDBData> {
-    const classOptions: IDDBClassFeatureDefinition[] = (this.source as Partial<IDDBMuleClassSource>).options
+    const allClassOptions: IDDBClassFeatureDefinition[] = (this.source as Partial<IDDBMuleClassSource>).options
       ? foundry.utils.deepClone((this.source as IDDBMuleClassSource).options) as IDDBClassFeatureDefinition[]
       : [];
+    const classOptions = this._filterClassOptions(allClassOptions);
 
     const stub: IDDBData = {
       backgroundEquipment: { slots: [] },

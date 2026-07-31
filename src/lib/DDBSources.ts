@@ -1,4 +1,5 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
+import logger from "./Logger";
 import utils from "./Utils";
 
 type TDDBSourceTypes = IDDBBaseSourcesDefinition | IDDBSourceIdAndPageDefinition | IDDBSourcesDefinition | IDDBSourceIdsDefinition;
@@ -469,6 +470,44 @@ export default class DDBSources {
     return books.map((book) => book.id);
   }
 
+  // Basic Rules (1), PHB (2), br-2024 (148), PHB-2024 (145). Always in play,
+  // as content in these books underpins everything else.
+  static CoreSourceIds = [1, 2, 148, 145];
+
+  /**
+   * The flat set of source ids the user has chosen, across all chosen categories,
+   * seeded with the core books.
+   */
+  static getChosenSourceIdSet({ includeCore = true, useOverride = true }: {
+    includeCore?: boolean;
+    useOverride?: boolean;
+  } = {}): Set<number> {
+    const sourceIds = new Set<number>(includeCore ? DDBSources.CoreSourceIds : []);
+    for (const category of DDBSources.getChosenCategoriesAndBooks(useOverride)) {
+      for (const sourceId of category.sourceIds) {
+        sourceIds.add(sourceId);
+      }
+    }
+    return sourceIds;
+  }
+
+  /**
+   * Does a raw DDB definition (class, subclass, class feature, trait...) come from
+   * one of the given source ids? Definitions without source data are allowed through
+   * by default, as we can't judge them.
+   */
+  static isDefinitionInSourceIds(
+    definition: IDDBBaseSourcesDefinition,
+    allowedSourceIds: Set<number> | number[],
+    { allowMissingSources = true }: { allowMissingSources?: boolean } = {},
+  ): boolean {
+    if (!definition.sources?.length) return allowMissingSources;
+    const allowed = allowedSourceIds instanceof Set
+      ? allowedSourceIds
+      : new Set(allowedSourceIds);
+    return definition.sources.some((source) => allowed.has(source.sourceId));
+  }
+
   static getChosenCategoriesAndBooks(useOverride = true): { categoryId: number; sourceIds: number[] }[] {
     const sourceIdArrays: { categoryId: number; sourceIds: number[] }[] = [];
     const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();
@@ -485,7 +524,7 @@ export default class DDBSources {
       });
     }
 
-    logger.info(`DDBSources.getChosenCategoriesAndBooks`, {
+    logger.debug(`DDBSources.getChosenCategoriesAndBooks`, {
       useOverride,
       sourceCategoryIds,
       overrideSources,

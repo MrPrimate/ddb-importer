@@ -1250,11 +1250,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     if (disableUse) return result;
 
-    const chosenSourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
-    const chosenSourceIds = new Set<number>([1, 2, 148, 145]);
-    for (const arr of chosenSourceIdArrays) {
-      for (const sid of arr.sourceIds) chosenSourceIds.add(sid);
-    }
+    const chosenSourceIds = DDBSources.getChosenSourceIdSet();
     const klassInChosenSources = (klass: any) =>
       klass.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
 
@@ -1314,8 +1310,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         .filter((sc: any) => {
           if (onlyHomebrew) return sc.isHomebrew;
           if (sc.isHomebrew) return allowHomebrew;
-          return !sc.sources?.length
-            || sc.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
+          return DDBSources.isDefinitionInSourceIds(sc, chosenSourceIds);
         })
         .map((sc: any) => ({
           id: sc.id,

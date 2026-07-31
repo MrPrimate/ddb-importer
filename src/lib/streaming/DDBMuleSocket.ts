@@ -25,6 +25,9 @@ export interface DDBMuleStartParams {
   useCache?: boolean;
   singlePass?: boolean;
   cobalt?: string;
+  // gate + source filter for the proxy side optional class feature phase
+  includeOptionalClassFeatures?: boolean;
+  optionSources?: number[];
 }
 
 export interface DDBMuleEvent {

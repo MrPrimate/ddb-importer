@@ -355,6 +355,7 @@ declare global {
     "ddb-importer.munching-policy-remove-weapon-mastery-description": boolean;
     "ddb-importer.munching-policy-character-fetch-homebrew": boolean;
     "ddb-importer.munching-policy-character-only-homebrew": boolean;
+    "ddb-importer.munching-policy-character-optional-class-features": boolean;
     "ddb-importer.munching-policy-character-url": string;
     "ddb-importer.munching-policy-character-classes": number[];
     "ddb-importer.munching-policy-character-subclasses": Record<string, number[]>;
