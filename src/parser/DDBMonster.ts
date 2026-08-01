@@ -10,6 +10,18 @@ export interface IDDBMonsterOverrides {
   [key: string]: any;
 }
 
+interface IDDBMonsterConstructorOptions {
+  existingNpc?: TParsedMonsterData | null;
+  extra?: boolean;
+  useItemAC?: boolean;
+  legacyName?: boolean;
+  addMonsterEffects?: boolean;
+  addChrisPremades?: boolean;
+  use2024Spells?: boolean | null;
+  useCastActivity?: boolean | null;
+  forceRulesVersion?: string | null;
+}
+
 // Declaration merging: these methods are added to DDBMonster.prototype
 // by the files imported via extendParsers.ts
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -102,9 +114,9 @@ class DDBMonster {
   is2014!: boolean;
   is2024!: boolean;
   legacy!: boolean;
-  use2024Spells: boolean;
-  useCastActivity: boolean;
-  forceRulesVersion: boolean;
+  use2024Spells: boolean | null;
+  useCastActivity: boolean | null;
+  forceRulesVersion: string | null;
   extra: boolean;
   spellcasting: {
     spelldc: number;
@@ -142,15 +154,18 @@ class DDBMonster {
     }
   }
 
-  constructor(ddbObject: any = null, { existingNpc = null as any, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null as any,
-    useCastActivity = null as any, forceRulesVersion = null as any } = {}, overrides: IDDBMonsterOverrides = {},
+  constructor(ddbObject: any = null, { existingNpc = null, extra = false, useItemAC = true,
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
+    useCastActivity = null, forceRulesVersion = null }: IDDBMonsterConstructorOptions = {}, overrides: IDDBMonsterOverrides = {},
   ) {
     this.source = ddbObject;
 
     // processing options
     this.extra = extra;
-    this.npc = existingNpc;
+    // TODO: this is a bit dangerous as the object type says npc is defined, but it can be null here. It currently works
+    // fine because the two DDBMonstor constructor sites define this after construction (manually and via .parse(), this
+    // can probably be cleaned up a bit more.
+    this.npc = existingNpc as TParsedMonsterData;
     this.useItemAC = useItemAC;
     this.legacyName = legacyName;
     this.addMonsterEffects = addMonsterEffects;
@@ -166,7 +181,7 @@ class DDBMonster {
     this.characterDescription = "";
 
     // processing info
-    this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
+    this.name = (overrides["name"] ?? (existingNpc ? existingNpc.name : null)) ?? "";
     this.proficiencyBonus = null;
     this.cr = {
       "id": 1,
@@ -181,8 +196,8 @@ class DDBMonster {
       this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
       this.setProperty("cr", existingNpc.system.details.cr);
       this.setProperty("abilities", existingNpc.system.abilities);
-      this.items = foundry.utils.duplicate(existingNpc.items);
-      this.img = existingNpc.img;
+      this.items = foundry.utils.duplicate(existingNpc.items) as unknown as I5eMonsterItem[];
+      this.img = existingNpc.img ?? null;
     }
     this.stockImage = false;
 

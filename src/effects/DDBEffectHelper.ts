@@ -1646,10 +1646,10 @@ export default class DDBEffectHelper {
 
   static async _conditionRemovalMidiRoll(targetToken: Token.Implementation, condition: string, {
     document = null,
-    activity = null as any,
-    type = null as string | null, // can be save or check, if null, will check flags
-    ability = null as string | null, // e.g. wis, if null, will check flags
-    saveDC = null as number | null, // if null, will use activity if present, otherwise spelldc
+    activity = null,
+    type = null, // can be save or check, if null, will check flags
+    ability = null, // e.g. wis, if null, will check flags
+    saveDC = null, // if null, will use activity if present, otherwise spelldc
   }: {
     document?: Item.Implementation | null;
     activity?: IRemovalActivity | null;

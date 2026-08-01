@@ -53,7 +53,7 @@ let _sqlite3: any = null;
 const nativeImport = new Function("url", "return import(url);") as (url: string) => Promise<any>;
 
 function moduleUrl(relPath: string): string {
-  const getRoute = (globalThis as any).foundry?.utils?.getRoute;
+  const getRoute = globalThis?.foundry?.utils?.getRoute;
   const routed = getRoute ? getRoute(relPath) : `/${relPath}`;
   return `${globalThis.location.origin}${routed}`;
 }

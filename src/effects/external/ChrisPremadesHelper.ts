@@ -255,7 +255,7 @@ export default class ChrisPremadesHelper {
       this.document.img = chrisDoc.img;
     }
 
-    const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`) as unknown as any;
+    const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`) as unknown as Record<string, unknown>;
     if (correctionProperties) {
       logger.debug(`Updating ${this.original.name} with a CPR correction properties`);
       this.document = foundry.utils.mergeObject(this.document, correctionProperties) as typeof this.document;
@@ -420,7 +420,7 @@ export default class ChrisPremadesHelper {
       }
       if (restrictedItem.requiredRace
         && restrictedItem.requiredRace.toLocaleLowerCase()
-          !== ((foundry.utils.getProperty(rollData, "details.race.name") as string) ?? (foundry.utils.getProperty(rollData, "details.race") as string))?.toLocaleLowerCase()
+        !== ((foundry.utils.getProperty(rollData, "details.race.name") as string) ?? (foundry.utils.getProperty(rollData, "details.race") as string))?.toLocaleLowerCase()
       ) continue;
 
 
@@ -475,7 +475,7 @@ export default class ChrisPremadesHelper {
         const docAdd = documents.find((d) => d.name === ddbName);
         if (docAdd) {
           for (const newItem of restrictedItem.additionalItems) {
-            const {name: newItemName = newItem, type: typeOverride} = newItem;
+            const { name: newItemName = newItem, type: typeOverride } = newItem;
             logger.debug(`Adding new item ${newItemName}`);
             const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
               documentName: newItemName,

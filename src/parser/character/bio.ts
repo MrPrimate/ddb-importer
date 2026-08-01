@@ -105,21 +105,21 @@ function getBackgroundTemplate(): IDDBGeneratedBackground {
   return {
     name: "Background",
     description: "",
-    id: null as any as any,
-    entityTypeId: null as any as any,
-    featuresId: null as any as any,
-    featuresEntityTypeId: null as any as any,
-    characteristicsId: null as any as any,
-    characteristicsEntityTypeId: null as any as any,
+    id: null,
+    entityTypeId: null,
+    featuresId: null,
+    featuresEntityTypeId: null,
+    characteristicsId: null,
+    characteristicsEntityTypeId: null,
     definition: {
       name: "Background",
       description: "",
-      originalDescription: null as any as any,
-      id: null as any as any,
-      entityTypeId: null as any as any,
-      sources: null as any as any,
+      originalDescription: null,
+      id: null,
+      entityTypeId: null,
+      sources: null,
     },
-  };
+  } satisfies IDDBGeneratedBackground;
 }
 
 export function generateBackground(bg: IDDBBackgroundInput): IDDBGeneratedBackground {

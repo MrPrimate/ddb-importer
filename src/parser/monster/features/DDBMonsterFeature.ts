@@ -294,7 +294,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     };
   }
 
-  constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } : IDDBMonsterFeature) {
+  constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort }: IDDBMonsterFeature) {
 
     // a missing monster previously blew up further down with a TypeError; fail loudly instead
     if (!ddbMonster) {
@@ -314,8 +314,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
     this.legacy = ddbMonster.legacy;
-    this.useCastActivity = ddbMonster.useCastActivity;
-    this.use2024Spells = ddbMonster.use2024Spells;
+    this.useCastActivity = ddbMonster.useCastActivity ?? false;
+    this.use2024Spells = ddbMonster.use2024Spells ?? false;
 
     this.type = type ?? "action";
     this.html = html ?? "";
@@ -607,10 +607,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   }
 
   checkAbility(abilitiesToCheck: T5eAbility[]) {
-    const result = {
+    const result: { success: boolean; ability: T5eAbility | null; proficient: boolean | null } = {
       success: false,
-      ability: null as any as any,
-      proficient: null as any as any,
+      ability: null,
+      proficient: null,
     };
 
     for (const ability of abilitiesToCheck) {
@@ -682,7 +682,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       }
       const strMod = utils.calculateModifier(this.ddbMonster.abilities["str"].value ?? 10);
       const dexMod = utils.calculateModifier(this.ddbMonster.abilities["dex"].value ?? 10);
-      const versatileWeapon = this.actionData.properties.ver &&  dexMod > strMod;
+      const versatileWeapon = this.actionData.properties.ver && dexMod > strMod;
       if (versatileWeapon || weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (weaponLookup.actionType == "mwak") {
@@ -732,7 +732,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       const checkInitialAbilities = this.checkAbility(initialAbilities);
       if (checkInitialAbilities.success) {
         this.actionData.baseAbility = checkInitialAbilities.ability;
-        this.actionData.proficient = checkInitialAbilities.proficient;
+        this.actionData.proficient = checkInitialAbilities.proficient ?? false;
       }
 
       // okay lets see if its one of the others then!
@@ -740,7 +740,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         const checkAllAbilities = this.checkAbility(abilities);
         if (checkAllAbilities.success) {
           this.actionData.baseAbility = checkAllAbilities.ability;
-          this.actionData.proficient = checkAllAbilities.proficient;
+          this.actionData.proficient = checkAllAbilities.proficient ?? false;
         }
       }
 
@@ -1496,9 +1496,9 @@ ${this.data.system.description.value}
   }
 
   #getSpellcastingData(): IMonsterSpellcastingData {
-    const result = {
-      dc: null as any as any,
-      ability: null as any, // ability associated
+    const result: IMonsterSpellcastingData = {
+      dc: null,
+      ability: null, // ability associated
       material: true,
       innateMatch: false,
       concentration: true,

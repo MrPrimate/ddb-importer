@@ -640,14 +640,13 @@ export default class DDBBasicActivity {
   }
 
   static async addQuickCastActivity({ uuid, actor, document, spellOverride = null, consumptionTargetOverrides = null, activityData = {}, nameIdPostfix = null }: { uuid?: string; actor?: any; document?: any; spellOverride?: any; consumptionTargetOverrides?: any; activityData?: any; nameIdPostfix?: string | null } = {}): Promise<string | null> {
-    const foundryData = document.toObject();
-    const spellData = await (globalThis as any).fromUuid(uuid);
-
+    const spellData = await fromUuid(uuid);
     if (!spellData) {
       (ui as any).notifications.error(`Could not find spell with UUID: ${uuid}`);
       return null;
     }
 
+    const foundryData = document.toObject();
     const ddbActivityId = await DDBBasicActivity.createActivity(
       {
         type: DDBEnricherData.ACTIVITY_TYPES.CAST,

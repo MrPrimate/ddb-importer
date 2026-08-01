@@ -133,7 +133,7 @@ export default class DDBDescriptions {
     // minutes
     if (match[7]
       && (match[7].includes("until the end of its next turn")
-      || match[7].includes("until the end of the target's next turn"))
+        || match[7].includes("until the end of the target's next turn"))
     ) {
       durations.push("turnEnd");
     } else if (match[7] && match[7].includes("until the start of the")) {
@@ -146,12 +146,12 @@ export default class DDBDescriptions {
     return effect;
   }
 
-  static getRiderStatusEffects({ text, condition } : { text: string; condition: string }) {
+  static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
     const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
     const match = checkReg.exec(text);
     if (match) {
       const processedCondition = DDBDescriptions.getConditionInfo(match[1]);
-      return [processedCondition.condition];
+      return processedCondition.condition ? [processedCondition.condition] : [];
     }
     return [];
   }
@@ -187,7 +187,7 @@ export default class DDBDescriptions {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
-  static dcParser({ text } : { text: string }): IDCParserResult {
+  static dcParser({ text }: { text: string }): IDCParserResult {
     const results: IDCParserResult = {
       save: {
         dc: {
@@ -334,12 +334,24 @@ export default class DDBDescriptions {
     return results;
   }
 
-  static getConditionInfo(condition: string, hint?: string) {
-    const result = {
+  static getConditionInfo(condition: string, hint?: string): {
+    success: boolean;
+    condition: string | null;
+    group4: boolean | null;
+    group4Condition: IDDBDamageAdjustment | null;
+    conditionName: string;
+  } {
+    const result: {
+      success: boolean;
+      condition: string | null;
+      group4: boolean | null;
+      group4Condition: IDDBDamageAdjustment | null;
+      conditionName: string;
+    } = {
       success: true,
-      condition: null as any as any,
-      group4: null as any as any,
-      group4Condition: null as any as any,
+      condition: null,
+      group4: null,
+      group4Condition: null,
       conditionName: utils.capitalize(condition),
     };
     result.condition = condition.toLowerCase();
@@ -353,7 +365,7 @@ export default class DDBDescriptions {
         )
       : undefined;
     if (group4Condition) {
-      result.condition = group4Condition.foundryValue;
+      result.condition = group4Condition.foundryValue ?? null;
       result.group4 = true;
       result.group4Condition = group4Condition;
       result.conditionName = group4Condition.name;
@@ -367,7 +379,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static parseStatusCondition({ text } : { text: string }): IParseStatusConditionResult {
+  static parseStatusCondition({ text }: { text: string }): IParseStatusConditionResult {
     const result: IParseStatusConditionResult = {
       success: false,
       check: false,
@@ -442,7 +454,7 @@ export default class DDBDescriptions {
   }
 
 
-  static featureBasics({ text } : { text: string }): IFeatureBasicsResult {
+  static featureBasics({ text }: { text: string }): IFeatureBasicsResult {
 
     const standardMatchRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i;
     const standardAttackMatches = standardMatchRegex.exec(text);
