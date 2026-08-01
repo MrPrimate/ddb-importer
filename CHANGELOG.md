@@ -1,5 +1,7 @@
 # Next Up
 
+- Monsters with large negative skill adjustments would fail to parse that skill properly, e.g. Zuul
+
 # 7.3.16
 
 - Under the hood typing improvements
