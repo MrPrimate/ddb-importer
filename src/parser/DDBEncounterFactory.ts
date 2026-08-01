@@ -9,14 +9,11 @@ export default class DDBEncounterFactory {
   encountersData: IDDBEncounter[];
   encounters: Record<string, DDBEncounter>;
 
-  constructor({ notifier = null as any } = {}) {
-    this.notifier = notifier;
+  constructor({ notifier = null }: { notifier?: NotifierV1 | null } = {}) {
+    this.notifier = notifier ?? ((note, { nameField = false, monsterNote = false, message = false, isError = false } = {}) => {
+      logger.info(note, { nameField, monsterNote, message, isError });
+    }) satisfies NotifierV1;
 
-    if (!notifier) {
-      this.notifier = (note, { nameField = false, monsterNote = false, message = false, isError = false } = {}) => {
-        logger.info(note, { nameField, monsterNote, message, isError });
-      };
-    }
     this.encountersData = [];
     this.encounters = {};
   }

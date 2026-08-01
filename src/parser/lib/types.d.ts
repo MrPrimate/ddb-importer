@@ -20,7 +20,7 @@ global {
     save: Omit<I5eActivitySave, "ability"> & { ability: string[] | null };
     condition: string | null;
     group4: boolean | null;
-    group4Condition: IDDBConfigDamageAdjustment | null;
+    group4Condition: IDDBDamageAdjustment | null;
     conditionName: string | null;
     duration: {
       value: number | null;

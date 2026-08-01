@@ -203,8 +203,23 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
 // path first; on connect/auth/start failure fall through to the HTTP endpoint.
 let _spellSocketDisabled = false;
 
-export async function parseSpells({ ids = null as any, deleteBeforeUpdate = null as any, notifier = null as any, notifierV2 = null as any, searchFilter = null as any, sources = null as any } = {}) {
+interface IParseSpellsOptions {
+  ids?: (string | number)[] | null;
+  deleteBeforeUpdate?: boolean | null;
+  notifier?: NotifierV1 | null;
+  notifierV2?: INotifierV2 | null;
+  searchFilter?: string | null;
+  sources?: number[] | null;
+}
 
+export async function parseSpells({
+  ids = null,
+  deleteBeforeUpdate = null,
+  notifier = null,
+  notifierV2 = null,
+  searchFilter = null,
+  sources = null,
+}: IParseSpellsOptions = {}) {
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
   const uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -231,7 +246,7 @@ export async function parseSpells({ ids = null as any, deleteBeforeUpdate = null
   let classSpellSets: ClassSpellSet[] | null = null;
   if (!_spellSocketDisabled) {
     try {
-      classSpellSets = await streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverride: sources });
+      classSpellSets = await streamAllClassSpells({ sourceFilter, searchFilter: searchFilter ?? "", sourcesOverride: sources });
     } catch (err) {
       logger.warn(`[spells] streaming failed, falling back to HTTP: ${(err as Error)?.message ?? String(err)}`);
       _spellSocketDisabled = true;
@@ -251,7 +266,7 @@ export async function parseSpells({ ids = null as any, deleteBeforeUpdate = null
           sourceFilter,
           notifier: resolvedNotifier,
           rulesVersion,
-          searchFilter,
+          searchFilter: searchFilter ?? "",
           sourcesOverride: sources,
         });
         spellListFactory.extractClassSpellListData(className, spellData);

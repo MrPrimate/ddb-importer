@@ -18,7 +18,7 @@ export default class DDBPartyInventoryImporter {
     name = null,
     create = true,
   }: { campaignId: string; name?: string | null; create?: boolean }) {
-    const existing = (game as any).actors.find((a: any) =>
+    const existing = game.actors?.find((a) =>
       a.type === "group"
       && foundry.utils.getProperty(a, `flags.${FLAG_SCOPE}.${FLAG_CAMPAIGN_KEY}`) === campaignId,
     );

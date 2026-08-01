@@ -352,9 +352,9 @@ export default class DDBPartySync extends DDBAppV2 {
     }
   }
 
-  static _findOwnerActor(ddbCharacterId: number): any | null {
+  static _findOwnerActor(ddbCharacterId: number) {
     if (!Number.isInteger(ddbCharacterId)) return null;
-    return ((game as any).actors as any[]).find((a) => {
+    return game.actors?.find((a) => {
       if (a.type !== "character") return false;
       const id = parseInt(`${foundry.utils.getProperty(a, "flags.ddbimporter.dndbeyond.characterId") ?? ""}`);
       return id === ddbCharacterId;
@@ -481,13 +481,14 @@ export default class DDBPartySync extends DDBAppV2 {
     ui.notifications?.info(`Updating ${targets.length} character(s) to DDB...`);
     let updated = 0;
     for (const c of targets) {
-      const actor = (game as any).actors.get(c.worldActorId);
+      const actor = game.actors?.get(c.worldActorId!);
       if (!actor) {
         logger.warn(`No actor found for ${c.characterName} (${c.worldActorId})`);
         continue;
       }
       try {
-        await updateDDBCharacter(actor);
+        // TODO: Create 'isTSyncCharacterActor' type guard to replace 'as' cast
+        await updateDDBCharacter(actor as TSyncCharacterActor);
         updated += 1;
       } catch (err) {
         logger.error(`Failed to update ${c.characterName} (${c.characterId}) to DDB`, err);

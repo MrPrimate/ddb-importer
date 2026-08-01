@@ -215,11 +215,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
     this.element.querySelector("#open-dndbeyond-url")?.addEventListener("click", async () => {
       try {
-        const characterUrl = (this.actor.flags as IActorFlagConfig).ddbimporter?.dndbeyond?.url;
+        const characterUrl = this.actor.flags?.ddbimporter?.dndbeyond?.url;
         if (!characterUrl) throw new Error("No D&D Beyond URL set on actor");
         DDBCharacterManager.renderPopup("json", characterUrl);
       } catch (error) {
-        this.showCurrentTask("Error opening JSON URL", { message: error, isError: true });
+        this.showCurrentTaskError("Error opening JSON URL", { error, supressLog: true });
       }
     });
 
@@ -319,12 +319,35 @@ export default class DDBCharacterManager extends DDBAppV2 {
     return context;
   }
 
-
-  showCurrentTask(title: string, { message = null as any, isError = false } = {}) {
+  showCurrentTask(title: string, { message = null, isError = false }: { message?: string | boolean | null; isError?: boolean } = {}) {
     logger.debug("DDBCharacterManager: showCurrentTask", { title, message, isError });
     const element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
     $(this.element).parent().parent().css("height", "auto");
+  }
+
+  // TODO: supressLog is here as an option for the few places that didnt call logger.error for errors before, if
+  // we always want errors to log we can remove this option.
+  showCurrentTaskError(title: string, { error = null, supressLog = false }: { error: unknown; supressLog?: boolean }) {
+    if (!supressLog) {
+      logger.error(error);
+    }
+
+    let message = "Unknown Error";
+    if (error && typeof error === "object") {
+      if (!supressLog && "stack" in error && error.stack) {
+        logger.error(error.stack);
+      }
+      // NOTE: we could use instanceOf, but this allows us to handle any error-like
+      // object with a 'message' attribute. Great for custom errors and errors from
+      // 3rd party sources that aren't properly constructed.
+      if ("message" in error && error.message && typeof error.message == "string") {
+        message = error.message;
+      }
+    } else if (error && typeof error === "string") {
+      message = error;
+    }
+    this.showCurrentTask(title, { message, isError: true });
   }
 
 
@@ -418,9 +441,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         }).render({ force: true });
       }
     } catch (error) {
-      logger.error(error);
-      if (error instanceof Error) logger.error(error.stack);
-      this.showCurrentTask("Error setting local patreon key", { message: error, isError: true });
+      this.showCurrentTaskError("Error setting local patreon key", { error });
     }
   }
 
@@ -435,9 +456,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         this.#setText("#dndbeyond-character-update", "D&D Beyond Update Available to Patreon Supporters");
       }
     } catch (error) {
-      logger.error(error);
-      if (error instanceof Error) logger.error(error.stack);
-      this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
+      this.showCurrentTaskError("Error deleting local cookie", { error });
     }
   }
 
@@ -452,9 +471,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         },
       }).render(true);
     } catch (error) {
-      logger.error(error);
-      if (error instanceof Error) logger.error(error.stack);
-      this.showCurrentTask("Error setting local cookie", { message: error, isError: true });
+      this.showCurrentTaskError("Error setting local cookie", { error });
     }
   }
 
@@ -464,9 +481,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       this.#setDisabled("#delete-local-cobalt", true);
       this.#setText("#set-local-cobalt", "Add Cobalt Cookie");
     } catch (error) {
-      logger.error(error);
-      if (error instanceof Error) logger.error(error.stack);
-      this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
+      this.showCurrentTaskError("Error deleting local cookie", { error });
     }
   }
 
@@ -490,9 +505,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         this.#setDisabled("#dndbeyond-character-update", false);
       });
     } catch (error) {
-      logger.error(error);
-      if (error instanceof Error) logger.error(error.stack);
-      this.showCurrentTask("Error updating character", { message: error, isError: true });
+      this.showCurrentTaskError("Error updating character: ", { error });
     }
   }
 
@@ -541,12 +554,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
           logger.error("Failure");
           break;
         case "Forbidden":
-          this.showCurrentTask("Error retrieving Character: " + error, { message: error, isError: true });
+          this.showCurrentTaskError("Error retrieving Character: ", { error, supressLog: true });
           break;
         default:
-          logger.error(error);
-          if (error instanceof Error) logger.error(error.stack);
-          this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
+          this.showCurrentTaskError("Error processing Character: ", { error });
           break;
       }
       return;
@@ -570,12 +581,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
         case "Forbidden":
-          this.showCurrentTask("Error retrieving Character: " + error, { message: error, isError: true });
+          this.showCurrentTaskError("Error retrieving Character: ", { error, supressLog: true });
           break;
         default:
-          logger.error(error);
-          if (error instanceof Error) logger.error(error.stack);
-          this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
+          this.showCurrentTaskError("Error processing Character: ", { error });
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
       }

@@ -167,7 +167,7 @@ export default class ArcanePrototype extends DDBEnricherData {
       uuid: spellUuid,
       properties: ["vocal", "somatic"],
       level: imbuedLevel,
-      challenge: { attack: null as any, save: null as any, override: false },
+      challenge: { attack: undefined, save: undefined, override: false },
       spellbook: false,
     };
 

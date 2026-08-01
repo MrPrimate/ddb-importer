@@ -63,7 +63,7 @@ function pruneRecentEvents(map: Map<number, { ts: number }>) {
 
 function findPartyActorContainingDDBItem(ddbItemId: number) {
   if (!ddbItemId) return null;
-  for (const actor of (game as any).actors) {
+  for (const actor of game.actors ?? []) {
     if (actor.type !== "group") continue;
     if (!foundry.utils.getProperty(actor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`)) continue;
     const match = actor.items.find((i: any) => foundry.utils.getProperty(i, "flags.ddbimporter.id") === ddbItemId);
@@ -74,7 +74,7 @@ function findPartyActorContainingDDBItem(ddbItemId: number) {
 
 function findCharacterOwningDDBItem(ddbItemId: number) {
   if (!ddbItemId) return null;
-  for (const actor of (game as any).actors) {
+  for (const actor of game.actors ?? []) {
     if (actor.type !== "character") continue;
     const match = actor.items.find((i: any) => foundry.utils.getProperty(i, "flags.ddbimporter.id") === ddbItemId);
     if (match) return { actor, item: match };
