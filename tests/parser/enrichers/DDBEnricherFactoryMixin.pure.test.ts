@@ -433,3 +433,83 @@ describe("DDBEnricherFactoryMixin.getFeatureActionsName", () => {
     expect(e.getFeatureActionsName().choices).toEqual([]);
   });
 });
+
+// =============================================================================
+// _addDefaultActionMatchedActivities
+// =============================================================================
+describe("DDBEnricherFactoryMixin._addDefaultActionMatchedActivities", () => {
+  function makeFeature(name: string, activityId: string): any {
+    return {
+      name,
+      type: "feat",
+      effects: [],
+      flags: { ddbimporter: { originalName: name } },
+      system: {
+        activities: {
+          [activityId]: { _id: activityId, type: "attack", name: "" },
+        },
+      },
+    };
+  }
+
+  function makeActivityEnricher(fields: Record<string, any> = {}): any {
+    const e = makeEnricher(fields);
+    // `data` is an accessor over ddbParser?.data ?? document; back it with document
+    e.document = {
+      type: "feat",
+      effects: [],
+      flags: {},
+      system: { activities: {} },
+    };
+    e.defaultActionFeatures = {};
+    return e;
+  }
+
+  it("copies feature activities onto the data with new unique keys", () => {
+    const e = makeActivityEnricher();
+    e.defaultActionFeatures = {
+      "Predatory Strike": [makeFeature("Predatory Strike (STR)", "abcdefghijklm001")],
+    };
+    e._addDefaultActionMatchedActivities();
+    const keys = Object.keys(e.data.system.activities);
+    expect(keys).toEqual(["abcdefghijklmNe0"]);
+    expect(e.data.system.activities.abcdefghijklmNe0._id).toBe("abcdefghijklmNe0");
+    expect(e.data.system.activities.abcdefghijklmNe0.name).toBe("Predatory Strike (STR)");
+  });
+
+  it("does not hang when the generated key collides with an existing activity", () => {
+    // Previously the collision check was evaluated once outside the while loop
+    // and the loop body assigned a constant, so any collision hung the import.
+    const e = makeActivityEnricher();
+    e.data.system.activities.abcdefghijklmNe0 = { _id: "abcdefghijklmNe0", type: "attack", name: "Existing" };
+    e.defaultActionFeatures = {
+      "Predatory Strike": [
+        makeFeature("Predatory Strike (STR)", "abcdefghijklm001"),
+        makeFeature("Predatory Strike (DEX)", "abcdefghijklm002"),
+      ],
+    };
+    e._addDefaultActionMatchedActivities();
+    const keys = Object.keys(e.data.system.activities);
+    expect(keys).toHaveLength(3);
+    expect(new Set(keys).size).toBe(3);
+    expect(e.data.system.activities.abcdefghijklmNe0.name).toBe("Existing");
+    for (const key of keys) {
+      expect(key).toHaveLength(16);
+    }
+  });
+
+  it("keeps 16 character ids when the collision suffix reaches double digits", () => {
+    const e = makeActivityEnricher();
+    for (let n = 0; n < 10; n++) {
+      const key = `abcdefghijklmNe${n}`;
+      e.data.system.activities[key] = { _id: key, type: "attack", name: `Existing ${n}` };
+    }
+    e.defaultActionFeatures = {
+      "Predatory Strike": [makeFeature("Predatory Strike (STR)", "abcdefghijklm001")],
+    };
+    e._addDefaultActionMatchedActivities();
+    const added = Object.keys(e.data.system.activities).filter((k) => !k.match(/Ne\d$/));
+    expect(added).toEqual(["abcdefghijklNe10"]);
+    expect(added[0]).toHaveLength(16);
+  });
+});

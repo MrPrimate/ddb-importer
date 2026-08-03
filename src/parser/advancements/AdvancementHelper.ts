@@ -2377,8 +2377,9 @@ export default class AdvancementHelper {
     }
 
     // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
     if (strippedDescription.includes("one of the following cantrips of your choice")) {
-      const choices = strippedDescription.split("one of the following cantrips of your choice:")
+      const choices = strippedDescription.split(/one of the following cantrips of your choice[:;]?/)
         .slice(1)[0]
         .split(".")[0]
         .replace(" or ", ",")
@@ -2411,7 +2412,8 @@ export default class AdvancementHelper {
 
     // You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again
     // You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus
-    const canCastRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?you (?:can|gain the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
+    // You also have the ability to cast Faerie Fire once per long rest. (homebrew)
+    const canCastRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?you (?:also )?(?:can|gain the ability to|have the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
     const canCastMatches = strippedDescription.matchAll(canCastRegex);
 
     for (const match of canCastMatches) {
@@ -2523,8 +2525,9 @@ export default class AdvancementHelper {
     }
 
     // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
     if (strippedDescription.includes("one of the following cantrips of your choice")) {
-      const choices = strippedDescription.split("one of the following cantrips of your choice:")
+      const choices = strippedDescription.split(/one of the following cantrips of your choice[:;]?/)
         .slice(1)[0]
         .split(".")[0]
         .replace(" or ", ",")

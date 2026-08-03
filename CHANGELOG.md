@@ -1,6 +1,9 @@
 # Next Up
 
 - Monsters with large negative skill adjustments would fail to parse that skill properly, e.g. Zuul
+- Some typing improvement by @aerilym
+- Some characters importing could create an infinite loop if they had identical actions from different features.
+- Improve parsing for some custom species @grimson_xcvi
 
 # 7.3.16
 

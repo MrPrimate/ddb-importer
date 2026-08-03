@@ -494,3 +494,50 @@ describe("AdvancementHelper.parseHTMLSpellCastingAbilities", () => {
     expect(result.properties).toEqual(["concentration"]);
   });
 });
+
+// =============================================================================
+// parseHTMLSpellAdvancementDataForTraits
+// =============================================================================
+describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
+  it("parses cantrip choices separated by a colon", () => {
+    const html = "<p>You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripChoices).toEqual(["dancing lights", "light", "sacred flame"]);
+  });
+
+  it("parses cantrip choices separated by a semicolon (homebrew)", () => {
+    // Homebrew racial trait; previously threw "Cannot read properties of undefined (reading 'split')"
+    const html = "<p>You know one of the following cantrips of your choice; Minor Illusion, Ray of Frost or Frostbite. "
+      + "You also have the ability to cast Faerie Fire once per long rest. "
+      + "Intelligence, Wisdom, or Charisma is your spellcasting ability for it (choose when you select this race)</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripChoices).toEqual(["minor illusion", "ray of frost", "frostbite"]);
+    expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
+  });
+
+  it("parses 'you have the ability to cast' spell grants (homebrew)", () => {
+    const html = "<p>You have the ability to cast Faerie Fire once per long rest.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
+  });
+
+  it("still parses 'you can cast ... once' spell grants", () => {
+    const html = "<p>You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "barkskin", amount: "1" },
+      { level: 1, name: "spike growth", amount: "1" },
+    ]);
+  });
+});
+
+// =============================================================================
+// parseHTMLSpellAdvancementData
+// =============================================================================
+describe("AdvancementHelper.parseHTMLSpellAdvancementData", () => {
+  it("parses cantrip choices separated by a semicolon (homebrew)", () => {
+    const html = "<p>You know one of the following cantrips of your choice; minor illusion, ray of frost or frostbite.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData(html);
+    expect(result.cantripChoices).toEqual(["minor illusion", "ray of frost", "frostbite"]);
+  });
+});

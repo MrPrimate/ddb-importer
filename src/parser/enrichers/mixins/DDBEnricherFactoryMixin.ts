@@ -1295,10 +1295,13 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
         }
 
         for (const activityKey of activityKeys) {
-          let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
-          const existingActivityKey = foundry.utils.hasProperty(this.data, `system.activities.${newKey}`);
-          while (activityData.activities[newKey] || existingActivityKey) {
-            newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+          // slice enough of the original key to keep a valid 16 character id
+          const buildKey = (suffix: number): string => `${activityKey.slice(0, -(2 + String(suffix).length))}Ne${suffix}`;
+          let suffix = y + i;
+          let newKey = buildKey(suffix);
+          while (activityData.activities[newKey] || foundry.utils.hasProperty(this.data, `system.activities.${newKey}`)) {
+            suffix++;
+            newKey = buildKey(suffix);
           }
           activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
