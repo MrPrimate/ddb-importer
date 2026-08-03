@@ -2052,12 +2052,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  // `injected` dictionary properties (e.g. TGC firearm props) only exist in
+  // the dnd5e system config once DDBRuleJournalFactory.registerRules has run.
+  // Emitting them before injection makes dnd5e's validProperties filtering drop
+  // them or render them unlabeled, so gate on the config being present.
+  #weaponPropertyAllowed(property: { value: string; injected?: boolean }) {
+    return !property.injected || CONFIG.DND5E.itemProperties?.[property.value] !== undefined;
+  }
+
   #generateStaffProperties() {
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     if (!weaponBehavior?.properties || !Array.isArray(weaponBehavior.properties)) return;
 
     DICTIONARY.weapon.properties.filter((p) =>
-      weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
+      weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined
+      && this.#weaponPropertyAllowed(p),
     ).map((p) => p.value).forEach((prop) => {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
     });
@@ -2066,6 +2075,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #generateWeaponProperties() {
     this.data.system.properties = DICTIONARY.weapon.properties
       .filter((property) => {
+        if (!this.#weaponPropertyAllowed(property)) return false;
         // if it is a weapon property
         if (this.ddbDefinition.properties
           && Array.isArray(this.ddbDefinition.properties)

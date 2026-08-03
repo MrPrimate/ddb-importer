@@ -30,5 +30,17 @@ export const WEAPONS = {
     { name: "Two-Handed", value: "two" },
     { name: "Versatile", value: "ver" },
     // { name: "Range", value: "fir" },
+    // full-word values below match the ids DDBRuleJournalFactory.registerRules
+    // registers into CONFIG.DND5E.itemProperties from the rule journals
+    // (page name lowercased with spaces/hyphens removed). `injected` marks
+    // them as only emitted onto items once that runtime injection has actually
+    // happened (see DDBItem #generateWeaponProperties)-- otherwise dnd5e's
+    // validProperties filtering drops them or they render unlabeled.
+    { name: "Burst Fire", value: "burstfire", injected: true },
+    { name: "Explosive", value: "explosive", injected: true },
+    { name: "Misfire", value: "misfire", injected: true },
+    { name: "Recoil", value: "recoil", injected: true },
+    { name: "Scatter", value: "scatter", injected: true },
+    { name: "Sighted", value: "sighted", injected: true },
   ],
 };
