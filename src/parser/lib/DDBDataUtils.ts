@@ -792,6 +792,13 @@ export default class DDBDataUtils {
 
 
   // TO DO: this ignores charges
+  // DDB resetType 4 ("Other") and consumable-style resets have no rest period;
+  // emitting a recovery entry with an empty period produces junk on the sheet
+  static #recoveryForReset(resetType: IResetType | undefined): I5eSystemLimitedUsesRecovery[] {
+    if (!resetType?.value) return [];
+    return [{ period: resetType.value, type: "recoverAll", formula: undefined }];
+  }
+
   static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses | null {
     let resetType: IResetType | undefined;
 
@@ -870,9 +877,7 @@ export default class DDBDataUtils {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     } else if (scaleValue) {
       const maxUses = scaleValue;
@@ -880,17 +885,13 @@ export default class DDBDataUtils {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (maxUses !== "") ? maxUses : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     } else if (foundry.utils.hasProperty(data, "value")) {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: `${data.value}`,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     }
 
