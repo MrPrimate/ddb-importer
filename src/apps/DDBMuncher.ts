@@ -722,6 +722,7 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
     } finally {
+      this.clearProgressBars();
       this._enableButtons();
     }
   }
@@ -732,6 +733,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       const vehicleFactory = new DDBVehicleFactory({
         notifier: this.notifier.bind(this),
+        notifierV2: this.notifierV2.bind(this),
       });
       const result = await vehicleFactory.processIntoCompendium(undefined, this.searchTermMonster);
       this.notifier(`Finished importing ${result} vehicles!`, { nameField: true });
@@ -740,6 +742,7 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
     } finally {
+      this.clearProgressBars();
       this._enableButtons();
     }
   }

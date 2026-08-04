@@ -130,7 +130,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
   }
 
   // Show the modal overlay + spinner, disable action buttons, reset status rows
-  // and both progress bars. DOM-only (no render) so notifierV2 writes survive.
+  // and the progress bars. DOM-only (no render) so notifierV2 writes survive.
   _setBusy(bookName: string) {
     const el = this.element;
     if (!el) return;
@@ -148,11 +148,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     this.notifierV2({ section: "name", message: bookName });
     this.notifierV2({ section: "monster", message: "Starting import..." });
     this.notifierV2({ section: "import", message: "", clear: true, progressBar: "secondary" });
-    el.querySelectorAll<HTMLElement>(".munching-progress").forEach((p) => {
-      p.classList.add("munching-hidden");
-      const bar = p.querySelector(".munching-progress-bar") as HTMLElement | null;
-      if (bar) bar.style.width = "0%";
-    });
+    this.clearProgressBars();
   }
 
   // Stop the spinner and reveal the Okay button; leave the overlay up so the

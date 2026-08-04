@@ -28,7 +28,7 @@ global {
     suppress?: boolean;
     isError?: boolean;
     clear?: boolean;
-    progressBar?: "primary" | "secondary";
+    progressBar?: "primary" | "secondary" | "overall";
   }
 
   type INotifierV2 = ((props: NotifierV2Props) => void);

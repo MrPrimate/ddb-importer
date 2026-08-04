@@ -17,6 +17,7 @@ export { default as FileHelper } from "./FileHelper";
 export { default as FrameAnimator } from "./FrameAnimator";
 export { default as FrameKeyframeRenderer } from "./FrameKeyframeRenderer";
 export { default as FolderHelper } from "./FolderHelper";
+export { default as MunchProgressTracker } from "./MunchProgressTracker";
 export { default as MuncherSettings } from "./MuncherSettings";
 export { default as NameMatcher } from "./NameMatcher";
 export { default as SystemHelpers } from "./SystemHelpers";

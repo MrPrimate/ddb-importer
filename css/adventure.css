@@ -362,6 +362,11 @@
   background-color: #2e7dd1;
 }
 
+/* The overall bar tracks the whole run, not the current batch. */
+.ddb-muncher-details .munching-progress-overall .munching-progress-bar {
+  background-color: #c4772f;
+}
+
 /* Smaller spinning cog tucked into the modal's bottom corner, not centred over
    the status messages (scoped to this app; muncher keeps its large centred cog). */
 #ddb-native-adventure-browser .ddb-muncher-details .ddb-working {

@@ -16,6 +16,13 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     return super.PARTS;
   }
 
+  // primary: current phase, secondary: current item, overall: the whole run
+  static PROGRESS_BAR_SELECTORS: Record<string, string> = {
+    primary: ".munching-progress-primary",
+    secondary: ".munching-progress-secondary",
+    overall: ".munching-progress-overall",
+  };
+
   notifier: NotifierV1;
 
   // subclasses pass app options for typing purposes; ApplicationV2 configuration
@@ -204,9 +211,13 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       case "import":
         messageClass = "munching-task-import";
         break;
+      case "level5":
+      case "overall":
+        messageClass = "munching-task-overall";
+        break;
       case "level3":
       case "note":
-        messageClass = "munching-task-note";
+        messageClass = "munching-task-notes";
         break;
       case "level2":
       case "monster":
@@ -231,9 +242,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       return;
     }
 
-    const barSelector = progressBar === "secondary"
-      ? ".munching-progress-secondary"
-      : ".munching-progress-primary";
+    const barSelector = DDBAppV2.PROGRESS_BAR_SELECTORS[progressBar] ?? DDBAppV2.PROGRESS_BAR_SELECTORS.primary;
     const importProgressElement = this.element.querySelector(barSelector) as HTMLElement | null;
     const barElement = importProgressElement?.querySelector(".munching-progress-bar") as HTMLElement | null;
     const messageClass = this.getMessageClass(section);
@@ -254,6 +263,22 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       }
     }
 
+  }
+
+  /**
+   * Hides every progress bar in the import details pane and resets it to zero,
+   * so a finished run does not leave a stale bar behind for the next one.
+   */
+  clearProgressBars() {
+    if (!this.element) return;
+    this.element.querySelectorAll<HTMLElement>(".munching-progress").forEach((progressElement) => {
+      progressElement.classList.add("munching-hidden");
+      const bar = progressElement.querySelector(".munching-progress-bar") as HTMLElement | null;
+      if (bar) bar.style.width = "0%";
+    });
+    // this row only captions the overall bar, so it goes with it
+    const overallMessage = this.element.querySelector("#munching-task-overall") as HTMLElement | null;
+    if (overallMessage) overallMessage.textContent = "";
   }
 
   intervalId: any = null;

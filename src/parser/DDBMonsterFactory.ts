@@ -11,6 +11,7 @@ import {
   utils,
   postJson,
   DDBRunContext,
+  MunchProgressTracker,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -150,6 +151,7 @@ export default class DDBMonsterFactory {
   use2024Spells: boolean | null;
   currentDocument: number;
   totalDocuments: number;
+  overallProgress: MunchProgressTracker;
   source: IDDBMonsterSourceData[];
   npcs: I5eMonsterData[];
   monstersParsed: Actor.Implementation[];
@@ -227,7 +229,19 @@ export default class DDBMonsterFactory {
       : null;
     this.currentDocument = 1;
     this.totalDocuments = 0;
+    this.overallProgress = new MunchProgressTracker();
     this.monstersParsed = [];
+  }
+
+  /**
+   * Update the overall run progress bar. Silent unless a run total is known, so
+   * callers that use parse() on its own are unaffected.
+   * @param {string} message text to display above the bar
+   * @param {boolean} clear hide the bar after updating it
+   */
+  #notifyOverall(message: string, clear = false) {
+    if (!this.notifierV2 || !this.overallProgress.active) return;
+    this.notifierV2(this.overallProgress.payload(message, clear));
   }
 
   /**
@@ -497,6 +511,9 @@ export default class DDBMonsterFactory {
         if (err instanceof Error) logger.error(err.stack);
         failedMonsterNames.push(name);
       }
+      // outside the try/catch so failures still count towards the run
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Monsters Parsed");
     }
 
     const result = {
@@ -612,6 +629,8 @@ export default class DDBMonsterFactory {
       const munched = await DDBMonsterImporter.addNPC(monster, "monsters");
       if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Monsters Imported");
     }
     this.notifierV2?.({ progress: { current: documents.length, total: documents.length }, message: "", progressBar: "secondary", clear: true });
   }
@@ -668,6 +687,8 @@ export default class DDBMonsterFactory {
     this.notifier("", { nameField: true });
 
     this.totalDocuments = this.source.length;
+    this.overallProgress.start(this.totalDocuments);
+    this.#notifyOverall("Monsters to Process");
 
     for (let i = 0; i < this.source.length; i += 100) {
       const sourceDocuments = this.source.slice(i, i + 100);
@@ -678,7 +699,15 @@ export default class DDBMonsterFactory {
       await this.compendiumFolders.createMonsterFoldersForDocuments({ documents });
       this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.#loadIntoCompendiums(documents);
+      // documents can be culled before import (existing monsters skipped), so
+      // realign with the source count actually consumed by this batch
+      this.overallProgress.snapTo(Math.min(i + 100, this.totalDocuments));
+      this.#notifyOverall("Importing Monsters...");
     }
+
+    this.overallProgress.finish();
+    // leave the bar full; the muncher hides it once the run is closed out
+    this.#notifyOverall("Monsters Processed");
 
     logger.debug("Monsters Parsed", this.monstersParsed);
     this.notifier("", { monsterNote: true });
