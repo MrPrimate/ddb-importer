@@ -86,7 +86,8 @@ function addSpellLists() {
 
 const FEAT_TYPES = {
   dragonmark: "Dragonmark Feat",
-  darkGift: "DND5E.Feature.Feat.DarkGift",
+  darkGift: "Dark Gift",
+  kindred: "Kindred",
 };
 
 const LOOT_TYPES = {
@@ -96,8 +97,8 @@ const LOOT_TYPES = {
 
 function addFeatTypes() {
   for (const [key, value] of Object.entries(FEAT_TYPES)) {
-    if (!foundry.utils.getProperty(CONFIG.DND5E, `featTypes.${key}`)) {
-      foundry.utils.setProperty(CONFIG.DND5E, `featTypes.${key}`, value);
+    if (!foundry.utils.getProperty(CONFIG.DND5E, `featureTypes.feat.subtypes.${key}`)) {
+      foundry.utils.setProperty(CONFIG.DND5E, `featureTypes.feat.subtypes.${key}`, value);
     }
   }
 }

@@ -1028,6 +1028,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       else if (categories.some((c) => c.tagName === "Dragonmark")) return "dragonmark";
       else if (categories.some((c) => c.tagName === "Dark Gift")) return "darkGift";
       else if (categories.some((c) => c.tagName === "General")) return "general";
+      else if (categories.some((c) => c.tagName === "Kindred")) return "kindred";
       else if (name.startsWith("Mark of ")) return "dragonmark";
       else if (name.startsWith("Greater Mark of ")) return "dragonmark";
       else if (name.includes("Dragonmark") || name.includes("Greater Aberrant Mark")) return "dragonmark";

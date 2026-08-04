@@ -13,7 +13,7 @@ global {
 
   type TFeatureEnchantmentSubtype = "artificerInfusion" | "rune";
 
-  type TFeatureFeatSubtype = "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin" | "darkGift";
+  type TFeatureFeatSubtype = "kindred" | "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin" | "darkGift";
 
   type TFeatureSupernaturalGiftSubtype = "blessing" | "charm" | "epicBoon";
 
