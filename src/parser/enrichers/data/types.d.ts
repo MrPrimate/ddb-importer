@@ -252,6 +252,8 @@ global {
     tokenMagicChanges?: IActiveEffectChangeData[];
     midiChanges?: IActiveEffectChangeData[];
     daeChanges?: IActiveEffectChangeData[];
+    /** changes only injected when automated-conditions-5e is active */
+    ac5eChanges?: IActiveEffectChangeData[];
 
     // DAE
     daeStackable?: string;
@@ -285,6 +287,8 @@ global {
     // Module conditional flags
     daeOnly?: boolean;
     daeNever?: boolean;
+    ac5eOnly?: boolean;
+    ac5eNever?: boolean;
     atlOnly?: boolean;
     atlNever?: boolean;
     midiOnly?: boolean;

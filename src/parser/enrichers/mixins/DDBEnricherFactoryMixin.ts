@@ -766,6 +766,8 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       if (!effectHint) continue;
       if (effectHint.daeNever && AutoEffects.effectModules().daeInstalled) continue;
       if (effectHint.daeOnly && !AutoEffects.effectModules().daeInstalled) continue;
+      if (effectHint.ac5eNever && AutoEffects.effectModules().ac5eInstalled) continue;
+      if (effectHint.ac5eOnly && !AutoEffects.effectModules().ac5eInstalled) continue;
       if (effectHint.midiNever && AutoEffects.effectModules().midiQolInstalled) continue;
       if (effectHint.midiOnly && !applyMidiOnlyEffects) continue;
       if (effectHint.activeAurasNever && AutoEffects.effectModules().activeAurasInstalled) continue;
@@ -879,6 +881,10 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.daeChanges && AutoEffects.effectModules().daeInstalled) {
         this._ensureEffectChanges(effect).push(...effectHint.daeChanges);
+      }
+
+      if (effectHint.ac5eChanges && AutoEffects.effectModules().ac5eInstalled) {
+        this._ensureEffectChanges(effect).push(...effectHint.ac5eChanges);
       }
 
       if (effectHint.daeStackable) {

@@ -103,13 +103,13 @@ global {
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     atlInstalled: boolean;
-    atlInstalled: boolean;
     tokenMagicInstalled: boolean;
     activeAurasInstalled: boolean;
     auraeffectsInstalled: boolean;
     autoAnimationsInstalled: boolean;
     chrisInstalled: boolean;
     vision5eInstalled: boolean;
+    ac5eInstalled: boolean;
   }
 
   interface IEffectDuration {
