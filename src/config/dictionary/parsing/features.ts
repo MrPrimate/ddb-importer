@@ -96,6 +96,9 @@ export const PARSING_FEATURES = {
     "Core Monster Hunter Traits",
     "Core Artificer Traits",
     "Core Pugilist Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Monster Hunter Subclass: Hunting Guild",
     "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024

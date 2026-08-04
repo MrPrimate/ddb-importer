@@ -30,6 +30,10 @@ export const CONSUMPTION_LINKS = {
     "Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit",
     "Archdruid", "Land's Aid", "Wild Resurgence",
   ],
+  "Blood Maledict": [
+    "Blood Curse of",
+    "Blood Curses:",
+  ],
   "Grit Points": [
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
     "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",

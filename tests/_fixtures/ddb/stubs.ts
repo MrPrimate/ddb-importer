@@ -87,6 +87,10 @@ export async function repairEnricherDataStatics(): Promise<void> {
  * foundryMocks. Call from beforeAll in tests that run activity generation.
  */
 export function installActivityConfigStubs(): void {
+  const config = (globalThis as any).CONFIG;
+  // EffectGenerator._addAbilityAdvantageEffect reads the dnd5e D20Roll modes
+  config.Dice ??= {};
+  config.Dice.D20Roll ??= { ADV_MODE: { NORMAL: 0, ADVANTAGE: 1, DISADVANTAGE: -1 } };
   const dnd5e = (globalThis as any).CONFIG.DND5E;
   dnd5e.activityTypes ??= {};
   for (const type of ACTIVITY_TYPE_KEYS) {

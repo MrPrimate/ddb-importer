@@ -3,13 +3,15 @@
 export * as Artificer from "./artificer/_module";
 export * as Barbarian from "./barbarian/_module";
 export * as Bard from "./bard/_module";
+export * as BloodHunter from "./blood-hunter/_module";
 export * as Cleric from "./cleric/_module";
 export * as Druid from "./druid/_module";
 export * as Fighter from "./fighter/_module";
 export * as Gunslinger from "./gunslinger/_module";
-export * as Illriger from "./illriger/_module";
+export * as Illrigger from "./illrigger/_module";
+export * as Kindred from "./kindred/_module";
 export * as Monk from "./monk/_module";
-export * as Monsterhunter from "./monster-hunter/_module";
+export * as MonsterHunter from "./monster-hunter/_module";
 export * as Paladin from "./paladin/_module";
 export * as Pugilist from "./pugilist/_module";
 export * as Ranger from "./ranger/_module";

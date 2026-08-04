@@ -23,3 +23,5 @@ coverage/
 # Secrets
 .env
 .env.local
+audit-output/
+tests/audit/
