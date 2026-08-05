@@ -1,0 +1,3 @@
+[submodule "tests/audit"]
+	path = tests/audit
+	url = git@ptolus.taile801c5.ts.net:MrPrimate/ddb-importer-audit-tests.git
