@@ -28,33 +28,46 @@
 
   <fieldset>
     <legend>Options</legend>
-    <div class="form-group">
+    <div class="character-munch-options">
       <div class="character-homebrew-options">
-        <label>Include Homebrew?</label>
-        <div class="form-fields">
+        <div class="character-option-control">
+          <label for="munching-policy-character-fetch-homebrew">Include Homebrew?</label>
           <dnd5e-checkbox name="munching-policy-character-fetch-homebrew" id="munching-policy-character-fetch-homebrew"
           {{#if this.useCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-fetch-homebrew" ></dnd5e-checkbox>
         </div>
+        <p class="hint">Also fetch homebrew content you have access to on D&amp;D Beyond, alongside official sources.</p>
       </div>
       <div class="character-homebrew-options">
-        <label>Homebrew only?</label>
-        <div class="form-fields">
+        <div class="character-option-control">
+          <label for="munching-policy-character-only-homebrew">Homebrew only?</label>
           <dnd5e-checkbox name="munching-policy-character-only-homebrew" id="munching-policy-character-only-homebrew"
           {{#if this.onlyCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-only-homebrew" ></dnd5e-checkbox>
         </div>
+        <p class="hint">Skip official sources entirely and munch only your homebrew content.</p>
       </div>
       <div class="character-homebrew-options">
-        <label>Import Optional Class Features?</label>
-        <div class="form-fields">
+        <div class="character-option-control">
+          <label for="munching-policy-character-optional-class-features">Import Optional Class Features?</label>
           <dnd5e-checkbox name="munching-policy-character-optional-class-features"
           id="munching-policy-character-optional-class-features"
           {{#if this.characterOptionalClassFeatures}}checked{{/if}}
           data-section="munching-policy-character-optional-class-features" ></dnd5e-checkbox>
         </div>
+        <p class="hint">Optional class features (e.g. those from Tasha's Cauldron of Everything), filtered by the
+          source categories and books selected in Settings.</p>
+      </div>
+      <div class="character-homebrew-options">
+        <div class="character-option-control">
+          <label for="munching-policy-character-dont-grab-existing">Don't grab existing things?</label>
+          <dnd5e-checkbox name="munching-policy-character-dont-grab-existing"
+          id="munching-policy-character-dont-grab-existing"
+          {{#if this.dontGrabExistingCharacterThings}}checked{{/if}}
+          data-section="munching-policy-character-dont-grab-existing" ></dnd5e-checkbox>
+        </div>
+        <p class="hint">Species, subclasses, feats and backgrounds already in your compendiums are hidden from the
+          pickers and skipped during munching, so only missing content is fetched.</p>
       </div>
     </div>
-    <p class="hint">Optional class features (e.g. those from Tasha's Cauldron of Everything) are only imported
-      when this is enabled, and are filtered by the source categories and books selected in Settings.</p>
   </fieldset>
   {{/if}}
 

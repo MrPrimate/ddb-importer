@@ -246,6 +246,13 @@
   position: relative;
 }
 
+/* While the import details overlay is up, reserve room for it: the overlay is
+   out of flow (inset: 0) so it cannot grow an auto-height window on its own,
+   and the short tabs (feats, backgrounds, species) would clip it. */
+#ddb-importer-monsters.munching-active .window-content {
+  min-height: 400px;
+}
+
 .ddb-muncher-details {
   position: absolute;
   inset: 0;

@@ -596,15 +596,14 @@ export default class Utils {
    * @param {{ nameField: boolean, monsterNote: boolean }} [options] Optional
    */
   static munchNote(note: string, { nameField = false, monsterNote = false } = {}) {
+    // window height is owned by DDBMuncher._expandForDetails/_restoreAfterDetails,
+    // don't stamp an inline height on the frame from here
     if (nameField) {
       $("#munching-task-name").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
     } else if (monsterNote) {
       $("#munching-task-monster").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
     } else {
       $("#munching-task-notes").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
     }
   }
 

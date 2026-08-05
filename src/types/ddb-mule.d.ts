@@ -70,7 +70,36 @@ global {
   export type IDDBMuleClassesResponse = IDDBMuleResponse<IDDBMuleClassDefinition[]>;
 
 
-  type TDDBMuleGetList = IDDBMuleClassDefinition;
+  // ---- /proxy/races ---------------------------------------------------------
+
+  /**
+   * A species (race) returned by /proxy/races. The proxy returns the same
+   * race payload DDB nests on a character (IDDBRace: entityRaceId, fullName,
+   * baseName, sources, isHomebrew, etc.), with racial traits pruned. Selection
+   * is keyed on entityRaceId, which is what speciesMule filters on.
+   */
+  export type IDDBMuleSpeciesDefinition = IDDBRace;
+
+  export type IDDBMuleRacesResponse = IDDBMuleResponse<IDDBMuleSpeciesDefinition[]>;
+
+  // ---- /proxy/feats and /proxy/backgrounds ----------------------------------
+
+  /**
+   * A feat returned by /proxy/feats. The catalog entries are flat: featMule
+   * filters on the top level id, which is also what the imported document
+   * carries as flags.ddbimporter.id.
+   */
+  export interface IDDBMuleFeatDefinition {
+    id: number;
+    name: string;
+    sources: IDDBSource[];
+    isHomebrew: boolean;
+  }
+
+  /** A background returned by /proxy/backgrounds; same flat shape as a feat. */
+  export type IDDBMuleBackgroundDefinition = IDDBMuleFeatDefinition;
+
+  type TDDBMuleGetList = IDDBMuleClassDefinition | IDDBMuleSpeciesDefinition | IDDBMuleFeatDefinition;
 
   // ---- /proxy/subclass ------------------------------------------------------
 

@@ -246,3 +246,40 @@ header > a.header-button.control.ddb-open-url {
 .ddb-party-sync .ddb-character-cell .character-name {
   font-weight: 600;
 }
+
+/* Muncher character settings: two column option grid with per-option hints */
+.ddb-muncher .character-munch-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1.5rem;
+  align-items: start;
+}
+
+.ddb-muncher .character-homebrew-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.ddb-muncher .character-homebrew-options .character-option-control {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ddb-muncher .character-homebrew-options .character-option-control label {
+  flex: 1 1 auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.ddb-muncher .character-homebrew-options .character-option-control dnd5e-checkbox {
+  flex: 0 0 auto;
+}
+
+.ddb-muncher .character-homebrew-options .hint {
+  margin: 0;
+  line-height: 1.3;
+}

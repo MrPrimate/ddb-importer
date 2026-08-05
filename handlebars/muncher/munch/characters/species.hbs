@@ -1,8 +1,31 @@
 <section id="ddb-importer-muncher-characters-species" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
-  <fieldset>
+  <fieldset {{#if speciesFilterEnabled}}{{else}}disabled{{/if}}>
     <legend>Species</legend>
     <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
+    <p class="hint">Optionally select specific species to munch. Leaving the picker empty imports all species from your enabled sources.</p>
+    <p class="hint">If your expected species are not displayed below, make sure you have the correct source categories enabled in <a id="muncher-open-sources-settings" style="cursor: pointer; text-decoration: underline">Settings</a>.</p>
+
+    <div class="form-group">
+      <label>Rules Version</label>
+      <div class="form-fields">
+        <button type="button" id="muncher-species-rules-toggle" class="muncher-rules-toggle ddbimporter-small-button">
+          {{rulesVersion}}
+        </button>
+      </div>
+    </div>
+
+    <div id="munch-species-source-div">
+      <label>Species</label>
+      <multi-select id="muncher-species-source-select" name="muncher-species-source-select" class="ddb-source-select">
+        {{#each selectedSpecies}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+  </fieldset>
+
+  <fieldset>
     <button data-action="parseSpecies" type="button" id="munch-species-start" class="munch-button"
-      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Species Munch</button>
+      {{#if speciesMunchEnabled}}enabled{{else}}disabled{{/if}}>Species Munch</button>
   </fieldset>
 </section>

@@ -58,7 +58,7 @@
  */
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
-import { DDBCampaigns, DDBProxy, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
+import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
@@ -941,6 +941,7 @@ export default class DDBMuleHandler {
     ddbStub: IDDBData;
     featData: any;
   }) {
+    // logger.debug(`[stream-process] processing feat chunk ${featData?.debug?.chunkIndex ?? "?"} of ${this._streamSecondaryTotal}`, { featData });
     const newStub = foundry.utils.deepClone(ddbStub);
     foundry.utils.mergeObject(newStub.character, featData.data);
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
@@ -1254,7 +1255,7 @@ export default class DDBMuleHandler {
         urlPostfix = "/proxy/backgrounds";
         break;
       case "species":
-        // urlPostfix = "/proxy/species";
+        urlPostfix = "/proxy/races";
         break;
       default:
         throw new Error(`Unknown mule type ${type}`);
@@ -1269,6 +1270,56 @@ export default class DDBMuleHandler {
 
     await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
     return data.data as T[];
+  }
+
+  /**
+   * Build a set of DDB ids already present in a compendium, used by the
+   * "Don't grab existing things" muncher option. Filters to the current rules
+   * version via the `is2014` flag so 2014/2024 duplicates are not conflated.
+   * Falls back to an empty set (grab everything) on any lookup failure.
+   */
+  static async #getExistingCompendiumIds(
+    compendiumType: string,
+    idFlag: string,
+    rulesVersion: T5eRulesVersion | null,
+    { docType = null }: { docType?: string | null } = {},
+  ): Promise<Set<number>> {
+    const result = new Set<number>();
+    try {
+      const fields = ["name", `flags.ddbimporter.${idFlag}`, "flags.ddbimporter.is2014"];
+      if (docType) fields.push("type");
+      const index = await CompendiumHelper.loadCompendiumIndex(compendiumType as any, { fields });
+      if (!index) return result;
+      // null rulesVersion => match any version (used by the version-agnostic species munch)
+      const want2014 = rulesVersion === null ? null : rulesVersion === "2014";
+      for (const entry of index.contents) {
+        if (docType && foundry.utils.getProperty(entry, "type") !== docType) continue;
+        const is2014 = foundry.utils.getProperty(entry, "flags.ddbimporter.is2014");
+        if (want2014 !== null && typeof is2014 === "boolean" && is2014 !== want2014) continue;
+        const id = foundry.utils.getProperty(entry, `flags.ddbimporter.${idFlag}`);
+        if (typeof id === "number") result.add(id);
+      }
+    } catch (error) {
+      logger.warn(`Failed to load existing ${compendiumType} ids for dedupe`, error);
+    }
+    return result;
+  }
+
+  static async getExistingSpeciesIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
+    return DDBMuleHandler.#getExistingCompendiumIds("species", "entityRaceId", rulesVersion);
+  }
+
+  static async getExistingSubclassIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
+    return DDBMuleHandler.#getExistingCompendiumIds("class", "definitionId", rulesVersion, { docType: "subclass" });
+  }
+
+  // note the plural compendium keys: "feat" resolves to the class compendium
+  static async getExistingFeatIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
+    return DDBMuleHandler.#getExistingCompendiumIds("feats", "id", rulesVersion);
+  }
+
+  static async getExistingBackgroundIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
+    return DDBMuleHandler.#getExistingCompendiumIds("backgrounds", "id", rulesVersion);
   }
 
   static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {

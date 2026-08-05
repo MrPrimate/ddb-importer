@@ -1198,6 +1198,15 @@ const SETTINGS = {
             type: String,
             default: "",
           },
+          "munching-policy-character-species": {
+            type: Array,
+            // selected entityRaceIds; empty = munch all
+            default: [] as number[],
+          },
+          "munching-policy-character-dont-grab-existing": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-disable-monster-art": {
             type: Boolean,
             default: false,

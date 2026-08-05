@@ -1233,19 +1233,25 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const result: {
       selectedClasses: any[];
       subclassSelection: any[];
+      selectedSpecies: any[];
       rulesVersion: T5eRulesVersion;
       otherRulesVersion: T5eRulesVersion;
       classFilterEnabled: boolean;
       muleURL: string;
       classMunchEnabled: boolean;
+      speciesFilterEnabled: boolean;
+      speciesMunchEnabled: boolean;
     } = {
       selectedClasses: [],
       subclassSelection: [],
+      selectedSpecies: [],
       rulesVersion,
       otherRulesVersion,
       classFilterEnabled: !disableUse,
       muleURL,
       classMunchEnabled: false,
+      speciesFilterEnabled: !disableUse,
+      speciesMunchEnabled: !disableUse,
     };
 
     if (disableUse) return result;
@@ -1258,6 +1264,14 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const selectedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
       .map((id) => parseInt(String(id)));
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
+
+    const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
+    const existingSubclassIds = dontGrabExisting
+      ? await DDBMuleHandler.getExistingSubclassIds(rulesVersion)
+      : new Set<number>();
+    const existingSpeciesIds = dontGrabExisting
+      ? await DDBMuleHandler.getExistingSpeciesIds(rulesVersion)
+      : new Set<number>();
 
     const isKlass2014 = (klass: IDDBMuleClassDefinition) => klass.sources.every((s) => DDBSources.is2014Source(s));
 
@@ -1312,12 +1326,15 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
           if (sc.isHomebrew) return allowHomebrew;
           return DDBSources.isDefinitionInSourceIds(sc, chosenSourceIds);
         })
+        .filter((sc: any) => !(dontGrabExisting && existingSubclassIds.has(parseInt(sc.id))))
         .map((sc: any) => ({
           id: sc.id,
           label: sc.isHomebrew ? `${sc.name} (Homebrew)` : sc.name,
           selected: selectedSubIds.includes(parseInt(sc.id)) ? "selected" : "",
         }))
         .sort((a: any, b: any) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
+      // subclass-level dedupe: hide a class whose subclasses are all already present
+      if (dontGrabExisting && subclasses.length === 0) continue;
       subclassSelection.push({
         classId,
         className: klass.name,
@@ -1328,6 +1345,34 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     if (app) app.subClassMap = cache;
     result.subclassSelection = subclassSelection;
     result.classMunchEnabled = relevantClasses.length > 0;
+
+    // Species selection (no sub-entities; empty selection = munch all)
+    const species = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", Array.from(chosenSourceIds));
+    const selectedSpeciesIds = utils.getSetting<number[]>("munching-policy-character-species")
+      .map((id) => parseInt(String(id)));
+    const isSpecies2014 = (sp: IDDBMuleSpeciesDefinition) => sp.sources.every((s) => DDBSources.is2014Source(s));
+
+    result.selectedSpecies = species
+      .filter((sp) => (rulesVersion === "2014" ? isSpecies2014(sp) : !isSpecies2014(sp)))
+      .filter((sp) => {
+        if (onlyHomebrew) return sp.isHomebrew;
+        if (sp.isHomebrew) return allowHomebrew;
+        return sp.sources.some((s) => chosenSourceIds.has(s.sourceId));
+      })
+      .filter((sp) => !(dontGrabExisting && existingSpeciesIds.has(sp.entityRaceId)))
+      .map((sp) => {
+        const sourceId = sp.sources.find((s) => s.sourceType === 1)?.sourceId;
+        const source = CONFIG.DDB.sources.find((s: any) => s.id === sourceId);
+        const label = sp.isHomebrew
+          ? `${sp.fullName} (Homebrew)`
+          : `${sp.fullName} (${source ? source.name : "Unknown Source"})`;
+        return {
+          id: sp.entityRaceId,
+          label,
+          selected: selectedSpeciesIds.includes(sp.entityRaceId) ? "selected" : "",
+        };
+      })
+      .sort((a: any, b: any) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
 
     return result;
   },

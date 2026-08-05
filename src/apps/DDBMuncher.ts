@@ -59,10 +59,13 @@ interface IDDBMuncherContext extends
   // from getCharacterMuncherSettings (_prepareCharacterContext)
   selectedClasses: any[];
   subclassSelection: any[];
+  selectedSpecies: any[];
   rulesVersion: T5eRulesVersion;
   otherRulesVersion: T5eRulesVersion;
   classFilterEnabled: boolean;
   classMunchEnabled: boolean;
+  speciesFilterEnabled: boolean;
+  speciesMunchEnabled: boolean;
 
   // explicit assignments in _prepareContext
   searchTermMonster: string;
@@ -73,6 +76,7 @@ interface IDDBMuncherContext extends
   useCharacterHomebrew: boolean;
   onlyCharacterHomebrew: boolean;
   characterOptionalClassFeatures: boolean;
+  dontGrabExistingCharacterThings: boolean;
 }
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -89,7 +93,19 @@ export default class DDBMuncher extends DDBAppV2 {
   characterId: string | null = null;
   actor: TImporterActor | null = null;
   encounterFactory: DDBEncounterFactory;
+  // window height before the import details overlay forced the window to grow,
+  // restored when the overlay is dismissed. null when no munch is in progress.
+  preMunchHeight: number | "auto" | null = null;
 
+  /**
+   * The rules version the character munch tabs are set to, shared by the class,
+   * species, feat and background rules toggles. Falls back to the 5e system setting.
+   */
+  static getSelectedRulesVersion(): T5eRulesVersion {
+    const rulesVersion = utils.getSetting<T5eRulesVersion | "">("munching-policy-character-class-rules-version") ?? "";
+    if (rulesVersion !== "") return rulesVersion;
+    return utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" ? "2024" : "2014";
+  }
 
   constructor() {
     super();
@@ -330,6 +346,9 @@ export default class DDBMuncher extends DDBAppV2 {
   async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
 
+    // a re-render mid-munch must not drop the height reserved for the overlay
+    if (this.preMunchHeight !== null) this.element.classList.add("munching-active");
+
     // custom listeners
     // multi-selects
     this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", async (event) => {
@@ -356,6 +375,12 @@ export default class DDBMuncher extends DDBAppV2 {
         if (currentSubclassMap[classId]) prunedSubclassMap[classId] = currentSubclassMap[classId];
       }
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", prunedSubclassMap);
+      await this.render();
+    });
+
+    this.element.querySelector("#muncher-species-source-select")?.addEventListener("change", async (event) => {
+      const newSpeciesIds = DDBMuncher.getMultiSelectValues(event).map((id) => parseInt(id));
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", newSpeciesIds);
       await this.render();
     });
 
@@ -390,32 +415,36 @@ export default class DDBMuncher extends DDBAppV2 {
       await this.render();
     });
 
-    this.element.querySelector("#muncher-class-rules-toggle")?.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const current = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
-      const next = current === "2024" ? "2014" : "2024";
-      const systemIsModern = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern";
-      if (next === "2014" && systemIsModern) {
-        const proceed = await foundry.applications.api.DialogV2.confirm({
-          rejectClose: false,
-          window: { title: "Rules Version Warning" },
-          content: `<p>You are switching to importing 2014 classes and subclasses, but your 5e system is set to modern/2024 rules. DDB now provides 2024 versions of the 2014 subclasses. Please be warned that importing a mix of 2014/2024 subclasses into compendiums may result in odd behaviour.</p>`,
-        });
-        if (!proceed) return;
-      }
-      if (next === "2024" && !systemIsModern) {
-        const proceed = await foundry.applications.api.DialogV2.confirm({
-          rejectClose: false,
-          window: { title: "Rules Version Warning" },
-          content: `<p>You are switching to importing 2024/5.5e Classes and Subclasses, but your 5e system is set to 2014/classic. Please be warned these might not work properly in your system.</p>`,
-        });
-        if (!proceed) return;
-      }
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
-      this.subClassMap = {};
-      await this.render();
+    // shared by the class and species rules-version toggles (same setting)
+    this.element.querySelectorAll(".muncher-rules-toggle").forEach((el) => {
+      el.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const current = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
+        const next = current === "2024" ? "2014" : "2024";
+        const systemIsModern = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern";
+        if (next === "2014" && systemIsModern) {
+          const proceed = await foundry.applications.api.DialogV2.confirm({
+            rejectClose: false,
+            window: { title: "Rules Version Warning" },
+            content: `<p>You are switching to importing 2014 classes, subclasses and species, but your 5e system is set to modern/2024 rules. DDB now provides 2024 versions of the 2014 subclasses. Please be warned that importing a mix of 2014/2024 content into compendiums may result in odd behaviour.</p>`,
+          });
+          if (!proceed) return;
+        }
+        if (next === "2024" && !systemIsModern) {
+          const proceed = await foundry.applications.api.DialogV2.confirm({
+            rejectClose: false,
+            window: { title: "Rules Version Warning" },
+            content: `<p>You are switching to importing 2024/5.5e classes, subclasses and species, but your 5e system is set to 2014/classic. Please be warned these might not work properly in your system.</p>`,
+          });
+          if (!proceed) return;
+        }
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", []);
+        this.subClassMap = {};
+        await this.render();
+      });
     });
 
     this.element.querySelector("#muncher-open-sources-settings")?.addEventListener("click", (event) => {
@@ -600,6 +629,7 @@ export default class DDBMuncher extends DDBAppV2 {
     context.useCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     context.onlyCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     context.characterOptionalClassFeatures = utils.getSetting<boolean>("munching-policy-character-optional-class-features");
+    context.dontGrabExistingCharacterThings = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -635,6 +665,30 @@ export default class DDBMuncher extends DDBAppV2 {
     if (detailsElement) detailsElement.classList.remove("munching-details-hidden");
     const okayButton = this.element.querySelector("#munch-details-okay");
     if (okayButton) okayButton.classList.add("munching-hidden");
+    this._expandForDetails();
+  }
+
+  /**
+   * Reserve enough window height for the import details overlay. The overlay is
+   * absolutely positioned so it can't grow an auto-height window by itself, and
+   * the short tabs (feats, backgrounds, species) are shorter than the dialog.
+   */
+  _expandForDetails() {
+    if (!this.element) return;
+    if (this.preMunchHeight === null) this.preMunchHeight = this.position.height;
+    this.element.classList.add("munching-active");
+    // re-run positioning so the frame picks up the reserved min-height and the
+    // top offset is re-clamped against the viewport
+    this.setPosition({ height: "auto" });
+  }
+
+  /** Drop the reserved height and put the window back to the size it had before munching. */
+  _restoreAfterDetails() {
+    if (!this.element) return;
+    this.element.classList.remove("munching-active");
+    const height = this.preMunchHeight ?? "auto";
+    this.preMunchHeight = null;
+    this.setPosition({ height });
   }
 
   _enableButtons() {
@@ -650,6 +704,7 @@ export default class DDBMuncher extends DDBAppV2 {
   static async closeDetails(this: DDBMuncher, _event: any, _target: any) {
     const detailsElement = this.element.querySelector(".ddb-muncher-details");
     if (detailsElement) detailsElement.classList.add("munching-details-hidden");
+    this._restoreAfterDetails();
     this._doEnableButtons();
   }
 
@@ -827,10 +882,12 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew }: {
+  async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew, dontGrabExisting = false, existingSubclassIds = new Set<number>() }: {
     baseOptions: IDDBMuleHandlerOptions;
     classList: IDDBMuleClassDefinition[];
     onlyHomebrew?: boolean;
+    dontGrabExisting?: boolean;
+    existingSubclassIds?: Set<number>;
   }) {
     logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
@@ -857,7 +914,13 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info(`Munching class ${klass.name} (${klass.id}) Homebrew subclasses`);
 
       const subClasses = this.subClassMap[klass.id]
-        .filter((subKlass) => subKlass.isHomebrew);
+        .filter((subKlass) => subKlass.isHomebrew)
+        .filter((subKlass) => !(dontGrabExisting && existingSubclassIds.has(parseInt(String(subKlass.id)))));
+
+      if (dontGrabExisting && subClasses.length === 0) {
+        logger.info(`Skipping homebrew subclasses for class ${klass.name} (${klass.id}): all already exist`);
+        continue;
+      }
 
       const sliceSize = 3;
       for (let i = 0; i < subClasses.length; i += sliceSize) {
@@ -899,11 +962,13 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections }: {
+  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections, dontGrabExisting = false, existingSubclassIds = new Set<number>() }: {
     sourceIdArrays: { categoryId: number; sourceIds: number[] }[];
     baseOptions: IDDBMuleHandlerOptions;
     classList: IDDBMuleClassDefinition[];
     subclassSelections?: Record<string, number[]>;
+    dontGrabExisting?: boolean;
+    existingSubclassIds?: Set<number>;
   }) {
     for (const sourceIdArray of sourceIdArrays) {
       const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
@@ -917,6 +982,18 @@ export default class DDBMuncher extends DDBAppV2 {
         const selectedSubIds = (selections[klass.id] ?? selections[String(klass.id)] ?? [])
           .map((id) => parseInt(String(id)));
         options.filterIds = selectedSubIds;
+
+        if (dontGrabExisting) {
+          // build an explicit list of only the missing subclasses (empty filterIds would mean "all")
+          const allSubIds = (this.subClassMap[klass.id] ?? []).map((sc) => parseInt(String(sc.id)));
+          const baseSubIds = selectedSubIds.length > 0 ? selectedSubIds : allSubIds;
+          const missingSubIds = baseSubIds.filter((id) => !existingSubclassIds.has(id));
+          if (missingSubIds.length === 0) {
+            logger.info(`Skipping class ${klass.name} (${klass.id}): all in-scope subclasses already exist`);
+            continue;
+          }
+          options.filterIds = missingSubIds;
+        }
 
         const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
         const subClasses = this.subClassMap[klass.id];
@@ -1005,6 +1082,13 @@ export default class DDBMuncher extends DDBAppV2 {
 
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
 
+    // "Don't grab existing things": build the set of subclass ids already in the compendium (current rules version)
+    const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
+    const rulesVersion = DDBMuncher.getSelectedRulesVersion();
+    const existingSubclassIds = dontGrabExisting
+      ? await DDBMuleHandler.getExistingSubclassIds(rulesVersion)
+      : new Set<number>();
+
     // determine classes to parse
     const classList = (await DDBMuleHandler.getList<IDDBMuleClassDefinition>("class", Array.from(allSourceIds)))
       .filter((c) => allowedClassIds.includes(c.id));
@@ -1045,11 +1129,11 @@ export default class DDBMuncher extends DDBAppV2 {
       }));
 
       if (!onlyHomebrew) {
-        await this.#parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections });
+        await this.#parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections, dontGrabExisting, existingSubclassIds });
       }
 
       if (allowHomebrew && this.homebrewClasses.size > 0) {
-        await this.#parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew });
+        await this.#parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew, dontGrabExisting, existingSubclassIds });
       }
     } catch (error) {
       logger.error(error);
@@ -1081,6 +1165,53 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
+    // species supports per-item filtering: pass explicit entityRaceIds as filterIds (empty = all)
+    const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
+    const selectedSpeciesIds = type === "species"
+      ? utils.getSetting<number[]>("munching-policy-character-species").map((id) => parseInt(String(id)))
+      : [];
+    // active when the user picked a subset, or "don't grab existing" is on and we must build an explicit list
+    const speciesFilterActive = type === "species" && (selectedSpeciesIds.length > 0 || dontGrabExisting);
+    // full race list (the /proxy/races endpoint ignores sources) + existing ids, fetched once when filtering
+    let speciesList: IDDBMuleSpeciesDefinition[] = [];
+    let existingSpeciesIds = new Set<number>();
+    if (speciesFilterActive) {
+      try {
+        speciesList = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
+      } catch (error) {
+        logger.warn("Failed to fetch species list for filtering", error);
+      }
+      if (dontGrabExisting) {
+        // version-agnostic: species munch grabs both rules versions, so exclude any existing entityRaceId
+        existingSpeciesIds = await DDBMuleHandler.getExistingSpeciesIds(null);
+      }
+    }
+
+    // feats and backgrounds are filtered to the selected rules version, and (optionally) to
+    // whatever is not already in the compendium. Both mule flows filter on the catalog entry id.
+    let featBgActive = type === "feat" || type === "background";
+    let catalog: IDDBMuleFeatDefinition[] = [];
+    let existingFeatBgIds = new Set<number>();
+    const rulesVersion = DDBMuncher.getSelectedRulesVersion();
+    if (featBgActive) {
+      try {
+        // the /proxy/feats and /proxy/backgrounds endpoints ignore sources and return the full catalog
+        catalog = await DDBMuleHandler.getList<IDDBMuleFeatDefinition>(type, null);
+      } catch (error) {
+        logger.warn(`Failed to fetch ${type} list for filtering, munching everything instead`, error);
+        featBgActive = false;
+      }
+      if (featBgActive && dontGrabExisting) {
+        existingFeatBgIds = type === "feat"
+          ? await DDBMuleHandler.getExistingFeatIds(rulesVersion)
+          : await DDBMuleHandler.getExistingBackgroundIds(rulesVersion);
+      }
+    }
+    const isDefinition2014 = (definition: IDDBMuleFeatDefinition) =>
+      definition.sources.length > 0 && definition.sources.every((s) => DDBSources.is2014Source(s));
+    const matchesRulesVersion = (definition: IDDBMuleFeatDefinition) =>
+      (rulesVersion === "2014" ? isDefinition2014(definition) : !isDefinition2014(definition));
+
     const processErrors = [];
 
     try {
@@ -1094,6 +1225,45 @@ export default class DDBMuncher extends DDBAppV2 {
           const chunkedIds = sourceIdArray.sourceIds.slice(i, i + sliceSize);
 
           options.sources = chunkedIds;
+
+          if (speciesFilterActive) {
+            const chunkSet = new Set(chunkedIds);
+            // base id list: explicit selection if any, otherwise every species in this chunk's sources
+            let chunkSpeciesIds: number[];
+            if (selectedSpeciesIds.length > 0) {
+              chunkSpeciesIds = speciesList.length === 0
+                ? selectedSpeciesIds
+                : selectedSpeciesIds.filter((raceId) => {
+                  const sp = speciesList.find((s) => s.entityRaceId === raceId);
+                  return sp ? sp.sources.some((s) => chunkSet.has(s.sourceId)) : true;
+                });
+            } else {
+              // no explicit selection: dontGrabExisting is on (speciesFilterActive guarantees it)
+              chunkSpeciesIds = speciesList
+                .filter((sp) => sp.sources.some((s) => chunkSet.has(s.sourceId)))
+                .map((sp) => sp.entityRaceId);
+            }
+            if (dontGrabExisting) {
+              chunkSpeciesIds = chunkSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
+            }
+            if (chunkSpeciesIds.length === 0) continue;
+            options.filterIds = chunkSpeciesIds;
+          }
+
+          if (featBgActive) {
+            const chunkSet = new Set(chunkedIds);
+            let chunkIds = catalog
+              .filter((definition) => matchesRulesVersion(definition))
+              .filter((definition) => definition.sources.some((s) => chunkSet.has(s.sourceId)))
+              .map((definition) => definition.id);
+            if (dontGrabExisting) {
+              chunkIds = chunkIds.filter((id) => !existingFeatBgIds.has(id));
+            }
+            // an empty filterIds would mean "everything" to the proxy, so skip the chunk instead
+            if (chunkIds.length === 0) continue;
+            options.filterIds = chunkIds;
+          }
+
           const muleHandler = new DDBMuleHandler(options);
           this.notifierV2({
             section: "name",
@@ -1127,10 +1297,48 @@ export default class DDBMuncher extends DDBAppV2 {
 
       }
 
-      if (homebrew || onlyHomebrew) {
+      let runHomebrew = homebrew || onlyHomebrew;
+      let homebrewSpeciesIds: number[] = [];
+      if (runHomebrew && speciesFilterActive) {
+        // explicit selection, else all homebrew species; then drop existing when the flag is on
+        homebrewSpeciesIds = selectedSpeciesIds.length > 0
+          ? selectedSpeciesIds
+          : speciesList.filter((sp) => sp.isHomebrew).map((sp) => sp.entityRaceId);
+        if (dontGrabExisting) {
+          homebrewSpeciesIds = homebrewSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
+        }
+        // empty explicit list would mean "all" to the proxy; skip the homebrew pass instead
+        if (homebrewSpeciesIds.length === 0) {
+          logger.debug("Skipping homebrew species pass: nothing new to munch");
+          runHomebrew = false;
+        }
+      }
+
+      let homebrewFeatBgIds: number[] = [];
+      if (runHomebrew && featBgActive) {
+        homebrewFeatBgIds = catalog
+          .filter((definition) => definition.isHomebrew)
+          .filter((definition) => matchesRulesVersion(definition))
+          .map((definition) => definition.id);
+        if (dontGrabExisting) {
+          homebrewFeatBgIds = homebrewFeatBgIds.filter((id) => !existingFeatBgIds.has(id));
+        }
+        if (homebrewFeatBgIds.length === 0) {
+          logger.debug(`Skipping homebrew ${type} pass: nothing new to munch`);
+          runHomebrew = false;
+        }
+      }
+
+      if (runHomebrew) {
         const options: IDDBMuleHandlerOptions = foundry.utils.deepClone(baseOptions);
         options.homebrew = true;
         options.onlyHomebrew = onlyHomebrew;
+        if (speciesFilterActive && homebrewSpeciesIds.length > 0) {
+          options.filterIds = homebrewSpeciesIds;
+        }
+        if (featBgActive && homebrewFeatBgIds.length > 0) {
+          options.filterIds = homebrewFeatBgIds;
+        }
         const muleHandler = new DDBMuleHandler(options);
         this.notifierV2({
           section: "name",

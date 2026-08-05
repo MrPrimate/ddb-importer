@@ -2,6 +2,17 @@
   <fieldset>
     <legend>Backgrounds</legend>
     <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
+    {{#if characterMunch}}
+    <p class="hint">Only backgrounds matching the selected rules version are imported.</p>
+    <div class="form-group">
+      <label>Rules Version</label>
+      <div class="form-fields">
+        <button type="button" id="muncher-background-rules-toggle" class="muncher-rules-toggle ddbimporter-small-button">
+          {{rulesVersion}}
+        </button>
+      </div>
+    </div>
+    {{/if}}
     <button data-action="parseBackgrounds" type="button" id="munch-backgrounds-start" class="munch-button"
       {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Background Munch</button>
   </fieldset>
