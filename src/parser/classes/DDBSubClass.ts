@@ -20,6 +20,15 @@ export default class DDBSubClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Gunslinger (TGC) Secret Agent: bracketed name would slug to
+    // parting-shot-maneuver; the scale is the maneuver's own risk-sized die
+    "Parting Shot [Maneuver]": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Parting Shot Die", identifier: "parting-shot" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
     "Psionic Power": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
@@ -42,7 +51,13 @@ export default class DDBSubClass extends DDBBaseClass {
     // },
   };
 
-  static NOT_ADVANCEMENT_FOR_FEATURE = ["Soul Blades"];
+  static NOT_ADVANCEMENT_FOR_FEATURE = [
+    "Soul Blades",
+    // Kindred (VtM): text-only levelScales (a sentence, no dice/number) that
+    // would generate junk string scale advancements
+    "Depth of Feelings",
+    "Hidden in Plain Sight",
+  ];
 
   static NOT_SPELL_LIST_ADVANCEMENTS = [
     "Circle of the Land Spells",

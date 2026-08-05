@@ -48,6 +48,53 @@ export default class DDBClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Kindred (VtM): the "Blood Potency" feature scale is the Blood Points pool
+    "Blood Potency": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Blood Points", identifier: "blood-points" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Blood Hunter: the Blood Maledict scale is the canonical hemocraft die
+    // (Crimson Rite and Blood Curses carry duplicate copies of the same scale)
+    "Blood Maledict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Hemocraft Die", identifier: "hemocraft-die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Monster Hunter: the scale is the number of monster types in the grimoire
+    "Monster Grimoire": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Monster Types Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Illrigger (MCDM)
+    "Baleful Interdict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Baleful Interdict Seals", identifier: "seals" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Interdiction": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Interdict Boons Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Infernal Conduit": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Infernal Conduit Dice" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
   };
 
   declare data: I5eClassItem;

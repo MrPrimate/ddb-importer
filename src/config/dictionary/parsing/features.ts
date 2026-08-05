@@ -168,6 +168,11 @@ export const PARSING_FEATURES = {
     "Kensei Weapon",
     "Umbral Form",
     "Form of Dread",
+    "Gifts of the Beast",
+    "Gangrel Bane",
+    "Gifts of Survival",
+    "Corporeal Mastery",
+    "Protean Rewards",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
