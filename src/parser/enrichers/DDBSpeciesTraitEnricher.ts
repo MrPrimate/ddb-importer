@@ -20,26 +20,62 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
+  get speciesFullRaceName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.fullRaceName : undefined;
+  }
+
+  get speciesRaceName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.baseRaceName : undefined;
+  }
+
   get speciesGroupName(): string | undefined {
     const species = this.ddbParser?.species;
     return species && typeof species === "object" ? species.groupName : undefined;
   }
 
-  _defaultClassLoader(): DDBEnricherData | null {
-    if (!this.hintName) return null;
-    if (this.speciesGroupName) {
-      const speciesGroupNameHint = utils.pascalCase(this.speciesGroupName);
-      const featName = utils.pascalCase(this.hintName);
-      const Enricher = (SpeciesEnrichers as TEnricherGroupMap)[speciesGroupNameHint]?.[featName];
+  _tryLoadEnricherEnricher(featName: string, speciesName: string): DDBEnricherData | null {
+    // match _linkBuilder.js namespace derivation: hyphens split words too
+    // ("Shadar-kai" -> "ShadarKai", not pascalCase's "Shadarkai")
+    const speciesNameHint = utils.pascalCase(speciesName.replace(/-/g, " "));
+    const Enricher = (SpeciesEnrichers as TEnricherGroupMap)[speciesNameHint]?.[featName];
       if (!Enricher) {
         return null;
       }
       return new Enricher({
         ddbEnricher: this,
       });
-    } else {
-      return null;
+  }
+
+  _defaultClassLoader(): DDBEnricherData | null {
+    if (!this.hintName) return null;
+    const featName = utils.pascalCase(this.hintName);
+    const speciesRaceName = this.speciesRaceName;
+    const speciesGroupName = this.speciesGroupName;
+    const speciesFullRaceName = this.speciesFullRaceName;
+    const attempts = new Set<string>();
+
+    if (speciesFullRaceName) {
+      attempts.add(speciesFullRaceName);
+      if (speciesFullRaceName.includes("(")) {
+        attempts.add(speciesFullRaceName.split("(")[0].trim());
+      }
     }
+    if (speciesGroupName) {
+      attempts.add(speciesGroupName);
+    }
+    if (speciesRaceName) {
+      attempts.add(speciesRaceName);
+    }
+    for (const name of attempts) {
+      const enricher = this._tryLoadEnricherEnricher(featName, name);
+      if (enricher) {
+        return enricher;
+      }
+    }
+
+    return null;
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
