@@ -1009,9 +1009,12 @@ export default abstract class DDBBaseClass {
           logger.warn(`Unable to generate scale value advancement for feature ${feature.name}`, { feature });
           return null;
         }
+        logger.debug(`Generated scale value advancement for feature ${feature.name}`, { generated });
+        if (!generated.title) return generated;
         let advancement: I5eAdvancement = generated;
-        const specialLookup = this.SPECIAL_ADVANCEMENTS[generated.title as string];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[generated.title];
         if (specialLookup) {
+          logger.debug(`Found special advancement for ${generated.title}`, { specialLookup, generated });
           if (specialLookup.additionalAdvancements) {
             (specialLookup.additionalFunctions ?? []).forEach((fn) => {
               specialFeatures.push(fn(generated));

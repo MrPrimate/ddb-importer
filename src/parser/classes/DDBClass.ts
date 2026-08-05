@@ -13,6 +13,12 @@ import DDBBaseClass from "./DDBBaseClass";
 
 export default class DDBClass extends DDBBaseClass {
 
+  constructor(ddb: IDDBData, classId: number, options = {}) {
+    super(ddb, classId, options);
+
+    this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
+  }
+
   static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Wild Shape": {
       fix: true,
