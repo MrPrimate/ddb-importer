@@ -86,6 +86,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINTS: Record<string, string> = {
     "Convert Sorcery Points": "Font of Magic",
+    "Liar's Dice [Maneuver]": "Liar's Dice",
+    // Blood Hunter curse/boon choice features resolve to their base enricher
+    "Blood Curses: Blood Curse of Binding": "Blood Curse of Binding",
+    // Illrigger boon choice feature shares the action's enricher
+    "Interdict Boons: Abating Seal": "Abating Seal",
+    // Gunslinger (TGC) subclass maneuvers; "Manuever" is a DDB data typo
+    "Eagle Eye [Manuever]": "Eagle Eye",
+    "Parting Shot [Maneuver]": "Parting Shot",
+    "Magic Bullet [Maneuver]": "Magic Bullet",
+    "Ricochet [Maneuver]": "Ricochet",
+    "Deft Deflection [Maneuver]": "Deft Deflection",
+    "Lay Down the Law [Maneuver]": "Lay Down the Law",
     "Font of Magic: Convert Spell Slots": "Font of Magic",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",

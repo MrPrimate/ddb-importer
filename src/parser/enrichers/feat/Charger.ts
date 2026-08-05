@@ -18,4 +18,25 @@ export default class Charger extends DDBEnricherData {
     };
   }
 
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        // AC5e automates the bonus after 10+ ft of straight movement; the
+        // damage activity above remains as the manual claim otherwise
+        name: "Charger",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "bonus=1d8; actionType.mwak && movementLastSegment >= 10",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
 }

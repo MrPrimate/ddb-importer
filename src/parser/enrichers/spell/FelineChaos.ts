@@ -1,5 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Feline Chaos (per errata discussion on the DDB forums the RAW wording is
+ * broken): a 20-ft radius sphere within range for 1 minute. On cast,
+ * creatures in the area make a Dexterity save (half damage) and on a failure
+ * suffer the Feline Chaos effect (disadvantage on checks and attacks).
+ * Creatures starting their turn in the area take the main damage; creatures
+ * moving in the area save or take 2d6 slashing and fall prone.
+ */
 export default class FelineChaos extends DDBEnricherData {
 
   get type() {
@@ -8,15 +16,21 @@ export default class FelineChaos extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      name: "Cast",
+      name: "Save",
       data: {
+        save: {
+          ability: ["dex"],
+          dc: {
+            calculation: "spellcasting",
+            formula: "",
+          },
+        },
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({
-            number: 4,
-            denomination: 6,
-            types: ["slashing"],
-            scalingNumber: 2,
-          })],
+          onSave: "half",
+        },
+        duration: {
+          units: "minute",
+          value: "1",
         },
         range: {
           units: "ft",
@@ -24,8 +38,7 @@ export default class FelineChaos extends DDBEnricherData {
         },
         target: {
           affects: {
-            type: "enemy",
-            choice: true,
+            type: "creature",
           },
           template: {
             count: "",
@@ -45,27 +58,24 @@ export default class FelineChaos extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Moving Save",
-          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+          name: "Start of Turn Damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         overrides: {
           noSpellslot: true,
           targetType: "creature",
           activationType: "special",
+          activationCondition: "A creature starts its turn in the area",
           noTemplate: true,
+          allowCritical: false,
           data: {
-            save: {
-              ability: ["con"],
-              dc: {
-                calculation: "spellcasting",
-                formula: "",
-              },
-            },
             damage: {
               parts: [DDBEnricherData.basicDamagePart({
-                number: 2,
+                number: 4,
                 denomination: 6,
                 types: ["slashing"],
+                scalingMode: "whole",
+                scalingNumber: 2,
               })],
             },
           },
@@ -73,13 +83,14 @@ export default class FelineChaos extends DDBEnricherData {
       },
       {
         init: {
-          name: "End of Turn Save",
+          name: "Movement Save",
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         overrides: {
           noSpellslot: true,
-          activationType: "turnEnd",
           targetType: "creature",
+          activationType: "special",
+          activationCondition: "A creature moves within the area",
           noTemplate: true,
           data: {
             save: {
@@ -88,6 +99,14 @@ export default class FelineChaos extends DDBEnricherData {
                 calculation: "spellcasting",
                 formula: "",
               },
+            },
+            damage: {
+              onSave: "none",
+              parts: [DDBEnricherData.basicDamagePart({
+                number: 2,
+                denomination: 6,
+                types: ["slashing"],
+              })],
             },
           },
         },
@@ -98,9 +117,26 @@ export default class FelineChaos extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [
       {
-        name: "Feline Chaos - Prone",
+        name: "Feline Chaos",
+        activityMatch: "Save",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.dex.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.con.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.int.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.wis.check.roll.mode"),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("1", 50, "flags.automated-conditions-5e.attack.disadvantage"),
+        ],
+      },
+      {
+        name: "Feline Chaos: Prone",
         statuses: ["Prone"],
-        activityMatch: "Moving Save",
+        activityMatch: "Movement Save",
       },
     ];
   }

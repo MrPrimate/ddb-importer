@@ -17,31 +17,29 @@ export default class RecklessAttack extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const allMWAK = false;
-    const key = allMWAK ? "flags.midi-qol.advantage.attack.mwak" : "flags.midi-qol.advantage.attack.str";
     return [
       {
+        // single effect: advantage on your Strength-based attacks, and attacks
+        // against you have advantage until the start of your next turn
         name: "Attacking Recklessly",
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, key),
-        ],
-        daeStackable: "noneName",
-      },
-      {
-        name: "Defending Recklessly",
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
-        ],
         daeStackable: "noneName",
         data: {
           duration: {
-            value: 12,
+            value: 6,
             units: "seconds",
             expiry: "turnStart",
           },
         },
         daeSpecialDurations: [
           "turnStartSource",
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.str"),
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "flags.automated-conditions-5e.grants.attack.advantage"),
         ],
       },
     ];

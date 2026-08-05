@@ -21,6 +21,7 @@ export { default as DivineIntervention } from "./DivineIntervention";
 export { default as DivineOrderThaumaturge } from "./DivineOrderThaumaturge";
 export { default as DivineStrike } from "./DivineStrike";
 export { default as DomainSpells } from "./DomainSpells";
+export { default as EclipseOfIllOmen } from "./EclipseOfIllOmen";
 export { default as EmboldeningBond } from "./EmboldeningBond";
 export { default as EyesOfNight } from "./EyesOfNight";
 export { default as GreaterDivineIntervention } from "./GreaterDivineIntervention";

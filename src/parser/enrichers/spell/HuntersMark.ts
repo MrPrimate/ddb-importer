@@ -57,6 +57,10 @@ export default class HuntersMark extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
+    const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
+    const markBonus = this.is2014
+      ? `bonus=1d6; effectOriginTokenId === tokenId && hasAttack;`
+      : `bonus=1d${hasFoeSlayer ? 10 : 6}[force]; effectOriginTokenId === tokenId && hasAttack;`;
     return [
       {
         name: "Hunter's Mark: Marked",
@@ -67,6 +71,10 @@ export default class HuntersMark extends DDBEnricherData {
           //   document: this.data,
           // }),
           DDBEnricherData.ChangeHelper.customChange("Hunter's Mark", 20, "flags.dae.onUpdateSource"),
+        ],
+        ac5eChanges: [
+          // the marked target grants the caster bonus damage on attacks
+          DDBEnricherData.ChangeHelper.customChange(markBonus, 20, "flags.automated-conditions-5e.grants.damage.bonus"),
         ],
         options: {
           durationSeconds: 3600,

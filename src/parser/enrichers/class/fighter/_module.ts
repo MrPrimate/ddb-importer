@@ -74,6 +74,7 @@ export { default as TelekineticMovement } from "./TelekineticMovement";
 export { default as TelekineticThrust } from "./TelekineticThrust";
 export { default as TirelessSpirit } from "./TirelessSpirit";
 export { default as UnwaveringMark } from "./UnwaveringMark";
+export { default as ViciousIntent } from "./ViciousIntent";
 export { default as WarBond } from "./WarBond";
 export { default as WardingManeuver } from "./WardingManeuver";
 

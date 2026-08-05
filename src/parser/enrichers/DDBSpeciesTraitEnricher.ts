@@ -40,12 +40,12 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     // ("Shadar-kai" -> "ShadarKai", not pascalCase's "Shadarkai")
     const speciesNameHint = utils.pascalCase(speciesName.replace(/-/g, " "));
     const Enricher = (SpeciesEnrichers as TEnricherGroupMap)[speciesNameHint]?.[featName];
-      if (!Enricher) {
-        return null;
-      }
-      return new Enricher({
-        ddbEnricher: this,
-      });
+    if (!Enricher) {
+      return null;
+    }
+    return new Enricher({
+      ddbEnricher: this,
+    });
   }
 
   _defaultClassLoader(): DDBEnricherData | null {
@@ -159,6 +159,15 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Fey Step": SpeciesEnrichers.Eladrin.FeyStep,
     "Natural Attack (Claws)": SpeciesEnrichers.Wulven.NaturalAttackClaws,
     "Draconic Flight": SpeciesEnrichers.Dragonborn.DraconicFlight,
+    // The species-name convention loader (_defaultClassLoader tries
+    // fullRaceName, name-before-paren, groupName, baseRaceName) resolves most
+    // trait enrichers; map entries below are only for names that cannot match
+    // by convention (file name differs from trait name, or the enricher is
+    // shared across species in the Generic namespace).
+    "Necrotic Shroud": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
+    "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
+    "Fade Away": SpeciesEnrichers.Generic.FadeAway,
+    "Burst of Speed": SpeciesEnrichers.Generic.BurstOfSpeed,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {

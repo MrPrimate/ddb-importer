@@ -23,7 +23,24 @@ export default class SurpriseAttack extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    return [];
+    return [
+      {
+        // AC5e automates the first-round surprise damage; the damage activity
+        // remains as the manual claim otherwise
+        name: "Surprise Attack",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "bonus=2d6; hasAttack && combat.round === 1 && rollingActor.combatTurn < opponentActor.combatTurn",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {

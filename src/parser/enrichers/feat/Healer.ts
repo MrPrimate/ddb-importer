@@ -43,4 +43,25 @@ export default class Healer extends DDBEnricherData {
     }
   }
 
+  get effects(): IDDBEffectHint[] {
+    if (!this.is2024) return [];
+    return [
+      {
+        // 2024 Healer: reroll 1s on healing dice
+        name: "Healer",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "modifier=r1;healing && isSpell",
+            20,
+            "flags.automated-conditions-5e.damage.modifier",
+          ),
+        ],
+      },
+    ];
+  }
+
 }

@@ -8,6 +8,7 @@ export { default as BolsteringMagic } from "./BolsteringMagic";
 export { default as BranchesOfTheTree } from "./BranchesOfTheTree";
 export { default as BrutalCritical } from "./BrutalCritical";
 export { default as BrutalStrike } from "./BrutalStrike";
+export { default as DangerSense } from "./DangerSense";
 export { default as DemiurgicColossus } from "./DemiurgicColossus";
 export { default as DivineFury } from "./DivineFury";
 export { default as ElementalCleaver } from "./ElementalCleaver";

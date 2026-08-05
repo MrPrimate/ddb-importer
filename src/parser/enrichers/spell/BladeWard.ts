@@ -16,7 +16,18 @@ export default class BladeWard extends DDBEnricherData {
       ];
     } else {
       return [
-
+        {
+          // 2024: attackers subtract 1d4 from attack rolls against the warded
+          // creature for the duration
+          name: "Blade Ward",
+          ac5eOnly: true,
+          options: {
+            durationSeconds: 60,
+          },
+          ac5eChanges: [
+            DDBEnricherData.ChangeHelper.addChange("bonus=-1d4", 20, "flags.automated-conditions-5e.grants.attack.bonus"),
+          ],
+        },
       ];
     }
   }

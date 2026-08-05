@@ -24,4 +24,25 @@ export default class DiscipleOfLife extends DDBEnricherData {
     };
   }
 
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        // AC5e automates the bonus on healing spells; the heal activity above
+        // remains as the manual claim for users without the module
+        name: "Disciple of Life",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "bonus=2 + castingLevel; isSpell && defaultDamageType.healing",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
 }
