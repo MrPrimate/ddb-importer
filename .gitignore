@@ -24,4 +24,3 @@ coverage/
 .env
 .env.local
 audit-output/
-tests/audit/
