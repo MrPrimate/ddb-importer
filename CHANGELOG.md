@@ -4,6 +4,14 @@
 - Some typing improvement by @aerilym
 - Some characters importing could create an infinite loop if they had identical actions from different features.
 - Improve parsing for some custom species @grimson_xcvi
+- AC5e Effects added to a number of features (thank you @crimsonedge)
+- Some improvements to Gunslinger, Pugilist, and Blood Hunter parsing (thank you @crimsonedge)
+- Kindred class will now import - future parsing improvements are still needed.
+- Guard against some bad recovery blocks being created for charge based items.
+- Monster and vehicle munching now show progress through the whole run, alongside the current batch of 100.
+- Custom feat types like Dragonmarks and Kindred feats were no longer injected under v14
+- Some class scale advancements were not renamed.
+- Feature Imports now have 2014/2024 toggles for Feats, Backgrounds, Species. Species now has a filter option. A new option exists to only update/show content that does not exist in your compendium when running the tool.
 
 # 7.3.16
 
