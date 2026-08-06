@@ -165,4 +165,17 @@ export default defineConfig(
       }],
     },
   },
+  {
+    // One-off scripts that predate tools/ being linted. New tooling under
+    // tools/ is linted by `npm run lint`; drop entries here as they are cleaned
+    // up rather than adding to the list.
+    ignores: [
+      "tools/build-module-json.js",
+      "tools/create-symlinks.mjs",
+      "tools/fetch-ddb-config.mjs",
+      "tools/foundry-dev-link.mjs",
+      "tools/get-version.js",
+      "tools/test-grid-detector.mjs",
+    ],
+  },
 );
