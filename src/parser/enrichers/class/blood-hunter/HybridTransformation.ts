@@ -246,6 +246,19 @@ export default class HybridTransformation extends DDBEnricherData {
     ];
   }
 
+  /**
+   * "Hybrid Transformation Features" is skipped as its own document, so its text (Feral Might,
+   * Resilient Hide, Predatory Strikes, Bloodlust) is folded in here alongside the automation.
+   */
+  get _featuresDescription(): string {
+    const description = this.getClassFeatureDescription({
+      featureName: "Hybrid Transformation Features",
+      subClassName: "Order of the Lycan",
+    });
+
+    return description ? `<h3>Hybrid Transformation Features</h3>${description}` : "";
+  }
+
   get override(): IDDBOverrideData {
     return {
       data: {
@@ -261,7 +274,7 @@ export default class HybridTransformation extends DDBEnricherData {
       }),
       // only the transformation toggle spends a Hybrid Transformation use
       ignoredConsumptionActivities: ["Predatory Strike", "Predatory Strike (Bonus Action)", "Bloodlust"],
-      descriptionSuffix: "<p><em>Crimson Rite is not applied to the Predatory Strike activities automatically; add the rite die to the damage roll manually or apply the enchantment to this item.</em></p>",
+      descriptionSuffix: `${this._featuresDescription}<p><em>Crimson Rite is not applied to the Predatory Strike activities automatically; add the rite die to the damage roll manually or apply the enchantment to this item.</em></p>`,
     };
   }
 

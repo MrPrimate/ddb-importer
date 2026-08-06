@@ -410,19 +410,31 @@ export default class DDBDataUtils {
     return result;
   }
 
+  static getClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
+    ddbData: IDDBData;
+    featureName: string;
+    className?: string | null;
+    subClassName?: string | null;
+  }): IDDBClassFeature | undefined {
+    for (const klass of ddbData.character.classes) {
+      if (className !== null && klass.definition.name !== className) continue;
+      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName) continue;
+      const feature = klass.classFeatures.find((f) =>
+        f.definition.name === featureName && klass.level >= f.definition.requiredLevel,
+      );
+      if (feature) return feature;
+    }
+
+    return undefined;
+  }
+
   static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
     ddbData: IDDBData;
     featureName: string;
     className?: string | null;
     subClassName?: string | null;
   }) {
-    const result = ddbData.character.classes.some((klass) =>
-      klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
-      && ((className === null || klass.definition.name === className)
-        && (subClassName === null || klass.subclassDefinition?.name === subClassName)),
-    );
-
-    return result;
+    return DDBDataUtils.getClassFeature({ ddbData, featureName, className, subClassName }) !== undefined;
   }
 
   static hasSpeciesTrait({ ddbData, traitName } : { ddbData: IDDBData; traitName: string }) {

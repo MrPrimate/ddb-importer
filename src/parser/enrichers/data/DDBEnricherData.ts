@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
-import { DDBDataUtils } from "../../lib/_module";
+import { DDBDataUtils, DDBTemplateStrings } from "../../lib/_module";
 import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
 import DDBSpell from "../../spells/DDBSpell";
 import type DDBSummonsManager from "../../companions/DDBSummonsManager";
@@ -71,6 +71,34 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
       className,
       subClassName,
     });
+  }
+
+  /**
+   * The parsed description of another class feature on this character, for enrichers that fold a
+   * sibling feature's text into their own document. Returns null when the feature is absent or the
+   * character has not reached its level.
+   */
+  getClassFeatureDescription({ featureName, className = null, subClassName = null }: { featureName: string; className?: string | null; subClassName?: string | null }): string | null {
+    if (!this.ddbParser?.ddbData) return null;
+
+    const feature = DDBDataUtils.getClassFeature({
+      ddbData: this.ddbParser.ddbData,
+      featureName,
+      className,
+      subClassName,
+    });
+
+    if (!feature?.definition.description) return null;
+
+    const rawCharacter = this.ddbParser.rawCharacter;
+    if (rawCharacter?.type !== "character") return feature.definition.description;
+
+    return DDBTemplateStrings.parse(
+      this.ddbParser.ddbData,
+      rawCharacter,
+      feature.definition.description,
+      this.ddbParser.ddbFeature,
+    )?.text ?? null;
   }
 
   hasSpeciesTrait({ traitName }: { traitName: string }): boolean {
