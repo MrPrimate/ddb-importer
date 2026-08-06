@@ -5,6 +5,7 @@
 - Some characters importing could create an infinite loop if they had identical actions from different features.
 - Improve parsing for some custom species @grimson_xcvi
 - AC5e Effects added to a number of features (thank you @crimsonedge)
+- More icon updates by @crimsonedge
 - Some improvements to Gunslinger, Pugilist, and Blood Hunter parsing (thank you @crimsonedge)
 - Kindred class will now import - future parsing improvements are still needed.
 - Guard against some bad recovery blocks being created for charge based items.

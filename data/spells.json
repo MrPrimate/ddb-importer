@@ -3586,5 +3586,17 @@
   {
     "name": "Tamh Gon's Fiery Festival Feast",
     "path": "icons/consumables/food/plate-fish-grilled-brown.webp"
+  },
+  {
+    "name": "Burning Blade",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-red.webp"
+  },
+  {
+    "name": "Rusting Grasp",
+    "path": "icons/magic/death/hand-withered-gray.webp"
+  },
+  {
+    "name": "Voorish Sign",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
   }
 ]
