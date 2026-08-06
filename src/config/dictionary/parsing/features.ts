@@ -66,6 +66,7 @@ export const PARSING_FEATURES = {
     "Creature Type",
     "Age",
     "Alignment",
+    "Blood Hunter Order",
   ],
   SKIPPED_FEATURES_2014: [
     "Primal Knowledge",
@@ -387,6 +388,11 @@ export const PARSING_CHOICE_FEATURES = {
     // "Totem Spirit",
     // "Totemic Attunement",
   ],
+  // Parent features whose DDB description is a dump of every option (e.g. Blood
+  // Curses ships all curses). Replace it with the chosen options' own descriptions.
+  REPLACE_DESCRIPTION_WITH_CHOICES: [
+    "Blood Curses",
+  ],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
     // "Arcane Shot Options",
@@ -496,6 +502,11 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimated Companion",
     "Reanimator's Skillset",
     "Spirits from Beyond",
+    "Crimson Rite",
+    "Heightened Senses",
+    "Hybrid Transformation Features",
+    "Hybrid Transformation",
+    "Hunter's Bane",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

@@ -893,7 +893,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     // this._generateRange();
 
     const listItems: string[] = [];
-    const chosenOnly = DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
+    const replaceDescription = DDBFeature.CHOICE_DEFS.REPLACE_DESCRIPTION_WITH_CHOICES.includes(this.originalName);
+    const chosenOnly = replaceDescription || DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
     const choices = chosenOnly
       ? this._chosen
       : DDBFeature.CHOICE_DEFS.USE_ALL_CHOICES.includes(this.originalName)
@@ -932,7 +933,14 @@ ${description}`;
 <ul>${listItems.join("")}</ul>`
       : choiceText;
 
-    const secretText = DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
+    // DDB ships the full option list as the parent description (e.g. every blood
+    // curse); swap it for the chosen options only. Skipped when nothing is chosen so
+    // the feature never ends up with a blank description.
+    const useChoicesAsDescription = replaceDescription && joinedText.trim() !== "";
+    if (useChoicesAsDescription) this.descriptionOverride = joinedText.trim();
+
+    const secretText = useChoicesAsDescription
+      || DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
       || joinedText.trim() === ""
       ? ""

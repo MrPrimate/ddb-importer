@@ -39,6 +39,7 @@ const CHOICE_TYPE = 1;
 
 interface IChoiceDataOptions {
   featureName?: string;
+  featureDescription?: string;
   options?: { id: number; label: string; description: string }[];
   chosenId?: number;
 }
@@ -49,13 +50,18 @@ interface IChoiceDataOptions {
  */
 function makeChoiceDdbData({
   featureName = "Test Feature",
+  featureDescription,
   options = [
     { id: 101, label: "Option A", description: "<p>Option A text.</p>" },
     { id: 102, label: "Option B", description: "<p>Option B text.</p>" },
   ],
   chosenId = 101,
 }: IChoiceDataOptions = {}): any {
-  const feature = makeDdbFeature({ id: FEATURE_ID, name: featureName });
+  const feature = makeDdbFeature({
+    id: FEATURE_ID,
+    name: featureName,
+    ...(featureDescription === undefined ? {} : { description: featureDescription }),
+  });
   const klass = makeDdbClass({ classFeatures: [feature] });
   return makeDdbCharacterData({
     character: {
@@ -226,5 +232,64 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
     expect(features).toEqual([]);
     expect(parent.data.name).toBe("Test Feature");
+  });
+});
+
+// DDB ships the parent "Blood Curses" feature with every curse in its description;
+// REPLACE_DESCRIPTION_WITH_CHOICES swaps that for the chosen options' own text.
+describe("DDBFeature._buildChoiceFeature REPLACE_DESCRIPTION_WITH_CHOICES", () => {
+  const CURSE_BLOB = "<p>Blood Curse of Exposure. Blood Curse of Binding. Blood Curse of Bloated Agony.</p>";
+
+  function makeCurseParent(dataOptions: IChoiceDataOptions = {}) {
+    return makeParentFeature({
+      featureName: "Blood Curses",
+      featureDescription: CURSE_BLOB,
+      options: [
+        { id: 101, label: "Blood Curse of Exposure", description: "<p>Exposure text.</p>" },
+        { id: 102, label: "Blood Curse of Binding", description: "<p>Binding text.</p>" },
+      ],
+      ...dataOptions,
+    });
+  }
+
+  it("replaces the full DDB option dump with the chosen option descriptions", async () => {
+    const parent = makeCurseParent();
+    await parent.loadEnricher();
+    await parent.build();
+
+    const description = parent.data.system.description.value;
+    expect(description).not.toContain("Bloated Agony");
+    expect(description).toContain("<strong>Blood Curse of Exposure</strong>");
+    expect(description).toContain("Exposure text.");
+    // only the chosen curse, and no appended secret block on top of it
+    expect(description).not.toContain("Binding text.");
+    expect(description).not.toContain("<section class=\"secret\">");
+    expect(parent.descriptionOverride).toContain("Exposure text.");
+  });
+
+  it("keeps the DDB description when nothing usable is chosen", async () => {
+    // skill labels are filtered out of the choice text, leaving nothing to swap in
+    const parent = makeCurseParent({
+      options: [
+        { id: 101, label: "Acrobatics", description: "" },
+        { id: 102, label: "Athletics", description: "" },
+      ],
+    });
+    await parent.loadEnricher();
+    await parent.build();
+
+    expect(parent.descriptionOverride).toBeNull();
+    expect(parent.data.system.description.value).toContain("Bloated Agony");
+  });
+
+  it("leaves features outside the list on the existing secret-block behaviour", async () => {
+    const parent = makeParentFeature({ featureDescription: "<p>A test feature.</p>" });
+    await parent.loadEnricher();
+    await parent.build();
+
+    const description = parent.data.system.description.value;
+    expect(parent.descriptionOverride).toBeNull();
+    expect(description).toContain("A test feature.");
+    expect(description).toContain("<section class=\"secret\">");
   });
 });

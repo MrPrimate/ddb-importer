@@ -90,6 +90,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   tagType: string;
   snippet: string;
   description: string;
+  // when set, replaces the DDB definition description in getDescription(). Used by
+  // REPLACE_DESCRIPTION_WITH_CHOICES features whose DDB description dumps every option.
+  descriptionOverride: string | null = null;
   resourceCharges: number | null;
   ddbFeature: TDDBFeatureMixinAll;
   // current choice option context, set transiently during DDBChoiceFeature.build()
@@ -550,14 +553,16 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     const rawSnippet = this.ddbDefinition.snippet ? this.snippet : "";
 
     this.description
-      = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
-          ?.text ?? ""
-        : !useCombinedSetting || forceFull
-          ? this.type === "race"
-            ? this._getRaceFeatureDescription()
-            : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
-          : "";
+      = this.descriptionOverride !== null
+        ? this.descriptionOverride
+        : this.ddbDefinition.description && this.ddbDefinition.description !== ""
+          ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
+            ?.text ?? ""
+          : !useCombinedSetting || forceFull
+            ? this.type === "race"
+              ? this._getRaceFeatureDescription()
+              : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+            : "";
 
     const extraDescription
       = extra && extra !== ""
