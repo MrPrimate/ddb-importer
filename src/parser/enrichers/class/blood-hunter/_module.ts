@@ -4,4 +4,6 @@ export { default as BloodCurseOfBinding } from "./BloodCurseOfBinding";
 export { default as BloodMaledict } from "./BloodMaledict";
 export { default as BrandOfCastigation } from "./BrandOfCastigation";
 export { default as CrimsonRite } from "./CrimsonRite";
+export { default as HybridTransformation } from "./HybridTransformation";
+export { default as HybridTransformationFeatures } from "./HybridTransformationFeatures";
 

@@ -45,7 +45,7 @@ export default class CrimsonRite extends DDBEnricherData {
         overrides: {
           data: {
             restrictions: {
-              type: "weapon",
+              // type: "weapon",
               allowMagical: true,
             },
           },

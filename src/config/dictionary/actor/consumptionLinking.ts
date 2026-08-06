@@ -34,6 +34,9 @@ export const CONSUMPTION_LINKS = {
     "Blood Curse of",
     "Blood Curses:",
   ],
+  "Hybrid Transformation": [
+    "Hybrid Transformation Features",
+  ],
   "Grit Points": [
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
     "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",

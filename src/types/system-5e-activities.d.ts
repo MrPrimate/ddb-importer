@@ -123,7 +123,8 @@ global {
     effectConditionText?: string;
   }
 
-  type T5eActivityAttackAbility = T5eAbility | "spellcasting" | "";
+  // "none" suppresses the ability mod entirely, leaving only attack.bonus (dnd5e attack-data.mjs)
+  type T5eActivityAttackAbility = T5eAbility | "spellcasting" | "none" | "";
 
   interface I5eActivityAttack {
     ability?: T5eActivityAttackAbility;

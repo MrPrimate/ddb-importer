@@ -67,6 +67,7 @@ export const PARSING_FEATURES = {
     "Age",
     "Alignment",
     "Blood Hunter Order",
+    "Hybrid Transformation Features",
   ],
   SKIPPED_FEATURES_2014: [
     "Primal Knowledge",
@@ -256,6 +257,10 @@ export const PARSING_CHOICE_FEATURES = {
     "Elven Lineage Spells",
     "Fiendish Resilience",
     "Gnomish Lineage Spells",
+    // Lycan hybrid form is a Foundry side enchantment toggle, the DDB Hybrid/Normal Form choice
+    // sub features would duplicate it (and rename the parent, as it is a single choice)
+    "Hybrid Transformation",
+    "Hybrid Transformation Features",
     "Linguist",
     "Magic Initiate (Cleric)",
     "Magic Initiate (Druid)",
