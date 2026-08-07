@@ -128,8 +128,10 @@ describe("DDBAttackAction.build weapon documents", () => {
     expect(activity.type).toBe("attack");
     expect(activity.attack.ability).toBe("str");
     expect(activity.attack.type).toEqual({ value: "melee", classification: "natural" });
-    // weapon documents keep damage on the item, not the activity
-    expect(activity.damage).toBeUndefined();
+    // weapon documents keep damage parts on the item and the activity
+    // (the attack activity schema still carries an empty damage object)
+    // in some cases the enricher will generate damage on the activity as a bonus
+    expect(activity.damage.parts).toEqual([]);
   });
 
   it("generates an aoe self range and target for aoe weapon actions", async () => {

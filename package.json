@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "audit:enrichers": "vitest run tests/audit/classes.audit.test.ts tests/audit/feats.audit.test.ts tests/audit/species.audit.test.ts",
+    "audit:enrichers": "vitest run tests/audit/classes.audit.test.ts tests/audit/feats.audit.test.ts tests/audit/species.audit.test.ts tests/audit/spells.audit.test.ts tests/audit/items.audit.test.ts tests/audit/monsters.audit.test.ts",
     "audit:review": "node tools/review-enricher-findings.mjs",
     "build": "npm run clear; npm run link; webpack",
     "dev": "npm run link && node esbuild.config.mjs --watch",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.9.0",
+    "@types/jsdom": "^28.0.3",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@vitest/coverage-v8": "^4.1.10",
     "dnd5e": "github:adriangaro/dnd5e-types#5.0.x",
