@@ -31,7 +31,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
       if (this.name.includes("(")) {
         return this._splitNameLoader();
       }
-      return null;
+      return this._genericFallbackLoader();
     }
     this.hints = {
       monsterHintName,
@@ -40,6 +40,22 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     return new Enricher({
       ddbEnricher: this,
     });
+  }
+
+  /**
+   * A monster-name hint (MONSTER_NAME_HINT_INCLUDES) routes resolution to a
+   * per-monster enricher group before the generic feature-name maps are ever
+   * consulted. When that group has no match for the feature, fall back to the
+   * generic maps so hint-mapped monsters (e.g. "Empyrean (Celestial)") keep
+   * cross-monster automation like Legendary Resistance.
+   */
+  _genericFallbackLoader(): DDBEnricherData | null {
+    if ((this.monsterHintName ?? this.monsterName) === "Generic") return null;
+    const genericHint = this._genericFeatureHint(this.name ?? "");
+    if (!genericHint) return null;
+    this.monsterHintName = "Generic";
+    this.hintName = genericHint;
+    return this._loadEnricherData();
   }
 
   _loadEnricherData(): DDBEnricherData | null {
@@ -72,36 +88,34 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     }
 
     // no monster or monster partial match, check generic options
-    const genericKeys = Object.keys(this.GENERIC_FEATURE_NAME);
-    const name = this.name ?? "";
-    const splitName = name.split("(")[0].trim();
-    const genericHint = genericKeys.find((key: string) => name === key || splitName === key);
-
+    const genericHint = this._genericFeatureHint(this.name ?? "");
     if (genericHint) {
       this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME[genericHint];
-      return;
-    }
-
-    const startsWithKeys = Object.keys(this.GENERIC_FEATURE_NAME_STARTS_WITH);
-    const startsWithHint = startsWithKeys.find((key: string) => name.startsWith(key));
-    if (startsWithHint) {
-      this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME_STARTS_WITH[startsWithHint];
-      return;
-    }
-
-    const includesKeys = Object.keys(this.GENERIC_FEATURE_NAME_INCLUDES);
-    const includesHint = includesKeys.find((key: string) => name.includes(key));
-    if (includesHint) {
-      this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
+      this.hintName = genericHint;
       return;
     }
 
     logger.debug(`No Monster Name Hint for ${this.name} (${this.monsterName})`);
 
     this.monsterHintName = this.monsterName;
+  }
+
+  /** Resolve a feature name against the generic feature-name maps. */
+  _genericFeatureHint(name: string): string | null {
+    const splitName = name.split("(")[0].trim();
+    const exactHint = Object.keys(this.GENERIC_FEATURE_NAME)
+      .find((key: string) => name === key || splitName === key);
+    if (exactHint) return this.GENERIC_FEATURE_NAME[exactHint];
+
+    const startsWithHint = Object.keys(this.GENERIC_FEATURE_NAME_STARTS_WITH)
+      .find((key: string) => name.startsWith(key));
+    if (startsWithHint) return this.GENERIC_FEATURE_NAME_STARTS_WITH[startsWithHint];
+
+    const includesHint = Object.keys(this.GENERIC_FEATURE_NAME_INCLUDES)
+      .find((key: string) => name.includes(key));
+    if (includesHint) return this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
+
+    return null;
   }
 
   _getNameHint(): void {
