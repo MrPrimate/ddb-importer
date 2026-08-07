@@ -1356,6 +1356,30 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
           }
           return true;
         });
+        // activities cloned from the action documents can link a Status effect
+        // the filter above just dropped; retarget those links to the surviving
+        // same-named effect so they do not dangle
+        if ("activities" in this.data.system) {
+          const survivorIdByName = new Map<string, string>();
+          const survivingIds = new Set<string>();
+          for (const effect of this.data.effects as any[]) {
+            if (!effect._id) continue;
+            survivingIds.add(effect._id);
+            if (effect.name?.startsWith("Status:") && !survivorIdByName.has(effect.name)) {
+              survivorIdByName.set(effect.name, effect._id);
+            }
+          }
+          for (const droppedEffect of activityData.effects as any[]) {
+            if (!droppedEffect._id || survivingIds.has(droppedEffect._id)) continue;
+            const survivorId = survivorIdByName.get(droppedEffect.name);
+            if (!survivorId) continue;
+            for (const activity of Object.values(this.data.system.activities) as any[]) {
+              for (const link of (activity.effects ?? []) as any[]) {
+                if (link._id === droppedEffect._id) link._id = survivorId;
+              }
+            }
+          }
+        }
         y++;
 
         for (const effect of activityData.effects) {
