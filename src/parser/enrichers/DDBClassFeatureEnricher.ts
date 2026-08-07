@@ -89,6 +89,20 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Liar's Dice [Maneuver]": "Liar's Dice",
     // Blood Hunter curse/boon choice features resolve to their base enricher
     "Blood Curses: Blood Curse of Binding": "Blood Curse of Binding",
+    "Blood Curses: Blood Curse of Bloated Agony": "Blood Curse of Bloated Agony",
+    "Blood Curses: Blood Curse of Exposure": "Blood Curse of Exposure",
+    "Blood Curses: Blood Curse of the Anxious": "Blood Curse of the Anxious",
+    "Blood Curses: Blood Curse of the Eyeless": "Blood Curse of the Eyeless",
+    "Blood Curses: Blood Curse of the Fallen Puppet": "Blood Curse of the Fallen Puppet",
+    "Blood Curses: Blood Curse of the Marked": "Blood Curse of the Marked",
+    "Blood Curses: Blood Curse of the Muddled Mind": "Blood Curse of the Muddled Mind",
+    // Blood Hunter rite choice features resolve to their per-rite enricher
+    "Crimson Rite: Rite of the Flame": "Rite of the Flame",
+    "Crimson Rite: Rite of the Frozen": "Rite of the Frozen",
+    "Crimson Rite: Rite of the Storm": "Rite of the Storm",
+    "Crimson Rite: Rite of the Dead": "Rite of the Dead",
+    "Crimson Rite: Rite of the Oracle": "Rite of the Oracle",
+    "Crimson Rite: Rite of the Roar": "Rite of the Roar",
     // Illrigger boon choice feature shares the action's enricher
     "Interdict Boons: Abating Seal": "Abating Seal",
     // Gunslinger (TGC) subclass maneuvers; "Manuever" is a DDB data typo

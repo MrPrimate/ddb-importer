@@ -347,6 +347,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimated Companion",
     "Reanimator's Skillset",
     "Spirits from Beyond",
+    "Stalker's Prowess",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -512,6 +513,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Hybrid Transformation Features",
     "Hybrid Transformation",
     "Hunter's Bane",
+    "Brand of Tethering",
+    "Dark Augmentation",
+    "Brand of Castigation",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

@@ -1,71 +1,35 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import _CrimsonRite from "./_CrimsonRite";
 
 /**
  * Crimson Rite: invoke a rite (taking hemocraft die damage that cannot be
- * reduced) and enchant a held weapon with the rite, adding the hemocraft die
- * to its damage while active.
+ * reduced) and enchant a held weapon with it.
+ *
+ * The parent feature owns the rite choices, so it gets one Apply Rite activity
+ * per rite the character actually knows, each enchanting the weapon with that
+ * rite's damage type. Characters whose choices DDB did not capture fall back
+ * to a single generic, untyped Apply Rite.
  */
-export default class CrimsonRite extends DDBEnricherData {
+export default class CrimsonRite extends _CrimsonRite {
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
   get activity(): IDDBActivityData {
-    return {
-      name: "Invoke Rite",
-      targetType: "self",
-      activationType: "bonus",
-      activationCondition: "Take hemocraft die damage (cannot be reduced in any way)",
-      allowCritical: false,
-      data: {
-        damage: {
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.blood-hunter.crimson-rite.die",
-              types: ["necrotic"],
-            }),
-          ],
-        },
-      },
-    };
+    return this.invokeRiteActivity;
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      {
-        init: {
-          name: "Apply Rite",
-          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
-        },
-        build: {
-          generateActivation: true,
-          generateDamage: false,
-        },
-        overrides: {
-          data: {
-            restrictions: {
-              // type: "weapon",
-              allowMagical: true,
-            },
-          },
-        },
-      },
-    ];
+    const rites = this.knownRites;
+    if (rites.length === 0) return [this.applyRiteActivity()];
+    return rites.map((rite) => this.applyRiteActivity(rite));
   }
 
   get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Crimson Rite",
-        activityMatch: "Apply Rite",
-        type: "enchant",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`{} [Crimson Rite]`, 10, "name"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.blood-hunter.crimson-rite.die", 10, "system.damage.base.bonus"),
-        ],
-      },
-    ];
+    const rites = this.knownRites;
+    if (rites.length === 0) return [this.riteEnchantEffect()];
+    return rites.map((rite) => this.riteEnchantEffect(rite));
   }
 
 }
