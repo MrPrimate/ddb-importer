@@ -1,5 +1,8 @@
 # Next Up
 
+# 7.4.1
+
+- This release has had a large amount of work on the testing framework, and as such many small bugs and parsing improvements have been made.
 - Monsters with large negative skill adjustments would fail to parse that skill properly, e.g. Zuul
 - Some typing improvement by @aerilym
 - Some characters importing could create an infinite loop if they had identical actions from different features.
