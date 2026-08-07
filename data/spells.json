@@ -3598,5 +3598,17 @@
   {
     "name": "Voorish Sign",
     "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Freyja's Allure",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
+  },
+  {
+    "name": "Wind Sprint",
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
+  },
+  {
+    "name": "Song of the Shield Wall",
+    "path": "icons/magic/defensive/shield-hex-blue.webp"
   }
 ]
