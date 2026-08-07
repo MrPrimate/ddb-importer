@@ -259,6 +259,14 @@ export default class HybridTransformation extends DDBEnricherData {
     return description ? `<h3>Hybrid Transformation Features</h3>${description}` : "";
   }
 
+  // matches a single non-nested blockquote; a DOM round trip is not used here because
+  // re-serialising would escape the & in Foundry's &Reference[...] enrichers
+  static BLOCKQUOTE_REGEX = /<blockquote\b[^>]*>(?:(?!<\/blockquote>)[\s\S])*<\/blockquote>\s*/gi;
+
+  _stripBuilderNote(html: string): string {
+    return DDBEnricherData.stripBuilderNote(html, "Character Builder");
+  }
+
   get override(): IDDBOverrideData {
     return {
       data: {
@@ -275,6 +283,13 @@ export default class HybridTransformation extends DDBEnricherData {
       // only the transformation toggle spends a Hybrid Transformation use
       ignoredConsumptionActivities: ["Predatory Strike", "Predatory Strike (Bonus Action)", "Bloodlust"],
       descriptionSuffix: `${this._featuresDescription}<p><em>Crimson Rite is not applied to the Predatory Strike activities automatically; add the rite die to the damage roll manually or apply the enchantment to this item.</em></p>`,
+      // runs after descriptionSuffix has been appended
+      func: ({ enricher }) => {
+        const description = enricher.data.system.description;
+        if (!description) return;
+        description.value = this._stripBuilderNote(description.value);
+        if (description.chat) description.chat = this._stripBuilderNote(description.chat);
+      },
     };
   }
 

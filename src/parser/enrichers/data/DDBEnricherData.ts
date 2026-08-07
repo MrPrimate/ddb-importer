@@ -301,6 +301,18 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     };
   }
 
+  // matches a single non-nested blockquote; a DOM round trip is not used here because
+  // re-serialising would escape the & in Foundry's &Reference[...] enrichers
+  static BLOCKQUOTE_REGEX = /<blockquote\b[^>]*>(?:(?!<\/blockquote>)[\s\S])*<\/blockquote>\s*/gi;
+
+  static stripBuilderNote(html: string, builderNote = "Character Builder"): string {
+    if (!html?.includes(builderNote)) return html;
+
+    return html.replace(DDBEnricherData.BLOCKQUOTE_REGEX, (match) =>
+      match.includes(builderNote) ? "" : match,
+    );
+  }
+
   get useMidiAutomations(): boolean {
     if (!DDBEnricherData.AutoEffects.effectModules().midiQolInstalled) return false;
     return this.ddbParser.useMidiAutomations ?? false;
