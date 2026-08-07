@@ -508,6 +508,52 @@ export default class DDBSources {
     return definition.sources.some((source) => allowed.has(source.sourceId));
   }
 
+  /** Bucket used by groupByPrimarySourceId for definitions DDB gives no source. */
+  static UNKNOWN_SOURCE_ID = 0;
+
+  /**
+   * The book a definition is primarily attributed to. DDB lists extra sources
+   * for reprints and setting references; sourceType 1 is the actual book, so
+   * prefer it and only fall back to the first entry when nothing is typed.
+   */
+  static getPrimarySource(definition: IDDBBaseSourcesDefinition | null | undefined): IDDBSource | null {
+    const sources = definition?.sources ?? [];
+    return sources.find((source) => source.sourceType === 1) ?? sources[0] ?? null;
+  }
+
+  /** The DDB source category owning a source id, or null when it is unknown. */
+  static getSourceCategoryForSourceId(sourceId: number): IDDBConfigSourceCategory | null {
+    const source = (CONFIG.DDB?.sources ?? []).find((s) => s.id == sourceId);
+    if (!source) return null;
+    return (CONFIG.DDB?.sourceCategories ?? []).find((c) => c.id === source.sourceCategoryId) ?? null;
+  }
+
+  /**
+   * Break a single proxy payload down into one bucket per DDB source book.
+   *
+   * DDB can list several sources for one definition (a spell reprinted in a
+   * later compendium keeps both). Only the first is used, so every entry lands
+   * in exactly one bucket and the buckets stay disjoint — a source's bucket is
+   * therefore "what DDB primarily attributes to this book", not "everything
+   * that appears in it".
+   *
+   * Entries with no source data go to UNKNOWN_SOURCE_ID rather than being
+   * dropped, so a round trip through this never loses anything.
+   */
+  static groupByPrimarySourceId<T>(
+    entries: T[],
+    getDefinition: (entry: T) => IDDBBaseSourcesDefinition | null | undefined,
+  ): Map<number, T[]> {
+    const grouped = new Map<number, T[]>();
+    for (const entry of entries) {
+      const sourceId = getDefinition(entry)?.sources?.[0]?.sourceId ?? DDBSources.UNKNOWN_SOURCE_ID;
+      const bucket = grouped.get(sourceId);
+      if (bucket) bucket.push(entry);
+      else grouped.set(sourceId, [entry]);
+    }
+    return grouped;
+  }
+
   static getChosenCategoriesAndBooks(useOverride = true): { categoryId: number; sourceIds: number[] }[] {
     const sourceIdArrays: { categoryId: number; sourceIds: number[] }[] = [];
     const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();

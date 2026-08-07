@@ -134,6 +134,37 @@ function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinitio
 }
 
 
+/**
+ * Dev-only: dump the normalised, unfiltered item payload as one file per DDB
+ * source book, so a single proxy block can be worked on book by book.
+ *
+ * Named RAW-items-<sourceId>.json, matching the mule's RAW-* convention. Items
+ * and item-granted spells are bucketed by their own primary source; `extra`
+ * (limited-use data keyed by item id) follows its item, so each file stays a
+ * self-contained IDDBItemsSource.
+ */
+function downloadRawItemsBySource(source: IDDBItemsSource) {
+  if (!CONFIG.DDBI.DEV.downloadRAWJSONExamples) return;
+  const itemsBySource = DDBSources.groupByPrimarySourceId(source.items, (item) => item);
+  const spellsBySource = DDBSources.groupByPrimarySourceId(source.spells, (spell) => spell.definition);
+  const extraByItemId = new Map(source.extra.map((entry) => [entry.id, entry]));
+
+  for (const sourceId of new Set([...itemsBySource.keys(), ...spellsBySource.keys()])) {
+    const items = itemsBySource.get(sourceId) ?? [];
+    const payload: IDDBItemsSource = {
+      items,
+      spells: spellsBySource.get(sourceId) ?? [],
+      extra: items.map((item) => extraByItemId.get(item.id)).filter((entry) => entry !== undefined),
+    };
+    const sourceName = sourceId === DDBSources.UNKNOWN_SOURCE_ID ? "unknown" : String(sourceId);
+    FileHelper.download(
+      JSON.stringify({ success: true, sourceId, data: payload }),
+      `RAW-items-${sourceName}.json`,
+      "application/json",
+    );
+  }
+}
+
 export default class DDBItemsImporter implements IDDBItemsImporter {
 
   source: IDDBItemsSource = {
@@ -247,7 +278,9 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         })
         .then((raw) => {
           if (raw == null) return;
-          resolve(applyItemFilters(normaliseItemPayload(raw), ctx.filters));
+          const normalised = normaliseItemPayload(raw);
+          downloadRawItemsBySource(normalised);
+          resolve(applyItemFilters(normalised, ctx.filters));
         })
         .catch((error) => reject(error));
     });
@@ -287,7 +320,9 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
           );
         }
         if (raw == null) throw new Error("Stream completed without items payload");
-        return applyItemFilters(normaliseItemPayload(raw), ctx.filters);
+        const normalised = normaliseItemPayload(raw);
+        downloadRawItemsBySource(normalised);
+        return applyItemFilters(normalised, ctx.filters);
       } finally {
         socket.close();
       }

@@ -161,6 +161,76 @@ describe("DDBSources.isDefinitionInSourceIds", () => {
   });
 });
 
+describe("DDBSources.groupByPrimarySourceId", () => {
+  const entry = (name: string, sourceIds: number[]) => ({
+    name,
+    definition: { name, sources: sourceIds.map((id) => makeSource(id)) },
+  });
+
+  it("buckets entries by their first source", () => {
+    const grouped = DDBSources.groupByPrimarySourceId(
+      [entry("Fireball", [2]), entry("Shield", [2]), entry("Toll the Dead", [3])],
+      (spell) => spell.definition,
+    );
+    expect([...grouped.keys()].sort()).toEqual([2, 3]);
+    expect(grouped.get(2)?.map((spell) => spell.name)).toEqual(["Fireball", "Shield"]);
+    expect(grouped.get(3)?.map((spell) => spell.name)).toEqual(["Toll the Dead"]);
+  });
+
+  it("keeps buckets disjoint for a reprinted entry", () => {
+    const grouped = DDBSources.groupByPrimarySourceId([entry("Fireball", [2, 145])], (spell) => spell.definition);
+    expect([...grouped.keys()]).toEqual([2]);
+    expect(grouped.get(145)).toBeUndefined();
+  });
+
+  it("collects entries with no source data instead of dropping them", () => {
+    const grouped = DDBSources.groupByPrimarySourceId(
+      [entry("Homebrew Bolt", []), { name: "No definition", definition: undefined }],
+      (spell) => spell.definition,
+    );
+    expect(grouped.get(DDBSources.UNKNOWN_SOURCE_ID)?.map((spell) => spell.name))
+      .toEqual(["Homebrew Bolt", "No definition"]);
+  });
+
+  it("round trips every entry exactly once", () => {
+    const entries = [entry("A", [2]), entry("B", [2, 3]), entry("C", [3]), entry("D", [])];
+    const grouped = DDBSources.groupByPrimarySourceId(entries, (spell) => spell.definition);
+    expect([...grouped.values()].flat()).toHaveLength(entries.length);
+  });
+});
+
+describe("DDBSources.getPrimarySource", () => {
+  it("prefers the real book over reprint and reference entries", () => {
+    const definition: IDDBSourcesDefinition = {
+      sources: [makeSource(238, 2), makeSource(2, 1), makeSource(145, 1)],
+    };
+    expect(DDBSources.getPrimarySource(definition)?.sourceId).toBe(2);
+  });
+
+  it("falls back to the first entry when nothing is typed as a book", () => {
+    expect(DDBSources.getPrimarySource({ sources: [makeSource(238, 2)] })?.sourceId).toBe(238);
+  });
+
+  it("returns null when there is no source data", () => {
+    expect(DDBSources.getPrimarySource({ sources: [] })).toBeNull();
+    expect(DDBSources.getPrimarySource({})).toBeNull();
+    expect(DDBSources.getPrimarySource(null)).toBeNull();
+  });
+});
+
+describe("DDBSources.getSourceCategoryForSourceId", () => {
+  it("resolves a source id to its category", () => {
+    // PHB (2) sits in category 26, PHB-2024 (145) in the 2024 core category
+    const phb = DDBSources.getSourceCategoryForSourceId(2);
+    expect(phb?.id).toBe(26);
+    expect(typeof phb?.name).toBe("string");
+  });
+
+  it("returns null for an unknown source id", () => {
+    expect(DDBSources.getSourceCategoryForSourceId(99999)).toBeNull();
+  });
+});
+
 describe("DDBSources.getDDBSourceBook", () => {
   it("maps SRD 5.1 back to BR", () => {
     expect(DDBSources.getDDBSourceBook("SRD 5.1")).toBe("BR");

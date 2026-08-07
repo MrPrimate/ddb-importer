@@ -62,6 +62,27 @@ function applySpellFilters(raw: IDDBSpellEntry[], { sourceFilter, sources, exact
   return data;
 }
 
+/**
+ * Dev-only: dump the unfiltered class spell payload as one file per DDB source
+ * book, so a single proxy block can be worked on book by book.
+ *
+ * Named RAW-spells-<class>-<rulesVersion>-<sourceId>.json, matching the mule's
+ * RAW-* convention. The proxy takes a class name rather than an id, so the name
+ * plus rules version is the whole identity of a spell list here.
+ */
+function downloadRawSpellsBySource(raw: IDDBSpellEntry[], className: string, rulesVersion: string) {
+  if (!CONFIG.DDBI.DEV.downloadRAWJSONExamples) return;
+  const grouped = DDBSources.groupByPrimarySourceId(raw, (spell) => spell.definition);
+  for (const [sourceId, spells] of grouped) {
+    const sourceName = sourceId === DDBSources.UNKNOWN_SOURCE_ID ? "unknown" : String(sourceId);
+    FileHelper.download(
+      JSON.stringify({ success: true, className, rulesVersion, sourceId, data: spells }),
+      `RAW-spells-${className}-${rulesVersion}-${sourceName}.json`,
+      "application/json",
+    );
+  }
+}
+
 interface IGetSpellDataHttpOptions {
   className: string;
   sourceFilter: boolean;
@@ -110,6 +131,7 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
       })
       .then((raw) => {
         if (raw == null) return;
+        downloadRawSpellsBySource(raw, className, rulesVersion ?? "2014");
         resolve(applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter }));
       })
       .catch((error) => {
@@ -181,6 +203,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
         );
 
         if (debugJson) debugDump.push(...raw);
+        downloadRawSpellsBySource(raw, className, rules);
         out.push({
           className,
           rulesVersion: rules,

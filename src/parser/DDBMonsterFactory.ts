@@ -22,6 +22,58 @@ import DDBMonsterSocket, { DDBMonsterEvent } from "../lib/streaming/DDBMonsterSo
 // streaming attempt per page-load latches this and falls back to HTTP.
 let _monsterSocketDisabled = false;
 
+/**
+ * Dev-only: dump the unfiltered monster payload as one file per source category
+ * and rules version, so a single bulk fetch can be worked on category by
+ * category.
+ *
+ * Named RAW-monsters-<category>-<categoryId>-<version>.json, matching the
+ * mule's RAW-* convention. Must run before applyCategoryFilter, which strips
+ * entries from monster.sources in place.
+ */
+function downloadRawMonstersByCategoryAndVersion(monsters: IDDBMonsterSourceData[]) {
+  if (!CONFIG.DDBI.DEV.downloadRAWJSONExamples) return;
+
+  interface IRawMonsterBucket {
+    categoryId: number;
+    categoryName: string;
+    version: string;
+    monsters: IDDBMonsterSourceData[];
+  }
+  const buckets = new Map<string, IRawMonsterBucket>();
+
+  for (const monster of monsters) {
+    const primary = DDBSources.getPrimarySource(monster);
+    const category = primary ? DDBSources.getSourceCategoryForSourceId(primary.sourceId) : null;
+    // homebrew and anything DDB gives no usable source keeps its own bucket
+    // rather than being dropped or silently folded into a real category
+    const categoryId = category?.id ?? DDBSources.UNKNOWN_SOURCE_ID;
+    const categoryName = category?.name ?? (monster.isHomebrew ? "homebrew" : "unknown");
+    const version = primary
+      ? (DDBSources.is2024Source(primary) ? "2024" : "2014")
+      : "unknown";
+    const key = `${categoryId}|${version}`;
+    const bucket = buckets.get(key);
+    if (bucket) bucket.monsters.push(monster);
+    else buckets.set(key, { categoryId, categoryName, version, monsters: [monster] });
+  }
+
+  for (const bucket of buckets.values()) {
+    const safeName = bucket.categoryName.replaceAll(/[^\w.-]+/g, "-").replaceAll(/^-|-$/g, "");
+    FileHelper.download(
+      JSON.stringify({
+        success: true,
+        sourceCategoryId: bucket.categoryId,
+        sourceCategoryName: bucket.categoryName,
+        version: bucket.version,
+        data: bucket.monsters,
+      }),
+      `RAW-monsters-${safeName}-${bucket.categoryId}-${bucket.version}.json`,
+      "application/json",
+    );
+  }
+}
+
 // --- Shared by-id monster streaming session ------------------------------
 // By-id lookups (companion / summons enriched images, CreateUndead, etc.) are
 // fired hundreds of times during a spell import, each previously opening +
@@ -350,6 +402,7 @@ export default class DDBMonsterFactory {
       if (debugJson) {
         FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
       }
+      downloadRawMonstersByCategoryAndVersion(result.data);
       this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
       logger.info(`Retrieved ${result.data.length} monsters from DDB`);
       this.source = applyCategoryFilter(result.data);
@@ -378,6 +431,7 @@ export default class DDBMonsterFactory {
         if (debugJson) {
           FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
         }
+        downloadRawMonstersByCategoryAndVersion(raw);
         this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
         logger.info(`Retrieved ${raw.length} monsters from DDB`);
         this.source = applyCategoryFilter(raw);
