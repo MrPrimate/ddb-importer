@@ -33,6 +33,14 @@ export default class SearingSmite extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateSave: true,
+          saveOverride: {
+            ability: ["con"],
+            dc: {
+              calculation: "spellcasting",
+              formula: "",
+            },
+          },
           generateDamage: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({

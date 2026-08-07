@@ -6,6 +6,8 @@ export default class MageSlayer extends DDBEnricherData {
     return {
       name: "Guarded Mind",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+      // empty consume target spends this feat's own short rest use
+      addItemConsume: true,
     };
   }
 

@@ -75,7 +75,12 @@ export default class EyesOfNight extends DDBEnricherData {
         activityMatch: "Activate",
         img: "icons/magic/perception/silhouette-stealth-shadow.webp",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.senses.ranges.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.senses.darkvision"),
+        ],
+        // without the token changes the shared darkvision is invisible in play
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 300, 10),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "custom", "darkvision", 5),
         ],
         options: {
           durationSeconds: 3600,

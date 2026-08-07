@@ -14,6 +14,7 @@ export { default as DreadfulStrikeMassFear } from "./DreadfulStrikeMassFear";
 export { default as DreadfulStrikes } from "./DreadfulStrikes";
 export { default as DreadfulStrikeSuddenStrike } from "./DreadfulStrikeSuddenStrike";
 export { default as ExceptionalTraining } from "./ExceptionalTraining";
+export { default as FavoredEnemy } from "./FavoredEnemy";
 export { default as FoeSlayer } from "./FoeSlayer";
 export { default as FortifyingSoul } from "./FortifyingSoul";
 export { default as FrigidExplorer } from "./FrigidExplorer";

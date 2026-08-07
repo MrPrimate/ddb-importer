@@ -31,6 +31,7 @@ export * as LivingBladeOfDisaster from "./LivingBladeOfDisaster/_module";
 export * as Nosferatu from "./Nosferatu/_module";
 export * as PlasmoidBoss from "./PlasmoidBoss/_module";
 export * as PurpleWorm from "./PurpleWorm/_module";
+export * as ShieldGuardian from "./ShieldGuardian/_module";
 export * as SpiritualWeapon from "./SpiritualWeapon/_module";
 export * as SteelDefender from "./SteelDefender/_module";
 export * as Stirge from "./Stirge/_module";

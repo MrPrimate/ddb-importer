@@ -27,6 +27,7 @@ export * as Limukin from "./limukin/_module";
 export * as Lizardfolk from "./lizardfolk/_module";
 export * as Lupin from "./lupin/_module";
 export * as Nematocyst from "./nematocyst/_module";
+export * as Oozekin from "./oozekin/_module";
 export * as Orc from "./orc/_module";
 export * as Posskin from "./posskin/_module";
 export * as Ratatosk from "./ratatosk/_module";

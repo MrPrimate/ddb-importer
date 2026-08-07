@@ -54,6 +54,9 @@ export default class ShadowPuppets extends DDBEnricherData {
       {
         activityMatch: "Cast",
         name: "Animated Shadow",
+        options: {
+          durationSeconds: 60,
+        },
       },
       {
         activityMatch: "Save vs Incapacitation",
