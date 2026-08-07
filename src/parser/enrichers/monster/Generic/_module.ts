@@ -8,6 +8,9 @@ export { default as LegendaryResistance } from "./LegendaryResistance";
 export { default as MaskOfTheWild } from "./MaskOfTheWild";
 export { default as NamedEffect } from "./NamedEffect";
 export { default as PackTactics } from "./PackTactics";
+export { default as PetrifyingGaze } from "./PetrifyingGaze";
 export { default as ReversalOfFortune } from "./ReversalOfFortune";
+export { default as SlowingBreath } from "./SlowingBreath";
 export { default as SuaveDefense } from "./SuaveDefense";
+export { default as WeakeningBreath } from "./WeakeningBreath";
 

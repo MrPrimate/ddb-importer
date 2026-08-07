@@ -63,6 +63,7 @@ export { default as TomeOfLeadershipAndInfluence } from "./TomeOfLeadershipAndIn
 export { default as TomeOfUnderstanding } from "./TomeOfUnderstanding";
 export { default as Torch } from "./Torch";
 export { default as Vial } from "./Vial";
+export { default as WandOfFear } from "./WandOfFear";
 export { default as WandOfFireballs } from "./WandOfFireballs";
 export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles";
 export { default as WandOfOrcus } from "./WandOfOrcus";
