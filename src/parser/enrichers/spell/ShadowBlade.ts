@@ -53,7 +53,7 @@ export default class ShadowBlade extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const compendium = CompendiumHelper.getCompendiumType("items");
+    const compendium = CompendiumHelper.getCompendiumType("items", false);
     if (!compendium) return [];
     const compendiumId = compendium?.metadata?.id;
     return ShadowBlade.VARIANTS.map((v) => {
@@ -205,6 +205,9 @@ export default class ShadowBlade extends DDBEnricherData {
   }
 
   async cleanup() {
+    // without a configured items compendium (e.g. the test environment) the
+    // variant weapons cannot be generated or linked
+    if (!CompendiumHelper.getCompendiumType("items", false)) return;
     this.handler = new DDBItemImporter<I5eInventoryItem>("items", [], ShadowBlade.handlerOptions);
     if (game.user.isGM) await this.generateShadowBlades();
     this.linkUpItemUUIDs();

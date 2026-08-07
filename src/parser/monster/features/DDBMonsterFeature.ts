@@ -463,7 +463,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     if (!matches) return undefined;
     const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
     return {
-      period: "",
+      period: "recharge",
       formula: value,
       type: "recoverAll",
     };

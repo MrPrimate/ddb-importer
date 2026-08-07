@@ -85,7 +85,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       });
     } else if (isStaff) {
       // no op
-    } else if ("uses" in this.ddbParent.data.system && !["0", null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
+    } else if ("uses" in this.ddbParent.data.system && !["", "0", null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
       targets.push({
         type: consumptionType,
         target: "",

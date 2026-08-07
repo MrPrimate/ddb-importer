@@ -2296,7 +2296,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #generateLootSpecifics() {
     if (this.systemType.value) {
-      this._generateConsumableUses();
+      // Loot-parsed items that resolved to a consumable document (e.g. plain
+      // adventuring gear) get consumable uses. True loot documents (gems, art
+      // objects etc) don't: the 5e loot schema has no uses/activities, so the
+      // default 1-use self-consumption is meaningless for them.
+      if (this.documentType !== "loot") this._generateConsumableUses();
       this.#generateTargets();
       this.#generateDamageFromDescription();
     }

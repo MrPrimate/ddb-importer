@@ -219,12 +219,13 @@ export default class DDBDescriptions {
     const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
     let match = conditionSearch.exec(parserText);
     if (!match) {
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
+      // "against this magic" is common 2014 monster phrasing (Dreadful Glare)
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
       match = rawConditionSearch.exec(parserText);
     }
 
     if (!match) {
-      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
+      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
       match = rawNoDC.exec(parserText);
     }
 
@@ -295,6 +296,27 @@ export default class DDBDescriptions {
       match = paladinMatch2.exec(parserText);
     }
 
+    // 2014-era monster phrasings. Kept at the end of the chain so they cannot
+    // steal ability/DC captures from the more specific patterns above; a
+    // non-condition capture fails the getConditionInfo whitelist harmlessly.
+    if (!match) {
+      // "If the saving throw fails by 5 or more, the creature is instantly petrified." (2014 Medusa)
+      const failsByMatch = /sav(?:e|ing throw) fails(?: by \d+ or more)?, (?:the|a|each) (?:creature|target) (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig;
+      match = failsByMatch.exec(parserText);
+    }
+
+    if (!match) {
+      // "On a failed save, the creature magically begins to turn to stone and is restrained." (2014 Basilisk)
+      const failedSaveIsMatch = /On a failed save, (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
+      match = failedSaveIsMatch.exec(parserText);
+    }
+
+    if (!match) {
+      // "a creature that fails the save begins to turn to stone and is restrained"
+      const failsTheSaveMatch = /fails the sav(?:e|ing throw)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig;
+      match = failsTheSaveMatch.exec(parserText);
+    }
+
     const matchGroups = match?.groups;
     if (match && matchGroups) {
       if (matchGroups.type === "check") results.check = true;
@@ -334,6 +356,14 @@ export default class DDBDescriptions {
     return results;
   }
 
+  // Non-condition words that describe a rules state carrying a real condition.
+  // "or be possessed by the ghost; ... the target is incapacitated and loses
+  // control of its body" (2014 Ghost): the first matching phrase captures
+  // "possessed", which is mechanically the Incapacitated condition.
+  static CONDITION_ALIASES: Record<string, string> = {
+    possessed: "incapacitated",
+  };
+
   static getConditionInfo(condition: string, hint?: string): {
     success: boolean;
     condition: string | null;
@@ -364,11 +394,20 @@ export default class DDBDescriptions {
             || type.foundryValue === condition.toLowerCase(),
         )
       : undefined;
+    const aliasedCondition = DDBDescriptions.CONDITION_ALIASES[condition.toLowerCase()];
     if (group4Condition) {
       result.condition = group4Condition.foundryValue ?? null;
       result.group4 = true;
       result.group4Condition = group4Condition;
       result.conditionName = group4Condition.name;
+    } else if (aliasedCondition) {
+      const aliasGroup4 = DICTIONARY.actor.damageAdjustments
+        .filter((type) => type.type === 4)
+        .find((type) => type.foundryValue === aliasedCondition);
+      result.condition = aliasedCondition;
+      result.group4 = true;
+      result.group4Condition = aliasGroup4 ?? null;
+      result.conditionName = aliasGroup4?.name ?? utils.capitalize(aliasedCondition);
     } else if (hint === "die") {
       result.condition = "dead";
       result.conditionName = "Dead";

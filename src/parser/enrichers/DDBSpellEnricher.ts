@@ -42,6 +42,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,
     // "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
+    "Hold Monster": SpellEnrichers.HoldThing,
+    "Hold Person": SpellEnrichers.HoldThing,
     "Hunter's Mark": SpellEnrichers.HuntersMark,
     "Jallarzi's Storm of Radiance": SpellEnrichers.JallarzisStormOfRadiance,
     "Melf's Acid Arrow": SpellEnrichers.AcidArrow,
