@@ -3,6 +3,7 @@
 export { default as _BloodCurse } from "./_BloodCurse";
 export { default as _BloodHunter } from "./_BloodHunter";
 export { default as _CrimsonRite } from "./_CrimsonRite";
+export { default as AetherWalk } from "./AetherWalk";
 export { default as BloodCurseOfBinding } from "./BloodCurseOfBinding";
 export { default as BloodCurseOfBloatedAgony } from "./BloodCurseOfBloatedAgony";
 export { default as BloodCurseOfCorrosion } from "./BloodCurseOfCorrosion";

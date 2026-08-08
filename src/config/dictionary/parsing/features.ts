@@ -517,6 +517,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dark Augmentation",
     "Brand of Castigation",
     "Stalker's Prowess",
+    "Aether Walk",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
