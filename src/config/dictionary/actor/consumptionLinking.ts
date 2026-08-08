@@ -33,6 +33,9 @@ export const CONSUMPTION_LINKS = {
   "Blood Maledict": [
     "Blood Curse of",
     "Blood Curses:",
+    // only these two Rite Focus patrons spend a Blood Maledict use
+    "Rite Focus: The Celestial",
+    "Rite Focus: The Genie",
   ],
   "Hybrid Transformation": [
     "Hybrid Transformation Features",
