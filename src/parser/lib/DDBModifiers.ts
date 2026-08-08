@@ -437,10 +437,9 @@ export default class DDBModifiers {
         }
       }
       if (die) {
-        const mod = die.diceString;
-        diceString += diceString === "" ? mod : " + " + mod;
         if (die.diceString) {
-          const mod = die.diceString + modBonus + fixedBonus;
+          // DDB's diceString already includes die.fixedValue
+          const mod = modBonus !== 0 ? `${die.diceString} + ${modBonus}` : die.diceString;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
           sum = Utils.stringIntAdder(sum, fixedBonus + modBonus);
@@ -460,7 +459,7 @@ export default class DDBModifiers {
 
     });
     if (diceString !== "") {
-      sum = diceString + " + " + sum;
+      sum = sum === "" ? diceString : `${diceString} + ${sum}`;
     }
 
     sum = `${sum}`.trim().replace(/\+\s*\+/, "+").replace(/^\+\s*/, "");

@@ -578,7 +578,11 @@ export default class EffectGenerator {
       }
     });
 
-    const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
+    // DDB reuses bonus/hit-points for healing amounts as well as max HP increases, e.g. the
+    // Periapt of Health's "2d4 + 2". Dice mean healing, not max HP, and hp.bonuses.overall is a
+    // deterministic formula field. Healing is handled by DDBItem's granted modifier damage parts.
+    const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points")
+      .filter((modifier) => !(modifier.dice ?? modifier.die));
     if (hpBonusModifiers.length > 0
       && (!this.ddbItem.definition || !("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)
     ) {
