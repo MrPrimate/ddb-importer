@@ -97,6 +97,18 @@ describe("DDBToolProficiencies.register", () => {
     expect(DDBToolProficiencies.register({ key: "", name: "", ability: "int", toolType: "" })).toBe(false);
   });
 
+  it("keeps the description on the registered tool", () => {
+    // the stub items are built from this map, so a dropped field here would be lost on
+    // the way to the compendium
+    DDBToolProficiencies.register({
+      key: "customtool1", name: "Custom Tool 1", ability: "int", toolType: "",
+      description: "Some sploof about the tool",
+    });
+
+    expect(DDBToolProficiencies.registered.get("customtool1")?.description)
+      .toBe("Some sploof about the tool");
+  });
+
   it("tracks what it registered", () => {
     DDBToolProficiencies.register({ key: "wargong", name: "Wargong", ability: "dex", toolType: "music" });
     DDBToolProficiencies.registerAll([
@@ -105,6 +117,47 @@ describe("DDBToolProficiencies.register", () => {
     ]);
 
     expect([...DDBToolProficiencies.registered.keys()]).toEqual(["wargong", "glaur"]);
+  });
+});
+
+// =============================================================================
+// getDDBToolDescription
+// =============================================================================
+
+describe("DDBToolProficiencies.getDDBToolDescription", () => {
+  let originalTools: any;
+
+  beforeEach(() => {
+    originalTools = config.DDB.tools;
+  });
+
+  afterEach(() => {
+    config.DDB.tools = originalTools;
+  });
+
+  it("finds nothing in the shipped fallback config", () => {
+    // the config transform strips description from every tool before the fallback is
+    // committed, so descriptions only exist once the live config has been fetched
+    expect(config.DDB.tools.every((t: any) => t.description === undefined)).toBe(true);
+    expect(DDBToolProficiencies.getDDBToolDescription("bagpipes")).toBe("");
+  });
+
+  it("returns the description from the live config", () => {
+    config.DDB.tools = [{ id: 1, name: "Wargong", description: "A large gong." }];
+    expect(DDBToolProficiencies.getDDBToolDescription("wargong")).toBe("A large gong.");
+  });
+
+  it("matches regardless of which apostrophe DDB used", () => {
+    // DDB writes this one with a curly apostrophe
+    config.DDB.tools = [{ id: 1, name: "Surgeon’s Tools", description: "For surgery." }];
+    expect(DDBToolProficiencies.getDDBToolDescription("surgeonstools")).toBe("For surgery.");
+  });
+
+  it("returns empty for an unknown key or a missing config", () => {
+    config.DDB.tools = [{ id: 1, name: "Wargong", description: "A large gong." }];
+    expect(DDBToolProficiencies.getDDBToolDescription("nosuchtool")).toBe("");
+    config.DDB.tools = undefined;
+    expect(DDBToolProficiencies.getDDBToolDescription("wargong")).toBe("");
   });
 });
 
@@ -150,6 +203,43 @@ describe("DDBToolProficiencies.buildFallbackItemData", () => {
     expect(data.flags.ddbimporter.dndbeyond.type).toBe("Tool");
   });
 
+  it("takes the description from the DDB config when there is one", () => {
+    const original = config.DDB.tools;
+    config.DDB.tools = [{ id: 1, name: "Wargong", description: "A large gong." }];
+    try {
+      const data: any = DDBToolProficiencies.buildFallbackItemData(wargong);
+      expect(data.system.description.value).toBe("A large gong.");
+    } finally {
+      config.DDB.tools = original;
+    }
+  });
+
+  it("leaves the description empty when the config has none", () => {
+    const data: any = DDBToolProficiencies.buildFallbackItemData(wargong);
+    expect(data.system.description.value).toBe("");
+  });
+
+  it("prefers a carried description over the DDB catalogue", () => {
+    const original = config.DDB.tools;
+    config.DDB.tools = [{ id: 1, name: "Wargong", description: "The catalogue entry." }];
+    try {
+      const data: any = DDBToolProficiencies.buildFallbackItemData({
+        ...wargong, description: "The character's own note.",
+      });
+      expect(data.system.description.value).toBe("The character's own note.");
+    } finally {
+      config.DDB.tools = original;
+    }
+  });
+
+  it("uses a carried description for a tool the catalogue has never heard of", () => {
+    const data: any = DDBToolProficiencies.buildFallbackItemData({
+      key: "customtool1", name: "Custom Tool 1", ability: "int", toolType: "",
+      description: "Some sploof about the tool",
+    });
+    expect(data.system.description.value).toBe("Some sploof about the tool");
+  });
+
   it("tolerates having no folder", () => {
     const data: any = DDBToolProficiencies.buildFallbackItemData(wargong);
     expect(data.folder).toBeNull();
@@ -169,11 +259,11 @@ describe("DDBToolProficiencies.buildFallbackItemData", () => {
 // planCompendiumSync
 // =============================================================================
 
-function indexEntry(id: string, baseItem: string, { fallback = false } = {}) {
+function indexEntry(id: string, baseItem: string, { fallback = false, description = "" } = {}) {
   return {
     _id: id,
     uuid: `Compendium.world.ddb-items.Item.${id}`,
-    system: { type: { baseItem } },
+    system: { type: { baseItem }, description: { value: description } },
     flags: fallback ? { ddbimporter: { toolFallback: true } } : {},
   };
 }
@@ -241,6 +331,25 @@ describe("DDBToolProficiencies.planCompendiumSync", () => {
 
     expect(plan.links).toEqual([{ key: "wargong", uuid: "Compendium.world.ddb-items.Item.stub1" }]);
     expect(plan.redundant).toEqual(["stub2", "stub3"]);
+  });
+
+  it("flags our own description-less stubs for a backfill", () => {
+    const plan = DDBToolProficiencies.planCompendiumSync([
+      indexEntry("stub1", "wargong", { fallback: true }),
+      indexEntry("stub2", "glaur", { fallback: true, description: "Already described." }),
+    ]);
+
+    // only the one with nothing to say
+    expect(plan.needsDescription).toEqual([{ _id: "stub1", key: "wargong" }]);
+  });
+
+  it("never rewrites the description of a munched item", () => {
+    const plan = DDBToolProficiencies.planCompendiumSync([
+      indexEntry("real1", "wargong"),
+      indexEntry("real2", "glaur", { description: "The real thing." }),
+    ]);
+
+    expect(plan.needsDescription).toEqual([]);
   });
 
   it("ignores items belonging to tools it did not register", () => {

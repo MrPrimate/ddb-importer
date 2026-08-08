@@ -53,12 +53,13 @@ export default class DDBToolProficiencies {
    * still stored on the actor, but the character sheet filters it out of display and tool
    * checks silently downgrade to a plain ability check.
    */
-  static register({ key, name, ability, toolType }: ICustomToolDefinition): boolean {
+  static register(tool: ICustomToolDefinition): boolean {
+    const { key, name, ability, toolType } = tool;
     if (!key || key in CONFIG.DND5E.tools) return false;
 
     foundry.utils.setProperty(CONFIG.DND5E.tools, key, { ability, id: DDBToolProficiencies.#placeholderId(key) });
     DDBToolProficiencies.#registerLabel(key, name, toolType);
-    DDBToolProficiencies.registered.set(key, { key, name, ability, toolType });
+    DDBToolProficiencies.registered.set(key, { ...tool });
     logger.debug(`Registered D&D Beyond tool proficiency ${name} as ${key}`);
     return true;
   }
@@ -86,6 +87,22 @@ export default class DDBToolProficiencies {
       });
     }
   }
+  /**
+   * D&D Beyond's own description for a tool, matched out of CONFIG.DDB.tools.
+   *
+   * Matching is on the generated key rather than the raw name, so the curly and ascii
+   * apostrophe spellings of names like Surgeon's Tools both resolve.
+   *
+   * Returns "" when there is nothing to use. The committed fallback config has the
+   * description stripped from every tool (see tools/ddb-config-transform.mjs), so this
+   * only finds one when the live config has been fetched.
+   */
+  static getDDBToolDescription(key: string): string {
+    const tools = foundry.utils.getProperty(CONFIG, "DDB.tools") as IDDBConfigTool[] | undefined;
+    if (!tools) return "";
+    const match = tools.find((tool) => DDBToolProficiencies.getToolKey({ name: tool.name }) === key);
+    return match?.description ?? "";
+  }
 
   /**
    * Build the stub tool item for a registered tool. One item per tool rather than a single
@@ -96,7 +113,7 @@ export default class DDBToolProficiencies {
    * Public so the shape can be asserted in tests, not intended for outside use.
    */
   static buildFallbackItemData(
-    { key, name, ability, toolType }: ICustomToolDefinition,
+    { key, name, ability, toolType, description }: ICustomToolDefinition,
     folderId: string | null = null,
   ) {
     return {
@@ -107,6 +124,8 @@ export default class DDBToolProficiencies {
       system: {
         type: { value: toolType, baseItem: key },
         ability,
+        // the character's own text wins: DDB's catalogue has nothing for a tool they invented
+        description: { value: description || DDBToolProficiencies.getDDBToolDescription(key) },
       },
       flags: {
         ddbimporter: {
@@ -211,7 +230,7 @@ export default class DDBToolProficiencies {
    * is nothing, and mark any stub we are no longer using for deletion.
    */
   static planCompendiumSync(index: IToolIndexEntry[]): IToolSyncPlan {
-    const plan: IToolSyncPlan = { links: [], missing: [], redundant: [] };
+    const plan: IToolSyncPlan = { links: [], missing: [], redundant: [], needsDescription: [] };
 
     for (const tool of DDBToolProficiencies.registered.values()) {
       const entries = index.filter((entry) =>
@@ -232,9 +251,54 @@ export default class DDBToolProficiencies {
         .map((entry) => entry._id));
 
       plan.links.push({ key: tool.key, uuid: keep.uuid });
+
+      // a stub created before the live DDB config arrived has no description
+      if (foundry.utils.getProperty(keep, "flags.ddbimporter.toolFallback")
+        && !foundry.utils.getProperty(keep, "system.description.value")) {
+        plan.needsDescription.push({ _id: keep._id, key: tool.key });
+      }
     }
 
     return plan;
+  }
+
+  /**
+   * Fill in descriptions on stubs that were created before the live DDB config arrived.
+   *
+   * loadDDBConfig puts the committed fallback in place first and fetches the live config
+   * afterwards without awaiting it, and the fallback has every tool description stripped.
+   * So the first world load can create stubs with nothing to say; this backfills them on
+   * any later run once a description is actually available.
+   */
+  static async #addDescriptions(
+    compendium: CompendiumCollection.Any,
+    needsDescription: { _id: string; key: string }[],
+  ): Promise<void> {
+    const updates = needsDescription
+      .map(({ _id, key }) => ({
+        _id,
+        description: DDBToolProficiencies.registered.get(key)?.description
+          || DDBToolProficiencies.getDDBToolDescription(key),
+      }))
+      .filter(({ description }) => description !== "")
+      .map(({ _id, description }) => ({ _id, "system.description.value": description }));
+
+    if (updates.length === 0) return;
+    if (!game.user?.isGM) {
+      logger.debug(`${updates.length} fallback tool items have no description, a GM must log in to add them`);
+      return;
+    }
+
+    const wasLocked = compendium.locked;
+    try {
+      if (wasLocked) compendium.configure({ locked: false });
+      await Item.updateDocuments(updates as unknown as Item.UpdateInput[], { pack: compendium.collection });
+      logger.debug(`Added D&D Beyond descriptions to ${updates.length} fallback tool items`);
+    } catch (error) {
+      logger.warn("Unable to add descriptions to fallback tool items", { error });
+    } finally {
+      if (wasLocked) compendium.configure({ locked: true });
+    }
   }
 
   /**
@@ -266,7 +330,7 @@ export default class DDBToolProficiencies {
     }
 
     const index = await compendium.getIndex({
-      fields: ["system.type.baseItem", "flags.ddbimporter.toolFallback"],
+      fields: ["system.type.baseItem", "system.description.value", "flags.ddbimporter.toolFallback"],
     });
     const plan = DDBToolProficiencies.planCompendiumSync([...index] as unknown as IToolIndexEntry[]);
 
@@ -278,6 +342,7 @@ export default class DDBToolProficiencies {
 
     if (plan.missing.length > 0) await DDBToolProficiencies.#createFallbackItems(compendium, plan.missing);
     if (plan.redundant.length > 0) await DDBToolProficiencies.#deleteFallbackItems(compendium, plan.redundant);
+    if (plan.needsDescription.length > 0) await DDBToolProficiencies.#addDescriptions(compendium, plan.needsDescription);
   }
 
 }

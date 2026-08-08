@@ -242,7 +242,7 @@ describe("getToolProficiencies", () => {
       bonuses: { check: "" },
     });
     expect(finder.customTools).toEqual([
-      { key: "bagpiperepairkit", name: "Bagpipe Repair Kit", ability: "int", toolType: "" },
+      { key: "bagpiperepairkit", name: "Bagpipe Repair Kit", ability: "int", toolType: "", description: "" },
     ]);
   });
 
@@ -261,6 +261,39 @@ describe("getToolProficiencies", () => {
     expect(result.lockpicks.bonuses?.check).toBe("+ 2 + 1");
     expect(result.abacus.value).toBe(0.5);
     expect(result.ignoredskill).toBeUndefined();
+  });
+
+  it("carries the proficiency notes through as the tool description", () => {
+    const ddb = makeDdb({
+      customProficiencies: [
+        {
+          type: 2, name: "Custom Tool 1", statId: null, proficiencyLevel: 3,
+          notes: "Some sploof about the tool", description: null,
+        },
+      ],
+    });
+    const finder = new ProficiencyFinder({ ddb });
+    finder.getToolProficiencies([]);
+    expect(finder.customTools).toEqual([{
+      key: "customtool1",
+      name: "Custom Tool 1",
+      ability: "int",
+      toolType: "",
+      description: "Some sploof about the tool",
+    }]);
+  });
+
+  it("falls back to the description field, then to no description", () => {
+    const ddb = makeDdb({
+      customProficiencies: [
+        { type: 2, name: "Noted", statId: null, proficiencyLevel: 3, notes: null, description: "From description" },
+        { type: 2, name: "Bare", statId: null, proficiencyLevel: 3, notes: null, description: null },
+      ],
+    });
+    const finder = new ProficiencyFinder({ ddb });
+    finder.getToolProficiencies([]);
+    expect(finder.customTools.find((t) => t.key === "noted")?.description).toBe("From description");
+    expect(finder.customTools.find((t) => t.key === "bare")?.description).toBe("");
   });
 
   it("skips free text customProficiencies when custom is excluded", () => {

@@ -8,6 +8,7 @@ import {
   renderCompendiumTab,
   getSceneControlButtons,
   itemsCompendiumUpdateComplete,
+  characterProcessDataComplete,
 } from "./hooks";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import addMetaDataIndicators from "./hooks/renderSceneDirectory/metaDataIndicator";
@@ -38,14 +39,11 @@ Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntryShee
 Hooks.on("activateNote", activateMetaNote);
 Hooks.on("getSceneControlButtons", getSceneControlButtons);
 Hooks.on("ddb-importer.itemsCompendiumUpdateComplete", itemsCompendiumUpdateComplete);
+Hooks.on("ddb-importer.characterProcessDataComplete", characterProcessDataComplete);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");
 // CONFIG.compatibility.includePatterns.push(includeRgx);
-
-// Hooks.on("ddb-importer.characterProcessDataComplete", (data) => {
-//   console.warn("HOOK Importer: Character import complete", data);
-// });
 
 // Hooks.on("ddb-importer.monsterAddToCompendiumComplete", (data) => {
 //   console.warn("HOOK Importer: Monster import complete", data);

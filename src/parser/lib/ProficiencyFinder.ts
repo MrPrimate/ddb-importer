@@ -224,7 +224,9 @@ export default class ProficiencyFinder {
       : "";
     const checkBonus = (miscBonus + magicBonus).trim();
 
-    this.#addCustomTool({ key, name, ability, toolType: "" });
+    const description = utils.nameString(proficiency.notes ?? proficiency.description ?? "");
+
+    this.#addCustomTool({ key, name, ability, toolType: "", description });
 
     return {
       key,

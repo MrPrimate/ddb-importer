@@ -1150,6 +1150,7 @@ global {
     name: string;
     ability: T5eAbility;
     toolType: TToolType;
+    description?: string;
   }
 
   // ---- Top-level PC document ------------------------------------------------

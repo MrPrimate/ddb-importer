@@ -219,13 +219,15 @@ global {
     name: string;
     ability: T5eAbility;
     toolType: TToolType;
+    // the character's own blurb, from a free text proficiency's notes.
+    description?: string;
   }
 
   // The slice of a compendium index entry the tool sync cares about.
   interface IToolIndexEntry {
     _id: string;
     uuid: string;
-    system?: { type?: { baseItem?: string } };
+    system?: { type?: { baseItem?: string }; description?: { value?: string } };
     flags?: { ddbimporter?: { toolFallback?: boolean } };
   }
 
@@ -236,6 +238,7 @@ global {
     missing: ICustomToolDefinition[];
     // ids of stub items that are no longer needed
     redundant: string[];
+    needsDescription: { _id: string; key: string }[];
   }
 
 }

@@ -73,13 +73,16 @@ export async function onceReady() {
 
   // check for valid compendiums
   await checkCompendiums();
-  await DDBToolProficiencies.syncCompendiumItems();
   DDBEnhancers.loadEnhancers();
   multiSelectHover();
 
   // notifications
   Notifications.registerNotifications();
   await loadDDBConfig();
+
+  // after loadDDBConfig, which is what puts CONFIG.DDB in place: the stub tool items
+  // take their descriptions from CONFIG.DDB.tools
+  await DDBToolProficiencies.syncCompendiumItems();
 
   await migration();
 
@@ -110,12 +113,25 @@ export const getSceneControlButtons: Hooks.Function<"getSceneControlButtons"> = 
   addStickerBrowserControl(controls);
 };
 
+// Hooks.callAll is synchronous, so nothing awaits these: they have to swallow their own
+// errors, and a compendium problem must not surface as an import failure.
+function syncToolCompendiumItems(after: string) {
+  DDBToolProficiencies.syncCompendiumItems().catch((error: unknown) => {
+    logger.warn(`Unable to sync D&D Beyond tool compendium items after ${after}`, { error });
+  });
+}
+
 // a munch may have brought in real items for tools we only had stubs for
 // so relink and clear the stubs out
 export const itemsCompendiumUpdateComplete: Hooks.Function<"ddb-importer.itemsCompendiumUpdateComplete"> = () => {
-  DDBToolProficiencies.syncCompendiumItems().catch((error: unknown) => {
-    logger.warn("Unable to sync D&D Beyond tool compendium items after an item import", { error });
-  });
+  syncToolCompendiumItems("an item import");
+};
+
+// an imported character may have registered custom tools that have no compendium item yet.
+// The tools are already in DDBToolProficiencies.registered from parse time, so this only
+// needs to trigger the write.
+export const characterProcessDataComplete: Hooks.Function<"ddb-importer.characterProcessDataComplete"> = () => {
+  syncToolCompendiumItems("a character import");
 };
 
 export const renderJournalSheet: Hooks.Function<"renderJournalPageSheet"> = (sheet, html, data) => {
