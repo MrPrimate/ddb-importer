@@ -247,6 +247,12 @@ declare global {
         id: string;
       }>;
       toolTypes: Record<string, string>;
+      // The tool trait's category list. Entries start life as localized strings, but
+      // dnd5e also accepts the object form, which is what lets extra tools be added.
+      toolProficiencies: Record<string, string | {
+        label: string;
+        children?: Record<string, string | { label: string }>;
+      }>;
       traits: Record<string, {
         labels: {
           title: string;

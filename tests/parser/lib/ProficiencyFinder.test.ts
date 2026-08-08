@@ -211,6 +211,69 @@ describe("getToolProficiencies", () => {
     expect(result.alchemist).toBeDefined();
     expect(result.alchemist.value).toBe(1);
   });
+
+  it("keys dictionary tools dnd5e has no id for off their name", () => {
+    const finder = new ProficiencyFinder();
+    const result = finder.getToolProficiencies([{ name: "Wargong" }]);
+    expect(result.wargong).toBeDefined();
+    expect(result.wargong.ability).toBe("dex");
+  });
+
+  it("records tools dnd5e has no id for so they can be registered", () => {
+    const finder = new ProficiencyFinder();
+    finder.getToolProficiencies([{ name: "Wargong" }, { name: "Alchemist's Supplies" }]);
+    // only the tool dnd5e is missing needs registering
+    expect(finder.customTools).toEqual([
+      { key: "wargong", name: "Wargong", ability: "dex", toolType: "music" },
+    ]);
+  });
+
+  it("adds free text type 2 customProficiencies", () => {
+    const ddb = makeDdb({
+      customProficiencies: [
+        { type: 2, name: "Bagpipe Repair Kit", statId: 4, proficiencyLevel: 3, miscBonus: null, magicBonus: null },
+      ],
+    });
+    const finder = new ProficiencyFinder({ ddb });
+    const result = finder.getToolProficiencies([]);
+    expect(result.bagpiperepairkit).toEqual({
+      value: 1,
+      ability: "int",
+      bonuses: { check: "" },
+    });
+    expect(finder.customTools).toEqual([
+      { key: "bagpiperepairkit", name: "Bagpipe Repair Kit", ability: "int", toolType: "" },
+    ]);
+  });
+
+  it("maps free text proficiency levels and bonuses", () => {
+    const ddb = makeDdb({
+      customProficiencies: [
+        { type: 2, name: "Lockpicks", statId: 2, proficiencyLevel: 4, miscBonus: 2, magicBonus: 1 },
+        { type: 2, name: "Abacus", statId: 4, proficiencyLevel: 2, miscBonus: null, magicBonus: null },
+        { type: 1, name: "Ignored Skill", statId: 4, proficiencyLevel: 3 },
+      ],
+    });
+    const finder = new ProficiencyFinder({ ddb });
+    const result = finder.getToolProficiencies([]);
+    expect(result.lockpicks.value).toBe(2);
+    expect(result.lockpicks.ability).toBe("dex");
+    expect(result.lockpicks.bonuses?.check).toBe("+ 2 + 1");
+    expect(result.abacus.value).toBe(0.5);
+    expect(result.ignoredskill).toBeUndefined();
+  });
+
+  it("skips free text customProficiencies when custom is excluded", () => {
+    const ddb = makeDdb({
+      customProficiencies: [
+        { type: 2, name: "Bagpipe Repair Kit", statId: 4, proficiencyLevel: 3 },
+      ],
+    });
+    const finder = new ProficiencyFinder({ ddb, excludeCustom: true });
+    const result = finder.getToolProficiencies([]);
+    expect(Object.keys(result)).toHaveLength(0);
+    expect(finder.customTools).toEqual([]);
+  });
 });
 
 // =============================================================================

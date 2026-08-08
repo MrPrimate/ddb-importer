@@ -38,6 +38,16 @@ const noopClass = class {};
     deepClone(obj: any) {
       return JSON.parse(JSON.stringify(obj));
     },
+    // Mirrors foundry's getType: the constructor name for plain objects and class
+    // instances, the primitive typeof otherwise, with null broken out.
+    getType(value: any) {
+      const typeOf = typeof value;
+      if (typeOf !== "object") return typeOf;
+      if (value === null) return "null";
+      const ctor = Object.getPrototypeOf(value)?.constructor;
+      if (!ctor) return "Object";
+      return ctor.name;
+    },
     // Mirrors foundry's isEmpty: undefined/null are empty, as are zero-length
     // arrays/strings and objects/Sets/Maps with no entries.
     isEmpty(value: any) {
@@ -365,9 +375,25 @@ const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
     weaponIds: {},
     armorIds: {},
     toolIds: {},
+    tools: {},
+    toolTypes: {
+      art: "Artisan's Tools",
+      game: "Gaming Set",
+      music: "Musical Instrument",
+    },
+    // The tool trait's category list. dnd5e ships these as plain localized strings.
+    toolProficiencies: {
+      art: "Artisan's Tools",
+      game: "Gaming Set",
+      music: "Musical Instrument",
+      vehicle: "Vehicle",
+    },
     defaultArtwork: {
       Actor: {},
-      Item: {},
+      // real dnd5e value, utils.isDefaultOrPlaceholderImage keys off this
+      Item: {
+        tool: "systems/dnd5e/icons/svg/items/tool.svg",
+      },
     },
     // Small real slice of the dnd5e rules map (slug -> journal page uuid) for
     // DDBReferenceLinker / rule-tag tests.

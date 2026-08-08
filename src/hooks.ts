@@ -39,6 +39,7 @@ import { registerTokenizer2FrameLoader } from "./hooks/init/tokenizer2Frames";
 import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
+import { DDBToolProficiencies } from "./lib/_module";
 // import { createStorage } from "./hooks/ready/storage";
 
 // foundry is initializing
@@ -57,6 +58,12 @@ export function init() {
   logger.info("Init complete");
 }
 
+// foundry has localized the system config, but nothing has rendered yet
+export function setup() {
+  DDBToolProficiencies.registerDictionaryTools();
+  logger.info("Setup complete");
+}
+
 // foundry is ready
 export async function onceReady() {
   // register the game settings
@@ -66,6 +73,7 @@ export async function onceReady() {
 
   // check for valid compendiums
   await checkCompendiums();
+  await DDBToolProficiencies.syncCompendiumItems();
   DDBEnhancers.loadEnhancers();
   multiSelectHover();
 
@@ -100,6 +108,14 @@ export const renderCompendiumTab: Hooks.Function<"renderCompendiumDirectory"> = 
 
 export const getSceneControlButtons: Hooks.Function<"getSceneControlButtons"> = (controls) => {
   addStickerBrowserControl(controls);
+};
+
+// a munch may have brought in real items for tools we only had stubs for
+// so relink and clear the stubs out
+export const itemsCompendiumUpdateComplete: Hooks.Function<"ddb-importer.itemsCompendiumUpdateComplete"> = () => {
+  DDBToolProficiencies.syncCompendiumItems().catch((error: unknown) => {
+    logger.warn("Unable to sync D&D Beyond tool compendium items after an item import", { error });
+  });
 };
 
 export const renderJournalSheet: Hooks.Function<"renderJournalPageSheet"> = (sheet, html, data) => {

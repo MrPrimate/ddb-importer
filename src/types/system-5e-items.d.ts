@@ -416,6 +416,8 @@ global {
 
   // ---- Tool item ------------------------------------------------------------
 
+  type TToolType = "art" | "game" | "music" | "vehicle" | "";
+
   interface I5eToolSystemData {
     activities: Record<string, I5eActivity>;
     uses: I5eSystemLimitedUses;
@@ -435,7 +437,7 @@ global {
     chatFlavor: string;
     proficient: number;
     properties: TToolProperties[];
-    type: { value: string; baseItem: string };
+    type: { value: TToolType; baseItem: string };
     container?: string;
     attuned: boolean;
     equipped: boolean;

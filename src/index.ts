@@ -1,11 +1,13 @@
 import {
   init,
+  setup,
   onReady,
   onceReady,
   renderJournalSheet,
   renderJournalEntryPageSheet,
   renderCompendiumTab,
   getSceneControlButtons,
+  itemsCompendiumUpdateComplete,
 } from "./hooks";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import addMetaDataIndicators from "./hooks/renderSceneDirectory/metaDataIndicator";
@@ -21,6 +23,7 @@ Hooks.on("canvasReady", setAllRenderFlags);
 
 // register hooks
 Hooks.once("init", init);
+Hooks.once("setup", setup);
 Hooks.once("ready", onceReady);
 Hooks.on("ready", onReady);
 Hooks.on("renderCompendiumDirectory", renderCompendiumTab);
@@ -34,6 +37,7 @@ Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
 Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntrySheetButtons);
 Hooks.on("activateNote", activateMetaNote);
 Hooks.on("getSceneControlButtons", getSceneControlButtons);
+Hooks.on("ddb-importer.itemsCompendiumUpdateComplete", itemsCompendiumUpdateComplete);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");

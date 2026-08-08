@@ -178,6 +178,14 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      "add-ddb-tools": {
+        name: "ddb-importer.settings.add-ddb-tools.name",
+        hint: "ddb-importer.settings.add-ddb-tools.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+      },
       "register-source-books": {
         scope: "world",
         config: false,

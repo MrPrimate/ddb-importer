@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils, logger, Iconizer, CompendiumHelper, DDBSources } from "../../lib/_module";
+import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
@@ -1489,7 +1489,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === this.ddbDefinition.name.toLowerCase());
       if (baseTool) {
-        baseItem = baseTool.baseTool ?? utils.idString(this.ddbDefinition.name.toLowerCase());
+        baseItem = DDBToolProficiencies.getToolKey(baseTool);
         toolType = baseTool.toolType;
       }
     } else if (this.ddbDefinition.filterType === "Staff") {

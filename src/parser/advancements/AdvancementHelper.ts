@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils, logger, CompendiumHelper } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
@@ -1666,9 +1666,11 @@ export default class AdvancementHelper {
   static getToolAdvancementValue(text: string) {
     const match = AdvancementHelper.getDictionaryTool(text);
     if (match) {
+      // tools dnd5e has no id for are keyed off their name, the same as they are on the actor
+      const key = DDBToolProficiencies.getToolKey(match);
       const stub = match.toolType === ""
-        ? match.baseTool
-        : `${match.toolType}:${match.baseTool}`;
+        ? key
+        : `${match.toolType}:${key}`;
       return stub;
     }
     return null;

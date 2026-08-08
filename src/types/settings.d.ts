@@ -141,6 +141,7 @@ declare global {
     "ddb-importer.encounter-muncher-enabled": boolean;
     "ddb-importer.developer-mode": boolean;
     "ddb-importer.add-ddb-languages": boolean;
+    "ddb-importer.add-ddb-tools": boolean;
     "ddb-importer.register-source-books": boolean;
     "ddb-importer.no-source-book-pages": boolean;
     "ddb-importer.use-basic-rules": boolean;

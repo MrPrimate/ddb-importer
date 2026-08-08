@@ -1139,6 +1139,17 @@ global {
     templateStrings?: IDDBTemplateStringResult[] | null;
     campaign?: IDDBPCDnDBeyondCampaignFlags | null;
     weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
+    // Tool proficiencies dnd5e has no key for. Replayed into CONFIG.DND5E at ready so
+    // they keep rendering after a reload.
+    customTools?: IDDBPCDnDBeyondCustomToolFlags[];
+  }
+
+  /** A tool proficiency registered into CONFIG.DND5E.tools by ddb-importer. */
+  interface IDDBPCDnDBeyondCustomToolFlags {
+    key: string;
+    name: string;
+    ability: T5eAbility;
+    toolType: TToolType;
   }
 
   // ---- Top-level PC document ------------------------------------------------

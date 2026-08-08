@@ -557,7 +557,6 @@ export default class EffectGenerator {
       logger.debug(`Generating armor proficiencies for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.armorProf.value"));
     });
-    // if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
     if (weaponProf.custom) {
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
     }
