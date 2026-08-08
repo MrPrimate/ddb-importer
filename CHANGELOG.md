@@ -1,5 +1,9 @@
 # Next Up
 
+- Custom and 3rd Party Tools from DDB now import, and get injected into the system. You can turn this feature off in the settings. @crimsonedge
+- Periapt of Health (and possible other items) could create hp bonus effects as well as activities, and these could contain dice which caused failures. @theunknown98
+- More Blood Hunter parsing improvements.
+
 # 7.4.1
 
 - This release has had a large amount of work on the testing framework, and as such many small bugs and parsing improvements have been made.
