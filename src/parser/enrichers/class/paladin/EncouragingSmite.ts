@@ -30,7 +30,7 @@ export default class EncouragingSmite extends DDBEnricherData {
       },
       daeSpecialDurations: ["turnStartSource"],
       changes: DICTIONARY.actor.abilities.map((ability) =>
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
       ),
       midiChanges: [
         DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),

@@ -9,7 +9,7 @@ export default class VedalkenDispassion extends DDBEnricherData {
           transfer: false,
         },
         changes: ["int", "wis", "cha"].map((ability) =>
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability),
         ),
       },
     ];

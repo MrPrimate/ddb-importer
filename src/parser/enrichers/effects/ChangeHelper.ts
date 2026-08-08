@@ -161,6 +161,110 @@ export default class ChangeHelper {
     };
   }
 
+  static damageVulnerabilityChange(damageType: string, priority = 20): IActiveEffectChangeData {
+    return {
+      key: "system.traits.dv.value",
+      type: "add",
+      value: damageType.toLowerCase(),
+      priority,
+    };
+  }
+
+  static damageImmunityChange(damageType: string, priority = 20): IActiveEffectChangeData {
+    return {
+      key: "system.traits.di.value",
+      type: "add",
+      value: damageType.toLowerCase(),
+      priority,
+    };
+  }
+
+  static conditionImmunityChange(condition: string, priority = 20): IActiveEffectChangeData {
+    return {
+      key: "system.traits.ci.value",
+      type: "add",
+      value: condition.toLowerCase(),
+      priority,
+    };
+  }
+
+
+  // Advantage/disadvantage ("roll mode") change helpers.
+  //
+  // dnd5e counts the sources pushed at a roll mode key and resolves them at the end, so these
+  // stack safely with any other source of advantage or disadvantage. Prefer them over the midi
+  // and ac5e flags: the core keys work with no modules installed.
+
+  /** CONFIG is not populated when this module is imported, so these must be getters. */
+  static get ADVANTAGE(): number {
+    return CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE;
+  }
+
+  static get DISADVANTAGE(): number {
+    return CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
+  }
+
+  static get NORMAL(): number {
+    return CONFIG.Dice.D20Roll.ADV_MODE.NORMAL;
+  }
+
+  /** For a key this class has no named helper for, or a mode decided at runtime. */
+  static rollModeChange(key: string, mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(`${mode}`, priority, key);
+  }
+
+  static abilityCheckRollModeChange(ability: string, mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange(`system.abilities.${ability}.check.roll.mode`, mode, priority);
+  }
+
+  static abilitySaveRollModeChange(ability: string, mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange(`system.abilities.${ability}.save.roll.mode`, mode, priority);
+  }
+
+  static skillRollModeChange(skill: string, mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange(`system.skills.${skill}.roll.mode`, mode, priority);
+  }
+
+  static advantageAbilityCheckChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilityCheckRollModeChange(ability, ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageAbilityCheckChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilityCheckRollModeChange(ability, ChangeHelper.DISADVANTAGE, priority);
+  }
+
+  static advantageAbilitySaveChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilitySaveRollModeChange(ability, ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageAbilitySaveChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilitySaveRollModeChange(ability, ChangeHelper.DISADVANTAGE, priority);
+  }
+
+  static advantageSkillChange(skill: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.skillRollModeChange(skill, ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageSkillChange(skill: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.skillRollModeChange(skill, ChangeHelper.DISADVANTAGE, priority);
+  }
+
+  static advantageInitiativeChange(priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.init.roll.mode", ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageInitiativeChange(priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.init.roll.mode", ChangeHelper.DISADVANTAGE, priority);
+  }
+
+  static advantageDeathSaveChange(priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.death.roll.mode", ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageDeathSaveChange(priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.death.roll.mode", ChangeHelper.DISADVANTAGE, priority);
+  }
+
   static atlChange(atlKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
     let key = atlKey;
 

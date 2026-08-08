@@ -83,7 +83,7 @@ export default class EnhanceAbility extends DDBEnricherData {
         },
         changes: (data.changes ?? []).concat(
           [
-            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${data.ability}.check.roll.mode`),
+            DDBEnricherData.ChangeHelper.advantageAbilityCheckChange(data.ability),
           ],
         ),
       };
@@ -107,7 +107,7 @@ export default class EnhanceAbility extends DDBEnricherData {
           durationSeconds: 3600,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${data.ability}.check.roll.mode`),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange(data.ability),
         ],
       };
     });

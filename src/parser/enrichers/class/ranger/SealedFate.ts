@@ -25,7 +25,7 @@ export default class SealedFate extends DDBEnricherData {
           description: "Vulnerable to damage dealt by the grim and to the extra damage you deal with Omen of Doom.",
         },
         changes: [
-          // DDBEnricherData.ChangeHelper.unsignedAddChange("vulnerable", 20, "system.traits.dv.value"),
+          // DDBEnricherData.ChangeHelper.damageVulnerabilityChange("vulnerable"),
         ],
       },
     ];

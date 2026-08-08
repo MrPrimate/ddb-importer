@@ -20,7 +20,7 @@ export default class ExaltedChampion extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
         ],
         activitiesMatch: ["Activate Exalted Champion"],
       },
@@ -28,8 +28,8 @@ export default class ExaltedChampion extends DDBEnricherData {
         name: "Exalted Champion: Aura",
         daeStackable: "noneNameOnly",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
         ],
         data: {
           flags: {

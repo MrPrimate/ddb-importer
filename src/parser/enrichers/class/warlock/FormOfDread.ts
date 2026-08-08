@@ -86,7 +86,7 @@ export default class FormOfDread extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
         ],
       },
       {
@@ -96,7 +96,7 @@ export default class FormOfDread extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange("frightened"),
         ],
         data: {
           flags: {

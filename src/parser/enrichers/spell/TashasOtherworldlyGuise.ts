@@ -22,14 +22,14 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
       DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
     ];
     const upperPlanesChanges = [
-      DDBEnricherData.ChangeHelper.addChange("radiant", 20, "system.traits.di.value"),
-      DDBEnricherData.ChangeHelper.addChange("necrotic", 20, "system.traits.di.value"),
-      DDBEnricherData.ChangeHelper.addChange("charmed", 20, "system.traits.ci.value"),
+      DDBEnricherData.ChangeHelper.damageImmunityChange("radiant"),
+      DDBEnricherData.ChangeHelper.damageImmunityChange("necrotic"),
+      DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
     ].concat(sharedChanges);
     const lowerPlanesChanges = [
-      DDBEnricherData.ChangeHelper.addChange("fire", 20, "system.traits.di.value"),
-      DDBEnricherData.ChangeHelper.addChange("poison", 20, "system.traits.di.value"),
-      DDBEnricherData.ChangeHelper.addChange("poisoned", 20, "system.traits.ci.value"),
+      DDBEnricherData.ChangeHelper.damageImmunityChange("fire"),
+      DDBEnricherData.ChangeHelper.damageImmunityChange("poison"),
+      DDBEnricherData.ChangeHelper.conditionImmunityChange("poisoned"),
     ].concat(sharedChanges);
     const effects = [
       {

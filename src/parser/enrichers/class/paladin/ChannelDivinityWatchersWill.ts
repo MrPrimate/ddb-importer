@@ -30,9 +30,9 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
         durationSeconds: 60,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.int.save.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.save.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.cha.save.roll.mode"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("int"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("wis"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("cha"),
       ],
     }];
   }

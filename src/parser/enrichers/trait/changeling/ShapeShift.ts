@@ -18,7 +18,7 @@ export default class ShapeShift extends DDBEnricherData {
       {
         name: "Shape Shifted",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.cha.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("cha"),
         ],
       },
     ];

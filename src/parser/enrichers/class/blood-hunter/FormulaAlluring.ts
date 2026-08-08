@@ -8,10 +8,8 @@ export default class FormulaAlluring extends _Mutagen {
     return [
       this.mutagenEffect({
         changes: [
-          _Mutagen.advantageCheck("cha"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(
-            `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.attributes.init.roll.mode",
-          ),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("cha"),
+          DDBEnricherData.ChangeHelper.disadvantageInitiativeChange(),
         ],
       }),
     ];

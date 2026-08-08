@@ -187,7 +187,7 @@ export default class Shifting extends DDBEnricherData {
         );
       } else if (shifterType === "Wildhunt") {
         changes.push(
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.wis.check.roll.mode`),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
         );
       }
       results.push(

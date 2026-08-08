@@ -130,33 +130,6 @@ export default class _Mutagen extends _BloodHunter {
     return hint;
   }
 
-  static rollMode(ability: string, type: "check" | "save", advantage: boolean): IActiveEffectChangeData {
-    const mode = advantage
-      ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
-      : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
-    return DDBEnricherData.ChangeHelper.unsignedAddChange(`${mode}`, 20, `system.abilities.${ability}.${type}.roll.mode`);
-  }
-
-  static advantageCheck(ability: string): IActiveEffectChangeData {
-    return _Mutagen.rollMode(ability, "check", true);
-  }
-
-  static disadvantageCheck(ability: string): IActiveEffectChangeData {
-    return _Mutagen.rollMode(ability, "check", false);
-  }
-
-  static disadvantageSave(ability: string): IActiveEffectChangeData {
-    return _Mutagen.rollMode(ability, "save", false);
-  }
-
-  static damageVulnerabilityChange(damageType: string): IActiveEffectChangeData {
-    return DDBEnricherData.ChangeHelper.unsignedAddChange(damageType.toLowerCase(), 20, "system.traits.dv.value");
-  }
-
-  static conditionImmunityChange(condition: string): IActiveEffectChangeData {
-    return DDBEnricherData.ChangeHelper.unsignedAddChange(condition.toLowerCase(), 20, "system.traits.ci.value");
-  }
-
   /**
    * Raise a score and its maximum by the same amount. Plain adds on both keys: the DAE aware
    * `min(@abilities.x.max, ...)` form used by the auto generator exists to cap a bonus at the

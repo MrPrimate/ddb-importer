@@ -67,7 +67,7 @@ export default class HolyAura extends DDBEnricherData {
           ),
         ],
         changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability),
         ).concat([
           DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.dim"),
           DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "token.light.color"),

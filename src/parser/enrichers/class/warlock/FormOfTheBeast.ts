@@ -29,9 +29,9 @@ export default class FormOfTheBeast extends DDBEnricherData {
         durationSeconds: 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.prc.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.sur.roll.mode"),
+        DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
+        DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
+        DDBEnricherData.ChangeHelper.advantageSkillChange("sur"),
       ],
     }];
   }

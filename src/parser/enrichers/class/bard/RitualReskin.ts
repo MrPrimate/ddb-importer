@@ -129,15 +129,13 @@ export default class RitualReskin extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     const options = { durationSeconds: RitualReskin.HOUR };
-    const advantage = `${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`;
-
     return [
       {
         name: "Bull's Buns",
         activityMatch: "Perform Ritual",
         options,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(advantage, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         ],
       },
       {
@@ -150,7 +148,7 @@ export default class RitualReskin extends DDBEnricherData {
         activityMatch: "Perform Ritual",
         options,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(advantage, 20, "system.abilities.dex.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("dex"),
         ],
       },
       {
@@ -166,7 +164,7 @@ export default class RitualReskin extends DDBEnricherData {
         activityMatch: "Perform Ritual",
         options,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(advantage, 20, "system.abilities.con.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("con"),
         ],
       },
       {
@@ -174,8 +172,8 @@ export default class RitualReskin extends DDBEnricherData {
         activityMatch: "Perform Ritual",
         options,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(advantage, 20, "system.abilities.wis.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange(advantage, 20, "system.attributes.init.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
+          DDBEnricherData.ChangeHelper.advantageInitiativeChange(),
         ],
       },
     ];

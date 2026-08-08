@@ -9,7 +9,7 @@ export default class FormulaEmbers extends _Mutagen {
       this.mutagenEffect({
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("fire"),
-          _Mutagen.damageVulnerabilityChange("cold"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("cold"),
         ],
       }),
     ];

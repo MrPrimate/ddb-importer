@@ -310,9 +310,7 @@ export default class EffectGenerator {
   _addAbilityAdvantageEffect(subType: string, type: "check" | "save", mode = "advantage") {
     const bonuses = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, subType);
 
-    const modifier = mode === "advantage"
-      ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
-      : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
+    const modifier = mode === "advantage" ? ChangeHelper.ADVANTAGE : ChangeHelper.DISADVANTAGE;
 
     if (bonuses.length > 0) {
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0])?.value;
@@ -321,7 +319,10 @@ export default class EffectGenerator {
         return;
       }
       logger.debug(`Generating ${subType} ${type} ${mode} for ${this.document.name}`);
-      this.effect.system.changes.push(ChangeHelper.addChange(`${modifier}`, 8, `system.abilities.${ability}.${type}.roll.mode`));
+      const change = type === "check"
+        ? ChangeHelper.abilityCheckRollModeChange(ability, modifier, 8)
+        : ChangeHelper.abilitySaveRollModeChange(ability, modifier, 8);
+      this.effect.system.changes.push(change);
     }
   }
 
@@ -616,10 +617,8 @@ export default class EffectGenerator {
     const advantage = DDBModifiers.filterModifiersOld(modifiers, mode, skill.subType, allowedRestrictions);
     if (advantage.length > 0) {
       logger.debug(`Generating ${skill.subType} skill ${mode} for ${this.document.name}`);
-      const modifier = mode === "advantage"
-        ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
-        : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
-      this.effect.system.changes.push(ChangeHelper.addChange(`${modifier}`, 10, `system.skills.${skill.name}.roll.mode`));
+      const modifier = mode === "advantage" ? ChangeHelper.ADVANTAGE : ChangeHelper.DISADVANTAGE;
+      this.effect.system.changes.push(ChangeHelper.skillRollModeChange(skill.name, modifier, 10));
       // handled by midi already
       // advantage/disadvantage on skill grants +/-5 passive bonus, https://www.dndbeyond.com/sources/phb/using-ability-scores#PassiveChecks
       // if (midiEffect === "advantage") {

@@ -49,8 +49,8 @@ export default class GhaalShaarat extends DDBEnricherData {
       {
         name: "Soul Bound",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("charmed", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.traits.dr.value"),
         ],
         activitiesMatch: ["Not real"],

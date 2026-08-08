@@ -6,8 +6,8 @@ export default class BeaconOfHope extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("wis"),
+          DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
         ],
       },
     ];

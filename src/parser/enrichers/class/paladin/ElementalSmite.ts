@@ -161,9 +161,9 @@ export default class ElementalSmite extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("grappled", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("restrained", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("prone", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("grappled"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("prone"),
         ],
       },
       {

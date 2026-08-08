@@ -67,7 +67,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
       return {
         name: `Elemental Immunity: ${element.type}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.type.toLowerCase(), 1, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange(element.type, 1),
         ],
         img: element.img,
         activityMatch: "Cast Spell",

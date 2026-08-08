@@ -10,7 +10,7 @@ export default class FormulaPrecision extends _Mutagen {
         changes: [
           // downgrade so this never worsens an improved threshold from another source
           DDBEnricherData.ChangeHelper.downgradeChange("19", 25, "flags.dnd5e.weaponCriticalThreshold"),
-          _Mutagen.disadvantageSave("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("str"),
         ],
       }),
     ];

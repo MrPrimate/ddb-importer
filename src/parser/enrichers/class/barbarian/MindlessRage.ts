@@ -10,8 +10,8 @@ export default class MindlessRage extends DDBEnricherData {
         //   disabled: true,
         // },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("charmed", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
         ],
       },
     ];

@@ -23,9 +23,9 @@ export default class ShellDefense extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("4", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.con.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.dex.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("con"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("dex"),
         ],
         statuses: ["Prone"],
       },

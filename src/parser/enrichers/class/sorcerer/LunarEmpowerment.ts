@@ -76,8 +76,8 @@ export default class LunarEmpowerment extends DDBEnricherData {
         name: "Full Moon Aura",
         activitiesMatch: ["Full Moon"],
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.inv.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.per.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("inv"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("per"),
         ],
         daeStackable: "noneNameOnly",
         data: {
@@ -111,7 +111,7 @@ export default class LunarEmpowerment extends DDBEnricherData {
         name: "New Moon",
         activityMatch: "New Moon",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
         ],
       },
       {

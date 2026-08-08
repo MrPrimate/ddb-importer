@@ -16,7 +16,7 @@ export default class CompoundCreatorPrestoPowder extends DDBEnricherData {
           description: "You have Advantage on Initiative rolls and can take the Dash or Disengage action as a Bonus Action.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.attributes.init.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageInitiativeChange(),
         ],
       },
     ];

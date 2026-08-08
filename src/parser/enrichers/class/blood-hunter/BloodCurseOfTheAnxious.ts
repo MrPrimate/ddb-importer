@@ -60,7 +60,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
         // no isSave.wis special duration exists, so this expires on any save
         daeSpecialDurations: ["turnEndSource", "isSave"],
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.wis.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("wis"),
         ],
       },
     ];

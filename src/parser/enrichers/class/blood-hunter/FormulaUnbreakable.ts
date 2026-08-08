@@ -9,7 +9,7 @@ export default class FormulaUnbreakable extends _Mutagen {
       this.mutagenEffect({
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
-          _Mutagen.damageVulnerabilityChange("piercing"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("piercing"),
         ],
       }),
     ];

@@ -92,8 +92,8 @@ export default class Plaguebringer extends DDBEnricherData {
         description: "One with Plague: Immunity to Poison damage and the Poisoned condition, and Resistance to Necrotic damage. Bolstered by Rot: Hit Point maximum can't be reduced. Entropic Radiance: enemies starting their turn in the Aura of Protection take Necrotic damage equal to Charisma modifier plus Proficiency Bonus.",
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.di.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
+        DDBEnricherData.ChangeHelper.damageImmunityChange("poison"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("poisoned"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("necrotic"),
       ],
     }];

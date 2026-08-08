@@ -9,7 +9,7 @@ export default class FormulaImpermeable extends _Mutagen {
       this.mutagenEffect({
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
-          _Mutagen.damageVulnerabilityChange("slashing"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("slashing"),
         ],
       }),
     ];

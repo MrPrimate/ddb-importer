@@ -38,8 +38,8 @@ export default class StrangeMetabolism extends DDBEnricherData {
         // the immunities are always on, they must not attach to the Adrenaline Burst activity
         activitiesMatch: ["Not real"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.di.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange("poison"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("poisoned"),
         ],
       },
     ];

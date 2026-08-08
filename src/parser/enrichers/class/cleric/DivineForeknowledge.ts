@@ -50,13 +50,13 @@ export default class DivineForeknowledge extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     const changes = [
-      DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
+      DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
     ];
 
     DICTIONARY.actor.abilities.forEach((ability) => {
       changes.push(
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll.mode`),
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`),
+        DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
+        DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value),
       );
     });
     return [

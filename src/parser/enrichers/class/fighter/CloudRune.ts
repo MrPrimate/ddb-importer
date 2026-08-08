@@ -21,8 +21,8 @@ export default class CloudRune extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.slt.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.dec.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("slt"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("dec"),
         ],
       },
     ];

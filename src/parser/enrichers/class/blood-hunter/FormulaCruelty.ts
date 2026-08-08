@@ -1,3 +1,4 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
 import _Mutagen from "./_Mutagen";
 
 /**
@@ -12,9 +13,9 @@ export default class FormulaCruelty extends _Mutagen {
     return [
       this.mutagenEffect({
         changes: [
-          _Mutagen.disadvantageSave("int"),
-          _Mutagen.disadvantageSave("wis"),
-          _Mutagen.disadvantageSave("cha"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("int"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("wis"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("cha"),
         ],
       }),
     ];

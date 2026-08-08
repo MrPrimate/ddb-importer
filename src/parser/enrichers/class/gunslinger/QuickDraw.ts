@@ -15,7 +15,7 @@ export default class QuickDraw extends DDBEnricherData {
         },
         changes: [
           // advantage on initiative rolls
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.attributes.init.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageInitiativeChange(),
         ],
       },
     ];

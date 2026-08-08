@@ -108,10 +108,10 @@ export default class FrozenHaunt extends DDBEnricherData {
         durationSeconds: 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 20, "system.traits.di.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("grappled", 20, "system.traits.ci.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("prone", 20, "system.traits.ci.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("restrained", 20, "system.traits.ci.value"),
+        DDBEnricherData.ChangeHelper.damageImmunityChange("cold"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("grappled"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("prone"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),
       ],
       activityMatch: "Activate Frozen Haunt",
     }];

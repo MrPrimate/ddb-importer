@@ -1,3 +1,4 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
 import _Mutagen from "./_Mutagen";
 
 /**
@@ -16,8 +17,8 @@ export default class FormulaMobility extends _Mutagen {
       idPostfix: index,
       level: band.level,
       changes: [
-        ...band.conditions.map((condition) => _Mutagen.conditionImmunityChange(condition)),
-        _Mutagen.disadvantageCheck("str"),
+        ...band.conditions.map((condition) => DDBEnricherData.ChangeHelper.conditionImmunityChange(condition)),
+        DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
       ],
     }));
   }

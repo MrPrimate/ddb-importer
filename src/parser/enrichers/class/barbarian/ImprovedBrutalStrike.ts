@@ -68,7 +68,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
       },
       {
         name: "Staggered: Saving Throws",
-        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`)),
+        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value)),
         options: {
           description: `Disadvantage on next saving throw.`,
         },

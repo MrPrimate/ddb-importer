@@ -24,8 +24,8 @@ export default class StandardBearer extends DDBEnricherData {
       {
         name: "Bolstered Resolve",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("charmed", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
         ],
         options: {
           durationSeconds: 60,

@@ -55,8 +55,8 @@ export default class GiantsMight extends DDBEnricherData {
         ],
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         ],
         midiOptionalChanges: [
           {

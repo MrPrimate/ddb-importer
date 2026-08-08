@@ -10,8 +10,8 @@ export default class FormulaAether extends _Mutagen {
         durationSeconds: 3600,
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
-          _Mutagen.disadvantageCheck("str"),
-          _Mutagen.disadvantageCheck("dex"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("dex"),
         ],
       }),
     ];

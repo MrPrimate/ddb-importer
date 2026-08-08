@@ -26,7 +26,7 @@ export default class UncleanBrand extends DDBEnricherData {
           description: "Disadvantage on saving throws against the cleric's spells, and Vulnerability to Fire damage the cleric deals (even if normally Resistant or Immune).",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 20, "system.traits.dv.value"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("fire"),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.save.all"),

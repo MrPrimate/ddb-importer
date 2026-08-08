@@ -27,7 +27,7 @@ export default class ValorousSoul extends DDBEnricherData {
         description: "This ally has Advantage on attack rolls and saving throws for 1 minute.",
       },
       changes: DICTIONARY.actor.abilities.map((ability) =>
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
       ),
       midiChanges: [
         DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),

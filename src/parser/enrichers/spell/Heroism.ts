@@ -50,7 +50,7 @@ export default class Heroism extends DDBEnricherData {
           description: "Gain temp hp at the start of your turn",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
         ],
       },
       {

@@ -13,8 +13,8 @@ export default class Taunt extends DDBEnricherData {
         ],
         changes: DICTIONARY.actor.abilities.map((a) => {
           return [
-            DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${a.value}.check.roll.mode`),
-            DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${a.value}.save.roll.mode`),
+            DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(a.value),
+            DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(a.value),
           ];
         }).flat(),
         options: {

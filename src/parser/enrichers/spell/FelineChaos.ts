@@ -123,11 +123,11 @@ export default class FelineChaos extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.str.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.dex.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.con.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.int.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.addChange("-1", 20, "system.abilities.wis.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("dex"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("con"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("int"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("wis"),
         ],
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("1", 50, "flags.automated-conditions-5e.attack.disadvantage"),

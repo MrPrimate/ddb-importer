@@ -13,9 +13,7 @@ export default class FormulaVermillion extends _Mutagen {
     return [
       this.mutagenEffect({
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(
-            `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.attributes.death.roll.mode",
-          ),
+          DDBEnricherData.ChangeHelper.disadvantageDeathSaveChange(),
         ],
       }),
     ];

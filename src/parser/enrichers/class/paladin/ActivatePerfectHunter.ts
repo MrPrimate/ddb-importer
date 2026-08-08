@@ -63,9 +63,9 @@ export default class ActivatePerfectHunter extends DDBEnricherData {
       changes: [
         DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.bonuses.mwak.damage"),
         DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.bonuses.rwak.damage"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("grappled", 20, "system.traits.ci.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("paralyzed", 20, "system.traits.ci.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("restrained", 20, "system.traits.ci.value"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("grappled"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("paralyzed"),
+        DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),
       ],
     }];
   }

@@ -12,8 +12,8 @@ export default class EnlargeReduce extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.rwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.width"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.height"),
         ],
@@ -30,8 +30,8 @@ export default class EnlargeReduce extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.subtractChange("1d4", 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.subtractChange("1d4", 20, "system.bonuses.rwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("str"),
           DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.width"),
           DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.height"),
         ],

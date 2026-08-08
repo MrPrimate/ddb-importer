@@ -1,4 +1,10 @@
 import ChangeHelper from "../../../../src/parser/enrichers/effects/ChangeHelper";
+import { installActivityConfigStubs } from "../../../_fixtures/ddb/stubs";
+
+// the roll mode helpers read CONFIG.Dice.D20Roll.ADV_MODE
+beforeAll(() => {
+  installActivityConfigStubs();
+});
 
 describe("ChangeHelper.change", () => {
   it("returns a change object with the given params", () => {
@@ -251,5 +257,80 @@ describe("ChangeHelper overtime saveDC", () => {
     });
     expect(result.value).toContain("saveDC=@attributes.spell.dc,");
     expect(result.value).not.toContain("[object Object]");
+  });
+});
+
+describe("ChangeHelper trait change helpers", () => {
+  it("damageVulnerabilityChange lowercases and targets dv", () => {
+    const result = ChangeHelper.damageVulnerabilityChange("Cold");
+    expect(result).toEqual({ key: "system.traits.dv.value", value: "cold", type: "add", priority: 20 });
+  });
+
+  it("damageImmunityChange lowercases and targets di", () => {
+    const result = ChangeHelper.damageImmunityChange("Poison");
+    expect(result).toEqual({ key: "system.traits.di.value", value: "poison", type: "add", priority: 20 });
+  });
+
+  it("conditionImmunityChange lowercases and targets ci", () => {
+    const result = ChangeHelper.conditionImmunityChange("Paralyzed");
+    expect(result).toEqual({ key: "system.traits.ci.value", value: "paralyzed", type: "add", priority: 20 });
+  });
+
+  it("honours a non-default priority", () => {
+    expect(ChangeHelper.damageImmunityChange("healing", 30).priority).toBe(30);
+  });
+});
+
+describe("ChangeHelper roll mode helpers", () => {
+  it("exposes the dnd5e advantage modes", () => {
+    expect(ChangeHelper.ADVANTAGE).toBe(1);
+    expect(ChangeHelper.DISADVANTAGE).toBe(-1);
+    expect(ChangeHelper.NORMAL).toBe(0);
+  });
+
+  it("builds an ability check advantage change", () => {
+    expect(ChangeHelper.advantageAbilityCheckChange("str")).toEqual({
+      key: "system.abilities.str.check.roll.mode",
+      value: "1",
+      type: "add",
+      priority: 20,
+    });
+  });
+
+  it("builds an ability save disadvantage change", () => {
+    expect(ChangeHelper.disadvantageAbilitySaveChange("wis")).toEqual({
+      key: "system.abilities.wis.save.roll.mode",
+      value: "-1",
+      type: "add",
+      priority: 20,
+    });
+  });
+
+  it("builds skill, initiative and death save changes", () => {
+    expect(ChangeHelper.advantageSkillChange("prc").key).toBe("system.skills.prc.roll.mode");
+    expect(ChangeHelper.disadvantageSkillChange("ste").value).toBe("-1");
+    expect(ChangeHelper.disadvantageInitiativeChange().key).toBe("system.attributes.init.roll.mode");
+    expect(ChangeHelper.advantageDeathSaveChange().key).toBe("system.attributes.death.roll.mode");
+    expect(ChangeHelper.advantageDeathSaveChange().value).toBe("1");
+  });
+
+  it("honours a non-default priority", () => {
+    expect(ChangeHelper.disadvantageAbilityCheckChange("int", 8).priority).toBe(8);
+  });
+
+  it("accepts a mode decided at runtime", () => {
+    const mode = ChangeHelper.DISADVANTAGE;
+    expect(ChangeHelper.abilityCheckRollModeChange("cha", mode)).toEqual({
+      key: "system.abilities.cha.check.roll.mode",
+      value: "-1",
+      type: "add",
+      priority: 20,
+    });
+    expect(ChangeHelper.rollModeChange("system.attributes.concentration.roll.mode", mode, 5)).toEqual({
+      key: "system.attributes.concentration.roll.mode",
+      value: "-1",
+      type: "add",
+      priority: 5,
+    });
   });
 });

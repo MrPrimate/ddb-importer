@@ -9,7 +9,7 @@ export default class FormulaShielded extends _Mutagen {
       this.mutagenEffect({
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
-          _Mutagen.damageVulnerabilityChange("bludgeoning"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("bludgeoning"),
         ],
       }),
     ];

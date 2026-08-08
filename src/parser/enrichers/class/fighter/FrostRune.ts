@@ -29,8 +29,8 @@ export default class FrostRune extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ani.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.itm.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ani"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("itm"),
         ],
       },
       {

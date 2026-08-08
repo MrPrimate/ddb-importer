@@ -6,7 +6,7 @@ export default class BlessingOfTheTrickster extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
         ],
       },
     ];

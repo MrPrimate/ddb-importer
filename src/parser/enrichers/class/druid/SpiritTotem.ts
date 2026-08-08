@@ -135,8 +135,8 @@ export default class SpiritTotem extends DDBEnricherData {
         name: "Bear Totem",
         activityMatch: "Bear Totem",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         ],
         midiNever: true,
       },
@@ -144,8 +144,8 @@ export default class SpiritTotem extends DDBEnricherData {
         name: "Bear Totem Aura",
         activityMatch: "Bear Totem",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         ],
         midiOnly: true,
         data: {
@@ -166,7 +166,7 @@ export default class SpiritTotem extends DDBEnricherData {
         name: "Hawk Spirit",
         activityMatch: "Hawk Spirit",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.prc.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
         ],
         midiNever: true,
       },
@@ -174,7 +174,7 @@ export default class SpiritTotem extends DDBEnricherData {
         name: "Hawk Spirit Aura",
         activityMatch: "Hawk Spirit",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.prc.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
         ],
         midiOnly: true,
         data: {

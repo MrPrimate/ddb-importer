@@ -36,7 +36,7 @@ export default class BloodCurseOfTheMuddledMind extends _BloodCurse {
 
   get effects(): IDDBEffectHint[] {
     const changes = [
-      DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.con.save.roll.mode"),
+      DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("con"),
     ];
 
     return [

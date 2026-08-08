@@ -9,7 +9,7 @@ export default class FormulaGelid extends _Mutagen {
       this.mutagenEffect({
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
-          _Mutagen.damageVulnerabilityChange("fire"),
+          DDBEnricherData.ChangeHelper.damageVulnerabilityChange("fire"),
         ],
       }),
     ];

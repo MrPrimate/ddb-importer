@@ -68,8 +68,8 @@ export default class BloodCurseOfBloatedAgony extends _BloodCurse {
 
   get effects(): IDDBEffectHint[] {
     const swollen = [
-      DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
-      DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.dex.check.roll.mode"),
+      DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+      DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("dex"),
     ];
     const description = "Your body has swollen. You have disadvantage on Strength checks and Dexterity checks, and take 1d8 necrotic damage if you make more than one attack during your turn.";
 

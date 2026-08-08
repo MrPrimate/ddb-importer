@@ -40,7 +40,7 @@ export default class StoneRune extends DDBEnricherData {
         noCreate: true,
         name: "Stone Rune: Passive Bonuses",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ins.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ins"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 120, 5),
