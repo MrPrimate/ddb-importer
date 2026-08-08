@@ -48,9 +48,12 @@ export default class _Mutagen extends _BloodHunter {
     { bonus: 5, level: { min: 18, max: null } },
   ];
 
-  /** "Formula: Celerity" -> "Celerity". `name` is a field on the base class, so it cannot be a getter. */
+  /**
+   * "Formulas: Celerity" -> "Celerity". DDB names the choice documents for the plural parent
+   * feature; NAME_HINTS maps them onto the singular enricher names.
+   */
   get mutagenName(): string {
-    return this.name.replace(/^Formula:\s*/i, "").trim();
+    return this.name.replace(/^Formulas?:\s*/i, "").trim();
   }
 
   get type() {

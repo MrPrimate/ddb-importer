@@ -42,7 +42,7 @@ export const CONSUMPTION_LINKS = {
   ],
   // consuming any mutagen spends one of the mutagens concocted on the last rest
   "Mutagencraft": [
-    "Formula:",
+    "Formulas:",
   ],
   "Grit Points": [
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
