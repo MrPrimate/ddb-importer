@@ -40,6 +40,10 @@ export const CONSUMPTION_LINKS = {
   "Hybrid Transformation": [
     "Hybrid Transformation Features",
   ],
+  // consuming any mutagen spends one of the mutagens concocted on the last rest
+  "Mutagencraft": [
+    "Formula:",
+  ],
   "Grit Points": [
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
     "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
