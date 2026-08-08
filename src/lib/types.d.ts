@@ -227,6 +227,8 @@ global {
   interface IToolIndexEntry {
     _id: string;
     uuid: string;
+    name?: string;
+    type?: string;
     system?: { type?: { baseItem?: string }; description?: { value?: string } };
     flags?: { ddbimporter?: { toolFallback?: boolean } };
   }
@@ -239,6 +241,9 @@ global {
     // ids of stub items that are no longer needed
     redundant: string[];
     needsDescription: { _id: string; key: string }[];
+    // munched items matched by name because their system.type.baseItem is empty. Without
+    // it dnd5e cannot tie the item to the actor's proficiency, so it is repaired/corrected.
+    needsBaseItem: { _id: string; key: string }[];
   }
 
 }

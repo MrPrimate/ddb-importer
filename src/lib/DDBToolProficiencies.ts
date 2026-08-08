@@ -229,13 +229,29 @@ export default class DDBToolProficiencies {
    * For each registered tool: link it to the best item available, create a stub if there
    * is nothing, and mark any stub we are no longer using for deletion.
    */
+  /**
+   * Does this compendium item represent the given tool?
+   *
+   * system.type.baseItem is the authoritative link, but it is only populated when the
+   * item was munched with a dictionary entry already in place for that name. Anything
+   * munched before its entry was added, or by an older version, has it empty and would
+   * otherwise be invisible here, leaving a duplicate stub alongside the real item.
+   * The name is the reliable fallback for a tool.
+   */
+  static #isItemForTool(entry: IToolIndexEntry, key: string): boolean {
+    const baseItem = foundry.utils.getProperty(entry, "system.type.baseItem") as string | undefined;
+    if (baseItem) return baseItem === key;
+    if (entry.type !== "tool" || !entry.name) return false;
+    return DDBToolProficiencies.getToolKey({ name: entry.name }) === key;
+  }
+
   static planCompendiumSync(index: IToolIndexEntry[]): IToolSyncPlan {
-    const plan: IToolSyncPlan = { links: [], missing: [], redundant: [], needsDescription: [] };
+    const plan: IToolSyncPlan = {
+      links: [], missing: [], redundant: [], needsDescription: [], needsBaseItem: [],
+    };
 
     for (const tool of DDBToolProficiencies.registered.values()) {
-      const entries = index.filter((entry) =>
-        foundry.utils.getProperty(entry, "system.type.baseItem") === tool.key,
-      );
+      const entries = index.filter((entry) => DDBToolProficiencies.#isItemForTool(entry, tool.key));
       const real = entries.find((entry) => !foundry.utils.getProperty(entry, "flags.ddbimporter.toolFallback"));
       const keep = real ?? entries[0];
 
@@ -257,9 +273,46 @@ export default class DDBToolProficiencies {
         && !foundry.utils.getProperty(keep, "system.description.value")) {
         plan.needsDescription.push({ _id: keep._id, key: tool.key });
       }
+
+      // matched on name, so the item predates its dictionary entry. dnd5e reads
+      // actor.system.tools[baseItem] to decide whether an owned copy is proficient, which
+      // an empty baseItem can never satisfy.
+      if (!foundry.utils.getProperty(keep, "system.type.baseItem")) {
+        plan.needsBaseItem.push({ _id: keep._id, key: tool.key });
+      }
     }
 
     return plan;
+  }
+
+  /**
+   * Set system.type.baseItem on items that were munched before a dictionary entry existed
+   * for their name, so it was never populated.
+   *
+   * This is the same value a re-munch would write today, and without it dnd5e's
+   * ToolData#proficiencyMultiplier looks up actor.system.tools[""] and an owned copy of
+   * the item never counts as proficient.
+   */
+  static async #repairBaseItems(
+    compendium: CompendiumCollection.Any,
+    needsBaseItem: { _id: string; key: string }[],
+  ): Promise<void> {
+    if (!game.user?.isGM) {
+      logger.debug(`${needsBaseItem.length} tool items have no baseItem, a GM must log in to repair them`);
+      return;
+    }
+
+    const updates = needsBaseItem.map(({ _id, key }) => ({ _id, "system.type.baseItem": key }));
+    const wasLocked = compendium.locked;
+    try {
+      if (wasLocked) compendium.configure({ locked: false });
+      await Item.updateDocuments(updates as unknown as Item.UpdateInput[], { pack: compendium.collection });
+      logger.debug(`Repaired the baseItem of ${updates.length} tool items`);
+    } catch (error) {
+      logger.warn("Unable to repair the baseItem of tool items", { error });
+    } finally {
+      if (wasLocked) compendium.configure({ locked: true });
+    }
   }
 
   /**
@@ -343,6 +396,7 @@ export default class DDBToolProficiencies {
     if (plan.missing.length > 0) await DDBToolProficiencies.#createFallbackItems(compendium, plan.missing);
     if (plan.redundant.length > 0) await DDBToolProficiencies.#deleteFallbackItems(compendium, plan.redundant);
     if (plan.needsDescription.length > 0) await DDBToolProficiencies.#addDescriptions(compendium, plan.needsDescription);
+    if (plan.needsBaseItem.length > 0) await DDBToolProficiencies.#repairBaseItems(compendium, plan.needsBaseItem);
   }
 
 }

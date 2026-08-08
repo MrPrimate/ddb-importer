@@ -259,10 +259,16 @@ describe("DDBToolProficiencies.buildFallbackItemData", () => {
 // planCompendiumSync
 // =============================================================================
 
-function indexEntry(id: string, baseItem: string, { fallback = false, description = "" } = {}) {
+function indexEntry(
+  id: string,
+  baseItem: string,
+  { fallback = false, description = "", name = id, type = "tool" } = {},
+) {
   return {
     _id: id,
     uuid: `Compendium.world.ddb-items.Item.${id}`,
+    name,
+    type,
     system: { type: { baseItem }, description: { value: description } },
     flags: fallback ? { ddbimporter: { toolFallback: true } } : {},
   };
@@ -350,6 +356,47 @@ describe("DDBToolProficiencies.planCompendiumSync", () => {
     ]);
 
     expect(plan.needsDescription).toEqual([]);
+  });
+
+  it("matches a munched item on name when its baseItem was never populated", () => {
+    // an item munched before its dictionary entry existed, so #generateBaseItem left
+    // system.type.baseItem empty. Matching only on baseItem would leave the stub in place
+    // and the compendium holding both.
+    DDBToolProficiencies.register({
+      key: "fingerprintkit", name: "Fingerprint Kit", ability: "int", toolType: "",
+    });
+    const plan = DDBToolProficiencies.planCompendiumSync([
+      indexEntry("stub1", "fingerprintkit", { fallback: true, name: "Fingerprint Kit" }),
+      indexEntry("real1", "", { name: "Fingerprint Kit" }),
+    ]);
+
+    expect(plan.links).toContainEqual({
+      key: "fingerprintkit", uuid: "Compendium.world.ddb-items.Item.real1",
+    });
+    expect(plan.redundant).toContain("stub1");
+    // and the item gets the link dnd5e needs to tie it to the actor's proficiency
+    expect(plan.needsBaseItem).toContainEqual({ _id: "real1", key: "fingerprintkit" });
+  });
+
+  it("does not match a non-tool item that happens to share a name", () => {
+    DDBToolProficiencies.register({
+      key: "fingerprintkit", name: "Fingerprint Kit", ability: "int", toolType: "",
+    });
+    const plan = DDBToolProficiencies.planCompendiumSync([
+      indexEntry("loot1", "", { name: "Fingerprint Kit", type: "loot" }),
+    ]);
+
+    expect(plan.links).not.toContainEqual(
+      expect.objectContaining({ key: "fingerprintkit" }),
+    );
+    expect(plan.missing.map((t) => t.key)).toContain("fingerprintkit");
+  });
+
+  it("leaves a populated baseItem alone", () => {
+    const plan = DDBToolProficiencies.planCompendiumSync([
+      indexEntry("real1", "wargong", { name: "Wargong" }),
+    ]);
+    expect(plan.needsBaseItem).toEqual([]);
   });
 
   it("ignores items belonging to tools it did not register", () => {
