@@ -29,11 +29,11 @@ export default class ExperimentalElixir extends DDBEnricherData {
   handler!: DDBItemImporter;
   compendiumFolders!: DDBCompendiumFolders;
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Roll for Experimental Elixir",
       noConsumeTargets: true,
@@ -47,7 +47,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       retainResourceConsumption: true,
@@ -567,7 +567,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const base : Partial<IDDBAdditionalActivity>[] = [
       {
         init: {
@@ -619,19 +619,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
 
-  get elixirEnchantEffects() {
-    const results = [];
-    for (const row of this.experimentalElixirDetails) {
-      const effect = {
-        name: `Experimental Elixir: ${row.name}`,
-        type: "enchant",
-      };
-      results.push(effect);
-    }
-    return results;
-  }
-
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const baseEffects = [];
 
     baseEffects.push(...this.getElixirEffects);
@@ -749,7 +737,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   }
 
-  async cleanup() {
+  override async cleanup() {
     this.handler = new DDBItemImporter("features", [], ExperimentalElixir.featureHandlerOptions);
     if (game.user.isGM) await this.generateElixirs();
     this.linkUpItemUUIDs();

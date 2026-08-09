@@ -33,10 +33,6 @@ export default class _CrimsonRite extends _BloodHunter {
     return this.name;
   }
 
-  get riteDamageType(): string {
-    return _CrimsonRite.RITE_TYPES[this.riteName] ?? "";
-  }
-
   /** Rite of the Dawn overrides this with its own subclass scale. */
   get riteDie(): string {
     return _CrimsonRite.RITE_DIE;

@@ -41,14 +41,6 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
-  get fighterAbility(): T5eAbility {
-    const characterAbilities = this.ddbParser.ddbCharacter?.abilities.withEffects;
-    const strValue = characterAbilities?.str?.value;
-    const dexValue = characterAbilities?.dex?.value;
-    const ability = strValue !== undefined && dexValue !== undefined && strValue > dexValue ? "str" : "dex";
-    return ability;
-  }
-
   get diceString() {
     if (this.isClass("Fighter")) {
       if (this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })) {
@@ -63,7 +55,7 @@ export default class Maneuver extends DDBEnricherData {
     return ["Damage"];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const name = this.data.name
       .replace("Maneuver Options:", "Maneuver:")
       .replace("Maneuvers:", "Maneuver:")
@@ -87,11 +79,11 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
-  get type(): IDDBActivityType {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       addItemConsume: true,
