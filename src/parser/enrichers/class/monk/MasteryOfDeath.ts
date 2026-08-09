@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class MasteryOfDeath extends DDBEnricherData<DDBClassFeatureEnricher> {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
       activationType: "special",
@@ -19,7 +19,7 @@ export default class MasteryOfDeath extends DDBEnricherData<DDBClassFeatureEnric
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

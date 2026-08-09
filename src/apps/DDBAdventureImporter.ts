@@ -27,14 +27,14 @@ export class DDBAdventureImporter extends Sheet {
   }
 
   /** @inheritDoc */
-  async getData() {
+  override async getData() {
     return foundry.utils.mergeObject(await super.getData(), {
       importOptions: this.importOptions || {},
     });
   }
 
   /** @inheritDoc */
-  async _renderInner(data: any) {
+  override async _renderInner(data: any) {
     const html = await super._renderInner(data);
 
     let options = `<section class="import-form"><h2>Importer Options</h2>`;

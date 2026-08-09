@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EntropicInfection extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Entropic Infection",
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
@@ -24,7 +24,7 @@ export default class EntropicInfection extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Entropic Infection",
       options: {

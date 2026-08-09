@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AdaptiveWildShapeReplaceDamageTypeAcid extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       name: "Replace Damage Type: Acid",
@@ -21,7 +21,7 @@ export default class AdaptiveWildShapeReplaceDamageTypeAcid extends DDBEnricherD
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       type: "enchant",
       name: "Adaptive Wild Shape: Acid",

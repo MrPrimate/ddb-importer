@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DeftDeflection extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "ally",
       targetCount: 1,
@@ -27,7 +27,7 @@ export default class DeftDeflection extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: { name: "Deft Deflection" },
     };

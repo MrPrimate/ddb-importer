@@ -6,7 +6,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   // }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -30,7 +30,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   }
 
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 

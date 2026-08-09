@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RefinedReanimation extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.CAST;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       addSpellUuid: "Raise Dead",
       addItemConsume: true,
@@ -19,7 +19,7 @@ export default class RefinedReanimation extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return[
       {
         init: {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SacredWeapon extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",
@@ -17,13 +17,13 @@ export default class SacredWeapon extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Sacred Weapon Light Toggle"],
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const lightChanges = [
       DDBEnricherData.ChangeHelper.upgradeChange((this.is2014 ? "5" : "40"), 20, "token.light.dim"),
       DDBEnricherData.ChangeHelper.upgradeChange((this.is2014 ? "0" : "20"), 20, "token.light.bright"),

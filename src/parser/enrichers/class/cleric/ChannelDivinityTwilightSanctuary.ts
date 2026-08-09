@@ -2,13 +2,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.isAction
       ? DDBEnricherData.ACTIVITY_TYPES.NONE
       : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     // const template = DDBEnricherData.AutoEffects.effectModules().atlInstalled
     //   ? {
     //     count: "",
@@ -45,7 +45,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   }
 
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -78,7 +78,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const changes = [
       DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "token.light.dim"),
       DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
@@ -100,7 +100,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Temp HP"],
     };

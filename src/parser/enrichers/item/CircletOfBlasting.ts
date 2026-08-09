@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CircletOfBlasting extends DDBEnricherData {
 
-  async customFunction({ name, activity } : ICustomFunctionOptions) {
+  override async customFunction({ name, activity } : ICustomFunctionOptions) {
     if (name === "Scorching Ray" && activity) {
       let data = activity.data as I5eCastActivity;
       const update = {

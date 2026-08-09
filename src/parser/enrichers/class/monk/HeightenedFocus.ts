@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HeightenedFocus extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Patient Defense Healing",
       data: {
@@ -17,7 +17,7 @@ export default class HeightenedFocus extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 }

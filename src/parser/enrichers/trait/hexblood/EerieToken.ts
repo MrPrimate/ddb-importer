@@ -8,11 +8,11 @@ export default class EerieToken extends DDBEnricherData {
   compendiumFolders!: DDBCompendiumFolders;
   tokens: I5eLootItem[] = [];
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     return {
       name: "Create Eerie Token",
       activationType: "bonus",
@@ -26,7 +26,7 @@ export default class EerieToken extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -93,7 +93,7 @@ export default class EerieToken extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     const uses = this._getGeneratedUses({
       type: "class",
       name: "Eerie Token",
@@ -103,7 +103,7 @@ export default class EerieToken extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const compendium = CompendiumHelper.getCompendiumType("traits");
     if (!compendium) return [];
     const compendiumId = compendium?.metadata?.id;
@@ -204,7 +204,7 @@ export default class EerieToken extends DDBEnricherData {
     }
   }
 
-  async cleanup() {
+  override async cleanup() {
     this.handler = new DDBItemImporter("trait", [], EerieToken.handlerOptions);
     if (game.user.isGM) await this.generateToken();
     this.linkUpItemUUIDs();

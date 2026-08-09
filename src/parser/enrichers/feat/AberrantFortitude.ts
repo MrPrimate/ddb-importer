@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AberrantFortitude extends DDBEnricherData {
-  get usesOnActivity() {
+  override get usesOnActivity() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       addActivityConsume: true,
@@ -18,7 +18,7 @@ export default class AberrantFortitude extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const advancement = {
       "type": "ScaleValue",
       "_id": foundry.utils.randomID(),

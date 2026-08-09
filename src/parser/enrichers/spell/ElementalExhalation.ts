@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ElementalExhalation extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
@@ -16,7 +16,7 @@ export default class ElementalExhalation extends DDBEnricherData {
     });
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Air",
       targetType: "creature",
@@ -31,7 +31,7 @@ export default class ElementalExhalation extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,
@@ -115,7 +115,7 @@ export default class ElementalExhalation extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Coldfire Fear",

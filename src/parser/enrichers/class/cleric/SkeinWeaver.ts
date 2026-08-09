@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SkeinWeaver extends DDBEnricherData {
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       activationType: "special",
@@ -31,7 +31,7 @@ export default class SkeinWeaver extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Skein Weaver: Fate's Disfavor",

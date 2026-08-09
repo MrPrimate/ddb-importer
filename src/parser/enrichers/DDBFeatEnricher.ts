@@ -37,11 +37,11 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, string> = {};
+  override NAME_HINTS_2014: Record<string, string> = {};
 
-  NAME_HINTS: Record<string, string> = {};
+  override NAME_HINTS: Record<string, string> = {};
 
-  NAME_HINT_INCLUDES: Record<string, string> = {
+  override NAME_HINT_INCLUDES: Record<string, string> = {
     "Ritual Caster (": "Ritual Caster",
     "Strike of the Giants (": "Strike of the Giants",
     "Strike of the Giants:": "Strike of the Giants",

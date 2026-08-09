@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AvengingAngel extends DDBEnricherData {
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.ddbParser.isAction) {
       return null;
     }
@@ -14,7 +14,7 @@ export default class AvengingAngel extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.ddbParser.isAction) {
       return [];
     }
@@ -56,7 +56,7 @@ export default class AvengingAngel extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.ddbParser.isAction) {
       return [];
     }
@@ -72,7 +72,7 @@ export default class AvengingAngel extends DDBEnricherData {
     }];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({ type: "class", name: "Avenging Angel", max: "1", period: "lr" });
     return {
       uses,
@@ -82,7 +82,7 @@ export default class AvengingAngel extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

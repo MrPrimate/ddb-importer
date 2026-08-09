@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsychicWhispers extends DDBEnricherData {
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Psychic Whispers",
       addItemConsume: true,

@@ -35,13 +35,13 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.ddbEnricher?._originalActivity?.type === "heal"
       ? this._healActivity
       : this._utilityActivity;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this.useMidiAutomations
         ? {
@@ -64,7 +64,7 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const extraChanges = this.is2014
       ? [
@@ -88,14 +88,14 @@ export default class HeroesFeast extends DDBEnricherData {
     ];
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "heroesFeast.js",
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "heroesFeast.js",

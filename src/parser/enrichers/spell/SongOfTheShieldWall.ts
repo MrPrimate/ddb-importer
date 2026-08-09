@@ -6,11 +6,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class SongOfTheShieldWall extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noTemplate: true,
@@ -19,7 +19,7 @@ export default class SongOfTheShieldWall extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Shield Wall",

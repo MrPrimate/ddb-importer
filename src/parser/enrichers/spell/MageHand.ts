@@ -2,20 +2,20 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MageHand extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getMageHands;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [

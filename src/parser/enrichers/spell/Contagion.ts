@@ -2,18 +2,18 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Contagion extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: this.ddbEnricher?._originalActivity?.type === "save" ? "ddbContagionSave" : "ddbContagionCast",
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Save" : "Cast",
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.useMidiAutomations && this.is2014;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: this.is2014 ? "Cast" : "Save",
@@ -36,7 +36,7 @@ export default class Contagion extends DDBEnricherData {
     ];
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       name: this.is2014 ? "contagion2014.js" : "contagion2024.js",
       type: "spell",
@@ -56,7 +56,7 @@ export default class Contagion extends DDBEnricherData {
   //   };
   // }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) return null;
     return {
       name: "contagion2024.js",

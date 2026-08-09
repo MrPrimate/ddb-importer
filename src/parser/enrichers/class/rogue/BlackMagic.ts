@@ -2,15 +2,15 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BlackMagic extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get type() {
+  override get type() {
     return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast Darkness",
       activationType: "bonus",
@@ -18,7 +18,7 @@ export default class BlackMagic extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {
@@ -50,11 +50,11 @@ export default class BlackMagic extends DDBEnricherData {
     ];
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     return [
       {
@@ -69,7 +69,7 @@ export default class BlackMagic extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         max: "3",

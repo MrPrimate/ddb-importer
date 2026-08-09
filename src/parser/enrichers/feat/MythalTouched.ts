@@ -2,11 +2,11 @@ import { DICTIONARY } from "../../../config/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MythalTouched extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const modId = this.ddbParser.ddbData.character.modifiers.feat.find((mod) =>
       mod.type === "bonus"
       && mod.componentId === this.ddbParser.ddbDefinition.componentId,
@@ -36,7 +36,7 @@ export default class MythalTouched extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.ddbParser.isMuncher
       ? [
         {

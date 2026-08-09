@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArcaneShotOption extends DDBEnricherData {
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     return {
       data: {
         damage: {
@@ -21,19 +21,19 @@ export default class ArcaneShotOption extends DDBEnricherData {
     };
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return false;
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return true;
   }
 
-  get builtFeaturesFromActionFilters() {
+  override get builtFeaturesFromActionFilters() {
     return [this.name];
   }
 

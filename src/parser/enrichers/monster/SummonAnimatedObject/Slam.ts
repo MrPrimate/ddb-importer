@@ -19,7 +19,7 @@ export default class Slam extends DDBEnricherData {
     }
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

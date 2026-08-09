@@ -2,17 +2,17 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StepsOfNight extends DDBEnricherData {
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

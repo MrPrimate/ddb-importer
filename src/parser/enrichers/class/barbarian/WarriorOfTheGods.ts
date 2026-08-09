@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WarriorOfTheGods extends DDBEnricherData {
-  get type() {
+  override get type() {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) return {};
     return {
       name: "Heal",
@@ -23,7 +23,7 @@ export default class WarriorOfTheGods extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return this.is2014
       ? {}
       : {

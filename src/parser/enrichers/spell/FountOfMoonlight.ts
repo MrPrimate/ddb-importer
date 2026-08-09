@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FountOfMoonlight extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         name: "Cast Spell",
@@ -26,7 +26,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -67,11 +67,11 @@ export default class FountOfMoonlight extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Wreathed in Moonlight",

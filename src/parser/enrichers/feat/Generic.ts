@@ -6,11 +6,11 @@ export default class Generic extends DDBEnricherData {
     return "feat";
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     return null;
   }
 

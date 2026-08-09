@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ClairvoyantCombatant extends DDBEnricherData {
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return null;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Awakened Mind: Clairvoyant Combatant", type: "class" } },
       {
@@ -44,7 +44,7 @@ export default class ClairvoyantCombatant extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({ type: "class", name: "Awakened Mind: Clairvoyant Combatant", max: "1", period: "sr" });
     return {
       uses,

@@ -3,7 +3,7 @@ import UnarmedStrikeAttack from "./UnarmedStrikeAttack";
 
 export default class MoxieFueledUnarmedStrikes extends UnarmedStrikeAttack {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

@@ -19,7 +19,7 @@ export default class DDBClass extends DDBBaseClass {
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
   }
 
-  static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
+  static override SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Wild Shape": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
@@ -659,7 +659,7 @@ export default class DDBClass extends DDBBaseClass {
     };
   };
 
-  static CLASS_HANDLER_OPTIONS: IDDBItemImporterBuildHandlerOptions = {
+  static override CLASS_HANDLER_OPTIONS: IDDBItemImporterBuildHandlerOptions = {
     chrisPremades: false,
     filterDuplicates: false,
     deleteBeforeUpdate: false,
@@ -669,7 +669,7 @@ export default class DDBClass extends DDBBaseClass {
     recursive: false,
   };
 
-  _buildPendingClassDocument() {
+  override _buildPendingClassDocument() {
     const data: I5eClassItem = foundry.utils.deepClone(this.data) as I5eClassItem;
     const advancementData = data.system.advancement ?? {};
     for (const [id, advancement] of Object.entries(advancementData)) {
@@ -688,7 +688,7 @@ export default class DDBClass extends DDBBaseClass {
     };
   }
 
-  async _addToCompendium() {
+  override async _addToCompendium() {
     if (!this.addToCompendium) return;
     if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
 
@@ -719,7 +719,7 @@ export default class DDBClass extends DDBBaseClass {
     await handler.buildIndex();
   }
 
-  static async writePendingClassDocuments(
+  static override async writePendingClassDocuments(
     pending: { classes: IDBClassPendingClassDocument[]; subclasses: IDBClassPendingClassDocument[] },
     updateFeatures: boolean,
   ) {

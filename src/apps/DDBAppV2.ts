@@ -33,7 +33,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
   /** @override */
-  tabGroups: Record<string, string> = {};
+  override tabGroups: Record<string, string> = {};
 
   _markTabs(tabs: IDDBTabs): IDDBTabs {
     for (const v of Object.values(tabs)) {
@@ -79,7 +79,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
   /** @inheritDoc */
-  async _onRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: foundry.applications.api.Application.RenderOptions) {
+  override async _onRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
     // Allow multi-select tags to be removed when the whole tag is clicked.
     this.element.querySelectorAll<HTMLSelectElement>("multi-select").forEach((select) => {
@@ -114,14 +114,14 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  changeTab(tab: any, group: any, options: any) {
+  override changeTab(tab: any, group: any, options: any) {
     super.changeTab(tab, group, options);
     if (["sheet"].includes(group)) {
       this._toggleNestedTabs();
     }
   }
 
-  async _prepareContext(options: any): Promise<DDBAppV2Context> {
+  override async _prepareContext(options: any): Promise<DDBAppV2Context> {
     const noCacheLoad = options?.noCacheLoad ?? false;
     if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false }) as DDBAppV2Context;
@@ -132,7 +132,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
   /** @override */
 
-  async _preparePartContext(_partId: string, context: any) {
+  override async _preparePartContext(_partId: string, context: any) {
     return context;
   }
 
@@ -141,7 +141,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _configureRenderOptions(options: any) {
+  override _configureRenderOptions(options: any) {
     super._configureRenderOptions(options);
     if (options.isFirstRender && this.hasFrame) {
       options.window ||= {};
@@ -151,7 +151,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onFirstRender(context: any, options: any) {
+  override async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     const containers: Record<string, HTMLElement> = {};
     const ctor = this.constructor as typeof DDBAppV2;

@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AnimatingPerformance extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "summonDanciItem1",
       name: "Summon Dancing Item",
@@ -27,7 +27,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -67,7 +67,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
     ];
   }
 
-  get parseAllChoiceFeatures() {
+  override get parseAllChoiceFeatures() {
     return true;
   }
 

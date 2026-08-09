@@ -4,15 +4,15 @@ import _RiteFocus from "./_RiteFocus";
 
 export default class RiteFocusTheCelestial extends _RiteFocus {
 
-  get patronName(): string {
+  override get patronName(): string {
     return "The Celestial";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
       targetType: "creature",

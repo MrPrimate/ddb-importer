@@ -3,11 +3,11 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class PerfectForm extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "special",
@@ -24,7 +24,7 @@ export default class PerfectForm extends DDBEnricherData<DDBClassFeatureEnricher
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Perfect Form",

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MageSlayer extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Guarded Mind",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -11,7 +11,7 @@ export default class MageSlayer extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       uses: {

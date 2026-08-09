@@ -2,12 +2,12 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Lucky extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.featureType !== "feat") return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.featureType !== "feat") return null;
     return {
       name: "Spend Luck Point",
@@ -16,7 +16,7 @@ export default class Lucky extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.featureType !== "feat") return null;
     const uses = this._getUsesWithSpent({
       type: "feat",
@@ -30,7 +30,7 @@ export default class Lucky extends DDBEnricherData {
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.featureType !== "race") return [];
 
     return [

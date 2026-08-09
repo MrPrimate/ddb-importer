@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TokensOfTheDeparted extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -70,7 +70,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     return 2;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: this.is2014 ? "Tokens of the Departed: Create Soul Trinket" : "Soul Trinkets",
@@ -100,7 +100,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

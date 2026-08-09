@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CrownOfSpellfire extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "self",
@@ -81,7 +81,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return base;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = this.hdActivities as IDDBAdditionalActivity[];
     results.push(
       {
@@ -136,7 +136,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return results;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Crown of Spellfire (Flight)",
@@ -170,7 +170,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Infuse Spellfire",

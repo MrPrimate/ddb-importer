@@ -2,16 +2,16 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BallisticSmite extends DDBEnricherData {
 
-  get combineDamageTypes() {
+  override get combineDamageTypes() {
     return true;
   }
 
   /** parses as an attack from the description wording; it is bonus damage */
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Damage",
       activationType: "bonus",

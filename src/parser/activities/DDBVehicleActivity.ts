@@ -15,7 +15,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     return this.data as IActivityData;
   }
 
-  _init() {
+  override _init() {
     logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor?.name}`);
   }
 
@@ -42,7 +42,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   }
 
-  _generateSave({ saveOverride = null, dc = null, ability = null } = {}) {
+  override _generateSave({ saveOverride = null, dc = null, ability = null } = {}) {
     if (saveOverride) {
       this.buildData.save = saveOverride;
       return;
@@ -56,7 +56,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     };
   }
 
-  build({
+  override build({
     activationOverride,
     additionalTargets,
     attackData,
@@ -187,7 +187,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, character }: IDDBVehicleFeatureActivityCreate, options: Record<string, any> = {}): Promise<string> {
+  static override async createActivity({ document, type, name, character }: IDDBVehicleFeatureActivityCreate, options: Record<string, any> = {}): Promise<string> {
     const activity = new DDBVehicleActivity({
       name: name ?? null,
       type,

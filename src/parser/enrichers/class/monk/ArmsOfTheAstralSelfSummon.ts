@@ -3,7 +3,7 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       addItemConsume: true,

@@ -12,11 +12,11 @@ export default class Mutagencraft extends DDBEnricherData {
 
   static MUTAGENS_CREATED = "@scale.order-of-the-mutant.mutagencraft";
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Consume Mutagen",
       targetType: "self",
@@ -27,7 +27,7 @@ export default class Mutagencraft extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

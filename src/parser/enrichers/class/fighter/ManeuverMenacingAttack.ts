@@ -1,7 +1,7 @@
 import Maneuver from "./Maneuver";
 
 export default class ManeuverMenacingAttack extends Maneuver {
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -37,7 +37,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Menaced",
@@ -48,7 +48,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
     ];
   }
 
-  get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities() {
     return ["Save vs Frightened"];
   }
 

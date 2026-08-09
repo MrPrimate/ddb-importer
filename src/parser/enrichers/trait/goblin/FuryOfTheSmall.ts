@@ -8,11 +8,11 @@ export default class FuryOfTheSmall extends DDBEnricherData {
     return description.toLowerCase().includes("once per turn");
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Bonus Damage",
       targetType: "creature",
@@ -29,7 +29,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getGeneratedUses({
       type: "race",
       name: this.data.name,
@@ -39,7 +39,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const midiOptionalChanges = this.useProfDamage
       ? [{
         name: "furyOfTheSmall",
@@ -82,14 +82,14 @@ export default class FuryOfTheSmall extends DDBEnricherData {
   //   return true;
   // }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "furyOfTheSmall.js",
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "feat",
       name: "furyOfTheSmall.js",

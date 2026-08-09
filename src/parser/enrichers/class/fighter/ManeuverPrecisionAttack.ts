@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverPrecisionAttack extends Maneuver {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Precision Attack",
       activationType: "reaction",
@@ -24,7 +24,7 @@ export default class ManeuverPrecisionAttack extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Precision Attack Bonus",

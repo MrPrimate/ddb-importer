@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MoteOfPotential extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Attack Save vs Mote of Potential",
       noConsumeTargets: true,
@@ -52,7 +52,7 @@ export default class MoteOfPotential extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

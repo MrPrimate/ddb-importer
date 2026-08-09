@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Guidance extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const midiProperties = this.is2014
       ? {}
       : {
@@ -73,7 +73,7 @@ export default class Guidance extends DDBEnricherData {
     });
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014 ? this.effects2014 : this.effects2024;
   }
 

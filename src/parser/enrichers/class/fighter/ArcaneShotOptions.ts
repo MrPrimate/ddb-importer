@@ -2,15 +2,15 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArcaneShotOptions extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return false;
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return false;
   }
 

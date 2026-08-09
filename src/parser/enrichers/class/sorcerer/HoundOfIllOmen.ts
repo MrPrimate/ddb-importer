@@ -2,19 +2,19 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HoundOfIllOmen extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getHoundOfIllOmen;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [{ count: 1, name: "HoundOfIllOmen" }],
@@ -30,7 +30,7 @@ export default class HoundOfIllOmen extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [];
   }
 

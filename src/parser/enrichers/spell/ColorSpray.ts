@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ColorSpray extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.is2014) {
       return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     } else {
@@ -10,7 +10,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return {
         data: {
@@ -27,7 +27,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) {
       return {
         name: "colorSpray.js",
@@ -38,7 +38,7 @@ export default class ColorSpray extends DDBEnricherData {
     return null;
   }
 
-  get itemMacro(): IDDBItemMacro | null {
+  override get itemMacro(): IDDBItemMacro | null {
     if (this.is2014) {
       return {
         name: "colorSpray.js",

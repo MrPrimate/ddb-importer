@@ -3,7 +3,7 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class BullseyeLantern extends GenericLightSource {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Bullseye Lantern Light",

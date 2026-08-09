@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsionicPower extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
     const activityData: Partial<I5eActivity> = {
       roll: {
@@ -37,7 +37,7 @@ export default class PsionicPower extends DDBEnricherData {
     return result;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [];
     if (this.isSubclass("Soulknife")) {
       results.push(
@@ -58,7 +58,7 @@ export default class PsionicPower extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const spent = this.isSubclass("Soulknife")
       ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
       : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");

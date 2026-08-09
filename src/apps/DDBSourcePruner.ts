@@ -27,7 +27,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
   selectedBookIds: number[] = [];
   selectedCompendiumSettings: string[] = [];
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-source-pruner",
     classes: ["standard-form", "dnd5e2", "ddb-source-pruner"],
     window: {
@@ -44,7 +44,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
     position: { width: 750, height: 700 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/source-pruner/source-pruner.hbs",
     },
@@ -83,7 +83,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     const configured = CompendiumHelper.getConfiguredCompendiums();

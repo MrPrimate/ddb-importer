@@ -2,7 +2,7 @@ import Generic from "./Generic";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbberantDragonmark extends Generic {
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const characterClasses = this.ddbParser.isMuncher
       ? undefined
       : this.ddbParser.ddbCharacter?.source?.ddb?.character.classes;
@@ -49,7 +49,7 @@ export default class AbberantDragonmark extends Generic {
     return activities;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return true;
   }
 }

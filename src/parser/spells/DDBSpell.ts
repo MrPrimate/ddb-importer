@@ -891,7 +891,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   /** @override */
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  override _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       modRestrictionFilterExcludes: this.ddbDefinition.requiresSavingThrow ? ["Save", "saving throw"] : null,
     }, options);
@@ -900,7 +900,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   /** @override */
-  _getActivitiesType() {
+  override _getActivitiesType() {
     if (this.isSummons) {
       return "summon";
     }
@@ -947,7 +947,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   /** @override */
-  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = "utility" }: {
+  override async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = "utility" }: {
     hintsOnly?: boolean;
     name?: string | null;
     nameIdPostfix?: any;
@@ -1026,7 +1026,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
   }
 
-  async _generateAdditionalActivities() {
+  override async _generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
     logger.debug(`Additional Spell Activities for ${this.data.name}`, this.additionalActivities);
     let i = 0;
@@ -1181,7 +1181,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   /** @override */
-  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  override _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const spellOptions = foundry.utils.mergeObject({
       healingPart: this.healingParts.length > 0 ? this.healingParts[0].part : null,
       healingChatFlavor: this.healingParts.length > 0 ? this.healingParts[0].chatFlavor : null,

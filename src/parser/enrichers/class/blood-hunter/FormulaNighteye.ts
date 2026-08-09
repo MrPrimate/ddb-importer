@@ -10,7 +10,7 @@ import _Mutagen from "./_Mutagen";
  */
 export default class FormulaNighteye extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

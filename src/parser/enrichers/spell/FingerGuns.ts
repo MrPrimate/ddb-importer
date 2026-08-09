@@ -24,7 +24,7 @@ export default class FingerGuns extends DDBEnricherData {
     };
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Attack",
       noeffect: true,
@@ -50,7 +50,7 @@ export default class FingerGuns extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -99,7 +99,7 @@ export default class FingerGuns extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return FingerGuns.RANGE_DATA.map((data) => {
       const changes = [
         DDBEnricherData.ChangeHelper.overrideChange(`Finger Guns`, 20, "name"),
@@ -137,7 +137,7 @@ export default class FingerGuns extends DDBEnricherData {
     });
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const range = this.getRange();
     return {
       data: {

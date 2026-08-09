@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 // 2014 version
 export default class ChannelDivinityPathToTheGrave extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014 ? [
       {
         name: "Cursed",

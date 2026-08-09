@@ -18,7 +18,8 @@
       "@client/*": ["./foundry/client/*"],
       "@common/*": ["./foundry/common/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitOverride": true
   },
   "include": [
     "src/**/*.ts",

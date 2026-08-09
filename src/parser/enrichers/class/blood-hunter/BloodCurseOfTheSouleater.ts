@@ -9,15 +9,15 @@ import _BloodCurse from "./_BloodCurse";
  */
 export default class BloodCurseOfTheSouleater extends _BloodCurse {
 
-  get curseName(): string {
+  override get curseName(): string {
     return "Blood Curse of the Souleater";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
       targetType: "self",
@@ -27,7 +27,7 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,
@@ -41,7 +41,7 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: this.ignoredConsumptionActivities,
       // the 1/long rest amplify limit lives on this document, so keep it and
@@ -51,7 +51,7 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const changes = DDBEnricherData.allDamageTypes().map((damage) =>
       DDBEnricherData.ChangeHelper.damageResistanceChange(damage),
     );

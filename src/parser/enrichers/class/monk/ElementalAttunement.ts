@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalAttunement extends DDBEnricherData {
-  get type() {
+  override get type() {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.is2014
       ? {}
       : {
@@ -23,7 +23,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? []
       : [
@@ -114,7 +114,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014
       ? []
       : [
@@ -145,7 +145,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Elemental Strike", "Elemental Save"],
     };

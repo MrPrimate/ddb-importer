@@ -2,19 +2,19 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BragisRuneOfSpeech extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities(): boolean {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get addToDefaultAdditionalActivities(): boolean {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get type() {
+  override get type() {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.SAVE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Scorn",
       targetType: "creature",
@@ -37,7 +37,7 @@ export default class BragisRuneOfSpeech extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {
@@ -102,7 +102,7 @@ export default class BragisRuneOfSpeech extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

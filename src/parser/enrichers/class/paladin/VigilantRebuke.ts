@@ -2,14 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VigilantRebuke extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       data: {

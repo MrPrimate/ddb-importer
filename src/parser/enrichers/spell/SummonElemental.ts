@@ -18,7 +18,7 @@ export default class SummonElemental extends DDBEnricherData {
   //   return false;
   // }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         bonuses: {

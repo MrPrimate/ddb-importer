@@ -7,11 +7,11 @@ export default abstract class TomeOf extends DDBEnricherData {
     ability: string;
   };
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Read Tome",
       addItemConsume: true,
@@ -23,7 +23,7 @@ export default abstract class TomeOf extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const effectData = this.effectData;
 
     return [
@@ -39,7 +39,7 @@ export default abstract class TomeOf extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,

@@ -3,13 +3,13 @@ import Maneuver from "./Maneuver";
 
 
 export default class ManeuverQuickToss extends Maneuver {
-  get type() {
+  override get type() {
     return this.useMidiAutomations
       ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
       : DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

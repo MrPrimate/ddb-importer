@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CloakOfDisplacement extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: `${this.data.name} - Check`,
@@ -20,7 +20,7 @@ export default class CloakOfDisplacement extends DDBEnricherData {
     ];
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "item",
       name: "cloakOfDisplacement.js",

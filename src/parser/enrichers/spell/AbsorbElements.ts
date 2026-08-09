@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbsorbElements extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: `${this.data.name} Effect`,
       data: {
@@ -17,7 +17,7 @@ export default class AbsorbElements extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -43,7 +43,7 @@ export default class AbsorbElements extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const noMidiEffects: IDDBEffectHint[] = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         midiNever: true,
@@ -90,14 +90,14 @@ export default class AbsorbElements extends DDBEnricherData {
     return [...noMidiEffects, ...midiEffects];
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "absorbElements.js",
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "absorbElements.js",
@@ -105,7 +105,7 @@ export default class AbsorbElements extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

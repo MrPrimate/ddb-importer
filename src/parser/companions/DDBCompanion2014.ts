@@ -259,7 +259,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
   }
 
 
-  async _generate() {
+  override async _generate() {
     this.#generateSize();
     this.#generateType();
     this.#generateAbilities();

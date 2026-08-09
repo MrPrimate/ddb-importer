@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Weapon attacks crit on a 19 or 20, at the cost of Strength saving throws. */
 export default class FormulaPrecision extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

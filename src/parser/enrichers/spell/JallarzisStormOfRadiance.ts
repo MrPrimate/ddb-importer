@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class JallarzisStormOfRadiance extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Within Storm of Radiance",
@@ -14,7 +14,7 @@ export default class JallarzisStormOfRadiance extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

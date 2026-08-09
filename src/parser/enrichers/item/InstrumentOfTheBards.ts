@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class InstrumentOfTheBards extends DDBEnricherData {
 
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
     };

@@ -58,7 +58,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     return this._loadEnricherData();
   }
 
-  _loadEnricherData(): DDBEnricherData | null {
+  override _loadEnricherData(): DDBEnricherData | null {
     const monsterHintName = this.monsterHintName ?? this.monsterName;
     const hintName = this.hintName;
     if (!hintName || !this.ENRICHERS?.[monsterHintName]?.[hintName]) {
@@ -118,7 +118,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     return null;
   }
 
-  _getNameHint(): void {
+  override _getNameHint(): void {
     const name = this.name ?? "";
     const fullHint = (this.is2014 ? this.NAME_HINTS_2014[this.monsterName]?.[name] : null)
       ?? this.NAME_HINTS[this.monsterName]?.[name];
@@ -160,7 +160,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     this.monsterHintName = null;
   }
 
-  async load({ ddbParser, document, name = null, monster, is2014 = null }: {
+  override async load({ ddbParser, document, name = null, monster, is2014 = null }: {
     ddbParser: DDBMonsterFeature;
     document?: I5eWeaponItem | I5eFeatItem | I5eInventoryItem;
     name?: string | null;
@@ -188,9 +188,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Protector": "Eldritch Cannon",
   };
 
-  NAME_HINTS_2014: Record<string, Record<string, string>> = {};
+  override NAME_HINTS_2014: Record<string, Record<string, string>> = {};
 
-  NAME_HINTS: Record<string, Record<string, string>> = {
+  override NAME_HINTS: Record<string, Record<string, string>> = {
     "Elemental Cultist": {
       "Elemental Absorption (1/Day)": "Elemental Absorption",
     },

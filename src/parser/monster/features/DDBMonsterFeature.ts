@@ -197,7 +197,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   }
 
-  async loadEnricher() {
+  override async loadEnricher() {
     await this.enricher.init();
     await this.enricher.load({
       ddbParser: this,
@@ -1309,7 +1309,7 @@ ${this.data.system.description.value}
     this.actionData.uses = this.getUses();
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null }: {
+  override _getSaveActivity({ name = null, nameIdPostfix = null }: {
     name?: string | null;
     nameIdPostfix?: string | null;
   }, options = {}) {
@@ -1323,7 +1323,7 @@ ${this.data.system.description.value}
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getAttackActivity({ name = null, nameIdPostfix = null }: {
+  override _getAttackActivity({ name = null, nameIdPostfix = null }: {
     name?: string | null;
     nameIdPostfix?: string | null;
   }, options = {}) {
@@ -1367,7 +1367,7 @@ ${this.data.system.description.value}
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  override _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",
@@ -1376,7 +1376,7 @@ ${this.data.system.description.value}
     return super._getUtilityActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  override _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",
@@ -1423,7 +1423,7 @@ ${this.data.system.description.value}
     return null;
   }
 
-  _getActivitiesType() {
+  override _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.name === "Legendary Actions") return null;
     if (this.healingAction) {

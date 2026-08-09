@@ -2,13 +2,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UmbralDagger extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noeffect: true,
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

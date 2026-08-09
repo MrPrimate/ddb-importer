@@ -11,11 +11,11 @@ export default class Shifting extends DDBEnricherData {
     return this.ddbParser._chosen[0].label;
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Shifter Choice",
       targetType: "self",
@@ -119,7 +119,7 @@ export default class Shifting extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [
       ...this.shiftActivities,
       ...this.additionalActivitiesLongtooth,
@@ -170,7 +170,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
     ];
@@ -214,7 +214,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this.ddbParser.ddbCharacter?._ddbRace.isLegacy
       ? {}
       : this._getUsesWithSpent({

@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AlchemistsFire extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014
       ? DDBEnricherData.ACTIVITY_TYPES.ATTACK
       : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         addItemConsume: true,
@@ -40,7 +40,7 @@ export default class AlchemistsFire extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] | null {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) {
       return [
         {
@@ -66,7 +66,7 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) {
       return null;
     } else {
@@ -79,7 +79,7 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) return [{
       options: {
         transfer: false,

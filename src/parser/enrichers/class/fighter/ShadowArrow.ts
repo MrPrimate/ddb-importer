@@ -2,7 +2,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class ShadowArrow extends ArcaneShotOption {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

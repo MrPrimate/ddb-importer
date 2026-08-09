@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Cloudkill extends DDBEnricherData {
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbCloKilSpellSa",
       noeffect: this.useMidiAutomations,
@@ -9,11 +9,11 @@ export default class Cloudkill extends DDBEnricherData {
   }
 
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.useMidiAutomations;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const killChange = this.is2014
       ? `label=${this.data.name} (Start of Turn),turn=start, saveAbility=con, killAnim=true, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`
@@ -63,7 +63,7 @@ export default class Cloudkill extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -79,7 +79,7 @@ export default class Cloudkill extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
       triggerPoints: ["preActiveEffects"],

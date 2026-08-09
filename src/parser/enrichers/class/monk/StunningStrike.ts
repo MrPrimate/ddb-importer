@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StunningStrike extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     const activity: IDDBActivityData = {
       targetType: "creature",
@@ -43,7 +43,7 @@ export default class StunningStrike extends DDBEnricherData {
     return activity;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return this.is2014
       ? {
         replaceActivityUses: true,

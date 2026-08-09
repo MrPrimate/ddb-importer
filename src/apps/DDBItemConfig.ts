@@ -13,7 +13,7 @@ interface IConfigItem {
 }
 
 export class DDBItemConfig extends FormApplication {
-  static get defaultOptions() {
+  static override get defaultOptions() {
     const options = super.defaultOptions;
     options.title = "DDB Owned Item Config";
     options.template = "modules/ddb-importer/handlebars/item-config.hbs";
@@ -23,7 +23,7 @@ export class DDBItemConfig extends FormApplication {
   }
 
   /** @override */
-  async getData() {
+  override async getData() {
     // console.warn(this);
     // console.warn(this.object);
     const item = this.object as IConfigItem;
@@ -101,7 +101,7 @@ export class DDBItemConfig extends FormApplication {
     return result;
   }
 
-  get id() {
+  override get id() {
     const actor = this.object as IConfigItem;
     const id = `ddb-actor-${actor.id}`;
     return id;

@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FindFamiliar extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Summon",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (!["Pact of the Chain"].includes(this.ddbParser.lookupName ?? "")) return [];
     return [
       {

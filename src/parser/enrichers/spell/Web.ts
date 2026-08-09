@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Web extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbWebSpellSave1",
       noeffect: this.useMidiAutomations,
@@ -10,7 +10,7 @@ export default class Web extends DDBEnricherData {
   }
 
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -35,11 +35,11 @@ export default class Web extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Restrained",
@@ -83,7 +83,7 @@ export default class Web extends DDBEnricherData {
   }
 
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
       triggerPoints: ["preActiveEffects"],

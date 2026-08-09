@@ -2,17 +2,17 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Fisticuffs extends DDBEnricherData {
 
-  get type(): IDDBActivityType {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Attack",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -36,7 +36,7 @@ export default class Fisticuffs extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Fisticuffs",
@@ -52,7 +52,7 @@ export default class Fisticuffs extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

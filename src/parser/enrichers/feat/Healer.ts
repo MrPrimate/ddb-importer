@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Healer extends DDBEnricherData {
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2024) {
       return null;
     } else {
@@ -19,7 +19,7 @@ export default class Healer extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2024) {
       return [4, 6, 8, 10, 12]
         .map((die) => {
@@ -43,7 +43,7 @@ export default class Healer extends DDBEnricherData {
     }
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.is2024) return [];
     return [
       {

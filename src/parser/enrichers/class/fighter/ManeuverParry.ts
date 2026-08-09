@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverParry extends Maneuver {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "self",
@@ -22,7 +22,7 @@ export default class ManeuverParry extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

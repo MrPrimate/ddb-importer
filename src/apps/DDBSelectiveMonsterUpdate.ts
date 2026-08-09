@@ -34,7 +34,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
   selectedTypes: string[] = [];
   nameFilter = "";
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-selective-monster-update",
     classes: ["standard-form", "dnd5e2", "ddb-monster-select-dialog"],
     window: {
@@ -51,7 +51,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     position: { width: 700, height: 700 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/monster-select/monster-select.hbs",
     },
@@ -64,7 +64,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     return {};
   }
 
-  async _prepareContext(options: any): Promise<ISelectiveMonsterUpdateContext> {
+  override async _prepareContext(options: any): Promise<ISelectiveMonsterUpdateContext> {
     const context: ISelectiveMonsterUpdateContext = await super._prepareContext({ ...options, noCacheLoad: true }) as ISelectiveMonsterUpdateContext;
 
     const worldMonsters = game.actors.filter((a) =>
@@ -111,7 +111,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     return context;
   }
 
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     const sourceFilter = this.element.querySelector(".ddb-filter-source");

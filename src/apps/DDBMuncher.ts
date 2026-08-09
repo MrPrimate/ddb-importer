@@ -119,7 +119,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-importer-monsters",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
@@ -165,7 +165,7 @@ export default class DDBMuncher extends DDBAppV2 {
     },
   };
 
-  static PARTS = {
+  static override PARTS = {
     header: { template: "modules/ddb-importer/handlebars/muncher/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
     intro: {
@@ -215,7 +215,7 @@ export default class DDBMuncher extends DDBAppV2 {
   };
 
   /** @override */
-  tabGroups = {
+  override tabGroups = {
     sheet: "intro",
     settings: "general",
     munch: "spells",
@@ -326,7 +326,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 
-  _toggleNestedTabs() {
+  override _toggleNestedTabs() {
     const munch = this.element.querySelector(".munch-munch > [data-application-part=\"muncherTabs\"]");
     const munchActive = this.element.querySelector(".tab.active[data-group=\"munch\"]");
     if (munch && munchActive) {
@@ -343,7 +343,7 @@ export default class DDBMuncher extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
+  override async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
 
     // a re-render mid-munch must not drop the height reserved for the overlay
@@ -525,7 +525,7 @@ export default class DDBMuncher extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  changeTab(tab: any, group: any, options: any) {
+  override changeTab(tab: any, group: any, options: any) {
     super.changeTab(tab, group, options);
     if (["munch"].includes(group)) {
       this._toggleNestedTabs();
@@ -607,7 +607,7 @@ export default class DDBMuncher extends DDBAppV2 {
     return context;
   }
 
-  async _prepareContext(options: any): Promise<IDDBMuncherContext> {
+  override async _prepareContext(options: any): Promise<IDDBMuncherContext> {
     let context: IDDBMuncherContext = MuncherSettings.getMuncherSettings() as IDDBMuncherContext;
     context = foundry.utils.mergeObject(context, MuncherSettings.getCharacterImportSettings());
     context = foundry.utils.mergeObject(context, MuncherSettings.getEncounterSettings());
@@ -636,7 +636,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId: string, context: any) {
+  override async _preparePartContext(partId: string, context: any) {
     switch (partId) {
       default: {
         context.tab = context.tabs[partId];

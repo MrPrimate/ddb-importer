@@ -2,19 +2,19 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class TashasBubblingCauldron extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getBubblingCauldrons;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Create Cauldron",
       noTemplate: true,
@@ -41,7 +41,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -62,7 +62,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     let descriptionSuffix = "";
     if (this.ddbParser.itemCompendium?.index) {
       const possibleItems = this.ddbParser.itemCompendium.index

@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverCommandingPresence extends Maneuver {
 
-  get type() {
+  override get type() {
     return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.useMidiAutomations
       ? {
         targetType: "self",
@@ -32,7 +32,7 @@ export default class ManeuverCommandingPresence extends Maneuver {
       };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Commanding Presence Bonus",

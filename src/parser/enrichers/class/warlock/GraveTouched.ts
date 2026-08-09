@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GraveTouched extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [4, 6, 8, 10, 12]
       .map((die) => {
         return {
@@ -29,7 +29,7 @@ export default class GraveTouched extends DDBEnricherData {
       });
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         max: "1",

@@ -78,7 +78,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
 
   /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-importer-character",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
@@ -103,17 +103,17 @@ export default class DDBCharacterManager extends DDBAppV2 {
     },
   };
 
-  get id() {
+  override get id() {
     return `ddb-importer-character-${this.actor.id}`;
   }
 
   /** @override */
-  get title() {
+  override get title() {
     return `DDB Character Manager: ${this.actor.name}`;
   }
 
 
-  static PARTS = {
+  static override PARTS = {
     header: { template: "modules/ddb-importer/handlebars/character/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
     import: {
@@ -134,7 +134,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   };
 
   /** @override */
-  tabGroups = {
+  override tabGroups = {
     sheet: "import",
     import: "main",
   };
@@ -181,7 +181,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
     // custom listeners
     // watch the change of the muncher-policy-selector checkboxes
@@ -247,7 +247,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   /** @override */
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
 
     // loads settings for actor
     this.importSettings = MuncherSettings.getCharacterImportSettings();
@@ -309,7 +309,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId: string, context: any) {
+  override async _preparePartContext(partId: string, context: any) {
     switch (partId) {
       default: {
         context.tab = context.tabs[partId];

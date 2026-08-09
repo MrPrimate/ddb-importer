@@ -2,11 +2,11 @@ import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CircleForms extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       targetType: "self",
@@ -67,7 +67,7 @@ export default class CircleForms extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Circle Form AC",

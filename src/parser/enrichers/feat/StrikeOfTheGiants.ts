@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StrikeOfTheGiants extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (!this.isAction) return DDBEnricherData.ACTIVITY_TYPES.NONE;
     if ([
       "Strike of the Giants: Fire Strike",
@@ -11,7 +11,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
   }
 
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const nameArray = this.nameArray;
     return {
       name: nameArray[1].trim(),
@@ -24,15 +24,15 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     };
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return false;
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return true;
   }
 
@@ -46,14 +46,14 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     return `${nameArray[0].trim()}: ${nameArray[1].trim()}`;
   }
 
-  get builtFeaturesFromActionFilters() {
+  override get builtFeaturesFromActionFilters() {
     if (this.isAction) return [];
     return [
       this.defaultActionName,
     ];
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.isAction) return null;
     const activity = this.ddbEnricher.defaultActionFeatures[this.defaultActionName][0];
 
@@ -67,11 +67,11 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return !this.isAction;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     const results = [];
 

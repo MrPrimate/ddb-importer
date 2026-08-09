@@ -2,11 +2,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Bite extends DDBEnricherData {
-  get type() {
+  override get type() {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",

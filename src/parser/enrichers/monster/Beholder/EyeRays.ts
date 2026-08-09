@@ -4,11 +4,11 @@ import type { DDBMonsterDamage } from "../../../monster/features/DDBMonsterDamag
 
 export default class EyeRays extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const rayChoices = this.rayChoices;
     return {
       name: `Roll 1d${rayChoices.length}`,
@@ -61,7 +61,7 @@ export default class EyeRays extends DDBEnricherData {
       return `${ray.number}: ${ray.title}`;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const rayChoices = this.rayChoices;
 
     // console.warn("ray choices", {
@@ -108,7 +108,7 @@ export default class EyeRays extends DDBEnricherData {
     return results;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
@@ -139,7 +139,7 @@ export default class EyeRays extends DDBEnricherData {
     return [];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results: IDDBEffectHint[] = [];
 
     this.rayChoices.forEach((ray) => {
@@ -158,7 +158,7 @@ export default class EyeRays extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     const description = this.ddbEnricher.data?.system?.description?.value;
     if (description === undefined) return null;

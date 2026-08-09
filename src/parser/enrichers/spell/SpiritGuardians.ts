@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SpiritGuardians extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       data: {
@@ -21,7 +21,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {
@@ -38,7 +38,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -108,7 +108,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     // const overtimeOptions = [
     //   `label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn)`,
     //   `turn=${this.is2014 ? 'start' : 'end'}`,
@@ -191,7 +191,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     ];
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",

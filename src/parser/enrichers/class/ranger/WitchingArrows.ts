@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WitchingArrows extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -67,7 +67,7 @@ export default class WitchingArrows extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this._shotActivity({ name: "Arcing Shot", saveAbility: "dex", damageType: "lightning", onSave: "half" }),
       this._shotActivity({ name: "Entangling Shot", saveAbility: "str", damageType: "piercing", onSave: "full" }),
@@ -76,7 +76,7 @@ export default class WitchingArrows extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Witching Arrows: Restrained",

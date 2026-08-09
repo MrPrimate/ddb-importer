@@ -56,7 +56,7 @@ export default class _Mutagen extends _BloodHunter {
     return this.name.replace(/^Formulas?:\s*/i, "").trim();
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -64,11 +64,11 @@ export default class _Mutagen extends _BloodHunter {
    * DDB attaches the formula's own modifiers to the document; left alone they become a
    * permanent transfer effect granting the mutagen's benefit whether or not it is consumed.
    */
-  get clearAutoEffects(): boolean {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: _Mutagen.CONSUME_NAME,
       targetType: "self",
@@ -161,7 +161,7 @@ export default class _Mutagen extends _BloodHunter {
     }));
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     return {
       data: {
         name: `Formula: ${this.mutagenName}`,

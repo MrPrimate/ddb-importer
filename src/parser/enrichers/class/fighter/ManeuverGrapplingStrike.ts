@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverGrapplingStrike extends Maneuver {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grappling Strike Bonus",

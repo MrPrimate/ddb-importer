@@ -5,7 +5,7 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       name: "Activate Watcher's Will",
@@ -23,7 +23,7 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Watcher's Will",
       options: {

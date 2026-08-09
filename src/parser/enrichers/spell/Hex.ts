@@ -4,11 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Hex extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Mark Target",
       id: "ddbHexMarkTarget",
@@ -18,7 +18,7 @@ export default class Hex extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -57,7 +57,7 @@ export default class Hex extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return DICTIONARY.actor.abilities.map((ability) => {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,
@@ -68,7 +68,7 @@ export default class Hex extends DDBEnricherData {
     });
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       name: "hex.js",
       type: "spell",
@@ -76,7 +76,7 @@ export default class Hex extends DDBEnricherData {
     };
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       name: "hex.js",
       type: "spell",

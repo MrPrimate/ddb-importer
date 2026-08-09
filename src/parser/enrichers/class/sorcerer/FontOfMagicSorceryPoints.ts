@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FontOfMagicSorceryPoints extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       data: {
@@ -21,7 +21,7 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "name": "Sorcery Points",
@@ -30,7 +30,7 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
     };
   }
 
-  get identifier(): string | null {
+  override get identifier(): string | null {
     return "sorcery-points";
   }
 

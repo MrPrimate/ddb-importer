@@ -3,11 +3,11 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class IrrationalRetaliation extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "reaction",
@@ -17,7 +17,7 @@ export default class IrrationalRetaliation extends DDBEnricherData<DDBClassFeatu
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Irrational Retaliation",

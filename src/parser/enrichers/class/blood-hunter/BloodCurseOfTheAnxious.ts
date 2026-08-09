@@ -3,15 +3,15 @@ import _BloodCurse from "./_BloodCurse";
 
 export default class BloodCurseOfTheAnxious extends _BloodCurse {
 
-  get curseName(): string {
+  override get curseName(): string {
     return "Blood Curse of the Anxious";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
       targetType: "creature",
@@ -20,7 +20,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,
@@ -33,7 +33,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     // "checks made against the cursed creature" is not a roll the system makes
     // against a target, so the base curse is a marker effect only
     const description = "Charisma (Intimidation) checks made against you have advantage.";

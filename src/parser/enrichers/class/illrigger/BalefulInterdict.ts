@@ -8,11 +8,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class BalefulInterdict extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Place Seal",
       targetType: "creature",
@@ -31,7 +31,7 @@ export default class BalefulInterdict extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -117,7 +117,7 @@ export default class BalefulInterdict extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         // stackable marker for seals on the target, applied by placing or
@@ -132,7 +132,7 @@ export default class BalefulInterdict extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

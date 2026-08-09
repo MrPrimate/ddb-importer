@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DarkOnesOwnLuck extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -21,7 +21,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
 
     return {
@@ -31,7 +31,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       midiOnly: true,
       options: {

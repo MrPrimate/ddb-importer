@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BondOfFangAndScale extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -17,7 +17,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     ];
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Damage bonus",
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
@@ -37,7 +37,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const activeType = this.ddbParser.isMuncher
       ? null
@@ -59,7 +59,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     });
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

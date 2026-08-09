@@ -3,11 +3,11 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class TouchOfTheLongDeath extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       addScalingMode: "amount",
       itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
@@ -37,7 +37,7 @@ export default class TouchOfTheLongDeath extends DDBEnricherData<DDBClassFeature
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import Maneuver from "./Maneuver";
 
 export default class ManeuverRally extends Maneuver {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({

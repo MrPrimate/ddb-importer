@@ -10,11 +10,11 @@ import _BloodHunter from "./_BloodHunter";
  */
 export default class ExaltedMutation extends _BloodHunter {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       rangeSelf: true,
@@ -23,7 +23,7 @@ export default class ExaltedMutation extends _BloodHunter {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

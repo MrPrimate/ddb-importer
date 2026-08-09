@@ -3,11 +3,11 @@ import { DDBEnricherData } from "../../data/_module";
 
 export default class AspectOfTheWyrm extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Resistance",
       noConsumeTargets: true,
@@ -20,7 +20,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     return [
       {
@@ -71,14 +71,14 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const resistanceEffects = ["Acid", "Cold", "Fire", "Lightning", "Poison"].map((damageType) => ({
       name: `Aspect of the Wyrm: Resistance (${damageType})`,
       activityMatch: "Resistance",
@@ -110,7 +110,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     return [...resistanceEffects, ...featEffect];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

@@ -1,19 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class GuardianOfFaith extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getGuardianOfFaith;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
@@ -28,7 +28,7 @@ export default class GuardianOfFaith extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

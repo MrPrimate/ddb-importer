@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PrimalCompanion extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Command",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -10,7 +10,7 @@ export default class PrimalCompanion extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? [
         {
@@ -93,7 +93,7 @@ export default class PrimalCompanion extends DDBEnricherData {
       ];
   }
 
-  get parseAllChoiceFeatures() {
+  override get parseAllChoiceFeatures() {
     return true;
   }
 

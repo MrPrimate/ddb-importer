@@ -3,14 +3,14 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   /**
    * @returns {DDBActivityData | null}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Hand of Ultimate Mercy",
       activationType: "special",
@@ -46,7 +46,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeature
   /**
    * @returns {DDBOverrideData | null}
    */
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
       data: {

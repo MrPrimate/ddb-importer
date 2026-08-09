@@ -35,7 +35,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
   // whole part, which otherwise resets scrollTop to 0).
   private _scrollTop = 0;
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-native-adventure-browser",
     classes: ["dnd5e2", "ddb-adventure-browser"],
     window: {
@@ -54,7 +54,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     position: { width: 900, height: 760 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/adventure-browser/browser.hbs",
     },
@@ -208,7 +208,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  async _onFirstRender(context: any, options: any) {
+  override async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     if (this._ownedIds === null && !this._ownedFetchFailed) {
       this._loadOwned();
@@ -254,7 +254,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     this.render();
   }
 
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     // Restore list scroll position, then keep tracking it.
@@ -308,7 +308,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     context.searchTerm = this.searchTerm;

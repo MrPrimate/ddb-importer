@@ -45,7 +45,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   }
 
   /** @override */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     classes: ["create-scroll"],
     window: {
       title: "ddb-importer.tattoo.CreateSpellwroughtTattoo",
@@ -68,7 +68,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   };
 
   /** @inheritDoc */
-  static PARTS = {
+  static override PARTS = {
     ...super.PARTS,
     content: {
       template: "modules/ddb-importer/handlebars/tattoo/create-spellwrought-tattoo-dialog.hbs",
@@ -86,7 +86,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @returns {Promise<ApplicationRenderContext>}
    * @protected
    */
-  async _prepareContentContext(context: any, _options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
+  override async _prepareContentContext(context: any, _options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
     const config = this.#config;
     // config is only null after close without submission; no further renders happen then
     if (!config) return context;
@@ -136,7 +136,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onChangeForm(formConfig: any, event: any) {
+  override _onChangeForm(formConfig: any, event: any) {
     super._onChangeForm(formConfig, event);
     const form = this.form;
     const config = this.#config;
@@ -151,7 +151,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /* -------------------------------------------- */
 
   /** @override */
-  _onClose(options: Record<string, any> = {}) {
+  override _onClose(options: Record<string, any> = {}) {
     if (!options.dnd5e?.submitted) this.#config = null;
   }
 

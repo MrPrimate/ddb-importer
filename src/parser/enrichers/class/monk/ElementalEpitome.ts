@@ -3,11 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalEpitome extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Elemental Attunement Effects",
       activationType: "special",
@@ -17,7 +17,7 @@ export default class ElementalEpitome extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -51,7 +51,7 @@ export default class ElementalEpitome extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const resistance = ["acid", "cold", "fire", "lightning", "thunder"].map((element) => {
       return {
         name: `${utils.capitalize(element)} Resistance`,

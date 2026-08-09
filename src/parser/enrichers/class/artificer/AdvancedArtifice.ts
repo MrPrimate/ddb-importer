@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AdvancedArtifice extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     return this.is2014
       ? null
       : {

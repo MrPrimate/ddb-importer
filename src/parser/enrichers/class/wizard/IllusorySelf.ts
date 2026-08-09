@@ -2,13 +2,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class IllusorySelf extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Illusory Self",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

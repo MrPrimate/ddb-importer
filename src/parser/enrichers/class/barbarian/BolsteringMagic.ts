@@ -2,17 +2,17 @@ import Generic from "../Generic";
 
 export default class BolsteringMagic extends Generic {
 
-  get type() {
+  override get type() {
     return this.isAction ? Generic.ACTIVITY_TYPES.NONE : Generic.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Bolstering Magic",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
@@ -50,7 +50,7 @@ export default class BolsteringMagic extends Generic {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.isAction
       ? [
         {
@@ -71,7 +71,7 @@ export default class BolsteringMagic extends Generic {
       : [];
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return true;
   }
 

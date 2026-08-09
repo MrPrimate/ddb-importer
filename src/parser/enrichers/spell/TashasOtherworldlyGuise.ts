@@ -2,21 +2,21 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class TashasOtherworldlyGuise extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const sharedChanges = [
       DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "system.attributes.movement.fly"),
       DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
@@ -56,7 +56,7 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
     return effects;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

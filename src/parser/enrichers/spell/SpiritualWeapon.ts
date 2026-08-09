@@ -1,19 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SpiritualWeapon extends DDBEnricherData {
-  get type() {
+  override get type() {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getSpiritualWeapons;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return !this.is2014;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.is2014
       ? {
         data: {
@@ -43,7 +43,7 @@ export default class SpiritualWeapon extends DDBEnricherData {
       };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

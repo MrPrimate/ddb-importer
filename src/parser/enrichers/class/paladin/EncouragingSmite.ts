@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EncouragingSmite extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Encouraging Smite",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -21,7 +21,7 @@ export default class EncouragingSmite extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Encouraged",
       options: {

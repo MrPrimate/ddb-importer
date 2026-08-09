@@ -2,7 +2,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverTripAttack extends Maneuver {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -38,7 +38,7 @@ export default class ManeuverTripAttack extends Maneuver {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Tripped",
@@ -48,7 +48,7 @@ export default class ManeuverTripAttack extends Maneuver {
     ];
   }
 
-  get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities() {
     return ["Save vs Trip"];
   }
 

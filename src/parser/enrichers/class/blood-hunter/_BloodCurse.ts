@@ -70,7 +70,7 @@ export default class _BloodCurse extends _BloodHunter {
     return [_BloodCurse.AMPLIFY_NAME];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: this.ignoredConsumptionActivities,
     };

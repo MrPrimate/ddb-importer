@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ValorousSoul extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Valorous Soul",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -19,7 +19,7 @@ export default class ValorousSoul extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Valorous",
       options: {

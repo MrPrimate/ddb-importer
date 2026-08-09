@@ -200,7 +200,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-importer-settings",
     classes: ["standard-form", "dnd5e2"],
     actions: {
@@ -276,17 +276,17 @@ export default class DDBSetup extends DDBAppV2 {
     });
   }
 
-  get id() {
+  override get id() {
     return `ddb-importer-settings-${this.actor?.id ?? "core"}`;
   }
 
-  get title() {
+  override get title() {
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Settings";
   }
 
-  static PARTS = {
+  static override PARTS = {
     header: { template: "modules/ddb-importer/handlebars/settings/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
 
@@ -324,7 +324,7 @@ export default class DDBSetup extends DDBAppV2 {
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
 
-  tabGroups: Record<string, string> = {
+  override tabGroups: Record<string, string> = {
     sheet: "info",
     info: "intro",
     core: "cobalt",
@@ -381,11 +381,11 @@ export default class DDBSetup extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  async _onRender(context: any, options: any): Promise<void> {
+  override async _onRender(context: any, options: any): Promise<void> {
     await super._onRender(context, options);
   }
 
-  async _prepareContext(options: any): Promise<IDDBSetupContext> {
+  override async _prepareContext(options: any): Promise<IDDBSetupContext> {
 
     let context: IDDBSetupContext = {
       // core
@@ -511,7 +511,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId: string, context: IDDBSetupContext): Promise<IDDBSetupContext> {
+  override async _preparePartContext(partId: string, context: IDDBSetupContext): Promise<IDDBSetupContext> {
     switch (partId) {
       case "core": {
         context = await this._prepareCoreContext(context);

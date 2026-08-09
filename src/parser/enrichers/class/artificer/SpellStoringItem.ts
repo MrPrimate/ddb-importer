@@ -2,18 +2,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SpellStoringItem extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       { action: { name: "Spell-Storing Item: Store Spell", type: "class", rename: ["Store Spell"] } },
     ];
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     return {
       uses: {

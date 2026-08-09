@@ -2,18 +2,18 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Grease extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbGreaseSpellSa",
       noeffect: this.useMidiAutomations,
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.useMidiAutomations;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grease",
@@ -50,7 +50,7 @@ export default class Grease extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -76,7 +76,7 @@ export default class Grease extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
       triggerPoints: ["preActiveEffects"],

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnergyRedirection extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Energy Redirection",
       type: DDBEnricherData.ACTIVITY_TYPES.SAVE,

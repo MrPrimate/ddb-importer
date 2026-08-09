@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Sleep extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         data: {
@@ -24,11 +24,11 @@ export default class Sleep extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.is2024;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] | null {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) return null;
     return [
       {
@@ -45,7 +45,7 @@ export default class Sleep extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) return [];
     return [
       {

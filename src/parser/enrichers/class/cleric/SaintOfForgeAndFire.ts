@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SaintOfForgeAndFire extends DDBEnricherData {
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Saint of Forge and Fire: Wearing Heavy Armor",

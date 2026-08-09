@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class MartialAdept extends DDBEnricherData {
 
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       uses: this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })
@@ -21,7 +21,7 @@ export default class MartialAdept extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Martial Adept",

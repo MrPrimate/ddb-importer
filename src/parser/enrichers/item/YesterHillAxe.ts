@@ -7,7 +7,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class YesterHillAxe extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

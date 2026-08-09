@@ -5,7 +5,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Activate Mortal Bulwark",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -17,7 +17,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -65,7 +65,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Mortal Bulwark",
       changes: [

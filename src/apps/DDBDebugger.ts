@@ -24,7 +24,7 @@ export default class DDBDebugger extends DDBAppV2 {
 
 
   /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-debugger",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
@@ -42,24 +42,24 @@ export default class DDBDebugger extends DDBAppV2 {
     },
   };
 
-  get id() {
+  override get id() {
     return `ddb-debugger-${this.actor?.id ?? "global"}`;
   }
 
   /** @override */
-  get title() {
+  override get title() {
     return `DDB Importer Debugger`;
   }
 
 
-  static PARTS = {
+  static override PARTS = {
     tabs: { template: "templates/generic/tab-navigation.hbs" },
     main: { template: "modules/ddb-importer/handlebars/debug/main.hbs" },
     // recommendations: { template: "modules/ddb-importer/handlebars/debug/recommendations.hbs" },
   };
 
   /** @override */
-  tabGroups = {
+  override tabGroups = {
     sheet: "main",
   };
 
@@ -77,7 +77,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
 
     let context = this.debug.data as DDBAppV2Context;
     const parentContext = await super._prepareContext(options);
@@ -87,7 +87,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  async _preparePartContext(partId: string, context: any) {
+  override async _preparePartContext(partId: string, context: any) {
     switch (partId) {
       default: {
         context.tab = context.tabs[partId];

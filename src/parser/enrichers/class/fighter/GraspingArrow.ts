@@ -3,11 +3,11 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class GraspingArrow extends ArcaneShotOption {
 
-  get type() {
+  override get type() {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     return this.isAction
       ? {
         name: "Cast",
@@ -22,12 +22,12 @@ export default class GraspingArrow extends ArcaneShotOption {
       : null;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return this.isAction;
   }
 
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
@@ -72,7 +72,7 @@ export default class GraspingArrow extends ArcaneShotOption {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.isAction
       ? []
       : [

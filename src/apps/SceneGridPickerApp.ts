@@ -66,7 +66,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
   // place when they switch between candidates.
   previewViewBox: { x: number; y: number; w: number; h: number } | null = null;
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-scene-grid-picker",
     classes: ["dnd5e2", "ddb-grid-picker-app"],
     window: {
@@ -97,7 +97,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     position: { width: 900, height: 720 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/scene-grid-picker/picker.hbs",
     },
@@ -380,7 +380,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(_options: any): Promise<any> {
+  override async _prepareContext(_options: any): Promise<any> {
     await this._prepareImage();
     this._inferMultiplierFromScene();
 
@@ -519,7 +519,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     }
   }
 
-  async _onClose(options?: any) {
+  override async _onClose(options?: any) {
     if (this._previewCache?.url?.startsWith("blob:")) URL.revokeObjectURL(this._previewCache.url);
     this._previewCache = null;
     const fn = (super._onClose as ((opts?: any) => Promise<void>) | undefined);
@@ -986,7 +986,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
   // ApplicationV2 wires `data-action` attributes to click events, which
   // immediately re-renders when you click a <select> to open its menu and
   // discards your choice. We attach a `change` listener manually instead.
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
     this.element.querySelectorAll<HTMLSelectElement>(".ddb-grid-picker-multiplier-select").forEach((sel) => {
       sel.addEventListener("change", (event) => {

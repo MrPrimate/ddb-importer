@@ -52,7 +52,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     ],
   };
 
-  _addSpellListOutline(spellListName: string, sourceAcronym: string) {
+  override _addSpellListOutline(spellListName: string, sourceAcronym: string) {
     this.spellsBySourceAndClass[sourceAcronym][spellListName] = [];
     super._addSpellListOutline(spellListName, sourceAcronym);
   }

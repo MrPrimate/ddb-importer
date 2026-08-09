@@ -125,11 +125,11 @@ export default class Symbol extends DDBEnricherData {
     ];
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return {
         init: {
@@ -157,7 +157,7 @@ export default class Symbol extends DDBEnricherData {
     });
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return foundry.utils.mergeObject({
         name: symbol.name,

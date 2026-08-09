@@ -3,13 +3,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DivineForeknowledge extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Divine Foreknowledge",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -48,7 +48,7 @@ export default class DivineForeknowledge extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const changes = [
       DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
     ];

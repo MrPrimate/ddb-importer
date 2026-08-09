@@ -16,7 +16,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
   actionData: IActionData;
   declare ddbParent: DDBItem;
 
-  _init() {
+  override _init() {
     logger.debug(`Generating DDBItemActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
@@ -36,7 +36,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
-  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false }: {
+  override _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false }: {
     targetOverrides?: I5eConsumptionTarget[] | null;
     consumptionOverride?: I5eActivityConsumption | null;
     additionalTargets?: I5eConsumptionTarget[] | null;
@@ -109,7 +109,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
-  _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}) {
+  override _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}) {
     if (!("check" in this.data)) return;
     // the parser intentionally emits a null check ability, which the dnd5e schema cleans,
     // but I5eActivityCheck.ability only allows string | string[]
@@ -120,7 +120,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     } as unknown as I5eActivityCheck);
   }
 
-  build({
+  override build({
     activationOverride = null,
     additionalTargets = null,
     attackData = {},

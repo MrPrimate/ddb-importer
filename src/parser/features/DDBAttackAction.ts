@@ -9,7 +9,7 @@ export default class DDBAttackAction extends DDBAction {
 
   static FORCE_WEAPON_FEATURE_IF_ACTION = DICTIONARY.parsing.attackActions.FORCE_WEAPON_FEATURE_IF_ACTION;
 
-  _init() {
+  override _init() {
     this.isAction = true;
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       || DDBAttackAction.FORCE_WEAPON_FEATURE_IF_ACTION.includes(this.originalName)
@@ -18,7 +18,7 @@ export default class DDBAttackAction extends DDBAction {
     logger.debug(`Generating Attack Action ${this.ddbDefinition.name} as ${this.documentType}`);
   }
 
-  async build() {
+  override async build() {
     try {
       if (this.ddbDefinition.isMartialArts) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");

@@ -149,7 +149,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
   private _sourceImageUrl = "";
   private _targetImageUrl = "";
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-scene-level-copy",
     classes: ["dnd5e2", "ddb-scene-level-copy-app"],
     window: {
@@ -176,7 +176,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     position: { width: 900, height: "auto" as const },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/scene-level-copy/copy.hbs",
     },
@@ -418,7 +418,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     }
   }
 
-  async _prepareContext(_options: any): Promise<any> {
+  override async _prepareContext(_options: any): Promise<any> {
     const context = await super._prepareContext({ ..._options, noCacheLoad: true });
     await this._refreshImages();
 
@@ -556,7 +556,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return out;
   }
 
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
 
     // Bind <select> change listeners (avoid the action re-render that discards

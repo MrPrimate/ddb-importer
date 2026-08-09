@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ThunderousSmite extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noeffect: true,
       allowCritical: true,
@@ -26,7 +26,7 @@ export default class ThunderousSmite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [
       {
         init: {
@@ -64,12 +64,12 @@ export default class ThunderousSmite extends DDBEnricherData {
     return activities;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.is2014 && this.useMidiAutomations;
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014 && this.useMidiAutomations
       ? [
         {
@@ -99,7 +99,7 @@ export default class ThunderousSmite extends DDBEnricherData {
       : [];
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) {
       return {
         type: "spell",
@@ -110,7 +110,7 @@ export default class ThunderousSmite extends DDBEnricherData {
     return null;
   }
 
-  get itemMacro(): IDDBItemMacro | null {
+  override get itemMacro(): IDDBItemMacro | null {
     if (this.is2014) {
       return {
         type: "spell",

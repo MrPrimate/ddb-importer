@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class LayOnHands extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       name: "Healing",
@@ -21,7 +21,7 @@ export default class LayOnHands extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -46,7 +46,7 @@ export default class LayOnHands extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const name = this.is2014 ? "Lay on Hands Pool" : "Lay On Hands: Healing Pool";
     const uses = this._getUsesWithSpent({ type: "class", name, max: "5 * @classes.paladin.levels", period: "lr" });
     return {

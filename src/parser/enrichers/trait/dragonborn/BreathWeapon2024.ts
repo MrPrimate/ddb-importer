@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BreathWeapon2024 extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
@@ -11,7 +11,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
     return this.ddbParser.originalName.split(")")[0].split("(")[1].trim().toLowerCase();
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) return {
       rangeSelf: true,
     };
@@ -41,7 +41,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       {

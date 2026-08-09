@@ -7,11 +7,11 @@ import _RiteFocus from "./_RiteFocus";
  */
 export default class RiteFocus extends _RiteFocus {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get useDefaultAdditionalActivities(): boolean {
+  override get useDefaultAdditionalActivities(): boolean {
     return false;
   }
 

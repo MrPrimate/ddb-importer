@@ -3,11 +3,11 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class RighteousStrike extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",

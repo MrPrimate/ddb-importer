@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BlessingOfTheRavenQueen extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Teleport",
       targetSelf: true,
@@ -16,7 +16,7 @@ export default class BlessingOfTheRavenQueen extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Blessing of the Raven Queen: Resistance",

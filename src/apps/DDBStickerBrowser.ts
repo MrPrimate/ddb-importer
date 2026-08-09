@@ -52,7 +52,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   private _campaignFetchInFlight = false;
   private _placementInFlight = false;
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-sticker-browser",
     classes: ["dnd5e2", "ddb-sticker-browser"],
     window: {
@@ -74,7 +74,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     position: { width: 1100, height: 720 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/sticker-browser/browser.hbs",
     },
@@ -712,7 +712,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true });
     const storage = ensureStorage();
     const all = storage.payload?.stickers ?? [];
@@ -806,7 +806,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     await this.render();
   }
 
-  async _onFirstRender(context: any, options: any) {
+  override async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     // Only auto-load when a campaign id is already set; otherwise wait for
     // the user to pick one.
@@ -814,7 +814,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     if (!ensureStorage().payload && campaignId !== "") this._loadCatalog();
   }
 
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     this.element.querySelectorAll<HTMLSelectElement>(".ddb-sticker-browser-campaign-select").forEach((sel) => {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MindLink extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Grant Telepathy",
       data: {
@@ -14,7 +14,7 @@ export default class MindLink extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     // const value = this.ddbParser.isMuncher ? 10 : "";
     return [
       {

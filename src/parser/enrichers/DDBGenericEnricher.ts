@@ -21,9 +21,9 @@ export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, string> = {};
-  NAME_HINTS: Record<string, string> = {};
-  NAME_HINT_INCLUDES: Record<string, string> = {};
+  override NAME_HINTS_2014: Record<string, string> = {};
+  override NAME_HINTS: Record<string, string> = {};
+  override NAME_HINT_INCLUDES: Record<string, string> = {};
   ENRICHERS: Record<string, EnricherConstructor> = {
     None: GenericEnrichers.None,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,

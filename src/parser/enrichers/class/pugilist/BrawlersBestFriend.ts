@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BrawlersBestFriend extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "summonHound11111",
       name: "Summon After Long Rest",
@@ -40,7 +40,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         max: "",
@@ -49,7 +49,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -77,11 +77,11 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     ];
   }
 
-  get parseAllChoiceFeatures() {
+  override get parseAllChoiceFeatures() {
     return true;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

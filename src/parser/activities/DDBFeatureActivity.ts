@@ -26,7 +26,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     return this.data as IActivityData;
   }
 
-  _init() {
+  override _init() {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
@@ -58,7 +58,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   }
 
   // note spells do not have activation
-  _generateActivation({ activationOverride = null }: { activationOverride?: I5eActivityActivation | null } = {}) {
+  override _generateActivation({ activationOverride = null }: { activationOverride?: I5eActivityActivation | null } = {}) {
     if (activationOverride) {
       this.data.activation = activationOverride;
       return;
@@ -82,7 +82,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
+  override _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -172,7 +172,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
+  override _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
     if (durationOverride) {
       this.data.duration = durationOverride;
       return;
@@ -198,12 +198,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateEffects() {
+  override _generateEffects() {
     logger.debug(`Stubbed effect generation for ${this.name}`);
     // Enchantments need effects here
   }
 
-  _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
+  override _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
     if (rangeOverride) {
       this.data.range = rangeOverride;
       return;
@@ -333,7 +333,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     return target;
   }
 
-  _generateTarget({ targetOverride = null, targetSelf = null, noTemplate = null }: {
+  override _generateTarget({ targetOverride = null, targetSelf = null, noTemplate = null }: {
     targetOverride?: I5eActivityTarget | null;
     targetSelf?: IDDBFeatureActivityBuild["targetSelf"];
     noTemplate?: IDDBFeatureActivityBuild["noTemplate"];
@@ -402,7 +402,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDamage({ parts = null, includeBase = false }: {
+  override _generateDamage({ parts = null, includeBase = false }: {
     parts?: I5eDamagePart[] | null;
     includeBase?: boolean;
   } = {}) {
@@ -436,7 +436,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // }
   }
 
-  _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
+  override _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
     if (part) {
       this.buildData.healing = part;
       return;
@@ -452,7 +452,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     this.buildData.healing = damage;
   }
 
-  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
+  override _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (saveOverride) {
       this.buildData.save = saveOverride;
       return;
@@ -484,7 +484,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateAttack({ attackOverride = null, unarmed = false, spell = false }: {
+  override _generateAttack({ attackOverride = null, unarmed = false, spell = false }: {
     attackOverride?: I5eActivityAttack | null;
     unarmed?: boolean;
     spell?: boolean;
@@ -552,7 +552,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false }: {
+  override _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false }: {
     name?: string | null;
     rollOverride?: I5eActivityRoll | null;
     damageParts?: I5eDamagePart[] | null;
@@ -603,7 +603,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  build({
+  override build({
     activationOverride = null,
     additionalTargets = null,
     attackData = {},

@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Dragonscarred extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -41,7 +41,7 @@ export default class Dragonscarred extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const effects: IDDBEffectHint[] = [
       {
         name: "Frightened",
@@ -81,7 +81,7 @@ export default class Dragonscarred extends DDBEnricherData {
     return effects;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 }

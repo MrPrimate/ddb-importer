@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DrakeCompanion extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "summonDrakeComp1",
       name: "Summon After Long Rest",
@@ -30,7 +30,7 @@ export default class DrakeCompanion extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         max: "",
@@ -39,7 +39,7 @@ export default class DrakeCompanion extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -79,7 +79,7 @@ export default class DrakeCompanion extends DDBEnricherData {
     ];
   }
 
-  get parseAllChoiceFeatures() {
+  override get parseAllChoiceFeatures() {
     return true;
   }
 

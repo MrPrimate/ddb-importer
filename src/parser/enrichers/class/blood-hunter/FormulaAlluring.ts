@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Advantage on Charisma checks, disadvantage on initiative rolls. */
 export default class FormulaAlluring extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

@@ -36,11 +36,11 @@ export default class ShadowBlade extends DDBEnricherData {
     },
   };
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -52,7 +52,7 @@ export default class ShadowBlade extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const compendium = CompendiumHelper.getCompendiumType("items", false);
     if (!compendium) return [];
     const compendiumId = compendium?.metadata?.id;
@@ -204,7 +204,7 @@ export default class ShadowBlade extends DDBEnricherData {
     }
   }
 
-  async cleanup() {
+  override async cleanup() {
     // without a configured items compendium (e.g. the test environment) the
     // variant weapons cannot be generated or linked
     if (!CompendiumHelper.getCompendiumType("items", false)) return;

@@ -30,9 +30,9 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, string> = {};
+  override NAME_HINTS_2014: Record<string, string> = {};
 
-  NAME_HINTS: Record<string, string> = {};
+  override NAME_HINTS: Record<string, string> = {};
 
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,

@@ -6,11 +6,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class SprayNPray extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       targetType: "self",
@@ -18,7 +18,7 @@ export default class SprayNPray extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Spray 'n' Pray: 2 Attacks",

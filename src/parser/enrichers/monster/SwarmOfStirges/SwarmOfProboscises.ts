@@ -2,11 +2,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SwarmOfProboscises extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noTemplate: true,
@@ -25,7 +25,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,
@@ -75,7 +75,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
     ];
   }
 
-  get noVersatile() {
+  override get noVersatile() {
     return true;
   }
 

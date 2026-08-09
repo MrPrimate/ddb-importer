@@ -7,7 +7,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class BloodPotency extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {
@@ -32,7 +32,7 @@ export default class BloodPotency extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

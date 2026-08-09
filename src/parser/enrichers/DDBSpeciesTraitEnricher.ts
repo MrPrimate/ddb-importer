@@ -88,7 +88,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS: Record<string, string> = {
+  override NAME_HINTS: Record<string, string> = {
     "Powerful Build, Hippo Build": "Hippo Build",
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
@@ -100,7 +100,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Breath Weapon (Poison)": "Breath Weapon (2024)",
   };
 
-  NAME_HINT_INCLUDES: Record<string, string> = {
+  override NAME_HINT_INCLUDES: Record<string, string> = {
     " Lineage": "Lineage",
     " Legacy": "Lineage",
     "Breath Weapon (": "Breath Weapon",

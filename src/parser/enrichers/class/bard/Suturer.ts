@@ -8,11 +8,11 @@ export default class Suturer extends DDBEnricherData {
 
   static INSPIRATION = "Bardic Inspiration";
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Suture",
       activationType: "special",
@@ -27,7 +27,7 @@ export default class Suturer extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -134,7 +134,7 @@ export default class Suturer extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Restrained by Thread",

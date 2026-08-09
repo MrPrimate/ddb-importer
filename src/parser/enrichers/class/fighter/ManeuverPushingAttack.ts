@@ -2,7 +2,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverPushingAttack extends Maneuver {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -38,7 +38,7 @@ export default class ManeuverPushingAttack extends Maneuver {
     ];
   }
 
-  get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities() {
     return ["Save vs Pushed"];
   }
 

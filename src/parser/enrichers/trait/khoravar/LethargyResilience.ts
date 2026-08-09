@@ -2,11 +2,11 @@ import { Generic } from "../_module";
 
 export default class LethargyResilience extends Generic.Generic {
 
-  get type() {
+  override get type() {
     return Generic.Generic.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Use Lethargy Resilience",
       addItemConsume: true,
@@ -15,7 +15,7 @@ export default class LethargyResilience extends Generic.Generic {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

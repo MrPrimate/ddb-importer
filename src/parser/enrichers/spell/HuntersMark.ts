@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HuntersMark extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         name: "Cast",
@@ -14,7 +14,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const damageTypes = this.is2014
       ? DDBEnricherData.allDamageTypes()
       : ["force"];
@@ -56,7 +56,7 @@ export default class HuntersMark extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
     const markBonus = this.is2014
       ? `bonus=1d6; effectOriginTokenId === tokenId && hasAttack;`
@@ -108,7 +108,7 @@ export default class HuntersMark extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "huntersMark.js",
@@ -116,7 +116,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get itemMacro(): IDDBItemMacro {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "huntersMark.js",

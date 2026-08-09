@@ -4,15 +4,15 @@ import _RiteFocus from "./_RiteFocus";
 
 export default class RiteFocusTheGreatOldOne extends _RiteFocus {
 
-  get patronName(): string {
+  override get patronName(): string {
     return "The Great Old One";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
       targetType: "creature",
@@ -24,7 +24,7 @@ export default class RiteFocusTheGreatOldOne extends _RiteFocus {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Frightened by the Great Old One",

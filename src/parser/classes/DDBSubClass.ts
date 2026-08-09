@@ -6,7 +6,7 @@ import DDBBaseClass from "./DDBBaseClass";
 
 export default class DDBSubClass extends DDBBaseClass {
   // these are advancement helpers
-  static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
+  static override SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Combat Superiority": {
       fix: true,
       fixFunction: AdvancementHelper.renameTotal,
@@ -51,7 +51,7 @@ export default class DDBSubClass extends DDBBaseClass {
     // },
   };
 
-  static NOT_ADVANCEMENT_FOR_FEATURE = [
+  static override NOT_ADVANCEMENT_FOR_FEATURE = [
     "Soul Blades",
     // Kindred (VtM): text-only levelScales (a sentence, no dice/number) that
     // would generate junk string scale advancements
@@ -65,13 +65,13 @@ export default class DDBSubClass extends DDBBaseClass {
 
   static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [];
 
-  static NO_ADVANCEMENT_2014: string[] = [];
+  static override NO_ADVANCEMENT_2014: string[] = [];
 
-  static NO_ADVANCEMENT_2024: string[] = [];
+  static override NO_ADVANCEMENT_2024: string[] = [];
 
   declare data: I5eSubclassItem;
 
-  _fleshOutCommonDataStub() {
+  override _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
     // add parent class identifier
     this.data.system.classIdentifier = DDBDataUtils.classIdentifierName(this.ddbClass.definition.name);
@@ -109,7 +109,7 @@ export default class DDBSubClass extends DDBBaseClass {
 
   subClassName;
 
-  isSubClass = true;
+  override isSubClass = true;
 
   constructor(ddb: IDDBData, classId: number, options = {}) {
     super(ddb, classId, options);

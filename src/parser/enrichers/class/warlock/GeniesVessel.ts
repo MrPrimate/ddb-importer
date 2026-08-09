@@ -1,12 +1,12 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GeniesVessel extends DDBEnricherData {
-  get type() {
+  override get type() {
     if (this.ddbParser.originalName === "Genie's Vessel") return DDBEnricherData.ACTIVITY_TYPES.NONE;
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     const types = [];
     if (this.ddbParser.originalName.includes("Dao")) types.push("bludgeoning");
     else if (this.ddbParser.originalName.includes("Djinni")) types.push("thunder");

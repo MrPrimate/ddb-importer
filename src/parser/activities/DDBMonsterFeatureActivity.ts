@@ -29,7 +29,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   actionData: IDDBMonsterActionData;
 
-  _init() {
+  override _init() {
     logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor?.name}`);
   }
 
@@ -52,11 +52,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.actionData = ddbParent?.actionData as IDDBMonsterActionData;
   }
 
-  _generateActivation() {
+  override _generateActivation() {
     this.data.activation = this.actionData.activation;
   }
 
-  _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
+  override _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -98,26 +98,26 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDescription() {
+  override _generateDescription() {
     this.data.description = {
       chatFlavor: (foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") as string) ?? "",
     };
   }
 
-  _generateDuration() {
+  override _generateDuration() {
     this.data.duration = this.actionData.duration;
   }
 
-  _generateEffects() {
+  override _generateEffects() {
     logger.debug(`Stubbed effect generation for ${this.name}`);
     // Enchantments need effects here
   }
 
-  _generateRange() {
+  override _generateRange() {
     this.data.range = this.actionData.range as unknown as I5eActivityRange;
   }
 
-  _generateTarget() {
+  override _generateTarget() {
     this.data.target = this.actionData.target;
   }
 
@@ -129,7 +129,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     return baseParts;
   }
 
-  _generateDamage({ parts = [], includeBase = true, allowCritical = null, onSave = "half" }: {
+  override _generateDamage({ parts = [], includeBase = true, allowCritical = null, onSave = "half" }: {
     parts?: I5eDamagePart[] | null;
     includeBase?: boolean | null;
     allowCritical?: boolean | null;
@@ -170,7 +170,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // }
   }
 
-  _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
+  override _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
     const healing = part
       ? part
       : this.actionData.healingParts.length > 0
@@ -179,7 +179,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.buildData.healing = healing;
   }
 
-  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
+  override _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (saveOverride) {
       this.buildData.save = saveOverride;
       return;
@@ -188,7 +188,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
 
-  _generateAttack() {
+  override _generateAttack() {
     const classification = this.ddbParent.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
@@ -214,7 +214,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null }) {
+  override _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null }) {
     this.buildData.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
       ability: this.actionData.ability,
@@ -222,7 +222,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  build({
+  override build({
     activationOverride,
     allowCritical,
     additionalTargets,
@@ -366,7 +366,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, character }: IDDBMonsterFeatureActivityCreate,
+  static override async createActivity({ document, type, name, character }: IDDBMonsterFeatureActivityCreate,
     options: IDDBItemActivityBuild = {},
   ): Promise<string> {
     const activity = new DDBMonsterFeatureActivity({

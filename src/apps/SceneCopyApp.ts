@@ -112,7 +112,7 @@ export default class SceneCopyApp extends DDBAppV2 {
   expanded: Set<string>;
   selected: Set<string>;
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-scene-copy",
     classes: ["dnd5e2", "ddb-scene-copy-app"],
     window: {
@@ -133,7 +133,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     position: { width: 520, height: "auto" as const },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/scene-copy/copy.hbs",
     },
@@ -212,7 +212,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     return this._groups().flatMap((g) => g.fields);
   }
 
-  async _prepareContext(_options: any): Promise<any> {
+  override async _prepareContext(_options: any): Promise<any> {
     const context = await super._prepareContext({ ..._options, noCacheLoad: true });
 
     const targetScenes = (Array.from(game.scenes) as any[])
@@ -253,7 +253,7 @@ export default class SceneCopyApp extends DDBAppV2 {
   // ApplicationV2 re-renders on any data-action click, which would discard a
   // <select> choice. Bind the target dropdown via a change listener instead and
   // do NOT re-render - we just stash the id and toggle the copy button.
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await (super._onRender as any)?.(context, options);
 
     const select = this.element.querySelector<HTMLSelectElement>(".ddb-scene-copy-target");

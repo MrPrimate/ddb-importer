@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BreathWeapon extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (!this.isAction) return DDBEnricherData.ACTIVITY_TYPES.NONE;
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       rangeSelf: true,
     };
@@ -29,7 +29,7 @@ export default class BreathWeapon extends DDBEnricherData {
   //   };
   // }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 

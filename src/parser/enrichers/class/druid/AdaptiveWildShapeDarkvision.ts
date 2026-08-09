@@ -2,21 +2,21 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AdaptiveWildShapeDarkvision extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   // DDB ships set-base and sense darkvision modifiers on this option, which generate
   // an always-on passive effect. This only applies while Wild Shaped, so drop them and
   // use the activity-linked effects below instead.
-  get clearAutoEffects(): boolean {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
   // "you gain Darkvision (60 ft.) or increase your Darkvision by an additional 30 ft."
   // is an either/or: one activity for a form with no darkvision, one for a form that
   // already has some. The printed 60 ft is used over DDB's own modifier value of 30.
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Gain Darkvision",
       activationType: "special",
@@ -24,7 +24,7 @@ export default class AdaptiveWildShapeDarkvision extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -47,7 +47,7 @@ export default class AdaptiveWildShapeDarkvision extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Adaptive Wild Shape: Darkvision",

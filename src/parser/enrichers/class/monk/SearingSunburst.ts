@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class SearingSunburst extends Generic {
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (!this.isAction) return null;
     return {
       activationType: "action",
@@ -31,7 +31,7 @@ export default class SearingSunburst extends Generic {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

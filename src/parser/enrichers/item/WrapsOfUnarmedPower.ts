@@ -3,11 +3,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WrapsOfUnarmedPower extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         _id: utils.namedIDStub("wrapsOfUnarmedPower", { postfix: "core" }),
@@ -29,7 +29,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
     return 1;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const bonus = this.bonus;
     return [
       {
@@ -54,7 +54,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
 
     const flags: IDDBImporterFlags = this.ddbParser.isMuncher
       ? {}

@@ -2,14 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HillRune extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Invoke Rune",
       targetType: "self",
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Hill Rune",
       type: "class",
@@ -20,7 +20,7 @@ export default class HillRune extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

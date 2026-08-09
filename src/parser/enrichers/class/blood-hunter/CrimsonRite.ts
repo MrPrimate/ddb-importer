@@ -12,21 +12,21 @@ import _CrimsonRite from "./_CrimsonRite";
  */
 export default class CrimsonRite extends _CrimsonRite {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.invokeRiteActivity;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const rites = this.knownRites;
     if (rites.length === 0) return [this.applyRiteActivity()];
     return rites.map((rite) => this.applyRiteActivity(rite));
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const rites = this.knownRites;
     if (rites.length === 0) return [this.riteEnchantEffect()];
     return rites.map((rite) => this.riteEnchantEffect(rite));

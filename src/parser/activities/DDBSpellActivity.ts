@@ -27,7 +27,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   additionalActivityDamageParts: I5eDamagePart[];
   declare ddbParent: DDBSpell;
 
-  _init() {
+  override _init() {
     logger.debug(`Generating DDBSpellActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
@@ -65,7 +65,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.additionalActivityDamageParts = [];
   }
 
-  _generateConsumption({
+  override _generateConsumption({
     consumptionOverride = null,
     additionalTargets = [],
     consumeActivity = false,
@@ -375,7 +375,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   }
 
 
-  _generateDamage({ damageParts = null, onSave = null, partialDamageParts = null, modRestrictionFilter = null,
+  override _generateDamage({ damageParts = null, onSave = null, partialDamageParts = null, modRestrictionFilter = null,
     modRestrictionFilterExcludes = null, allowCritical = null }: {
     damageParts?: I5eDamagePart[] | null;
     onSave?: string | null;
@@ -488,7 +488,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   }
 
-  _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
+  override _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}) {
     if (!("save" in this.data)) return;
     if (saveOverride) {
       this.data.save = saveOverride;
@@ -517,7 +517,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  build({
+  override build({
     activationOverride = null,
     additionalTargets = [],
     allowCritical = null,

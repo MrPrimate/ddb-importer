@@ -2,14 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class InnateSorcery extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Innate Sorcery",
       addItemConsume: true,
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Innate Sorcery",
@@ -24,7 +24,7 @@ export default class InnateSorcery extends DDBEnricherData {
   }
 
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Innate Sorcery",

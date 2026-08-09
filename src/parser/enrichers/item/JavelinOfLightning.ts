@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class JavelinOfLightning extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const overrideData: Record<string, any> = {
       system: {
         uses: {
@@ -36,7 +36,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
     return override;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -108,7 +108,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
     ];
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return false;
   }
 }

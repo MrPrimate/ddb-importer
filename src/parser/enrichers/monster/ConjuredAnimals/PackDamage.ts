@@ -2,11 +2,11 @@ import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PackDamage extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbPackDamageSav",
       targetType: "creature",
@@ -29,7 +29,7 @@ export default class PackDamage extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (!this.useMidiAutomations) return [];
     return [
       {
@@ -58,7 +58,7 @@ export default class PackDamage extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const flagName = `${utils.idString(this.data.name)}Called`;
     const overtimeOptions = [
       `label=${this.data.name} (End of Turn)`,
@@ -132,7 +132,7 @@ export default class PackDamage extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

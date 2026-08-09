@@ -3,18 +3,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SuperiorHuntersDefense extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "reaction",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const multiple = DDBEnricherData.allDamageTypes().map((damage) => {
       return {
         name: `Superior Hunter's Defense: Resistance to ${utils.capitalize(damage)}`,
@@ -29,7 +29,7 @@ export default class SuperiorHuntersDefense extends DDBEnricherData {
     return multiple;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

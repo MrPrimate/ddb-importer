@@ -1,7 +1,7 @@
 import Generic from "./Generic";
 
 export default class MarkOfSentinel extends Generic {
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [{
       init: {
         name: `Vigilant Guardian`,
@@ -27,7 +27,7 @@ export default class MarkOfSentinel extends Generic {
 
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return true;
   }
 }

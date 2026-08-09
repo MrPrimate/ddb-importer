@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArmorModel extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -537,7 +537,7 @@ export default class ArmorModel extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
 
     const results = [
       ...this._guardianActivities,
@@ -746,7 +746,7 @@ export default class ArmorModel extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results: IDDBEffectHint[] = [
       ...this._guardianEffects,
       ...this._infiltratorEffects,
@@ -760,7 +760,7 @@ export default class ArmorModel extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: this.is2014
         ? `

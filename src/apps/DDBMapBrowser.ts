@@ -141,7 +141,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
   // getters drive the "X ahead" notice.
   private _importSemaphore = new foundry.utils.Semaphore(1);
 
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-map-browser",
     classes: ["dnd5e2", "ddb-map-browser"],
     window: {
@@ -163,7 +163,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     position: { width: 1100, height: 720 },
   };
 
-  static PARTS = {
+  static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/map-browser/browser.hbs",
     },
@@ -734,14 +734,14 @@ export default class DDBMapBrowser extends DDBAppV2 {
     }
   }
 
-  async _onFirstRender(context: any, options: any) {
+  override async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
     if (!ensureMapsStorage().catalog) {
       this._loadCatalog();
     }
   }
 
-  async _onRender(context: any, options: any) {
+  override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
 
     // Campaign dropdown (when the list fetched successfully) / free-text
@@ -859,7 +859,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     });
   }
 
-  async _prepareContext(options: any) {
+  override async _prepareContext(options: any) {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
 
     const storage = ensureMapsStorage();

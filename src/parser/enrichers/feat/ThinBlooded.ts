@@ -7,11 +7,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class ThinBlooded extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

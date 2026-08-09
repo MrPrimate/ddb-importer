@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import Maneuver from "./Maneuver";
 
 export default class ManeuverDistractingStrike extends Maneuver {
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Distracting Strike",

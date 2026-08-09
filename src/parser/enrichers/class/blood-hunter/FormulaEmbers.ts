@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Resistance to fire damage, vulnerability to cold damage. */
 export default class FormulaEmbers extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

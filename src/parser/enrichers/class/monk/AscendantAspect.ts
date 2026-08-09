@@ -3,14 +3,14 @@ import { DDBEnricherData } from "../../data/_module";
 
 export default class AscendantAspect extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     return [
       {
@@ -85,7 +85,7 @@ export default class AscendantAspect extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

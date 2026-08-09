@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ParalysisPistol extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       addItemConsume: true,
@@ -32,7 +32,7 @@ export default class ParalysisPistol extends DDBEnricherData {
     };
   }
 
-  get documentStub(): IDDBDocumentStub {
+  override get documentStub(): IDDBDocumentStub {
     return {
       documentType: "consumable",
       parsingType: "wondrous",
@@ -42,7 +42,7 @@ export default class ParalysisPistol extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

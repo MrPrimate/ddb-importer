@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Resistance to cold damage, vulnerability to fire damage. */
 export default class FormulaGelid extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

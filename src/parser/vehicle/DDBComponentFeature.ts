@@ -539,7 +539,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
 
   }
 
-  async loadEnricher() {
+  override async loadEnricher() {
     await this.enricher.init();
     await this.enricher.load({
       // TODO: add vehicle enricher
@@ -575,7 +575,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     }
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
+  override _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
     const saveOverride = this.actionData.saveAbility
       ? null
       : this.descriptionSave;
@@ -595,7 +595,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
+  override _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
@@ -612,7 +612,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
+  override _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",
@@ -645,7 +645,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   }
 
 
-  _getActivitiesType() {
+  override _getActivitiesType() {
     if (this.healingAction) {
       if (!this.isAttack && !this.isSave && this.actionData.damageParts.length === 0) {
         // we generate heal activities as additionals;

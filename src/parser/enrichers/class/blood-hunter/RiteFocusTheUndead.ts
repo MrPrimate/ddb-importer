@@ -3,15 +3,15 @@ import _RiteFocus from "./_RiteFocus";
 
 export default class RiteFocusTheUndead extends _RiteFocus {
 
-  get patronName(): string {
+  override get patronName(): string {
     return "The Undead";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
       targetType: "self",
@@ -21,7 +21,7 @@ export default class RiteFocusTheUndead extends _RiteFocus {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Undead Resilience",
@@ -38,7 +38,7 @@ export default class RiteFocusTheUndead extends _RiteFocus {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       midiDamageReaction: true,
     };

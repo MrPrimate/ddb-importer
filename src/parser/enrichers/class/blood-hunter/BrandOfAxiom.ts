@@ -10,11 +10,11 @@ import _BloodHunter from "./_BloodHunter";
  */
 export default class BrandOfAxiom extends _BloodHunter {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Deny Form Change",
       targetType: "creature",
@@ -31,7 +31,7 @@ export default class BrandOfAxiom extends _BloodHunter {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Denied Form Change",

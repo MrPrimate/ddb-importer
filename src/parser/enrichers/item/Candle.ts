@@ -3,7 +3,7 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class Candle extends GenericLightSource {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Candle Light",
@@ -21,7 +21,7 @@ export default class Candle extends GenericLightSource {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         autoDestroy: true,

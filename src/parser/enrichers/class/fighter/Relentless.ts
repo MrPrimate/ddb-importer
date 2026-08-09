@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Relentless extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     return {
       activationType: "special",

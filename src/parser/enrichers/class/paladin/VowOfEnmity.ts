@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VowOfEnmity extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Activate Vow",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -19,7 +19,7 @@ export default class VowOfEnmity extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Vow of Enmity",
       options: {

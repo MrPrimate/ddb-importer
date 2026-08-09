@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PowerOfShadow extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
@@ -12,7 +12,7 @@ export default class PowerOfShadow extends DDBEnricherData {
   // to your Charisma modifier plus your Sorcerer level. After you succeed on this save,
   // you can’t use this benefit again until you finish a Long Rest.
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Strength of the Grave",
       noConsumeTargets: true,
@@ -33,7 +33,7 @@ export default class PowerOfShadow extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       // uses: this._getGeneratedUses({
       //   type: "class",

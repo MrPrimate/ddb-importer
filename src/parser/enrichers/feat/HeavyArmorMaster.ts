@@ -2,12 +2,12 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HeavyArmorMaster extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const dmgResistance = this.is2014
       ? "-3"

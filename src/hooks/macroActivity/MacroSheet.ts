@@ -4,14 +4,14 @@
 export default class MacroSheet extends dnd5e.applications.activity.ActivitySheet<any> {
 
   /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     classes: ["macro-activity"],
   };
 
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static PARTS = {
+  static override PARTS = {
     ...super.PARTS,
     identity: {
       template: "modules/ddb-importer/handlebars/activities/macro-identity.hbs",

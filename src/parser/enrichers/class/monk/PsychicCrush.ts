@@ -3,11 +3,11 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class PsychicCrush extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       targetType: "creature",
@@ -35,7 +35,7 @@ export default class PsychicCrush extends DDBEnricherData<DDBClassFeatureEnriche
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: "<p><em>The creature takes 1d8 Force damage per Pressure Point it has; adjust the damage roll to match.</em></p>",
     };

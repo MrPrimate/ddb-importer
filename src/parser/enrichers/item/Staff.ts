@@ -2,15 +2,15 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Staff extends DDBEnricherData {
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return false;
   }
 
-  get stopDefaultActivity() {
+  override get stopDefaultActivity() {
     return true;
   }
 
-  get documentStub(): IDDBDocumentStub {
+  override get documentStub(): IDDBDocumentStub {
     return {
       documentType: "weapon",
       parsingType: "staff",

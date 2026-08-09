@@ -2,12 +2,12 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnhanceAbility extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { ability: "str", name2014: "Bull's Strength" },
       { ability: "con", name2014: "Bear's Endurance", type: DDBEnricherData.ACTIVITY_TYPES.HEAL },
@@ -113,7 +113,7 @@ export default class EnhanceAbility extends DDBEnricherData {
     });
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014 ? this._effects2014 : this._effects2024;
   }
 

@@ -15,7 +15,7 @@ export default class DDBAction extends DDBFeatureMixin {
   declare ddbFeature: TDDBActionTypes;
   declare ddbDefinition: TDDBActionTypes & IDDBActionBackedDefinition;
 
-  _init() {
+  override _init() {
     this.isAction = true;
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
   }
@@ -24,7 +24,7 @@ export default class DDBAction extends DDBFeatureMixin {
     return DDBDataUtils.displayAsAttack(this.ddbData, this.ddbDefinition, this.rawCharacter);
   }
 
-  _generateSystemType(typeNudge: ICoreSourceTypes | null = null) {
+  override _generateSystemType(typeNudge: ICoreSourceTypes | null = null) {
     if (this.documentType === "weapon") {
       this._generateWeaponType();
     } else if (this.ddbData.character.actions.class.some((a) =>
@@ -56,7 +56,7 @@ export default class DDBAction extends DDBFeatureMixin {
     return this.ddbDefinition.attackTypeRange || this.ddbDefinition.rangeId;
   }
 
-  getDamage(bonuses: string[] = []) {
+  override getDamage(bonuses: string[] = []) {
     // when the action type is not set to melee or ranged we don't apply the mod to damage
     const meleeOrRangedAction = this.isMeleeOrRangedAction();
     const modBonus = (this.ddbDefinition.statId || this.ddbDefinition.abilityModifierStatId)
@@ -82,7 +82,7 @@ export default class DDBAction extends DDBFeatureMixin {
     }
   }
 
-  getActionAttackAbility() {
+  override getActionAttackAbility() {
     const defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.actor.abilities.find(
         (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
@@ -129,7 +129,7 @@ export default class DDBAction extends DDBFeatureMixin {
     }
   }
 
-  async build() {
+  override async build() {
     try {
       if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);

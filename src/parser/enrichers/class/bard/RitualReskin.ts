@@ -8,11 +8,11 @@ export default class RitualReskin extends DDBEnricherData {
 
   static HOUR = 3600;
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Perform Ritual",
       addItemConsume: true,
@@ -29,7 +29,7 @@ export default class RitualReskin extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -127,7 +127,7 @@ export default class RitualReskin extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const options = { durationSeconds: RitualReskin.HOUR };
     return [
       {

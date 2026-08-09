@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class AuraOfTheGuardian extends Generic {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Aura of the Guardian",

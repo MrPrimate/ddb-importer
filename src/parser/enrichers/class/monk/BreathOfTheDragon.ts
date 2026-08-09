@@ -3,14 +3,14 @@ import { DDBEnricherData } from "../../data/_module";
 
 export default class BreathOfTheDragon extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   /**
    * @returns {DDBActivityData | null}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Breath (Cone)",
       id: "ddbBreathOfCone1",
@@ -45,7 +45,7 @@ export default class BreathOfTheDragon extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     return [
       {
@@ -102,7 +102,7 @@ export default class BreathOfTheDragon extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

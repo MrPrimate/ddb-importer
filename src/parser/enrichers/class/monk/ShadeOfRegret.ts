@@ -3,7 +3,7 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class ShadeOfRegret extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Create Shade of Regret", type: "class" },
@@ -27,7 +27,7 @@ export default class ShadeOfRegret extends DDBEnricherData<DDBClassFeatureEnrich
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Shade of Regret",

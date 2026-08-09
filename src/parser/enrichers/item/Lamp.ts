@@ -3,7 +3,7 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class Lamp extends GenericLightSource {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Hooded Lantern Light",

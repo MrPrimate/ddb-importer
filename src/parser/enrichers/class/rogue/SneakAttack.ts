@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SneakAttack extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Sneak Attack Damage",
       targetType: "creature",
@@ -30,7 +30,7 @@ export default class SneakAttack extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Sneak Attack (Automation)",
@@ -54,7 +54,7 @@ export default class SneakAttack extends DDBEnricherData {
     ];
   }
 
-  get itemMacro(): IDDBItemMacro | null {
+  override get itemMacro(): IDDBItemMacro | null {
     return this.is2014
       ? {
         type: "feat",
@@ -63,7 +63,7 @@ export default class SneakAttack extends DDBEnricherData {
       : null;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

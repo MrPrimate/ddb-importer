@@ -6,7 +6,7 @@ export default class DauntingRoar extends DDBEnricherData {
   //   return true;
   // }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       rangeSelf: true,
       data: {
@@ -29,7 +29,7 @@ export default class DauntingRoar extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Daunting Roar: Frightened",
@@ -49,7 +49,7 @@ export default class DauntingRoar extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -63,7 +63,7 @@ export default class DauntingRoar extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 

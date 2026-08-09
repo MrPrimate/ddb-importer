@@ -1,18 +1,18 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CreateBonfire extends DDBEnricherData {
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbBonfirSpellSa",
       noeffect: this.useMidiAutomations,
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.useMidiAutomations;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Standing in a Bonfire",
@@ -58,7 +58,7 @@ export default class CreateBonfire extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -75,7 +75,7 @@ export default class CreateBonfire extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
       triggerPoints: ["preActiveEffects"],

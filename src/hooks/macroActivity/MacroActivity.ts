@@ -17,12 +17,12 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
+  static override LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
 
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static metadata = Object.freeze(
+  static override metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "ddbmacro",
       img: "systems/dnd5e/icons/svg/items/tool.svg",
@@ -41,7 +41,7 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @override */
-  async _usageChatButtons(message: Record<string, any>) {
+  override async _usageChatButtons(message: Record<string, any>) {
     const superButtons = await super._usageChatButtons(message);
     if (!this.macro.function) return superButtons;
     const macroButton = {
@@ -136,7 +136,7 @@ export default class MacroActivity extends BaseMacroActivity {
   }
 
   /** @override */
-  async _triggerSubsequentActions(_config: unknown, _results: unknown) {
+  override async _triggerSubsequentActions(_config: unknown, _results: unknown) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
     const targets = Array.from(game.user.targets);

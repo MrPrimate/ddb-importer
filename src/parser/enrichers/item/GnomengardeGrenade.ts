@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class GnomengardeGrenade extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noeffect: true,
       data: {
@@ -15,7 +15,7 @@ export default class GnomengardeGrenade extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       options: {
         transfer: false,
@@ -24,7 +24,7 @@ export default class GnomengardeGrenade extends DDBEnricherData {
     }];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

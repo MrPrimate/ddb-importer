@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SecondWind extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       targetType: "self",
@@ -20,7 +20,7 @@ export default class SecondWind extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     if (!this.is2024) return null;
     const uses = foundry.utils.deepClone(this.data.system.uses);
     const recovery = foundry.utils.deepClone(uses.recovery ?? []);

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MarkOfTheHeretic extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Mark of the Heretic",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -19,7 +19,7 @@ export default class MarkOfTheHeretic extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Marked as Heretic",
       options: {

@@ -2,14 +2,14 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlockOfFamiliars extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       id: "flockOfFamiliar1",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

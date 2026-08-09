@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -18,7 +18,7 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Agonizing Blast",
@@ -36,7 +36,7 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const name = this.ddbParser.isMuncher
       ? this.name.split("(")[0].trim()
       : this.name;

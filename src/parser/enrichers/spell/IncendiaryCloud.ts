@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class IncendiaryCloud extends DDBEnricherData {
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       id: "ddbIncCloSpellSa",
       noeffect: this.useMidiAutomations,
@@ -9,11 +9,11 @@ export default class IncendiaryCloud extends DDBEnricherData {
   }
 
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return this.useMidiAutomations;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Within Incendiary Cloud Fog",
@@ -59,7 +59,7 @@ export default class IncendiaryCloud extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {
@@ -75,7 +75,7 @@ export default class IncendiaryCloud extends DDBEnricherData {
     };
   }
 
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
       triggerPoints: ["preActiveEffects"],

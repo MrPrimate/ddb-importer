@@ -23,13 +23,13 @@ export default class SoulCage extends DDBEnricherData {
     };
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.ddbEnricher?._originalActivity?.type === "heal"
       ? this._stealLifeActivity
       : this._castActivity;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -84,7 +84,7 @@ export default class SoulCage extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         spent: 6,

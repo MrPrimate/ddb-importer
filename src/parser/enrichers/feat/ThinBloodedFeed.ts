@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ThinBloodedFeed extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       // mirrors the Kindred class Feed enricher; thin-bloods have a fixed
       // 2d6 Feed Dice pool plus Constitution modifier dice

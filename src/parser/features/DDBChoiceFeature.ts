@@ -34,7 +34,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   declare _classFeatureComponent: IDDBClassFeature | IDDBRacialTrait | undefined;
 
-  _prepare() {
+  override _prepare() {
     this._levelScale = null;
     this._levelScales = null;
     this._limitedUse = null;
@@ -67,7 +67,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
-  _generateSystemSubType() {
+  override _generateSystemSubType() {
     super._generateSystemSubType();
 
     const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name") as string;
@@ -78,7 +78,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   }
 
 
-  async build(choice: IDDBChoiceResult) {
+  override async build(choice: IDDBChoiceResult) {
     try {
       this._currentChoice = choice;
       this._generateSystemType();

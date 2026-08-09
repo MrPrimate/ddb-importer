@@ -2,7 +2,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class SeekingArrow extends ArcaneShotOption {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

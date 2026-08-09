@@ -4,11 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RitualCaster extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (!this.is2014) {
       return {
         name: "Quick Ritual",
@@ -22,7 +22,7 @@ export default class RitualCaster extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [];
 
     if (this.ddbParser.isMuncher) return results;
@@ -70,7 +70,7 @@ export default class RitualCaster extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     return this.is2014
       ? null
       : {

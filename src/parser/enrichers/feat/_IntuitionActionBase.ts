@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class _IntuitionActionBase extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         roll: {
@@ -13,7 +13,7 @@ export default class _IntuitionActionBase extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -34,7 +34,7 @@ export default class _IntuitionActionBase extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const advancement = {
       "type": "ScaleValue",
       "_id": foundry.utils.randomID(),

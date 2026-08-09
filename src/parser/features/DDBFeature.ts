@@ -43,7 +43,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   ];
 
 
-  _init() {
+  override _init() {
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       ? "weapon" as const
       : (DDBFeature.DOC_TYPE as Record<string, string>)[this.type] as typeof this.documentType;
@@ -99,7 +99,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     });
   }
 
-  _generateDataStub() {
+  override _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
       name: DDBDataUtils.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
@@ -136,7 +136,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
 
-  _prepare() {
+  override _prepare() {
     // override this feature
     this._generateActionTypes();
     this._generateFlagHints();
@@ -993,7 +993,7 @@ ${description}`;
     this._final();
   }
 
-  async build(_choice?: unknown) {
+  override async build(_choice?: unknown) {
     try {
       if (this.type === "background") {
         // work around till background parsing support advancements

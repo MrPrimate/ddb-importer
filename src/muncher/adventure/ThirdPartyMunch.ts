@@ -95,7 +95,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   /** @override */
-  static get defaultOptions() {
+  static override get defaultOptions() {
     this.pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
     this.altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
 
@@ -111,7 +111,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   /** @override */
 
-  async getData() {
+  override async getData() {
     let data;
     let packages: any[] = [];
 
@@ -141,7 +141,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   /** @override */
-  activateListeners(html: JQuery<HTMLElement>) {
+  override activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
     html.find(".dialog-button").on("click", this._dialogButton.bind(this));

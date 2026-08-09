@@ -6,11 +6,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class SecondSkin extends DDBEnricherData {
 
-  get stopDefaultActivity() {
+  override get stopDefaultActivity() {
     return true;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -67,7 +67,7 @@ export default class SecondSkin extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Unable to Change",

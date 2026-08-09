@@ -4,15 +4,15 @@ import _RiteFocus from "./_RiteFocus";
 
 export default class RiteFocusTheHexblade extends _RiteFocus {
 
-  get patronName(): string {
+  override get patronName(): string {
     return "The Hexblade";
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
       targetType: "creature",

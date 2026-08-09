@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalAbsorption extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
@@ -17,7 +17,7 @@ export default class ElementalAbsorption extends DDBEnricherData {
     ];
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -29,7 +29,7 @@ export default class ElementalAbsorption extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.damageTypes().map((type) => {
       return {
         name: `Elemental Absorption, Resistance: ${utils.capitalize(type)}`,

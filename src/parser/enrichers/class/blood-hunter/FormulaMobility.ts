@@ -7,7 +7,7 @@ import _Mutagen from "./_Mutagen";
  */
 export default class FormulaMobility extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const bands: { conditions: string[]; level: { min: number | null; max: number | null } }[] = [
       { conditions: ["grappled", "restrained"], level: { min: null, max: 10 } },
       { conditions: ["grappled", "restrained", "paralyzed"], level: { min: 11, max: null } },

@@ -24,11 +24,11 @@ export default class HybridTransformation extends DDBEnricherData {
 
   static DAMAGE_BONUS = "max(@abilities.str.mod, @abilities.dex.mod)";
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Hybrid Transformation",
       targetType: "self",
@@ -133,7 +133,7 @@ export default class HybridTransformation extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       ...this._strikeActivities(6, HybridTransformation.STRIKE_IDS.small),
       ...this._strikeActivities(8, HybridTransformation.STRIKE_IDS.large),
@@ -233,7 +233,7 @@ export default class HybridTransformation extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const bands = [
       { damageBonus: 1, effectId: "ddbLycanForm0001", strikeIds: HybridTransformation.STRIKE_IDS.small, level: { min: null, max: 10 } },
       { damageBonus: 2, effectId: "ddbLycanForm0002", strikeIds: HybridTransformation.STRIKE_IDS.large, level: { min: 11, max: 17 } },
@@ -267,7 +267,7 @@ export default class HybridTransformation extends DDBEnricherData {
     return DDBEnricherData.stripBuilderNote(html, "Character Builder");
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         name: "Hybrid Transformation",

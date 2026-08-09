@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ProtectionFromEnergy extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: { midiProperties: { chooseEffects: true } },
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         name: `Protection from ${element}`,

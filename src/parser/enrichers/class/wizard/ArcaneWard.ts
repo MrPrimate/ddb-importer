@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArcaneWard extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Create Ward",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -27,7 +27,7 @@ export default class ArcaneWard extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const additional = [
       {
         init: {
@@ -109,7 +109,7 @@ export default class ArcaneWard extends DDBEnricherData {
     return additional;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const descriptionSuffix = `
 <section class="secret ddbSecret" id="secret-ddbArcaneWard">
 <p><strong>Implementation Details</strong></p>

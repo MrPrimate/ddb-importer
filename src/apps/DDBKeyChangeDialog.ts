@@ -37,7 +37,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
   }
 
   /** @override */
-  static DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS = {
     id: "ddb-importer-key-change",
     classes: ["standard-form", "dnd5e2"],
     window: {
@@ -65,7 +65,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
   };
 
   /** @inheritDoc */
-  static PARTS = {
+  static override PARTS = {
     ...super.PARTS,
     content: {
       template: "modules/ddb-importer/handlebars/keychange/ddb-key-change.hbs",
@@ -73,14 +73,14 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     footer: { template: "modules/ddb-importer/handlebars/keychange/footer.hbs" },
   };
 
-  get title() {
+  override get title() {
     // improve localisation
     // game.i18n.localize("")
     return this.local ? "DDB Importer Local Key" : "DDB Importer Key Change";
   }
 
 
-  async _prepareContext(_options: any) {
+  override async _prepareContext(_options: any) {
     const newKey = !this.key || this.key === "";
     const check = newKey
       ? { success: true, message: "" }

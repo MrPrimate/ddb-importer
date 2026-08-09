@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WarriorsPasskey extends DDBEnricherData {
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "system.damage.base": {
@@ -15,7 +15,7 @@ export default class WarriorsPasskey extends DDBEnricherData {
     };
   }
 
-  get documentStub(): IDDBDocumentStub {
+  override get documentStub(): IDDBDocumentStub {
     return {
       documentType: "weapon",
       parsingType: "weapon",
@@ -32,7 +32,7 @@ export default class WarriorsPasskey extends DDBEnricherData {
     };
   }
 
-  get stopDefaultActivity() {
+  override get stopDefaultActivity() {
     return true;
   }
 

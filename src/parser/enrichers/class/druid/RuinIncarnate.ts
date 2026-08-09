@@ -2,16 +2,16 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RuinIncarnate extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities(): boolean {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get type() {
+  override get type() {
     if (this.isAction) return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.isAction) return null;
     return {
       name: "Activate",
@@ -31,7 +31,7 @@ export default class RuinIncarnate extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     return [
       {

@@ -3,7 +3,7 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class AidNotGiven extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Help (Bonus Action)", type: "class" },

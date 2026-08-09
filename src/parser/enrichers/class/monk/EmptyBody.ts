@@ -2,14 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class EmptyBody extends DDBEnricherData<DDBClassFeatureEnricher> {
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Go Invisible",
       targetType: "self",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -24,7 +24,7 @@ export default class EmptyBody extends DDBEnricherData<DDBClassFeatureEnricher> 
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

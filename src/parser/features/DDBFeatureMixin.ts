@@ -1147,7 +1147,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   /** @override */
 
-  _getActivitiesType(): IDDBActivityType | "roll" | null {
+  override _getActivitiesType(): IDDBActivityType | "roll" | null {
     if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (("saveStatId" in this.ddbDefinition && typeof this.ddbDefinition.saveStatId === "number")
@@ -1170,7 +1170,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   /** @override */
-  async _generateActivity(
+  override async _generateActivity(
     { hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null, typeOverride = null }: {
       hintsOnly?: boolean;
       statusEffects?: boolean;

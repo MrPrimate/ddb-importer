@@ -6,11 +6,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class MarkPrey extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Mark Prey",
       activationType: "bonus",
@@ -19,7 +19,7 @@ export default class MarkPrey extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -54,7 +54,7 @@ export default class MarkPrey extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Marked as Prey",

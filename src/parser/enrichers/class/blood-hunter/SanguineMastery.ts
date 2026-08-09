@@ -15,11 +15,11 @@ export default class SanguineMastery extends _BloodHunter {
 
   static REROLL_CONDITION = "Once per turn, when a blood hunter feature requires you to roll a hemocraft die (reroll and use either roll)";
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Reroll Hemocraft Die",
       targetType: "self",
@@ -37,7 +37,7 @@ export default class SanguineMastery extends _BloodHunter {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SpellfireBurst extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Spellfire Burst: Bolstering Flames", type: "class", rename: ["Bolstering Flames"] } },
       {
@@ -15,7 +15,7 @@ export default class SpellfireBurst extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     return {
       data: {
         flags: {

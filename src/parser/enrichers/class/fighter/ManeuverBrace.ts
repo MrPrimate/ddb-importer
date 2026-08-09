@@ -2,11 +2,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverBrace extends Maneuver {
 
-  get type(): IDDBActivityType {
+  override get type(): IDDBActivityType {
     return Maneuver.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Brace",
       activationType: "reaction",
@@ -14,14 +14,14 @@ export default class ManeuverBrace extends Maneuver {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];
   }
 
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
       ignoredConsumptionActivities: this.ignoredConsumptionActivities,
@@ -31,7 +31,7 @@ export default class ManeuverBrace extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Brace: Extra Damage (Automation)",

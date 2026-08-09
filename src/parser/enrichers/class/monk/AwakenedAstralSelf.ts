@@ -2,18 +2,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AwakenedAstralSelf extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     // The feature pulls in the same-named action before effects are added. A
     // feature-side clear would delete the cloned effect and orphan the
     // activity's effect link.
     return this.isAction;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     // The action effect is cloned onto the parent with its activity.
     if (!this.isAction) return [];
     return [

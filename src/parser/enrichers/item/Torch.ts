@@ -3,7 +3,7 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class Torch extends GenericLightSource {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Torch Light",
@@ -25,7 +25,7 @@ export default class Torch extends GenericLightSource {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         autoDestroy: true,

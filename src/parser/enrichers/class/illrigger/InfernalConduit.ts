@@ -6,11 +6,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class InfernalConduit extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Transfer HP",
       targetType: "creature",
@@ -32,7 +32,7 @@ export default class InfernalConduit extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -78,7 +78,7 @@ export default class InfernalConduit extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

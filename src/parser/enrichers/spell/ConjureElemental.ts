@@ -2,20 +2,20 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ConjureElemental extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get summonsFunction() {
+  override get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getConjureElementals2024;
   }
 
-  get generateSummons() {
+  override get generateSummons() {
     return !this.is2014;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
@@ -43,7 +43,7 @@ export default class ConjureElemental extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

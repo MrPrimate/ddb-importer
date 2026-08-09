@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FlashOfGenius extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (!this.isAction) return {};
     return {
       activationType: "reaction",
@@ -19,11 +19,11 @@ export default class FlashOfGenius extends DDBEnricherData {
     };
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     if (this.is2014) return {};
     if (!this.ddbParser.isMuncher) return {};
     return {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RelentlessAvenger extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Reduce Speed",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -10,7 +10,7 @@ export default class RelentlessAvenger extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Relentless Avenger: Speed Reduction",
       options: {

@@ -12,7 +12,7 @@ const { BooleanField, SchemaField, StringField } = foundry.data.fields;
  */
 export default class MacroActivityData extends dnd5e.dataModels.activity.BaseActivityData {
   /** @inheritDoc */
-  static defineSchema() {
+  static override defineSchema() {
     return {
       ...super.defineSchema(),
       macro: new SchemaField({

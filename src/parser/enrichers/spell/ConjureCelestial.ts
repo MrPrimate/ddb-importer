@@ -2,15 +2,15 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ConjureCelestial extends DDBEnricherData {
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities() {
     return true;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities() {
     return true;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type ?? "")) return null;
     return {
@@ -41,7 +41,7 @@ export default class ConjureCelestial extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] | null {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) return null;
     return [
       {

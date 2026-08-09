@@ -14,7 +14,7 @@ export default class ArcanePrototype extends DDBEnricherData {
 
   static SLOT_NAME_REGEX = /^Arcane Prototype: Artificer Level \d+$/i;
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
       data: {
@@ -28,7 +28,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {
@@ -219,7 +219,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     );
   }
 
-  async cleanup() {
+  override async cleanup() {
     const selections = this._getPrototypeSelections();
     if (selections.length === 0) return;
 

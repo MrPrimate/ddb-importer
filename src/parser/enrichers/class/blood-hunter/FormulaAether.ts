@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Flying speed of 20 feet for 1 hour, at the cost of Strength and Dexterity checks. */
 export default class FormulaAether extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         durationSeconds: 3600,

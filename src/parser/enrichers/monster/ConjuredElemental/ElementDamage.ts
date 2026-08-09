@@ -2,7 +2,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementDamage extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
@@ -25,7 +25,7 @@ export default class ElementDamage extends DDBEnricherData {
     },
   ];
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const damageType = ElementDamage.elementals.find((d) => d.name === this.data.name.split("Element")[0].trim())?.type;
     return {
       id: "ddbElemDamageSav",
@@ -57,7 +57,7 @@ export default class ElementDamage extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

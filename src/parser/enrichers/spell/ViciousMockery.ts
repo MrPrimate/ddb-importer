@@ -14,7 +14,7 @@ export default class ViciousMockery extends DDBEnricherData {
   //   };
   // }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Vicious Mockery",

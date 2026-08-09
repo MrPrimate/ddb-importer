@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StaffOfHealing extends DDBEnricherData {
-  async customFunction({ name, activity } : ICustomFunctionOptions) {
+  override async customFunction({ name, activity } : ICustomFunctionOptions) {
     if (name === "Cure Wounds" && activity?.data) {
       const update = {
         consumption: {

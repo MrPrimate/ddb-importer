@@ -4,11 +4,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 // 2024 version
 export default class PathToTheGrave extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Activate Path to the Grave",
       addItemConsume: true,
@@ -19,7 +19,7 @@ export default class PathToTheGrave extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Activate Path to the Grave",
@@ -34,7 +34,7 @@ export default class PathToTheGrave extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

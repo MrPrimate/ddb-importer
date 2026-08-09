@@ -9,15 +9,15 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class StrangeMetabolism extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects() {
     return true;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Adrenaline Burst",
       targetType: "self",
@@ -27,7 +27,7 @@ export default class StrangeMetabolism extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Strange Metabolism",
@@ -45,7 +45,7 @@ export default class StrangeMetabolism extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

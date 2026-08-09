@@ -79,12 +79,12 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, string> = {
+  override NAME_HINTS_2014: Record<string, string> = {
     "Channel Divinity: Sacred Weapon": "Sacred Weapon",
     "Lay on Hands Pool": "Lay On Hands: Healing Pool",
   };
 
-  NAME_HINTS: Record<string, string> = {
+  override NAME_HINTS: Record<string, string> = {
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
     // Blood Hunter curse/boon choice features resolve to their base enricher
@@ -241,7 +241,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Elemental Disciplines: Water Whip": "Elemental Disciplines",
   };
 
-  NAME_HINT_INCLUDES: Record<string, string> = {
+  override NAME_HINT_INCLUDES: Record<string, string> = {
     "Metamagic:": "MetamagicGeneric",
     "Enchantments:": "EnchantmentsExtras",
     "Eldritch Invocations: Agonizing Blast": "Eldritch Invocations: Agonizing Blast",

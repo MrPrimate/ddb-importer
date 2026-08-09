@@ -4,7 +4,7 @@ import _Mutagen from "./_Mutagen";
 /** Resistance to slashing damage, vulnerability to bludgeoning damage. */
 export default class FormulaShielded extends _Mutagen {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       this.mutagenEffect({
         changes: [

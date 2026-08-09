@@ -2,15 +2,15 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WandOfOrcus extends DDBEnricherData {
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities() {
     return false;
   }
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         damage: {
@@ -26,7 +26,7 @@ export default class WandOfOrcus extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -59,7 +59,7 @@ export default class WandOfOrcus extends DDBEnricherData {
     ];
   }
 
-  get documentStub(): IDDBDocumentStub {
+  override get documentStub(): IDDBDocumentStub {
     return {
       documentType: "weapon",
       parsingType: "weapon",

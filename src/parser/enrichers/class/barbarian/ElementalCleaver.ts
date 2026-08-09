@@ -3,11 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalCleaver extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         restrictions: {
@@ -18,7 +18,7 @@ export default class ElementalCleaver extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },

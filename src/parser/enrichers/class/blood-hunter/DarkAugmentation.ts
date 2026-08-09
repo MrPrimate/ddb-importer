@@ -11,7 +11,7 @@ export default class DarkAugmentation extends _BloodHunter {
 
   static SAVE_ABILITIES = ["str", "dex", "con"];
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
 
     const saveBonus = `max(1, ${this.hemocraftModifier})`;

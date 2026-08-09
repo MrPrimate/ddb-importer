@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class TrueStrike extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return null;
     } else {
@@ -22,7 +22,7 @@ export default class TrueStrike extends DDBEnricherData {
     }
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [{
         midiChanges: [

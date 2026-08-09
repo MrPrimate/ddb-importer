@@ -12,11 +12,11 @@ import _RiteFocus from "./_RiteFocus";
  */
 export default class RiteFocusTheFiend extends _RiteFocus {
 
-  get patronName(): string {
+  override get patronName(): string {
     return "The Fiend";
   }
 
-  get useDefaultAdditionalActivities(): boolean {
+  override get useDefaultAdditionalActivities(): boolean {
     return false;
   }
 

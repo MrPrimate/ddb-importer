@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverEvasiveFootwork extends Maneuver {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       addItemConsume: true,
@@ -15,7 +15,7 @@ export default class ManeuverEvasiveFootwork extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [

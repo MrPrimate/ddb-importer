@@ -19,7 +19,7 @@ export default class Risk extends DDBEnricherData {
     "Skin of Your Teeth",
   ];
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return Risk.MANEUVER_ACTIONS
       .filter((name) => this.hasAction({ name: `Maneuver: ${name}`, type: "class" }))
       .map((name) => {
@@ -36,7 +36,7 @@ export default class Risk extends DDBEnricherData {
       });
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

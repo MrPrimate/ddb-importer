@@ -2,11 +2,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsychicAttack extends DDBEnricherData {
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "bonus",
@@ -35,7 +35,7 @@ export default class PsychicAttack extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

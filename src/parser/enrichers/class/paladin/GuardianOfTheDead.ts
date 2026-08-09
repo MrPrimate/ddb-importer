@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GuardianOfTheDead extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Guardian of the Dead",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -13,7 +13,7 @@ export default class GuardianOfTheDead extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Guardian of the Dead",
       options: {

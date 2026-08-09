@@ -3,7 +3,7 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class EverPrideful extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Enter Trance", type: "class" },
@@ -15,7 +15,7 @@ export default class EverPrideful extends DDBEnricherData<DDBClassFeatureEnriche
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Ever Prideful: Trance",

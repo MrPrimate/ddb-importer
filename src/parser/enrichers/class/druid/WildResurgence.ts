@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WildResurgence extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Spend Spell Slot for Wild Shape Use",
       addItemConsume: true,
@@ -27,7 +27,7 @@ export default class WildResurgence extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wild Resurgence: Regain Spell Slot",

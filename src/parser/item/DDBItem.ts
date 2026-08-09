@@ -3203,7 +3203,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
   /** @override */
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+  override _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
@@ -3216,7 +3216,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /** @override */
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+  override _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       // force default to to generate consumption for attacks if it's a weapon. this might miss some special cases,
@@ -3231,7 +3231,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /** @override */
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+  override _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
@@ -3241,7 +3241,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /** @override */
-  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+  override _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
@@ -3283,7 +3283,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /** @override */
 
-  _getActivitiesType() {
+  override _getActivitiesType() {
     // console.warn(`Determining activity type for ${this.name}`, {
     //   actionData: this.actionData,
     //   damageParts: this.damageParts,

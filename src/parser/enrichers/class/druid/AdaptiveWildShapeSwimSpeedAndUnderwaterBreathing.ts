@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Adapt Form",
       activationType: "special",
@@ -14,7 +14,7 @@ export default class AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing extends DD
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Adaptive Wild Shape: Swim Speed and Underwater Breathing",
       activityMatch: "Adapt Form",

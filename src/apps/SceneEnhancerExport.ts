@@ -413,7 +413,7 @@ export class SceneEnhancerExport extends Application {
     this.downloadDisabled = !this.downloadBookSet || this.url === "" || !this.url.startsWith("http");
   }
 
-  static get defaultOptions() {
+  static override get defaultOptions() {
     const options = super.defaultOptions;
     options.baseApplication = "SceneEnhancerExport";
     options.id = "ddb-importer-scene-enhancer";
@@ -426,12 +426,12 @@ export class SceneEnhancerExport extends Application {
     return options;
   }
 
-  get title() {
+  override get title() {
     return `DDB Importer Scene Enhancer Exporter: ${this.scene.name}`;
   }
 
   /** @override */
-  getData() {
+  override getData() {
     const templateData = {
       sceneName: this.scene.name,
       compendiums: this.compendiums,
@@ -463,7 +463,7 @@ export class SceneEnhancerExport extends Application {
     }
   }
 
-  activateListeners(html: JQuery<HTMLElement>) {
+  override activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     $("#ddb-importer-scene-enhancer").css("height", "auto");
 
