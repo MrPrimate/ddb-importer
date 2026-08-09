@@ -161,4 +161,11 @@ export default class _Mutagen extends _BloodHunter {
     }));
   }
 
+  get override(): IDDBOverrideData | null {
+    return {
+      data: {
+        name: `Formula: ${this.mutagenName}`,
+      },
+    };
+  }
 }
