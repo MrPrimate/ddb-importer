@@ -1,0 +1,76 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class AdaptiveWildShapeDarkvision extends DDBEnricherData {
+
+  get type() {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  // DDB ships set-base and sense darkvision modifiers on this option, which generate
+  // an always-on passive effect. This only applies while Wild Shaped, so drop them and
+  // use the activity-linked effects below instead.
+  get clearAutoEffects(): boolean {
+    return true;
+  }
+
+  // "you gain Darkvision (60 ft.) or increase your Darkvision by an additional 30 ft."
+  // is an either/or: one activity for a form with no darkvision, one for a form that
+  // already has some. The printed 60 ft is used over DDB's own modifier value of 30.
+  get activity(): IDDBActivityData {
+    return {
+      name: "Gain Darkvision",
+      activationType: "special",
+      targetType: "self",
+    };
+  }
+
+  get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Increase Darkvision",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "self",
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Adaptive Wild Shape: Darkvision",
+        activityMatch: "Gain Darkvision",
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.ranges.darkvision"),
+        ],
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 60, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "override", "darkvision", 5),
+        ],
+      },
+      {
+        name: "Adaptive Wild Shape: Increased Darkvision",
+        activityMatch: "Increase Darkvision",
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("30", 20, "system.attributes.senses.ranges.darkvision"),
+        ],
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "add", 30, 5),
+        ],
+      },
+    ];
+  }
+
+}

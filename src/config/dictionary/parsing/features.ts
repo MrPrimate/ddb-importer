@@ -175,6 +175,7 @@ export const PARSING_FEATURES = {
     "Gifts of Survival",
     "Corporeal Mastery",
     "Protean Rewards",
+    "Adaptive Wild Shape",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -404,6 +405,9 @@ export const PARSING_CHOICE_FEATURES = {
     // "Arcane Shot Options",
   ],
   NO_CHOICE_DESCRIPTION_ADDITION: [
+    // the parent's own <ul> already enumerates the options, and each option is
+    // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
+    "Adaptive Wild Shape",
     "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
