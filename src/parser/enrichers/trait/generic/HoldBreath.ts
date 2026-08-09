@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HoldBreath extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get affect() {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "special",
