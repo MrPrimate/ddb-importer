@@ -55,6 +55,14 @@ export const LEVEL_SCALE = {
 };
 
 export const PARSING_FEATURES = {
+  // Phrases that mark a DDB character-sheet instruction block, removed from every
+  // feature description. Keep these specific: "select this option" and "drop down"
+  // also appear in real rules text (Armed Combat Lessons, Dark Bargain, Evocation Lessons).
+  DDB_SHEET_NOTE_MARKERS: [
+    "Deselect",
+    "Character Builder",
+    "updated the character sheet",
+  ],
   LEGACY_SKIPPED_FEATURES: [
     "Hit Points",
     "Languages",

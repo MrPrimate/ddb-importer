@@ -570,21 +570,28 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
+    // DDB descriptions carry instructions about DDB's own character sheet ("Deselect it
+    // to end..."), which mean nothing in Foundry. Stripped here rather than per-enricher
+    // because ~35 features ship one. Enricher descriptionSuffix text is appended later,
+    // in addDocumentOverride, so it is never a candidate for removal.
+    const stripNotes = (html: string): string =>
+      utils.stripNoteBlocks(html, DICTIONARY.parsing.features.DDB_SHEET_NOTE_MARKERS);
+
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
       const descriptionSnippet = (!useCombinedSetting || forceFull) && this.description !== "" ? null : snippet;
       const fullDescription = DDBFeatureMixin.buildFullDescription(this.description, descriptionSnippet);
 
       return {
-        value: fullDescription + extraDescription + macroHelper,
-        chat: chatAdd ? snippet + macroHelper : "",
+        value: stripNotes(fullDescription + extraDescription + macroHelper),
+        chat: chatAdd ? stripNotes(snippet + macroHelper) : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
       return {
-        value: this.description + extraDescription + macroHelper,
-        chat: snippet + macroHelper,
+        value: stripNotes(this.description + extraDescription + macroHelper),
+        chat: stripNotes(snippet + macroHelper),
       };
     }
   }

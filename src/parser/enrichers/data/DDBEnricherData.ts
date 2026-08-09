@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger } from "../../../lib/_module";
+import { logger, utils } from "../../../lib/_module";
 import { DDBDataUtils, DDBTemplateStrings } from "../../lib/_module";
 import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
 import DDBSpell from "../../spells/DDBSpell";
@@ -301,16 +301,10 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     };
   }
 
-  // matches a single non-nested blockquote; a DOM round trip is not used here because
-  // re-serialising would escape the & in Foundry's &Reference[...] enrichers
-  static BLOCKQUOTE_REGEX = /<blockquote\b[^>]*>(?:(?!<\/blockquote>)[\s\S])*<\/blockquote>\s*/gi;
-
+  // DDB sheet instructions are now stripped centrally in DDBFeatureMixin.getDescription,
+  // so this is only needed for notes whose phrasing is not in DDB_SHEET_NOTE_MARKERS.
   static stripBuilderNote(html: string, builderNote = "Character Builder"): string {
-    if (!html?.includes(builderNote)) return html;
-
-    return html.replace(DDBEnricherData.BLOCKQUOTE_REGEX, (match) =>
-      match.includes(builderNote) ? "" : match,
-    );
+    return utils.stripNoteBlocks(html, [builderNote]);
   }
 
   get useMidiAutomations(): boolean {

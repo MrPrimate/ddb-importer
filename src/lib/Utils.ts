@@ -186,6 +186,23 @@ export default class Utils {
     return dom;
   }
 
+  // matches a single non-nested <p> or <blockquote>; a DOM round trip is not used
+  // here because re-serialising would escape the & in Foundry's &Reference[...] enrichers
+  static NOTE_BLOCK_REGEX = /<(p|blockquote)\b[^>]*>(?:(?!<\/\1>)[\s\S])*<\/\1>\s*/gi;
+
+  /**
+   * Removes whole <p>/<blockquote> blocks containing any of the given marker phrases.
+   * Used to drop D&D Beyond character-sheet instructions ("Deselect it to end...")
+   * which mean nothing in Foundry.
+   */
+  static stripNoteBlocks(html: string, markers: string[]): string {
+    if (!html || !markers.some((marker) => html.includes(marker))) return html;
+
+    return html.replace(Utils.NOTE_BLOCK_REGEX, (match) =>
+      markers.some((marker) => match.includes(marker)) ? "" : match,
+    );
+  }
+
   static replaceHtmlSpaces(str: string): string {
     return str.replace(/&nbsp;/g, " ").replace(/\xA0/g, " ").replace(/\s\s+/g, " ").trim();
   }
@@ -196,6 +213,12 @@ export default class Utils {
 
   static stringKindaEqual(a: string, b: string): boolean {
     return Utils.renderLesserString(a) === Utils.renderLesserString(b);
+  }
+
+  static stringKindaContains(haystack: string, needle: string): boolean {
+    const lesserNeedle = Utils.renderLesserString(needle);
+    if (lesserNeedle === "") return false;
+    return Utils.renderLesserString(haystack).includes(lesserNeedle);
   }
 
   static calculateModifier(value: number): number {

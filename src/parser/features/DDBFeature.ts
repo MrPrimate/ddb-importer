@@ -880,6 +880,25 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   static CHOICE_DEFS = DICTIONARY.parsing.choiceFeatures;
 
+  static MIN_CHOICE_CONTAINMENT_LENGTH = 40;
+
+  /**
+   * DDB often ships an option whose description is a verbatim copy of the parent
+   * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
+   * Appending that as a choice block just repeats the paragraph above it, so detect
+   * it by content rather than growing NO_CHOICE_DESCRIPTION_ADDITION for each one.
+   */
+  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string): boolean {
+    const lesserChoice = utils.renderLesserString(choiceDescription ?? "");
+    const lesserParent = utils.renderLesserString(parentDescription ?? "");
+    if (lesserChoice === "" || lesserParent === "") return false;
+    if (lesserChoice === lesserParent) return true;
+    // a short option line can appear inside an unrelated parent by coincidence;
+    // exact matches are always safe, containment needs some substance behind it
+    return lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
+      && lesserParent.includes(lesserChoice);
+  }
+
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
@@ -901,12 +920,26 @@ export default class DDBFeature extends DDBFeatureMixin {
         ? this._choices
         : this._parentOnlyChoices;
 
+    const parentDescription = this.descriptionOverride
+      ?? (foundry.utils.getProperty(this.ddbDefinition, "description") as string)
+      ?? "";
+
     const choiceText = choices
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
         && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label)),
       )
+      .filter((c) => {
+        // Blood Curses et al. use the choice text AS the description; the parent is the
+        // full option list, so every choice would be "contained" and we'd erase the lot
+        if (replaceDescription) return true;
+        const redundant = DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "");
+        if (redundant) {
+          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description duplicated by the parent`);
+        }
+        return !redundant;
+      })
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
       .reduce((p, c) => {
         if (!p.some((e) => e.label === c.label)) p.push(c);
