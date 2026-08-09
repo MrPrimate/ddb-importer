@@ -14,7 +14,50 @@ interface IActivityDataStructure {
   nameData?: Record<string, string[]>;
 }
 
-export default abstract class DDBEnricherFactoryMixin<THint = string> {
+interface IDelegateSpec {
+  default: (self: DDBEnricherFactoryMixin<any>) => any;
+  // If true, use the default value when the loaded enricher gives an
+  // undefined value. Only additionalActivities sets this option.
+  coalesceMissing?: boolean;
+}
+
+// Each row in this table makes one delegate getter. The loop after the
+// class body installs the getters. The interface after the class body
+// declares their types. Each default value is a function. A function
+// result is a new array or object on each read.
+const DELEGATED_GETTERS = {
+  type: { default: () => null },
+  activity: { default: () => null },
+  effects: { default: () => [] },
+  override: { default: () => null },
+  additionalActivities: { default: () => [], coalesceMissing: true },
+  additionalAdvancements: { default: () => [] },
+  useDefaultAdditionalActivities: { default: (self) => !self.isAction },
+  usesOnActivity: { default: () => false },
+  documentStub: { default: () => null },
+  clearAutoEffects: { default: () => false },
+  addAutoAdditionalActivities: { default: () => true },
+  addToDefaultAdditionalActivities: { default: () => false },
+  builtFeaturesFromActionFilters: { default: () => [] },
+  itemMacro: { default: () => null },
+  setMidiOnUseMacroFlag: { default: () => null },
+  stopDefaultActivity: { default: () => false },
+  parseAllChoiceFeatures: { default: () => false },
+  ddbMacroDescriptionData: { default: () => null },
+  summonsFunction: { default: () => null },
+  generateSummons: { default: () => false },
+  noVersatile: { default: () => false },
+  choiceComponentFeatureName: { default: () => null },
+  identifier: { default: () => null },
+  combineGrantedDamageModifiers: { default: () => false },
+  combineDamageTypes: { default: () => false },
+} satisfies Partial<Record<keyof DDBEnricherData, IDelegateSpec>>;
+
+// The interface after the class body declares the delegate getters. The
+// defineProperty loop installs all of these getters at run time. Thus the
+// declaration merge is safe.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+abstract class DDBEnricherFactoryMixin<THint = string> {
 
   NAME_HINTS_2014: Record<string, THint> = {};
   NAME_HINT_2014_INCLUDES: Record<string, string> = {};
@@ -117,189 +160,6 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
   }
 
-  get type(): IDDBActivityType | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.type;
-    } else {
-      return null;
-    }
-  }
-
-  get activity(): IDDBActivityData | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.activity;
-    } else {
-      return null;
-    }
-  }
-
-  get effects(): IDDBEffectHint[] {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.effects;
-    } else {
-      return [];
-    }
-  }
-
-  get override(): IDDBOverrideData | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.override;
-    } else {
-      return null;
-    }
-  }
-
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.additionalActivities ?? [];
-    } else {
-      return [];
-    }
-  }
-
-  get additionalAdvancements(): I5eAdvancement[] {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.additionalAdvancements;
-    } else {
-      return [];
-    }
-  }
-
-  get useDefaultAdditionalActivities(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.useDefaultAdditionalActivities;
-    }
-    if (this.isAction) return false;
-    return true;
-  }
-
-  get usesOnActivity(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.usesOnActivity;
-    }
-    return false;
-  }
-
-  get documentStub(): IDDBDocumentStub | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.documentStub;
-    } else {
-      return null;
-    }
-  }
-
-  get clearAutoEffects(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.clearAutoEffects;
-    } else {
-      return false;
-    }
-  }
-
-  get addAutoAdditionalActivities(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.addAutoAdditionalActivities;
-    } else {
-      return true;
-    }
-  }
-
-  get addToDefaultAdditionalActivities(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.addToDefaultAdditionalActivities;
-    } else {
-      return false;
-    }
-  }
-
-  get builtFeaturesFromActionFilters(): any[] {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.builtFeaturesFromActionFilters;
-    } else {
-      return [];
-    }
-  }
-
-  get itemMacro(): IDDBItemMacro | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.itemMacro;
-    } else {
-      return null;
-    }
-  }
-
-  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.setMidiOnUseMacroFlag;
-    } else {
-      return null;
-    }
-  }
-
-  get stopDefaultActivity(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.stopDefaultActivity;
-    } else {
-      return false;
-    }
-  }
-
-  get parseAllChoiceFeatures(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.parseAllChoiceFeatures;
-    } else {
-      return false;
-    }
-  }
-
-  get ddbMacroDescriptionData(): IDDBMacroDescriptionData | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.ddbMacroDescriptionData;
-    } else {
-      return null;
-    }
-  }
-
-  get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.summonsFunction;
-    } else {
-      return null;
-    }
-  }
-
-  get generateSummons(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.generateSummons;
-    } else {
-      return false;
-    }
-  }
-
-  get noVersatile(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.noVersatile;
-    } else {
-      return false;
-    }
-  }
-
-  get choiceComponentFeatureName(): string | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.choiceComponentFeatureName;
-    } else {
-      return null;
-    }
-  }
-
-  get identifier(): string | null {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.identifier;
-    } else {
-      return null;
-    }
-  }
-
   get ddbMacroDescription(): string {
     const data = this.ddbMacroDescriptionData;
     if (!data) return "";
@@ -318,22 +178,6 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       : "";
 
     return `<hr><div class="ddb-macros-container"><p>[[/ddbifunc functionName="${data.name}" functionType="${data.type}"${parameters}]]${label}</div></p></div>`;
-  }
-
-  get combineGrantedDamageModifiers(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.combineGrantedDamageModifiers;
-    } else {
-      return false;
-    }
-  }
-
-  get combineDamageTypes(): boolean {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.combineDamageTypes;
-    } else {
-      return false;
-    }
   }
 
   constructor({
@@ -1660,3 +1504,56 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   }
 
 }
+
+// This loop makes the delegate getters. A getter returns the value from
+// the loaded enricher without change. If no enricher is loaded, the getter
+// returns the default value from the table. The getters are not
+// enumerable. Class accessors are also not enumerable.
+// DDBEnricherFactoryMixin.pure.test.ts examines this behavior.
+for (const [key, spec] of Object.entries(DELEGATED_GETTERS) as [string, IDelegateSpec][]) {
+  Object.defineProperty(DDBEnricherFactoryMixin.prototype, key, {
+    get(this: DDBEnricherFactoryMixin<any>) {
+      if (this.loadedEnricher) {
+        const value = (this.loadedEnricher as any)[key];
+        return spec.coalesceMissing ? (value ?? spec.default(this)) : value;
+      }
+      return spec.default(this);
+    },
+    configurable: true,
+    enumerable: false,
+  });
+}
+
+// This interface merges with the class. It gives types to the getters
+// that the loop above makes. The type of each getter is the same as the
+// type of the getter it replaced.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface DDBEnricherFactoryMixin<THint = string> {
+  readonly type: IDDBActivityType | null;
+  readonly activity: IDDBActivityData | null;
+  readonly effects: IDDBEffectHint[];
+  readonly override: IDDBOverrideData | null;
+  readonly additionalActivities: IDDBAdditionalActivity[];
+  readonly additionalAdvancements: I5eAdvancement[];
+  readonly useDefaultAdditionalActivities: boolean;
+  readonly usesOnActivity: boolean;
+  readonly documentStub: IDDBDocumentStub | null;
+  readonly clearAutoEffects: boolean;
+  readonly addAutoAdditionalActivities: boolean;
+  readonly addToDefaultAdditionalActivities: boolean;
+  readonly builtFeaturesFromActionFilters: any[];
+  readonly itemMacro: IDDBItemMacro | null;
+  readonly setMidiOnUseMacroFlag: IDDBSetMidiOnUseMacroFlag | null;
+  readonly stopDefaultActivity: boolean;
+  readonly parseAllChoiceFeatures: boolean;
+  readonly ddbMacroDescriptionData: IDDBMacroDescriptionData | null;
+  readonly summonsFunction: ((data: ICompanionData) => Promise<ICompanionResult>) | null;
+  readonly generateSummons: boolean;
+  readonly noVersatile: boolean;
+  readonly choiceComponentFeatureName: string | null;
+  readonly identifier: string | null;
+  readonly combineGrantedDamageModifiers: boolean;
+  readonly combineDamageTypes: boolean;
+}
+
+export default DDBEnricherFactoryMixin;
