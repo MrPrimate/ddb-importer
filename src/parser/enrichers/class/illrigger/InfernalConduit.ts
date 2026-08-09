@@ -6,7 +6,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class InfernalConduit extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 

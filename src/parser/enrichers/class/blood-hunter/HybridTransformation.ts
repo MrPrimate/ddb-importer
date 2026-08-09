@@ -24,7 +24,7 @@ export default class HybridTransformation extends DDBEnricherData {
 
   static DAMAGE_BONUS = "max(@abilities.str.mod, @abilities.dex.mod)";
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 

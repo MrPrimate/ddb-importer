@@ -9,7 +9,7 @@ export default class Contagion extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.useMidiAutomations && this.is2014;
   }
 

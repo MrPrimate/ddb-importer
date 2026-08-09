@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EmpoweredStrikes extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
@@ -32,7 +32,7 @@ export default class EmpoweredStrikes extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

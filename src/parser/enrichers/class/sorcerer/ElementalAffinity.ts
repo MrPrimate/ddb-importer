@@ -3,11 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalAffinity extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get damageTypes() {
+  get damageTypes(): string[] {
     return [
       "acid",
       "cold",
@@ -33,7 +33,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     };
   }
 
-  get chosenDamageType() {
+  get chosenDamageType(): string {
     if (this.ddbParser.isMuncher) return "";
     const activeType = this.ddbParser._chosen?.find((a) =>
       utils.nameString(a.label).endsWith("Damage"),
@@ -65,7 +65,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     });
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

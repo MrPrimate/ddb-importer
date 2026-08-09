@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnhanceAbility extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -42,7 +42,7 @@ export default class EnhanceAbility extends DDBEnricherData {
       });
   }
 
-  get _effects2014() {
+  get _effects2014(): IDDBEffectHint[] {
     return [
       {
         ability: "str",
@@ -90,7 +90,7 @@ export default class EnhanceAbility extends DDBEnricherData {
     });
   }
 
-  get _effects2024() {
+  get _effects2024(): IDDBEffectHint[] {
     return [
       { ability: "str" },
       // { ability: "con" },

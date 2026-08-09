@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DeathMask extends DDBEnricherData {
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     // action side only: clears the auto "Status: Frightened" duplicate. On the
     // trait the wipe runs AFTER the action clone (addAdditionalActivities
     // precedes _addEffects) and would orphan the activity's linked effect.

@@ -29,7 +29,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   handler!: DDBItemImporter;
   compendiumFolders!: DDBCompendiumFolders;
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

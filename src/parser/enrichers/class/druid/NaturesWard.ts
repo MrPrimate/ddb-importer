@@ -41,7 +41,7 @@ export default class NaturesWard extends DDBEnricherData {
   }
 
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

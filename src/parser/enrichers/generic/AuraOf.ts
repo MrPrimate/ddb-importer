@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AuraOf extends DDBEnricherData {
 
-  get ignoreSelf() {
+  get ignoreSelf(): boolean {
     return ["aura of alacrity"].includes(this.ddbParser.originalName.toLowerCase());
   }
 

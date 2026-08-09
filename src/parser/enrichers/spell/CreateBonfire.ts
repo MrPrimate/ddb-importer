@@ -8,7 +8,7 @@ export default class CreateBonfire extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.useMidiAutomations;
   }
 

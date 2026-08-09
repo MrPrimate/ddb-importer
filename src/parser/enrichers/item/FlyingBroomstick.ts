@@ -13,7 +13,7 @@ export default class FlyingBroomstick extends DDBEnricherData {
     };
   }
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return true;
   }
 

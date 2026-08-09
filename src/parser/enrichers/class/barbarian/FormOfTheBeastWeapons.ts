@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FormOfTheBeastWeapons extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     const name = this.ddbParser.originalName;
 
     switch (name) {
@@ -123,11 +123,11 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     };
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 

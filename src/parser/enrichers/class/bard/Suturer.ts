@@ -8,7 +8,7 @@ export default class Suturer extends DDBEnricherData {
 
   static INSPIRATION = "Bardic Inspiration";
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 

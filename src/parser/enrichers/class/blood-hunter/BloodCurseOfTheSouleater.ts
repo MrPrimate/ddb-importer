@@ -13,7 +13,7 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
     return "Blood Curse of the Souleater";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

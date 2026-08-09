@@ -9,7 +9,7 @@ export default class BloodCurseOfBloatedAgony extends _BloodCurse {
     return "Blood Curse of Bloated Agony";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

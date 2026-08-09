@@ -65,7 +65,7 @@ export default class SongalsElementalSuffusion extends DDBEnricherData {
     ];
   }
 
-  override get combineDamageTypes() {
+  override get combineDamageTypes(): boolean {
     return true;
   }
 

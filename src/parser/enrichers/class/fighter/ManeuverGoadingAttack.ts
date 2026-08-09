@@ -48,7 +48,7 @@ export default class ManeuverGoadingAttack extends Maneuver {
     ];
   }
 
-  override get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities(): string[] {
     return ["Save vs Goading"];
   }
 

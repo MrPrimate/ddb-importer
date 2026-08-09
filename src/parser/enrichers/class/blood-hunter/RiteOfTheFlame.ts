@@ -8,7 +8,7 @@ export default class RiteOfTheFlame extends _CrimsonRite {
     return "Rite of the Flame";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

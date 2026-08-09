@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SylunsViper extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
@@ -22,7 +22,7 @@ export default class SylunsViper extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
@@ -51,7 +51,7 @@ export default class SylunsViper extends DDBEnricherData {
     ];
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 

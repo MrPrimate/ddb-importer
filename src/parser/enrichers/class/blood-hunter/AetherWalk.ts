@@ -12,7 +12,7 @@ export default class AetherWalk extends _BloodHunter {
 
   static SCALE = "@scale.order-of-the-ghostslayer.aether-walk";
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Heroism extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -38,7 +38,7 @@ export default class Heroism extends DDBEnricherData {
     ];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

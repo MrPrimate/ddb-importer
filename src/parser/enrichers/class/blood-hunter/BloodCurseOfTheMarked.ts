@@ -7,7 +7,7 @@ export default class BloodCurseOfTheMarked extends _BloodCurse {
     return "Blood Curse of the Marked";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

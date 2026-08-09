@@ -56,7 +56,7 @@ export default class _Mutagen extends _BloodHunter {
     return this.name.replace(/^Formulas?:\s*/i, "").trim();
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

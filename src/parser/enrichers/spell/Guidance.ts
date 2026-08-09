@@ -23,7 +23,7 @@ export default class Guidance extends DDBEnricherData {
     };
   }
 
-  get effects2014() {
+  get effects2014(): IDDBEffectHint[] {
     return [
       {
         name: `Guidance`,
@@ -58,7 +58,7 @@ export default class Guidance extends DDBEnricherData {
     ];
   }
 
-  get effects2024() {
+  get effects2024(): IDDBEffectHint[] {
     return DICTIONARY.actor.skills.map((skill) => {
       return {
         name: `${skill.label} Guidance`,

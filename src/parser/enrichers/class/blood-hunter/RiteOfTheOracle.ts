@@ -8,7 +8,7 @@ export default class RiteOfTheOracle extends _CrimsonRite {
     return "Rite of the Oracle";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

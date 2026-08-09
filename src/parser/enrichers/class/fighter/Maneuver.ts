@@ -41,7 +41,7 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
-  get diceString() {
+  get diceString(): string {
     if (this.isClass("Fighter")) {
       if (this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })) {
         return "@scale.battle-master.combat-superiority-die";
@@ -51,7 +51,7 @@ export default class Maneuver extends DDBEnricherData {
     return "1d6";
   }
 
-  get ignoredConsumptionActivities() {
+  get ignoredConsumptionActivities(): string[] {
     return ["Damage"];
   }
 

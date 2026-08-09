@@ -108,7 +108,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
     ];
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 }

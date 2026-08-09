@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StrikeOfTheGiants extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (!this.isAction) return DDBEnricherData.ACTIVITY_TYPES.NONE;
     if ([
       "Strike of the Giants: Fire Strike",
@@ -24,29 +24,29 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     };
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return false;
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return true;
   }
 
-  get nameArray() {
+  get nameArray(): string[] {
     if (this.name.includes(":")) return this.name.split(":");
     return this.name.replace(")", "").split("(");
   }
 
-  get defaultActionName() {
+  get defaultActionName(): string {
     const nameArray = this.nameArray;
     return `${nameArray[0].trim()}: ${nameArray[1].trim()}`;
   }
 
-  override get builtFeaturesFromActionFilters() {
+  override get builtFeaturesFromActionFilters(): any[] {
     if (this.isAction) return [];
     return [
       this.defaultActionName,
@@ -67,7 +67,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return !this.isAction;
   }
 

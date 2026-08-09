@@ -3,12 +3,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class FuryOfTheSmall extends DDBEnricherData {
 
 
-  get useProfDamage() {
+  get useProfDamage(): boolean {
     const description = this.ddbParser.ddbDefinition.description ?? this.ddbParser.ddbDefinition.snippet ?? "";
     return description.toLowerCase().includes("once per turn");
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

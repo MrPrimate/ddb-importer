@@ -15,7 +15,7 @@ export default class SuperiorDefense extends DDBEnricherData {
     ];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

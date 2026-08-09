@@ -9,7 +9,7 @@ export default class Reshapeable extends DDBEnricherData {
 
   static HOUR = 3600;
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

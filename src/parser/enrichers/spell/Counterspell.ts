@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Counterspell extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.is2014) {
       return DDBEnricherData.ACTIVITY_TYPES.CHECK;
     } else {

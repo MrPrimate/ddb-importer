@@ -48,7 +48,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
     ];
   }
 
-  override get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities(): string[] {
     return ["Save vs Frightened"];
   }
 

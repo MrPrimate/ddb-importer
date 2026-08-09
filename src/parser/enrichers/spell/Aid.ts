@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Aid extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.useMidiAutomations) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }

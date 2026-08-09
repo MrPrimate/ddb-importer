@@ -32,7 +32,7 @@ export default class WarriorsPasskey extends DDBEnricherData {
     };
   }
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return true;
   }
 

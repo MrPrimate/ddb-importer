@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class BeguilingTwist extends Generic {
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     // Preserve the effect cloned from the same-named action on the feature;
     // clearing here runs after activity cloning and leaves dangling links.
     return this.isAction;

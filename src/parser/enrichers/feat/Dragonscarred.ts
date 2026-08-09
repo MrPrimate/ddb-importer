@@ -81,7 +81,7 @@ export default class Dragonscarred extends DDBEnricherData {
     return effects;
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

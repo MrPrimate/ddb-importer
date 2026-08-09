@@ -3,7 +3,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverBaitAndSwitch extends Maneuver {
 
-  override get type() {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

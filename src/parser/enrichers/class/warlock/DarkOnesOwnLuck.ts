@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DarkOnesOwnLuck extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }

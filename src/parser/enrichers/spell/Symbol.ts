@@ -1,8 +1,15 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+interface ISymbolGlyph {
+  name: string;
+  save: string;
+  data?: Record<string, any>;
+  effect?: IDDBEffectHint;
+}
+
 export default class Symbol extends DDBEnricherData {
 
-  get data2014() {
+  get data2014(): ISymbolGlyph[] {
     return [
       {
         name: "Death",
@@ -69,7 +76,7 @@ export default class Symbol extends DDBEnricherData {
     ];
   }
 
-  get data2024() {
+  get data2024(): ISymbolGlyph[] {
     return [
       {
         name: "Death",
@@ -125,7 +132,7 @@ export default class Symbol extends DDBEnricherData {
     ];
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

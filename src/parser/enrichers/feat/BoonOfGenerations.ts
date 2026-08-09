@@ -7,7 +7,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class BoonOfGenerations extends DDBEnricherData {
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return false;
   }
 

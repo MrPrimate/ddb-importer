@@ -37,7 +37,7 @@ export default class ManeuverDisarmingAttack extends Maneuver {
     ];
   }
 
-  override get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities(): string[] {
     return ["Save vs Disarmed"];
   }
 

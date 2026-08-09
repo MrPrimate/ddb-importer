@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CrownOfSpellfire extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
@@ -64,7 +64,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     };
   }
 
-  get hdActivities() {
+  get hdActivities(): IDDBAdditionalActivity[] {
     const base = [this.getSkeleton(6)] as IDDBAdditionalActivity[];
 
     const hitDiceSize = this.ddbParser.isMuncher

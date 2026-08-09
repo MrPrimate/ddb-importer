@@ -27,7 +27,7 @@ export default class MarkOfSentinel extends Generic {
 
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 }

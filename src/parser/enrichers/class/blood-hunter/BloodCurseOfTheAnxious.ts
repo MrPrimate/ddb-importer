@@ -7,7 +7,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
     return "Blood Curse of the Anxious";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

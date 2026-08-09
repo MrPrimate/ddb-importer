@@ -2,16 +2,16 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ConjureAnimals extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  override get summonsFunction() {
+  override get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
     return DDBImporter.lib.DDBSummonsInterface.getConjureAnimals2024;
   }
 
-  override get generateSummons() {
+  override get generateSummons(): boolean {
     return !this.is2014;
   }
 

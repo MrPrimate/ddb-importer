@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 export default class EldritchClawTattoo extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
@@ -61,7 +61,7 @@ export default class EldritchClawTattoo extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  override get effects() {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

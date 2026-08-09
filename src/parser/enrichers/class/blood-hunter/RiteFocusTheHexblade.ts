@@ -8,7 +8,7 @@ export default class RiteFocusTheHexblade extends _RiteFocus {
     return "The Hexblade";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

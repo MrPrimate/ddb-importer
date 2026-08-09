@@ -7,7 +7,7 @@ export default class BloodCurseOfBinding extends _BloodCurse {
     return "Blood Curse of Binding";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 

@@ -8,7 +8,7 @@ export default class RiteFocusTheGreatOldOne extends _RiteFocus {
     return "The Great Old One";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

@@ -174,7 +174,7 @@ export default class ElementalSmite extends DDBEnricherData {
     ];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

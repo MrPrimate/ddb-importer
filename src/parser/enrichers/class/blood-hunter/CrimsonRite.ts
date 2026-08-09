@@ -12,7 +12,7 @@ import _CrimsonRite from "./_CrimsonRite";
  */
 export default class CrimsonRite extends _CrimsonRite {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

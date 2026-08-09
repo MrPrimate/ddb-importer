@@ -6,7 +6,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class SecondSkin extends DDBEnricherData {
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return true;
   }
 

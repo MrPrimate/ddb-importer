@@ -40,7 +40,7 @@ export default class Crusher extends DDBEnricherData {
     };
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 

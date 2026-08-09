@@ -41,7 +41,7 @@ export default class HeatMetal extends DDBEnricherData {
     ];
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 

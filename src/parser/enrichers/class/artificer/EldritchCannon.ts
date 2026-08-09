@@ -1,15 +1,15 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EldritchCannon extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  override get generateSummons() {
+  override get generateSummons(): boolean {
     return true;
   }
 
-  override get summonsFunction() {
+  override get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
     return this.is2014
       ? DDBImporter.lib.DDBSummonsInterface.getEldritchCannons2014
       : DDBImporter.lib.DDBSummonsInterface.getEldritchCannons2024;

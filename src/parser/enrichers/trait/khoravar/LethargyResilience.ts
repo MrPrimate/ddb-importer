@@ -2,7 +2,7 @@ import { Generic } from "../_module";
 
 export default class LethargyResilience extends Generic.Generic {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return Generic.Generic.ACTIVITY_TYPES.UTILITY;
   }
 

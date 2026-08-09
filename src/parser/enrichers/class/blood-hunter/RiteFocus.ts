@@ -7,7 +7,7 @@ import _RiteFocus from "./_RiteFocus";
  */
 export default class RiteFocus extends _RiteFocus {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 

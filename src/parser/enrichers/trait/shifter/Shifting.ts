@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Shifting extends DDBEnricherData {
 
-  get shifterType() {
+  get shifterType(): string {
     if (!this.ddbParser._chosen || this.ddbParser._chosen.length === 0) {
       return this.ddbParser.ddbCharacter?._ddbRace.fullName ?? "";
     }
@@ -11,7 +11,7 @@ export default class Shifting extends DDBEnricherData {
     return this.ddbParser._chosen[0].label;
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 

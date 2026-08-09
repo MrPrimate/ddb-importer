@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BreathWeapon2024 extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get damageType() {
+  get damageType(): string {
     return this.ddbParser.originalName.split(")")[0].split("(")[1].trim().toLowerCase();
   }
 

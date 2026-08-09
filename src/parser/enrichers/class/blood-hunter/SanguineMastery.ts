@@ -15,7 +15,7 @@ export default class SanguineMastery extends _BloodHunter {
 
   static REROLL_CONDITION = "Once per turn, when a blood hunter feature requires you to roll a hemocraft die (reroll and use either roll)";
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

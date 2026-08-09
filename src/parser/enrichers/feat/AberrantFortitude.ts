@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AberrantFortitude extends DDBEnricherData {
-  override get usesOnActivity() {
+  override get usesOnActivity(): boolean {
     return true;
   }
 

@@ -10,7 +10,7 @@ import _BloodHunter from "./_BloodHunter";
  */
 export default class ExaltedMutation extends _BloodHunter {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

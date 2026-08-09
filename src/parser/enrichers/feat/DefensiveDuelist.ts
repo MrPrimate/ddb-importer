@@ -30,7 +30,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   }
 
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 

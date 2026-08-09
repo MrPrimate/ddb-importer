@@ -7,7 +7,7 @@ export default class BloodCurseOfTheMuddledMind extends _BloodCurse {
     return "Blood Curse of the Muddled Mind";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

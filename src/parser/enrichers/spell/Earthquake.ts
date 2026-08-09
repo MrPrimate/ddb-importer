@@ -23,7 +23,7 @@ export default class Earthquake extends DDBEnricherData {
     };
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
@@ -53,7 +53,7 @@ export default class Earthquake extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

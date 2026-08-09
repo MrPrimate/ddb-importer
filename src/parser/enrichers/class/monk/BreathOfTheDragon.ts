@@ -3,7 +3,7 @@ import { DDBEnricherData } from "../../data/_module";
 
 export default class BreathOfTheDragon extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 

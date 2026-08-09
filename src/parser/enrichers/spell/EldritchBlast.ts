@@ -67,7 +67,7 @@ export default class EldritchBlast extends DDBEnricherData {
   }
 
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 

@@ -13,7 +13,7 @@ export default class BloodCurseOfTheHowl extends _BloodCurse {
     return "Blood Curse of the Howl";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 

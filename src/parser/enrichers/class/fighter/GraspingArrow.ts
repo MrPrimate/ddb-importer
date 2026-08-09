@@ -3,7 +3,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class GraspingArrow extends ArcaneShotOption {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -22,7 +22,7 @@ export default class GraspingArrow extends ArcaneShotOption {
       : null;
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return this.isAction;
   }
 

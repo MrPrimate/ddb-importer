@@ -2,7 +2,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class BeguilingArrow extends ArcaneShotOption {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? ArcaneShotOption.ACTIVITY_TYPES.DAMAGE : ArcaneShotOption.ACTIVITY_TYPES.NONE;
   }
 
@@ -64,7 +64,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     ];
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 

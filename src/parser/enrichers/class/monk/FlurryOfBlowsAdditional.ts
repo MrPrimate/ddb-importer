@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FlurryOfBlowsAdditional extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.ddbParser.originalName === "Flurry of Blows: Addle") {
       return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     }

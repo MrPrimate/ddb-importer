@@ -7,7 +7,7 @@ export default abstract class TomeOf extends DDBEnricherData {
     ability: string;
   };
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

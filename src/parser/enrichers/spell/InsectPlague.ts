@@ -9,7 +9,7 @@ export default class InsectPlague extends DDBEnricherData {
   }
 
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.useMidiAutomations;
   }
 

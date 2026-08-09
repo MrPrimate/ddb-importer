@@ -6,7 +6,7 @@ export default class MagicCoin extends DDBEnricherData {
     return true;
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 

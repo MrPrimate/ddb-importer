@@ -21,7 +21,7 @@ export default class Command extends DDBEnricherData {
     ];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

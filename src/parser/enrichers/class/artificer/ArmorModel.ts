@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArmorModel extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get _guardianActivities() {
+  get _guardianActivities(): IDDBAdditionalActivity[] {
     const defensiveFieldUses = this._getUsesWithSpent({
       type: "class",
       name: "Defensive Field",
@@ -174,7 +174,7 @@ export default class ArmorModel extends DDBEnricherData {
     return results;
   }
 
-  get _infiltratorActivities() {
+  get _infiltratorActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [
       {
         init: {

@@ -35,7 +35,7 @@ export default class RayOfSickness extends DDBEnricherData {
     }
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     if (this.is2014) return false;
     return true;
   }

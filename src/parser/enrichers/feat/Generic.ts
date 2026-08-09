@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Generic extends DDBEnricherData {
 
-  get actionType() {
+  get actionType(): string {
     return "feat";
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 

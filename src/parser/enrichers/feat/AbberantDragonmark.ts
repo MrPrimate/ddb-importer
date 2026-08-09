@@ -49,7 +49,7 @@ export default class AbberantDragonmark extends Generic {
     return activities;
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 }

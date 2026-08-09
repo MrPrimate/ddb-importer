@@ -6,7 +6,7 @@ export default class DancingShadows extends DDBEnricherData {
     return true;
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 

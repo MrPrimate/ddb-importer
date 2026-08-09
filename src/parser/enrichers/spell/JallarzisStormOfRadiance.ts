@@ -14,7 +14,7 @@ export default class JallarzisStormOfRadiance extends DDBEnricherData {
     ];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

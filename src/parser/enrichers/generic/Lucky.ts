@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Lucky extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.featureType !== "feat") return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }

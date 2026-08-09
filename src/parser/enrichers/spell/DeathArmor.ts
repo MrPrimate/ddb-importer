@@ -14,7 +14,7 @@ export default class DeathArmor extends DDBEnricherData {
     };
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 

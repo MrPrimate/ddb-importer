@@ -7,7 +7,7 @@ export default class RiteFocusTheArchfey extends _RiteFocus {
     return "The Archfey";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

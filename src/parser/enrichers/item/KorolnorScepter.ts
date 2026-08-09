@@ -20,7 +20,7 @@ export default class KorolnorScepter extends DDBEnricherData {
     };
   }
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return true;
   }
 

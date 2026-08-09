@@ -3,7 +3,7 @@ import Maneuver from "./Maneuver";
 
 
 export default class ManeuverQuickToss extends Maneuver {
-  override get type() {
+  override get type(): IDDBActivityType {
     return this.useMidiAutomations
       ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
       : DDBEnricherData.ACTIVITY_TYPES.DAMAGE;

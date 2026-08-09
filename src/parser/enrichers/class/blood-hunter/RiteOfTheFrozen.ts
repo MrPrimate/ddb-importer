@@ -8,7 +8,7 @@ export default class RiteOfTheFrozen extends _CrimsonRite {
     return "Rite of the Frozen";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

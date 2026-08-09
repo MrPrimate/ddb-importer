@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../../config/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MythalTouched extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 

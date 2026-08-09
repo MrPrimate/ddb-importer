@@ -7,7 +7,7 @@ export default class RiteFocusTheFathomless extends _RiteFocus {
     return "The Fathomless";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

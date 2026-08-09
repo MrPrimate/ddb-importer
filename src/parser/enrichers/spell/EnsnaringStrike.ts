@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnsnaringStrike extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 && this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -11,7 +11,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

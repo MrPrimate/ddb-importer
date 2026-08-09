@@ -115,6 +115,26 @@ export default defineConfig(
       "no-restricted-syntax": "off",
     },
   },
+  {
+    // An enricher getter must declare its return type. The compiler then
+    // checks the returned object literal strictly, and a misspelled property
+    // or a wrong shape is a compile error. NOTE: flat config replaces rule
+    // options, so this block repeats the global game.settings selector.
+    files: ["src/parser/enrichers/{feat,spell,item,generic,background,trait,monster,class}/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.object.object.name='game'][callee.object.property.name='settings'][callee.property.name='get']",
+          message: "Use utils.getSetting<T>(key, moduleId?) instead of game.settings.get().",
+        },
+        {
+          selector: "MethodDefinition[kind='get'] > FunctionExpression:not([returnType])",
+          message: "Declare an explicit return type on enricher getters; the compiler then checks the returned literal strictly.",
+        },
+      ],
+    },
+  },
   // Layer guards. These keep the barrel-import cycles from coming back (they
   // are what forced tests to vi.mock the barrels). NOTE: flat config replaces
   // rather than merges rule options, so the config/lib blocks below must

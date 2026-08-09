@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Staff extends DDBEnricherData {
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return true;
   }
 

@@ -9,7 +9,7 @@ export default class Cloudkill extends DDBEnricherData {
   }
 
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.useMidiAutomations;
   }
 

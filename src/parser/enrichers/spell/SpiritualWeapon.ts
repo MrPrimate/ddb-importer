@@ -1,15 +1,15 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SpiritualWeapon extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  override get summonsFunction() {
+  override get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
     return DDBImporter.lib.DDBSummonsInterface.getSpiritualWeapons;
   }
 
-  override get generateSummons() {
+  override get generateSummons(): boolean {
     return !this.is2014;
   }
 

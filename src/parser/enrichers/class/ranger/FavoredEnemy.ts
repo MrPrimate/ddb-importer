@@ -6,7 +6,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class FavoredEnemy extends DDBEnricherData {
 
-  override get stopDefaultActivity() {
+  override get stopDefaultActivity(): boolean {
     return this.is2014 ? false : true;
   }
 

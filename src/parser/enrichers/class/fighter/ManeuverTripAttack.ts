@@ -48,7 +48,7 @@ export default class ManeuverTripAttack extends Maneuver {
     ];
   }
 
-  override get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities(): string[] {
     return ["Save vs Trip"];
   }
 

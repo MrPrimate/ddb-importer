@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Sleep extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }
 
@@ -24,7 +24,7 @@ export default class Sleep extends DDBEnricherData {
     };
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.is2024;
   }
 

@@ -2,7 +2,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SwarmOfProboscises extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
@@ -75,7 +75,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
     ];
   }
 
-  override get noVersatile() {
+  override get noVersatile(): boolean {
     return true;
   }
 

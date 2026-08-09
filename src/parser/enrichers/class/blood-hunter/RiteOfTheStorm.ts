@@ -8,7 +8,7 @@ export default class RiteOfTheStorm extends _CrimsonRite {
     return "Rite of the Storm";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 

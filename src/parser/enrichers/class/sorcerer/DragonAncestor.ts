@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DragonAncestor extends DDBEnricherData {
 
-  get chosenType() {
+  get chosenType(): string | null {
     if (this.ddbParser.isMuncher) return null;
     const activeType = this.ddbParser.isMuncher
       ? null
@@ -11,7 +11,7 @@ export default class DragonAncestor extends DDBEnricherData {
         utils.nameString(a.label).endsWith("Dragon"),
       )?.label.split("Dragon")[0].trim();
 
-    return activeType;
+    return activeType ?? null;
   }
 
 

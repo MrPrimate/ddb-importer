@@ -39,7 +39,7 @@ export default class BrandingSmite extends DDBEnricherData {
       : [];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return this.is2014 && this.useMidiAutomations;
   }
 

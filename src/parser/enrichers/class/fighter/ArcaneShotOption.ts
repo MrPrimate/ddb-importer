@@ -21,19 +21,19 @@ export default class ArcaneShotOption extends DDBEnricherData {
     };
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return false;
   }
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return true;
   }
 
-  override get builtFeaturesFromActionFilters() {
+  override get builtFeaturesFromActionFilters(): any[] {
     return [this.name];
   }
 

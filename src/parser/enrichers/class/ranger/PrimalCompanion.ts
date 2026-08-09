@@ -93,7 +93,7 @@ export default class PrimalCompanion extends DDBEnricherData {
       ];
   }
 
-  override get parseAllChoiceFeatures() {
+  override get parseAllChoiceFeatures(): boolean {
     return true;
   }
 

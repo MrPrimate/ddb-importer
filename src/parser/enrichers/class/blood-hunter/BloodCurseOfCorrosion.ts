@@ -12,7 +12,7 @@ export default class BloodCurseOfCorrosion extends _BloodCurse {
     return "Blood Curse of Corrosion";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

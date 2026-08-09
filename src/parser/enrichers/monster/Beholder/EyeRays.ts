@@ -4,7 +4,7 @@ import type { DDBMonsterDamage } from "../../../monster/features/DDBMonsterDamag
 
 export default class EyeRays extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -24,7 +24,7 @@ export default class EyeRays extends DDBEnricherData {
     };
   }
 
-  get rayText() {
+  get rayText(): string {
     const text = (this.ddbParser.html ?? "")
       .replace(/<strong> \.<\/strong>/, "").trim()
       .replaceAll("<strong></strong>", "")
@@ -108,7 +108,7 @@ export default class EyeRays extends DDBEnricherData {
     return results;
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

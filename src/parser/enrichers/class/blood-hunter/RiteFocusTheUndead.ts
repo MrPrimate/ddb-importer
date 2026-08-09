@@ -7,7 +7,7 @@ export default class RiteFocusTheUndead extends _RiteFocus {
     return "The Undead";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

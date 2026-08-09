@@ -2,7 +2,7 @@ import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StarryForm extends DDBEnricherData {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
@@ -22,7 +22,7 @@ export default class StarryForm extends DDBEnricherData {
     };
   }
 
-  get starForms() {
+  get starForms(): string[] {
     return ["Archer", "Chalice", "Dragon"];
   }
 

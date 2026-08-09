@@ -63,7 +63,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     ];
   }
 
-  get _2024SoulTrinketMax() {
+  get _2024SoulTrinketMax(): number {
     const level = this.ddbParser._class?.level ?? 0;
     if (level >= 17) return 4;
     if (level >= 13) return 3;

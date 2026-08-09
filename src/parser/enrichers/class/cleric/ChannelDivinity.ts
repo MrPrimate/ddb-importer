@@ -133,7 +133,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     return [];
   }
 
-  get _effectCleric2024() {
+  get _effectCleric2024(): IDDBEffectHint {
     return {
       name: "Turned",
       options: {

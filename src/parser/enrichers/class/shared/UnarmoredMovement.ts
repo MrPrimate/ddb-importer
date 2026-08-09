@@ -19,7 +19,7 @@ export default class UnarmoredMovement extends DDBEnricherData {
     }];
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

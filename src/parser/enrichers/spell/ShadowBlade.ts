@@ -36,7 +36,7 @@ export default class ShadowBlade extends DDBEnricherData {
     },
   };
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 

@@ -6,7 +6,7 @@ export default class MantleOfTheWolf extends DDBEnricherData {
     return true;
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (this.isAction) return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }

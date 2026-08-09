@@ -40,7 +40,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
     return multiple;
   }
 
-  override get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

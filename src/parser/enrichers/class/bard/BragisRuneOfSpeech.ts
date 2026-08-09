@@ -10,7 +10,7 @@ export default class BragisRuneOfSpeech extends DDBEnricherData {
     return true;
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.SAVE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 

@@ -7,7 +7,7 @@ export default class BloodCurseOfTheFallenPuppet extends _BloodCurse {
     return "Blood Curse of the Fallen Puppet";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

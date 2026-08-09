@@ -3,7 +3,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverGrapplingStrike extends Maneuver {
 
-  override get type() {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

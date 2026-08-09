@@ -7,7 +7,7 @@ export default class RiteFocusTheGenie extends _RiteFocus {
     return "The Genie";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 

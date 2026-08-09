@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class BolsteringMagic extends Generic {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? Generic.ACTIVITY_TYPES.NONE : Generic.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -71,7 +71,7 @@ export default class BolsteringMagic extends Generic {
       : [];
   }
 
-  override get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 

@@ -1,7 +1,7 @@
 import Generic from "../Generic";
 export default class SlayersPrey extends Generic {
 
-  override get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return true;
   }
 

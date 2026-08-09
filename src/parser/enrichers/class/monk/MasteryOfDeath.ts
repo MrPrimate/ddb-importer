@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 export default class MasteryOfDeath extends DDBEnricherData<DDBClassFeatureEnricher> {
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 

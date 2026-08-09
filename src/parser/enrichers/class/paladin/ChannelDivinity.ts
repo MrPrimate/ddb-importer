@@ -65,7 +65,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     return [];
   }
 
-  get _effectPaladin2024() {
+  get _effectPaladin2024(): IDDBEffectHint {
     return {
       name: "Divine Sense",
       options: {

@@ -7,7 +7,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class PacifyMonster extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 

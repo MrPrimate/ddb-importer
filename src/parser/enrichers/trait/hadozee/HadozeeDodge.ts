@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HadozeeDodge extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     if (!this.isAction) return null;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
@@ -25,7 +25,7 @@ export default class HadozeeDodge extends DDBEnricherData {
     };
   }
 
-  override get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 

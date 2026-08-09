@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WrapsOfUnarmedPower extends DDBEnricherData {
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
@@ -20,7 +20,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
     };
   }
 
-  get bonus() {
+  get bonus(): number {
     const nameRegex = /Wraps of Unarmed Power, \+(\d)/;
     const match = this.name.match(nameRegex);
     if (match) {

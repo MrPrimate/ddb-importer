@@ -22,7 +22,7 @@ export default class RiteOfTheDawn extends _CrimsonRite {
     return "@scale.order-of-the-ghostslayer.rite-of-the-dawn";
   }
 
-  override get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
