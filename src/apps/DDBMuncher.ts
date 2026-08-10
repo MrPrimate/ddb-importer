@@ -1220,61 +1220,59 @@ export default class DDBMuncher extends DDBAppV2 {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options: IDDBMuleHandlerOptions = foundry.utils.deepClone(baseOptions);
 
-        const sliceSize = type === "species" ? 5 : 10;
-        for (let i = 0; i < sourceIdArray.sourceIds.length; i += sliceSize) {
-          const chunkedIds = sourceIdArray.sourceIds.slice(i, i + sliceSize);
-
-          options.sources = chunkedIds;
+        // one book per call
+        const totalSources = sourceIdArray.sourceIds.length;
+        for (const [index, sourceId] of sourceIdArray.sourceIds.entries()) {
+          options.sources = [sourceId];
 
           if (speciesFilterActive) {
-            const chunkSet = new Set(chunkedIds);
-            // base id list: explicit selection if any, otherwise every species in this chunk's sources
-            let chunkSpeciesIds: number[];
+            // base id list: explicit selection if any, otherwise every species in this source
+            let sourceSpeciesIds: number[];
             if (selectedSpeciesIds.length > 0) {
-              chunkSpeciesIds = speciesList.length === 0
+              sourceSpeciesIds = speciesList.length === 0
                 ? selectedSpeciesIds
                 : selectedSpeciesIds.filter((raceId) => {
                   const sp = speciesList.find((s) => s.entityRaceId === raceId);
-                  return sp ? sp.sources.some((s) => chunkSet.has(s.sourceId)) : true;
+                  return sp ? sp.sources.some((s) => s.sourceId === sourceId) : true;
                 });
             } else {
               // no explicit selection: dontGrabExisting is on (speciesFilterActive guarantees it)
-              chunkSpeciesIds = speciesList
-                .filter((sp) => sp.sources.some((s) => chunkSet.has(s.sourceId)))
+              sourceSpeciesIds = speciesList
+                .filter((sp) => sp.sources.some((s) => s.sourceId === sourceId))
                 .map((sp) => sp.entityRaceId);
             }
             if (dontGrabExisting) {
-              chunkSpeciesIds = chunkSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
+              sourceSpeciesIds = sourceSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
             }
-            if (chunkSpeciesIds.length === 0) continue;
-            options.filterIds = chunkSpeciesIds;
+            if (sourceSpeciesIds.length === 0) continue;
+            options.filterIds = sourceSpeciesIds;
           }
 
           if (featBgActive) {
-            const chunkSet = new Set(chunkedIds);
-            let chunkIds = catalog
+            let sourceEntryIds = catalog
               .filter((definition) => matchesRulesVersion(definition))
-              .filter((definition) => definition.sources.some((s) => chunkSet.has(s.sourceId)))
+              .filter((definition) => definition.sources.some((s) => s.sourceId === sourceId))
               .map((definition) => definition.id);
             if (dontGrabExisting) {
-              chunkIds = chunkIds.filter((id) => !existingFeatBgIds.has(id));
+              sourceEntryIds = sourceEntryIds.filter((id) => !existingFeatBgIds.has(id));
             }
-            // an empty filterIds would mean "everything" to the proxy, so skip the chunk instead
-            if (chunkIds.length === 0) continue;
-            options.filterIds = chunkIds;
+            // an empty filterIds would mean "everything" to the proxy, so skip the source instead
+            if (sourceEntryIds.length === 0) continue;
+            options.filterIds = sourceEntryIds;
           }
 
           const muleHandler = new DDBMuleHandler(options);
+          const sourceName = CONFIG.DDB.sources.find((s) => s.id === sourceId)?.description ?? `source ${sourceId}`;
           this.notifierV2({
             section: "name",
-            message: `Munching from ${i}-${i + chunkedIds.length} (of ${sourceIdArray.sourceIds.length}) sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
+            message: `Munching from ${sourceName} (${index + 1}/${totalSources}) in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
           try {
             await muleHandler.process();
 
             logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
               muleHandler,
-              sources: chunkedIds,
+              sourceId,
               options: foundry.utils.deepClone(options),
             });
           } catch (error) {
@@ -1284,8 +1282,8 @@ export default class DDBMuncher extends DDBAppV2 {
               type,
               category: category?.name ?? sourceIdArray.categoryId,
               error: utils.errorMessage(error),
-              chunkedIds,
-              message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceIds ${chunkedIds.join(", ")}`,
+              sourceId,
+              message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceId ${sourceId}`,
             });
           }
         }
