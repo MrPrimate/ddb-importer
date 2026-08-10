@@ -533,7 +533,7 @@ export default class DDBSources {
    *
    * DDB can list several sources for one definition (a spell reprinted in a
    * later compendium keeps both). Only the first is used, so every entry lands
-   * in exactly one bucket and the buckets stay disjoint — a source's bucket is
+   * in exactly one bucket and the buckets stay disjoint - a source's bucket is
    * therefore "what DDB primarily attributes to this book", not "everything
    * that appears in it".
    *

@@ -2,8 +2,8 @@
  * Helpers behind `npm run audit:review` (tools/review-enricher-findings.mjs).
  *
  * The interactive prompt, subprocess and console work all live in the CLI; this
- * module holds the decision logic — argument parsing, filtering, grouping,
- * scaffold rendering and the snapshot/restore transaction — so the review flow
+ * module holds the decision logic - argument parsing, filtering, grouping,
+ * scaffold rendering and the snapshot/restore transaction - so the review flow
  * can be exercised without a TTY. See tests/tools/enricherAuditReview.test.ts.
  *
  * Manifest writes land in tests/audit/*.decisions.json, which is a git
@@ -292,7 +292,7 @@ export function artifactPathForFinding(finding, repoRoot) {
 /**
  * Distinct audit suites a set of findings needs, keyed by domain and artifact
  * slug. Grouping is keyed on the enricher path alone, so a group can legitimately
- * span namespaces — validating only the first finding's suite would leave the
+ * span namespaces - validating only the first finding's suite would leave the
  * rest unchecked.
  */
 export function validationTargets(findings) {

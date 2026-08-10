@@ -7,9 +7,9 @@
  *   npm run audit:review -- --help
  *
  * Findings are grouped by the enricher they resolve to. For each group you can
- * edit a scaffold in $EDITOR and install it — the tool rebuilds the barrels,
+ * edit a scaffold in $EDITOR and install it - the tool rebuilds the barrels,
  * typechecks, re-runs the owning audit suite and asserts the findings are gone,
- * rolling every touched file back if any step fails — or record the finding as a
+ * rolling every touched file back if any step fails - or record the finding as a
  * permanent false positive in the decisions manifest.
  *
  * Decisions manifests live in tests/audit, which is a git submodule: anything
@@ -40,7 +40,6 @@ import {
   groupFindings,
   listBarrelFiles,
   manifestPathForFinding,
-  normaliseKey,
   parseReviewArgs,
   renderStarter,
   restoreSnapshot,
@@ -138,75 +137,87 @@ function multiChoices(values) {
   return values.map((value) => ({ title: String(value), value: String(value) }));
 }
 
+/**
+ * Ask a filter question only when it can actually narrow the queue: no choices
+ * means nothing of that kind is left to review, and a single choice is already
+ * implied by the filters chosen so far. Both return `[]`, which reads as "all".
+ */
+async function askNarrowing({ label, message, choices }) {
+  if (!choices.length) return [];
+  if (choices.length === 1) {
+    console.log(`${label}: only ${choices[0].title} is left to review; not asking.`);
+    return [];
+  }
+  return ask({ type: "multiselect", name: "value", message, choices });
+}
+
 async function completeFilters(options, findings) {
   const filters = { ...options };
+  // Unset filters read as "all", so this is the queue as it stands after every
+  // answer so far - including the suppressions filterFindings drops.
+  const remaining = () => filterFindings(findings, filters);
+
   if (!filters.confidence.length) {
-    filters.confidence = [await ask({
-      type: "select",
-      name: "value",
-      message: "Confidence level to review",
-      initial: 0,
-      choices: [
-        { title: "High", value: "high" },
-        { title: "Medium", value: "medium" },
-        { title: "High and medium", value: "all" },
-      ],
-    })];
+    const levels = uniqueValues(remaining(), (finding) => [finding.confidence]);
+    if (levels.length <= 1) {
+      filters.confidence = levels;
+      if (levels.length) console.log(`Confidence: only ${levels[0]} findings are left to review; not asking.`);
+    } else {
+      filters.confidence = [await ask({
+        type: "select",
+        name: "value",
+        message: "Confidence level to review",
+        initial: 0,
+        choices: [
+          ...levels.map((level) => ({ title: `${level[0].toUpperCase()}${level.slice(1)}`, value: level })),
+          { title: levels.join(" and "), value: "all" },
+        ],
+      })];
+    }
   }
   if (!filters.domains.length) {
-    filters.domains = await ask({
-      type: "multiselect",
-      name: "value",
+    filters.domains = await askNarrowing({
+      label: "Content domains",
       message: "Content domains (none means all)",
-      choices: multiChoices(DOMAIN_NAMES),
+      choices: multiChoices(DOMAIN_NAMES.filter((domain) => remaining().some((finding) => finding.domain === domain))),
     });
   }
-  const selectedDomains = filters.domains.length ? filters.domains.map(normaliseKey) : DOMAIN_NAMES;
-  const domains = selectedDomains.includes("all") ? DOMAIN_NAMES : selectedDomains;
-
-  if (domains.includes("class") && !filters.classes.length) {
-    filters.classes = await ask({
-      type: "multiselect",
-      name: "value",
+  if (!filters.classes.length) {
+    filters.classes = await askNarrowing({
+      label: "Classes",
       message: "Classes (none means all)",
-      choices: multiChoices(uniqueValues(findings.filter((finding) => finding.domain === "class"), (finding) => finding.classNames)),
+      choices: multiChoices(uniqueValues(remaining(), (finding) => finding.classNames ?? [])),
     });
   }
-  if (domains.includes("class") && !filters.subclasses.length) {
-    const classFiltered = filterFindings(findings, { ...filters, subclasses: [], species: [], sources: [], sourceCategories: [] });
-    filters.subclasses = await ask({
-      type: "multiselect",
-      name: "value",
+  if (!filters.subclasses.length) {
+    filters.subclasses = await askNarrowing({
+      label: "Subclasses",
       message: "Subclasses (none means all)",
-      choices: multiChoices(uniqueValues(classFiltered, (finding) => finding.subclassNames)),
+      choices: multiChoices(uniqueValues(remaining(), (finding) => finding.subclassNames ?? [])),
     });
   }
-  if (domains.includes("species") && !filters.species.length) {
-    filters.species = await ask({
-      type: "multiselect",
-      name: "value",
+  if (!filters.species.length) {
+    filters.species = await askNarrowing({
+      label: "Species",
       message: "Species (none means all)",
-      choices: multiChoices(uniqueValues(findings.filter((finding) => finding.domain === "species"), (finding) => finding.speciesNames)),
+      choices: multiChoices(uniqueValues(remaining(), (finding) => finding.speciesNames ?? [])),
     });
   }
   if (!filters.sourceCategories.length) {
-    filters.sourceCategories = await ask({
-      type: "multiselect",
-      name: "value",
+    filters.sourceCategories = await askNarrowing({
+      label: "DDB source categories",
       message: "DDB source categories (none means all)",
-      choices: multiChoices(uniqueValues(findings, (finding) => finding.sourceCategories.map((category) => category.name))),
+      choices: multiChoices(uniqueValues(remaining(), (finding) => finding.sourceCategories.map((category) => category.name))),
     });
   }
   if (!filters.sources.length) {
-    const categoryFiltered = filterFindings(findings, { ...filters, sources: [] });
-    const books = new Map(categoryFiltered.flatMap((finding) => finding.sourceBooks).map((book) => [String(book.id), book]));
-    filters.sources = await ask({
-      type: "multiselect",
-      name: "value",
+    const books = new Map(remaining().flatMap((finding) => finding.sourceBooks).map((book) => [String(book.id), book]));
+    filters.sources = await askNarrowing({
+      label: "Source books",
       message: "Source books (none means all)",
       choices: [...books.values()]
         .sort((a, b) => String(a.name).localeCompare(String(b.name)))
-        .map((book) => ({ title: `${book.name} — ${book.description}`, value: String(book.id) })),
+        .map((book) => ({ title: `${book.name} - ${book.description}`, value: String(book.id) })),
     });
   }
   return filters;
@@ -236,7 +247,7 @@ function showGroup(group, index, total) {
   const actionTexts = [...new Map(group.findings
     .filter((finding) => finding.sourceKind === "action")
     .map((finding) => [finding.sourceName, finding.sourceText])).entries()];
-  for (const [name, text] of actionTexts) console.log(`\n${heading(`Action text — ${name}`)}:\n${text}`);
+  for (const [name, text] of actionTexts) console.log(`\n${heading(`Action text - ${name}`)}:\n${text}`);
 
   for (const [findingIndex, finding] of group.findings.entries()) {
     console.log(`\n${heading(`Finding ${findingIndex + 1}: ${finding.rule} (${finding.confidence})`)}`);
@@ -523,9 +534,9 @@ async function main() {
       // already handled it (keep that outcome) or an earlier edit resolved it.
       const previous = outcomes.get(targetRelative);
       if (previous) {
-        console.log(`\n[${index + 1}/${order.length}] ${targetRelative} — already ${previous.status}; nothing left to review.`);
+        console.log(`\n[${index + 1}/${order.length}] ${targetRelative} - already ${previous.status}; nothing left to review.`);
       } else {
-        console.log(`\n[${index + 1}/${order.length}] ${targetRelative} — resolved by an earlier acceptance; skipping.`);
+        console.log(`\n[${index + 1}/${order.length}] ${targetRelative} - resolved by an earlier acceptance; skipping.`);
         outcomes.set(targetRelative, { status: "auto-resolved" });
       }
       index += 1;
