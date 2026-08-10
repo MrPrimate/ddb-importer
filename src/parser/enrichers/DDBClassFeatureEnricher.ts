@@ -82,6 +82,13 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   override NAME_HINTS_2014: Record<string, string> = {
     "Channel Divinity: Sacred Weapon": "Sacred Weapon",
     "Lay on Hands Pool": "Lay On Hands: Healing Pool",
+    // 2014 names for features whose 2024 enricher applies unchanged
+    "Ki-Empowered Strikes": "Empowered Strikes",
+    "Pact of the Talisman": "Pact Boon: Pact of the Talisman",
+    "Mystic Arcanum (6th level)": "Mystic Arcanum (Level 6 Spell)",
+    "Mystic Arcanum (7th level)": "Mystic Arcanum (Level 7 Spell)",
+    "Mystic Arcanum (8th level)": "Mystic Arcanum (Level 8 Spell)",
+    "Mystic Arcanum (9th level)": "Mystic Arcanum (Level 9 Spell)",
   };
 
   override NAME_HINTS: Record<string, string> = {
