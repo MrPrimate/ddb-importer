@@ -45,7 +45,16 @@ function makeFeature({ id, name, requiredLevel = 1, displayOrder = 1, descriptio
   });
 }
 
-function makeKlassData({ level = 5, features = [] as any[], subclassFeatures = [] as any[], optionalClassFeatures = [] as any[] } = {}): any {
+function makeKlassData({
+  level = 5,
+  features = [] as any[],
+  subclassFeatures = [] as any[],
+  optionalClassFeatures = [] as any[],
+  className = "Testclass",
+  // present on the character but absent from definition.classFeatures, the
+  // "container feature" shape DDB ships for Gunslinger Maneuvers
+  derivedOnlyFeatures = [] as any[],
+} = {}): any {
   const subclassDefinition = subclassFeatures.length > 0
     ? {
       id: SUBCLASS_ID,
@@ -57,11 +66,11 @@ function makeKlassData({ level = 5, features = [] as any[], subclassFeatures = [
     level,
     definition: {
       id: CLASS_ID,
-      name: "Testclass",
+      name: className,
       classFeatures: features.map((f) => ({ ...f.definition })),
     },
     subclassDefinition,
-    classFeatures: features.concat(subclassFeatures),
+    classFeatures: features.concat(subclassFeatures).concat(derivedOnlyFeatures),
   });
   return makeDdbCharacterData({
     character: {
@@ -148,6 +157,54 @@ describe("DDBClassFeatures.deriveFeatures", () => {
     });
     const grouped = makeClassFeatures(ddbData).klassFeatures["Testclass"];
     expect(grouped.filtered.class.map((f: any) => f.definition.name)).toEqual(["Beta Guard"]);
+  });
+
+  // DDB ships some features on the character but leaves them out of
+  // definition.classFeatures. They are normally duplicates and correctly dropped;
+  // FORCE_DERIVED_FEATURES recovers the ones whose text lives nowhere else.
+  it("drops a derived feature missing from the definition feature list", () => {
+    const ddbData = makeKlassData({
+      features: [makeFeature({ id: 70101, name: "Alpha Strike" })],
+      derivedOnlyFeatures: [makeFeature({ id: 70301, name: "Maneuvers" })],
+    });
+    const grouped = makeClassFeatures(ddbData).klassFeatures["Testclass"];
+    expect(grouped.filtered.class.map((f: any) => f.definition.name)).toEqual(["Alpha Strike"]);
+  });
+
+  it("keeps a derived feature listed under its class in FORCE_DERIVED_FEATURES", () => {
+    const ddbData = makeKlassData({
+      className: "Gunslinger",
+      features: [makeFeature({ id: 70101, name: "Alpha Strike" })],
+      derivedOnlyFeatures: [makeFeature({ id: 70301, name: "Maneuvers" })],
+    });
+    const grouped = makeClassFeatures(ddbData).klassFeatures["Gunslinger"];
+    expect(grouped.filtered.class.map((f: any) => f.definition.name)).toEqual([
+      "Alpha Strike",
+      "Maneuvers",
+    ]);
+  });
+
+  it("still drops that name for a class it is not listed under", () => {
+    // the whole reason FORCE_DERIVED_FEATURES is keyed by class name: Fighter has
+    // its own "Maneuvers", which must keep going through the normal path
+    const ddbData = makeKlassData({
+      className: "Fighter",
+      features: [makeFeature({ id: 70101, name: "Alpha Strike" })],
+      derivedOnlyFeatures: [makeFeature({ id: 70301, name: "Maneuvers" })],
+    });
+    const grouped = makeClassFeatures(ddbData).klassFeatures["Fighter"];
+    expect(grouped.filtered.class.map((f: any) => f.definition.name)).toEqual(["Alpha Strike"]);
+  });
+
+  it("still applies the level and skip filters to a forced derived feature", () => {
+    const ddbData = makeKlassData({
+      className: "Gunslinger",
+      level: 2,
+      features: [makeFeature({ id: 70101, name: "Alpha Strike" })],
+      derivedOnlyFeatures: [makeFeature({ id: 70301, name: "Maneuvers", requiredLevel: 9 })],
+    });
+    const grouped = makeClassFeatures(ddbData).klassFeatures["Gunslinger"];
+    expect(grouped.filtered.class.map((f: any) => f.definition.name)).toEqual(["Alpha Strike"]);
   });
 
   it("splits subclass features and removes class features they shadow", () => {

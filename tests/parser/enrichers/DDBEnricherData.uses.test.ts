@@ -24,6 +24,12 @@ vi.mock("../../../src/parser/lib/_module", () => ({
     classIdentifierName: (n: string) => n,
     getLimitedUses: vi.fn(),
   },
+  // getActionDescription runs found text through the template parser; stubbed so the
+  // tests assert the wiring (which text is passed through) rather than DDB's own
+  // {{scalevalue}} substitution, which has its own tests.
+  DDBTemplateStrings: {
+    parse: vi.fn((_ddb: any, _raw: any, text: string) => ({ text: `parsed:${text}` })),
+  },
 }));
 vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
   AutoEffects: {},
@@ -33,6 +39,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
 }));
 
 import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
+import { makeEnricherData } from "../../_fixtures/ddb/factories";
 
 class TestEnricherData extends DDBEnricherData<any> {}
 
@@ -41,21 +48,11 @@ class TestEnricherData extends DDBEnricherData<any> {}
  * actions. Pass `actions: null` to model a parser with no ddbData at all
  * (compendium/muncher context).
  */
-function makeData(actions: any[] | null): any {
-  const ddbEnricher: any = {
-    ddbParser: actions === null
-      ? {}
-      : { ddbData: { character: { actions: { class: actions, race: [], feat: [], item: [], background: [] } } } },
-    is2014: false,
-    useLookupName: false,
-    activityGenerator: null,
-    effectType: "",
-    document: {},
-    name: "Test Feature",
-    isCustomAction: false,
-    manager: null,
-  };
-  return new TestEnricherData({ ddbEnricher });
+function makeData(actions: any[] | null, rawCharacter: any = null): any {
+  return makeEnricherData(TestEnricherData, {
+    actions: actions === null ? null : { class: actions },
+    rawCharacter,
+  });
 }
 
 /** The shape DDB returns for Channel Spirit: a real action with no charge pool. */
@@ -173,5 +170,44 @@ describe("DDBEnricherData._getUsesWithSpent recovery handling", () => {
     const data = makeData([{ name: "Channel Spirit", limitedUse: { maxUses: 3 } }]);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class", override: true });
     expect(uses.override).toBe(true);
+  });
+});
+
+// The default action match folds a matched action's activities onto the parent
+// feature but drops its description; this is how an enricher pulls that text back
+// (Gunslinger RiskTaker). Absent/blank actions must degrade to null rather than
+// emitting an empty description block.
+describe("DDBEnricherData.getActionDescription", () => {
+  const ACTION = { name: "Maneuver: Maverick Spirit (Risk Taker)", description: "<p>Add a d6.</p>" };
+
+  it("returns the action description, template-parsed, for a real character", () => {
+    const data = makeData([ACTION], { type: "character" });
+    expect(data.getActionDescription({ name: ACTION.name, type: "class" })).toBe("parsed:<p>Add a d6.</p>");
+  });
+
+  it("defaults the action type to class", () => {
+    const data = makeData([ACTION], { type: "character" });
+    expect(data.getActionDescription({ name: ACTION.name })).toBe("parsed:<p>Add a d6.</p>");
+  });
+
+  it("returns the raw description when the parser has no real character", () => {
+    // muncher/compendium context: rawCharacter is not a character actor
+    const data = makeData([ACTION], null);
+    expect(data.getActionDescription({ name: ACTION.name, type: "class" })).toBe("<p>Add a d6.</p>");
+  });
+
+  it("returns null when no action matches the name", () => {
+    const data = makeData([ACTION], { type: "character" });
+    expect(data.getActionDescription({ name: "Maneuver: Nope", type: "class" })).toBeNull();
+  });
+
+  it("returns null when the matched action has an empty description", () => {
+    const data = makeData([{ name: "Blank", description: "" }], { type: "character" });
+    expect(data.getActionDescription({ name: "Blank", type: "class" })).toBeNull();
+  });
+
+  it("returns null when the action bucket for that type is empty", () => {
+    const data = makeData([ACTION], { type: "character" });
+    expect(data.getActionDescription({ name: ACTION.name, type: "feat" })).toBeNull();
   });
 });

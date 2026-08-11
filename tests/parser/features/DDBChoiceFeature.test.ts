@@ -215,6 +215,32 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     expect(parent.data.name).toBe("Charger");
   });
 
+  // The class-scoped alternative to NO_CHOICE_BUILD, for a name two classes treat
+  // differently: Gunslinger "Maneuvers" wants one feature carrying the options as
+  // text, Fighter "Maneuvers" wants a child feature per maneuver. A flat name list
+  // cannot express both.
+  it("builds nothing when the enricher sets noChoiceBuild", async () => {
+    const parent = makeParentFeature();
+    vi.spyOn(parent.enricher, "noChoiceBuild", "get").mockReturnValue(true);
+
+    const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
+    expect(features).toEqual([]);
+    expect(parent.data.name).toBe("Test Feature");
+  });
+
+  it("builds the children for the same parent with a default enricher", async () => {
+    // control for the case above: the suppression must come from the enricher,
+    // not from anything else about this feature
+    const parent = makeParentFeature();
+    expect(parent.enricher.noChoiceBuild).toBe(false);
+
+    const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
+    expect(features.map((f: any) => f.name)).toEqual([
+      "Test Feature: Option A",
+      "Test Feature: Option B",
+    ]);
+  });
+
   it("builds nothing for feats outside FORCE_FEAT_CHOICES", async () => {
     const parent = makeParentFeature({}, "feat");
     parent.type = "feat";
