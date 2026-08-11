@@ -184,6 +184,7 @@ export const PARSING_FEATURES = {
     "Corporeal Mastery",
     "Protean Rewards",
     "Adaptive Wild Shape",
+    "Critical Shot",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -193,6 +194,14 @@ export const PARSING_FEATURES = {
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",
   ],
+  // Container features DDB ships on the character (klass.classFeatures) but leaves out of
+  // klass.definition.classFeatures, so deriveFeatures never yields them. Keyed by class name
+  // so a shared feature name (Fighter also has "Maneuvers") is not force-included everywhere.
+  FORCE_DERIVED_FEATURES: {
+    "Gunslinger": [
+      "Maneuvers",
+    ],
+  } as Record<string, string[]>,
   IGNORED_PARENT_CHOICE_FEATURES: [
     "Dark Bargain",
   ],

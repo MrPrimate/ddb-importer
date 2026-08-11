@@ -45,12 +45,15 @@ export default class DDBClassFeatures {
 
   static DISCARD_BASE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_FEATURE_AFTER_CHOICES;
 
+  static FORCE_DERIVED_FEATURES = DICTIONARY.parsing.features.FORCE_DERIVED_FEATURES;
+
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {
       const derived = klass.classFeatures;
       const klassDefinitionFeatures = klass.definition.classFeatures;
       const subclassDefinition = klass.subclassDefinition;
       const subKlassDefinitionFeatures = subclassDefinition?.classFeatures;
+      const forcedDerivedNames = DDBClassFeatures.FORCE_DERIVED_FEATURES[klass.definition.name] ?? [];
 
       const klassDefinitionFeatureIds = klassDefinitionFeatures.map((f) => f.id);
       const subKlassDefinitionFeatureIds = subclassDefinition
@@ -68,7 +71,8 @@ export default class DDBClassFeatures {
       );
 
       const filteredKlassDefinitionFeatures = derived.filter((derivedFeature) =>
-        klassDefinitionFeatureIds.includes(derivedFeature.definition.id)
+        (klassDefinitionFeatureIds.includes(derivedFeature.definition.id)
+          || forcedDerivedNames.includes(derivedFeature.definition.name))
         && CharacterFeatureFactory.includedFeatureNameCheck(derivedFeature.definition.name)
         && derivedFeature.definition.requiredLevel <= klass.level
         && !this.excludedFeatures.includes(derivedFeature.definition.id)

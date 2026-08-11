@@ -203,6 +203,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   static async buildChoiceFeatures(ddbFeature: DDBFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
     const features: T5eFeatureMixinDataTypes[] = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
+    if (ddbFeature.enricher.noChoiceBuild) return features;
     if (ddbFeature.type === "feat" && !DDBChoiceFeature.FORCE_FEAT_CHOICES.includes(ddbFeature.ddbDefinition.name)) return features;
     const parseAllFeatures = ddbFeature.enricher.parseAllChoiceFeatures || allFeatures;
     const choices = (parseAllFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)

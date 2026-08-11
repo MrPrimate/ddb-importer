@@ -43,6 +43,7 @@ const DELEGATED_GETTERS = {
   setMidiOnUseMacroFlag: { default: () => null },
   stopDefaultActivity: { default: () => false },
   parseAllChoiceFeatures: { default: () => false },
+  noChoiceBuild: { default: () => false },
   ddbMacroDescriptionData: { default: () => null },
   summonsFunction: { default: () => null },
   generateSummons: { default: () => false },
@@ -1546,6 +1547,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly setMidiOnUseMacroFlag: IDDBSetMidiOnUseMacroFlag | null;
   readonly stopDefaultActivity: boolean;
   readonly parseAllChoiceFeatures: boolean;
+  readonly noChoiceBuild: boolean;
   readonly ddbMacroDescriptionData: IDDBMacroDescriptionData | null;
   readonly summonsFunction: ((data: ICompanionData) => Promise<ICompanionResult>) | null;
   readonly generateSummons: boolean;

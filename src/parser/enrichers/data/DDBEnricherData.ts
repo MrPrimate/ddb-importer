@@ -101,6 +101,26 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     )?.text ?? null;
   }
 
+  /**
+   * The parsed description of a DDB action on this character, for enrichers whose document folds in
+   * an action's text (the default action match copies activities but not descriptions). Returns null
+   * when the action is absent.
+   */
+  getActionDescription({ name, type = "class" }: { name: string; type?: IActionTypes }): string | null {
+    const action = this.hasAction({ name, type });
+    if (!action?.description) return null;
+
+    const rawCharacter = this.ddbParser.rawCharacter;
+    if (rawCharacter?.type !== "character") return action.description;
+
+    return DDBTemplateStrings.parse(
+      this.ddbParser.ddbData,
+      rawCharacter,
+      action.description,
+      this.ddbParser.ddbFeature,
+    )?.text ?? null;
+  }
+
   hasSpeciesTrait({ traitName }: { traitName: string }): boolean {
     if (!this.ddbParser?.ddbData) return false;
 
@@ -385,6 +405,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   get parseAllChoiceFeatures(): boolean {
+    return false;
+  }
+
+  /**
+   * Suppress the per-choice child features, keeping the options as description text on the
+   * parent. The class-scoped equivalent of NO_CHOICE_BUILD, for names that are shared between
+   * classes and so cannot be listed there (e.g. Gunslinger vs Fighter "Maneuvers").
+   */
+  get noChoiceBuild(): boolean {
     return false;
   }
 

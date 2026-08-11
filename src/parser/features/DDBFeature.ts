@@ -978,6 +978,7 @@ ${description}`;
       || joinedText.trim() === ""
       ? ""
       : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
+        || this.enricher.noChoiceBuild
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
         ? `<hr>${joinedText}`
         : `<hr><section class="secret">${joinedText}</section>`;
