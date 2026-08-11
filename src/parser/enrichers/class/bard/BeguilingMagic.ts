@@ -55,12 +55,26 @@ export default class BeguilingMagic extends DDBEnricherData {
         options: {
         },
         statuses: ["Frightened"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Beguiling Magic (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Charmed",
         options: {
         },
         statuses: ["Charmed"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Beguiling Magic (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

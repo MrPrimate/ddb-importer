@@ -126,6 +126,13 @@ export default class CunningStrike extends DDBEnricherData {
         },
         statuses: ["Poisoned"],
         activityMatch: "Poison",
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Cunning Strike: Poison (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Prone",

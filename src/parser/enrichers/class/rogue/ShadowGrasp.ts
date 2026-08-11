@@ -37,6 +37,13 @@ export default class ShadowGrasp extends DDBEnricherData {
           durationSeconds: 60,
           description: "Restrained for 1 minute; repeats the saving throw at the end of each of its turns, ending the effect on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Shadow Grasp (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=dex,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

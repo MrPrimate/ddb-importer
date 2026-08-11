@@ -35,6 +35,7 @@ export { default as FormOfTheBeast } from "./FormOfTheBeast";
 export { default as GeniesVessel } from "./GeniesVessel";
 export { default as GhostlyGaze } from "./GhostlyGaze";
 export { default as GiftOfTheDepths } from "./GiftOfTheDepths";
+export { default as GrandfatherParadox } from "./GrandfatherParadox";
 export { default as GraspingTentacles } from "./GraspingTentacles";
 export { default as GraveTouched } from "./GraveTouched";
 export { default as HagsVisageHorrifyingGaze } from "./HagsVisageHorrifyingGaze";

@@ -18,6 +18,13 @@ export default class PoisonousSkin extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Poisonous Skin (End of Turn Save),turn=end,saveDC=12,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

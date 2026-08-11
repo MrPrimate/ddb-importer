@@ -86,6 +86,13 @@ export default class WitchingArrows extends DDBEnricherData {
           durationSeconds: 60,
           description: "Restrained for 1 minute. The creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Witching Arrows: Entangling Shot (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=str,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Witching Arrows: Charmed",
@@ -95,6 +102,13 @@ export default class WitchingArrows extends DDBEnricherData {
           durationSeconds: 60,
           description: "Charmed for 1 minute. The creature repeats the save at the end of each of its turns, ending the effect on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Witching Arrows: Hexing Shot (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Witching Arrows: Frightened",
@@ -104,6 +118,13 @@ export default class WitchingArrows extends DDBEnricherData {
           durationSeconds: 60,
           description: "Frightened for 1 minute. The creature repeats the save at the end of each of its turns, ending the effect on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Witching Arrows: Hexing Shot (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Witching Arrows: Poisoned",
@@ -113,6 +134,13 @@ export default class WitchingArrows extends DDBEnricherData {
           durationSeconds: 60,
           description: "Poisoned for 1 minute. The creature repeats the save at the end of each of its turns, ending the effect on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Witching Arrows: Viper Shot (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

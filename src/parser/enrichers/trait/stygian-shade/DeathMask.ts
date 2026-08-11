@@ -25,6 +25,13 @@ export default class DeathMask extends DDBEnricherData {
           durationSeconds: 60,
           description: "Repeat the Wisdom saving throw at the end of each of your turns, ending the effect on a success. Success grants immunity for 24 hours.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Death Mask (End of Turn Save),turn=end,saveDC=13,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

@@ -94,6 +94,13 @@ export default class TheEndIsNigh extends DDBEnricherData {
           durationSeconds: 60,
           description: "Frightened for 1 minute; repeat the saving throw at the end of each turn, ending the condition on a success.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=The End is Nigh (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

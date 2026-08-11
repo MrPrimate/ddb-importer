@@ -144,6 +144,13 @@ export default class Suturer extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnStart"],
         statuses: ["Restrained"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Suturer (Action Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=str,savingThrow=true,saveRemove=true,killAnim=true,actionSave=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Acupuncture Paralysis",

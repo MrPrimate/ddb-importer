@@ -21,7 +21,21 @@ export default class RendMind extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [];
+    return [
+      {
+        // merge into the auto-generated "Status: Stunned" effect rather than
+        // creating a second stun effect
+        noCreate: true,
+        midiOnly: true,
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Rend Mind (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+      },
+    ];
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

@@ -136,6 +136,13 @@ export default class DeviousStrikes extends DDBEnricherData {
         },
         statuses: ["Unconscious"],
         activityMatch: "Knock Out",
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Devious Strikes: Knock Out (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Blinded",

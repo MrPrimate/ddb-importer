@@ -1,26 +1,20 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import Generic from "../Generic";
 
-export default class BeguilingTwist extends Generic {
-
-  override get clearAutoEffects(): boolean {
-    // Preserve the effect cloned from the same-named action on the feature;
-    // clearing here runs after activity cloning and leaves dangling links.
-    return this.isAction;
-  }
+export default class DraconicMajesty extends Generic {
 
   override get effects(): IDDBEffectHint[] {
-    if (!this.isAction) return [];
     return [
       {
         name: "Charmed",
         options: {
           durationSeconds: 60,
+          description: "Charmed by draconic authority. The creature repeats the Wisdom saving throw at the end of each of its turns, ending the effect on itself on a success.",
         },
         statuses: ["Charmed"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Beguiling Twist (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            "turn=end,label=Draconic Majesty (End of Turn),saveRemove=true,saveDC=@attributes.spell.dc,saveAbility=wis,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),
@@ -30,11 +24,12 @@ export default class BeguilingTwist extends Generic {
         name: "Frightened",
         options: {
           durationSeconds: 60,
+          description: "Frightened by draconic authority. The creature repeats the Wisdom saving throw at the end of each of its turns, ending the effect on itself on a success.",
         },
         statuses: ["Frightened"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Beguiling Twist (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            "turn=end,label=Draconic Majesty (End of Turn),saveRemove=true,saveDC=@attributes.spell.dc,saveAbility=wis,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),
