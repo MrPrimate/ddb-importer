@@ -85,7 +85,7 @@ export default class HuntersMark extends DDBEnricherData {
         midiOnly: true,
         name: "Hunter's Mark (Automation)",
         damageBonusMacroChanges: [
-          { macroType: "spell", macroName: "huntersMark.js", document },
+          { macroType: "spell", macroName: "huntersMark.js", document: this.data },
         ],
         daeChanges: this.is2014
           ? []

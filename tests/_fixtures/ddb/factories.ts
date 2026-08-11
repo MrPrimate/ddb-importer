@@ -177,23 +177,54 @@ export function makeDdbChoice(overrides: Record<string, any> = {}): any {
  */
 export function makeEnricherData<T>(
   Enricher: new (options: any) => T,
-  { name = "Test Feature", actions = {}, rawCharacter = null, is2014 = false }: {
+  {
+    name = "Test Feature",
+    actions = {},
+    rawCharacter = null,
+    is2014 = false,
+    klass = null,
+    subKlass = null,
+    data = {},
+    isAction = false,
+    character = {},
+    ddbParser: ddbParserOverrides = {},
+  }: {
     name?: string;
     actions?: Record<string, any[]> | null;
     rawCharacter?: any;
     is2014?: boolean;
+    /** ddbParser.klass / .subKlass, read by isClass/isSubclass and scale identifiers */
+    klass?: string | null;
+    subKlass?: string | null;
+    /** ddbParser.data, the in-progress document some enrichers reference from effects */
+    data?: any;
+    isAction?: boolean;
+    /** merged into ddbData.character, for enrichers reading classes/options/choices */
+    character?: Record<string, any>;
+    /** escape hatch for parser fields not worth a named option */
+    ddbParser?: Record<string, any>;
   } = {},
 ): T {
-  const ddbParser = actions === null
-    ? { rawCharacter }
-    : {
-        ddbData: {
-          character: {
-            actions: { class: [], race: [], feat: [], item: [], background: [], ...actions },
-          },
-        },
-        rawCharacter,
-      };
+  const ddbParser = {
+    // built through makeDdbCharacterData so the empty classes/choices/options
+    // buckets the real DDBDataUtils lookups iterate are always present
+    ...(actions === null
+      ? {}
+      : {
+          ddbData: makeDdbCharacterData({
+            character: {
+              actions: { class: [], race: [], feat: [], item: [], background: [], ...actions },
+              ...character,
+            },
+          }),
+        }),
+    rawCharacter,
+    klass,
+    subKlass,
+    data,
+    isAction,
+    ...ddbParserOverrides,
+  };
   return new Enricher({
     ddbEnricher: {
       ddbParser,
