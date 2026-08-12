@@ -347,6 +347,34 @@ describe("ranger FoeSlayer", () => {
   });
 });
 
+// makeEnricherData always supplies an empty document, so these exercise the
+// weapon branch; the feat branch keys off document.type and is out of reach here.
+describe("rogue PsychicBlade", () => {
+  const Enricher = ClassEnrichers.Rogue.PsychicBlade;
+  const buildWeapon = () => build(Enricher, {
+    klass: "Rogue",
+    data: { system: { properties: ["mgc"] } },
+  });
+
+  it("builds the blade as its own weapon", () => {
+    expect(buildWeapon().override.data.name).toBe("Psychic Blade");
+  });
+
+  it("only applies to a rogue", () => {
+    expect(build(Enricher, { klass: "Fighter" }).override).toBeNull();
+  });
+
+  it("retypes the blade to a simple melee weapon", () => {
+    const system = buildWeapon().override.data.system;
+    expect(system.type).toEqual({ value: "simpleM" });
+    expect(system["type.value"]).toBeUndefined();
+  });
+
+  it("keeps the finesse and thrown properties alongside the parsed ones", () => {
+    expect(buildWeapon().override.data.system.properties).toEqual(["fin", "thr", "mgc"]);
+  });
+});
+
 describe("rogue TokensOfTheDeparted", () => {
   const Enricher = ClassEnrichers.Rogue.TokensOfTheDeparted;
 

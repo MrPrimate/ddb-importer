@@ -94,7 +94,9 @@ This features attacks have been created as the "Psychic Blade" weapon and can be
             range: {
               long: 120,
             },
-            "type.value": "simpleM",
+            type: {
+              value: "simpleM",
+            },
             properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
           },
         },
