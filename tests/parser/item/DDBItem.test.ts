@@ -28,6 +28,75 @@ vi.mock("../../../src/effects/restrictions", () => ({
 import DDBItem from "../../../src/parser/item/DDBItem";
 
 // =============================================================================
+// inferAmmunitionType - name based fallback for weapons and ammunition with no
+// DICTIONARY.actor.proficiencies row (177 of DDB's 229 weapon types)
+// =============================================================================
+describe("DDBItem.inferAmmunitionType", () => {
+  it.each([
+    // the reported case, plus other third party firearms
+    ["Gatling Gun", "firearmBullet"],
+    ["Magnum", "firearmBullet"],
+    ["Submachine Gun", "firearmBullet"],
+    ["Blunderbuss (Steinhardt's)", "firearmBullet"],
+    ["Palm Pistol (Exandria)", "firearmBullet"],
+    ["Magitech Revolver", "firearmBullet"],
+    ["Musket (Wooden Bullets)", "firearmBullet"],
+    ["Bad News (Exandria)", "firearmBullet"],
+    // energy weapons
+    ["Laser Pistol", "energyCell"],
+    ["Blaster", "energyCell"],
+    ["Antimatter Rifle", "energyCell"],
+    // conventional ranged weapons
+    ["Repeater Crossbow, Heavy", "crossbowBolt"],
+    ["Light Crossbow (Wooden Bolts)", "crossbowBolt"],
+    ["Composite Longbow", "arrow"],
+    ["Shortbow (Wooden Arrows)", "arrow"],
+    ["Tommybow, heavy", "arrow"],
+    ["Hoopak", "slingBullet"],
+    ["Repeater Needler", "blowgunNeedle"],
+  ])("infers %s as %s", (name, expected) => {
+    expect(DDBItem.inferAmmunitionType(name)).toBe(expected);
+  });
+
+  it.each([
+    ["Bullets, Renaissance", "firearmBullet"],
+    ["Energy Cells, +2", "energyCell"],
+    ["Sling Bullets", "slingBullet"],
+    ["Crossbow Bolts", "crossbowBolt"],
+    ["Blowgun Needles", "blowgunNeedle"],
+    ["Unbreakable Arrow", "arrow"],
+    // plausible third party ammunition names with no dictionary row
+    ["Shotgun Shells", "firearmBullet"],
+    ["Cartridges", "firearmBullet"],
+    ["Buckshot", "firearmBullet"],
+  ])("infers ammunition item %s as %s", (name, expected) => {
+    expect(DDBItem.inferAmmunitionType(name)).toBe(expected);
+  });
+
+  // the dictionary list is ordered and first match wins
+  it("prefers sling over the firearm patterns", () => {
+    expect(DDBItem.inferAmmunitionType("Slingshot")).toBe("slingBullet");
+  });
+
+  it("prefers crossbow over bow", () => {
+    expect(DDBItem.inferAmmunitionType("Repeater Crossbow")).toBe("crossbowBolt");
+  });
+
+  it("returns null for a melee weapon name", () => {
+    expect(DDBItem.inferAmmunitionType("Ulfberht Blade")).toBeNull();
+  });
+
+  it("returns the first text that matches", () => {
+    expect(DDBItem.inferAmmunitionType("Ulfberht Blade", "Gatling Gun")).toBe("firearmBullet");
+  });
+
+  it("skips empty and nullish texts", () => {
+    expect(DDBItem.inferAmmunitionType(null, undefined, "", "Longbow")).toBe("arrow");
+    expect(DDBItem.inferAmmunitionType(null, undefined, "")).toBeNull();
+  });
+});
+
+// =============================================================================
 // getRechargeFormula - static method for parsing charge recharge formulas
 // =============================================================================
 describe("DDBItem.getRechargeFormula", () => {

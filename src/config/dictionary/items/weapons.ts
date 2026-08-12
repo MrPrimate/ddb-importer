@@ -43,4 +43,23 @@ export const WEAPONS = {
     { name: "Scatter", value: "scatter", injected: true },
     { name: "Sighted", value: "sighted", injected: true },
   ],
+  // Fallback used when a weapon or ammunition item has no row in
+  // DICTIONARY.actor.proficiencies -- 177 of DDB's 229 weapon types don't, and
+  // third party sources keep adding more. Values are dnd5e ammunition subtypes
+  // (CONFIG.DND5E.consumableTypes.ammo.subtypes).
+  //
+  // ORDER IS LOAD BEARING, first match wins: crossbow must precede bow, and
+  // sling must precede the firearm patterns, or "Slingshot" and "Sling Bullets"
+  // fall through to firearmBullet.
+  ammunitionTypes: [
+    { pattern: /laser|antimatter|blaster|plasma|energy cell|power cell/i, value: "energyCell" },
+    { pattern: /blowgun|needler|needle/i, value: "blowgunNeedle" },
+    { pattern: /crossbow|bolt/i, value: "crossbowBolt" },
+    { pattern: /sling|hoopak/i, value: "slingBullet" },
+    { pattern: /bow|arrow/i, value: "arrow" },
+    {
+      pattern: /gun|pistol|rifle|musket|revolver|shotgun|blunderbuss|magnum|flintlock|cannon|carbine|derringer|mortar|blackpowder|firearm|pepperbox|bad news|bullet|cartridge|shell|slug|buckshot/i,
+      value: "firearmBullet",
+    },
+  ],
 };

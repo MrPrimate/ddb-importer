@@ -29,6 +29,37 @@ describe("DICTIONARY.weapon.properties", () => {
   });
 });
 
+// The list is walked in order and the first match wins, so these pairs must not
+// be reordered -- see DDBItem.inferAmmunitionType.
+describe("DICTIONARY.weapon.ammunitionTypes ordering", () => {
+  const indexOfMatch = (text: string) => DICTIONARY.weapon.ammunitionTypes.findIndex((a) => a.pattern.test(text));
+
+  it("matches crossbow before bow", () => {
+    const crossbow = indexOfMatch("Crossbow");
+    const bow = indexOfMatch("Longbow");
+    expect(crossbow).toBeGreaterThanOrEqual(0);
+    expect(crossbow).toBeLessThan(bow);
+  });
+
+  it("matches sling before the firearm patterns", () => {
+    const sling = indexOfMatch("Sling");
+    const firearm = indexOfMatch("Gatling Gun");
+    expect(sling).toBeGreaterThanOrEqual(0);
+    expect(sling).toBeLessThan(firearm);
+  });
+
+  it("matches needle before the firearm patterns", () => {
+    expect(indexOfMatch("Blowgun Needles")).toBeLessThan(indexOfMatch("Gatling Gun"));
+  });
+
+  it("only emits dnd5e ammunition subtypes", () => {
+    const subtypes = ["arrow", "crossbowBolt", "energyCell", "firearmBullet", "slingBullet", "blowgunNeedle"];
+    for (const ammo of DICTIONARY.weapon.ammunitionTypes) {
+      expect(subtypes).toContain(ammo.value);
+    }
+  });
+});
+
 describe("DICTIONARY.actor.proficiencies weapon ammunition", () => {
   const findWeapon = (name: string) =>
     DICTIONARY.actor.proficiencies.find((p) => p.type === "Weapon" && p.name === name);

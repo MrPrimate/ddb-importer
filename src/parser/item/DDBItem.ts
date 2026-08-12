@@ -1582,6 +1582,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * Guess a dnd5e ammunition subtype from a weapon or ammunition name, for the
+   * many DDB weapon types with no DICTIONARY.actor.proficiencies row. Texts are
+   * tried in order, so pass the most specific signal (the DDB weapon type)
+   * first. Returns null when nothing matches, which leaves the item as it is
+   * today -- dnd5e then offers every ammunition on the sheet.
+   */
+  static inferAmmunitionType(...texts: (string | null | undefined)[]): string | null {
+    for (const text of texts) {
+      if (!text) continue;
+      const match = DICTIONARY.weapon.ammunitionTypes.find((ammo) => ammo.pattern.test(text));
+      if (match) return match.value;
+    }
+    return null;
+  }
+
   static getRechargeFormula(description: string, maxCharges: number): string {
     if (description === "" || !description) {
       return `${maxCharges}`;
@@ -2076,9 +2092,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // merge rather than assign, like every other property generator here:
     // `overrides.earlyProperties` (e.g. `foc` on a "Staff of ..." Arcane Focus,
     // which parses as a weapon) is applied during #prepare, and an assignment
-    // drops it. Today `foc` happens to be re-added by #basicMagicItem for staves
-    // whose description mentions an arcane/spellcasting focus, which is what has
-    // been masking this.
+    // drops it.
     DICTIONARY.weapon.properties
       .filter((property) => {
         if (!this.#weaponPropertyAllowed(property)) return false;
@@ -2243,6 +2257,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       };
     }
 
+    // dnd5e filters a weapon's ammunition dropdown on subtype equality, so an
+    // ammunition item we can't classify would be hidden from any weapon that
+    // does have a type. Fall back to the name inference rather than leave it blank.
     const ammoType = DICTIONARY.actor.proficiencies
       .find((prof) =>
         prof.type === "Ammunition"
@@ -2250,7 +2267,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
           || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
         ),
-      )?.ammunitionType;
+      )?.ammunitionType
+      ?? DDBItem.inferAmmunitionType(this.ddbDefinition.name);
 
     if (ammoType) {
       foundry.utils.setProperty(this.data, "system.type.subtype", ammoType);
@@ -2399,6 +2417,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (dictionaryWeapon?.ammunitionType) {
       foundry.utils.setProperty(this.data, "system.ammunition.type", dictionaryWeapon.ammunitionType);
+    } else if (this.ddbDefinition.attackType === 2) {
+      // ranged only: stops a melee weapon whose name happens to match a pattern
+      // (a "Bowstaff") from being handed an ammunition type and property.
+      const inferredAmmunitionType = DDBItem.inferAmmunitionType(this.ddbDefinition.type, this.ddbDefinition.name);
+      if (inferredAmmunitionType) {
+        foundry.utils.setProperty(this.data, "system.ammunition.type", inferredAmmunitionType);
+        // some third party firearms carry Firearm/Reload/Magazine but no DDB
+        // ammunition property at all, and dnd5e shows no ammunition selector
+        // without `amm` whatever the type is.
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, "amm");
+      }
     }
     if (dictionaryWeapon?.mastery) {
       foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
