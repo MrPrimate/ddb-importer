@@ -1,0 +1,85 @@
+import DDBEnricherData from "../data/DDBEnricherData";
+
+export default class Moonbeam extends DDBEnricherData {
+
+  override get activity(): IDDBActivityData {
+    return {
+      id: "ddbMoonbeamSpSav",
+      noeffect: this.useMidiAutomations,
+    };
+  }
+
+  override get clearAutoEffects(): boolean {
+    return this.useMidiAutomations;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Within Moonbeam",
+        activeAurasOnly: true,
+        midiOnly: true,
+        options: {
+          durationSeconds: 60,
+          durationRounds: 10,
+        },
+        macroChanges: [
+          {
+            functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
+          },
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            `label=${this.data.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=radiant, killAnim=true`,
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+        data: {
+          duration: {
+            value: 60,
+            units: "seconds",
+          },
+          flags: {
+            ActiveAuras: {
+              isAura: true,
+              aura: "All",
+              radius: "5",
+              alignment: "",
+              type: "",
+              ignoreSelf: false,
+              height: false,
+              hidden: false,
+              onlyOnce: false,
+              displayTemp: true,
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            effect: {
+              saveOnEntry: true,
+              sequencerFile: "jb2a.moonbeam.01.loop.blue",
+              activityIds: ["ddbMoonbeamSpSav"],
+            },
+          },
+        },
+      },
+    };
+  }
+
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
+    return {
+      functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
+      triggerPoints: ["preActiveEffects"],
+    };
+  }
+
+}

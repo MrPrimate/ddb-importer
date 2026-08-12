@@ -47,7 +47,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Flame Tongue": "Flame Tongue",
     "Moon Sickle": "Moon Sickle",
     "Dragon Wing": "Dragon Wing",
+    "Hammer of Thunderbolts": "Hammer of Thunderbolts",
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
+    "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -63,6 +65,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dragon Wing": ItemEnrichers.DragonWing,
     "Flame Tongue": ItemEnrichers.FlameTongue,
     "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,
+    "Hammer of Thunderbolts": ItemEnrichers.HammerOfThunderbolts,
     "Healer's Kit": ItemEnrichers.HealersKit,
     "Lantern, Bullseye": ItemEnrichers.BullseyeLantern,
     "Lantern, Hooded": ItemEnrichers.HoodedLantern,

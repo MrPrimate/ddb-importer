@@ -21,7 +21,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
   }
 
   get bonus(): number {
-    const nameRegex = /Wraps of Unarmed Power, \+(\d)/;
+    const nameRegex = /Wraps of Unarmed (?:Power|Prowess), \+(\d)/;
     const match = this.name.match(nameRegex);
     if (match) {
       return parseInt(match[1]);
