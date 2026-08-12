@@ -855,7 +855,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         } else if (this.ddbDefinition.name.toLowerCase().includes("staff")) {
           this.documentType = "weapon";
           this.systemType.value = "simpleM";
-          this.systemType.baseItem = "quaterstaff";
+          this.systemType.baseItem = "quarterstaff";
           this.parsingType = "weapon";
         } else {
           this.systemType.value = "trinket";
@@ -1475,7 +1475,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     let baseItem;
     let toolType;
 
-    if (this.ddbDefinition.filterType === "Weapon") {
+    // an enricher documentStub reshaping the document (e.g. a weapon DDB typed
+    // as ammunition) knows the base item better than the DDB definition does
+    if (this.systemType.baseItem) {
+      baseItem = this.systemType.baseItem;
+    } else if (this.ddbDefinition.filterType === "Weapon") {
       baseItem = this.ddbDefinition.type?.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
       baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
@@ -2430,7 +2434,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : this.#getWeaponProficient();
 
     if (this.flags.classFeatures.includes("OffHand") && this.actionData.activation) this.actionData.activation.type = "bonus";
-    if ("range" in this.data.system)
+    // a copySRD stub has already supplied a real range; DDB leaves both range
+    // fields null on the definitions those stubs exist to repair, so assigning
+    // here would wipe it
+    const keepSRDRange = Boolean(this.enricher.documentStub?.copySRD)
+      && !this.ddbDefinition.range
+      && !this.ddbDefinition.longRange;
+    if ("range" in this.data.system && !keepSRDRange)
       this.data.system.range = this.#getWeaponRange();
     this._generateUses();
     this.actionData.ability = this.#getWeaponAbility();
@@ -2479,7 +2489,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (dictionaryWeapon?.mastery) {
       foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
     } else if (this.ddbDefinition.properties) {
-      const masteryKeys = Object.keys(CONFIG.DND5E.weaponMasteries);
+      const masteryKeys = Object.keys(CONFIG.DND5E.weaponMasteries ?? {});
       const possibleMasteryPropertyKeys = this.ddbDefinition.properties.map((p) =>
         p.name.toLowerCase().replaceAll(" ", "").replaceAll("-", ""),
       );

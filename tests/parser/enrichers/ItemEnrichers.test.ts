@@ -216,6 +216,34 @@ describe("WandOfOrcus", () => {
   });
 });
 
+describe("MistypedCrossbow", () => {
+  const Enricher = ItemEnrichers.MistypedCrossbow;
+
+  // DDB source 225 ships these with type "Ammunition" and no damage, range,
+  // properties or category, so they import as consumable ammo without the stub
+  it.each([
+    ["Silent Hand Crossbow", "martialR", "handcrossbow", "Compendium.dnd5e.equipment24.Item.phbwepHandCrossb"],
+    ["Silent Heavy Crossbow", "martialR", "heavycrossbow", "Compendium.dnd5e.equipment24.Item.phbwepHeavyCross"],
+    ["Silent Light Crossbow", "simpleR", "lightcrossbow", "Compendium.dnd5e.equipment24.Item.phbwepLightCross"],
+    ["Ghaal'Shaarat Hand Crossbow +3", "martialR", "handcrossbow", "Compendium.dnd5e.equipment24.Item.phbwepHandCrossb"],
+    ["Ghaal'Shaarat Light Crossbow +1", "simpleR", "lightcrossbow", "Compendium.dnd5e.equipment24.Item.phbwepLightCross"],
+  ])("retypes %s into a weapon with the right base", (name, systemType, baseItem, uuid) => {
+    const stub = build(Enricher, { name, ddbParser: { originalName: name } }).documentStub;
+    expect(stub).toMatchObject({
+      documentType: "weapon",
+      parsingType: "weapon",
+      systemType: { value: systemType, baseItem },
+    });
+    expect(stub.copySRD.uuid).toBe(uuid);
+  });
+
+  it("copies the 2014 crossbow for legacy content", () => {
+    const name = "Ghaal'Shaarat Heavy Crossbow +2";
+    const stub = build(Enricher, { name, is2014: true, ddbParser: { originalName: name } }).documentStub;
+    expect(stub.copySRD.uuid).toBe("Compendium.dnd5e.items.Item.RmP0mYRn2J7K26rX");
+  });
+});
+
 describe("EldritchClawTattoo", () => {
   it("pairs the Eldritch Maul activity with an effect of the same name", () => {
     // the effect is matched to the activity by name, so a rename in one place

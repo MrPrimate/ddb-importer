@@ -36,6 +36,7 @@ export { default as IronBandsOfBinding } from "./IronBandsOfBinding";
 export { default as JavelinOfLightning } from "./JavelinOfLightning";
 export { default as KorolnorScepter } from "./KorolnorScepter";
 export { default as Lamp } from "./Lamp";
+export { default as MistypedCrossbow } from "./MistypedCrossbow";
 export { default as MoonSickle } from "./MoonSickle";
 export { default as MuroosaBalm } from "./MuroosaBalm";
 export { default as NeedlerPistol } from "./NeedlerPistol";
