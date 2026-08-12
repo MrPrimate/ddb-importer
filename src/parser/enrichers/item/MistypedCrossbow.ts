@@ -39,13 +39,16 @@ const CROSSBOWS: ICrossbowBase[] = [
 
 export default class MistypedCrossbow extends DDBEnricherData {
 
-  get #base(): ICrossbowBase {
+  // undefined for a name that is not a crossbow: GhaalShaaratWeapon extends this
+  // class and covers a whole weapon family, only part of which DDB mistyped
+  protected get crossbowBase(): ICrossbowBase | undefined {
     const name = this.ddbParser?.originalName ?? this.name;
-    return CROSSBOWS.find((crossbow) => name.includes(crossbow.name)) ?? CROSSBOWS[2];
+    return CROSSBOWS.find((crossbow) => name.includes(crossbow.name));
   }
 
-  override get documentStub(): IDDBDocumentStub {
-    const base = this.#base;
+  override get documentStub(): IDDBDocumentStub | null {
+    const base = this.crossbowBase;
+    if (!base) return null;
     return {
       documentType: "weapon",
       parsingType: "weapon",

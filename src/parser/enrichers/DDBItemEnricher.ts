@@ -45,6 +45,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   override NAME_HINT_INCLUDES: Record<string, string> = {
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Flame Tongue": "Flame Tongue",
+    "Ghaal'Shaarat": "Ghaal'Shaarat",
     "Moon Sickle": "Moon Sickle",
     "Dragon Wing": "Dragon Wing",
     "Hammer of Thunderbolts": "Hammer of Thunderbolts",
@@ -65,18 +66,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dragon Wing": ItemEnrichers.DragonWing,
     "Flame Tongue": ItemEnrichers.FlameTongue,
     "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,
-    // DDB types these Visionary crossbows as Ammunition, see MistypedCrossbow.
-    // Matched by exact name: a NAME_HINT_INCLUDES on "Hand Crossbow" would also
-    // catch correctly typed third party crossbows and overwrite their data.
-    "Ghaal'Shaarat Hand Crossbow +1": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Hand Crossbow +2": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Hand Crossbow +3": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Heavy Crossbow +1": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Heavy Crossbow +2": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Heavy Crossbow +3": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Light Crossbow +1": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Light Crossbow +2": ItemEnrichers.MistypedCrossbow,
-    "Ghaal'Shaarat Light Crossbow +3": ItemEnrichers.MistypedCrossbow,
+    "Ghaal'Shaarat": ItemEnrichers.GhaalShaaratWeapon,
     "Hammer of Thunderbolts": ItemEnrichers.HammerOfThunderbolts,
     "Healer's Kit": ItemEnrichers.HealersKit,
     "Lantern, Bullseye": ItemEnrichers.BullseyeLantern,

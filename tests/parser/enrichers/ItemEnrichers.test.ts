@@ -242,6 +242,51 @@ describe("MistypedCrossbow", () => {
     const stub = build(Enricher, { name, is2014: true, ddbParser: { originalName: name } }).documentStub;
     expect(stub.copySRD.uuid).toBe("Compendium.dnd5e.items.Item.RmP0mYRn2J7K26rX");
   });
+
+  it("leaves a weapon that is not a crossbow alone", () => {
+    const name = "Ghaal'Shaarat Longsword +1";
+    expect(build(Enricher, { name, ddbParser: { originalName: name } }).documentStub).toBeNull();
+  });
+});
+
+describe("GhaalShaaratWeapon", () => {
+  const Enricher = ItemEnrichers.GhaalShaaratWeapon;
+
+  function applyOverride(name: string, doc: any): any {
+    const e = build(Enricher, { name, ddbParser: { originalName: name } });
+    e.override.func({ enricher: { data: doc } });
+    return doc;
+  }
+
+  function weaponDoc(value: string, properties: string[], range: any): any {
+    return { type: "weapon", system: { type: { value, baseItem: "" }, properties, range } };
+  }
+
+  // every ghaal'shaarat has the Returning Weapon trait, none of the DDB
+  // definitions carry the Thrown property
+  it("adds thrown and returning to a melee weapon, with the 30/120 thrown range", () => {
+    const doc = applyOverride(
+      "Ghaal'Shaarat Longsword +1",
+      weaponDoc("martialM", ["ver", "mgc"], { value: 5, long: null, units: "ft", reach: null }),
+    );
+    expect(doc.system.properties).toEqual(["ver", "mgc", "thr", "ret"]);
+    expect(doc.system.range).toEqual({ value: 30, long: 120, units: "ft", reach: null });
+  });
+
+  it("keeps the longer range of a ranged weapon", () => {
+    const doc = applyOverride(
+      "Ghaal'Shaarat Longbow +2",
+      weaponDoc("martialR", ["amm", "hvy", "two"], { value: 150, long: 600, units: "ft", reach: null }),
+    );
+    expect(doc.system.properties).toEqual(["amm", "hvy", "two", "thr", "ret"]);
+    expect(doc.system.range).toEqual({ value: 150, long: 600, units: "ft", reach: null });
+  });
+
+  it("still retypes the crossbow variants DDB entered as ammunition", () => {
+    const name = "Ghaal'Shaarat Hand Crossbow +1";
+    const stub = build(Enricher, { name, ddbParser: { originalName: name } }).documentStub;
+    expect(stub).toMatchObject({ documentType: "weapon", systemType: { baseItem: "handcrossbow" } });
+  });
 });
 
 describe("EldritchClawTattoo", () => {

@@ -27,6 +27,7 @@ export { default as FarRealmShard } from "./FarRealmShard";
 export { default as FlameTongue } from "./FlameTongue";
 export { default as FlyingBroomstick } from "./FlyingBroomstick";
 export { default as GenericLightSource } from "./GenericLightSource";
+export { default as GhaalShaaratWeapon } from "./GhaalShaaratWeapon";
 export { default as GnomengardeGrenade } from "./GnomengardeGrenade";
 export { default as HammerOfThunderbolts } from "./HammerOfThunderbolts";
 export { default as HealersKit } from "./HealersKit";
