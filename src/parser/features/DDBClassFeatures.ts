@@ -227,7 +227,7 @@ export default class DDBClassFeatures {
       .forEach((item) => {
         // have we already processed an identical item?
         if (!CharacterFeatureFactory.isDuplicateFeature(this._generated, item)) {
-          const name = item.flags.ddbimporter?.originalName ?? item.name;
+          const name = CharacterFeatureFactory.duplicateCheckName(item);
           const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
           const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
             || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
@@ -279,7 +279,7 @@ export default class DDBClassFeatures {
     // parse out duplicate features from class features
     parsedFeatures.forEach((item) => {
       if (!CharacterFeatureFactory.isDuplicateFeature(this._parsed[className], item)) {
-        const name = item.flags.ddbimporter?.originalName ?? item.name;
+        const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(subClassDocs, item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(subClassDocs, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
@@ -306,7 +306,7 @@ export default class DDBClassFeatures {
         return (a.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0) - (b.flags.ddbimporter?.dndbeyond?.displayOrder ?? 0);
       })
       .forEach((item) => {
-        const name = item.flags.ddbimporter?.originalName ?? item.name;
+        const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);

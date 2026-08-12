@@ -24,6 +24,24 @@ function makeItem({ name, description = "", type, originalName, klass }: IItemSt
   };
 }
 
+describe("CharacterFeatureFactory.duplicateCheckName", () => {
+  it("uses originalName in preference to the document name", () => {
+    const item = makeItem({ name: "Critical Shot", originalName: "Crit Shot" });
+    expect(CharacterFeatureFactory.duplicateCheckName(item)).toBe("Crit Shot");
+  });
+
+  it("strips the DDB level prefix left on originalName", () => {
+    // DDBFeatureMixin strips "9: " from the document name but not from originalName
+    const item = makeItem({ name: "Critical Shot", originalName: "9: Critical Shot" });
+    expect(CharacterFeatureFactory.duplicateCheckName(item)).toBe("Critical Shot");
+  });
+
+  it("leaves a name with a non level colon alone", () => {
+    const item = makeItem({ name: "Maneuver: Blindfire" });
+    expect(CharacterFeatureFactory.duplicateCheckName(item)).toBe("Maneuver: Blindfire");
+  });
+});
+
 describe("CharacterFeatureFactory.isDuplicateFeature", () => {
   it("returns true when name and description both match", () => {
     const existing = [makeItem({ name: "Sneak Attack", description: "<p>Extra damage.</p>" })];

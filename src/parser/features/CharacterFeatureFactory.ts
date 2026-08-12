@@ -129,6 +129,18 @@ export default class CharacterFeatureFactory {
     };
   }
 
+  // DDB names the leveled repeats of a feature with a level prefix ("9: Critical Shot").
+  // DDBFeatureMixin strips that prefix from the document name but leaves originalName
+  // intact, so a FORCE_DUPLICATE_* entry keyed on the feature's real name never matches
+  // the repeats it exists to suppress.
+  static LEVEL_PREFIX_MATCH = /^\d+: (.*)$/;
+
+  /** the name to test against the FORCE_DUPLICATE_* lists, level prefix removed */
+  static duplicateCheckName(doc: T5eFeatureMixinDataTypes): string {
+    const name = doc.flags?.ddbimporter?.originalName ?? doc.name;
+    return CharacterFeatureFactory.LEVEL_PREFIX_MATCH.exec(name)?.[1].trim() ?? name;
+  }
+
   static isDuplicateFeature(items: T5eFeatureMixinDataTypes[], item: T5eFeatureMixinDataTypes, { matchClass = false } = {}) {
     const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
     return items.some((dup: any) => {
@@ -738,7 +750,7 @@ export default class CharacterFeatureFactory {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
           // ||
-          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter?.originalName ?? item.name);
+          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(CharacterFeatureFactory.duplicateCheckName(item));
         logger.debug(`Processing racial trait ${item.name}`, {
           trait,
           existingFeature,
@@ -918,10 +930,11 @@ export default class CharacterFeatureFactory {
     this._ddbClassFeatures.data.forEach((doc) => {
       const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
       const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
+      const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
       const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
-        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
+        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
       if (existingFeature && !duplicateFeature) {
-        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(doc.flags.ddbimporter?.originalName ?? doc.name)) {
+        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
           if (existingFeature.system.description) {
             existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
           }

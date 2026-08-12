@@ -307,6 +307,28 @@ describe("DDBClassFeatures.build", () => {
     expect(merged.system.description.value).toContain("Improved alpha strike.");
   });
 
+  it("drops a level prefixed repeat of a FORCE_DUPLICATE_FEATURE feature", async () => {
+    // DDB ships the leveled repeats as "9: Critical Shot", and the prefix survives
+    // on originalName, so the FORCE_DUPLICATE_FEATURE lookup has to normalise it
+    const base = makeFeature({ id: 70301, name: "Critical Shot", requiredLevel: 2, displayOrder: 1 });
+    const improved = makeFeature({
+      id: 70302,
+      name: "9: Critical Shot",
+      requiredLevel: 9,
+      displayOrder: 2,
+      description: "<p>Improved crit range.</p>",
+    });
+    const ddbData = makeKlassData({ level: 20, features: [base, improved] });
+    const classFeatures = makeClassFeatures(ddbData);
+
+    await classFeatures.build();
+
+    expect(classFeatures.data.map((f: any) => f.name)).toEqual(["Critical Shot"]);
+    const doc = classFeatures.data[0] as any;
+    expect(doc.system.description.value).not.toContain("Improved crit range.");
+    expect(doc.system.description.value).not.toContain("Level 9");
+  });
+
   it("adds subclass features with subclass flags", async () => {
     const alpha = makeFeature({ id: 70101, name: "Alpha Strike" });
     const gamma = makeFeature({ id: 70201, name: "Gamma Ward", classId: SUBCLASS_ID });
