@@ -12,7 +12,7 @@ export const WEAPONS = {
   ],
   properties: [
     { name: "Adamantine", value: "ada" },
-    { name: "Ammunition (Firearms)", value: "fir" },
+    { name: "Ammunition (Firearms)", value: "amm" },
     { name: "Ammunition", value: "amm" },
     { name: "Finesse", value: "fin" },
     { name: "Firearm", value: "fir" },

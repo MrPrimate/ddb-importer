@@ -2073,7 +2073,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateWeaponProperties() {
-    this.data.system.properties = DICTIONARY.weapon.properties
+    // merge rather than assign, like every other property generator here:
+    // `overrides.earlyProperties` (e.g. `foc` on a "Staff of ..." Arcane Focus,
+    // which parses as a weapon) is applied during #prepare, and an assignment
+    // drops it. Today `foc` happens to be re-added by #basicMagicItem for staves
+    // whose description mentions an arcane/spellcasting focus, which is what has
+    // been masking this.
+    DICTIONARY.weapon.properties
       .filter((property) => {
         if (!this.#weaponPropertyAllowed(property)) return false;
         // if it is a weapon property
@@ -2096,7 +2102,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // else not a property
         return false;
       })
-      .map((property) => property.value);
+      .map((property) => property.value)
+      .forEach((prop) => {
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
+      });
   }
 
   #getWeaponProficient(): boolean | null {
