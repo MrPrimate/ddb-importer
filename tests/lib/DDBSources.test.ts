@@ -161,14 +161,14 @@ describe("DDBSources.isDefinitionInSourceIds", () => {
   });
 });
 
-describe("DDBSources.groupByPrimarySourceId", () => {
+describe("DDBSources.groupBySourceIds", () => {
   const entry = (name: string, sourceIds: number[]) => ({
     name,
     definition: { name, sources: sourceIds.map((id) => makeSource(id)) },
   });
 
-  it("buckets entries by their first source", () => {
-    const grouped = DDBSources.groupByPrimarySourceId(
+  it("buckets entries by source", () => {
+    const grouped = DDBSources.groupBySourceIds(
       [entry("Fireball", [2]), entry("Shield", [2]), entry("Toll the Dead", [3])],
       (spell) => spell.definition,
     );
@@ -177,14 +177,24 @@ describe("DDBSources.groupByPrimarySourceId", () => {
     expect(grouped.get(3)?.map((spell) => spell.name)).toEqual(["Toll the Dead"]);
   });
 
-  it("keeps buckets disjoint for a reprinted entry", () => {
-    const grouped = DDBSources.groupByPrimarySourceId([entry("Fireball", [2, 145])], (spell) => spell.definition);
-    expect([...grouped.keys()]).toEqual([2]);
-    expect(grouped.get(145)).toBeUndefined();
+  it("files a reprinted entry under every source it lists", () => {
+    const grouped = DDBSources.groupBySourceIds([entry("Fireball", [2, 145])], (spell) => spell.definition);
+    expect([...grouped.keys()].sort((a, b) => a - b)).toEqual([2, 145]);
+    expect(grouped.get(2)?.map((spell) => spell.name)).toEqual(["Fireball"]);
+    expect(grouped.get(145)?.map((spell) => spell.name)).toEqual(["Fireball"]);
+  });
+
+  it("buckets an entry once per source even when a source is listed twice", () => {
+    const duplicated = {
+      name: "Shield",
+      definition: { name: "Shield", sources: [makeSource(2, 1), makeSource(2, 2)] },
+    };
+    const grouped = DDBSources.groupBySourceIds([duplicated], (spell) => spell.definition);
+    expect(grouped.get(2)).toHaveLength(1);
   });
 
   it("collects entries with no source data instead of dropping them", () => {
-    const grouped = DDBSources.groupByPrimarySourceId(
+    const grouped = DDBSources.groupBySourceIds(
       [entry("Homebrew Bolt", []), { name: "No definition", definition: undefined }],
       (spell) => spell.definition,
     );
@@ -192,10 +202,11 @@ describe("DDBSources.groupByPrimarySourceId", () => {
       .toEqual(["Homebrew Bolt", "No definition"]);
   });
 
-  it("round trips every entry exactly once", () => {
+  it("loses no entry, and gives every listed source a bucket", () => {
     const entries = [entry("A", [2]), entry("B", [2, 3]), entry("C", [3]), entry("D", [])];
-    const grouped = DDBSources.groupByPrimarySourceId(entries, (spell) => spell.definition);
-    expect([...grouped.values()].flat()).toHaveLength(entries.length);
+    const grouped = DDBSources.groupBySourceIds(entries, (spell) => spell.definition);
+    expect([...grouped.keys()].sort((a, b) => a - b)).toEqual([DDBSources.UNKNOWN_SOURCE_ID, 2, 3]);
+    expect(new Set([...grouped.values()].flat()).size).toBe(entries.length);
   });
 });
 

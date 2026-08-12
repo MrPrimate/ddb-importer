@@ -508,7 +508,7 @@ export default class DDBSources {
     return definition.sources.some((source) => allowed.has(source.sourceId));
   }
 
-  /** Bucket used by groupByPrimarySourceId for definitions DDB gives no source. */
+  /** Bucket used by groupBySourceIds for definitions DDB gives no source. */
   static UNKNOWN_SOURCE_ID = 0;
 
   /**
@@ -529,27 +529,33 @@ export default class DDBSources {
   }
 
   /**
-   * Break a single proxy payload down into one bucket per DDB source book.
+   * Break a single proxy payload down into one bucket per DDB source book,
+   * filing each entry once for every source it lists.
    *
    * DDB can list several sources for one definition (a spell reprinted in a
-   * later compendium keeps both). Only the first is used, so every entry lands
-   * in exactly one bucket and the buckets stay disjoint - a source's bucket is
-   * therefore "what DDB primarily attributes to this book", not "everything
-   * that appears in it".
+   * later compendium keeps both, and most core content lists the SRD entry
+   * first). The muncher's own source filter matches on any of them, so the
+   * buckets deliberately overlap - a source's bucket is "everything a per-book
+   * import of this book would pull", not "what DDB primarily attributes to it".
+   * Bucketing on one source instead would leave books that only ever appear as
+   * a secondary entry with no bucket at all.
    *
-   * Entries with no source data go to UNKNOWN_SOURCE_ID rather than being
-   * dropped, so a round trip through this never loses anything.
+   * Entries with no source data go to UNKNOWN_SOURCE_ID
    */
-  static groupByPrimarySourceId<T>(
+  static groupBySourceIds<T>(
     entries: T[],
     getDefinition: (entry: T) => IDDBBaseSourcesDefinition | null | undefined,
   ): Map<number, T[]> {
     const grouped = new Map<number, T[]>();
     for (const entry of entries) {
-      const sourceId = getDefinition(entry)?.sources?.[0]?.sourceId ?? DDBSources.UNKNOWN_SOURCE_ID;
-      const bucket = grouped.get(sourceId);
-      if (bucket) bucket.push(entry);
-      else grouped.set(sourceId, [entry]);
+      // one definition can repeat a source id with different sourceTypes
+      const sourceIds = new Set((getDefinition(entry)?.sources ?? []).map((source) => source.sourceId));
+      if (sourceIds.size === 0) sourceIds.add(DDBSources.UNKNOWN_SOURCE_ID);
+      for (const sourceId of sourceIds) {
+        const bucket = grouped.get(sourceId);
+        if (bucket) bucket.push(entry);
+        else grouped.set(sourceId, [entry]);
+      }
     }
     return grouped;
   }

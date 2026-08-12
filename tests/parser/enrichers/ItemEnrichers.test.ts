@@ -24,6 +24,9 @@ const modules = vi.hoisted(() => ({ midiQolInstalled: true }));
 vi.mock("../../../src/lib/_module", async () => ({
   logger: loggerMock,
   utils: (await vi.importActual<any>("../../../src/lib/Utils")).default,
+  // Cannon resolves publisher book ids through it; its own imports are light
+  // enough (config, Logger, Utils) not to re-enter the enricher tree.
+  DDBSources: (await vi.importActual<any>("../../../src/lib/DDBSources")).default,
 }));
 vi.mock("../../../src/parser/spells/CharacterSpellFactory", () => ({ default: class {} }));
 vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
@@ -104,6 +107,61 @@ describe("PotionOfHealing", () => {
     expect(other.override).toEqual({});
     // and no sources at all must not throw
     expect(build(Enricher, { ddbParser: { ddbDefinition: {} } }).override).toEqual({});
+  });
+});
+
+describe("Cannon", () => {
+  const Enricher = ItemEnrichers.Cannon;
+  const withSources = (...sourceIds: number[]) =>
+    build(Enricher, { ddbParser: { ddbDefinition: { sources: sourceIds.map((sourceId) => ({ sourceId })) } } });
+
+  // "Cannon" is a name other publishers use too, so the enricher gates on the
+  // DDB source. 164/197/281 are the Mage Hand Press books in category 32.
+  it.each([164, 197, 281])("sets cannonballs for a Mage Hand Press cannon (source %i)", (sourceId) => {
+    expect(withSources(sourceId).isMageHandPress).toBe(true);
+    expect(withSources(sourceId).override).toEqual({ data: { "system.ammunition.type": "cannonballs" } });
+  });
+
+  it.each([2, 249])("leaves another publisher's cannon alone (source %i)", (sourceId) => {
+    expect(withSources(sourceId).isMageHandPress).toBe(false);
+    expect(withSources(sourceId).override).toEqual({});
+  });
+
+  it("matches when the publisher is one of several sources", () => {
+    expect(withSources(2, 197).isMageHandPress).toBe(true);
+  });
+
+  it("does not throw when the item lists no sources", () => {
+    expect(withSources().isMageHandPress).toBe(false);
+    expect(build(Enricher, { ddbParser: { ddbDefinition: {} } }).override).toEqual({});
+  });
+
+  // foundry's mergeObject only expands dotted keys at depth 0, so nesting this
+  // under a `system` object would write a literal "ammunition.type" key
+  it("keeps the dotted path at the top level of data", () => {
+    expect(Object.keys(withSources(197).override.data)).toEqual(["system.ammunition.type"]);
+  });
+});
+
+describe("AirRender", () => {
+  const Enricher = ItemEnrichers.AirRender;
+
+  // Air Render is a shortbow that fires no ammunition, so the override clears
+  // the type the weapon parser assigns.
+  it("clears the ammunition type and the magical bonus", () => {
+    expect(build(Enricher).override.data).toEqual({
+      "system.magicalBonus": null,
+      "system.ammunition.type": "",
+    });
+  });
+
+  // Regression: both were nested under a `system` object, where mergeObject
+  // does not expand them. The item kept its parser assigned ammunition type
+  // (arrow) and gained a literal "ammunition.type" property instead.
+  it("keeps dotted paths at the top level of data", () => {
+    const data = build(Enricher).override.data;
+    expect(data.system).toBeUndefined();
+    for (const key of Object.keys(data)) expect(key.startsWith("system.")).toBe(true);
   });
 });
 

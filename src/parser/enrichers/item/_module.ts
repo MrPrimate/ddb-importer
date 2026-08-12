@@ -14,6 +14,7 @@ export { default as BootsOfSpeed } from "./BootsOfSpeed";
 export { default as BracersOfArchery } from "./BracersOfArchery";
 export { default as BullseyeLantern } from "./BullseyeLantern";
 export { default as Candle } from "./Candle";
+export { default as Cannon } from "./Cannon";
 export { default as CircletOfBlasting } from "./CircletOfBlasting";
 export { default as CloakOfDisplacement } from "./CloakOfDisplacement";
 export { default as ConcussionGrenade } from "./ConcussionGrenade";

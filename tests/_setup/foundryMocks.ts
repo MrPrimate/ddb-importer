@@ -372,6 +372,20 @@ const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
       always: { value: 2 },
     },
     languages: {},
+    // DDBItem #generateWeaponSpecifics does Object.keys on this for the mastery
+    // fallback. Without it every weapon whose DDB type has no dictionary mastery
+    // row threw there, aborting build() before the enricher ran - which silently
+    // truncated weapon parsing in every suite.
+    weaponMasteries: {
+      cleave: { label: "Cleave" },
+      graze: { label: "Graze" },
+      nick: { label: "Nick" },
+      push: { label: "Push" },
+      sap: { label: "Sap" },
+      slow: { label: "Slow" },
+      topple: { label: "Topple" },
+      vex: { label: "Vex" },
+    },
     weaponIds: {},
     armorIds: {},
     toolIds: {},

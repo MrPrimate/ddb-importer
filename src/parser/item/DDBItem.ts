@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
+import type { IPublisherAmmunitionType } from "../../config/dictionary/items/ammunition";
 import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
@@ -1598,6 +1599,40 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return null;
   }
 
+  /**
+   * Publisher specific ammunition types, currently Mage Hand Press only. These
+   * are keyed off the DDB source category so nothing outside that publisher is
+   * re-typed -- the DMG Shotgun keeps firearmBullet.
+   */
+  static getPublisherAmmunitionTypes(sourceCategoryId: number | null): IPublisherAmmunitionType[] {
+    if (sourceCategoryId !== DICTIONARY.sourceCategories.mageHandPress) return [];
+    return DICTIONARY.ammunition.mageHandPress;
+  }
+
+  /**
+   * Match an ammunition item name against the publisher table. Names are matched
+   * as whole words anywhere in the name, since DDB ships count suffixes
+   * ("Shells (10)") and prefixes ("Portable Cannonballs"), and the module may
+   * append "(Legacy)". Word boundaries keep "Seashell" out.
+   */
+  static getPublisherAmmunitionTypeByName(name: string | null | undefined, sourceCategoryId: number | null): string | null {
+    if (!name) return null;
+    const lowerName = name.toLowerCase();
+    const match = DDBItem.getPublisherAmmunitionTypes(sourceCategoryId).find((ammo) =>
+      ammo.itemNames.some((itemName) => new RegExp(`\\b${itemName}\\b`, "i").test(lowerName)),
+    );
+    return match?.key ?? null;
+  }
+
+  /** Match a DDB weapon `type` against the publisher table. */
+  static getPublisherAmmunitionTypeByWeapon(weaponType: string | null | undefined, sourceCategoryId: number | null): string | null {
+    if (!weaponType) return null;
+    const match = DDBItem.getPublisherAmmunitionTypes(sourceCategoryId).find((ammo) =>
+      ammo.weaponTypes.some((type) => type.toLowerCase() === weaponType.toLowerCase()),
+    );
+    return match?.key ?? null;
+  }
+
   static getRechargeFormula(description: string, maxCharges: number): string {
     if (description === "" || !description) {
       return `${maxCharges}`;
@@ -2260,14 +2295,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // dnd5e filters a weapon's ammunition dropdown on subtype equality, so an
     // ammunition item we can't classify would be hidden from any weapon that
     // does have a type. Fall back to the name inference rather than leave it blank.
-    const ammoType = DICTIONARY.actor.proficiencies
-      .find((prof) =>
-        prof.type === "Ammunition"
-        && (
-          prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
-          || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
-        ),
-      )?.ammunitionType
+    const ammoType = DDBItem.getPublisherAmmunitionTypeByName(
+      this.ddbDefinition.name,
+      DDBSources.getDocumentSourceCategoryId(this.data),
+    )
+      ?? DICTIONARY.actor.proficiencies
+        .find((prof) =>
+          prof.type === "Ammunition"
+          && (
+            prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
+            || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
+          ),
+        )?.ammunitionType
       ?? DDBItem.inferAmmunitionType(this.ddbDefinition.name);
 
     if (ammoType) {
@@ -2415,7 +2454,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
       );
 
-    if (dictionaryWeapon?.ammunitionType) {
+    const publisherAmmunitionType = DDBItem.getPublisherAmmunitionTypeByWeapon(
+      this.ddbDefinition.type,
+      DDBSources.getDocumentSourceCategoryId(this.data),
+    );
+
+    if (publisherAmmunitionType) {
+      foundry.utils.setProperty(this.data, "system.ammunition.type", publisherAmmunitionType);
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "amm");
+    } else if (dictionaryWeapon?.ammunitionType) {
       foundry.utils.setProperty(this.data, "system.ammunition.type", dictionaryWeapon.ammunitionType);
     } else if (this.ddbDefinition.attackType === 2) {
       // ranged only: stops a melee weapon whose name happens to match a pattern

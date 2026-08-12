@@ -120,6 +120,39 @@ function applyItemFilters(input: IDDBItemsSource, {
   return data;
 }
 
+type TDDBItemsPayload = IDDBItemsResponseData | IDDBItemDefinition[];
+
+/**
+ * Fold a streamed `items` event into the payload gathered so far. Custom proxies
+ * send a bare item array, the official proxy an { items, spells, extra } object,
+ * and either may arrive over more than one event. An event carrying nothing
+ * usable is ignored
+ */
+function mergeItemPayloads(accumulated: TDDBItemsPayload | null, incoming: unknown): TDDBItemsPayload | null {
+  if (incoming === null || incoming === undefined) return accumulated;
+
+  if (Array.isArray(incoming)) {
+    if (incoming.length === 0) return accumulated;
+    const previous = Array.isArray(accumulated) ? accumulated : [];
+    return [...previous, ...incoming as IDDBItemDefinition[]];
+  }
+
+  const chunk = incoming as IDDBItemsResponseData;
+  const items = chunk.items ?? [];
+  const spells = chunk.spells ?? [];
+  const extra = chunk.extra ?? [];
+  if (items.length === 0 && spells.length === 0 && extra.length === 0) return accumulated;
+
+  const previous = accumulated !== null && !Array.isArray(accumulated)
+    ? accumulated
+    : { items: [], spells: [], extra: [] } as IDDBItemsResponseData;
+  return {
+    items: [...(previous.items ?? []), ...items],
+    spells: [...(previous.spells ?? []), ...spells],
+    extra: [...(previous.extra ?? []), ...extra],
+  };
+}
+
 function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinition[]): IDDBItemsSource {
   // Official proxy returns { items, spells, extra }; custom proxies return a raw array.
   if (DDBProxy.isCustom(true)) {
@@ -137,32 +170,39 @@ function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinitio
 /**
  * Dev-only: dump the normalised, unfiltered item payload as one file per DDB
  * source book, so a single proxy block can be worked on book by book.
- *
- * Named RAW-items-<sourceId>.json, matching the mule's RAW-* convention. Items
- * and item-granted spells are bucketed by their own primary source; `extra`
- * (limited-use data keyed by item id) follows its item, so each file stays a
- * self-contained IDDBItemsSource.
  */
-function downloadRawItemsBySource(source: IDDBItemsSource) {
+async function downloadRawItemsBySource(source: IDDBItemsSource) {
   if (!CONFIG.DDBI.DEV.downloadRAWJSONExamples) return;
-  const itemsBySource = DDBSources.groupByPrimarySourceId(source.items, (item) => item);
-  const spellsBySource = DDBSources.groupByPrimarySourceId(source.spells, (spell) => spell.definition);
+  const itemsBySource = DDBSources.groupBySourceIds(source.items, (item) => item);
+  const itemsById = new Map(source.items.map((item) => [item.id, item]));
+  // a spell belongs with the item granting it; fall back to its own sources
+  // when componentId points at something outside this payload.
+  const spellsBySource = DDBSources.groupBySourceIds(
+    source.spells,
+    (spell) => itemsById.get(spell.componentId) ?? spell.definition,
+  );
   const extraByItemId = new Map(source.extra.map((entry) => [entry.id, entry]));
 
+  const files = [{ name: "REAL-items.json", content: JSON.stringify(source.items) }];
+  const summary: Record<string, string> = {};
   for (const sourceId of new Set([...itemsBySource.keys(), ...spellsBySource.keys()])) {
     const items = itemsBySource.get(sourceId) ?? [];
+    const spells = spellsBySource.get(sourceId) ?? [];
     const payload: IDDBItemsSource = {
       items,
-      spells: spellsBySource.get(sourceId) ?? [],
+      spells,
       extra: items.map((item) => extraByItemId.get(item.id)).filter((entry) => entry !== undefined),
     };
     const sourceName = sourceId === DDBSources.UNKNOWN_SOURCE_ID ? "unknown" : String(sourceId);
-    FileHelper.download(
-      JSON.stringify({ success: true, sourceId, data: payload }),
-      `RAW-items-${sourceName}.json`,
-      "application/json",
-    );
+    const name = `RAW-items-${sourceName}.json`;
+    files.push({ name, content: JSON.stringify({ success: true, sourceId, data: payload }) });
+    summary[name] = `${items.length} items, ${spells.length} spells`;
   }
+
+  // Log every bucket, so a book missing from the zip can be told apart from a
+  // book that was never in the payload.
+  logger.info(`Dumping ${files.length - 1} RAW item files for ${source.items.length} items`, summary);
+  await FileHelper.downloadZip(files, "RAW-items.zip");
 }
 
 export default class DDBItemsImporter implements IDDBItemsImporter {
@@ -276,10 +316,10 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
           }
           return data.data;
         })
-        .then((raw) => {
+        .then(async (raw) => {
           if (raw == null) return;
           const normalised = normaliseItemPayload(raw);
-          downloadRawItemsBySource(normalised);
+          await downloadRawItemsBySource(normalised);
           resolve(applyItemFilters(normalised, ctx.filters));
         })
         .catch((error) => reject(error));
@@ -302,13 +342,14 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
         if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
-        let raw: any = null;
+        let raw: TDDBItemsPayload | null = null;
         await socket.runJob("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie }, {
           timeoutMs: 60000,
           onEvent: (event: DDBItemEvent) => {
-            if (event.kind === "items") {
-              raw = event.payload;
-            }
+            if (event.kind !== "items") return;
+            // Accumulate across events - a multi-event or terminal-empty stream
+            // would otherwise clobber earlier results if we assigned.
+            raw = mergeItemPayloads(raw, event.payload);
           },
         });
 
@@ -321,7 +362,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         }
         if (raw == null) throw new Error("Stream completed without items payload");
         const normalised = normaliseItemPayload(raw);
-        downloadRawItemsBySource(normalised);
+        await downloadRawItemsBySource(normalised);
         return applyItemFilters(normalised, ctx.filters);
       } finally {
         socket.close();
@@ -502,6 +543,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
 
     DDBRuleJournalFactory.registerWeaponIds();
+    // ammunition just munched into the compendium can register its types now
+    await DDBRuleJournalFactory.registerAmmunitionTypes();
 
     logger.debug("Final Item Import Data", {
       finalItems: itemHandler.documents,

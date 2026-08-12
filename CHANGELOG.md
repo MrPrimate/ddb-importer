@@ -4,6 +4,7 @@
 - Periapt of Health (and possible other items) could create hp bonus effects as well as activities, and these could contain dice which caused failures. @theunknown98
 - More Blood Hunter parsing improvements.
 - Gunslinger Parsing fixes @thetreat @crimsonedge
+- Mage Hand Press Ammo types are now injected into the system if munched into DDB Items.
 
 # 7.4.1
 

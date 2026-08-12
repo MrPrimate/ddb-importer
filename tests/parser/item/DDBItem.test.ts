@@ -28,6 +28,77 @@ vi.mock("../../../src/effects/restrictions", () => ({
 import DDBItem from "../../../src/parser/item/DDBItem";
 
 // =============================================================================
+// getPublisherAmmunitionType* - Mage Hand Press ammunition, gated on the DDB
+// source category so nothing outside that publisher is re-typed
+// =============================================================================
+describe("DDBItem publisher ammunition", () => {
+  const MHP = 32;
+
+  describe("getPublisherAmmunitionTypeByName", () => {
+    it.each([
+      // DDB ships count suffixes and prefixes
+      ["Shells (10)", "shells"],
+      ["Shot (10)", "shot"],
+      ["Cannonballs (5)", "cannonballs"],
+      ["Flares (5)", "flares"],
+      ["Portable Cannonballs", "cannonballs"],
+      // the module may append a legacy postfix
+      ["Shells (10) (Legacy)", "shells"],
+    ])("matches %s as %s", (name, expected) => {
+      expect(DDBItem.getPublisherAmmunitionTypeByName(name, MHP)).toBe(expected);
+    });
+
+    // word boundaries, so a substring hit is not enough
+    it.each(["Seashell", "Shell Coin", "Shotgun", "Flaregun"])("does not match %s", (name) => {
+      expect(DDBItem.getPublisherAmmunitionTypeByName(name, MHP)).toBeNull();
+    });
+
+    it("returns null for the MHP bullets, which are the existing firearmBullet", () => {
+      expect(DDBItem.getPublisherAmmunitionTypeByName("Bullets (10)", MHP)).toBeNull();
+    });
+
+    it("returns null for a non publisher source category", () => {
+      expect(DDBItem.getPublisherAmmunitionTypeByName("Shells (10)", 2)).toBeNull();
+      expect(DDBItem.getPublisherAmmunitionTypeByName("Cannonball", 249)).toBeNull();
+      expect(DDBItem.getPublisherAmmunitionTypeByName("Shells (10)", null)).toBeNull();
+    });
+
+    it("returns null for an empty name", () => {
+      expect(DDBItem.getPublisherAmmunitionTypeByName(null, MHP)).toBeNull();
+      expect(DDBItem.getPublisherAmmunitionTypeByName("", MHP)).toBeNull();
+    });
+  });
+
+  describe("getPublisherAmmunitionTypeByWeapon", () => {
+    it.each([
+      ["Double-Barrel Shotgun", "shells"],
+      ["Pump Shotgun", "shells"],
+      ["Blunderbuss", "shot"],
+      ["Flare Gun", "flares"],
+    ])("maps %s to %s", (weaponType, expected) => {
+      expect(DDBItem.getPublisherAmmunitionTypeByWeapon(weaponType, MHP)).toBe(expected);
+    });
+
+    // handled by src/parser/enrichers/item/Cannon.ts, not the weapon table
+    it("leaves the Cannon to its enricher", () => {
+      expect(DDBItem.getPublisherAmmunitionTypeByWeapon("Cannon", MHP)).toBeNull();
+    });
+
+    it.each(["Handgun", "Magnum", "Gatling Gun", "Sniper Rifle", "Submachine Gun"])(
+      "leaves %s to firearmBullet",
+      (weaponType) => {
+        expect(DDBItem.getPublisherAmmunitionTypeByWeapon(weaponType, MHP)).toBeNull();
+      },
+    );
+
+    it("does not re-type a non publisher weapon of the same name", () => {
+      expect(DDBItem.getPublisherAmmunitionTypeByWeapon("Shotgun", MHP)).toBeNull();
+      expect(DDBItem.getPublisherAmmunitionTypeByWeapon("Pump Shotgun", 2)).toBeNull();
+    });
+  });
+});
+
+// =============================================================================
 // inferAmmunitionType - name based fallback for weapons and ammunition with no
 // DICTIONARY.actor.proficiencies row (177 of DDB's 229 weapon types)
 // =============================================================================

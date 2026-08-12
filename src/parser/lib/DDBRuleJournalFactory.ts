@@ -10,7 +10,20 @@ const JOURNAL_INDEX_FIELDS = [
   "flags.ddbimporter",
 ];
 
-const ITEM_INDEX_FIELDS = ["name", "type", "flags.ddbimporter", "system.source.book"];
+const ITEM_INDEX_FIELDS = [
+  "name",
+  "type",
+  "flags.ddbimporter",
+  "system.source.book",
+];
+
+const AMMUNITION_INDEX_FIELDS = [
+  "name",
+  "type",
+  "system.type.value",
+  "system.source.book",
+  "flags.ddbimporter",
+];
 
 const BASE_RULE_PAGE: I5eRuleJournalPageData = {
   sort: 1,
@@ -508,6 +521,48 @@ export default class DDBRuleJournalFactory {
     }
   }
 
+  /**
+   * dnd5e only ships six ammunition subtypes, so publisher specific ones (Mage
+   * Hand Press: Shells, Cannonballs, Flares, Shot) have no label and no entry in
+   * the weapon sheet's ammunition dropdown, which reads
+   * CONFIG.DND5E.consumableTypes.ammo.subtypes directly.
+   *
+   * Only inject the ones the user actually has content for, decided by scanning
+   * the item compendium for that publisher's ammunition. Note the parser sets
+   * these subtypes on items regardless -- this only governs registration.
+   */
+  static async registerAmmunitionTypes() {
+    const itemCompendium = CompendiumHelper.getCompendiumType("items", false);
+    if (!itemCompendium) {
+      logger.warn("registerAmmunitionTypes: unable to load items compendium");
+      return;
+    }
+    await itemCompendium.getIndex({ fields: AMMUNITION_INDEX_FIELDS });
+
+    const ammunitionEntries = itemCompendium.index.filter((i) =>
+      foundry.utils.getProperty(i, "type") === "consumable"
+      && foundry.utils.getProperty(i, "system.type.value") === "ammo",
+    );
+
+    for (const ammunition of DICTIONARY.ammunition.mageHandPress) {
+      if (CONFIG.DND5E.consumableTypes["ammo"]?.subtypes?.[ammunition.key]) continue;
+      const hit = ammunitionEntries.find((entry) => {
+        // index entries carry the flag/source fields the source helpers read
+        const categoryId = DDBSources.getDocumentSourceCategoryId(entry as unknown as TAll5eDocuments);
+        if (categoryId !== DICTIONARY.sourceCategories.mageHandPress) return false;
+        const name = (foundry.utils.getProperty(entry, "name") as string | undefined)?.toLowerCase();
+        if (!name) return false;
+        return ammunition.itemNames.some((itemName) => new RegExp(`\\b${itemName}\\b`, "i").test(name));
+      });
+      if (!hit) {
+        logger.debug(`Not adding ammunition type ${ammunition.key}, no matching item in compendium`);
+        continue;
+      }
+      logger.debug(`Adding ammunition type ${ammunition.key} from ${foundry.utils.getProperty(hit, "name")}`);
+      foundry.utils.setProperty(CONFIG.DND5E, `consumableTypes.ammo.subtypes.${ammunition.key}`, ammunition.label);
+    }
+  }
+
   static addGrimHollowAdvancedWeapons() {
     const allowedSourceIds = getAllowedSourceIds();
     if (!allowedSourceIds.includes(207)) return;
@@ -526,6 +581,7 @@ export default class DDBRuleJournalFactory {
     await DDBRuleJournalFactory.createWeaponMasteryJournals();
     await DDBRuleJournalFactory.createWeaponPropertyJournals();
     await DDBRuleJournalFactory.registerWeaponIds();
+    await DDBRuleJournalFactory.registerAmmunitionTypes();
   }
 
 }

@@ -4,6 +4,18 @@ import DDBProxy from "./DDBProxy";
 
 const FPClass = foundry.applications.apps.FilePicker.implementation;
 
+// the zip.js vendor library is attached to the window as a global
+type TZipWriterWindow = typeof globalThis.window & {
+  zip: {
+    ZipWriter: new (writer: unknown) => {
+      add: (name: string, reader: unknown) => Promise<unknown>;
+      close: () => Promise<Blob>;
+    };
+    BlobWriter: new (mimeType: string) => unknown;
+    TextReader: new (text: string) => unknown;
+  };
+};
+
 interface ParsedDirectory {
   activeSource: string;
   bucket: string | null;
@@ -37,6 +49,20 @@ export class FileHelper {
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
+  }
+
+  /**
+   * Bundle generated files into a single zip and download that.
+   */
+  static async downloadZip(files: { name: string; content: string }[], zipName: string) {
+    const zipApi = (globalThis.window as TZipWriterWindow).zip;
+    if (!zipApi?.ZipWriter) throw new Error("zip.js is not loaded, cannot build a zip");
+    const zipWriter = new zipApi.ZipWriter(new zipApi.BlobWriter("application/zip"));
+    for (const file of files) {
+      await zipWriter.add(file.name, new zipApi.TextReader(file.content));
+    }
+    const blob = await zipWriter.close();
+    FileHelper.download(blob, zipName, "application/zip");
   }
 
   static addFileToKnown(parsedDir: ParsedDirectory, file: string) {

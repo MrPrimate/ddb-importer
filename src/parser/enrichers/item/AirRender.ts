@@ -16,10 +16,8 @@ export default class AirRender extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       data: {
-        system: {
-          magicalBonus: null,
-          "ammunition.type": "",
-        },
+        "system.magicalBonus": null,
+        "system.ammunition.type": "",
       },
     };
   }
