@@ -37,7 +37,7 @@ export default class CloseQuarters extends DDBEnricherData {
         daeSpecialDurations: ["turnStartSource"],
         ac5eChanges: [
           // automated-conditions-5e: disadvantage on the target's next attack
-          DDBEnricherData.ChangeHelper.customChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
       },
     ];

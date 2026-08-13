@@ -28,7 +28,7 @@ export default class WindSprint extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnEnd"],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "bonus=1d6; addTo=base,types(slashing); cadence=once",
             20,
             "flags.automated-conditions-5e.damage.bonus",

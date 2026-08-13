@@ -17,7 +17,7 @@ export default class SquireOfSolamnia extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "optin; oncePerTurn; name=Precise Strike; description=Cause this weapon attack roll to have advantage.",
             20,
             "flags.automated-conditions-5e.attack.advantage",

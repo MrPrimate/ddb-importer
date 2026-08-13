@@ -130,7 +130,7 @@ export default class FelineChaos extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("wis"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("1", 50, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 50, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
       },
       {

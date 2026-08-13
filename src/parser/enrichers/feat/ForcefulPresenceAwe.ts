@@ -27,7 +27,7 @@ export default class ForcefulPresenceAwe extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.per"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("skill.itm || skill.prf || skill.per", 20, "flags.automated-conditions-5e.check.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("skill.itm || skill.prf || skill.per", 20, "flags.automated-conditions-5e.check.advantage"),
         ],
       },
     ];

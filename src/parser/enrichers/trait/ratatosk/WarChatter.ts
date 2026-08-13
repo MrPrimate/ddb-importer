@@ -22,7 +22,7 @@ export default class WarChatter extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
       },
     ];

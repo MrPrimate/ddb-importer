@@ -33,7 +33,7 @@ export default class SurpriseAttack extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "bonus=2d6; hasAttack && combat.round === 1 && rollingActor.combatTurn < opponentActor.combatTurn",
             20,
             "flags.automated-conditions-5e.damage.bonus",

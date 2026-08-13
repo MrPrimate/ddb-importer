@@ -197,8 +197,8 @@ export default class HybridTransformation extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
       ],
       ac5eChanges: [
-        DDBEnricherData.ChangeHelper.customChange("ability.str", 20, "flags.automated-conditions-5e.check.advantage"),
-        DDBEnricherData.ChangeHelper.customChange("ability.str", 20, "flags.automated-conditions-5e.save.advantage"),
+        DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.check.advantage"),
+        DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.save.advantage"),
       ],
       data: {
         _id: id,

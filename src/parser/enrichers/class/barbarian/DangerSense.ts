@@ -12,7 +12,7 @@ export default class DangerSense extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "ability.dex && !rollingActor.statuses.incapacitated",
             20,
             "flags.automated-conditions-5e.save.advantage",

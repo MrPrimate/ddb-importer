@@ -25,7 +25,7 @@ export default class BloodFrenzy extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "opponentActor.attributes.hp.value < opponentActor.attributes.hp.max",
             20,
             "flags.automated-conditions-5e.attack.advantage",

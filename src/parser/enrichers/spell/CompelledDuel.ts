@@ -12,7 +12,7 @@ export default class CompelledDuel extends DDBEnricherData {
           durationSeconds: 60,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "(opponentActor.actorId !== effectOriginActor.actorId ? 1 : 0)",
             20,
             "flags.automated-conditions-5e.attack.disadvantage",

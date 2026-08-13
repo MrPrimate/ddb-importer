@@ -156,6 +156,30 @@ describe("ChangeHelper.downgradeChange", () => {
   });
 });
 
+describe("ChangeHelper.ac5eChange", () => {
+  it("returns type ac5e and defaults phase to initial", () => {
+    const result = ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage");
+    expect(result).toEqual({
+      key: "flags.automated-conditions-5e.attack.disadvantage",
+      value: "once; 1",
+      type: "ac5e",
+      priority: 20,
+      phase: "initial",
+    });
+  });
+
+  it("honours an explicit final phase", () => {
+    const result = ChangeHelper.ac5eChange("1", 50, "flags.automated-conditions-5e.attack.advantage", "final");
+    expect(result.phase).toBe("final");
+    expect(result.priority).toBe(50);
+  });
+
+  it("stringifies and trims the value", () => {
+    expect(ChangeHelper.ac5eChange(18, 20, "flags.automated-conditions-5e.attack.criticalThreshold").value).toBe("18");
+    expect(ChangeHelper.ac5eChange("  bonus=2  ", 20, "flags.automated-conditions-5e.damage.bonus").value).toBe("bonus=2");
+  });
+});
+
 describe("ChangeHelper.tokenMagicFXChange", () => {
   it("returns a tokenMagic custom change", () => {
     const result = ChangeHelper.tokenMagicFXChange("glow");

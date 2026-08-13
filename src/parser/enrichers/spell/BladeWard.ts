@@ -25,7 +25,7 @@ export default class BladeWard extends DDBEnricherData {
             durationSeconds: 60,
           },
           ac5eChanges: [
-            DDBEnricherData.ChangeHelper.addChange("bonus=-1d4", 20, "flags.automated-conditions-5e.grants.attack.bonus"),
+            DDBEnricherData.ChangeHelper.ac5eChange("bonus=-1d4", 20, "flags.automated-conditions-5e.grants.attack.bonus"),
           ],
         },
       ];

@@ -54,7 +54,7 @@ export default class Healer extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "modifier=r1;healing && isSpell",
             20,
             "flags.automated-conditions-5e.damage.modifier",

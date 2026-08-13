@@ -15,7 +15,7 @@ export default class GraveStrike extends DDBEnricherData {
           description: "Attack rolls with weapons and Unarmed Strikes against creature types in your Monster Grimoire score a Critical Hit on an 18-20.",
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange("bonus=18", 20, "flags.automated-conditions-5e.attack.criticalThreshold"),
+          DDBEnricherData.ChangeHelper.ac5eChange("bonus=18", 20, "flags.automated-conditions-5e.attack.criticalThreshold"),
         ],
       },
     ];

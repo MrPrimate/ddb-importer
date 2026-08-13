@@ -29,7 +29,7 @@ export default class TrueStrike extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
       }];
     } else {

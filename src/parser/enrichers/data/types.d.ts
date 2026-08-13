@@ -253,7 +253,7 @@ global {
     midiChanges?: IActiveEffectChangeData[];
     daeChanges?: IActiveEffectChangeData[];
     /** changes only injected when automated-conditions-5e is active */
-    ac5eChanges?: IActiveEffectChangeData[];
+    ac5eChanges?: IAC5eActiveEffectChangeData[];
 
     // DAE
     daeStackable?: string;

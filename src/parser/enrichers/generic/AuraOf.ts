@@ -36,7 +36,7 @@ export default class AuraOf extends DDBEnricherData {
         // AC5e has native aura support, independent of ActiveAuras/auraeffects
         ac5eChanges: isAuraOfProtection
           ? [
-            DDBEnricherData.ChangeHelper.customChange(
+            DDBEnricherData.ChangeHelper.ac5eChange(
               "bonus=auraActor.abilities.cha.mod; radius=(auraActor.details.level < 18 ? 10 : 30); allies; singleAura; includeSelf",
               20,
               "flags.automated-conditions-5e.aura.save.bonus",

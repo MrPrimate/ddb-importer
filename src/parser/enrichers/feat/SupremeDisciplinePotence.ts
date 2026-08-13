@@ -28,7 +28,7 @@ export default class SupremeDisciplinePotence extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.str"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("ability.str", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
       },
     ];

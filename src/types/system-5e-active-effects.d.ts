@@ -20,6 +20,11 @@ global {
     priority?: number;
   }
 
+  /** An AC5E change. Only `ChangeHelper.ac5eChange` produces one. */
+  interface IAC5eActiveEffectChangeData extends IActiveEffectChangeData {
+    type: "ac5e";
+  }
+
   type TDAESpecialDuration =
     // for pre v6 only
     | TDAEEffectExpiryTypes

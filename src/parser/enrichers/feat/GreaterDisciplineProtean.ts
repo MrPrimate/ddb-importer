@@ -27,7 +27,7 @@ export default class GreaterDisciplineProtean extends DDBEnricherData {
           description: "Your Unarmed Strike hits deal an extra 2d6 Slashing damage.",
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("bonus=2d6[slashing]; item.name.includes(\"Unarmed\")", 20, "flags.automated-conditions-5e.damage.bonus"),
+          DDBEnricherData.ChangeHelper.ac5eChange("bonus=2d6[slashing]; item.name.includes(\"Unarmed\")", 20, "flags.automated-conditions-5e.damage.bonus"),
         ],
       },
     ];

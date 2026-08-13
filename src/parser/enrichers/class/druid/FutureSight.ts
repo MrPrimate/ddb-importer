@@ -37,8 +37,8 @@ export default class FutureSight extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.automated-conditions-5e.grants.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.grants.attack.disadvantage"),
         ],
       },
     ];

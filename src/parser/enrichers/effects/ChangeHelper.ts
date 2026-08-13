@@ -143,7 +143,7 @@ export default class ChangeHelper {
     };
   }
 
-  static ac5eChange(value: string | number, priority: number, key: string, phase: TActiveEffectChangePhase = "initial"): IActiveEffectChangeData {
+  static ac5eChange(value: string | number, priority: number, key: string, phase: TActiveEffectChangePhase = "initial"): IAC5eActiveEffectChangeData {
     return {
       key,
       value: String(value).trim(),

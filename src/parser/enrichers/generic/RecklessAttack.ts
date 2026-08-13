@@ -38,8 +38,8 @@ export default class RecklessAttack extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "flags.automated-conditions-5e.grants.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.grants.attack.advantage"),
         ],
       },
     ];

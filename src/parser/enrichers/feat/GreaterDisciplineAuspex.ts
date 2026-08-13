@@ -30,8 +30,8 @@ export default class GreaterDisciplineAuspex extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.wis"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("ability.int || ability.wis", 20, "flags.automated-conditions-5e.check.advantage"),
-          DDBEnricherData.ChangeHelper.customChange("ability.int || ability.wis", 20, "flags.automated-conditions-5e.save.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("ability.int || ability.wis", 20, "flags.automated-conditions-5e.check.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("ability.int || ability.wis", 20, "flags.automated-conditions-5e.save.advantage"),
         ],
       },
     ];

@@ -11,7 +11,7 @@ export default class FreyjasAllure extends DDBEnricherData {
           durationSeconds: 60,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
       },
     ];

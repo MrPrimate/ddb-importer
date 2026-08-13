@@ -28,7 +28,7 @@ export default class RiskyBusiness extends DDBEnricherData {
         ac5eChanges: [
           // automated-conditions-5e: the next attack roll is made at
           // disadvantage; "once" expires the flag after a single use
-          DDBEnricherData.ChangeHelper.customChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
       },
     ];

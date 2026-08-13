@@ -36,8 +36,8 @@ export default class NimbusOfPathos extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.automated-conditions-5e.save.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.save.advantage"),
         ],
       },
     ];

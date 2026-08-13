@@ -72,7 +72,7 @@ export default class InfernalChallenge extends DDBEnricherData {
           durationSeconds: 60,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "(opponentActor.actorId === effectOriginActor.actorId ? 0 : 1)",
             20,
             "flags.automated-conditions-5e.attack.disadvantage",

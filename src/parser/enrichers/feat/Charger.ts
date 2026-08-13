@@ -29,7 +29,7 @@ export default class Charger extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "bonus=1d8; actionType.mwak && movementLastSegment >= 10",
             20,
             "flags.automated-conditions-5e.damage.bonus",

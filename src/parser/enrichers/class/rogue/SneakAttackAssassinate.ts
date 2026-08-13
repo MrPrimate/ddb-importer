@@ -34,7 +34,7 @@ export default class SneakAttackAssassinate extends DDBEnricherData {
           transfer: true,
         },
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.ac5eChange(
             "combat.round === 1 && rollingActor.combatTurn < opponentActor.combatTurn",
             20,
             "flags.automated-conditions-5e.attack.advantage",

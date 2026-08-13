@@ -21,7 +21,7 @@ export default class FocusedShot extends DDBEnricherData {
         ac5eOnly: true,
         ac5eChanges: [
           // automated-conditions-5e: advantage on the next attack roll only
-          DDBEnricherData.ChangeHelper.customChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
         options: {
           durationRounds: 1,

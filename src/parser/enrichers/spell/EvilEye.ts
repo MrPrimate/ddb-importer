@@ -15,7 +15,7 @@ export default class EvilEye extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnStartSource"],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.addChange("set=19", 20, "flags.automated-conditions-5e.grants.attack.criticalThreshold"),
+          DDBEnricherData.ChangeHelper.ac5eChange("set=19", 20, "flags.automated-conditions-5e.grants.attack.criticalThreshold"),
         ],
       },
     ];

@@ -74,7 +74,7 @@ export default class HuntersMark extends DDBEnricherData {
         ],
         ac5eChanges: [
           // the marked target grants the caster bonus damage on attacks
-          DDBEnricherData.ChangeHelper.customChange(markBonus, 20, "flags.automated-conditions-5e.grants.damage.bonus"),
+          DDBEnricherData.ChangeHelper.ac5eChange(markBonus, 20, "flags.automated-conditions-5e.grants.damage.bonus"),
         ],
         options: {
           durationSeconds: 3600,

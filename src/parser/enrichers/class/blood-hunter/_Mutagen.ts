@@ -10,7 +10,7 @@ interface IMutagenLevel {
 interface IMutagenEffectArgs {
   changes?: IActiveEffectChangeData[];
   midiChanges?: IActiveEffectChangeData[];
-  ac5eChanges?: IActiveEffectChangeData[];
+  ac5eChanges?: IAC5eActiveEffectChangeData[];
   atlChanges?: IActiveEffectChangeData[];
   durationSeconds?: number | null;
   level?: IMutagenLevel;

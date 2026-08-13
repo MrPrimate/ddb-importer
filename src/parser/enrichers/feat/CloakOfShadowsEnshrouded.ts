@@ -26,7 +26,7 @@ export default class CloakOfShadowsEnshrouded extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.ste"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.customChange("skill.ste", 20, "flags.automated-conditions-5e.check.advantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("skill.ste", 20, "flags.automated-conditions-5e.check.advantage"),
         ],
       },
     ];
