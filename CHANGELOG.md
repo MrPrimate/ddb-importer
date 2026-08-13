@@ -5,6 +5,7 @@
 - More Blood Hunter parsing improvements.
 - Gunslinger Parsing fixes @thetreat @crimsonedge
 - Mage Hand Press Ammo types are now injected into the system if munched into DDB Items.
+- Mage Hand Press Firearms now properly import without a damage mod.
 
 # 7.4.1
 
