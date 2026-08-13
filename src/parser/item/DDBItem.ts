@@ -135,7 +135,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   damageParts: I5eDamagePart[];
   healingParts: I5eDamagePart[];
   spellCompendium: CompendiumCollection<"Item"> | null;
-  activityOptions: IDDBActivityBuild;
+  activityOptions: IDDBItemActivityBuild;
   // assigned by #generateItemFlags() in the constructor
   flags!: IDDBItemFlags;
   infusionItemMap: IDDBInfusionItem | undefined;
@@ -1240,6 +1240,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #getGunslingerFeatures(): string[] {
     return DDBItem.hasOverkill(this.ddbData.character?.classes) ? ["overkill"] : [];
+  }
+
+  /**
+   * Critical Shot (Gunslinger 2)
+   * @param {IDDBClass[] | null | undefined} classes the character's classes
+   * @returns {number | null} the critical hit threshold, or null without the feature
+   */
+  static getCriticalShotThreshold(classes: IDDBClass[] | null | undefined): number | null {
+    for (const cls of classes ?? []) {
+      if (cls.definition?.name !== "Gunslinger") continue;
+      const feature = (cls.classFeatures ?? []).find((f) =>
+        f.definition.name === "Critical Shot"
+        && cls.level >= (f.definition.requiredLevel ?? 0),
+      );
+      if (feature?.levelScale?.fixedValue) return feature.levelScale.fixedValue;
+    }
+    return null;
   }
 
   #getMartialArtsDie(): IDDBItemMartialArtsDie {
@@ -2471,6 +2488,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
+   * Critical Shot (Gunslinger 2) expands the critical range of Ranged weapons.
+   * Unlike Overkill's 1d8 this does include firearms, which are Ranged weapons
+   * like any other; thrown melee weapons (attackType 1) are still excluded.
+   * @returns {number | null} the critical hit threshold, or null to leave it alone
+   */
+  get rangedCriticalThreshold(): number | null {
+    if (this.parsingType !== "weapon") return null;
+    if (this.ddbDefinition.attackType !== 2) return null;
+    // ac5e ships its own transferred effect for this feature
+    // (enrichers/class/gunslinger/CriticalShot.ts), so stand down and let it win
+    if (SystemHelpers.effectModules().ac5eInstalled) return null;
+    return DDBItem.getCriticalShotThreshold(this.ddbData.character?.classes);
+  }
+
+  /**
    * Overkill's other half: "If you already add your modifier to the damage roll,
    * the target takes an extra 1d8 damage of the weapon's type." That is every
    * Ranged weapon which is not a firearm. DDB's attackType 2 marks the ranged
@@ -2487,6 +2519,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #generateWeaponSpecifics() {
     this.activityOptions.generateAttack = true;
+    const criticalThreshold = this.rangedCriticalThreshold;
+    if (criticalThreshold) this.activityOptions.criticalThreshold = criticalThreshold;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();

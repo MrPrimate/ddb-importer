@@ -5,7 +5,7 @@ export {};
 
 global {
 
-  type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override";
+  type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override" | "ac5e";
   type TActiveEffectChangePhase = "initial" | "final";
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
   type TEffectDurationExpiry = typeof EFFECT_EXPIRY_TYPES[number];

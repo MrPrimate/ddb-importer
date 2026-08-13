@@ -363,6 +363,126 @@ describe("DDBItem.hasOverkill", () => {
 });
 
 // =============================================================================
+// getCriticalShotThreshold - the Gunslinger level 2 feature, whose levelScale
+// DDB resolves to the threshold for the character's level
+// =============================================================================
+describe("DDBItem.getCriticalShotThreshold", () => {
+  function criticalShot(fixedValue: number | null) {
+    return {
+      definition: { name: "Critical Shot", requiredLevel: 2 },
+      levelScale: fixedValue === null ? null : { level: 2, fixedValue },
+    };
+  }
+
+  function makeClass({
+    name = "Gunslinger",
+    level = 2,
+    classFeatures = [criticalShot(19)] as any[],
+  } = {}) {
+    return { definition: { name }, level, classFeatures } as any;
+  }
+
+  // 19 at level 2, 18 at 9, 17 at 17, as DDB ships them
+  it.each([[2, 19], [9, 18], [17, 17], [20, 17]])("returns the level %i threshold %i", (level, fixed) => {
+    expect(DDBItem.getCriticalShotThreshold([makeClass({ level, classFeatures: [criticalShot(fixed)] })]))
+      .toBe(fixed);
+  });
+
+  it("returns null below the required level", () => {
+    expect(DDBItem.getCriticalShotThreshold([makeClass({ level: 1 })])).toBeNull();
+  });
+
+  it("ignores a Critical Shot feature on another class", () => {
+    expect(DDBItem.getCriticalShotThreshold([makeClass({ name: "Fighter", level: 20 })])).toBeNull();
+  });
+
+  it("finds it on a multiclassed Gunslinger", () => {
+    const classes = [makeClass({ name: "Fighter", level: 3, classFeatures: [] }), makeClass({ level: 9 })];
+    expect(DDBItem.getCriticalShotThreshold(classes)).toBe(19);
+  });
+
+  it("returns null without the feature or a scale value", () => {
+    expect(DDBItem.getCriticalShotThreshold([makeClass({ classFeatures: [] })])).toBeNull();
+    expect(DDBItem.getCriticalShotThreshold([makeClass({ classFeatures: [criticalShot(null)] })])).toBeNull();
+  });
+
+  // the muncher builds a mock character with no classes
+  it("returns null for an empty or missing class list", () => {
+    expect(DDBItem.getCriticalShotThreshold([])).toBeNull();
+    expect(DDBItem.getCriticalShotThreshold(null)).toBeNull();
+    expect(DDBItem.getCriticalShotThreshold(undefined)).toBeNull();
+  });
+});
+
+// =============================================================================
+// rangedCriticalThreshold - Critical Shot applied to a weapon, unless ac5e is
+// installed and its own effect is doing the job
+// =============================================================================
+describe("DDBItem.prototype.rangedCriticalThreshold", () => {
+  const criticalShot = {
+    definition: { name: "Critical Shot", requiredLevel: 2 },
+    levelScale: { level: 9, fixedValue: 18 },
+  };
+
+  function makeWeaponMock({
+    attackType = 2 as number | null,
+    parsingType = "weapon" as string | null,
+    classes = [{ definition: { name: "Gunslinger" }, level: 9, classFeatures: [criticalShot] }] as any[],
+  } = {}) {
+    const mock = Object.create(DDBItem.prototype);
+    mock.ddbDefinition = { attackType };
+    mock.parsingType = parsingType;
+    mock.ddbData = { character: { classes } };
+    return mock;
+  }
+
+  // SystemHelpers.effectModules() early-returns this cache, so setting it is
+  // the only way to fake an install without stubbing game.modules
+  function setAc5eInstalled(installed: boolean) {
+    foundry.utils.setProperty(
+      CONFIG,
+      "DDBI.EFFECT_CONFIG.MODULES.installedModules",
+      installed ? { ac5eInstalled: true } : null,
+    );
+  }
+
+  afterEach(() => {
+    setAc5eInstalled(false);
+  });
+
+  it("applies to a ranged weapon", () => {
+    expect(makeWeaponMock().rangedCriticalThreshold).toBe(18);
+  });
+
+  // unlike Overkill's 1d8, firearms are Ranged weapons and do crit-expand
+  it("applies to a firearm", () => {
+    const mock = makeWeaponMock();
+    mock.ddbDefinition.properties = [{ name: "Firearm" }];
+    expect(mock.rangedCriticalThreshold).toBe(18);
+  });
+
+  // Dagger, Handaxe, Javelin
+  it("does not apply to a melee or thrown melee weapon", () => {
+    expect(makeWeaponMock({ attackType: 1 }).rangedCriticalThreshold).toBeNull();
+    expect(makeWeaponMock({ attackType: null }).rangedCriticalThreshold).toBeNull();
+  });
+
+  it("does not apply without the feature", () => {
+    expect(makeWeaponMock({ classes: [] }).rangedCriticalThreshold).toBeNull();
+  });
+
+  // the enricher's ac5eOnly effect owns this when the module is present
+  it("stands down when ac5e is installed", () => {
+    setAc5eInstalled(true);
+    expect(makeWeaponMock().rangedCriticalThreshold).toBeNull();
+  });
+
+  it.each(["ammunition", "staff", "consumable", null])("is null for parsing type %s", (parsingType) => {
+    expect(makeWeaponMock({ parsingType }).rangedCriticalThreshold).toBeNull();
+  });
+});
+
+// =============================================================================
 // parsePerSpellMagicItem - per-spell charge detection
 // =============================================================================
 describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
