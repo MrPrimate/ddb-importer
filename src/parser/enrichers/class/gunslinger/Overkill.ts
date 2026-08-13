@@ -29,7 +29,7 @@ export default class Overkill extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `<section class="secret ddbSecret" id="secret-ddbOverkill">
-Weapons with the Firearm property in your inventory add your ability modifier to their damage automatically, because you have this feature. The activity below covers the other case, a Ranged weapon that already adds your modifier.
+Ranged weapons in your inventory already handle this feature themselves: those with the Firearm property add your ability modifier to their damage, and the rest roll the extra 1d8 as part of their own attack. The activity below is a manual fallback for a Ranged weapon that was not imported from D&D Beyond, so do not use it on top of one that was.
 </section>`,
     };
   }

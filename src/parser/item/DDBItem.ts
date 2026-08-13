@@ -2470,6 +2470,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return (this.ddbDefinition.properties ?? []).some((property) => property.name === "Firearm");
   }
 
+  /**
+   * Overkill's other half: "If you already add your modifier to the damage roll,
+   * the target takes an extra 1d8 damage of the weapon's type." That is every
+   * Ranged weapon which is not a firearm. DDB's attackType 2 marks the ranged
+   * weapon table, so thrown melee weapons (Dagger, Handaxe, Javelin) are
+   * excluded while the Dart, a Simple Ranged Weapon, is not.
+   * @returns {boolean} true if this weapon gains Overkill's extra 1d8
+   */
+  get hasOverkillRangedDamage(): boolean {
+    if (this.parsingType !== "weapon") return false;
+    if (!this.flags.classFeatures.includes("overkill")) return false;
+    if (this.isFirearm) return false;
+    return this.ddbDefinition.attackType === 2;
+  }
+
   #generateWeaponSpecifics() {
     this.activityOptions.generateAttack = true;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
@@ -2515,6 +2530,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         this.activityOptions.includeBaseDamage = false;
         this.activityOptions.damageParts = this.damageParts;
       } else {
+        if (this.hasOverkillRangedDamage) {
+          this.damageParts.push(SystemHelpers.buildDamagePart({
+            damageString: "1d8",
+            types: this.damageParts[0].types ?? null,
+          }));
+        }
         this.data.system.damage = {
           base: this.damageParts[0],
           versatile: this.versatileDamage ?? undefined,

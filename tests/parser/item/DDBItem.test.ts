@@ -271,6 +271,54 @@ describe("DDBItem.prototype.isFirearm", () => {
 });
 
 // =============================================================================
+// hasOverkillRangedDamage - Overkill's other half, an extra 1d8 for a Ranged
+// weapon that already adds the ability modifier
+// =============================================================================
+describe("DDBItem.prototype.hasOverkillRangedDamage", () => {
+  // DDB attackType: 1 melee, 2 ranged
+  function makeWeaponMock({
+    properties = [] as { name: string }[],
+    classFeatures = ["overkill"] as string[],
+    attackType = 2 as number | null,
+    parsingType = "weapon" as string | null,
+  } = {}) {
+    const mock = Object.create(DDBItem.prototype);
+    mock.ddbDefinition = { properties, attackType };
+    mock.flags = { classFeatures };
+    mock.parsingType = parsingType;
+    return mock;
+  }
+
+  const FIREARM = [{ name: "Firearm" }, { name: "Ammunition" }, { name: "Reload" }];
+
+  // Longbow, Shortbow, Sling and the Dart, which DDB types as ranged despite
+  // being thrown, because it is a Simple Ranged Weapon
+  it("applies to a ranged weapon", () => {
+    expect(makeWeaponMock().hasOverkillRangedDamage).toBe(true);
+  });
+
+  it("does not apply without the feature", () => {
+    expect(makeWeaponMock({ classFeatures: [] }).hasOverkillRangedDamage).toBe(false);
+    expect(makeWeaponMock({ classFeatures: ["pactWeapon"] }).hasOverkillRangedDamage).toBe(false);
+  });
+
+  // Dagger, Handaxe, Javelin: melee weapons that can be thrown, not Ranged weapons
+  it("does not apply to a melee or thrown melee weapon", () => {
+    expect(makeWeaponMock({ attackType: 1 }).hasOverkillRangedDamage).toBe(false);
+    expect(makeWeaponMock({ attackType: null }).hasOverkillRangedDamage).toBe(false);
+  });
+
+  // firearms take the ability modifier instead, never both
+  it("does not apply to a firearm", () => {
+    expect(makeWeaponMock({ properties: FIREARM }).hasOverkillRangedDamage).toBe(false);
+  });
+
+  it.each(["ammunition", "staff", "consumable", null])("is false for parsing type %s", (parsingType) => {
+    expect(makeWeaponMock({ parsingType }).hasOverkillRangedDamage).toBe(false);
+  });
+});
+
+// =============================================================================
 // hasOverkill - the Gunslinger level 11 feature, the Firearm property's
 // "unless otherwise stated"
 // =============================================================================

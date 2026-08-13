@@ -253,9 +253,9 @@ describe("fighter GraspingArrow", () => {
 describe("gunslinger Overkill", () => {
   const Enricher = ClassEnrichers.Gunslinger.Overkill;
 
-  // Overkill has two halves. The 1d8 is the "already adds your modifier" one and
-  // lives here; the firearm half is applied to the weapons themselves at parse
-  // time, via DDBItem.hasOverkill.
+  // Both halves of Overkill are applied to the inventory weapons themselves at
+  // parse time (DDBItem.isFirearm / hasOverkillRangedDamage). This activity is
+  // the manual fallback for a ranged weapon that was not imported from DDB.
   it("rolls 1d8 of the weapon's own damage type on a ranged weapon that already adds the modifier", () => {
     const e = build(Enricher);
     expect(e.type).toBe("damage");
@@ -268,8 +268,11 @@ describe("gunslinger Overkill", () => {
     });
   });
 
-  it("notes that firearms are handled on the weapons themselves", () => {
-    expect(build(Enricher).override.descriptionSuffix).toMatch(/Firearm property/);
+  it("notes that imported weapons handle both halves themselves", () => {
+    const suffix = build(Enricher).override.descriptionSuffix;
+    expect(suffix).toMatch(/Firearm property/);
+    expect(suffix).toMatch(/extra 1d8/);
+    expect(suffix).toMatch(/fallback/);
   });
 });
 
