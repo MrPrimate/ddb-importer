@@ -26,6 +26,12 @@
     </div>
   </header>
 
+  {{#if accessDenied}}
+    <div class="ddb-sticker-browser-notice ddb-sticker-browser-error">
+      <i class="fas fa-lock"></i> {{accessMessage}}
+    </div>
+  {{/if}}
+
   <div class="ddb-sticker-browser-body">
     <aside class="ddb-sticker-browser-sidebar">
       {{#if loading}}
@@ -60,6 +66,8 @@
             {{/each}}
           </ul>
         </div>
+      {{else if catalogError}}
+        <p class="ddb-sticker-browser-notice ddb-sticker-browser-error">{{catalogError}}</p>
       {{else}}
         <p class="hint">Catalog not loaded yet.</p>
       {{/if}}
@@ -118,6 +126,10 @@
         {{else}}
           <p class="hint">No stickers match the current filter.</p>
         {{/if}}
+      {{else if catalogError}}
+        <p class="ddb-sticker-browser-notice ddb-sticker-browser-error">
+          <i class="fas fa-triangle-exclamation"></i> {{catalogError}}
+        </p>
       {{else}}
         <p class="hint">Click Load Catalog to fetch your stickers.</p>
       {{/if}}

@@ -106,6 +106,27 @@ const PatreonHelper = {
     }
   },
 
+  // Convenience
+  getAccessMatrix: (local = false): IPatreonAccessMatrix => {
+    return PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier(local) ?? "");
+  },
+
+  // Wipe every trace of supporter status
+  clearPatreonStatus: async (local = false): Promise<void> => {
+    await PatreonHelper.setPatreonKey(local ? null : "", local);
+    await PatreonHelper.setPatreonUser("", local);
+    if (local) {
+      await setLocalStorage("ddb-patreon-tier", null);
+      CONFIG.DDBI.PATREON.tierLocal = null;
+      CONFIG.DDBI.PATREON.tiersLocal = null;
+    } else {
+      await utils.setSetting<string>("patreon-tier", "");
+      CONFIG.DDBI.PATREON.tier = null;
+      CONFIG.DDBI.PATREON.tiers = null;
+    }
+    logger.info(`Cleared ${local ? "local" : "world"} Patreon supporter status`);
+  },
+
   setPatreonTier: async (local = false) => {
     const tier = await PatreonHelper.fetchPatreonTier(local);
     if (local) {

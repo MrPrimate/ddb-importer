@@ -1,14 +1,12 @@
 import DDBStickerBrowser from "../../apps/DDBStickerBrowser";
-import { PatreonHelper, utils } from "../../lib/_module";
+import { logger } from "../../lib/_module";
 
 export function addStickerBrowserControl(controls: Record<string, any>) {
-  if (!game.user?.isGM) return;
-  const tier = PatreonHelper.getPatreonTier();
-  const tiers = PatreonHelper.calculateAccessMatrix(tier);
-  const devMode = utils.getSetting<boolean>("developer-mode");
+  // Fast, synchronous gate
+  if (!DDBStickerBrowser.hasAccess()) return;
 
-  if (!devMode && !tiers.experimentalMid) return;
 
+  if (!controls.tiles?.tools) return;
 
   controls.tiles.tools["ddb-stickers"] = {
     name: "ddb-stickers",
@@ -19,7 +17,9 @@ export function addStickerBrowserControl(controls: Record<string, any>) {
     visible: true,
     onChange: (_event: any, active: boolean) => {
       if (active === false) return;
-      new DDBStickerBrowser().render({ force: true });
+      DDBStickerBrowser.open().catch((error: unknown) => {
+        logger.error("Unable to open the DDB Sticker Browser", { error });
+      });
     },
   };
 }

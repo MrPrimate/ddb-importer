@@ -38,7 +38,7 @@ export default class DDBStickers {
       const data = await postJson<IDDBProxyResponse<T>>(`${parsingApi}${path}`, body);
       if (!data.success) {
         logger.error(`DDBStickers ${path} failed: ${data.message}`, data);
-        return null;
+        throw new Error(data.message || `The DDB proxy rejected ${path}`);
       }
       return (data.data ?? null) as T | null;
     } catch (error) {
@@ -85,11 +85,11 @@ export default class DDBStickers {
           if (json?.message) message = json.message;
         } catch (_e) { /* keep status-only message */ }
         logger.error(`DDBStickers.downloadImage failed: ${message}`);
-        return null;
+        throw new Error(message);
       }
       if (!response.ok) {
         logger.error(`DDBStickers.downloadImage failed: HTTP ${response.status}`);
-        return null;
+        throw new Error(`HTTP ${response.status}`);
       }
       return await response.blob();
     } catch (error) {

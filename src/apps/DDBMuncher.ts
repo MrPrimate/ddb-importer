@@ -1499,7 +1499,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async openStickerBrowser(this: DDBMuncher, _event: any, _target: any) {
-    new DDBStickerBrowser().render({ force: true });
+    await DDBStickerBrowser.open();
   }
 
   static async openAdventureBrowser(this: DDBMuncher, _event: any, _target: any) {

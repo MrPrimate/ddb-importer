@@ -1,9 +1,13 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
+import { logger, utils, DDBCampaigns, PatreonHelper, Secrets } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMaps from "../muncher/DDBMaps";
 import DDBStickers from "../muncher/DDBStickers";
 import DDBSticker from "../muncher/adventure/DDBSticker";
+import DDBKeyChangeDialog from "./DDBKeyChangeDialog";
+
+const TIER_REQUIRED_MESSAGE
+  = "The DDB Sticker Browser is available to Undying tier Patreon supporters and above.";
 
 interface IStickerStorage {
   payload: IDDBStickersPayload | null;
@@ -51,6 +55,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   private _campaigns: any[] | null = null;
   private _campaignFetchInFlight = false;
   private _placementInFlight = false;
+  private _catalogError: string | null = null;
 
   static override DEFAULT_OPTIONS = {
     id: "ddb-sticker-browser",
@@ -84,7 +89,70 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     return {};
   }
 
+  /**
+   * Whether the current user may use the sticker browser, based on the cached
+   * tier alone. Synchronous, so it is safe from _prepareContext and the
+   * getSceneControlButtons hook - but it trusts `patreon-tier`, which only gets
+   * rewritten when the key string changes. Use `open()` for the authoritative
+   * check.
+   */
+  static hasAccess(): boolean {
+    if (!game.user?.isGM) return false;
+    return PatreonHelper.getAccessMatrix().experimentalMid;
+  }
+
+  /**
+   * Every caller should come through here rather than
+   * constructing the app directly: it re-validates the Patreon key against the
+   * proxy, offers the key change dialog when the key has expired, and only
+   * opens once the tier actually permits it.
+   */
+  static async open(): Promise<DDBStickerBrowser | null> {
+    if (!game.user?.isGM) {
+      ui.notifications.warn("Only a GM can use the DDB Sticker Browser.");
+      return null;
+    }
+
+    let valid = true;
+    try {
+      // setKey=false: suppress the built-in dialog so we own the cancel path.
+      valid = await PatreonHelper.isValidKey(false, false);
+    } catch (error) {
+      // The proxy is unreachable, which means "we don't know", not "you are not
+      // entitled". Fall through to the cached tier rather than locking a paying
+      // supporter out of a feature because their network blipped.
+      logger.warn("Unable to verify the Patreon key, falling back to the cached tier", { error });
+    }
+
+    if (!valid) {
+      const resolved = await DDBKeyChangeDialog.resolve({ callMuncher: false });
+      if (!resolved) return null;
+    }
+
+    // Re-read after the dialog: it may have refreshed the tier via a new key,
+    // or cleared it entirely via "No Longer a Patreon Supporter".
+    if (!DDBStickerBrowser.hasAccess()) {
+      ui.notifications.warn(TIER_REQUIRED_MESSAGE);
+      return null;
+    }
+
+    const app = new DDBStickerBrowser();
+    await app.render({ force: true });
+    return app;
+  }
+
+  /**
+   * The class is reachable via api.lib.DDBStickerBrowser,
+   * so every action re-checks rather than trusting that `open()` was used.
+   */
+  private _denyIfNoAccess(): boolean {
+    if (DDBStickerBrowser.hasAccess()) return false;
+    ui.notifications.warn(TIER_REQUIRED_MESSAGE);
+    return true;
+  }
+
   static async reloadCatalog(this: DDBStickerBrowser, _event: any, _target: any) {
+    if (this._denyIfNoAccess()) return;
     await this._loadCatalog({ force: true });
   }
 
@@ -108,6 +176,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   }
 
   static async importSticker(this: DDBStickerBrowser, _event: any, target: any) {
+    if (this._denyIfNoAccess()) return;
     const id = target?.dataset?.stickerId;
     if (!id) return;
     const storage = ensureStorage();
@@ -120,6 +189,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   }
 
   static async placeSticker(this: DDBStickerBrowser, _event: any, target: any) {
+    if (this._denyIfNoAccess()) return;
     if (this._placementInFlight) {
       ui.notifications.info("A sticker placement is already in progress.");
       return;
@@ -148,6 +218,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   }
 
   static async importAllVisible(this: DDBStickerBrowser) {
+    if (this._denyIfNoAccess()) return;
     const visible = this._visibleStickers();
     if (!visible.length) {
       ui.notifications.warn("No stickers match the current filter.");
@@ -161,11 +232,13 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   }
 
   async _loadCatalog({ force = false } = {}) {
+    if (!DDBStickerBrowser.hasAccess()) return null;
     const storage = ensureStorage();
     if (!force && storage.payload) return storage.payload;
     if (this.loading) return null;
     try {
       this.loading = true;
+      this._catalogError = null;
       await this.render();
 
       // Pull the maps catalog in parallel so source-id -> name lookup works
@@ -188,11 +261,18 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       })();
 
       const [, payload] = await Promise.all([catalogTask, DDBStickers.fetchAll()]);
+      // Never cache a failed fetch as a success - doing so rendered an empty
+      // grid alongside a fresh "last fetched" timestamp.
+      if (!payload) {
+        this._catalogError = "No stickers were returned. Check the selected campaign and your D&D Beyond entitlements.";
+        return null;
+      }
       storage.payload = payload;
       storage.fetchedAt = Date.now();
       return payload;
     } catch (error) {
       logger.error("DDBStickerBrowser: catalog fetch failed", error);
+      this._catalogError = utils.errorMessage(error);
       ui.notifications.error(`Sticker catalog fetch failed: ${utils.errorMessage(error)}`);
       return null;
     } finally {
@@ -322,7 +402,15 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       } catch (_e) { /* ignore */ }
     };
     progressUpdate(`Downloading "${sticker.name}"...`, 0.1);
-    const result = await ddbSticker.import();
+    let result: IDDBStickerImportResult | null;
+    try {
+      result = await ddbSticker.import();
+    } catch (error) {
+      logger.error(`DDBStickerBrowser: import of "${sticker.name}" failed`, error);
+      ui.notifications.error(`Failed to import sticker "${sticker.name}": ${utils.errorMessage(error)}`);
+      progressUpdate(`Failed: ${sticker.name}`, 1);
+      return null;
+    }
 
     if (!result || !result.imagePath) {
       ui.notifications.error(
@@ -767,7 +855,12 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       });
     }
 
+    const accessDenied = !DDBStickerBrowser.hasAccess();
+
     Object.assign(context, {
+      accessDenied,
+      accessMessage: accessDenied ? TIER_REQUIRED_MESSAGE : null,
+      catalogError: this._catalogError,
       hasCatalog: !!storage.payload,
       loading: this.loading,
       fetchedAt: storage.fetchedAt ? new Date(storage.fetchedAt).toLocaleTimeString() : null,
@@ -783,7 +876,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         ...c,
         selected: String(c.id) === selectedCampaignId,
       })),
-      canLoadCatalog: selectedCampaignId !== "" && !this.loading,
+      canLoadCatalog: !accessDenied && selectedCampaignId !== "" && !this.loading,
     });
     logger.debug("DDBStickerBrowser context prepared", context);
     return context;
@@ -808,6 +901,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
 
   override async _onFirstRender(context: any, options: any) {
     await super._onFirstRender(context, options);
+    if (!DDBStickerBrowser.hasAccess()) return;
     // Only auto-load when a campaign id is already set; otherwise wait for
     // the user to pick one.
     const campaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();

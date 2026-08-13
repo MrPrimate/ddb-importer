@@ -1,13 +1,17 @@
 import logger from "../lib/Logger";
-import PatreonHelper from "../lib/PatreonHelper";
+import PatreonHelper, { type IPatreonLinkResponse } from "../lib/PatreonHelper";
 import DDBAppV2 from "./DDBAppV2";
 import DDBMuncher from "./DDBMuncher";
-import DDBSetup from "./DDBSetup";
 
 
 export default class DDBKeyChangeDialog extends DDBAppV2 {
 
   local: boolean;
+
+  // Tracks whether the user actually completed an action (saved a key, or
+  // declared they are no longer a supporter) rather than dismissing the
+  // dialog.
+  submitted = false;
 
   callback: (() => Promise<void> | void) | null;
 
@@ -16,8 +20,6 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
   key: string;
 
   patreonUser: string;
-
-  config?: unknown;
 
   constructor(options: { local?: boolean; callback?: (() => Promise<void> | void) | null; callMuncher?: boolean } & Record<string, any> = {}) {
     super(options);
@@ -46,7 +48,8 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     },
     tag: "form",
     actions: {
-      connectToPatreonButton: DDBSetup.connectToPatreonButton,
+      connectToPatreonButton: DDBKeyChangeDialog.connectToPatreonButton,
+      clearPatreonStatus: DDBKeyChangeDialog.clearPatreonStatus,
     },
     form: {
       handler: DDBKeyChangeDialog.#handleFormSubmission,
@@ -114,7 +117,10 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     if (currentKey !== formData.object["patreon-key"]) {
       await PatreonHelper.setPatreonKey(formData.object["patreon-key"], this.local);
       await PatreonHelper.setPatreonTier(this.local);
+      ui.controls?.render({ reset: true });
     }
+
+    this.submitted = true;
 
     if (this.callback) {
       await this.callback();
@@ -126,22 +132,56 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     await this.close({ dnd5e: { submitted: true } } as unknown as { submitted?: boolean });
   }
 
+  /**
+   * DDBSetup's handler writes this.patreonKey/this.patreonTier, but this dialog
+   * renders from this.key/this.patreonUser
+   */
+  static async connectToPatreonButton(this: DDBKeyChangeDialog, event: Event) {
+    event.preventDefault();
+    await PatreonHelper.linkToPatreon(async (data: IPatreonLinkResponse) => {
+      this.key = data.key;
+      this.patreonUser = data.email;
+      await this.render();
+    });
+  }
+
+  static async clearPatreonStatus(this: DDBKeyChangeDialog, event: Event) {
+    event.preventDefault();
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: { title: "No Longer a Patreon Supporter" },
+      content: `<p>This clears your stored Patreon key.</p>
+        <p>Patreon-only features will stop being offered until you link again.</p>
+        <p>Are you sure?</p>`,
+    });
+    if (!confirmed) return;
+
+    await PatreonHelper.clearPatreonStatus(this.local);
+    this.key = "";
+    this.patreonUser = "";
+    ui.controls?.render({ reset: true });
+    ui.notifications.info("Patreon supporter status cleared.");
+
+    this.submitted = true;
+    await this.close();
+  }
+
 
   /* -------------------------------------------- */
   /*  Factory Methods                             */
   /* -------------------------------------------- */
 
   /**
-   * Display the create spell scroll dialog.
-   * @param {Item.Implementation|object} spell The spell or item data to be made into a tattoo.
-   * @param {SpellScrollConfiguration} config  Configuration options for tattoo creation.
-   * @param {object} [options={}]              Additional options for the application.
-   * @returns {Promise<object|null>}           Form data object with results of the dialog.
+   * Render the dialog and wait for the user to finish with it.
+   * @param {object} [options={}] Application options, e.g. { local, callMuncher }.
+   * @returns {Promise<boolean>}  True if the user saved a key or declared they
+   *                              are no longer a supporter, false if they
+   *                              cancelled or closed the dialog.
    */
-  static async create(spell: any, config: any, options = {}) {
+  static async resolve(options: Record<string, any> = {}): Promise<boolean> {
     return new Promise((resolve) => {
-      const dialog = new this({ spell, config, ...options });
-      dialog.addEventListener("close", (_event) => resolve(dialog.config), { once: true });
+      const dialog = new this(options);
+      dialog.addEventListener("close", () => resolve(dialog.submitted), { once: true });
       dialog.render({ force: true });
     });
   }
