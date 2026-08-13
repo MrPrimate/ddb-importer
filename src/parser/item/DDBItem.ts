@@ -1224,6 +1224,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return features;
   }
 
+  /**
+   * Overkill (Gunslinger 11)
+   * @param {IDDBClass[] | null | undefined} classes the character's classes
+   * @returns {boolean} true if the character has the feature at the required level
+   */
+  static hasOverkill(classes: IDDBClass[] | null | undefined): boolean {
+    return (classes ?? []).some((cls) =>
+      cls.definition?.name === "Gunslinger"
+      && (cls.classFeatures ?? []).some((feature) =>
+        feature.definition.name === "Overkill"
+        && cls.level >= (feature.definition.requiredLevel ?? 0)),
+    );
+  }
+
+  #getGunslingerFeatures(): string[] {
+    return DDBItem.hasOverkill(this.ddbData.character?.classes) ? ["overkill"] : [];
+  }
+
   #getMartialArtsDie(): IDDBItemMartialArtsDie {
     let result: IDDBItemMartialArtsDie = {
       diceCount: null,
@@ -1275,7 +1293,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #getClassFeatures() {
     const warlockFeatures = this.#getWarlockFeatures();
     const monkFeatures = this.#getMonkFeatures();
-    return warlockFeatures.concat(monkFeatures);
+    const gunslingerFeatures = this.#getGunslingerFeatures();
+    return warlockFeatures.concat(monkFeatures, gunslingerFeatures);
   }
 
   #generateItemFlags() {
@@ -1572,6 +1591,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         if (magicalBonus > 0) {
           foundry.utils.setProperty(this.data, "system.magicalBonus", magicalBonus);
           this.addMagical = true;
+          // dnd5e only applies system.magicalBonus to a weapon's *base* damage
+          // part, and a firearm deliberately has none, so fold it into the
+          // part the activity actually rolls. Known limitation: unlike
+          // dnd5e's own handling this isn't gated on `magicAvailable`, so an
+          // unattuned magical firearm still adds it to damage. Attack rolls are
+          // unaffected, they read system.magicalBonus directly.
+          if (this.isFirearm && this.damageParts.length > 0) {
+            const damagePart = this.damageParts[0];
+            if (damagePart.custom?.enabled) {
+              damagePart.custom.formula = `${damagePart.custom.formula} + ${magicalBonus}`;
+            } else {
+              damagePart.bonus = damagePart.bonus
+                ? `${damagePart.bonus} + ${magicalBonus}`
+                : `${magicalBonus}`;
+            }
+          }
         }
         break;
       }
@@ -2422,6 +2457,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this._generateUses();
   }
 
+  /**
+   * DDB's Firearm property (id 33): "You don't add your ability modifier to the
+   * weapon's damage, unless otherwise stated." dnd5e always appends @mod to a
+   * weapon's *base* damage part (attack-data.mjs#_processDamagePart) and offers
+   * no opt-out, so these weapons carry their damage on the activity instead,
+   * where non-base parts are left alone.
+   * @returns {boolean} true if this is a weapon with the DDB Firearm property
+   */
+  get isFirearm(): boolean {
+    if (this.parsingType !== "weapon") return false;
+    return (this.ddbDefinition.properties ?? []).some((property) => property.name === "Firearm");
+  }
+
   #generateWeaponSpecifics() {
     this.activityOptions.generateAttack = true;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
@@ -2450,13 +2498,31 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.meleeAttack = false;
     }
     if (this.damageParts.length > 0 && "damage" in this.data.system) {
-      this.data.system.damage = {
-        base: this.damageParts[0],
-        versatile: this.versatileDamage ?? undefined,
-        // parts: this.actionData.save
-        //   ? []
-        //   : this.damageParts.slice(1),
-      };
+      if (this.isFirearm) {
+        // leaving system.damage.base empty is the point: with no base part dnd5e has nothing to append @mod to.
+        // Note that a "Restricted Attack" rider activity (see
+        // #generateWeaponDamageParts) would roll only its rider dice on such a
+        // weapon; no DDB firearm has a restricted damage modifier today.
+        if (this.flags.classFeatures.includes("overkill")) {
+          // Overkill (Gunslinger 11) puts the modifier back. It rides along as
+          // its own part rather than restoring the base damage, so a firearm
+          // looks the same either way and only this part comes and goes.
+          this.damageParts.splice(1, 0, SystemHelpers.buildDamagePart({
+            damageString: "@mod",
+            types: this.damageParts[0].types ?? null,
+          }));
+        }
+        this.activityOptions.includeBaseDamage = false;
+        this.activityOptions.damageParts = this.damageParts;
+      } else {
+        this.data.system.damage = {
+          base: this.damageParts[0],
+          versatile: this.versatileDamage ?? undefined,
+          // parts: this.actionData.save
+          //   ? []
+          //   : this.damageParts.slice(1),
+        };
+      }
     }
 
     const dictionaryWeapon = DICTIONARY.actor.proficiencies

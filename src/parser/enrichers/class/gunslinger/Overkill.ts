@@ -26,4 +26,12 @@ export default class Overkill extends DDBEnricherData {
     };
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      descriptionSuffix: `<section class="secret ddbSecret" id="secret-ddbOverkill">
+Weapons with the Firearm property in your inventory add your ability modifier to their damage automatically, because you have this feature. The activity below covers the other case, a Ranged weapon that already adds your modifier.
+</section>`,
+    };
+  }
+
 }

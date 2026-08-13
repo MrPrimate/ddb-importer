@@ -234,6 +234,87 @@ describe("DDBItem.getMagicItemResetType", () => {
 });
 
 // =============================================================================
+// isFirearm - DDB's Firearm property (id 33) says the ability modifier is not
+// added to damage, so these weapons carry their damage on the activity
+// =============================================================================
+describe("DDBItem.prototype.isFirearm", () => {
+  function makeWeaponMock({
+    properties = [] as { name: string }[],
+    parsingType = "weapon" as string | null,
+  } = {}) {
+    const mock = Object.create(DDBItem.prototype);
+    mock.ddbDefinition = { properties };
+    mock.parsingType = parsingType;
+    return mock;
+  }
+
+  const FIREARM = [{ name: "Firearm" }, { name: "Ammunition" }, { name: "Reload" }];
+  // the WotC firearms, which carry no Firearm property and keep their modifier
+  const WOTC_FIREARM = [{ name: "Ammunition (Firearms)" }, { name: "Range" }, { name: "Loading" }];
+
+  it("matches a weapon with the Firearm property", () => {
+    expect(makeWeaponMock({ properties: FIREARM }).isFirearm).toBe(true);
+  });
+
+  it("does not match Ammunition (Firearms) weapons such as the Pistol and Musket", () => {
+    expect(makeWeaponMock({ properties: WOTC_FIREARM }).isFirearm).toBe(false);
+  });
+
+  it("is false for a weapon with no properties", () => {
+    expect(makeWeaponMock().isFirearm).toBe(false);
+    expect(makeWeaponMock({ properties: undefined as any }).isFirearm).toBe(false);
+  });
+
+  it.each(["ammunition", "staff", "consumable", null])("is false for parsing type %s", (parsingType) => {
+    expect(makeWeaponMock({ properties: FIREARM, parsingType }).isFirearm).toBe(false);
+  });
+});
+
+// =============================================================================
+// hasOverkill - the Gunslinger level 11 feature, the Firearm property's
+// "unless otherwise stated"
+// =============================================================================
+describe("DDBItem.hasOverkill", () => {
+  const overkill = { definition: { name: "Overkill", requiredLevel: 11 } };
+  const trickShot = { definition: { name: "Trick Shot", requiredLevel: 3 } };
+
+  function makeClass({ name = "Gunslinger", level = 11, classFeatures = [overkill] } = {}) {
+    return { definition: { name }, level, classFeatures } as any;
+  }
+
+  it("detects the feature on a Gunslinger at the required level", () => {
+    expect(DDBItem.hasOverkill([makeClass()])).toBe(true);
+    expect(DDBItem.hasOverkill([makeClass({ level: 20 })])).toBe(true);
+  });
+
+  // DDB lists every class feature regardless of the character's level
+  it("does not detect it below the required level", () => {
+    expect(DDBItem.hasOverkill([makeClass({ level: 10 })])).toBe(false);
+    expect(DDBItem.hasOverkill([makeClass({ level: 1 })])).toBe(false);
+  });
+
+  it("ignores an Overkill feature on another class", () => {
+    expect(DDBItem.hasOverkill([makeClass({ name: "Blood Hunter", level: 20 })])).toBe(false);
+  });
+
+  it("finds it on a multiclassed Gunslinger", () => {
+    const classes = [makeClass({ name: "Fighter", level: 3, classFeatures: [] }), makeClass({ level: 12 })];
+    expect(DDBItem.hasOverkill(classes)).toBe(true);
+  });
+
+  it("is false without the feature", () => {
+    expect(DDBItem.hasOverkill([makeClass({ classFeatures: [trickShot] })])).toBe(false);
+  });
+
+  // the muncher builds a mock character with no classes
+  it("is false for an empty or missing class list", () => {
+    expect(DDBItem.hasOverkill([])).toBe(false);
+    expect(DDBItem.hasOverkill(null)).toBe(false);
+    expect(DDBItem.hasOverkill(undefined)).toBe(false);
+  });
+});
+
+// =============================================================================
 // parsePerSpellMagicItem - per-spell charge detection
 // =============================================================================
 describe("DDBItem.prototype.parsePerSpellMagicItem", () => {

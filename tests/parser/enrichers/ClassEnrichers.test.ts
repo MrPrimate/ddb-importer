@@ -250,6 +250,29 @@ describe("fighter GraspingArrow", () => {
   });
 });
 
+describe("gunslinger Overkill", () => {
+  const Enricher = ClassEnrichers.Gunslinger.Overkill;
+
+  // Overkill has two halves. The 1d8 is the "already adds your modifier" one and
+  // lives here; the firearm half is applied to the weapons themselves at parse
+  // time, via DDBItem.hasOverkill.
+  it("rolls 1d8 of the weapon's own damage type on a ranged weapon that already adds the modifier", () => {
+    const e = build(Enricher);
+    expect(e.type).toBe("damage");
+    expect(e.activity.activationType).toBe("special");
+    expect(e.activity.activationCondition).toMatch(/already adds your ability modifier/);
+    expect(e.activity.data.damage.parts[0]).toMatchObject({
+      number: 1,
+      denomination: 8,
+      types: ["bludgeoning", "piercing", "slashing"],
+    });
+  });
+
+  it("notes that firearms are handled on the weapons themselves", () => {
+    expect(build(Enricher).override.descriptionSuffix).toMatch(/Firearm property/);
+  });
+});
+
 describe("kindred BloodPotency", () => {
   it("pools Blood Points with no rest recovery and pulls both spenders", () => {
     // points come back by feeding, so a rest recovery here would be wrong
