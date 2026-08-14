@@ -54,6 +54,31 @@ interface ISpellCompendiumIndexEntry {
   };
 }
 
+function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
+  const cantripBoosts
+    = DDBModifiers.getChosenClassModifiers(ddb).filter(
+      (mod) =>
+        mod.type === "bonus"
+        && mod.subType === `${klassName?.toLowerCase()}-cantrip-damage`
+        && (mod.restriction === null || mod.restriction === ""),
+    );
+
+  const cantripBoost = cantripBoosts.length > 0;
+  if (!cantripBoost) return false;
+
+  // AC5e applies the Cleric's Potent Spellcasting bonus itself (see the
+  // PotentSpellcasting enricher), so don't also bake it into the cantrip damage.
+  // Any other source of cleric cantrip damage still needs the boost.
+  if (game.modules?.get("automated-conditions-5e")?.active
+    && klassName === "Cleric"
+    && cantripBoosts.some((mod) => DDBDataUtils.isModifierFromNamedFeature(ddb, mod, "Potent Spellcasting"))
+  ) {
+    return false;
+  }
+
+  return cantripBoost;
+}
+
 export default class CharacterSpellFactory {
 
   processed: I5eSpellItem[] = [];
@@ -413,13 +438,7 @@ export default class CharacterSpellFactory {
       }
       logger.debug("Spell parsing, class info", classInfo);
 
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
 
       const rawSpells = [
         ...playerClass.spells,
@@ -587,13 +606,7 @@ export default class CharacterSpellFactory {
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
       const klassName = klass?.definition?.name;
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${klassName?.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, klassName ?? "");
 
       // add some data for the parsing of the spells into the data structure
       const flagData: IParseSpellFlagData = {

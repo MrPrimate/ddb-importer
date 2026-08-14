@@ -122,6 +122,9 @@ function _generateChildUpdate({ child, parent }: {
     if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
     const targets = activity.consumption?.targets ?? [];
     const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") as string ?? "1";
+    // only retarget itemUses entries; the parser may push an attribute resource
+    // target first and that must not be pointed at an item
+    const itemUsesTarget = targets.find((target) => target.type === "itemUses");
     if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
       targets.push({
         type: "itemUses",
@@ -129,8 +132,16 @@ function _generateChildUpdate({ child, parent }: {
         target: `${parent.type}:${parent.system.identifier}`,
       });
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
+    } else if (itemUsesTarget) {
+      itemUsesTarget.target = `${parent.type}:${parent.system.identifier}`;
+      foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
     } else if (targets.length > 0) {
-      targets[0].target = `${parent.type}:${parent.system.identifier}`;
+      // non-itemUses targets (attribute resource, hitDice) stay; add the pool link
+      targets.push({
+        type: "itemUses",
+        value,
+        target: `${parent.type}:${parent.system.identifier}`,
+      });
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
     } else {
       foundry.utils.setProperty(update, `system.activities.${id}.consumption`, {

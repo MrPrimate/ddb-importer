@@ -28,6 +28,7 @@ export default class Maneuvers extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
+  // each pulled-on maneuver action spends a Risk Die via the description parse
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return Maneuvers.MANEUVER_ACTIONS
       .filter((name) => this.hasAction({ name: `Maneuver: ${name}`, type: "class" }))
@@ -37,10 +38,6 @@ export default class Maneuvers extends DDBEnricherData {
             name: `Maneuver: ${name}`,
             type: "class" as const,
             rename: [name],
-          },
-          overrides: {
-            addItemConsume: true,
-            itemConsumeTargetName: "Risk",
           },
         };
       });

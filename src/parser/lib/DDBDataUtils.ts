@@ -297,6 +297,36 @@ export default class DDBDataUtils {
   }
 
   /**
+   * Is this modifier granted by a class feature or class option with this name?
+   * DDB points a modifier at its granting component with componentId/componentTypeId,
+   * which may be a class feature (2014 subclass features), a chosen class option
+   * (the 2024 Blessed Strikes choice), or an optional class feature definition.
+   */
+  static isModifierFromNamedFeature(ddb: IDDBData, mod: IModifiersMod, featureName: string): boolean {
+    const classFeatureMatch = ddb.character.classes.some((klass) =>
+      klass.classFeatures.some((feature) =>
+        feature.definition.id === mod.componentId
+        && feature.definition.entityTypeId === mod.componentTypeId
+        && feature.definition.name === featureName,
+      ),
+    );
+    if (classFeatureMatch) return true;
+
+    const optionMatch = (ddb.character.options.class ?? []).some((option) =>
+      option.definition.name === featureName
+      && ((option.definition.id === mod.componentId && option.definition.entityTypeId === mod.componentTypeId)
+        || (option.componentId === mod.componentId && option.componentTypeId === mod.componentTypeId)),
+    );
+    if (optionMatch) return true;
+
+    return (ddb.classOptions ?? []).some((option) =>
+      option.id === mod.componentId
+      && option.entityTypeId === mod.componentTypeId
+      && option.name === featureName,
+    );
+  }
+
+  /**
    * Gets the levelscaling value for a feature
    * @param {*} feature
    * @returns {string}

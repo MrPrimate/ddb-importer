@@ -112,9 +112,7 @@ describe("Gunslinger Risk consumption", () => {
   const SPENDERS: [string, TEnricher][] = [
     ["DeftDeflection", Gunslinger.DeftDeflection],
     ["EagleEye", Gunslinger.EagleEye],
-    ["FanTheHammer", Gunslinger.FanTheHammer],
     ["LayDownTheLaw", Gunslinger.LayDownTheLaw],
-    ["LiarsDice", Gunslinger.LiarsDice],
     ["LicenseToKill", Gunslinger.LicenseToKill],
     ["MagicBullet", Gunslinger.MagicBullet],
     ["PartingShot", Gunslinger.PartingShot],
@@ -125,6 +123,17 @@ describe("Gunslinger Risk consumption", () => {
     const enricher = build(Enricher);
     expect(enricher.activity.addItemConsume).toBe(true);
     expect(enricher.activity.itemConsumeTargetName).toBe("Risk");
+  });
+
+  it.each([
+    ["FanTheHammer", Gunslinger.FanTheHammer],
+    ["LiarsDice", Gunslinger.LiarsDice],
+  ] as [string, TEnricher][])("%s leaves Risk Die consumption to the description parse", (_label, Enricher) => {
+    // DDBFeatureActivity generates the itemUses:risk target from the
+    // "expend one Risk Die" text, so the enricher must not add its own
+    const enricher = build(Enricher);
+    expect(enricher.activity).not.toHaveProperty("addItemConsume");
+    expect(enricher.activity).not.toHaveProperty("itemConsumeTargetName");
   });
 
   it.each([
@@ -241,14 +250,16 @@ describe("CounterMageInuredToMagic", () => {
 describe("Maneuvers", () => {
   const actions = (names: string[]): any[] => names.map((name) => ({ name }));
 
-  it("pulls every known maneuver action as a Risk-consuming activity", () => {
+  it("pulls every known maneuver action as an activity", () => {
     const activities = build(Gunslinger.Maneuvers, { actions: actions(MANEUVER_ACTIONS) }).additionalActivities;
 
     expect(activities).toHaveLength(6);
     expect(activities.map((a: any) => a.action.name)).toEqual(MANEUVER_ACTIONS);
     for (const activity of activities) {
       expect(activity.action.type).toBe("class");
-      expect(activity.overrides).toEqual({ addItemConsume: true, itemConsumeTargetName: "Risk" });
+      // the Risk Die consumption comes from the "expend one Risk Die"
+      // description parse in DDBFeatureActivity, not an enricher override
+      expect(activity.overrides).toBeUndefined();
     }
   });
 

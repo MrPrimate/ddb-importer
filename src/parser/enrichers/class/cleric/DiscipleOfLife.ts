@@ -36,7 +36,7 @@ export default class DiscipleOfLife extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=2 + castingLevel; isSpell && defaultDamageType.healing",
+            "bonus=2 + castingLevel; isHeal && isSpell && defaultDamageType.healing",
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

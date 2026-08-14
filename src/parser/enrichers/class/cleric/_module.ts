@@ -51,6 +51,7 @@ export { default as OrdersWrath } from "./OrdersWrath";
 export { default as PackHunter } from "./PackHunter";
 export { default as PathToTheGrave } from "./PathToTheGrave";
 export { default as PluckingAtThreads } from "./PluckingAtThreads";
+export { default as BlessedStrikesPotentSpellcasting } from "./PotentSpellcasting";
 export { default as ProphecyOfDoom } from "./ProphecyOfDoom";
 export { default as PullOfDeath } from "./PullOfDeath";
 export { default as RebukeInvoker } from "./RebukeInvoker";
