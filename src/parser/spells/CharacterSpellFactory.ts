@@ -1,6 +1,6 @@
 
 
-import { utils, logger, CompendiumHelper } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, SystemHelpers } from "../../lib/_module";
 
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
@@ -54,7 +54,15 @@ interface ISpellCompendiumIndexEntry {
   };
 }
 
-function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
+// Classes whose cantrip-damage bonus is applied by AC5e via a transfer effect on the feature
+// itself (see the Cleric and Druid PotentSpellcasting enrichers), so it must not also be baked
+// into the spell's damage formula.
+const AC5E_HANDLED_CANTRIP_BOOSTS: Record<string, string[]> = {
+  Cleric: ["Potent Spellcasting"],
+  Druid: ["Potent Spellcasting"],
+};
+
+export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
   const cantripBoosts
     = DDBModifiers.getChosenClassModifiers(ddb).filter(
       (mod) =>
@@ -63,20 +71,21 @@ function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
         && (mod.restriction === null || mod.restriction === ""),
     );
 
-  const cantripBoost = cantripBoosts.length > 0;
-  if (!cantripBoost) return false;
+  if (cantripBoosts.length === 0) return false;
 
-  // AC5e applies the Cleric's Potent Spellcasting bonus itself (see the
-  // PotentSpellcasting enricher), so don't also bake it into the cantrip damage.
-  // Any other source of cleric cantrip damage still needs the boost.
-  if (game.modules?.get("automated-conditions-5e")?.active
-    && klassName === "Cleric"
-    && cantripBoosts.some((mod) => DDBDataUtils.isModifierFromNamedFeature(ddb, mod, "Potent Spellcasting"))
+  // Every boost has to come from an AC5e handled feature before we can drop the bake-in;
+  // any other source of cantrip damage still needs it.
+  const ac5eFeatures = AC5E_HANDLED_CANTRIP_BOOSTS[klassName] ?? [];
+  if (ac5eFeatures.length > 0
+    && SystemHelpers.effectModules().ac5eInstalled
+    && cantripBoosts.every((mod) =>
+      ac5eFeatures.some((featureName) => DDBDataUtils.isModifierFromNamedFeature(ddb, mod, featureName)),
+    )
   ) {
     return false;
   }
 
-  return cantripBoost;
+  return true;
 }
 
 export default class CharacterSpellFactory {
@@ -503,13 +512,7 @@ export default class CharacterSpellFactory {
       }
       logger.debug("Spell parsing, class info", classInfo);
 
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
 
       const allCantrips = (playerClass.cantrips ?? []).map((cantrip) => {
         cantrip.unPreparedCantrip = true;

@@ -92,6 +92,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINTS: Record<string, string> = {
+    "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
     // Blood Hunter curse/boon choice features resolve to their base enricher

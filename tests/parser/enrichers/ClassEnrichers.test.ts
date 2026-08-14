@@ -49,6 +49,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 }));
 
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
+import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 
 beforeAll(async () => {
@@ -202,6 +203,52 @@ describe("cleric ChannelDivinity", () => {
       { period: "lr", type: "recoverAll", formula: undefined },
     ]);
     expect(e.override.uses.spent).toBe(1);
+  });
+});
+
+/**
+ * The AC5e half of Potent Spellcasting. isCantripBoost in CharacterSpellFactory drops the baked-in
+ * `+ @mod` when AC5e is installed, so if these effects stop being produced the bonus vanishes
+ * silently. The audit harness cannot see them: ac5eOnly hints are filtered out unless the module
+ * is active.
+ */
+describe("cleric and druid PotentSpellcasting", () => {
+  it.each([
+    ["Cleric", "cleric"],
+    ["Druid", "druid"],
+  ])("gives %s an AC5e only cantrip damage bonus keyed to its own class", (klass, identifier) => {
+    const Enricher = klass === "Cleric"
+      ? ClassEnrichers.Cleric.BlessedStrikesPotentSpellcasting
+      : ClassEnrichers.Druid.ElementalFuryPotentSpellcasting;
+    const e = build(Enricher);
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({ name: "Potent Spellcasting (Automation)", ac5eOnly: true });
+    expect(e.effects[0].options.transfer).toBe(true);
+    expect(e.effects[0].ac5eChanges).toEqual([{
+      key: "flags.automated-conditions-5e.damage.bonus",
+      value: `bonus=rollingActor.abilities.wis.mod; item.classIdentifier === '${identifier}' && isCantrip;`,
+      type: "ac5e",
+      priority: 2,
+      phase: "initial",
+    }]);
+  });
+
+  it("routes the bare 2014 and homebrew feature name to the cleric enricher", async () => {
+    // 2014 Divine Domain and homebrew domains report "Potent Spellcasting" with no parent prefix,
+    // which pascal-cases to a key the cleric barrel does not export
+    const { default: DDBClassFeatureEnricher } = await import("../../../src/parser/enrichers/DDBClassFeatureEnricher");
+    // NAME_HINTS is a class field, so it only exists on an instance
+    const factory = new DDBClassFeatureEnricher({ activityGenerator: null as any });
+    const hint = factory.NAME_HINTS["Potent Spellcasting"];
+    expect(hint).toBe("Blessed Strikes: Potent Spellcasting");
+    expect(ClassEnrichers.Cleric[Utils.pascalCase(hint) as keyof typeof ClassEnrichers.Cleric]).toBeDefined();
+  });
+
+  it("carries no activity on the cleric, and keeps the manual damage one on the druid", () => {
+    expect(build(ClassEnrichers.Cleric.BlessedStrikesPotentSpellcasting).type).toBe("none");
+    const druid = build(ClassEnrichers.Druid.ElementalFuryPotentSpellcasting);
+    expect(druid.type).toBe("damage");
+    expect(druid.activity.data.damage.parts[0].types).toEqual(["cold", "fire", "lightning", "thunder"]);
   });
 });
 
