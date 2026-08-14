@@ -9,6 +9,7 @@ export { default as EagleEye } from "./EagleEye";
 export { default as Evasion } from "./Evasion";
 export { default as ExitStrategy } from "./ExitStrategy";
 export { default as FancyGunplayGunSpinning } from "./FancyGunplayGunSpinning";
+export { default as FanTheHammer } from "./FanTheHammer";
 export { default as FocusedShot } from "./FocusedShot";
 export { default as GutShot } from "./GutShot";
 export { default as Headshot } from "./Headshot";

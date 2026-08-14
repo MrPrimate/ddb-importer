@@ -140,6 +140,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Ricochet [Maneuver]": "Ricochet",
     "Deft Deflection [Maneuver]": "Deft Deflection",
     "Lay Down the Law [Maneuver]": "Lay Down the Law",
+    "Fan the Hammer [Maneuver]": "Fan the Hammer",
     "Font of Magic: Convert Spell Slots": "Font of Magic",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",

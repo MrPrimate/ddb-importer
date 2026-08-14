@@ -112,7 +112,9 @@ describe("Gunslinger Risk consumption", () => {
   const SPENDERS: [string, TEnricher][] = [
     ["DeftDeflection", Gunslinger.DeftDeflection],
     ["EagleEye", Gunslinger.EagleEye],
+    ["FanTheHammer", Gunslinger.FanTheHammer],
     ["LayDownTheLaw", Gunslinger.LayDownTheLaw],
+    ["LiarsDice", Gunslinger.LiarsDice],
     ["LicenseToKill", Gunslinger.LicenseToKill],
     ["MagicBullet", Gunslinger.MagicBullet],
     ["PartingShot", Gunslinger.PartingShot],
@@ -176,6 +178,7 @@ describe("Gunslinger document renames", () => {
     ["DeftDeflection", Gunslinger.DeftDeflection, "Deft Deflection"],
     ["EagleEye", Gunslinger.EagleEye, "Eagle Eye"],
     ["CounterMageInuredToMagic", Gunslinger.CounterMageInuredToMagic, "Inured to Magic"],
+    ["FanTheHammer", Gunslinger.FanTheHammer, "Fan the Hammer"],
     ["FancyGunplayGunSpinning", Gunslinger.FancyGunplayGunSpinning, "Gun Spinning"],
     ["LayDownTheLaw", Gunslinger.LayDownTheLaw, "Lay Down the Law"],
     ["LiarsDice", Gunslinger.LiarsDice, "Liar's Dice"],
