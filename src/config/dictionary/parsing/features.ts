@@ -133,6 +133,7 @@ export const PARSING_FEATURES = {
     "Muscle Mass",
     "Werewolf Instincts",
     "Strange Endurance",
+    "Bladesong: Invoke the Bladesong",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -594,6 +595,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Spirit Query",
   "Tokens of the Departed",
   "Beasts of Ill Omen",
+  "Spiteful Curse",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [

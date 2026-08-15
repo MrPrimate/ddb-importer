@@ -51,8 +51,11 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
 beforeAll(async () => {
+  // ChangeHelper's advantage/disadvantage getters read CONFIG.Dice.D20Roll.ADV_MODE
+  installActivityConfigStubs();
   const { default: DDBDataUtils } = await import("../../../src/parser/lib/DDBDataUtils");
   for (const key of Object.getOwnPropertyNames(DDBDataUtils)) {
     if (typeof (DDBDataUtils as any)[key] === "function") {
@@ -585,6 +588,101 @@ describe("warlock GeniesVessel", () => {
 
   it("produces no activity for an unrecognised genie kind", () => {
     expect(named(Enricher, "Genie's Wrath (Unknown)").activity).toBeNull();
+  });
+});
+
+describe("warlock Malediction", () => {
+  const Enricher = ClassEnrichers.Warlock.Malediction;
+
+  /** every Horned King capture is level 20, so the pre-6 branch is fixture-invisible */
+  function atWarlockLevel(level: number): any {
+    return build(Enricher, {
+      actions: {
+        class: [{
+          name: "Malediction",
+          limitedUse: { statModifierUsesId: 6, resetType: 2, numberUsed: 0, maxUses: 0 },
+        }],
+      },
+      character: {
+        classes: [{
+          level,
+          definition: { name: "Warlock" },
+          subclassDefinition: { name: "The Horned King (2014)" },
+          classFeatures: [
+            { definition: { name: "Malediction", requiredLevel: 1 } },
+            { definition: { name: "Spiteful Curse", requiredLevel: 6 } },
+          ],
+        }],
+      },
+    });
+  }
+
+  it("gives each curse an action and a reaction activity", () => {
+    const names = atWarlockLevel(5).additionalActivities.map((a: any) => a.init.name);
+    expect(names).toEqual([
+      "Hate (Action)",
+      "Rot (Action)",
+      "Agony (Reaction)",
+      "Hate (Reaction)",
+      "Rot (Reaction)",
+      "Rot Damage",
+    ]);
+    // the first curse action is the primary activity rather than an additional one
+    expect(atWarlockLevel(5).activity.name).toBe("Agony (Action)");
+  });
+
+  it("withholds Bestow Curse until Spiteful Curse is reached at 6th level", () => {
+    const before = atWarlockLevel(5).additionalActivities.map((a: any) => a.init.name);
+    expect(before).not.toContain("Cast Bestow Curse");
+
+    const after = atWarlockLevel(6).additionalActivities;
+    const cast = after.find((a: any) => a.init.name === "Cast Bestow Curse");
+    expect(cast).toBeDefined();
+    expect(cast.overrides.addSpellUuid).toBe("Bestow Curse");
+    // spends the Spiteful Curse feature's own use, not a Malediction use
+    expect(cast.overrides.itemConsumeTargetName).toBe("Spiteful Curse");
+    // suppressed in FEATURE_SPELLS_IGNORE, so it must not re-add itself to the spellbook
+    expect(cast.overrides.data.spell.spellbook).toBe(false);
+    expect(cast.overrides.data.visibility).toEqual({
+      identifier: "warlock",
+      level: { min: 6, max: null },
+    });
+  });
+
+  it("keeps the minimum of one use that DDB's maxUses 0 loses", () => {
+    expect(atWarlockLevel(6).override.uses).toMatchObject({
+      max: "max(1, @abilities.cha.mod)",
+      recovery: [{ period: "lr", type: "recoverAll" }],
+    });
+  });
+
+  it("links one effect to both forms of its curse", () => {
+    const effects = atWarlockLevel(6).effects;
+    expect(effects.map((e: any) => e.name)).toEqual([
+      "Malediction: Agony",
+      "Malediction: Hate",
+      "Malediction: Rot",
+    ]);
+    expect(effects[0].activitiesMatch).toEqual(["Agony (Action)", "Agony (Reaction)"]);
+    // the curse lasts until the end of the target's next turn, not the warlock's
+    expect(effects[0].daeSpecialDurations).toContain("turnEnd");
+    expect(effects[1].changes.map((c: any) => c.key)).toEqual([
+      "system.abilities.int.save.roll.mode",
+      "system.abilities.wis.save.roll.mode",
+      "system.abilities.cha.save.roll.mode",
+    ]);
+  });
+});
+
+describe("warlock SpitefulCurse", () => {
+  it("holds only the pool the Malediction cast activity spends", () => {
+    const e = build(ClassEnrichers.Warlock.SpitefulCurse);
+    expect(e.type).toBe("none");
+    expect(e.override.uses).toMatchObject({
+      max: "1",
+      recovery: [{ period: "lr", type: "recoverAll" }],
+    });
+    expect(e.override.descriptionSuffix).toContain("Malediction");
   });
 });
 
