@@ -4448,6 +4448,22 @@
     {
       "id": 214,
       "name": "Dolichosaur"
+    },
+    {
+      "id": 215,
+      "name": "Barbarian"
+    },
+    {
+      "id": 216,
+      "name": "Satyr"
+    },
+    {
+      "id": 217,
+      "name": "Murloc"
+    },
+    {
+      "id": 218,
+      "name": "Naga"
     }
   ],
   "creatureGroupFlags": [
@@ -9944,7 +9960,7 @@
       "description": "Exploring Eberron (2024)",
       "sourceCategoryId": 39,
       "isReleased": true,
-      "avatarURL": "https://www.dndbeyond.com/avatars/54336/220/639048037191148332.jpeg",
+      "avatarURL": "https://www.dndbeyond.com/avatars/58279/515/639219984557928304.jpeg",
       "sourceURL": "sources/dnd/exeb"
     },
     {
@@ -10434,6 +10450,15 @@
       "sourceURL": "sources/dnd/logsfc"
     },
     {
+      "id": 300,
+      "name": "FoEQ",
+      "description": "Frontiers of Eberron: Quickstone",
+      "sourceCategoryId": 39,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58036/14/639208513073279563.jpeg",
+      "sourceURL": "sources/dnd/foeq"
+    },
+    {
       "id": 304,
       "name": "taro",
       "description": "Tarokka",
@@ -10452,6 +10477,24 @@
       "sourceURL": "sources/dnd/tfj"
     },
     {
+      "id": 308,
+      "name": "DDBD-0826",
+      "description": "D&amp;D Beyond Drops: Sewer Sticker Pack",
+      "sourceCategoryId": 46,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/ddbd"
+    },
+    {
+      "id": 309,
+      "name": "LoGSoS",
+      "description": "Legends of Greyhawk: Saviors of Safeton",
+      "sourceCategoryId": 49,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58025/662/639207929929442877.jpeg",
+      "sourceURL": "sources/dnd/logsos"
+    },
+    {
       "id": 310,
       "name": "JIM",
       "description": "Jimothy",
@@ -10459,6 +10502,15 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/57908/428/639202577925195244.jpeg",
       "sourceURL": "sources/dnd/jim"
+    },
+    {
+      "id": 314,
+      "name": "DPPAP",
+      "description": "Dungeon Masters: Deadfall Press Play-Along Pack",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58114/864/639212260187681012.png",
+      "sourceURL": "sources/dnd/dppap"
     }
   ],
   "levelProficiencyBonuses": [
@@ -10625,6 +10677,629 @@
     }
   ],
   "classConfigurations": [
+    {
+      "id": 357975,
+      "name": "Blood Hunter",
+      "primaryAbilities": [1, 4],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 3,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        "levelSpellKnownMaxes": [0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 2, 0, 0, 0, 0, 0],
+          [0, 0, 0, 2, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Intelligence 13",
+          "prerequisiteMappings": [
+            {
+              "id": 146776,
+              "entityId": 4,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "intelligence",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Intelligence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "name": "Blood Hunter (archived)",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 3,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        "levelSpellKnownMaxes": [0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 2, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 2, 0, 0, 0, 0, 0],
+          [0, 0, 0, 2, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2190875,
+      "name": "Barbarian",
+      "primaryAbilities": [1],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": true,
+        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        "levelSpellKnownMaxes": [0, 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Strength 13",
+          "prerequisiteMappings": [
+            {
+              "id": 597888,
+              "entityId": 1,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "strength",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Strength"
+            },
+            {
+              "id": 851440,
+              "entityId": 9,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "barbarian-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Barbarian (Legacy)"
+            },
+            {
+              "id": 851441,
+              "entityId": 1,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "bard-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Bard (Legacy)"
+            },
+            {
+              "id": 851442,
+              "entityId": 2,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "cleric-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Cleric (Legacy)"
+            },
+            {
+              "id": 851443,
+              "entityId": 3,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "druid-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Druid (Legacy)"
+            },
+            {
+              "id": 851444,
+              "entityId": 10,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "fighter-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Fighter (Legacy)"
+            },
+            {
+              "id": 851445,
+              "entityId": 11,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "monk-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Monk (Legacy)"
+            },
+            {
+              "id": 851446,
+              "entityId": 4,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "paladin-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Paladin (Legacy)"
+            },
+            {
+              "id": 851447,
+              "entityId": 5,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "ranger-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Ranger (Legacy)"
+            },
+            {
+              "id": 851448,
+              "entityId": 12,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "rogue-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Rogue (Legacy)"
+            },
+            {
+              "id": 851449,
+              "entityId": 6,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "sorcerer-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Sorcerer (Legacy)"
+            },
+            {
+              "id": 851450,
+              "entityId": 7,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "warlock-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Warlock (Legacy)"
+            },
+            {
+              "id": 851451,
+              "entityId": 8,
+              "entityTypeId": 789467139,
+              "type": "class",
+              "subType": "wizard-legacy",
+              "value": null,
+              "shouldExclude": true,
+              "friendlyTypeName": "Class",
+              "friendlySubTypeName": "Wizard (Legacy)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2297348,
+      "name": "Warden",
+      "primaryAbilities": [2, 5],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2297349,
+      "name": "Treasure Hunter",
+      "primaryAbilities": [2],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Requires a Dexterity score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670348,
+              "entityId": 2,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "dexterity",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Dexterity"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2297350,
+      "name": "Captain",
+      "primaryAbilities": [1, 6],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Requires a Strength score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670349,
+              "entityId": 1,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "strength",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Strength"
+            }
+          ]
+        },
+        {
+          "description": "Requires a Charisma score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670350,
+              "entityId": 6,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "charisma",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Charisma"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2297351,
+      "name": "Scholar",
+      "primaryAbilities": [4, 5],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Requires an Intelligence score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670351,
+              "entityId": 4,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "intelligence",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Intelligence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2297352,
+      "name": "Messenger",
+      "primaryAbilities": [2, 6],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Requires a Dexterity score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670352,
+              "entityId": 2,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "dexterity",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Dexterity"
+            }
+          ]
+        },
+        {
+          "description": "Requires a Charisma score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670353,
+              "entityId": 6,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "charisma",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Charisma"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2297353,
+      "name": "Champion",
+      "primaryAbilities": [1, 2],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": 1,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": [
+        {
+          "description": "Requires a Strength score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670354,
+              "entityId": 1,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "strength",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Strength"
+            }
+          ]
+        },
+        {
+          "description": "Requires a Dexterity score of 13 or higher",
+          "prerequisiteMappings": [
+            {
+              "id": 670355,
+              "entityId": 2,
+              "entityTypeId": 1472902489,
+              "type": "ability-score",
+              "subType": "dexterity",
+              "value": 13,
+              "shouldExclude": false,
+              "friendlyTypeName": "Ability Score",
+              "friendlySubTypeName": "Dexterity"
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": 1,
       "name": "Bard",
@@ -13027,42 +13702,6 @@
       ]
     },
     {
-      "id": 117,
-      "name": "Blood Hunter (archived)",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 3,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-        "levelSpellKnownMaxes": [0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 2, 0, 0, 0, 0, 0],
-          [0, 0, 0, 2, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
       "id": 124727,
       "name": "Artificer (UA)",
       "primaryAbilities": [4],
@@ -13116,6 +13755,510 @@
       ]
     },
     {
+      "id": 2538002,
+      "name": "Shadow Stalker",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538003,
+      "name": "Hungering Dark",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538004,
+      "name": "College of Drama",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538005,
+      "name": "Apocalypse Domain",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538006,
+      "name": "Circle of the Symbiote",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538007,
+      "name": "Hero",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538008,
+      "name": "Trail Warden",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538009,
+      "name": "Warrior of Cosmic Balance",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538010,
+      "name": "Oath of the Guardian",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538011,
+      "name": "Exalted Assembly of the Feline Court",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538012,
+      "name": "Bibliomancy",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538013,
+      "name": "Path of the Spell Scorned",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2538014,
+      "name": "Cthulhu by Torchlight",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
+      "id": 2714537,
+      "name": "Maverick",
+      "primaryAbilities": [],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 1,
+        "multiClassSpellSlotRounding": null,
+        "isRitualSpellCaster": false,
+        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "levelSpellKnownMaxes": [0],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
+    },
+    {
       "id": 252717,
       "name": "Artificer",
       "primaryAbilities": [4],
@@ -13163,244 +14306,6 @@
               "shouldExclude": false,
               "friendlyTypeName": "Ability Score",
               "friendlySubTypeName": "Intelligence"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 357975,
-      "name": "Blood Hunter",
-      "primaryAbilities": [1, 4],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 3,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-        "levelSpellKnownMaxes": [0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 2, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 2, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 2, 0, 0, 0, 0, 0],
-          [0, 0, 0, 2, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Intelligence 13",
-          "prerequisiteMappings": [
-            {
-              "id": 146776,
-              "entityId": 4,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "intelligence",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Intelligence"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2190875,
-      "name": "Barbarian",
-      "primaryAbilities": [1],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": true,
-        "levelCantripsKnownMaxes": [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-        "levelSpellKnownMaxes": [0, 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [3, 0, 0, 0, 0, 0, 0, 0, 0],
-          [3, 0, 0, 0, 0, 0, 0, 0, 0],
-          [3, 0, 0, 0, 0, 0, 0, 0, 0],
-          [4, 2, 0, 0, 0, 0, 0, 0, 0],
-          [4, 2, 0, 0, 0, 0, 0, 0, 0],
-          [4, 2, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 2, 0, 0, 0, 0, 0, 0],
-          [4, 3, 2, 0, 0, 0, 0, 0, 0],
-          [4, 3, 2, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 1, 0, 0, 0, 0, 0],
-          [4, 3, 3, 1, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Strength 13",
-          "prerequisiteMappings": [
-            {
-              "id": 597888,
-              "entityId": 1,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "strength",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Strength"
-            },
-            {
-              "id": 851440,
-              "entityId": 9,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "barbarian-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Barbarian (Legacy)"
-            },
-            {
-              "id": 851441,
-              "entityId": 1,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "bard-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Bard (Legacy)"
-            },
-            {
-              "id": 851442,
-              "entityId": 2,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "cleric-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Cleric (Legacy)"
-            },
-            {
-              "id": 851443,
-              "entityId": 3,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "druid-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Druid (Legacy)"
-            },
-            {
-              "id": 851444,
-              "entityId": 10,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "fighter-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Fighter (Legacy)"
-            },
-            {
-              "id": 851445,
-              "entityId": 11,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "monk-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Monk (Legacy)"
-            },
-            {
-              "id": 851446,
-              "entityId": 4,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "paladin-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Paladin (Legacy)"
-            },
-            {
-              "id": 851447,
-              "entityId": 5,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "ranger-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Ranger (Legacy)"
-            },
-            {
-              "id": 851448,
-              "entityId": 12,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "rogue-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Rogue (Legacy)"
-            },
-            {
-              "id": 851449,
-              "entityId": 6,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "sorcerer-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Sorcerer (Legacy)"
-            },
-            {
-              "id": 851450,
-              "entityId": 7,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "warlock-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Warlock (Legacy)"
-            },
-            {
-              "id": 851451,
-              "entityId": 8,
-              "entityTypeId": 789467139,
-              "type": "class",
-              "subType": "wizard-legacy",
-              "value": null,
-              "shouldExclude": true,
-              "friendlyTypeName": "Class",
-              "friendlySubTypeName": "Wizard (Legacy)"
             }
           ]
         }
@@ -15703,203 +16608,45 @@
       ]
     },
     {
-      "id": 2297348,
-      "name": "Warden",
-      "primaryAbilities": [2, 5],
+      "id": 2656866,
+      "name": "Artificer",
+      "primaryAbilities": [4],
       "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
+        "multiClassSpellSlotDivisor": 2,
+        "multiClassSpellSlotRounding": 2,
+        "isRitualSpellCaster": true,
+        "levelCantripsKnownMaxes": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4],
+        "levelSpellKnownMaxes": null,
         "levelSpellSlots": [
           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2297349,
-      "name": "Treasure Hunter",
-      "primaryAbilities": [2],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0],
+          [4, 3, 3, 2, 0, 0, 0, 0, 0],
+          [4, 3, 3, 2, 0, 0, 0, 0, 0],
+          [4, 3, 3, 3, 1, 0, 0, 0, 0],
+          [4, 3, 3, 3, 1, 0, 0, 0, 0],
+          [4, 3, 3, 3, 2, 0, 0, 0, 0],
+          [4, 3, 3, 3, 2, 0, 0, 0, 0]
         ]
       },
       "prerequisites": [
         {
-          "description": "Requires a Dexterity score of 13 or higher",
+          "description": "Intelligence 13",
           "prerequisiteMappings": [
             {
-              "id": 670348,
-              "entityId": 2,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "dexterity",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Dexterity"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2297350,
-      "name": "Captain",
-      "primaryAbilities": [1, 6],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Requires a Strength score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670349,
-              "entityId": 1,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "strength",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Strength"
-            }
-          ]
-        },
-        {
-          "description": "Requires a Charisma score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670350,
-              "entityId": 6,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "charisma",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Charisma"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2297351,
-      "name": "Scholar",
-      "primaryAbilities": [4, 5],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Requires an Intelligence score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670351,
+              "id": 914566,
               "entityId": 4,
               "entityTypeId": 1472902489,
               "type": "ability-score",
@@ -15908,144 +16655,6 @@
               "shouldExclude": false,
               "friendlyTypeName": "Ability Score",
               "friendlySubTypeName": "Intelligence"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2297352,
-      "name": "Messenger",
-      "primaryAbilities": [2, 6],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Requires a Dexterity score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670352,
-              "entityId": 2,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "dexterity",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Dexterity"
-            }
-          ]
-        },
-        {
-          "description": "Requires a Charisma score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670353,
-              "entityId": 6,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "charisma",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Charisma"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2297353,
-      "name": "Champion",
-      "primaryAbilities": [1, 2],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": 1,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Requires a Strength score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670354,
-              "entityId": 1,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "strength",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Strength"
-            }
-          ]
-        },
-        {
-          "description": "Requires a Dexterity score of 13 or higher",
-          "prerequisiteMappings": [
-            {
-              "id": 670355,
-              "entityId": 2,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "dexterity",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Dexterity"
             }
           ]
         }
@@ -16083,474 +16692,6 @@
           [4, 3, 3, 0, 0, 0, 0, 0, 0],
           [4, 3, 3, 1, 0, 0, 0, 0, 0],
           [4, 3, 3, 1, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538002,
-      "name": "Shadow Stalker",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538003,
-      "name": "Hungering Dark",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538004,
-      "name": "College of Drama",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538005,
-      "name": "Apocalypse Domain",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538006,
-      "name": "Circle of the Symbiote",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538007,
-      "name": "Hero",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538008,
-      "name": "Trail Warden",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538009,
-      "name": "Warrior of Cosmic Balance",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538010,
-      "name": "Oath of the Guardian",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538011,
-      "name": "Exalted Assembly of the Feline Court",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538012,
-      "name": "Bibliomancy",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538013,
-      "name": "Path of the Spell Scorned",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
-    },
-    {
-      "id": 2538014,
-      "name": "Cthulhu by Torchlight",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]
       },
       "prerequisites": []
@@ -16645,95 +16786,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": 2656866,
-      "name": "Artificer",
-      "primaryAbilities": [4],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 2,
-        "multiClassSpellSlotRounding": 2,
-        "isRitualSpellCaster": true,
-        "levelCantripsKnownMaxes": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4],
-        "levelSpellKnownMaxes": null,
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0, 0, 0, 0],
-          [3, 0, 0, 0, 0, 0, 0, 0, 0],
-          [3, 0, 0, 0, 0, 0, 0, 0, 0],
-          [4, 2, 0, 0, 0, 0, 0, 0, 0],
-          [4, 2, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 0, 0, 0, 0, 0, 0, 0],
-          [4, 3, 2, 0, 0, 0, 0, 0, 0],
-          [4, 3, 2, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 0, 0, 0, 0, 0, 0],
-          [4, 3, 3, 1, 0, 0, 0, 0, 0],
-          [4, 3, 3, 1, 0, 0, 0, 0, 0],
-          [4, 3, 3, 2, 0, 0, 0, 0, 0],
-          [4, 3, 3, 2, 0, 0, 0, 0, 0],
-          [4, 3, 3, 3, 1, 0, 0, 0, 0],
-          [4, 3, 3, 3, 1, 0, 0, 0, 0],
-          [4, 3, 3, 3, 2, 0, 0, 0, 0],
-          [4, 3, 3, 3, 2, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": [
-        {
-          "description": "Intelligence 13",
-          "prerequisiteMappings": [
-            {
-              "id": 914566,
-              "entityId": 4,
-              "entityTypeId": 1472902489,
-              "type": "ability-score",
-              "subType": "intelligence",
-              "value": 13,
-              "shouldExclude": false,
-              "friendlyTypeName": "Ability Score",
-              "friendlySubTypeName": "Intelligence"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2714537,
-      "name": "Maverick",
-      "primaryAbilities": [],
-      "spellRules": {
-        "multiClassSpellSlotDivisor": 1,
-        "multiClassSpellSlotRounding": null,
-        "isRitualSpellCaster": false,
-        "levelCantripsKnownMaxes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "levelSpellKnownMaxes": [0],
-        "levelSpellSlots": [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-      },
-      "prerequisites": []
     },
     {
       "id": 2717895,
@@ -17432,7 +17484,7 @@
     },
     {
       "id": 46,
-      "name": "Subscriber Content",
+      "name": "D&amp;D Beyond Drops",
       "description": "<p>This contains content from D&amp;D Beyond Drops, the subscription library.</p>",
       "isHideable": false,
       "isEnabledByDefault": false,
