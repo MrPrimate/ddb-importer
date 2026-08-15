@@ -2,6 +2,10 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FocusedCritical extends DDBEnricherData {
 
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

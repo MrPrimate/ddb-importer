@@ -8,6 +8,7 @@ export { default as AdaptiveWildShapeIncreaseDarkvision } from "./AdaptiveWildSh
 export { default as AdaptiveWildShapeReplaceDamageTypeAcid } from "./AdaptiveWildShapeReplaceDamageTypeAcid";
 export { default as AdaptiveWildShapeReplaceDamageTypePoison } from "./AdaptiveWildShapeReplaceDamageTypePoison";
 export { default as AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing } from "./AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing";
+export { default as ApexPredator } from "./ApexPredator";
 export { default as Archdruid } from "./Archdruid";
 export { default as BalmOfTheSummerCourt } from "./BalmOfTheSummerCourt";
 export { default as BlazingRevival } from "./BlazingRevival";
@@ -38,6 +39,7 @@ export { default as MutateShape } from "./MutateShape";
 export { default as NaturalRecovery } from "./NaturalRecovery";
 export { default as NatureMagician } from "./NatureMagician";
 export { default as NaturesWard } from "./NaturesWard";
+export { default as OakAndThorn } from "./OakAndThorn";
 export { default as RiteOfTheBloodMoon } from "./RiteOfTheBloodMoon";
 export { default as RuinIncarnate } from "./RuinIncarnate";
 export { default as ShadowMass } from "./ShadowMass";

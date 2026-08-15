@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-export default class ManifestBlowForgedHeart extends DDBEnricherData {
+export default class SchoolOfHardKnocks extends DDBEnricherData {
 
   override get useDefaultAdditionalActivities(): boolean {
     return true;
@@ -9,15 +9,15 @@ export default class ManifestBlowForgedHeart extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        name: "Forged Heart (Automation)",
+        name: "School of Hard Knocks (Automation)",
         ac5eOnly: true,
         options: {
           transfer: true,
-          description: "Optional once per turn extra damage on a hit with an Unarmed Strike. The damage type matches the strike.",
+          description: "Optional once per turn extra damage on a hit with an Unarmed Strike or Pugilist weapon; the damage type matches the strike. Forgo the damage and apply Endanger or Provoke manually instead.",
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')",
+            "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak",
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

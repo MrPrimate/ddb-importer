@@ -51,6 +51,13 @@ import DreadfulStrikes from "../../../src/parser/enrichers/class/ranger/Dreadful
 import BodyOfTheAstralSelf from "../../../src/parser/enrichers/class/monk/BodyOfTheAstralSelf";
 import ManifestBlowForgedHeart from "../../../src/parser/enrichers/class/monk/ManifestBlowForgedHeart";
 import FavoredFoe from "../../../src/parser/enrichers/class/ranger/FavoredFoe";
+import MonsterKill from "../../../src/parser/enrichers/class/fighter/MonsterKill";
+import SchoolOfHardKnocks from "../../../src/parser/enrichers/class/pugilist/SchoolOfHardKnocks";
+import CrownOfHorns from "../../../src/parser/enrichers/class/warlock/CrownOfHorns";
+import ApexPredator from "../../../src/parser/enrichers/class/druid/ApexPredator";
+import LunarForm from "../../../src/parser/enrichers/class/druid/LunarForm";
+import OakAndThorn from "../../../src/parser/enrichers/class/druid/OakAndThorn";
+import AgentOfOrder from "../../../src/parser/enrichers/feat/AgentOfOrder";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -71,7 +78,7 @@ function ac5eChanges(Enricher: TEnricher, options: any = {}): any[] {
 describe("Once-per-turn opt-in AC5e damage bonuses", () => {
   it.each([
     [DivineStrike, "bonus=@scale.order.divine-strike[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
-    [BlessedStrikes, "bonus=1d8[radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak || isCantrip"],
+    [BlessedStrikes, "bonus=1d8[radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BlessedStrikesDivineStrike, "bonus=@scale.cleric.divine-strike[necrotic, radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ElementalFuryPrimalStrike, "bonus=@scale.druid.elemental-fury[cold, fire, lightning, thunder]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [DivineFury, "bonus=1d6[necrotic, radiant] + floor(@classes.barbarian.levels / 2); oncePerTurn; optin; actionType.mwak || actionType.rwak"],
@@ -81,6 +88,11 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [BodyOfTheAstralSelf, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')"],
     [ManifestBlowForgedHeart, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')"],
     [FavoredFoe, "bonus=@scale.favored-foe.die; oncePerTurn; optin; hasAttack"],
+    [SchoolOfHardKnocks, "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
+    [ApexPredator, "bonus=2d10[force]; oncePerTurn; optin"],
+    [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
+    [OakAndThorn, "bonus=1d6[piercing]; oncePerTurn; optin; actionType.mwak"],
+    [AgentOfOrder, "bonus=1d8[force]; oncePerTurn; optin"],
   ] as [TEnricher, string][])("%o pins its opt-in bonus value", (Enricher, value) => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);
@@ -115,6 +127,57 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
       "bonus=1d8; oncePerTurn; optin; (actionType.mwak || actionType.rwak)"
       + " && opponentActor.attributes.hp.value < opponentActor.attributes.hp.max",
     );
+  });
+
+  it("Monster Kill gates on the listed creature types via the opponent creatureType array", () => {
+    const changes = ac5eChanges(MonsterKill, { name: "Monster Kill" });
+    expect(changes).toHaveLength(1);
+    expect(changes[0].value).toBe(
+      "bonus=1d10; oncePerTurn; optin; (actionType.mwak || actionType.rwak) && ("
+      + "opponentActor.creatureType.includes('aberration') || opponentActor.creatureType.includes('dragon')"
+      + " || opponentActor.creatureType.includes('fey') || opponentActor.creatureType.includes('fiend')"
+      + " || opponentActor.creatureType.includes('monstrosity') || opponentActor.creatureType.includes('ooze')"
+      + " || opponentActor.creatureType.includes('undead'))",
+    );
+  });
+
+  it("Crown of Horns builds the form once, with activities applying its effects", () => {
+    const enricher = makeEnricherData(CrownOfHorns as TEnricher, { name: "Crown of Horns", actions: null });
+    expect(enricher.activity.name).toBe("Manifest Crown of Horns");
+    expect(enricher.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "King of All: Aura Save",
+      "Spend Pact Slot to Restore Use",
+    ]);
+    // the restore activity refunds an item use while consuming a pact slot
+    const restore = enricher.additionalActivities[1].build.consumptionOverride.targets;
+    expect(restore).toEqual([
+      { type: "itemUses", target: "", value: -1, scaling: { mode: "", formula: "" } },
+      { type: "attribute", value: "1", target: "spells.pact.value" },
+    ]);
+    expect(enricher.clearAutoEffects).toBe(true);
+    expect(enricher.override.uses.max).toBe("1");
+
+    const effects = enricher.effects as any[];
+    expect(effects.map((e) => [e.name, e.activityMatch])).toEqual([
+      ["Crown of Horns: Dark Heart", "Manifest Crown of Horns"],
+      ["King of All: Enticement", "King of All: Aura Save"],
+      ["King of All: Wickedness", "King of All: Aura Save"],
+      ["King of All: Terror", "King of All: Aura Save"],
+    ]);
+    expect(effects[0].ac5eChanges[0]).toMatchObject({
+      key: "flags.automated-conditions-5e.damage.bonus",
+      value: "bonus=1d8[necrotic]; oncePerTurn",
+    });
+    expect(effects[2].ac5eChanges.map((c: any) => c.key)).toEqual([
+      "flags.automated-conditions-5e.attack.disadvantage",
+      "flags.automated-conditions-5e.check.disadvantage",
+    ]);
+
+    // the Dark Heart alias entry builds nothing
+    const alias = makeEnricherData(CrownOfHorns as TEnricher, { name: "Dark Heart", actions: null });
+    expect(alias.effects).toHaveLength(0);
+    expect(alias.additionalActivities).toHaveLength(0);
+    expect(alias.activity).toBeNull();
   });
 
   it("Favored Foe adds a level-scaled die advancement backing the effect's scale ref", () => {

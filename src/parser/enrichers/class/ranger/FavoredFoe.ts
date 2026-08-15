@@ -2,6 +2,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FavoredFoe extends DDBEnricherData {
 
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
+
   override get override(): IDDBOverrideData {
     // the damage die scales with ranger level (1d4, 1d6 at 6th, 1d8 at 14th);
     // the feature-held scale value surfaces as @scale.favored-foe.die

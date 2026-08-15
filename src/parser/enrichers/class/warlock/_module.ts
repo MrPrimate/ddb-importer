@@ -14,6 +14,7 @@ export { default as ChainsOfCarceri } from "./ChainsOfCarceri";
 export { default as ClairvoyantCombatant } from "./ClairvoyantCombatant";
 export { default as ContextSwitch } from "./ContextSwitch";
 export { default as CreateThrall } from "./CreateThrall";
+export { default as CrownOfHorns } from "./CrownOfHorns";
 export { default as DarkOnesBlessing } from "./DarkOnesBlessing";
 export { default as DarkOnesOwnLuck } from "./DarkOnesOwnLuck";
 export { default as DefyDeath } from "./DefyDeath";

@@ -72,6 +72,7 @@ export { default as ManeuverSweepingAttack } from "./ManeuverSweepingAttack";
 export { default as ManeuverTacticalAssessment } from "./ManeuverTacticalAssessment";
 export { default as ManeuverTripAttack } from "./ManeuverTripAttack";
 export { default as MaraudersReprisal } from "./MaraudersReprisal";
+export { default as MonsterKill } from "./MonsterKill";
 export { default as PiercingArrow } from "./PiercingArrow";
 export { default as PsionicStrike } from "./PsionicStrike";
 export { default as PsiPoweredLeap } from "./PsiPoweredLeap";

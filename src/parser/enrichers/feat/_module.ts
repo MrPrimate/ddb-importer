@@ -4,6 +4,7 @@ export { default as _GreaterMarkOf } from "./_GreaterMarkOf";
 export { default as _IntuitionActionBase } from "./_IntuitionActionBase";
 export { default as AbberantDragonmark } from "./AbberantDragonmark";
 export { default as AberrantFortitude } from "./AberrantFortitude";
+export { default as AgentOfOrder } from "./AgentOfOrder";
 export { default as AlacrityBurstOfSpeed } from "./AlacrityBurstOfSpeed";
 export { default as Alert } from "./Alert";
 export { default as ArtisansIntuition } from "./ArtisansIntuition";

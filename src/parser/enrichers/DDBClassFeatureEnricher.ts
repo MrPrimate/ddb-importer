@@ -277,6 +277,16 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     Warlock: {
       "Expanded Spell List": ClassEnrichers.Warlock.ExtraSpells,
+      "Dark Heart": ClassEnrichers.Warlock.CrownOfHorns,
+    },
+    Fighter: {
+      "Monster Kill: Bonus Damage": ClassEnrichers.Fighter.MonsterKill,
+    },
+    Pugilist: {
+      "School of Hard Knocks: Bonus Damage": ClassEnrichers.Pugilist.SchoolOfHardKnocks,
+    },
+    Druid: {
+      "Oak and Thorn: Gnarled Thorns": ClassEnrichers.Druid.OakAndThorn,
     },
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
