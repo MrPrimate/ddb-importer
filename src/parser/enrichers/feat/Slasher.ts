@@ -64,6 +64,9 @@ export default class Slasher extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+        ],
       },
       {
         name: "Slasher (Automation)",

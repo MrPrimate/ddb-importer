@@ -73,7 +73,35 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
-    const results = [];
+    const results: IDDBEffectHint[] = [];
+
+    const strikeDamage: Record<string, string> = {
+      "Cloud Strike": "1d4[thunder]",
+      "Fire Strike": "1d10[fire]",
+      "Frost Strike": "1d6[cold]",
+      "Hill Strike": "1d6",
+      "Stone Strike": "1d6[force]",
+      "Storm Strike": "1d6[lightning]",
+    };
+    const strikeName = this.nameArray[1].trim();
+    const damage = strikeDamage[strikeName];
+    if (damage) {
+      results.push({
+        name: `${this.name} (Automation)`,
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage on a hit with a melee weapon attack or a thrown ranged weapon attack. Apply the save manually.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            `bonus=${damage}; oncePerTurn; optin; actionType.mwak || (actionType.rwak && itemProperties.thr)`,
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      });
+    }
 
     switch (this.name) {
       case "Strike of the Giants: Cloud Strike":
@@ -103,6 +131,9 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           name: "Storm Struck: Disadvantage on attack rolls",
           midiChanges: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("true", 20, "flags.midi-qol.disadvantage.attack.all"),
+          ],
+          ac5eChanges: [
+            DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
           ],
           options: {
             durationSeconds: 6,
