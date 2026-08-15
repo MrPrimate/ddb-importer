@@ -278,6 +278,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Warlock: {
       "Expanded Spell List": ClassEnrichers.Warlock.ExtraSpells,
       "Dark Heart": ClassEnrichers.Warlock.CrownOfHorns,
+      "Eldritch Invocations: Eldritch Smite": ClassEnrichers.Warlock.EldritchSmite,
     },
     Fighter: {
       "Monster Kill: Bonus Damage": ClassEnrichers.Fighter.MonsterKill,

@@ -58,6 +58,13 @@ import ApexPredator from "../../../src/parser/enrichers/class/druid/ApexPredator
 import LunarForm from "../../../src/parser/enrichers/class/druid/LunarForm";
 import OakAndThorn from "../../../src/parser/enrichers/class/druid/OakAndThorn";
 import AgentOfOrder from "../../../src/parser/enrichers/feat/AgentOfOrder";
+import EldritchSmite from "../../../src/parser/enrichers/class/warlock/EldritchSmite";
+import EldritchHeads from "../../../src/parser/enrichers/class/warlock/EldritchHeads";
+import HandOfHarm from "../../../src/parser/enrichers/class/monk/HandOfHarm";
+import ChromaticAffinity from "../../../src/parser/enrichers/class/cleric/ChromaticAffinity";
+import AngelMask from "../../../src/parser/enrichers/class/bard/AngelMask";
+import PowerSurge from "../../../src/parser/enrichers/class/wizard/PowerSurge";
+import AggressiveDefense from "../../../src/parser/enrichers/class/fighter/AggressiveDefense";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -93,6 +100,14 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
     [OakAndThorn, "bonus=1d6[piercing]; oncePerTurn; optin; actionType.mwak"],
     [AgentOfOrder, "bonus=1d8[force]; oncePerTurn; optin"],
+    // Tier 3: resource-consuming opt-ins (usesCount grammar)
+    [EldritchSmite, "bonus=(1 + @spells.pact.level)d8[force]; usesCount=spells.pact; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
+    [EldritchHeads, "bonus=(1 + @prof)[psychic]; usesCount=origin; oncePerTurn; optin; hasAttack"],
+    [HandOfHarm, "bonus=(@scale.monk.die + @abilities.wis.mod)[necrotic]; usesCount=Item.monks-focus; oncePerTurn; optin; item.name.includes('Unarmed')"],
+    [ChromaticAffinity, "bonus=@classes.cleric.levels; usesCount=origin; oncePerTurn; optin"],
+    [AngelMask, "bonus=@scale.bard.inspiration[radiant]; usesCount=Item.bardic-inspiration; oncePerTurn; optin"],
+    [PowerSurge, "bonus=floor(@classes.wizard.levels / 2)[force]; usesCount=origin; oncePerTurn; optin; isSpell && item.classIdentifier === 'wizard'"],
+    [AggressiveDefense, "bonus=(bonusScale); usesCount=hptemp,{min:1,max:floor(rollingActor.classes.fighter.levels / 2),step:1}; oncePerTurn; optin; actionType.mwak"],
   ] as [TEnricher, string][])("%o pins its opt-in bonus value", (Enricher, value) => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);

@@ -37,6 +37,26 @@ export default class PowerSurge extends DDBEnricherData {
     };
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Power Surge (Automation)",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage when you damage a creature with a wizard spell, spending one power surge from this feature's uses.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=floor(@classes.wizard.levels / 2)[force]; usesCount=origin; oncePerTurn; optin; isSpell && item.classIdentifier === 'wizard'",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {

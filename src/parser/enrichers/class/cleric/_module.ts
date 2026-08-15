@@ -19,6 +19,7 @@ export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserv
 export { default as ChannelDivinityRadianceOfTheDawn } from "./ChannelDivinityRadianceOfTheDawn";
 export { default as ChannelDivinityShadowGrasp } from "./ChannelDivinityShadowGrasp";
 export { default as ChannelDivinityTwilightSanctuary } from "./ChannelDivinityTwilightSanctuary";
+export { default as ChromaticAffinity } from "./ChromaticAffinity";
 export { default as CircleOfMortality } from "./CircleOfMortality";
 export { default as CommunityWatch } from "./CommunityWatch";
 export { default as CoronaOfLight } from "./CoronaOfLight";
