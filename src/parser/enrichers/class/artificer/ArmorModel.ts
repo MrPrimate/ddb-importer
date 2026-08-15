@@ -624,6 +624,13 @@ export default class ArmorModel extends DDBEnricherData {
             },
           },
         ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            `bonus=${this.is2014 ? "1d6[lightning]" : "@scale.armorer.lightning-launcher[lightning]"}; oncePerTurn; optin; activity.name.includes('Lightning Launcher')`,
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
         data: {
           _id: "ddbInfiltratorEf",
           duration: {

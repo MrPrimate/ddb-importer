@@ -49,6 +49,7 @@ export { default as HourOfReaping } from "./HourOfReaping";
 export { default as IrrationalRetaliation } from "./IrrationalRetaliation";
 export { default as KenseisShot } from "./KenseisShot";
 export { default as Ki } from "./Ki";
+export { default as ManifestBlowForgedHeart } from "./ManifestBlowForgedHeart";
 export { default as MartialArts } from "./MartialArts";
 export { default as MasteryOfDeath } from "./MasteryOfDeath";
 export { default as MonksFocus } from "./MonksFocus";

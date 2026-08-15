@@ -45,4 +45,24 @@ export default class SlayersPrey extends Generic {
     ];
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Slayer's Prey (Automation)",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage on the first weapon attack hit against your Slayer's Prey target. AC5e cannot check which creature is marked.",
+        },
+        ac5eChanges: [
+          Generic.ChangeHelper.ac5eChange(
+            "bonus=1d6; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
 }

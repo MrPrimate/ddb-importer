@@ -41,6 +41,13 @@ export default class OmenOfDoom extends DDBEnricherData {
         options: {
           durationSeconds: 3600,
         },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6[necrotic]; oncePerTurn; effectOriginTokenId === tokenId && hasAttack",
+            20,
+            "flags.automated-conditions-5e.grants.damage.bonus",
+          ),
+        ],
       },
     ];
   }

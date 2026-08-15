@@ -27,6 +27,13 @@ export default class HuntersPrey extends DDBEnricherData {
         data: {
           img: "icons/creatures/magical/construct-iron-stomping-yellow.webp",
         },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d8; oncePerTurn; optin; (actionType.mwak || actionType.rwak) && opponentActor.attributes.hp.value < opponentActor.attributes.hp.max",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
       },
       {
         name: "Horde Breaker",

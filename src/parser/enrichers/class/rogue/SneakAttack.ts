@@ -51,6 +51,22 @@ export default class SneakAttack extends DDBEnricherData {
           },
         },
       },
+      {
+        name: "Sneak Attack (Automation)",
+        ac5eOnly: true,
+        midiNever: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage with a Finesse or ranged weapon, when you have advantage or an ally is within 5 feet of the target.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=@scale.rogue.sneak-attack; oncePerTurn; optin; (itemProperties.fin || actionType.rwak) && (hasAdvantage || (!hasDisadvantage && checkNearby(opponentId, 'different', 5, {count: (distance <= 5 ? 2 : 1)})))",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
     ];
   }
 

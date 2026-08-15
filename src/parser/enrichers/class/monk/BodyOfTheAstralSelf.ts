@@ -63,4 +63,24 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
     ];
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Empowered Arms (Automation)",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage on a hit with the Arms of the Astral Self.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
 }

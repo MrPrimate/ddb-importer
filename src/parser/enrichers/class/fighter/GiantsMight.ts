@@ -69,6 +69,14 @@ export default class GiantsMight extends DDBEnricherData {
             },
           },
         ],
+        // this effect is only active while transformed, which gates the AC5e opt-in too
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
       },
     ];
   }
