@@ -455,6 +455,71 @@ export default class DDBMuleHandler {
     this.ddbMuncher?.notifierV2({ progress, section, message, progressBar, suppress: true });
   }
 
+  /**
+   * Short, stable hash of an id list, so a filename can carry "which ids" without
+   * carrying every id. Sorted first, so ordering differences do not change the hash.
+   */
+  static #hashIds(ids: number[]): string {
+    const input = [...ids].sort((a, b) => a - b).join("_");
+    let hash = 5381;
+    for (let i = 0; i < input.length; i++) {
+      hash = ((hash * 33) ^ input.charCodeAt(i)) >>> 0;
+    }
+    return hash.toString(36);
+  }
+
+  /**
+   * Id lists reach the hundreds for feats and species, and a 300 character file name gets
+   * truncated by the browser, which is one of the ways two different payloads end up
+   * fighting over one file. Keep short lists readable and hash the long ones.
+   */
+  static #idSegment(ids: number[]): string {
+    if (ids.length === 0) return "all";
+    if (ids.length <= 6) return ids.join("_");
+    return `${ids.length}x${DDBMuleHandler.#hashIds(ids)}`;
+  }
+
+  /**
+   * DEV downloads are browser downloads, so a repeated name is either silently
+   * overwritten or blocked. Track what has been handed out this session and suffix
+   * repeats rather than lose a capture.
+   */
+  static #usedDownloadNames = new Set<string>();
+
+  static #uniqueDownloadName(base: string, extension = "json"): string {
+    const safeBase = base.replaceAll(/[^\w.-]+/g, "-").replaceAll(/^-|-$/g, "");
+    let name = safeBase;
+    let counter = 1;
+    while (DDBMuleHandler.#usedDownloadNames.has(name)) {
+      counter++;
+      name = `${safeBase}-${counter}`;
+    }
+    DDBMuleHandler.#usedDownloadNames.add(name);
+    return `${name}.${extension}`;
+  }
+
+  /**
+   * The class munch loops every class in a source category, so the name needs the class id
+   * and the homebrew flags to tell those runs apart: without them every class that shares a
+   * narrowed source list writes the same file.
+   */
+  _rawExampleFileName(): string {
+    const homebrewSegment = this.onlyHomebrew
+      ? "onlyhb"
+      : this.allowedHomebrew ? "hb" : null;
+    const segments = [
+      "RAW",
+      this.characterId,
+      this.type,
+      this.classId !== null ? `c${this.classId}` : null,
+      homebrewSegment,
+      `f${DDBMuleHandler.#idSegment(this.filterIds)}`,
+      `s${DDBMuleHandler.#idSegment(this.allowedSourceIds)}`,
+    ].filter((segment) => segment !== null && segment !== "");
+
+    return DDBMuleHandler.#uniqueDownloadName(segments.join("-"));
+  }
+
   async _fetchMuleData() {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
@@ -583,7 +648,7 @@ export default class DDBMuleHandler {
         this._streamProcessedAll = true;
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
-        FileHelper.download(JSON.stringify(this.source), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
+        FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
       }
       const totalMs = Date.now() - startedAt;
       const ttfiMs = firstItemAt != null ? firstItemAt - startedAt : null;
@@ -902,7 +967,10 @@ export default class DDBMuleHandler {
     });
     ddbCharacter.source = { success: true, ddb: newStub };
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
-      FileHelper.download(JSON.stringify(newStub), `STREAM-${this.characterId}-${name}-${this.cachedClassCharacters.length}.json`, "application/json");
+      // the counter restarts per handler, so the same subclass munched again in a later
+      // category run would reuse the name without the uniqueness backstop
+      const fileName = DDBMuleHandler.#uniqueDownloadName(`STREAM-${this.characterId}-${name}-${this.cachedClassCharacters.length}`);
+      FileHelper.download(JSON.stringify(newStub), fileName, "application/json");
     }
     await ddbCharacter.process();
     this.#mergePendingDocs(ddbCharacter);
@@ -945,7 +1013,8 @@ export default class DDBMuleHandler {
     const newStub = foundry.utils.deepClone(ddbStub);
     foundry.utils.mergeObject(newStub.character, featData.data);
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
-      FileHelper.download(JSON.stringify(newStub), `STREAM-FEATS-${this.characterId}-${Date.now()}.json`, "application/json");
+      const fileName = DDBMuleHandler.#uniqueDownloadName(`STREAM-FEATS-${this.characterId}-${Date.now()}`);
+      FileHelper.download(JSON.stringify(newStub), fileName, "application/json");
     }
     const ddbCharacter = new DDBCharacter({
       currentActor: mockCharacter,
@@ -991,7 +1060,8 @@ export default class DDBMuleHandler {
     }
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
       const name = backgroundData.backgroundResponse.data.background.definition?.name ?? "unknown";
-      FileHelper.download(JSON.stringify(newStub), `STREAM-BACKGROUND-${this.characterId}-${name}-${Date.now()}.json`, "application/json");
+      const fileName = DDBMuleHandler.#uniqueDownloadName(`STREAM-BACKGROUND-${this.characterId}-${name}-${Date.now()}`);
+      FileHelper.download(JSON.stringify(newStub), fileName, "application/json");
     }
     const ddbCharacter = new DDBCharacter({
       currentActor: mockCharacter,
@@ -1032,7 +1102,8 @@ export default class DDBMuleHandler {
     newStub.character = speciesData.data;
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
       const name = speciesData.data.race.fullName ?? speciesData.data.race.baseName ?? "unknown";
-      FileHelper.download(JSON.stringify(newStub), `STREAM-SPECIES-${this.characterId}-${name}-${Date.now()}.json`, "application/json");
+      const fileName = DDBMuleHandler.#uniqueDownloadName(`STREAM-SPECIES-${this.characterId}-${name}-${Date.now()}`);
+      FileHelper.download(JSON.stringify(newStub), fileName, "application/json");
     }
     const ddbCharacter = new DDBCharacter({
       currentActor: mockCharacter,
