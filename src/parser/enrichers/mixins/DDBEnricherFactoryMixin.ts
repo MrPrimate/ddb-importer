@@ -1007,7 +1007,17 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     const ddbCharacter = foundry.utils.getProperty(this.ddbParser, "ddbCharacter") as DDBCharacter | undefined;
     if (!ddbCharacter) return result;
     const actions = ddbCharacter._characterFeatureFactory.getActions({ name, type });
-    if (actions.length === 0) return result;
+    if (actions.length === 0) {
+      // The enricher asked for an activity DDB did not ship. Either the action hangs off a
+      // builder toggle the character has switched off, or DDB renamed it - both leave the
+      // feature quietly short an activity, so hardcode the activity rather than name an action.
+      logger.warn(`No "${name}" ${type} action found for ${this.ddbParser.originalName}, the activity it would have built is missing`, {
+        name,
+        type,
+        this: this,
+      });
+      return result;
+    }
     const actionFeatures = await Promise.all(actions.map(async (action) => {
       const feature = await ddbCharacter._characterFeatureFactory.getFeatureFromAction({
         action,

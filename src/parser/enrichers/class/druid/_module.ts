@@ -40,6 +40,7 @@ export { default as NaturalRecovery } from "./NaturalRecovery";
 export { default as NatureMagician } from "./NatureMagician";
 export { default as NaturesWard } from "./NaturesWard";
 export { default as OakAndThorn } from "./OakAndThorn";
+export { default as PetalDance } from "./PetalDance";
 export { default as RiteOfTheBloodMoon } from "./RiteOfTheBloodMoon";
 export { default as RuinIncarnate } from "./RuinIncarnate";
 export { default as ShadowMass } from "./ShadowMass";

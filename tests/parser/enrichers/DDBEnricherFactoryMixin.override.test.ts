@@ -734,3 +734,55 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
     expect(result.name).toBe("Renamed By Func");
   });
 });
+
+// =============================================================================
+// _getActivityDataFromAction
+// =============================================================================
+
+/**
+ * An action hint that matches nothing used to return silently, so a feature came through
+ * an activity short with nothing in the log to say why. DDB drops an action from the payload
+ * whenever it hangs off a builder toggle the character has switched off, and renames them
+ * without notice ("Remove Grotesque Growth" became "Restore Grotesque Growth"), so this is
+ * the only signal for a hint that has gone stale against a live character.
+ */
+describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
+  function makeActionEnricher(actions: any[]): any {
+    return makeEnricher({
+      ddbParser: {
+        originalName: "Grotesque Growth",
+        ddbCharacter: {
+          _characterFeatureFactory: {
+            getActions: () => actions,
+            getFeatureFromAction: async () => ({ system: { activities: {} }, effects: [] }),
+          },
+        },
+      },
+    });
+  }
+
+  it("warns and yields nothing when no action matches the hint", async () => {
+    const { logger } = await import("../../../src/lib/_module");
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const e = makeActionEnricher([]);
+
+    const result = await e._getActivityDataFromAction({ name: "Remove Grotesque Growth", type: "class" }, 0);
+
+    expect(result).toEqual({ activities: {}, effects: [], advancements: [] });
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain("Remove Grotesque Growth");
+    expect(warn.mock.calls[0][0]).toContain("Grotesque Growth");
+    warn.mockRestore();
+  });
+
+  it("stays quiet when the action is there", async () => {
+    const { logger } = await import("../../../src/lib/_module");
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const e = makeActionEnricher([{ name: "Grotesque Growth" }]);
+
+    await e._getActivityDataFromAction({ name: "Grotesque Growth", type: "class" }, 0);
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});

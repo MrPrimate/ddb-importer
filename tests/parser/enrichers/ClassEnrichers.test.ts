@@ -524,6 +524,80 @@ describe("pugilist DreadHand", () => {
   });
 });
 
+/**
+ * The whole set of features whose activities DDB hangs off an "Activate X" choice option.
+ * That option's actions are absent from the payload of any character who has not switched
+ * the toggle on, so the enricher has to build the activities itself; naming a DDB action, or
+ * leaving default action matching to find one, silently costs the feature the activity.
+ *
+ * The class audit replays each fixture with the toggles cleared and fails on a loss, but it
+ * skips in CI (its fixtures are a private submodule), which makes this the guard that runs on
+ * a PR. Activity names are pinned so a rename cannot quietly drop one.
+ */
+describe("toggle-gated features build their own activities", () => {
+  const CASES: [string, any, string | null, string[]][] = [
+    ["druid PetalDance", ClassEnrichers.Druid.PetalDance, "Conjure Petals",
+      ["Petal Dance: Lunge", "Petal Dance: Protection"]],
+    ["druid SymbioticBiosphere", ClassEnrichers.Druid.SymbioticBiosphere, "Symbiotic Biosphere: Release Pheromones",
+      ["Symbiotic Biosphere: Retaliate"]],
+    ["kindred FightingFury", ClassEnrichers.Kindred.FightingFury, "Fighting Fury",
+      ["Fighting Fury: Swiftness"]],
+    ["kindred LiveFastBeAGoodLookingCorpse", ClassEnrichers.Kindred.LiveFastBeAGoodLookingCorpse,
+      "Live Fast, Be a Good Looking Corpse: Rapidity", ["Live Fast, Be a Good Looking Corpse: Rapidity (Turns)"]],
+    ["kindred ProteanRewards", ClassEnrichers.Kindred.ProteanRewards, "Protean Rewards: Flesh of Marble",
+      ["Gifts of Survival: Feral Fortitude (Flesh of Marble)"]],
+    ["paladin AvatarOfNourishment", ClassEnrichers.Paladin.AvatarOfNourishment, "Avatar of Nourishment",
+      ["Avatar of Nourishment: Restoration", "Avatar of Nourishment: Temp HP", "Avatar of Nourishment: Protection"]],
+    ["paladin FormOfTheRiver", ClassEnrichers.Paladin.FormOfTheRiver, "Enter Form of the River",
+      ["Aura of the River: Push Damage"]],
+    ["paladin MythicSwashbuckler", ClassEnrichers.Paladin.MythicSwashbuckler, "Mythic Swashbuckler",
+      ["Dash", "Disengage", "Swashbuckler Advantage"]],
+    ["paladin PartyAnimal", ClassEnrichers.Paladin.PartyAnimal, "Imbue Aura of Protection",
+      ["Aura of Fraternity: Party Animal", "Grant Heroic Inspiration"]],
+    ["pugilist AuraOfResilience", ClassEnrichers.Pugilist.AuraOfResilience, "Aura of Resilience", []],
+    ["pugilist DreadHand", ClassEnrichers.Pugilist.DreadHand, "Activate Dread Hand",
+      ["Revenging Strike", "Unslakeable Bloodlust", "Whirlwind of Violence"]],
+    ["pugilist GrotesqueGrowth", ClassEnrichers.Pugilist.GrotesqueGrowth, "Grotesque Growth",
+      ["Restore Grotesque Growth"]],
+    ["ranger FifthManifestation", ClassEnrichers.Ranger.FifthManifestation, "5th Manifestation",
+      ["5th Manifestation: Corruption Strike"]],
+    // a passive form with no activation of its own, so no base activity
+    ["ranger Lycanthrope", ClassEnrichers.Ranger.Lycanthrope, null, ["Claws (Str.)", "Claws (Dex.)"]],
+    ["sorcerer SandForm", ClassEnrichers.Sorcerer.SandForm, "Sand Form (Enter)",
+      ["Sand Form (Damage Resistance)"]],
+  ];
+
+  it.each(CASES)("%s builds its activities without naming a DDB action", (_label, Enricher, base, additional) => {
+    const e = build(Enricher);
+    // AuraOfResilience has a base activity only, so it leaves the getter at its null default
+    const hints = e.additionalActivities ?? [];
+    expect(e.activity?.name ?? null).toBe(base);
+    expect(hints.map((a: any) => a.init?.name)).toEqual(additional);
+    expect(hints.some((a: any) => a.action)).toBe(false);
+  });
+
+  it.each(CASES)("%s stays inert on the action document", (_label, Enricher) => {
+    const e = build(Enricher, { isAction: true });
+    expect(e.type).toBeNull();
+    expect(e.additionalActivities ?? []).toEqual([]);
+  });
+
+  it.each([
+    ["druid PetalDance", ClassEnrichers.Druid.PetalDance, "Petal Dance: Protection",
+      "@classes.druid.levels + @abilities.wis.mod", ["healing"]],
+    ["paladin AvatarOfNourishment", ClassEnrichers.Paladin.AvatarOfNourishment, "Avatar of Nourishment: Restoration",
+      "max(@abilities.cha.mod, 1)", ["healing"]],
+    ["paladin AvatarOfNourishment", ClassEnrichers.Paladin.AvatarOfNourishment, "Avatar of Nourishment: Temp HP",
+      "max(@abilities.cha.mod, 1)", ["temphp"]],
+  ] as [string, any, string, string, string[]][])("%s rolls %s as a heal", (_label, Enricher, name, formula, types) => {
+    const hint = build(Enricher).additionalActivities.find((a: any) => a.init?.name === name);
+    expect(hint.init.type).toBe("heal");
+    expect(hint.build.generateHealing).toBe(true);
+    expect(hint.build.healingPart.custom.formula).toBe(formula);
+    expect(hint.build.healingPart.types).toEqual(types);
+  });
+});
+
 describe("ranger FoeSlayer", () => {
   const Enricher = ClassEnrichers.Ranger.FoeSlayer;
 

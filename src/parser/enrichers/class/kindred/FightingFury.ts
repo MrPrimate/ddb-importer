@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
+export default class FightingFury extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -9,11 +9,14 @@ export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     if (this.isAction) return {};
     return {
-      name: "Live Fast, Be a Good Looking Corpse: Rapidity",
+      name: "Fighting Fury",
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,
       itemConsumeTargetName: "Blood Potency",
+      data: {
+        duration: { value: "1", units: "minute", special: "" },
+      },
     };
   }
 
@@ -22,7 +25,7 @@ export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Live Fast, Be a Good Looking Corpse: Rapidity (Turns)",
+          name: "Fighting Fury: Swiftness",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -30,37 +33,16 @@ export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
           generateActivation: true,
           generateTarget: true,
           generateUtility: true,
-          generateConsumption: true,
-          chatFlavor: "The additional action lasts for a number of turns equal to your Proficiency Bonus.",
+          generateConsumption: false,
+          chatFlavor: "Take the Dash or Dodge action as a Bonus Action.",
           activationOverride: {
             type: "bonus",
             value: 1,
             condition: "",
           },
-          consumptionOverride: {
-            targets: [
-              {
-                type: "itemUses",
-                target: "blood-potency",
-                value: 1,
-                scaling: { mode: "", formula: "" },
-              },
-            ],
-          },
         },
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      uses: this._getUsesWithSpent({
-        type: "class",
-        name: "Live Fast, Be a Good Looking Corpse",
-        includesName: true,
-        max: "@prof",
-      }),
-    };
   }
 
 }
