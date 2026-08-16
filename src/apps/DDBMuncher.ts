@@ -83,6 +83,20 @@ export default class DDBMuncher extends DDBAppV2 {
 
   processErrors: any[] = [];
   subClassMap: Record<string, IDDBMuleSubclassDefinition[]> = {};
+
+  // caption for the overall (third) progress bar per mule munch type
+  static MULE_OVERALL_LABELS: Record<string, string> = {
+    feat: "Feats",
+    background: "Backgrounds",
+    species: "Species",
+    class: "Classes",
+  };
+
+  // Overall (third) progress bar state for mule runs, which span many
+  // DDBMuleHandler invocations. The handler drives the primary and secondary
+  // bars per invocation; this tracks the whole run across all sources.
+  #muleOverall = { label: "", current: 0, total: 0 };
+
   homebrewClasses = new Set();
   encounterId: string | null = null;
   encounter: any = null;
@@ -861,6 +875,34 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
+  #startMuleOverallProgress(label: string, total: number) {
+    this.#muleOverall = { label, current: 0, total };
+    this.#notifyMuleOverallProgress();
+  }
+
+  // homebrew work is only sized after the subclass maps load, so the total can grow mid-run
+  #addMuleOverallProgressTotal(count: number) {
+    this.#muleOverall.total += count;
+    this.#notifyMuleOverallProgress();
+  }
+
+  #advanceMuleOverallProgress(detail = "") {
+    this.#muleOverall.current = Math.min(this.#muleOverall.current + 1, this.#muleOverall.total);
+    this.#notifyMuleOverallProgress(detail);
+  }
+
+  #notifyMuleOverallProgress(detail = "") {
+    const { label, current, total } = this.#muleOverall;
+    if (total <= 0) return;
+    this.notifierV2({
+      progress: { current, total },
+      section: "overall",
+      message: detail ? `${label}: ${detail}` : label,
+      progressBar: "overall",
+      suppress: true,
+    });
+  }
+
   async #processClassMunching(options: IDDBMuleHandlerOptions) {
     const muleHandler = new DDBMuleHandler(options);
 
@@ -892,6 +934,19 @@ export default class DDBMuncher extends DDBAppV2 {
     logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
     });
+    // size the homebrew portion of the overall bar up-front: one unit per
+    // filter chunk, mirroring the per-class subclass filtering below
+    const sliceSize = 3;
+    const homebrewChunkCount = Array.from(this.homebrewClasses).reduce((count: number, chunkClassId) => {
+      const klass = classList.find((c) => c.id === chunkClassId);
+      if (!klass) return count;
+      const subClassCount = this.subClassMap[klass.id]
+        .filter((subKlass) => subKlass.isHomebrew)
+        .filter((subKlass) => !(dontGrabExisting && existingSubclassIds.has(parseInt(String(subKlass.id)))))
+        .length;
+      return count + Math.ceil(subClassCount / sliceSize);
+    }, 0);
+    this.#addMuleOverallProgressTotal(homebrewChunkCount);
     const options = foundry.utils.deepClone(baseOptions);
     for (const classId of this.homebrewClasses) {
       const klass = classList.find((c) => c.id === classId);
@@ -922,7 +977,6 @@ export default class DDBMuncher extends DDBAppV2 {
         continue;
       }
 
-      const sliceSize = 3;
       for (let i = 0; i < subClasses.length; i += sliceSize) {
         const filterIds = subClasses.slice(i, i + sliceSize).map((sc) => sc.id);
         options.filterIds = filterIds;
@@ -958,6 +1012,7 @@ export default class DDBMuncher extends DDBAppV2 {
             message: `Class ${klass.name} (${klass.id} from ${i}-${i + filterIds.length}) for homebrew subclasses`,
           });
         }
+        this.#advanceMuleOverallProgress(`${klass.name} (Homebrew)`);
       }
     }
   }
@@ -990,6 +1045,7 @@ export default class DDBMuncher extends DDBAppV2 {
           const missingSubIds = baseSubIds.filter((id) => !existingSubclassIds.has(id));
           if (missingSubIds.length === 0) {
             logger.info(`Skipping class ${klass.name} (${klass.id}): all in-scope subclasses already exist`);
+            this.#advanceMuleOverallProgress(`${klass.name} (${category?.name ?? sourceIdArray.categoryId}, skipped)`);
             continue;
           }
           options.filterIds = missingSubIds;
@@ -1014,6 +1070,7 @@ export default class DDBMuncher extends DDBAppV2 {
             klass,
             originalSources: sourceIdArray.sourceIds,
           });
+          this.#advanceMuleOverallProgress(`${klass.name} (${category?.name ?? sourceIdArray.categoryId}, skipped)`);
           continue;
         }
 
@@ -1040,6 +1097,7 @@ export default class DDBMuncher extends DDBAppV2 {
             message: `Class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`,
           });
         }
+        this.#advanceMuleOverallProgress(`${klass.name} (${category?.name ?? sourceIdArray.categoryId})`);
       }
     }
   }
@@ -1103,6 +1161,12 @@ export default class DDBMuncher extends DDBAppV2 {
     this.processErrors = [];
     // reset homebrew tracking; keep subclass cache populated during render
     this.homebrewClasses = new Set();
+
+    // one unit per class per source category;
+    this.#startMuleOverallProgress(
+      DDBMuncher.MULE_OVERALL_LABELS.class,
+      onlyHomebrew ? 0 : sourceIdArrays.length * classList.length,
+    );
 
     try {
       // determine campaign id for the character to fetch appropriate subclass list
@@ -1214,6 +1278,16 @@ export default class DDBMuncher extends DDBAppV2 {
 
     const processErrors = [];
 
+    // one unit per source book plus one for the homebrew pass
+    const plannedSourceCount = onlyHomebrew
+      ? 0
+      : sourceIdArrays.reduce((count, sourceIdArray) => count + sourceIdArray.sourceIds.length, 0);
+    const homebrewPassPlanned = homebrew || onlyHomebrew;
+    this.#startMuleOverallProgress(
+      DDBMuncher.MULE_OVERALL_LABELS[type],
+      plannedSourceCount + (homebrewPassPlanned ? 1 : 0),
+    );
+
     try {
       for (const sourceIdArray of sourceIdArrays) {
         if (onlyHomebrew) continue;
@@ -1224,6 +1298,7 @@ export default class DDBMuncher extends DDBAppV2 {
         const totalSources = sourceIdArray.sourceIds.length;
         for (const [index, sourceId] of sourceIdArray.sourceIds.entries()) {
           options.sources = [sourceId];
+          const sourceName = CONFIG.DDB.sources.find((s) => s.id === sourceId)?.description ?? `source ${sourceId}`;
 
           if (speciesFilterActive) {
             // base id list: explicit selection if any, otherwise every species in this source
@@ -1244,7 +1319,10 @@ export default class DDBMuncher extends DDBAppV2 {
             if (dontGrabExisting) {
               sourceSpeciesIds = sourceSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
             }
-            if (sourceSpeciesIds.length === 0) continue;
+            if (sourceSpeciesIds.length === 0) {
+              this.#advanceMuleOverallProgress(`${sourceName} (skipped)`);
+              continue;
+            }
             options.filterIds = sourceSpeciesIds;
           }
 
@@ -1257,12 +1335,14 @@ export default class DDBMuncher extends DDBAppV2 {
               sourceEntryIds = sourceEntryIds.filter((id) => !existingFeatBgIds.has(id));
             }
             // an empty filterIds would mean "everything" to the proxy, so skip the source instead
-            if (sourceEntryIds.length === 0) continue;
+            if (sourceEntryIds.length === 0) {
+              this.#advanceMuleOverallProgress(`${sourceName} (skipped)`);
+              continue;
+            }
             options.filterIds = sourceEntryIds;
           }
 
           const muleHandler = new DDBMuleHandler(options);
-          const sourceName = CONFIG.DDB.sources.find((s) => s.id === sourceId)?.description ?? `source ${sourceId}`;
           this.notifierV2({
             section: "name",
             message: `Munching from ${sourceName} (${index + 1}/${totalSources}) in the ${category?.name ?? sourceIdArray.categoryId} category...`,
@@ -1286,6 +1366,7 @@ export default class DDBMuncher extends DDBAppV2 {
               message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceId ${sourceId}`,
             });
           }
+          this.#advanceMuleOverallProgress(sourceName);
         }
 
         logger.debug(`Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
@@ -1361,6 +1442,9 @@ export default class DDBMuncher extends DDBAppV2 {
             message: `${type} in Homebrew`,
           });
         }
+      }
+      if (homebrewPassPlanned) {
+        this.#advanceMuleOverallProgress(runHomebrew ? "Homebrew" : "Homebrew (skipped)");
       }
     } catch (error) {
       logger.error(error);
