@@ -13,6 +13,7 @@ export { default as AuraOfTheSentinel } from "./AuraOfTheSentinel";
 export { default as AvatarOfNourishment } from "./AvatarOfNourishment";
 export { default as AvengingAngel } from "./AvengingAngel";
 export { default as BloodKnight } from "./BloodKnight";
+export { default as BurningSpirit } from "./BurningSpirit";
 export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as ChannelDivinityAbjureTheExtraplanar } from "./ChannelDivinityAbjureTheExtraplanar";
 export { default as ChannelDivinityInspiringSmite } from "./ChannelDivinityInspiringSmite";

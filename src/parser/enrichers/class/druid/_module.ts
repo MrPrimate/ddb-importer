@@ -8,6 +8,7 @@ export { default as AdaptiveWildShapeIncreaseDarkvision } from "./AdaptiveWildSh
 export { default as AdaptiveWildShapeReplaceDamageTypeAcid } from "./AdaptiveWildShapeReplaceDamageTypeAcid";
 export { default as AdaptiveWildShapeReplaceDamageTypePoison } from "./AdaptiveWildShapeReplaceDamageTypePoison";
 export { default as AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing } from "./AdaptiveWildShapeSwimSpeedAndUnderwaterBreathing";
+export { default as AncientProtector } from "./AncientProtector";
 export { default as ApexPredator } from "./ApexPredator";
 export { default as Archdruid } from "./Archdruid";
 export { default as BalmOfTheSummerCourt } from "./BalmOfTheSummerCourt";
@@ -59,5 +60,6 @@ export { default as UmbralForm } from "./UmbralForm";
 export { default as WalkerInDreams } from "./WalkerInDreams";
 export { default as WildResurgence } from "./WildResurgence";
 export { default as WildShape } from "./WildShape";
+export { default as WoodWose } from "./WoodWose";
 export { default as WrathOfTheSea } from "./WrathOfTheSea";
 
