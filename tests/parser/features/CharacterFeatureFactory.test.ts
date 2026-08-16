@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
 // Characterization tests for the pure static surface of CharacterFeatureFactory:
 // isDuplicateFeature, getNameMatchedFeature and includedFeatureNameCheck.
+// jsdom: isDuplicateFeature compares rendered text, and utils.stripHtml wants a document.
 import { setMockSettings, resetMockSettings } from "../../_setup/foundryMocks";
 
 import CharacterFeatureFactory from "../../../src/parser/features/CharacterFeatureFactory";
@@ -46,6 +48,27 @@ describe("CharacterFeatureFactory.isDuplicateFeature", () => {
   it("returns true when name and description both match", () => {
     const existing = [makeItem({ name: "Sneak Attack", description: "<p>Extra damage.</p>" })];
     const item = makeItem({ name: "Sneak Attack", description: "<p>Extra damage.</p>" });
+    expect(CharacterFeatureFactory.isDuplicateFeature(existing, item)).toBe(true);
+  });
+
+  it("matches the builder and sheet copies of one feature through markup differences", () => {
+    // Grotesque Growth: DDB ships a hideInSheet builder copy and a hideInBuilder sheet copy,
+    // the latter left with a bare <hr> once its character-sheet note was stripped. Comparing
+    // markup here let the caller mistake the second copy for a new level's text and append it.
+    const builderCopy = [makeItem({
+      name: "Grotesque Growth",
+      description: "<p>When you use your Dread Hand feature, you gain the Enlarge effect.</p>",
+    })];
+    const sheetCopy = makeItem({
+      name: "Grotesque Growth",
+      description: "<p>When you use your Dread&nbsp;Hand feature, you gain the Enlarge effect.</p>\n<hr />",
+    });
+    expect(CharacterFeatureFactory.isDuplicateFeature(builderCopy, sheetCopy)).toBe(true);
+  });
+
+  it("returns true for two descriptionless features of the same name", () => {
+    const existing = [makeItem({ name: "Ability Score Improvement" })];
+    const item = makeItem({ name: "Ability Score Improvement" });
     expect(CharacterFeatureFactory.isDuplicateFeature(existing, item)).toBe(true);
   });
 

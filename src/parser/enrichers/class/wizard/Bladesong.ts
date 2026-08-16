@@ -80,4 +80,17 @@ export default class Bladesong extends DDBEnricherData {
     ];
   }
 
+  override get override(): IDDBOverrideData | null {
+    if (this.is2014) return null;
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Bladesong",
+        includesName: true,
+        max: "1 * @abilities.int.mod",
+        period: "lr",
+      }),
+    };
+  }
+
 }

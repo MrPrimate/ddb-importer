@@ -283,6 +283,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Fighter: {
       "Monster Kill: Bonus Damage": ClassEnrichers.Fighter.MonsterKill,
     },
+    Ranger: {
+      // "5th Manifestation" cannot be pascal-cased into a valid identifier
+      "5th Manifestation": ClassEnrichers.Ranger.FifthManifestation,
+    },
     Pugilist: {
       "School of Hard Knocks: Bonus Damage": ClassEnrichers.Pugilist.SchoolOfHardKnocks,
     },

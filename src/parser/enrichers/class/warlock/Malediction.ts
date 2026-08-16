@@ -37,18 +37,26 @@ export default class Malediction extends DDBEnricherData {
   get curses(): IMaledictionCurse[] {
     return [
       {
-        label: "Agony",
-        description: "Disadvantage on the next attack roll, or on the next Constitution saving throw made to maintain Concentration. The Horned King chooses which; both are applied here, so remove the one not chosen.",
-        changes: [
-          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("con"),
-        ],
+        label: "Agony (Attack)",
+        description: "Disadvantage on the next attack roll. Needs midi-qol or automated-conditions-5e; without one of those this effect carries no mechanical change.",
+        changes: [],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
-        daeSpecialDurations: ["turnEnd", "isSave", "1Attack"],
+        daeSpecialDurations: ["turnEnd", "1Attack"],
+      },
+      {
+        label: "Agony (Concentration)",
+        description: "Disadvantage on the next Constitution saving throw made to maintain Concentration. Applied to every Constitution save, since the roll mode cannot distinguish a Concentration save from any other.",
+        changes: [
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("con"),
+        ],
+        midiChanges: [],
+        ac5eChanges: [],
+        daeSpecialDurations: ["turnEnd", "isSave"],
       },
       {
         label: "Hate (Int)",
@@ -268,7 +276,8 @@ export default class Malediction extends DDBEnricherData {
 <section class="secret ddbSecret" id="secret-ddbMalediction">
 <p><strong>Implementation Details</strong></p>
 <p>Each curse is a separate activity in both its action and Reaction form; use the one you are spending.</p>
-<p>Agony applies disadvantage to both the attack roll and Concentration saves, and Hate to a mental save.</p>
+<p>Agony and Hate are split by the roll they hamper, so pick the activity for the choice you are making: Agony by attack roll or Concentration save, Hate by mental save.</p>
+<p>Agony (Attack) needs midi-qol or automated-conditions-5e; core dnd5e has no attack roll mode to set. Agony (Concentration) applies to every Constitution save, not only Concentration ones.</p>
 <p>Rot's extra 1d10 Necrotic damage is the Rot Damage activity. The block on regaining Hit Points is not automated.</p>
 <p>At 6th level Spiteful Curse adds the Cast Bestow Curse activity here, which spends that feature's use rather than a Malediction use.</p>
 </section>`,

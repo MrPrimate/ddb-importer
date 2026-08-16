@@ -129,11 +129,9 @@ export const PARSING_FEATURES = {
     "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
-    "Elemental Attunement: Activate Elemental Attunement",
     "Muscle Mass",
     "Werewolf Instincts",
     "Strange Endurance",
-    "Bladesong: Invoke the Bladesong",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -253,6 +251,14 @@ export const PARSING_CHOICE_FEATURES = {
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
   ],
+  // DDB models on/off toggle features as a choice with a single "Activate X" /
+  // "Invoke the X" option; building that as a choice just renames the parent to
+  // "X: Activate X". Suppress the choice build so the parent imports untouched.
+  // Opt out per feature via KEEP_CHOICE_FEATURE.
+  SINGLE_CHOICE_TOGGLE_PREFIXES: [
+    "Activate ",
+    "Invoke the ",
+  ],
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
     "Primal Companion",
@@ -361,7 +367,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Black Magic",
     "Giant's Power",
     "Metamagic",
-    "Elemental Attunement",
     "Ghaal'Shaarat",
     "Reanimated Companion",
     "Reanimator's Skillset",

@@ -66,4 +66,16 @@ export default class UmbralForm extends DDBEnricherData {
     ];
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Umbral Form",
+        includesName: true,
+        max: "1",
+        period: "lr",
+      }),
+    };
+  }
+
 }

@@ -43,6 +43,22 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant(parent, BRAND_OF_AXIOM)).toBe(true);
   });
 
+  it("flags an option that DDB truncated and punctuated off mid-sentence", () => {
+    // Pugilist Grotesque Growth: the option copy stops at "Long Rest." where the feature runs
+    // on with "unless you take a level of Exhaustion", so it is a 214-of-215 character prefix
+    const parent = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
+<p>Once you use this feature, you can’t use it again until you finish a Long Rest unless you take a level of Exhaustion (no action required by you) to restore your use of it.</p>`;
+    const choice = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
+<p>Once you use this feature, you can’t use it again until you finish a Long Rest.</p>`;
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(true);
+  });
+
+  it("keeps an option that only shares a prefix and then diverges", () => {
+    const parent = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>`;
+    const choice = `<p>When you use your Dread Hand feature, you gain the benefits of the Reduce effect instead, and your reach drops to 0 feet.</p>`;
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(false);
+  });
+
   it("keeps a short contained option that could collide by coincidence", () => {
     const choice = "<p>You gain darkvision.</p>";
     // "you gain darkvision." normalises to 20 chars, under MIN_CHOICE_CONTAINMENT_LENGTH,

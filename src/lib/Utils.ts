@@ -186,14 +186,17 @@ export default class Utils {
     return dom;
   }
 
-  // matches a single non-nested <p> or <blockquote>; a DOM round trip is not used
-  // here because re-serialising would escape the & in Foundry's &Reference[...] enrichers
-  static NOTE_BLOCK_REGEX = /<(p|blockquote)\b[^>]*>(?:(?!<\/\1>)[\s\S])*<\/\1>\s*/gi;
+  // matches a single non-nested <p> or <blockquote>, plus any <hr> separator in front of
+  // it, since DDB fences its sheet notes off with one and removing the note alone would
+  // leave the rule dangling; a DOM round trip is not used here because re-serialising
+  // would escape the & in Foundry's &Reference[...] enrichers.
+  // The leading group is non-capturing, so \1 still backreferences the block tag.
+  static NOTE_BLOCK_REGEX = /(?:<hr\b[^>]*>\s*)?<(p|blockquote)\b[^>]*>(?:(?!<\/\1>)[\s\S])*<\/\1>\s*/gi;
 
   /**
-   * Removes whole <p>/<blockquote> blocks containing any of the given marker phrases.
-   * Used to drop D&D Beyond character-sheet instructions ("Deselect it to end...")
-   * which mean nothing in Foundry.
+   * Removes whole <p>/<blockquote> blocks containing any of the given marker phrases,
+   * along with a preceding <hr> separator. Used to drop D&D Beyond character-sheet
+   * instructions ("Deselect it to end...") which mean nothing in Foundry.
    */
   static stripNoteBlocks(html: string, markers: string[]): string {
     if (!html || !markers.some((marker) => html.includes(marker))) return html;

@@ -32,4 +32,16 @@ export default class ArcaneExemplar extends DDBEnricherData {
     ];
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Arcane Exemplar",
+        includesName: true,
+        max: "1",
+        period: "lr",
+      }),
+    };
+  }
+
 }

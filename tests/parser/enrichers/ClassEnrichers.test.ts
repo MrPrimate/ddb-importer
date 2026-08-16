@@ -373,6 +373,33 @@ describe("monster-hunter CloseQuarters", () => {
   });
 });
 
+// same shape as pugilist DreadHand: the aura upgrade and the inspiration grant hang off the
+// "Imbue Aura of Protection" choice option, so DDB omits them unless the toggle is on
+describe("paladin PartyAnimal", () => {
+  const Enricher = ClassEnrichers.Paladin.PartyAnimal;
+
+  it("builds all three activities itself rather than from DDB actions", () => {
+    const e = build(Enricher);
+    expect(e.activity.name).toBe("Imbue Aura of Protection");
+    expect(e.activity.activationType).toBe("bonus");
+    expect(e.activity.addItemConsume).toBe(true);
+    expect(e.activity.data.duration).toEqual({ value: "10", units: "minute" });
+    expect(e.additionalActivities.map((a: any) => a.init?.name))
+      .toEqual(["Aura of Fraternity: Party Animal", "Grant Heroic Inspiration"]);
+    expect(e.additionalActivities.some((a: any) => a.action)).toBe(false);
+  });
+
+  it("upgrades the Aura of Fraternity die to 1d8", () => {
+    expect(build(Enricher).additionalActivities[0].build.rollOverride)
+      .toMatchObject({ formula: "1d8", name: "Roll" });
+  });
+
+  it("is inert on the action", () => {
+    expect(build(Enricher, { isAction: true }).type).toBeNull();
+    expect(build(Enricher, { isAction: true }).additionalActivities).toEqual([]);
+  });
+});
+
 describe("paladin SacredWeapon", () => {
   const Enricher = ClassEnrichers.Paladin.SacredWeapon;
 
@@ -403,6 +430,97 @@ describe("pugilist BrawlersBestFriend", () => {
       hp: "@classes.pugilist.levels * 5",
     });
     expect(e.activity.data.match.ability).toBe("con");
+  });
+});
+
+// the audit harness runs module-free, so its worksheet shows neither the ATL nor the AC5e
+// half of this effect; the value strings are pinned here instead
+describe("pugilist GrotesqueGrowth", () => {
+  const Enricher = ClassEnrichers.Pugilist.GrotesqueGrowth;
+
+  it("grants the Enlarge benefits on the feature and nothing on the action", () => {
+    const e = build(Enricher);
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({ name: "Grotesque Growth", options: { durationSeconds: 60 } });
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      // ["system.traits.size", "lg"],
+      ["system.abilities.str.check.roll.mode", "1"],
+      ["system.abilities.str.save.roll.mode", "1"],
+      ["system.bonuses.mwak.damage", "1d4"],
+      ["system.bonuses.rwak.damage", "1d4"],
+    ]);
+    // the "Grotesque Growth" action resolves to this enricher too and is merged into the
+    // feature, so emitting there as well would apply the growth twice
+    expect(build(Enricher, { isAction: true }).effects).toEqual([]);
+  });
+
+  it("only the activation applies the growth, not the exhaustion restore", () => {
+    // "Restore Grotesque Growth" buys the use back with a level of Exhaustion, it does not
+    // end the effect, so it must not be an activity the effect links to
+    expect(build(Enricher).effects[0].activitiesMatch).toEqual(["Grotesque Growth"]);
+  });
+
+  it("builds both activities itself rather than from DDB actions", () => {
+    const e = build(Enricher);
+    expect(e.activity.name).toBe("Grotesque Growth");
+    expect(e.activity.addItemConsume).toBe(true);
+    expect(e.additionalActivities.map((a: any) => a.init?.name)).toEqual(["Restore Grotesque Growth"]);
+    // DDB renamed this action and hangs it off the sheet copy of the feature, so a name
+    // lookup silently produced a feature with the activation alone
+    expect(e.additionalActivities.some((a: any) => a.action)).toBe(false);
+    expect(e.additionalActivities[0].build.consumptionOverride.targets[0])
+      .toMatchObject({ type: "itemUses", value: -1 });
+    expect(build(Enricher, { isAction: true }).additionalActivities).toEqual([]);
+    expect(build(Enricher, { isAction: true }).type).toBeNull();
+  });
+
+  it("upgrades the token to Large and sets a 10 foot reach for AC5e", () => {
+    const e = build(Enricher);
+    expect(e.effects[0].atlChanges.map((c: any) => [c.key, c.type, c.value]))
+      .toEqual([["ATL.width", "upgrade", "2"], ["ATL.height", "upgrade", "2"]]);
+    expect(e.effects[0].ac5eChanges[0]).toMatchObject({
+      key: "flags.automated-conditions-5e.range",
+      value: "reach=10",
+    });
+  });
+});
+
+// Revenging Strike, Unslakeable Bloodlust and Whirlwind of Violence hang off the Dread Hand
+// "Activate" choice option, so DDB omits them entirely unless the toggle is on. The mule
+// captures were all taken with it on, which is why the audit never saw this.
+describe("pugilist DreadHand", () => {
+  const Enricher = ClassEnrichers.Pugilist.DreadHand;
+
+  it("builds all four activities itself rather than from DDB actions", () => {
+    const e = build(Enricher);
+    expect(e.activity.name).toBe("Activate Dread Hand");
+    expect(e.activity.addItemConsume).toBe(true);
+    expect(e.activity.data.duration).toEqual({ value: "1", units: "minute" });
+    expect(e.additionalActivities.map((a: any) => a.init?.name))
+      .toEqual(["Revenging Strike", "Unslakeable Bloodlust", "Whirlwind of Violence"]);
+    expect(e.additionalActivities.some((a: any) => a.action)).toBe(false);
+  });
+
+  it("makes Revenging Strike a reaction unarmed strike", () => {
+    const strike = build(Enricher).additionalActivities[0];
+    expect(strike.init.type).toBe("attack");
+    expect(strike.build.activationOverride.type).toBe("reaction");
+    expect(strike.build.rangeOverride).toMatchObject({ value: 5, units: "ft" });
+    expect(strike.build.damageParts[0].custom.formula)
+      .toBe("@scale.pugilist.fisticuffs + @abilities.str.mod");
+  });
+
+  it("does not spend the Dread Hand use on Whirlwind of Violence", () => {
+    // the DDB action carried a limitedUse that consumed the feature's own use, which is wrong:
+    // Whirlwind of Violence is free and once per turn
+    const whirlwind = build(Enricher).additionalActivities[2];
+    expect(whirlwind.build.generateConsumption).toBe(false);
+  });
+
+  it("is inert on the action", () => {
+    expect(build(Enricher, { isAction: true }).type).toBeNull();
+    expect(build(Enricher, { isAction: true }).activity).toEqual({});
+    expect(build(Enricher, { isAction: true }).additionalActivities).toEqual([]);
   });
 });
 
@@ -619,16 +737,24 @@ describe("warlock Malediction", () => {
 
   it("gives each curse an action and a reaction activity", () => {
     const names = atWarlockLevel(5).additionalActivities.map((a: any) => a.init.name);
+    // Agony and Hate are split by the roll they hamper, so the player picks up front
+    // rather than being handed an effect with changes they have to delete
     expect(names).toEqual([
-      "Hate (Action)",
+      "Agony (Concentration) (Action)",
+      "Hate (Int) (Action)",
+      "Hate (Wis) (Action)",
+      "Hate (Cha) (Action)",
       "Rot (Action)",
-      "Agony (Reaction)",
-      "Hate (Reaction)",
+      "Agony (Attack) (Reaction)",
+      "Agony (Concentration) (Reaction)",
+      "Hate (Int) (Reaction)",
+      "Hate (Wis) (Reaction)",
+      "Hate (Cha) (Reaction)",
       "Rot (Reaction)",
       "Rot Damage",
     ]);
     // the first curse action is the primary activity rather than an additional one
-    expect(atWarlockLevel(5).activity.name).toBe("Agony (Action)");
+    expect(atWarlockLevel(5).activity.name).toBe("Agony (Attack) (Action)");
   });
 
   it("withholds Bestow Curse until Spiteful Curse is reached at 6th level", () => {
@@ -659,18 +785,31 @@ describe("warlock Malediction", () => {
   it("links one effect to both forms of its curse", () => {
     const effects = atWarlockLevel(6).effects;
     expect(effects.map((e: any) => e.name)).toEqual([
-      "Malediction: Agony",
-      "Malediction: Hate",
+      "Malediction: Agony (Attack)",
+      "Malediction: Agony (Concentration)",
+      "Malediction: Hate (Int)",
+      "Malediction: Hate (Wis)",
+      "Malediction: Hate (Cha)",
       "Malediction: Rot",
     ]);
-    expect(effects[0].activitiesMatch).toEqual(["Agony (Action)", "Agony (Reaction)"]);
+    expect(effects[0].activitiesMatch).toEqual([
+      "Agony (Attack) (Action)",
+      "Agony (Attack) (Reaction)",
+    ]);
     // the curse lasts until the end of the target's next turn, not the warlock's
     expect(effects[0].daeSpecialDurations).toContain("turnEnd");
-    expect(effects[1].changes.map((c: any) => c.key)).toEqual([
-      "system.abilities.int.save.roll.mode",
-      "system.abilities.wis.save.roll.mode",
-      "system.abilities.cha.save.roll.mode",
+    // each save-hampering curse carries exactly the one save it names
+    expect(effects.slice(1, 5).map((e: any) => e.changes.map((c: any) => c.key))).toEqual([
+      ["system.abilities.con.save.roll.mode"],
+      ["system.abilities.int.save.roll.mode"],
+      ["system.abilities.wis.save.roll.mode"],
+      ["system.abilities.cha.save.roll.mode"],
     ]);
+    expect(effects[4].activitiesMatch).toEqual(["Hate (Cha) (Action)", "Hate (Cha) (Reaction)"]);
+    // core dnd5e has no attack roll mode, so the attack half is module-only
+    expect(effects[0].changes).toEqual([]);
+    expect(effects[0].midiChanges.map((c: any) => c.key)).toEqual(["flags.midi-qol.disadvantage.attack.all"]);
+    expect(effects[0].ac5eChanges.map((c: any) => c.key)).toEqual(["flags.automated-conditions-5e.attack.disadvantage"]);
   });
 });
 

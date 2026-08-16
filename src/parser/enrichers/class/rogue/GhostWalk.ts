@@ -77,6 +77,13 @@ export default class GhostWalk extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Ghost Walk",
+        includesName: true,
+        max: "1",
+        period: "lr",
+      }),
     };
   }
 

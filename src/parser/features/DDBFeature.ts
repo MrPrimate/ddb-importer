@@ -882,6 +882,28 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   static MIN_CHOICE_CONTAINMENT_LENGTH = 40;
 
+  // DDB truncates the option copy mid-sentence and terminates it, where the parent runs on
+  // ("...finish a Long Rest." vs "...finish a Long Rest unless you take a level of
+  // Exhaustion")
+  static TRAILING_SENTENCE_PUNCTUATION = /[\s.,;:]+$/;
+
+  /**
+   * DDB represents builder on/off toggles as a choice with exactly one
+   * available option, labelled "Activate <Feature>" or "Invoke the <Feature>"
+   * (Bladesong, Elemental Attunement, ...). Building that lone option as a
+   * choice feature only renames the parent; suppress it instead.
+   * Tested against the raw parent-only pool, not the NEVER_CHOICES/skill/tool
+   * filtered list - the rule only applies when the toggle is the whole pool.
+   * Opt out via KEEP_CHOICE_FEATURE if a real "Activate X" choice needs building.
+   */
+  get isSingleToggleChoice(): boolean {
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    return pool.length === 1
+      && DDBFeature.CHOICE_DEFS.SINGLE_CHOICE_TOGGLE_PREFIXES
+        .some((prefix) => (pool[0].label ?? "").startsWith(prefix));
+  }
+
   /**
    * DDB often ships an option whose description is a verbatim copy of the parent
    * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
@@ -889,8 +911,10 @@ export default class DDBFeature extends DDBFeatureMixin {
    * it by content rather than growing NO_CHOICE_DESCRIPTION_ADDITION for each one.
    */
   static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string): boolean {
-    const lesserChoice = utils.renderLesserString(choiceDescription ?? "");
-    const lesserParent = utils.renderLesserString(parentDescription ?? "");
+    const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
+    const lesserParent = utils.renderLesserString(parentDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
     if (lesserChoice === "" || lesserParent === "") return false;
     if (lesserChoice === lesserParent) return true;
     // a short option line can appear inside an unrelated parent by coincidence;
@@ -979,6 +1003,7 @@ ${description}`;
       ? ""
       : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
         || this.enricher.noChoiceBuild
+        || this.isSingleToggleChoice
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
         ? `<hr>${joinedText}`
         : `<hr><section class="secret">${joinedText}</section>`;

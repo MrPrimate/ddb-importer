@@ -91,6 +91,23 @@ describe("Utils.stripNoteBlocks", () => {
     expect(Utils.stripNoteBlocks(html, MARKERS)).toBe(html);
     expect(Utils.stripNoteBlocks("", MARKERS)).toBe("");
   });
+
+  it("takes the <hr> separator DDB fences the note off with", () => {
+    // the real Grotesque Growth description; leaving the rule behind kept this copy of the
+    // feature from matching the builder copy, so the whole thing was appended as a duplicate
+    const html = "<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect.</p>\n<hr />\n<p><em>Select Activate Grotesque Growth below to apply the effects from Grotesque Growth. Deselect it to stop the effects.</em></p>";
+    expect(Utils.stripNoteBlocks(html, MARKERS)).toBe("<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect.</p>\n");
+  });
+
+  it("takes an unclosed <hr> with attributes too", () => {
+    const html = "<p>Keep me.</p><hr class=\"styles_divider__x1\"><blockquote><p>In the Character Builder, set the option.</p></blockquote>";
+    expect(Utils.stripNoteBlocks(html, MARKERS)).toBe("<p>Keep me.</p>");
+  });
+
+  it("keeps an <hr> that separates real rules text", () => {
+    const html = "<p>Deselect it to end the effect.</p><hr /><p>Real rules text that stays.</p>";
+    expect(Utils.stripNoteBlocks(html, MARKERS)).toBe("<hr /><p>Real rules text that stays.</p>");
+  });
 });
 
 describe("Utils.intSigner", () => {

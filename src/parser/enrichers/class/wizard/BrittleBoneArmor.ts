@@ -43,4 +43,16 @@ export default class BrittleBoneArmor extends DDBEnricherData {
     ];
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Brittle Bone Armor",
+        includesName: true,
+        max: "1",
+        period: "lr",
+      }),
+    };
+  }
+
 }

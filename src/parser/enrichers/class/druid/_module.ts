@@ -49,6 +49,7 @@ export { default as StarryForm } from "./StarryForm";
 export { default as Stormborn } from "./Stormborn";
 export { default as SummonWildfireSpirit } from "./SummonWildfireSpirit";
 export { default as SummonWildfireSpiritCommand } from "./SummonWildfireSpiritCommand";
+export { default as SymbioticBiosphere } from "./SymbioticBiosphere";
 export { default as SymbioticEntity } from "./SymbioticEntity";
 export { default as SympatheticShield } from "./SympatheticShield";
 export { default as SympatheticShieldRetaliation } from "./SympatheticShieldRetaliation";

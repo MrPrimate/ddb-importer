@@ -259,6 +259,84 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     expect(features).toEqual([]);
     expect(parent.data.name).toBe("Test Feature");
   });
+
+  // DDB models builder on/off toggles (Bladesong, Elemental Attunement, ...) as a
+  // choice whose whole option pool is one "Activate X"/"Invoke the X" entry; the
+  // merge would only rename the parent to "X: Activate X", so it is suppressed.
+  describe("single toggle choices", () => {
+    it("suppresses a lone chosen 'Activate' option", async () => {
+      const parent = makeParentFeature({
+        options: [{ id: 101, label: "Activate Test Feature", description: "<p>Toggle text.</p>" }],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+      expect(features).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature");
+      expect(parent.data.flags.ddbimporter.dndbeyond?.choice).toBeUndefined();
+    });
+
+    it("suppresses a lone chosen 'Invoke the' option", async () => {
+      const parent = makeParentFeature({
+        options: [{ id: 101, label: "Invoke the Test Feature", description: "<p>Toggle text.</p>" }],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+      expect(features).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature");
+    });
+
+    it("suppresses the toggle in allFeatures mode too", async () => {
+      const parent = makeParentFeature({
+        options: [{ id: 101, label: "Activate Test Feature", description: "<p>Toggle text.</p>" }],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
+      expect(features).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature");
+    });
+
+    it("still merges a lone option without a toggle prefix", async () => {
+      // pins Counterspell / "Bough and Branch: Shield" style single-option pools
+      const parent = makeParentFeature({
+        options: [{ id: 101, label: "Shield", description: "<p>Shield text.</p>" }],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+      expect(features).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature: Shield");
+      expect(parent.data.flags.ddbimporter.dndbeyond.choice).toMatchObject({
+        parentName: "Test Feature",
+        label: "Shield",
+      });
+    });
+
+    it("builds normally when an 'Activate' option sits in a larger pool", async () => {
+      // the rule requires the toggle to be the entire option pool
+      const parent = makeParentFeature({
+        options: [
+          { id: 101, label: "Activate Something", description: "<p>A.</p>" },
+          { id: 102, label: "Option B", description: "<p>B.</p>" },
+        ],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
+      expect(features.map((f: any) => f.name)).toEqual([
+        "Test Feature: Activate Something",
+        "Test Feature: Option B",
+      ]);
+    });
+
+    it("keeps building a lone 'Activate' option for KEEP_CHOICE_FEATURE features", async () => {
+      const parent = makeParentFeature({
+        featureName: "Genie's Vessel",
+        options: [{ id: 101, label: "Activate Genie's Vessel", description: "<p>Vessel text.</p>" }],
+        chosenId: 101,
+      });
+      const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+      expect(features.map((f: any) => f.name)).toEqual(["Genie's Vessel: Activate Genie's Vessel"]);
+      expect(parent.data.name).toBe("Genie's Vessel");
+    });
+  });
 });
 
 // DDB ships the parent "Blood Curses" feature with every curse in its description;
@@ -317,5 +395,21 @@ describe("DDBFeature._buildChoiceFeature REPLACE_DESCRIPTION_WITH_CHOICES", () =
     expect(parent.descriptionOverride).toBeNull();
     expect(description).toContain("A test feature.");
     expect(description).toContain("<section class=\"secret\">");
+  });
+
+  it("appends a single toggle option's text without a secret wrapper", async () => {
+    // matches the NO_CHOICE_BUILD behaviour the toggle rule replaces
+    const parent = makeParentFeature({
+      featureDescription: "<p>A test feature.</p>",
+      options: [{ id: 101, label: "Activate Test Feature", description: "<p>Unique toggle text.</p>" }],
+      chosenId: 101,
+    });
+    await parent.loadEnricher();
+    await parent.build();
+
+    const description = parent.data.system.description.value;
+    expect(description).toContain("A test feature.");
+    expect(description).toContain("Unique toggle text.");
+    expect(description).not.toContain("<section class=\"secret\">");
   });
 });

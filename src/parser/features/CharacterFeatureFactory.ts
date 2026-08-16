@@ -141,15 +141,22 @@ export default class CharacterFeatureFactory {
     return CharacterFeatureFactory.LEVEL_PREFIX_MATCH.exec(name)?.[1].trim() ?? name;
   }
 
+  // DDB ships some features twice, once for the builder and once for the sheet, and the sheet
+  // copy carries crud the builder copy does not (a stripped note's leftover <hr>, &nbsp;,
+  // different wrapping). Comparing rendered text rather than markup keeps those pairs matched,
+  // otherwise the caller treats the second copy as a new level's text and appends it whole.
   static isDuplicateFeature(items: T5eFeatureMixinDataTypes[], item: T5eFeatureMixinDataTypes, { matchClass = false } = {}) {
     const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
+    const itemDescription = utils.renderLesserString(item.system.description?.value ?? "");
     return items.some((dup: any) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
         && foundry.utils.hasProperty(item.flags.ddbimporter ?? {}, "class")
         && dup.flags.ddbimporter.class === item.flags.ddbimporter?.class);
 
-      return dup.name === item.name && dup.system.description.value === item.system.description?.value && classMatched;
+      return dup.name === item.name
+        && utils.renderLesserString(dup.system.description?.value ?? "") === itemDescription
+        && classMatched;
     });
   }
 
