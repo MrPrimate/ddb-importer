@@ -132,6 +132,26 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
 
+  /**
+   * Find the character class a definition belongs to. DDB's classId on a
+   * feature can be either the class or the subclass definition id.
+   */
+  _findClassForDefinition(definition: TDDBFeatureMixinDefinitions | undefined): IDDBClass | undefined {
+    if (!definition) return undefined;
+    const classId = "classId" in definition ? definition.classId : null;
+    const className = "className" in definition ? definition.className : null;
+    const subclassName = "subclassName" in definition ? definition.subclassName : null;
+
+    return this.ddbData.character.classes.find((klass) =>
+      (classId
+        && (klass.definition.id === classId || klass.subclassDefinition?.id === classId))
+      || (className && klass.definition.name === className
+        && ((!subclassName || subclassName === "")
+          || (subclassName && klass.subclassDefinition?.name === subclassName))
+      ),
+    );
+  }
+
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),

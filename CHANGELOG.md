@@ -6,8 +6,9 @@
 - Gunslinger Parsing fixes @thetreat @crimsonedge
 - Mage Hand Press Ammo types are now injected into the system if munched into DDB Items.
 - Mage Hand Press Firearms now properly import without a damage mod.
-- A huge number of AC5e/Automated Conditions 5e improvements.
+- A huge number of AC5e/Automated Conditions 5e improvements and additions.
 - A number of classes generated eroneous "Activate FEATURE NAME" e.g. "Elemental Attunement: Activate Elemental Attunement" or "Bladesong: Invoke the Bladesong" when importing into a compendium. Delete these features and reimport the classes. @akr4s1a
+- When importing some 2014 classes into 2024 some features could endup in the root of the classes compendium rather than in the correct folder.
 
 # 7.4.1
 

@@ -10,7 +10,7 @@ export default class DDBAttackAction extends DDBAction {
   static FORCE_WEAPON_FEATURE_IF_ACTION = DICTIONARY.parsing.attackActions.FORCE_WEAPON_FEATURE_IF_ACTION;
 
   override _init() {
-    this.isAction = true;
+    super._init();
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       || DDBAttackAction.FORCE_WEAPON_FEATURE_IF_ACTION.includes(this.originalName)
       ? "weapon" as const

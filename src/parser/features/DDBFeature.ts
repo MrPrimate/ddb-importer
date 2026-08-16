@@ -49,14 +49,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       : (DDBFeature.DOC_TYPE as Record<string, string>)[this.type] as typeof this.documentType;
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
-    this._class = this.ddbData.character.classes.find((klass) =>
-      (this.ddbDefinition.classId
-        && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
-      || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
-        && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
-          || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-      ),
-    );
+    this._class = this._findClassForDefinition(this.ddbDefinition);
     this._choices = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
