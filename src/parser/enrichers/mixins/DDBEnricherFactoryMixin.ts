@@ -1416,18 +1416,28 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
   }
 
+  /**
+   * DDB action names carry curly apostrophes; enrichers list them straight, so
+   * compare both through nameString rather than raw.
+   */
+  _matchesBuiltFeatureFilter(actionName: string): boolean {
+    const filters = this.builtFeaturesFromActionFilters as string[];
+    if (filters.length === 0) return true;
+    return filters.some((filter) => utils.nameString(filter) === utils.nameString(actionName));
+  }
+
   async _buildFeaturesFromAction({ name, type, isAttack = null, id = null }: { name: string; type: IActionTypes; isAttack?: boolean | null; id?: string | number | null }): Promise<T5eFeatureMixinDataTypes[]> {
     const ddbCharacter = this.ddbParser?.ddbCharacter;
     if (!ddbCharacter) return [];
     const actions = ddbCharacter._characterFeatureFactory.getActions({ name, type })
-      .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name))
+      .filter((action) => this._matchesBuiltFeatureFilter(action.name))
       .filter((action) => !id
         || type === "class"
         || String(action.id) === String(id),
       );
 
     const f = ddbCharacter._characterFeatureFactory.getActions({ name, type })
-      .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name));
+      .filter((action) => this._matchesBuiltFeatureFilter(action.name));
 
     if (f.length !== actions.length) {
       logger.warn(`Filtered actions from ${f.length} to ${actions.length} for ${name} (${type}) do not match`, {

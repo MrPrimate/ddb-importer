@@ -259,6 +259,12 @@ export const PARSING_CHOICE_FEATURES = {
     "Activate ",
     "Invoke the ",
   ],
+  // Replace the parent prefix on a choice document, for DDB feature names that are
+  // long or repeat the subclass: "Carrion Raven Martial Maneuvers: Apex Dominance"
+  // becomes "Maneuver: Apex Dominance". Use NO_FEATURE_PREFIX_NAME to drop it entirely.
+  CHOICE_FEATURE_PREFIX_RENAME: {
+    "Carrion Raven Martial Maneuvers": "Maneuver",
+  } as Record<string, string>,
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
     "Primal Companion",
@@ -557,6 +563,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Additional Fighting Style",
     "Pact Boon",
     "Magic Item Plans",
+    // duplicates the Martial Maneuvers rules text verbatim; only its maneuver
+    // choices are wanted, and the point pool lives on Martial Maneuvers
+    "Carrion Raven Martial Maneuvers",
   ],
   FORCE_FEAT_CHOICES: [
     "Dark Bargain",

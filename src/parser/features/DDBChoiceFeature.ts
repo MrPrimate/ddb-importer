@@ -14,6 +14,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static NO_FEATURE_PREFIX_NAME = DICTIONARY.parsing.choiceFeatures.NO_FEATURE_PREFIX_NAME;
 
+  static CHOICE_FEATURE_PREFIX_RENAME = DICTIONARY.parsing.choiceFeatures.CHOICE_FEATURE_PREFIX_RENAME;
+
   static NO_CHOICE_BUILD = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_BUILD;
 
   static NO_CHOICE_ACTIVITY = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_ACTIVITY;
@@ -104,13 +106,21 @@ export default class DDBChoiceFeature extends DDBFeature {
         this.data.name = `${this.data.name}`.replace(replace2Regex, "");
       }
 
+      const renamedPrefix = DDBChoiceFeature.CHOICE_FEATURE_PREFIX_RENAME[this.ddbDefinition.name];
+      if (renamedPrefix) {
+        const replace3Regex = new RegExp(`^${utils.escapeRegExp(this.ddbDefinition.name)}(?:\\s*[:-]\\s*)`);
+        this.data.name = `${this.data.name}`.replace(replace3Regex, `${renamedPrefix}: `);
+      }
+
       this.data.name = utils.nameString(this.data.name);
       const intMatch = /^(\d+: )(.*)$/;
       const intNameMatch = intMatch.exec(this.data.name);
       if (intNameMatch) {
         this.data.name = intNameMatch[2].trim();
       }
-      const namePointRegex = /(.*) \((\d) points?\)/i;
+      // "(5 points)", but also "(2 or 6 points)" and "(2 or more points)";
+      // the first number is the minimum spend
+      const namePointRegex = /(.*) \((\d+)(?: or (?:more|\d+))? points?\)/i;
       const nameMatch = this.data.name.match(namePointRegex);
       if (nameMatch) {
         this.data.name = nameMatch[1];
