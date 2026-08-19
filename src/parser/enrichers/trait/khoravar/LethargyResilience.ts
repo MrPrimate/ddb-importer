@@ -17,6 +17,7 @@ export default class LethargyResilience extends Generic.Generic {
 
   override get override(): IDDBOverrideData {
     return {
+      noConsumeTargetActivities: ["Lethargy Resilience: Recharge"],
       data: {
         system: {
           uses: {

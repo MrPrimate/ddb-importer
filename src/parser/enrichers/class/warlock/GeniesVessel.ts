@@ -16,6 +16,7 @@ export default class GeniesVessel extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
+      noConsumeTargets: true,
       data: {
         damage: {
           parts: [

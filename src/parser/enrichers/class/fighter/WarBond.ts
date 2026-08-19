@@ -12,6 +12,7 @@ export default class WarBond extends DDBEnricherData {
       activationType: "bonus",
       targetType: "self",
       noeffect: true,
+      noConsumeTargets: true,
     };
   }
 

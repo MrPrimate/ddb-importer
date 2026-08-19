@@ -28,6 +28,7 @@ export default class ElderChampion extends DDBEnricherData {
           targetType: "self",
           activationType: "turnStart",
           activationCondition: "Start of your turn",
+          noConsumeTargets: true,
         },
       },
       {

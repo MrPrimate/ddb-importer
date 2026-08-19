@@ -10,7 +10,7 @@ export default class ManeuverRally extends Maneuver {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: `${this.diceString} + ${this.is2014 ? "@abilities.cha.mod" : "@details.level"}`,
+          customFormula: `${this.diceString} + ${this.is2014 ? "@abilities.cha.mod" : "(@details.level / 2)"}`,
           types: ["temphp"],
         }),
       },

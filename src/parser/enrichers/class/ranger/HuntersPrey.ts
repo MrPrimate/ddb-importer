@@ -78,6 +78,7 @@ export default class HuntersPrey extends DDBEnricherData {
           targetType: "creature",
           activationType: "special",
           activationCondition: "Once per turn, if target is missing hit points",
+          addActivityConsume: true,
           data: {
             sort: 1,
             range: {

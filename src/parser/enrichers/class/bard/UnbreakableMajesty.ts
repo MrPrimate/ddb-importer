@@ -59,6 +59,9 @@ export default class UnbreakableMajesty extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          noConsumeTargets: true,
+        },
       },
     ];
   }

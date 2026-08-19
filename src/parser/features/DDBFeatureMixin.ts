@@ -117,6 +117,12 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   isSummons!: boolean;
   // recorded by _generateLimitedUse() but never read back
   _generatedUses?: I5eSystemLimitedUses;
+  /**
+   * Ids of activities whose consumption came out empty only because the document
+   * had no uses when the activity was built. Reconciled in _final(), once an
+   * enricher override has had its chance to supply uses.
+   */
+  _activitiesAwaitingUses = new Set<string>();
   // assigned by _generateActionTypes() via _prepare() in the constructor
   _actionType!: IDDBFeatureMixinActionType;
   _descriptionSave: I5eActivitySave | null = null;
@@ -1330,9 +1336,47 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     });
   }
 
+  /**
+   * An enricher override lands after the activities are built, so an activity
+   * that skipped its consumption target only for want of uses (see
+   * DDBFeatureActivity._generateConsumption) never gets one, even though the
+   * document ends up with uses. Re-run just that decision now the final uses are
+   * known, so a feature whose uses come from an enricher behaves like one whose
+   * uses came from the DDB payload.
+   */
+  _reconcileDeferredConsumption() {
+    if (this._activitiesAwaitingUses.size === 0) return;
+    if (!("uses" in this.data.system) || !("activities" in this.data.system)) return;
+
+    const max = this.data.system.uses?.max;
+    if (!max || max === "" || max === "0") return;
+
+    const type = this.usesOnActivity ? "activityUses" : "itemUses";
+    for (const activityId of this._activitiesAwaitingUses) {
+      const activity = this.data.system.activities[activityId];
+      if (!activity) continue;
+      const targets = activity.consumption?.targets ?? [];
+      // an enricher that filled the targets in itself needs no help
+      if (targets.length > 0) continue;
+      targets.push({
+        type,
+        target: "",
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+      foundry.utils.setProperty(activity, "consumption.targets", targets);
+      logger.debug(`Added deferred ${type} consumption to "${activity.name ?? activityId}" on ${this.name}`);
+    }
+  }
+
   async _final() {
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
+
+    this._reconcileDeferredConsumption();
 
     if (this.ddbDefinition.hintImage) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split("?")[0]);

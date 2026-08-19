@@ -316,6 +316,7 @@ global {
     ddbMacroDescription?: boolean;
     retainResourceConsumption?: boolean;
     ignoredConsumptionActivities?: string[];
+    noConsumeTargetActivities?: string[];
     retainOriginalConsumption?: boolean;
     retainChildUses?: boolean;
     retainUseSpent?: boolean;

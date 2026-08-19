@@ -17,6 +17,7 @@ export default class ArcanePrototype extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
+      addItemConsume: true,
       data: {
         macro: {
           name: "Create Arcane Prototype",

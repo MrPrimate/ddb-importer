@@ -35,6 +35,7 @@ export default class HybridTransformation extends DDBEnricherData {
       rangeSelf: true,
       activationType: "bonus",
       noTemplate: true,
+      addItemConsume: true,
       data: {
         enchant: {
           self: true,
@@ -93,6 +94,7 @@ export default class HybridTransformation extends DDBEnricherData {
           },
         },
         overrides: {
+          noConsumeTargets: true,
           id: ids.action,
           data: {
             attack,
@@ -122,6 +124,7 @@ export default class HybridTransformation extends DDBEnricherData {
         },
         overrides: {
           id: ids.bonus,
+          noConsumeTargets: true,
           data: {
             attack,
             target,
@@ -160,6 +163,7 @@ export default class HybridTransformation extends DDBEnricherData {
         overrides: {
           id: HybridTransformation.BLOODLUST_ID,
           targetType: "self",
+          noConsumeTargets: true,
           data: {
             range: { units: "self" },
             duration: { units: "inst" },

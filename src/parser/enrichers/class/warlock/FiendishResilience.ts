@@ -16,6 +16,7 @@ export default class FiendishResilience extends DDBEnricherData {
       name: "Resistance",
       activationType: "special",
       activationCondition: "Finish a short or long rest",
+      addItemConsume: true,
     };
   }
 

@@ -1,5 +1,8 @@
 # Next Up
 
+- Rally maneuver added too much temphp @redarchongaming
+- Some fixes to activity use generation when importing classes with mule muncher. @akr4s1a
+
 # 7.4.2
 
 - Custom and 3rd Party Tools from DDB now import, and get injected into the system. You can turn this feature off in the settings. @crimsonedge

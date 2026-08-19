@@ -14,6 +14,7 @@ export default class BrandOfCastigation extends DDBEnricherData {
       activationType: "special",
       activationCondition: "A creature branded by your Crimson Rite weapon damages you",
       allowCritical: false,
+      addItemConsume: true,
       data: {
         damage: {
           parts: [

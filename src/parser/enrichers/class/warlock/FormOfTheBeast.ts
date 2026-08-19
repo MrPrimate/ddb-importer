@@ -59,6 +59,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
         },
         overrides: {
           targetType: "creature",
+          noConsumeTargets: true,
           data: {
             attack: {
               ability: "",
@@ -105,6 +106,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
         },
         overrides: {
           targetType: "creature",
+          noConsumeTargets: true,
           data: {
             attack: {
               ability: "",

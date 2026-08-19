@@ -310,6 +310,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
     if (overrideData.noConsumeTargets) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
+      // an explicit opt-out must not be undone by the deferred consumption
+      // reconciliation in DDBFeatureMixin._final()
+      const awaitingUses = foundry.utils.getProperty(this.ddbParser ?? {}, "_activitiesAwaitingUses") as Set<string> | undefined;
+      if (activity._id) awaitingUses?.delete(activity._id);
     }
     if (overrideData.addItemConsume) {
       const consumptionTargets: I5eConsumptionTarget[] = [{
@@ -912,6 +916,15 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
     if (override.ignoredConsumptionActivities) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", override.ignoredConsumptionActivities);
+    }
+
+    if (override.noConsumeTargetActivities && "activities" in this.data.system) {
+      const awaitingUses = foundry.utils.getProperty(this.ddbParser ?? {}, "_activitiesAwaitingUses") as Set<string> | undefined;
+      for (const [id, activity] of Object.entries(this.data.system.activities)) {
+        if (!override.noConsumeTargetActivities.includes(activity.name ?? "")) continue;
+        foundry.utils.setProperty(activity, "consumption.targets", []);
+        awaitingUses?.delete(id);
+      }
     }
 
     if (override.retainOriginalConsumption) {

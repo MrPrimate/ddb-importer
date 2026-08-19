@@ -214,6 +214,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
           formula: "",
         },
       });
+    } else if (targets.length === 0 && this.data._id) {
+      // no uses to spend yet; an enricher override can still supply them after
+      // the activities are built, so let the parent revisit this in _final()
+      this.ddbParent._activitiesAwaitingUses.add(this.data._id);
     }
 
     this.data.consumption = {
