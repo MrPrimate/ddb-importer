@@ -1,43 +1,16 @@
 // Tests for DDBEnricherData._getUsesWithSpent and its _getMaxValue/_getSpentValue
 // lookups. The regression these pin: a DDB action with no limitedUse used to
 // stringify a null max into the literal "null", an invalid dnd5e formula.
-const loggerMock = vi.hoisted(() => ({
-  warn: vi.fn(),
-  debug: vi.fn(),
-  info: vi.fn(),
-  error: vi.fn(),
-  verbose: vi.fn(),
+// getActionDescription runs found text through the template parser; that one
+// module is stubbed so the tests assert the wiring (which text is passed
+// through) rather than DDB's own {{scalevalue}} substitution, which has its
+// own tests. Everything else is real: DDBEnricherData now imports leaf modules
+// directly, so no barrel mocks are needed (see tests/smoke/enricherFirstLoad).
+vi.mock("../../../src/parser/lib/DDBTemplateStrings", () => ({
+  parse: vi.fn((_ddb: any, _raw: any, text: string) => ({ text: `parsed:${text}` })),
 }));
 
-// Whole-barrel stub, not importOriginal: loading the real lib barrel here would
-// pull the apps/muncher tree (and through it enrichers/_module) while
-// DDBEnricherData is still mid-evaluation, crashing SpellListExtractorMixin's
-// `extends DDBEnricherData`. Everything this test's import graph touches in lib
-// is just `logger`.
-vi.mock("../../../src/lib/_module", () => ({ logger: loggerMock }));
-// The spell machinery is only reachable via _getSpellsForFeature, not the uses surface.
-vi.mock("../../../src/parser/spells/CharacterSpellFactory", () => ({ default: class {} }));
-vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
-vi.mock("../../../src/parser/lib/_module", () => ({
-  DDBDataUtils: {
-    findSubClassByFeatureId: vi.fn(),
-    classIdentifierName: (n: string) => n,
-    getLimitedUses: vi.fn(),
-  },
-  // getActionDescription runs found text through the template parser; stubbed so the
-  // tests assert the wiring (which text is passed through) rather than DDB's own
-  // {{scalevalue}} substitution, which has its own tests.
-  DDBTemplateStrings: {
-    parse: vi.fn((_ddb: any, _raw: any, text: string) => ({ text: `parsed:${text}` })),
-  },
-}));
-vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
-  AutoEffects: {},
-  EnchantmentEffects: {},
-  ChangeHelper: {},
-  EffectGenerator: {},
-}));
-
+import logger from "../../../src/lib/Logger";
 import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 
@@ -58,8 +31,10 @@ function makeData(actions: any[] | null, rawCharacter: any = null): any {
 /** The shape DDB returns for Channel Spirit: a real action with no charge pool. */
 const NO_LIMITED_USE = [{ name: "Channel Spirit", limitedUse: null }];
 
+const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+
 beforeEach(() => {
-  loggerMock.warn.mockClear();
+  warnSpy.mockClear();
 });
 
 describe("DDBEnricherData._getUsesWithSpent max handling", () => {
@@ -74,7 +49,7 @@ describe("DDBEnricherData._getUsesWithSpent max handling", () => {
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class" });
     expect(uses.max).toBeUndefined();
     expect("max" in uses).toBe(false);
-    expect(loggerMock.warn).toHaveBeenCalledWith(
+    expect(warnSpy).toHaveBeenCalledWith(
       "No max uses found for \"Channel Spirit\" (class)",
       expect.anything(),
     );
@@ -90,21 +65,21 @@ describe("DDBEnricherData._getUsesWithSpent max handling", () => {
     const data = makeData([{ name: "Bardic Inspiration", limitedUse: { maxUses: 5 } }]);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class" });
     expect(uses.max).toBeUndefined();
-    expect(loggerMock.warn).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
   });
 
   it("omits max when there is no ddbData at all", () => {
     const data = makeData(null);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class" });
     expect(uses.max).toBeUndefined();
-    expect(loggerMock.warn).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
   });
 
   it("keeps an explicitly passed max and skips the lookup", () => {
     const data = makeData([{ name: "Channel Spirit", limitedUse: { maxUses: 3 } }]);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class", max: "1" });
     expect(uses.max).toBe("1");
-    expect(loggerMock.warn).not.toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it("matches on substring when includesName is set", () => {
@@ -117,7 +92,7 @@ describe("DDBEnricherData._getUsesWithSpent max handling", () => {
     const data = makeData([{ name: "Channel Spirit", limitedUse: { maxUses: 0 } }]);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class" });
     expect(uses.max).toBe("0");
-    expect(loggerMock.warn).not.toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
 

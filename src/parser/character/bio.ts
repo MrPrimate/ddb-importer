@@ -141,7 +141,11 @@ export function generateBackground(bg: IDDBBackgroundInput): IDDBGeneratedBackgr
   }
 
   if (bg.description) {
-    result.description += `<p>${bg.description}</p>`;
+    // official descriptions arrive as HTML (starting with a block tag) and
+    // must not be re-wrapped - a <p> around <p>s is invalid markup; homebrew
+    // custom backgrounds can be plain typed text, which still needs a paragraph
+    const description = bg.description.trim();
+    result.description += description.startsWith("<") ? description : `<p>${description}</p>`;
   } else if (bg.shortDescription) {
     result.description += bg.shortDescription.replace("\r\n", "");
   }

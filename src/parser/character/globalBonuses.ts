@@ -41,9 +41,12 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharact
     // we know these keys are right as this is only called from a lookup table that is attack based
     const key = b.fvttType as keyof typeof lookupResults;
 
-    // if a match then a dice string
+    // if a match then a dice string; join terms with " + " but never lead
+    // with it - a bonus of " + 1d4" is an invalid roll formula
     if (lookupMatch || !Number.isInteger(parseInt(lookupResult))) {
-      lookupResults[key].diceString += lookupResult === "" ? lookupResult : " + " + lookupResult;
+      if (lookupResult !== "") {
+        lookupResults[key].diceString += lookupResults[key].diceString === "" ? lookupResult : " + " + lookupResult;
+      }
     } else {
       lookupResults[key].sum += parseInt(lookupResult);
     }

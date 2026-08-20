@@ -1,5 +1,6 @@
 import { logger } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
@@ -841,3 +842,6 @@ export default class DDBSubClass extends DDBBaseClass {
     await this._addToCompendium();
   }
 }
+
+// make the table reachable without importing this module tree (see SpecialAdvancements)
+registerSpecialAdvancements("subclass", DDBSubClass.SPECIAL_ADVANCEMENTS);

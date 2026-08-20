@@ -19,6 +19,9 @@ interface IDDBMonsterFeature {
   updateExisting?: boolean;
   hideDescription?: boolean;
   sort?: number | null;
+  // policy overrides; when undefined the matching game setting supplies the value
+  stripName?: boolean;
+  stripFlagData?: boolean;
 }
 
 type TDDBMonsterFeatureDocumentType = "feat" | "weapon";
@@ -294,7 +297,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     };
   }
 
-  constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort }: IDDBMonsterFeature) {
+  constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort, stripName, stripFlagData }: IDDBMonsterFeature) {
 
     // a missing monster previously blew up further down with a TypeError; fail loudly instead
     if (!ddbMonster) {
@@ -326,8 +329,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     this.hideDescription = hideDescription ?? utils.getSetting<boolean>("munching-policy-hide-description");
     this.updateExisting = updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
-    this.stripName = utils.getSetting<boolean>("munching-policy-monster-strip-name");
-    this.stripFlagData = utils.getSetting<boolean>("munching-policy-monster-strip-flag-data");
+    this.stripName = stripName ?? utils.getSetting<boolean>("munching-policy-monster-strip-name");
+    this.stripFlagData = stripFlagData ?? utils.getSetting<boolean>("munching-policy-monster-strip-flag-data");
 
     this.prepare();
 

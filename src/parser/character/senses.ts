@@ -32,8 +32,10 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
         if (s && sense.distance && Number.isInteger(sense.distance)) {
           const senseType = s.name.toLowerCase() as TSenseType;
           senses.ranges[senseType] = parseInt(String(sense.distance));
+        } else if (s) {
+          special.push(`${s.name} (${sense.distance})`);
         } else {
-          senses.special += `${sense.distance}; `;
+          special.push(String(sense.distance));
         }
       });
   }

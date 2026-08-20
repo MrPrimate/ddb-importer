@@ -1,6 +1,7 @@
 import { utils, logger } from "../../lib/_module";
 import { SystemHelpers } from "../lib/_module";
-import { Effects } from "../enrichers/_module";
+
+import * as Effects from "../enrichers/effects/_module";
 import DDBEnricherData from "../enrichers/data/DDBEnricherData";
 import type DDBActivityFactoryMixin from "./mixins/DDBActivityFactoryMixin";
 

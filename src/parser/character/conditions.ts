@@ -25,7 +25,7 @@ export function getActorConditionStates(actor: TImporterActor, ddb: IDDBData, ke
         needsRemove: !ddbCondition && conditionApplied && !keepLocal,
         needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
       };
-      const conditionState: IDDBConditionState = foundry.utils.mergeObject(condition, conditionData) as IDDBConditionState;
+      const conditionState: IDDBConditionState = foundry.utils.mergeObject(condition, conditionData, { inplace: false }) as IDDBConditionState;
       return conditionState;
     });
   return conditions;

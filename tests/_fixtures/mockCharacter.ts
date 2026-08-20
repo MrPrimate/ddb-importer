@@ -49,7 +49,7 @@ export function makeMockCharacter(overrides: MockCharacterOverrides = {}): any {
           race: { fullName: "Human" },
           background: { definition: { grantedFeats: [] } },
           options: { class: [], race: [], feat: [] },
-          choices: { class: [], race: [], feat: [] },
+          choices: { class: [], race: [], feat: [], choiceDefinitions: [] },
           optionalClassFeatures: [],
           customProficiencies: [],
           ...overrides.ddbCharacter,

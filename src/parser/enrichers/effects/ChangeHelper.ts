@@ -1,4 +1,4 @@
-import { utils } from "../../../lib/_module";
+import utils from "../../../lib/Utils";
 import AutoEffects from "./AutoEffects";
 
 interface ChangeParams {

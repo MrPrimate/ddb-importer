@@ -1,70 +1,31 @@
 /**
  * A cross-section of the branchier class enrichers, one or two per class.
  *
- * These target the conditional paths — `is2014`, `isAction`, subclass, chosen
- * option, level band — which the audit harness structurally cannot reach: a
+ * These target the conditional paths - `is2014`, `isAction`, subclass, chosen
+ * option, level band - which the audit harness structurally cannot reach: a
  * capture exercises exactly the configuration it was taken from, so the other
  * side of every branch is invisible to it. The audit is also skipped entirely
  * in CI (its fixtures are a private submodule), which makes these the only
  * enricher assertions that run on a PR.
  *
- * These assert the enricher's *hints* — the getters a DDBFeature consumes —
+ * These assert the enricher's *hints* - the getters a DDBFeature consumes -
  * not the built document. Whether a hint produces a working activity is a live
  * Foundry import question; whether the right hint is produced for the right
  * configuration is this file's job.
  *
- * The vi.mock preamble is required: importing a barrel (src/lib/_module,
- * src/parser/lib/_module, enrichers/effects/_module) while DDBEnricherData is
- * mid-evaluation pulls the apps/muncher tree and crashes SpellListExtractorMixin's
- * `extends DDBEnricherData`. The individual modules behind those barrels import
- * fine, so vi.importActual gives the real Utils/DDBDataUtils/ChangeHelper rather
- * than fakes. vi.mock is hoisted per file and cannot be shared from tests/_fixtures.
+ * No vi.mock preamble: DDBEnricherData and the enricher effects modules import
+ * leaf modules directly, so the enricher tree loads first without re-entering
+ * itself (pinned by tests/smoke/enricherFirstLoad.test.ts).
  */
-const loggerMock = vi.hoisted(() => ({
-  warn: vi.fn(),
-  debug: vi.fn(),
-  info: vi.fn(),
-  error: vi.fn(),
-  verbose: vi.fn(),
-}));
-
-// DDBDataUtils cannot be resolved inside the mock factory: it imports DDBClass,
-// which re-enters the enricher tree the mock exists to break out of. It is a bag
-// of statics called from enricher getters at test time, so an empty object filled
-// in beforeAll from the real module gives real behaviour with workable ordering.
-const parserLib = vi.hoisted(() => ({ DDBDataUtils: {} as any, DDBTemplateStrings: {} as any }));
-
-vi.mock("../../../src/lib/_module", async () => ({
-  logger: loggerMock,
-  utils: (await vi.importActual<any>("../../../src/lib/Utils")).default,
-}));
-vi.mock("../../../src/parser/spells/CharacterSpellFactory", () => ({ default: class {} }));
-vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
-vi.mock("../../../src/parser/lib/_module", () => parserLib);
-vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
-  AutoEffects: {},
-  EnchantmentEffects: {},
-  ChangeHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/ChangeHelper")).default,
-  EffectGenerator: {},
-}));
-
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
-beforeAll(async () => {
+beforeAll(() => {
   // ChangeHelper's advantage/disadvantage getters read CONFIG.Dice.D20Roll.ADV_MODE
   installActivityConfigStubs();
-  const { default: DDBDataUtils } = await import("../../../src/parser/lib/DDBDataUtils");
-  for (const key of Object.getOwnPropertyNames(DDBDataUtils)) {
-    if (typeof (DDBDataUtils as any)[key] === "function") {
-      parserLib.DDBDataUtils[key] = (DDBDataUtils as any)[key].bind(DDBDataUtils);
-    }
-  }
-  Object.assign(parserLib.DDBTemplateStrings, await import("../../../src/parser/lib/DDBTemplateStrings"));
 });
-
 type TEnricher = new (options: any) => any;
 
 function build(Enricher: TEnricher, options: Parameters<typeof makeEnricherData>[1] = {}): any {

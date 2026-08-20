@@ -1,6 +1,6 @@
 import logger from "./Logger";
 import utils from "./Utils";
-import DDBItemImporter from "./DDBItemImporter";
+import DocumentFlags from "./DocumentFlags";
 import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
@@ -148,7 +148,7 @@ const CompendiumHelper = {
         foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
-      DDBItemImporter.copySupportedItemFlags(existingNPC.toObject() as unknown as Item.Implementation, foundryActor);
+      DocumentFlags.copySupportedItemFlags(existingNPC.toObject() as unknown as Item.Implementation, foundryActor);
     }
 
     return foundryActor;

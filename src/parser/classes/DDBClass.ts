@@ -6,6 +6,7 @@ import {
   DDBItemImporter,
 } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
@@ -814,3 +815,6 @@ export default class DDBClass extends DDBBaseClass {
   }
 
 }
+
+// make the table reachable without importing this module tree (see SpecialAdvancements)
+registerSpecialAdvancements("class", DDBClass.SPECIAL_ADVANCEMENTS);

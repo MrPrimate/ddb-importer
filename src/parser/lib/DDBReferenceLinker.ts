@@ -1,4 +1,6 @@
-import { utils, logger, CompendiumHelper } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
+import CompendiumHelper from "../../lib/CompendiumHelper";
 
 const DDB_REFERENCE_INDEX_FIELDS = [
   "name",

@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
-import { DDBToolProficiencies, logger, utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
 
 interface IProficiencyBasic {
@@ -150,7 +151,7 @@ export default class ProficiencyFinder {
             ? toolExpertise
             : halfProficiency;
 
-        const key = DDBToolProficiencies.getToolKey(profMatch);
+        const key = utils.getToolKey(profMatch);
         const ability = (profMatch.ability ?? "dex") as T5eAbility;
 
         if (!profMatch.baseTool) {
@@ -206,7 +207,7 @@ export default class ProficiencyFinder {
     const name = utils.nameString(proficiency.name);
     if (!name) return null;
 
-    const key = DDBToolProficiencies.getToolKey({ name });
+    const key = utils.getToolKey({ name });
     const ability = (DICTIONARY.actor.abilities.find((a) => a.id == proficiency.statId)?.value ?? "int") as T5eAbility;
 
     const proficiencyEntry = DICTIONARY.actor.customSkillProficiencies

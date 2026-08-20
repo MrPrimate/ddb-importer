@@ -1,8 +1,11 @@
-import { logger, utils } from "../../../lib/_module";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
-import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
+import DDBModifiers from "../../lib/DDBModifiers";
+import ProficiencyFinder from "../../lib/ProficiencyFinder";
+import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 

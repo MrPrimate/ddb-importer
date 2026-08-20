@@ -5,6 +5,7 @@ import { utils, logger, CompendiumHelper, SystemHelpers } from "../../lib/_modul
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
 import DDBSpell from "./DDBSpell";
+import SpellDataUtils, { IDDBSpellLookup } from "./SpellDataUtils";
 import { DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
@@ -25,24 +26,6 @@ interface IHandleGrantedSpellsFlags {
 }
 
 const SPELL_COMPENDIUM_INDEX_FIELDS = ["name", "flags.ddbimporter.definitionId"] as const;
-
-// result of getDDBSpellLookup; `data` is the matched DDB entry (trait, feat, class,
-// class option or inventory item) typed structurally for what call sites read
-interface IDDBSpellLookup {
-  id: number;
-  name: string;
-  classId?: number;
-  componentId?: number | null;
-  limitedUse?: unknown;
-  equipped?: boolean;
-  isAttuned?: boolean;
-  canAttune?: boolean;
-  canEquip?: boolean;
-  data?: {
-    name?: string;
-    definition?: { id?: number; name?: string; description?: string | null };
-  };
-}
 
 interface ISpellCompendiumIndexEntry {
   name: string;
@@ -154,149 +137,7 @@ export default class CharacterSpellFactory {
   }
 
   static getDDBSpellLookup(ddb: IDDBData, type: string, id: number | null): IDDBSpellLookup | undefined {
-    let lookup: IDDBSpellLookup | undefined;
-
-    switch (type) {
-      case "race": {
-        let match = ddb.character.race.racialTraits.find((t) => {
-          return t.definition.id === id;
-        });
-        // id may be a race *option* id (e.g. an ASI choice) attached to a trait,
-        // not the trait id itself. Resolve option.definition.id -> option.componentId -> trait.
-        if (!match) {
-          const option = (ddb.character.options?.race ?? []).find((o) => o.definition.id === id);
-          if (option) {
-            match = ddb.character.race.racialTraits.find((t) => t.definition.id === option.componentId);
-          }
-        }
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            data: match,
-          };
-        }
-        break;
-      }
-      case "feat": {
-        const match = ddb.character.feats.find((f) => {
-          return f.definition.id === id;
-        });
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            componentId: match.componentId,
-            data: match,
-          };
-        }
-        break;
-      }
-      case "class": {
-        const match1 = ddb.character.classes.find((c) => {
-          return c.definition.id === id;
-        });
-        if (match1) {
-          lookup = {
-            id: match1.definition.id,
-            name: match1.definition.name,
-            data: match1,
-          };
-          break;
-        }
-        const match2 = ddb.character.classes.find((c) => {
-          return c.subclassDefinition && c.subclassDefinition.id === id;
-        });
-        if (match2?.subclassDefinition) {
-          lookup = {
-            id: match2.subclassDefinition.id,
-            name: match2.subclassDefinition.name,
-            data: match2.subclassDefinition,
-          };
-          break;
-        }
-        break;
-      }
-      case "classFeature": {
-        for (const c of ddb.character.classes) {
-          if (c.subclassDefinition && c.subclassDefinition.id === id) {
-            for (const option of ddb.classOptions) {
-
-              if (option.classId === c.subclassDefinition.id) {
-                lookup = {
-                  id: option.id,
-                  name: option.name,
-                  classId: c.subclassDefinition.id,
-                  data: option,
-                };
-                break;
-              }
-            }
-          }
-          if (lookup) break;
-
-          const match1 = c.classFeatures.find((f) => {
-            return f.definition.id === id;
-          });
-          if (match1) {
-            lookup = {
-              id: match1.definition.id,
-              name: match1.definition.name,
-              classId: match1.definition.classId,
-              componentId: match1.definition.componentId,
-              data: match1,
-            };
-            break;
-          }
-
-          for (const option of ddb.classOptions) {
-            if (option.classId === c.definition.id && option.id === id) {
-              lookup = {
-                id: option.id,
-                name: option.name,
-                classId: c.definition.id,
-                data: option,
-              };
-              break;
-            }
-          }
-        }
-        if (lookup) break;
-        const optionMatch = ddb.character.options.class?.find((o) => {
-          return o.definition.id === id;
-        });
-        if (optionMatch) {
-          lookup = {
-            id: optionMatch.definition.id,
-            name: optionMatch.definition.name,
-            componentId: optionMatch.componentId,
-            data: optionMatch,
-          };
-        }
-        break;
-      }
-      case "item": {
-        const match = ddb.character.inventory.find((i) => {
-          return i.definition.id === id;
-        });
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            limitedUse: match.limitedUse,
-            equipped: match.equipped,
-            isAttuned: match.isAttuned,
-            canAttune: match.definition.canAttune,
-            canEquip: match.definition.canEquip,
-            data: match,
-          };
-        }
-        break;
-      }
-      // no default
-    }
-
-    return lookup;
+    return SpellDataUtils.getDDBSpellLookup(ddb, type, id);
   }
 
   getLookup(type: string, id: number | null) {

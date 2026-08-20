@@ -72,8 +72,7 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(th
       //   dnd5e.weaponCriticalThreshold = 19;
       // }
 
-      // wild magic surge for 5e Helpers
-      dnd5e.wildMagic = cls.subclassDefinition.classFeatures.some(
+      dnd5e.wildMagic = dnd5e.wildMagic || cls.subclassDefinition.classFeatures.some(
         (feature) => feature.name === "Wild Magic Surge" && cls.level >= feature.requiredLevel,
       );
     }

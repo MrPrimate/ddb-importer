@@ -1,4 +1,5 @@
-import { utils, logger } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
 import { parseTags } from "./DDBReferenceLinker";
 

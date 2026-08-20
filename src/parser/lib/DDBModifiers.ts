@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, utils, Utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
 import type { IExcludedEffectModifier } from "../../config/dictionary/effects/excluded";
 
@@ -442,19 +443,19 @@ export default class DDBModifiers {
           const mod = modBonus !== 0 ? `${die.diceString} + ${modBonus}` : die.diceString;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
-          sum = Utils.stringIntAdder(sum, fixedBonus + modBonus);
+          sum = utils.stringIntAdder(sum, fixedBonus + modBonus);
         }
       } else if (modifier.fixedValue) {
-        sum = Utils.stringIntAdder(sum, modifier.fixedValue);
+        sum = utils.stringIntAdder(sum, modifier.fixedValue);
       } else if (modifier.value) {
-        sum = Utils.stringIntAdder(sum, modifier.value);
+        sum = utils.stringIntAdder(sum, modifier.value);
       } else if (modBonus !== 0) {
-        sum = Utils.stringIntAdder(sum, modBonus);
+        sum = utils.stringIntAdder(sum, modBonus);
       }
       if (modifier.modifierTypeId === 1 && modifier.bonusTypes.includes(1)) {
         // prof bonus
         const profBonus = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.profBonus") as number ?? 0;
-        sum = Utils.stringIntAdder(sum, profBonus);
+        sum = utils.stringIntAdder(sum, profBonus);
       }
 
     });

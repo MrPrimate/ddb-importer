@@ -6,6 +6,7 @@ import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixi
 import { DDBSpellEnricher } from "../enrichers/_module";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import SpellDataUtils from "./SpellDataUtils";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
 
@@ -42,6 +43,10 @@ interface IDDBSpell {
   noSpellcasting?: boolean;
   is2014Class?: boolean | null;
   flagData?: IParseSpellFlagData;
+  // policy overrides; when null the matching game setting supplies the value
+  addSpellEffects?: boolean | null;
+  legacyPostfix?: boolean | null;
+  pactSpellsPrepared?: boolean | null;
 }
 
 interface IDDBSpellParseSpell {
@@ -84,7 +89,20 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;
-  itemCompendium: CompendiumCollection.Any;
+  // resolved lazily so constructing a DDBSpell does not require the item
+  // compendium (or any world state) to exist
+  _itemCompendiumResolved = false;
+
+  _itemCompendium: CompendiumCollection.Any | undefined = undefined;
+
+  get itemCompendium(): CompendiumCollection.Any | undefined {
+    if (!this._itemCompendiumResolved) {
+      this._itemCompendium = CompendiumHelper.getCompendiumType("item", false) as CompendiumCollection<"Item"> | undefined;
+      this._itemCompendiumResolved = true;
+    }
+    return this._itemCompendium;
+  }
+
   isCompanionSpell2014: boolean;
   isCompanionSpell2024: boolean;
   isCRSummonSpell2014: boolean;
@@ -204,12 +222,13 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
     noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
+    addSpellEffects = null, legacyPostfix = null, pactSpellsPrepared = null,
   }: IDDBSpell) {
 
     const generic = isGeneric ?? foundry.utils.getProperty(flagData, "ddbimporter.generic") as boolean;
-    const addEffects = generic
+    const addEffects = addSpellEffects ?? (generic
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
-      : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
+      : utils.getSetting<boolean>("character-update-policy-add-midi-effects"));
     super({
       enricher,
       activityGenerator: DDBSpellActivity,
@@ -239,13 +258,13 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.isGeneric = generic ?? false;
     this.addSpellEffects = addEffects;
 
-    this.legacyPostfix = this.isGeneric
+    this.legacyPostfix = legacyPostfix ?? (this.isGeneric
       ? utils.getSetting<boolean>("munching-policy-legacy-postfix")
-      : !utils.getSetting<boolean>("character-update-policy-remove-2024");
+      : !utils.getSetting<boolean>("character-update-policy-remove-2024"));
     this.updateExisting = updateExisting ?? this.isGeneric
       ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
-    this.pactSpellsPrepared = utils.getSetting<boolean>("pact-spells-prepared");
+    this.pactSpellsPrepared = pactSpellsPrepared ?? utils.getSetting<boolean>("pact-spells-prepared");
     this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.limitedUse") as IDDBSpellLimitedUse | null;
     this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forceMaterial") as boolean;
     this.forcePact = foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forcePact") as boolean;
@@ -268,7 +287,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
     this._generateDataStub();
 
-    this.itemCompendium = CompendiumHelper.getCompendiumType("item", false) as CompendiumCollection<"Item">;
     this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
     this.isCompanionSpell2014 = this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2014.includes(this.originalName);
     this.isCompanionSpell2024 = !this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2024.includes(this.originalName);
@@ -727,79 +745,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   }
 
   static getUses(limitedUse: IDDBSpellLimitedUse | null | undefined): I5eSystemLimitedUses {
-    let uses: I5eSystemLimitedUses = {
-      spent: null,
-      max: "",
-      recovery: [],
-    };
-
-    if (!limitedUse) return uses;
-    const resetType = DICTIONARY.resets.find((reset) => reset.id == limitedUse.resetType);
-    if (!resetType) {
-      logger.warn("Unknown reset type", {
-        resetType: limitedUse.resetType,
-        spell: this,
-      });
-      return uses;
-    }
-
-    if (limitedUse.maxUses || limitedUse.statModifierUsesId || limitedUse.useProficiencyBonus) {
-      let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : "";
-
-      if (limitedUse.statModifierUsesId) {
-        const ability = DICTIONARY.actor.abilities.find(
-          (ability) => ability.id === limitedUse.statModifierUsesId,
-        );
-
-        if (!ability) {
-          logger.warn("Unknown stat modifier uses id for spell uses", {
-            statModifierUsesId: limitedUse.statModifierUsesId,
-            limitedUse,
-          });
-        } else {
-          switch (limitedUse.operator) {
-            case 2: {
-              maxUses = `${maxUses} * @abilities.${ability.value}.mod`;
-              break;
-            }
-            case 1:
-            default:
-              maxUses = `${maxUses} + @abilities.${ability.value}.mod`;
-          }
-        }
-      }
-
-      if (limitedUse.useProficiencyBonus) {
-        switch (limitedUse.proficiencyBonusOperator) {
-          case 2: {
-            maxUses = `${maxUses} * @prof`;
-            break;
-          }
-          case 1:
-          default:
-            maxUses = `${maxUses} + @prof`;
-        }
-      }
-
-      maxUses = maxUses.toString().trim().replace(/^\+/, "").trim();
-
-      const finalMaxUses = (maxUses !== "") ? maxUses : null;
-
-      uses = {
-        spent: limitedUse.numberUsed ?? null,
-        max: `${finalMaxUses}`,
-        recovery: resetType && !["charges", ""].includes(resetType.value)
-          ? [{
-            period: resetType.value as TLimitedUsePeriod,
-            type: "recoverAll",
-          }]
-          : [],
-      };
-
-      return uses;
-    }
-
-    return uses;
+    return SpellDataUtils.getUses(limitedUse);
   }
 
   _generateUses() {

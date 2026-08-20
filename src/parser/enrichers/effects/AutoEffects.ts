@@ -1,6 +1,9 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger, utils } from "../../../lib/_module";
-import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
+import DDBDescriptions from "../../lib/DDBDescriptions";
+import DDBModifiers from "../../lib/DDBModifiers";
+import SystemHelpers from "../../../lib/SystemHelpers";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 

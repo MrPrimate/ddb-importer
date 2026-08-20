@@ -1,4 +1,5 @@
-import { logger, utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import { DICTIONARY } from "../../config/_module";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 

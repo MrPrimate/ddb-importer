@@ -1,8 +1,8 @@
-import { logger, utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import { DICTIONARY } from "../../config/_module";
 import SystemHelpers from "../../lib/SystemHelpers";
-import DDBClass from "../classes/DDBClass";
-import DDBSubClass from "../classes/DDBSubClass";
+import { findSpecialAdvancement } from "./SpecialAdvancements";
 import { IResetType } from "../../config/dictionary/actor/resets";
 
 interface IDDBDataUtilsLimitedUses {
@@ -356,8 +356,7 @@ export default class DDBDataUtils {
     if (klass) {
       let featureName = utils.referenceNameString(featDefinition.name);
 
-      const special = DDBClass.SPECIAL_ADVANCEMENTS[featDefinition.name]
-        ?? DDBSubClass.SPECIAL_ADVANCEMENTS[featDefinition.name];
+      const special = findSpecialAdvancement(featDefinition.name);
 
       if (special && special.fixFunction?.name === "rename") {
         if (special.functionArgs?.identifier) {

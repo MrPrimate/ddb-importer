@@ -1,4 +1,5 @@
 import { logger, DDBProxy, PatreonHelper, Secrets, DDBCampaigns, postJson } from "../lib/_module";
+import { PARTY_CONTAINER_ENTITY_TYPE_ID } from "../updater/characterSyncData";
 
 export interface IDDBPartyItemDefinition {
   id: number;
@@ -211,7 +212,7 @@ export default class DDBPartyInventory {
     }
   }
 
-  static readonly PARTY_CONTAINER_ENTITY_TYPE_ID = 618115330;
+  static readonly PARTY_CONTAINER_ENTITY_TYPE_ID = PARTY_CONTAINER_ENTITY_TYPE_ID;
 
   static async moveInventoryItem({
     cobalt = null,

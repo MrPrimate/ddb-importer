@@ -4,6 +4,7 @@ import CompendiumHelper from "./CompendiumHelper";
 import Iconizer from "./Iconizer";
 import { DDBCompendiumFolders } from "./DDBCompendiumFolders";
 import NameMatcher from "./NameMatcher";
+import DocumentFlags from "./DocumentFlags";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 
 interface IDDBItemImporterOptions {
@@ -189,21 +190,11 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   }
 
   static copyFlagGroup(flagGroup: string, originalItem: Item.Implementation | Actor.Implementation | TImporterActor | TSyncCharacterActor, targetItem: TDDBItemImporterDocument) {
-    if (targetItem.flags === undefined) targetItem.flags = {};
-    // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
-    const effectsProperty = foundry.utils.getProperty(targetItem, "flags.ddbimporter.effectsApplied") as boolean
-      && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
-    const originalFlags = foundry.utils.getProperty(originalItem, `flags.${flagGroup}`);
-    if (originalFlags && !effectsProperty) {
-      // logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
-      foundry.utils.setProperty(targetItem, `flags.${flagGroup}`, originalFlags);
-    }
+    DocumentFlags.copyFlagGroup(flagGroup, originalItem, targetItem);
   }
 
   static copySupportedItemFlags(originalItem: Item.Implementation | Actor.Implementation | TImporterActor | TSyncCharacterActor, targetItem: TDDBItemImporterDocument) {
-    SETTINGS.SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
-      this.copyFlagGroup(flagGroup, originalItem, targetItem);
-    });
+    DocumentFlags.copySupportedItemFlags(originalItem, targetItem);
   }
 
 

@@ -1,8 +1,9 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger, utils } from "../../../lib/_module";
-import { DDBDataUtils, DDBTemplateStrings } from "../../lib/_module";
-import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
-import DDBSpell from "../../spells/DDBSpell";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
+import DDBDataUtils from "../../lib/DDBDataUtils";
+import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
+import SpellDataUtils from "../../spells/SpellDataUtils";
 import type DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
@@ -255,7 +256,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
         ? DDBDataUtils.determineActualFeatureId(ddbData, s.componentId)
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
-      const lookup = CharacterSpellFactory.getDDBSpellLookup(ddbData, lookupType, id);
+      const lookup = SpellDataUtils.getDDBSpellLookup(ddbData, lookupType, id);
       if (lookup?.name === name) return true;
       return false;
     });
@@ -274,7 +275,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
       };
     }
 
-    const uses: I5eSystemLimitedUses = DDBSpell.getUses(spells[0].limitedUse);
+    const uses: I5eSystemLimitedUses = SpellDataUtils.getUses(spells[0].limitedUse);
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];

@@ -194,6 +194,29 @@ export default defineConfig(
     },
   },
   {
+    // These files form the transitive import closure of DDBEnricherData, which
+    // must finish evaluating before any enricher class `extends` it. A static
+    // import of a heavy barrel from here re-enters the enricher tree
+    // mid-evaluation and crashes with a TDZ error (pinned by
+    // tests/smoke/enricherFirstLoad.test.ts). config/_module and the small
+    // enrichers/effects/_module sub-barrel are deliberately not restricted.
+    files: [
+      "src/parser/enrichers/data/**/*.ts",
+      "src/parser/enrichers/effects/**/*.ts",
+      "src/parser/lib/{DDBDataUtils,DDBTemplateStrings,DDBReferenceLinker,DDBDescriptions,DDBModifiers,ProficiencyFinder,SpecialAdvancements}.ts",
+      "src/parser/spells/SpellDataUtils.ts",
+      "src/effects/DDBEffectHelperText.ts",
+    ],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "(^|/)lib/_module$|\\.\\./_module$",
+          message: "This file is in DDBEnricherData's import closure; import specific files, not barrels (config/_module and enrichers/effects/_module are fine).",
+        }],
+      }],
+    },
+  },
+  {
     // One-off scripts that predate tools/ being linted. New tooling under
     // tools/ is linted by `npm run lint`; drop entries here as they are cleaned
     // up rather than adding to the list.

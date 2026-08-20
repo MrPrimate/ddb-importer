@@ -81,6 +81,10 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
+  static getToolKey({ baseTool = null, name }: { baseTool?: string | null; name: string }): string {
+    return baseTool ?? Utils.idString(name.toLowerCase());
+  }
+
   static pascalCase(str: string): string {
     return str.split(" ").map((s) => Utils.capitalize(Utils.idString(s))).join("");
   }

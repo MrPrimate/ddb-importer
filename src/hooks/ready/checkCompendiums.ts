@@ -1,5 +1,7 @@
 import { SETTINGS } from "../../config/_module";
-import { CompendiumHelper, FolderHelper, utils } from "../../lib/_module";
+import CompendiumHelper from "../../lib/CompendiumHelper";
+import FolderHelper from "../../lib/FolderHelper";
+import utils from "../../lib/Utils";
 import type { ICompendiumCreationOptions } from "../../lib/_module";
 
 

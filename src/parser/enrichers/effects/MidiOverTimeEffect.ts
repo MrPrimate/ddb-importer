@@ -1,5 +1,5 @@
 import DDBEffectHelperText from "../../../effects/DDBEffectHelperText";
-import { logger } from "../../../lib/_module";
+import logger from "../../../lib/Logger";
 import DDBDescriptions from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";

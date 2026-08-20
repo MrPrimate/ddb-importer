@@ -23,7 +23,7 @@ export default class DDBToolProficiencies {
    * system.type.baseItem run through this, so item and actor proficiencies line up.
    */
   static getToolKey({ baseTool = null, name }: { baseTool?: string | null; name: string }): string {
-    return baseTool ?? utils.idString(name.toLowerCase());
+    return utils.getToolKey({ baseTool, name });
   }
 
   static #placeholderId(key: string): string {
