@@ -83,8 +83,12 @@ let _sharedSocket: DDBMonsterSocket | null = null;
 let _sharedCredSig: string | null = null;
 let _sharedOpening: Promise<DDBMonsterSocket> | null = null;
 // jobs must run sequentially on a connection (runJob re-points handlers), so
-// serialise all shared-socket work through a 1-slot semaphore.
-const _fetchQueue = new foundry.utils.Semaphore(1);
+// serialise all shared-socket work through a 1-slot semaphore. Created lazily.
+let _fetchQueue: InstanceType<typeof foundry.utils.Semaphore> | null = null;
+function getFetchQueue() {
+  _fetchQueue ??= new foundry.utils.Semaphore(1);
+  return _fetchQueue;
+}
 // monster id -> source object, or null when a completed job returned nothing
 // for that id (so unknown ids aren't re-queried forever). Tied to the socket
 // session lifetime: cleared whenever the shared socket closes.
@@ -187,6 +191,18 @@ interface IDDBMonsterFactoryFetchOptions {
 }
 
 export default class DDBMonsterFactory {
+
+  /**
+   * Close the shared by-id monster socket and drop all module-level fetch
+   * state (credential signature, in-flight open, id cache, idle timer).
+   * The socket normally lives for up to an hour of idle time; call this to
+   * tear it down deterministically e.g. between tests, or after a
+   * credential change.
+   */
+  static resetSharedFetchState(): void {
+    _closeSharedMonsterSocket();
+  }
+
   extra: boolean;
   keys: { useLocal?: boolean | null; keyPostfix?: string | null };
   notifier: NotifierV1;
@@ -450,7 +466,7 @@ export default class DDBMonsterFactory {
       let _lastByIdRawCount = 0;
 
       if (missing.length > 0) {
-        await _fetchQueue.add(async () => {
+        await getFetchQueue().add(async () => {
           const socket = await _getSharedMonsterSocket(parsingApi, { betaKey, cobalt: cobaltCookie, characterId: null });
           const raw: IDDBMonsterSourceData[] = [];
           await socket.runJob("monsters-by-id", { ids: missing, cobalt: cobaltCookie }, {

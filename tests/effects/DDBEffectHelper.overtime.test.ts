@@ -2,15 +2,9 @@
 // overTimeDamage, overTimeSave, overTimeSaveEnd, damageOverTimeEffect,
 // generateOverTimeEffect and generateConditionOnlyEffect.
 //
-// Unlike the pure test, the parser/enrichers/effects barrel is NOT mocked here:
-// these methods delegate to the real MidiOverTimeEffect and ChangeHelper, and
-// the DDBEffectHelper <-> MidiOverTimeEffect import cycle resolves at runtime
-// because both sides only reference each other inside method bodies. Only the
-// config barrel, the effects barrel and DDBMonsterFeature are stubbed.
+// These methods delegate to the real MidiOverTimeEffect and ChangeHelper;
+// nothing is mocked, the global foundry stubs carry the import chain.
 
-vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
-  default: class {},
-}));
 
 import DDBEffectHelper from "../../src/effects/DDBEffectHelper";
 

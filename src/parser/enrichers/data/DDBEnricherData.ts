@@ -20,8 +20,14 @@ export interface IDDBBasicDamage {
 
 export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnricher> {
 
-  static AutoEffects = AutoEffects;
-  static ChangeHelper = ChangeHelper;
+  // Static getters, not fields
+  static get AutoEffects(): typeof AutoEffects {
+    return AutoEffects;
+  }
+
+  static get ChangeHelper(): typeof ChangeHelper {
+    return ChangeHelper;
+  }
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 

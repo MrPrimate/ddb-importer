@@ -8,11 +8,8 @@
 // list variant), because this chain is the top refactor-fragility risk.
 //
 // DDBEffectHelper is the unit under test so it is imported un-mocked; the
-// barrels its import chain drags in are stubbed exactly as in the pure test.
+// implementation lives in the leaf module DDBEffectHelperText.
 
-vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
-  default: class {},
-}));
 import DDBEffectHelper from "../../src/effects/DDBEffectHelper";
 
 describe("DDBEffectHelper.extractListItems", () => {

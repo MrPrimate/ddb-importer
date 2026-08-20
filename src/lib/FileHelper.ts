@@ -2,7 +2,11 @@ import logger from "./Logger";
 import utils from "./Utils";
 import DDBProxy from "./DDBProxy";
 
-const FPClass = foundry.applications.apps.FilePicker.implementation;
+
+type TFPClass = typeof foundry.applications.apps.FilePicker.implementation;
+function getFPClass(): TFPClass {
+  return foundry.applications.apps.FilePicker.implementation;
+}
 
 // the zip.js vendor library is attached to the window as a global
 type TZipWriterWindow = typeof globalThis.window & {
@@ -93,7 +97,7 @@ export class FileHelper {
   static async doesDirExist(directoryPath: string) {
     const dir = FileHelper.parseDirectory(directoryPath);
     try {
-      await FPClass.browse(dir.activeSource, dir.current, {
+      await getFPClass().browse(dir.activeSource, dir.current, {
         bucket: dir.bucket ?? undefined,
       });
       return true;
@@ -110,11 +114,11 @@ export class FileHelper {
     logger.verbose(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
 
     try {
-      const fileList = await FPClass.browse(parsedDir.activeSource, parsedDir.current, {
+      const fileList = await getFPClass().browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
         // recursive is real but not in the types
         recursive: true,
-      } as unknown as Parameters<typeof FPClass.browse>[2]);
+      } as unknown as Parameters<TFPClass["browse"]>[2]);
       FileHelper.fileExistsUpdate(parsedDir, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
@@ -497,7 +501,7 @@ export class FileHelper {
     if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
       return FileHelper.forgeCreateDirectory(target);
     }
-    return FPClass.createDirectory(source, target, options);
+    return getFPClass().createDirectory(source, target, options);
   }
 
   /**
@@ -554,7 +558,7 @@ export class FileHelper {
 
   static async uploadToPath(path: string, file: File): Promise<FilePicker.UploadReturn> {
     const options = FileHelper.parseDirectory(path);
-    return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
+    return getFPClass().upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }
 
   static parseDirectory(str: string): ParsedDirectory {

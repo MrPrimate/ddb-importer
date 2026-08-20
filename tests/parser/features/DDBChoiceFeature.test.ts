@@ -13,12 +13,11 @@ import {
   makeDdbFeature,
   makeRawCharacter,
 } from "../../_fixtures/ddb/factories";
-import { installActivityConfigStubs, installDocumentStub, repairEnricherDataStatics } from "../../_fixtures/ddb/stubs";
+import { installActivityConfigStubs, installDocumentStub } from "../../_fixtures/ddb/stubs";
 
 beforeAll(async () => {
   installActivityConfigStubs();
   installDocumentStub();
-  await repairEnricherDataStatics();
   // enricher.init() builds a summons manager backed by real compendia which do
   // not exist in the test environment; everything else on the enricher is real.
   vi.spyOn(DDBEnricherFactoryMixin.prototype, "init").mockResolvedValue(undefined);

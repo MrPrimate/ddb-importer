@@ -1,16 +1,11 @@
 // Characterization tests for the pure static surface of DDBEffectHelper.
 //
-// DDBEffectHelper itself is the unit under test, so the DDBEffectHelper module
-// is NOT mocked here. Instead the modules its import chain needs are stubbed:
-// the config barrel (cycle), the effects barrel (pulled in via lib/_module ->
-// DDBItemImporter), DDBMonsterFeature (heavy monster parser, only used by the
-// non-pre-parsed damage fallback) and the enricher effects barrel (cycle via
-// MidiOverTimeEffect -> DDBEffectHelper).
+// DDBEffectHelper itself is the unit under test, so nothing is mocked here:
+// the global foundry stubs in tests/_setup/foundryMocks.ts carry the import
+// chain, and the text/damage helpers live in the leaf module
+// DDBEffectHelperText, which DDBEffectHelper delegates to.
 import { setMockModules } from "../_setup/foundryMocks";
 
-vi.mock("../../src/parser/monster/features/DDBMonsterFeature", () => ({
-  default: class {},
-}));
 import DDBEffectHelper from "../../src/effects/DDBEffectHelper";
 
 const globalAny: any = globalThis;

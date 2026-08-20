@@ -1,4 +1,4 @@
-import DDBEffectHelper from "../../../effects/DDBEffectHelper";
+import DDBEffectHelperText from "../../../effects/DDBEffectHelperText";
 import { logger } from "../../../lib/_module";
 import DDBDescriptions from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
@@ -183,7 +183,7 @@ export default class MidiOverTimeEffect {
 
     const saveAbility = save.ability;
 
-    const dmg = DDBEffectHelper.getOvertimeDamage(this.description, this.document);
+    const dmg = DDBEffectHelperText.getOvertimeDamage(this.description, this.document);
     if (!dmg) {
       logger.debug(`Adding non damage Overtime effect for ${this.document.name} on ${this.actor.name}`);
       this.effectCleanup();

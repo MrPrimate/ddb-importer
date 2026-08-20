@@ -258,6 +258,7 @@ export function resetMockModules(): void {
 afterEach(() => {
   resetMockSettings();
   resetMockModules();
+  (globalThis as any).CONFIG.DDBI = pristineDDBI();
 });
 
 // dnd5e system stub: data models return an item/actor system template, and the
@@ -362,6 +363,22 @@ import fallbackRulesJson from "../../data/fallback-rules.json";
 
 const fallbackDDBConfig: IDDBConfig = fallbackConfigJson;
 const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
+
+// CONFIG.DDBI is the module's global mutable cache: production code writes
+// compendium indexes, module-detection results, Patreon tiers, file-scan
+// caches and more into it as a side effect of parsing. Rebuild it pristine
+// after every test (see the global afterEach below) so those caches cannot
+// leak between tests. Suites that need pre-seeded DDBI state must set it in
+// beforeEach, not beforeAll.
+export function pristineDDBI(): Record<string, any> {
+  return {
+    POPUPS: {},
+    DEV: { enabled: false },
+    EFFECT_CONFIG: {
+      MODULES: {},
+    },
+  };
+}
 
 (globalThis as any).CONFIG = {
   debug: {},
@@ -482,13 +499,7 @@ const fallbackRuleData: IDDBRuleData = fallbackRulesJson;
     dieSteps: [4, 6, 8, 10, 12, 20, 100],
   },
   DDB: { ...fallbackDDBConfig, RULE_DATA: fallbackRuleData },
-  DDBI: {
-    POPUPS: {},
-    DEV: { enabled: false },
-    EFFECT_CONFIG: {
-      MODULES: {},
-    },
-  },
+  DDBI: pristineDDBI(),
 };
 
 // -- CONST --

@@ -13,7 +13,10 @@ const LOADER_ID = "ddb-importer";
 
 const IMAGE_RE = /\.(png|jpe?g|webp|gif|svg|avif|bmp|webm|mp4|m4v|mov|ogv)$/i;
 
-const FPClass = foundry.applications.apps.FilePicker.implementation;
+// resolved lazily so importing this module does not require the foundry global
+function getFPClass() {
+  return foundry.applications.apps.FilePicker.implementation;
+}
 
 interface ScanResult {
   files: string[];
@@ -23,7 +26,7 @@ interface ScanResult {
 async function _scanDirectory(activeSource: string, current: string, bucket: string | null): Promise<ScanResult> {
   const opts: any = {};
   if (bucket) opts.bucket = bucket;
-  const result = await FPClass.browse(activeSource, current, opts);
+  const result = await getFPClass().browse(activeSource, current, opts);
   const files = (result.files ?? []).filter((f: string) => IMAGE_RE.test(f));
   const subdirs: Record<string, ScanResult> = {};
   for (const sub of result.dirs ?? []) {

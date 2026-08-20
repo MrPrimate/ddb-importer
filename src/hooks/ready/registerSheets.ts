@@ -393,9 +393,9 @@ const addPartySyncContext = (_html: HTMLElement | JQuery<HTMLElement>, options: 
   });
 };
 
-Hooks.once("getActorContextOptions", addPartySyncContext);
-
 export default function () {
+  Hooks.once("getActorContextOptions", addPartySyncContext);
+
   /**
    * Character sheets
    */

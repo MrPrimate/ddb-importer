@@ -1,4 +1,3 @@
-import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
@@ -270,7 +269,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
   }
 
   static async getCompendiumSpellUuidsFromNames(names: string[], { use2024Spells }: { use2024Spells?: boolean; getDocuments?: boolean } = {}): Promise<ICompendiumLookup[]> {
-    const spellChoice = (game as any).settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: (use2024Spells ?? spellChoice === "FORCE_2024"),
     });

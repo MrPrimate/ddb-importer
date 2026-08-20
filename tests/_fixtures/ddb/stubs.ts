@@ -129,19 +129,6 @@ const ACTIVITY_TYPE_KEYS = [
 ];
 
 /**
- * Under vitest the parser/enrichers module cycle can leave the
- * DDBEnricherData.AutoEffects / ChangeHelper static initialisers undefined
- * (the effects barrel is still in TDZ when the class evaluates). Re-point
- * them at the loaded modules so loaded enrichers behave as in production.
- */
-export async function repairEnricherDataStatics(): Promise<void> {
-  const { default: DDBEnricherData } = await import("../../../src/parser/enrichers/data/DDBEnricherData");
-  const effects = await import("../../../src/parser/enrichers/effects/_module");
-  if (!DDBEnricherData.AutoEffects) (DDBEnricherData as any).AutoEffects = effects.AutoEffects;
-  if (!DDBEnricherData.ChangeHelper) (DDBEnricherData as any).ChangeHelper = effects.ChangeHelper;
-}
-
-/**
  * Adds activityTypes/abilities stubs to the global CONFIG.DND5E from
  * foundryMocks. Call from beforeAll in tests that run activity generation.
  */

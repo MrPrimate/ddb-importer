@@ -259,8 +259,19 @@ class DDBCharacter {
   enableCompanions: boolean;
   enableSummons: boolean;
   _itemCurrency: I5eCurrency;
-  itemCompendium: CompendiumCollection.Any;
-  spellCompendium: CompendiumCollection.Any;
+  _itemCompendium: CompendiumCollection.Any | null = null;
+  _spellCompendium: CompendiumCollection.Any | null = null;
+
+  get itemCompendium(): CompendiumCollection.Any {
+    this._itemCompendium ??= CompendiumHelper.getCompendiumType("inventory")!;
+    return this._itemCompendium;
+  }
+
+  get spellCompendium(): CompendiumCollection.Any {
+    this._spellCompendium ??= CompendiumHelper.getCompendiumType("spell")!;
+    return this._spellCompendium;
+  }
+
   possibleFeatures: TImporterItem[];
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
@@ -286,7 +297,7 @@ class DDBCharacter {
   _currency: I5eCurrency;
 
   constructor({
-    currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
+    currentActor = null, characterId = null, selectResources = false, enableCompanions = false, isMuncher = false,
     enableSummons = false, addToCompendiums = null, compendiumImportTypes = null, forceCompendiumUpdate = null,
     collectCompendiumDocumentsOnly = false,
   }: DDBCharacterImportOptions = {}) {
@@ -351,10 +362,6 @@ class DDBCharacter {
       sp: 0,
       cp: 0,
     };
-
-    // getCompendiumType with the default fail=true throws rather than returning undefined
-    this.itemCompendium = CompendiumHelper.getCompendiumType("inventory")!;
-    this.spellCompendium = CompendiumHelper.getCompendiumType("spell")!;
 
     this.armor = {};
 
