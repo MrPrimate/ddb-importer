@@ -162,6 +162,23 @@ export default class ChangeHelper {
     };
   }
 
+  // dnd5e 6.0 AC helpers. The system evaluates every applicable calc/formula
+  // and takes the max, so effects ADD entries rather than overriding a single
+  // winner. `ac.calcs` is a SetField (add appends, "-key" removes); a string
+  // added to `ac.formulas` is coerced to {formula, label: effect.name}.
+  static acCalcsAddChange(calc: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(calc, priority, "system.attributes.ac.calcs");
+  }
+
+  static acFormulaAddChange(formula: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(formula, priority, "system.attributes.ac.formulas");
+  }
+
+  /** Hard override of the final AC value — bypasses shield/bonus/cover stacking, so prefer calcs/formulas. */
+  static acOverrideChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.overrideChange(value, priority, "system.attributes.ac.override");
+  }
+
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",

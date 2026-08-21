@@ -301,3 +301,266 @@ describe("DDBCharacter._generateArmorClass (unarmored default)", () => {
     expect(mock.raw.character.system.attributes.ac.calc).toBe("default");
   });
 });
+
+// =============================================================================
+// _generateArmorClass - armor type branches
+// Characterization pins for the dnd5e 6.0 AC rework: these assert the CURRENT
+// 5.x-shaped output ({flat, calc, formula} + maxValue selection) so the rework
+// diff is visible and intentional.
+// =============================================================================
+describe("DDBCharacter._generateArmorClass (armor type branches)", () => {
+  const generateAC = DDBCharacter.prototype._generateArmorClass;
+
+  function armorItem({ name, type, armorClass, armorTypeId, grantedModifiers = [], canAttune = false, isAttuned = false }: {
+    name: string; type: string; armorClass: number; armorTypeId: number;
+    grantedModifiers?: any[]; canAttune?: boolean; isAttuned?: boolean;
+  }) {
+    return {
+      id: 1000 + armorTypeId,
+      entityTypeId: 1,
+      equipped: true,
+      isAttuned,
+      definition: { name, type, armorClass, armorTypeId, filterType: "Armor", grantedModifiers, canAttune },
+    };
+  }
+
+  function makeACMock(ddbOverrides: any = {}, { dex = 10, abilities = {} }: { dex?: number; abilities?: Record<string, number> } = {}) {
+    const mock = makeMockCharacter({
+      ddbCharacter: {
+        inventory: [],
+        feats: [],
+        classes: [],
+        characterValues: [],
+        ...ddbOverrides,
+      },
+    });
+    mock.armor = {};
+    mock.isArmored = DDBCharacter.prototype.isArmored;
+    mock.isUnArmored = DDBCharacter.prototype.isUnArmored;
+    mock._generateOverrideArmorClass = DDBCharacter.prototype._generateOverrideArmorClass;
+    const effectAbilities = mock.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
+    effectAbilities.dex.value = dex;
+    for (const [ability, value] of Object.entries(abilities)) {
+      effectAbilities[ability].value = value;
+    }
+    return mock;
+  }
+
+  it("light armor adds full dex: leather 11 + dex 14 = 13", () => {
+    const mock = makeACMock({ inventory: [armorItem({ name: "Leather", type: "Light Armor", armorClass: 11, armorTypeId: 1 })] }, { dex: 14 });
+    generateAC.call(mock);
+
+    expect(mock.armor.results.maxValue).toBe(13);
+    expect(mock.armor.results.maxType).toBe("Light");
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("default");
+    expect(mock.raw.character.system.attributes.ac.flat).toBe(null);
+    expect(mock.raw.character.flags.ddbimporter.overrideAC.flat).toBe(13);
+  });
+
+  it("medium armor caps dex at 2: scale mail 14 + dex 18 = 16", () => {
+    const mock = makeACMock({ inventory: [armorItem({ name: "Scale Mail", type: "Medium Armor", armorClass: 14, armorTypeId: 2 })] }, { dex: 18 });
+    generateAC.call(mock);
+
+    expect(mock.armor.results.maxValue).toBe(16);
+    expect(mock.armor.results.maxType).toBe("Medium");
+  });
+
+  it("heavy armor ignores dex: chain mail 16 with dex 14 = 16", () => {
+    const mock = makeACMock({ inventory: [armorItem({ name: "Chain Mail", type: "Heavy Armor", armorClass: 16, armorTypeId: 3 })] }, { dex: 14 });
+    generateAC.call(mock);
+
+    expect(mock.armor.results.maxValue).toBe(16);
+    expect(mock.armor.results.maxType).toBe("Heavy");
+  });
+
+  it("shield stacks with armor: chain mail 16 + shield 2 = 18", () => {
+    const mock = makeACMock({
+      inventory: [
+        armorItem({ name: "Chain Mail", type: "Heavy Armor", armorClass: 16, armorTypeId: 3 }),
+        armorItem({ name: "Shield", type: "Shield", armorClass: 2, armorTypeId: 4 }),
+      ],
+    });
+    generateAC.call(mock);
+
+    expect(mock.armor.results.maxValue).toBe(18);
+    expect(mock.armor.results.maxData.shieldMod).toBe(2);
+  });
+
+  it("magical armor bonus modifier adds to armor AC: +1 chain mail = 17", () => {
+    const mock = makeACMock({
+      inventory: [armorItem({
+        name: "Chain Mail, +1",
+        type: "Heavy Armor",
+        armorClass: 16,
+        armorTypeId: 3,
+        grantedModifiers: [{ type: "bonus", subType: "armor-class", value: 1, isGranted: true }],
+      })],
+    });
+    generateAC.call(mock);
+
+    expect(mock.armor.results.maxValue).toBe(17);
+  });
+});
+
+// =============================================================================
+// _generateArmorClass - natural armor and unarmored defense
+// =============================================================================
+describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () => {
+  const generateAC = DDBCharacter.prototype._generateArmorClass;
+
+  function makeACMock(ddbOverrides: any = {}, { abilities = {} }: { abilities?: Record<string, number> } = {}) {
+    const mock = makeMockCharacter({
+      ddbCharacter: {
+        inventory: [],
+        feats: [],
+        classes: [],
+        characterValues: [],
+        ...ddbOverrides,
+      },
+    });
+    mock.armor = {};
+    mock.isArmored = DDBCharacter.prototype.isArmored;
+    mock.isUnArmored = DDBCharacter.prototype.isUnArmored;
+    mock._generateOverrideArmorClass = DDBCharacter.prototype._generateOverrideArmorClass;
+    const effectAbilities = mock.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
+    for (const [ability, value] of Object.entries(abilities)) {
+      effectAbilities[ability].value = value;
+    }
+    return mock;
+  }
+
+  // a class fixture with one feature; the modifier's componentId must match the
+  // feature definition id for getChosenClassModifiers to pick it up
+  function classWithFeature({ className, featureName, featureId, subclass = null }: {
+    className: string; featureName: string; featureId: number; subclass?: string | null;
+  }) {
+    return {
+      level: 3,
+      isStartingClass: true,
+      definition: { id: 50, name: className },
+      classFeatures: [{ definition: { id: featureId, name: featureName, requiredLevel: 1 } }],
+      subclassDefinition: subclass
+        ? { id: 60, name: subclass, classFeatures: [{ id: featureId + 1, name: featureName, requiredLevel: 1 }] }
+        : null,
+    };
+  }
+
+  it("Tortle minimum-base-armor 17: natural calc with flat 17", () => {
+    const mock = makeACMock({
+      race: { fullName: "Tortle" },
+      modifiers: {
+        class: [], background: [], item: [], feat: [], condition: [],
+        race: [{ type: "set", subType: "minimum-base-armor", value: 17, isGranted: true }],
+      },
+    });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("natural");
+    expect(mock.raw.character.system.attributes.ac.flat).toBe(17);
+    expect(mock.armor.results.maxType).toBe("Natural");
+  });
+
+  it("Lizardfolk unarmored-armor-class set +3: natural 13", () => {
+    const mock = makeACMock({
+      race: { fullName: "Lizardfolk" },
+      modifiers: {
+        class: [], background: [], item: [], feat: [], condition: [],
+        race: [{ type: "set", subType: "unarmored-armor-class", statId: null, value: 3, isGranted: true }],
+      },
+    });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("natural");
+    expect(mock.raw.character.system.attributes.ac.flat).toBe(13);
+  });
+
+  // NOTE: the class "set unarmored-armor-class" modifier is stripped by
+  // getChosenClassModifiers (EXCLUDED.ac in dictionary/effects/excluded.ts), so
+  // the COMPUTED maxValue/baseAC never includes class Unarmored Defense - the
+  // real in-Foundry AC comes from the calc name, which dnd5e evaluates itself.
+  // The 6.0 rework keeps this split: calcs[] carry UD, computed values are
+  // validation-only and under-report UD characters.
+  it("Barbarian Unarmored Defense: unarmoredBarb calc; computed baseAC stays 10 + dex", () => {
+    const mock = makeACMock({
+      classes: [classWithFeature({ className: "Barbarian", featureName: "Unarmored Defense", featureId: 101 })],
+      modifiers: {
+        race: [], background: [], item: [], feat: [], condition: [],
+        class: [{
+          type: "set", subType: "unarmored-armor-class", statId: 3, value: null,
+          isGranted: true, componentId: 101, availableToMulticlass: false,
+        }],
+      },
+    }, { abilities: { dex: 14, con: 16 } });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBarb");
+    expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(12);
+    expect(mock.armor.results.maxType).toBe("Unarmored");
+  });
+
+  it("Monk Unarmored Defense: unarmoredMonk calc; computed baseAC stays 10 + dex", () => {
+    const mock = makeACMock({
+      classes: [classWithFeature({ className: "Monk", featureName: "Unarmored Defense", featureId: 102 })],
+      modifiers: {
+        race: [], background: [], item: [], feat: [], condition: [],
+        class: [{
+          type: "set", subType: "unarmored-armor-class", statId: 5, value: null,
+          isGranted: true, componentId: 102, availableToMulticlass: false,
+        }],
+      },
+    }, { abilities: { dex: 14, wis: 16 } });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredMonk");
+    expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(12);
+  });
+
+  it("Draconic Bloodline sorcerer: draconic calc", () => {
+    const mock = makeACMock({
+      classes: [classWithFeature({
+        className: "Sorcerer", featureName: "Draconic Resilience", featureId: 201, subclass: "Draconic Bloodline",
+      })],
+    });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("draconic");
+  });
+
+  it("Draconic Sorcery (2024) sorcerer: unarmoredBard calc", () => {
+    const mock = makeACMock({
+      classes: [classWithFeature({
+        className: "Sorcerer", featureName: "Draconic Resilience", featureId: 202, subclass: "Draconic Sorcery",
+      })],
+    });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBard");
+  });
+
+  it("College of Dance bard: unarmoredBard calc", () => {
+    const mock = makeACMock({
+      classes: [classWithFeature({
+        className: "Bard", featureName: "Unarmored Defense", featureId: 203, subclass: "College of Dance",
+      })],
+    });
+    generateAC.call(mock);
+
+    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBard");
+  });
+
+  it("race-sourced unarmored defense DOES enter the computed max (raw race modifiers bypass the effect exclusion)", () => {
+    // same modifier shape as the Barbarian test, but on modifiers.race - the
+    // unarmoredSources list feeds race/feat modifiers in unfiltered
+    const mock = makeACMock({
+      modifiers: {
+        class: [], background: [], item: [], feat: [], condition: [],
+        race: [{ type: "set", subType: "unarmored-armor-class", statId: 3, value: null, isGranted: true }],
+      },
+    }, { abilities: { dex: 14, con: 20 } });
+    generateAC.call(mock);
+
+    // 10 + 2 (dex) + 5 (con) = 17
+    expect(mock.armor.results.maxValue).toBe(17);
+    expect(mock.armor.results.maxType).toBe("Unarmored Defense");
+  });
+});

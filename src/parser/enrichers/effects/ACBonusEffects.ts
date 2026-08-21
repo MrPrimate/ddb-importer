@@ -68,6 +68,31 @@ export default class ACBonusEffects {
   }
 
   /**
+   * dnd5e 6.0 AC formula effect: adds one entry to `ac.formulas[]` and lets the
+   * system take the max of all applicable formulas. The string value is coerced
+   * by the system's ACFormulasField into {formula, label: effect.name}, so the
+   * effect name doubles as the formula label on the sheet.
+   *
+   * This is the 6.0 replacement for generateFixedACEffect's calc:"custom" +
+   * formula override pair.
+   */
+  static generateACFormulaEffect(formula: string, label: string, alwaysActive = false, priority = 20): I5eEffectData {
+    const effect = ACBonusEffects.ACEffect(label);
+
+    effect.flags = {
+      dae: { transfer: true, armorEffect: true },
+      ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null, characterEffect: true },
+    };
+    effect.disabled = false;
+    effect.origin = "AC";
+
+    const system = (effect.system ??= {});
+    (system.changes ??= []).push(ChangeHelper.acFormulaAddChange(formula, priority));
+
+    return effect;
+  }
+
+  /**
    *
    * Generate an effect given inputs for AC
    * This is a high priority set effect that will typically override all other AE.
