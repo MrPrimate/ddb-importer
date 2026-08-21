@@ -36,6 +36,8 @@ global {
 
   interface I5eActivityEffect {
     _id?: string;
+    /** dnd5e 6.0 — link a standalone/compendium ActiveEffect. Resolution is async (`entry.getEffect()`). */
+    uuid?: string;
     onSave?: boolean;
     riders?: {
       activity?: string[];
@@ -46,6 +48,32 @@ global {
       min?: number | null;
       max?: number | null;
     };
+  }
+
+  // ---- Activity behaviors (dnd5e 6.0, attached to template-created Regions) ----
+
+  /** Config for `type: "applyActiveEffect"` — dispositions are derived from the activity target at placement. */
+  interface I5eActivityBehaviorApplyEffectConfig {
+    /** ActiveEffect UUIDs (compendium or otherwise standalone). */
+    effects?: string[];
+    sizes?: TActorSizes[];
+    types?: TCreatureTypes[];
+  }
+
+  /** Config for `type: "difficultTerrain"`. */
+  interface I5eActivityBehaviorDifficultTerrainConfig {
+    types?: string[];
+  }
+
+  interface I5eActivityBehavior {
+    _id?: string;
+    type: "applyActiveEffect" | "difficultTerrain";
+    name?: string;
+    level?: {
+      min?: number | null;
+      max?: number | null;
+    };
+    config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig;
   }
 
   interface IMidiActivityProperties {
@@ -97,9 +125,12 @@ global {
     name?: string;
     img?: string;
     activation?: I5eActivityActivation;
+    behaviors?: I5eActivityBehavior[];
     consumption?: I5eActivityConsumption;
     description?: {
-      chatFlavor: string;
+      chatFlavor?: string;
+      /** dnd5e 6.0 chat description (HTMLField); falls back to `item.system.description.chat` on cards. */
+      value?: string;
     };
     duration?: I5eActivityDuration;
     effects?: I5eActivityEffect[];
@@ -127,7 +158,10 @@ global {
   type T5eActivityAttackAbility = T5eAbility | "spellcasting" | "none" | "";
 
   interface I5eActivityAttack {
+    /** Still a persisted string in dnd5e 6.0. */
     ability?: T5eActivityAttackAbility;
+    /** dnd5e 6.0 derives `attack.abilities` (Set, persisted: false) from `ability` — never write it. */
+    // abilities?: never;
     bonus?: string;
     critical?: {
       threshold?: number;
@@ -155,10 +189,16 @@ global {
 
   interface I5eActivitySave {
     ability?: string[];
+    /** dnd5e 6.0 FormulaField — appended to the target's roll, resolved against the OWNING actor's roll data. */
+    bonus?: string;
     dc?: {
       calculation?: string;
       formula?: string;
+      /** Derived AE target only in dnd5e 6.0 (persisted: false) — never write it. */
+      // bonus?: never;
     };
+    /** dnd5e 6.0 — gates whether the chat save button is visible to all (default true). */
+    visible?: boolean;
     override?: boolean;
   }
 
@@ -193,8 +233,9 @@ global {
   type I5eActivityCastSpellProperties = typeof DICTIONARY.spell.components[keyof typeof DICTIONARY.spell.components];
   interface I5eActivitySpell {
     challenge?: {
-      attack?: number;
-      save?: number;
+      /** FormulaField in dnd5e 6.0 — emit deterministic formula strings, not numbers. */
+      attack?: string;
+      save?: string;
       override: boolean;
     };
     level?: number | null;
@@ -261,10 +302,14 @@ global {
     // dnd5e stores check.ability as a string, but some build paths supply arrays
     ability?: string | string[];
     associated?: string[];
+    /** dnd5e 6.0 FormulaField — appended to the target's roll, resolved against the OWNING actor's roll data. */
+    bonus?: string;
     dc?: {
       calculation?: string;
       formula?: string;
     };
+    /** dnd5e 6.0 — gates whether the chat check button is visible to all (default true). */
+    visible?: boolean;
   }
 
   interface I5eCheckActivity extends I5eActivityBase {
@@ -324,9 +369,13 @@ global {
 
   interface I5eActivityTransform {
     customize?: boolean;
+    /** dnd5e 6.0 — with mode "form", keep no original-form traces (Disguise Self-likes). */
+    formless?: boolean;
+    /** Moved to `visibility.identifier` in dnd5e 6.0 (auto-migrated). */
     identifier?: string;
     preset?: "wildshape" | "polymorph";
-    mode?: "cr" | "";
+    /** dnd5e 6.0 adds "form": forms live in the activity's `effects[]`; `profiles[]` are ignored. */
+    mode?: "cr" | "form" | "";
   }
 
   export interface I5eActivitySettings {
@@ -347,6 +396,22 @@ global {
     settings?: I5eActivitySettings;
   };
 
+  /**
+   * dnd5e 6.0 teleport distance. Normally leave the whole object unset — the distance is derived
+   * from the activity's `range` (`units: "any"` → Infinity). Only set `override: true` with
+   * `value`/`units` for a custom distance; `value` is a deterministic formula ("" → Infinity).
+   */
+  interface I5eActivityTeleport {
+    override?: boolean;
+    units?: string;
+    value?: string;
+  }
+
+  interface I5eTeleportActivity extends I5eActivityBase {
+    type: "teleport";
+    teleport?: I5eActivityTeleport;
+  }
+
   type I5eActivity =
     | I5eAttackActivity
     | I5eSaveActivity
@@ -359,7 +424,8 @@ global {
     | I5eDDBMacroActivity
     | I5eEnchantActivity
     | I5eForwardActivity
-    | I5eTransformActivity;
+    | I5eTransformActivity
+    | I5eTeleportActivity;
 
   /**
    * The wide shape used by the DDB activity builder classes, which assemble an
@@ -383,6 +449,7 @@ global {
     profiles?: I5eSummonProfile[];
     summon?: I5eActivitiesSummon;
     transform?: I5eActivityTransform;
+    teleport?: I5eActivityTeleport;
     macro?: IDDBActivityMacro;
     save?: I5eActivitySave;
     check?: I5eActivityCheck;

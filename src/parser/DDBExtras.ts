@@ -34,7 +34,7 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect: I5eEffectData & { system: Required<I5eEffectSystem> } = {
+  const effect: I5eEffectData & { system: I5eEffectSystem & Required<Pick<I5eEffectSystem, "changes">> } = {
     system: {
       changes: [
         ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.attack"),

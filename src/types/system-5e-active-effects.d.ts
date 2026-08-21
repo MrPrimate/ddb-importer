@@ -5,19 +5,38 @@ export {};
 
 global {
 
-  type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override" | "ac5e";
+  /**
+   * Foundry v14 core change types plus the dnd5e 6.0 "rule" change types.
+   * For rule types (`dnd5e.*`) the change `key` is a rule category, not a data path:
+   * `d20`, `attack`, `check`, `save`, `damage`, `healing`.
+   */
+  type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override"
+    | "dnd5e.bonus" | "dnd5e.advantage" | "dnd5e.minimum" | "dnd5e.maximum"
+    | "ac5e";
   type TActiveEffectChangePhase = "initial" | "final";
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
-  type TEffectDurationExpiry = typeof EFFECT_EXPIRY_TYPES[number];
+  /** Core combat-edge expiries. */
+  type TEffectDurationExpiry = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";
+  /** dnd5e 6.0 durationless expiries — the system forces `duration.value` null for these. */
+  type TEffectDurationlessExpiry = "shortRest" | "longRest";
+  /** dnd5e 6.0 pseudo expiries — evaluated live against the source/target actor's turn edges. */
+  type TEffectPseudoExpiry = "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
+  /** Everything accepted in `duration.expiry` under dnd5e 6.0. */
+  type T5eEffectExpiry = TEffectDurationExpiry | TEffectDurationlessExpiry | TEffectPseudoExpiry;
   type TDAEEffectExpiryTypes = typeof DAE_EFFECT_EXPIRY_TYPES[number];
   type TEffectShowIcon = 0 | 1 | 2; // NEVER | CONDITIONAL | ALWAYS
 
   interface IActiveEffectChangeData {
+    _id?: string;
     key: string;
     type: TActiveEffectChangeType;
-    value: string | null;
+    value: string | number | null;
     phase?: TActiveEffectChangePhase;
     priority?: number;
+    /** dnd5e 6.0 FiltersField — JSON string, e.g. `{"k":"roll.attack.type","v":"melee"}`. Keep simple; shape in flux upstream. */
+    conditions?: string;
+    /** dnd5e 6.0 — resolve roll data references in `value` at transfer time against origin or target. */
+    replacement?: "" | "origin" | "target";
   }
 
   /** An AC5E change. Only `ChangeHelper.ac5eChange` produces one. */
@@ -31,11 +50,39 @@ global {
     // Turn/Combat timing
     | typeof DAE_SPECIAL_DURATIONS[number];
 
-  type TEffectType = "base" | "enchant";
+  type TEffectType = "base" | "condition" | "enchantment";
 
+  /** `type: "base"` system data (dnd5e 6.0 BaseEffectData). */
   interface I5eEffectSystem {
     changes?: IActiveEffectChangeData[];
+    /** Effect-level FiltersField JSON — limits when the whole effect applies. */
+    conditions?: string;
+    /** Suppressed under antimagic; migration sets true for effects from spells/scrolls/mgc items. */
+    magical?: boolean;
+    /** Extra statuses applied alongside this effect. Replaces `flags.dnd5e.riders.statuses` (migrated). */
+    rider?: {
+      statuses?: string[];
+    };
   }
+
+  /** `type: "condition"` system data (dnd5e 6.0 ConditionData). Changes here use the plain core schema (no _id/conditions/replacement). */
+  interface I5eConditionEffectSystem {
+    changes?: IActiveEffectChangeData[];
+    /** Condition level for levelled conditions (Exhaustion); clamped to `CONFIG.DND5E.conditionTypes[type].levels`. */
+    level?: number | null;
+    /** The primary status id, e.g. "exhaustion". */
+    type?: string;
+  }
+
+  /** `type: "enchantment"` system data (dnd5e 6.0 EnchantmentData). */
+  interface I5eEnchantmentEffectSystem {
+    changes?: IActiveEffectChangeData[];
+    conditions?: string;
+    /** Defaults to true for enchantments. */
+    magical?: boolean;
+  }
+
+  type T5eEffectSystem = I5eEffectSystem | I5eConditionEffectSystem | I5eEnchantmentEffectSystem;
 
   export interface I5eEffectData {
     _id?: string;
@@ -44,7 +91,7 @@ global {
     img?: string;
     name?: string;
     statuses?: typeof STATUSES;
-    system?: I5eEffectSystem;
+    system?: T5eEffectSystem;
     duration?: IEffectDuration;
     start?: IEffectStartData | null;
     tint?: string;
@@ -93,6 +140,15 @@ global {
           max?: number | null;
         };
       };
+      dnd5e?: {
+        /** Legacy enchantment marker — 6.0 migrates it to `type: "enchantment"`; prefer setting the document `type` directly. */
+        type?: string;
+        /** Legacy rider statuses — 6.0 migrates to `system.rider.statuses`; prefer the system path. */
+        riders?: {
+          statuses?: string[];
+        };
+        [key: string]: any;
+      };
       "midi-qol"?: {
         forceCEOff?: boolean;
       };
@@ -118,9 +174,10 @@ global {
   }
 
   interface IEffectDuration {
+    /** Leave null (with a duration-supporting expiry) to inherit the activity's duration on application. */
     value?: number | null;
     units?: TEffectDurationUnit | null;
-    expiry?: TDAEEffectExpiryTypes | null;
+    expiry?: T5eEffectExpiry | null;
     expired?: boolean | null;
   }
 
