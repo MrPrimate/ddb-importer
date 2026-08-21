@@ -44,11 +44,13 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
     "Absorbing Tattoo": "Absorbing Tattoo",
+    "Cabal's Ruin": "Cabal's Ruin",
     "Flame Tongue": "Flame Tongue",
     "Ghaal'Shaarat": "Ghaal'Shaarat",
     "Moon Sickle": "Moon Sickle",
     "Dragon Wing": "Dragon Wing",
     "Hammer of Thunderbolts": "Hammer of Thunderbolts",
+    "Jewel of Three Prayers": "Jewel of Three Prayers",
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
   };
@@ -59,6 +61,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
+    "Cabal's Ruin": ItemEnrichers.CabalsRuin,
     "Canaith Mandolin": ItemEnrichers.InstrumentOfTheBards,
     "Cli Lyre": ItemEnrichers.InstrumentOfTheBards,
     "Donjon's Sundering Sphere": ItemEnrichers.DonjonsSunderingSphere,
@@ -69,6 +72,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Ghaal'Shaarat": ItemEnrichers.GhaalShaaratWeapon,
     "Hammer of Thunderbolts": ItemEnrichers.HammerOfThunderbolts,
     "Healer's Kit": ItemEnrichers.HealersKit,
+    "Jewel of Three Prayers": ItemEnrichers.JewelOfThreePrayers,
     "Lantern, Bullseye": ItemEnrichers.BullseyeLantern,
     "Lantern, Hooded": ItemEnrichers.HoodedLantern,
     "Mac-Fuirmidh Cittern": ItemEnrichers.InstrumentOfTheBards,

@@ -11,7 +11,7 @@ import _CrimsonRite from "./_CrimsonRite";
  */
 export default class RiteOfTheDawn extends _CrimsonRite {
 
-  static RIDER_ID = "ddbRiteOfDawnBl";
+  static RIDER_ID = "ddbRiteOfDawnBls";
 
   override get riteName(): string {
     return "Rite of the Dawn";

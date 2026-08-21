@@ -4,6 +4,7 @@ import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficien
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
+import Vestige from "./Vestige";
 import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
@@ -1787,6 +1788,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   _getCompendiumUses(defaultMax: string | null = null): I5eSystemLimitedUses {
     if (!this.isMuncher) return { spent: 0, max: null, recovery: [] };
+
+    // Multi-stage items repeat every lower stage's text, so the whole-description scan below
+    // always reports the dormant numbers. Resolve the named stage first where one applies.
+    const stagedUses = Vestige.getStageUses(this.originalName, this.ddbDefinition.description, DDBItem);
+    if (stagedUses) {
+      this.actionData.consumptionValue = 1;
+      return stagedUses;
+    }
+
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
     const limitedUse = {
@@ -3221,6 +3231,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.data.effects ??= [];
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
+    Vestige.generateStageEnchantments(this, DDBItem);
     this._activityEffectLinking();
   }
 

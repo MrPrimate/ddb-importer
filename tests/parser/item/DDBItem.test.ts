@@ -26,6 +26,7 @@ vi.mock("../../../src/effects/restrictions", () => ({
 }));
 
 import DDBItem from "../../../src/parser/item/DDBItem";
+import { JEWEL_OF_THREE_PRAYERS, NO_CHARGE_VESTIGE } from "../../_fixtures/ddb/vestiges";
 
 // =============================================================================
 // getPublisherAmmunitionType* - Mage Hand Press ammunition, gated on the DDB
@@ -230,6 +231,54 @@ describe("DDBItem.getMagicItemResetType", () => {
 
   it("returns null when no reset pattern found", () => {
     expect(DDBItem.getMagicItemResetType("A simple magical trinket.")).toBeNull();
+  });
+});
+
+// =============================================================================
+// _getCompendiumUses - muncher-side charge parsing. Stage-aware resolution lives
+// in Vestige (see tests/parser/item/Vestige.test.ts); these pin the dispatch and
+// the unstaged behaviour around it.
+// =============================================================================
+describe("DDBItem.prototype._getCompendiumUses", () => {
+  function makeUsesMock(originalName: string, description: string, isMuncher = true) {
+    const mock = Object.create(DDBItem.prototype);
+    mock.isMuncher = isMuncher;
+    mock.originalName = originalName;
+    mock.ddbDefinition = { description };
+    mock.ddbItem = { definition: mock.ddbDefinition };
+    mock.actionData = {};
+    return mock;
+  }
+
+  it("returns the named stage's charges and marks the activity as consuming one", () => {
+    const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS);
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "5",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
+    });
+    expect(mock.actionData.consumptionValue).toBe(1);
+  });
+
+  it("never consults the stage on the character path", () => {
+    const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS, false);
+    expect(mock._getCompendiumUses()).toEqual({ spent: 0, max: null, recovery: [] });
+    expect(mock.actionData.consumptionValue).toBeUndefined();
+  });
+
+  it("leaves an ordinary charged item untouched", () => {
+    const description = "<p>The wand has 7 charges. It regains 1d6 + 1 expended charges daily at dawn.</p>";
+    const mock = makeUsesMock("Wand of Magic Missiles", description);
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "7",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "formula", formula: "1d6 + 1" }],
+    });
+  });
+
+  it("falls back to the default max for a staged item with no charges", () => {
+    const mock = makeUsesMock("Blade of Broken Mirrors (Exalted)", NO_CHARGE_VESTIGE);
+    expect(mock._getCompendiumUses("1")).toEqual({ spent: null, max: "1", recovery: [] });
   });
 });
 
