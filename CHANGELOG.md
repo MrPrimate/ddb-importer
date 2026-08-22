@@ -2,6 +2,7 @@
 
 - Rally maneuver added too much temphp @redarchongaming
 - Some fixes to activity use generation when importing classes with mule muncher. @akr4s1a
+- Monsters would not add equipment when munching.
 
 # 7.4.2
 

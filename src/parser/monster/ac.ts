@@ -105,6 +105,9 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
             system: {
               quantity,
               equipped: true,
+              source: {
+                rules: this.is2014 ? "2014" : "2024",
+              },
             },
           });
         }
@@ -116,6 +119,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck as unknown as TAll5eDocuments[], "inventory", {
     looseMatch: true,
     monsterMatch: true,
+    // shared 2014/2024 gear (e.g. Plate) is only munched under one rules version
+    rulesFallback: true,
   }) as I5eMonsterItem[];
   const adjustedItems = rawItems
     .filter((item) => item.type !== "weapon")

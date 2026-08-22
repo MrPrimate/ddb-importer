@@ -30,6 +30,13 @@ interface IDDBItemImporterGetCompendiumItemsOptions {
   deleteCompendiumId?: boolean;
   keepDDBId?: boolean;
   linkItemFlags?: boolean;
+  /**
+   * Originals that find no candidate under the strict matchFlags/matchFields filter (e.g. a 2014
+   * monster looking for "Plate" when the shared DDB item was only munched as 2024) get a second,
+   * relaxed pass that ignores those filters. Only unmatched originals are retried, so a preferred
+   * version copy always wins and no duplicates are produced.
+   */
+  rulesFallback?: boolean;
 }
 
 type TDDBImporterTypes = "items"
@@ -540,39 +547,72 @@ ${item.system.description.chat}
     return this.results;
   }
 
+  #indexEntryMatchesOriginal(i: TIndexEntry, orig: TAll5eDocuments,
+    { looseMatch = false, monsterMatch = false, relaxed = false } = {},
+  ): boolean {
+    if (!relaxed) {
+      if (!this.#flagMatch(i, orig)) return false;
+      if (!this.#fieldMatch(i, orig)) return false;
+    }
+    const iName = foundry.utils.getProperty(i, "name") as string;
+    const extraNames = (foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
+    if (looseMatch) {
+      const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
+      return looseNames.includes(iName.split("(")[0].trim().toLowerCase());
+    } else if (monsterMatch) {
+      if (iName === orig.name) return true;
+      const monsterNames = NameMatcher.getMonsterNames(orig.name);
+      return monsterNames.includes(iName.toLowerCase());
+    } else {
+      return iName === orig.name || extraNames.includes(iName);
+    }
+  }
+
+  /**
+   * Filter the loaded compendium index down to candidates for the passed originals.
+   * Also reports which originals found no candidate, so a relaxed retry can be limited to them.
+   */
+  #filterIndex(items: TAll5eDocuments[],
+    { looseMatch = false, monsterMatch = false, relaxed = false } = {},
+  ): { candidates: TIndexEntry[]; unmatched: TAll5eDocuments[] } {
+    if (!this.compendiumIndex) throw new Error("Compendium index has not been built");
+    const matchedOriginals = new Set<TAll5eDocuments>();
+    const candidates = this.compendiumIndex.filter((i) => {
+      let hit = false;
+      for (const orig of items) {
+        if (this.#indexEntryMatchesOriginal(i as TIndexEntry, orig, { looseMatch, monsterMatch, relaxed })) {
+          matchedOriginals.add(orig);
+          hit = true;
+        }
+      }
+      return hit;
+    }) as TIndexEntry[];
+    const unmatched = items.filter((orig) => !matchedOriginals.has(orig));
+    return { candidates, unmatched };
+  }
+
   async loadPassedItemsFromCompendium(items: TAll5eDocuments[],
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
-      keepDDBId = false, linkItemFlags = false, overrideId = false }: IDDBItemImporterLoadPassedItemsFromCompendiumOptions,
+      keepDDBId = false, linkItemFlags = false, overrideId = false,
+      rulesFallback = false }: IDDBItemImporterLoadPassedItemsFromCompendiumOptions,
   ): Promise<TAll5eDocuments[]> {
 
     await this.buildIndex(indexFilter);
-    if (!this.compendiumIndex) throw new Error("Compendium index has not been built");
 
-    const firstPassItems = await this.compendiumIndex.filter((i) => {
-      const iName = foundry.utils.getProperty(i, "name") as string;
-      return items.some((orig) => {
-        if (!this.#flagMatch(i, orig)) return false;
-        if (!this.#fieldMatch(i, orig)) return false;
-        const extraNames = (foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
-        if (looseMatch) {
-          const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
-          return looseNames.includes(iName.split("(")[0].trim().toLowerCase());
-        } else if (monsterMatch) {
-          const monsterNames = NameMatcher.getMonsterNames(orig.name);
-          // console.log(magicNames)
-          if (iName === orig.name) {
-            return true;
-          } else if (monsterNames.includes(iName.toLowerCase())) {
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          return iName === orig.name || extraNames.includes(iName);
-        }
-      });
-    });
+    const strictPassItems = this.#filterIndex(items, { looseMatch, monsterMatch });
+    const firstPassItems = [...strictPassItems.candidates];
+
+    if (rulesFallback && strictPassItems.unmatched.length > 0) {
+      logger.debug(`compendium ${this.type} relaxed rules match for:`, strictPassItems.unmatched.map((i) => i.name));
+      const relaxedPassItems = this.#filterIndex(strictPassItems.unmatched, { looseMatch, monsterMatch, relaxed: true });
+      const seen = new Set(firstPassItems.map((i) => i._id));
+      for (const candidate of relaxedPassItems.candidates) {
+        if (seen.has(candidate._id)) continue;
+        seen.add(candidate._id);
+        firstPassItems.push(candidate);
+      }
+    }
 
     const loadedItems = [];
     for (const i of firstPassItems) {
@@ -622,7 +662,8 @@ ${item.system.description.chat}
   static async getCompendiumItems<TType extends TAll5eDocuments = TAll5eDocuments>(
     items: TType[], type: TDDBImporterTypes,
     { looseMatch = false, monsterMatch = false, keepId = false,
-      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
+      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false,
+      rulesFallback = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
   ): Promise<TType[]> {
 
     const itemImporter = new DDBItemImporter<TType>(type, [], {
@@ -645,6 +686,7 @@ ${item.system.description.chat}
       keepDDBId,
       deleteCompendiumId,
       linkItemFlags,
+      rulesFallback,
       indexFilter: itemImporter.indexFilter,
     };
     const results = await itemImporter.loadPassedItemsFromCompendium(items as TType[], loadOptions) as TType[];
