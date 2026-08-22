@@ -68,13 +68,8 @@ export default class ACBonusEffects {
   }
 
   /**
-   * dnd5e 6.0 AC formula effect: adds one entry to `ac.formulas[]` and lets the
-   * system take the max of all applicable formulas. The string value is coerced
-   * by the system's ACFormulasField into {formula, label: effect.name}, so the
-   * effect name doubles as the formula label on the sheet.
-   *
-   * This is the 6.0 replacement for the old fixed-AC effect's calc:"custom" +
-   * formula override pair.
+   * Generate an effect that adds one AC formula; the effect name becomes the
+   * formula label on the sheet.
    */
   static generateACFormulaEffect(formula: string, label: string, alwaysActive = false, priority = 20): I5eEffectData {
     const effect = ACBonusEffects.ACEffect(label);

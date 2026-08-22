@@ -7,7 +7,7 @@ export default class MoonSickle extends DDBEnricherData {
       {
         noCreate: true,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+1d4", 20, "system.bonuses.heal.damage"),
+          DDBEnricherData.ChangeHelper.healingBonusChange("1d4", 20),
         ],
       },
     ];

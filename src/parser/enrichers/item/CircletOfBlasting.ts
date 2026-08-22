@@ -8,7 +8,7 @@ export default class CircletOfBlasting extends DDBEnricherData {
       const update = {
         spell: {
           challenge: {
-            attack: 5,
+            attack: "5",
             override: true,
           },
         },

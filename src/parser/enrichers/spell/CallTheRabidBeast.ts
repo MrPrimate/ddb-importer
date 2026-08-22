@@ -16,7 +16,7 @@ export default class CallTheRabidBeast extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("17", 20, "system.attributes.ac.min"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("5", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("5", 20, "system.rolls.damage.mwak.bonus"),
           DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
         ],
       },

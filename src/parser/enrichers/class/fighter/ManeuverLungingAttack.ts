@@ -34,7 +34,7 @@ export default class ManeuverLungingAttack extends Maneuver {
           },
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.rolls.damage.mwak.bonus"),
         ],
       },
     ];

@@ -116,8 +116,8 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
     },
     spell: {
       challenge: {
-        attack: config.values.bonus,
-        save: config.values.dc,
+        attack: `${config.values.bonus ?? ""}`,
+        save: `${config.values.dc ?? ""}`,
         override: true,
       },
       level: config.level,

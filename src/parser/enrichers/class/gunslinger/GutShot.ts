@@ -30,7 +30,7 @@ export default class GutShot extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("*.5", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
       },
     ];

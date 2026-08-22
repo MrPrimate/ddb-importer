@@ -6,7 +6,7 @@ export default class PassWithoutTrace extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("10", 20, "system.skills.ste.bonuses.check"),
+          DDBEnricherData.ChangeHelper.signedAddChange("10", 20, "system.skills.ste.roll.bonus"),
         ],
         daeStackable: "noneNameOnly",
         data: {

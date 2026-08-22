@@ -82,8 +82,8 @@ export default class FountOfMoonlight extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.rolls.damage.msak.bonus"),
           DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "token.light.dim"),
           DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "token.light.bright"),
           DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "token.light.color"),

@@ -36,7 +36,7 @@ export default class ManeuverFalconsGlide extends DDBEnricherData {
           expiry: "turnEnd",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),
         ],
       },
     ];

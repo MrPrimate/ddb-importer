@@ -162,14 +162,12 @@ export default class ChangeHelper {
     };
   }
 
-  // dnd5e 6.0 AC helpers. The system evaluates every applicable calc/formula
-  // and takes the max, so effects ADD entries rather than overriding a single
-  // winner. `ac.calcs` is a SetField (add appends, "-key" removes); a string
-  // added to `ac.formulas` is coerced to {formula, label: effect.name}.
+  /** Add a named calc (`CONFIG.DND5E.armorClasses` key) to `ac.calcs`; the system takes the max of all applicable calcs. */
   static acCalcsAddChange(calc: string, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.addChange(calc, priority, "system.attributes.ac.calcs");
   }
 
+  /** Add an AC formula; the system coerces the string to `{formula, label: effect.name}` and takes the max. */
   static acFormulaAddChange(formula: string, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.addChange(formula, priority, "system.attributes.ac.formulas");
   }
@@ -177,6 +175,26 @@ export default class ChangeHelper {
   /** Hard override of the final AC value — bypasses shield/bonus/cover stacking, so prefer calcs/formulas. */
   static acOverrideChange(value: string | number, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.overrideChange(value, priority, "system.attributes.ac.override");
+  }
+
+  /** Flat bonus/penalty to all speeds, e.g. "10" or "-10"; applied as max(0, speed + bonus) * multiplier. */
+  static movementBonusChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(String(value), priority, "system.attributes.movement.bonus");
+  }
+
+  /** Multiply all speeds, e.g. "2", "0.5", or "0" for no movement (movement.multiplier starts at 1). */
+  static movementMultiplierChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.multiplyChange(value, priority, "system.attributes.movement.multiplier");
+  }
+
+  /** Rule-type change adding a bonus to all healing rolls; the key is the rule category, not a data path. */
+  static healingBonusChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return {
+      key: "healing",
+      value: String(value).trim().replace(/^\+\s*/, ""),
+      type: "dnd5e.bonus",
+      priority,
+    };
   }
 
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {

@@ -67,7 +67,7 @@ describe("DDBMonster._generateSkills", () => {
     generateSkills.call(mock);
 
     expect(mock.npc.system.skills.prc.value).toBe(1);
-    expect(mock.npc.system.skills.prc.bonuses.check).toBe("3");
+    expect(mock.npc.system.skills.prc.roll.bonus).toBe("3");
     expect(mock.npc.system.skills.prc.bonuses.passive).toBe("3");
   });
 
@@ -156,16 +156,16 @@ describe("DDBMonster._generateSkillsHTML", () => {
     // sheet totals equal the stat block (total = mod + prof + bonus)
     // Athletics -8: str +4, prof +3 → bonus -15
     expect(mock.npc.system.skills.ath.value).toBe(1);
-    expect(mock.npc.system.skills.ath.bonuses.check).toBe("-15");
+    expect(mock.npc.system.skills.ath.roll.bonus).toBe("-15");
     // Acrobatics -10: dex -3, prof +3 → bonus -10
     expect(mock.npc.system.skills.acr.value).toBe(1);
-    expect(mock.npc.system.skills.acr.bonuses.check).toBe("-10");
+    expect(mock.npc.system.skills.acr.roll.bonus).toBe("-10");
     // Perception +3: wis +2, prof +3 → bonus -2
     expect(mock.npc.system.skills.prc.value).toBe(1);
-    expect(mock.npc.system.skills.prc.bonuses.check).toBe("-2");
+    expect(mock.npc.system.skills.prc.roll.bonus).toBe("-2");
     // Intimidation +4: cha -1, prof +3 → bonus +2
     expect(mock.npc.system.skills.itm.value).toBe(1);
-    expect(mock.npc.system.skills.itm.bonuses.check).toBe("2");
+    expect(mock.npc.system.skills.itm.roll.bonus).toBe("2");
   });
 
   it("parses spaced positive modifiers (History + 12, Perception + 10)", () => {
@@ -186,9 +186,9 @@ describe("DDBMonster._generateSkillsHTML", () => {
     // all stats 10 (mod 0), prof +2: html 12/10 match neither prof (2) nor
     // expertise (4) → flat bonuses make totals match exactly
     expect(mock.npc.system.skills.his.value).toBe(1);
-    expect(mock.npc.system.skills.his.bonuses.check).toBe("10");
+    expect(mock.npc.system.skills.his.roll.bonus).toBe("10");
     expect(mock.npc.system.skills.prc.value).toBe(1);
-    expect(mock.npc.system.skills.prc.bonuses.check).toBe("8");
+    expect(mock.npc.system.skills.prc.roll.bonus).toBe("8");
   });
 
   it("detects expertise when the html value equals mod + double prof (Stealth +7)", () => {
@@ -215,7 +215,7 @@ describe("DDBMonster._generateSkillsHTML", () => {
     expect(errorSpy).not.toHaveBeenCalled();
     // dex +3, prof +2 → expertise total 7 matches html exactly
     expect(mock.npc.system.skills.ste.value).toBe(2);
-    expect(mock.npc.system.skills.ste.bonuses.check).toBe("");
+    expect(mock.npc.system.skills.ste.roll.bonus).toBe("");
   });
 
   it("html value matching mod + prof stays single proficiency with no bonus", () => {
@@ -234,7 +234,7 @@ describe("DDBMonster._generateSkillsHTML", () => {
     expect(errorSpy).not.toHaveBeenCalled();
     // wis +0, prof +2 → html +2 matches proficient calculation exactly
     expect(mock.npc.system.skills.prc.value).toBe(1);
-    expect(mock.npc.system.skills.prc.bonuses.check).toBe("");
+    expect(mock.npc.system.skills.prc.roll.bonus).toBe("");
   });
 
   it("html value between proficiency and expertise adds a flat bonus", () => {
@@ -262,6 +262,6 @@ describe("DDBMonster._generateSkillsHTML", () => {
     // wis +2, prof +2 → proficient 4, expertise 6; html +5 sits between →
     // stays proficient with a +1 flat bonus so the total is exactly 5
     expect(mock.npc.system.skills.prc.value).toBe(1);
-    expect(mock.npc.system.skills.prc.bonuses.check).toBe("1");
+    expect(mock.npc.system.skills.prc.roll.bonus).toBe("1");
   });
 });

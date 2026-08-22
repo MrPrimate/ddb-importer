@@ -38,7 +38,7 @@ export default class RiteFocusTheFathomless extends _RiteFocus {
           description: "Your speed is reduced by 10 feet until the start of the blood hunter's next turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.subtractChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
         daeSpecialDurations: ["turnStartSource"],
       },

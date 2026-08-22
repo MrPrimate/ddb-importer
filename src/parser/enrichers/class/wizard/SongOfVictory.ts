@@ -25,7 +25,7 @@ export default class SongOfVictory extends DDBEnricherData {
             durationSeconds: 60,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.bonuses.mwak.damage"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.rolls.damage.mwak.bonus"),
           ],
           data: {
             flags: {

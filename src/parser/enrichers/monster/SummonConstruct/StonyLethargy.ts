@@ -12,7 +12,7 @@ export default class StonyLethargy extends DDBEnricherData {
           description: "Unable to make opportunity attacks",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
       },
     ];

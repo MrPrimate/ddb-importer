@@ -35,7 +35,7 @@ export default class Guidance extends DDBEnricherData {
         noCreate: true,
         midiNever: true,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.abilities.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.ability.check.bonus"),
         ],
       },
       {
@@ -66,7 +66,7 @@ export default class Guidance extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("1d4", 100, `system.skills.${skill.name}.bonuses.check`),
+          DDBEnricherData.ChangeHelper.addChange("1d4", 100, `system.skills.${skill.name}.roll.bonus`),
         ],
         daeSpecialDurations: [`isSkill.${skill.name}` as TDAESpecialDuration],
       };

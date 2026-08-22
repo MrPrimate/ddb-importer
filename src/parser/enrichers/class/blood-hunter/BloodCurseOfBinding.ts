@@ -58,7 +58,7 @@ export default class BloodCurseOfBinding extends _BloodCurse {
         },
         daeSpecialDurations: ["turnEndSource"],
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
       },
       {
@@ -70,7 +70,7 @@ export default class BloodCurseOfBinding extends _BloodCurse {
           description: "Your speed is 0 and you can't use reactions. You can repeat the saving throw at the end of each of your turns, ending the curse on a success.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(

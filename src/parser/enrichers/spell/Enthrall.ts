@@ -12,7 +12,7 @@ export default class Enthrall extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.addChange(
             "-10",
             20,
-            "system.skills.prc.bonuses.check",
+            "system.skills.prc.roll.bonus",
           ),
         ],
       },

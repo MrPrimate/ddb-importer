@@ -39,7 +39,8 @@ DDBMonster.prototype._generateMovement = function (this: DDBMonster) {
       logger.warn(`_generateMovement: unknown movement id ${monsterMovement.movementId} for ${this.source.name}`);
     }
     const movementName: I5eMovementType = movement?.name.toLowerCase() as I5eMovementType ?? "walk";
-    npcMovement[movementName] = String(monsterMovement.speed);
+    npcMovement.speeds ??= {};
+    npcMovement.speeds[movementName] = String(monsterMovement.speed);
 
     if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes("hover")) {
       npcMovement.hover = true;

@@ -7,7 +7,7 @@ export default class DurableMagic extends DDBEnricherData {
       {
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.rolls.ability.save.bonus"),
         ],
         options: {
           description: "Whilst concentrating on a spell.",

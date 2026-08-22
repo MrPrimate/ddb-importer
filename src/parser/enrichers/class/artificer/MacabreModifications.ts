@@ -161,8 +161,8 @@ export default class MacabreModifications extends DDBEnricherData {
       {
         name: "Macabre Modification: Gaunt",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("45", 20, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
+          DDBEnricherData.ChangeHelper.upgradeChange("45", 20, "system.attributes.movement.speeds.walk"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.climb"),
         ],
         activityMatch: "Macabre Modification: Gaunt",
         data: {
@@ -175,7 +175,7 @@ export default class MacabreModifications extends DDBEnricherData {
       {
         name: "Macabre Modification: Moist",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
         ],
         activityMatch: "Macabre Modification: Moist",
       },

@@ -84,7 +84,7 @@ export default class NobleScion extends DDBEnricherData {
         durationSeconds: 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.speeds.fly"),
         DDBEnricherData.ChangeHelper.upgradeChange("true", 2, "system.attributes.movement.hover"),
       ],
     }];

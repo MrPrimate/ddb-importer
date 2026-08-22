@@ -227,8 +227,8 @@ describe("DDBCharacter._generateSkills (synthetic)", () => {
     expect(skills.acr).toEqual({
       value: 0,
       ability: "dex",
-      bonuses: { check: "", passive: "" },
-      roll: { min: null, max: null, mode: 0 },
+      bonuses: { passive: "" },
+      roll: { bonus: "", min: null, max: null, mode: 0 },
     });
     expect(Object.keys(skills)).toHaveLength(18);
     // without dae active the skill-customization flag skeleton is created
@@ -249,7 +249,8 @@ describe("DDBCharacter._generateSkills (synthetic)", () => {
       },
     });
     await mock._generateSkills();
-    expect(mock.raw.character.system.skills.prc.bonuses).toEqual({ check: "", passive: "" });
+    expect(mock.raw.character.system.skills.prc.bonuses).toEqual({ passive: "" });
+    expect(mock.raw.character.system.skills.prc.roll.bonus).toBe("");
   });
 
   it("bakes custom characterValues bonuses into the check bonus", async () => {
@@ -258,7 +259,7 @@ describe("DDBCharacter._generateSkills (synthetic)", () => {
       characterValues: [{ typeId: 24, valueId: 6, value: 2 }],
     });
     await mock._generateSkills();
-    expect(mock.raw.character.system.skills.arc.bonuses.check).toBe("2");
+    expect(mock.raw.character.system.skills.arc.roll.bonus).toBe("2");
   });
 
   it("lets a custom proficiency override modifiers in both directions", async () => {

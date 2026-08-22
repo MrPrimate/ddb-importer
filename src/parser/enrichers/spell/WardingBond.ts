@@ -39,7 +39,7 @@ export default class WardingBond extends DDBEnricherData {
       changes: [
         ...damageChanges,
         DDBEnricherData.ChangeHelper.signedAddChange("1", 20, "system.attributes.ac.bonus"),
-        DDBEnricherData.ChangeHelper.signedAddChange("1", 20, "system.bonuses.abilities.save"),
+        DDBEnricherData.ChangeHelper.signedAddChange("1", 20, "system.rolls.ability.save.bonus"),
       ],
     }];
   }

@@ -25,11 +25,11 @@ export default class MisfortunesCurseOfTheUnlucky extends DDBEnricherData {
           description: "Subtract 1d4 from this creature's attack rolls and saving throws while it remains cursed by the rogue's Evil Eye.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.mwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rsak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.rolls.attack.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.rolls.attack.rwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.rolls.attack.msak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.rolls.attack.rsak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.rolls.ability.save.bonus"),
         ],
       },
     ];

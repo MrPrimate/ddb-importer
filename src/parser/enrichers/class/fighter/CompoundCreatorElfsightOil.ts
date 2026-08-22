@@ -15,7 +15,7 @@ export default class CompoundCreatorElfsightOil extends DDBEnricherData {
           durationSeconds: 28800,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.darkvision"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 120, 5),

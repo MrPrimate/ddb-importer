@@ -2874,7 +2874,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const saveDCOverride = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") as number ?? null;
     if (Number.isInteger(parseInt(String(saveDCOverride)))) {
-      challenge.save = parseInt(String(saveDCOverride));
+      challenge.save = String(parseInt(String(saveDCOverride)));
       challenge.override = true;
     }
 

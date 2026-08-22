@@ -42,7 +42,7 @@ export default class EclipseOfIllOmen extends DDBEnricherData {
           description: "Speed halved and can't regain hit points until the eclipse ends.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0.5", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 50),
         ],
       },
     ];

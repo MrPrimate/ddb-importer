@@ -25,7 +25,7 @@ export default class GreaterDisciplineCelerity extends DDBEnricherData {
         daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("3", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.ChangeHelper.multiplyChange("2", 30, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("2", 30),
         ],
       },
     ];

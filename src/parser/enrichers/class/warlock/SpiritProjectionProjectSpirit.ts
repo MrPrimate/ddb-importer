@@ -12,7 +12,7 @@ export default class SpiritProjectionProjectSpirit extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
-        DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
         DDBEnricherData.ChangeHelper.upgradeChange("true", 20, "system.attributes.movement.hover"),
       ],
     }];

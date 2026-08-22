@@ -38,7 +38,7 @@ export default class VexingDistraction extends DDBEnricherData {
           description: "Speed reduced to 0 until the end of the warlock's next turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],
         daeSpecialDurations: ["turnEndSource"],
       },

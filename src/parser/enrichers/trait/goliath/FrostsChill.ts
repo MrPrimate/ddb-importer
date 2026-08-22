@@ -28,7 +28,7 @@ export default class FrostsChill extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
       },
     ];

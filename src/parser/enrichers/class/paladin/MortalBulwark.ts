@@ -69,7 +69,7 @@ export default class MortalBulwark extends DDBEnricherData {
     return [{
       name: "Mortal Bulwark",
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.truesight"),
+        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.truesight"),
       ],
       atlChanges: [
         DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),

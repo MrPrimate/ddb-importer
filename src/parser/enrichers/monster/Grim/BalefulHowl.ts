@@ -21,7 +21,7 @@ export default class BalefulHowl extends DDBEnricherData {
       {
         name: "Frozen",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 100, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
       },
     ];

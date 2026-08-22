@@ -57,11 +57,11 @@ export default class BolsteringMagic extends Generic {
           name: "Bolstering Magic",
           activityMatch: "Bolstering Magic",
           changes: [
-            Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.abilities.check"),
-            Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.msak.attack"),
-            Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.mwak.attack"),
-            Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.rsak.attack"),
-            Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.rwak.attack"),
+            Generic.ChangeHelper.addChange("1d3", 20, "system.rolls.ability.check.bonus"),
+            Generic.ChangeHelper.addChange("1d3", 20, "system.rolls.attack.msak.bonus"),
+            Generic.ChangeHelper.addChange("1d3", 20, "system.rolls.attack.mwak.bonus"),
+            Generic.ChangeHelper.addChange("1d3", 20, "system.rolls.attack.rsak.bonus"),
+            Generic.ChangeHelper.addChange("1d3", 20, "system.rolls.attack.rwak.bonus"),
           ],
           options: {
             durationSeconds: 600,

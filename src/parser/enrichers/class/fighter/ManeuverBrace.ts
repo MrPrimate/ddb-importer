@@ -46,7 +46,7 @@ export default class ManeuverBrace extends Maneuver {
           },
         },
         midiChanges: [
-          Maneuver.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          Maneuver.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.rolls.damage.mwak.bonus"),
         ],
       },
     ];

@@ -23,8 +23,8 @@ export default class ShapeShift extends DDBEnricherData {
         },
         name: "Rat Form",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.walk"),
+          DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.speeds.fly"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/mammals/rodent-rat-green.webp", 5, "ATL.texture.src"),
@@ -39,8 +39,8 @@ export default class ShapeShift extends DDBEnricherData {
         },
         name: "Raven Form",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.overrideChange("60", 5, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.walk"),
+          DDBEnricherData.ChangeHelper.overrideChange("60", 5, "system.attributes.movement.speeds.fly"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/birds/raptor-hawk-flying.webp", 5, "ATL.texture.src"),
@@ -55,9 +55,9 @@ export default class ShapeShift extends DDBEnricherData {
         },
         name: "Spider Form",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.climb"),
-          DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.walk"),
+          DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.climb"),
+          DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.speeds.fly"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/invertebrates/spider-dotted-green.webp", 5, "ATL.texture.src"),

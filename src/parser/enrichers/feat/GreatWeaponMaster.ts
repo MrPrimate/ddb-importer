@@ -53,8 +53,8 @@ export default class GreatWeaponMaster extends DDBEnricherData {
             showIcon: 2,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 20, "system.bonuses.mwak.attack"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 20, "system.bonuses.mwak.damage"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 20, "system.rolls.attack.mwak.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 20, "system.rolls.damage.mwak.bonus"),
           ],
         },
       ];

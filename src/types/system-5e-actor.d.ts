@@ -856,8 +856,6 @@ global {
     dnd5eName: string;
   }
 
-  // IDDBPCAutoAC removed with the 6.0 AC rework: the acEffects/autoAC/overrideAC
-  // flags were write-only and are no longer generated (baseAC survives).
 
   interface IDDBImporterFlagsPrice {
     xgte?: boolean;

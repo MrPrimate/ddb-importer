@@ -400,7 +400,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             transfer: false,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.walk"),
+            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.speeds.walk"),
           ],
           data: {
             "_id": utils.namedIDStub(name, {
@@ -459,11 +459,11 @@ export default class ExperimentalElixir extends DDBEnricherData {
             durationSeconds: data.duration,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.bonuses.abilities.save"),
-            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.bonuses.msak.attack"),
-            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.bonuses.mwak.attack"),
-            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.bonuses.rsak.attack"),
-            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.bonuses.rwak.attack"),
+            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.rolls.ability.save.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.rolls.attack.msak.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.rolls.attack.mwak.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.rolls.attack.rsak.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("1d4", 20, "system.rolls.attack.rwak.bonus"),
           ],
           data: {
             "_id": utils.namedIDStub(name, {
@@ -491,7 +491,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             transfer: false,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.addChange(data.bonus ?? "", 20, "system.attributes.movement.speeds.fly"),
           ],
           data: {
             "_id": utils.namedIDStub(name, {

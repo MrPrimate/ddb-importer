@@ -28,7 +28,7 @@ export default class MisfortunesCurseOfTheClumsy extends DDBEnricherData {
           description: "Prone with Speed 0 until the end of its turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 90),
         ],
         daeSpecialDurations: ["turnEnd"],
       },

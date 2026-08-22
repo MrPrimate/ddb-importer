@@ -539,21 +539,21 @@ export default class DDBVehicle {
         const type: I5eMovementType = DDBVehicle.MOVEMENT_DICT[speedType] as I5eMovementType;
         if (!type || speedsChecked.has(type)) continue;
         speedsChecked.add(type);
-        movement[type] = String(mode.value);
+        (movement.speeds ??= {})[type] = String(mode.value);
       } else if (movementModes) {
         for (const m of comp.definition.speeds[0].modes) {
           // a null movementId never matches a MOVEMENT_ID key, mirror that with an impossible index
           const modeMovementType: I5eMovementType = MOVEMENT_ID[m.movementId ?? -1] as I5eMovementType;
           if (!modeMovementType || speedsChecked.has(modeMovementType)) continue;
           speedsChecked.add(modeMovementType);
-          if (modeMovementType) movement[modeMovementType] = String(m.value);
+          if (modeMovementType) (movement.speeds ??= {})[modeMovementType] = String(m.value);
         }
       } else if (mode.restrictionsText) {
         if (speedsChecked.has("fly")) continue;
         const restrictionRegex = /Fly Speed (\d+) ft/i;
         const restrictionMatch = mode.restrictionsText.match(restrictionRegex);
         if (restrictionMatch) {
-          movement["fly"] = restrictionMatch[1];
+          (movement.speeds ??= {})["fly"] = restrictionMatch[1];
           speedsChecked.add("fly");
         }
       }
@@ -586,8 +586,6 @@ export default class DDBVehicle {
 
   #generateAC() {
     // if we are using actor level AC apply
-    // dnd5e 6.0: vehicles keep a persisted calc (initial "flat") and derive
-    // ac.motionless themselves (value - dex mod), so only flat is written now
     if (this.configurations.PCMT === "vehicle" && this.primaryComponent) {
       if (this.configurations.DT === "spelljammer") {
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass;

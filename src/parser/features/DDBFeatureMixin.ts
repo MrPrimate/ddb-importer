@@ -973,9 +973,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       const mods = DDBModifiers.getModifiers(this.ddbData, "race", true, false)
         .filter((mod) =>
           ["sense", "set-base"].includes(mod.type)
-          && this.ddbData.character.choices.choiceDefinitions.some((def) =>
-            def.options.some((opt) => opt.id === mod.componentId),
-          )
+          && DDBModifiers.isChoiceOptionModifier(this.ddbData, mod)
           && this._filterModForChoice(mod, choice, type),
         );
       modifierItem.definition.grantedModifiers.push(...mods);

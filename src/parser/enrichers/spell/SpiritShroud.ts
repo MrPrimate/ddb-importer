@@ -51,10 +51,9 @@ export default class SpiritShroud extends DDBEnricherData {
         midiNever: true,
         aurasNever: true,
         changes: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.movementBonusChange(
             "-10",
             20,
-            "system.attributes.movement.all",
           ),
         ],
         options: {
@@ -69,10 +68,9 @@ export default class SpiritShroud extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange(
+          DDBEnricherData.ChangeHelper.movementBonusChange(
             "-10",
             20,
-            "system.attributes.movement.all",
           ),
         ],
         data: {

@@ -8,17 +8,17 @@ const generateLimbEffect = (roll, targetActor) => {
     const name = 'Severed Leg';
     if (getEffects(name, targetActor) >= 2) return;
     ChatMessage.create({ content: `${targetActor.name}'s has severed a leg` });
-    return { name, stackable: 'count', changes: [{ key: 'system.attributes.movement.walk', mode: 2, value: -5 }], statuses: [] };
+    return { name, stackable: 'count', changes: [{ key: 'system.attributes.movement.speeds.walk', type: 'add', value: -5 }], statuses: [] };
   } else if (roll.rolls[0].total < 17) {
     const name = 'Severed Arm';
     if (getEffects(name, targetActor) >= 2) return;
     ChatMessage.create({ content: `${targetActor.name}'s has severed an arm` });
-    return { name, stackable: 'count', changes: [{ key: 'flags.midi-qol.disadvantage.attack.all', mode: 0, value: 1 }], statuses: [] };
+    return { name, stackable: 'count', changes: [{ key: 'flags.midi-qol.disadvantage.attack.all', type: 'custom', value: 1 }], statuses: [] };
   } else {
     const name = 'Decapitated';
     if (getEffects(name, targetActor) >= 1) return;
     ChatMessage.create({ content: `${targetActor.name}'s has been decapitated` });
-    return { name, stackable: 'noneName', changes: [change], statuses: ["blinded"] };
+    return { name, stackable: 'noneName', changes: [], statuses: ["blinded"] };
   }
 };
 
@@ -34,7 +34,7 @@ if (['slashing', 'bludgeoning'].some((dt) => {
 
   const effectData = {
     name: stacked.name,
-    changes: stacked.changes,
+    system: { changes: stacked.changes },
     img: item.img,
     flags: { dae: { stackable: stacked.stackable } },
     statuses: [stacked.name, ...stacked.statuses],

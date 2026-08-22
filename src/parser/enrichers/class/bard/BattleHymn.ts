@@ -17,8 +17,8 @@ export default class BattleHymn extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnStartSource"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.abilities.check"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.ability.check.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.ability.save.bonus"),
         ],
       },
     ];

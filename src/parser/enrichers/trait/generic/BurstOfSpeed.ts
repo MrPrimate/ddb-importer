@@ -23,7 +23,7 @@ export default class BurstOfSpeed extends DDBEnricherData {
           description: "Your Speed increases by 30 feet until the end of the turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("30", 30, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("30", 30),
         ],
       },
     ];

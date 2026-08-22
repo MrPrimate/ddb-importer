@@ -38,9 +38,9 @@ export default class DeftExplorer extends DDBEnricherData {
       {
         name: "Roving",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("5", 10, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.addChange("5", 10, "system.attributes.movement.speeds.walk"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.climb"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
         ],
         options: {
           transfer: true,

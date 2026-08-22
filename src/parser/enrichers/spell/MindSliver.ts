@@ -6,7 +6,7 @@ export default class MindSliver extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("-1d4", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.addChange("-1d4", 20, "system.rolls.ability.save.bonus"),
         ],
         daeSpecialDurations: ["isSave" as const],
       },

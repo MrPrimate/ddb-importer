@@ -31,7 +31,7 @@ export default class TotemicAttunementEagle extends DDBEnricherData {
         },
         activityMatch: "Activate",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
         ],
       },
     ];

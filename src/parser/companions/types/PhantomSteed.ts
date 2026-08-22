@@ -52,7 +52,7 @@ export async function getPhantomSteed({
 
     stub.system.attributes = {
       movement: {
-        walk: "100",
+        speeds: { walk: "100" },
       },
       hp: {
         value: 1,

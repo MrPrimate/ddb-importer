@@ -37,7 +37,7 @@ export default class RiteFocusTheGenie extends _RiteFocus {
           description: "You have a flying speed of 30 feet, for a number of rounds equal to your Hemocraft modifier (minimum of 1 round).",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),
         ],
       },
     ];

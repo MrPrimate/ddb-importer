@@ -42,8 +42,8 @@ export default class MantleOfTheWolf extends DDBEnricherData {
           description: "You add your Wisdom modifier to Strength (Athletics) checks and Strength saving throws, and can replace one melee attack with a spectral bite attack.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("max(1, @abilities.wis.mod)", 20, "system.abilities.str.bonuses.save"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("max(1, @abilities.wis.mod)", 20, "system.skills.ath.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("max(1, @abilities.wis.mod)", 20, "system.abilities.str.save.roll.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("max(1, @abilities.wis.mod)", 20, "system.skills.ath.roll.bonus"),
         ],
       },
     ];

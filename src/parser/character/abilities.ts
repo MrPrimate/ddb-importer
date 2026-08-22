@@ -238,10 +238,8 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
   }
   DICTIONARY.actor.abilities.forEach((ability) => {
     const entry = {
-      bonuses: {
-        check: "",
-        save: "",
-      },
+      check: { roll: { bonus: "" } },
+      save: { roll: { bonus: "" } },
     };
     result[ability.value] = entry;
 
@@ -249,7 +247,7 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
       .filterBaseModifiers(ddb, "bonus", { subType: `${ability.long}-ability-checks`, includeExcludedEffects });
     const checkBonus = DDBModifiers.getModifierSum(checkBonusModifiers, this.raw.character);
     if (checkBonus && checkBonus !== "") {
-      (result as Record<string, any>)[ability.value].bonuses.check = `+ ${checkBonus}`;
+      entry.check.roll.bonus = `+ ${checkBonus}`;
     }
 
     const saveBonusModifiers = DDBModifiers
@@ -261,18 +259,18 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, incl
       if (customSaveBonus) {
         const totalSave = customSaveBonus + parseInt(modifiersSaveBonus);
         // console.warn("totalSave", totalSave);
-        entry.bonuses.save = `+ ${totalSave}`;
+        entry.save.roll.bonus = `+ ${totalSave}`;
       } else {
-        entry.bonuses.save = `+ ${modifiersSaveBonus}`;
+        entry.save.roll.bonus = `+ ${modifiersSaveBonus}`;
       }
     } else if (modifiersSaveBonus && modifiersSaveBonus !== "") {
       if (customSaveBonus) {
-        entry.bonuses.save = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
+        entry.save.roll.bonus = `+ ${modifiersSaveBonus} + ${customSaveBonus}`;
       } else {
-        entry.bonuses.save = `+ ${modifiersSaveBonus}`;
+        entry.save.roll.bonus = `+ ${modifiersSaveBonus}`;
       }
     } else if (customSaveBonus) {
-      entry.bonuses.save = `+ ${customSaveBonus}`;
+      entry.save.roll.bonus = `+ ${customSaveBonus}`;
     }
   });
 

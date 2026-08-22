@@ -11,7 +11,7 @@ export default class SlowingBreath extends DDBEnricherData {
           description: "Speed halved and unable to use reactions. The target repeats the save at the end of each of its turns, ending the effect on a success.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
         midiChanges: this.is2014
           ? []

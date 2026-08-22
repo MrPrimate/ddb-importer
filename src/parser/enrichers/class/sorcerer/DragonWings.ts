@@ -78,7 +78,7 @@ export default class DragonWings extends DDBEnricherData {
         durationSeconds: 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.speeds.fly"),
       ],
     }];
   }

@@ -49,7 +49,7 @@ export default class Rage extends DDBEnricherData {
         durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.barbarian.rage-damage", 20, "system.rolls.damage.mwak.bonus"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),

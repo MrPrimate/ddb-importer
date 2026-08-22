@@ -15,7 +15,7 @@ export default class FormulaReconstruction extends _Mutagen {
       this.mutagenEffect({
         durationSeconds: 3600,
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(

@@ -13,7 +13,7 @@ export default class Haste extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.ChangeHelper.customChange("*2", 30, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("2", 30),
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("dex"),
         ],
         // 2024 has wording that picks up special expiry incorrectly

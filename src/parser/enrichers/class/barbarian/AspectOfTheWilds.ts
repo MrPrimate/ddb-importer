@@ -76,7 +76,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
         },
         activityMatch: "Panther",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.climb"),
         ],
       },
       {
@@ -85,7 +85,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
         },
         activityMatch: "Salmon",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
         ],
       },
     ];

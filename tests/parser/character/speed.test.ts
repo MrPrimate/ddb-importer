@@ -29,7 +29,8 @@ function movement(mock: any) {
 describe("DDBCharacter._generateSpeed (synthetic)", () => {
   it("uses the race walking speed, leaving zero speeds blank", () => {
     expect(movement(speedMock({}))).toEqual({
-      burrow: "", climb: "", fly: "", swim: "", walk: "30", units: "ft", hover: false,
+      speeds: { burrow: "", climb: "", fly: "", swim: "", walk: "30" },
+      units: "ft", hover: false,
     });
   });
 
@@ -40,7 +41,7 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
         class: [], background: [], item: [], feat: [], condition: [],
       },
     });
-    expect(movement(mock).fly).toBe("50");
+    expect(movement(mock).speeds.fly).toBe("50");
   });
 
   it("does not raise an existing speed with a lower innate set", () => {
@@ -51,7 +52,7 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
         class: [], background: [], item: [], feat: [], condition: [],
       },
     });
-    expect(movement(mock).climb).toBe("40");
+    expect(movement(mock).speeds.climb).toBe("40");
   });
 
   it("sets a speed equal to walking for the id-182 equal-to-walking modifier", () => {
@@ -65,7 +66,7 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
         class: [], background: [], item: [], feat: [], condition: [],
       },
     });
-    expect(movement(mock).swim).toBe("30");
+    expect(movement(mock).speeds.swim).toBe("30");
   });
 
   it("applies a flat speed bonus to every non-zero movement type", () => {
@@ -80,9 +81,9 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
       },
     });
     const result = movement(mock);
-    expect(result.walk).toBe("30");
-    expect(result.climb).toBe("30");
-    expect(result.fly).toBe("");
+    expect(result.speeds.walk).toBe("30");
+    expect(result.speeds.climb).toBe("30");
+    expect(result.speeds.fly).toBe("");
   });
 
   it("applies a typed speed bonus only to that movement type", () => {
@@ -96,8 +97,8 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
       },
     });
     const result = movement(mock);
-    expect(result.swim).toBe("40");
-    expect(result.walk).toBe("30");
+    expect(result.speeds.swim).toBe("40");
+    expect(result.speeds.walk).toBe("30");
   });
 
   it("lets a custom speed override the computed value", () => {
@@ -105,7 +106,7 @@ describe("DDBCharacter._generateSpeed (synthetic)", () => {
     const mock = speedMock({
       customSpeeds: [{ movementId: 1, distance: 60 }],
     });
-    expect(movement(mock).walk).toBe("60");
+    expect(movement(mock).speeds.walk).toBe("60");
   });
 });
 
@@ -114,17 +115,17 @@ describe.skipIf(!auditFixturesPresent())("DDBCharacter._generateSpeed (audit fix
     const mock = await loadFixtureCharacter("species", "-Grung-", { generateAbilities: false });
     mock._generateSpeed();
     const result = mock.raw.character.system.attributes.movement;
-    expect(result.walk).toBe("25");
-    expect(result.climb).toBe("25");
-    expect(result.fly).toBe("");
+    expect(result.speeds.walk).toBe("25");
+    expect(result.speeds.climb).toBe("25");
+    expect(result.speeds.fly).toBe("");
   });
 
   it("parses Aarakocra innate flying speed from a real capture", async () => {
     const mock = await loadFixtureCharacter("species", "-Aarakocra-", { generateAbilities: false });
     mock._generateSpeed();
     const result = mock.raw.character.system.attributes.movement;
-    expect(result.walk).toBe("30");
-    expect(result.fly).toBe("30");
+    expect(result.speeds.walk).toBe("30");
+    expect(result.speeds.fly).toBe("30");
   });
 
   it("does not bake excluded-effect class speed bonuses into base movement", async () => {
@@ -133,10 +134,10 @@ describe.skipIf(!auditFixturesPresent())("DDBCharacter._generateSpeed (audit fix
     // walk speed must stay at the racial value
     const monk = await loadFixtureCharacter("classes/monk", "Sheep-Dragon-Shepherd", { generateAbilities: false });
     monk._generateSpeed();
-    expect(monk.raw.character.system.attributes.movement.walk).toBe("30");
+    expect(monk.raw.character.system.attributes.movement.speeds.walk).toBe("30");
 
     const barbarian = await loadFixtureCharacter("classes/barbarian", "Path-of-Wild-Magic", { generateAbilities: false });
     barbarian._generateSpeed();
-    expect(barbarian.raw.character.system.attributes.movement.walk).toBe("30");
+    expect(barbarian.raw.character.system.attributes.movement.speeds.walk).toBe("30");
   });
 });

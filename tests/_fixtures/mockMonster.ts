@@ -14,12 +14,12 @@ export interface MockMonsterOverrides {
 /** Minimal ability block for npc.system.abilities */
 function defaultAbilities() {
   return {
-    str: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
-    dex: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
-    con: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
-    int: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
-    wis: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
-    cha: { value: 10, proficient: 0, prof: 0, dc: 0, bonuses: { check: "", save: "" }, mod: 0 },
+    str: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
+    dex: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
+    con: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
+    int: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
+    wis: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
+    cha: { value: 10, proficient: 0, prof: 0, dc: 0, check: { roll: { bonus: "" } }, save: { roll: { bonus: "" } }, mod: 0 },
   };
 }
 
@@ -38,7 +38,7 @@ function defaultSkills() {
     { name: "ste", ability: "dex" }, { name: "sur", ability: "wis" },
   ];
   for (const s of skillDefs) {
-    skills[s.name] = { value: 0, ability: s.ability, bonuses: { check: "", passive: "" } };
+    skills[s.name] = { value: 0, ability: s.ability, bonuses: { passive: "" }, roll: { bonus: "" } };
   }
   return skills;
 }
@@ -107,8 +107,8 @@ export function makeMockMonster(overrides: MockMonsterOverrides = {}): any {
         attributes: {
           hp: {},
           ac: {},
-          init: { bonus: "" },
-          movement: { walk: 0, fly: 0, swim: 0, burrow: 0, climb: 0, hover: false, units: "ft" },
+          init: { roll: { bonus: "" } },
+          movement: { speeds: { walk: 0, fly: 0, swim: 0, burrow: 0, climb: 0 }, hover: false, units: "ft" },
           senses: {},
           spell: { level: 0 },
           spellcasting: "",

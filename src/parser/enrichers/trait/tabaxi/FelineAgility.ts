@@ -23,7 +23,7 @@ export default class FelineAgility extends DDBEnricherData {
           description: "Your Speed is doubled until the end of the turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("2", 30, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("2", 30),
         ],
       },
     ];

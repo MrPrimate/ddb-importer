@@ -23,9 +23,9 @@ export default class DarkAugmentation extends _BloodHunter {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("5", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("5", 20, "system.attributes.movement.speeds.walk"),
           ...DarkAugmentation.SAVE_ABILITIES.map((ability) =>
-            DDBEnricherData.ChangeHelper.unsignedAddChange(saveBonus, 20, `system.abilities.${ability}.bonuses.save`),
+            DDBEnricherData.ChangeHelper.unsignedAddChange(saveBonus, 20, `system.abilities.${ability}.save.roll.bonus`),
           ),
         ],
       },

@@ -30,7 +30,7 @@ export default class TotemSpiritElk extends DDBEnricherData {
         },
         activityMatch: "Activate",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("15", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("15", 20, "system.attributes.movement.speeds.walk"),
         ],
       },
     ];

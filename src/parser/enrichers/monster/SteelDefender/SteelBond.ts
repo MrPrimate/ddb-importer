@@ -12,8 +12,8 @@ export default class SteelBond extends DDBEnricherData {
   //       },
   //       changes: DICTIONARY.actor.abilities.map((a) => {
   //         return [
-  //           DDBEnricherData.ChangeHelper.addChange("@prof", 10, `system.abilities.${a.value}.bonuses.save`),
-  //           DDBEnricherData.ChangeHelper.addChange("@prof", 10, `system.abilities.${a.value}.bonuses.check`),
+  //           DDBEnricherData.ChangeHelper.addChange("@prof", 10, `system.abilities.${a.value}.save.roll.bonus`),
+  //           DDBEnricherData.ChangeHelper.addChange("@prof", 10, `system.abilities.${a.value}.check.roll.bonus`),
   //         ];
   //       }).flat(),
   //     },

@@ -15,15 +15,12 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   }
 
   const originalAc = parseInt(String(this.source.armorClass));
-  // dnd5e 6.0 shape: the system evaluates calcs/formulas against equipped items
-  // and takes the max; `ac.label` is derived now and no longer written.
   const ac: I5eArmorClass = {
     calcs: [],
     formulas: [],
     flat: originalAc,
     override: null,
   };
-  // tracks the prose-derived natural-armor state that used to live in ac.calc
   let natural = false;
 
   let flatAC = true;
@@ -226,7 +223,6 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     natural = true;
     flatAC = false;
   } else if (this.useItemAC && !natural && !badACMonster) {
-    // items drive the AC: the system computes from the equipped armor
     ac.flat = null;
     useDefaultCalcs = true;
     flatAC = false;
@@ -236,9 +232,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     flatAC = false;
   }
 
-  // emit the dnd5e 6.0 calcs. Natural uses flat (base = flat, shield/bonus/cover
-  // still stack); the residual flatAC case (badACMonster with matched items -
-  // DDB's number cannot be reconciled) hard-overrides so nothing stacks on top.
+  // badACMonster with matched items: DDB's total cannot be reconciled with the
+  // item ACs, so hard-override rather than letting shield/bonus stack on top
   if (natural) {
     ac.calcs = ["natural"];
   } else if (useDefaultCalcs) {

@@ -25,10 +25,10 @@ export default class NimbusOfPathos extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("4", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.bonuses.rwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.bonuses.msak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.bonuses.rsak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.rolls.damage.rwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.rolls.damage.msak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[radiant]", 20, "system.rolls.damage.rsak.bonus"),
           DDBEnricherData.ChangeHelper.overrideChange("18", 20, "flags.dnd5e.weaponCriticalThreshold"),
         ],
         midiChanges: [

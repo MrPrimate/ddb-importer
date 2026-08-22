@@ -26,18 +26,19 @@ export function SUMMONS_ACTOR_STUB(): I5eMonsterData {
       },
       "attributes": {
         "movement": {
-          "burrow": null,
-          "climb": null,
-          "fly": null,
-          "swim": null,
-          "walk": null,
+          "speeds": {
+            "burrow": null,
+            "climb": null,
+            "fly": null,
+            "swim": null,
+            "walk": null,
+          },
           // dnd5e allows null here (use default units), the local movement type does not
           "units": null as unknown as string,
           "hover": true,
         },
         "ac": {
-          "flat": 1000,
-          "calc": "flat",
+          "override": 1000,
         },
         "hp": {
           "value": 1000,

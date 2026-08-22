@@ -7,7 +7,7 @@ export default class Wardaway extends DDBEnricherData {
       {
         name: "Disoriented",
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
         options: {
           description: "Target's Speed is halved until the start of your next turn, and on its next turn, it can take only an Action or a Bonus Action.",

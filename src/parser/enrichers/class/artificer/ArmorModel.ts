@@ -610,7 +610,7 @@ export default class ArmorModel extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("5", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.addChange("5", 20, "system.attributes.movement.speeds.walk"),
           DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
         ],
         midiOptionalChanges: [
@@ -673,7 +673,7 @@ export default class ArmorModel extends DDBEnricherData {
           description: `You gain flight equal to twice your speed until the end of your turn`,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.walk)", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.speeds.walk)", 20, "system.attributes.movement.speeds.fly"),
         ],
         daeSpecialDurations: ["turnEndSource" as const, "turnEnd" as const],
         data: {

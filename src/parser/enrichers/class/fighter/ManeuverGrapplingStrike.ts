@@ -20,7 +20,7 @@ export default class ManeuverGrapplingStrike extends Maneuver {
           },
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ath.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ath.roll.bonus"),
         ],
       },
     ];

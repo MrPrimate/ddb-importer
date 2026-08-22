@@ -141,7 +141,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
       {
         name: "Crown of Spellfire (Flight)",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
         ],
         data: {

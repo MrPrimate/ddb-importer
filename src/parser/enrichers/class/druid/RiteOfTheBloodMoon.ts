@@ -43,7 +43,7 @@ export default class RiteOfTheBloodMoon extends DDBEnricherData {
           description: "Speed increases by 10 feet, you can take the Dash action as a Bonus Action, and once per hit you can deal an extra 1d6 Necrotic damage with weapon or Unarmed Strike attacks.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("10", 20),
         ],
       },
     ];

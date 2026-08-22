@@ -26,7 +26,7 @@ export default class LongArmOfTheLaw extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnEnd"],
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
       },
     ];

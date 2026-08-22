@@ -9,11 +9,11 @@ export default class Bless extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
-          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
-          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
-          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.rolls.attack.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.rolls.attack.rwak.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.rolls.attack.msak.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 0, "system.rolls.attack.rsak.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1d4", 20, "system.rolls.ability.save.bonus"),
         ],
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("bloom"),

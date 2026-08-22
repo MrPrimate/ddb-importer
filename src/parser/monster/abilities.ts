@@ -32,8 +32,7 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBM
       // npcAbility["prof"] = proficiencyBonus;
       const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id)?.bonusModifier || 0;
       if (saveBonus !== 0) {
-        npcAbility.bonuses ??= {};
-        npcAbility.bonuses.save = String(saveBonus);
+        npcAbility.save = { roll: { ...(npcAbility.save?.roll ?? {}), bonus: String(saveBonus) } };
       }
     }
 
@@ -53,12 +52,13 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBM
   }
 
   if (initBonus !== null && Number.isInteger(parseInt(String(initBonus)))) {
+    const initRoll = (init.roll ??= {});
     if ((initBonus / 2) === proficiencyBonus) {
-      init.bonus = "2 * @prof";
+      initRoll.bonus = "2 * @prof";
     } else if (initBonus === proficiencyBonus) {
-      init.bonus = "@prof";
+      initRoll.bonus = "@prof";
     } else {
-      init.bonus = `${initBonus}`;
+      initRoll.bonus = `${initBonus}`;
     }
   }
 

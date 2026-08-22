@@ -17,7 +17,7 @@ export default class EntanglingVines extends DDBEnricherData {
           description: "Grasping weeds and vines hold the creature: its Speed is 0 and can't increase until the end of its next turn. The effect ends early if the creature replaces one of its attacks with freeing itself.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
       },
     ];

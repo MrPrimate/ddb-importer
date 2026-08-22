@@ -7,12 +7,12 @@ export default class EmboldeningBond extends Generic {
       ? [
         {
           changes: [
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.abilities.save"),
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.abilities.check"),
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.mwak.attack"),
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.rwak.attack"),
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.msak.attack"),
-            Generic.ChangeHelper.addChange("1d4", 2, "system.bonuses.rsak.attack"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.ability.save.bonus"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.ability.check.bonus"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.attack.mwak.bonus"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.attack.rwak.bonus"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.attack.msak.bonus"),
+            Generic.ChangeHelper.addChange("1d4", 2, "system.rolls.attack.rsak.bonus"),
           ],
         },
       ]

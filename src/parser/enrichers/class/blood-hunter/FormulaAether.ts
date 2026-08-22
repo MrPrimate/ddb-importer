@@ -9,7 +9,7 @@ export default class FormulaAether extends _Mutagen {
       this.mutagenEffect({
         durationSeconds: 3600,
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("dex"),
         ],

@@ -52,7 +52,7 @@ export default class EventHorizon extends DDBEnricherData {
           description: "Speed 0 until the start of its next turn (on a success, every foot of movement costs 2 extra feet this turn).",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],
       },
     ];

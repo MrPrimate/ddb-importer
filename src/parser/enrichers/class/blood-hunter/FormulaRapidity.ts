@@ -14,7 +14,7 @@ export default class FormulaRapidity extends _Mutagen {
       idPostfix: index,
       level: band.level,
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(band.bonus, 20, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(band.bonus, 20, "system.attributes.movement.speeds.walk"),
         DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("int"),
       ],
     }));

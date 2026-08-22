@@ -18,7 +18,7 @@ export default class Frostbite extends DDBEnricherData {
           description: "Speed reduced by 10 feet until the start of the barbarian's next turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
         daeSpecialDurations: ["turnStartSource"],
       },

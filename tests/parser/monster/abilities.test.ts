@@ -71,7 +71,7 @@ describe("DDBMonster._generateAbilities", () => {
     generateAbilities.call(mock);
 
     expect(mock.npc.system.abilities.con.proficient).toBe(1);
-    expect(mock.npc.system.abilities.con.bonuses.save).toBe("2");
+    expect(mock.npc.system.abilities.con.save.roll.bonus).toBe("2");
   });
 
   it("initiative bonus from source.initiativeBonus", () => {
@@ -92,7 +92,7 @@ describe("DDBMonster._generateAbilities", () => {
     });
     generateAbilities.call(mock);
 
-    expect(mock.npc.system.attributes.init.bonus).toBe("@prof");
+    expect(mock.npc.system.attributes.init.roll.bonus).toBe("@prof");
   });
 
   it("no initiative bonus when initiativeBonus is null", () => {
@@ -101,7 +101,7 @@ describe("DDBMonster._generateAbilities", () => {
     });
     generateAbilities.call(mock);
 
-    expect(mock.npc.system.attributes.init.bonus).toBe("");
+    expect(mock.npc.system.attributes.init.roll.bonus).toBe("");
   });
 
   it("initiative bonus from extraInitiative", () => {
@@ -115,7 +115,7 @@ describe("DDBMonster._generateAbilities", () => {
     });
     generateAbilities.call(mock);
 
-    expect(mock.npc.system.attributes.init.bonus).toBe("2 * @prof");
+    expect(mock.npc.system.attributes.init.roll.bonus).toBe("2 * @prof");
   });
 
   it("non-prof initiative bonus stored as raw number", () => {
@@ -128,7 +128,7 @@ describe("DDBMonster._generateAbilities", () => {
     });
     generateAbilities.call(mock);
 
-    expect(mock.npc.system.attributes.init.bonus).toBe("3");
+    expect(mock.npc.system.attributes.init.roll.bonus).toBe("3");
   });
 
   it("multiple saving throws all proficient", () => {

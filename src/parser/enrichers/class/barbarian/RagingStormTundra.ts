@@ -40,9 +40,7 @@ export default class RagingStormTundra extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
-          DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
       },
       {

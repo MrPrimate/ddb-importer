@@ -24,7 +24,7 @@ export default class BootsOfSpeed extends DDBEnricherData {
         data: {
           system: {
             changes: [
-              DDBEnricherData.ChangeHelper.multiplyChange(2, 20, "system.attributes.movement.walk"),
+              DDBEnricherData.ChangeHelper.multiplyChange(2, 20, "system.attributes.movement.speeds.walk"),
             ],
           },
         },

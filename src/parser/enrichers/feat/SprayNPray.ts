@@ -28,7 +28,7 @@ export default class SprayNPray extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnEnd"],
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("-5", 20, "system.bonuses.rwak.attack"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-5", 20, "system.rolls.attack.rwak.bonus"),
         ],
       },
     ];

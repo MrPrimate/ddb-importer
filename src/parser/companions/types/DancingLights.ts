@@ -7,7 +7,7 @@ const DANCING_LIGHTS_BASE: Partial<I5eMonsterData> = {
   "system": {
     "attributes": {
       "movement": {
-        "fly": "60",
+        "speeds": { "fly": "60" },
       },
     },
   },

@@ -122,7 +122,7 @@ export default class EyeRays extends DDBEnricherData {
             description: "Half speed, and limited reactions",
           },
           changes: [
-            DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+            DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
           ],
         },
       ];

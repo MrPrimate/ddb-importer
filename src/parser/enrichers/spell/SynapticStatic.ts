@@ -9,12 +9,12 @@ export default class SynapticStatic extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.mwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.rwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.rsak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.abilities.check"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.attributes.concentration.bonuses.save"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.rolls.attack.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.rolls.attack.msak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.rolls.attack.rwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.rolls.attack.rsak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.rolls.ability.check.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.attributes.concentration.roll.bonus"),
         ],
       },
     ];

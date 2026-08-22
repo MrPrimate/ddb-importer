@@ -59,8 +59,8 @@ export default class AbsorbElements extends DDBEnricherData {
         name: `${this.data.name}: Extra Damage`,
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.msak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.rolls.damage.msak.bonus"),
         ],
         daeSpecialDurations: ["DamageDealt", "turnEnd"],
         data: {

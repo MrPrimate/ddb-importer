@@ -42,7 +42,7 @@ export default class Doomtide extends DDBEnricherData {
           durationRounds: 1,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("-1d6", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.addChange("-1d6", 20, "system.rolls.ability.save.bonus"),
         ],
         daeSpecialDurations: ["turnEnd" as const],
       },

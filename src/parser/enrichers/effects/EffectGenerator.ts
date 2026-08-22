@@ -190,7 +190,7 @@ export default class EffectGenerator {
 
   _addGlobalSavingBonusEffect() {
     const type: TDDBModifierType = "saving-throws";
-    const key = "system.bonuses.abilities.save";
+    const key = "system.rolls.ability.save.bonus";
     const changes: IActiveEffectChangeData[] = [];
     const regularBonuses = this.grantedModifiers.filter((mod) => !mod.bonusTypes?.includes(2));
     const customBonuses = this.grantedModifiers.filter((mod) => mod.bonusTypes?.includes(2));
@@ -379,8 +379,8 @@ export default class EffectGenerator {
         logger.warn(`Unable to determine ability for "${stat}", skipping stat bonus changes for ${this.document.name}`);
         return;
       }
-      this._addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
-      this._addAddBonusChanges(this.grantedModifiers, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
+      this._addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.save.roll.bonus`);
+      this._addAddBonusChanges(this.grantedModifiers, `${stat}-ability-checks`, `system.abilities.${ability.value}.check.roll.bonus`);
     });
   }
 
@@ -478,7 +478,7 @@ export default class EffectGenerator {
           ? bonus.value
           : game.modules.get("dae")?.active
             ? "##attributes.movement.walk"
-            : "@attributes.movement.walk";
+            : "@attributes.movement.speeds.walk";
         this.effect.system.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
       });
     }
@@ -503,26 +503,29 @@ export default class EffectGenerator {
   }
 
   _addSpellAttackBonuses() {
-    this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.bonuses.msak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "melee-spell-attacks", "system.bonuses.msak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.bonuses.rsak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "ranged-spell-attacks", "system.bonuses.rsak.attack");
+    this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.rolls.attack.msak.bonus");
+    this._addAddBonusChanges(this.grantedModifiers, "melee-spell-attacks", "system.rolls.attack.msak.bonus");
+    this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.rolls.attack.rsak.bonus");
+    this._addAddBonusChanges(this.grantedModifiers, "ranged-spell-attacks", "system.rolls.attack.rsak.bonus");
     for (const type of ["wizard", "sorcerer", "warlock", "druid", "cleric", "artificer", "ranger"] as TDDBClassModifierNames[]) {
-      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.msak.attack"])
-        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.msak.attack");
-      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.rsak.attack"])
-        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.rsak.attack");
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.msak.bonus"])
+        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.rolls.attack.msak.bonus");
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.rsak.bonus"])
+        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.rolls.attack.rsak.bonus");
       if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.spell.dc"])
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-save-dc`, "system.bonuses.spell.dc");
     }
 
     this._addAddBonusChanges(this.grantedModifiers, "spell-save-dc", "system.bonuses.spell.dc");
-    this._addCustomChange(
-      this.grantedModifiers,
-      "spell-group-healing",
-      "system.bonuses.heal.damage",
-      " + @item.level",
-    );
+    // Disciple of Life's "+ spell level" is omitted: rule values are injected into
+    // the heal roll as one @ruleBonus part and a nested @item.level does not
+    // resolve. Restore "+ @item.level" once dnd5e PR #7354 is merged.
+    const healingBonus = DDBModifiers
+      .filterModifiersOld(this.grantedModifiers, "bonus", "spell-group-healing")
+      .reduce((a, b) => a + parseInt(String(b.value)), 0);
+    if (healingBonus !== 0) {
+      this.effect.system.changes.push(ChangeHelper.healingBonusChange(`${healingBonus}`, 18));
+    }
   }
 
   _addSkillProficiencies() {
@@ -551,7 +554,7 @@ export default class EffectGenerator {
       logger.debug(`Generating tool proficiencies for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.customChange(String(value.value), 8, `system.tools.${key}.value`));
       this.effect.system.changes.push(ChangeHelper.customChange(`${value.ability}`, 8, `system.tools.${key}.ability`));
-      this.effect.system.changes.push(ChangeHelper.customChange("0", 8, `system.tools.${key}.bonuses.check`));
+      this.effect.system.changes.push(ChangeHelper.customChange("0", 8, `system.tools.${key}.roll.bonus`));
     }
     weaponProf.value?.forEach((prof) => {
       logger.debug(`Generating weapon proficiencies for ${this.document.name}`);
@@ -604,7 +607,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, skill.subType, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
-      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.roll.bonus`));
     }
   }
 
@@ -670,7 +673,7 @@ export default class EffectGenerator {
     // alert feet gets special bonus
     if (advantageBonus && this.document.name !== "Alert") {
       logger.debug(`Generating Initiative bonus for ${this.document.name}`);
-      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(advantageBonus, 20, "system.attributes.init.roll.bonus"));
     }
   }
 
@@ -740,32 +743,32 @@ export default class EffectGenerator {
     this._addAddBonusChanges(
       this.grantedModifiers,
       "melee-attacks",
-      "system.bonuses.mwak.attack",
+      "system.rolls.attack.mwak.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "ranged-attacks",
-      "system.bonuses.rwak.attack",
+      "system.rolls.attack.rwak.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "melee-weapon-attacks",
-      "system.bonuses.mwak.attack",
+      "system.rolls.attack.mwak.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "ranged-weapon-attacks",
-      "system.bonuses.rwak.attack",
+      "system.rolls.attack.rwak.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "weapon-attacks",
-      "system.bonuses.mwak.attack",
+      "system.rolls.attack.mwak.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "weapon-attacks",
-      "system.bonuses.rwak.attack",
+      "system.rolls.attack.rwak.bonus",
     );
   }
 
@@ -783,7 +786,7 @@ export default class EffectGenerator {
       });
     if (bonus && bonus.length > 0) {
       logger.debug(`Generating ${type} damage for ${this.document.name}`);
-      const change = ChangeHelper.unsignedAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
+      const change = ChangeHelper.unsignedAddChange(`${bonus.join(" + ")}`, 22, `system.rolls.damage.${type}.bonus`);
       this.effect.system.changes.push(change);
     }
   }
@@ -897,12 +900,12 @@ export default class EffectGenerator {
     this._addAddBonusChanges(
       this.grantedModifiers,
       "ability-checks",
-      "system.bonuses.abilities.check",
+      "system.rolls.ability.check.bonus",
     );
     this._addAddBonusChanges(
       this.grantedModifiers,
       "skill-checks",
-      "system.bonuses.abilities.skill",
+      "system.rolls.ability.skill.bonus",
     );
     this._addLanguages();
     this._addDamageConditions();
@@ -924,13 +927,13 @@ export default class EffectGenerator {
     this._addGlobalDamageBonus();
     this._addAttunementSlots();
 
-    const hasInitiative = this.effect.system.changes.find((c) => c.key === "system.attributes.init.bonus"
+    const hasInitiative = this.effect.system.changes.find((c) => c.key === "system.attributes.init.roll.bonus"
       && c.type === "add");
-    const hasCheck = this.effect.system.changes.find((c) => c.key === "system.bonuses.abilities.check"
+    const hasCheck = this.effect.system.changes.find((c) => c.key === "system.rolls.ability.check.bonus"
       && c.type === "add");
 
     if (hasInitiative && hasCheck) {
-      this.effect.system.changes = this.effect.system.changes.filter((c) => !(c.key === "system.attributes.init.bonus"
+      this.effect.system.changes = this.effect.system.changes.filter((c) => !(c.key === "system.attributes.init.roll.bonus"
         && c.type === "add"
         && c.value === hasCheck.value));
     }

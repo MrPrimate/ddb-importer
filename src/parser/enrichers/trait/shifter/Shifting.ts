@@ -183,7 +183,7 @@ export default class Shifting extends DDBEnricherData {
         );
       } else if (shifterType === "Swiftstride") {
         changes.push(
-          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.speeds.walk"),
         );
       } else if (shifterType === "Wildhunt") {
         changes.push(

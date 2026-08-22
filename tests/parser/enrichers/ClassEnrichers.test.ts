@@ -407,8 +407,8 @@ describe("pugilist GrotesqueGrowth", () => {
       // ["system.traits.size", "lg"],
       ["system.abilities.str.check.roll.mode", "1"],
       ["system.abilities.str.save.roll.mode", "1"],
-      ["system.bonuses.mwak.damage", "1d4"],
-      ["system.bonuses.rwak.damage", "1d4"],
+      ["system.rolls.damage.mwak.bonus", "1d4"],
+      ["system.rolls.damage.rwak.bonus", "1d4"],
     ]);
     // the "Grotesque Growth" action resolves to this enricher too and is merged into the
     // feature, so emitting there as well would apply the growth twice

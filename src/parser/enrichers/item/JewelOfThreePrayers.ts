@@ -157,7 +157,7 @@ export default class JewelOfThreePrayers extends DDBEnricherData {
           overrideName: "",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
         ],
         options: {
           transfer: true,

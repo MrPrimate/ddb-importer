@@ -18,7 +18,7 @@ export default class CelestialRevelationHeavenlyWings extends DDBEnricherData {
         durationSeconds: 60,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
       ],
     }];
   }

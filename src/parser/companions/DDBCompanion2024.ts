@@ -252,13 +252,12 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
         this.summons.match.saves = true;
       }
       if (html.includes("your Proficiency Bonus to any ability check or saving throw")) {
-        const abilityBonuses = this.npc.system.bonuses?.abilities;
-        if (abilityBonuses) {
-          abilityBonuses.check = "@prof";
-          abilityBonuses.save = "@prof";
-        } else {
-          logger.warn(`Companion ${this.npc.name} has no ability bonuses data, unable to set proficiency bonuses`);
-        }
+        const rolls = ((this.npc.system as I5eMonsterSystemData).rolls ??= {});
+        rolls.ability = {
+          ...(rolls.ability ?? {}),
+          check: { bonus: "@prof" },
+          save: { bonus: "@prof" },
+        };
       }
     });
   }

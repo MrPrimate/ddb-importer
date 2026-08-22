@@ -6,7 +6,7 @@ export default class EmissaryOfPeace extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("5", 20, "system.skills.per.bonuses.check"),
+          DDBEnricherData.ChangeHelper.addChange("5", 20, "system.skills.per.roll.bonus"),
         ],
         options: {
           durationSeconds: 600,

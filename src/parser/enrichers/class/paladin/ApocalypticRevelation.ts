@@ -93,7 +93,7 @@ export default class ApocalypticRevelation extends DDBEnricherData {
           description: "Blinding Glory: enemies starting their turn within 5 feet must succeed on a Constitution save or be Blinded until the start of their next turn. See the Truth: Truesight with a range of 60 feet. Smite the Heretic: as a Bonus Action, choose a creature within 60 feet; you and your allies have Advantage on attack rolls against it.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.truesight"),
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.ranges.truesight"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),

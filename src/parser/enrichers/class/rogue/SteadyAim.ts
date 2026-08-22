@@ -33,7 +33,7 @@ export default class SteadyAim extends DDBEnricherData {
         daeOnly: true,
         name: "Steady Aim Speed Reduction",
         changes: [
-          DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
         daeSpecialDurations: ["turnStartSource"],
         daeStackable: "noneName",
@@ -46,7 +46,7 @@ export default class SteadyAim extends DDBEnricherData {
         daeNever: true,
         name: "Steady Aim Speed Reduction",
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("0", 100, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
         options: {
           durationSeconds: 12,

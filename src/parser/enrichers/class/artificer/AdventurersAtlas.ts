@@ -26,13 +26,13 @@ export default class AdventurersAtlas extends DDBEnricherData {
         name: "Adventurer's Atlas Initiative Bonus",
         activitiesMatch: ["Create Magical Map"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.attributes.init.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.attributes.init.roll.bonus"),
         ],
       },
       {
         name: "Adventurer's Atlas Initiative Bonus",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.attributes.init.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.attributes.init.roll.bonus"),
         ],
         options: {
           transfer: true,

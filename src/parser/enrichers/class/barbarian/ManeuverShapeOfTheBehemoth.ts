@@ -40,8 +40,8 @@ export default class ManeuverShapeOfTheBehemoth extends DDBEnricherData {
         ],
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6", 20, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6", 20, "system.rolls.damage.rwak.bonus"),
         ],
         // dnd5e has no actor level reach attribute, so the +5 ft is AC5e's range surface
         ac5eChanges: [

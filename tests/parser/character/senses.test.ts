@@ -71,11 +71,12 @@ describe("DDBCharacter.getSenses (synthetic)", () => {
     expect(senses.ranges?.darkvision).toBe(120);
   });
 
-  it("ignores a set-base modifier granted by an unchosen choice option", () => {
+  it("ignores a set-base modifier granted by a choice option (option entity type + option id)", () => {
     const senses = getSenses.call(senseMock({
       modifiers: {
         race: [
-          { type: "set-base", subType: "darkvision", value: 60, isGranted: true, restriction: "", componentId: 111 },
+          // 306912077 is the species-trait OPTION entity type, so this is a genuine option grant
+          { type: "set-base", subType: "darkvision", value: 60, isGranted: true, restriction: "", componentId: 111, componentTypeId: 306912077 },
         ],
         class: [], background: [], item: [], feat: [], condition: [],
       },
@@ -85,6 +86,25 @@ describe("DDBCharacter.getSenses (synthetic)", () => {
       },
     }));
     expect(senses.ranges?.darkvision).toBe(0);
+  });
+
+  // Regression: Hill Dwarf darkvision (racial trait componentId 6) was dropped because a
+  // Fighting Style choice option also had id 6 - option ids and trait ids are different
+  // id spaces, so a bare id match must not count as "granted by a choice"
+  it("keeps a racial-trait set-base modifier whose componentId collides with a choice option id", () => {
+    const senses = getSenses.call(senseMock({
+      modifiers: {
+        race: [
+          { type: "set-base", subType: "darkvision", value: 60, isGranted: true, restriction: "", componentId: 6, componentTypeId: 1960452172 },
+        ],
+        class: [], background: [], item: [], feat: [], condition: [],
+      },
+      choices: {
+        class: [], race: [], feat: [],
+        choiceDefinitions: [{ id: "12168134-3", options: [{ id: 6, label: "Two-Weapon Fighting" }] }],
+      },
+    }));
+    expect(senses.ranges?.darkvision).toBe(60);
   });
 
   // note: class-bucket modifiers only apply when they trace to a chosen class

@@ -13,7 +13,7 @@ export default class UnarmoredMovement extends DDBEnricherData {
 
     return [{
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 20, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 20, "system.attributes.movement.speeds.walk"),
       ],
       options: { transfer: true },
     }];

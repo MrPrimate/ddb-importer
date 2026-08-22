@@ -53,7 +53,7 @@ export default class SongalsElementalSuffusion extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.upgradeChange("true", 2, "system.attributes.movement.hover"),
         ],
       },

@@ -28,7 +28,9 @@ DDBCharacter.prototype._generateInitiative = function _generateInitiative(this: 
   // If we have the alert Feat set, lets sub 5 so it's correct
   attributes.init = {
     ability: "dex",
-    bonus: initiativeBonus,
+    roll: {
+      bonus: initiativeBonus,
+    },
   };
 
 };

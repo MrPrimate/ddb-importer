@@ -81,8 +81,8 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
           activityMatch: "Summon",
           name: `${this.data.name} (Save Modifications)`,
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("- @abilities.str.mod + @abilities.wis.mod", 0, "system.abilities.str.bonuses.check"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("- @abilities.str.mod + @abilities.wis.mod", 0, "system.abilities.str.bonuses.save"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("- @abilities.str.mod + @abilities.wis.mod", 0, "system.abilities.str.check.roll.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("- @abilities.str.mod + @abilities.wis.mod", 0, "system.abilities.str.save.roll.bonus"),
           ],
           options: {
             durationSeconds: 600,

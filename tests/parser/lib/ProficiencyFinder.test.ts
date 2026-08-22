@@ -239,7 +239,7 @@ describe("getToolProficiencies", () => {
     expect(result.bagpiperepairkit).toEqual({
       value: 1,
       ability: "int",
-      bonuses: { check: "" },
+      roll: { bonus: "" },
     });
     expect(finder.customTools).toEqual([
       { key: "bagpiperepairkit", name: "Bagpipe Repair Kit", ability: "int", toolType: "", description: "" },
@@ -258,7 +258,7 @@ describe("getToolProficiencies", () => {
     const result = finder.getToolProficiencies([]);
     expect(result.lockpicks.value).toBe(2);
     expect(result.lockpicks.ability).toBe("dex");
-    expect(result.lockpicks.bonuses?.check).toBe("+ 2 + 1");
+    expect(result.lockpicks.roll?.bonus).toBe("+ 2 + 1");
     expect(result.abacus.value).toBe(0.5);
     expect(result.ignoredskill).toBeUndefined();
   });

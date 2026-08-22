@@ -36,7 +36,7 @@ export default class ManeuverSnoutOfTheBloodhound extends DDBEnricherData {
           description: "Advantage on Wisdom (Perception) and Wisdom (Survival) checks to track, and you do not have disadvantage on attack rolls against invisible creatures.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@prof", 20, "system.attributes.init.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("@prof", 20, "system.attributes.init.roll.bonus"),
           DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
           DDBEnricherData.ChangeHelper.advantageSkillChange("sur"),
         ],

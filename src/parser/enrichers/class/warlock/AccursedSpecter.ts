@@ -40,10 +40,10 @@ export default class AccursedSpecter extends DDBEnricherData {
       {
         name: "Accursed Specter - Attack Bonus",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.bonuses.mwak.attack"),
-          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.bonuses.rwak.attack"),
-          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.bonuses.rsak.attack"),
+          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.rolls.attack.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.rolls.attack.rwak.bonus"),
+          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.rolls.attack.msak.bonus"),
+          DDBEnricherData.ChangeHelper.addChange("@flags.dnd5e.summon.mod", 20, "system.rolls.attack.rsak.bonus"),
         ],
       },
     ];

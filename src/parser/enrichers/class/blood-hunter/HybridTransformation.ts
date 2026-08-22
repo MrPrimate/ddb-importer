@@ -185,7 +185,7 @@ export default class HybridTransformation extends DDBEnricherData {
       },
       changes: [
         // Feral Might
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`+${damageBonus}`, 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`+${damageBonus}`, 20, "system.rolls.damage.mwak.bonus"),
         DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
         // Resilient Hide

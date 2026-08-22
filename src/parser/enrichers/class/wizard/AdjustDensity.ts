@@ -29,7 +29,7 @@ export default class AdjustDensity extends DDBEnricherData {
           description: "Speed +10 ft, jump distance doubled, disadvantage on Strength checks and saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 30, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("10", 30),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.check.str"),
@@ -47,7 +47,7 @@ export default class AdjustDensity extends DDBEnricherData {
           description: "Speed -10 ft, advantage on Strength checks and saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-10", 30, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10", 30),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),

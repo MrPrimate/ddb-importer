@@ -82,7 +82,7 @@ export default class FinalJudgement extends DDBEnricherData {
           description: "The sanctified blade is a magic weapon, emits Bright Light in a 30-foot radius and Dim Light for an additional 30 feet, and deals an extra 2d4 Radiant damage on a hit.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2d4[radiant]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d4[radiant]", 20, "system.rolls.damage.mwak.bonus"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", 30, 20),

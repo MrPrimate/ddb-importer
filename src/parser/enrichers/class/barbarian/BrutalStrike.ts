@@ -48,14 +48,14 @@ export default class BrutalStrike extends DDBEnricherData {
       {
         name: "Hamstrung",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("-15", 90, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.overrideChange("-15", 90, "system.attributes.movement.speeds.walk"),
         ],
         activityMatch: "Hamstrung Blow",
       },
       {
         name: "Reckless Attack: Brutal Strike Damage",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("@scale.barbarian.brutal-strike", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.addChange("@scale.barbarian.brutal-strike", 20, "system.rolls.damage.mwak.bonus"),
         ],
         options: {
           transfer: true,

@@ -30,7 +30,7 @@ export default class HobblingStrike extends DDBEnricherData {
           description: "Speed halved until the start of the cleric's next turn (Cleric level 14+).",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0.5", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 50),
         ],
         daeSpecialDurations: ["turnStartSource"],
       },

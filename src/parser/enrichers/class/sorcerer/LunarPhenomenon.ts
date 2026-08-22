@@ -234,7 +234,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
         name: "New Moon: Speed Reduced",
         activityMatch: "New Moon",
         changes: [
-          DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
         options: {
           durationRounds: 1,

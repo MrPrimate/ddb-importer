@@ -13,8 +13,8 @@ export default class Sharpshooter extends DDBEnricherData {
             showIcon: 2,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 30, "system.bonuses.rwak.attack"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 30, "system.bonuses.rwak.damage"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 30, "system.rolls.attack.rwak.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 30, "system.rolls.damage.rwak.bonus"),
           ],
         },
       ]

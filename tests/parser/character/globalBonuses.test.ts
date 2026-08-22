@@ -101,15 +101,17 @@ describe("DDBCharacter global bonus generators (synthetic)", () => {
   // every subType in the shipped lookup tables sits in
   // config/dictionary/effects/excluded.ts (EXCLUDED.common), so
   // filterBaseModifiers drops the modifiers here and they are emitted later as
-  // ActiveEffects on the granting document instead - the flat system.bonuses
-  // stay empty by design
+  // ActiveEffects on the granting document instead - the flat system.rolls
+  // bonuses stay empty by design
   it("_generateBonusSpellAttacks leaves rsak/msak empty for an excluded-effect spell-attacks bonus", () => {
     const mock = bonusMock(raceModifiers([
       { type: "bonus", subType: "spell-attacks", value: 2, isGranted: true, restriction: "" },
     ]));
     mock._generateBonusSpellAttacks();
-    expect(mock.raw.character.system.bonuses.rsak).toEqual({ attack: "", damage: "" });
-    expect(mock.raw.character.system.bonuses.msak).toEqual({ attack: "", damage: "" });
+    expect(mock.raw.character.system.rolls.attack.rsak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.attack.msak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.damage.rsak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.damage.msak).toEqual({ bonus: "" });
   });
 
   it("_generateBonusWeaponAttacks leaves mwak/rwak empty for an excluded-effect weapon-attacks bonus", () => {
@@ -118,8 +120,10 @@ describe("DDBCharacter global bonus generators (synthetic)", () => {
       { type: "bonus", subType: "melee-attacks", value: 1, isGranted: true, restriction: "" },
     ]));
     mock._generateBonusWeaponAttacks();
-    expect(mock.raw.character.system.bonuses.mwak).toEqual({ attack: "", damage: "" });
-    expect(mock.raw.character.system.bonuses.rwak).toEqual({ attack: "", damage: "" });
+    expect(mock.raw.character.system.rolls.attack.mwak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.attack.rwak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.damage.mwak).toEqual({ bonus: "" });
+    expect(mock.raw.character.system.rolls.damage.rwak).toEqual({ bonus: "" });
   });
 
   it("_generateBonusAbilities writes empty check/save/skill bonuses (saving-throws is effect-routed)", () => {
@@ -129,7 +133,11 @@ describe("DDBCharacter global bonus generators (synthetic)", () => {
       { type: "bonus", subType: "skill-checks", value: 3, isGranted: true, restriction: "" },
     ]));
     mock._generateBonusAbilities();
-    expect(mock.raw.character.system.bonuses.abilities).toEqual({ check: "", save: "", skill: "" });
+    expect(mock.raw.character.system.rolls.ability).toEqual({
+      check: { bonus: "" },
+      save: { bonus: "" },
+      skill: { bonus: "" },
+    });
   });
 
   it("_generateBonusSpellDC writes an empty dc bonus (spell-save-dc is effect-routed)", () => {
@@ -148,12 +156,16 @@ describe.skipIf(!auditFixturesPresent())("DDBCharacter global bonuses (audit fix
     mock._generateBonusWeaponAttacks();
     mock._generateBonusAbilities();
     mock._generateBonusSpellDC();
-    const bonuses = mock.raw.character.system.bonuses;
-    expect(bonuses.rsak).toEqual({ attack: "", damage: "" });
-    expect(bonuses.msak).toEqual({ attack: "", damage: "" });
-    expect(bonuses.mwak).toEqual({ attack: "", damage: "" });
-    expect(bonuses.rwak).toEqual({ attack: "", damage: "" });
-    expect(bonuses.abilities).toEqual({ check: "", save: "", skill: "" });
-    expect(bonuses.spell).toEqual({ dc: "" });
+    const system = mock.raw.character.system;
+    expect(system.rolls.attack.rsak).toEqual({ bonus: "" });
+    expect(system.rolls.attack.msak).toEqual({ bonus: "" });
+    expect(system.rolls.attack.mwak).toEqual({ bonus: "" });
+    expect(system.rolls.attack.rwak).toEqual({ bonus: "" });
+    expect(system.rolls.damage.rsak).toEqual({ bonus: "" });
+    expect(system.rolls.damage.msak).toEqual({ bonus: "" });
+    expect(system.rolls.damage.mwak).toEqual({ bonus: "" });
+    expect(system.rolls.damage.rwak).toEqual({ bonus: "" });
+    expect(system.rolls.ability).toEqual({ check: { bonus: "" }, save: { bonus: "" }, skill: { bonus: "" } });
+    expect(system.bonuses.spell).toEqual({ dc: "" });
   });
 });

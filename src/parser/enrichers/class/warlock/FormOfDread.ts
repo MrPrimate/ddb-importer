@@ -130,7 +130,7 @@ export default class FormOfDread extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-            DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 2, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 2, "system.attributes.movement.speeds.fly"),
             DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
           ],
           data: {

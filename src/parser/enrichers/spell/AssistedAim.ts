@@ -10,7 +10,7 @@ export default class AssistedAim extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.bonuses.rwak.attack"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.rolls.attack.rwak.bonus"),
         ],
       },
     ];

@@ -156,7 +156,7 @@ export default class RitualReskin extends DDBEnricherData {
         activityMatch: "Perform Ritual",
         options,
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("@attributes.movement.walk", 50, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.overrideChange("@attributes.movement.speeds.walk", 50, "system.attributes.movement.speeds.swim"),
         ],
       },
       {

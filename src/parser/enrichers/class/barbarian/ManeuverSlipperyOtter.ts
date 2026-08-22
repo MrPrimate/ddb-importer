@@ -34,7 +34,7 @@ export default class ManeuverSlipperyOtter extends DDBEnricherData {
           durationSeconds: 3600,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.swim"),
         ],
       },
     ];

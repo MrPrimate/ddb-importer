@@ -118,7 +118,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
         results.push({
           name: "Frost Struck: Speed Reduction",
           changes: [
-            DDBEnricherData.ChangeHelper.customChange("0", 100, "system.attributes.movement.all"),
+            DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
           ],
           options: {
             durationSeconds: 6,

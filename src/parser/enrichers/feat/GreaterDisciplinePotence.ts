@@ -25,7 +25,7 @@ export default class GreaterDisciplinePotence extends DDBEnricherData {
           description: "Your Melee weapon and Unarmed Strike hits deal an extra 1d10 Force damage; double damage to objects and structures.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[force]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d10[force]", 20, "system.rolls.damage.mwak.bonus"),
         ],
       },
     ];

@@ -105,7 +105,7 @@ export default class SpiritOfTheValkyrie extends DDBEnricherData {
           description: "Flight: Fly Speed of 60 feet. Magic Resistance: Advantage on saving throws against spells and other magical effects. Restful Dead: creatures in your Aura of Protection attempting to create or summon Undead must succeed on a Charisma save or fail. Thunderstruck: you can cast Smite spells as though using a level 5 spell slot; enemies starting their turn in your Aura of Protection take Thunder damage equal to your Charisma modifier plus Proficiency Bonus and must save against being Stunned.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.movement.speeds.fly"),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all"),

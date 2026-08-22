@@ -45,7 +45,7 @@ export default class ManeuverCommandingPresence extends Maneuver {
           },
         },
         changes: ["per", "itm", "prf"].map((skill) =>
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, `system.skills.${skill}.bonuses.check`),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, `system.skills.${skill}.roll.bonus`),
         ),
       },
     ];

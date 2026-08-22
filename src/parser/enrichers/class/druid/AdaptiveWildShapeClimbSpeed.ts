@@ -19,7 +19,7 @@ export default class AdaptiveWildShapeClimbSpeed extends DDBEnricherData {
       name: "Adaptive Wild Shape: Climb Speed",
       activityMatch: "Adapt Form",
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.climb"),
+        DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.climb"),
       ],
     }];
   }

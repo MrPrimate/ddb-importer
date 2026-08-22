@@ -10,7 +10,7 @@ export default class AuraOfHate extends DDBEnricherData {
         data: {
           system: {
             changes: [
-              DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
+              DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
             ],
           },
         },
@@ -52,7 +52,7 @@ export default class AuraOfHate extends DDBEnricherData {
         },
         statuses: ["Aura of Hate (Fiends and Undead)"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
         ],
         options: {
           transfer: true,

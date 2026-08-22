@@ -249,7 +249,7 @@ export default class StarryForm extends DDBEnricherData {
         }
         if (data.min && data.min >= 10 && formType === "Dragon") {
           changes.push(
-            DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.speeds.fly"),
             DDBEnricherData.ChangeHelper.upgradeChange("true", 20, "system.attributes.movement.hover"),
           );
         }

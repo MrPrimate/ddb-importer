@@ -17,7 +17,7 @@ export default class GhostWalk extends DDBEnricherData {
           durationSeconds: 600,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("10", 2, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 2, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
         ],
         midiChanges: [

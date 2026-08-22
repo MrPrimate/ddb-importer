@@ -72,8 +72,8 @@ export default class GrotesqueGrowth extends DDBEnricherData {
           // DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
           DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.damage.rwak.bonus"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.width"),

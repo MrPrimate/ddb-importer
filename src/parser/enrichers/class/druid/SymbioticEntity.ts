@@ -33,7 +33,7 @@ export default class SymbioticEntity extends DDBEnricherData {
           description: "Ends when temporary hit points are lost.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6[necrotic]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d6[necrotic]", 20, "system.rolls.damage.mwak.bonus"),
           DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.spores.halo-of-spores.number`),
         ],
       },

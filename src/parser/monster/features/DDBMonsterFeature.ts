@@ -1625,7 +1625,7 @@ ${this.data.system.description.value}
       && parseInt(String(this.spellCastingData.dc)) !== parseInt(String(this.ddbMonster.spellcasting.spelldc))
     ) {
       spellOverride.challenge.override = true;
-      spellOverride.challenge.save = this.spellCastingData.dc;
+      spellOverride.challenge.save = String(this.spellCastingData.dc);
     }
 
     const options = {

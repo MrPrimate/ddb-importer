@@ -74,7 +74,7 @@ export default class Reshapeable extends DDBEnricherData {
           durationSeconds: Reshapeable.HOUR,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange(".5", 10, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange(".5", 10),
         ],
       },
       {
@@ -84,8 +84,8 @@ export default class Reshapeable extends DDBEnricherData {
           durationSeconds: Reshapeable.HOUR,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange(".5", 10, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.overrideChange("@attributes.movement.walk", 50, "system.attributes.movement.climb"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange(".5", 10),
+          DDBEnricherData.ChangeHelper.overrideChange("@attributes.movement.speeds.walk", 50, "system.attributes.movement.speeds.climb"),
         ],
       },
       {

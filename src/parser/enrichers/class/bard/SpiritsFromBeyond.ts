@@ -337,7 +337,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
           durationSeconds: null,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("10", 20),
         ],
         activityMatch: "6. Wayfarer",
       },
@@ -370,7 +370,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
         statuses: ["Frightened"],
         activityMatch: "10. Coward",
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0.5", 100, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 100),
         ],
       },
       {

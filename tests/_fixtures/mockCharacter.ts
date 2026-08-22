@@ -66,7 +66,8 @@ export function makeMockCharacter(overrides: MockCharacterOverrides = {}): any {
           skills: {},
           traits: { languages: "", weaponProf: {}, armorProf: {} },
           tools: {},
-          bonuses: { rsak: {}, msak: {}, mwak: {}, rwak: {}, abilities: {}, spell: {} },
+          bonuses: { spell: {} },
+          rolls: {},
           ...overrides.rawSystem,
         },
         flags: {

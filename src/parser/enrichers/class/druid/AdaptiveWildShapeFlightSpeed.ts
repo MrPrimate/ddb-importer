@@ -19,7 +19,7 @@ export default class AdaptiveWildShapeFlightSpeed extends DDBEnricherData {
       name: "Adaptive Wild Shape: Flight Speed",
       activityMatch: "Adapt Form",
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("15", 20, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("15", 20, "system.attributes.movement.speeds.fly"),
       ],
     }];
   }

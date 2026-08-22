@@ -6,6 +6,11 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
   if (typeof change?.key !== "string") return true;
 
   switch (change.key) {
+    case "system.attributes.movement.speeds.walk":
+    case "system.attributes.movement.speeds.fly":
+    case "system.attributes.movement.speeds.climb":
+    case "system.attributes.movement.speeds.burrow":
+    case "system.attributes.movement.speeds.swim":
     case "system.attributes.movement.walk":
     case "system.attributes.movement.fly":
     case "system.attributes.movement.climb":
@@ -13,7 +18,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.attributes.movement.swim": {
       if (change.value == null) return true;
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
+      const formula = Roll.replaceFormulaData(String(change.value), rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
@@ -34,11 +39,12 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.traits.languages.communication.telepathy.value": {
       if (change.value == null) return true;
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
+      const formula = Roll.replaceFormulaData(String(change.value), rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
     }
+    // legacy: actors imported before movement.bonus/multiplier still carry movement.all changes
     case "system.attributes.movement.all": {
       if (change.value == null) return true;
       if (!("attributes" in actor.system)) break;
@@ -52,7 +58,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
       }
       for (const key of Object.keys(movement) as (keyof I5eMovementRecord)[]) {
         if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
-        let valueString = change.value;
+        let valueString = String(change.value);
         if (op !== "") {
           if (!movement[key]) continue;
           valueString = `${movement[key]} ${change.value}`;

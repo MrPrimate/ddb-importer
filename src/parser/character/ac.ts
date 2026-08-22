@@ -388,9 +388,6 @@ DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideA
     return;
   }
 
-  // dnd5e 6.0: a hard user override is persisted `ac.override` — no effect or
-  // flag copies needed (the acEffects/autoAC/overrideAC flags were write-only
-  // and dropped with the 6.0 rework)
   attributes.ac = {
     calcs: ["unarmored", "armored"],
     formulas: [],
@@ -580,13 +577,10 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
     calculatedArmor,
     results,
   });
-  // dnd5e 6.0: emit every applicable calc/formula and let the system take the
-  // max against the actually-equipped armor and shield items; the old single
-  // winning `calc` ("default"/"custom"/"flat") no longer exists. The DDB
-  // computed maxValue survives only as a validation cross-check in the flags.
-  // NOTE: class "set unarmored-armor-class" modifiers are effect-excluded, so
-  // the computed max under-reports Unarmored Defense characters — the calcs
-  // entry carries the real AC (see tests/parser/character/ac.test.ts).
+  // every applicable calc is emitted and the system takes the max against the
+  // equipped items. The computed maxValue is only a cross-check: class
+  // "set unarmored-armor-class" modifiers are effect-excluded, so it
+  // under-reports Unarmored Defense characters (the calc entry carries the AC).
   const classFeatures = FilterModifiers.getAllClassFeatures(ddb.character);
   logger.debug("Class features", classFeatures);
 
@@ -638,8 +632,6 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
   }
 
   logger.debug("AC Results:", {
-    // DDB's computed max, kept as a validation cross-check against what the
-    // system derives from the emitted calcs/formulas
     ddbComputedMax: results.maxValue,
     base: results.actorBase,
     bonusEffects,

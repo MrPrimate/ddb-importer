@@ -59,7 +59,7 @@ export default class DreadAmbusher extends DDBEnricherData {
         name: "Ambusher's Leap",
         activityMatch: "Ambusher's Leap",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("10", 10, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.addChange("10", 10, "system.attributes.movement.speeds.walk"),
         ],
         options: {
           durationSeconds: 6,

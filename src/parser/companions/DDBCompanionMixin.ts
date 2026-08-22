@@ -325,7 +325,6 @@ export default class DDBCompanionMixin {
     }
 
     if (Number.isInteger(ac)) {
-      // dnd5e 6.0 shape: natural calc reads the flat value
       attributes.ac = {
         calcs: ["natural"],
         formulas: [],
@@ -533,7 +532,8 @@ export default class DDBCompanionMixin {
       const match = speed.match(/(\w+ )*(\d+)/i);
       if (match) {
         const type = (match[1]?.trim() ?? "walk") as I5eMovementType;
-        movement[type] = `${match[2]}`;
+        movement.speeds ??= {};
+        movement.speeds[type] = `${match[2]}`;
         if (speed.includes("hover")) movement.hover = true;
       }
     });
@@ -700,8 +700,8 @@ export default class DDBCompanionMixin {
             logger.warn(`Unable to determine ability modifier for companion skill ${key}`);
           } else if (parseInt(String(mod)) !== parseInt(skillData.value.trim())) {
             skill.bonuses ??= {};
-            skill.bonuses.check = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
             skill.bonuses.passive = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
+            skill.roll = { ...(skill.roll ?? {}), bonus: String(parseInt(skillData.value.trim()) - parseInt(String(mod))) };
           }
 
           skills[key] = skill;

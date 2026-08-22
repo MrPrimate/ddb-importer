@@ -153,7 +153,7 @@ describe("DDBCharacter._generateProficiencies (synthetic)", () => {
     expect(mock.raw.character.system.tools.thief).toEqual({
       value: 1,
       ability: "dex",
-      bonuses: { check: "" },
+      roll: { bonus: "" },
     });
   });
 
@@ -179,7 +179,7 @@ describe("DDBCharacter._generateProficiencies (synthetic)", () => {
       expect(mock.raw.character.system.tools.chessset).toEqual({
         value: 1,
         ability: "int",
-        bonuses: { check: "" },
+        roll: { bonus: "" },
       });
       const customTools = mock.raw.character.flags.ddbimporter.dndbeyond.customTools;
       expect(customTools).toHaveLength(1);

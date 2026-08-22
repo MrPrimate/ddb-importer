@@ -462,11 +462,13 @@ export default class DDBRace {
   #addWeightSpeeds() {
     if (this.race.weightSpeeds?.normal) {
       this.data.system.movement = {
-        burrow: String(this.race.weightSpeeds.normal.burrow ?? 0),
-        climb: String(this.race.weightSpeeds.normal.climb ?? 0),
-        fly: String(this.race.weightSpeeds.normal.fly ?? 0),
-        swim: String(this.race.weightSpeeds.normal.swim ?? 0),
-        walk: String(this.race.weightSpeeds.normal.walk ?? 0),
+        speeds: {
+          burrow: String(this.race.weightSpeeds.normal.burrow ?? 0),
+          climb: String(this.race.weightSpeeds.normal.climb ?? 0),
+          fly: String(this.race.weightSpeeds.normal.fly ?? 0),
+          swim: String(this.race.weightSpeeds.normal.swim ?? 0),
+          walk: String(this.race.weightSpeeds.normal.walk ?? 0),
+        },
         units: "ft",
         hover: false,
       };
@@ -498,9 +500,9 @@ export default class DDBRace {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
       const flightMatch = trait.description.match(typeRegex);
       const movement = this.data.system.movement;
-      if (flightMatch && movement) {
+      if (flightMatch && movement?.speeds) {
         logger.debug(`Missing flight detected: ${flightMatch[1]}`, flightMatch);
-        movement.fly = movement.walk;
+        movement.speeds.fly = movement.speeds.walk;
       }
     }
   }
@@ -1345,13 +1347,8 @@ export default class DDBRace {
         ...DDBModifiers.filterModifiers((this.ddbData.character?.modifiers?.race ?? []), "set-base", basicOptions),
       ];
       senseModifiers
-        .filter((mod) => {
-          // we remove senses that are granted as part of a choice feature for the species
-          const isChoiceModifier = this.ddbData.character.choices.choiceDefinitions.some((def) =>
-            def.options.some((opt) => opt.id === mod.componentId),
-          );
-          return !isChoiceModifier;
-        })
+        // we remove senses that are granted as part of a choice feature for the species
+        .filter((mod) => !DDBModifiers.isChoiceOptionModifier(this.ddbData, mod))
         .forEach((mod) => {
           const key = senseName as keyof T5eSenseRanges;
           if (Number.isInteger(mod.value) && parseInt(String(mod.value)) > (ranges[key] ?? 0)) {

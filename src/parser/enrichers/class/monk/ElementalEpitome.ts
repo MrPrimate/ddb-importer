@@ -64,7 +64,7 @@ export default class ElementalEpitome extends DDBEnricherData {
     const speed = {
       name: "Step of the Wind Bonus",
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("20", 20, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("20", 20, "system.attributes.movement.speeds.walk"),
       ],
       activityMatch: "Elemental Attunement Effects",
     };

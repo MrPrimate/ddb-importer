@@ -139,11 +139,13 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
   }
 
   attributes.movement = {
-    burrow: movementTypes["burrow"] ? String(movementTypes["burrow"]) : "",
-    climb: movementTypes["climb"] ? String(movementTypes["climb"]) : "",
-    fly: movementTypes["fly"] ? String(movementTypes["fly"]) : "",
-    swim: movementTypes["swim"] ? String(movementTypes["swim"]) : "",
-    walk: movementTypes["walk"] ? String(movementTypes["walk"]) : "",
+    speeds: {
+      burrow: movementTypes["burrow"] ? String(movementTypes["burrow"]) : "",
+      climb: movementTypes["climb"] ? String(movementTypes["climb"]) : "",
+      fly: movementTypes["fly"] ? String(movementTypes["fly"]) : "",
+      swim: movementTypes["swim"] ? String(movementTypes["swim"]) : "",
+      walk: movementTypes["walk"] ? String(movementTypes["walk"]) : "",
+    },
     units: "ft",
     hover: false,
   };

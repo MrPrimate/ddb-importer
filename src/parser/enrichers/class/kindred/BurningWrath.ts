@@ -25,7 +25,7 @@ export default class BurningWrath extends DDBEnricherData {
           description: "Unarmed Strikes deal an extra 2d8 Necrotic damage. Ends after 1 minute or when you fail to attack an enemy on your turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2d8[necrotic]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d8[necrotic]", 20, "system.rolls.damage.mwak.bonus"),
         ],
       },
     ];

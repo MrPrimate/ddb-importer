@@ -37,10 +37,10 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
   const effect: I5eEffectData & { system: I5eEffectSystem & Required<Pick<I5eEffectSystem, "changes">> } = {
     system: {
       changes: [
-        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.attack"),
-        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.damage"),
-        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.mwak.attack"),
-        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.mwak.damage"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.rolls.attack.rwak.bonus"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.rolls.damage.rwak.bonus"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.rolls.attack.mwak.bonus"),
+        ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.rolls.damage.mwak.bonus"),
       ],
     },
     duration: {
@@ -52,11 +52,11 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
     name: "Beast Companion Effects",
   };
   DICTIONARY.actor.abilities.filter((ability) => (extra.system.abilities?.[ability.value].proficient ?? 0) >= 1).forEach((ability) => {
-    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.abilities.${ability.value}.save`);
+    const boost = ChangeHelper.addChange(`${characterProficiencyBonus}`, 20, `system.abilities.${ability.value}.save.roll.bonus`);
     effect.system.changes.push(boost);
   });
   DICTIONARY.actor.skills.filter((skill) => (extra.system.skills?.[skill.name].value ?? 0) >= 1).forEach((skill) => {
-    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.skills.${skill.name}.mod`);
+    const boost = ChangeHelper.addChange(`${characterProficiencyBonus}`, 20, `system.skills.${skill.name}.roll.bonus`);
     effect.system.changes.push(boost);
   });
   extra.effects = [effect];
@@ -73,8 +73,8 @@ function generateArtificerDamageEffect(actor: TImporterActor, extra: I5eMonsterD
   const effect: I5eEffectData = {
     system: {
       changes: [
-        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.rwak.damage"),
-        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.mwak.damage"),
+        ChangeHelper.customChange("+ @prof", 20, "system.rolls.damage.rwak.bonus"),
+        ChangeHelper.customChange("+ @prof", 20, "system.rolls.damage.mwak.bonus"),
       ],
     },
     duration: {
@@ -494,7 +494,7 @@ function enhanceParsedExtra(actor: TSyncCharacterActor, extra: I5eMonsterData) {
   ) {
     const isArtificer = artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId ?? -1);
     const intMod = utils.calculateModifier(actor.system.abilities?.int.value ?? 10);
-    const globalMod = Number(actor.system.bonuses?.rsak?.attack || 0);
+    const globalMod = Number((actor.system as I5ePCSystemData).rolls?.attack?.rsak?.bonus || 0);
 
     extra.items = extra.items.map((item) => {
       if (item.type !== "weapon" || !isArtificer) return item;

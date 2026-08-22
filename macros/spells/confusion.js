@@ -36,19 +36,19 @@ async function getDirection(total, denomination) {
 
 if (args[0] === "each") {
   if (scope.effect) {
-    const changeIndex = scope.effect.changes.findIndex(
+    const changeIndex = scope.effect.system.changes.findIndex(
       (change) =>
-        change.key === "system.attributes.movement.all" &&
-        change.mode === CONST.ACTIVE_EFFECT_MODES.CUSTOM &&
-        change.value === 0,
+        change.key === "system.attributes.movement.multiplier" &&
+        change.type === "multiply" &&
+        Number(change.value) === 0,
     );
 
     if (changeIndex !== -1) {
-      scope.effect.changes.splice(changeIndex, 1);
+      scope.effect.system.changes.splice(changeIndex, 1);
 
       await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
+        updates: [{ _id: scope.effect._id, "system.changes": scope.effect.system.changes }],
       });
     } else {
       console.log("Specified change not found in the Confusion effect.");
@@ -85,22 +85,22 @@ if (args[0] === "each") {
     case 6: {
       content = "The creature doesn't move or take actions this turn.";
       if (scope.effect)
-        scope.effect.changes.push({
-          key: "system.attributes.movement.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        scope.effect.system.changes.push({
+          key: "system.attributes.movement.multiplier",
+          type: "multiply",
           value: 0,
           priority: 20,
         });
       await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
+        updates: [{ _id: scope.effect._id, "system.changes": scope.effect.system.changes }],
       });
       break;
     }
     case 7:
     case 8: {
       content = "The creature uses its action to make a melee attack against a randomly determined creature within its reach. If there is no creature within its reach, the creature does nothing this turn.";
-      const rangeCheck = MidiQOL.findNearby(null, token.actor, token.actor.system.attributes.movement.walk, {
+      const rangeCheck = MidiQOL.findNearby(null, token.actor, token.actor.system.attributes.movement.speeds.walk, {
         includeToken: false,
       });
       if (rangeCheck.length > 0) {
@@ -149,7 +149,7 @@ if (args[0] === "each") {
   ChatMessage.create({ content: `Confusion roll for ${token.actor.name} is ${result}:<br> ` + content });
   if (result === 1)
     ChatMessage.create({
-      content: `Movement roll for ${token.actor.name} is ${directionResult}: ${token.actor.name} must move ${directionContent} using all (${token.actor.system.attributes.movement.walk} feet) of their movement.`,
+      content: `Movement roll for ${token.actor.name} is ${directionResult}: ${token.actor.name} must move ${directionContent} using all (${token.actor.system.attributes.movement.speeds.walk} feet) of their movement.`,
     });
   if (result === 7 || result === 8) ChatMessage.create({ content: selectedTokenMessage });
 }

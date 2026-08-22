@@ -21,7 +21,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
   //     {
   //       name: "Twinkling Constellations (Level 10)",
   //       changes: [
-  //         DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+  //         DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.speeds.fly"),
   //         DDBEnricherData.ChangeHelper.upgradeChange("true", 20, "system.attributes.movement.hover"),
   //       ],
   //     },

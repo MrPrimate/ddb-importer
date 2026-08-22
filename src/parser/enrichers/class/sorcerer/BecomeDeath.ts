@@ -34,7 +34,7 @@ export default class BecomeDeath extends DDBEnricherData {
           ...DDBEnricherData.allDamageTypes().map((t) =>
             DDBEnricherData.ChangeHelper.damageResistanceChange(t),
           ),
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.attributes.movement.hover"),
         ],
       },

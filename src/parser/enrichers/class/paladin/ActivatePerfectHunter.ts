@@ -61,8 +61,8 @@ export default class ActivatePerfectHunter extends DDBEnricherData {
         description: "Devour: weapon attacks deal an extra 1d8 Necrotic damage that ignores Necrotic Resistance and Immunity. Sunder: Immunity to the Grappled, Paralyzed, and Restrained conditions. Vanish: you have the Invisible condition.",
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.bonuses.mwak.damage"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.bonuses.rwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.rolls.damage.mwak.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[necrotic]", 20, "system.rolls.damage.rwak.bonus"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("grappled"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("paralyzed"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),

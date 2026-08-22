@@ -161,8 +161,8 @@ export default class ProficiencyFinder {
         results[key] = {
           value: proficient,
           ability,
-          bonuses: {
-            check: "",
+          roll: {
+            bonus: "",
           },
         };
       }
@@ -234,8 +234,8 @@ export default class ProficiencyFinder {
       tool: {
         value: proficiencyEntry.proficient,
         ability,
-        bonuses: {
-          check: parseInt(checkBonus) === 0 ? "" : checkBonus,
+        roll: {
+          bonus: parseInt(checkBonus) === 0 ? "" : checkBonus,
         },
       },
     };

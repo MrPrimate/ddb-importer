@@ -18,7 +18,7 @@ export default class GallowsHumor extends DDBEnricherData {
         daeSpecialDurations: ["turnEnd"],
         statuses: ["Prone"],
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],
       },
     ];

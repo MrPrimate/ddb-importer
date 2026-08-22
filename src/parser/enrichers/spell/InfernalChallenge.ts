@@ -88,7 +88,7 @@ export default class InfernalChallenge extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnStart"],
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 50, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],
       },
     ];

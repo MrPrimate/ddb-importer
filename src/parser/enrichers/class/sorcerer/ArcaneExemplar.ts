@@ -25,7 +25,7 @@ export default class ArcaneExemplar extends DDBEnricherData {
           description: "Flying speed 60 ft; resistance to damage dealt by spells; creatures have disadvantage on saving throws against your sorcerer spells; you regain hit points equal to the spell's level when you cast a spell of 1st level or higher. When the form ends you are stunned until the end of your next turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("Damage dealt by spells", 20, "system.traits.dr.custom"),
         ],
       },

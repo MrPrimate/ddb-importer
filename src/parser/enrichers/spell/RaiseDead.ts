@@ -18,13 +18,13 @@ export default class RaiseDead extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     const keys = [
-      "system.bonuses.abilities.check",
-      "system.bonuses.abilities.save",
-      "system.attributes.init.bonus",
-      "system.bonuses.mwak.attack",
-      "system.bonuses.msak.attack",
-      "system.bonuses.rwak.attack",
-      "system.bonuses.rsak.attack",
+      "system.rolls.ability.check.bonus",
+      "system.rolls.ability.save.bonus",
+      "system.attributes.init.roll.bonus",
+      "system.rolls.attack.mwak.bonus",
+      "system.rolls.attack.msak.bonus",
+      "system.rolls.attack.rwak.bonus",
+      "system.rolls.attack.rsak.bonus",
     ];
     return [1, 2, 3, 4].map((day) => {
       return {

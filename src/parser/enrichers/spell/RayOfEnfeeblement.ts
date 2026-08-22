@@ -74,10 +74,10 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
             description: this.ddbParser?.ddbDefinition?.description ?? "",
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.bonuses.mwak.damage"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.bonuses.rwak.damage"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.bonuses.msak.damage"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.bonuses.rsak.damage"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.rolls.damage.mwak.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.rolls.damage.rwak.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.rolls.damage.msak.bonus"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("-1d8", 20, "system.rolls.damage.rsak.bonus"),
           ],
           midiChanges: [
             DDBEnricherData.ChangeHelper.overrideChange(
