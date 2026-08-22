@@ -6,7 +6,7 @@ export default class MageArmor extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("mage", 5, "system.attributes.ac.calc"),
+          DDBEnricherData.ChangeHelper.acCalcsAddChange("mage", 5),
         ],
         data: {
           img: "icons/equipment/chest/breastplate-helmet-metal.webp",

@@ -6,11 +6,11 @@ export default class UnarmoredDefense extends DDBEnricherData {
     const changes = [];
     if (this.isClass("Barbarian")) {
       changes.push(
-        DDBEnricherData.ChangeHelper.overrideChange("unarmoredBarb", 15, "system.attributes.ac.calc"),
+        DDBEnricherData.ChangeHelper.acCalcsAddChange("unarmoredBarb", 15),
       );
     } else if (this.isClass("Monk")) {
       changes.push(
-        DDBEnricherData.ChangeHelper.overrideChange("unarmoredMonk", 15, "system.attributes.ac.calc"),
+        DDBEnricherData.ChangeHelper.acCalcsAddChange("unarmoredMonk", 15),
       );
     }
     return [

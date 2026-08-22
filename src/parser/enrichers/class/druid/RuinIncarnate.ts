@@ -42,8 +42,7 @@ export default class RuinIncarnate extends DDBEnricherData {
           description: "You have Advantage on attack rolls against Bloodied creatures, you can attack twice when you take the Attack action, and your base AC becomes 17 plus your Wisdom modifier (disable this effect if your AC is already higher).",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("custom", 10, "system.attributes.ac.calc"),
-          DDBEnricherData.ChangeHelper.overrideChange("17 + max(1, @abilities.wis.mod)", 15, "system.attributes.ac.formula"),
+          DDBEnricherData.ChangeHelper.acFormulaAddChange("17 + max(1, @abilities.wis.mod)", 15),
         ],
       },
     ];

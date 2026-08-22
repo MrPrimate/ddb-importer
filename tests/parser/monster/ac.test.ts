@@ -48,14 +48,17 @@ beforeEach(() => {
 });
 
 describe("DDBMonster._generateAC", () => {
-  it("natural armor: natural calc with flat AC", async () => {
+  it("natural armor: natural calcs with flat AC (dnd5e 6.0 shape)", async () => {
     const mock = makeACMonster({ armorClass: 17, armorClassDescription: "(natural armor)" });
     await generateAC.call(mock);
 
     const ac = mock.npc.system.attributes.ac;
-    expect(ac.calc).toBe("natural");
-    expect(ac.flat).toBe(17);
-    expect(ac.label).toBe("natural armor");
+    expect(ac).toEqual({
+      calcs: ["natural"],
+      formulas: [],
+      flat: 17,
+      override: null,
+    });
     expect(mock.npc.flags.ddbimporter.flatAC).toBe(false);
   });
 
@@ -64,7 +67,7 @@ describe("DDBMonster._generateAC", () => {
     await generateAC.call(mock);
 
     const ac = mock.npc.system.attributes.ac;
-    expect(ac.calc).toBe("natural");
+    expect(ac.calcs).toEqual(["natural"]);
     expect(ac.flat).toBe(15);
   });
 
@@ -76,12 +79,12 @@ describe("DDBMonster._generateAC", () => {
   });
 
   it("no description with AC above base: falls back to natural", async () => {
-    // dex 10 gives base 10; flat 15 implies some bonus, so calc goes natural
+    // dex 10 gives base 10; flat 15 implies some bonus, so calcs go natural
     const mock = makeACMonster({ armorClass: 15, armorClassDescription: "" });
     await generateAC.call(mock);
 
     const ac = mock.npc.system.attributes.ac;
-    expect(ac.calc).toBe("natural");
+    expect(ac.calcs).toEqual(["natural"]);
     expect(ac.flat).toBe(15);
     expect(mock.npc.flags.ddbimporter.flatAC).toBe(false);
   });
@@ -102,8 +105,9 @@ describe("DDBMonster._generateAC", () => {
     await generateAC.call(mock);
 
     const ac = mock.npc.system.attributes.ac;
-    expect(ac.calc).toBe("default");
+    expect(ac.calcs).toEqual(["unarmored", "armored"]);
     expect(ac.flat).toBe(null);
+    expect(ac.override).toBe(null);
     expect(mock.npc.flags.ddbimporter.flatAC).toBe(false);
     // the matched armor is equipped and pushed onto the monster's items
     expect(mock.items).toHaveLength(1);
@@ -122,7 +126,7 @@ describe("DDBMonster._generateAC", () => {
     const mock = makeACMonster({ armorClass: 16, armorClassDescription: "(chain mail)" });
     await generateAC.call(mock);
 
-    expect(mock.npc.system.attributes.ac.calc).toBe("natural");
+    expect(mock.npc.system.attributes.ac.calcs).toEqual(["natural"]);
     expect(mock.items).toHaveLength(0);
   });
 
@@ -165,7 +169,7 @@ describe("DDBMonster._generateAC", () => {
     const mageEffect = mock.npc.effects.find((e: any) => e.name === "Mage Armor");
     expect(mageEffect).toBeDefined();
     expect(mageEffect.system.changes).toEqual([
-      { key: "system.attributes.ac.calc", value: "mage", type: "override", priority: 5 },
+      { key: "system.attributes.ac.calcs", value: "mage", type: "add", priority: 5 },
     ]);
     expect(mageEffect.duration).toEqual({ value: 8, units: "hours" });
     expect(mageEffect.origin).toContain("Compendium.ddb.monsters.Actor.testMonsterId000");
@@ -200,11 +204,29 @@ describe("DDBMonster._generateAC", () => {
     ]);
   });
 
+  it("bad AC monster with matched items keeps DDB's number as a hard override (nothing stacks)", async () => {
+    // Arkhan the Cruel: item ACs cannot be reconciled with DDB's total, so the
+    // 6.0 emission hard-overrides rather than letting shield/bonus stack on top
+    getCompendiumItems.mockResolvedValue([
+      { name: "Plate", type: "equipment", system: { type: { value: "heavy" }, equipped: false, quantity: 1 }, effects: [] },
+    ]);
+    const mock = makeACMonster(
+      { name: "Arkhan the Cruel", armorClass: 23, armorClassDescription: "(obsidian flint dragon plate, shield)" },
+      { useItemAC: true },
+    );
+    await generateAC.call(mock);
+
+    const ac = mock.npc.system.attributes.ac;
+    expect(ac.override).toBe(23);
+    expect(ac.flat).toBe(null);
+    expect(mock.npc.flags.ddbimporter.flatAC).toBe(true);
+  });
+
   it("stores the full calculation bag on this.ac", async () => {
     const mock = makeACMonster({ armorClass: 12, armorClassDescription: "(natural armor)" });
     await generateAC.call(mock);
 
-    expect(mock.ac.ac.calc).toBe("natural");
+    expect(mock.ac.ac.calcs).toEqual(["natural"]);
     expect(mock.ac.flatAC).toBe(false);
     expect(mock.ac.badACMonster).toBe(false);
     expect(mock.ac.dexBonus).toBe(0);

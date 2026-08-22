@@ -57,8 +57,7 @@ export default class WoodWose extends DDBEnricherData {
           description: "While you aren't wearing armor, your base Armor Class is 10 plus your Dexterity and Wisdom modifiers, and you have Advantage on Strength and Constitution saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("custom", 10, "system.attributes.ac.calc"),
-          DDBEnricherData.ChangeHelper.overrideChange("10 + @abilities.dex.mod + @abilities.wis.mod", 15, "system.attributes.ac.formula"),
+          DDBEnricherData.ChangeHelper.acFormulaAddChange("10 + @abilities.dex.mod + @abilities.wis.mod", 15),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),

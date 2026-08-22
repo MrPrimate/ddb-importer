@@ -27,7 +27,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
+          DDBEnricherData.ChangeHelper.acCalcsAddChange("unarmoredBard", 10),
         ],
         activityMatch: "No Activity",
       },

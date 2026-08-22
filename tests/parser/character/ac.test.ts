@@ -4,13 +4,6 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async (importOriginal) 
   return {
     ...actual,
     ACBonusEffects: {
-      generateFixedACEffect: vi.fn((_formula: string, _label: string) => ({
-        name: _label,
-        system: { changes: [] },
-        flags: { ddbimporter: { itemId: null, entityTypeId: null, characterEffect: true } },
-        disabled: false,
-        origin: "AC",
-      })),
       generateBonusACEffect: vi.fn((_modifiers: any[], _label: string) => ({
         name: _label,
         system: { changes: [] },
@@ -145,14 +138,17 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
     contextTypeId: null,
   });
 
-  it("sets flat AC with override value", () => {
+  it("sets persisted ac.override with default calcs (dnd5e 6.0 shape)", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
     generateOverride.call(mock, acOverrideValue(18));
 
-    expect(mock.raw.character.system.attributes.ac.flat).toBe(18);
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("flat");
-    expect(mock.raw.character.system.attributes.ac.formula).toBe("");
+    expect(mock.raw.character.system.attributes.ac).toEqual({
+      calcs: ["unarmored", "armored"],
+      formulas: [],
+      flat: null,
+      override: 18,
+    });
   });
 
   it("stores override metadata in flags", () => {
@@ -161,11 +157,6 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
     generateOverride.call(mock, acOverrideValue(15));
 
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(15);
-    expect(mock.raw.character.flags.ddbimporter.overrideAC).toEqual({
-      flat: 15,
-      calc: "flat",
-      formula: "",
-    });
   });
 
   it("stores armor results", () => {
@@ -177,13 +168,15 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
     expect(mock.armor.results.maxType).toBe("override");
   });
 
-  it("adds effect to character effects", () => {
+  it("attaches no effect and writes no legacy flag copies", () => {
     const mock = makeMockCharacter();
     mock.armor = {};
     generateOverride.call(mock, acOverrideValue(16));
 
-    expect(mock.raw.character.effects.length).toBe(1);
-    expect(mock.raw.character.flags.ddbimporter.acEffects).toHaveLength(1);
+    expect(mock.raw.character.effects.length).toBe(0);
+    expect(mock.raw.character.flags.ddbimporter.acEffects).toBeUndefined();
+    expect(mock.raw.character.flags.ddbimporter.autoAC).toBeUndefined();
+    expect(mock.raw.character.flags.ddbimporter.overrideAC).toBeUndefined();
   });
 });
 
@@ -211,8 +204,8 @@ describe("DDBCharacter._generateArmorClass (override path)", () => {
 
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.flat).toBe(22);
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("flat");
+    expect(mock.raw.character.system.attributes.ac.override).toBe(22);
+    expect(mock.raw.character.system.attributes.ac.flat).toBe(null);
     expect(mock.armor.results.maxValue).toBe(22);
   });
 });
@@ -240,12 +233,17 @@ describe("DDBCharacter._generateArmorClass (unarmored default)", () => {
     return mock;
   }
 
-  it("unarmored with 10 DEX: base AC defaults applied", () => {
+  it("unarmored with 10 DEX: default calcs applied", () => {
     const mock = makeACMock();
     generateAC.call(mock);
 
-    // AC calculation produces "default" calc for no special class features
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("default");
+    // no special class features: just the dnd5e 6.0 default calc pair
+    expect(mock.raw.character.system.attributes.ac).toEqual({
+      calcs: ["unarmored", "armored"],
+      flat: null,
+      formulas: [],
+      override: null,
+    });
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBeDefined();
   });
 
@@ -259,20 +257,14 @@ describe("DDBCharacter._generateArmorClass (unarmored default)", () => {
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(12);
   });
 
-  it("stores autoAC in flags", () => {
+  it("does not write the dropped write-only flags (only baseAC survives)", () => {
     const mock = makeACMock();
     generateAC.call(mock);
 
-    expect(mock.raw.character.flags.ddbimporter.autoAC).toBeDefined();
-    expect(mock.raw.character.flags.ddbimporter.autoAC.calc).toBe("default");
-  });
-
-  it("stores overrideAC as flat in flags", () => {
-    const mock = makeACMock();
-    generateAC.call(mock);
-
-    expect(mock.raw.character.flags.ddbimporter.overrideAC).toBeDefined();
-    expect(mock.raw.character.flags.ddbimporter.overrideAC.calc).toBe("flat");
+    expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(10);
+    expect(mock.raw.character.flags.ddbimporter.acEffects).toBeUndefined();
+    expect(mock.raw.character.flags.ddbimporter.autoAC).toBeUndefined();
+    expect(mock.raw.character.flags.ddbimporter.overrideAC).toBeUndefined();
   });
 
   it("equipped non-armor gear does not make character armored", () => {
@@ -297,8 +289,8 @@ describe("DDBCharacter._generateArmorClass (unarmored default)", () => {
 
     generateAC.call(mock);
 
-    // Not armored, so should use default/unarmored calc
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("default");
+    // Not armored, so just the default calc pair
+    expect(mock.raw.character.system.attributes.ac.calcs).toEqual(["unarmored", "armored"]);
   });
 });
 
@@ -352,9 +344,8 @@ describe("DDBCharacter._generateArmorClass (armor type branches)", () => {
 
     expect(mock.armor.results.maxValue).toBe(13);
     expect(mock.armor.results.maxType).toBe("Light");
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("default");
+    expect(mock.raw.character.system.attributes.ac.calcs).toEqual(["unarmored", "armored"]);
     expect(mock.raw.character.system.attributes.ac.flat).toBe(null);
-    expect(mock.raw.character.flags.ddbimporter.overrideAC.flat).toBe(13);
   });
 
   it("medium armor caps dex at 2: scale mail 14 + dex 18 = 16", () => {
@@ -455,7 +446,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("natural");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("natural");
     expect(mock.raw.character.system.attributes.ac.flat).toBe(17);
     expect(mock.armor.results.maxType).toBe("Natural");
   });
@@ -470,14 +461,14 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("natural");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("natural");
     expect(mock.raw.character.system.attributes.ac.flat).toBe(13);
   });
 
   // NOTE: the class "set unarmored-armor-class" modifier is stripped by
   // getChosenClassModifiers (EXCLUDED.ac in dictionary/effects/excluded.ts), so
   // the COMPUTED maxValue/baseAC never includes class Unarmored Defense - the
-  // real in-Foundry AC comes from the calc name, which dnd5e evaluates itself.
+  // real in-Foundry AC comes from the calcs entry, which dnd5e evaluates itself.
   // The 6.0 rework keeps this split: calcs[] carry UD, computed values are
   // validation-only and under-report UD characters.
   it("Barbarian Unarmored Defense: unarmoredBarb calc; computed baseAC stays 10 + dex", () => {
@@ -493,7 +484,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     }, { abilities: { dex: 14, con: 16 } });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBarb");
+    expect(mock.raw.character.system.attributes.ac.calcs).toEqual(["unarmored", "armored", "unarmoredBarb"]);
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(12);
     expect(mock.armor.results.maxType).toBe("Unarmored");
   });
@@ -511,7 +502,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     }, { abilities: { dex: 14, wis: 16 } });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredMonk");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("unarmoredMonk");
     expect(mock.raw.character.flags.ddbimporter.baseAC).toBe(12);
   });
 
@@ -523,7 +514,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("draconic");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("draconic");
   });
 
   it("Draconic Sorcery (2024) sorcerer: unarmoredBard calc", () => {
@@ -534,7 +525,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBard");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("unarmoredBard");
   });
 
   it("College of Dance bard: unarmoredBard calc", () => {
@@ -545,7 +536,7 @@ describe("DDBCharacter._generateArmorClass (natural and unarmored defense)", () 
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.system.attributes.ac.calc).toBe("unarmoredBard");
+    expect(mock.raw.character.system.attributes.ac.calcs).toContain("unarmoredBard");
   });
 
   it("race-sourced unarmored defense DOES enter the computed max (raw race modifiers bypass the effect exclusion)", () => {

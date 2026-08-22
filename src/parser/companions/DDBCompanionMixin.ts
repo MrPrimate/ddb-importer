@@ -325,10 +325,12 @@ export default class DDBCompanionMixin {
     }
 
     if (Number.isInteger(ac)) {
+      // dnd5e 6.0 shape: natural calc reads the flat value
       attributes.ac = {
+        calcs: ["natural"],
+        formulas: [],
         flat: ac,
-        calc: "natural",
-        formula: "",
+        override: null,
       };
 
       const testString = utils.nameString(acString);

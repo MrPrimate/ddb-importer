@@ -586,14 +586,12 @@ export default class DDBVehicle {
 
   #generateAC() {
     // if we are using actor level AC apply
+    // dnd5e 6.0: vehicles keep a persisted calc (initial "flat") and derive
+    // ac.motionless themselves (value - dex mod), so only flat is written now
     if (this.configurations.PCMT === "vehicle" && this.primaryComponent) {
       if (this.configurations.DT === "spelljammer") {
-        // this gets calculated dynamicaly now - todo - check its right
-        foundry.utils.setProperty(this.data, "system.attributes.ac.motionless", this.primaryComponent.definition.armorClassDescription);
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass;
       } else {
-        // this gets calculated dynamicaly now - todo - check its right
-        foundry.utils.setProperty(this.data, "system.attributes.ac.motionless", this.primaryComponent.definition.armorClass);
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass + this.mods["dex"];
       }
     }

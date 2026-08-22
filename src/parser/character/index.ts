@@ -20,7 +20,6 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBC
     flags: {
       ddbimporter: {
         compendium: false,
-        acEffects: [],
         baseAC: 10,
         dndbeyond: {
           totalLevels: null,

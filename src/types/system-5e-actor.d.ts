@@ -856,11 +856,8 @@ global {
     dnd5eName: string;
   }
 
-  interface IDDBPCAutoAC {
-    flat?: number | null;
-    calc?: string;
-    formula?: string;
-  }
+  // IDDBPCAutoAC removed with the 6.0 AC rework: the acEffects/autoAC/overrideAC
+  // flags were write-only and are no longer generated (baseAC survives).
 
   interface IDDBImporterFlagsPrice {
     xgte?: boolean;
@@ -887,10 +884,8 @@ global {
     activeSyncSpells?: boolean;
     syncItemReady?: boolean;
     syncActionReady?: boolean;
-    acEffects?: I5eEffectData[];
+    /** DDB's computed base AC, kept as a validation breadcrumb. */
     baseAC?: number;
-    autoAC?: IDDBPCAutoAC;
-    overrideAC?: IDDBPCAutoAC;
     rolledHP?: boolean;
     baseHitPoints?: number;
     fixedBonusHitPointValuesWithEffects?: number;

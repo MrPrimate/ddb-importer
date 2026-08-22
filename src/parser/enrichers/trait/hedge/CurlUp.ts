@@ -46,8 +46,9 @@ export default class CurlUp extends DDBEnricherData {
           description: "AC 19 (no Dexterity bonus, shields allowed); you cannot move, attack, or cast spells with somatic components. If hit you are knocked prone at the end of the turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("flat", 50, "system.attributes.ac.calc"),
-          DDBEnricherData.ChangeHelper.overrideChange("19", 50, "system.attributes.ac.flat"),
+          // formulas add: base AC 19 with no dex, but shields and bonuses still
+          // stack ("shields allowed") - the old flat calc wrongly bypassed them
+          DDBEnricherData.ChangeHelper.acFormulaAddChange("19", 50),
           DDBEnricherData.ChangeHelper.multiplyChange("0", 50, "system.attributes.movement.walk"),
         ],
       },

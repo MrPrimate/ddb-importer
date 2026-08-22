@@ -72,48 +72,9 @@ describe("ACBonusEffects.generateACFormulaEffect", () => {
   });
 });
 
-// =============================================================================
-// ACBonusEffects.generateFixedACEffect
-// =============================================================================
-describe("ACBonusEffects.generateFixedACEffect", () => {
-  it("emits a custom calc override and a formula override at the given priority", () => {
-    const effect = ACBonusEffects.generateFixedACEffect("13 + @abilities.dex.mod", "AC Test", false, 22);
-
-    expect(effect.system!.changes!).toEqual([
-      { key: "system.attributes.ac.calc", value: "custom", type: "override", priority: 22 },
-      { key: "system.attributes.ac.formula", value: "13 + @abilities.dex.mod", type: "override", priority: 22 },
-    ]);
-  });
-
-  it("defaults to override type at priority 30", () => {
-    const effect = ACBonusEffects.generateFixedACEffect("15", "AC Flat");
-
-    expect(effect.system!.changes!).toHaveLength(2);
-    for (const change of effect.system!.changes!) {
-      expect(change.type).toBe("override");
-      expect(change.priority).toBe(30);
-    }
-  });
-
-  it("marks the effect as an always-on AC armor effect", () => {
-    const effect = ACBonusEffects.generateFixedACEffect("15", "AC Flat", true);
-
-    expect(effect.disabled).toBe(false);
-    expect(effect.transfer).toBe(true);
-    expect(effect.origin).toBe("AC");
-    expect(effect.flags!.dae).toEqual({ transfer: true, armorEffect: true });
-    expect(effect.flags!.ddbimporter!.disabled).toBe(false);
-    expect(effect.flags!.ddbimporter!.characterEffect).toBe(true);
-  });
-
-  it("flags ddbimporter.disabled when not alwaysActive", () => {
-    const effect = ACBonusEffects.generateFixedACEffect("15", "AC Flat", false);
-
-    expect(effect.flags!.ddbimporter!.disabled).toBe(true);
-    // the effect itself is still enabled; only the importer flag records it
-    expect(effect.disabled).toBe(false);
-  });
-});
+// generateFixedACEffect was deleted with the 6.0 rework (its calc:"custom" +
+// formula override pair is superseded by generateACFormulaEffect above and the
+// per-armor fixed effects are no longer generated at all).
 
 // =============================================================================
 // ACBonusEffects.generateBonusACEffect
@@ -211,38 +172,22 @@ describe("DDBCharacter._generateArmorClass (real effect emission)", () => {
     expect(change.priority).toBe(30);
   });
 
-  it("per-armor fixed AC effects land only in flags.ddbimporter.acEffects, never on the actor", () => {
+  it("no per-armor fixed AC effects are generated (calcs/formulas in actor data replace them)", () => {
     const mock = makeACMock();
     generateAC.call(mock);
 
-    // the base Unarmored option generates one fixed effect
-    const acEffects = mock.raw.character.flags.ddbimporter.acEffects;
-    expect(acEffects.length).toBeGreaterThanOrEqual(1);
-    const changes = acEffects[0].system.changes;
-    expect(changes.map((c: any) => c.key)).toEqual([
-      "system.attributes.ac.calc",
-      "system.attributes.ac.formula",
-    ]);
-    expect(changes[0].value).toBe("custom");
-
-    // and none of them are attached to the actor's effects
-    const attachedFixed = mock.raw.character.effects.filter((e: any) =>
-      (e.system?.changes ?? []).some((c: any) => c.key === "system.attributes.ac.calc"),
-    );
-    expect(attachedFixed).toEqual([]);
+    expect(mock.raw.character.flags.ddbimporter.acEffects).toBeUndefined();
+    expect(mock.raw.character.effects).toEqual([]);
   });
 
-  it("override path attaches exactly one fixed effect with flat custom calc", () => {
+  it("override path attaches no effect and no flag copy (persisted ac.override replaces both)", () => {
     const mock = makeACMock({
       characterValues: [{ typeId: 1, value: 21 }],
     });
     generateAC.call(mock);
 
-    expect(mock.raw.character.effects).toHaveLength(1);
-    const changes = mock.raw.character.effects[0].system.changes;
-    expect(changes).toEqual([
-      { key: "system.attributes.ac.calc", value: "custom", type: "override", priority: 30 },
-      { key: "system.attributes.ac.formula", value: "21", type: "override", priority: 30 },
-    ]);
+    expect(mock.raw.character.effects).toHaveLength(0);
+    expect(mock.raw.character.flags.ddbimporter.acEffects).toBeUndefined();
+    expect(mock.raw.character.system.attributes.ac.override).toBe(21);
   });
 });

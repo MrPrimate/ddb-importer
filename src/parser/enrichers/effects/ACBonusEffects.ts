@@ -73,7 +73,7 @@ export default class ACBonusEffects {
    * by the system's ACFormulasField into {formula, label: effect.name}, so the
    * effect name doubles as the formula label on the sheet.
    *
-   * This is the 6.0 replacement for generateFixedACEffect's calc:"custom" +
+   * This is the 6.0 replacement for the old fixed-AC effect's calc:"custom" +
    * formula override pair.
    */
   static generateACFormulaEffect(formula: string, label: string, alwaysActive = false, priority = 20): I5eEffectData {
@@ -91,36 +91,5 @@ export default class ACBonusEffects {
 
     return effect;
   }
-
-  /**
-   *
-   * Generate an effect given inputs for AC
-   * This is a high priority set effect that will typically override all other AE.
-   * @param {string} formula
-   * @param {string} label
-   * @param {boolean} alwaysActive
-   * @param {number} priority
-   * @param {TActiveEffectChangeType} type
-   * @returns {object} effect
-   */
-  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, type: TActiveEffectChangeType = "override"): I5eEffectData {
-    const effect = ACBonusEffects.ACEffect(label);
-
-    effect.flags = {
-      dae: { transfer: true, armorEffect: true },
-      ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null, characterEffect: true },
-    };
-    // effect.disabled = !alwaysActive;
-    effect.disabled = false;
-    effect.origin = "AC";
-
-    const formulaChange: IActiveEffectChangeData = { key: "system.attributes.ac.formula", value: formula, type, priority };
-    const calcChange: IActiveEffectChangeData = { key: "system.attributes.ac.calc", value: "custom", type, priority };
-    const system = (effect.system ??= {});
-    (system.changes ??= []).push(calcChange, formulaChange);
-
-    return effect;
-  }
-
 
 }

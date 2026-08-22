@@ -700,38 +700,6 @@ export default class CharacterFeatureFactory {
     return results;
   }
 
-  fixAcEffects(type: keyof CharacterFeatureFactory["parsed"] = "features") {
-    const armorResults = this.ddbCharacter.armor.results;
-    if (!armorResults) {
-      logger.warn("fixAcEffects: no armor calculation results available, skipping AC effect fixes");
-      return;
-    }
-    for (const feature of this.parsed[type]) {
-      logger.debug(`Checking ${feature.name} for AC effects`);
-      for (const effect of (feature.effects ?? [])) {
-        const changes = effect.system?.changes ?? [];
-        if (
-          !["Custom", "Unarmored"].includes(armorResults.maxType)
-          && (
-            (changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
-            && changes.some((change) => change.key === "system.attributes.ac.formula")
-            && changes.some((change) => change.key === "system.attributes.ac.calc"))
-            || (changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
-              && changes.some((change) => change.key === "system.attributes.ac.calc"))
-          )
-        ) {
-          if ((feature.flags.ddbimporter?.type === "race" && armorResults.maxType === "Natural")
-            || (feature.flags.ddbimporter?.type === "class" && armorResults.maxType === "Unarmored Defense")
-          ) {
-            effect.disabled = false;
-          } else {
-            logger.debug(`Disabling AC effect on ${feature.name} as not applicable for armor type ${armorResults.maxType}`);
-            effect.disabled = true;
-          }
-        }
-      }
-    }
-  }
 
   async _buildRacialTraits(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     logger.debug("Parsing racial traits");
@@ -975,7 +943,6 @@ export default class CharacterFeatureFactory {
     for (const feature of this.parsed.features) {
       await DDBFeatureMixin.finalFixes(feature);
     }
-    this.fixAcEffects();
     this.processed.features = foundry.utils.deepClone(this.parsed.features);
 
     this.updateIds("features");

@@ -1007,25 +1007,9 @@ export default class EffectGenerator {
       }
 
       logger.debug(`Generating ${subType} AC set for ${this.document.name}: ${formula}`);
-      this.effect.system.changes.push(
-        {
-          key: "system.attributes.ac.formula",
-          value: formula,
-          type: "override",
-          priority: 15,
-        },
-      );
 
-      const calcType = "entityType" in this.ddbItem && this.ddbItem.entityType === "racial-trait"
-        ? "natural"
-        : "custom";
       this.effect.system.changes.push(
-        {
-          key: "system.attributes.ac.calc",
-          value: calcType,
-          type: "override",
-          priority: 10,
-        },
+        ChangeHelper.acFormulaAddChange(formula, 15),
       );
     }
   }

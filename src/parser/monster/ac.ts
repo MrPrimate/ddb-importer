@@ -1,6 +1,7 @@
 import { logger, DDBItemImporter, utils, CompendiumHelper } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import ACBonusEffects from "../enrichers/effects/ACBonusEffects";
+import ChangeHelper from "../enrichers/effects/ChangeHelper";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
@@ -14,12 +15,16 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   }
 
   const originalAc = parseInt(String(this.source.armorClass));
+  // dnd5e 6.0 shape: the system evaluates calcs/formulas against equipped items
+  // and takes the max; `ac.label` is derived now and no longer written.
   const ac: I5eArmorClass = {
+    calcs: [],
+    formulas: [],
     flat: originalAc,
-    calc: "",
-    formula: "",
-    label: this.source.armorClassDescription ? this.source.armorClassDescription.replace("(", "").replace(")", "") : "",
+    override: null,
   };
+  // tracks the prose-derived natural-armor state that used to live in ac.calc
+  let natural = false;
 
   let flatAC = true;
 
@@ -58,7 +63,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     descriptionItems.forEach((item) => {
       let lowerItem = item.toLowerCase();
       if (lowerItem == "natural" || lowerItem == "natural armor") {
-        ac.calc = "natural";
+        natural = true;
         flatAC = false;
 
         let flat = ac.flat ?? originalAc;
@@ -175,12 +180,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
       statuses: [],
       system: {
         changes: [
-          {
-            key: "system.attributes.ac.calc",
-            value: "mage",
-            type: "override",
-            priority: 5,
-          },
+          ChangeHelper.acCalcsAddChange("mage", 5),
         ],
       },
       duration: {
@@ -220,19 +220,33 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     }
   }
 
-  if (acItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
+  let useDefaultCalcs = false;
+  if (acItems.length === 0 && !natural && baseAc !== ac.flat) {
     // some kind o bonus in play, set to natural
-    ac.calc = "natural";
+    natural = true;
     flatAC = false;
-  } else if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
+  } else if (this.useItemAC && !natural && !badACMonster) {
+    // items drive the AC: the system computes from the equipped armor
     ac.flat = null;
-    ac.calc = "default";
-    ac.formula = "";
+    useDefaultCalcs = true;
     flatAC = false;
-  } else if ((!this.useItemAC && ac.calc !== "natural") || adjustedItems.length === 0) {
+  } else if ((!this.useItemAC && !natural) || adjustedItems.length === 0) {
     // default monsters with no ac equipment to natural
-    ac.calc = "natural";
+    natural = true;
     flatAC = false;
+  }
+
+  // emit the dnd5e 6.0 calcs. Natural uses flat (base = flat, shield/bonus/cover
+  // still stack); the residual flatAC case (badACMonster with matched items -
+  // DDB's number cannot be reconciled) hard-overrides so nothing stacks on top.
+  if (natural) {
+    ac.calcs = ["natural"];
+  } else if (useDefaultCalcs) {
+    ac.calcs = ["unarmored", "armored"];
+  } else {
+    ac.calcs = ["unarmored", "armored"];
+    ac.override = ac.flat ?? originalAc;
+    ac.flat = null;
   }
 
   this.npc.effects ??= [];

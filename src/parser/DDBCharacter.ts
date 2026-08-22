@@ -45,7 +45,6 @@ export interface IDDBCalculatedArmor {
 export interface IDDBACResults {
   actorBase?: number;
   armorClassValues?: IDDBACValue[];
-  effects?: I5eEffectData[];
   maxType: string;
   maxValue: number;
   maxData?: IDDBACValue;
