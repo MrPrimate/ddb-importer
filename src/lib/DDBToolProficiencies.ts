@@ -30,22 +30,10 @@ export default class DDBToolProficiencies {
     return `${PLACEHOLDER_PREFIX}${utils.idString(key)}`.slice(0, 20);
   }
 
-  /**
-   * Give the tool a label the system can find. dnd5e resolves tool labels from the linked
-   * compendium item's name, and falls back to searching CONFIG.DND5E.toolProficiencies
-   * before giving up and displaying the raw key.
-   */
   static #registerLabel(key: string, name: string, toolType: string): void {
-    if (!GROUPED_TOOL_TYPES.includes(toolType)) {
-      foundry.utils.setProperty(CONFIG.DND5E.toolProficiencies, key, { label: name });
-      return;
-    }
-
-    const group = foundry.utils.getProperty(CONFIG.DND5E.toolProficiencies, toolType);
-    if (foundry.utils.getType(group) !== "Object") {
-      foundry.utils.setProperty(CONFIG.DND5E.toolProficiencies, toolType, { label: group, children: {} });
-    }
-    foundry.utils.setProperty(CONFIG.DND5E.toolProficiencies, `${toolType}.children.${key}`, { label: name });
+    if (GROUPED_TOOL_TYPES.includes(toolType)) return;
+    if (key in CONFIG.DND5E.toolProficiencies) return;
+    foundry.utils.setProperty(CONFIG.DND5E.toolProficiencies, key, name);
   }
 
   /**

@@ -56,23 +56,17 @@ describe("DDBToolProficiencies.register", () => {
     expect(config.DND5E.tools.wargong.id.length).toBeGreaterThan(0);
   });
 
-  it("nests a grouped tool under its category, keeping the category label", () => {
-    DDBToolProficiencies.register({ key: "wargong", name: "Wargong", ability: "dex", toolType: "music" });
-
-    expect(config.DND5E.toolProficiencies.music).toEqual({
-      label: "Musical Instrument",
-      children: { wargong: { label: "Wargong" } },
-    });
-    // untouched categories stay as plain strings
-    expect(config.DND5E.toolProficiencies.art).toBe("Artisan's Tools");
-  });
-
-  it("adds further tools to an already promoted category", () => {
+  it("leaves the category string untouched for a grouped tool", () => {
+    // toolProficiencies is an enum of strings; modules like Epic Rolls call .localeCompare on
+    // the values, so a {label, children} object there crashes them
     DDBToolProficiencies.register({ key: "wargong", name: "Wargong", ability: "dex", toolType: "music" });
     DDBToolProficiencies.register({ key: "glaur", name: "Glaur", ability: "dex", toolType: "music" });
 
-    expect(config.DND5E.toolProficiencies.music.label).toBe("Musical Instrument");
-    expect(Object.keys(config.DND5E.toolProficiencies.music.children)).toEqual(["wargong", "glaur"]);
+    expect(config.DND5E.toolProficiencies.music).toBe("Musical Instrument");
+    expect(config.DND5E.toolProficiencies.wargong).toBeUndefined();
+    expect(config.DND5E.toolProficiencies.glaur).toBeUndefined();
+    expect(config.DND5E.tools.wargong.ability).toBe("dex");
+    expect(config.DND5E.tools.glaur.ability).toBe("dex");
   });
 
   it("registers an ungrouped tool at the top level", () => {
@@ -80,7 +74,8 @@ describe("DDBToolProficiencies.register", () => {
       key: "surgeonstools", name: "Surgeon’s Tools", ability: "wis", toolType: "",
     });
 
-    expect(config.DND5E.toolProficiencies.surgeonstools).toEqual({ label: "Surgeon’s Tools" });
+    expect(config.DND5E.toolProficiencies.surgeonstools).toBe("Surgeon’s Tools");
+    expect(Object.values(config.DND5E.toolProficiencies).every((v) => typeof v === "string")).toBe(true);
   });
 
   it("never clobbers a tool the system already defines", () => {
