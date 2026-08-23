@@ -34,10 +34,6 @@ export default class ManeuverShapeOfTheBehemoth extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.width", "upgrade", 2, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.height", "upgrade", 2, 5),
-        ],
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d6", 20, "system.rolls.damage.mwak.bonus"),

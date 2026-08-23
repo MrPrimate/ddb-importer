@@ -28,9 +28,6 @@ export default class AdaptiveWildShapeIncreaseDarkvision extends DDBEnricherData
       changes: [
         DDBEnricherData.ChangeHelper.addChange("30", 20, "system.attributes.senses.ranges.darkvision"),
       ],
-      atlChanges: [
-        DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "add", 30, 5),
-      ],
     }];
   }
 

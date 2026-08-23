@@ -95,10 +95,6 @@ export default class ApocalypticRevelation extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.ranges.truesight"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.sight.range"),
-        ],
       },
       {
         name: "Blinding Glory: Blinded",

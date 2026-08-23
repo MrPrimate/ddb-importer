@@ -71,10 +71,6 @@ export default class MortalBulwark extends DDBEnricherData {
       changes: [
         DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.truesight"),
       ],
-      atlChanges: [
-        DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
-      ],
       activitiesMatch: ["Activate Mortal Bulwark"],
     }];
   }

@@ -24,10 +24,6 @@ export default class LargeForm extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.width"),
-          DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.height"),
-        ],
       },
     ];
   }

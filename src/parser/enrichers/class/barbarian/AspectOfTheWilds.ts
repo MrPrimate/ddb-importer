@@ -65,10 +65,6 @@ export default class AspectOfTheWilds extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.ranges.darkvision"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "add", 60, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "override", "darkvision", 5),
-        ],
       },
       {
         name: "Panther",

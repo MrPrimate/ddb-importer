@@ -25,9 +25,8 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     tokenData.sight = sight;
     const detectionModes = tokenData.detectionModes ?? {};
     tokenData.detectionModes = detectionModes;
-    const atlActive = game.modules?.get("ATL")?.active;
-    // if atl is active it can add vision upgrade effects, otherwise we don't take effects into account
-    const senses = this.getSenses({ includeEffects: !atlActive }) as I5eSenses;
+    // vision from effect-granted senses is applied live by the system's sense sync
+    const senses = this.getSenses({ includeEffects: false }) as I5eSenses;
     // darkvision: 0,
     // blindsight: 0,
     // tremorsense: 0,

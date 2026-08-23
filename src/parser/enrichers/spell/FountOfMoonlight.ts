@@ -3,27 +3,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class FountOfMoonlight extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return {
-        name: "Cast Spell",
-      };
-    } else {
-      return {
-        name: "Cast Spell",
-        data: {
-          macro: {
-            name: "Place Light on Token",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: `{"distance":20,"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}`,
-          },
-        },
-      };
-    }
+    return {
+      name: "Cast Spell",
+    };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

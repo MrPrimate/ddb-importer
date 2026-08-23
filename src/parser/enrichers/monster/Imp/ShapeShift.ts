@@ -26,8 +26,8 @@ export default class ShapeShift extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.walk"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.speeds.fly"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/mammals/rodent-rat-green.webp", 5, "ATL.texture.src"),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/mammals/rodent-rat-green.webp", 5, "token.texture.src"),
         ],
         data: {
           img: "icons/creatures/mammals/rodent-rat-green.webp",
@@ -42,8 +42,8 @@ export default class ShapeShift extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.walk"),
           DDBEnricherData.ChangeHelper.overrideChange("60", 5, "system.attributes.movement.speeds.fly"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/birds/raptor-hawk-flying.webp", 5, "ATL.texture.src"),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/birds/raptor-hawk-flying.webp", 5, "token.texture.src"),
         ],
         data: {
           img: "icons/creatures/birds/raptor-hawk-flying.webp",
@@ -59,8 +59,8 @@ export default class ShapeShift extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("20", 5, "system.attributes.movement.speeds.climb"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 5, "system.attributes.movement.speeds.fly"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/invertebrates/spider-dotted-green.webp", 5, "ATL.texture.src"),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("icons/creatures/invertebrates/spider-dotted-green.webp", 5, "token.texture.src"),
         ],
         data: {
           img: "icons/creatures/invertebrates/spider-dotted-green.webp",

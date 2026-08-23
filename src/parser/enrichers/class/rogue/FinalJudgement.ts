@@ -84,9 +84,9 @@ export default class FinalJudgement extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d4[radiant]", 20, "system.rolls.damage.mwak.bonus"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", 30, 20),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", 60, 20),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.bright", "upgrade", 30, 20),
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.dim", "upgrade", 60, 20),
         ],
       },
     ];

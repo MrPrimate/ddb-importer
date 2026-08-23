@@ -41,10 +41,7 @@ export default class StoneRune extends DDBEnricherData {
         name: "Stone Rune: Passive Bonuses",
         changes: [
           DDBEnricherData.ChangeHelper.advantageSkillChange("ins"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 120, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "override", "darkvision", 5),
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.darkvision"),
         ],
       },
       {

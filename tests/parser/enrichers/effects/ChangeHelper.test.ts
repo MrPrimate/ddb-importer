@@ -204,44 +204,32 @@ describe("ChangeHelper.damageResistanceChange", () => {
   });
 });
 
-describe("ChangeHelper.atlChange", () => {
-  it("maps legacy ATL.dimLight to ATL.light.dim", () => {
-    const result = ChangeHelper.atlChange("ATL.dimLight", "override", "30");
-    expect(result.key).toBe("ATL.light.dim");
+describe("ChangeHelper.tokenChange", () => {
+  it("translates legacy ATL.dimLight to the native token light key", () => {
+    const result = ChangeHelper.tokenChange("ATL.dimLight", "override", "30");
+    expect(result.key).toBe("token.light.dim");
   });
 
-  it("maps legacy ATL.brightLight to ATL.light.bright", () => {
-    const result = ChangeHelper.atlChange("ATL.brightLight", "override", "15");
-    expect(result.key).toBe("ATL.light.bright");
+  it("translates the other legacy ATL light aliases", () => {
+    expect(ChangeHelper.tokenChange("ATL.brightLight", "override", "15").key).toBe("token.light.bright");
+    expect(ChangeHelper.tokenChange("ATL.lightAnimation", "override", "{}").key).toBe("token.light.animation");
+    expect(ChangeHelper.tokenChange("ATL.lightColor", "override", "#ff0000").key).toBe("token.light.color");
+    expect(ChangeHelper.tokenChange("ATL.lightAlpha", "override", "0.5").key).toBe("token.light.alpha");
+    expect(ChangeHelper.tokenChange("ATL.lightAngle", "override", "360").key).toBe("token.light.angle");
   });
 
-  it("maps legacy ATL.lightAnimation to ATL.light.animation", () => {
-    const result = ChangeHelper.atlChange("ATL.lightAnimation", "override", "{}");
-    expect(result.key).toBe("ATL.light.animation");
+  it("translates a modern ATL key prefix to token", () => {
+    const result = ChangeHelper.tokenChange("ATL.sight.range", "upgrade", "60");
+    expect(result.key).toBe("token.sight.range");
   });
 
-  it("maps legacy ATL.lightColor to ATL.light.color", () => {
-    const result = ChangeHelper.atlChange("ATL.lightColor", "override", "#ff0000");
-    expect(result.key).toBe("ATL.light.color");
-  });
-
-  it("maps legacy ATL.lightAlpha to ATL.light.alpha", () => {
-    const result = ChangeHelper.atlChange("ATL.lightAlpha", "override", "0.5");
-    expect(result.key).toBe("ATL.light.alpha");
-  });
-
-  it("maps legacy ATL.lightAngle to ATL.light.angle", () => {
-    const result = ChangeHelper.atlChange("ATL.lightAngle", "override", "360");
-    expect(result.key).toBe("ATL.light.angle");
-  });
-
-  it("passes through non-legacy keys unchanged", () => {
-    const result = ChangeHelper.atlChange("ATL.light.dim", "upgrade", "60");
-    expect(result.key).toBe("ATL.light.dim");
+  it("passes native token keys through unchanged", () => {
+    const result = ChangeHelper.tokenChange("token.light.dim", "upgrade", "60");
+    expect(result.key).toBe("token.light.dim");
   });
 
   it("includes type, value, and priority", () => {
-    const result = ChangeHelper.atlChange("ATL.dimLight", "override", "30", 25);
+    const result = ChangeHelper.tokenChange("ATL.dimLight", "override", "30", 25);
     expect(result.type).toBe("override");
     expect(result.value).toBe("30");
     expect(result.priority).toBe(25);

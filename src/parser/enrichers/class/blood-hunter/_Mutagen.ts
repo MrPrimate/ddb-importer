@@ -11,7 +11,7 @@ interface IMutagenEffectArgs {
   changes?: IActiveEffectChangeData[];
   midiChanges?: IActiveEffectChangeData[];
   ac5eChanges?: IAC5eActiveEffectChangeData[];
-  atlChanges?: IActiveEffectChangeData[];
+  tokenChanges?: IActiveEffectChangeData[];
   durationSeconds?: number | null;
   level?: IMutagenLevel;
   nameSuffix?: string;
@@ -94,7 +94,7 @@ export default class _Mutagen extends _BloodHunter {
     changes = [],
     midiChanges = [],
     ac5eChanges = [],
-    atlChanges = [],
+    tokenChanges = [],
     durationSeconds = null,
     level = undefined,
     nameSuffix = "",
@@ -128,7 +128,7 @@ export default class _Mutagen extends _BloodHunter {
 
     if (midiChanges.length > 0) hint.midiChanges = midiChanges;
     if (ac5eChanges.length > 0) hint.ac5eChanges = ac5eChanges;
-    if (atlChanges.length > 0) hint.atlChanges = atlChanges;
+    if (tokenChanges.length > 0) hint.tokenChanges = tokenChanges;
 
     return hint;
   }

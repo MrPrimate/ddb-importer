@@ -100,9 +100,9 @@ export default class BurningSpirit extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange("10", 20),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "@scale.paladin.aura-of-protection", 20),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "@scale.paladin.aura-of-protection + 30", 20),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.bright", "upgrade", "@scale.paladin.aura-of-protection", 20),
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.dim", "upgrade", "@scale.paladin.aura-of-protection + 30", 20),
         ],
       },
     ];

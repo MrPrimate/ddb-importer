@@ -55,19 +55,12 @@ export default class AdaptiveWildShapeDarkvision extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.attributes.senses.ranges.darkvision"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", 60, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "override", "darkvision", 5),
-        ],
       },
       {
         name: "Adaptive Wild Shape: Increased Darkvision",
         activityMatch: "Increase Darkvision",
         changes: [
           DDBEnricherData.ChangeHelper.addChange("30", 20, "system.attributes.senses.ranges.darkvision"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "add", 30, 5),
         ],
       },
     ];

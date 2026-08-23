@@ -52,8 +52,8 @@ export default class RevelationInFlesh extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "token.detectionModes.seeInvisibility.range"),
         ],
       },
       {

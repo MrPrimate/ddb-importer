@@ -24,10 +24,6 @@ export default class RageOfTheGiants extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.width"),
-          DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.height"),
-        ],
       },
     ];
   }

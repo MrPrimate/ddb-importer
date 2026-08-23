@@ -39,9 +39,6 @@ export default class BlindnessDeafness extends DDBEnricherData {
       {
         name: "Blindness",
         activityMatch: "Blindness",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 99, "ATL.sight.range"),
-        ],
         statuses: ["Blinded"],
         midiChanges,
         options: {

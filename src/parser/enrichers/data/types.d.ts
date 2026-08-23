@@ -248,7 +248,8 @@ global {
     // Changes
     changes?: IActiveEffectChangeData[];
     changesOverwrite?: boolean;
-    atlChanges?: IActiveEffectChangeData[];
+    /** Changes on `token.*` keys (light, sight, detectionModes, texture...), applied natively by Foundry. */
+    tokenChanges?: IActiveEffectChangeData[];
     tokenMagicChanges?: IActiveEffectChangeData[];
     midiChanges?: IActiveEffectChangeData[];
     daeChanges?: IActiveEffectChangeData[];
@@ -289,8 +290,6 @@ global {
     daeNever?: boolean;
     ac5eOnly?: boolean;
     ac5eNever?: boolean;
-    atlOnly?: boolean;
-    atlNever?: boolean;
     midiOnly?: boolean;
     midiNever?: boolean;
     activeAurasOnly?: boolean;

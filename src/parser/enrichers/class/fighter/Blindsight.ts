@@ -12,9 +12,6 @@ export default class Blindsight extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.senses.ranges.blindsight"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "ATL.detectionModes.blindsight.range"),
-        ],
       },
     ];
   }

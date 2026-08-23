@@ -96,7 +96,7 @@ export default class DDBEffectHelper {
   }
 
   static get generateATLChange() {
-    return ChangeHelper.atlChange;
+    return ChangeHelper.tokenChange;
   }
 
   static getMonsterFeatureDamage(damageText: string, featureDoc: TAll5eItemDocuments | null = null): IDDBMonsterActionDataDamagePart[] {

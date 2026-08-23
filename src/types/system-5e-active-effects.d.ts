@@ -163,7 +163,6 @@ global {
     hasMonster: boolean;
     daeInstalled: boolean;
     midiQolInstalled: boolean;
-    atlInstalled: boolean;
     tokenMagicInstalled: boolean;
     activeAurasInstalled: boolean;
     auraeffectsInstalled: boolean;

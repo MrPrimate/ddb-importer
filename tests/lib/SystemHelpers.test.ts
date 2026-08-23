@@ -255,7 +255,6 @@ describe("effectModules", () => {
 
   it("detects the other effect modules", () => {
     setMockModules({
-      ATL: { active: true },
       tokenmagic: { active: true },
       ActiveAuras: { active: true },
       auraeffects: { active: true },
@@ -263,7 +262,6 @@ describe("effectModules", () => {
       "vision-5e": { active: true },
     });
     const result = SystemHelpers.effectModules();
-    expect(result.atlInstalled).toBe(true);
     expect(result.tokenMagicInstalled).toBe(true);
     expect(result.activeAurasInstalled).toBe(true);
     expect(result.auraeffectsInstalled).toBe(true);

@@ -404,7 +404,7 @@ describe("pugilist GrotesqueGrowth", () => {
     expect(e.effects).toHaveLength(1);
     expect(e.effects[0]).toMatchObject({ name: "Grotesque Growth", options: { durationSeconds: 60 } });
     expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
-      // ["system.traits.size", "lg"],
+      ["system.traits.size", "1"],
       ["system.abilities.str.check.roll.mode", "1"],
       ["system.abilities.str.save.roll.mode", "1"],
       ["system.rolls.damage.mwak.bonus", "1d4"],
@@ -435,10 +435,11 @@ describe("pugilist GrotesqueGrowth", () => {
     expect(build(Enricher, { isAction: true }).type).toBeNull();
   });
 
-  it("upgrades the token to Large and sets a 10 foot reach for AC5e", () => {
+  it("grows one size category and sets a 10 foot reach for AC5e", () => {
     const e = build(Enricher);
-    expect(e.effects[0].atlChanges.map((c: any) => [c.key, c.type, c.value]))
-      .toEqual([["ATL.width", "upgrade", "2"], ["ATL.height", "upgrade", "2"]]);
+    // one size step on the actor; dnd5e derives the token dimensions from size
+    expect(e.effects[0].changes[0]).toMatchObject({ key: "system.traits.size", type: "add", value: "1" });
+    expect(e.effects[0].tokenChanges).toBeUndefined();
     expect(e.effects[0].ac5eChanges[0]).toMatchObject({
       key: "flags.automated-conditions-5e.range",
       value: "reach=10",

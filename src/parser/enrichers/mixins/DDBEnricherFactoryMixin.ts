@@ -624,8 +624,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (effectHint.auraeffectsOnly && !AutoEffects.effectModules().auraeffectsInstalled) continue;
       if (effectHint.aurasNever && (AutoEffects.effectModules().auraeffectsInstalled || AutoEffects.effectModules().activeAurasInstalled)) continue;
       if (effectHint.aurasOnly && !AutoEffects.effectModules().auraeffectsInstalled && !AutoEffects.effectModules().activeAurasInstalled) continue;
-      if (effectHint.atlNever && AutoEffects.effectModules().atlInstalled) continue;
-      if (effectHint.atlOnly && !AutoEffects.effectModules().atlInstalled) continue;
       const name = effectHint.name ?? this.name ?? "";
       const effectOptions = effectHint.options ?? {};
 
@@ -715,8 +713,8 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         }
       }
 
-      if (effectHint.atlChanges && AutoEffects.effectModules().atlInstalled) {
-        this._ensureEffectChanges(effect).push(...effectHint.atlChanges);
+      if (effectHint.tokenChanges) {
+        this._ensureEffectChanges(effect).push(...effectHint.tokenChanges);
       }
 
       if (effectHint.tokenMagicChanges && AutoEffects.effectModules().tokenMagicInstalled) {

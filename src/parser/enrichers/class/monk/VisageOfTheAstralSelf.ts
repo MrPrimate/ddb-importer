@@ -30,10 +30,6 @@ export default class VisageOfTheAstralSelf extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.advantageSkillChange("itm"),
           DDBEnricherData.ChangeHelper.advantageSkillChange("ins"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
-          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
-        ],
         data: {
           flags: {
             dae: {

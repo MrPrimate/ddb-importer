@@ -432,10 +432,6 @@ export default class EffectGenerator {
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
         this.effect.system.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.ranges.${sense}`));
-        if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.system.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, "ATL.sight.range"));
-          this.effect.system.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", "override", sense, 5));
-        }
       }
       const bonus = this.grantedModifiers
         .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
@@ -443,10 +439,6 @@ export default class EffectGenerator {
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
         this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.ranges.${sense}`));
-        if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "ATL.sight.range"));
-          this.effect.system.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", "override", sense, 6));
-        }
       }
     });
   }

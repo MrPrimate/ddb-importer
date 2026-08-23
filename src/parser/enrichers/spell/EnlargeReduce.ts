@@ -14,12 +14,7 @@ export default class EnlargeReduce extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.damage.rwak.bonus"),
           DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.width"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.height"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "ATL.width"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "ATL.height"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.traits.size"),
         ],
       },
       {
@@ -32,12 +27,7 @@ export default class EnlargeReduce extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.subtractChange("1d4", 20, "system.rolls.damage.rwak.bonus"),
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
           DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("str"),
-          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.width"),
-          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.height"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "ATL.width"),
-          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "ATL.height"),
+          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "system.traits.size"),
         ],
       },
     ];

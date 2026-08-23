@@ -719,10 +719,6 @@ export default class ArmorModel extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
           // DDBEnricherData.ChangeHelper.addChange("", 20, "system.range"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.width"),
-          DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.height"),
-        ],
         data: {
           _id: "ddbGiantStatue03",
           duration: {
@@ -737,10 +733,6 @@ export default class ArmorModel extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("hg", 20, "system.traits.size"),
           // DDBEnricherData.ChangeHelper.addChange("", 20, "system.range"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.width"),
-          DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.height"),
         ],
         data: {
           _id: "ddbGiantStatue04",

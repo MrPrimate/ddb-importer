@@ -310,30 +310,21 @@ export default class ChangeHelper {
     return ChangeHelper.rollModeChange("system.attributes.death.roll.mode", ChangeHelper.DISADVANTAGE, priority);
   }
 
-  static atlChange(atlKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
-    let key = atlKey;
-
-    switch (atlKey) {
-      case "ATL.dimLight":
-        key = "ATL.light.dim";
-        break;
-      case "ATL.brightLight":
-        key = "ATL.light.bright";
-        break;
-      case "ATL.lightAnimation":
-        key = "ATL.light.animation";
-        break;
-      case "ATL.lightColor":
-        key = "ATL.light.color";
-        break;
-      case "ATL.lightAlpha":
-        key = "ATL.light.alpha";
-        break;
-      case "ATL.lightAngle":
-        key = "ATL.light.angle";
-        break;
-      // no default
-    }
+  /**
+   * Build a change targeting the token document (`token.light.dim`, `token.sight.range`,
+   * `token.detectionModes.<id>.range`, `token.texture.src`...), which Foundry applies
+   * natively. Legacy `ATL.*` keys from older enrichers and macros are translated.
+   */
+  static tokenChange(tokenKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
+    const legacyAliases: Record<string, string> = {
+      "ATL.dimLight": "ATL.light.dim",
+      "ATL.brightLight": "ATL.light.bright",
+      "ATL.lightAnimation": "ATL.light.animation",
+      "ATL.lightColor": "ATL.light.color",
+      "ATL.lightAlpha": "ATL.light.alpha",
+      "ATL.lightAngle": "ATL.light.angle",
+    };
+    const key = (legacyAliases[tokenKey] ?? tokenKey).replace(/^ATL\./, "token.");
 
     return {
       key,

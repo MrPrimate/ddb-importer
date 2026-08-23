@@ -20,10 +20,6 @@ export default class DemiurgicColossus extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("hg", 20, "system.traits.size"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange(3, 5, "ATL.width"),
-          DDBEnricherData.ChangeHelper.upgradeChange(3, 5, "ATL.height"),
-        ],
       },
     ];
   }

@@ -99,5 +99,5 @@ export function generateTokenMagicFXChange(macroValue: string, priority = 20) {
 }
 
 export function generateATLChange(atlKey: string, mode: TActiveEffectChangeType, value: string | number, priority = 20) {
-  return ChangeHelper.atlChange(atlKey, mode, value, priority);
+  return ChangeHelper.tokenChange(atlKey, mode, value, priority);
 }
