@@ -38,7 +38,7 @@ export default class FlameDamage extends DDBEnricherData {
     return [
       {
         name: "Flaming Sphere: Heat",
-        aurasOnly: true,
+        auraeffectsOnly: true,
         midiOnly: true,
         options: {
           transfer: true,
@@ -50,22 +50,6 @@ export default class FlameDamage extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
-        data: {
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: "5",
-              alignment: "",
-              type: "",
-              ignoreSelf: true,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",

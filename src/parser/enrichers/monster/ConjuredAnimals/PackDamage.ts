@@ -76,7 +76,7 @@ export default class PackDamage extends DDBEnricherData {
     return [
       {
         activityMatch: "Pack Damage (Aura Automation)",
-        aurasOnly: true,
+        auraeffectsOnly: true,
         options: {
           transfer: true,
         },
@@ -99,19 +99,6 @@ export default class PackDamage extends DDBEnricherData {
               macroRepeat: "startEndEveryTurn",
               selfTarget: true,
               selfTargetAlways: true,
-            },
-            ActiveAuras: {
-              isAura: true,
-              aura: "Enemy",
-              radius: "10",
-              alignment: "",
-              type: "",
-              ignoreSelf: true,
-              height: false,
-              hidden: false,
-              hostile: false,
-              onlyOnce: false,
-              displayTemp: true,
             },
           },
         },
@@ -138,7 +125,6 @@ export default class PackDamage extends DDBEnricherData {
         flags: {
           ddbimporter: {
             effect: {
-              saveOnEntry: true,
               sequencerFile: "jb2a.swirling_feathers.outburst.01.textured.2",
               activityIds: ["ddbPackDamageSav"],
             },
