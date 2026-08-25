@@ -89,6 +89,8 @@ global {
     /** Sibling activity id to use instead of the placing activity. */
     activity?: string;
     oncePerTurn?: boolean;
+    /** Never trigger for the token the region originates from. */
+    excludeSelf?: boolean;
     scale?: boolean;
     /** executeMacro handler: `ddb.<type>.<file>` or a Foundry macro name / `Macro.<id>` uuid. */
     macroName?: string;

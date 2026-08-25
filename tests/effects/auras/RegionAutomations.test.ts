@@ -124,7 +124,9 @@ describe("RegionAutomations.useActivityHandler", () => {
         },
       }),
       { configure: false },
-      {},
+      // the triggering token is recorded on the card, so Apply does not fall back
+      // to whatever is selected (usually the caster)
+      { data: { system: { targets: [expect.objectContaining({ token: "Scene.s.Token.tok1" })] } } },
     );
     const setTargets = (globalThis as any).canvas.tokens.setTargets;
     expect(setTargets).toHaveBeenNthCalledWith(1, ["tok1"], { mode: "replace" });
@@ -138,7 +140,11 @@ describe("RegionAutomations.useActivityHandler", () => {
     await RegionAutomations.useActivityHandler(context);
 
     expect(placing.use).not.toHaveBeenCalled();
-    expect(sibling.use).toHaveBeenCalledWith(expect.objectContaining({ scaling: 2 }), { configure: false }, {});
+    expect(sibling.use).toHaveBeenCalledWith(
+      expect.objectContaining({ scaling: 2 }),
+      { configure: false },
+      expect.objectContaining({ data: expect.anything() }),
+    );
   });
 
   it("autoRoll opts back into rolling via subsequent actions", async () => {
@@ -170,7 +176,7 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledWith(
       expect.objectContaining({ ddbMacroParameters: "{\"save\":\"ddbSpellStormSa1\",\"upcast\":2}" }),
       { configure: false },
-      {},
+      expect.objectContaining({ data: expect.anything() }),
     );
 
     context.args = { macroParameters: "already=string" };
@@ -178,7 +184,7 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenLastCalledWith(
       expect.objectContaining({ ddbMacroParameters: "already=string" }),
       { configure: false },
-      {},
+      expect.objectContaining({ data: expect.anything() }),
     );
   });
 
@@ -291,6 +297,31 @@ describe("RegionAutomations.useActivityHandler", () => {
     ]);
 
     expect(placing.use).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips the token the region originates from when excludeSelf is set", async () => {
+    trackFlags();
+    const { context, placing } = setup();
+    context.region.getFlag = vi.fn((_scope: string, key: string) => {
+      if (key === "activity") return "Actor.a.Item.b.Activity.actCast000";
+      if (key === "origin") return "Scene.s.Token.tok1";
+      return undefined;
+    });
+    (globalThis as any).fromUuidSync = vi.fn(() => ({ id: "tok1", uuid: "Scene.s.Token.tok1" }));
+    context.args = { excludeSelf: true };
+
+    await RegionAutomations.useActivityHandler(context);
+    expect(placing.use).not.toHaveBeenCalled();
+
+    // a different token in the same emanation still triggers
+    context.event = {
+      ...context.event,
+      data: { token: { id: "tok2", name: "Ally", uuid: "Scene.s.Token.tok2", actor: {} } },
+    };
+    await RegionAutomations.useActivityHandler(context);
+    expect(placing.use).toHaveBeenCalledTimes(1);
+
+    delete (globalThis as any).fromUuidSync;
   });
 
   it("ignores the limit for an event with neither a turn nor a movement", async () => {

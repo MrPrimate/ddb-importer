@@ -106,9 +106,10 @@ export default class BehaviorHelper {
     events: string[];
     args?: Record<string, unknown>;
   }): I5eActivityBehavior {
-    const { activityId, oncePerTurn, scale, macroParameters, macroFunction, ...rest } = args as {
+    const { activityId, oncePerTurn, excludeSelf, scale, macroParameters, macroFunction, ...rest } = args as {
       activityId?: string;
       oncePerTurn?: boolean;
+      excludeSelf?: boolean;
       scale?: boolean;
       macroParameters?: string;
       macroFunction?: string;
@@ -126,6 +127,7 @@ export default class BehaviorHelper {
         activity: activityId ?? "",
         macroName: macroFunction ?? "",
         oncePerTurn: oncePerTurn ?? true,
+        excludeSelf: excludeSelf ?? false,
         scale: scale ?? true,
         macroParameters: macroParameters ?? "{}",
         args: rest,
@@ -140,13 +142,15 @@ export default class BehaviorHelper {
    * behavior, but if the 5e system grows an equivalent native behavior the
    * emission can be re-pointed here without touching any enricher.
    */
-  static activity({ activityId, activityName, events, oncePerTurn, scale, autoRoll, macroParameters, ...common }: IBehaviorCommon & {
+  static activity({ activityId, activityName, events, oncePerTurn, excludeSelf, scale, autoRoll, macroParameters, ...common }: IBehaviorCommon & {
     /** Sibling activity id to use; omit both to use the placing activity itself. */
     activityId?: string;
     /** Sibling activity name, for additional activities whose ids are generated at parse. */
     activityName?: string;
     events: string[];
     oncePerTurn?: boolean;
+    /** Skip the token the region originates from: an emanation that does not affect its own caster. */
+    excludeSelf?: boolean;
     scale?: boolean;
     /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
     autoRoll?: boolean;
@@ -161,6 +165,7 @@ export default class BehaviorHelper {
         ...(activityId !== undefined ? { activityId } : {}),
         ...(activityName !== undefined ? { activityName } : {}),
         ...(oncePerTurn !== undefined ? { oncePerTurn } : {}),
+        ...(excludeSelf !== undefined ? { excludeSelf } : {}),
         ...(scale !== undefined ? { scale } : {}),
         ...(autoRoll !== undefined ? { autoRoll } : {}),
         ...(macroParameters !== undefined ? { macroParameters } : {}),

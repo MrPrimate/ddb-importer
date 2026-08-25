@@ -279,6 +279,10 @@
             "label": "Once Per Turn",
             "hint": "Only trigger once per token per combat turn."
           },
+          "excludeSelf": {
+            "label": "Exclude Origin Token",
+            "hint": "Never trigger for the token the region originates from, for an emanation that does not affect its own caster."
+          },
           "scale": {
             "label": "Apply Upcast Scaling",
             "hint": "Scale the activity by the level the spell was cast at."

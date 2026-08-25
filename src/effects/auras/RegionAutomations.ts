@@ -45,6 +45,7 @@ interface IExecuteMacroArgs {
   macroFunction?: string;
   macroParameters?: string | Record<string, unknown>;
   oncePerTurn?: boolean;
+  excludeSelf?: boolean;
 }
 
 interface IUseActivityArgs {
@@ -53,6 +54,8 @@ interface IUseActivityArgs {
   activityId?: string;
   /** Skip a token that already triggered this behavior during the current combat turn (default true). */
   oncePerTurn?: boolean;
+  /** Skip the token the region originates from, for an emanation that does not affect its own caster. */
+  excludeSelf?: boolean;
   /** Also apply the region's cast spell level so upcast damage scales (default true). */
   scale?: boolean;
   /** For ddbmacro activities: use these macro parameters instead of the ones stored on the activity. */
@@ -98,6 +101,19 @@ export default class RegionAutomations {
   /** The token the event was triggered for, if the event carries one. */
   static getEventToken(context: IRegionEventContext): TokenDocument | null {
     return (context.event.data?.token as TokenDocument | undefined) ?? null;
+  }
+
+  /**
+   * Whether the event fired for the token the region originates from. dnd5e's
+   * native disposition filter cannot express "everyone but the caster": an
+   * emanation that affects allies or every creature includes its own origin, so
+   * a self-emanation the caster is immune to (Cacophonic Shield, a monster's
+   * Stench) has to be filtered here.
+   */
+  static isOriginToken(context: IRegionEventContext, token: TokenDocument): boolean {
+    const origin = RegionAutomations.getOriginToken(context.region);
+    if (!origin) return false;
+    return (origin.uuid && origin.uuid === token.uuid) || (!!origin.id && origin.id === token.id);
   }
 
   static buildRegionContext(context: IRegionEventContext, token: TokenDocument): IDDBRegionContext {
@@ -266,6 +282,23 @@ export default class RegionAutomations {
   }
 
   /**
+   * Chat-card target descriptors for the token a region event fired for, so the
+   * usage message records it rather than whatever the user happens to have
+   * targeted. Falls back to an empty list if the system helper moves.
+   */
+  static targetDescriptors(token: TokenDocument): unknown[] {
+    const field = foundry.utils.getProperty(
+      globalThis as unknown as Record<string, unknown>,
+      "dnd5e.dataModels.chatMessage.fields.TargetsField",
+    ) as { getDescriptors?: (tokens: unknown[]) => unknown[] } | undefined;
+    if (!field?.getDescriptors) {
+      logger.warn("No dnd5e TargetsField available, region card targets fall back to user targeting");
+      return [];
+    }
+    return field.getDescriptors([token]);
+  }
+
+  /**
    * Use an activity of the item that placed the region against the triggering
    * token: posts the usage (attack/save/damage card) with no consumption, no
    * dialog and no new template. Rolls through midi-qol when it is active so the
@@ -293,6 +326,10 @@ export default class RegionAutomations {
       return;
     }
 
+    if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
+      logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
+      return;
+    }
     if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
 
     const spellLevel = context.region.getFlag("dnd5e", "spellLevel") as number | undefined;
@@ -322,7 +359,10 @@ export default class RegionAutomations {
     // macro through the same hook, so they are never suppressed.
     if (!autoRoll && activity.type !== "ddbmacro") extraActivityConfig.subsequentActions = false;
 
-    logger.debug(`Region ${context.region.name}: using ${activity.name} on ${token.name}`, { context, scaling, macroParameters });
+    logger.debug(
+      `Region ${context.region.name}: ${context.event.name} using ${activity.name} on ${token.name}`,
+      { context, scaling, macroParameters },
+    );
 
     const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
       .map((t) => t.id).filter((id): id is string => id !== null);
@@ -344,7 +384,12 @@ export default class RegionAutomations {
             ...extraActivityConfig,
           },
           { configure: false },
-          {},
+          // Record the triggering token on the card explicitly. dnd5e otherwise
+          // fills `system.targets` from `game.user.targets` at use time
+          // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
+          // depend on canvas targeting state - and fall back to the selected
+          // token, usually the caster, whenever that lookup came up empty.
+          { data: { system: { targets: RegionAutomations.targetDescriptors(token) } } },
         );
       }
     } finally {
@@ -369,6 +414,10 @@ export default class RegionAutomations {
       return;
     }
 
+    if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
+      logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
+      return;
+    }
     if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
 
     const placingActivity = await RegionAutomations.getActivity(context.region);

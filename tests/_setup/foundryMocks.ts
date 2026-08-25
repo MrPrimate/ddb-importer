@@ -317,6 +317,26 @@ function makeFakeAdvancement(type: string) {
 // foundry.data.operators.ForcedDeletion singleton: an update value that removes a field
 (globalThis as any)._del = new (class ForcedDeletion {})();
 
+// dnd5e exposes itself on globalThis as well as game.dnd5e. Only the pieces read
+// outside of game.dnd5e are stubbed here.
+(globalThis as any).dnd5e = {
+  dataModels: {
+    chatMessage: {
+      fields: {
+        TargetsField: {
+          getDescriptors: (tokens: any[] = []) => tokens.map((t) => ({
+            actor: t.actor?.uuid ?? null,
+            ac: null,
+            img: t.texture?.src,
+            name: t.name,
+            token: t.uuid,
+          })),
+        },
+      },
+    },
+  },
+};
+
 (globalThis as any).game = {
   settings: {
     get: (moduleId: string, key: string) => {

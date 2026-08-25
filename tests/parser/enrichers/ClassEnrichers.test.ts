@@ -948,23 +948,60 @@ describe("Storm Herald aura emanations", () => {
 });
 
 describe("Aura of War", () => {
-  it("applies a standalone Aura of War effect via the emanation when Aura Effects is absent", () => {
+  // "Choose one of the following damage types: Acid, Cold, Fire, Lightning, or
+  // Thunder ... deal an extra 1d4 damage of the chosen type"
+  const TYPES = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
+
+  it("gives each damage type its own activation activity, with the type in the effect's bonus", () => {
     const e = build((ClassEnrichers.Artificer as any).AuraOfWar);
+
+    // the first type takes the parsed activity, the rest are duplicates of it
+    expect(e.activity.name).toBe("Activate Aura of War: Acid");
     expect(e.activity.targetType).toBe("ally");
-    const [behavior] = e.activity.data.behaviors;
-    expect(behavior).toMatchObject({
+    expect(e.activity.data.behaviors[0]).toMatchObject({
       type: "applyActiveEffect",
       ddbimporter: { auraeffectsNever: true },
-      config: { effects: ["Aura of War"] },
+      config: { effects: ["Aura of War: Acid"] },
     });
-    const standalone = e.effects.find((effect: any) => effect.standalone);
-    expect(standalone).toMatchObject({ name: "Aura of War", auraeffectsNever: true });
-    expect(standalone.changes.map((c: any) => c.key)).toEqual([
-      "system.rolls.damage.mwak.bonus",
-      "system.rolls.damage.rwak.bonus",
-    ]);
-    const auraeffectsArm = e.effects.find((effect: any) => effect.auraeffects);
-    expect(auraeffectsArm.auraeffectsOnly).toBe(true);
+
+    const duplicates = e.additionalActivities.filter((a: any) => a.duplicate);
+    expect(duplicates.map((a: any) => a.overrides.name)).toEqual(
+      TYPES.slice(1).map((t) => `Activate Aura of War: ${t}`),
+    );
+    for (const activity of duplicates) {
+      expect(activity.overrides.targetType).toBe("ally");
+      expect(activity.overrides.data.behaviors[0].config.effects)
+        .toEqual([activity.overrides.name.replace("Activate ", "")]);
+    }
+    // the default duplicate id is derived from the cloned activity, so four
+    // clones would otherwise collide on one key
+    const ids = duplicates.map((a: any) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.every((id: string) => id.length === 16)).toBe(true);
+  });
+
+  it("bakes the damage type into each standalone effect's bonus formula", () => {
+    const e = build((ClassEnrichers.Artificer as any).AuraOfWar);
+    for (const label of TYPES) {
+      const standalone = e.effects.find((effect: any) => effect.standalone && effect.name === `Aura of War: ${label}`);
+      expect(standalone).toMatchObject({ auraeffectsNever: true });
+      expect(standalone.changes.map((c: any) => [c.key, c.value])).toEqual([
+        ["system.rolls.damage.mwak.bonus", `1d4[${label.toLowerCase()}]`],
+        ["system.rolls.damage.rwak.bonus", `1d4[${label.toLowerCase()}]`],
+      ]);
+    }
+  });
+
+  it("links each Aura Effects arm to its own activity rather than transferring it", () => {
+    const e = build((ClassEnrichers.Artificer as any).AuraOfWar);
+    const arms = e.effects.filter((effect: any) => effect.auraeffects);
+    expect(arms).toHaveLength(TYPES.length);
+    for (const arm of arms) {
+      expect(arm.auraeffectsOnly).toBe(true);
+      expect(arm.activityMatch).toBe(`Activate ${arm.name}`);
+      // five always-on transfer effects would radiate every damage type at once
+      expect(arm.options?.transfer).toBeUndefined();
+    }
   });
 });
 

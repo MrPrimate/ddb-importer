@@ -21,6 +21,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       events: new SetField(new StringField()),
       activity: new StringField(),
       oncePerTurn: new BooleanField({ initial: true }),
+      excludeSelf: new BooleanField({ initial: false }),
       scale: new BooleanField({ initial: true }),
       autoRoll: new BooleanField({ initial: false }),
       macroName: new StringField(),
@@ -34,6 +35,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     if (this.activity) args.activityId = this.activity;
     if (this.macroName) args.macroFunction = this.macroName;
     args.oncePerTurn = this.oncePerTurn;
+    args.excludeSelf = this.excludeSelf;
     args.scale = this.scale;
     args.autoRoll = this.autoRoll;
     // the default {} means "no override"; only a filled-in value is passed through
