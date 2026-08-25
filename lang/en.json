@@ -269,7 +269,7 @@
           },
           "args": {
             "label": "Additional Arguments",
-            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data."
+            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data; {\"autoRoll\": true} rolls damage instead of posting buttons."
           },
           "activity": {
             "label": "Activity",

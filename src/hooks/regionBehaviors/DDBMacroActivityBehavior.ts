@@ -22,6 +22,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       activity: new StringField(),
       oncePerTurn: new BooleanField({ initial: true }),
       scale: new BooleanField({ initial: true }),
+      autoRoll: new BooleanField({ initial: false }),
       macroName: new StringField(),
       macroParameters: new JSONField({ required: false, initial: "{}" }),
       args: new JSONField({ required: false, initial: "{}" }),
@@ -34,6 +35,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     if (this.macroName) args.macroFunction = this.macroName;
     args.oncePerTurn = this.oncePerTurn;
     args.scale = this.scale;
+    args.autoRoll = this.autoRoll;
     // the default {} means "no override"; only a filled-in value is passed through
     if (!foundry.utils.isEmpty(this.macroParameters)) {
       args.macroParameters = this.macroParameters;

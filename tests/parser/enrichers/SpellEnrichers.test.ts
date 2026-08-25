@@ -307,11 +307,16 @@ describe("region behavior spells", () => {
     );
   });
 
-  it("Spike Growth is a single damage activity", () => {
+  it("Spike Growth casts as a utility and rolls Movement Damage from the region", () => {
     const e = build(SpellEnrichers.SpikeGrowth);
-    expect(e.type).toBe("damage");
-    expect(e.activity.damageParts[0]).toMatchObject({ number: 2, denomination: 4, types: ["piercing"] });
-    expect(e.additionalActivities).toBeNull();
+    expect(e.type).toBe("utility");
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenMoveIn", "tokenMoveWithin"]);
+    expect(macro.config.args.activityName).toBe("Movement Damage");
+    expect(macro.config.oncePerTurn).toBe(false);
+    const damage = e.additionalActivities.find((a: any) => a.init.name === "Movement Damage");
+    expect(damage.build.damageParts[0]).toMatchObject({ number: 2, denomination: 4, types: ["piercing"] });
+    expect(damage.build.noSpellslot).toBe(true);
   });
 
   it.each(["Cloudkill", "IncendiaryCloud", "Moonbeam", "CreateBonfire", "SpellfireStorm", "ConjureWoodlandBeings", "Web", "Grease", "InsectPlague"])(
@@ -480,21 +485,13 @@ describe("C/D region candidates wave", () => {
     ["StormSphere", ["tokenTurnEnd"], "ddbStormSpZoneS1", [""]],
     ["DarkStar", ["tokenEnter", "tokenTurnStart"], "ddbDarkStZoneSa1", [""]],
     ["JallarzisStormOfRadiance", ["tokenEnter", "tokenTurnEnd"], "ddbJalStoZoneSa1", []],
-    ["SickeningRadiance", ["tokenEnter", "tokenTurnStart"], "ddbSickRaZoneSa1", []],
-    ["ZoneOfTruth", ["tokenEnter", "tokenTurnStart"], "ddbZonTruZoneSa1", []],
-    ["StinkingCloud", ["tokenTurnStart"], "ddbStiCloZoneSa1", []],
     ["Dawn", ["tokenTurnEnd"], "ddbDawnSpZoneSa1", []],
-    ["MaddeningDarkness", ["tokenTurnStart"], "ddbMadDarZoneSa1", []],
     ["Whirlwind", ["tokenEnter"], "ddbWhirlwZoneSa1", []],
-    ["Maelstrom", ["tokenTurnStart"], "ddbMaelstZoneSa1", [""]],
     ["YolandesRegalPresence", ["tokenEnter", "tokenTurnEnd"], "ddbYolRegZoneSa1", []],
     ["RavenousVoid", ["tokenEnter", "tokenTurnStart"], "ddbRavVoiZoneSa1", [""]],
-    ["DustDevil", ["tokenTurnEnd"], "ddbDustDeZoneSa1", []],
-    ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "ddbCorArrZoneSa1", []],
-    ["HealingSpirit", ["tokenEnter", "tokenTurnStart"], "ddbHeaSpiZoneHe1", []],
     ["CloudOfDaggers", ["tokenEnter", "tokenTurnEnd"], "ddbCloDagZoneDa1", []],
     ["TransmuteRock", ["tokenEnter", "tokenTurnEnd"], "ddbTraRocZoneSa1", ["mud"]],
-  ])("%s triggers its ongoing activity on %j", (name, events, activityId, terrain) => {
+  ])("%s rolls at cast and triggers its Ongoing duplicate on %j", (name, events, activityId, terrain) => {
     const e = build((SpellEnrichers as any)[name]);
     const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
     expect(macro.config.events).toEqual(events);
@@ -503,6 +500,29 @@ describe("C/D region candidates wave", () => {
     expect(dts.map((b: any) => b.config.types.join())).toEqual(terrain.length && terrain[0] === "" ? [""] : terrain.length ? terrain : []);
     const ongoing = (e.additionalActivities ?? []).find((a: any) => a.overrides?.id === activityId || a.id === activityId);
     if (ongoing?.duplicate) expect(ongoing.overrides.data.behaviors).toEqual([]);
+  });
+
+  it.each([
+    ["SickeningRadiance", ["tokenEnter", "tokenTurnStart"], "Ongoing Save", []],
+    ["ZoneOfTruth", ["tokenEnter", "tokenTurnStart"], "Ongoing Save", []],
+    ["StinkingCloud", ["tokenTurnStart"], "Ongoing Save", []],
+    ["MaddeningDarkness", ["tokenTurnStart"], "Ongoing Save", []],
+    ["Maelstrom", ["tokenTurnStart"], "Ongoing Save", [""]],
+    ["DustDevil", ["tokenTurnEnd"], "Ongoing Save", []],
+    ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "Ongoing Save", []],
+    ["HealingSpirit", ["tokenEnter", "tokenTurnStart"], "Ongoing Heal", []],
+  ])("%s casts as a utility and fires %j -> its no-roll-at-cast activity", (name, events, activityName, terrain) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.type).toBe("utility");
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(events);
+    expect(macro.config.args.activityName).toBe(activityName);
+    const dts = e.activity.data.behaviors.filter((b: any) => b.type === "difficultTerrain");
+    expect(dts.map((b: any) => b.config.types.join())).toEqual(terrain.length && terrain[0] === "" ? [""] : terrain.length ? terrain : []);
+    const roll = e.additionalActivities.find((a: any) => a.init.name === activityName);
+    expect(roll.build.generateConsumption).toBe(false);
+    expect(roll.build.noSpellslot).toBe(true);
+    expect(roll.build.activationOverride.type).toBe("special");
   });
 
   it.each([

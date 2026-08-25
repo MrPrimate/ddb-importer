@@ -1072,16 +1072,17 @@ describe("C/D region candidates: class features", () => {
   });
 
   it.each([
-    ["Wizard", "EventHorizon", "ddbEveHorZoneSa1"],
-    ["Sorcerer", "SpellBlind", "ddbSpeBliZoneSa1"],
-  ])("%s %s saves hostile creatures starting their turn inside", (klass, name, id) => {
+    ["Wizard", "EventHorizon"],
+    ["Sorcerer", "SpellBlind"],
+  ])("%s %s activates as a utility and saves hostile creatures starting their turn inside", (klass, name) => {
     const e = build((ClassEnrichers as any)[klass][name]);
+    expect(e.type).toBe("utility");
     const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
     expect(macro.config.events).toEqual(["tokenTurnStart"]);
-    expect(macro.config.activity).toBe(id);
-    const ongoing = e.additionalActivities.find((a: any) => a.id === id);
-    expect(ongoing.duplicate).toBe(true);
-    expect(ongoing.overrides.data.behaviors).toEqual([]);
+    expect(macro.config.args.activityName).toBe("Ongoing Save");
+    const ongoing = e.additionalActivities.find((a: any) => a.init?.name === "Ongoing Save");
+    expect(ongoing.build.generateConsumption).toBe(false);
+    expect(ongoing.build.activationOverride.type).toBe("special");
   });
 });
 

@@ -108,6 +108,11 @@ describe("RegionAutomations.useActivityHandler", () => {
         create: false,
         consume: { action: false, resource: false, spellSlot: false },
         scaling: 0,
+        // the spell is already up: a region tick must not re-begin concentration,
+        // which would drop and recreate the caster's effect
+        concentration: { begin: false },
+        // damage/attack activities keep their chat buttons unless autoRoll opts in
+        subsequentActions: false,
         ddbRegionContext: {
           regionUuid: "Scene.s.Region.reg1",
           regionName: "Test Region",
@@ -134,6 +139,26 @@ describe("RegionAutomations.useActivityHandler", () => {
 
     expect(placing.use).not.toHaveBeenCalled();
     expect(sibling.use).toHaveBeenCalledWith(expect.objectContaining({ scaling: 2 }), { configure: false }, {});
+  });
+
+  it("autoRoll opts back into rolling via subsequent actions", async () => {
+    const { context, placing } = setup();
+    context.args = { autoRoll: true };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    const config = placing.use.mock.calls[0][0];
+    expect(config.subsequentActions).toBeUndefined();
+  });
+
+  it("never suppresses subsequent actions for ddbmacro activities", async () => {
+    const { context, placing } = setup();
+    placing.type = "ddbmacro";
+
+    await RegionAutomations.useActivityHandler(context);
+
+    const config = placing.use.mock.calls[0][0];
+    expect(config.subsequentActions).toBeUndefined();
   });
 
   it("passes a macro parameters override through the usage config", async () => {

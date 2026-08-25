@@ -1222,6 +1222,7 @@ export default class DDBEffectHelper {
     configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
     createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
     extraActivityConfig = {},
+    forceAutoRolls = true,
   }: {
     targets?: Token[] | undefined;
     showFullCard?: boolean;
@@ -1234,6 +1235,8 @@ export default class DDBEffectHelper {
     consumeSpellSlot?: boolean;
     /** merged into the activity usage config, e.g. ddbMacroParameters for MacroActivity overrides */
     extraActivityConfig?: Record<string, unknown>;
+    /** false leaves attack/damage rolling to the user's midi settings instead of forcing auto rolls */
+    forceAutoRolls?: boolean;
   } = {}) {
     return [
       // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
@@ -1269,9 +1272,13 @@ export default class DDBEffectHelper {
         configure: configureDialog,
         options: {},
         workflowOptions: {
-          autoRollDamage: "always",
-          autoFastDamage: true,
-          autoRollAttack: true,
+          ...(forceAutoRolls
+            ? {
+              autoRollDamage: "always",
+              autoFastDamage: true,
+              autoRollAttack: true,
+            }
+            : {}),
           targetConfirmation,
         },
       },

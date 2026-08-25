@@ -140,7 +140,7 @@ export default class BehaviorHelper {
    * behavior, but if the 5e system grows an equivalent native behavior the
    * emission can be re-pointed here without touching any enricher.
    */
-  static activity({ activityId, activityName, events, oncePerTurn, scale, macroParameters, ...common }: IBehaviorCommon & {
+  static activity({ activityId, activityName, events, oncePerTurn, scale, autoRoll, macroParameters, ...common }: IBehaviorCommon & {
     /** Sibling activity id to use; omit both to use the placing activity itself. */
     activityId?: string;
     /** Sibling activity name, for additional activities whose ids are generated at parse. */
@@ -148,6 +148,8 @@ export default class BehaviorHelper {
     events: string[];
     oncePerTurn?: boolean;
     scale?: boolean;
+    /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
+    autoRoll?: boolean;
     macroParameters?: string;
   }): I5eActivityBehavior {
     return BehaviorHelper.macro({
@@ -160,6 +162,7 @@ export default class BehaviorHelper {
         ...(activityName !== undefined ? { activityName } : {}),
         ...(oncePerTurn !== undefined ? { oncePerTurn } : {}),
         ...(scale !== undefined ? { scale } : {}),
+        ...(autoRoll !== undefined ? { autoRoll } : {}),
         ...(macroParameters !== undefined ? { macroParameters } : {}),
       },
     });

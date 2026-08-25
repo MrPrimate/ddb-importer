@@ -442,6 +442,11 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         units: "ft",
       });
       foundry.utils.setProperty(activity, "target.prompt", false);
+      // blanking the activity's own template is not enough: dnd5e's `_setOverride`
+      // merges the ITEM's target over any activity whose `target.override` is false,
+      // putting the spell's template straight back. An activity that wants no
+      // template has to own its target block.
+      foundry.utils.setProperty(activity, "target.override", true);
     }
 
     if (overrideData.overrideTemplate || overrideData.overrideTarget)

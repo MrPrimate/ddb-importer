@@ -57,6 +57,8 @@ interface IUseActivityArgs {
   scale?: boolean;
   /** For ddbmacro activities: use these macro parameters instead of the ones stored on the activity. */
   macroParameters?: string | Record<string, unknown>;
+  /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
+  autoRoll?: boolean;
 }
 
 /**
@@ -303,8 +305,22 @@ export default class RegionAutomations {
       ? undefined
       : typeof args.macroParameters === "string" ? args.macroParameters : JSON.stringify(args.macroParameters);
     const regionContext = RegionAutomations.buildRegionContext(context, token);
-    const extraActivityConfig: Record<string, unknown> = { ddbRegionContext: regionContext };
+    const autoRoll = args.autoRoll === true;
+    const extraActivityConfig: Record<string, unknown> = {
+      ddbRegionContext: regionContext,
+      // The spell is already up and being concentrated on. dnd5e defaults
+      // `concentration.begin` to true for any activity whose duration is
+      // concentration (`_prepareUsageConfig`), and `beginConcentrating` mints a
+      // NEW effect while `concentration.end` deletes the old one once the actor
+      // is at their limit - so an ongoing region tick would otherwise drop and
+      // recreate the caster's concentration on every single trigger.
+      concentration: { begin: false },
+    };
     if (macroParameters !== undefined) extraActivityConfig.ddbMacroParameters = macroParameters;
+    // core rolls a damage activity's damage via _triggerSubsequentActions; suppress it so the
+    // card keeps its damage button unless autoRoll opts in. ddbmacro activities execute their
+    // macro through the same hook, so they are never suppressed.
+    if (!autoRoll && activity.type !== "ddbmacro") extraActivityConfig.subsequentActions = false;
 
     logger.debug(`Region ${context.region.name}: using ${activity.name} on ${token.name}`, { context, scaling, macroParameters });
 
@@ -317,6 +333,7 @@ export default class RegionAutomations {
           targets: [token.uuid],
           scaling,
           extraActivityConfig,
+          forceAutoRolls: autoRoll,
         });
       } else {
         await activity.use(
