@@ -1102,3 +1102,27 @@ describe("paladin capstone aura regions", () => {
     expect(behavior.config.args.activityName).toBe(activityName);
   });
 });
+
+describe("paladin aura marker regions", () => {
+  it("Aura of Conquest marks enemies and fires its damage at their turn start", () => {
+    const e = build(ClassEnrichers.Paladin.AuraOfConquest);
+    const aura = e.additionalActivities.find((a: any) => a.init?.name === "Place Aura");
+    expect(aura.build.targetOverride.template.size).toBe("@scale.conquest.aura-of-conquest");
+    const [apply, macro] = aura.overrides.data.behaviors;
+    expect(apply.config.effects).toEqual(["Aura of Conquest"]);
+    expect(macro.config.events).toEqual(["tokenTurnStart"]);
+    expect(macro.config.args.activityName).toBe("Damage");
+    expect(e.effects.find((h: any) => h.standalone).auraeffectsNever).toBe(true);
+    expect(e.effects.find((h: any) => h.auraeffects).auraeffectsOnly).toBe(true);
+  });
+
+  it("Aura of the Guardian marks creatures in range with the reaction reminder", () => {
+    const e = build(ClassEnrichers.Paladin.AuraOfTheGuardian);
+    expect(e.activity.name).toBe("Place Aura");
+    expect(e.activity.data.target.template.size).toBe("@scale.redemption.aura-of-the-guardian");
+    const [apply] = e.activity.data.behaviors;
+    expect(apply.config.effects).toEqual(["Aura of the Guardian"]);
+    expect(e.effects.find((h: any) => h.standalone).auraeffectsNever).toBe(true);
+    expect(e.effects.find((h: any) => h.auraeffects).auraeffectsOnly).toBe(true);
+  });
+});

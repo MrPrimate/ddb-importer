@@ -16,6 +16,7 @@ import checkVersion from "./hooks/ready/checkVersion";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig";
 import { anchorInjection } from "./hooks/ready/anchorInjection";
 import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing";
+import { pruneRegionTurnFlags } from "./hooks/ready/pruneRegionFlags";
 import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
 import addRegionBehaviorHooks from "./hooks/regionBehaviors/loadBehaviors";
 
@@ -96,6 +97,7 @@ export async function onceReady() {
     itemSheets();
     setupUpdateCreatedOrigins();
     activateUpdateHooks();
+    pruneRegionTurnFlags();
   }, 500);
 
   anchorInjection();

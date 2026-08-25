@@ -537,3 +537,44 @@ describe("C/D region candidates wave", () => {
     expect(e.effects[0].changes.map((c: any) => c.value)).toEqual(["fire", "cold"]);
   });
 });
+
+describe("aura marker regions", () => {
+  it("Cacophonic Shield marks tokens in the field and saves them on entry or turn end", () => {
+    const e = build(SpellEnrichers.CacophonicShield);
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
+    const apply = e.activity.data.behaviors.find((b: any) => b.type === "applyActiveEffect");
+    expect(apply.config.effects).toEqual(["Cacophonic Shield Aura"]);
+    expect(apply.ddbimporter.auraeffectsNever).toBe(true);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+    expect(macro.config.args.activityName).toBe("Save vs Damage and Deafness");
+    expect(e.effects.find((h: any) => h.standalone).auraeffectsNever).toBe(true);
+    expect(e.effects.find((h: any) => h.auraeffects).auraeffectsOnly).toBe(true);
+    expect(e.effects.find((h: any) => h.name === "Shielded").activityMatch).toBe("Cast");
+  });
+
+  it("Death Armor marks enemies within 5 feet via its Cast emanation", () => {
+    const e = build(SpellEnrichers.DeathArmor);
+    const cast = e.additionalActivities.find((a: any) => a.init.name === "Cast");
+    expect(cast.build.targetOverride.template).toMatchObject({ type: "radius", size: "5" });
+    expect(cast.build.targetOverride.affects.type).toBe("enemy");
+    const [behavior] = cast.overrides.data.behaviors;
+    expect(behavior.config.effects).toEqual(["Inky Aura (Death Armor)"]);
+    expect(e.effects.find((h: any) => h.standalone).auraeffectsNever).toBe(true);
+    expect(e.effects.find((h: any) => h.auraeffects).auraeffectsOnly).toBe(true);
+  });
+});
+
+describe("Spirit Shroud region slow", () => {
+  it("applies the standalone slow marker to tokens in the emanation without changing the self-targeting cast", () => {
+    const e = build(SpellEnrichers.SpiritShroud);
+    expect(e.activity.targetType).toBe("self");
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
+    const apply = e.activity.data.behaviors.find((b: any) => b.type === "applyActiveEffect");
+    expect(apply.config.effects).toEqual(["Slowed by Spirit Shroud"]);
+    expect(apply.ddbimporter.auraeffectsNever).toBe(true);
+    const standalone = e.effects.find((h: any) => h.standalone);
+    expect(standalone.name).toBe("Slowed by Spirit Shroud");
+    expect(standalone.changes[0].key).toBe("system.attributes.movement.bonus");
+  });
+});

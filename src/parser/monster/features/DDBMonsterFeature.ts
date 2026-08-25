@@ -1495,6 +1495,8 @@ ${this.data.system.description.value}
     this.enricher.createDefaultEffects();
 
     this._activityEffectLinking();
+    this._activityBehaviorNaming();
+
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 

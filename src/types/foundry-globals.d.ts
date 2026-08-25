@@ -95,6 +95,11 @@ declare global {
   }
   var DDBImporter: Window["DDBImporter"];
 
+  // Foundry v14 forced-deletion operator: a shared `foundry.data.operators.ForcedDeletion`
+  // instance, used as an update VALUE to remove a DataModel field. It replaces the legacy
+  // `{"-=key": null}` syntax, which now logs a compatibility warning. Not in fvtt-types yet.
+  const _del: { readonly __brand: "ForcedDeletion" };
+
   // Third-party Foundry module globals
   const MidiQOL: any;
   const DAE: any;

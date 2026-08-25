@@ -9,12 +9,20 @@
  * entry or per turn).
  */
 
+import utils from "../../../lib/Utils";
+import SRDEffects from "./SRDEffects";
+
 interface IBehaviorLevel {
   min?: number | null;
   max?: number | null;
 }
 
 interface IBehaviorCommon {
+  /**
+   * Name for the behavior entry, which becomes the name of the RegionBehavior the
+   * activity places. Omit to take the builder's derived default (the applied
+   * effects, the terrain types, or the triggered activity's name).
+   */
   name?: string;
   /** Gate on `relevantLevel` (class level when the activity sets `visibility.identifier`, else character/spell level). */
   level?: IBehaviorLevel;
@@ -30,10 +38,22 @@ interface IBehaviorCommon {
 
 export default class BehaviorHelper {
 
-  static #base({ name = "", level, auraeffectsOnly, auraeffectsNever, ac5eOnly, ac5eNever }: IBehaviorCommon) {
+  /**
+   * A behavior naming an effect by compendium uuid gets the stock effect's name;
+   * standalone effects are already referenced by name.
+   */
+  static #effectLabel(effect: string): string | null {
+    if (!effect) return null;
+    return SRDEffects.name(effect) ?? (effect.includes(".") ? null : effect);
+  }
+
+  static #base(
+    { name, level, auraeffectsOnly, auraeffectsNever, ac5eOnly, ac5eNever }: IBehaviorCommon,
+    defaultName = "",
+  ) {
     return {
       _id: foundry.utils.randomID(),
-      name,
+      name: name || defaultName,
       level: { min: level?.min ?? null, max: level?.max ?? null },
       ...(auraeffectsOnly || auraeffectsNever || ac5eOnly || ac5eNever
         ? { ddbimporter: { auraeffectsOnly, auraeffectsNever, ac5eOnly, ac5eNever } }
@@ -53,11 +73,13 @@ export default class BehaviorHelper {
     sizes?: TActorSizes[];
     types?: TCreatureTypes[];
   }): I5eActivityBehavior {
+    const effectList = Array.isArray(effects) ? effects : [effects];
+    const labels = effectList.map((effect) => BehaviorHelper.#effectLabel(effect)).filter((label) => label !== null);
     return {
-      ...BehaviorHelper.#base(common),
+      ...BehaviorHelper.#base(common, labels.length > 0 ? `Apply ${labels.join(", ")}` : "Apply Effect"),
       type: "applyActiveEffect",
       config: {
-        effects: Array.isArray(effects) ? effects : [effects],
+        effects: effectList,
         sizes,
         types,
       },
@@ -66,8 +88,9 @@ export default class BehaviorHelper {
 
   /** Difficult terrain inside the region; `types` are `CONFIG.DND5E.difficultTerrainTypes` keys, e.g. "plants", "web". */
   static difficultTerrain({ types = [], ...common }: IBehaviorCommon & { types?: string[] } = {}): I5eActivityBehavior {
+    const labels = types.map((type) => utils.capitalize(type));
     return {
-      ...BehaviorHelper.#base(common),
+      ...BehaviorHelper.#base(common, `Difficult Terrain${labels.length > 0 ? ` (${labels.join(", ")})` : ""}`),
       type: "difficultTerrain",
       config: { types },
     };
@@ -92,7 +115,10 @@ export default class BehaviorHelper {
       [key: string]: unknown;
     };
     return {
-      ...BehaviorHelper.#base(common),
+      // useActivity behaviors that name no activity are named after the activity
+      // they trigger by DDBActivityFactoryMixin._activityBehaviorNaming, once all
+      // the sibling activities the id could point at exist.
+      ...BehaviorHelper.#base(common, macroFunction ? `Macro: ${macroFunction}` : ""),
       type: "ddbMacro",
       config: {
         function: handler,
@@ -126,6 +152,7 @@ export default class BehaviorHelper {
   }): I5eActivityBehavior {
     return BehaviorHelper.macro({
       ...common,
+      name: common.name || activityName || "",
       handler: "useActivity",
       events,
       args: {

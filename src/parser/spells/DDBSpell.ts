@@ -950,6 +950,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
+    this._activityBehaviorNaming();
   }
 
   #addHealAdditionalActivities() {

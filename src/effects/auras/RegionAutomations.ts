@@ -15,6 +15,14 @@ export interface IRegionEventContext {
   args: Record<string, unknown>;
 }
 
+/** Recorded against an actor by `checkOncePerTurn`; `key` is the trigger it collapses on. */
+interface ITurnFlag {
+  id: string | null;
+  round: number | null;
+  turn: number | null;
+  key: string;
+}
+
 export type TRegionHandler = (context: IRegionEventContext, helpers: typeof RegionAutomations) => Promise<void> | void;
 
 /**
@@ -43,7 +51,7 @@ interface IUseActivityArgs {
   /** Use this sibling activity of the placing activity instead of the placing activity itself. */
   activityName?: string;
   activityId?: string;
-  /** Skip a token that already triggered this region during the current combat turn (default true). */
+  /** Skip a token that already triggered this behavior during the current combat turn (default true). */
   oncePerTurn?: boolean;
   /** Also apply the region's cast spell level so upcast damage scales (default true). */
   scale?: boolean;
@@ -103,26 +111,155 @@ export default class RegionAutomations {
   }
 
   /**
-   * Whether this token already triggered this region during the current combat
-   * turn; records the trigger when it has not. Outside combat nothing is
-   * recorded and every event fires.
+   * Name of the flag recording that a token triggered a behavior this turn. The
+   * region id leads so `pruneTurnFlags` can tell which region a flag belongs to.
    */
-  static async checkOncePerTurn(region: RegionDocument, token: TokenDocument, behavior?: { id?: string | null } | null): Promise<boolean> {
-    if (!game.combat?.started || !token.actor) return true;
-    // keyed per behavior so two behaviors on one region (e.g. Hunger of Hadar's
-    // turn-start damage and turn-end save) do not suppress each other
-    const flagName = `region${region.id}${behavior?.id ?? ""}Turn`;
-    const current = {
-      id: game.combat.id ?? null,
-      round: game.combat.round ?? null,
-      turn: game.combat.turn ?? null,
+  static turnFlagName(regionId: string, behaviorId: string, tokenId: string): string {
+    return `region${regionId}${behaviorId}${tokenId}Turn`;
+  }
+
+  /** `region<regionId><behaviorId><tokenId>Turn`, with Foundry's alphanumeric 16 character ids. */
+  static TURN_FLAG_PATTERN = /^region[a-zA-Z0-9]{16,}Turn$/;
+
+  static isTurnFlag(flagName: string): boolean {
+    return RegionAutomations.TURN_FLAG_PATTERN.test(flagName);
+  }
+
+  /** The still-placed region a once-per-turn flag belongs to, or null when that region is gone. */
+  static turnFlagRegionId(flagName: string, regionIds: Iterable<string>): string | null {
+    if (!RegionAutomations.isTurnFlag(flagName)) return null;
+    const body = flagName.slice("region".length, -"Turn".length);
+    for (const id of regionIds) {
+      if (id && body.startsWith(id)) return id;
+    }
+    return null;
+  }
+
+  /**
+   * Drop once-per-turn flags that can never match again, so an actor does not
+   * accumulate one per region/behavior/token it has ever triggered. A flag is
+   * dead when its region is gone (the usual case: the region goes with the
+   * spell) or when the combat it recorded no longer exists. Only world actors
+   * are swept - an unlinked token's flags live in its actor delta and are
+   * deleted with the token.
+   */
+  static async pruneTurnFlags({ dryRun = false }: { dryRun?: boolean } = {}): Promise<number> {
+    const regionIds = new Set<string>();
+    for (const scene of game.scenes ?? []) {
+      for (const region of scene.regions ?? []) {
+        if (region.id) regionIds.add(region.id);
+      }
+    }
+
+    const updates: { _id: string; [key: string]: unknown }[] = [];
+    let pruned = 0;
+    for (const actor of game.actors ?? []) {
+      const flags = foundry.utils.getProperty(actor, `flags.${DDBEffectHelper.FLAG_NAME}`) as Record<string, unknown> | undefined;
+      if (!flags) continue;
+      const update: Record<string, unknown> = {};
+      for (const [flagName, value] of Object.entries(flags)) {
+        if (!RegionAutomations.isTurnFlag(flagName)) continue;
+        // keep it only while both the region and the combat it recorded survive
+        const regionId = RegionAutomations.turnFlagRegionId(flagName, regionIds);
+        const combatId = (value as { id?: string | null } | null)?.id;
+        if (regionId !== null && combatId && game.combats?.get(combatId)) continue;
+        // v14 replaced the legacy "-=key" deletion syntax with the ForcedDeletion operator
+        update[`flags.${DDBEffectHelper.FLAG_NAME}.${flagName}`] = _del;
+        pruned += 1;
+      }
+      if (!foundry.utils.isEmpty(update) && actor.id) updates.push({ _id: actor.id, ...update });
+    }
+
+    if (pruned === 0) return 0;
+    logger.debug(`Pruning ${pruned} dead region once-per-turn flags from ${updates.length} actors`, { dryRun, updates });
+    if (!dryRun) await Actor.updateDocuments(updates as unknown as Actor.UpdateInput[]);
+    return pruned;
+  }
+
+  /**
+   * The combat turn a region event belongs to. Turn and round events are
+   * dispatched AFTER the combat document has advanced, so by the time a
+   * `tokenTurnEnd` handler runs `game.combat.turn` is already the NEXT
+   * combatant - only the event data carries the turn that actually ended.
+   * Movement events (`tokenEnter` and friends) carry no turn data and happen
+   * during the live turn. Null when there is no started combat to key on.
+   */
+  static getEventTurn(context: IRegionEventContext): { id: string | null; round: number | null; turn: number | null } | null {
+    const data = (context.event?.data ?? {}) as {
+      combat?: { id?: string | null; started?: boolean } | null;
+      round?: number;
+      turn?: number;
     };
-    const previous = DDBEffectHelper.getFlag(token.actor, flagName) as typeof current | undefined;
-    if (previous && previous.id === current.id && previous.round === current.round && previous.turn === current.turn) {
-      logger.debug(`Region ${region.name} already triggered for ${token.name} this turn`);
+    const combat = data.combat ?? game.combat;
+    if (!combat?.started) return null;
+    // a round event carries a round but no turn, so it keys on the round alone
+    const fromEvent = data.round !== undefined;
+    return {
+      id: combat.id ?? null,
+      round: (fromEvent ? data.round : game.combat?.round) ?? null,
+      turn: (fromEvent ? data.turn : game.combat?.turn) ?? null,
+    };
+  }
+
+  /**
+   * Core dispatches the region events of ONE movement without awaiting any of
+   * them (`Token##onUpdateHandleEnterExitMoveInOutRegionEvents` fires
+   * `tokenEnter` and then `tokenMoveIn` back to back), so the read-modify-write
+   * of the once-per-turn flag would interleave and let both handlers through -
+   * `setFlag` is a socket round trip, and `getFlag` only sees it once the actor
+   * update lands. Queueing the check on one slot serialises it. Only the CHECK
+   * is queued, never the activity use, so a midi workflow waiting on a player
+   * cannot hold up another region's events.
+   */
+  static #turnQueue = new foundry.utils.Semaphore(1);
+
+  /**
+   * Identity of the trigger a once-per-turn limit collapses on.
+   * In combat that is the combat turn.
+   * Out of combat there is no turn, so it is the movement.
+   * Movement still collapses the several events one move raises on a behavior
+   * listening to `tokenEnter`, `tokenMoveIn` and `tokenMoveWithin` together,
+   * while a later, deliberate move back in triggers again.
+   * Null when the event is neither, e.g. a token created inside a region out of combat.
+   */
+  static triggerKey(context: IRegionEventContext, turn = RegionAutomations.getEventTurn(context)): string | null {
+    if (turn) return `combat${turn.id}r${turn.round}t${turn.turn}`;
+    const movement = (context.event?.data as { movement?: { id?: string } | null } | undefined)?.movement;
+    return movement?.id ? `movement${movement.id}` : null;
+  }
+
+  /**
+   * Whether this token already triggered this behavior for the turn (or, out of
+   * combat, the movement) the event belongs to; records the trigger when it has
+   * not.
+   *
+   * The limit is per BEHAVIOR, so every event listed on one behavior shares it
+   * (a behavior on `tokenEnter` + `tokenMoveIn` + `tokenTurnEnd` fires once a
+   * turn, whichever came first), while sibling behaviors on the same region are
+   * independent (Hunger of Hadar's turn-start cold damage and turn-end acid save
+   * must both land). Per token as well as per actor, so two tokens sharing one
+   * linked actor are tracked apart.
+   */
+  static checkOncePerTurn(context: IRegionEventContext, token: TokenDocument): Promise<boolean> {
+    return RegionAutomations.#turnQueue.add(() => RegionAutomations.#recordTrigger(context, token)) as Promise<boolean>;
+  }
+
+  static async #recordTrigger(context: IRegionEventContext, token: TokenDocument): Promise<boolean> {
+    if (!token.actor) return true;
+    const turn = RegionAutomations.getEventTurn(context);
+    const key = RegionAutomations.triggerKey(context, turn);
+    if (!key) return true;
+
+    const region = context.region;
+    const flagName = RegionAutomations.turnFlagName(region.id ?? "", context.behavior?.id ?? "", token.id ?? "");
+    const previous = DDBEffectHelper.getFlag(token.actor, flagName) as ITurnFlag | undefined;
+    if (previous?.key === key) {
+      logger.debug(`Region ${region.name} behavior already triggered for ${token.name} (${key})`, { context });
       return false;
     }
-    await DDBEffectHelper.setFlag(token.actor, flagName, current);
+    // out-of-combat movement keys carry a null combat id, so pruneTurnFlags
+    // sweeps them at the next world load - they could never match again
+    await DDBEffectHelper.setFlag(token.actor, flagName, { ...(turn ?? { id: null, round: null, turn: null }), key });
     return true;
   }
 
@@ -154,7 +291,7 @@ export default class RegionAutomations {
       return;
     }
 
-    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context.region, token, context.behavior))) return;
+    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
 
     const spellLevel = context.region.getFlag("dnd5e", "spellLevel") as number | undefined;
     const baseLevel = item?.system?.level as number | undefined;
@@ -215,7 +352,7 @@ export default class RegionAutomations {
       return;
     }
 
-    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context.region, token, context.behavior))) return;
+    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
 
     const placingActivity = await RegionAutomations.getActivity(context.region);
     const item = placingActivity?.item;

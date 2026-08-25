@@ -314,6 +314,9 @@ function makeFakeAdvancement(type: string) {
   };
 }
 
+// foundry.data.operators.ForcedDeletion singleton: an update value that removes a field
+(globalThis as any)._del = new (class ForcedDeletion {})();
+
 (globalThis as any).game = {
   settings: {
     get: (moduleId: string, key: string) => {

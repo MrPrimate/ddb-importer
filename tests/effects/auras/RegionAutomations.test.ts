@@ -157,26 +157,124 @@ describe("RegionAutomations.useActivityHandler", () => {
     );
   });
 
-  it("skips a token that already triggered this region during the current combat turn", async () => {
+  // setFlag really goes out over the socket and only lands on the actor once the
+  // update round trips, so the write is deferred here rather than applied inline
+  function trackFlags(): Record<string, any> {
     const flags: Record<string, any> = {};
     vi.spyOn(DDBEffectHelper, "getFlag").mockImplementation((_a: any, id: string) => flags[id]);
     vi.spyOn(DDBEffectHelper, "setFlag").mockImplementation(async (_a: any, id: string, value: any) => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
       flags[id] = value;
       return undefined as any;
     });
+    return flags;
+  }
+
+  it("skips a token that already triggered this behavior during the current combat turn", async () => {
+    const flags = trackFlags();
     const { context, placing } = setup({ combat: { started: true, id: "c1", round: 1, turn: 2 } });
 
     await RegionAutomations.useActivityHandler(context);
     await RegionAutomations.useActivityHandler(context);
 
     expect(placing.use).toHaveBeenCalledTimes(1);
-    expect(Object.keys(flags)).toEqual(["regionreg1b1Turn"]);
+    expect(Object.keys(flags)).toEqual(["regionreg1b1tok1Turn"]);
+  });
 
-    // a second behavior on the same region tracks its own once-per-turn state
+  it("shares the limit across every event on one behavior", async () => {
+    trackFlags();
+    const combat = { started: true, id: "c1", round: 1, turn: 2 };
+    const { context, placing } = setup({ combat });
+
+    // enters the region on its own turn, then ends that turn inside it: the turn
+    // event fires after the combat document has already advanced to turn 3
+    await RegionAutomations.useActivityHandler(context);
+    combat.turn = 3;
+    context.event = { ...context.event, name: "tokenTurnEnd", data: { ...context.event.data, combat, round: 1, turn: 2 } };
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+
+    // and fires again on the next turn it ends there
+    combat.turn = 4;
+    context.event = { ...context.event, data: { ...context.event.data, round: 1, turn: 3 } };
+    await RegionAutomations.useActivityHandler(context);
+    expect(placing.use).toHaveBeenCalledTimes(2);
+  });
+
+  it("tracks sibling behaviors on one region independently", async () => {
+    trackFlags();
+    const { context, placing } = setup({ combat: { started: true, id: "c1", round: 1, turn: 2 } });
+
+    await RegionAutomations.useActivityHandler(context);
+
+    // Hunger of Hadar's turn-start cold damage and turn-end acid save must both land
     const other = makeContext("useActivity");
     other.region.getFlag = context.region.getFlag;
     other.behavior = { uuid: "Scene.s.Region.reg1.RegionBehavior.b2", id: "b2" };
     await RegionAutomations.useActivityHandler(other);
+
+    expect(placing.use).toHaveBeenCalledTimes(2);
+  });
+
+  it("tracks two tokens sharing one linked actor apart", async () => {
+    trackFlags();
+    const actor = {};
+    const { context, placing } = setup({ combat: { started: true, id: "c1", round: 1, turn: 2 } });
+    context.event.data.token.actor = actor;
+
+    await RegionAutomations.useActivityHandler(context);
+
+    const other = makeContext("useActivity");
+    other.region.getFlag = context.region.getFlag;
+    other.event.data.token = { id: "tok2", name: "Bob 2", uuid: "Scene.s.Token.tok2", actor };
+    await RegionAutomations.useActivityHandler(other);
+
+    expect(placing.use).toHaveBeenCalledTimes(2);
+  });
+
+  it("collapses the several events one movement raises, out of combat", async () => {
+    const flags = trackFlags();
+    const { context, placing } = setup();
+    context.event.data.movement = { id: "mv1" };
+
+    // core fires tokenEnter and tokenMoveIn back to back for a single move
+    await RegionAutomations.useActivityHandler(context);
+    context.event = { ...context.event, name: "tokenMoveIn" };
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+    // recorded with a null combat id, so pruneTurnFlags sweeps it at world load
+    expect(Object.values(flags)).toEqual([{ id: null, round: null, turn: null, key: "movementmv1" }]);
+
+    // a later, deliberate move back in is a new trigger
+    context.event = { ...context.event, name: "tokenEnter", data: { ...context.event.data, movement: { id: "mv2" } } };
+    await RegionAutomations.useActivityHandler(context);
+    expect(placing.use).toHaveBeenCalledTimes(2);
+  });
+
+  it("collapses concurrently dispatched events of one movement", async () => {
+    trackFlags();
+    const { context, placing } = setup({ combat: { started: true, id: "c1", round: 1, turn: 2 } });
+    context.event.data.movement = { id: "mv1" };
+    const moveIn = { ...context, event: { ...context.event, name: "tokenMoveIn" } };
+
+    // core awaits neither, so both handlers are in flight at once
+    await Promise.all([
+      RegionAutomations.useActivityHandler(context),
+      RegionAutomations.useActivityHandler(moveIn),
+    ]);
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores the limit for an event with neither a turn nor a movement", async () => {
+    trackFlags();
+    const { context, placing } = setup();
+
+    await RegionAutomations.useActivityHandler(context);
+    await RegionAutomations.useActivityHandler(context);
+
     expect(placing.use).toHaveBeenCalledTimes(2);
   });
 });

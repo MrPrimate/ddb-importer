@@ -473,6 +473,31 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   }
 
 
+  /**
+   * Give every region behavior a name, which becomes the name of the RegionBehavior
+   * the activity places. Enrichers can pass one to the BehaviorHelper builders and
+   * the native behaviors derive theirs at build time; a `ddbMacro` behavior can only
+   * be named once every sibling activity its `activity` id might point at exists
+   */
+  _activityBehaviorNaming(): void {
+    const activities = foundry.utils.getProperty(this.data, "system.activities") as Record<string, I5eActivity> | undefined;
+    if (!activities) return;
+    for (const activity of Object.values(activities)) {
+      const behaviors = activity.behaviors;
+      if (!Array.isArray(behaviors)) continue;
+      for (const behavior of behaviors) {
+        if (behavior.name || behavior.type !== "ddbMacro") continue;
+        const config = (behavior.config ?? {}) as {
+          activity?: string;
+          args?: { activityName?: string };
+        };
+        const target = config.activity ? activities[config.activity] : undefined;
+        // no activity id or name means the behavior uses the activity it hangs off
+        behavior.name = target?.name || config.args?.activityName || activity.name || "";
+      }
+    }
+  }
+
   _activityEffectLinking(): void {
     const documentEffects = this.data.effects;
     if (!documentEffects || documentEffects.length === 0) return;

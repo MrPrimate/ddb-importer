@@ -1826,10 +1826,9 @@ export default class DDBEffectHelper {
     if (!actorUuid || !flagId) return logger.error(`_unsetFlag: actorUuid and flagId are required`);
     const actor = await DDBEffectHelper.fromActorUuid(actorUuid);
     if (!actor) return logger.error(`_unsetFlag: actor not defined`);
-    const head = flagId.split(".");
-    const tail = `-=${head.pop()}`;
-    const key = ["flags", DDBEffectHelper.FLAG_NAME, ...head, tail].join(".");
-    return actor.update({ [key]: null });
+    // v14 replaced the legacy "-=key" deletion syntax with the ForcedDeletion operator
+    const key = ["flags", DDBEffectHelper.FLAG_NAME, flagId].join(".");
+    return (actor as unknown as { update(data: object): Promise<unknown> }).update({ [key]: _del });
   }
 
   static async setFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {

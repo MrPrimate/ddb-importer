@@ -283,8 +283,9 @@ DDBCharacter.prototype._flagCleanup = async function _flagCleanup(this: DDBChara
       return {
         _id: doc._id,
         flags: {
+          // v14 replaced the legacy "-=key" deletion syntax with the ForcedDeletion operator
           ddbimporter: {
-            "-=defaultAdditionalActivities": null as null,
+            defaultAdditionalActivities: _del,
           },
         },
       };

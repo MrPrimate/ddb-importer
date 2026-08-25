@@ -85,15 +85,21 @@ export default class SRDEffects {
     return uuid.startsWith(`Compendium.${SRD_EFFECTS_PACK}.ActiveEffect.`);
   }
 
-  /** Human readable label for an SRD effect uuid, e.g. "SRD:Silenced"; unknown uuids come back unchanged. */
-  static describe(uuid: string): string {
-    if (!SRDEffects.isSRDUuid(uuid)) return uuid;
+  /** The stock effect's name for an SRD uuid, e.g. "Silenced"; null for anything else. */
+  static name(uuid: string): string | null {
+    if (!SRDEffects.isSRDUuid(uuid)) return null;
     const id = uuid.split(".").pop();
     for (const entries of Object.values(SRD_EFFECTS)) {
       const match = Object.values(entries as Record<string, { id: string; name: string }>).find((e) => e.id === id);
-      if (match) return `SRD:${match.name}`;
+      if (match) return match.name;
     }
-    return uuid;
+    return null;
+  }
+
+  /** Human readable label for an SRD effect uuid, e.g. "SRD:Silenced"; unknown uuids come back unchanged. */
+  static describe(uuid: string): string {
+    const name = SRDEffects.name(uuid);
+    return name ? `SRD:${name}` : uuid;
   }
 
 }
