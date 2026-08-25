@@ -7,10 +7,34 @@ export default class CacophonicShield extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
+    // targets stay self so the Cast card applies the caster's Shielded buff; the
+    // region applies the aura marker to everyone inside (RAW lets the caster
+    // designate unaffected creatures, so no disposition filter)
     return {
       name: "Cast",
       targetType: "self",
       data: {
+        target: {
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: "Cacophonic Shield Aura",
+            auraeffectsNever: true,
+          }),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityName: "Save vs Damage and Deafness",
+            // the emanation originates from the caster, who gains the thunder
+            // resistance instead of saving against their own shield
+            excludeSelf: true,
+          }),
+        ],
       },
     };
   }
@@ -28,7 +52,10 @@ export default class CacophonicShield extends DDBEnricherData {
           generateDamage: true,
         },
         overrides: {
+          targetType: "creature",
           activationType: "special",
+          activationCondition: "Enters the field or ends its turn there",
+          noTemplate: true,
         },
       },
     ];
@@ -53,6 +80,7 @@ export default class CacophonicShield extends DDBEnricherData {
       },
       {
         name: "Shielded",
+        activityMatch: "Cast",
         options: {
           durationSeconds: 600,
           durationRounds: 60,
@@ -65,21 +93,18 @@ export default class CacophonicShield extends DDBEnricherData {
         ],
       },
       {
-        name: "Cacophic Shield Aura",
-        activityMatch: "Cast",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Enemy",
-              radius: "10",
-              isAura: true,
-              ignoreSelf: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
+        name: "Cacophonic Shield Aura",
+        standalone: true,
+        auraeffectsNever: true,
+        options: {
+          durationSeconds: 600,
+          description: "Within the Cacophonic Shield's thunderous field: Constitution save on entering or ending a turn there (3d6 Thunder, Deafened on a failure), once per turn.",
         },
+      },
+      {
+        name: "Cacophonic Shield Aura",
+        activityMatch: "Cast",
+        auraeffectsOnly: true,
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",

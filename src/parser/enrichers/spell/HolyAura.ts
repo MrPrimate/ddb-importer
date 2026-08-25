@@ -9,11 +9,11 @@ export default class HolyAura extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cast",
-      targetType: "self",
-      // rangeSelf: true,
-      // noTemplate: true,
-      // overrideRange: true,
-      // overrideTarget: true,
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Holy Aura" }),
+        ],
+      },
     };
   }
 
@@ -54,11 +54,26 @@ export default class HolyAura extends DDBEnricherData {
         daeSpecialDurations: ["turnEnd" as const],
       },
       {
-        name: "Holy Aura (Aura)",
+        name: "Holy Aura: Light",
+        activityMatch: "Cast",
         options: {
           durationSeconds: 60,
         },
-        activityMatch: "Cast",
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("sunburst", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
+        ],
+      },
+      {
+        name: "Holy Aura",
+        standalone: true,
+        options: {
+          durationSeconds: 60,
+        },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(
             "1",
@@ -68,47 +83,24 @@ export default class HolyAura extends DDBEnricherData {
         ],
         changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability),
-        ).concat([
-          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.dim"),
-          DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "token.light.color"),
-          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
-          DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
-          DDBEnricherData.ChangeHelper.overrideChange("sunburst", 20, "token.light.animation.type"),
-          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
-        ]),
-        data: {
-          flags: {
-            dae: {
-              stackable: "noneNameOnly",
-              selfTarget: true,
-              selfTargetAlways: true,
-            },
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-              ignoreSelf: false,
+        ),
+      },
+    ];
+  }
+
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "ally",
             },
           },
         },
-        auraeffects: {
-          applyToSelf: true,
-          bestFormula: "",
-          canStack: false,
-          collisionTypes: ["move"],
-          combatOnly: false,
-          disableOnHidden: true,
-          distanceFormula: `30`,
-          disposition: 1,
-          evaluatePreApply: true,
-          overrideName: "",
-          script: "",
-        },
       },
-    ];
+    };
   }
 
 }

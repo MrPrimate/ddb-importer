@@ -10,6 +10,13 @@ export default class StormSphere extends DDBEnricherData {
     return {
       name: "Cast Spell",
       data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnEnd"],
+            activityId: "ddbStormSpZoneS1",
+          }),
+        ],
         save: {
           ability: ["str"],
           dc: {
@@ -33,6 +40,28 @@ export default class StormSphere extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      {
+        duplicate: true,
+        id: "ddbStormSpZoneS1",
+        overrides: {
+          name: "Ongoing Save",
+          activationType: "special",
+          activationCondition: "Ends its turn in the sphere",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          data: {
+            range: {
+              override: true,
+              units: "spec",
+            },
+            target: {
+              override: true,
+            },
+            behaviors: [],
+          },
+        },
+      },
       {
         init: {
           name: "Shoot Lightning",

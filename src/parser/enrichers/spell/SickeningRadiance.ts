@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpikeGrowth extends DDBEnricherData {
+export default class SickeningRadiance extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -11,11 +11,9 @@ export default class SpikeGrowth extends DDBEnricherData {
       name: "Cast",
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenMoveIn", "tokenMoveWithin"],
-            activityName: "Movement Damage",
-            oncePerTurn: false,
+            events: ["tokenEnter", "tokenTurnStart"],
+            activityName: "Ongoing Save",
           }),
         ],
       },
@@ -26,21 +24,29 @@ export default class SpikeGrowth extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Movement Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
+          name: "Ongoing Save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
           noSpellslot: true,
+          generateSave: true,
+          saveOverride: {
+            ability: ["con"],
+            dc: {
+              formula: "",
+              calculation: "spellcasting",
+            },
+          },
           generateDamage: true,
           damageParts: [
-            DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
+            DDBEnricherData.basicDamagePart({ number: 4, denomination: 10, type: "radiant" }),
           ],
           activationOverride: {
             type: "special",
-            condition: "Moves 5 feet in the area (2d4 per 5 feet moved)",
+            condition: "Moves into the area for the first time on a turn or starts its turn there",
           },
           targetOverride: {
             override: true,

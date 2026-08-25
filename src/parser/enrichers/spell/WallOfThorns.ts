@@ -11,6 +11,13 @@ export default class WallOfThorns extends DDBEnricherData {
       name: "Place Wall",
       splitDamage: true,
       data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityName: "Save to Travel Through Wall",
+          }),
+        ],
         img: "icons/magic/nature/root-vine-entwined-thorns.webp",
         target: {
           override: true,
@@ -52,6 +59,17 @@ export default class WallOfThorns extends DDBEnricherData {
               units: "ft",
             },
             affects: {},
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter", "tokenTurnEnd"],
+                activityName: "Save to Travel Through Wall",
+              }),
+            ],
           },
         },
       },

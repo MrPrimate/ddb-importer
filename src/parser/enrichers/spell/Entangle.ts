@@ -2,6 +2,16 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Entangle extends DDBEnricherData {
 
+  override get activity(): IDDBActivityData {
+    return {
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
+        ],
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [

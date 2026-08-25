@@ -6,63 +6,36 @@ export default class AuraOfLife extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        changes: [
-          DDBEnricherData.ChangeHelper.damageResistanceChange("necrotic"),
+  override get addAutoAdditionalActivities(): boolean {
+    return false;
+  }
+
+  override get activity(): IDDBActivityData {
+    // dnd5e PR #7332 ships an "Aura of Life" spell effect (SRDEffects.spell("auraOfLife")); the stock
+    // resistance covers the automatable part until that pack content is released
+    return {
+      name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: DDBEnricherData.SRDEffects.damageResistance("necrotic"),
+          }),
         ],
       },
-      {
-        noCreate: true,
-        daeOnly: true,
-        activeAurasOnly: true,
-        auraeffectsOnly: true,
-        macroChanges: [
-          { macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" },
-        ],
-        data: {
-          flags: {
-            dae: {
-              macroRepeat: "startEveryTurn",
-              selfTarget: true,
-              selfTargetAlways: true,
-            },
-            ActiveAuras: {
-              isAura: true,
-              aura: "Allies",
-              radius: "30",
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
+    };
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "ally",
             },
           },
         },
-        auraeffects: {
-          applyToSelf: true,
-          bestFormula: "",
-          canStack: false,
-          collisionTypes: ["move"],
-          combatOnly: false,
-          disableOnHidden: true,
-          distanceFormula: `30`,
-          disposition: 1,
-          evaluatePreApply: true,
-          overrideName: "",
-          script: "",
-        },
       },
-    ];
-  }
-
-  override get itemMacro(): IDDBItemMacro {
-    return {
-      type: "spell",
-      name: "auraOfLife.js",
     };
   }
 

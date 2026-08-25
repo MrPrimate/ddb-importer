@@ -1,15 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpellfireStorm extends DDBEnricherData {
+export default class YolandesRegalPresence extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
-            activityId: "ddbSpellStormSa1",
+            activityId: "ddbYolRegZoneSa1",
           }),
         ],
       },
@@ -20,15 +19,15 @@ export default class SpellfireStorm extends DDBEnricherData {
     return [
       {
         duplicate: true,
-        id: "ddbSpellStormSa1",
+        id: "ddbYolRegZoneSa1",
         overrides: {
           name: "Ongoing Save",
           activationType: "special",
+          activationCondition: "Enters the emanation or ends its turn there",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
           noTemplate: true,
           data: {
-            behaviors: [],
             range: {
               override: true,
               units: "spec",
@@ -36,6 +35,7 @@ export default class SpellfireStorm extends DDBEnricherData {
             target: {
               override: true,
             },
+            behaviors: [],
           },
         },
       },

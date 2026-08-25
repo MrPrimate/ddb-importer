@@ -1,34 +1,44 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpellfireStorm extends DDBEnricherData {
+export default class DarkStar extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Cast",
       data: {
         behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
-            activityId: "ddbSpellStormSa1",
+            events: ["tokenEnter", "tokenTurnStart"],
+            activityId: "ddbDarkStZoneSa1",
+          }),
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: [
+              DDBEnricherData.SRDEffects.condition("deafened"),
+              DDBEnricherData.SRDEffects.damageImmunity("thunder"),
+            ],
           }),
         ],
       },
     };
   }
 
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,
-        id: "ddbSpellStormSa1",
+        id: "ddbDarkStZoneSa1",
         overrides: {
           name: "Ongoing Save",
           activationType: "special",
+          activationCondition: "Enters the sphere or starts its turn there",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
           noTemplate: true,
           data: {
-            behaviors: [],
             range: {
               override: true,
               units: "spec",
@@ -36,6 +46,7 @@ export default class SpellfireStorm extends DDBEnricherData {
             target: {
               override: true,
             },
+            behaviors: [],
           },
         },
       },

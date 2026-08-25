@@ -1,15 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpellfireStorm extends DDBEnricherData {
+export default class CloudOfDaggers extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
-            activityId: "ddbSpellStormSa1",
+            events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
+            activityId: "ddbCloDagZoneDa1",
           }),
         ],
       },
@@ -20,15 +19,15 @@ export default class SpellfireStorm extends DDBEnricherData {
     return [
       {
         duplicate: true,
-        id: "ddbSpellStormSa1",
+        id: "ddbCloDagZoneDa1",
         overrides: {
-          name: "Ongoing Save",
+          name: "Ongoing Damage",
           activationType: "special",
+          activationCondition: this.is2014 ? "Enters the cube or starts its turn there" : "Enters the cube or ends its turn there",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
           noTemplate: true,
           data: {
-            behaviors: [],
             range: {
               override: true,
               units: "spec",
@@ -36,6 +35,7 @@ export default class SpellfireStorm extends DDBEnricherData {
             target: {
               override: true,
             },
+            behaviors: [],
           },
         },
       },

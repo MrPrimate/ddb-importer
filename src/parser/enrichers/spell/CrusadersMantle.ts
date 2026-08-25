@@ -6,44 +6,46 @@ export default class CrusadersMantle extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Crusader's Mantle" }),
+        ],
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
+        name: "Crusader's Mantle",
+        standalone: true,
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4[radiant]", 20, "system.rolls.damage.mwak.bonus"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4[radiant]", 20, "system.rolls.damage.rwak.bonus"),
         ],
-        data: {
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "Allies",
-              radius: "30",
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
-            },
-          },
-        },
-        auraeffects: {
-          applyToSelf: true,
-          bestFormula: "",
-          canStack: false,
-          collisionTypes: ["move"],
-          combatOnly: false,
-          disableOnHidden: true,
-          distanceFormula: `30`,
-          disposition: 1,
-          evaluatePreApply: true,
-          overrideName: "",
-          script: "",
+        options: {
+          durationSeconds: 60,
         },
       },
     ];
+  }
+
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "ally",
+            },
+          },
+        },
+      },
+    };
   }
 
 }

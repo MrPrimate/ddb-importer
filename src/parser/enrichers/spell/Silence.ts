@@ -2,46 +2,27 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Silence extends DDBEnricherData {
 
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Within Zone of Silence",
-        statuses: ["Deafened"],
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(
-            "thunder",
-            50,
-            "system.traits.di.value",
-          ),
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    // dnd5e PR #7332 ships a single "Silenced" spell effect (SRDEffects.spell("silenced")); until
+    // that pack content is released the same result comes from three stock effects
+    return {
+      name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: [
+              DDBEnricherData.SRDEffects.condition("silenced"),
+              DDBEnricherData.SRDEffects.condition("deafened"),
+              DDBEnricherData.SRDEffects.damageImmunity("thunder"),
+            ],
+          }),
         ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange(
-            "1",
-            50,
-            "flags.midi-qol.fail.spell.vocal",
-          ),
-        ],
-        options: {
-          durationSeconds: 600,
-        },
-        data: {
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: "20",
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
-            },
-          },
-        },
       },
-    ];
+    };
   }
 
   override get override(): IDDBOverrideData {
@@ -50,7 +31,7 @@ export default class Silence extends DDBEnricherData {
         flags: {
           limits: {
             sight: {
-              hearing: { enabled: true, range: 0 }, // Hearing
+              hearing: { enabled: true, range: 0 },
             },
             sound: { enabled: true, range: 0 },
           },
@@ -60,21 +41,6 @@ export default class Silence extends DDBEnricherData {
           },
         },
       },
-    };
-  }
-
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      type: "generic",
-      name: "activeAuraOnly.js",
-      triggerPoints: ["preActiveEffects"],
-    };
-  }
-
-  override get itemMacro(): IDDBItemMacro {
-    return {
-      type: "generic",
-      name: "activeAuraOnly.js",
     };
   }
 

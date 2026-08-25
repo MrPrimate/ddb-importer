@@ -4,81 +4,43 @@ export default class InsectPlague extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       id: "ddbInsPlaSpellSa",
-      noeffect: this.useMidiAutomations,
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityId: "ddbInsPlaZoneSa1",
+          }),
+        ],
+      },
     };
   }
 
-
-  override get clearAutoEffects(): boolean {
-    return this.useMidiAutomations;
-  }
-
-  override get effects(): IDDBEffectHint[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
-        name: "Within Incendiary Cloud Fog",
-        activeAurasOnly: true,
-        midiOnly: true,
-        options: {
-          durationSeconds: 60,
-          durationRounds: 10,
-        },
-        macroChanges: [
-          {
-            functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
-          },
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
-            `label=${this.data.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=piercing, killAnim=true`,
-            20,
-            "flags.midi-qol.OverTime",
-          ),
-        ],
-        data: {
-          duration: {
-            value: 600,
-            units: "seconds",
-          },
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: "20",
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
+        duplicate: true,
+        id: "ddbInsPlaZoneSa1",
+        overrides: {
+          name: "Ongoing Save",
+          activationType: "special",
+          activationCondition: "Enters the area or ends its turn there",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          data: {
+            range: {
+              override: true,
+              units: "spec",
             },
+            target: {
+              override: true,
+            },
+            behaviors: [],
           },
         },
       },
     ];
   }
 
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        flags: {
-          ddbimporter: {
-            effect: {
-              saveOnEntry: true,
-              sequencerFile: "jb2a.butterflies.many.orange",
-              activityIds: ["ddbInsPlaSpellSa"],
-            },
-          },
-        },
-      },
-    };
-  }
-
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
-      triggerPoints: ["preActiveEffects"],
-    };
-  }
 }

@@ -1,88 +1,46 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Cloudkill extends DDBEnricherData {
+
   override get activity(): IDDBActivityData {
     return {
       id: "ddbCloKilSpellSa",
-      noeffect: this.useMidiAutomations,
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
+            activityId: "ddbCloKilZoneSa1",
+          }),
+        ],
+      },
     };
   }
 
-
-  override get clearAutoEffects(): boolean {
-    return this.useMidiAutomations;
-  }
-
-  override get effects(): IDDBEffectHint[] {
-
-    const killChange = this.is2014
-      ? `label=${this.data.name} (Start of Turn),turn=start, saveAbility=con, killAnim=true, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`
-      : `label=${this.data.name} (End of Turn),turn=end, saveAbility=con, killAnim=true, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`;
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
-        name: "Within Cloudkill Fog",
-        activeAurasOnly: true,
-        midiOnly: true,
-        options: {
-          durationSeconds: 60,
-          durationRounds: 10,
-        },
-        macroChanges: [
-          {
-            functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
-          },
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
-            killChange,
-            20,
-            "flags.midi-qol.OverTime",
-          ),
-        ],
-        data: {
-          duration: {
-            value: 60,
-            units: "seconds",
-          },
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: "20",
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
+        duplicate: true,
+        id: "ddbCloKilZoneSa1",
+        overrides: {
+          name: "Ongoing Save",
+          activationType: "special",
+          activationCondition: this.is2014 ? "Enters the cloud or starts its turn there" : "Enters the cloud or ends its turn there",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          data: {
+            range: {
+              override: true,
+              units: "spec",
             },
+            target: {
+              override: true,
+            },
+            behaviors: [],
           },
         },
       },
     ];
   }
 
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        flags: {
-          ddbimporter: {
-            effect: {
-              saveOnEntry: true,
-              sequencerFile: "jb2a.fog_cloud.2.green",
-              activityIds: ["ddbCloKilSpellSa"],
-            },
-          },
-        },
-      },
-    };
-  }
-
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      functionCall: "DDBImporter.effects.AuraAutomations.DamageOnEntry",
-      triggerPoints: ["preActiveEffects"],
-    };
-  }
 }

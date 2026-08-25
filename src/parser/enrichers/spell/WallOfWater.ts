@@ -20,6 +20,9 @@ export default class WallOfWater extends DDBEnricherData {
             units: "ft",
           },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["liquid"] }),
+        ],
       },
     };
   }
@@ -45,6 +48,13 @@ export default class WallOfWater extends DDBEnricherData {
               units: "ft",
             },
             affects: {},
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["liquid"] }),
+            ],
           },
         },
       },

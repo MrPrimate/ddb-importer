@@ -11,6 +11,12 @@ export default class WallOfLight extends DDBEnricherData {
       name: "Place Wall",
       splitDamage: true,
       data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnEnd"],
+            activityName: "Turn End Damage",
+          }),
+        ],
         target: {
           override: true,
           template: {

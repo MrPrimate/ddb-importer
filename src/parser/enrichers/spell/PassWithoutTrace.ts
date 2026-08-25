@@ -2,40 +2,49 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class PassWithoutTrace extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Pass without Trace" }),
+        ],
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
+        name: "Pass without Trace",
+        standalone: true,
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("10", 20, "system.skills.ste.roll.bonus"),
         ],
-        daeStackable: "noneNameOnly",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
-        auraeffects: {
-          applyToSelf: true,
-          bestFormula: "",
-          canStack: false,
-          collisionTypes: ["move"],
-          combatOnly: false,
-          disableOnHidden: true,
-          distanceFormula: "30",
-          disposition: 1,
-          evaluatePreApply: true,
-          overrideName: "",
-          script: "",
+        options: {
+          durationSeconds: 3600,
         },
       },
     ];
+  }
+
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "ally",
+            },
+          },
+        },
+      },
+    };
   }
 
 }

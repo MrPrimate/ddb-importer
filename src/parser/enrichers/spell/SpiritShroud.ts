@@ -8,6 +8,22 @@ export default class SpiritShroud extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cast",
+      data: {
+        target: {
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: "Slowed by Spirit Shroud",
+            auraeffectsNever: true,
+          }),
+        ],
+      },
       overrideTarget: true,
       targetType: "self",
     };
@@ -40,7 +56,7 @@ export default class SpiritShroud extends DDBEnricherData {
     return [
       {
         name: "Surrounded by a Spirit Shroud",
-        aurasNever: true,
+        auraeffectsNever: true,
         midiNever: true,
         options: {
           durationSeconds: 60,
@@ -48,8 +64,8 @@ export default class SpiritShroud extends DDBEnricherData {
       },
       {
         name: "Slowed by Spirit Shroud",
-        midiNever: true,
-        aurasNever: true,
+        standalone: true,
+        auraeffectsNever: true,
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange(
             "-10",
@@ -58,12 +74,13 @@ export default class SpiritShroud extends DDBEnricherData {
         ],
         options: {
           durationSeconds: 60,
+          description: "Within 10 feet of the Spirit Shroud: speed reduced by 10 feet (creatures of the caster's choice).",
         },
       },
       {
         name: "Spirit Shroud",
         activityMatch: "Cast",
-        aurasOnly: true,
+        auraeffectsOnly: true,
         options: {
           durationSeconds: 60,
         },
@@ -79,19 +96,6 @@ export default class SpiritShroud extends DDBEnricherData {
               specialDuration: [],
               selfTargetAlways: true,
               selfTarget: true,
-            },
-            ActiveAuras: {
-              isAura: true,
-              aura: "Enemy",
-              radius: "10",
-              alignment: "",
-              type: "",
-              ignoreSelf: true,
-              height: false,
-              hidden: false,
-              hostile: false,
-              onlyOnce: false,
-              displayTemp: true,
             },
           },
         },

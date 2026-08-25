@@ -11,6 +11,14 @@ export default class WallOfIce extends DDBEnricherData {
       name: "Place Panels",
       splitDamage: true,
       data: {
+        // approximation: the frigid air sheet exists only where a panel is breached;
+        // the region covers the whole wall, so the GM ignores saves at intact panels
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter"],
+            activityName: "Frigid Air Save",
+          }),
+        ],
         img: "icons/magic/water/barrier-ice-wall-snow.webp",
         target: {
           override: true,

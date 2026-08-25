@@ -11,6 +11,14 @@ export default class WallOfFire extends DDBEnricherData {
       name: "Place Wall",
       splitDamage: true,
       data: {
+        // the 10 ft zone beside the chosen side is larger than the wall region; the GM
+        // handles that band manually, the region covers entering or ending a turn in the wall
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityName: "Damage",
+          }),
+        ],
         img: "icons/magic/fire/flame-burning-fence.webp",
         target: {
           override: true,
@@ -51,6 +59,16 @@ export default class WallOfFire extends DDBEnricherData {
               units: "ft",
             },
             affects: {},
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter", "tokenTurnEnd"],
+                activityName: "Damage",
+              }),
+            ],
           },
         },
       },

@@ -9,6 +9,11 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Within Moonlight" }),
+        ],
+      },
     };
   }
 
@@ -63,11 +68,10 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        activityMatch: "Cast",
         name: "Within Moonlight",
+        standalone: true,
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
@@ -75,40 +79,23 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
         statuses: ["coverHalf"],
-        data: {
-          flags: {
-            dae: {
-              stackable: "noneNameOnly",
-              selfTarget: true,
-              selfTargetAlways: true,
-            },
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "20",
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-              ignoreSelf: false,
-              statuses: ["coverHalf"],
+      },
+    ];
+  }
+
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "ally",
             },
           },
         },
-        auraeffects: {
-          applyToSelf: true,
-          bestFormula: "",
-          canStack: false,
-          collisionTypes: ["move"],
-          combatOnly: false,
-          disableOnHidden: true,
-          distanceFormula: `20`,
-          disposition: 1,
-          evaluatePreApply: true,
-          overrideName: "",
-          script: "",
-        },
       },
-    ];
+    };
   }
 
 }

@@ -5,34 +5,44 @@ export default class Web extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       id: "ddbWebSpellSave1",
-      noeffect: this.useMidiAutomations,
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["web"] }),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnStart"],
+            activityId: "ddbWebSpellZone1",
+          }),
+        ],
+      },
     };
   }
 
 
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        flags: {
-          ddbimporter: {
-            effect: {
-              applyStart: true,
-              applyEntry: true,
-              applyImmediate: true,
-              everyEntry: false,
-              allowVsRemoveCondition: true,
-              removalCheck: "str", // in 2024 this can be athletcis
-              removalSave: null,
-              saveRemoves: false,
-              condition: "Restrained",
-              save: "dex",
-              sequencerFile: "jb2a.web.02",
-              activityIds: ["ddbWebSpellSave1"],
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        duplicate: true,
+        id: "ddbWebSpellZone1",
+        overrides: {
+          name: "Ongoing Save",
+          activationType: "special",
+          activationCondition: "Enters the webs or starts its turn there",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          data: {
+            range: {
+              override: true,
+              units: "spec",
             },
+            target: {
+              override: true,
+            },
+            behaviors: [],
           },
         },
       },
-    };
+    ];
   }
 
   override get clearAutoEffects(): boolean {
@@ -43,51 +53,9 @@ export default class Web extends DDBEnricherData {
     return [
       {
         name: "Restrained",
-        activeAurasNever: true,
-        midiNever: true,
         statuses: ["Restrained"],
       },
-      {
-        name: "Web",
-        activeAurasOnly: true,
-        options: {
-          durationSeconds: 3600,
-        },
-        midiOnly: true,
-        macroChanges: [
-          {
-            functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
-          },
-        ],
-        data: {
-          flags: {
-            dae: {
-              macroRepeat: "startEveryTurn",
-            },
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: undefined,
-              alignment: "",
-              type: "",
-              ignoreSelf: false,
-              height: false,
-              hidden: false,
-              onlyOnce: false,
-              displayTemp: true,
-            },
-          },
-        },
-      },
     ];
-  }
-
-
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
-      triggerPoints: ["preActiveEffects"],
-    };
   }
 
 }

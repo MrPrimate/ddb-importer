@@ -49,6 +49,9 @@ export default class Earthquake extends DDBEnricherData {
         damage: {
           parts: [],
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["rocks"] }),
+        ],
       },
     };
   }

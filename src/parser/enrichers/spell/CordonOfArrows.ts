@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpikeGrowth extends DDBEnricherData {
+export default class CordonOfArrows extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -10,12 +10,22 @@ export default class SpikeGrowth extends DDBEnricherData {
     return {
       name: "Cast",
       data: {
+        target: {
+          override: true,
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "30",
+            units: "ft",
+          },
+        },
         behaviors: [
-          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenMoveIn", "tokenMoveWithin"],
-            activityName: "Movement Damage",
-            oncePerTurn: false,
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityName: "Ongoing Save",
           }),
         ],
       },
@@ -26,21 +36,29 @@ export default class SpikeGrowth extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Movement Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
+          name: "Ongoing Save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
           noSpellslot: true,
+          generateSave: true,
+          saveOverride: {
+            ability: ["dex"],
+            dc: {
+              formula: "",
+              calculation: "spellcasting",
+            },
+          },
           generateDamage: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
           ],
           activationOverride: {
             type: "special",
-            condition: "Moves 5 feet in the area (2d4 per 5 feet moved)",
+            condition: "Enters within 30 feet of the ammunition or ends its turn there (consumes one piece)",
           },
           targetOverride: {
             override: true,

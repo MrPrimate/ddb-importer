@@ -1,9 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class SpikeGrowth extends DDBEnricherData {
+export default class HealingSpirit extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get addAutoAdditionalActivities(): boolean {
+    return false;
   }
 
   override get activity(): IDDBActivityData {
@@ -11,11 +15,9 @@ export default class SpikeGrowth extends DDBEnricherData {
       name: "Cast",
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenMoveIn", "tokenMoveWithin"],
-            activityName: "Movement Damage",
-            oncePerTurn: false,
+            events: ["tokenEnter", "tokenTurnStart"],
+            activityName: "Ongoing Heal",
           }),
         ],
       },
@@ -26,21 +28,19 @@ export default class SpikeGrowth extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Movement Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
+          name: "Ongoing Heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
           noSpellslot: true,
-          generateDamage: true,
-          damageParts: [
-            DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
-          ],
+          generateHealing: true,
+          healingPart: DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "healing", scalingMode: "whole", scalingNumber: 1 }),
           activationOverride: {
             type: "special",
-            condition: "Moves 5 feet in the area (2d4 per 5 feet moved)",
+            condition: "Moves into the spirit's space for the first time on a turn or starts its turn there (1 + spellcasting modifier uses)",
           },
           targetOverride: {
             override: true,

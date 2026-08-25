@@ -5,82 +5,59 @@ export default class Grease extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       id: "ddbGreaseSpellSa",
-      noeffect: this.useMidiAutomations,
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            activityId: "ddbGreaseZoneSa1",
+            // neither ruleset limits Grease to one save per turn
+            oncePerTurn: false,
+          }),
+        ],
+      },
     };
   }
 
-  override get clearAutoEffects(): boolean {
-    return this.useMidiAutomations;
-  }
 
-  override get effects(): IDDBEffectHint[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
-        name: "Grease",
-        activeAurasOnly: true,
-        midiOnly: true,
-        options: {
-          durationSeconds: 60,
-        },
-        macroChanges: [
-          { functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry" },
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
-            `applyCondition=!statusesSet.has('prone'),turn=end,label=${this.data.name},saveRemove=false,saveDC=@attributes.spell.dc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=function.DDBImporter.effects.AuraAutomations.ConditionOnEntry`,
-            20,
-            "flags.midi-qol.OverTime",
-          ),
-        ],
-        data: {
-          duration: {
-            value: 60,
-            units: "seconds",
-          },
-          flags: {
-            ActiveAuras: {
-              isAura: true,
-              aura: "All",
-              radius: undefined,
-              displayTemp: true,
+        duplicate: true,
+        id: "ddbGreaseZoneSa1",
+        overrides: {
+          name: "Ongoing Save",
+          activationType: "special",
+          activationCondition: "Enters the area or ends its turn there",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          data: {
+            range: {
+              override: true,
+              units: "spec",
             },
+            target: {
+              override: true,
+            },
+            behaviors: [],
           },
         },
       },
     ];
   }
 
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        flags: {
-          ddbimporter: {
-            effect: {
-              applyStart: true,
-              applyEnd: true,
-              applyEntry: true,
-              applyImmediate: true,
-              everyEntry: true,
-              removeOnOff: false,
-              allowVsRemoveCondition: false,
-              removalCheck: null,
-              removalSave: null,
-              saveRemoves: false,
-              condition: "Prone",
-              sequencerFile: "jb2a.grease.dark_green.loop",
-              activityIds: ["ddbGreaseSpellSa"],
-            },
-          },
-        },
-      },
-    };
+  override get clearAutoEffects(): boolean {
+    return true;
   }
 
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
-      triggerPoints: ["preActiveEffects"],
-    };
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Prone",
+        statuses: ["Prone"],
+      },
+    ];
   }
 
 }

@@ -9,6 +9,11 @@ export default class ConjureMinorElementals extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cast",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+        ],
+      },
     };
   }
 
@@ -68,4 +73,19 @@ export default class ConjureMinorElementals extends DDBEnricherData {
       },
     }];
   }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          target: {
+            affects: {
+              type: "enemy",
+            },
+          },
+        },
+      },
+    };
+  }
+
 }
