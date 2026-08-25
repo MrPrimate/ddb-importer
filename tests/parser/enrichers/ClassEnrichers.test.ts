@@ -18,6 +18,7 @@
  * itself (pinned by tests/smoke/enricherFirstLoad.test.ts).
  */
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
+import * as GenericEnrichers from "../../../src/parser/enrichers/generic/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
@@ -914,5 +915,190 @@ describe("illrigger InfernalConduit", () => {
     expect(e.activity.addScalingMode).toBe("amount");
     expect(e.activity.addConsumptionScalingMax).toBe("@scale.illrigger.infernal-conduit");
     expect(e.activity.data.healing).toMatchObject({ number: 1, denomination: 10 });
+  });
+});
+
+describe("Storm Herald aura emanations", () => {
+  it.each([
+    ["StormAuraDesert", "Shielding Storm: Desert", "fire"],
+    ["StormAuraSea", "Shielding Storm: Sea", "lightning"],
+    ["StormAuraTundra", "Shielding Storm: Tundra", "cold"],
+  ])("%s adds an Activate Aura emanation applying %s at barbarian 10+ when Aura Effects is absent", (name, effectName, damageType) => {
+    const e = build((ClassEnrichers.Barbarian as any)[name]);
+    const [aura] = e.additionalActivities;
+    expect(aura.init.name).toBe("Activate Aura");
+    expect(aura.build.targetOverride.template).toMatchObject({ type: "radius", size: "10" });
+    expect(aura.overrides.data.visibility.identifier).toBe("barbarian");
+    const [behavior] = aura.overrides.data.behaviors;
+    expect(behavior).toMatchObject({
+      type: "applyActiveEffect",
+      level: { min: 10, max: null },
+      ddbimporter: { auraeffectsNever: true },
+      config: { effects: [effectName], sizes: [], types: [] },
+    });
+    const standalone = e.effects.find((effect: any) => effect.name === effectName);
+    expect(standalone).toMatchObject({ standalone: true, auraeffectsNever: true });
+    expect(standalone.changes[0]).toMatchObject({ key: "system.traits.dr.value", value: damageType });
+  });
+
+  it("Shielding Storm's embedded aura effects are auraeffects-only", () => {
+    const e = build((ClassEnrichers.Barbarian as any).ShieldingStorm);
+    for (const effect of e.effects) expect(effect.auraeffectsOnly).toBe(true);
+  });
+});
+
+describe("Aura of War", () => {
+  it("applies a standalone Aura of War effect via the emanation when Aura Effects is absent", () => {
+    const e = build((ClassEnrichers.Artificer as any).AuraOfWar);
+    expect(e.activity.targetType).toBe("ally");
+    const [behavior] = e.activity.data.behaviors;
+    expect(behavior).toMatchObject({
+      type: "applyActiveEffect",
+      ddbimporter: { auraeffectsNever: true },
+      config: { effects: ["Aura of War"] },
+    });
+    const standalone = e.effects.find((effect: any) => effect.standalone);
+    expect(standalone).toMatchObject({ name: "Aura of War", auraeffectsNever: true });
+    expect(standalone.changes.map((c: any) => c.key)).toEqual([
+      "system.rolls.damage.mwak.bonus",
+      "system.rolls.damage.rwak.bonus",
+    ]);
+    const auraeffectsArm = e.effects.find((effect: any) => effect.auraeffects);
+    expect(auraeffectsArm.auraeffectsOnly).toBe(true);
+  });
+});
+
+describe("activated aura dual-arm conversions", () => {
+  it.each([
+    ["Paladin", "ExaltedChampion", "Exalted Champion: Aura"],
+    ["Druid", "WrathOfTheSea", "Ocean Spray"],
+  ])("%s %s applies %s natively when Aura Effects is absent", (klass, name, effectName) => {
+    const e = build((ClassEnrichers as any)[klass][name]);
+    const behavior = e.activity.data.behaviors.find((b: any) => b.type === "applyActiveEffect");
+    expect(behavior.config.effects).toEqual([effectName]);
+    expect(behavior.ddbimporter.auraeffectsNever).toBe(true);
+    const standalone = e.effects.find((effect: any) => effect.standalone && effect.name === effectName);
+    expect(standalone.auraeffectsNever).toBe(true);
+    const auraeffectsArm = e.effects.find((effect: any) => effect.auraeffects && effect.name === effectName);
+    expect(auraeffectsArm.auraeffectsOnly).toBe(true);
+  });
+
+  it("Wrath of the Sea targets enemies so the region derives hostile dispositions", () => {
+    const e = build(ClassEnrichers.Druid.WrathOfTheSea);
+    expect(e.activity.targetType).toBe("enemy");
+  });
+
+  it.each([
+    ["Sorcerer", "LunarEmpowerment", "Full Moon", "Full Moon Aura"],
+    ["Barbarian", "WildSurge", "6: Multicolored Light (AC Bonus)", "Multicolored Light AC Bonus"],
+  ])("%s %s adds the emanation to its %s activity", (klass, name, activityName, effectName) => {
+    const e = build((ClassEnrichers as any)[klass][name]);
+    const additional = e.additionalActivities.find((a: any) => a.init.name === activityName);
+    const target = additional.overrides.data.target;
+    expect(target.template).toMatchObject({ type: "radius", size: "10" });
+    expect(target.affects?.type ?? additional.overrides.targetType).toBe("ally");
+    const [behavior] = additional.overrides.data.behaviors;
+    expect(behavior.config.effects).toEqual([effectName]);
+    const standalone = e.effects.find((effect: any) => effect.standalone && effect.name === effectName);
+    expect(standalone.auraeffectsNever).toBe(true);
+  });
+});
+
+describe("passive aura native fallback", () => {
+  function makePaladinAura(originalName: string) {
+    return named(GenericEnrichers.AuraOf as any, originalName, {
+      klass: "Paladin",
+      data: { name: originalName, flags: {}, system: { description: { value: "" } } },
+    });
+  }
+
+  it("AuraOf places an ally emanation whose behavior applies the moved auto effect", () => {
+    const e = makePaladinAura("Aura of Courage");
+    expect(e.type).toBe("utility");
+    expect(e.activity.name).toBe("Place Aura");
+    expect(e.activity.targetType).toBe("ally");
+    expect(e.activity.data.target.template.size).toBe("@scale.paladin.aura-of-protection");
+    const [behavior] = e.activity.data.behaviors;
+    expect(behavior.config.effects).toEqual(["Aura of Courage"]);
+    expect(behavior.ddbimporter).toMatchObject({ auraeffectsNever: true });
+    const [move, decorate] = e.effects;
+    expect(move).toMatchObject({ noCreate: true, standalone: true, originReplacement: true, auraeffectsNever: true });
+    expect(decorate.auraeffectsOnly).toBe(true);
+  });
+
+  it("Aura of Protection defers to AC5e's native aura when it is installed", () => {
+    const e = makePaladinAura("Aura of Protection");
+    const [behavior] = e.activity.data.behaviors;
+    expect(behavior.ddbimporter).toMatchObject({ auraeffectsNever: true, ac5eNever: true });
+    const ac5eHint = e.effects.find((h: any) => h.ac5eOnly);
+    expect(ac5eHint.ac5eChanges).toHaveLength(1);
+    const move = e.effects.find((h: any) => h.standalone);
+    expect(move.ac5eNever).toBe(true);
+  });
+
+  it("Aura of Hate filters the region to fiends and undead natively", () => {
+    const e = build(ClassEnrichers.Paladin.AuraOfHate);
+    const [behavior] = e.activity.data.behaviors;
+    expect(behavior.config.types).toEqual(["fiend", "undead"]);
+    const standalone = e.effects.find((h: any) => h.standalone);
+    expect(standalone).toMatchObject({ originReplacement: true, auraeffectsNever: true });
+  });
+
+  it.each([
+    ["AuraOfAlacrity", "@scale.glory.aura-of-alacrity"],
+    ["AuraOfTheSentinel", "@scale.watchers.aura-of-the-sentinel"],
+  ])("%s places its emanation with the class scale radius", (name, scale) => {
+    const e = build((ClassEnrichers.Paladin as any)[name]);
+    expect(e.activity.data.target.template.size).toBe(scale);
+    expect(e.effects[0]).toMatchObject({ noCreate: true, standalone: true, auraeffectsNever: true });
+  });
+});
+
+describe("C/D region candidates: class features", () => {
+  it("Spreading Spores triggers the pulled Halo of Spores save on entry and turn start", () => {
+    const e = build(ClassEnrichers.Druid.SpreadingSpores);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(macro.config.args.activityName).toBe("Save vs Spore Damage");
+  });
+
+  it("Twilight Sanctuary regains its 30 ft emanation and grants temp HP on turn end", () => {
+    const e = build(ClassEnrichers.Cleric.ChannelDivinityTwilightSanctuary);
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "30" });
+    expect(e.activity.targetType).toBe("ally");
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenTurnEnd"]);
+    expect(macro.config.args.activityName).toBe("Temp HP");
+  });
+
+  it.each([
+    ["Wizard", "EventHorizon", "ddbEveHorZoneSa1"],
+    ["Sorcerer", "SpellBlind", "ddbSpeBliZoneSa1"],
+  ])("%s %s saves hostile creatures starting their turn inside", (klass, name, id) => {
+    const e = build((ClassEnrichers as any)[klass][name]);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenTurnStart"]);
+    expect(macro.config.activity).toBe(id);
+    const ongoing = e.additionalActivities.find((a: any) => a.id === id);
+    expect(ongoing.duplicate).toBe(true);
+    expect(ongoing.overrides.data.behaviors).toEqual([]);
+  });
+});
+
+describe("paladin capstone aura regions", () => {
+  it.each([
+    ["HolyNimbus", "Aura Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
+    ["AvengingAngel", "Avenging Angel", ["tokenEnter"], "30"],
+    ["Plaguebringer", "Entropic Radiance Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
+    ["ApocalypticRevelation", "Blinding Glory", ["tokenTurnStart"], "5"],
+    ["SpiritOfTheValkyrie", "Thunderstruck", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
+  ])("%s places an enemy emanation firing %s", (name, activityName, events, radius) => {
+    const e = build((ClassEnrichers.Paladin as any)[name]);
+    const aura = e.additionalActivities.find((a: any) => a.init?.name === "Place Aura");
+    expect(aura.build.targetOverride.template.size).toBe(radius);
+    expect(aura.build.targetOverride.affects.type).toBe("enemy");
+    const [behavior] = aura.overrides.data.behaviors;
+    expect(behavior.config.events).toEqual(events);
+    expect(behavior.config.args.activityName).toBe(activityName);
   });
 });

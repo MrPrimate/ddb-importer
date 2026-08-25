@@ -1,4 +1,5 @@
 import {
+  DDBEffectImporter,
   logger,
   utils,
   Iconizer,
@@ -402,6 +403,7 @@ ${itemDescription.chat}
     } = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
 
+    await DDBEffectImporter.importStandaloneEffects(items);
     // we have to break these out into class and non-class because of
     // https://gitlab.com/foundrynet/foundryvtt/-/issues/5312
     const klassItems = items.filter((item) => ["class", "subclass"].includes(item.type));

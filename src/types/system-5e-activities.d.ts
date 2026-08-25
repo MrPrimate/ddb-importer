@@ -54,7 +54,7 @@ global {
 
   /** Config for `type: "applyActiveEffect"` — dispositions are derived from the activity target at placement. */
   interface I5eActivityBehaviorApplyEffectConfig {
-    /** ActiveEffect UUIDs (compendium or otherwise standalone). */
+    /** ActiveEffect UUIDs; ddb-importer enrichers may give standalone effect NAMES, resolved at import. */
     effects?: string[];
     sizes?: TActorSizes[];
     types?: TCreatureTypes[];
@@ -67,13 +67,35 @@ global {
 
   interface I5eActivityBehavior {
     _id?: string;
-    type: "applyActiveEffect" | "difficultTerrain";
+    type: "applyActiveEffect" | "difficultTerrain" | "ddbMacro";
     name?: string;
+    ddbimporter?: {
+      auraeffectsOnly?: boolean;
+      auraeffectsNever?: boolean;
+      ac5eOnly?: boolean;
+      ac5eNever?: boolean;
+    };
     level?: {
       min?: number | null;
       max?: number | null;
     };
-    config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig;
+    config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig | I5eActivityBehaviorMacroConfig;
+  }
+
+  /** ddb-importer's `ddbMacro` activity behavior: run a RegionAutomations handler on core region events. */
+  interface I5eActivityBehaviorMacroConfig {
+    function?: string;
+    events?: string[];
+    /** Sibling activity id to use instead of the placing activity. */
+    activity?: string;
+    oncePerTurn?: boolean;
+    scale?: boolean;
+    /** executeMacro handler: `ddb.<type>.<file>` or a Foundry macro name / `Macro.<id>` uuid. */
+    macroName?: string;
+    /** Override for a ddbmacro activity's stored macro parameters, or the executeMacro parameters. */
+    macroParameters?: string;
+    /** Extra handler arguments (e.g. activityName, custom handler data), merged under the structured fields. */
+    args?: Record<string, unknown>;
   }
 
   interface IMidiActivityProperties {

@@ -78,6 +78,10 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preCalculateDamage": (actor: Actor.Implementation, damages: DamageDescription[], options: DamageApplicationOptions) => boolean | void;
       "dnd5e.preConfigureInitiative": (actor: Actor.Implementation, rollConfig: { data: AnyMutableObject; parts: string[]; options: D20RollOptions }) => void;
       "dnd5e.preCreateActivityTemplate": (activity: Activity, templateData: MeasuredTemplateDocument.CreateData) => boolean | void;
+      // dnd5e 6.0: activity templates are Regions; these hooks keep their names but carry region data
+      "dnd5e.preCreateMeasuredTemplate": (activity: Activity, config: Record<string, unknown>) => boolean | void;
+      "dnd5e.createMeasuredTemplate": (activity: Activity, regionData: RegionDocument.CreateData[]) => boolean | void;
+      "dnd5e.postCreateMeasuredTemplate": (activity: Activity, created: RegionDocument.Implementation[]) => void;
       "dnd5e.preRollAbilityCheck": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollAttack": (rollConfig: RollProcessConfig & { attackMode: string }, dialogConfig: RollDialogConfig, messageConfig: RollMessageConfig) => boolean | void;
       "dnd5e.preRollAttackV2": (rollConfig: RollProcessConfig & { attackMode: string }, dialogConfig: RollDialogConfig, messageConfig: RollMessageConfig) => boolean | void;

@@ -267,6 +267,8 @@ global {
     // Activity matching
     activityMatch?: string;
     activitiesMatch?: string[];
+    /** Link the effect to its activity with `onSave: true` so it applies even when the target saves. */
+    onSave?: boolean;
     ignoreTransfer?: boolean;
 
     // MIDI
@@ -280,6 +282,18 @@ global {
 
     // Auras
     auraeffects?: IDDBAuraEffects;
+    /**
+     * Build the effect as a standalone document in the effects compendium instead of
+     * embedding it on the item, so region behaviors can reference it by name (as the
+     * dnd5e SRD does with its effects pack). See BehaviorHelper.applyEffect.
+     */
+    standalone?: boolean;
+    /**
+     * With `standalone`: stamp `replacement: "origin"` on changes whose value carries roll data,
+     * so caster-derived formulas (@abilities.cha.mod, @scale...) resolve against the placing
+     * activity when the region applies the effect to another actor.
+     */
+    originReplacement?: boolean;
 
     // Enchant
     magicalBonus?: IDDBMagicalBonus;
@@ -292,12 +306,8 @@ global {
     ac5eNever?: boolean;
     midiOnly?: boolean;
     midiNever?: boolean;
-    activeAurasOnly?: boolean;
-    activeAurasNever?: boolean;
     auraeffectsOnly?: boolean;
     auraeffectsNever?: boolean;
-    aurasOnly?: boolean;
-    aurasNever?: boolean;
 
     // Function
     func?: (params: { effect: any }) => void | Promise<void>;

@@ -126,3 +126,60 @@ describe("DDBCompendiumFolders specialist subclass folders", () => {
     expect(compendiumFolders.getFolderId(feature)).toBeDefined();
   });
 });
+
+describe("DDBCompendiumFolders effect folders", () => {
+  const originalDDB = (globalThis as any).CONFIG?.DDB;
+
+  beforeAll(() => {
+    (globalThis as any).CONFIG ??= {};
+    (globalThis as any).CONFIG.DDB = {
+      sources: [{ name: "PHB-2024", sourceCategoryId: 13 }],
+      sourceCategories: [{ id: 13, name: "Core D&D" }],
+    };
+  });
+
+  afterAll(() => {
+    (globalThis as any).CONFIG.DDB = originalDDB;
+  });
+
+  function makeEffect(parent: Partial<IDDBStandaloneEffectParent>) {
+    return {
+      _id: "ddbEffect00000001",
+      name: "Silenced",
+      flags: { ddbimporter: { parent: { name: "Silence", type: "spell", bookCode: "PHB-2024", isLegacy: false, ...parent } } },
+    } as unknown as I5eEffectData;
+  }
+
+  it("creates Source Category -> Type -> Parent name and reuses the tree", async () => {
+    const { compendiumFolders, folders, restore } = makeCompendiumFolders("effects" as TCompendiumTypes);
+    try {
+      const leaf = await compendiumFolders.createEffectFolder(makeEffect({}));
+      expect(folders.map((f) => f.name)).toEqual(["Core D&D", "Spells", "Silence"]);
+      const [category, type] = folders;
+      expect(type.folder).toBe(category._id);
+      expect(leaf.folder).toBe(type._id);
+      expect((leaf as unknown as IFakeFolder).flags.ddbimporter.flagTag).toBe("effects/13/spell/Silence");
+
+      const again = await compendiumFolders.createEffectFolder(makeEffect({}));
+      expect(again._id).toBe(leaf._id);
+      expect(folders).toHaveLength(3);
+
+      await compendiumFolders.createEffectFolder(makeEffect({ name: "Aura of Life" }));
+      await compendiumFolders.createEffectFolder(makeEffect({ name: "Spirit Totem", type: "classFeature" }));
+      expect(folders.map((f) => f.name)).toEqual(["Core D&D", "Spells", "Silence", "Aura of Life", "Class Features", "Spirit Totem"]);
+      expect(compendiumFolders.getFolderId(makeEffect({ name: "Spirit Totem", type: "classFeature" }) as any)).toBe(folders[5]._id);
+    } finally {
+      restore();
+    }
+  });
+
+  it("falls back to Unknown / Other for effects without a recognisable parent", async () => {
+    const { compendiumFolders, folders, restore } = makeCompendiumFolders("effects" as TCompendiumTypes);
+    try {
+      await compendiumFolders.createEffectFolder({ _id: "x", name: "Loose" } as unknown as I5eEffectData);
+      expect(folders.map((f) => f.name)).toEqual(["Unknown", "Other", "Unknown"]);
+    } finally {
+      restore();
+    }
+  });
+});

@@ -992,6 +992,62 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
+  static EFFECT_PARENT_TYPE_FOLDERS: Record<string, string> = {
+    spell: "Spells",
+    classFeature: "Class Features",
+    speciesTrait: "Species Traits",
+    feat: "Feats",
+    background: "Backgrounds",
+    monsterFeature: "Monster Features",
+    item: "Items",
+    other: "Other",
+  };
+
+  /**
+   * Standalone effects sit three deep: Source Category -> parent document type
+   * (Spells, Class Features, Items, Monster Features...) -> parent document name.
+   */
+  static getEffectFolderName(effect: I5eEffectData) {
+    const parent = foundry.utils.getProperty(effect, "flags.ddbimporter.parent") as IDDBStandaloneEffectParent | undefined;
+    const category = DDBCompendiumFolders.getSourceCategoryFolderName({
+      bookCode: parent?.bookCode ?? undefined,
+      isLegacy: parent?.isLegacy ?? false,
+      type: "effects",
+    });
+    const typeKey = parent?.type && parent.type in DDBCompendiumFolders.EFFECT_PARENT_TYPE_FOLDERS ? parent.type : "other";
+    const typeFolder = {
+      name: DDBCompendiumFolders.EFFECT_PARENT_TYPE_FOLDERS[typeKey],
+      flagTag: `${category.flagTag}/${typeKey}`,
+    };
+    const nameFolder = {
+      name: parent?.name ?? "Unknown",
+      flagTag: `${typeFolder.flagTag}/${parent?.name ?? "Unknown"}`,
+    };
+    return { category, typeFolder, name: nameFolder.name, flagTag: nameFolder.flagTag };
+  }
+
+  async createEffectFolder(effect: I5eEffectData) {
+    const details = DDBCompendiumFolders.getEffectFolderName(effect);
+    const categoryFolder = await this._createSourceFolder(details.category.name, details.category.flagTag, details.category.color);
+    const typeFolder = this.getFolder(details.typeFolder.name, details.typeFolder.flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: details.typeFolder.name,
+        flagTag: details.typeFolder.flagTag,
+        parentId: categoryFolder._id,
+      }));
+    this.validFolderIds.push(typeFolder._id);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Creating effect folder '${details.name}'`, details);
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+      parentId: typeFolder._id,
+    });
+    this.validFolderIds.push(newFolder._id);
+    return newFolder;
+  }
+
   async createBackgroundFolder(document: I5eBackgroundItem) {
     const details = DDBCompendiumFolders.getBackgroundFolderName(document);
     if (this.backgroundFolders[details.name]) return this.backgroundFolders[details.name];
@@ -1783,6 +1839,11 @@ export class DDBCompendiumFolders {
       case "tables":
       case "RollTable": {
         data = this.getTableFolderName(document as I5eTableData);
+        break;
+      }
+      case "effect":
+      case "effects": {
+        data = DDBCompendiumFolders.getEffectFolderName(document as unknown as I5eEffectData);
         break;
       }
       // no default

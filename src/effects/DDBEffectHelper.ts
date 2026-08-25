@@ -42,7 +42,7 @@ interface IAAWorkflowData {
 }
 
 interface ITokenTargetUser {
-  updateTokenTargets(targetIds?: string[]): void;
+  updateTokenTargets?(targetIds?: string[]): void;
   broadcastActivity(activityData?: Record<string, unknown>): void;
 }
 
@@ -384,15 +384,19 @@ export default class DDBEffectHelper {
 
   /**
    * Identifies and returns the IDs of tokens that are contained within a given template.
+   * dnd5e 6.0 places activity templates as Regions, which track their contained
+   * tokens themselves; legacy MeasuredTemplate documents are tested by shape.
    *
-   * @param {MeasuredTemplateDocument} templateDoc The template document used to determine token containment.
+   * @param {RegionDocument|MeasuredTemplateDocument} templateDoc The region or template document.
    * @returns {Array} An array of token IDs that are contained within the specified template.
    */
-  static findContainedTokensInTemplate(templateDoc: MeasuredTemplateDocument) {
-    // TODO: this needs refactoring for v14
-    const contained = new Set();
+  static findContainedTokensInTemplate(templateDoc: RegionDocument | MeasuredTemplateDocument): string[] {
+    if (templateDoc.documentName === "Region") {
+      return [...(templateDoc as RegionDocument).tokens].map((token) => token.id).filter((id): id is string => !!id);
+    }
+    const contained = new Set<string>();
     const scene = templateDoc.parent;
-    const shape = templateDoc.object?.shape;
+    const shape = (templateDoc as MeasuredTemplateDocument).object?.shape;
     if (!scene || !shape) {
       logger.warn("findContainedTokensInTemplate: template has no scene or rendered shape", { templateDoc });
       return [];
@@ -954,13 +958,13 @@ export default class DDBEffectHelper {
       aoeTargets.unshift(sourceToken);
     }
     const aoeTargetIds = aoeTargets.map((t) => t.document.id);
-    (game.user as unknown as ITokenTargetUser)?.updateTokenTargets(aoeTargetIds);
+    DDBEffectHelper.setTokenTargets(aoeTargetIds);
     (game.user as unknown as ITokenTargetUser)?.broadcastActivity({ aoeTargetIds });
     return aoeTargets;
   }
 
   static updateUserTargets(targets: string[]) {
-    (game.user as unknown as ITokenTargetUser).updateTokenTargets(targets);
+    DDBEffectHelper.setTokenTargets(targets);
   }
 
   static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
@@ -1203,10 +1207,21 @@ export default class DDBEffectHelper {
     if (roll) (Hooks as unknown as IDynamicHooks).callAll("dnd5e.rollDamage", undefined, roll);
   }
 
+  /**
+   * Replace the current user's token targets. Foundry v14 removed
+   * User#updateTokenTargets; the public API is canvas.tokens.setTargets.
+   */
+  static setTokenTargets(targetIds: string[] = []): void {
+    const layer = canvas?.tokens as unknown as { setTargets?: (ids: string[], options?: { mode?: string }) => void } | undefined;
+    if (layer?.setTargets) layer.setTargets(targetIds, { mode: "replace" });
+    else (game.user as unknown as ITokenTargetUser)?.updateTokenTargets?.(targetIds);
+  }
+
   static syntheticItemWorkflowOptions({
     targets = undefined, showFullCard = false, scaling = false,
     configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
     createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
+    extraActivityConfig = {},
   }: {
     targets?: Token[] | undefined;
     showFullCard?: boolean;
@@ -1217,13 +1232,15 @@ export default class DDBEffectHelper {
     createMeasuredTemplate?: boolean | undefined;
     consumeResource?: boolean;
     consumeSpellSlot?: boolean;
+    /** merged into the activity usage config, e.g. ddbMacroParameters for MacroActivity overrides */
+    extraActivityConfig?: Record<string, unknown>;
   } = {}) {
     return [
       // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
       {
         create: createMeasuredTemplate
           ? {
-            createMeasuredTemplate: true,
+            measuredTemplate: true,
           }
           : false,
         // concentration: {
@@ -1244,6 +1261,7 @@ export default class DDBEffectHelper {
           slot: slotLevel,
         },
         scaling,
+        ...extraActivityConfig,
       },
       {
         targetUuids: targets,
@@ -1352,7 +1370,7 @@ export default class DDBEffectHelper {
     setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
     level = null, clearUses = true, addProperties = [], noSpellslot = true, clearTargets = true,
-    clearActiveAuraEffects = true, killAnimations = false, filterActivityDamageTypes = [], returnDataOnly = false,
+    killAnimations = false, filterActivityDamageTypes = [], returnDataOnly = false,
     retainEnchantments = false,
   }: {
     uuid?: string | null;
@@ -1379,7 +1397,6 @@ export default class DDBEffectHelper {
     addProperties?: string[];
     noSpellslot?: boolean;
     clearTargets?: boolean;
-    clearActiveAuraEffects?: boolean;
     killAnimations?: boolean;
     filterActivityDamageTypes?: string[];
     returnDataOnly?: boolean;
@@ -1396,12 +1413,6 @@ export default class DDBEffectHelper {
         newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
       if (activityTypes.length > 0)
         newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
-    }
-
-    if (clearActiveAuraEffects) {
-      newDocumentData.effects = (newDocumentData.effects ?? []).filter((e: any) =>
-        !foundry.utils.getProperty(e.flags, "ActiveAura.isAura"),
-      );
     }
 
     if (retainEnchantments) {
@@ -1517,7 +1528,7 @@ export default class DDBEffectHelper {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
@@ -1525,7 +1536,7 @@ export default class DDBEffectHelper {
 
     const result = await MidiQOL.completeItemUse(document, config, options);
 
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {
@@ -1549,7 +1560,7 @@ export default class DDBEffectHelper {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
@@ -1558,7 +1569,7 @@ export default class DDBEffectHelper {
     // config/dialogue/message
     const result = await MidiQOL.completeActivityUse(activity, config, options);
 
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {

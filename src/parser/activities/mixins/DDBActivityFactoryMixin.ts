@@ -492,8 +492,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
             : [] as string[];
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
+        const onSave = foundry.utils.getProperty(effect, "flags.ddbimporter.effectOnSave") === true;
         activity.effects.push({
           _id: effect._id,
+          ...(onSave ? { onSave } : {}),
           level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
           riders: {
             activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") as string[] ?? [],

@@ -1,1 +1,1 @@
-game.user.updateTokenTargets();
+canvas.tokens.setTargets([], { mode: "replace" });

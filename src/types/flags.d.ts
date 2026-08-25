@@ -86,10 +86,6 @@ global {
 
   interface FlagConfig {
     ActiveEffect: {
-      ActiveAuras?: {
-        isAura?: boolean;
-        ignoreSelf?: boolean;
-      };
       dnd5e?: {
         exhaustionLevel?: number;
         dependents?: {
@@ -258,6 +254,21 @@ global {
         itemCardUuid?: string;
         dependentOn?: string; // UUID of parent document (Actor/Item) for midi-qol dependent tracking
         anchorToToken?: boolean; // Whether cone/ray template origin is anchored to caster's token border
+      };
+    };
+    /** Regions placed from activities (dnd5e 6.0 templates are Regions). */
+    Region: {
+      dnd5e?: {
+        activity?: string;
+        item?: string;
+        origin?: string;
+        spellLevel?: number;
+        dimensions?: {
+          size?: number;
+          width?: number | null;
+          height?: number | null;
+          units?: string;
+        };
       };
     };
     MeasuredTemplateDocument: {

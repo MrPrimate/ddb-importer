@@ -400,6 +400,8 @@ export default class Utils {
     entityTypes.set("table", "RollTable");
     entityTypes.set("tables", "RollTable");
     entityTypes.set("RollTable", "RollTable");
+    entityTypes.set("effect", "ActiveEffect");
+    entityTypes.set("effects", "ActiveEffect");
 
     [
       "feat", "spell", "inventory", "equipment", "consumable", "tool", "loot",

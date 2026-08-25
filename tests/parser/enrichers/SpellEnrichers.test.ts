@@ -34,11 +34,19 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
   AutoEffects: { effectModules: () => modules },
   EnchantmentEffects: {},
   ChangeHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/ChangeHelper")).default,
+  BehaviorHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/BehaviorHelper")).default,
+  SRDEffects: (await vi.importActual<any>("../../../src/parser/enrichers/effects/SRDEffects")).default,
   EffectGenerator: {},
 }));
 
 import * as SpellEnrichers from "../../../src/parser/enrichers/spell/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+import SRDEffects from "../../../src/parser/enrichers/effects/SRDEffects";
+
+beforeAll(() => {
+  installActivityConfigStubs();
+});
 
 type TEnricher = new (options: any) => any;
 
@@ -230,16 +238,302 @@ describe("Contagion", () => {
 describe("SpiritGuardians", () => {
   const Enricher = SpellEnrichers.SpiritGuardians;
 
-  it("picks the ruleset macro for both the item and the effect", () => {
-    expect(build(Enricher, { is2014: true }).itemMacro.name).toBe("spiritGuardians2014.js");
-    expect(build(Enricher).itemMacro.name).toBe("spiritGuardians2024.js");
-  });
-
-  it("builds a cast activity plus a save rider in both rulesets", () => {
+  it("builds the core single save activity with the Half Speed effect applied on save", () => {
     for (const is2014 of [true, false]) {
       const e = build(Enricher, { is2014 });
-      expect(e.activity.name).toBe("Cast");
-      expect(e.additionalActivities.map((a: any) => a.init.name)).toContain("Save vs Damage");
+      expect(e.type).toBe("save");
+      expect(e.activity.name).toBe("Cast and Save");
+      expect(e.activity.damageParts).toHaveLength(1);
+      expect(e.activity.data.damage.onSave).toBe("half");
+      expect(e.additionalActivities).toBeNull();
+      expect(e.itemMacro).toBeNull();
+      const [halfSpeed] = e.effects;
+      expect(halfSpeed.name).toBe("Half Speed");
+      expect(halfSpeed.onSave).toBe(true);
+      expect(halfSpeed.changes).toEqual([
+        expect.objectContaining({ key: "system.attributes.movement.multiplier", type: "multiply", value: "0.5" }),
+      ]);
+      expect(halfSpeed.data.duration.expiry).toBe("turnStart");
     }
+  });
+});
+
+describe("region behavior spells", () => {
+  it("Silence applies the stock silenced/deafened/thunder-immunity effects through an applyActiveEffect behavior", () => {
+    const e = build(SpellEnrichers.Silence);
+    expect(e.type).toBe("utility");
+    expect(e.activity.data.behaviors).toEqual([
+      expect.objectContaining({
+        type: "applyActiveEffect",
+        config: {
+          effects: [
+            SRDEffects.condition("silenced"),
+            SRDEffects.condition("deafened"),
+            SRDEffects.damageImmunity("thunder"),
+          ],
+          sizes: [],
+          types: [],
+        },
+      }),
+    ]);
+    expect(e.effects).toEqual([]);
+    expect(e.itemMacro).toBeNull();
+    expect(e.setMidiOnUseMacroFlag).toBeNull();
+  });
+
+  it("Aura of Life applies the stock necrotic resistance to allies", () => {
+    const e = build(SpellEnrichers.AuraOfLife);
+    expect(e.activity.data.behaviors[0].config.effects).toEqual([SRDEffects.damageResistance("necrotic")]);
+    expect(e.effects).toEqual([]);
+    expect(e.override.data.system.target.affects.type).toBe("ally");
+  });
+
+  it.each([
+    ["SpikeGrowth", ["plants"]],
+    ["Entangle", ["plants"]],
+    ["Web", ["web"]],
+    ["SleetStorm", ["ice"]],
+    ["IceStorm", ["ice"]],
+    ["BlackTentacles", []],
+    ["InsectPlague", []],
+    ["BladeBarrier", []],
+    ["StormOfVengeance", []],
+    ["Grease", []],
+    ["ConjureMinorElementals", []],
+  ])("%s emits a difficultTerrain behavior with types %j", (name, types) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.activity.data.behaviors).toContainEqual(
+      expect.objectContaining({ type: "difficultTerrain", config: { types } }),
+    );
+  });
+
+  it("Spike Growth is a single damage activity", () => {
+    const e = build(SpellEnrichers.SpikeGrowth);
+    expect(e.type).toBe("damage");
+    expect(e.activity.damageParts[0]).toMatchObject({ number: 2, denomination: 4, types: ["piercing"] });
+    expect(e.additionalActivities).toBeNull();
+  });
+
+  it.each(["Cloudkill", "IncendiaryCloud", "Moonbeam", "CreateBonfire", "SpellfireStorm", "ConjureWoodlandBeings", "Web", "Grease", "InsectPlague"])(
+    "%s no longer carries ActiveAuras machinery", (name) => {
+      const e = build((SpellEnrichers as any)[name]);
+      for (const effect of e.effects ?? []) {
+        expect(effect.activeAurasOnly).toBeUndefined();
+        expect(effect.data?.flags?.ActiveAuras).toBeUndefined();
+        expect(effect.macroChanges).toBeUndefined();
+      }
+      expect(e.setMidiOnUseMacroFlag).toBeNull();
+      expect(e.override?.data?.flags?.ddbimporter?.effect).toBeUndefined();
+    });
+});
+
+describe("native aura spells", () => {
+  it.each([
+    ["CrusadersMantle", "Crusader's Mantle"],
+    ["PassWithoutTrace", "Pass without Trace"],
+    ["CircleOfPower", "Circle of Power"],
+    ["HolyAura", "Holy Aura"],
+    ["AlustrielsMooncloak", "Within Moonlight"],
+    ["AuraOfPurity", "Aura of Purity"],
+  ])("%s applies a standalone %s effect through applyActiveEffect", (name, effectName) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const behaviors = e.activity.data.behaviors;
+    expect(behaviors.some((b: any) => b.type === "applyActiveEffect" && b.config.effects.includes(effectName))).toBe(true);
+    const standalone = e.effects.find((effect: any) => effect.name === effectName);
+    expect(standalone.standalone).toBe(true);
+    expect(e.effects.some((effect: any) => effect.auraeffects)).toBe(false);
+  });
+
+  it.each([
+    ["WardingWind", []],
+    ["DarkStar", []],
+    ["HungerOfHadar", []],
+    ["EruptingEarth", ["rocks"]],
+    ["EarthTremor", ["rocks"]],
+    ["WrathOfNature", ["plants"]],
+    ["Earthquake", ["rocks"]],
+    ["WallOfWater", ["liquid"]],
+    ["InvestitureOfIce", ["ice"]],
+  ])("%s emits difficultTerrain %j", (name, types) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.activity.data.behaviors.some((b: any) => b.type === "difficultTerrain" && b.config.types.join() === types.join())).toBe(true);
+  });
+});
+
+describe("region dispositions via target.affects.type", () => {
+  it.each([
+    ["CrusadersMantle", "ally"],
+    ["PassWithoutTrace", "ally"],
+    ["HolyAura", "ally"],
+    ["AlustrielsMooncloak", "ally"],
+    ["AuraOfPurity", "ally"],
+    ["CircleOfPower", "ally"],
+    ["ConjureMinorElementals", "enemy"],
+    ["WrathOfNature", "enemy"],
+  ])("%s targets %s so the placed region derives that disposition", (name, affects) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.override.data.system.target.affects.type).toBe(affects);
+  });
+});
+
+describe("stock SRD zone effects", () => {
+  it.each([
+    ["HungerOfHadar", [SRDEffects.condition("blinded")]],
+    ["JallarzisStormOfRadiance", [SRDEffects.condition("blinded"), SRDEffects.condition("deafened")]],
+    ["WardingWind", [SRDEffects.condition("deafened")]],
+    ["DarkStar", [SRDEffects.condition("deafened"), SRDEffects.damageImmunity("thunder")]],
+    ["AuraOfPurity", [SRDEffects.damageResistance("poison"), "Aura of Purity"]],
+  ])("%s applies %j", (name, effects) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const behavior = e.activity.data.behaviors.find((b: any) => b.type === "applyActiveEffect");
+    expect(behavior.config.effects).toEqual(effects);
+  });
+});
+
+describe("ddbMacro region automation behaviors", () => {
+  it.each([
+    ["Moonbeam", ["tokenEnter", "tokenTurnEnd"], "ddbMoonbeamZone1"],
+    ["Cloudkill", ["tokenEnter", "tokenTurnEnd"], "ddbCloKilZoneSa1"],
+    ["IncendiaryCloud", ["tokenEnter", "tokenTurnEnd"], "ddbIncCloZoneSa1"],
+    ["CreateBonfire", ["tokenEnter", "tokenTurnEnd"], "ddbBonfirZoneSa1"],
+    ["Web", ["tokenEnter", "tokenTurnStart"], "ddbWebSpellZone1"],
+    ["InsectPlague", ["tokenEnter", "tokenTurnEnd"], "ddbInsPlaZoneSa1"],
+    ["SleetStorm", ["tokenEnter", "tokenTurnStart"], "ddbSleetStZoneS1"],
+    ["SpellfireStorm", ["tokenEnter", "tokenTurnEnd"], "ddbSpellStormSa1"],
+    ["ConjureWoodlandBeings", ["tokenEnter", "tokenTurnEnd"], "ddbConjWoodBeSav"],
+  ])("%s triggers useActivity against its no-consumption ongoing activity on %j", (name, events, activity) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.function).toBe("useActivity");
+    expect(macro.config.events).toEqual(events);
+    expect(macro.config.activity).toBe(activity);
+    expect(macro.config.args).toEqual({});
+    expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true, macroParameters: "{}" });
+  });
+
+  it.each([
+    ["Moonbeam", "ddbMoonbeamZone1"],
+    ["Cloudkill", "ddbCloKilZoneSa1"],
+    ["IncendiaryCloud", "ddbIncCloZoneSa1"],
+    ["CreateBonfire", "ddbBonfirZoneSa1"],
+    ["Web", "ddbWebSpellZone1"],
+    ["Grease", "ddbGreaseZoneSa1"],
+    ["InsectPlague", "ddbInsPlaZoneSa1"],
+    ["SleetStorm", "ddbSleetStZoneS1"],
+    ["BlackTentacles", "ddbBlaTenZoneSa1"],
+  ])("%s duplicates its save as a special-activation Ongoing Save without consumption", (name, id) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const ongoing = e.additionalActivities.find((a: any) => a.id === id);
+    expect(ongoing.duplicate).toBe(true);
+    expect(ongoing.overrides).toMatchObject({
+      name: "Ongoing Save",
+      activationType: "special",
+      removeSpellSlotConsume: true,
+      noConsumeTargets: true,
+      noTemplate: true,
+    });
+    expect(ongoing.overrides.data.behaviors).toEqual([]);
+  });
+
+  it("Grease saves on every entry because neither ruleset limits it to once per turn", () => {
+    const e = build(SpellEnrichers.Grease);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+    expect(macro.config.activity).toBe("ddbGreaseZoneSa1");
+    expect(macro.config.oncePerTurn).toBe(false);
+  });
+
+  it.each([
+    ["Moonbeam"],
+    ["Cloudkill"],
+  ])("%s uses turn start in 2014 and turn end in 2024", (name) => {
+    expect(build((SpellEnrichers as any)[name], { is2014: true }).activity.data.behaviors
+      .find((b: any) => b.type === "ddbMacro").config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(build((SpellEnrichers as any)[name]).activity.data.behaviors
+      .find((b: any) => b.type === "ddbMacro").config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+  });
+
+  it("Black Tentacles branches the turn event by ruleset", () => {
+    expect(build(SpellEnrichers.BlackTentacles, { is2014: true }).activity.data.behaviors[1].config.events)
+      .toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(build(SpellEnrichers.BlackTentacles).activity.data.behaviors[1].config.events)
+      .toEqual(["tokenEnter", "tokenTurnEnd"]);
+    const config = build(SpellEnrichers.BlackTentacles).activity.data.behaviors[1].config;
+    expect(config.activity).toBe("ddbBlaTenZoneSa1");
+    // 2024: "A creature makes this save only once per turn."
+    expect(config.oncePerTurn).toBe(true);
+  });
+
+  it("Hunger of Hadar wires its two per-turn activities by name", () => {
+    const e = build(SpellEnrichers.HungerOfHadar);
+    const macros = e.activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(macros.map((m: any) => [m.config.events[0], m.config.args.activityName])).toEqual([
+      ["tokenTurnStart", "Start of Turn Damage"],
+      ["tokenTurnEnd", "End of Turn Save vs Damage"],
+    ]);
+  });
+});
+
+describe("C/D region candidates wave", () => {
+  it.each([
+    ["GustOfWind", ["tokenTurnEnd"], "ddbGustWiZoneSa1", []],
+    ["StormSphere", ["tokenTurnEnd"], "ddbStormSpZoneS1", [""]],
+    ["DarkStar", ["tokenEnter", "tokenTurnStart"], "ddbDarkStZoneSa1", [""]],
+    ["JallarzisStormOfRadiance", ["tokenEnter", "tokenTurnEnd"], "ddbJalStoZoneSa1", []],
+    ["SickeningRadiance", ["tokenEnter", "tokenTurnStart"], "ddbSickRaZoneSa1", []],
+    ["ZoneOfTruth", ["tokenEnter", "tokenTurnStart"], "ddbZonTruZoneSa1", []],
+    ["StinkingCloud", ["tokenTurnStart"], "ddbStiCloZoneSa1", []],
+    ["Dawn", ["tokenTurnEnd"], "ddbDawnSpZoneSa1", []],
+    ["MaddeningDarkness", ["tokenTurnStart"], "ddbMadDarZoneSa1", []],
+    ["Whirlwind", ["tokenEnter"], "ddbWhirlwZoneSa1", []],
+    ["Maelstrom", ["tokenTurnStart"], "ddbMaelstZoneSa1", [""]],
+    ["YolandesRegalPresence", ["tokenEnter", "tokenTurnEnd"], "ddbYolRegZoneSa1", []],
+    ["RavenousVoid", ["tokenEnter", "tokenTurnStart"], "ddbRavVoiZoneSa1", [""]],
+    ["DustDevil", ["tokenTurnEnd"], "ddbDustDeZoneSa1", []],
+    ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "ddbCorArrZoneSa1", []],
+    ["HealingSpirit", ["tokenEnter", "tokenTurnStart"], "ddbHeaSpiZoneHe1", []],
+    ["CloudOfDaggers", ["tokenEnter", "tokenTurnEnd"], "ddbCloDagZoneDa1", []],
+    ["TransmuteRock", ["tokenEnter", "tokenTurnEnd"], "ddbTraRocZoneSa1", ["mud"]],
+  ])("%s triggers its ongoing activity on %j", (name, events, activityId, terrain) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(events);
+    expect(macro.config.activity).toBe(activityId);
+    const dts = e.activity.data.behaviors.filter((b: any) => b.type === "difficultTerrain");
+    expect(dts.map((b: any) => b.config.types.join())).toEqual(terrain.length && terrain[0] === "" ? [""] : terrain.length ? terrain : []);
+    const ongoing = (e.additionalActivities ?? []).find((a: any) => a.overrides?.id === activityId || a.id === activityId);
+    if (ongoing?.duplicate) expect(ongoing.overrides.data.behaviors).toEqual([]);
+  });
+
+  it.each([
+    ["WallOfFire", "Damage", ["tokenEnter", "tokenTurnEnd"]],
+    ["WallOfThorns", "Save to Travel Through Wall", ["tokenEnter", "tokenTurnEnd"]],
+    ["WallOfLight", "Turn End Damage", ["tokenTurnEnd"]],
+    ["WallOfIce", "Frigid Air Save", ["tokenEnter"]],
+  ])("%s wires %s by name", (name, activityName, events) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(events);
+    expect(macro.config.args.activityName).toBe(activityName);
+  });
+
+  it("Gust of Wind uses turn start in 2014", () => {
+    const macro = build(SpellEnrichers.GustOfWind, { is2014: true }).activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenTurnStart"]);
+  });
+
+  it("Cloud of Daggers uses turn start in 2014 and its duplicate is a damage clone", () => {
+    const macro = build(SpellEnrichers.CloudOfDaggers, { is2014: true }).activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(build(SpellEnrichers.CloudOfDaggers).additionalActivities[0].overrides.name).toBe("Ongoing Damage");
+  });
+
+  it("Investiture of Flame builds its emanation, aura damage and flame line", () => {
+    const e = build(SpellEnrichers.InvestitureOfFlame);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.args.activityName).toBe("Aura Damage");
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "5" });
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Aura Damage", "Flame Line"]);
+    expect(e.effects[0].changes.map((c: any) => c.value)).toEqual(["fire", "cold"]);
   });
 });

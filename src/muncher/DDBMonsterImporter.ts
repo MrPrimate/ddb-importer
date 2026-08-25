@@ -3,6 +3,7 @@ import {
   utils,
   Iconizer,
   DDBItemImporter,
+  DDBEffectImporter,
   FileHelper,
   CompendiumHelper,
 } from "../lib/_module";
@@ -197,6 +198,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         if (!updatedNPC) {
           logger.debug("No changes made to base character", this.monster);
         }
+        await DDBEffectImporter.importStandaloneEffects(items as any);
         // update() resolves undefined when nothing changed; the items were
         // wiped above so recreate them on the existing compendium actor
         await (updatedNPC ?? this.compendiumActor).createEmbeddedDocuments("Item", items as any, { keepId: true });

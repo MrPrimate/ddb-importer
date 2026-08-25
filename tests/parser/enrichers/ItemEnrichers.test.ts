@@ -35,6 +35,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
   AutoEffects: { effectModules: () => modules },
   EnchantmentEffects: {},
   ChangeHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/ChangeHelper")).default,
+  BehaviorHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/BehaviorHelper")).default,
   EffectGenerator: {},
 }));
 
@@ -297,5 +298,30 @@ describe("EldritchClawTattoo", () => {
     const activityNames = e.additionalActivities.map((a: any) => a.init?.name ?? a.action?.name);
     expect(activityNames).toContain("Eldritch Maul");
     expect(e.effects.map((effect: any) => effect.name)).toContain("Eldritch Maul");
+  });
+});
+
+describe("hazard gear regions", () => {
+  it("Caltrops save on entry with the speed rider", () => {
+    const e = build(ItemEnrichers.Caltrops);
+    expect(e.activity.data.save.dc.formula).toBe("15");
+    expect(e.activity.data.behaviors[0].config.events).toEqual(["tokenEnter"]);
+    expect(build(ItemEnrichers.Caltrops).effects[0].changes[0].key).toBe("system.attributes.movement.multiplier");
+    expect(build(ItemEnrichers.Caltrops, { is2014: true }).effects[0].changes[0].key).toBe("system.attributes.movement.bonus");
+  });
+
+  it("Ball Bearings prone save on entry", () => {
+    const e = build(ItemEnrichers.BallBearings);
+    expect(e.activity.data.save.dc.formula).toBe("10");
+    expect(e.activity.data.behaviors[0].config.events).toEqual(["tokenEnter"]);
+    expect(e.effects[0].statuses).toEqual(["Prone"]);
+  });
+
+  it("Oil douses a space that burns on entry or turn end when lit", () => {
+    const e = build(ItemEnrichers.Oil);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+    expect(macro.config.args.activityName).toBe("Burning Oil Damage");
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Burning Oil Damage", "Douse a Creature"]);
   });
 });

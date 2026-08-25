@@ -5,7 +5,7 @@ import DDBDataUtils from "../../lib/DDBDataUtils";
 import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
 import SpellDataUtils from "../../spells/SpellDataUtils";
 import type DDBSummonsManager from "../../companions/DDBSummonsManager";
-import { AutoEffects, ChangeHelper } from "../effects/_module";
+import { AutoEffects, BehaviorHelper, ChangeHelper, SRDEffects } from "../effects/_module";
 
 export interface IDDBBasicDamage {
   number?: number | null;
@@ -24,6 +24,14 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   // Static getters, not fields
   static get AutoEffects(): typeof AutoEffects {
     return AutoEffects;
+  }
+
+  static get BehaviorHelper(): typeof BehaviorHelper {
+    return BehaviorHelper;
+  }
+
+  static get SRDEffects(): typeof SRDEffects {
+    return SRDEffects;
   }
 
   static get ChangeHelper(): typeof ChangeHelper {

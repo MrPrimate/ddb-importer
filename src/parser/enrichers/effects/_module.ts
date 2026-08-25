@@ -5,3 +5,5 @@ export { default as EffectGenerator } from "./EffectGenerator";
 export { default as MidiOverTimeEffect } from "./MidiOverTimeEffect";
 export { default as ACBonusEffects } from "./ACBonusEffects";
 export { default as AutoEffects } from "./AutoEffects";
+export { default as BehaviorHelper } from "./BehaviorHelper";
+export { default as SRDEffects } from "./SRDEffects";

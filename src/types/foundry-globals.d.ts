@@ -189,6 +189,11 @@ declare global {
       activityTypes: Record<string, {
         documentClass: Function | Activity;
       }>;
+      activityBehaviorTypes: Record<string, {
+        label: string;
+        icon?: string;
+        model: Function;
+      }>;
       actorSizes: Record<string, {
         label: string;
         token?: number;

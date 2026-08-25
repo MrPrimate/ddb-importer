@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, utils, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
+import { DDBEffectImporter, logger, utils, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
 import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
 import DDBFeatureMixin from "./DDBFeatureMixin";
@@ -1273,6 +1273,10 @@ export default class CharacterFeatureFactory {
         foundry.utils.setProperty(action, "flags.ddbimporter.sourceCategory", foundry.utils.getProperty(featureMatch, "flags.ddbimporter.sourceCategoryId"));
 
         foundry.utils.setProperty(action, "flags.ddbimporter.featureMeta", featureMatch.flags.ddbimporter);
+
+        // the action replaces the feature in the output, so standalone (compendium)
+        // effects stashed during the feature's enrichment must survive on the action
+        DDBEffectImporter.mergeStandaloneEffects(action, featureMatch);
 
         logger.debug(`Found match for ${originalActionName} and ${featureMatch.name}`, {
           action: foundry.utils.deepClone(action),

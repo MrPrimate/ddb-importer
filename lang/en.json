@@ -255,6 +255,61 @@
         "Use": "Use a custom proxy?",
         "AddressExample": "Custom proxy address, e.g. http://localhost:3000"
       }
+    },
+    "behaviors": {
+      "macro": {
+        "Label": "DDB Importer Trigger",
+        "FIELDS": {
+          "function": {
+            "label": "Custom Handler",
+            "hint": "Handler in DDBImporter.effects.AuraAutomations.handlers. Use Activity uses the activity that placed this region (or one named in Handler Arguments) against each token that triggers the chosen events."
+          },
+          "events": {
+            "label": "Region Events"
+          },
+          "args": {
+            "label": "Additional Arguments",
+            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data."
+          },
+          "activity": {
+            "label": "Activity",
+            "hint": "The activity to use when triggered; defaults to the activity that placed this region."
+          },
+          "oncePerTurn": {
+            "label": "Once Per Turn",
+            "hint": "Only trigger once per token per combat turn."
+          },
+          "scale": {
+            "label": "Apply Upcast Scaling",
+            "hint": "Scale the activity by the level the spell was cast at."
+          },
+          "macroParameters": {
+            "label": "Macro Parameters",
+            "hint": "JSON passed to the macro: for DDB Macro activities it replaces the stored parameters; for the Execute Macro handler it is the macro's parameters."
+          },
+          "macroName": {
+            "label": "Macro",
+            "hint": "For the Execute Macro handler: ddb.<type>.<file> for a DDB Importer macro (e.g. ddb.generic.light), or a Foundry macro name or Macro.<id> uuid."
+          }
+        },
+        "events": {
+          "tokenEnter": "Token Enter",
+          "tokenExit": "Token Exit",
+          "tokenMoveIn": "Token Move In",
+          "tokenMoveOut": "Token Move Out",
+          "tokenMoveWithin": "Token Move Within",
+          "tokenTurnStart": "Token Turn Start",
+          "tokenTurnEnd": "Token Turn End",
+          "tokenRoundStart": "Token Round Start",
+          "tokenRoundEnd": "Token Round End"
+        },
+        "placingActivity": "(The activity that placed this region)",
+        "handlers": {
+          "useActivity": "Use Activity",
+          "log": "Log Event (Debug)",
+          "executeMacro": "Execute Macro"
+        }
+      }
     }
   }
 }

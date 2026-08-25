@@ -5,7 +5,7 @@
 
 // Mutable module-state for the enricher effects barrel mock; the midi branches
 // in _applyActivityDataOverride gate on AutoEffects.effectModules().
-const effectModulesState = vi.hoisted(() => ({ midiQolInstalled: false }));
+const effectModulesState = vi.hoisted(() => ({ midiQolInstalled: false, auraeffectsInstalled: false }));
 
 // Heavy companion/summons machinery is irrelevant to the override surface.
 vi.mock("../../../src/parser/companions/DDBSummonsManager", () => ({
@@ -16,7 +16,7 @@ vi.mock("../../../src/parser/companions/types/TransformProfiles", () => ({
 }));
 vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
   AutoEffects: {
-    effectModules: () => ({ midiQolInstalled: effectModulesState.midiQolInstalled }),
+    effectModules: () => ({ midiQolInstalled: effectModulesState.midiQolInstalled, auraeffectsInstalled: effectModulesState.auraeffectsInstalled }),
     forceDocumentEffect: (data: any) => data,
     addVision5eStub: (data: any) => data,
   },
@@ -48,9 +48,11 @@ vi.mock("../../../src/parser/enrichers/_module", () => ({
 
 import { resolveTransformProfileUuids } from "../../../src/parser/companions/types/TransformProfiles";
 import DDBEnricherFactoryMixin from "../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin";
+import { setMockSettings } from "../../_setup/foundryMocks";
 
 afterEach(() => {
   effectModulesState.midiQolInstalled = false;
+  effectModulesState.auraeffectsInstalled = false;
   vi.mocked(resolveTransformProfileUuids).mockClear();
 });
 
@@ -120,6 +122,42 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
     const result = await e._applyActivityDataOverride(activity, {});
     expect(result).toBe(activity);
     expect(result).toEqual(before);
+  });
+
+  it("strips ddbMacro behaviors from merged data unless the hidden setting enables them", async () => {
+    const e = makeEnricher();
+    const behaviors = [
+      { _id: "a", type: "difficultTerrain", config: { types: [] } },
+      { _id: "b", type: "ddbMacro", config: { function: "useActivity", events: ["tokenEnter"], args: {} } },
+    ];
+
+    const activity = makeActivity();
+    await e._applyActivityDataOverride(activity, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
+    expect(activity.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain"]);
+
+    setMockSettings({ "enable-ddb-macro-region-behaviors": true });
+    const enabled = makeActivity();
+    await e._applyActivityDataOverride(enabled, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
+    expect(enabled.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
+  });
+
+  it("evaluates and strips auraeffects gates on behaviors", async () => {
+    const e = makeEnricher();
+    const behaviors = [
+      { _id: "a", type: "applyActiveEffect", ddbimporter: { auraeffectsNever: true }, config: { effects: ["X"] } },
+      { _id: "b", type: "applyActiveEffect", ddbimporter: { auraeffectsOnly: true }, config: { effects: ["Y"] } },
+    ];
+
+    // the effects barrel mock reports no auraeffects module
+    const activity = makeActivity();
+    await e._applyActivityDataOverride(activity, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
+    expect(activity.behaviors.map((b: any) => b._id)).toEqual(["a"]);
+    expect(activity.behaviors[0].ddbimporter).toBeUndefined();
+
+    effectModulesState.auraeffectsInstalled = true;
+    const withModule = makeActivity();
+    await e._applyActivityDataOverride(withModule, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
+    expect(withModule.behaviors.map((b: any) => b._id)).toEqual(["b"]);
   });
 
   it("applies name and id overrides", async () => {

@@ -12,6 +12,7 @@ export type { ICompendiumCreationOptions } from "./CompendiumHelper";
 export { default as DDBCampaigns } from "./DDBCampaigns";
 export { DDBCompendiumFolders } from "./DDBCompendiumFolders";
 export { default as DDBItemImporter } from "./DDBItemImporter";
+export { default as DDBEffectImporter } from "./DDBEffectImporter";
 export { default as DDBProxy } from "./DDBProxy";
 export { default as DialogHelper } from "./DialogHelper";
 export { default as FileHelper } from "./FileHelper";

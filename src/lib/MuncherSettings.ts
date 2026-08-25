@@ -473,7 +473,7 @@ const MuncherSettings = {
 <i>This is not recommended for new Foundry users.</i><br>
 This applies some automation to the items, but do require the use of a number of external modules, including "Midi-QOL", which potentially introduces a much higher level of automation and complexity above the base Foundry system.<br>
 These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")} and Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}} as a minimum.<br>
-Effects can also be created to use Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")} or Aura Effects${MuncherSettings.getInstalledIcon("auraeffectsInstalled")}.
+Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIcon("auraeffectsInstalled")}.
 `;
 
     const generateMidiEffects = utils.getSetting<boolean>("munching-policy-add-midi-effects");

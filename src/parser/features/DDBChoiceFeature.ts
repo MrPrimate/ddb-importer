@@ -1,5 +1,5 @@
 import DDBFeature from "./DDBFeature";
-import { utils, logger } from "../../lib/_module";
+import { utils, logger, DDBEffectImporter } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import { DDBDataUtils } from "../lib/_module";
 import DDBFeatureMixin from "./DDBFeatureMixin";
@@ -302,6 +302,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         ) {
           featureSystem.uses = choiceSystem.uses;
         }
+        DDBEffectImporter.mergeStandaloneEffects(ddbFeature.data, choiceFeature.data);
         if (foundry.utils.hasProperty(choiceFeature.data, "flags.ddbimporter.dndbeyond.choice")) {
           foundry.utils.setProperty(
             ddbFeature.data,

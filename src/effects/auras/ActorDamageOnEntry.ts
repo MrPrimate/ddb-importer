@@ -1,6 +1,5 @@
 import { logger, utils } from "../../lib/_module";
 import DDBEffectHelper from "../DDBEffectHelper";
-import { setBasicCombatFlag } from "./shared";
 
 
 // Pack Damage (Aura Automation) from Conjure Animals
@@ -73,7 +72,11 @@ export default async function actorDamageOnEntry({
     }
 
     // set flag for turn check
-    await setBasicCombatFlag(actor, flagNameTurn);
+    await DDBEffectHelper.setFlag(actor, flagNameTurn, {
+      id: game.combat?.id ?? null,
+      round: game.combat?.round ?? null,
+      turn: game.combat?.turn ?? null,
+    });
     // set flag to prevent end of turn roll
     await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
 

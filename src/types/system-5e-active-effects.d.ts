@@ -52,6 +52,14 @@ global {
 
   type TEffectType = "base" | "condition" | "enchantment";
 
+  interface IDDBStandaloneEffectParent {
+    name: string;
+    /** Folder type label key, see DDBEffectImporter.PARENT_TYPES (e.g. "spell", "classFeature", "monsterFeature"). */
+    type: string;
+    bookCode: string | null;
+    isLegacy: boolean;
+  }
+
   /** `type: "base"` system data (dnd5e 6.0 BaseEffectData). */
   interface I5eEffectSystem {
     changes?: IActiveEffectChangeData[];
@@ -99,23 +107,6 @@ global {
     disabled?: boolean;
     showIcon?: TEffectShowIcon;
     flags?: {
-      ActiveAuras?: {
-        ignoreSelf?: boolean;
-        aura: "Allies" | "Enemy" | "All";
-        alignment?: string;
-        type?: string;
-        height?: boolean;
-        hostile?: boolean;
-        onlyOnce?: boolean;
-        radius?: string;
-        isAura?: boolean;
-        inactive?: boolean;
-        hidden?: boolean;
-        displayTemp?: boolean;
-        statuses?: string[];
-        save?: string;
-        savedc?: number | null;
-      };
       auraeffects?: IDDBAuraEffects;
       dae?: {
         selfTarget?: boolean;
@@ -130,8 +121,11 @@ global {
         infusion?: boolean;
         disabled?: boolean;
         characterEffect?: boolean;
+        /** Set on standalone (compendium) effects: the document that declared the effect, used for compendium folders. */
+        parent?: IDDBStandaloneEffectParent;
         entityTypeId?: string | null;
         itemId?: string | null;
+        effectOnSave?: boolean;
         activityRiders?: string[];
         effectRiders?: string[];
         itemRiders?: string[];
@@ -164,7 +158,6 @@ global {
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     tokenMagicInstalled: boolean;
-    activeAurasInstalled: boolean;
     auraeffectsInstalled: boolean;
     autoAnimationsInstalled: boolean;
     chrisInstalled: boolean;

@@ -27,6 +27,8 @@ export const COMPENDIUM_LOOKUP = [
   { type: "classes", compendium: "entity-class-compendium" },
   { type: "classfeatures", compendium: "entity-class-compendium" },
   { type: "consumable", compendium: "entity-item-compendium" },
+  { type: "effect", compendium: "entity-effect-compendium" },
+  { type: "effects", compendium: "entity-effect-compendium" },
   { type: "container", compendium: "entity-item-compendium" },
   { type: "custom", compendium: "entity-override-compendium" },
   { type: "equipment", compendium: "entity-item-compendium" },

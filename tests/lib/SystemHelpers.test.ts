@@ -256,14 +256,12 @@ describe("effectModules", () => {
   it("detects the other effect modules", () => {
     setMockModules({
       tokenmagic: { active: true },
-      ActiveAuras: { active: true },
       auraeffects: { active: true },
       autoanimations: { active: true },
       "vision-5e": { active: true },
     });
     const result = SystemHelpers.effectModules();
     expect(result.tokenMagicInstalled).toBe(true);
-    expect(result.activeAurasInstalled).toBe(true);
     expect(result.auraeffectsInstalled).toBe(true);
     expect(result.autoAnimationsInstalled).toBe(true);
     expect(result.vision5eInstalled).toBe(true);

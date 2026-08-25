@@ -164,6 +164,12 @@ const SETTINGS = {
         default: true,
         requiresReload: true,
       },
+      "enable-ddb-macro-region-behaviors": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false,
+      },
       "developer-mode": {
         scope: "world",
         config: false,

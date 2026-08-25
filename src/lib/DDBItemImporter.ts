@@ -1,6 +1,7 @@
 import logger from "./Logger";
 import utils from "./Utils";
 import CompendiumHelper from "./CompendiumHelper";
+import DDBEffectImporter from "./DDBEffectImporter";
 import Iconizer from "./Iconizer";
 import { DDBCompendiumFolders } from "./DDBCompendiumFolders";
 import NameMatcher from "./NameMatcher";
@@ -524,6 +525,8 @@ ${item.system.description.chat}
       }
       return item;
     });
+
+    await DDBEffectImporter.importStandaloneEffects(inputItems);
 
     let results: TImportedDocumentResult[] = [];
     // update existing items

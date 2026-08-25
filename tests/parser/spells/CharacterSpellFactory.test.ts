@@ -17,7 +17,6 @@ function setAC5eInstalled(installed: boolean): void {
     daeInstalled: false,
     atlInstalled: false,
     tokenMagicInstalled: false,
-    activeAurasInstalled: false,
     auraeffectsInstalled: false,
     autoAnimationsInstalled: false,
     chrisInstalled: false,

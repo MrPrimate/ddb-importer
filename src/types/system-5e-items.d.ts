@@ -709,24 +709,17 @@ global {
   }
 
   interface IDDBImporterFlagsEffect {
-    // Aura behavior flags
-    applyStart?: boolean;
-    applyEntry?: boolean;
-    applyImmediate?: boolean;
-    everyEntry?: boolean;
-    allowVsRemoveCondition?: boolean;
-    removalCheck?: string | boolean;
-    removalSave?: string | boolean;
-    saveRemoves?: boolean;
-    saveOnEntry?: boolean;
     condition?: string;
     save?: string;
     sequencerFile?: string;
     sequencerScale?: number;
+    /** Activity ids a runtime automation should use from the source document. */
     activityIds?: string[];
     isCantrip?: boolean;
     nameSuffix?: string;
-    removeOnOff?: boolean;
+    /** Ability used when a condition can be removed with a check (see DDBEffectHelper.adjustCondition). */
+    removalCheck?: string | boolean;
+    removalSave?: string | boolean;
     enchantmentEffects?: string[];
 
     // magicStone-style effect data
@@ -841,12 +834,15 @@ global {
     addSpellEffects?: boolean;
     generic?: boolean;
     effectLabelOverride?: string;
+    /** Transient: standalone effects awaiting import into the effects compendium (stripped at import). */
+    standaloneEffects?: I5eEffectData[];
 
     // Effect matching (on effects)
     activityMatch?: string;
     activitiesMatch?: string[];
     ignoreTransfer?: boolean;
     effectIdLevel?: { min?: number | null; max?: number | null };
+    effectOnSave?: boolean;
     activityRiders?: string[];
     effectRiders?: string[];
     itemRiders?: string[];

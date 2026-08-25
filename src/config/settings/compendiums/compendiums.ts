@@ -71,6 +71,15 @@ export const COMPENDIUMS: ICompendiumSetting[] = [
     version: 1,
   },
   {
+    title: "Effects",
+    setting: "entity-effect-compendium",
+    type: "ActiveEffect",
+    image: "https://media.dndbeyond.com/mega-menu/8894f93deeca83cdf0a6df3f36ffb52e.jpg",
+    auto: true,
+    types: [],
+    version: 1,
+  },
+  {
     title: "Spells",
     setting: "entity-spell-compendium",
     type: "Item",

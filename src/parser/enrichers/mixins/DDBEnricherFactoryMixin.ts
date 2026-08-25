@@ -1,4 +1,4 @@
-import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
+import { utils, logger, DDBEffectImporter, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
@@ -517,6 +517,21 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         ? overrideData.data()
         : overrideData.data;
       activity = foundry.utils.mergeObject(activity, data);
+      if (Array.isArray(activity.behaviors)) {
+        // ddbMacro region automation is opt-in via the hidden world setting
+        const allowMacros = utils.getSetting<boolean>("enable-ddb-macro-region-behaviors") === true;
+        const auraeffectsInstalled = AutoEffects.effectModules().auraeffectsInstalled;
+        const ac5eInstalled = AutoEffects.effectModules().ac5eInstalled;
+        activity.behaviors = activity.behaviors.filter((behavior: I5eActivityBehavior) => {
+          if (behavior.type === "ddbMacro" && !allowMacros) return false;
+          if (behavior.ddbimporter?.auraeffectsOnly && !auraeffectsInstalled) return false;
+          if (behavior.ddbimporter?.auraeffectsNever && auraeffectsInstalled) return false;
+          if (behavior.ddbimporter?.ac5eOnly && !ac5eInstalled) return false;
+          if (behavior.ddbimporter?.ac5eNever && ac5eInstalled) return false;
+          return true;
+        });
+        for (const behavior of activity.behaviors) delete behavior.ddbimporter;
+      }
     }
 
     if (
@@ -618,12 +633,8 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (effectHint.ac5eOnly && !AutoEffects.effectModules().ac5eInstalled) continue;
       if (effectHint.midiNever && AutoEffects.effectModules().midiQolInstalled) continue;
       if (effectHint.midiOnly && !applyMidiOnlyEffects) continue;
-      if (effectHint.activeAurasNever && AutoEffects.effectModules().activeAurasInstalled) continue;
-      if (effectHint.activeAurasOnly && !AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.auraeffectsNever && AutoEffects.effectModules().auraeffectsInstalled) continue;
       if (effectHint.auraeffectsOnly && !AutoEffects.effectModules().auraeffectsInstalled) continue;
-      if (effectHint.aurasNever && (AutoEffects.effectModules().auraeffectsInstalled || AutoEffects.effectModules().activeAurasInstalled)) continue;
-      if (effectHint.aurasOnly && !AutoEffects.effectModules().auraeffectsInstalled && !AutoEffects.effectModules().activeAurasInstalled) continue;
       const name = effectHint.name ?? this.name ?? "";
       const effectOptions = effectHint.options ?? {};
 
@@ -752,6 +763,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (effectHint.activitiesMatch) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
+      if (effectHint.onSave) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.effectOnSave", true);
+      }
 
       if (effectHint.ignoreTransfer) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
@@ -811,14 +825,27 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
       }
 
-      if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
-        if (foundry.utils.hasProperty(effect, "flags.ActiveAuras")) {
-          delete effect.flags.ActiveAuras;
-        }
-      }
-
       if (effectHint?.func) {
         await effectHint.func({ effect });
+      }
+
+      if (effectHint.standalone) {
+        effect._id = utils.namedIDStub(`${this.data.name} ${effect.name}`, { prefix: "ddb" });
+        effect.transfer = false;
+        if (effectHint.originReplacement) {
+          for (const change of effect.system?.changes ?? []) {
+            if (typeof change.value === "string" && change.value.includes("@")) change.replacement = "origin";
+          }
+        }
+        // a noCreate standalone hint MOVES the matched embedded effect into the compendium stash
+        if (useExistingEffect) {
+          const index = this.data.effects?.indexOf(effect) ?? -1;
+          if (index >= 0) this.data.effects?.splice(index, 1);
+        }
+        const standalone = (foundry.utils.getProperty(this.data, "flags.ddbimporter.standaloneEffects") ?? []) as I5eEffectData[];
+        standalone.push(effect);
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.standaloneEffects", standalone);
+        continue;
       }
 
       const description = this.data.system.description;
@@ -1188,6 +1215,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
+        DDBEffectImporter.mergeStandaloneEffects(this.data, feature);
 
         if (feature.system.advancement) {
           activityData.advancements.push(...(foundry.utils.deepClone(Object.values(feature.system.advancement)) as I5eAdvancement[]));
