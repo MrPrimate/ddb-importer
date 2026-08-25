@@ -1,3 +1,8 @@
+# v6 changes
+
+- Active Auras support is removed. Aura Effects is the replacement. Several of the auras that were previosuly handled by AA or AE are now system native. If Aura Effects is installed then the system will use this over template/region attached effects in a lot of cases.
+- EXPERIMENTAL: DDB Region Behaviours - will use the movement triggers for regions to put appropriate saves into chat to be rolled (rolling isn't automated). E.g. Spike Growth.
+
 # Next Up
 
 # 7.4.4
