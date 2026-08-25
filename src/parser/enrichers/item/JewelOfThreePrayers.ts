@@ -54,6 +54,47 @@ export default class JewelOfThreePrayers extends DDBEnricherData {
       },
     ];
 
+    if (this.isExalted) {
+      activities.push({
+        init: {
+          name: "Place Aura",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateConsumption: false,
+          generateRange: false,
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            condition: "",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "ally",
+            },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({
+                effects: "Jewel of Three Prayers: Waters of the Arch Heart",
+                auraeffectsNever: true,
+              }),
+            ],
+          },
+        },
+      });
+    }
+
     if (this.isAwakened) {
       activities.push(
         {
@@ -130,20 +171,16 @@ export default class JewelOfThreePrayers extends DDBEnricherData {
     if (this.isExalted) {
       effects.push({
         name: "Jewel of Three Prayers: Waters of the Arch Heart",
+        standalone: true,
+        auraeffectsNever: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
+        ],
+      });
+      effects.push({
+        name: "Jewel of Three Prayers: Waters of the Arch Heart",
+        auraeffectsOnly: true,
         daeStackable: "none",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              ignoreSelf: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",
