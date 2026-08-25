@@ -1,15 +1,59 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+const DAMAGE_TYPES = [
+  { type: "acid", label: "Acid", id: "ddbAuraOfWarAcid" },
+  { type: "cold", label: "Cold", id: "ddbAuraOfWarCold" },
+  { type: "fire", label: "Fire", id: "ddbAuraOfWarFire" },
+  { type: "lightning", label: "Lightning", id: "ddbAuraOfWarLtng" },
+  { type: "thunder", label: "Thunder", id: "ddbAuraOfWarThnd" },
+] as const;
+
+const activityName = (label: string): string => `Activate Aura of War: ${label}`;
+const effectName = (label: string): string => `Aura of War: ${label}`;
+
+function damageChanges(type: string): IActiveEffectChangeData[] {
+  return [
+    DDBEnricherData.ChangeHelper.unsignedAddChange(`1d4[${type}]`, 20, "system.rolls.damage.mwak.bonus"),
+    DDBEnricherData.ChangeHelper.unsignedAddChange(`1d4[${type}]`, 20, "system.rolls.damage.rwak.bonus"),
+  ];
+}
 
 export default class AuraOfWar extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
+    // the first damage type takes the parsed activity; the rest are duplicates of it
+    const [first] = DAMAGE_TYPES;
     return {
-      name: "Activate Aura of War",
+      name: activityName(first.label),
+      targetType: "ally",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: effectName(first.label),
+            auraeffectsNever: true,
+          }),
+        ],
+      },
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      ...DAMAGE_TYPES.slice(1).map(({ label, id }): IDDBAdditionalActivity => ({
+        duplicate: true,
+        id,
+        overrides: {
+          name: activityName(label),
+          targetType: "ally",
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({
+                effects: effectName(label),
+                auraeffectsNever: true,
+              }),
+            ],
+          },
+        },
+      })),
       {
         init: {
           name: "Aura of War (Damage Bonus)",
@@ -34,10 +78,11 @@ export default class AuraOfWar extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 4,
-                  types: ["acid", "cold", "fire", "lightning", "thunder"],
+                  types: DAMAGE_TYPES.map(({ type }) => type),
                 }),
               ],
             },
+            behaviors: [],
           },
         },
       },
@@ -45,25 +90,21 @@ export default class AuraOfWar extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
+    return DAMAGE_TYPES.flatMap(({ type, label }): IDDBEffectHint[] => [
       {
-        name: "Aura of War",
-        activityMatch: "Activate Aura of War",
-        daeStackable: "none",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              ignoreSelf: false,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-              type: "undead; fiend",
-            },
-          },
+        name: effectName(label),
+        standalone: true,
+        auraeffectsNever: true,
+        changes: damageChanges(type),
+        options: {
+          durationSeconds: 60,
         },
+      },
+      {
+        name: effectName(label),
+        activityMatch: activityName(label),
+        auraeffectsOnly: true,
+        daeStackable: "none",
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",
@@ -76,15 +117,12 @@ export default class AuraOfWar extends DDBEnricherData {
           evaluatePreApply: true,
           overrideName: "",
         },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.damage.mwak.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.rolls.damage.rwak.bonus"),
-        ],
+        changes: damageChanges(type),
         options: {
-          transfer: true,
+          durationSeconds: 60,
         },
       },
-    ];
+    ]);
   }
 
 }

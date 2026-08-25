@@ -1,6 +1,17 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import _StormAura from "./_StormAura";
 
-export default class StormAuraTundra extends DDBEnricherData {
+export default class StormAuraTundra extends _StormAura {
+
+  override get element(): string {
+    return "cold";
+  }
+
+  override get tundra(): string {
+    return "Tundra";
+  }
+
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
@@ -30,7 +41,8 @@ export default class StormAuraTundra extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
+    const results = super.effects;
+    results.push(
       {
         midiOnly: true,
         onUseMacroChanges: [
@@ -41,8 +53,9 @@ export default class StormAuraTundra extends DDBEnricherData {
             document: this.data,
           },
         ],
-      },
-    ];
+      } as IDDBEffectHint,
+    );
+    return results;
   }
 
   override get itemMacro(): IDDBItemMacro {
