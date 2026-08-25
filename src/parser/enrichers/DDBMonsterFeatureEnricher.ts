@@ -228,6 +228,20 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Uncanny Dodge": "Uncanny Dodge",
     "Illumination": "Illumination",
     "Vanish": "Invisibility",
+    "Aberrant Ground": "Aberrant Ground",
+    "Stench": "Turn Start Aura Save",
+    "Deathly Stench": "Turn Start Aura Save",
+    "Stench of Death": "Turn Start Aura Save",
+    "Fear Aura": "Turn Start Aura Save",
+    "Lordly Presence": "Turn Start Aura Save",
+    "Annihilating Aura": "Turn Start Aura Save",
+    "Rotting Presence": "Turn Start Aura Save",
+    "Searing Presence": "Turn Start Aura Save",
+    "Aura of Menace": "Turn Start Aura Save",
+    "Ophidiophobia Aura": "Turn Start Aura Save",
+    "Enchanting Presence": "Turn Start Aura Save",
+    "Joyful Presence": "Turn Start Aura Save",
+    "Sorrowful Presence": "Turn Start Aura Save",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH: Record<string, string> = {
@@ -268,6 +282,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
     "Illumination": MonsterEnrichers.Generic.Illumination,
     "Weakening Breath": MonsterEnrichers.Generic.WeakeningBreath,
+    "Aberrant Ground": MonsterEnrichers.Generic.AberrantGround,
+    "Turn Start Aura Save": MonsterEnrichers.Generic.TurnStartAuraSave,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

@@ -37,6 +37,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINTS: Record<string, string> = {
     "Alchemist's Fire (flask)": "Alchemist's Fire",
+    "Ball Bearings (bag of 1,000)": "Ball Bearings",
+    "Caltrops (bag of 20)": "Caltrops",
+    "Oil (flask)": "Oil",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
@@ -58,6 +61,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Acid (vial)": ItemEnrichers.AcidVial,
+    "Ball Bearings": ItemEnrichers.BallBearings,
+    "Caltrops": ItemEnrichers.Caltrops,
+    "Oil": ItemEnrichers.Oil,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
