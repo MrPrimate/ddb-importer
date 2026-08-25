@@ -26,18 +26,6 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
           transfer: true,
           disabled: !activeType?.includes(element),
         },
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",

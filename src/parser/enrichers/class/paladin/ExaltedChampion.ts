@@ -8,6 +8,23 @@ export default class ExaltedChampion extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "action",
+      targetType: "ally",
+      data: {
+        target: {
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "30",
+            units: "ft",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: "Exalted Champion: Aura",
+            auraeffectsNever: true,
+          }),
+        ],
+      },
     };
   }
 
@@ -26,24 +43,24 @@ export default class ExaltedChampion extends DDBEnricherData {
       },
       {
         name: "Exalted Champion: Aura",
+        standalone: true,
+        auraeffectsNever: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
+        ],
+        options: {
+          durationSeconds: 3600,
+        },
+      },
+      {
+        name: "Exalted Champion: Aura",
+        auraeffectsOnly: true,
         daeStackable: "noneNameOnly",
         changes: [
           DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
           DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
         ],
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: `30`,
-              isAura: true,
-              ignoreSelf: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",

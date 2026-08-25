@@ -27,19 +27,25 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
       name: "Activate",
       id: "activateEyesOfNi",
       addItemConsume: true,
-      targetType: "self",
+      targetType: "ally",
       rangeSelf: true,
       data: {
         target: {
           template: {
             count: "",
-            type: "",
-            size: "",
+            type: "radius",
+            size: "30",
             width: "",
             height: "",
             units: "ft",
           },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnEnd"],
+            activityName: "Temp HP",
+          }),
+        ],
       },
     };
   }

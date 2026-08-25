@@ -40,6 +40,13 @@ export default class SpiritTotem extends DDBEnricherData {
             type: "temphp",
           }),
         },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({ effects: DDBEnricherData.SRDEffects.checkAndSaveAdvantage("str") }),
+            ],
+          },
+        },
       },
       {
         init: {
@@ -69,6 +76,13 @@ export default class SpiritTotem extends DDBEnricherData {
             units: "ft",
           },
         },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({ effects: DDBEnricherData.SRDEffects.skillAdvantage("prc") }),
+            ],
+          },
+        },
       },
       {
         init: {
@@ -96,6 +110,13 @@ export default class SpiritTotem extends DDBEnricherData {
           rangeOverride: {
             value: "60",
             units: "ft",
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Unicorn Spirit" }),
+            ],
           },
         },
       },
@@ -132,104 +153,13 @@ export default class SpiritTotem extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        name: "Bear Totem",
-        activityMatch: "Bear Totem",
-        changes: [
-          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
-          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
-        ],
-        midiNever: true,
-      },
-      {
-        name: "Bear Totem Aura",
-        activityMatch: "Bear Totem",
-        changes: [
-          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
-          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
-        ],
-        midiOnly: true,
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              ignoreSelf: false,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
-      },
-      {
-        name: "Hawk Spirit",
-        activityMatch: "Hawk Spirit",
-        changes: [
-          DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
-        ],
-        midiNever: true,
-      },
-      {
-        name: "Hawk Spirit Aura",
-        activityMatch: "Hawk Spirit",
-        changes: [
-          DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
-        ],
-        midiOnly: true,
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              ignoreSelf: false,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
-      },
-      {
         name: "Unicorn Spirit",
-        activityMatch: "Unicorn Spirit",
-        midiNever: true,
-      },
-      {
-        name: "Unicorn Spirit Aura",
-        activityMatch: "Unicorn Spirit",
-        midiOnly: true,
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: "30",
-              isAura: true,
-              ignoreSelf: false,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
+        standalone: true,
+        options: {
+          durationSeconds: 60,
         },
       },
     ];
-  }
-
-  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
-    return {
-      type: "generic",
-      name: "activeAuraOnly.js",
-      triggerPoints: ["preActiveEffects"],
-    };
-  }
-
-  override get itemMacro(): IDDBItemMacro {
-    return {
-      type: "generic",
-      name: "activeAuraOnly.js",
-    };
   }
 
 }

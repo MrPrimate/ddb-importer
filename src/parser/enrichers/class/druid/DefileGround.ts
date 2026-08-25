@@ -5,6 +5,12 @@ export default class DefileGround extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Place Template",
+      targetType: "enemy",
+      data: {
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+        ],
+      },
     };
   }
 

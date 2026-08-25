@@ -19,6 +19,43 @@ export default class AvengingAngel extends DDBEnricherData {
       return [];
     }
     return [
+      {
+        init: {
+          name: "Place Aura",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          generateConsumption: false,
+          activationOverride: {
+            type: "special",
+            condition: "While the aura is active",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "enemy",
+            },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter"],
+                activityName: "Avenging Angel",
+              }),
+            ],
+          },
+        },
+      },
       { action: { name: "Avenging Angel", type: "class" } },
       {
         init: {

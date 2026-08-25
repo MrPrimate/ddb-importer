@@ -2,6 +2,35 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AuraOfHate extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Place Aura",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        target: {
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "@scale.oathbreaker.aura-of-hate",
+            units: "ft",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: "Aura of Hate (Fiends and Undead)",
+            types: ["fiend", "undead"],
+            auraeffectsNever: true,
+          }),
+        ],
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
@@ -21,22 +50,17 @@ export default class AuraOfHate extends DDBEnricherData {
       },
       {
         name: "Aura of Hate (Fiends and Undead)",
-        aurasOnly: true,
+        standalone: true,
+        originReplacement: true,
+        auraeffectsNever: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
+        ],
+      },
+      {
+        name: "Aura of Hate (Fiends and Undead)",
+        auraeffectsOnly: true,
         daeStackable: "none",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "All",
-              radius: "@scale.oathbreaker.aura-of-hate",
-              isAura: true,
-              ignoreSelf: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-              type: "undead; fiend",
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",

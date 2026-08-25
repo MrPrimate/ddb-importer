@@ -9,19 +9,6 @@ export default class SmiteOfProtection extends DDBEnricherData {
           durationSeconds: 6,
         },
         daeStackable: "noneNameOnly",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-              statuses: ["coverHalf"],
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",

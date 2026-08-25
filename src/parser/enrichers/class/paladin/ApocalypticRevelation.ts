@@ -16,6 +16,43 @@ export default class ApocalypticRevelation extends DDBEnricherData {
     return [
       {
         init: {
+          name: "Place Aura",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          generateConsumption: false,
+          activationOverride: {
+            type: "special",
+            condition: "While the aura is active",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "enemy",
+            },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "5",
+              units: "ft",
+            },
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenTurnStart"],
+                activityName: "Blinding Glory",
+              }),
+            ],
+          },
+        },
+      },
+      {
+        init: {
           name: "Blinding Glory",
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },

@@ -2,23 +2,47 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AuraOfAlacrity extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Place Aura",
+      targetType: "ally",
+      activationType: "special",
+      data: {
+        target: {
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "@scale.glory.aura-of-alacrity",
+            units: "ft",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: this.data.name,
+            auraeffectsNever: true,
+          }),
+        ],
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,
+        standalone: true,
+        originReplacement: true,
+        auraeffectsNever: true,
+        name: this.data.name,
+      },
+      {
+        noCreate: true,
+        auraeffectsOnly: true,
         daeStackable: "noneNameOnly",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Allies",
-              radius: `@scale.glory.aura-of-alacrity`,
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",

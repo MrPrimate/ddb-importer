@@ -32,6 +32,28 @@ export default class LunarEmpowerment extends DDBEnricherData {
             condition: "",
           },
         },
+        overrides: {
+          data: {
+            target: {
+              override: true,
+              affects: {
+                type: "ally",
+              },
+              template: {
+                contiguous: false,
+                type: "radius",
+                size: "10",
+                units: "ft",
+              },
+            },
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({
+                effects: "Full Moon Aura",
+                auraeffectsNever: true,
+              }),
+            ],
+          },
+        },
       },
       {
         init: {
@@ -74,25 +96,22 @@ export default class LunarEmpowerment extends DDBEnricherData {
     const effects: IDDBEffectHint[] = [
       {
         name: "Full Moon Aura",
+        standalone: true,
+        auraeffectsNever: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageSkillChange("inv"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("per"),
+        ],
+      },
+      {
+        name: "Full Moon Aura",
         activitiesMatch: ["Full Moon"],
+        auraeffectsOnly: true,
         changes: [
           DDBEnricherData.ChangeHelper.advantageSkillChange("inv"),
           DDBEnricherData.ChangeHelper.advantageSkillChange("per"),
         ],
         daeStackable: "noneNameOnly",
-        data: {
-          flags: {
-            ActiveAuras: {
-              ignoreSelf: false,
-              aura: "Allies",
-              radius: `10`,
-              isAura: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",

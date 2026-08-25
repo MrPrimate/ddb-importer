@@ -8,7 +8,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Activate Emanation/Aura",
-      targetType: "self",
+      targetType: "enemy",
       activationType: "bonus",
       data: {
         target: {
@@ -18,6 +18,12 @@ export default class WrathOfTheSea extends DDBEnricherData {
             units: "ft",
           },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: "Ocean Spray",
+            auraeffectsNever: true,
+          }),
+        ],
       },
     };
   }
@@ -65,23 +71,20 @@ export default class WrathOfTheSea extends DDBEnricherData {
     return [
       {
         name: "Ocean Spray",
+        standalone: true,
+        auraeffectsNever: true,
+        options: {
+          durationSeconds: 600,
+          description: "Within the Wrath of the Sea emanation; the druid can target this creature with the aura's cold damage.",
+        },
+      },
+      {
+        name: "Ocean Spray",
         options: {
           durationSeconds: 600,
         },
         activityMatch: "Activate Emanation/Aura",
-        data: {
-          flags: {
-            ActiveAuras: {
-              aura: "Enemy",
-              radius: "@scale.sea.wrath-range",
-              isAura: true,
-              ignoreSelf: true,
-              inactive: false,
-              hidden: false,
-              displayTemp: true,
-            },
-          },
-        },
+        auraeffectsOnly: true,
         auraeffects: {
           applyToSelf: false,
           bestFormula: "",

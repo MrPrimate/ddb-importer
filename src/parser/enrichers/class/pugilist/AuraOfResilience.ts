@@ -16,6 +16,26 @@ export default class AuraOfResilience extends DDBEnricherData {
       addItemConsume: true,
       data: {
         duration: { value: "10", units: "minute", special: "" },
+        target: {
+          override: true,
+          template: {
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+          affects: {
+            type: "ally",
+          },
+        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.applyEffect({
+            effects: [
+              DDBEnricherData.SRDEffects.damageResistance("bludgeoning"),
+              DDBEnricherData.SRDEffects.damageResistance("piercing"),
+              DDBEnricherData.SRDEffects.damageResistance("slashing"),
+            ],
+          }),
+        ],
       },
     };
   }

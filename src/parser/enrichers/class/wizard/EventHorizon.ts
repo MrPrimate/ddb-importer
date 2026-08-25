@@ -3,22 +3,22 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class EventHorizon extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Activate",
       targetType: "enemy",
       activationType: "action",
-      activationCondition: "Hostile creatures starting their turn within 30 ft; lasts 1 minute (concentration)",
+      activationCondition: "Lasts 1 minute (concentration)",
       data: {
-        save: {
-          ability: ["str"],
-          dc: {
-            calculation: "spellcasting",
-            formula: "",
-          },
-        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnStart"],
+            activityName: "Ongoing Save",
+          }),
+        ],
         range: {
           units: "self",
         },
@@ -33,20 +33,64 @@ export default class EventHorizon extends DDBEnricherData {
             height: "",
           },
         },
-        damage: {
-          onSave: "half",
-          parts: [
-            DDBEnricherData.basicDamagePart({ number: 2, denomination: 10, type: "force" }),
-          ],
-        },
       },
     };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Ongoing Save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateSave: true,
+          generateDamage: true,
+          onSave: "half",
+          saveOverride: {
+            ability: ["str"],
+            dc: {
+              formula: "",
+              calculation: "spellcasting",
+            },
+          },
+          damageParts: [
+            DDBEnricherData.basicDamagePart({ number: 2, denomination: 10, type: "force" }),
+          ],
+          activationOverride: {
+            type: "special",
+            condition: "Hostile creature starts its turn in the sphere",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              count: "1",
+              type: "creature",
+            },
+            template: {},
+          },
+        },
+        overrides: {
+          data: {
+            range: {
+              override: true,
+              units: "spec",
+            },
+          },
+        },
+      },
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Event Horizon: Held",
+        activityMatch: "Ongoing Save",
         options: {
           durationRounds: 1,
           description: "Speed 0 until the start of its next turn (on a success, every foot of movement costs 2 extra feet this turn).",

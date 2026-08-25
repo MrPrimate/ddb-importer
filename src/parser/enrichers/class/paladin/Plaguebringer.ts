@@ -16,6 +16,43 @@ export default class Plaguebringer extends DDBEnricherData {
     return [
       {
         init: {
+          name: "Place Aura",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          generateConsumption: false,
+          activationOverride: {
+            type: "special",
+            condition: "While the aura is active",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "enemy",
+            },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "@scale.paladin.aura-of-protection",
+              units: "ft",
+            },
+          },
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenTurnStart"],
+                activityName: "Entropic Radiance Damage",
+              }),
+            ],
+          },
+        },
+      },
+      {
+        init: {
           name: "Entropic Radiance Damage",
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
