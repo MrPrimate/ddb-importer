@@ -1,5 +1,7 @@
 # Next Up
 
+- Some 2024 Companions would incorrectly type Damage immunities as custom conditions. (Reanimator companion). @redarchongaming
+
 # 7.4.3
 
 - Rally maneuver added too much temphp @redarchongaming

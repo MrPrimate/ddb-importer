@@ -166,7 +166,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     const types = Object.keys(CONFIG.DND5E.damageTypes);
 
     for (const value of values) {
-      if (types.includes(value.split("(")[0].trim())) damageTypes.push(value.trim());
+      if (types.includes(value.split("(")[0].trim().toLowerCase())) damageTypes.push(value.trim());
       else conditions.push(value.trim());
     }
 
