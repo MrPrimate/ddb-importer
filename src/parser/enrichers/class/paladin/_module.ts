@@ -23,6 +23,7 @@ export { default as ChannelDivinityTurnTheUnholy } from "./ChannelDivinityTurnTh
 export { default as ChannelDivinityWatchersWill } from "./ChannelDivinityWatchersWill";
 export { default as DebilitatingFever } from "./DebilitatingFever";
 export { default as DivineSmite } from "./DivineSmite";
+export { default as DreadLord } from "./DreadLord";
 export { default as ElderChampion } from "./ElderChampion";
 export { default as ElementalRebuke } from "./ElementalRebuke";
 export { default as ElementalSmite } from "./ElementalSmite";

@@ -12,6 +12,7 @@ export { default as BonusCantrips } from "./BonusCantrips";
 export { default as CelestialResilience } from "./CelestialResilience";
 export { default as ChainsOfCarceri } from "./ChainsOfCarceri";
 export { default as ClairvoyantCombatant } from "./ClairvoyantCombatant";
+export { default as CloakOfFlies } from "./CloakOfFlies";
 export { default as ContextSwitch } from "./ContextSwitch";
 export { default as CreateThrall } from "./CreateThrall";
 export { default as CrownOfHorns } from "./CrownOfHorns";

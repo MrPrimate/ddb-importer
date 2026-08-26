@@ -238,22 +238,41 @@ describe("Contagion", () => {
 describe("SpiritGuardians", () => {
   const Enricher = SpellEnrichers.SpiritGuardians;
 
-  it("builds the core single save activity with the Half Speed effect applied on save", () => {
+  it("casts as a utility whose emanation is difficult terrain and triggers the save from the region", () => {
     for (const is2014 of [true, false]) {
       const e = build(Enricher, { is2014 });
-      expect(e.type).toBe("save");
-      expect(e.activity.name).toBe("Cast and Save");
-      expect(e.activity.damageParts).toHaveLength(1);
-      expect(e.activity.data.damage.onSave).toBe("half");
-      expect(e.additionalActivities).toBeNull();
+      expect(e.type).toBe("utility");
+      expect(e.activity.name).toBe("Cast");
+      // "Speed is halved in the Emanation" is spatial - untyped difficult terrain, no applied effect
+      expect(e.activity.data.behaviors).toContainEqual(
+        expect.objectContaining({ type: "difficultTerrain", config: { types: [] } }),
+      );
+      const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+      expect(macro.config.function).toBe("useActivity");
+      // 2014 "starts its turn there" vs 2024 "ends its turn there"
+      expect(macro.config.events).toEqual(["tokenEnter", is2014 ? "tokenTurnStart" : "tokenTurnEnd"]);
+      expect(macro.config.args).toEqual({ activityName: "Save vs Damage" });
+      expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true });
+      // allies are designated unaffected: region dispositions derive from enemy affects
+      expect(e.override.data.system.target.affects.type).toBe("enemy");
+      expect(e.effects).toEqual([]);
       expect(e.itemMacro).toBeNull();
-      const [halfSpeed] = e.effects;
-      expect(halfSpeed.name).toBe("Half Speed");
-      expect(halfSpeed.onSave).toBe(true);
-      expect(halfSpeed.changes).toEqual([
-        expect.objectContaining({ key: "system.attributes.movement.multiplier", type: "multiply", value: "0.5" }),
+
+      const [save] = e.additionalActivities;
+      expect(save.init).toEqual({ name: "Save vs Damage", type: "save" });
+      expect(save.build.generateConsumption).toBe(false);
+      expect(save.build.noSpellslot).toBe(true);
+      expect(save.build.saveOverride.ability).toEqual(["wis"]);
+      expect(save.build.onSave).toBe("half");
+      expect(save.build.damageParts).toEqual([
+        expect.objectContaining({
+          number: 3,
+          denomination: 8,
+          types: ["necrotic", "radiant"],
+          scaling: expect.objectContaining({ mode: "whole", number: 1 }),
+        }),
       ]);
-      expect(halfSpeed.data.duration.expiry).toBe("turnStart");
+      expect(save.build.targetOverride.override).toBe(true);
     }
   });
 });
@@ -397,6 +416,7 @@ describe("stock SRD zone effects", () => {
 
 describe("ddbMacro region automation behaviors", () => {
   it.each([
+    ["BladeBarrier", ["tokenEnter", "tokenTurnEnd"], "ddbBlaBarZoneSa1"],
     ["Moonbeam", ["tokenEnter", "tokenTurnEnd"], "ddbMoonbeamZone1"],
     ["Cloudkill", ["tokenEnter", "tokenTurnEnd"], "ddbCloKilZoneSa1"],
     ["IncendiaryCloud", ["tokenEnter", "tokenTurnEnd"], "ddbIncCloZoneSa1"],

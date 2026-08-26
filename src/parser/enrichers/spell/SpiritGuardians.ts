@@ -1,33 +1,22 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SpiritGuardians extends DDBEnricherData {
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Cast and Save",
-      damageParts: [
-        DDBEnricherData.basicDamagePart({
-          number: 3,
-          denomination: 8,
-          types: ["necrotic", "radiant"],
-          scalingMode: "whole",
-          scalingNumber: 1,
-        }),
-      ],
+      name: "Cast",
       data: {
-        save: {
-          ability: ["wis"],
-          dc: {
-            formula: "",
-            calculation: "spellcasting",
-          },
-        },
-        damage: {
-          onSave: "half",
-        },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.difficultTerrain(),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
+            activityName: "Save vs Damage",
+          }),
+        ],
       },
     };
   }
@@ -37,6 +26,9 @@ export default class SpiritGuardians extends DDBEnricherData {
       data: {
         system: {
           target: {
+            affects: {
+              type: "enemy",
+            },
             template: {
               type: "radius",
             },
@@ -46,17 +38,58 @@ export default class SpiritGuardians extends DDBEnricherData {
     };
   }
 
-  override get effects(): IDDBEffectHint[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
-        name: "Half Speed",
-        onSave: true,
-        changes: [
-          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
-        ],
-        data: {
-          duration: {
-            expiry: "turnStart",
+        init: {
+          name: "Save vs Damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateTarget: true,
+          noSpellslot: true,
+          generateSave: true,
+          saveOverride: {
+            ability: ["wis"],
+            dc: {
+              formula: "",
+              calculation: "spellcasting",
+            },
+          },
+          generateDamage: true,
+          damageParts: [
+            DDBEnricherData.basicDamagePart({
+              number: 3,
+              denomination: 8,
+              types: ["necrotic", "radiant"],
+              scalingMode: "whole",
+              scalingNumber: 1,
+            }),
+          ],
+          onSave: "half",
+          activationOverride: {
+            type: "special",
+            condition: this.is2014
+              ? "Enters the area for the first time on a turn or starts its turn there"
+              : "Enters the Emanation for the first time on a turn or ends its turn there",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              count: "1",
+              type: "creature",
+            },
+            template: {},
+          },
+        },
+        overrides: {
+          data: {
+            range: {
+              override: true,
+              units: "spec",
+            },
           },
         },
       },

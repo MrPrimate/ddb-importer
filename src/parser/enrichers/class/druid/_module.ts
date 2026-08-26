@@ -15,6 +15,7 @@ export { default as BalmOfTheSummerCourt } from "./BalmOfTheSummerCourt";
 export { default as BlazingRevival } from "./BlazingRevival";
 export { default as BlightedShape } from "./BlightedShape";
 export { default as BloodBoon } from "./BloodBoon";
+export { default as BondOfShelter } from "./BondOfShelter";
 export { default as CallOfTheShadowseeds } from "./CallOfTheShadowseeds";
 export { default as CauterizingFlames } from "./CauterizingFlames";
 export { default as CircleForms } from "./CircleForms";

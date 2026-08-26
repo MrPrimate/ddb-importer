@@ -279,6 +279,11 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Paladin: {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
+    "Augmentation Compounds: Maddening Fumes": ClassEnrichers.Barbarian.AugmentationCompoundsMaddeningFumes,
+    "Bond of Shelter": ClassEnrichers.Druid.BondOfShelter,
+    "Dread Lord": ClassEnrichers.Paladin.DreadLord,
+    "Set Trap: Miasma (Magical)": ClassEnrichers.Ranger.SetTrapMiasma,
+    "Vascular Corruption Aura": ClassEnrichers.Cleric.VascularCorruptionAura,
     Barbarian: {
       "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
       "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
@@ -344,6 +349,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Ascendant Step": ClassEnrichers.Warlock.AscendantStep,
     "Eldritch Invocations: Bewitching Whispers": ClassEnrichers.Warlock.BewitchingWhispers,
     "Eldritch Invocations: Chains of Carceri": ClassEnrichers.Warlock.ChainsOfCarceri,
+    "Eldritch Invocations: Cloak of Flies": ClassEnrichers.Warlock.CloakOfFlies,
     "Eldritch Invocations: Beast Speech": ClassEnrichers.Warlock.BeastSpeech,
     "Eldritch Invocations: Eldritch Sight": ClassEnrichers.Warlock.EldritchSight,
     "Eldritch Invocations: Dreadful Word": ClassEnrichers.Warlock.DreadfulWord,

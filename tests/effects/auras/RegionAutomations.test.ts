@@ -147,6 +147,19 @@ describe("RegionAutomations.useActivityHandler", () => {
     );
   });
 
+  it("falls back to a prefix match when no activity name matches exactly", async () => {
+    // "Aura Save" resolves "Aura Save (Strength DC)" style variant families where
+    // the user deletes the ones that do not apply
+    const { context, placing, sibling } = setup();
+    sibling.name = "Damage (Strength DC)";
+    context.args = { activityName: "Damage" };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).not.toHaveBeenCalled();
+    expect(sibling.use).toHaveBeenCalled();
+  });
+
   it("autoRoll opts back into rolling via subsequent actions", async () => {
     const { context, placing } = setup();
     context.args = { autoRoll: true };

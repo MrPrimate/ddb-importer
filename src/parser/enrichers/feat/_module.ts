@@ -77,6 +77,7 @@ export { default as SentinelsIntuition } from "./SentinelsIntuition";
 export { default as Shapechanger } from "./Shapechanger";
 export { default as Sharpshooter } from "./Sharpshooter";
 export { default as Slasher } from "./Slasher";
+export { default as SoulOfTheStormGiant } from "./SoulOfTheStormGiant";
 export { default as SpeedyRecovery } from "./SpeedyRecovery";
 export { default as SpellfireSpark } from "./SpellfireSpark";
 export { default as SpellSniper } from "./SpellSniper";

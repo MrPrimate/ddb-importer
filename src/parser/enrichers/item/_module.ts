@@ -77,6 +77,7 @@ export { default as WandOfOrcus } from "./WandOfOrcus";
 export { default as WarriorsPasskey } from "./WarriorsPasskey";
 export { default as Waterskin } from "./Waterskin";
 export { default as WrapsOfUnarmedPower } from "./WrapsOfUnarmedPower";
+export { default as WyrmsBreathGrenade } from "./WyrmsBreathGrenade";
 export { default as Yarting } from "./Yarting";
 export { default as YesterHillAxe } from "./YesterHillAxe";
 

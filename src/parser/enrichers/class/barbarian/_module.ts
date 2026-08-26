@@ -3,6 +3,7 @@
 export { default as AncestralProtectors } from "./AncestralProtectors";
 export { default as AspectOfTheBeastBear } from "./AspectOfTheBeastBear";
 export { default as AspectOfTheWilds } from "./AspectOfTheWilds";
+export { default as AugmentationCompoundsMaddeningFumes } from "./AugmentationCompoundsMaddeningFumes";
 export { default as AvalancheStomp } from "./AvalancheStomp";
 export { default as BatteringRoots } from "./BatteringRoots";
 export { default as BolsteringMagic } from "./BolsteringMagic";

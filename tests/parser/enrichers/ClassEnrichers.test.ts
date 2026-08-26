@@ -18,6 +18,7 @@
  * itself (pinned by tests/smoke/enricherFirstLoad.test.ts).
  */
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
+import SoulOfTheStormGiant from "../../../src/parser/enrichers/feat/SoulOfTheStormGiant";
 import * as GenericEnrichers from "../../../src/parser/enrichers/generic/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
@@ -37,6 +38,55 @@ function build(Enricher: TEnricher, options: Parameters<typeof makeEnricherData>
 function named(Enricher: TEnricher, originalName: string, options: Record<string, any> = {}): any {
   return build(Enricher, { name: originalName, ddbParser: { originalName }, ...options });
 }
+
+describe("feat SoulOfTheStormGiant", () => {
+  const Enricher = SoulOfTheStormGiant;
+  const names = ["Aura Save (Strength DC)", "Aura Save (Wisdom DC)", "Aura Save (Charisma DC)"];
+
+  it("emits one save activity per ability when the ASI choice is unknown (muncher)", () => {
+    const e = build(Enricher);
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(names);
+    expect(e.additionalActivities.map((a: any) => a.build.saveOverride.dc.calculation)).toEqual(["str", "wis", "cha"]);
+    // every variant saves with Strength; only the DC ability differs
+    for (const a of e.additionalActivities) expect(a.build.saveOverride.ability).toEqual(["str"]);
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    // prefix-resolves whichever variant the user keeps
+    expect(macro.config.args).toEqual({ activityName: "Aura Save" });
+    expect(macro.config.excludeSelf).toBe(true);
+    expect(e.effects[1].activitiesMatch).toEqual(names);
+  });
+
+  it("emits a singular save keyed to the chosen ability on character imports", () => {
+    const e = build(Enricher, { ddbParser: { _chosen: [{ label: "Wisdom" }] } });
+    expect(e.additionalActivities).toHaveLength(1);
+    expect(e.additionalActivities[0].init.name).toBe("Aura Save");
+    expect(e.additionalActivities[0].build.saveOverride.dc.calculation).toBe("wis");
+    expect(e.effects[1].activitiesMatch).toEqual(["Aura Save"]);
+  });
+});
+
+describe("warlock CloakOfFlies", () => {
+  it("activates a 5 ft aura whose region damages other creatures at turn start", () => {
+    const e = build(ClassEnrichers.Warlock.CloakOfFlies);
+    expect(e.type).toBe("utility");
+    expect(e.activity.name).toBe("Activate Aura");
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "5" });
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config.events).toEqual(["tokenTurnStart"]);
+    // "any OTHER creature" - the warlock is excluded from their own aura
+    expect(macro.config.excludeSelf).toBe(true);
+    expect(macro.config.args).toEqual({ activityName: "Aura Damage" });
+    const [damage] = e.additionalActivities;
+    expect(damage.init).toEqual({ name: "Aura Damage", type: "damage" });
+    expect(damage.build.damageParts[0].custom).toEqual({ enabled: true, formula: "max(0, @abilities.cha.mod)" });
+    expect(damage.build.generateConsumption).toBe(false);
+    const [effect] = e.effects;
+    expect(effect.activityMatch).toBe("Activate Aura");
+    expect(effect.changes).toEqual([
+      expect.objectContaining({ key: "system.skills.itm.roll.mode", type: "add", value: "1" }),
+    ]);
+  });
+});
 
 describe("artificer FlashOfGenius", () => {
   it("is a reaction roll on the action and inert on the feature", () => {

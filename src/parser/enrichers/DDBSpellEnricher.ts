@@ -40,7 +40,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
     "Dragon's Breath": SpellEnrichers.DragonsBreath,
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,
-    // "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
+    "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
     "Hold Monster": SpellEnrichers.HoldThing,
     "Hold Person": SpellEnrichers.HoldThing,

@@ -10,6 +10,7 @@ export { default as DarkDevotion } from "./DarkDevotion";
 export { default as DwarvenResilience } from "./DwarvenResilience";
 export { default as Evasion } from "./Evasion";
 export { default as FeyAncestry } from "./FeyAncestry";
+export { default as Foul } from "./Foul";
 export { default as Grappler } from "./Grappler";
 export { default as Illumination } from "./Illumination";
 export { default as ImprovedCritical } from "./ImprovedCritical";
@@ -29,4 +30,5 @@ export { default as SunlightSensitivity } from "./SunlightSensitivity";
 export { default as TurnStartAuraSave } from "./TurnStartAuraSave";
 export { default as TwoHeads } from "./TwoHeads";
 export { default as WeakeningBreath } from "./WeakeningBreath";
+export { default as WeightOfAges } from "./WeightOfAges";
 

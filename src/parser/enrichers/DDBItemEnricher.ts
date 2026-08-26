@@ -56,6 +56,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Jewel of Three Prayers": "Jewel of Three Prayers",
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
+    "Wyrm's Breath Grenade": "Wyrm's Breath Grenade",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -66,6 +67,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Oil": ItemEnrichers.Oil,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
+    "Wyrm's Breath Grenade": ItemEnrichers.WyrmsBreathGrenade,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
     "Cabal's Ruin": ItemEnrichers.CabalsRuin,
     "Canaith Mandolin": ItemEnrichers.InstrumentOfTheBards,

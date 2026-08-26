@@ -12,7 +12,23 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class TurnStartAuraSave extends DDBEnricherData {
 
+  /**
+   * Some feature names are shared between target-turn auras and owner-turn or
+   * flavour-only variants on other monsters (Cold Aura, Drone). Only emit the
+   * region trigger when this monster's wording is the target-turn shape.
+   */
+  get isTargetTurnAura(): boolean {
+    // the document description is not built when the activity hook runs, so read the
+    // monster feature parser's raw trait text
+    const parser = this.ddbParser as { strippedHtml?: string; html?: string } | undefined;
+    const description = parser?.strippedHtml
+      ?? parser?.html
+      ?? ((this.document?.system?.description?.value ?? "") as string);
+    return (/starts? (?:its|their|each) turn (?:within|in\b)/i).test(description);
+  }
+
   override get activity(): IDDBActivityData {
+    if (!this.isTargetTurnAura) return {};
     return {
       data: {
         behaviors: [

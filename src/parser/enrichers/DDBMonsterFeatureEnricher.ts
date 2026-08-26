@@ -242,6 +242,13 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Enchanting Presence": "Turn Start Aura Save",
     "Joyful Presence": "Turn Start Aura Save",
     "Sorrowful Presence": "Turn Start Aura Save",
+    "Cloud of Vermin": "Turn Start Aura Save",
+    "Cold Aura": "Turn Start Aura Save",
+    "Drone": "Turn Start Aura Save",
+    "Putrid Aura (Acid and Poison Forms Only)": "Turn Start Aura Save",
+    "Putrid Stench": "Turn Start Aura Save",
+    "Foul": "Foul",
+    "Weight of Ages": "Weight of Ages",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH: Record<string, string> = {
@@ -284,6 +291,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Weakening Breath": MonsterEnrichers.Generic.WeakeningBreath,
     "Aberrant Ground": MonsterEnrichers.Generic.AberrantGround,
     "Turn Start Aura Save": MonsterEnrichers.Generic.TurnStartAuraSave,
+    "Foul": MonsterEnrichers.Generic.Foul,
+    "Weight of Ages": MonsterEnrichers.Generic.WeightOfAges,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

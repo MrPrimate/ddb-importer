@@ -319,7 +319,11 @@ export default class RegionAutomations {
     const activity = args.activityId
       ? item?.system?.activities?.get(args.activityId)
       : args.activityName
+        // exact match first; the prefix fallback lets one behavior target a family of
+        // variant activities ("Aura Save (Strength DC)"...) where the user deletes the
+        // ones that do not apply and whichever remains still resolves
         ? item?.system?.activities?.find((a: { name: string }) => a.name === args.activityName)
+          ?? item?.system?.activities?.find((a: { name: string }) => a.name.startsWith(args.activityName as string))
         : placingActivity;
     if (!activity) {
       logger.warn(`No activity matching ${args.activityId ?? args.activityName} on ${item?.name} for region ${context.region.name}`, { context });

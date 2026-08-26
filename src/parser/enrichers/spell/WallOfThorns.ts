@@ -86,7 +86,7 @@ export default class WallOfThorns extends DDBEnricherData {
           generateTarget: true,
           partialDamageParts: [1],
           noSpellslot: true,
-          activationOverride: { type: "special", condition: "Moving through/starting in Frigid Air" },
+          activationOverride: { type: "special", condition: "Enters the wall's area or ends its turn there" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,

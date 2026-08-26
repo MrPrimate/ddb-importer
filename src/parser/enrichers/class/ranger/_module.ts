@@ -37,6 +37,7 @@ export { default as PrimalCompanionSummon } from "./PrimalCompanionSummon";
 export { default as RangedSpecialist } from "./RangedSpecialist";
 export { default as RangerSpells } from "./RangerSpells";
 export { default as SealedFate } from "./SealedFate";
+export { default as SetTrapMiasma } from "./SetTrapMiasma";
 export { default as ShadowyDodge } from "./ShadowyDodge";
 export { default as SlayersPrey } from "./SlayersPrey";
 export { default as StalkersFlurry } from "./StalkersFlurry";
