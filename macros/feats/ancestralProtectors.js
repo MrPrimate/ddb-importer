@@ -52,46 +52,48 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
 
   // create an active effect to set the target of the item
   const effectData = {
-    changes: [
-      // who is marked
-      {
-        key: "flags.world.ancestralProtectors.targetUuid",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: targetUuid,
-        priority: 20,
-      },
-    ],
+    system: {
+      changes: [
+        // who is marked
+        {
+          key: "flags.world.ancestralProtectors.targetUuid",
+          type: "override",
+          value: targetUuid,
+          priority: 20,
+        },
+      ],
+    },
 
     origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
     disabled: false,
-    duration: { rounds: 1 },
+    duration: { value: 1, units: "rounds" },
     img: sourceItem.img,
-    label: `${sourceItemName} - Target`,
     name: `${sourceItemName} - Target`,
   };
   await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 
   // create an active effect on target
   const targetEffectData = {
-    changes: [
-      // macro to set disadvantage or not before attack made by marked target
-      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preAttackRoll", macroType: "feat", macroName: "ancestralProtectors.js", priority: 15, document: { name: macroData.sourceItemUuid } }),
-      // macro to set damage resistance or not
-      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preDamageApplication", macroType: "feat", macroName: "ancestralProtectors.js", priority: 20, document: { name: macroData.sourceItemUuid } }),
-      // flag to indicate who marked this actor
-      {
-        key: "flags.world.ancestralProtectors.sourceTokenUuid",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: macroData.tokenUuid,
-        priority: 20,
-      },
-    ],
+    system: {
+      changes: [
+        // macro to set disadvantage or not before attack made by marked target
+        DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preAttackRoll", macroType: "feat", macroName: "ancestralProtectors.js", priority: 15, document: { name: macroData.sourceItemUuid } }),
+        // macro to set damage resistance or not
+        DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preDamageApplication", macroType: "feat", macroName: "ancestralProtectors.js", priority: 20, document: { name: macroData.sourceItemUuid } }),
+        // flag to indicate who marked this actor
+        {
+          key: "flags.world.ancestralProtectors.sourceTokenUuid",
+          type: "override",
+          value: macroData.tokenUuid,
+          priority: 20,
+        },
+      ],
+    },
 
     origin: effectData.origin, // flag the effect as associated to the source item used
     disabled: false,
-    duration: { rounds: 1 },
+    duration: { value: 1, units: "rounds" },
     img: sourceItem.img,
-    label: `Marked by ${sourceItemName}`,
     name: `Marked by ${sourceItemName}`,
   };
   await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
@@ -161,21 +163,22 @@ async function handlePreDamageByMarkedTarget(macroData) {
     // create an active effect on targets
     const sourceItem = await fromUuid(macroData.sourceItemUuid);
     const targetEffectData = {
-      changes: [
-        // flag for damage resistance
-        {
-          key: "system.traits.dr.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "1",
-          priority: 20,
-        },
-      ],
+      system: {
+        changes: [
+          // flag for damage resistance (DAE custom key)
+          {
+            key: "system.traits.dr.all",
+            type: "custom",
+            value: "1",
+            priority: 20,
+          },
+        ],
+      },
 
       origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
       disabled: false,
-      duration: { turns: 1 },
+      duration: { value: 1, units: "turns" },
       img: sourceItem.img,
-      label: `${sourceItemName} - Damage resistance`,
       name: `${sourceItemName} - Damage resistance`,
     };
     foundry.utils.setProperty(targetEffectData, "flags.dae.specialDuration", ["isDamaged"]);

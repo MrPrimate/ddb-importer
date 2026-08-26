@@ -34,34 +34,36 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   const target = workflow.effectTargets.first();
 
   const effectData = {
-    changes: [
-      // who is marked
-      {
-        key: "flags.world.planarWarrior.targetUuid",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: target.document.uuid,
-        priority: 20,
-      },
-      // macro to change damage type if target is valid on next attack that hits
-      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({
-        macroPass: "preDamageRoll",
-        macroType: "feat",
-        macroName: "planarWarrior.js",
-        priority: 15,
-        document: { name: rolledItem.name },
-      }),
-      // macro to apply the damage
-      {
-        key: "flags.dnd5e.DamageBonusMacro",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({
+    system: {
+      changes: [
+        // who is marked
+        {
+          key: "flags.world.planarWarrior.targetUuid",
+          type: "override",
+          value: target.document.uuid,
+          priority: 20,
+        },
+        // macro to change damage type if target is valid on next attack that hits
+        DDBImporter.lib.DDBMacros.generateOnUseMacroChange({
+          macroPass: "preDamageRoll",
           macroType: "feat",
           macroName: "planarWarrior.js",
+          priority: 15,
           document: { name: rolledItem.name },
         }),
-        priority: 20,
-      },
-    ],
+        // macro to apply the damage
+        {
+          key: "flags.dnd5e.DamageBonusMacro",
+          type: "custom",
+          value: DDBImporter.lib.DDBMacros.generateItemMacroValue({
+            macroType: "feat",
+            macroName: "planarWarrior.js",
+            document: { name: rolledItem.name },
+          }),
+          priority: 20,
+        },
+      ],
+    },
     origin: rolledItem.uuid, //flag the effect as associated to the item used
     transfer: false,
     disabled: false,

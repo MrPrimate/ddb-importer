@@ -9,25 +9,25 @@ if (args[0].isCritical) {
   for (const hitTarget of args[0].hitTargets) {
     if (!hitTarget.actor._source.effects.some((e) => e.name === criticalEffectName)) {
       const effect = {
-        label: criticalEffectName,
         name: criticalEffectName,
         img: crusherIcon,
-        origin: crusherFeat?.uuid,
+        origin: crusherFeat,
         disabled: false,
         transfer: false,
         duration: {
-          rounds: 1,
-          startRound: game.combat ? game.combat.round : 0,
-          startTime: game.time.worldTime,
+          value: null,
+          expiry: "sourceStart",
         },
-        changes: [
-          {
-            key: "flags.midi-qol.grants.advantage.attack.all",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: 1,
-            priority: 20,
-          },
-        ],
+        system: {
+          changes: [
+            {
+              key: "flags.midi-qol.grants.advantage.attack.all",
+              type: "custom",
+              value: 1,
+              priority: 20,
+            },
+          ],
+        },
       };
       foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
       await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: hitTarget.actor.uuid, effects: [effect] });

@@ -14,24 +14,30 @@ if (args[0].tag === "OnUse") {
       }
 
       const slayersPreyHitData = {
-        changes: [
-          {
-            key: "flags.midi-qol.slayersPreyHit",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: targetUuid,
-            priority: 20
-          }
-        ],
+        system: {
+          changes: [
+            {
+              key: "flags.midi-qol.slayersPreyHit",
+              type: "override",
+              value: targetUuid,
+              priority: 20
+            }
+          ],
+        },
         origin: args[0].actorUuid,
         disabled: false,
         img: args[0].item.img,
-        label: "Slayer's Prey Hit",
         name: "Slayer's Prey Hit",
+        // "until the start of your next turn" - native sourceStart expiry, DAE flag kept below
+        duration: {
+          value: null,
+          expiry: "sourceStart",
+        },
       };
       foundry.utils.setProperty(slayersPreyHitData, "flags.dae.specialDuration", ["turnStartSource"]);
       await args[0].actor.createEmbeddedDocuments("ActiveEffect", [slayersPreyHitData]);
 
-      const damageType = args[0].item.system.damage.parts[0][1];
+      const damageType = Array.from(args[0].item.system.damage?.base?.types ?? [])[0] ?? "";
       const diceMult = args[0].isCritical ? 2 : 1;
       return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: "Slayer's Prey" };
     }

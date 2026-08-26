@@ -14,10 +14,10 @@ async function applyContagion(targetActor) {
       callback: async () => {
         const originalEffect = targetActor.effects.find((a) => a.origin === item.uuid);
         let effect = {
-          changes: originalEffect.changes.concat([
+          "system.changes": foundry.utils.duplicate(originalEffect.system.changes).concat([
             {
               key: `system.abilities.${key}.save.roll.mode`,
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              type: "add",
               priority: 20,
               value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
             },
@@ -44,7 +44,7 @@ async function applyContagion(targetActor) {
 async function removeMacro(targetActor) {
   const originalEffect = targetActor.effects.find((a) => a.origin === item.uuid);
   const effect = {
-    changes: originalEffect.changes.filter((c) => !c.key.startsWith("macro")),
+    "system.changes": foundry.utils.duplicate(originalEffect.system.changes).filter((c) => !c.key.startsWith("macro")),
     _id: originalEffect._id,
   };
   await DDBImporter.socket.executeAsGM("updateEffects", {
@@ -60,7 +60,9 @@ async function removeMacro(targetActor) {
 async function contagionSave(targetActor) {
   const flag = DAE.getFlag(targetActor, "ContagionSpell");
   const flavor = `${CONFIG.DND5E.abilities["con"].label} DC${flag.saveDC} ${item?.name || ""}`;
-  const saveRoll = await targetActor.rollAbilitySave("con", { flavor });
+  const saveRolls = await targetActor.rollSavingThrow({ ability: "con" }, {}, { data: { flavor } });
+  const saveRoll = saveRolls?.[0];
+  if (!saveRoll) return;
 
   if (saveRoll.total >= flag.saveDC) {
     flag.success += 1;

@@ -28,22 +28,21 @@ async function applyContagion() {
         label: "Blinding Sickness",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: `system.abilities.wis.check.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
               {
                 key: `system.abilities.wis.save.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
             ],
             img: "icons/creatures/eyes/humanoid-single-blind.webp",
-            label: "Blinding Sickness",
             name: "Blinding Sickness",
             _id: lastArg.effectId,
           };
@@ -57,33 +56,32 @@ async function applyContagion() {
         label: "Filth Fever",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: "flags.midi-qol.disadvantage.attack.mwak",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                type: "override",
                 priority: 20,
                 value: "1",
               },
               {
                 key: "flags.midi-qol.disadvantage.attack.rwak",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                type: "override",
                 priority: 20,
                 value: "1",
               },
               {
                 key: `system.abilities.str.check.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
               {
                 key: `system.abilities.str.save.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
             ],
-            label: "Filth Fever",
             name: "Filth Fever",
             _id: lastArg.effectId,
           };
@@ -97,22 +95,21 @@ async function applyContagion() {
         label: "Flesh Rot",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: "flags.midi-qol.disadvantage.ability.check.cha",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                type: "override",
                 priority: 20,
                 value: "1",
               },
               {
                 key: "system.traits.dv.all",
-                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                type: "custom",
                 priority: 20,
                 value: "1",
               },
             ],
             img: "icons/skills/wounds/injury-hand-blood-red.webp",
-            label: "Flesh Rot",
             name: "Flesh Rot",
             _id: lastArg.effectId,
           };
@@ -126,22 +123,21 @@ async function applyContagion() {
         label: "Mindfire",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: `system.abilities.int.check.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
               {
                 key: `system.abilities.int.save.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
             ],
             img: "icons/svg/daze.svg",
-            label: "Mindfire",
             name: "Mindfire",
             _id: lastArg.effectId,
           };
@@ -155,34 +151,33 @@ async function applyContagion() {
         label: "Seizure",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: "flags.midi-qol.disadvantage.attack.mwak",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                type: "override",
                 priority: 20,
                 value: "1",
               },
               {
                 key: "flags.midi-qol.disadvantage.attack.rwak",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                type: "override",
                 priority: 20,
                 value: "1",
               },
               {
                 key: `system.abilities.dex.check.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
               {
                 key: `system.abilities.dex.save.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
             ],
             img: "icons/svg/paralysis.svg",
-            label: "Seizure",
             name: "Seizure",
             _id: lastArg.effectId,
           };
@@ -196,22 +191,21 @@ async function applyContagion() {
         label: "Slimy Doom",
         callback: async () => {
           let data = {
-            changes: [
+            "system.changes": [
               {
                 key: `system.abilities.con.check.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
               {
                 key: `system.abilities.con.save.roll.mode`,
-                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                type: "add",
                 priority: 20,
                 value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
               },
             ],
             img: "icons/magic/unholy/projectile-helix-blood-red.webp",
-            label: "Slimy Doom",
             name: "Slimy Doom",
             _id: lastArg.effectId,
           };
@@ -232,7 +226,9 @@ async function applyContagion() {
 async function contagionSave() {
   const flag = DAE.getFlag(targetActor, "ContagionSpell");
   const flavor = `${CONFIG.DND5E.abilities["con"].label} DC${flag.saveDC} ${DAEItem?.name || ""}`;
-  const saveRoll = await targetActor.rollAbilitySave("con", { flavor });
+  const saveRolls = await targetActor.rollSavingThrow({ ability: "con" }, {}, { data: { flavor } });
+  const saveRoll = saveRolls?.[0];
+  if (!saveRoll) return;
 
   if (saveRoll.total >= flag.saveDC) {
     flag.success += 1;

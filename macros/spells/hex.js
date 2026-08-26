@@ -12,28 +12,28 @@ if (args[0].tag === "OnUse") {
   }
 
   const effectData = {
-    changes: [
-      {
-        key: "flags.midi-qol.hex",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: targetUuid,
-        priority: 20
-      }, // who is marked
-      {
-        key: "flags.dnd5e.DamageBonusMacro",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "hex.js", document: { name: "Hex" } }),
-        priority: 20,
-      }, // macro to apply the damage
-    ],
+    system: {
+      changes: [
+        {
+          key: "flags.midi-qol.hex",
+          type: "override",
+          value: targetUuid,
+          priority: 20
+        }, // who is marked
+        {
+          key: "flags.dnd5e.DamageBonusMacro",
+          type: "custom",
+          value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "hex.js", document: { name: "Hex" } }),
+          priority: 20,
+        }, // macro to apply the damage
+      ],
+    },
     origin: args[0].uuid, //flag the effect as associated to the spell being cast
     disabled: false,
-    duration: args[0].item.effects[0].duration,
+    duration: foundry.utils.duplicate(args[0].item.effects[0].duration),
     img: args[0].item.img,
-    label: args[0].item.name,
     name: args[0].item.name,
   };
-  effectData.duration.startTime = game.time.worldTime;
   await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);
 } else if (args[0].tag === "DamageBonus") {
   const targetUuid = args[0].hitTargets[0].uuid;

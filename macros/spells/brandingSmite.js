@@ -15,15 +15,17 @@ try {
     let bsEffect = new ActiveEffect({
       name: "Branding Smite",
       img: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
-      changes: [
-        {
-          value: 5,
-          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-          priority: 20,
-          key: "ATL.light.dim",
-        },
-      ],
-      duration: { seconds: 60 },
+      system: {
+        changes: [
+          {
+            value: 5,
+            type: "upgrade",
+            priority: 20,
+            key: "token.light.dim",
+          },
+        ],
+      },
+      duration: { value: 60, units: "seconds" },
     });
     // 60 seconds is wrong - should look for the branding smite effect and use the remaining duration - but hey
 

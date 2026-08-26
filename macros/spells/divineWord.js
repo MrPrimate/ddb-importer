@@ -6,7 +6,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
 
 function effectAppliedAndActive(conditionName) {
-  return DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("conditionName", targetActor));
+  return DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(conditionName, targetActor);
 }
 
 async function DivineWordApply(target, targetHp) {

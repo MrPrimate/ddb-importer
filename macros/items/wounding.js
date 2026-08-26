@@ -24,7 +24,7 @@ if (args[0] === "on") {
     const label = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s+\(\d*\)/, "") +` (${stacks - 1})`;
     Hooks.once("midi-qol.RollComplete", () => {
       targetActor.updateEmbeddedDocuments("ActiveEffect", [
-        { _id: lastArg.efData._id, "flags.dae.stacks": stacks - 1, label, name: label }
+        { _id: lastArg.efData._id, "flags.dae.stacks": stacks - 1, name: label }
       ]);
     });
   }
@@ -34,7 +34,8 @@ if (args[0] === "on") {
   const saveType = "con";
   const DC = 15;
   const flavor = `${CONFIG.DND5E.abilities[saveType].label} DC${DC} ${item?.name || ""}`;
-  const save = (await targetActor.rollAbilitySave(saveType, { flavor, fastForward: true })).total;
+  const saveRolls = await targetActor.rollSavingThrow({ ability: saveType }, { configure: false }, { data: { flavor } });
+  const save = saveRolls?.[0]?.total ?? 0;
   if (save >= DC) {
     ChatMessage.create({content: "Wounding Save was made"});
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [lastArg.effectId] })

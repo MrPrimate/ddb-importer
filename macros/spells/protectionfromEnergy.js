@@ -91,13 +91,13 @@ if (args[0] === "on") {
           const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
           const changes = [
             {
-              key: "data.traits.dr.value",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              key: "system.traits.dr.value",
+              type: "add",
               priority: 30,
               value: element,
             },
           ];
-          await effect.update({ changes: changes.concat(effect.changes) });
+          await effect.update({ "system.changes": changes.concat(foundry.utils.duplicate(effect.system.changes)) });
           await DAE.setFlag(targetActor, "protectionFromEnergySpell", element);
           ChatMessage.create({ content: `${targetActor.name} gains resistance to ${element}` });
         }

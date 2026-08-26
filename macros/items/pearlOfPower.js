@@ -51,7 +51,7 @@ async function generateDialog(actor) {
 
 if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
   if (!actor) {
-    logger.error("No actor passed to macro");
+    console.error("No actor passed to macro");
     return;
   }
   generateDialog(actor);

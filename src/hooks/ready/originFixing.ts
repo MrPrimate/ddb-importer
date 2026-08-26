@@ -15,7 +15,7 @@ async function createTokenHook(tokenDocument: TokenDocument.Implementation, opti
 }
 
 export function setupUpdateCreatedOrigins() {
-  logger.info("Setting up Origin Fixing")
+  logger.info("Setting up Origin Fixing");
   Hooks.on("createActor", createActorHook);
   Hooks.on("createToken", createTokenHook);
 }

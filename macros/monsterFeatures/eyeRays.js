@@ -4,40 +4,42 @@ const workflow = args[0].workflow;
 
 function confusionRayEffect(document) {
   let effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
-  effect.changes.push(
-    { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "* 0", priority: "20" },
+  effect.system.changes.push(
+    { key: "system.attributes.movement.multiplier", type: "multiply", value: "0", priority: 20 },
     {
       key: "macro.CE",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value: "Reaction",
-      priority: "20"
+      priority: 20
     },
   );
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
-  effect.duration.rounds = 2;
-  effect.duration.seconds = 12;
+  // "until the end of its next turn" - native targetEnd expiry, DAE flag kept above
+  effect.duration.value = null;
+  effect.duration.expiry = "targetEnd";
 
   document.effects.push(effect);
 }
 
 function slowingRayEffect(document, dc, saveAbility) {
   let effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
-  effect.changes.push(
-    { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "/2", priority: "20" },
+  effect.system.changes.push(
+    { key: "system.attributes.movement.multiplier", type: "multiply", value: "0.5", priority: 20 },
     {
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      type: "override",
       value: `turn=end,label=Slow Ray (End of Turn),saveRemove=true,saveDC=${dc},saveAbility=${saveAbility},killAnim=true`,
-      priority: "20"
+      priority: 20
     },
     {
       key: "macro.CE",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value: "Reaction",
-      priority: "20"
+      priority: 20
     },
   );
-  effect.duration.seconds = 60;
+  effect.duration.value = 60;
+  effect.duration.units = "seconds";
   document.effects.push(effect);
 }
 
@@ -66,8 +68,9 @@ function telekineticRayEffect(document) {
   const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
   DDBImporter.EffectHelper.addStatusEffectChange(effect, "Restrained");
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
-  effect.duration.rounds = 2;
-  effect.duration.seconds = 12;
+  // "until the start of the beholder's next turn" - native sourceStart expiry, DAE flag kept above
+  effect.duration.value = null;
+  effect.duration.expiry = "sourceStart";
   document.effects.push(effect);
 }
 
@@ -79,9 +82,9 @@ async function sleepRayEffect(document) {
 async function petrificationRayEffect(document) {
   const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
   await DDBImporter.lib.DDBMacros.setItemMacroFlag(document, "monsterFeature", "petrification.js");
-  effect.changes.push(DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "petrification.js" }));
-  effect.duration.rounds = 2;
-  effect.duration.seconds = 12;
+  effect.system.changes.push(DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "petrification.js" }));
+  effect.duration.value = 2;
+  effect.duration.units = "rounds";
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "endEveryTurn");
   document.effects.push(effect);
 }
@@ -111,7 +114,9 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
   if (foundry.utils.hasProperty(rayData, "flags.itemacro")) delete rayData.flags.itemacro;
   if (foundry.utils.hasProperty(rayData, "flags.dae.macro")) delete rayData.flags.dae.macro;
   rayData.name = rayName;
-  rayData.system.save.ability = saveAbility;
+  // TODO: pre-activities item shape - system.save no longer exists on dnd5e 4+; the ray
+  // needs its save activity's save.ability/dc set instead
+  foundry.utils.setProperty(rayData, "system.save.ability", saveAbility);
   rayData.system.description.value = description;
   rayData.system.description.chat = "";
   rayData.system.duration.units = "inst";
