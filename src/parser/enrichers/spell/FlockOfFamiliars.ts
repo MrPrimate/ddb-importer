@@ -17,6 +17,7 @@ export default class FlockOfFamiliars extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
+          noSpellslot: true,
         },
         overrides: {
           activationType: "special",

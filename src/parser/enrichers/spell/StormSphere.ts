@@ -70,6 +70,7 @@ export default class StormSphere extends DDBEnricherData {
         build: {
           generateAttack: true,
           generateConsumption: false,
+          noSpellslot: true,
           generateActivation: true,
           generateRange: true,
         },

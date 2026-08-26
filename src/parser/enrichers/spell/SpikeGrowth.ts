@@ -36,7 +36,9 @@ export default class SpikeGrowth extends DDBEnricherData {
           noSpellslot: true,
           generateDamage: true,
           damageParts: [
-            DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
+            DDBEnricherData.basicDamagePart({
+              number: 2, denomination: 4, type: "piercing", scalingMode: "none", scalingNumber: null,
+            }),
           ],
           activationOverride: {
             type: "special",

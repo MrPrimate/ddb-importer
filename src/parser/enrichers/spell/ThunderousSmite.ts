@@ -34,7 +34,8 @@ export default class ThunderousSmite extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
-          generateConsumption: true,
+          generateConsumption: false,
+          noSpellslot: true,
           generateSave: false,
           generateDamage: false,
           generateRange: true,

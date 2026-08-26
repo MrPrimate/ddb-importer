@@ -19,6 +19,7 @@ export default class WitchBolt extends DDBEnricherData {
         build: {
           generateDamage: true,
           generateConsumption: false,
+          noSpellslot: true,
           generateTarget: true,
           generateActivation: true,
           activationOverride: {

@@ -64,14 +64,19 @@ describe("RegionAutomations.useActivityHandler", () => {
     return activity;
   }
 
-  function setup({ combat = null as any, spellLevel = undefined as number | undefined } = {}) {
+  function setup({
+    combat = null as any,
+    spellLevel = undefined as number | undefined,
+    itemType = "spell",
+    itemLevel = 2 as number | undefined,
+  } = {}) {
     const placing = makeActivity("Cast", "actCast000");
     const sibling = makeActivity("Damage", "actDamage0");
     const activities = {
       get: (id: string) => [placing, sibling].find((a) => a._id === id),
       find: (fn: (a: any) => boolean) => [placing, sibling].find(fn),
     };
-    const item = { name: "Moonbeam", system: { level: 2, activities } };
+    const item = { name: "Moonbeam", type: itemType, system: { level: itemLevel, activities } };
     placing.item = item;
     sibling.item = item;
 
@@ -131,6 +136,8 @@ describe("RegionAutomations.useActivityHandler", () => {
     const setTargets = (globalThis as any).canvas.tokens.setTargets;
     expect(setTargets).toHaveBeenNthCalledWith(1, ["tok1"], { mode: "replace" });
     expect(setTargets).toHaveBeenLastCalledWith([], { mode: "replace" });
+    // no spellLevel flag on the region -> no cast-level slot key is forced
+    expect(placing.use.mock.calls[0][0].spell).toBeUndefined();
   });
 
   it("resolves a sibling activity by name and applies upcast scaling from the region flag", async () => {
@@ -141,10 +148,22 @@ describe("RegionAutomations.useActivityHandler", () => {
 
     expect(placing.use).not.toHaveBeenCalled();
     expect(sibling.use).toHaveBeenCalledWith(
-      expect.objectContaining({ scaling: 2 }),
+      // the slot key carries the cast level too: dnd5e's _prepareUsageScaling recomputes a
+      // spell's scaling from spell.slot and would otherwise clobber the passed value with 0
+      expect.objectContaining({ scaling: 2, spell: { slot: "spell4" } }),
       { configure: false },
       expect.objectContaining({ data: expect.anything() }),
     );
+  });
+
+  it("does not force a slot key for a non-spell item or a cantrip", async () => {
+    const feature = setup({ spellLevel: 4, itemType: "feat", itemLevel: undefined });
+    await RegionAutomations.useActivityHandler(feature.context);
+    expect(feature.placing.use.mock.calls[0][0].spell).toBeUndefined();
+
+    const cantrip = setup({ spellLevel: 0, itemLevel: 0 });
+    await RegionAutomations.useActivityHandler(cantrip.context);
+    expect(cantrip.placing.use.mock.calls[0][0].spell).toBeUndefined();
   });
 
   it.each([

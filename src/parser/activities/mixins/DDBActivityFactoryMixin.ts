@@ -625,6 +625,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
             generateCheck: true,
             generateTarget: false,
             generateRange: false,
+            noSpellslot: true,
             checkOverride: {
               "associated": [
                 "acr",
@@ -653,6 +654,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
           generateCheck: true,
           generateTarget: false,
           generateRange: false,
+          noSpellslot: true,
           checkOverride: {
             "associated": [
               "inv",

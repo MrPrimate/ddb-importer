@@ -17,6 +17,7 @@ export default class Maze extends DDBEnricherData {
         },
         build: {
           generateCheck: true,
+          noSpellslot: true,
         },
         overrides: {
           data: {

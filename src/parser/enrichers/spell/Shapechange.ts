@@ -90,6 +90,7 @@ export default class Shapechange extends DDBEnricherData {
         overrides: {
           name: "Follow Up Animal Shape",
           noConsumeTargets: true,
+          removeSpellSlotConsume: true,
           activationType: "action",
           data: {
             settings: {

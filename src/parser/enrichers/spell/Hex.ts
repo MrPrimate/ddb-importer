@@ -43,6 +43,7 @@ export default class Hex extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
+          noSpellslot: true,
         },
         overrides: {
           noConsumeTargets: true,

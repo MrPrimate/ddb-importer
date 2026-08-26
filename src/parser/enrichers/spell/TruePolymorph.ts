@@ -12,6 +12,7 @@ export default class TruePolymorph extends DDBEnricherData {
         },
         overrides: {
           noConsumeTargets: true,
+          removeSpellSlotConsume: true,
           name: "Transform",
           data: {
             transform: {

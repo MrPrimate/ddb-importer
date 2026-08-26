@@ -50,6 +50,7 @@ export default class CacophonicShield extends DDBEnricherData {
           generateSave: true,
           generateActivation: true,
           generateDamage: true,
+          noSpellslot: true,
         },
         overrides: {
           targetType: "creature",

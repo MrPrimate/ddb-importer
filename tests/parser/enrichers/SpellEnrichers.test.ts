@@ -335,6 +335,8 @@ describe("region behavior spells", () => {
     expect(macro.config.oncePerTurn).toBe(false);
     const damage = e.additionalActivities.find((a: any) => a.init.name === "Movement Damage");
     expect(damage.build.damageParts[0]).toMatchObject({ number: 2, denomination: 4, types: ["piercing"] });
+    // RAW Spike Growth has no higher-level clause: flat 2d4, and no slot consumed on direct use
+    expect(damage.build.damageParts[0].scaling.mode).toBe("none");
     expect(damage.build.noSpellslot).toBe(true);
   });
 

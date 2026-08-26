@@ -68,7 +68,8 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
           generateDamage: false,
           generateHealing: false,
           generateRange: false,
-          generateConsumption: true,
+          generateConsumption: false,
+          noSpellslot: true,
           data: {
             restrictions: {
               type: "weapon",

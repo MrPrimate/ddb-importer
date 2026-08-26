@@ -38,6 +38,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
           generateSave: true,
           generateActivation: true,
           generateDuration: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
@@ -74,6 +75,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
         build: {
           generateDuration: true,
           generateActivation: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
@@ -107,6 +109,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
           generateSave: true,
           generateActivation: true,
           generateDuration: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
