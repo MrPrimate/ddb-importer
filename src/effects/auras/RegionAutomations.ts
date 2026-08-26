@@ -41,6 +41,8 @@ export interface IDDBRegionContext {
 }
 
 interface ITokenFilterArgs {
+  /** Only trigger for these token dispositions; empty = all. */
+  dispositions?: number[];
   /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
   sizes?: string[];
   /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */
@@ -126,12 +128,15 @@ export default class RegionAutomations {
   }
 
   /**
-   * The size / creature-type filters the 5e area-of-effect behaviors support
-   * (apply-active-effect.mjs), plus an exclusion set for "any creature other
-   * than an ooze" wording. Empty sets match everything; a token without an
-   * actor passes so the behavior degrades no differently than before.
+   * The disposition / size / creature-type filters the 5e area-of-effect
+   * behaviors support (apply-active-effect.mjs), plus an exclusion set for
+   * "any creature other than an ooze" wording. Empty sets match everything; a
+   * token without an actor can still be filtered by disposition but otherwise
+   * passes so the behavior degrades no differently than before.
    */
   static matchesTokenFilters(token: TokenDocument, args: ITokenFilterArgs): boolean {
+    const dispositions = args.dispositions ?? [];
+    if (dispositions.length > 0 && !dispositions.includes(token.disposition)) return false;
     const actor = token.actor as { system?: { traits?: { size?: string }; details?: { type?: { value?: string } } } } | null;
     if (!actor) return true;
     const sizes = args.sizes ?? [];
@@ -359,7 +364,7 @@ export default class RegionAutomations {
     }
 
     if (!RegionAutomations.matchesTokenFilters(token, args)) {
-      logger.debug(`Region ${context.region.name}: ${token.name} filtered by size/creature type`, { context });
+      logger.debug(`Region ${context.region.name}: ${token.name} filtered by disposition/size/creature type`, { context });
       return;
     }
     if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
@@ -461,7 +466,7 @@ export default class RegionAutomations {
     }
 
     if (!RegionAutomations.matchesTokenFilters(token, args)) {
-      logger.debug(`Region ${context.region.name}: ${token.name} filtered by size/creature type`, { context });
+      logger.debug(`Region ${context.region.name}: ${token.name} filtered by disposition/size/creature type`, { context });
       return;
     }
     if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {

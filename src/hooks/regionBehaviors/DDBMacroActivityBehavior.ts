@@ -35,8 +35,12 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     };
   }
 
-  override createBehaviorData(_activity: any, _options: { token?: any } = {}) {
+  override createBehaviorData(activity: any, { token }: { token?: any } = {}) {
     const args: Record<string, unknown> = { ...((this.args as Record<string, unknown> | undefined) ?? {}) };
+    // Match the native activity behaviors: ally/enemy targets are relative to
+    // the token that placed the region, falling back to the actor's token data.
+    const { disposition } = token ?? activity.actor?.token ?? activity.actor?.prototypeToken ?? {};
+    args.dispositions = [...this.getDispositions(activity.target, { relativeTo: disposition })];
     if (this.activity) args.activityId = this.activity;
     if (this.macroName) args.macroFunction = this.macroName;
     args.oncePerTurn = this.oncePerTurn;

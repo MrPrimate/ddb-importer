@@ -5,6 +5,7 @@
 - Active Auras support is removed. Aura Effects is the drop in alternative. DDB Importer now has a native Experimental setting to add low automation to many template/region based activities (See Experimental entry below), although this is disabled by default. Several of the auras that were previosuly handled by AA or AE are now system native. If Aura Effects is installed then the system will use this over template/region attached effects in a lot of cases.
 - EXPERIMENTAL: DDB Region Behaviours - will use the movement triggers for regions to put appropriate saves into chat to be rolled (rolling isn't automated). E.g. Spike Growth.
 - Custom DDB Region Trigger that allows activities to be posted to chat, or macros to be called.
+- DDB Region Triggers now honor ally/enemy activity targeting, preventing Spirit Guardians from posting damage cards for its caster and allies.
 
 # Next Up
 
@@ -5821,4 +5822,3 @@ Other:
 
 * Improved parsing for Tasha's changes
 * Structure in place for handling monster parsing
-

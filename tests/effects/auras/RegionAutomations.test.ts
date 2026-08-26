@@ -190,6 +190,39 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(RegionAutomations.matchesTokenFilters({ actor: null } as any, { types: ["beast"] })).toBe(true);
   });
 
+  it("treats omitted or empty dispositions as unfiltered, and filters a mismatch without an actor", () => {
+    const token = { actor: null, disposition: 1 } as any;
+    expect(RegionAutomations.matchesTokenFilters(token, {})).toBe(true);
+    expect(RegionAutomations.matchesTokenFilters(token, { dispositions: [] })).toBe(true);
+    expect(RegionAutomations.matchesTokenFilters(token, { dispositions: [-1] })).toBe(false);
+  });
+
+  it("only posts the activity card for an allowed disposition and does not flag rejected tokens", async () => {
+    const flags = trackFlags();
+    const { context, placing } = setup({ combat: { started: true, id: "c1", round: 1, turn: 2 } });
+    context.args = { dispositions: [-1] };
+
+    // The friendly caster and another friendly token are both outside the
+    // enemy disposition set carried by Spirit Guardians' region behavior.
+    context.event.data.token.disposition = 1;
+    await RegionAutomations.useActivityHandler(context);
+    context.event.data.token = {
+      id: "tok2", name: "Ally", uuid: "Scene.s.Token.tok2", actor: {}, disposition: 1,
+    };
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).not.toHaveBeenCalled();
+    expect(flags).toEqual({});
+
+    context.event.data.token = {
+      id: "tok3", name: "Enemy", uuid: "Scene.s.Token.tok3", actor: {}, disposition: -1,
+    };
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+    expect(Object.keys(flags)).toEqual(["regionreg1b1tok3Turn"]);
+  });
+
   it("falls back to a prefix match when no activity name matches exactly", async () => {
     // "Aura Save" resolves "Aura Save (Strength DC)" style variant families where
     // the user deletes the ones that do not apply
@@ -426,6 +459,17 @@ describe("RegionAutomations.executeMacroHandler", () => {
         targetUuids: ["Scene.s.Token.tok1"],
         regionContext: expect.objectContaining({ eventName: "tokenEnter", regionUuid: "Scene.s.Region.reg1" }),
       }));
+  });
+
+  it("does not execute a macro for a token outside the allowed dispositions", async () => {
+    const context = setup();
+    context.event.data.token.disposition = 1;
+    context.args = { macroFunction: "ddb.generic.light", dispositions: [-1] };
+    const execute = vi.spyOn(DDBSimpleMacro, "execute").mockResolvedValue(undefined as any);
+
+    await RegionAutomations.executeMacroHandler(context);
+
+    expect(execute).not.toHaveBeenCalled();
   });
 
   it("runs a Foundry macro found by name with the triggering token", async () => {

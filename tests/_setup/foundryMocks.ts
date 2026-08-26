@@ -216,7 +216,9 @@ const noopClass = class {};
   data: {
     fields: {
       BooleanField: noopClass,
+      JSONField: noopClass,
       SchemaField: noopClass,
+      SetField: noopClass,
       StringField: noopClass,
       NumberField: noopClass,
     },
