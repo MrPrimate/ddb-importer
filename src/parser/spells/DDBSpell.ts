@@ -967,7 +967,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
           generateHealing: true,
           healingPart: part.part,
           healingChatFlavor: part.chatFlavor,
-          noSpellslot: this.activityType !== "heal",
+          noSpellslot: true,
         },
       });
     }

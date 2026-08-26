@@ -390,6 +390,16 @@ export default class RegionAutomations {
       concentration: { begin: false },
     };
     if (macroParameters !== undefined) extraActivityConfig.ddbMacroParameters = macroParameters;
+    // dnd5e's _prepareUsageScaling recomputes a leveled spell's scaling from the slot key in
+    // `spell.slot` - which _prepareUsageConfig defaults to the BASE level slot - clobbering a
+    // caller-passed `scaling`. So the cast level has to travel as the slot key too. The explicit
+    // `scaling` value stays as the fallback for actors without prepared leveled-slot data (pure
+    // pact casters, some NPCs), where the slot lookup is falsy and the passed value survives.
+    // `consume.spellSlot` is false on both paths, so naming a slot never spends one.
+    if ((args.scale ?? true) && item?.type === "spell" && spellLevel !== undefined
+      && baseLevel !== undefined && baseLevel > 0) {
+      extraActivityConfig.spell = { slot: `spell${spellLevel}` };
+    }
     // core rolls a damage activity's damage via _triggerSubsequentActions; suppress it so the
     // card keeps its damage button unless autoRoll opts in. ddbmacro activities execute their
     // macro through the same hook, so they are never suppressed.
