@@ -9,9 +9,9 @@ global {
 
   // ---- Shared small types ---------------------------------------------------
 
-  /** dnd5e 6.0 D20RollModificationField — bonus/min/max/mode quad used across abilities, skills, init, death saves, etc. */
+  /** dnd5e 6.0 D20RollModificationField - bonus/min/max/mode quad used across abilities, skills, init, death saves, etc. */
   interface I5eRollConfig {
-    /** dnd5e 6.0 FormulaField — replaces the old sibling `bonuses.*` groups. */
+    /** dnd5e 6.0 FormulaField - replaces the old sibling `bonuses.*` groups. */
     bonus?: string;
     min?: number | null;
     max?: number | null;
@@ -36,11 +36,11 @@ global {
     value?: number;
     proficient?: number;
     max?: number | null;
-    /** Gone in dnd5e 6.0 — `bonuses.{check,save}` moved to `{check,save}.roll.bonus` (shimmed for AE keys only). */
+    /** Gone in dnd5e 6.0 - `bonuses.{check,save}` moved to `{check,save}.roll.bonus` (shimmed for AE keys only). */
     bonuses?: never;
     check?: I5eAbilityCheckConfig;
     save?: I5eAbilitySaveConfig;
-    /** dnd5e 6.0 — per-ability attack roll config (`attack.roll.bonus`/`attack.roll.mode`). */
+    /** dnd5e 6.0 - per-ability attack roll config (`attack.roll.bonus`/`attack.roll.mode`). */
     attack?: I5eAbilityAttackConfig;
   }
 
@@ -70,7 +70,7 @@ global {
     formulas?: I5eArmorClassFormula[];
     /** Hard override of the final AC value. */
     override?: number | null;
-    /** Gone as persisted fields in dnd5e 6.0 — `calc`/`formula`/`label` are derived-only now; migrate to `calcs`/`formulas`/`override`. */
+    /** Gone as persisted fields in dnd5e 6.0 - `calc`/`formula`/`label` are derived-only now; migrate to `calcs`/`formulas`/`override`. */
     calc?: never;
     formula?: never;
     label?: never;
@@ -82,14 +82,14 @@ global {
 
   interface I5eConcentration {
     ability?: string;
-    /** Gone in dnd5e 6.0 — `bonuses.save` moved to `roll.bonus`. */
+    /** Gone in dnd5e 6.0 - `bonuses.save` moved to `roll.bonus`. */
     bonuses?: never;
     limit?: number;
     roll?: I5eRollConfig;
   }
 
   interface I5eDeathSaves {
-    /** Gone in dnd5e 6.0 — `bonuses.save` moved to `roll.bonus`. */
+    /** Gone in dnd5e 6.0 - `bonuses.save` moved to `roll.bonus`. */
     bonuses?: never;
     failure?: number;
     success?: number;
@@ -111,7 +111,7 @@ global {
 
   interface I5eInitiative {
     ability?: string;
-    /** Gone in dnd5e 6.0 — moved to `roll.bonus`. */
+    /** Gone in dnd5e 6.0 - moved to `roll.bonus`. */
     bonus?: never;
     roll?: I5eRollConfig;
   }
@@ -122,11 +122,11 @@ global {
   type I5eMovementRecord = Partial<Record<I5eMovementType, string | null>>;
 
   interface I5eMovement {
-    /** dnd5e 6.0 — flat bonus formula applied to all speeds. */
+    /** dnd5e 6.0 - flat bonus formula applied to all speeds. */
     bonus?: string;
     hover?: boolean;
     special?: string;
-    /** dnd5e 6.0 — speeds moved under this MappingField (`movement.walk` → `movement.speeds.walk`; old paths shimmed for AE keys only). */
+    /** dnd5e 6.0 - speeds moved under this MappingField (`movement.walk` → `movement.speeds.walk`; old paths shimmed for AE keys only). */
     speeds?: I5eMovementRecord;
     units?: string;
     ignoredDifficultTerrain?: string[];
@@ -171,14 +171,14 @@ global {
 
   // ---- Bonuses / Rolls ------------------------------------------------------
 
-  /** @deprecated dnd5e 6.0 — `bonuses.abilities.*` moved to `rolls.ability.<x>.bonus`; kept only so legacy builders type-check locally. */
+  /** @deprecated dnd5e 6.0 - `bonuses.abilities.*` moved to `rolls.ability.<x>.bonus`; kept only so legacy builders type-check locally. */
   interface I5eAbilityBonusGroup {
     check?: string;
     save?: string;
     skill?: string;
   }
 
-  /** @deprecated dnd5e 6.0 — `bonuses.<x>.{attack,damage}` moved to `rolls.{attack,damage}.<x>.bonus`; kept only so legacy builders type-check locally. */
+  /** @deprecated dnd5e 6.0 - `bonuses.<x>.{attack,damage}` moved to `rolls.{attack,damage}.<x>.bonus`; kept only so legacy builders type-check locally. */
   interface I5eAttackBonus {
     attack?: string;
     damage?: string;
@@ -190,11 +190,11 @@ global {
 
   type I5eAttackBonusTypes = "msak" | "mwak" | "rsak" | "rwak";
 
-  /** dnd5e 6.0 `system.bonuses` — only `spell.dc` survives; everything else moved to `system.rolls`. */
+  /** dnd5e 6.0 `system.bonuses` - only `spell.dc` survives; everything else moved to `system.rolls`. */
   interface I5eBonuses {
-    /** Gone in dnd5e 6.0 — `bonuses.abilities.{check,save,skill}` moved to `rolls.ability.<x>.bonus`. */
+    /** Gone in dnd5e 6.0 - `bonuses.abilities.{check,save,skill}` moved to `rolls.ability.<x>.bonus`. */
     abilities?: never;
-    /** Gone in dnd5e 6.0 — `bonuses.<x>.{attack,damage}` moved to `rolls.{attack,damage}.<x>.bonus`. */
+    /** Gone in dnd5e 6.0 - `bonuses.<x>.{attack,damage}` moved to `rolls.{attack,damage}.<x>.bonus`. */
     msak?: never;
     mwak?: never;
     rsak?: never;
@@ -203,7 +203,7 @@ global {
   }
 
   /**
-   * dnd5e 6.0 `system.rolls` — replaces the old global `system.bonuses.*` channels.
+   * dnd5e 6.0 `system.rolls` - replaces the old global `system.bonuses.*` channels.
    * `attack` is itself a roll-modification field (global bonus/min/max/mode) with per-type nesting.
    */
   interface I5eActorRolls {
@@ -322,7 +322,7 @@ global {
     // passive?: number | null;
     // total?: number | null;
     bonuses?: {
-      /** Gone in dnd5e 6.0 — moved to `roll.bonus`. */
+      /** Gone in dnd5e 6.0 - moved to `roll.bonus`. */
       check?: never;
       /** Still persisted in dnd5e 6.0. */
       passive?: string;
@@ -337,7 +337,7 @@ global {
   interface I5eToolProficiency {
     value?: number;
     ability?: T5eAbility;
-    /** Gone in dnd5e 6.0 — `bonuses.check` moved to `roll.bonus` (tool bonuses are non-persisted now). */
+    /** Gone in dnd5e 6.0 - `bonuses.check` moved to `roll.bonus` (tool bonuses are non-persisted now). */
     bonuses?: never;
     roll?: I5eRollConfig;
   }
@@ -804,7 +804,7 @@ global {
     savageAttacks?: boolean;
     elvenAccuracy?: boolean;
     halflingLucky?: boolean;
-    /** Deprecated in dnd5e 6.0 — migrated to `system.attributes.init.roll.mode`. */
+    /** Deprecated in dnd5e 6.0 - migrated to `system.attributes.init.roll.mode`. */
     initiativeAdv?: boolean;
     initiativeAlert?: boolean;
     jackOfAllTrades?: boolean;

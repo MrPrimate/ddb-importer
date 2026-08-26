@@ -5,7 +5,7 @@
  * the 2014/2024 ruleset, whether midi-qol is installed (`useMidiAutomations`),
  * and character state such as a class feature that upgrades the spell. The
  * spell audit replays RAW muncher payloads, which pin one ruleset and have no
- * character at all, so the feature-dependent and midi paths never run there —
+ * character at all, so the feature-dependent and midi paths never run there -
  * and the audit is skipped outright in CI.
  *
  * See ClassEnrichers.test.ts for why the barrel mocks below are needed and why

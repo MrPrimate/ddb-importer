@@ -4,7 +4,7 @@
  * src/parser/enrichers/_linkBuilder.js generates every `_module.ts` barrel by
  * reading each file's declared class name. It only `console.warn`s when a class
  * name is not contained in its file name, and nothing at all notices when a
- * barrel is stale because someone forgot `npm run link` — so both failures ship
+ * barrel is stale because someone forgot `npm run link` - so both failures ship
  * silently today. DDBClassFeatureEnricher._defaultClassLoader resolves an
  * enricher as ClassEnrichers[pascalCase(class)][pascalCase(featureName)], i.e.
  * off the barrel key, so a missing export means the enricher never loads and
@@ -102,7 +102,7 @@ describe("enricher barrels", () => {
     }
 
     // a stale barrel here means the enricher never resolves and the feature
-    // silently falls back to Generic — run `npm run link`
+    // silently falls back to Generic - run `npm run link`
     const unexported = FILES
       .filter((entry) => !exportsByFolder.get(entry.folder)?.has(entry.className))
       .map((entry) => `${relative(entry)} (${entry.className})`);

@@ -17,9 +17,9 @@ global {
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
   /** Core combat-edge expiries. */
   type TEffectDurationExpiry = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";
-  /** dnd5e 6.0 durationless expiries — the system forces `duration.value` null for these. */
+  /** dnd5e 6.0 durationless expiries - the system forces `duration.value` null for these. */
   type TEffectDurationlessExpiry = "shortRest" | "longRest";
-  /** dnd5e 6.0 pseudo expiries — evaluated live against the source/target actor's turn edges. */
+  /** dnd5e 6.0 pseudo expiries - evaluated live against the source/target actor's turn edges. */
   type TEffectPseudoExpiry = "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
   /** Everything accepted in `duration.expiry` under dnd5e 6.0. */
   type T5eEffectExpiry = TEffectDurationExpiry | TEffectDurationlessExpiry | TEffectPseudoExpiry;
@@ -33,9 +33,9 @@ global {
     value: string | number | null;
     phase?: TActiveEffectChangePhase;
     priority?: number;
-    /** dnd5e 6.0 FiltersField — JSON string, e.g. `{"k":"roll.attack.type","v":"melee"}`. Keep simple; shape in flux upstream. */
+    /** dnd5e 6.0 FiltersField - JSON string, e.g. `{"k":"roll.attack.type","v":"melee"}`. Keep simple; shape in flux upstream. */
     conditions?: string;
-    /** dnd5e 6.0 — resolve roll data references in `value` at transfer time against origin or target. */
+    /** dnd5e 6.0 - resolve roll data references in `value` at transfer time against origin or target. */
     replacement?: "" | "origin" | "target";
   }
 
@@ -75,7 +75,7 @@ global {
   interface I5eEffectSystem {
     changes?: IActiveEffectChangeData[];
     origin?: I5eEffectSystemOrigin;
-    /** Effect-level FiltersField JSON — limits when the whole effect applies. */
+    /** Effect-level FiltersField JSON - limits when the whole effect applies. */
     conditions?: string;
     /** Suppressed under antimagic; migration sets true for effects from spells/scrolls/mgc items. */
     magical?: boolean;
@@ -149,9 +149,9 @@ global {
         };
       };
       dnd5e?: {
-        /** Legacy enchantment marker — 6.0 migrates it to `type: "enchantment"`; prefer setting the document `type` directly. */
+        /** Legacy enchantment marker - 6.0 migrates it to `type: "enchantment"`; prefer setting the document `type` directly. */
         type?: string;
-        /** Legacy rider statuses — 6.0 migrates to `system.rider.statuses`; prefer the system path. */
+        /** Legacy rider statuses - 6.0 migrates to `system.rider.statuses`; prefer the system path. */
         riders?: {
           statuses?: string[];
         };

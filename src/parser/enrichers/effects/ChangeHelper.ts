@@ -172,7 +172,7 @@ export default class ChangeHelper {
     return ChangeHelper.addChange(formula, priority, "system.attributes.ac.formulas");
   }
 
-  /** Hard override of the final AC value — bypasses shield/bonus/cover stacking, so prefer calcs/formulas. */
+  /** Hard override of the final AC value - bypasses shield/bonus/cover stacking, so prefer calcs/formulas. */
   static acOverrideChange(value: string | number, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.overrideChange(value, priority, "system.attributes.ac.override");
   }

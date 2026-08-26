@@ -36,7 +36,7 @@ global {
 
   interface I5eActivityEffect {
     _id?: string;
-    /** dnd5e 6.0 — link a standalone/compendium ActiveEffect. Resolution is async (`entry.getEffect()`). */
+    /** dnd5e 6.0 - link a standalone/compendium ActiveEffect. Resolution is async (`entry.getEffect()`). */
     uuid?: string;
     onSave?: boolean;
     riders?: {
@@ -52,7 +52,7 @@ global {
 
   // ---- Activity behaviors (dnd5e 6.0, attached to template-created Regions) ----
 
-  /** Config for `type: "applyActiveEffect"` — dispositions are derived from the activity target at placement. */
+  /** Config for `type: "applyActiveEffect"` - dispositions are derived from the activity target at placement. */
   interface I5eActivityBehaviorApplyEffectConfig {
     /** ActiveEffect UUIDs; ddb-importer enrichers may give standalone effect NAMES, resolved at import. */
     effects?: string[];
@@ -184,7 +184,7 @@ global {
   interface I5eActivityAttack {
     /** Still a persisted string in dnd5e 6.0. */
     ability?: T5eActivityAttackAbility;
-    /** dnd5e 6.0 derives `attack.abilities` (Set, persisted: false) from `ability` — never write it. */
+    /** dnd5e 6.0 derives `attack.abilities` (Set, persisted: false) from `ability` - never write it. */
     // abilities?: never;
     bonus?: string;
     critical?: {
@@ -213,15 +213,15 @@ global {
 
   interface I5eActivitySave {
     ability?: string[];
-    /** dnd5e 6.0 FormulaField — appended to the target's roll, resolved against the OWNING actor's roll data. */
+    /** dnd5e 6.0 FormulaField - appended to the target's roll, resolved against the OWNING actor's roll data. */
     bonus?: string;
     dc?: {
       calculation?: string;
       formula?: string;
-      /** Derived AE target only in dnd5e 6.0 (persisted: false) — never write it. */
+      /** Derived AE target only in dnd5e 6.0 (persisted: false) - never write it. */
       // bonus?: never;
     };
-    /** dnd5e 6.0 — gates whether the chat save button is visible to all (default true). */
+    /** dnd5e 6.0 - gates whether the chat save button is visible to all (default true). */
     visible?: boolean;
     override?: boolean;
   }
@@ -257,7 +257,7 @@ global {
   type I5eActivityCastSpellProperties = typeof DICTIONARY.spell.components[keyof typeof DICTIONARY.spell.components];
   interface I5eActivitySpell {
     challenge?: {
-      /** FormulaField in dnd5e 6.0 — emit deterministic formula strings, not numbers. */
+      /** FormulaField in dnd5e 6.0 - emit deterministic formula strings, not numbers. */
       attack?: string;
       save?: string;
       override: boolean;
@@ -326,13 +326,13 @@ global {
     // dnd5e stores check.ability as a string, but some build paths supply arrays
     ability?: string | string[];
     associated?: string[];
-    /** dnd5e 6.0 FormulaField — appended to the target's roll, resolved against the OWNING actor's roll data. */
+    /** dnd5e 6.0 FormulaField - appended to the target's roll, resolved against the OWNING actor's roll data. */
     bonus?: string;
     dc?: {
       calculation?: string;
       formula?: string;
     };
-    /** dnd5e 6.0 — gates whether the chat check button is visible to all (default true). */
+    /** dnd5e 6.0 - gates whether the chat check button is visible to all (default true). */
     visible?: boolean;
   }
 
@@ -393,7 +393,7 @@ global {
 
   interface I5eActivityTransform {
     customize?: boolean;
-    /** dnd5e 6.0 — with mode "form", keep no original-form traces (Disguise Self-likes). */
+    /** dnd5e 6.0 - with mode "form", keep no original-form traces (Disguise Self-likes). */
     formless?: boolean;
     /** Moved to `visibility.identifier` in dnd5e 6.0 (auto-migrated). */
     identifier?: string;
@@ -421,7 +421,7 @@ global {
   };
 
   /**
-   * dnd5e 6.0 teleport distance. Normally leave the whole object unset — the distance is derived
+   * dnd5e 6.0 teleport distance. Normally leave the whole object unset - the distance is derived
    * from the activity's `range` (`units: "any"` → Infinity). Only set `override: true` with
    * `value`/`units` for a custom distance; `value` is a deterministic formula ("" → Infinity).
    */

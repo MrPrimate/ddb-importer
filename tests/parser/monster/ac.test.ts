@@ -145,19 +145,22 @@ describe("DDBMonster._generateAC", () => {
     expect(mock.items).toHaveLength(0);
   });
 
-  it("spellcasting Mage Armor: emits mage calc override effect", async () => {
-    const mock = makeACMonster({
-      armorClass: 15,
-      armorClassDescription: "",
-      stats: [
-        { statId: 1, name: null, value: 10 },
-        { statId: 2, name: null, value: 14 },
-        { statId: 3, name: null, value: 10 },
-        { statId: 4, name: null, value: 10 },
-        { statId: 5, name: null, value: 10 },
-        { statId: 6, name: null, value: 10 },
-      ],
-    });
+  it("spellcasting Mage Armor: emits mage calc effect with an unarmored base", async () => {
+    const mock = makeACMonster(
+      {
+        armorClass: 15,
+        armorClassDescription: "",
+        stats: [
+          { statId: 1, name: null, value: 10 },
+          { statId: 2, name: null, value: 14 },
+          { statId: 3, name: null, value: 10 },
+          { statId: 4, name: null, value: 10 },
+          { statId: 5, name: null, value: 10 },
+          { statId: 6, name: null, value: 10 },
+        ],
+      },
+      { useItemAC: true },
+    );
     mock.items = [{
       name: "Spellcasting",
       type: "feat",
@@ -173,6 +176,42 @@ describe("DDBMonster._generateAC", () => {
     ]);
     expect(mageEffect.duration).toEqual({ value: 8, units: "hours" });
     expect(mageEffect.origin).toContain("Compendium.ddb.monsters.Actor.testMonsterId000");
+    expect(mock.npc.system.attributes.ac).toEqual({
+      calcs: ["unarmored", "armored"],
+      formulas: [],
+      flat: null,
+      override: null,
+    });
+  });
+
+  it("spellcasting Mage Armor preserves explicit natural armor", async () => {
+    const mock = makeACMonster({
+      armorClass: 15,
+      armorClassDescription: "(natural armor)",
+      stats: [
+        { statId: 1, name: null, value: 10 },
+        { statId: 2, name: null, value: 14 },
+        { statId: 3, name: null, value: 10 },
+        { statId: 4, name: null, value: 10 },
+        { statId: 5, name: null, value: 10 },
+        { statId: 6, name: null, value: 10 },
+      ],
+    });
+    mock.items = [{
+      name: "Spellcasting",
+      type: "feat",
+      system: { description: { value: "Mage Armor (included in AC)" } },
+      effects: [],
+    }];
+    await generateAC.call(mock);
+
+    expect(mock.npc.effects.some((e: any) => e.name === "Mage Armor")).toBe(true);
+    expect(mock.npc.system.attributes.ac).toEqual({
+      calcs: ["natural"],
+      formulas: [],
+      flat: 15,
+      override: null,
+    });
   });
 
   it("spellcasting Mage Armor with AC above 13+dex: adds top-up ac.bonus effect", async () => {
@@ -202,6 +241,12 @@ describe("DDBMonster._generateAC", () => {
     expect(bonusEffect.system.changes).toEqual([
       { key: "system.attributes.ac.bonus", value: "1", type: "add", priority: 30 },
     ]);
+    expect(mock.npc.system.attributes.ac).toEqual({
+      calcs: ["unarmored", "armored"],
+      formulas: [],
+      flat: null,
+      override: null,
+    });
   });
 
   it("bad AC monster with matched items keeps DDB's number as a hard override (nothing stacks)", async () => {

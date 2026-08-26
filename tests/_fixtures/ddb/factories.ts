@@ -167,7 +167,7 @@ export function makeDdbChoice(overrides: Record<string, any> = {}): any {
  * pipeline.
  *
  * The importing test file must still carry its own `vi.mock` preamble (see
- * tests/parser/enrichers/DDBEnricherData.uses.test.ts) — vi.mock is hoisted per
+ * tests/parser/enrichers/DDBEnricherData.uses.test.ts) - vi.mock is hoisted per
  * file, so it cannot be shared from here. Loading the real lib barrel while
  * DDBEnricherData is mid-evaluation crashes SpellListExtractorMixin's
  * `extends DDBEnricherData`, which is what those mocks are avoiding.

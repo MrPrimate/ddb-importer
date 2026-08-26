@@ -139,7 +139,7 @@ global {
     bonus?: string;
     types?: I5eDamageType[];
     custom?: I5eDamageCustom;
-    /** dnd5e 6.0 — raw dice-modifier suffixes appended to the die term, e.g. ["min2", "r<2"]. Preferred over custom-formula hacks. */
+    /** dnd5e 6.0 - raw dice-modifier suffixes appended to the die term, e.g. ["min2", "r<2"]. Preferred over custom-formula hacks. */
     modifiers?: string[];
     scaling?: I5eDamageScaling;
   }

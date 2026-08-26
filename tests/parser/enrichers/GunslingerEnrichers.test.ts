@@ -284,7 +284,7 @@ describe("Maneuvers", () => {
 
   it("keeps the chosen maneuvers as description text rather than child features", () => {
     // Fighter's "Maneuvers" wants children, so this cannot live in the flat
-    // NO_CHOICE_BUILD list — it has to be the class-scoped enricher getter
+    // NO_CHOICE_BUILD list - it has to be the class-scoped enricher getter
     expect(build(Gunslinger.Maneuvers).noChoiceBuild).toBe(true);
   });
 
