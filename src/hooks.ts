@@ -95,7 +95,7 @@ export async function onceReady() {
     // register the D&DBeyond Button on the character sheets
     registerSheets();
     itemSheets();
-    setupUpdateCreatedOrigins();
+    // setupUpdateCreatedOrigins();
     activateUpdateHooks();
     pruneRegionTurnFlags();
   }, 500);

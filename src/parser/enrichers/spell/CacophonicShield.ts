@@ -72,7 +72,6 @@ export default class CacophonicShield extends DDBEnricherData {
         activityMatch: "Save vs Damage and Deafness",
         name: "Deafness",
         options: {
-          durationRounds: 1,
           durationSeconds: undefined,
         },
         statuses: ["Deafness"],

@@ -1160,54 +1160,47 @@ export default class EffectGenerator {
 
   }
 
-  static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
-    const daeActive: boolean = game.modules.get("dae")?.active ?? false;
-    const daeManagesTurnExpiry: boolean = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
-    const deprecatedSpecialDurMap: Record<string, TDAEEffectExpiryTypes> = daeManagesTurnExpiry ? {
-      "turnStart": "targetStart",
-      "turnEnd": "targetEnd",
-      "turnStartSource": "sourceStart",
-      "turnEndSource": "sourceEnd",
-      "combatEnd": "combatEnd",
-      "sourceStart": "sourceStart",
-      "sourceEnd": "sourceEnd",
-      "targetStart": "targetStart",
-      "targetEnd": "targetEnd",
-    } : {
-      "turnStart": "turnStart",
-      "turnEnd": "turnEnd",
-      "turnStartSource": "turnStart",
-      "turnEndSource": "turnEnd",
-      "combatEnd": "combatEnd",
-      "sourceStart": "turnStart",
-      "sourceEnd": "turnEnd",
-      "targetStart": "turnStart",
-      "targetEnd": "turnEnd",
-    };
+  /**
+   * Translate DAE-style special durations into dnd5e 6.0's native `duration.expiry`.
+   * The source/target pseudo expiries are evaluated live by the system's
+   * `isExpiryEvent` against the effect's origin actor (stamped by the chat tray
+   * and region application), so "until the start of the CASTER's next turn"
+   * works regardless of whose turn the effect lands in. Specials the system
+   * cannot express (usage counts like 1Attack, isSave...) stay as DAE flags.
+   */
+  static DAE_TO_NATIVE_EXPIRY: Record<string, TDAEEffectExpiryTypes> = {
+    "turnStart": "targetStart",
+    "turnEnd": "targetEnd",
+    "turnStartSource": "sourceStart",
+    "turnEndSource": "sourceEnd",
+    "combatEnd": "combatEnd",
+    "sourceStart": "sourceStart",
+    "sourceEnd": "sourceEnd",
+    "targetStart": "targetStart",
+    "targetEnd": "targetEnd",
+  };
 
+  static PSEUDO_EXPIRIES: readonly string[] = ["sourceStart", "sourceEnd", "targetStart", "targetEnd"];
+
+  static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
     effect.duration ??= {};
 
-    if (durations.includes("turnStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnStart"];
-    } else if (durations.includes("turnEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnEnd"];
-    } else if (durations.includes("combatEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["combatEnd"];
-    } else if (durations.includes("turnStartSource")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnStartSource"];
-    } else if (durations.includes("turnEndSource")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnEndSource"];
+    // explicit source/target specials outrank the ambiguous legacy turn tokens
+    for (const group of [
+      ["turnStart", "turnEnd", "combatEnd", "turnStartSource", "turnEndSource"],
+      ["sourceStart", "sourceEnd", "targetStart", "targetEnd"],
+    ]) {
+      for (const special of group) {
+        if (!durations.includes(special as TDAESpecialDuration)) continue;
+        effect.duration.expiry = EffectGenerator.DAE_TO_NATIVE_EXPIRY[special];
+        break;
+      }
     }
 
-    // these are new for v14 so more likely to be correct
-    if (durations.includes("sourceStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["sourceStart"];
-    } else if (durations.includes("sourceEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["sourceEnd"];
-    } else if (durations.includes("targetStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["targetStart"];
-    } else if (durations.includes("targetEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["targetEnd"];
+    // the system evaluates pseudo expiries live and forces their duration null at
+    // creation; matching that here keeps stored data consistent with world data
+    if (EffectGenerator.PSEUDO_EXPIRIES.includes(effect.duration.expiry ?? "")) {
+      effect.duration.value = null;
     }
 
     const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>

@@ -187,6 +187,7 @@ export default class DDBEffectHelper {
             priority: 20,
           },
         ],
+        origin: originItem.uuid ? { item: originItem.uuid } : undefined,
       },
       origin: originItem.uuid ?? undefined,
       disabled: false,

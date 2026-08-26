@@ -60,9 +60,21 @@ global {
     isLegacy: boolean;
   }
 
+  /** dnd5e 6.0 (#7302) structured origin; the system derives the legacy `origin` string from these at preparation. */
+  interface I5eEffectSystemOrigin {
+    activity?: string;
+    actor?: string;
+    behavior?: string;
+    effect?: string;
+    item?: string;
+    /** Transform profile id (DocumentIdField, not a uuid). */
+    profile?: string;
+  }
+
   /** `type: "base"` system data (dnd5e 6.0 BaseEffectData). */
   interface I5eEffectSystem {
     changes?: IActiveEffectChangeData[];
+    origin?: I5eEffectSystemOrigin;
     /** Effect-level FiltersField JSON — limits when the whole effect applies. */
     conditions?: string;
     /** Suppressed under antimagic; migration sets true for effects from spells/scrolls/mgc items. */
@@ -76,6 +88,7 @@ global {
   /** `type: "condition"` system data (dnd5e 6.0 ConditionData). Changes here use the plain core schema (no _id/conditions/replacement). */
   interface I5eConditionEffectSystem {
     changes?: IActiveEffectChangeData[];
+    origin?: I5eEffectSystemOrigin;
     /** Condition level for levelled conditions (Exhaustion); clamped to `CONFIG.DND5E.conditionTypes[type].levels`. */
     level?: number | null;
     /** The primary status id, e.g. "exhaustion". */
@@ -85,6 +98,7 @@ global {
   /** `type: "enchantment"` system data (dnd5e 6.0 EnchantmentData). */
   interface I5eEnchantmentEffectSystem {
     changes?: IActiveEffectChangeData[];
+    origin?: I5eEffectSystemOrigin;
     conditions?: string;
     /** Defaults to true for enchantments. */
     magical?: boolean;

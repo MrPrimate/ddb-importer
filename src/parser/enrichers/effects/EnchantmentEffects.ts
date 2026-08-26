@@ -17,7 +17,7 @@ export default class EnchantmentEffects {
     });
     foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
     effect._id = id ?? foundry.utils.randomID();
-    effect.origin = origin ?? undefined;
+    if (origin) AutoEffects.setEffectOrigin(effect, origin, "item");
     return effect;
   }
 

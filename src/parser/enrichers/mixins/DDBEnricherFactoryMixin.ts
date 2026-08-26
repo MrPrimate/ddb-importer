@@ -704,6 +704,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           }
           const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
+          // description-parsed specials get the native duration.expiry translation too
+          if ((duration.dae ?? []).length > 0) {
+            effect = EffectGenerator.applyDaeSpecialDurations(effect, specialDurations);
+          }
         }
 
       }

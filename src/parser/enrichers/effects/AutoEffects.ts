@@ -358,6 +358,22 @@ export default class AutoEffects {
     return document;
   }
 
+  /**
+   * Stamp an effect's origin in both shapes: the legacy core `origin` string
+   * (still read by DAE and older modules) and dnd5e 6.0's typed
+   * `system.origin.<field>` (which the system now derives `origin` from at
+   * preparation and matches via `ActiveEffect#matchesOrigin`).
+   */
+  static setEffectOrigin(
+    effect: I5eEffectData,
+    uuid: string,
+    field: "item" | "actor" | "effect" | "activity" | "behavior" = "item",
+  ): void {
+    effect.origin = uuid;
+    effect.system ??= {};
+    foundry.utils.setProperty(effect.system, `origin.${field}`, uuid);
+  }
+
   static generateBaseSkillEffect(id: number, label: string): I5eEffectData {
     const mockItem = {
       img: "icons/svg/up.svg",

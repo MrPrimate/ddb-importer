@@ -20,10 +20,10 @@ export default class WardingBond {
   }: { targetUuid: string; actor: Actor.Implementation; originUuid: string }) {
     const targetActor = await fromUuid(targetUuid) as unknown as Actor.Implementation;
     const effectsToDelete = actor.effects
-      .filter((e: ActiveEffect.Implementation) => e.origin === originUuid)
+      .filter((e: ActiveEffect.Implementation) => (originUuid !== undefined && (e as { matchesOrigin?: (uuid: string) => boolean }).matchesOrigin?.(originUuid)) ?? e.origin === originUuid)
       .map((t: ActiveEffect.Implementation) => t.uuid)
       .concat(targetActor.effects
-        .filter((e: ActiveEffect.Implementation) => e.origin === originUuid)
+        .filter((e: ActiveEffect.Implementation) => (originUuid !== undefined && (e as { matchesOrigin?: (uuid: string) => boolean }).matchesOrigin?.(originUuid)) ?? e.origin === originUuid)
         .map((t: ActiveEffect.Implementation) => t.uuid));
 
     await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
@@ -47,8 +47,8 @@ export default class WardingBond {
     casterActor: Actor.Implementation;
     originUuid?: string;
   }) {
-    const targetEffect = targetActor.effects.find((e: ActiveEffect.Implementation) => e.origin === originUuid);
-    const casterEffect = casterActor.effects.find((e: ActiveEffect.Implementation) => e.origin === originUuid);
+    const targetEffect = targetActor.effects.find((e: ActiveEffect.Implementation) => (originUuid !== undefined && (e as { matchesOrigin?: (uuid: string) => boolean }).matchesOrigin?.(originUuid)) ?? e.origin === originUuid);
+    const casterEffect = casterActor.effects.find((e: ActiveEffect.Implementation) => (originUuid !== undefined && (e as { matchesOrigin?: (uuid: string) => boolean }).matchesOrigin?.(originUuid)) ?? e.origin === originUuid);
 
     if (targetEffect && casterEffect) return true;
 
