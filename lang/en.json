@@ -294,6 +294,18 @@
           "macroName": {
             "label": "Macro",
             "hint": "For the Execute Macro handler: ddb.<type>.<file> for a DDB Importer macro (e.g. ddb.generic.light), or a Foundry macro name or Macro.<id> uuid."
+          },
+          "sizes": {
+            "label": "Creature Sizes",
+            "hint": "Only trigger for actors of these sizes. Leave empty for all sizes."
+          },
+          "types": {
+            "label": "Creature Types",
+            "hint": "Only trigger for these creature types. Leave empty for all types."
+          },
+          "excludeTypes": {
+            "label": "Excluded Creature Types",
+            "hint": "Never trigger for these creature types, for auras that affect any creature other than a given type."
           }
         },
         "events": {

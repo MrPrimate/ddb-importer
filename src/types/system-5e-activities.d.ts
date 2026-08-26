@@ -92,6 +92,12 @@ global {
     /** Never trigger for the token the region originates from. */
     excludeSelf?: boolean;
     scale?: boolean;
+    /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
+    sizes?: string[];
+    /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */
+    types?: string[];
+    /** Never trigger for these creature types - "any creature other than an ooze" wording. */
+    excludeTypes?: string[];
     /** executeMacro handler: `ddb.<type>.<file>` or a Foundry macro name / `Macro.<id>` uuid. */
     macroName?: string;
     /** Override for a ddbmacro activity's stored macro parameters, or the executeMacro parameters. */

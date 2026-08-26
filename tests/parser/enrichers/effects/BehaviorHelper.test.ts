@@ -58,6 +58,26 @@ describe("BehaviorHelper", () => {
       .toBe("Sear");
   });
 
+  it("activity carries the 5e size/type filters and the excludeTypes extension in config", () => {
+    const behavior = BehaviorHelper.activity({
+      events: ["tokenTurnStart"],
+      sizes: ["tiny", "sm"],
+      types: ["beast", "humanoid"],
+      excludeTypes: ["ooze"],
+    });
+    expect(behavior.config).toMatchObject({
+      sizes: ["tiny", "sm"],
+      types: ["beast", "humanoid"],
+      excludeTypes: ["ooze"],
+    });
+    // unfiltered behaviors emit empty sets, matching the behavior schema defaults
+    expect(BehaviorHelper.activity({ events: ["tokenTurnStart"] }).config).toMatchObject({
+      sizes: [],
+      types: [],
+      excludeTypes: [],
+    });
+  });
+
   it("generates a unique id per behavior", () => {
     expect(BehaviorHelper.difficultTerrain()._id).not.toBe(BehaviorHelper.difficultTerrain()._id);
   });

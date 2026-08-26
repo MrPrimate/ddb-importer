@@ -13,6 +13,22 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class TurnStartAuraSave extends DDBEnricherData {
 
   /**
+   * Size/creature-type filters for auras whose text exempts a type ("to which
+   * demons are immune", "other than a devil"). Creature types are top level only,
+   * so demon/devil exemptions are approximated at the fiend type.
+   */
+  static NAME_FILTERS: Record<string, { sizes?: string[]; types?: string[]; excludeTypes?: string[] }> = {
+    // Chasme: "produces a horrid droning sound to which demons are immune"
+    "Drone": { excludeTypes: ["fiend"] },
+    // Nupperibo: "Any creature, other than a devil..."
+    "Cloud of Vermin": { excludeTypes: ["fiend"] },
+  };
+
+  get behaviorFilters(): { sizes?: string[]; types?: string[]; excludeTypes?: string[] } {
+    return TurnStartAuraSave.NAME_FILTERS[this.name] ?? {};
+  }
+
+  /**
    * Some feature names are shared between target-turn auras and owner-turn or
    * flavour-only variants on other monsters (Cold Aura, Drone). Only emit the
    * region trigger when this monster's wording is the target-turn shape.
@@ -35,8 +51,9 @@ export default class TurnStartAuraSave extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenTurnStart"],
             // the emanation originates from the monster, which does not save
-            // against its own stench/presence
+            // against its own stench/presence/thing
             excludeSelf: true,
+            ...this.behaviorFilters,
           }),
         ],
       },

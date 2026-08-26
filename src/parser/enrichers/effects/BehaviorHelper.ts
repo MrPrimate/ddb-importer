@@ -101,10 +101,16 @@ export default class BehaviorHelper {
    * `useActivity`, which uses the placing item's activity against the
    * triggering token) on the given core region events.
    */
-  static macro({ handler = "useActivity", events, args = {}, ...common }: IBehaviorCommon & {
+  static macro({ handler = "useActivity", events, args = {}, sizes = [], types = [], excludeTypes = [], ...common }: IBehaviorCommon & {
     handler?: string;
     events: string[];
     args?: Record<string, unknown>;
+    /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
+    sizes?: string[];
+    /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */
+    types?: string[];
+    /** Never trigger for these creature types - "any creature other than an ooze" wording. */
+    excludeTypes?: string[];
   }): I5eActivityBehavior {
     const { activityId, oncePerTurn, excludeSelf, scale, macroParameters, macroFunction, ...rest } = args as {
       activityId?: string;
@@ -129,6 +135,9 @@ export default class BehaviorHelper {
         oncePerTurn: oncePerTurn ?? true,
         excludeSelf: excludeSelf ?? false,
         scale: scale ?? true,
+        sizes,
+        types,
+        excludeTypes,
         macroParameters: macroParameters ?? "{}",
         args: rest,
       },
@@ -142,7 +151,7 @@ export default class BehaviorHelper {
    * behavior, but if the 5e system grows an equivalent native behavior the
    * emission can be re-pointed here without touching any enricher.
    */
-  static activity({ activityId, activityName, events, oncePerTurn, excludeSelf, scale, autoRoll, macroParameters, ...common }: IBehaviorCommon & {
+  static activity({ activityId, activityName, events, oncePerTurn, excludeSelf, scale, autoRoll, macroParameters, sizes, types, excludeTypes, ...common }: IBehaviorCommon & {
     /** Sibling activity id to use; omit both to use the placing activity itself. */
     activityId?: string;
     /** Sibling activity name, for additional activities whose ids are generated at parse. */
@@ -155,12 +164,21 @@ export default class BehaviorHelper {
     /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
     autoRoll?: boolean;
     macroParameters?: string;
+    /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
+    sizes?: string[];
+    /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */
+    types?: string[];
+    /** Never trigger for these creature types - "any creature other than an ooze" wording. */
+    excludeTypes?: string[];
   }): I5eActivityBehavior {
     return BehaviorHelper.macro({
       ...common,
       name: common.name || activityName || "",
       handler: "useActivity",
       events,
+      sizes,
+      types,
+      excludeTypes,
       args: {
         ...(activityId !== undefined ? { activityId } : {}),
         ...(activityName !== undefined ? { activityName } : {}),

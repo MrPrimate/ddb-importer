@@ -24,6 +24,11 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       excludeSelf: new BooleanField({ initial: false }),
       scale: new BooleanField({ initial: true }),
       autoRoll: new BooleanField({ initial: false }),
+      // the same size/creature-type filters the 5e area-of-effect behaviors carry,
+      // plus an exclusion set for "any creature other than an ooze" wording
+      sizes: new SetField(new StringField()),
+      types: new SetField(new StringField()),
+      excludeTypes: new SetField(new StringField()),
       macroName: new StringField(),
       macroParameters: new JSONField({ required: false, initial: "{}" }),
       args: new JSONField({ required: false, initial: "{}" }),
@@ -38,6 +43,9 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     args.excludeSelf = this.excludeSelf;
     args.scale = this.scale;
     args.autoRoll = this.autoRoll;
+    if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
+    if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];
+    if ((this.excludeTypes as Set<string> | undefined)?.size) args.excludeTypes = [...(this.excludeTypes as Set<string>)];
     // the default {} means "no override"; only a filled-in value is passed through
     if (!foundry.utils.isEmpty(this.macroParameters)) {
       args.macroParameters = this.macroParameters;
@@ -57,6 +65,12 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
         value,
         label: game.i18n.localize(`ddb-importer.behaviors.macro.events.${value}`),
       }));
+    } else if (field.name === "sizes") {
+      data.options = Object.entries(CONFIG.DND5E.actorSizes as Record<string, { label: string }>)
+        .map(([value, config]) => ({ value, label: game.i18n.localize(config.label) }));
+    } else if (field.name === "types" || field.name === "excludeTypes") {
+      data.options = Object.entries(CONFIG.DND5E.creatureTypes as Record<string, { label: string }>)
+        .map(([value, config]) => ({ value, label: game.i18n.localize(config.label) }));
     } else if (field.name === "activity") {
       const activities = (this.parent as { item?: { system?: { activities?: Iterable<{ id?: string; _id?: string; name?: string; type?: string }> } } } | null)
         ?.item?.system?.activities;

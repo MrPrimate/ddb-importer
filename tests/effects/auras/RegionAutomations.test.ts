@@ -147,6 +147,30 @@ describe("RegionAutomations.useActivityHandler", () => {
     );
   });
 
+  it.each([
+    // 5e AoE-behavior filters: inclusive sizes/types, plus the ddb excludeTypes extension
+    [{ excludeTypes: ["ooze"] }, { type: { value: "ooze" } }, undefined, false],
+    [{ excludeTypes: ["ooze"] }, { type: { value: "humanoid" } }, undefined, true],
+    [{ types: ["beast", "humanoid"] }, { type: { value: "fiend" } }, undefined, false],
+    [{ types: ["beast", "humanoid"] }, { type: { value: "beast" } }, undefined, true],
+    [{ sizes: ["tiny", "sm"] }, {}, "huge", false],
+    [{ sizes: ["tiny", "sm"] }, {}, "sm", true],
+  ])("filters the triggering token: %j vs details %j size %s -> fires %s", async (filters, details, size, fires) => {
+    const { context, placing } = setup();
+    context.args = filters;
+    context.event.data.token.actor = { system: { traits: { size }, details } };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.use).toHaveBeenCalledTimes(fires ? 1 : 0);
+  });
+
+  it("a token without an actor passes the filter check itself", () => {
+    // the handlers guard on token.actor separately; the filter stays lenient so
+    // other callers degrade no differently than before
+    expect(RegionAutomations.matchesTokenFilters({ actor: null } as any, { types: ["beast"] })).toBe(true);
+  });
+
   it("falls back to a prefix match when no activity name matches exactly", async () => {
     // "Aura Save" resolves "Aura Save (Strength DC)" style variant families where
     // the user deletes the ones that do not apply

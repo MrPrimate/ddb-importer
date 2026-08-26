@@ -40,7 +40,16 @@ export interface IDDBRegionContext {
   args: Record<string, unknown>;
 }
 
-interface IExecuteMacroArgs {
+interface ITokenFilterArgs {
+  /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
+  sizes?: string[];
+  /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */
+  types?: string[];
+  /** Never trigger for these creature types - "any creature other than an ooze" wording. */
+  excludeTypes?: string[];
+}
+
+interface IExecuteMacroArgs extends ITokenFilterArgs {
   /** `ddb.<type>.<file>` for a DDB Importer macro, or a Foundry macro name / `Macro.<id>` uuid. */
   macroFunction?: string;
   macroParameters?: string | Record<string, unknown>;
@@ -48,7 +57,7 @@ interface IExecuteMacroArgs {
   excludeSelf?: boolean;
 }
 
-interface IUseActivityArgs {
+interface IUseActivityArgs extends ITokenFilterArgs {
   /** Use this sibling activity of the placing activity instead of the placing activity itself. */
   activityName?: string;
   activityId?: string;
@@ -114,6 +123,25 @@ export default class RegionAutomations {
     const origin = RegionAutomations.getOriginToken(context.region);
     if (!origin) return false;
     return (origin.uuid && origin.uuid === token.uuid) || (!!origin.id && origin.id === token.id);
+  }
+
+  /**
+   * The size / creature-type filters the 5e area-of-effect behaviors support
+   * (apply-active-effect.mjs), plus an exclusion set for "any creature other
+   * than an ooze" wording. Empty sets match everything; a token without an
+   * actor passes so the behavior degrades no differently than before.
+   */
+  static matchesTokenFilters(token: TokenDocument, args: ITokenFilterArgs): boolean {
+    const actor = token.actor as { system?: { traits?: { size?: string }; details?: { type?: { value?: string } } } } | null;
+    if (!actor) return true;
+    const sizes = args.sizes ?? [];
+    if (sizes.length > 0 && !sizes.includes(actor.system?.traits?.size ?? "")) return false;
+    const creatureType = actor.system?.details?.type?.value ?? "";
+    const types = args.types ?? [];
+    if (types.length > 0 && !types.includes(creatureType)) return false;
+    const excludeTypes = args.excludeTypes ?? [];
+    if (excludeTypes.length > 0 && excludeTypes.includes(creatureType)) return false;
+    return true;
   }
 
   static buildRegionContext(context: IRegionEventContext, token: TokenDocument): IDDBRegionContext {
@@ -330,6 +358,10 @@ export default class RegionAutomations {
       return;
     }
 
+    if (!RegionAutomations.matchesTokenFilters(token, args)) {
+      logger.debug(`Region ${context.region.name}: ${token.name} filtered by size/creature type`, { context });
+      return;
+    }
     if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
       logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
       return;
@@ -418,6 +450,10 @@ export default class RegionAutomations {
       return;
     }
 
+    if (!RegionAutomations.matchesTokenFilters(token, args)) {
+      logger.debug(`Region ${context.region.name}: ${token.name} filtered by size/creature type`, { context });
+      return;
+    }
     if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
       logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
       return;

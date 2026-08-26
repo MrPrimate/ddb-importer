@@ -896,7 +896,7 @@ export default abstract class DDBBaseClass {
           features.push(compendiumFeature);
           uuids.add(compendiumFeature.uuid);
         } else if (this.isMuncher && this.addToCompendium) {
-          logger.info(`Could not find choice feature option id ${option.id} (${option.label}) for feature ${feature.name}`);
+          logger.debug(`Could not find choice feature option id ${option.id} (${option.label}) for feature ${feature.name}`);
         }
       }
 
