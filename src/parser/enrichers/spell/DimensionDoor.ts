@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class MistyStep extends DDBEnricherData {
+export default class DimensionDoor extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.TELEPORT;
@@ -8,13 +8,13 @@ export default class MistyStep extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      activationType: "bonus",
+      name: "Teleport",
+      activationType: "action",
       overrideActivation: true,
       data: {
-        name: "Misty Step",
         range: {
           override: true,
-          value: "30",
+          value: "500",
           units: "ft",
           special: "",
         },
@@ -22,8 +22,9 @@ export default class MistyStep extends DDBEnricherData {
           override: true,
           prompt: false,
           affects: {
-            count: "1",
-            type: "self",
+            count: "2",
+            type: "willing",
+            special: "Control the caster and, optionally, one willing creature within 5 feet of the caster. Companion size restrictions are adjudicated manually.",
           },
           template: {},
         },

@@ -128,6 +128,24 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
+  _getTeleportActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
+    const activity = new this.activityGenerator({
+      name,
+      type: ACTIVITY_TYPES.TELEPORT,
+      ddbParent: this,
+      nameIdPrefix: "teleport",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateDamage: false,
+      generateRange: !["spell", "weapon"].includes(this.documentType!),
+    }, options));
+
+    return activity;
+  }
+
   _getRollActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
@@ -361,6 +379,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       case "roll":
         return this._getRollActivity(data, options);
       case "teleport":
+        return this._getTeleportActivity(data, options);
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;

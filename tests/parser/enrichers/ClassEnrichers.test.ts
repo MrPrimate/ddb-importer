@@ -656,6 +656,41 @@ describe("rogue PsychicBlade", () => {
   });
 });
 
+describe("rogue Psychic Teleportation", () => {
+  it("rolls the Psionic Energy Die before offering a maximum-range native teleport", () => {
+    const e = build(ClassEnrichers.Rogue.SoulBladesPsychicTeleportation);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({
+      name: "Psychic Teleportation",
+      data: {
+        roll: {
+          formula: "@scale.soulknife.energy-die.die",
+          name: "Roll Distance Die (multiply by 10 feet)",
+        },
+      },
+    });
+
+    const [teleport] = e.additionalActivities;
+    expect(teleport.init).toEqual({ name: "Plan Psychic Teleportation", type: "teleport" });
+    expect(teleport.build).toMatchObject({
+      generateConsumption: false,
+      rangeOverride: {
+        value: "10 * @scale.soulknife.energy-die.faces",
+        units: "ft",
+      },
+      activationOverride: { type: "special" },
+      targetOverride: { prompt: false, affects: { count: "1", type: "self" } },
+    });
+    expect(teleport.overrides).toMatchObject({ noConsumeTargets: true });
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Plan Psychic Teleportation"]);
+  });
+
+  it("keeps the planner free when the action activities are folded into Soul Blades", () => {
+    const e = build(ClassEnrichers.Rogue.SoulBlades);
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Plan Psychic Teleportation"]);
+  });
+});
+
 describe("rogue TokensOfTheDeparted", () => {
   const Enricher = ClassEnrichers.Rogue.TokensOfTheDeparted;
 
@@ -1212,5 +1247,46 @@ describe("paladin aura marker regions", () => {
     expect(apply.config.effects).toEqual(["Aura of the Guardian"]);
     expect(e.effects.find((h: any) => h.standalone).auraeffectsNever).toBe(true);
     expect(e.effects.find((h: any) => h.auraeffects).auraeffectsOnly).toBe(true);
+  });
+});
+
+describe("native teleport class activities", () => {
+  it("converts both Travel along the Tree modes without changing their costs", () => {
+    const e = build(ClassEnrichers.Barbarian.TravelAlongTheTree);
+    expect(e.type).toBe("teleport");
+    expect(e.activity.activationType).toBe("bonus");
+    expect(e.activity.data).toMatchObject({
+      name: "Teleport 60 ft",
+      range: { override: true, value: "60", units: "ft" },
+      target: { override: true, prompt: false, affects: { count: "1", type: "self" } },
+    });
+    const [group] = e.additionalActivities;
+    expect(group.init).toEqual({ name: "Group Teleport", type: "teleport" });
+    expect(group.build).toMatchObject({
+      generateConsumption: true,
+      rangeOverride: { value: "150", units: "ft" },
+      targetOverride: { prompt: false, affects: { count: "7", type: "willing" } },
+      activationOverride: { type: "bonus" },
+    });
+  });
+
+  it("keeps Hunt the Prey's mark on the consuming primary and makes teleport free", () => {
+    const e = build(ClassEnrichers.Paladin.HuntThePrey);
+    expect(e.activity).toMatchObject({
+      name: "Hunt the Prey",
+      type: "utility",
+      addItemConsume: true,
+      itemConsumeTargetName: "Channel Divinity",
+    });
+    expect(e.effects[0].activityMatch).toBe("Hunt the Prey");
+    const [teleport] = e.additionalActivities;
+    expect(teleport.init).toEqual({ name: "Teleport to Prey", type: "teleport" });
+    expect(teleport.build).toMatchObject({
+      generateConsumption: false,
+      rangeOverride: { value: "60", units: "ft" },
+      activationOverride: { type: "bonus" },
+      targetOverride: { prompt: false, affects: { count: "1", type: "self" } },
+    });
+    expect(teleport.overrides).toMatchObject({ noConsumeTargets: true });
   });
 });

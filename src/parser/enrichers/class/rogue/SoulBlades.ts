@@ -2,6 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SoulBlades extends DDBEnricherData {
 
+  override get override(): IDDBOverrideData {
+    return {
+      ignoredConsumptionActivities: ["Psychic Teleportation"],
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? [

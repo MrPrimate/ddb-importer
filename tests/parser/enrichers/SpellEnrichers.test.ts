@@ -620,3 +620,92 @@ describe("Spirit Shroud region slow", () => {
     expect(standalone.changes[0].key).toBe("system.attributes.movement.bonus");
   });
 });
+
+describe("native teleport spell activities", () => {
+  it("replaces Misty Step's import macro with a fixed native teleport", () => {
+    const e = build(SpellEnrichers.MistyStep);
+    expect(e.type).toBe("teleport");
+    expect(e.activity).toMatchObject({ activationType: "bonus", overrideActivation: true });
+    expect(e.activity.data).toMatchObject({
+      name: "Misty Step",
+      range: { override: true, value: "30", units: "ft" },
+      target: { override: true, prompt: false, affects: { count: "1", type: "self" } },
+    });
+    expect(e.activity.data).not.toHaveProperty("macro");
+  });
+
+  it("builds Dimension Door as a 500 ft group-capable teleport", () => {
+    const e = build(SpellEnrichers.DimensionDoor);
+    expect(e.type).toBe("teleport");
+    expect(e.activity).toMatchObject({ name: "Teleport", activationType: "action" });
+    expect(e.activity.data.range).toMatchObject({ override: true, value: "500", units: "ft" });
+    expect(e.activity.data.target).toMatchObject({
+      override: true,
+      prompt: false,
+      affects: { count: "2", type: "willing" },
+    });
+  });
+
+  it("keeps Thunder Step's save/damage primary and adds a free teleport helper", () => {
+    const e = build(SpellEnrichers.ThunderStep);
+    expect(e.type).toBeNull();
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
+    const [teleport] = e.additionalActivities;
+    expect(teleport.init).toEqual({ name: "Teleport", type: "teleport" });
+    expect(teleport.build).toMatchObject({
+      noSpellslot: true,
+      generateConsumption: true,
+      generateDamage: false,
+      generateSave: false,
+      rangeOverride: { value: "90", units: "ft" },
+      targetOverride: { prompt: false, affects: { count: "2", type: "willing" } },
+      durationOverride: { units: "inst", concentration: false },
+    });
+    expect(teleport.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
+  });
+
+  it("gives Far Step one consuming cast and a non-consuming repeat teleport", () => {
+    const e = build(SpellEnrichers.FarStep);
+    expect(e.type).toBe("teleport");
+    expect(e.activity).toMatchObject({ name: "Cast and Teleport", activationType: "bonus" });
+    expect(e.activity.data.range).toMatchObject({ override: true, value: "60", units: "ft" });
+    const [repeat] = e.additionalActivities;
+    expect(repeat.init).toEqual({ name: "Teleport Again", type: "teleport" });
+    expect(repeat.build).toMatchObject({
+      noSpellslot: true,
+      rangeOverride: { value: "60", units: "ft" },
+      activationOverride: { type: "bonus" },
+      durationOverride: { units: "inst", concentration: false },
+    });
+    expect(repeat.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
+  });
+
+  it("preserves Scatter's save primary and separates the adjudicated teleport", () => {
+    const e = build(SpellEnrichers.Scatter);
+    expect(e.type).toBeNull();
+    const [teleport] = e.additionalActivities;
+    expect(teleport.init).toEqual({ name: "Teleport Affected Creatures", type: "teleport" });
+    expect(teleport.build).toMatchObject({
+      noSpellslot: true,
+      generateSave: false,
+      rangeOverride: { value: "120", units: "ft" },
+      targetOverride: { prompt: false, affects: { count: "5", type: "creature" } },
+    });
+    expect(teleport.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
+  });
+
+  it("keeps Tree Stride's concentration cast separate from repeated travel", () => {
+    const e = build(SpellEnrichers.TreeStride);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Cast", targetSelf: true });
+    const [travel] = e.additionalActivities;
+    expect(travel.init).toEqual({ name: "Travel Through Tree", type: "teleport" });
+    expect(travel.build).toMatchObject({
+      noSpellslot: true,
+      rangeOverride: { value: "500", units: "ft" },
+      activationOverride: { type: "special" },
+      durationOverride: { units: "inst", concentration: false },
+    });
+    expect(travel.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
+  });
+});

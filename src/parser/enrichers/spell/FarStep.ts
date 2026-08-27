@@ -1,26 +1,31 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class ThunderStep extends DDBEnricherData {
+export default class FarStep extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.TELEPORT;
+  }
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast and Teleport",
+      activationType: "bonus",
+      overrideActivation: true,
       data: {
         range: {
           override: true,
-          value: "",
-          units: "self",
+          value: "60",
+          units: "ft",
+          special: "",
         },
         target: {
           override: true,
+          prompt: false,
           affects: {
-            type: "creature",
+            count: "1",
+            type: "self",
           },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
+          template: {},
         },
       },
     };
@@ -30,7 +35,7 @@ export default class ThunderStep extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Teleport",
+          name: "Teleport Again",
           type: DDBEnricherData.ACTIVITY_TYPES.TELEPORT,
         },
         build: {
@@ -43,20 +48,18 @@ export default class ThunderStep extends DDBEnricherData {
           generateSave: false,
           generateTarget: true,
           activationOverride: {
-            type: "special",
-            condition: "As part of casting Thunder Step",
+            type: "bonus",
           },
           rangeOverride: {
-            value: "90",
+            value: "60",
             units: "ft",
             special: "",
           },
           targetOverride: {
             prompt: false,
             affects: {
-              count: "2",
-              type: "willing",
-              special: "Control the caster and, optionally, one willing creature within 5 feet of the caster.",
+              count: "1",
+              type: "self",
             },
             template: {},
           },

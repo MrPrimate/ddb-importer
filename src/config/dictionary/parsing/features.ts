@@ -184,6 +184,7 @@ export const PARSING_FEATURES = {
     "Protean Rewards",
     "Adaptive Wild Shape",
     "Critical Shot",
+    "Travel along the Tree",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",

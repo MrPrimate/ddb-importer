@@ -11,6 +11,7 @@ export const ACTIVITY_TYPES = {
   ORDER: "order",
   SAVE: "save",
   SUMMON: "summon",
+  TELEPORT: "teleport",
   TRANSFORM: "transform",
   UTILITY: "utility",
   USE: "utility",

@@ -1,36 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class ThunderStep extends DDBEnricherData {
-
-  override get activity(): IDDBActivityData {
-    return {
-      data: {
-        range: {
-          override: true,
-          value: "",
-          units: "self",
-        },
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
-        },
-      },
-    };
-  }
+export default class Scatter extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
-          name: "Teleport",
+          name: "Teleport Affected Creatures",
           type: DDBEnricherData.ACTIVITY_TYPES.TELEPORT,
         },
         build: {
@@ -44,19 +20,19 @@ export default class ThunderStep extends DDBEnricherData {
           generateTarget: true,
           activationOverride: {
             type: "special",
-            condition: "As part of casting Thunder Step",
+            condition: "After resolving willing creatures and failed saves",
           },
           rangeOverride: {
-            value: "90",
+            value: "120",
             units: "ft",
             special: "",
           },
           targetOverride: {
             prompt: false,
             affects: {
-              count: "2",
-              type: "willing",
-              special: "Control the caster and, optionally, one willing creature within 5 feet of the caster.",
+              count: "5",
+              type: "creature",
+              special: "Control only willing creatures and creatures that failed the save.",
             },
             template: {},
           },

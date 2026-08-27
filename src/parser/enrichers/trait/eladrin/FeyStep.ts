@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class FeyStep extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.TELEPORT;
   }
 
   override get activity(): IDDBActivityData {
@@ -11,6 +11,24 @@ export default class FeyStep extends DDBEnricherData {
       name: "Fey Step (Teleport)",
       targetType: "self",
       activationType: "bonus",
+      overrideActivation: true,
+      data: {
+        range: {
+          override: true,
+          value: "30",
+          units: "ft",
+          special: "",
+        },
+        target: {
+          override: true,
+          prompt: false,
+          affects: {
+            count: "1",
+            type: "self",
+          },
+          template: {},
+        },
+      },
     };
   }
 
