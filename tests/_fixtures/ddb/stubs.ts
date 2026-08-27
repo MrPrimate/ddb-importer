@@ -69,13 +69,13 @@ class FakeActivityDocument {
         break;
       case "save":
         data.damage = damage();
-        data.save = { ability: [], dc: { calculation: "", formula: "" } };
+        data.save = { ability: [], bonus: "", dc: { calculation: "", formula: "" }, visible: true };
         break;
       case "heal":
         data.healing = { custom: { enabled: false, formula: "" }, number: null, denomination: null, bonus: "", types: [] };
         break;
       case "check":
-        data.check = { ability: "", associated: [], dc: { calculation: "", formula: "" } };
+        data.check = { ability: "", associated: [], bonus: "", dc: { calculation: "", formula: "" }, visible: true };
         break;
       case "utility":
         data.roll = { formula: "", name: "", prompt: false, visible: false };

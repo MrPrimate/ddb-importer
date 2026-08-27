@@ -312,6 +312,98 @@ describe("fighter GraspingArrow", () => {
   });
 });
 
+describe("fighter native bonus checks", () => {
+  const battleMasterOptions = {
+    klass: "Fighter",
+    character: {
+      classes: [{
+        level: 5,
+        definition: { name: "Fighter" },
+        subclassDefinition: { name: "Battle Master" },
+        classFeatures: [{ definition: { name: "Combat Superiority", requiredLevel: 3 } }],
+      }],
+    },
+  };
+
+  it("rolls Commanding Presence as a Charisma skill check with its superiority die", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverCommandingPresence, battleMasterOptions);
+    expect(e.type).toBe("check");
+    expect(e.activity).toMatchObject({
+      name: "Commanding Presence Check",
+      targetType: "self",
+      activationType: "special",
+      addItemConsume: true,
+    });
+    expect(e.activity.data.check).toEqual({
+      associated: ["itm", "prf", "per"],
+      ability: "cha",
+      bonus: "@scale.battle-master.combat-superiority-die",
+      dc: { calculation: "", formula: "" },
+      visible: true,
+    });
+    expect(e.effects).toEqual([]);
+  });
+
+  it("uses each Tactical Assessment skill's normal ability", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverTacticalAssessment, battleMasterOptions);
+    expect(e.type).toBe("check");
+    expect(e.activity.data.check).toMatchObject({
+      associated: ["his", "inv", "ins"],
+      ability: "",
+      bonus: "@scale.battle-master.combat-superiority-die",
+      visible: true,
+    });
+    expect(e.effects).toEqual([]);
+  });
+
+  it("rolls Grappling Strike on the fighter and leaves the opposing contest manual", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverGrapplingStrike, battleMasterOptions);
+    expect(e.type).toBe("check");
+    expect(e.activity).toMatchObject({
+      name: "Grappling Strike Check",
+      targetType: "self",
+      activationType: "bonus",
+      addItemConsume: true,
+    });
+    expect(e.activity.activationCondition).toMatch(/opposing contest manually/);
+    expect(e.activity.data.check).toMatchObject({
+      associated: ["ath"],
+      ability: "str",
+      bonus: "@scale.battle-master.combat-superiority-die",
+    });
+    expect(e.effects).toEqual([]);
+  });
+
+  it("splits Ambush into a native Stealth check and the existing Initiative effect", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverAmbush, battleMasterOptions);
+    expect(e.type).toBe("check");
+    expect(e.activity).toMatchObject({ name: "Stealth Check", targetType: "self", addItemConsume: true });
+    expect(e.activity.data.check).toMatchObject({
+      associated: ["ste"],
+      ability: "dex",
+      bonus: "@scale.battle-master.combat-superiority-die",
+    });
+    expect(e.additionalActivities).toEqual([expect.objectContaining({
+      init: { name: "Initiative Bonus", type: "utility" },
+      overrides: expect.objectContaining({ targetType: "self", addItemConsume: true }),
+    })]);
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({
+      name: "Ambush Bonus",
+      activityMatch: "Initiative Bonus",
+      daeSpecialDurations: ["Initiative"],
+    });
+    expect(e.effects[0].changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.init.roll.bonus" }),
+    ]);
+  });
+
+  it("uses a d6 for maneuver feats without Combat Superiority", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverCommandingPresence);
+    expect(e.activity.data.check.bonus).toBe("1d6");
+  });
+});
+
 describe("gunslinger Overkill", () => {
   const Enricher = ClassEnrichers.Gunslinger.Overkill;
 
@@ -661,17 +753,17 @@ describe("rogue Psychic Teleportation", () => {
     const e = build(ClassEnrichers.Rogue.SoulBladesPsychicTeleportation);
     expect(e.type).toBe("utility");
     expect(e.activity).toMatchObject({
-      name: "Psychic Teleportation",
+      name: "Roll Psychic Teleportation Distance",
       data: {
         roll: {
-          formula: "@scale.soulknife.energy-die.die",
+          formula: "@scale.soulknife.energy-die.die * 10",
           name: "Roll Distance Die (multiply by 10 feet)",
         },
       },
     });
 
     const [teleport] = e.additionalActivities;
-    expect(teleport.init).toEqual({ name: "Plan Psychic Teleportation", type: "teleport" });
+    expect(teleport.init).toEqual({ name: "Psychic Teleportation", type: "teleport" });
     expect(teleport.build).toMatchObject({
       generateConsumption: false,
       rangeOverride: {
@@ -682,12 +774,12 @@ describe("rogue Psychic Teleportation", () => {
       targetOverride: { prompt: false, affects: { count: "1", type: "self" } },
     });
     expect(teleport.overrides).toMatchObject({ noConsumeTargets: true });
-    expect(e.override.ignoredConsumptionActivities).toEqual(["Plan Psychic Teleportation"]);
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Psychic Teleportation"]);
   });
 
   it("keeps the planner free when the action activities are folded into Soul Blades", () => {
     const e = build(ClassEnrichers.Rogue.SoulBlades);
-    expect(e.override.ignoredConsumptionActivities).toEqual(["Plan Psychic Teleportation"]);
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Psychic Teleportation"]);
   });
 });
 

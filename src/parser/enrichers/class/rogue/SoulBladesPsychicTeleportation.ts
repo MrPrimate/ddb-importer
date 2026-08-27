@@ -38,12 +38,12 @@ export default class SoulBladesPsychicTeleportation extends DDBEnricherData {
           generateTarget: true,
           activationOverride: {
             type: "special",
-            condition: "After rolling Psychic Teleportation; stop at 10 times the rolled result in feet",
+            condition: "After rolling Psychic Teleportation; stop at the rolled distance in feet",
           },
           rangeOverride: {
             value: "10 * @scale.soulknife.energy-die.faces",
             units: "ft",
-            special: "Maximum possible distance; use 10 times the rolled Psionic Energy Die result.",
+            special: "Maximum possible distance; use the rolled distance result.",
           },
           targetOverride: {
             prompt: false,
@@ -66,7 +66,7 @@ export default class SoulBladesPsychicTeleportation extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      ignoredConsumptionActivities: ["Plan Psychic Teleportation"],
+      ignoredConsumptionActivities: ["Psychic Teleportation"],
     };
   }
 

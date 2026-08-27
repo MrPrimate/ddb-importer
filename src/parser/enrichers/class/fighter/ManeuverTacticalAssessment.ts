@@ -4,72 +4,32 @@ import Maneuver from "./Maneuver";
 export default class ManeuverTacticalAssessment extends Maneuver {
 
   override get type(): IDDBActivityType {
-    return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
+    return DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
   override get activity(): IDDBActivityData {
-    return this.useMidiAutomations
-      ? {
-        targetType: "self",
-        activationType: "special",
-        addItemConsume: true,
-      }
-      : {
-        addItemConsume: true,
-        data: {
-          name: "Roll Check (Apply Effect First)",
-          check: {
-            associated: ["his", "inv", "ins"],
-            ability: [],
-            dc: {
-              calculation: "",
-              formula: "",
-            },
+    return {
+      name: "Tactical Assessment Check",
+      targetType: "self",
+      activationType: "special",
+      addItemConsume: true,
+      data: {
+        check: {
+          associated: ["his", "inv", "ins"],
+          ability: "",
+          bonus: this.diceString,
+          dc: {
+            calculation: "",
+            formula: "",
           },
+          visible: true,
         },
-      };
+      },
+    };
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Tactical Assessment Bonus",
-        daeSpecialDurations: ["isSkill.his" as const, "isSkill.inv" as const, "isSkill.ins" as const],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnStart",
-            expired: null,
-          },
-        },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.his.roll.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.inv.roll.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ins.roll.bonus"),
-        ],
-      },
-    ];
+    return [];
   }
-
-  // get additionalActivities(): IDDBAdditionalActivity[] {
-  //   return [
-  //     {
-  //       init: {
-  //         name: "Bonus Dice Effect",
-  //         type: "utility",
-  //       },
-  //       build: {
-  //         generateTarget: false,
-  //         generateRange: false,
-  //         generateActivation: true,
-  //         activationOverride: {
-  //           type: "special",
-  //           value: 1,
-  //           condition: "",
-  //         },
-  //       },
-  //     },
-  //   ];
-  // }
 
 }
