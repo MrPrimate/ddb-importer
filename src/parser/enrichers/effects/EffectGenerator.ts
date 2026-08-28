@@ -771,9 +771,9 @@ export default class EffectGenerator {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         // parseDiceString joins mods with "", so undefined behaves identically to the previous null
         if (die) {
-          return utils.parseDiceString(die.diceString, undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
+          return utils.parseDiceString(die.diceString, undefined, mod.subType ? `[${mod.subType}]` : undefined, undefined, true).diceString;
         } else {
-          return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
+          return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined, undefined, true).diceString;
         }
       });
     if (bonus && bonus.length > 0) {

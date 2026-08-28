@@ -255,7 +255,7 @@ export default class Utils {
     return result;
   }
 
-  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = ""): DiceParserResult {
+  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = "", addHint = false): DiceParserResult {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
@@ -326,7 +326,7 @@ export default class Utils {
       }
     });
 
-    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
+    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags, addHint);
     return result;
   }
 
