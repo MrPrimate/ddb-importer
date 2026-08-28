@@ -552,6 +552,10 @@ export const PARSING_CHOICE_FEATURES = {
     "Brand of Castigation",
     "Stalker's Prowess",
     "Aether Walk",
+    "Floral Form",
+    "Floral Legacy",
+    "Floral Breath Weapon",
+    "Floral Fortitude",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

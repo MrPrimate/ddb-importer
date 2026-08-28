@@ -44,10 +44,13 @@ export default class FloralForm extends DDBEnricherData {
           name: `Floral Form: ${healingFlower}`,
           options: {
             transfer: true,
-            description: "Whenever you use a spell of 1st level or higher to restore Hit Points to a creature, it regains 1d4 additional Hit Points. The bonus applies to all of your healing, so remove it by hand when you heal with a cantrip or with a feature that is not a spell.",
+            description: "Whenever you use a spell of 1st level or higher to restore Hit Points to a creature, it regains 1d4 additional Hit Points.",
           },
           changes: [
-            DDBEnricherData.ChangeHelper.healingBonusChange("1d4"),
+            {
+              ...DDBEnricherData.ChangeHelper.healingBonusChange("1d4"),
+              conditions: JSON.stringify({ k: "item.level", o: "gte", v: 1 }),
+            },
           ],
         },
       ];
