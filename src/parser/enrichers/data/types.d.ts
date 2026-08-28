@@ -62,6 +62,10 @@ global {
   export interface IDDBActivitySnippetLookup {
     name?: string;
     type?: IActionTypes;
+    // Pull this named section out of the owning document's snippet/description instead of
+    // looking up a sibling DDB action. For activities whose name has no textual relation to
+    // the section describing them - Chef's "Eat Treat" is described by "Bolstering Treats".
+    section?: string;
   }
 
   // -- Activity Data (main getter) --------------------------------------------
