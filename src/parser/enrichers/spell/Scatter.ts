@@ -23,7 +23,7 @@ export default class Scatter extends DDBEnricherData {
             condition: "After resolving willing creatures and failed saves",
           },
           rangeOverride: {
-            value: "120",
+            value: "30",
             units: "ft",
             special: "",
           },
@@ -44,6 +44,12 @@ export default class Scatter extends DDBEnricherData {
         overrides: {
           noConsumeTargets: true,
           noSpellslot: true,
+          data: {
+            teleport: {
+              override: true,
+              value: "120",
+            },
+          },
         },
       },
     ];
