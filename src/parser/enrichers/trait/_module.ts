@@ -9,6 +9,7 @@ export * as Dragonborn from "./dragonborn/_module";
 export * as Dwarf from "./dwarf/_module";
 export * as Eladrin from "./eladrin/_module";
 export * as Firbolg from "./firbolg/_module";
+export * as FloralDragonborn from "./floralDragonborn/_module";
 export * as Generic from "./generic/_module";
 export * as Gnome from "./gnome/_module";
 export * as Goblin from "./goblin/_module";

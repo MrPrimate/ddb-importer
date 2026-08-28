@@ -36,6 +36,7 @@ export { default as PrimalCompanionRestoreBeast } from "./PrimalCompanionRestore
 export { default as PrimalCompanionSummon } from "./PrimalCompanionSummon";
 export { default as RangedSpecialist } from "./RangedSpecialist";
 export { default as RangerSpells } from "./RangerSpells";
+export { default as ResearchSkills } from "./ResearchSkills";
 export { default as SealedFate } from "./SealedFate";
 export { default as SetTrapMiasma } from "./SetTrapMiasma";
 export { default as ShadowyDodge } from "./ShadowyDodge";

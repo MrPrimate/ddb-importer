@@ -48,6 +48,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   override NAME_HINT_INCLUDES: Record<string, string> = {
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Cabal's Ruin": "Cabal's Ruin",
+    "Clematis-tainted": "Clematis-tainted Weapon",
     "Flame Tongue": "Flame Tongue",
     "Ghaal'Shaarat": "Ghaal'Shaarat",
     "Moon Sickle": "Moon Sickle",
@@ -57,6 +58,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
     "Wyrm's Breath Grenade": "Wyrm's Breath Grenade",
+    "of the Vampire Lily Dragon": "Vampire Lily Dragon Armor",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -68,8 +70,13 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Wyrm's Breath Grenade": ItemEnrichers.WyrmsBreathGrenade,
+    "Vampire Lily Dragon Armor": ItemEnrichers.VampireLilyDragonArmor,
+    "Wisteria Dragon Perfume": ItemEnrichers.WisteriaDragonPerfume,
+    "Succulent Water of Life": ItemEnrichers.SucculentWaterOfLife,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
     "Cabal's Ruin": ItemEnrichers.CabalsRuin,
+    "Clematis Poison": ItemEnrichers.ClematisPoison,
+    "Clematis-tainted Weapon": ItemEnrichers.ClematisTaintedWeapon,
     "Canaith Mandolin": ItemEnrichers.InstrumentOfTheBards,
     "Cli Lyre": ItemEnrichers.InstrumentOfTheBards,
     "Donjon's Sundering Sphere": ItemEnrichers.DonjonsSunderingSphere,

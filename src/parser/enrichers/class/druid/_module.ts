@@ -28,6 +28,7 @@ export { default as ElementalFuryPotentSpellcasting } from "./ElementalFuryPoten
 export { default as ElementalFuryPrimalStrike } from "./ElementalFuryPrimalStrike";
 export { default as EnhancedBond } from "./EnhancedBond";
 export { default as FaithfulSummons } from "./FaithfulSummons";
+export { default as FloralForm } from "./FloralForm";
 export { default as FullOfStars } from "./FullOfStars";
 export { default as FungalInfestation } from "./FungalInfestation";
 export { default as FutureSight } from "./FutureSight";
