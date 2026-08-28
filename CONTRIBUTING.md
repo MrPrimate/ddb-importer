@@ -40,7 +40,7 @@ Clone your fork, then `npm install`. The useful scripts:
 - `npm run lint` and `npm run typecheck` before you push.
 - `npm run test` runs the vitest suite.
 
-The repo is in typecript, and is an ongoing transition.
+The repo is in typescript, and is an ongoing transition.
 It is not yet fully typed.
 
 ### Testing seams: fetch vs parse

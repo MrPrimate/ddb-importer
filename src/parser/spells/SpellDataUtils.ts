@@ -248,4 +248,54 @@ export default class SpellDataUtils {
     return uses;
   }
 
+  /**
+   * Does this damage part actually roll a die? A flat healing bonus (e.g. Healer's 2014 "1") has
+   * nothing to reroll, and a die modifier appended to it would be meaningless.
+   */
+  static #partRollsDice(part: Partial<I5eDamagePart>): boolean {
+    if (part.custom?.enabled) return (/\dd\d/).test(part.custom.formula ?? "");
+    return Boolean(part.denomination);
+  }
+
+  static #healingParts(spellData: I5eSpellItem): Partial<I5eDamagePart>[] {
+    const parts: Partial<I5eDamagePart>[] = [];
+    for (const activity of Object.values(spellData.system?.activities ?? {})) {
+      const activityParts: (Partial<I5eDamagePart> | undefined)[] = activity.type === "heal"
+        ? [activity.healing]
+        : (foundry.utils.getProperty(activity, "damage.parts") as Partial<I5eDamagePart>[] ?? []);
+      for (const part of activityParts) {
+        // temphp is not hit point restoration, so RAW rerolls do not apply to it
+        if (!part || !(part.types ?? []).includes("healing")) continue;
+        if (!SpellDataUtils.#partRollsDice(part)) continue;
+        parts.push(part);
+      }
+    }
+    return parts;
+  }
+
+  /**
+   * Add (or remove) dnd5e die modifiers on every healing part of a spell, e.g. ["r1"] turns
+   * "1d8 + @mod" into "1d8r1 + @mod". Used for the 2024 Healer feat, which rerolls 1s on healing
+   * dice; dnd5e 6 has no rule-change type that can do this at roll time.
+   *
+   * @returns true if any part was changed.
+   */
+  static applyHealingDieModifiers(
+    spellData: I5eSpellItem,
+    modifiers: string[] = ["r1"],
+    { remove = false }: { remove?: boolean } = {},
+  ): boolean {
+    let changed = false;
+    for (const part of SpellDataUtils.#healingParts(spellData)) {
+      const current = part.modifiers ?? [];
+      const updated = remove
+        ? current.filter((modifier) => !modifiers.includes(modifier))
+        : current.concat(modifiers.filter((modifier) => !current.includes(modifier)));
+      if (updated.length === current.length) continue;
+      part.modifiers = updated;
+      changed = true;
+    }
+    return changed;
+  }
+
 }

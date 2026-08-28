@@ -813,6 +813,8 @@ global {
     removeSpell?: boolean;
 
     // Custom enrichers
+    /** 2024 Healer feat: this spell's healing dice carry a parser-applied reroll modifier. */
+    healingReroll?: boolean;
     arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
     isSpellItem?: boolean;
     spellName?: string;

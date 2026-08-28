@@ -17,6 +17,8 @@ export interface IDDBBasicDamage {
   scalingNumber?: number | null;
   scalingFormula?: string | number;
   customFormula?: string | null;
+  /** dnd5e 6 die-modifier suffixes appended to the die term, e.g. ["r1"] -> "1d8r1". */
+  modifiers?: string[];
 }
 
 export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnricher> {
@@ -316,7 +318,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
-    scalingNumber = 1, scalingFormula = "", customFormula = null,
+    scalingNumber = 1, scalingFormula = "", customFormula = null, modifiers = [],
   }: IDDBBasicDamage = {}): I5eDamagePart {
     return {
       number,
@@ -328,6 +330,8 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
         // dnd5e's FormulaField coerces null to "" so this is output equivalent
         formula: customFormula ?? "",
       },
+      // omitted when empty so unmodified parts keep their existing shape
+      ...(modifiers.length > 0 ? { modifiers } : {}),
       scaling: {
         mode: scalingMode,
         number: scalingNumber,

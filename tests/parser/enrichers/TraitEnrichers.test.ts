@@ -34,15 +34,18 @@ describe("native teleport trait activities", () => {
       "Spring (Teleport)",
       "Summer (Damage)",
     ]);
-    // Spring teleports the touched creature, not the eladrin, so the activity targets a
-    // creature and the 30 ft range is the distance that creature travels.
+    // Spring teleports the touched creature, not the eladrin. Range and teleport distance are
+    // different things here: the eladrin must touch a creature within 5 ft, and that creature
+    // then travels 30 ft, so the distance needs teleport.override rather than the range the
+    // system would otherwise derive it from.
     const spring = e.additionalActivities[2];
     expect(spring.init.type).toBe("teleport");
     expect(spring.overrides).toMatchObject({
       noConsumeTargets: true,
       activationType: "special",
       data: {
-        range: { override: true, value: "30", units: "ft" },
+        teleport: { override: true, value: "30" },
+        range: { override: true, value: "5", units: "ft" },
         target: { affects: { count: "1", type: "creature" } },
       },
     });

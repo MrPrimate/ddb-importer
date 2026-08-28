@@ -688,10 +688,15 @@ describe("native teleport spell activities", () => {
     expect(teleport.build).toMatchObject({
       noSpellslot: true,
       generateSave: false,
-      rangeOverride: { value: "120", units: "ft" },
+      // 30 ft is the spell's range, the distance travelled is the separate 120 ft teleport value
+      rangeOverride: { value: "30", units: "ft" },
       targetOverride: { prompt: false, affects: { count: "5", type: "creature" } },
     });
-    expect(teleport.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
+    expect(teleport.overrides).toMatchObject({
+      noConsumeTargets: true,
+      noSpellslot: true,
+      data: { teleport: { override: true, value: "120" } },
+    });
   });
 
   it("keeps Tree Stride's concentration cast separate from repeated travel", () => {

@@ -1,6 +1,6 @@
 
 
-import { utils, logger, CompendiumHelper, SystemHelpers } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBSources, SystemHelpers } from "../../lib/_module";
 
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
@@ -45,6 +45,19 @@ const AC5E_HANDLED_CANTRIP_BOOSTS: Record<string, string[]> = {
   Druid: ["Potent Spellcasting"],
 };
 
+/**
+ * The 2024 Healer feat rerolls 1s on any die rolled to restore hit points, "with a spell or with
+ * Battle Medic". dnd5e 6 has no rule-change type that can add a die modifier at roll time (only
+ * `dnd5e.bonus` reaches healing rolls), so the reroll is baked onto the healing parts of the
+ * character's spells at parse time instead.
+ */
+export function hasHealingReroll(ddb: IDDBData): boolean {
+  return (ddb.character.feats ?? []).some((feat) =>
+    feat.definition?.name === "Healer"
+    && (feat.definition.sources ?? []).some((source) => DDBSources.is2024Source(source)),
+  );
+}
+
 export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
   const cantripBoosts
     = DDBModifiers.getChosenClassModifiers(ddb).filter(
@@ -73,6 +86,9 @@ export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
 
 export default class CharacterSpellFactory {
 
+  // dnd5e die-modifier suffix: "1d8" -> "1d8r1", rerolling a 1 once
+  static HEALING_REROLL_MODIFIERS = ["r1"];
+
   processed: I5eSpellItem[] = [];
 
   spellCounts: Record<string, number> = {};
@@ -97,6 +113,7 @@ export default class CharacterSpellFactory {
   ddbCharacter: DDBCharacter;
   proficiencyModifier: number;
   healingBoost: number;
+  healingReroll: boolean;
   levelSlots: boolean;
   pactSlots: boolean;
   hasSlots: boolean;
@@ -117,6 +134,9 @@ export default class CharacterSpellFactory {
     this.healingBoost = DDBModifiers
       .filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" })
       .reduce((a, b) => a + parseInt(String(b.value)), 0);
+    // AC5e applies the Healer reroll at roll time, so only one of the two channels should activate
+    // (the Healer enricher's ac5eOnly effect covers the AC5e case).
+    this.healingReroll = hasHealingReroll(this.ddb) && !SystemHelpers.effectModules().ac5eInstalled;
     this.slots = foundry.utils.getProperty(this.character, "system.spells") as I5eSpellSlots;
     this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       const slot = this.slots[`spell${i}` as keyof I5eSpellSlots];
@@ -848,6 +868,23 @@ export default class CharacterSpellFactory {
     }
   }
 
+  /**
+   * Bake the 2024 Healer feat's healing-die reroll onto the character's healing spells.
+   * The flag lets a later import strip a reroll we added if the feat goes away or AC5e turns up.
+   */
+  _applyHealingRerolls() {
+    for (const spell of this.processed) {
+      const flagged = foundry.utils.getProperty(spell, "flags.ddbimporter.healingReroll") === true;
+      if (this.healingReroll) {
+        const applied = SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS);
+        if (applied) foundry.utils.setProperty(spell, "flags.ddbimporter.healingReroll", true);
+      } else if (flagged) {
+        SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS, { remove: true });
+        delete spell.flags.ddbimporter?.healingReroll;
+      }
+    }
+  }
+
   async generateCharacterSpells() {
     // each class has an entry here, each entry has spells
     // we loop through each class and process
@@ -871,6 +908,8 @@ export default class CharacterSpellFactory {
     await this._setCompendiumSource();
 
     this.processed = Object.values(this._generated).flat();
+
+    this._applyHealingRerolls();
 
     return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }

@@ -3,7 +3,7 @@
 vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
 vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({ default: class {} }));
 
-import { isCantripBoost } from "../../../src/parser/spells/CharacterSpellFactory";
+import CharacterSpellFactory, { hasHealingReroll, isCantripBoost } from "../../../src/parser/spells/CharacterSpellFactory";
 
 // ids and entity type ids taken from real cleric payloads
 const CLASS_FEATURE_TYPE_ID = 12168134;
@@ -84,6 +84,82 @@ function chosenOption(id: number, name: string, parentId: number): any {
     definition: { id, name, entityTypeId: OPTION_TYPE_ID },
   };
 }
+
+function makeFeatDDB(feats: any[]): any {
+  return { character: { feats } };
+}
+
+// sourceId 2 is the 2014 PHB, 145 the 2024 PHB
+function healerFeat(sourceId: number): any {
+  return { definition: { id: 22, name: "Healer", sources: [{ sourceId, pageNumber: 167, sourceType: 1 }] } };
+}
+
+describe("CharacterSpellFactory.hasHealingReroll", () => {
+  it("is true for the 2024 Healer feat", () => {
+    expect(hasHealingReroll(makeFeatDDB([healerFeat(145)]))).toBe(true);
+  });
+
+  it("is false for the 2014 Healer feat, which has no reroll", () => {
+    expect(hasHealingReroll(makeFeatDDB([healerFeat(2)]))).toBe(false);
+  });
+
+  it("is false when the character has no Healer feat", () => {
+    expect(hasHealingReroll(makeFeatDDB([
+      { definition: { id: 1, name: "Alert", sources: [{ sourceId: 145, pageNumber: 200, sourceType: 1 }] } },
+    ]))).toBe(false);
+  });
+
+  it("is false when the character has no feats at all", () => {
+    expect(hasHealingReroll({ character: {} } as any)).toBe(false);
+  });
+});
+
+describe("CharacterSpellFactory._applyHealingRerolls", () => {
+  function healingSpell(flags: any = {}): any {
+    return {
+      name: "Cure Wounds",
+      flags: { ddbimporter: { ...flags } },
+      system: {
+        activities: {
+          abc: {
+            type: "heal",
+            healing: { number: 2, denomination: 8, bonus: "@mod", types: ["healing"] },
+          },
+        },
+      },
+    };
+  }
+
+  // the factory is heavy to construct, and only these two fields matter here
+  function factory(healingReroll: boolean, spells: any[]): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.healingReroll = healingReroll;
+    instance.processed = spells;
+    return instance;
+  }
+
+  it("bakes the reroll onto healing dice and flags the spell", () => {
+    const spell = healingSpell();
+    factory(true, [spell])._applyHealingRerolls();
+    expect(spell.system.activities.abc.healing.modifiers).toEqual(["r1"]);
+    expect(spell.flags.ddbimporter.healingReroll).toBe(true);
+  });
+
+  it("leaves spells untouched when the character has no reroll", () => {
+    const spell = healingSpell();
+    factory(false, [spell])._applyHealingRerolls();
+    expect(spell.system.activities.abc.healing.modifiers).toBeUndefined();
+    expect(spell.flags.ddbimporter.healingReroll).toBeUndefined();
+  });
+
+  it("strips a previously applied reroll, so losing the feat cleans up", () => {
+    const spell = healingSpell({ healingReroll: true });
+    spell.system.activities.abc.healing.modifiers = ["r1"];
+    factory(false, [spell])._applyHealingRerolls();
+    expect(spell.system.activities.abc.healing.modifiers).toEqual([]);
+    expect(spell.flags.ddbimporter.healingReroll).toBeUndefined();
+  });
+});
 
 describe("CharacterSpellFactory.isCantripBoost", () => {
   beforeEach(() => {

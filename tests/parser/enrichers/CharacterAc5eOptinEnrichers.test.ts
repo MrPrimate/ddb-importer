@@ -1,6 +1,7 @@
 /**
  * Behavioural tests for the once-per-turn opt-in AC5e damage bonuses on
- * character features. Like MonsterGenericAc5eEnrichers.test.ts, these exist
+ * character features, plus the Healer feat's inverse gate (native dnd5e 6 die
+ * modifiers emitted only when AC5e is absent). Like MonsterGenericAc5eEnrichers.test.ts, these exist
  * because the audit harness runs module-free and cannot see ac5eOnly hints,
  * and a typo in a sandbox identifier or scale reference fails silently in
  * Foundry. The value strings are pinned verbatim.
@@ -8,6 +9,9 @@
  * The vi.mock preamble is copied from GunslingerEnrichers.test.ts (see the
  * rationale there); ChangeHelper is real because it builds the output.
  */
+// Healer reads AutoEffects.effectModules() to decide whether AC5e already covers the reroll
+const effectModulesMock = vi.hoisted(() => ({ ac5eInstalled: false }));
+
 const loggerMock = vi.hoisted(() => ({
   warn: vi.fn(),
   debug: vi.fn(),
@@ -30,7 +34,7 @@ vi.mock("../../../src/parser/lib/_module", () => ({
   },
 }));
 vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
-  AutoEffects: {},
+  AutoEffects: { effectModules: () => effectModulesMock },
   EnchantmentEffects: {},
   ChangeHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/ChangeHelper")).default,
   EffectGenerator: {},
@@ -58,6 +62,7 @@ import ApexPredator from "../../../src/parser/enrichers/class/druid/ApexPredator
 import LunarForm from "../../../src/parser/enrichers/class/druid/LunarForm";
 import OakAndThorn from "../../../src/parser/enrichers/class/druid/OakAndThorn";
 import AgentOfOrder from "../../../src/parser/enrichers/feat/AgentOfOrder";
+import Healer from "../../../src/parser/enrichers/feat/Healer";
 import EldritchSmite from "../../../src/parser/enrichers/class/warlock/EldritchSmite";
 import EldritchHeads from "../../../src/parser/enrichers/class/warlock/EldritchHeads";
 import HandOfHarm from "../../../src/parser/enrichers/class/monk/HandOfHarm";
@@ -218,5 +223,29 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
       key: "flags.automated-conditions-5e.grants.damage.bonus",
       value: "bonus=1d6[necrotic]; oncePerTurn; effectOriginTokenId === tokenId && hasAttack",
     });
+  });
+});
+
+describe("Healer feat healing die rerolls", () => {
+  afterEach(() => {
+    effectModulesMock.ac5eInstalled = false;
+  });
+
+  function healingModifiers(is2014: boolean): (string[] | undefined)[] {
+    const enricher = makeEnricherData(Healer, { name: "Healer", actions: null, is2014 });
+    return (enricher.additionalActivities as any[]).map((a) => a.build.healingPart.modifiers);
+  }
+
+  it("bakes r1 onto every 2024 Battle Medic die when AC5e is absent", () => {
+    expect(healingModifiers(false)).toEqual([["r1"], ["r1"], ["r1"], ["r1"], ["r1"]]);
+  });
+
+  it("leaves the dice alone when AC5e is installed, as its effect does the reroll", () => {
+    effectModulesMock.ac5eInstalled = true;
+    expect(healingModifiers(false)).toEqual([undefined, undefined, undefined, undefined, undefined]);
+  });
+
+  it("emits nothing for the 2014 feat, which has no reroll", () => {
+    expect(healingModifiers(true)).toEqual([]);
   });
 });
