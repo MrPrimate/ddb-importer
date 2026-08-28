@@ -9,6 +9,7 @@ export default class BurningSpirit extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Activate Burning Spirit",
+      useActivitySnippet: true,
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,
@@ -50,6 +51,9 @@ export default class BurningSpirit extends DDBEnricherData {
             }),
           ],
         },
+        overrides: {
+          useActivitySnippet: true,
+        },
       },
       {
         init: {
@@ -82,6 +86,9 @@ export default class BurningSpirit extends DDBEnricherData {
               },
             ],
           },
+        },
+        overrides: {
+          useActivitySnippet: true,
         },
       },
     ];

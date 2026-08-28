@@ -3,9 +3,310 @@ import utils from "../../lib/Utils";
 import { DICTIONARY } from "../../config/_module";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 
+/** A dwescription section label found in a DDB description or snippet. */
+interface ISectionMarker {
+  /** index just past the label, where the section's rules text starts */
+  end: number;
+  /** index the previous section ends at: the label, or the block/blank line opening it */
+  boundaryStart: number;
+  /** the block tag opening the label's block, restored onto an extracted fragment */
+  blockOpen: string | null;
+  blockTag: string | null;
+  /** heading (3) > strong/b (2) > em/i/u (1); a section ends at an equal or stronger label */
+  rank: number;
+  /** normalized label text */
+  name: string;
+}
+
 export default class DDBDescriptions {
 
   static DEFAULT_DURATION_SECONDS = 60;
+
+  /**
+   * Normalize a section label or activity name for comparison: strip tags,
+   * decode common entities, collapse whitespace, drop trailing punctuation and
+   * lowercase. A regex tag strip is used instead of a DOM round-trip so this
+   * stays usable in DOM-less environments; numeric entities and &nbsp; are
+   * decoded here because they fall outside utils.nameString's short list.
+   */
+  static normalizeSectionLabel(value: string): string {
+    const stripped = value
+      .replace(/<[^>]*>/g, "")
+      .replace(/&#(\d+);/g, (_match, dec: string) => String.fromCodePoint(Number(dec)))
+      .replace(/&#x([0-9a-f]+);/gi, (_match, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+      .replace(/&nbsp;/gi, " ");
+    return utils.nameString(stripped)
+      .replace(/\s+/g, " ")
+      .replace(/[.:;!?]+$/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  static #BLOCK_MARKUP_REGEX = /<(?:p|div|ul|ol|table|li|blockquote|h[1-6])\b/i;
+
+  static #INLINE_EMPHASIS_REGEX = /<(?:strong|b|em|i|u)\b/i;
+
+  // Words that may stay lowercase inside a Title Case section label.
+  static #LABEL_MINOR_WORDS = new Set([
+    "a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on",
+    "or", "the", "to", "up", "with",
+  ]);
+
+  /**
+   * Does this phrase look like a DDB section label rather than an ordinary sentence?
+   * DDB writes the handful of unemphasised snippet subsections as a short Title Case
+   * phrase followed by a period, so "Bolstering Treats." is a label while
+   * "You gain proficiency with Cook's Utensils." is not.
+   */
+  static #isSectionLabel(label: string): boolean {
+    const words = label.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0 || words.length > 8) return false;
+    return words.every((word, index) => {
+      const stripped = word.replace(/^[^\p{L}\p{N}]+/u, "");
+      if (!stripped) return false;
+      if (index > 0 && DDBDescriptions.#LABEL_MINOR_WORDS.has(stripped.toLowerCase())) return true;
+      return (/^[\p{Lu}\p{N}]/u).test(stripped);
+    });
+  }
+
+  /**
+   * Rebuild the paragraph structure of a DDB snippet. Snippets are inline html - bold
+   * section labels, but no block tags - whose paragraph breaks are literal blank lines
+   * and whose line breaks are single newlines. Dropped straight into an HTMLField those
+   * collapse and the whole snippet renders as one run-on block. The ~1% of snippets that
+   * already carry block markup are returned untouched.
+   *
+   * Blocks are joined with a newline rather than butted together so that a tag-stripped
+   * comparison (utils.stringKindaEqual, normalizeSectionLabel) still yields the same
+   * words as the raw source.
+   */
+  static snippetToHtml(text: string): string {
+    if (!text?.trim()) return text;
+    if (DDBDescriptions.#BLOCK_MARKUP_REGEX.test(text)) return text;
+
+    const blocks = text
+      .replace(/\r\n?/g, "\n")
+      .split(/\n[ \t]*\n+/)
+      .map((block) => block.trim())
+      .filter((block) => block !== "");
+    if (blocks.length === 0) return text;
+
+    return blocks
+      .map((block) => {
+        const lines = block.split(/\n[ \t]*/).map((line) => DDBDescriptions.#emphasizeSectionLabel(line));
+        return `<p>${lines.join("<br>")}</p>`;
+      })
+      .join("\n");
+  }
+
+  /**
+   * Emphasise a bare section label so it reads like the emphasised ones DDB ships on most
+   * snippets. Only applied to blocks carrying no emphasis of their own
+   */
+  static #emphasizeSectionLabel(block: string): string {
+    if (DDBDescriptions.#INLINE_EMPHASIS_REGEX.test(block)) return block;
+    const match = (/^([A-Z][^.!?<>]{2,60})\.\s+(?=\S)/).exec(block);
+    if (!match || !DDBDescriptions.#isSectionLabel(match[1])) return block;
+    return `<strong>${match[1]}.</strong> ${block.slice(match[0].length)}`;
+  }
+
+  static #SECTION_BLOCK_TAG_REGEX = /<(\/?)(ul|ol|table|tbody|thead|tr|li|p|div|blockquote|td|th)\b[^>]*>/gi;
+
+  /**
+   * Remove block tags that are unbalanced within an extracted fragment:
+   * closing tags whose opener sits outside the slice (the marker's containing
+   * list/paragraph/table) and bare trailing container openers that belong to
+   * the following section. Content-bearing unclosed blocks are kept - a
+   * browser auto-closes those.
+   */
+  static #balanceSectionFragment(fragment: string): string {
+    const removals: { index: number; length: number }[] = [];
+    const stack: string[] = [];
+    for (const match of fragment.matchAll(DDBDescriptions.#SECTION_BLOCK_TAG_REGEX)) {
+      if (match.index === undefined) continue;
+      const tag = match[2].toLowerCase();
+      if (!match[1]) {
+        stack.push(tag);
+        continue;
+      }
+      const openIndex = stack.lastIndexOf(tag);
+      if (openIndex === -1) {
+        removals.push({ index: match.index, length: match[0].length });
+      } else {
+        // Anything the close skips over is treated as auto-closed.
+        stack.splice(openIndex);
+      }
+    }
+    for (const removal of removals.sort((a, b) => b.index - a.index)) {
+      fragment = fragment.slice(0, removal.index) + fragment.slice(removal.index + removal.length);
+    }
+    return fragment.replace(/(?:<(?:ul|ol|table|tbody|thead|tr)\b[^>]*>\s*)+$/i, "").trim();
+  }
+
+  /**
+   * Collect the section markers in a piece of DDB HTML. DDB commonly represents feature
+   * subsections as a bold or italic label at the start of a paragraph/list item, or - in
+   * snippets, which carry inline markup only - at the start of a blank-line-separated
+   * block. A section ends at the next label of equal or stronger emphasis
+   * (heading > strong/b > em/i/u); a weaker label - e.g. an italicised spell name opening
+   * a paragraph inside a bold-labelled section - and inline emphasis such as a bold
+   * damage die are not boundaries.
+   */
+  static #htmlSectionMarkers(html: string): ISectionMarker[] {
+    const markerRegex = /<(h[1-6]|strong|b|em|i|u)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+    // A snippet has no block tags at all: its paragraph breaks are blank lines
+    const blockStartRegex
+      = /(?:^|(?<open><(?<block>p|li|div|blockquote|td|th)\b[^>]*>)|<br\b[^>]*>|\r?\n[ \t]*\r?\n)\s*$/i;
+    const rankOf = (tag: string): number => {
+      if (tag.startsWith("h")) return 3;
+      return tag === "strong" || tag === "b" ? 2 : 1;
+    };
+    const markers: ISectionMarker[] = [];
+
+    for (const match of html.matchAll(markerRegex)) {
+      if (match.index === undefined) continue;
+      const tag = match[1].toLowerCase();
+      const isHeading = tag.startsWith("h");
+      // A block boundary sits adjacent to its marker, so a bounded window
+      // keeps the scan linear over long descriptions.
+      const windowStart = Math.max(0, match.index - 256);
+      const prefix = html.slice(windowStart, match.index);
+      const blockStart = blockStartRegex.exec(prefix);
+
+      // Strong/emphasized prose inside a section is not a new section.
+      if (!isHeading && !blockStart) continue;
+
+      markers.push({
+        end: match.index + match[0].length,
+        boundaryStart: isHeading ? match.index : windowStart + blockStart!.index,
+        blockOpen: isHeading ? null : blockStart?.groups?.open ?? null,
+        blockTag: isHeading ? null : blockStart?.groups?.block?.toLowerCase() ?? null,
+        rank: rankOf(tag),
+        name: DDBDescriptions.normalizeSectionLabel(match[2]),
+      });
+    }
+
+    return markers;
+  }
+
+  /**
+   * Collect the section markers in a snippet whose labels carry no markup at all - a small
+   * tail of DDB's features. In tehse cases a label is then a short Title Case phrase terminated by a period
+   * at the start of the text or of a line. Some internal candidates are not considered: ordinary prose produces too many of them to use as section boundaries.
+   */
+  static #plainSectionMarkers(text: string): ISectionMarker[] {
+    const markerRegex = /(?:^|\r?\n)[ \t]*([^\s.!?<>][^.!?<>]{1,59})\.(?=\s|$)\s*/g;
+    const markers: ISectionMarker[] = [];
+
+    for (const match of text.matchAll(markerRegex)) {
+      if (match.index === undefined) continue;
+      const label = match[1];
+      if (!DDBDescriptions.#isSectionLabel(label)) continue;
+      const leading = match[0].length - match[0].trimStart().length;
+      markers.push({
+        end: match.index + match[0].length,
+        boundaryStart: match.index + leading,
+        blockOpen: null,
+        blockTag: null,
+        rank: 2,
+        name: DDBDescriptions.normalizeSectionLabel(label),
+      });
+    }
+
+    return markers;
+  }
+
+  static #sectionMarkers(source: string): ISectionMarker[] {
+    const htmlMarkers = DDBDescriptions.#htmlSectionMarkers(source);
+    if (htmlMarkers.length > 0) return htmlMarkers;
+    return DDBDescriptions.#plainSectionMarkers(source);
+  }
+
+  /**
+   * How many section labels does this text carry?
+   * Used to spot a multi-section block of rules text that describes a whole feature rather than one of its activities.
+   */
+  static sectionLabelCount(source: string): number {
+    if (!source?.trim()) return 0;
+    return new Set(DDBDescriptions.#sectionMarkers(source).map((marker) => marker.name)).size;
+  }
+
+  /**
+   * Locate the marker for an activity.
+   * An exact label match wins; failing that a label wholly contained in the activity name does
+   * e.g. DDB labels the Chef feat's rules "Bolstering Treats" while the activity that creates them is "Create Bolstering Treats".
+   * Single-word labels are too weak to match.
+   */
+  static #findSectionMarker(markers: ISectionMarker[], normalizedName: string, exactOnly: boolean): number {
+    const exact = markers.findIndex((marker) => marker.name === normalizedName);
+    if (exact !== -1 || exactOnly) return exact;
+
+    let best = -1;
+    let bestLength = 0;
+    let tied = false;
+    markers.forEach((marker, index) => {
+      if (marker.name.split(" ").filter(Boolean).length < 2) return;
+      if (!` ${normalizedName} `.includes(` ${marker.name} `)) return;
+      if (marker.name.length < bestLength) return;
+      // two labels of equal weight both fit the name: attaching either would be a guess
+      tied = marker.name.length === bestLength;
+      best = index;
+      bestLength = marker.name.length;
+    });
+    return tied ? -1 : best;
+  }
+
+  // Activity names carry a parenthesised qualifier to tell siblings apart - "Autumn (Save)",
+  // "Summer (Damage)", "Fey Step (Teleport)". DDB never labels a section that way, so the
+  // qualifier is dropped for a second lookup pass.
+  static #ACTIVITY_QUALIFIER_REGEX = /\s*\([^()]*\)\s*$/;
+
+  /**
+   * Locate the section of a DDB description or snippet that describes an activity, and
+   * return its label alongside the rules text.
+   * An exact label match wins; failing that, and unless exactOnly is set, a label wholly contained in the activity name does.
+   * Each pass is tried against the full activity name first, then against the name with its parenthesised qualifier removed.
+   */
+  static matchActivitySection(
+    source: string, activityName: string, { exactOnly = false } = {},
+  ): { label: string; section: string } | null {
+    if (!source?.trim() || !activityName?.trim()) return null;
+
+    const candidates = [activityName, activityName.replace(DDBDescriptions.#ACTIVITY_QUALIFIER_REGEX, "")]
+      .map((name) => DDBDescriptions.normalizeSectionLabel(name))
+      .filter((name, index, names) => name !== "" && names.indexOf(name) === index);
+    if (candidates.length === 0) return null;
+
+    const markers = DDBDescriptions.#sectionMarkers(source);
+    let targetIndex = -1;
+    for (const candidate of candidates) {
+      targetIndex = DDBDescriptions.#findSectionMarker(markers, candidate, exactOnly);
+      if (targetIndex !== -1) break;
+    }
+    if (targetIndex === -1) return null;
+
+    const target = markers[targetIndex];
+    const next = markers.slice(targetIndex + 1).find((marker) => marker.rank >= target.rank);
+    let section = source.slice(target.end, next?.boundaryStart ?? source.length).trim();
+
+    // Restore the partial block containing an inline heading so the result is
+    // valid HTML; a list-item label is left for the balancer, which strips the
+    // dangling </li>
+    if (target.blockOpen && target.blockTag !== "li") {
+      section = `${target.blockOpen}${section}`;
+      const emptyBlock = new RegExp(`^<${target.blockTag}\\b[^>]*>\\s*</${target.blockTag}>\\s*`, "i");
+      section = section.replace(emptyBlock, "");
+    }
+
+    section = DDBDescriptions.#balanceSectionFragment(section);
+
+    return section ? { label: target.name, section } : null;
+  }
+
+  /** The rules text of {@link matchActivitySection}, for callers that do not need the label. */
+  static extractActivitySection(source: string, activityName: string, { exactOnly = false } = {}): string | null {
+    return DDBDescriptions.matchActivitySection(source, activityName, { exactOnly })?.section ?? null;
+  }
 
   static startOrEnd(text: string) {
     const re = /at the (start|end) of each/i;

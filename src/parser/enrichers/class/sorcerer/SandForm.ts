@@ -42,6 +42,9 @@ export default class SandForm extends DDBEnricherData {
             condition: "When an attacker you can see hits you with an attack",
           },
         },
+        overrides: {
+          useActivitySnippet: true,
+        },
       },
     ];
   }

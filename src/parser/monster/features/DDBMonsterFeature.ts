@@ -1104,12 +1104,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     if (this.originalName === "Multiattack") {
       description = this.#processMultiAttack(description);
     }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbMonster.npc);
-
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc }) ?? description;
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
-    description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbMonster.npc);
+    description = await DDBReferenceLinker.parseMonsterDescription({
+      text: description,
+      document: this.data,
+      actor: this.ddbMonster.npc,
+    });
 
     this.data.system.description.value = await DDBTable.generateTable({
       parentName: this.ddbMonster.npc.name,
@@ -1118,11 +1117,31 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       sourceBook: this.data.system?.source?.book ?? this.ddbMonster.npc.system?.source?.book,
       notifier: this.notifier,
     });
+    await this._linkActivityDescriptions();
     this.data.system.description.value = `<div class="ddb">
 ${this.data.system.description.value}
 </div>`;
 
 
+  }
+
+  /**
+   * Enrichers that split a feature into per-activity chunks (e.g. Eye Rays, and anything else
+   * that carves the description up) set those chunks as raw DDB html. Give them the same
+   * reference linking the feature description gets - DDB anchors, damage and attack rolls,
+   * tags - so a ray's card reads like the feature does.
+   * Tables are deliberately not generated per activity: the journal they create belongs to the feature.
+   */
+  async _linkActivityDescriptions(): Promise<void> {
+    for (const activity of Object.values(this.data.system.activities ?? {})) {
+      const text = activity.description?.value;
+      if (!text?.trim()) continue;
+      activity.description!.value = await DDBReferenceLinker.parseMonsterDescription({
+        text,
+        document: this.data,
+        actor: this.ddbMonster.npc,
+      });
+    }
   }
 
   #buildAction() {

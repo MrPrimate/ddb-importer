@@ -14,6 +14,7 @@ export default class SetTrapMiasma extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Create Magical Trap",
+      useActivitySnippet: true,
       data: {
         target: {
           override: true,

@@ -3039,8 +3039,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
 
-      activity.description ??= { chatFlavor: "" };
+      // The copied spell's rules go on the activity body, and stay on
+      // chatFlavor as well - dnd5e renders chatFlavor as the usage-card
+      // subtitle, which existing cards rely on.
+      activity.description ??= {};
       activity.description.chatFlavor = spell.system.description.value;
+      activity.description.value = spell.system.description.value;
 
       if (!activity.img || activity.img === "") {
         const mockItem = { name: (spellLookupName ?? spell.name), type: "spell" } as I5eSpellItem;
@@ -3302,6 +3306,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       await this.enricher.addDocumentOverride();
 
       this.data.system.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+      this._finaliseActivityDescriptions();
 
       await this.enricher.cleanup();
 

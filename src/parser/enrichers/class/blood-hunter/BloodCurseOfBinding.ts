@@ -14,6 +14,7 @@ export default class BloodCurseOfBinding extends _BloodCurse {
   override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
+      useActivitySnippet: true,
       targetType: "creature",
       targetCount: 1,
       activationCondition: "Large or smaller creature",

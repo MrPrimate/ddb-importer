@@ -9,6 +9,16 @@ import { DICTIONARY, SETTINGS } from "../config/_module";
 import SystemHelpers from "./SystemHelpers";
 import DDBMuleHandler from "../muncher/DDBMuleHandler";
 
+function getActivitySnippetSetting(): ISettingsPolicyExpandedItem {
+  return {
+    name: "add-ddb-snippets-to-activities",
+    isChecked: utils.getSetting<boolean>("add-ddb-snippets-to-activities"),
+    enabled: true,
+    hint: "Adds D&D Beyond's short snippet to newly imported activity cards. Activities derived from actions use the matching action's snippet or description. Re-import to add or remove snippets.",
+    label: "Add DDB Snippets to Activities?",
+  };
+}
+
 const MuncherSettings = {
 
   disableCharacterActiveEffectSettings: (html: string) => {
@@ -171,6 +181,7 @@ const MuncherSettings = {
         hint: "Use the short description for the chat card? (otherwise will use normal description).",
         enabled: true,
       },
+      getActivitySnippetSetting(),
       // {
       //   name: "use-actions-as-features",
       //   isChecked: utils.getSetting<boolean>("character-update-policy-use-actions-as-features"),
@@ -782,6 +793,7 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         hint: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
+      getActivitySnippetSetting(),
     ];
 
     const sourceConfig = [

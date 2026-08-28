@@ -10,6 +10,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Symbiotic Biosphere: Release Pheromones",
+      useActivitySnippet: true,
       activationType: "bonus",
       addItemConsume: true,
       damageParts: [
@@ -70,6 +71,9 @@ export default class SymbioticBiosphere extends DDBEnricherData {
               types: ["poison"],
             }),
           ],
+        },
+        overrides: {
+          useActivitySnippet: true,
         },
       },
     ];

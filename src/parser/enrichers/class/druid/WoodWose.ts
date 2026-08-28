@@ -9,6 +9,7 @@ export default class WoodWose extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Wood Wose",
+      useActivitySnippet: true,
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,

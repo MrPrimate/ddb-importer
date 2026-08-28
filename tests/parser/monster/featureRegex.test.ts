@@ -18,6 +18,18 @@ vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => (
 vi.mock("../../../src/parser/enrichers/DDBMonsterFeatureEnricher", () => ({
   default: class { init() {} load() {} },
 }));
+vi.mock("../../../src/parser/lib/_module", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, any>>();
+  return {
+    ...actual,
+    DDBReferenceLinker: {
+      ...actual.DDBReferenceLinker,
+      // the real linker needs compendium indexes; the pin only cares that activity text
+      // is put through it
+      parseMonsterDescription: vi.fn(async ({ text }: { text: string }) => `linked(${text})`),
+    },
+  };
+});
 vi.mock("../../../src/parser/activities/_module", () => ({
   DDBMonsterFeatureActivity: class {},
 }));
@@ -245,5 +257,48 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     const target = mock.getTarget();
     expect(target.affects.type).toBe("creature");
     expect(target.affects.count).toBe("1");
+  });
+});
+
+
+describe("DDBMonsterFeature.prototype._linkActivityDescriptions", () => {
+  it("reference-links every activity description", async () => {
+    // enrichers that carve a feature into per-activity chunks (Eye Rays) set raw DDB html,
+    // which needs the same anchor/damage-roll linking the feature description gets
+    const mock = makeFeatureMock({
+      data: {
+        system: {
+          activities: {
+            charm: { description: { value: "Charm rules." } },
+            death: { description: { value: "Death rules." } },
+          },
+        },
+      },
+      ddbMonster: { npc: { name: "Beholder" } },
+    });
+
+    await mock._linkActivityDescriptions();
+
+    expect(mock.data.system.activities.charm.description.value).toBe("linked(Charm rules.)");
+    expect(mock.data.system.activities.death.description.value).toBe("linked(Death rules.)");
+  });
+
+  it("leaves activities without their own description alone", async () => {
+    const mock = makeFeatureMock({
+      data: {
+        system: {
+          activities: {
+            roll: { description: { chatFlavor: "Choose Ray" } },
+            blank: { description: { value: "  " } },
+          },
+        },
+      },
+      ddbMonster: { npc: { name: "Beholder" } },
+    });
+
+    await mock._linkActivityDescriptions();
+
+    expect(mock.data.system.activities.roll.description.value).toBeUndefined();
+    expect(mock.data.system.activities.blank.description.value).toBe("  ");
   });
 });

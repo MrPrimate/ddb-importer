@@ -12,6 +12,7 @@ export default class StarryForm extends DDBEnricherData {
       targetType: "self",
       activationType: "bonus",
       name: "Assume Starry Form",
+      useActivitySnippet: true,
       id: utils.namedIDStub("assume", { prefix: "starry", postfix: "core" }),
       data: {
         enchant: {

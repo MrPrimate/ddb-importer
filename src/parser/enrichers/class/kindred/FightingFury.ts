@@ -41,6 +41,9 @@ export default class FightingFury extends DDBEnricherData {
             condition: "",
           },
         },
+        overrides: {
+          useActivitySnippet: true,
+        },
       },
     ];
   }

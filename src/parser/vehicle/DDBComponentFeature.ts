@@ -710,13 +710,11 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     // if (this.originalName === "Multiattack") {
     //   description = this.#processMultiAttack(description);
     // }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
-
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data })
-      ?? description;
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
-    description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
+    description = await DDBReferenceLinker.parseMonsterDescription({
+      text: description,
+      document: this.data,
+      actor: this.ddbVehicle.data,
+    });
 
     this.data.system.description.value = await DDBTable.generateTable({
       parentName: this.ddbVehicle.data.name,

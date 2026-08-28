@@ -70,7 +70,10 @@ export default class EyeRays extends DDBEnricherData {
     //   rayText: this.rayText,
     // })
     const results = rayChoices.map((ray) => {
+      const name = EyeRays.rayName(ray);
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
+      const rayDescription = DDBImporter.lib.ParserLib.DDBDescriptions
+        .matchActivitySection(ray.full, name)?.section ?? ray.full;
       const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml }) as IFeatureBasicsResult;
 
       const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser }) as DDBMonsterDamage;
@@ -79,7 +82,7 @@ export default class EyeRays extends DDBEnricherData {
 
       const result = {
         init: {
-          name: EyeRays.rayName(ray),
+          name,
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -92,6 +95,11 @@ export default class EyeRays extends DDBEnricherData {
         },
         overrides: {
           id: EyeRays.getId(ray.title),
+          data: {
+            description: {
+              value: rayDescription,
+            },
+          },
         },
       };
 

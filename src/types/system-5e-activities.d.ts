@@ -485,4 +485,3 @@ global {
     check?: I5eActivityCheck;
   }
 }
-

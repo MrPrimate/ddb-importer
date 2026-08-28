@@ -1,5 +1,8 @@
 import FeyStep from "../../../src/parser/enrichers/trait/eladrin/FeyStep";
 import BlessingOfTheRavenQueen from "../../../src/parser/enrichers/trait/shadar-kai/BlessingOfTheRavenQueen";
+import GhostlyFlesh from "../../../src/parser/enrichers/trait/stygian-shade/GhostlyFlesh";
+import HornedRepose from "../../../src/parser/enrichers/trait/the-manyhorn/HornedRepose";
+import HungryJaws from "../../../src/parser/enrichers/trait/lizardfolk/HungryJaws";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -28,8 +31,21 @@ describe("native teleport trait activities", () => {
     expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual([
       "Autumn (Save)",
       "Winter (Save)",
+      "Spring (Teleport)",
       "Summer (Damage)",
     ]);
+    // Spring teleports the touched creature, not the eladrin, so the activity targets a
+    // creature and the 30 ft range is the distance that creature travels.
+    const spring = e.additionalActivities[2];
+    expect(spring.init.type).toBe("teleport");
+    expect(spring.overrides).toMatchObject({
+      noConsumeTargets: true,
+      activationType: "special",
+      data: {
+        range: { override: true, value: "30", units: "ft" },
+        target: { affects: { count: "1", type: "creature" } },
+      },
+    });
     expect(e.effects.map((effect: any) => effect.activityMatch)).toEqual(["Autumn (Save)", "Winter (Save)"]);
   });
 
@@ -49,5 +65,29 @@ describe("native teleport trait activities", () => {
       activityMatch: "Teleport",
       options: { durationSeconds: 6 },
     });
+  });
+});
+
+describe("action-specific trait snippets", () => {
+  it("loads the deactivation action snippet onto Ghostly Flesh's synthesized helper", () => {
+    const [deactivate] = build(GhostlyFlesh).additionalActivities;
+
+    // `true` derives the lookup from the activity name and the parser's
+    // "race" type.
+    expect(deactivate.overrides.useActivitySnippet).toBe(true);
+    expect(deactivate.init.name).toBe("Ghostly Flesh (Deactivate)");
+  });
+
+  it("selects the ability-specific action snippet for each Horned Repose attack", () => {
+    const e = build(HornedRepose);
+
+    expect(e.activity.useActivitySnippet).toBe(true);
+    expect(e.activity.name).toBe("Horned Repose (Str.)");
+    expect(e.additionalActivities[0].overrides.useActivitySnippet).toBe(true);
+    expect(e.additionalActivities[0].overrides.name).toBe("Horned Repose (Dex.)");
+  });
+
+  it("keeps Hungry Jaws' complete parent snippet instead of the generic Bite action snippet", () => {
+    expect(build(HungryJaws).activity.useActivitySnippet).toBeUndefined();
   });
 });

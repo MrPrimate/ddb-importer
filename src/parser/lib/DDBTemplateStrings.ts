@@ -1,6 +1,7 @@
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
+import DDBDescriptions from "./DDBDescriptions";
 import { parseTags } from "./DDBReferenceLinker";
 
 interface IDDBTemplateStringDisplayString {
@@ -610,4 +611,42 @@ export function parse(
 
   // console.warn(`${feature.name} tempalte`, result);
   return result;
+}
+
+/**
+ * Parse a snippet/description destined for an activity description.
+ * The source is first given back the paragraph structure DDB encodes as literal newlines, then
+ * template tokens are resolved whenever DDB data is available:
+ * - A character when one exists
+ * - otherwise a stub so muncher-side imports still parse
+ * TThe text passes through unparsed when parsing is impossible or fails.
+ *
+ * @param {object} args The arguments object.
+ * @param {IDDBData | null} [args.ddbData] The DDB data object, if available.
+ * @param {I5ePCData | I5eMonsterData | null} [args.rawCharacter] The importing actor, if available.
+ * @param {string} args.text The snippet or description text.
+ * @param {TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll} args.feature The owning feature context.
+ * @returns {string} The parsed text, or the raw text when it cannot be parsed.
+ */
+export function parseSnippet({
+  ddbData,
+  rawCharacter,
+  text,
+  feature,
+}: {
+  ddbData?: IDDBData | null;
+  rawCharacter?: I5ePCData | I5eMonsterData | null;
+  text: string;
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll | IDDBCommonDefinition;
+}): string {
+  const html = DDBDescriptions.snippetToHtml(text);
+  if (!ddbData) return html;
+  const character = (rawCharacter?.type === "character" ? rawCharacter : { flags: {} }) as I5ePCData;
+  try {
+    // parse() reads feature fields through getProperty with fallbacks
+    return parse(ddbData, character, html, feature as TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll)?.text ?? html;
+  } catch (err) {
+    logger.debug("Snippet template parsing failed, using the unparsed text", { err, text, feature });
+    return html;
+  }
 }

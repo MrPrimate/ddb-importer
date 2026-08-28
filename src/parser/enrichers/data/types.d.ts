@@ -57,6 +57,13 @@ global {
     lookupName: string;
   }
 
+  // Fields omitted from the lookup are derived at apply time: name from the
+  // activity's resolved name, type from the owning parser. `true` derives both.
+  export interface IDDBActivitySnippetLookup {
+    name?: string;
+    type?: IActionTypes;
+  }
+
   // -- Activity Data (main getter) --------------------------------------------
 
   export interface IDDBActivityData {
@@ -64,6 +71,7 @@ global {
     id?: string;
     type?: string;
     parent?: IDDBActivityParentLookup[];
+    useActivitySnippet?: true | IDDBActivitySnippetLookup;
 
     // Consume targets
     noConsumeTargets?: boolean;

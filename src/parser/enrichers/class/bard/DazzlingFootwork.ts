@@ -8,6 +8,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      useActivitySnippet: { name: "Bardic Damage", type: "class" },
       targetType: "self",
       data: {
         name: "Bardic Damage",

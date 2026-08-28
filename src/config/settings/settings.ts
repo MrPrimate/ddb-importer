@@ -170,6 +170,12 @@ const SETTINGS = {
         type: Boolean,
         default: false,
       },
+      "add-ddb-snippets-to-activities": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
       "developer-mode": {
         scope: "world",
         config: false,

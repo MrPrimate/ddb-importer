@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger } from "../../../lib/_module";
+import { logger, utils } from "../../../lib/_module";
+import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
 import SystemHelpers from "../../../lib/SystemHelpers";
 
@@ -26,6 +27,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   enricher: DDBEnricherFactoryMixin<any>;
   activityGenerator: new (...args: any[]) => TDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];
+  // Activity description values inherited wholesale from the parent document rather than
+  // written for one activity. Keyed by VALUE so clones and enricher id rewrites are covered,
+  // and so an enricher-authored replacement de-stages itself. See _finaliseActivityDescriptions().
+  _inheritedActivityDescriptions = new Set<string>();
   documentType: TDoc | null = null;
   useMidiAutomations = false;
   usesOnActivity = false;
@@ -515,6 +520,42 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         behavior.name = target?.name || config.args?.activityName || activity.name || "";
       }
     }
+  }
+
+  /**
+   * dnd5e falls back to the item's chat/full description when an activity description is
+   * empty, and an activity description replaces that fallback rather than adding to it.
+   * An inherited snippet is worth keeping only when it says
+   * something shorter than the card would otherwise show: text that simply repeats the
+   * document description, or that runs through several labelled sections describing the
+   * whole feature, is dropped
+   */
+  _finaliseActivityDescriptions(): void {
+    const inherited = this._inheritedActivityDescriptions;
+    if (inherited.size === 0) return;
+
+    const activities = foundry.utils.getProperty(this.data, "system.activities") as Record<string, I5eActivity> | undefined;
+    const description = foundry.utils.getProperty(this.data, "system.description") as { chat?: string | null; value?: string | null } | undefined;
+    const chat = description?.chat?.trim() ?? "";
+    const value = description?.value?.trim() ?? "";
+
+    for (const activity of Object.values(activities ?? {})) {
+      const current = activity.description?.value;
+      if (!current || !inherited.has(current)) continue;
+      const repeatsDocument = (chat !== "" && utils.stringKindaEqual(current, chat))
+        || (value !== "" && utils.stringKindaEqual(current, value));
+      const wholeFeature = DDBDescriptions.sectionLabelCount(current) >= 2;
+      if (!repeatsDocument && !wholeFeature) continue;
+      // "" and not "<p></p>": blank markup is truthy and would suppress the native fallback
+      activity.description!.value = "";
+      logger.debug(`Cleared an inherited activity description on ${this.name}`, {
+        activity: activity.name,
+        repeatsDocument,
+        wholeFeature,
+      });
+    }
+
+    inherited.clear();
   }
 
   _activityEffectLinking(): void {

@@ -1,5 +1,5 @@
 import { utils, logger } from "../../lib/_module";
-import { SystemHelpers } from "../lib/_module";
+import { DDBTemplateStrings, SystemHelpers } from "../lib/_module";
 
 import * as Effects from "../enrichers/effects/_module";
 import DDBEnricherData from "../enrichers/data/DDBEnricherData";
@@ -226,6 +226,45 @@ export default class DDBBasicActivity {
     this.data.description = {
       chatFlavor: overRide ?? (foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") as string) ?? "",
     };
+  }
+
+  /**
+   * Copy DDB's short snippet onto the activity so its chat card carries rules text rather
+   * than the whole document description. The value written here is not activity-specific -
+   * it is whatever the parent document says - so it is staged for
+   * DDBActivityFactoryMixin._finaliseActivityDescriptions(), which drops it again when it
+   * says nothing the card would not already show.
+   */
+  _generateSnippetDescription(): void {
+    if (utils.getSetting<boolean>("add-ddb-snippets-to-activities") !== true) return;
+
+    const parent = this.ddbParent;
+    if (!parent) return;
+    const rawCharacter = foundry.utils.getProperty(parent, "rawCharacter") as I5ePCData | I5eMonsterData | undefined;
+    // A monster feature's item description IS the feature text, and dnd5e falls back to it
+    // when an activity description is empty, so there is nothing useful to copy.
+    if (rawCharacter?.type === "npc") return;
+
+    const definition = parent.ddbDefinition;
+    if (!definition) return;
+
+    const parsedSnippet = foundry.utils.getProperty(parent, "snippet") as string | undefined;
+    const snippet = parsedSnippet?.trim() || definition.snippet?.trim() || "";
+    const parsedDescription = foundry.utils.getProperty(parent, "description") as string | undefined;
+    const actionDescription = parent.isAction
+      ? parsedDescription?.trim() || definition.description?.trim() || ""
+      : "";
+    const source = snippet || actionDescription;
+    if (!source) return;
+
+    const ddbData = foundry.utils.getProperty(parent, "ddbData") as IDDBData | undefined;
+    const feature = (foundry.utils.getProperty(parent, "ddbFeature") as TDDBFeatureMixinAll | undefined) ?? definition;
+    const value = DDBTemplateStrings.parseSnippet({ ddbData, rawCharacter, text: source, feature });
+
+    this.data.description ??= {};
+    this.data.description.value = value;
+    const inherited = foundry.utils.getProperty(parent, "_inheritedActivityDescriptions") as Set<string> | undefined;
+    inherited?.add(value);
   }
 
   _generateEnchant(): void {
@@ -606,6 +645,7 @@ export default class DDBBasicActivity {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
     }
     if (img) foundry.utils.setProperty(this.data, "img", img);
+    this._generateSnippetDescription();
     if (data) foundry.utils.mergeObject(this.data, data);
 
   }

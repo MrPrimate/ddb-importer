@@ -11,9 +11,10 @@ export default class Lycanthrope extends DDBEnricherData {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return Lycanthrope.CLAW_ABILITIES.map((ability) => {
+      const name = `Claws (${ability === "str" ? "Str." : "Dex."})`;
       return {
         init: {
-          name: `Claws (${ability === "str" ? "Str." : "Dex."})`,
+          name,
           type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
@@ -53,6 +54,9 @@ export default class Lycanthrope extends DDBEnricherData {
               types: ["slashing"],
             }),
           ],
+        },
+        overrides: {
+          useActivitySnippet: true,
         },
       };
     });

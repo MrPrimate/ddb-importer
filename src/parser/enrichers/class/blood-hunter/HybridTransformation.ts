@@ -162,6 +162,7 @@ export default class HybridTransformation extends DDBEnricherData {
         },
         overrides: {
           id: HybridTransformation.BLOODLUST_ID,
+          useActivitySnippet: true,
           targetType: "self",
           noConsumeTargets: true,
           data: {

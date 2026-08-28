@@ -45,6 +45,7 @@ export default class TakeGhastlyForm extends DDBEnricherData {
         },
         overrides: {
           id: "ddbUnnervingAura",
+          useActivitySnippet: true,
           data: {
             save: {
               ability: ["wis"],

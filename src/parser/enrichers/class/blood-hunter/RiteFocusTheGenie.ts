@@ -14,6 +14,7 @@ export default class RiteFocusTheGenie extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
+      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "bonus",

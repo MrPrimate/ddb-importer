@@ -72,6 +72,49 @@ export default class FeyStep extends DDBEnricherData {
       },
       {
         init: {
+          name: "Spring (Teleport)",
+          type: DDBEnricherData.ACTIVITY_TYPES.TELEPORT,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateDamage: false,
+          generateRange: true,
+          generateTarget: true,
+        },
+        overrides: {
+          noConsumeTargets: true,
+          activationType: "special",
+          data: {
+            teleport: {
+              override: true,
+              value: "30",
+            },
+            range: {
+              override: true,
+              value: "5",
+              units: "ft",
+              special: "",
+            },
+            target: {
+              override: true,
+              prompt: false,
+              affects: {
+                count: "1",
+                type: "creature",
+                special: "One willing creature you touch within 5 feet.",
+              },
+              template: {},
+            },
+            duration: {
+              override: true,
+              units: "inst",
+            },
+          },
+        },
+      },
+      {
+        init: {
           name: "Summer (Damage)",
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },

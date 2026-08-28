@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { parseTags, parseDamageRolls, parseToHitRoll } from "../../../src/parser/lib/DDBReferenceLinker";
+import { parseTags, parseDamageRolls, parseMonsterDescription, parseToHitRoll } from "../../../src/parser/lib/DDBReferenceLinker";
 import { setMockSettings } from "../../_setup/foundryMocks";
 
 const globals: any = globalThis;
@@ -230,5 +230,23 @@ describe("parseToHitRoll", () => {
   it("ignores text without an attack preamble", () => {
     const text = "The creature bites for 1d6 damage.";
     expect(parseToHitRoll({ text, document: {} as any })).toBe(text);
+  });
+});
+
+describe("parseMonsterDescription", () => {
+  it("applies the shared monster attack, damage, and tag linking pipeline", async () => {
+    setLooseMatching(false);
+    const actor = {
+      name: "Test Monster",
+      system: { source: { rules: "2024" } },
+      flags: { ddbimporter: { is2024: true } },
+    } as any;
+    const text = "<em>Melee Weapon Attack:</em> +5 to hit, reach 5 ft., one target. Hit: 7 (2d6) piercing damage. [rule]Advantage[/rule].";
+
+    const result = await parseMonsterDescription({ text, document: {} as any, actor });
+
+    expect(result).toContain("[[/attack extended]]");
+    expect(result).toContain("[[/damage 2d6 type=piercing average=true]]");
+    expect(result).toContain("&Reference[advantage]{Advantage}");
   });
 });

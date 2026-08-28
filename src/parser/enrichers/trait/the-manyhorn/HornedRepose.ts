@@ -13,6 +13,7 @@ export default class HornedRepose extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Horned Repose (Str.)",
+      useActivitySnippet: true,
       targetType: "creature",
       activationType: "reaction",
       activationCondition: "An enemy within 5 ft misses you with a melee attack",
@@ -44,6 +45,7 @@ export default class HornedRepose extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Horned Repose (Dex.)",
+          useActivitySnippet: true,
           data: {
             attack: {
               ability: "dex",

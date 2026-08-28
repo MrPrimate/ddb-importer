@@ -9,6 +9,7 @@ export default class NobleScion extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Activate Noble Scion",
+      useActivitySnippet: true,
       addItemConsume: true,
       targetType: "self",
       activationType: "bonus",

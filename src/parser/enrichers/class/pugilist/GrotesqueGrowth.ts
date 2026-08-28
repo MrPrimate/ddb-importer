@@ -10,6 +10,7 @@ export default class GrotesqueGrowth extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Grotesque Growth",
+      useActivitySnippet: true,
       targetType: "self",
       addItemConsume: true,
       activationType: "special",

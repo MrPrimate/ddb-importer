@@ -1376,6 +1376,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.data.system.identifier = this.identifier;
 
     this._reconcileDeferredConsumption();
+    this._finaliseActivityDescriptions();
 
     if (this.ddbDefinition.hintImage) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split("?")[0]);

@@ -9,6 +9,7 @@ export default class AncientProtector extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Vengeance of the Elders",
+      useActivitySnippet: true,
       targetType: "creature",
       activationType: "reaction",
       activationCondition: "A creature covered in Elderwood Sap within your reach makes an attack roll",

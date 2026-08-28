@@ -10,6 +10,7 @@ export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Live Fast, Be a Good Looking Corpse: Rapidity",
+      useActivitySnippet: true,
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,

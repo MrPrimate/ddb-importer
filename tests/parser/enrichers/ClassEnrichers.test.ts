@@ -703,6 +703,177 @@ describe("toggle-gated features build their own activities", () => {
   });
 });
 
+describe("toggle-gated helpers retain their DDB action snippets", () => {
+  const CASES: [string, any, [string, string][]][] = [
+    ["barbarian VitalityOfTheTree", ClassEnrichers.Barbarian.VitalityOfTheTree,
+      [["Life-Giving Force", "Life-Giving Force"]]],
+    ["blood hunter HybridTransformation", ClassEnrichers.BloodHunter.HybridTransformation,
+      [["Bloodlust", "Bloodlust"]]],
+    ["druid PetalDance", ClassEnrichers.Druid.PetalDance, [
+      ["Petal Dance: Lunge", "Petal Dance: Lunge"],
+      ["Petal Dance: Protection", "Petal Dance: Protection"],
+    ]],
+    ["druid SymbioticBiosphere", ClassEnrichers.Druid.SymbioticBiosphere,
+      [["Symbiotic Biosphere: Retaliate", "Symbiotic Biosphere: Retaliate"]]],
+    ["kindred FightingFury", ClassEnrichers.Kindred.FightingFury,
+      [["Fighting Fury: Swiftness", "Fighting Fury: Swiftness"]]],
+    ["kindred ProteanRewards", ClassEnrichers.Kindred.ProteanRewards, [[
+      "Gifts of Survival: Feral Fortitude (Flesh of Marble)",
+      "Gifts of Survival: Feral Fortitude (Flesh of Marble)",
+    ]]],
+    ["paladin AvatarOfNourishment", ClassEnrichers.Paladin.AvatarOfNourishment, [
+      ["Avatar of Nourishment: Restoration", "Avatar of Nourishment: Restoration"],
+      ["Avatar of Nourishment: Temp HP", "Avatar of Nourishment: Restoration"],
+      ["Avatar of Nourishment: Protection", "Avatar of Nourishment: Protection"],
+    ]],
+    ["paladin BurningSpirit", ClassEnrichers.Paladin.BurningSpirit, [
+      ["Vengeful Flame", "Vengeful Flame"],
+      ["Restore Burning Spirit", "Restore Burning Spirit"],
+    ]],
+    ["paladin MythicSwashbuckler", ClassEnrichers.Paladin.MythicSwashbuckler, [
+      ["Dash", "Dash"],
+      ["Disengage", "Disengage"],
+      ["Swashbuckler Advantage", "Swashbuckler Advantage"],
+    ]],
+    ["paladin PartyAnimal", ClassEnrichers.Paladin.PartyAnimal, [
+      ["Aura of Fraternity: Party Animal", "Aura of Fraternity: Party Animal"],
+      ["Grant Heroic Inspiration", "Grant Heroic Inspiration"],
+    ]],
+    ["pugilist DreadHand", ClassEnrichers.Pugilist.DreadHand,
+      [["Whirlwind of Violence", "Whirlwind of Violence"]]],
+    ["ranger FifthManifestation", ClassEnrichers.Ranger.FifthManifestation,
+      [["5th Manifestation: Corruption Strike", "5th Manifestation: Corruption Strike"]]],
+    ["ranger Lycanthrope", ClassEnrichers.Ranger.Lycanthrope, [
+      ["Claws (Str.)", "Claws (Str.)"],
+      ["Claws (Dex.)", "Claws (Dex.)"],
+    ]],
+    ["ranger TakeGhastlyForm", ClassEnrichers.Ranger.TakeGhastlyForm,
+      [["Unnerving Aura", "Unnerving Aura"]]],
+    ["ranger WrathOfTheWild", ClassEnrichers.Ranger.WrathOfTheWild,
+      [["Unnerving Aura", "Unnerving Aura"]]],
+    ["sorcerer SandForm", ClassEnrichers.Sorcerer.SandForm,
+      [["Sand Form (Damage Resistance)", "Sand Form (Damage Resistance)"]]],
+  ];
+
+  it.each(CASES)("%s selects the source action for every synthesized helper", (_label, Enricher, expected) => {
+    const hints = build(Enricher).additionalActivities;
+    // `true` derives the lookup from the activity name (and the parser type),
+    // so the effective lookup name is the init/overrides name in that case.
+    const lookups = hints
+      .filter((hint: any) => hint.overrides?.useActivitySnippet)
+      .map((hint: any) => [
+        hint.init.name,
+        hint.overrides.useActivitySnippet === true
+          ? hint.overrides.name ?? hint.init.name
+          : hint.overrides.useActivitySnippet.name,
+      ]);
+
+    expect(lookups).toEqual(expected);
+  });
+});
+
+describe("formatted-section fallback helpers", () => {
+  it.each([
+    ["druid WoodWose", ClassEnrichers.Druid.WoodWose, "Elderwood Sap"],
+    ["paladin NobleScion", ClassEnrichers.Paladin.NobleScion, "Minor Wish"],
+    ["pugilist DreadHand", ClassEnrichers.Pugilist.DreadHand, "Revenging Strike"],
+    ["pugilist DreadHand", ClassEnrichers.Pugilist.DreadHand, "Unslakeable Bloodlust"],
+  ] as [string, any, string][])("%s lets %s use the parent section fallback", (_label, Enricher, name) => {
+    const hint = build(Enricher).additionalActivities.find((entry: any) => entry.init?.name === name);
+
+    expect(hint).toBeDefined();
+    expect(hint.overrides?.useActivitySnippet).toBeUndefined();
+  });
+});
+
+describe("primary activities with narrower DDB action snippets", () => {
+  const CASES: [string, any, string][] = [
+    ["barbarian ManeuverShapeOfTheBehemoth", ClassEnrichers.Barbarian.ManeuverShapeOfTheBehemoth,
+      "Embody Behemoth"],
+    ["barbarian Permafrost", ClassEnrichers.Barbarian.Permafrost, "Extend Rage"],
+    ["bard DazzlingFootwork", ClassEnrichers.Bard.DazzlingFootwork, "Bardic Damage"],
+    ["bard UnbreakableMajesty", ClassEnrichers.Bard.UnbreakableMajesty, "Assume Unbreakable Majesty"],
+    ["blood hunter AetherWalk", ClassEnrichers.BloodHunter.AetherWalk, "Aether Walk"],
+    ["blood hunter BloodCurseOfBinding", ClassEnrichers.BloodHunter.BloodCurseOfBinding,
+      "Blood Curse of Binding"],
+    ["blood hunter BloodCurseOfBloatedAgony", ClassEnrichers.BloodHunter.BloodCurseOfBloatedAgony,
+      "Blood Curse of Bloated Agony"],
+    ["blood hunter BloodCurseOfCorrosion", ClassEnrichers.BloodHunter.BloodCurseOfCorrosion,
+      "Blood Curse of Corrosion"],
+    ["blood hunter BloodCurseOfExposure", ClassEnrichers.BloodHunter.BloodCurseOfExposure,
+      "Blood Curse of Exposure"],
+    ["blood hunter BloodCurseOfTheAnxious", ClassEnrichers.BloodHunter.BloodCurseOfTheAnxious,
+      "Blood Curse of the Anxious"],
+    ["blood hunter BloodCurseOfTheExorcist", ClassEnrichers.BloodHunter.BloodCurseOfTheExorcist,
+      "Blood Curse of the Exorcist"],
+    ["blood hunter BloodCurseOfTheFallenPuppet", ClassEnrichers.BloodHunter.BloodCurseOfTheFallenPuppet,
+      "Blood Curse of the Fallen Puppet"],
+    ["blood hunter BloodCurseOfTheMarked", ClassEnrichers.BloodHunter.BloodCurseOfTheMarked,
+      "Blood Curse of the Marked"],
+    ["blood hunter BloodCurseOfTheSouleater", ClassEnrichers.BloodHunter.BloodCurseOfTheSouleater,
+      "Blood Curse of the Souleater"],
+    ["blood hunter RiteFocusTheArchfey", ClassEnrichers.BloodHunter.RiteFocusTheArchfey,
+      "Rite Focus - The Archfey"],
+    ["blood hunter RiteFocusTheCelestial", ClassEnrichers.BloodHunter.RiteFocusTheCelestial,
+      "Rite Focus - The Celestial"],
+    ["blood hunter RiteFocusTheFathomless", ClassEnrichers.BloodHunter.RiteFocusTheFathomless,
+      "Rite Focus - The Fathomless"],
+    ["blood hunter RiteFocusTheGenie", ClassEnrichers.BloodHunter.RiteFocusTheGenie,
+      "Rite Focus - The Genie"],
+    ["blood hunter RiteFocusTheGreatOldOne", ClassEnrichers.BloodHunter.RiteFocusTheGreatOldOne,
+      "Rite Focus - The Great Old One"],
+    ["blood hunter RiteFocusTheHexblade", ClassEnrichers.BloodHunter.RiteFocusTheHexblade,
+      "Rite Focus - The Hexblade"],
+    ["blood hunter RiteFocusTheUndead", ClassEnrichers.BloodHunter.RiteFocusTheUndead,
+      "Rite Focus - The Undead"],
+    ["blood hunter RiteFocusTheUndying", ClassEnrichers.BloodHunter.RiteFocusTheUndying,
+      "Rite Focus - The Undying"],
+    ["druid AncientProtector", ClassEnrichers.Druid.AncientProtector, "Vengeance of the Elders"],
+    ["druid PetalDance", ClassEnrichers.Druid.PetalDance, "Conjure Petals"],
+    ["druid StarryForm", ClassEnrichers.Druid.StarryForm, "Assume Starry Form"],
+    ["druid SymbioticBiosphere", ClassEnrichers.Druid.SymbioticBiosphere,
+      "Symbiotic Biosphere: Release Pheromones"],
+    ["druid WoodWose", ClassEnrichers.Druid.WoodWose, "Wood Wose"],
+    ["kindred LiveFastBeAGoodLookingCorpse", ClassEnrichers.Kindred.LiveFastBeAGoodLookingCorpse,
+      "Live Fast, Be a Good Looking Corpse: Rapidity"],
+    ["kindred ProteanRewards", ClassEnrichers.Kindred.ProteanRewards,
+      "Protean Rewards: Flesh of Marble"],
+    ["paladin AvatarOfNourishment", ClassEnrichers.Paladin.AvatarOfNourishment, "Avatar of Nourishment"],
+    ["paladin BurningSpirit", ClassEnrichers.Paladin.BurningSpirit, "Activate Burning Spirit"],
+    ["paladin MythicSwashbuckler", ClassEnrichers.Paladin.MythicSwashbuckler, "Mythic Swashbuckler"],
+    ["paladin NobleScion", ClassEnrichers.Paladin.NobleScion, "Activate Noble Scion"],
+    ["paladin PartyAnimal", ClassEnrichers.Paladin.PartyAnimal, "Imbue Aura of Protection"],
+    ["pugilist GrotesqueGrowth", ClassEnrichers.Pugilist.GrotesqueGrowth, "Grotesque Growth"],
+    ["ranger FifthManifestation", ClassEnrichers.Ranger.FifthManifestation, "5th Manifestation"],
+    ["ranger SetTrapMiasma", ClassEnrichers.Ranger.SetTrapMiasma, "Create Magical Trap"],
+    ["ranger WrathOfTheWild", ClassEnrichers.Ranger.WrathOfTheWild, "Take Ghastly Form"],
+    ["sorcerer InnateSorcery", ClassEnrichers.Sorcerer.InnateSorcery, "Innate Sorcery"],
+  ];
+
+  it.each(CASES)("%s selects %s", (_label, Enricher, name) => {
+    const activity = build(Enricher).activity;
+    const hint = activity.useActivitySnippet;
+    // `true` derives the lookup name from the activity's own name; the object
+    // form is retained where the activity name is not the action name.
+    const lookupName = hint === true ? activity.name : hint?.name;
+
+    expect(hint).toBeTruthy();
+    expect(lookupName).toBe(name);
+  });
+
+  it.each([
+    ["barbarian BolsteringMagic", ClassEnrichers.Barbarian.BolsteringMagic],
+    ["fighter ActionSurge", ClassEnrichers.Fighter.ActionSurge],
+    ["monk HandOfHealing", ClassEnrichers.Monk.HandOfHealing],
+    ["monk HandOfUltimateMercy", ClassEnrichers.Monk.HandOfUltimateMercy],
+    ["paladin DreadLord", ClassEnrichers.Paladin.DreadLord],
+    ["paladin FormOfTheRiver", ClassEnrichers.Paladin.FormOfTheRiver],
+    ["sorcerer SandForm", ClassEnrichers.Sorcerer.SandForm],
+  ] as [string, any][])("%s keeps the complete parent feature snippet", (_label, Enricher) => {
+    expect(build(Enricher).activity.useActivitySnippet).toBeUndefined();
+  });
+});
+
 describe("ranger FoeSlayer", () => {
   const Enricher = ClassEnrichers.Ranger.FoeSlayer;
 
@@ -780,6 +951,20 @@ describe("rogue Psychic Teleportation", () => {
   it("keeps the planner free when the action activities are folded into Soul Blades", () => {
     const e = build(ClassEnrichers.Rogue.SoulBlades);
     expect(e.override.ignoredConsumptionActivities).toEqual(["Psychic Teleportation"]);
+  });
+
+  it.each([
+    [false, "Psychic Blades: Homing Strikes"],
+    [true, "Soul Blades: Homing Strikes"],
+  ])("loads the %s Homing Strikes action's unique snippet onto the copied activity", (is2014, name) => {
+    const [homingStrikes] = build(ClassEnrichers.Rogue.SoulBlades, { is2014 }).additionalActivities;
+
+    expect(homingStrikes).toMatchObject({
+      action: { name, type: "class" },
+      overrides: {
+        useActivitySnippet: { name, type: "class" },
+      },
+    });
   });
 });
 

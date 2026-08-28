@@ -139,6 +139,8 @@ declare global {
     "ddb-importer.patreon-tier": string;
     "ddb-importer.custom-proxy": boolean;
     "ddb-importer.encounter-muncher-enabled": boolean;
+    "ddb-importer.enable-ddb-macro-region-behaviors": boolean;
+    "ddb-importer.add-ddb-snippets-to-activities": boolean;
     "ddb-importer.developer-mode": boolean;
     "ddb-importer.add-ddb-languages": boolean;
     "ddb-importer.add-ddb-tools": boolean;

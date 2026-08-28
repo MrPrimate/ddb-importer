@@ -10,6 +10,7 @@ export default class PartyAnimal extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Imbue Aura of Protection",
+      useActivitySnippet: true,
       targetType: "self",
       addItemConsume: true,
       activationType: "bonus",
@@ -49,6 +50,9 @@ export default class PartyAnimal extends DDBEnricherData {
             name: "Roll",
           },
         },
+        overrides: {
+          useActivitySnippet: true,
+        },
       },
       {
         init: {
@@ -67,6 +71,9 @@ export default class PartyAnimal extends DDBEnricherData {
             value: null,
             condition: "At the start of each of your turns",
           },
+        },
+        overrides: {
+          useActivitySnippet: true,
         },
       },
     ];

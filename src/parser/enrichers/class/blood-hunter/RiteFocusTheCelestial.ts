@@ -15,6 +15,7 @@ export default class RiteFocusTheCelestial extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
+      useActivitySnippet: true,
       targetType: "creature",
       targetCount: 1,
       rangeType: "ft",

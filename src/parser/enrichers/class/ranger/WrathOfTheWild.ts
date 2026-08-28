@@ -9,6 +9,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return  {
       name: "Take Ghastly Form",
+      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "bonus",
@@ -46,6 +47,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
         },
         overrides: {
           id: "ddbUnnervingAura",
+          useActivitySnippet: true,
           data: {
             save: {
               ability: ["wis"],

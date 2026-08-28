@@ -14,6 +14,7 @@ export default class ManeuverShapeOfTheBehemoth extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Embody Behemoth",
+      useActivitySnippet: true,
       activationType: "action",
       targetType: "self",
       data: {

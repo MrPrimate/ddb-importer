@@ -168,6 +168,404 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
     expect(activity._id).toBe("newIdAbcdef12345");
   });
 
+  describe("activity snippets", () => {
+    function withActions(actions: IDDBAction[]) {
+      const getActions = vi.fn().mockReturnValue(actions);
+      const enricher = makeEnricher({
+        ddbParser: {
+          originalName: "Test Feature",
+          type: "class",
+          ddbData: {
+            character: {
+              options: { race: [], class: [], feat: [] },
+            },
+          },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+          ddbCharacter: {
+            _characterFeatureFactory: { getActions },
+          },
+        },
+      });
+      return { enricher, getActions };
+    }
+
+    function action(fields: Partial<IDDBAction> = {}): IDDBAction {
+      return {
+        id: 1,
+        name: "Matched Action",
+        description: "The action description.",
+        snippet: "The action snippet.",
+        entityTypeId: 1,
+        actionType: 1,
+        attackTypeRange: null,
+        attackSubtype: null,
+        dice: null,
+        value: null,
+        damageTypeId: null,
+        isMartialArts: false,
+        isProficient: true,
+        displayAsAttack: false,
+        abilityModifierStatId: null,
+        saveStatId: null,
+        fixedSaveDc: null,
+        fixedToHit: null,
+        saveFailDescription: null,
+        saveSuccessDescription: null,
+        onMissDescription: null,
+        numberOfTargets: null,
+        spellRangeType: null,
+        ammunition: null,
+        componentId: 1,
+        componentTypeId: 1,
+        activation: { activationTime: 1, activationType: 1 },
+        range: {
+          range: null,
+          longRange: null,
+          aoeType: null,
+          aoeSize: null,
+          hasAoeSpecialDescription: false,
+          minimumRange: null,
+        },
+        limitedUse: null,
+        ...fields,
+      };
+    }
+
+    it("keeps useActivitySnippet inert while the setting is disabled", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": false });
+      const { enricher, getActions } = withActions([action()]);
+      const activity = makeActivity({ description: { value: "Existing activity text." } });
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Matched Action", type: "class" },
+      });
+
+      expect(getActions).not.toHaveBeenCalled();
+      expect(activity.description.value).toBe("Existing activity text.");
+    });
+
+    it("uses the shared action lookup and prefers its snippet", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher, getActions } = withActions([action({
+        snippet: "The action snippet has {{fixedvalue:7}} parts.",
+      })]);
+      const activity = makeActivity();
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Matched Action", type: "class" },
+      });
+
+      expect(getActions).toHaveBeenCalledWith({ name: "Matched Action", type: "class" });
+      expect(activity.description.value).toBe("<p>The action snippet has [[7]] parts.</p>");
+    });
+
+    it("falls back to the matched action description", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher } = withActions([action({
+        snippet: null,
+        description: "The action description has {{fixedvalue:3}} parts.",
+      })]);
+      const activity = makeActivity();
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Matched Action", type: "class" },
+      });
+
+      expect(activity.description.value).toBe("<p>The action description has [[3]] parts.</p>");
+    });
+
+    it("leaves the activity unchanged when the action is missing", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher } = withActions([]);
+      const activity = makeActivity({ description: { value: "Existing activity text." } });
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Missing Action", type: "feat" },
+      });
+
+      expect(activity.description.value).toBe("Existing activity text.");
+    });
+
+    it("derives the lookup from the activity name and parser type for the true shorthand", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher, getActions } = withActions([action()]);
+      const activity = makeActivity();
+
+      await enricher._applyActivityDataOverride(activity, {
+        name: "Matched Action",
+        useActivitySnippet: true,
+      });
+
+      expect(getActions).toHaveBeenCalledWith({ name: "Matched Action", type: "class" });
+      expect(activity.description.value).toBe("<p>The action snippet.</p>");
+    });
+
+    it("derives the parser type for a name-only lookup", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher, getActions } = withActions([action()]);
+      const activity = makeActivity({ name: "Some Other Name" });
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Matched Action" },
+      });
+
+      expect(getActions).toHaveBeenCalledWith({ name: "Matched Action", type: "class" });
+      expect(activity.description.value).toBe("<p>The action snippet.</p>");
+    });
+
+    it("lets explicit data override the selected action snippet while retaining chat flavor", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const { enricher } = withActions([action()]);
+      const activity = makeActivity({ description: { chatFlavor: "Trigger text" } });
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { name: "Matched Action", type: "class" },
+        data: { description: { value: "Explicit activity instructions." } },
+      });
+
+      expect(activity.description).toEqual({
+        chatFlavor: "Trigger text",
+        value: "Explicit activity instructions.",
+      });
+    });
+
+    it("narrows an inherited feature snippet to the activity-named description section", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const description = [
+        "<p><strong>Replenishing Meal.</strong> As part of a Short Rest, prepare food for",
+        "{{fixedvalue:4}} + your Proficiency Bonus creatures. A creature that spends Hit Dice",
+        "regains an extra 1d8 HP.</p>",
+        "<p><strong>Bolstering Treats.</strong> Prepare special treats.</p>",
+      ].join(" ");
+      const enricher = makeEnricher({
+        ddbParser: {
+          originalName: "Chef",
+          isAction: false,
+          ddbDefinition: { name: "Chef", snippet: "The complete Chef ability.", description },
+          ddbData: { character: { options: { race: [], class: [], feat: [] } } },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+        },
+      });
+      const activity = makeActivity({
+        name: "Replenishing Meal",
+        description: { value: "The complete Chef ability." },
+      });
+
+      await enricher._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value).toBe([
+        "<p>As part of a Short Rest, prepare food for [[4]] + your Proficiency Bonus creatures.",
+        "A creature that spends Hit Dice regains an extra 1d8 HP.</p>",
+      ].join(" "));
+    });
+
+    // DDB snippets are inline html whose paragraph breaks are literal blank lines, so a
+    // snippet section is reachable and is shorter than the description's equivalent.
+    const CHEF_SNIPPET = [
+      "You have taken up cooking as a hobby.",
+      "<strong>Ability Score Increase.</strong> Increase your Con. or Wis. by 1.",
+      "<strong>Bolstering Treats.</strong> Cook {{fixedvalue:2}} special treats.",
+    ].join("\r\n\r\n");
+
+    function makeChefEnricher() {
+      return makeEnricher({
+        ddbParser: {
+          originalName: "Chef",
+          isAction: false,
+          ddbDefinition: { name: "Chef", snippet: CHEF_SNIPPET, description: "<p>The full Chef rules.</p>" },
+          ddbData: { character: { options: { race: [], class: [], feat: [] } } },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+        },
+      });
+    }
+
+    it("narrows an inherited snippet to a section whose label the activity name contains", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({
+        name: "Create Bolstering Treats",
+        description: { value: CHEF_SNIPPET },
+      });
+
+      await makeChefEnricher()._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value).toBe("<p>Cook [[2]] special treats.</p>");
+    });
+
+    it("uses an explicitly named section for an activity named nothing like it", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Eat Treat", description: { value: CHEF_SNIPPET } });
+
+      await makeChefEnricher()._applyActivityDataOverride(activity, {
+        useActivitySnippet: { section: "Bolstering Treats" },
+      });
+
+      expect(activity.description.value).toBe("<p>Cook [[2]] special treats.</p>");
+    });
+
+    it("leaves the inherited text alone when a named section is missing", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Eat Treat", description: { value: CHEF_SNIPPET } });
+
+      await makeChefEnricher()._applyActivityDataOverride(activity, {
+        useActivitySnippet: { section: "Replenishing Meal" },
+      });
+
+      expect(activity.description.value).toBe(CHEF_SNIPPET);
+    });
+
+    it("does not replace an activity-builder description with an extracted section", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const enricher = makeEnricher({
+        ddbParser: {
+          originalName: "Test Feature",
+          isAction: false,
+          ddbDefinition: {
+            name: "Test Feature",
+            snippet: "Parent snippet.",
+            description: "<p><strong>Use Feature.</strong> Extracted rules.</p>",
+          },
+          ddbData: { character: { options: { race: [], class: [], feat: [] } } },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+        },
+      });
+      const activity = makeActivity({
+        name: "Use Feature",
+        description: { value: "Explicit activity-builder rules." },
+      });
+
+      await enricher._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value).toBe("Explicit activity-builder rules.");
+    });
+
+    // A race trait that is also a DDB action (Fey Step) ships as the ACTION document, so
+    // narrowing has to work there too - it is only the activity representing the action
+    // itself that must keep the action's own snippet.
+    const FEY_STEP_DESCRIPTION = [
+      "<p>As a bonus action, you can magically teleport up to 30 feet.</p>",
+      "<p><strong>Autumn.</strong> Up to two creatures must succeed on a save or be charmed.</p>",
+      "<p><strong>Summer.</strong> Each creature takes {{fixedvalue:1}} fire damage.</p>",
+    ].join("\r\n");
+    const FEY_STEP_SNIPPET = "As a bonus action, you can teleport up to 30 ft.";
+
+    function makeFeyStepEnricher() {
+      return makeEnricher({
+        ddbParser: {
+          originalName: "Fey Step",
+          isAction: true,
+          ddbDefinition: { name: "Fey Step", snippet: FEY_STEP_SNIPPET, description: FEY_STEP_DESCRIPTION },
+          ddbData: { character: { options: { race: [], class: [], feat: [] } } },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+        },
+      });
+    }
+
+    it("narrows a secondary activity of an action document to its own section", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Autumn (Save)", description: { value: FEY_STEP_SNIPPET } });
+
+      await makeFeyStepEnricher()._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value)
+        .toBe("<p>Up to two creatures must succeed on a save or be charmed.</p>");
+    });
+
+    it("keeps the action snippet on the activity that represents the action itself", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Fey Step (Teleport)", description: { value: FEY_STEP_SNIPPET } });
+
+      await makeFeyStepEnricher()._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value).toBe(FEY_STEP_SNIPPET);
+    });
+
+    it("does not use the section fallback for action-derived activities", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const enricher = makeEnricher({
+        ddbParser: {
+          originalName: "Use Feature",
+          isAction: true,
+          ddbDefinition: {
+            name: "Use Feature",
+            snippet: "Unique action snippet.",
+            description: "<p><strong>Use Feature.</strong> Extracted feature rules.</p>",
+          },
+          rawCharacter: { type: "character" },
+        },
+      });
+      const activity = makeActivity({
+        name: "Use Feature",
+        description: { value: "Unique action snippet." },
+      });
+
+      await enricher._applyActivityDataOverride(activity, {});
+
+      expect(activity.description.value).toBe("Unique action snippet.");
+    });
+
+    it("checks synthesized additional activities even when they have no overrides", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const data = makeDocument({ system: { activities: {}, description: { value: "Feature rules." } } });
+      const ddbParser: any = {
+        data,
+        originalName: "Test Feature",
+        isAction: false,
+        ddbDefinition: {
+          name: "Test Feature",
+          snippet: "Complete feature snippet.",
+          description: [
+            "<p><strong>Primary Activity.</strong> Primary rules.</p>",
+            "<p><strong>Additional Activity.</strong> Additional rules.</p>",
+          ].join(""),
+        },
+        rawCharacter: { type: "character" },
+      };
+      class ActivityGenerator {
+        data: any;
+
+        constructor({ name }: { name: string }) {
+          this.data = makeActivity({
+            _id: "additionalAct123",
+            name,
+            description: { value: "Complete feature snippet." },
+          });
+        }
+
+        build(): void {}
+      }
+      const enricher = makeEnricher({
+        activityGenerator: ActivityGenerator,
+        ddbParser,
+        document: data,
+        loadedEnricher: {
+          additionalActivities: [{
+            init: { name: "Additional Activity", type: "utility" },
+            build: {},
+          }],
+        },
+      });
+
+      await enricher._addActivityHintAdditionalActivities(ddbParser);
+
+      expect(data.system.activities.additionalAct123.description.value).toBe("<p>Additional rules.</p>");
+    });
+  });
+
   describe("parent overrides", () => {
     it("merges a parent whose lookupName matches the document", async () => {
       const e = makeEnricher();
@@ -822,5 +1220,33 @@ describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
 
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
+  });
+
+  it("preserves a generated action activity's snippet description when copying it", async () => {
+    const source = makeActivity({
+      _id: "utilitySource123",
+      name: "Grotesque Growth",
+      description: { value: "The parsed DDB action snippet." },
+    });
+    const e = makeEnricher({
+      ddbParser: {
+        originalName: "Grotesque Growth",
+        ddbCharacter: {
+          _characterFeatureFactory: {
+            getActions: () => [{ name: "Grotesque Growth" }],
+            getFeatureFromAction: async () => ({
+              system: { activities: { utilitySource123: source } },
+              effects: [],
+            }),
+          },
+        },
+      },
+    });
+
+    const result = await e._getActivityDataFromAction({ name: "Grotesque Growth", type: "class" }, 0);
+    const [copied] = Object.values(result.activities) as any[];
+
+    expect(copied.description.value).toBe("The parsed DDB action snippet.");
+    expect(copied).not.toBe(source);
   });
 });
