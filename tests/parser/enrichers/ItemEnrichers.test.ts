@@ -380,8 +380,8 @@ describe("unarmed magic items", () => {
     expect((enchantEffect.changes ?? []).map((c: any) => `${c.key}=${c.value}`)).toEqual([
       "system.damage.base.number=1",
       "system.damage.base.denomination=8",
+      "system.damage.base.custom.enabled=false",
       "system.damage.base.types=slashing",
-      // a "-" prefixed value removes the entry from the Set
       "system.damage.base.types=-bludgeoning",
     ]);
     // the Unarmed Strike item's weapon type is "natural", which is what the restriction matches
