@@ -1101,6 +1101,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainUseSpent", true);
     }
 
+    if (override.retainActivityUseSpent) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.retainActivityUseSpent", override.retainActivityUseSpent);
+    }
+
     // an override carrying no data must not wipe the uses the parser generated
     if (override.uses && !foundry.utils.isEmpty(override.uses)) {
       foundry.utils.setProperty(this.data, "system.uses", override.uses);

@@ -335,12 +335,22 @@ global {
     forceSpellAdvancement?: boolean;
     descriptionSuffix?: string;
     ddbMacroDescription?: boolean;
+    // keep the consumption targets and uses recovery already on the document in the
+    // world, and skip resource linking for it entirely
     retainResourceConsumption?: boolean;
     ignoredConsumptionActivities?: string[];
     noConsumeTargetActivities?: string[];
+    // when resource linking attaches this document to a parent pool, push the parent
+    // link ALONGSIDE the activity's own consumption targets instead of replacing them.
+    // this does not retain uses; see retainUseSpent / retainActivityUseSpent
     retainOriginalConsumption?: boolean;
+    // stop resource linking blanking system.uses (both spent and max) on this document
     retainChildUses?: boolean;
+    // carry system.uses.spent over from the previously imported document
     retainUseSpent?: boolean;
+    // carry activity level uses.spent over from the previously imported document.
+    // true covers every activity with its own uses, an array selects them by name
+    retainActivityUseSpent?: boolean | string[];
     uses?: I5eSystemLimitedUses | I5eConsumableUses;
     // To Do add a data object here with flags
     data?: Record<string, any>;

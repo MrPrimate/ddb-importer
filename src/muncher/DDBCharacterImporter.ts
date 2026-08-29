@@ -528,7 +528,7 @@ ${itemDescription.chat}
         foundry.utils.setProperty(item, "flags.ddbimporter.matchedImg", existingItem.img);
         foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
       }
-      if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
+      if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
         if ("activities" in item.system && "activities" in existingItem.system) {
           for (const [key, activity] of Object.entries(item.system.activities)) {
@@ -548,9 +548,15 @@ ${itemDescription.chat}
         }
       }
       if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
-        if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
+        if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainUseSpent") ?? false) {
           item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
         }
+      }
+      const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
+        ddbItemFlags, item, "retainActivityUseSpent",
+      );
+      if (retainActivitySpent) {
+        DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {

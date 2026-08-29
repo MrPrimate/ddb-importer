@@ -86,6 +86,7 @@ export default class Chef extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       retainOriginalConsumption: true,
+      retainUseSpent: true,
       data: {
         system: {
           uses: {

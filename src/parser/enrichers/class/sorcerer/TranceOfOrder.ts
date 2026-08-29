@@ -64,6 +64,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     return {
       replaceActivityUses: true,
       retainOriginalConsumption: true,
+      retainUseSpent: true,
       uses: {
         spent: null,
         max: "1",

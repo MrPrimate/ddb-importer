@@ -869,6 +869,12 @@ global {
     ignoreItemForChrisPremades?: boolean;
     ignoreIcon?: boolean;
     retainResourceConsumption?: boolean;
+    retainOriginalConsumption?: boolean;
+    retainChildUses?: boolean;
+    retainUseSpent?: boolean;
+    retainActivityUseSpent?: boolean | string[];
+    ignoredConsumptionActivities?: string[];
+    consumptionValue?: string;
     parentId?: string;
 
     // Monster feature flags (stamped on monster feature items)

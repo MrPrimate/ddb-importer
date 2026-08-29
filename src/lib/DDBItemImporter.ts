@@ -206,6 +206,54 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   }
 
 
+  /**
+   * Resolve a retain style flag for a matched item.
+   */
+  static retainFlagValue<T>(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments, flag: string): T | undefined {
+    const parsed = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`) as T | undefined;
+    if (parsed !== undefined && parsed !== null && parsed !== false) return parsed;
+    return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
+  }
+
+  /**
+   * Copy activity level uses.spent over from the previously imported document.
+   *
+   * Independent of the item level retainUseSpent: an activity can carry its own uses
+   * pool while the item has none, and vice versa.
+   *
+   * Activity ids are generated deterministically from the activity name
+   * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
+   * an activity changes its id, so fall back to matching on name rather than silently
+   * dropping the play state.
+   */
+  static restoreActivityUseSpent(existingItem: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+    if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    const names = Array.isArray(selection) ? selection : null;
+    if (names && names.length === 0) return;
+
+    for (const activity of Object.values(item.system.activities)) {
+      if (names && !names.includes(activity.name ?? "")) continue;
+      // an activity with no max of its own has no meaningful spent value
+      const max = activity.uses?.max;
+      if (!activity.uses || max === undefined || max === null || `${max}`.trim() === "") continue;
+
+      const original = existingItem.system.activities[activity._id ?? ""]
+        ?? Object.values(existingItem.system.activities).find((existing) =>
+          Boolean(activity.name) && existing.name === activity.name,
+        );
+      const spent = original?.uses?.spent;
+      if (typeof spent !== "number") continue;
+
+      const literalMax = (/^\d+$/).test(`${max}`.trim())
+        ? Number.parseInt(`${max}`.trim())
+        : null;
+      activity.uses.spent = literalMax === null
+        ? Math.max(spent, 0)
+        : Math.min(Math.max(spent, 0), literalMax);
+      logger.debug(`Retaining activity uses for ${item.name}: ${activity.name} spent ${activity.uses.spent}`);
+    }
+  }
+
   static updateCharacterItemFlags(itemData: TAll5eDocuments, replaceData: TAll5eDocuments): TAll5eDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") === replaceData._id;

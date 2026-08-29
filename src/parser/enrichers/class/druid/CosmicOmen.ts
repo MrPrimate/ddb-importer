@@ -30,6 +30,7 @@ export default class CosmicOmen extends DDBEnricherData {
         recovery: [{ period: "lr", type: "recoverAll", formula: "" }],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 

@@ -55,6 +55,7 @@ export default class HuntersPrey extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHuntersPrey">
 <p><strong>Implementation Details</strong></p>

@@ -1087,6 +1087,7 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
       retainOriginalConsumption: true,
       retainChildUses: true,
       retainUseSpent: true,
+      retainActivityUseSpent: true,
       ignoredConsumptionActivities: ["Second Wind"],
     });
     const result = await e.addDocumentOverride();
@@ -1097,8 +1098,15 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
       retainOriginalConsumption: true,
       retainChildUses: true,
       retainUseSpent: true,
+      retainActivityUseSpent: true,
       ignoredConsumptionActivities: ["Second Wind"],
     });
+  });
+
+  it("keeps the activity name list form of retainActivityUseSpent", async () => {
+    const e = makeOverrideEnricher({ retainActivityUseSpent: ["Concoct Elixir"] });
+    const result = await e.addDocumentOverride();
+    expect(result.flags.ddbimporter.retainActivityUseSpent).toEqual(["Concoct Elixir"]);
   });
 
   it("applies rangeSelf and noTemplate to the document system", async () => {

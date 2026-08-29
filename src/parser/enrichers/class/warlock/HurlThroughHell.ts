@@ -72,6 +72,7 @@ export default class HurlThroughHell extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 

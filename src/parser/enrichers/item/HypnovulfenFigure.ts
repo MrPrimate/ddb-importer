@@ -66,6 +66,7 @@ export default class HypnovulfenFigure extends DDBEnricherData {
       };
 
     return {
+      retainActivityUseSpent: ["Cursed Hunger"],
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbFigure">
 <p><strong>Implementation Details</strong></p>
@@ -123,5 +124,7 @@ export default class HypnovulfenFigure extends DDBEnricherData {
       },
     ];
   }
+
+  g
 
 }

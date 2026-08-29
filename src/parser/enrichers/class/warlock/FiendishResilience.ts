@@ -30,6 +30,7 @@ export default class FiendishResilience extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 

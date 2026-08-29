@@ -7,6 +7,23 @@ const notReplace = {
 };
 
 
+/**
+ * The uses update applied to a child document when it is linked to a parent resource pool.
+ *
+ * Returns null when nothing should be written.
+ */
+function _childUsesUpdate(child: I5ePCConsumptionItems): { spent: number | null; max: string } | null {
+  if (foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) return null;
+  const retainSpent = foundry.utils.getProperty(child, "flags.ddbimporter.retainUseSpent") ?? false;
+  return {
+    spent: retainSpent
+      ? foundry.utils.getProperty(child, "system.uses.spent") as number ?? null
+      : null,
+    max: "",
+  };
+}
+
+
 DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates(this: DDBCharacter): Promise<Partial<I5ePCConsumptionItems>[]> {
   if (!this.currentActor) {
     logger.warn("Unable to link spell consumption, no current actor");
@@ -51,11 +68,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         system: {},
       };
 
-      if (!foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) {
-        update.system["uses"] = {
-          spent: null,
-          max: "",
-        };
+      const usesUpdate = _childUsesUpdate(child);
+      if (usesUpdate) {
+        update.system["uses"] = usesUpdate;
       }
       if (spellData.nameUpdate) {
         update.name = spellData.nameUpdate;
@@ -109,11 +124,9 @@ function _generateChildUpdate({ child, parent }: {
     _id: child._id,
   };
   foundry.utils.setProperty(update, "system", {});
-  if (!foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) {
-    (update.system as Record<string, any>)["uses"] = {
-      spent: null,
-      max: "",
-    };
+  const usesUpdate = _childUsesUpdate(child);
+  if (usesUpdate) {
+    (update.system as Record<string, any>)["uses"] = usesUpdate;
   }
   if (!("activities" in child.system)) return update;
   const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;

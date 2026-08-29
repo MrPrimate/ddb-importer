@@ -31,6 +31,7 @@ export default class ThrillOfTheHunt extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 
