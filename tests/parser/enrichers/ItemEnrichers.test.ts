@@ -368,7 +368,7 @@ describe("unarmed magic items", () => {
   });
 
   it("splits Demon Padded Armor between a rule and an enchantment", () => {
-    const enricher = build(ItemEnrichers.DemonPaddedArmor, { name: "Demon Padded Armor" });
+    const enricher = build(ItemEnrichers.DemonArmor, { name: "Demon Padded Armor" });
     const [bonusEffect, enchantEffect] = enricher.effects;
 
     // the +1 needs no user action
@@ -418,5 +418,69 @@ describe("unarmed magic items", () => {
     expect(enricher.effects[0].type).toBe("enchant");
     expect(enricher.effects[0].options.durationSeconds).toBe(3600);
     expect((enricher.effects[0].changes ?? []).map((c: any) => c.value)).toContain("slashing");
+  });
+});
+
+// The item parser carries at most one save and parses no checks at all, so an
+// item describing a second roll needs an enricher to build it. See
+// docs/multi-roll-items.md for the rest of the candidates.
+describe("items with more than one roll", () => {
+  it("gives Muscle Graft both of its Constitution saves", () => {
+    const enricher = build(ItemEnrichers.MuscleGraft, { name: "Muscle Graft" });
+
+    // DDB writes this one as a "save" rather than a "saving throw"
+    expect(enricher.activity.name).toBe("Attunement Save");
+    expect(enricher.activity.data.save).toMatchObject({ ability: ["con"], dc: { formula: "15" } });
+
+    expect(enricher.additionalActivities).toHaveLength(1);
+    const curse = enricher.additionalActivities[0];
+    expect(curse.init.name).toBe("Curse: Weekly Save");
+    expect(curse.build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "10" } });
+
+    // the failed attunement save costs 2 Constitution; the minimum of 1 is manual
+    expect(enricher.effects[0]).toMatchObject({ activityMatch: "Attunement Save" });
+    expect(enricher.effects[0].changes).toEqual([
+      expect.objectContaining({ key: "system.abilities.con.value", value: "-2" }),
+    ]);
+  });
+
+  it("puts the Sugarbomb's bite check in front of its nausea save", () => {
+    const enricher = build(ItemEnrichers.EverlastingSugarbomb, { name: "Everlasting Sugarbomb" });
+
+    expect(enricher.type).toBe("check");
+    // check.ability is a single StringField, so the "or Constitution" half of the
+    // choice lives in the activation condition
+    expect(enricher.activity.data.check).toMatchObject({ ability: "str", dc: { formula: "25" } });
+    expect(enricher.activity.activationCondition).toContain("Constitution");
+
+    expect(enricher.additionalActivities[0].init.name).toBe("Nausea Save");
+    expect(enricher.additionalActivities[0].build.saveOverride).toMatchObject({
+      ability: ["con"],
+      dc: { formula: "16" },
+    });
+    expect(enricher.effects[0]).toMatchObject({
+      statuses: ["Poisoned"],
+      activityMatch: "Nausea Save",
+      options: { durationSeconds: 60 },
+    });
+  });
+
+  it("adds the Sphere of Annihilation's control check without touching its save", () => {
+    const enricher = build(ItemEnrichers.SphereOfAnnihilation, { name: "Sphere of Annihilation" });
+
+    // the Dexterity save and its damage differ between printings and both parse
+    // correctly, so the enricher only names it
+    expect(enricher.activity).toEqual({
+      name: "Touched by the Sphere",
+      activationCondition: "A creature's space the sphere enters",
+    });
+
+    const control = enricher.additionalActivities[0];
+    expect(control.init).toMatchObject({ name: "Control the Sphere", type: "check" });
+    expect(control.build.checkOverride).toMatchObject({
+      ability: "int",
+      associated: ["arc"],
+      dc: { formula: "25" },
+    });
   });
 });

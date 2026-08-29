@@ -82,6 +82,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static POTIONS = DICTIONARY.equipment.POTIONS;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
+  /** Alternation of the six ability long names, for the save-parsing regexes. */
+  static SAVE_ABILITY_NAMES = DICTIONARY.actor.abilities.map((ability) => ability.long).join("|");
+
+  /**
+   * Map long ability names captured from a description to system keys, dropping
+   * anything that is not one of the six abilities. `save.ability` is a choice
+   * list, so "Strength or Dexterity saving throw" legitimately yields two.
+   */
+  static saveAbilityKeys(...names: (string | undefined)[]): string[] {
+    return names.reduce((keys: string[], name) => {
+      const key = DICTIONARY.actor.abilities.find((ability) => ability.long === name?.toLowerCase())?.value;
+      if (key && !keys.includes(key)) keys.push(key);
+      return keys;
+    }, []);
+  }
+
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
   // never populated for items; activity generation guards its reads
@@ -417,7 +433,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return duration;
   }
 
-  #generateSave() {
+  /**
+   * Read a save out of an item's rules text, or null when it names none.
+   *
+   * The ability is matched by name rather than captured with a wildcard. A
+   * wildcard swallows the "DC 15 " prefix of the usual phrasing, and the
+   * three-character truncation that followed turned it into a bogus "dc "
+   * ability; it also let a lazy match reach across a sentence and pair a DC
+   * with an ability from somewhere else entirely.
+   *
+   * DDB text writes the roll as both "saving throw" and the "save" shorthand
+   * ("must succeed on a DC 15 Constitution save"), so both are accepted.
+   *
+   * Where an item describes several saves - a magic item with two properties -
+   * the explicit-DC form wins, so that the ability and the DC at least come
+   * from the same sentence. An item whose two saves both matter needs an
+   * enricher; see docs/multi-roll-items.md.
+   */
+  static parseSaveFromDescription(description: string): I5eActivitySave | null {
     const save = {
       ability: [] as string[],
       dc: {
@@ -425,23 +458,37 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         formula: "",
       },
     } satisfies I5eActivitySave;
+    let found = false;
+    const abilities = DDBItem.SAVE_ABILITY_NAMES;
 
-    const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
-    if (spellSaveCheck && spellSaveCheck[1]) {
-      save.ability.push(spellSaveCheck[1].toLowerCase().substring(0, 3));
-      if (spellSaveCheck[2]) {
-        save.dc.calculation = "spellcasting";
-      }
-      this.actionData.save = save;
+    // "succeed on a Dexterity saving throw against your spell save DC", and the
+    // far more common "succeed on a DC 15 Dexterity saving throw"
+    const spellSaveExpression
+      = new RegExp(`succeed on an? (?:DC (\\d+) )?(${abilities})(?: or (${abilities}))? sav(?:e|ing throw)( against your spell save DC)?`, "i");
+    const spellSaveCheck = description.match(spellSaveExpression);
+    if (spellSaveCheck) {
+      save.ability = DDBItem.saveAbilityKeys(spellSaveCheck[2], spellSaveCheck[3]);
+      if (spellSaveCheck[4]) save.dc.calculation = "spellcasting";
+      else if (spellSaveCheck[1]) save.dc.formula = spellSaveCheck[1];
+      found = true;
     }
 
-    const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
-    if (saveCheck && saveCheck[2]) {
-      save.ability.push(saveCheck[2].toLowerCase().substring(0, 3));
+    // any other phrasing carrying an explicit DC: "must make a DC 15 Dexterity saving throw"
+    const saveExpression = new RegExp(`DC (\\d+) (${abilities})(?: or (${abilities}))? sav(?:e|ing throw)`, "i");
+    const saveCheck = description.match(saveExpression);
+    if (saveCheck) {
+      save.ability = DDBItem.saveAbilityKeys(saveCheck[2], saveCheck[3]);
       save.dc.formula = `${saveCheck[1]}`;
       save.dc.calculation = "";
-      this.actionData.save = save;
+      found = true;
     }
+
+    return found ? save : null;
+  }
+
+  #generateSave() {
+    const save = DDBItem.parseSaveFromDescription(this.ddbDefinition.description ?? "");
+    if (save) this.actionData.save = save;
   }
 
   #generateActivityActivation() {

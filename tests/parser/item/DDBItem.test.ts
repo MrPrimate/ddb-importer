@@ -576,3 +576,64 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     expect(result.charges).toBe(1);
   });
 });
+
+// =============================================================================
+// parseSaveFromDescription - save.ability may only ever hold 5e ability keys.
+// The wildcard capture this replaced produced "dc " from "DC 15 Dexterity", and
+// its lazy match paired DCs with abilities from unrelated sentences.
+// =============================================================================
+describe("DDBItem.parseSaveFromDescription", () => {
+  it.each([
+    // the common phrasing, which used to yield ["dc ", "dex"]
+    ["must succeed on a DC 15 Dexterity saving throw or take 5d4 force damage", ["dex"], "15", ""],
+    ["must make a DC 15 Dexterity saving throw", ["dex"], "15", ""],
+    ["must succeed on an Intelligence saving throw against your spell save DC", ["int"], "", "spellcasting"],
+    // save.ability is a choice list, so both halves of an either/or belong in it
+    ["must make a DC 16 Strength or Dexterity saving throw", ["str", "dex"], "16", ""],
+    // DDB text is not reliably capitalised
+    ["must succeed on a DC 12 wisdom saving throw", ["wis"], "12", ""],
+    // DDB writes the roll both ways; Muscle Graft uses the "save" shorthand
+    ["you must succeed on a DC 15 Constitution save", ["con"], "15", ""],
+    ["each creature makes a DC 10 Charisma save", ["cha"], "10", ""],
+  ])("reads %s", (description, ability, formula, calculation) => {
+    expect(DDBItem.parseSaveFromDescription(description)).toEqual({
+      ability,
+      dc: { formula, calculation },
+    });
+  });
+
+  it.each([
+    // an ability check, which the lazy wildcard used to reach past into a later save
+    ["A DC 24 Dexterity (Acrobatics) check ends the effect. It must make a saving throw."],
+    // "death" and "saving" are not abilities; these produced "dea" and "sav"
+    ["must succeed on a death saving throw"],
+    ["must make a DC 13 saving throw of your choice"],
+    // a bare parenthesised DC names no ability at all
+    ["you can cast one of the following spells (save DC 18)"],
+    ["A perfectly ordinary hat."],
+  ])("finds no save in %s", (description) => {
+    expect(DDBItem.parseSaveFromDescription(description)).toBeNull();
+  });
+
+  it("never emits an ability outside the six", () => {
+    const abilities = ["str", "dex", "con", "int", "wis", "cha"];
+    for (const description of [
+      "must succeed on a DC 15 Dexterity saving throw",
+      "must make a DC 16 Strength or Dexterity saving throw",
+      "must succeed on a Charisma saving throw against your spell save DC",
+    ]) {
+      const save = DDBItem.parseSaveFromDescription(description);
+      expect(save?.ability?.every((ability) => abilities.includes(ability))).toBe(true);
+    }
+  });
+
+  it("pairs the ability with the DC from its own sentence when an item has two saves", () => {
+    // Banjo of Ol' Jericho Sticks: a Wisdom save with a formula DC, and a
+    // separate DC 19 Charisma save on another property
+    const save = DDBItem.parseSaveFromDescription(
+      "The target must succeed on a Wisdom saving throw (DC = 16 + the banjo's bonus) or have the Charmed condition."
+      + " Birdcage. You can force a creature you have Charmed to make a DC 19 Charisma saving throw.",
+    );
+    expect(save).toEqual({ ability: ["cha"], dc: { formula: "19", calculation: "" } });
+  });
+});
