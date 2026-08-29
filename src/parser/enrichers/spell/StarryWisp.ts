@@ -7,8 +7,8 @@ export default class StarryWisp extends DDBEnricherData {
       {
         options: {
           durationSeconds: 6,
-          expiry: "turnEnd",
         },
+        daeSpecialDurations: ["turnEndSource"],
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.dim"),
           DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),

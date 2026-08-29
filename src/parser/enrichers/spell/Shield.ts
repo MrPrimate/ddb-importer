@@ -11,7 +11,7 @@ export default class Shield extends DDBEnricherData {
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("water-field"),
         ],
-        daeSpecialDurations: ["turnStart"],
+        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

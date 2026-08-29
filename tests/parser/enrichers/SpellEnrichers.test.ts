@@ -714,3 +714,113 @@ describe("native teleport spell activities", () => {
     expect(travel.overrides).toMatchObject({ noConsumeTargets: true, noSpellslot: true });
   });
 });
+
+describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
+  // The merged spells-6.0 PR converted "next turn" rider effects to the
+  // pseudo-expiries (sourceStart/sourceEnd/targetStart/targetEnd). These pins
+  // hold our enrichers to the same anchors; end-to-end expiry values are
+  // visible in the audit JSON's effectDurations field.
+
+  it("Shield anchors on the caster's turn start", () => {
+    expect(build(SpellEnrichers.Shield).effects[0].daeSpecialDurations).toEqual(["turnStartSource"]);
+  });
+
+  it("Guiding Bolt keeps isAttacked for DAE and adds the caster's turn-end native bound", () => {
+    expect(build(SpellEnrichers.GuidingBolt).effects[0].daeSpecialDurations)
+      .toEqual(["isAttacked", "turnEndSource"]);
+  });
+
+  it("Starry Wisp's target-borne light expires on the caster's turn end", () => {
+    expect(build(SpellEnrichers.StarryWisp).effects[0].daeSpecialDurations).toEqual(["turnEndSource"]);
+  });
+
+  it("Haste explicitly suppresses description-parsed expiries on the buff and applies Lethargy separately", () => {
+    const e = build(SpellEnrichers.Haste);
+    const [buff, lethargy] = e.effects;
+    // [] is load-bearing: the lethargy sentence would otherwise be parsed onto
+    // the 1-minute buff (see DDBEnricherFactoryMixin's description-duration gate)
+    expect(buff.daeSpecialDurations).toEqual([]);
+    expect(buff.activityMatch).toBe("Cast");
+    expect(lethargy).toMatchObject({
+      name: "Lethargy",
+      activityMatch: "Apply Lethargy",
+      statuses: ["Incapacitated"],
+      daeSpecialDurations: ["turnEnd"],
+    });
+    const [apply] = e.additionalActivities;
+    expect(apply.init).toEqual({ name: "Apply Lethargy", type: "utility" });
+    expect(apply.build).toMatchObject({ noSpellslot: true, generateConsumption: false });
+  });
+
+  it("Otto's 2024 short dance uses the hint (not a raw flag) and the main effect pins the spell duration", () => {
+    const [short, main] = build(SpellEnrichers.IrresistibleDance).effects;
+    expect(short.daeSpecialDurations).toEqual(["turnEnd"]);
+    expect(short.data?.flags?.dae?.specialDuration).toBeUndefined();
+    expect(main.options.durationSeconds).toBe(60);
+  });
+
+  it("Ray of Enfeeblement 2024 bounds the save-success rider on the caster's turn start", () => {
+    const [brief] = build(SpellEnrichers.RayOfEnfeeblement).effects;
+    expect(brief.name).toBe("Briefly Enfeebled");
+    expect(brief.daeSpecialDurations).toEqual(["1Attack", "turnStartSource"]);
+  });
+
+  it("Color Spray and Ray of Sickness amend their auto condition effects with caster turn-end expiry", () => {
+    expect(build(SpellEnrichers.ColorSpray).effects[0]).toMatchObject({
+      noCreate: true,
+      daeSpecialDurations: ["turnEndSource"],
+    });
+    // 2014 Color Spray's 1-round blind is already right - no hint
+    expect(build(SpellEnrichers.ColorSpray, { is2014: true }).effects).toEqual([]);
+    for (const is2014 of [true, false]) {
+      expect(build(SpellEnrichers.RayOfSickness, { is2014 }).effects[0]).toMatchObject({
+        noCreate: true,
+        daeSpecialDurations: ["turnEndSource"],
+      });
+    }
+  });
+
+  it("Flesh to Stone 2024 gains the onSave speed-zero rider", () => {
+    const [rider] = build(SpellEnrichers.FleshToStone).effects;
+    expect(rider).toMatchObject({
+      name: "Unable to Move",
+      onSave: true,
+      daeSpecialDurations: ["turnStartSource"],
+    });
+    expect(build(SpellEnrichers.FleshToStone, { is2014: true }).effects[0].name)
+      .toBe("Flesh to Stone (Automation)");
+  });
+
+  it("Sunbeam bounds the auto Blinded effect on the caster's turn start", () => {
+    expect(build(SpellEnrichers.Sunbeam).effects[0]).toMatchObject({
+      noCreate: true,
+      daeSpecialDurations: ["turnStartSource"],
+    });
+  });
+
+  it("Power Word Stun 2024 adds the over-150-HP No Movement rider", () => {
+    expect(build(SpellEnrichers.PowerWordStun).effects[0]).toMatchObject({
+      name: "No Movement",
+      daeSpecialDurations: ["turnStartSource"],
+    });
+    expect(build(SpellEnrichers.PowerWordStun, { is2014: true }).effects).toEqual([]);
+  });
+
+  it("Shocking Grasp ships a marker effect anchored on the target's turn start", () => {
+    expect(build(SpellEnrichers.ShockingGrasp).effects[0]).toMatchObject({
+      name: "Shocked: No Opportunity Attacks",
+      daeSpecialDurations: ["turnStart"],
+    });
+    expect(build(SpellEnrichers.ShockingGrasp, { is2014: true }).effects[0].name)
+      .toBe("Shocked: No Reactions");
+  });
+
+  it("Blink ships a disabled Ethereal marker expiring at the caster's turn start", () => {
+    expect(build(SpellEnrichers.Blink).effects[0]).toMatchObject({
+      name: "Ethereal",
+      statuses: ["Ethereal"],
+      daeSpecialDurations: ["turnStartSource"],
+      data: { disabled: true },
+    });
+  });
+});

@@ -75,16 +75,13 @@ export default class IrresistibleDance extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        data: {
-          flags: {
-            dae: {
-              specialDuration: ["turnEnd" as const],
-            },
-          },
-        },
+        daeSpecialDurations: ["turnEnd"],
       },
       {
         name: `Comic Dancing and Charmed`,
+        options: {
+          durationSeconds: 60,
+        },
         macroChanges: [
           { macroType: "spell", macroName: "irresistibleDance.js" },
         ],

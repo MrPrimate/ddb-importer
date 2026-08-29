@@ -40,4 +40,13 @@ export default class RayOfSickness extends DDBEnricherData {
     return true;
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        noCreate: true,
+        daeSpecialDurations: ["turnEndSource" as const],
+      },
+    ];
+  }
+
 }

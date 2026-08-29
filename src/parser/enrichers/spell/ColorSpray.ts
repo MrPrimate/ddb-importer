@@ -27,6 +27,16 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
+  override get effects(): IDDBEffectHint[] {
+    if (this.is2014) return [];
+    return [
+      {
+        noCreate: true,
+        daeSpecialDurations: ["turnEndSource"],
+      },
+    ];
+  }
+
   override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) {
       return {

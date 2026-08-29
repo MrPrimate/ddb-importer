@@ -32,7 +32,19 @@ export default class FleshToStone extends DDBEnricherData {
 
 
   override get effects(): IDDBEffectHint[] {
-    return [
+    const effects: IDDBEffectHint[] = [];
+    if (!this.is2014) {
+      effects.push({
+        name: "Unable to Move",
+        activityMatch: "Cast",
+        onSave: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
+        ],
+        daeSpecialDurations: ["turnStartSource"],
+      });
+    }
+    effects.push(
       {
         name: "Flesh to Stone (Automation)",
         activityMatch: "Cast",
@@ -53,7 +65,8 @@ export default class FleshToStone extends DDBEnricherData {
           },
         },
       },
-    ];
+    );
+    return effects;
   }
 
   override get itemMacro(): IDDBItemMacro {

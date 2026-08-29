@@ -831,11 +831,18 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
               foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
             }
           }
-          const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
-          foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
-          // description-parsed specials get the native duration.expiry translation too
-          if ((duration.dae ?? []).length > 0) {
-            effect = EffectGenerator.applyDaeSpecialDurations(effect, specialDurations);
+          // An enricher that declares daeSpecialDurations (even as []) owns the
+          // effect's special durations: description parsing is first-match over
+          // the WHOLE spell text, so a rider sentence can stamp the wrong effect
+          // (Haste 2024's "until the end of its next turn" lethargy clause was
+          // expiring the main 1-minute buff at the target's next turn end).
+          if (!effectHint.daeSpecialDurations) {
+            const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
+            foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
+            // description-parsed specials get the native duration.expiry translation too
+            if ((duration.dae ?? []).length > 0) {
+              effect = EffectGenerator.applyDaeSpecialDurations(effect, specialDurations);
+            }
           }
         }
 
