@@ -217,12 +217,16 @@ describe("DDBItem.getMagicItemResetType", () => {
     expect(DDBItem.getMagicItemResetType("The item regains expended charges each day at sunset.")).toBe("dusk");
   });
 
-  it("detects next dawn from can't-be-used formula", () => {
-    expect(DDBItem.getMagicItemResetType("This property can't be used this way again until the next dawn.")).toBe("Dawn");
+  it.each([
+    ["This property can't be used this way again until the next dawn.", "dawn"],
+    ["Once this property is used, it can't be used again until the next dusk.", "dusk"],
+    ["Once this property is used, it can’t be used again until the next dawn.", "dawn"],
+  ])("detects prose reset in %s", (description, expected) => {
+    expect(DDBItem.getMagicItemResetType(description)).toBe(expected);
   });
 
   it("detects long rest", () => {
-    expect(DDBItem.getMagicItemResetType("You can't use this feature again until you finish a long rest.")).toBe("LongRest");
+    expect(DDBItem.getMagicItemResetType("You can't use this feature again until you finish a long rest.")).toBe("lr");
   });
 
   it("detects short or long rest as 'sr'", () => {
@@ -555,8 +559,12 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     expect(result.charges).toBe(2);
   });
 
-  it("falls back to description when useDescription is empty", () => {
-    const mock = makeItemMock("This property can\u2019t be used this way again until the next dawn.");
+  it.each([
+    "This property can't be used this way again until the next dawn.",
+    "Once this property is used, it can't be used again until the next dusk.",
+    "Once this property is used, it can’t be used again until the next dawn.",
+  ])("falls back to per-spell wording in the item description: %s", (description) => {
+    const mock = makeItemMock(description);
     const result = mock.parsePerSpellMagicItem("");
     expect(result.isPerSpell).toBe(true);
     expect(result.charges).toBe(1);
@@ -569,9 +577,13 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     expect(result.charges).toBeNull();
   });
 
-  it("detects 'can't be used to cast that spell again' in useDescription", () => {
+  it.each([
+    "This property can’t be used to cast that spell again until the next dawn.",
+    "Once this property is used, it can't be used again until the next dusk.",
+    "Once this property is used, it can’t be used again until the next dawn.",
+  ])("detects per-spell wording in useDescription: %s", (useDescription) => {
     const mock = makeItemMock("");
-    const result = mock.parsePerSpellMagicItem("This property can\u2019t be used to cast that spell again until the next dawn.");
+    const result = mock.parsePerSpellMagicItem(useDescription);
     expect(result.isPerSpell).toBe(true);
     expect(result.charges).toBe(1);
   });

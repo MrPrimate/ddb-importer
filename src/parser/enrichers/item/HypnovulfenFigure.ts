@@ -106,7 +106,7 @@ export default class HypnovulfenFigure extends DDBEnricherData {
               "units": "inst",
             },
             "uses": {
-              "spent": 99, // TO DO - the uses should be retained
+              "spent": 99,
               "recovery": [],
               "max": "99",
             },
@@ -124,7 +124,5 @@ export default class HypnovulfenFigure extends DDBEnricherData {
       },
     ];
   }
-
-  g
 
 }

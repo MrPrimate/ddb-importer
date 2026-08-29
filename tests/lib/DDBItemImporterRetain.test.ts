@@ -134,6 +134,31 @@ describe("DDBItemImporter.restoreActivityUseSpent", () => {
     expect(item.system.activities.ddbConcoctElixir.uses.spent).toBe(0);
   });
 
+  it("reads a live document, whose activities are a Map not a plain object", () => {
+    // an owned Item's system.activities is an ActivityCollection: keyed access and
+    // Object.values both come back empty, so the source data has to be taken first
+    const activities = new Map([
+      ["ddbCursedHunger", makeActivity({ id: "ddbCursedHunger", name: "Cursed Hunger", max: "99", spent: 15 })],
+    ]);
+    const existing = {
+      name: "Hypnovulfen Figure",
+      type: "equipment",
+      flags: { ddbimporter: { retainActivityUseSpent: ["Cursed Hunger"] } },
+      system: { activities },
+      toObject: () => ({
+        name: "Hypnovulfen Figure",
+        type: "equipment",
+        flags: { ddbimporter: { retainActivityUseSpent: ["Cursed Hunger"] } },
+        system: { activities: Object.fromEntries(activities) },
+      }),
+    } as any;
+    const item = makeItem({ activities: { ddbCursedHunger: makeActivity({ id: "ddbCursedHunger", name: "Cursed Hunger", max: "99", spent: 99 }) } });
+
+    DDBItemImporter.restoreActivityUseSpent(existing, item, ["Cursed Hunger"]);
+
+    expect(item.system.activities.ddbCursedHunger.uses.spent).toBe(15);
+  });
+
   it("does nothing for documents without activities", () => {
     const existing = { name: "Potion", type: "consumable", flags: {}, system: { uses: { max: "1", spent: 1 } } } as any;
     const item = { name: "Potion", type: "consumable", flags: {}, system: { uses: { max: "1", spent: 0 } } } as any;

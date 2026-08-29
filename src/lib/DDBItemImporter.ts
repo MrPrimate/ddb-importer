@@ -207,6 +207,18 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
 
 
   /**
+   * Take the source data of a document that may be live.
+   *
+   * A live Item's system.activities is an ActivityCollection (a Map subclass), so both
+   * keyed access and Object.values come back empty on it, and deep cloning one clones
+   * data models rather than data. Plain objects pass through untouched.
+   */
+  static sourceData<T>(document: T): T {
+    const toObject = (document as { toObject?: () => T } | undefined)?.toObject;
+    return typeof toObject === "function" ? toObject.call(document) : document;
+  }
+
+  /**
    * Resolve a retain style flag for a matched item.
    */
   static retainFlagValue<T>(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments, flag: string): T | undefined {
@@ -226,7 +238,8 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
    * an activity changes its id, so fall back to matching on name rather than silently
    * dropping the play state.
    */
-  static restoreActivityUseSpent(existingItem: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+    const existingItem = DDBItemImporter.sourceData(existing);
     if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
     const names = Array.isArray(selection) ? selection : null;
     if (names && names.length === 0) return;
@@ -275,6 +288,12 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;
       if ("ability" in itemData.system && "ability" in replaceData.system) replaceData.system.ability = itemData.system.ability;
+    }
+    const retainActivitySpent = foundry.utils.getProperty(itemData, "flags.ddbimporter.retainActivityUseSpent") as boolean | string[] | undefined;
+    if (retainActivitySpent && "activities" in itemData.system && "activities" in replaceData.system) {
+      DDBItemImporter.restoreActivityUseSpent(
+        itemData as TAll5eItemDocuments, replaceData as TAll5eItemDocuments, retainActivitySpent,
+      );
     }
     if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
       replaceData.system.levels = itemData.system.levels;

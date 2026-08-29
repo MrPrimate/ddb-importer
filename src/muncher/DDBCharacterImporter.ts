@@ -500,7 +500,11 @@ ${itemDescription.chat}
     return remappedItems;
   }
 
-  static restoreDDBMatchedFlags(existingItem: I5ePCItem, item: I5ePCItem) {
+  static restoreDDBMatchedFlags(existing: I5ePCItem, item: I5ePCItem) {
+    // the match comes from the actor's embedded collection, so it is a live Item: its
+    // system.activities is an ActivityCollection that neither keyed access nor
+    // Object.values can read, and its system deep clones as data models
+    const existingItem = DDBItemImporter.sourceData(existing);
     const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags;
     logger.debug(`Item flags for ${existingItem.name}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
@@ -521,7 +525,7 @@ ${itemDescription.chat}
     // some items get ignored completly, if so we don't match these
     if (!(foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false)) {
       logger.debug(`Updating ${item.name} with id`);
-      item["_id"] = foundry.utils.getProperty(existingItem, "id") as string
+      item["_id"] = foundry.utils.getProperty(existing, "id") as string
         ?? foundry.utils.getProperty(existingItem, "_id") as string;
       if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);

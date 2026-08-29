@@ -1795,31 +1795,26 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
+    const normalizedDescription = description.replaceAll("’", "'");
 
     const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
     const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
-    const chargeNextDawnFormula = /can't be used this way again until the next (dawn|dusk)/i;
+    const chargeNextDawnFormula = /can't be used (?:this way )?again until the next (dawn|dusk)/i;
 
-    const chargeMatch = chargeMatchFormula.exec(description);
-    const untilMatch = usedAgainFormula.exec(description);
-    const dawnMatch = chargeNextDawnFormula.exec(description);
+    const chargeMatch = chargeMatchFormula.exec(normalizedDescription);
+    const untilMatch = usedAgainFormula.exec(normalizedDescription);
+    const dawnMatch = chargeNextDawnFormula.exec(normalizedDescription);
 
     if (chargeMatch && chargeMatch[1] && ["dawn", "dusk"].includes(chargeMatch[1].toLowerCase())) {
       resetType = chargeMatch[1].toLowerCase() as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1] && ["sunset"].includes(chargeMatch[1].toLowerCase())) {
       resetType = "dusk";
     } else if (dawnMatch && dawnMatch[1]) {
-      resetType = utils.capitalize(dawnMatch[1].toLowerCase()) as TLimitedUsePeriod;
+      resetType = dawnMatch[1].toLowerCase() as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1]) {
       resetType = "day";
     } else if (untilMatch && untilMatch[1]) {
-      switch (untilMatch[1]) {
-        case "short or long":
-          resetType = "sr";
-          break;
-        default:
-          resetType = utils.capitalize(`${untilMatch[1]}Rest`) as TLimitedUsePeriod;
-      }
+      resetType = untilMatch[1].startsWith("short") ? "sr" : "lr";
     }
 
     // console.warn("reset type", {
@@ -2799,13 +2794,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       isPerSpell: false,
       charges: null,
     };
-    const limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
+    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast that spell again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
-      if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'"))) {
+      if (limitedUseRegex.test(this.ddbDefinition.description.replaceAll("’", "'"))) {
         result.isPerSpell = true;
         result.charges = 1;
         return result;
@@ -2821,13 +2816,31 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     if (!match) {
-      if (limitedUseRegex.test(useDescription.replace("’", "'"))) {
+      if (limitedUseRegex.test(useDescription.replaceAll("’", "'"))) {
         result.isPerSpell = true;
         result.charges = 1;
       }
     }
 
     return result;
+  }
+
+  #getSpellReset(): { period: TLimitedUsePeriod | undefined; isCharges: boolean } {
+    const itemLimitedUse = this.ddbItem.limitedUse;
+    if (itemLimitedUse) {
+      const reset = itemLimitedUse.resetType
+        ? DICTIONARY.resets.find((candidate) => candidate.id == itemLimitedUse.resetType)
+        : undefined;
+      return {
+        period: reset?.value,
+        isCharges: reset?.isCharges ?? false,
+      };
+    }
+
+    return {
+      period: DDBItem.getMagicItemResetType(this.ddbDefinition.description) ?? undefined,
+      isCharges: true,
+    };
   }
 
 
@@ -2880,12 +2893,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.data.system.uses = foundry.utils.deepClone(usesOverride);
     }
 
-    const itemLimitedUse = this.ddbItem.limitedUse;
-    const resetType = itemLimitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == itemLimitedUse.resetType,
-      )?.value ?? undefined
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
     const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionData.consumptionValue ?? 1}`;
@@ -2893,7 +2901,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // spells manage charges
       usesOverride.max = maxNumberConsumed;
       usesOverride.recovery.push({
-        period: resetType ?? null,
+        period: reset.period ?? null,
         type: "recoverAll",
       });
     }
@@ -2984,12 +2992,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const itemLimitedUse = this.ddbItem.limitedUse;
-    const resetType = itemLimitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == itemLimitedUse.resetType,
-      )
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const maxActivityUses = spellData.limitedUse?.maxUses && spellData.limitedUse?.maxUses > 0 ? `${spellData.limitedUse.maxUses}` : "1";
 
@@ -2997,7 +3000,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spent: 0,
       recovery: [
         {
-          period: resetType?.value ?? null,
+          period: reset.period ?? null,
           type: "recoverAll",
         },
       ],
@@ -3075,7 +3078,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : "";
       activity.consumption.spellSlot = false;
 
-      if (this.perSpell.isPerSpell && resetType?.isCharges) {
+      if (this.perSpell.isPerSpell && reset.isCharges) {
         activity.uses = activityUses;
       }
 
@@ -3116,12 +3119,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const itemLimitedUse = this.ddbItem.limitedUse;
-    const resetType = itemLimitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == itemLimitedUse.resetType,
-      )?.value ?? undefined
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const uses = {
       spent: 0,
@@ -3133,7 +3131,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // spells manage charges
       uses.max = spellData.limitedUse?.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
       uses.recovery.push({
-        period: resetType ?? null,
+        period: reset.period ?? null,
         type: "recoverAll",
       });
 
@@ -3167,7 +3165,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       : { calculation: "spellcasting", formula: "" };
 
     // console.warn(`Spell update details for ${spell.name}`, {
-    //   resetType,
+    //   reset,
     //   uses,
     //   activityConsumptionTarget,
     //   saveDC,
