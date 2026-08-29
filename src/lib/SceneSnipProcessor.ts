@@ -52,10 +52,16 @@ export default class SceneSnipProcessor {
   }
 
   static async setSnips(scene: any, snips: SceneSnipConfig[]): Promise<void> {
-    await scene.setFlag("snipsnipsnip", "snips", snips);
-    // Clear legacy ddbimporter flags once migrated to the new namespace
+    await scene.update({
+      flags: {
+        snipsnipsnip: {
+          snips,
+        },
+      },
+    });
+    // Clear only the legacy snips flag once migrated to the new namespace;
     if (scene.flags?.ddbimporter?.snips) {
-      await scene.update({ [`flags.-=ddbimporter`]: null });
+      await scene.update({ "flags.ddbimporter.-=snips": null });
     }
   }
 

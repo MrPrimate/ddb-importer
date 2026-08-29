@@ -1,6 +1,7 @@
 # Next Up
 
 - Some 2024 Companions would incorrectly type Damage immunities as custom conditions. (Reanimator companion). @redarchongaming
+- Scene Snip Processor Improvements
 
 # 7.4.3
 
