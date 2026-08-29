@@ -207,12 +207,8 @@ export const SRD_EFFECTS = {
     fly: { id: "h8FIaFzsQaEWAlAj", name: "Fly Speed" },
     swim: { id: "gw5xaEbysuecB0k8", name: "Swim Speed" },
   },
-  /**
-   * Spell-specific effects added by dnd5e PR #7332 ("Update spells to take advantage of 6.0 features").
-   * Not in a released pack yet; resolve to nothing until the PR lands.
-   */
   spells: {
-    silenced: { id: "phbeffSilenced00", name: "Silenced" },
     auraOfLife: { id: "phbeffAuraLife00", name: "Aura of Life" },
+    silenced: { id: "phbeffSilenced00", name: "Silenced" },
   },
 } as const;

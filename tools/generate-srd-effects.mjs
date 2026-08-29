@@ -41,6 +41,8 @@ const CATEGORIES = [
   ["skill-advantage", "skillAdvantage", (slug) => SKILLS[slug.replace("-advantage", "")]],
   ["skill-disadvantage", "skillDisadvantage", (slug) => SKILLS[slug.replace("-disadvantage", "")]],
   ["speeds", "speeds", (slug) => slug.replace("-speed", "")],
+  // Spell-specific effects landed with dnd5e PR #7332 ("Update spells to take advantage of 6.0 features").
+  ["spells", "spells", (slug) => slug.replace(/-([a-z])/g, (_m, c) => c.toUpperCase())],
 ];
 
 const QUOTES = /^["']|["']$/g;
@@ -77,15 +79,7 @@ for (const [folder, category, keyFor] of CATEGORIES) {
   }
   lines.push("  },");
 }
-lines.push(`  /**
-   * Spell-specific effects added by dnd5e PR #7332 ("Update spells to take advantage of 6.0 features").
-   * Not in a released pack yet; resolve to nothing until the PR lands.
-   */
-  spells: {
-    silenced: { id: "phbeffSilenced00", name: "Silenced" },
-    auraOfLife: { id: "phbeffAuraLife00", name: "Aura of Life" },
-  },
-} as const;
+lines.push(`} as const;
 `);
 fs.writeFileSync(OUT, lines.join("\n"));
 process.stdout.write(`wrote ${OUT}\n`);
