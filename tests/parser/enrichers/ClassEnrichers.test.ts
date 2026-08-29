@@ -446,6 +446,19 @@ describe("kindred BloodPotency", () => {
   });
 });
 
+describe("Kindred class feature consumption targets", () => {
+  const CONSUMERS = [
+    ["BurningWrath", ClassEnrichers.Kindred.BurningWrath],
+    ["FightingFury", ClassEnrichers.Kindred.FightingFury],
+    ["LiveFastBeAGoodLookingCorpse", ClassEnrichers.Kindred.LiveFastBeAGoodLookingCorpse],
+    ["ProteanRewards", ClassEnrichers.Kindred.ProteanRewards],
+  ] as const;
+
+  it.each(CONSUMERS)("%s uses the portable Blood Potency identifier", (_name, Enricher) => {
+    expect(build(Enricher).activity.itemConsumeTargetName).toBe("feat:blood-potency");
+  });
+});
+
 describe("monk ElementalAttunement", () => {
   const Enricher = ClassEnrichers.Monk.ElementalAttunement;
 

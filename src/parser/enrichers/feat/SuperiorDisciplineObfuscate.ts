@@ -11,7 +11,7 @@ export default class SuperiorDisciplineObfuscate extends DDBEnricherData {
       activationType: "special",
       activationCondition: "When you gain the Invisible condition; expend 1 Blood Point per creature (up to 3)",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       addScalingMode: "amount",
       addConsumptionScalingMax: "3",
       data: {

@@ -39,7 +39,7 @@ export default class BadLuckCharm extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "1",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

@@ -56,7 +56,7 @@ export default class ClockworkCavalcade extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "7",
-                target: "Sorcery Points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

@@ -12,7 +12,7 @@ export default class SupremeDisciplineCelerity extends DDBEnricherData {
       activationType: "action",
       activationCondition: "Cast Haste on yourself; no lethargy when the spell ends",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       itemConsumeValue: "2",
     };
   }

@@ -13,7 +13,7 @@ export default class FightingFury extends DDBEnricherData {
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       data: {
         duration: { value: "1", units: "minute", special: "" },
       },

@@ -12,7 +12,7 @@ export default class SuperiorDisciplinePotence extends DDBEnricherData {
       activationType: "bonus",
       activationCondition: "Increase your Strength score by 1 per Blood Point expended (up to 6) for 1 hour",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       addScalingMode: "amount",
       addConsumptionScalingMax: "6",
     };

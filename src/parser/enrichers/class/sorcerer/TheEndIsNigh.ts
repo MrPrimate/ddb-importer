@@ -74,7 +74,7 @@ export default class TheEndIsNigh extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "6",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

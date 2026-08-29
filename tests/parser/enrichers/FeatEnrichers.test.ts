@@ -1,6 +1,6 @@
 import Chef from "../../../src/parser/enrichers/feat/Chef";
 import ForcefulPresenceAwe from "../../../src/parser/enrichers/feat/ForcefulPresenceAwe";
-import GreaterDisciplineAuspex from "../../../src/parser/enrichers/feat/GreaterDisciplineAuspex";
+import * as FeatEnrichers from "../../../src/parser/enrichers/feat/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -41,11 +41,35 @@ describe("advantage scoped by a change condition", () => {
   });
 
   it("gates Auspex on the two abilities, for checks and saves alike", () => {
-    const changes = makeEnricherData(GreaterDisciplineAuspex).effects[0].changes ?? [];
+    const changes = makeEnricherData(FeatEnrichers.GreaterDisciplineAuspex).effects[0].changes ?? [];
     expect(changes.map((c) => c.key)).toEqual(["check", "save"]);
     for (const change of changes) {
       expect(change).toMatchObject({ value: "1", type: "dnd5e.advantage" });
       expect(JSON.parse(String(change.conditions))).toEqual({ k: "roll.ability", o: "in", v: ["int", "wis"] });
     }
+  });
+});
+
+describe("Kindred feat consumption targets", () => {
+  const CONSUMERS = [
+    ["AlacrityBurstOfSpeed", FeatEnrichers.AlacrityBurstOfSpeed],
+    ["DaywalkerEndureRadiance", FeatEnrichers.DaywalkerEndureRadiance],
+    ["FeralWhispersCallOfTheWild", FeatEnrichers.FeralWhispersCallOfTheWild],
+    ["GreaterDisciplineAuspex", FeatEnrichers.GreaterDisciplineAuspex],
+    ["GreaterDisciplineCelerity", FeatEnrichers.GreaterDisciplineCelerity],
+    ["GreaterDisciplinePotence", FeatEnrichers.GreaterDisciplinePotence],
+    ["GreaterDisciplineProtean", FeatEnrichers.GreaterDisciplineProtean],
+    ["SuperiorDisciplineCelerity", FeatEnrichers.SuperiorDisciplineCelerity],
+    ["SuperiorDisciplineObfuscate", FeatEnrichers.SuperiorDisciplineObfuscate],
+    ["SuperiorDisciplinePotence", FeatEnrichers.SuperiorDisciplinePotence],
+    ["SupremeDisciplineAuspex", FeatEnrichers.SupremeDisciplineAuspex],
+    ["SupremeDisciplineCelerity", FeatEnrichers.SupremeDisciplineCelerity],
+    ["SupremeDisciplineFortitude", FeatEnrichers.SupremeDisciplineFortitude],
+    ["SupremeDisciplineOblivion", FeatEnrichers.SupremeDisciplineOblivion],
+    ["SupremeDisciplinePotence", FeatEnrichers.SupremeDisciplinePotence],
+  ] as const;
+
+  it.each(CONSUMERS)("%s uses the portable Blood Potency identifier", (_name, Enricher) => {
+    expect(makeEnricherData(Enricher).activity.itemConsumeTargetName).toBe("feat:blood-potency");
   });
 });

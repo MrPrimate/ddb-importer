@@ -11,7 +11,7 @@ export default class DaywalkerEndureRadiance extends DDBEnricherData {
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
     };
   }
 

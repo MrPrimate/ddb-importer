@@ -12,7 +12,7 @@ export default class SupremeDisciplineAuspex extends DDBEnricherData {
       activationType: "action",
       activationCondition: "Cast True Seeing on yourself",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       itemConsumeValue: "2",
     };
   }

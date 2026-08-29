@@ -50,7 +50,7 @@ export default class TranceOfOrder extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "5",
-                target: "Sorcery Points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

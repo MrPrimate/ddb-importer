@@ -12,7 +12,7 @@ export default class SuperiorDisciplineCelerity extends DDBEnricherData {
       activationType: "bonus",
       activationCondition: "Extra action usable only for Attack (one attack), Dash, Disengage, Dodge, Hide, or Utilize",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
     };
   }
 
