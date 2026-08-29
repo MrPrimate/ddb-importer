@@ -346,3 +346,77 @@ describe("ChangeHelper roll mode helpers", () => {
     });
   });
 });
+
+describe("ChangeHelper rule changes", () => {
+  it("builds a bonus rule change whose key is the category, not a data path", () => {
+    expect(ChangeHelper.ruleBonusChange("damage", "1d6")).toEqual({
+      key: "damage",
+      value: "1d6",
+      type: "dnd5e.bonus",
+      priority: 20,
+    });
+  });
+
+  it("strips a leading + from rule values", () => {
+    expect(ChangeHelper.ruleBonusChange("attack", "+ 2").value).toBe("2");
+  });
+
+  it("omits conditions unless asked for them", () => {
+    expect(ChangeHelper.ruleAdvantageChange("save").conditions).toBeUndefined();
+  });
+
+  it("serialises conditions as a JSON string", () => {
+    const change = ChangeHelper.ruleAdvantageChange("check", {
+      conditions: { k: "roll.skill", o: "in", v: ["itm", "prf", "per"] },
+    });
+    expect(change).toEqual({
+      key: "check",
+      value: "1",
+      type: "dnd5e.advantage",
+      priority: 20,
+      conditions: "{\"k\":\"roll.skill\",\"o\":\"in\",\"v\":[\"itm\",\"prf\",\"per\"]}",
+    });
+    expect(JSON.parse(change.conditions!)).toEqual({ k: "roll.skill", o: "in", v: ["itm", "prf", "per"] });
+  });
+
+  it("serialises an array of filters, which the system reads as an AND", () => {
+    const change = ChangeHelper.ruleDisadvantageChange("attack", {
+      priority: 30,
+      conditions: [{ k: "roll.attack.type", v: "ranged" }, ChangeHelper.notStatusFilter("prone")],
+    });
+    expect(change.value).toBe("-1");
+    expect(change.priority).toBe(30);
+    expect(JSON.parse(change.conditions!)).toEqual([
+      { k: "roll.attack.type", v: "ranged" },
+      { o: "NOT", v: { k: "statuses.prone", o: "gte", v: 1 } },
+    ]);
+  });
+
+  it("matches an absent status with NOT rather than a null comparison", () => {
+    expect(ChangeHelper.notStatusFilter("incapacitated")).toEqual({
+      o: "NOT",
+      v: { k: "statuses.incapacitated", o: "gte", v: 1 },
+    });
+  });
+
+  it("tests for a spell with a spell-only field, cantrips included", () => {
+    expect(ChangeHelper.SPELL_FILTER).toEqual({ k: "item.level", o: "gte", v: 0 });
+    expect(ChangeHelper.LEVELLED_SPELL_FILTER).toEqual({ k: "item.level", o: "gte", v: 1 });
+  });
+});
+
+describe("ChangeHelper.healingBonusChange", () => {
+  it("emits an unconditional healing rule by default", () => {
+    expect(ChangeHelper.healingBonusChange("1d4")).toEqual({
+      key: "healing",
+      value: "1d4",
+      type: "dnd5e.bonus",
+      priority: 20,
+    });
+  });
+
+  it("accepts a condition as its third argument", () => {
+    const change = ChangeHelper.healingBonusChange("1d4", 20, ChangeHelper.LEVELLED_SPELL_FILTER);
+    expect(JSON.parse(change.conditions!)).toEqual({ k: "item.level", o: "gte", v: 1 });
+  });
+});

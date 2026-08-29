@@ -14,6 +14,19 @@ global {
     | "dnd5e.bonus" | "dnd5e.advantage" | "dnd5e.minimum" | "dnd5e.maximum"
     | "ac5e";
   type TActiveEffectChangePhase = "initial" | "final";
+  /** Rule categories accepted as the `key` of a `dnd5e.*` rule change. */
+  type TRuleChangeCategory = "d20" | "attack" | "check" | "save" | "damage" | "healing";
+  /**
+   * One clause of a dnd5e 6.0 FiltersField (`conditions`): `k` is a dot path into the check data,
+   * `v` the comparison value and `o` the operator, defaulting to `exact`. Comparison operators are
+   * lowercase (`in`, `gte`, `has`...); the array combinators (`AND`, `OR`, `NOT`...) are uppercase
+   * and take further filters as `v`.
+   */
+  interface IEffectChangeFilter {
+    k?: string;
+    v?: unknown;
+    o?: string;
+  }
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
   /** Core combat-edge expiries. */
   type TEffectDurationExpiry = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";

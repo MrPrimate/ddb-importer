@@ -104,12 +104,14 @@ describe("Floral Dragonborn traits", () => {
 });
 
 describe("Circle of Flowers", () => {
-  it("adds a healing rule change for the Amaranth group", () => {
+  it("adds a healing rule change for the Amaranth group, gated to levelled spells", () => {
     const effects = chosen(FloralForm, "Apple Tree").effects;
     expect(effects[0]).toMatchObject({ name: "Floral Form: Apple Tree" });
     expect(effects[0].changes).toEqual([
       expect.objectContaining({ key: "healing", value: "1d4", type: "dnd5e.bonus" }),
     ]);
+    // a cantrip reports item.level 0 and non-spell healing reports no level at all
+    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "item.level", o: "gte", v: 1 });
   });
 
   it("adds the poison save advantage for the Azalea group", () => {

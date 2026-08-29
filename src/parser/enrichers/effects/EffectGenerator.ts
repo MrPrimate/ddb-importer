@@ -762,9 +762,20 @@ export default class EffectGenerator {
       "weapon-attacks",
       "system.rolls.attack.rwak.bonus",
     );
+    // `bonus/unarmed-attacks` is deliberately NOT emitted from this generic path, because every
+    // source is already handled closer to the thing it modifies and a rule here would double it:
+    //   - features: DDBAction.getBonusDamage bakes it into each martial arts activity's attack bonus
+    //   - items whose bonus is a plain number: the item's own enricher emits a conditioned rule
+    //     change (item/WrapsOfDyamak, item/DemonPaddedArmor)
+    //   - items that change the strike itself: an enchantment, because a rule cannot mutate another
+    //     item (item/WrapsOfUnarmedPower, item/EldritchClawTattoo, item/HypnovulfenFigure,
+    //     item/ShepherdsBane, item/UnarmedElementalPotion)
+    // This path cannot tell those cases apart, which is why the choice lives in the enrichers. Any
+    // new item carrying the subtype needs one of the two treatments; see
+    // docs/effect-condition-candidates.md.
   }
 
-  _damageBonus(type: I5eAttackBonusTypes, modifiers: IModifiersMod[]) {
+  _damageBonusFormula(modifiers: IModifiersMod[]): string | null {
     const bonus = modifiers
       .filter((mod) => mod.dice || mod.die || mod.value)
       .map((mod) => {
@@ -776,12 +787,40 @@ export default class EffectGenerator {
           return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined, undefined, true).diceString;
         }
       });
-    if (bonus && bonus.length > 0) {
+    return bonus.length > 0 ? bonus.join(" + ") : null;
+  }
+
+  _damageBonus(type: I5eAttackBonusTypes, modifiers: IModifiersMod[]) {
+    const bonus = this._damageBonusFormula(modifiers);
+    if (bonus) {
       logger.debug(`Generating ${type} damage for ${this.document.name}`);
-      const change = ChangeHelper.unsignedAddChange(`${bonus.join(" + ")}`, 22, `system.rolls.damage.${type}.bonus`);
+      const change = ChangeHelper.unsignedAddChange(bonus, 22, `system.rolls.damage.${type}.bonus`);
       this.effect.system.changes.push(change);
     }
   }
+
+  /**
+   * A damage bonus that only applies to some attacks. `system.rolls.damage.<type>.bonus` cannot
+   * express "in one hand" or "unarmed", so these emit a rule change instead and let the system
+   * test the filter against the attack actually being rolled. The value stays a literal formula:
+   * damage rule values are not resolved recursively, so an `@` reference would break the roll.
+   */
+  _conditionedDamageBonus(modifiers: IModifiersMod[], conditions: IEffectChangeFilter | IEffectChangeFilter[], label: string) {
+    const bonus = this._damageBonusFormula(modifiers);
+    if (!bonus) return;
+    logger.debug(`Generating ${label} damage for ${this.document.name}`);
+    this.effect.system.changes.push(ChangeHelper.ruleBonusChange("damage", bonus, { priority: 22, conditions }));
+  }
+
+  /**
+   * DDB carries these gates in the modifier subtype rather than in a restriction string, so they
+   * survive the restriction filtering and were previously flattened onto every melee or every
+   * weapon damage roll.
+   */
+  static ATTACK_MODE_DAMAGE_SUBTYPES: Record<string, IEffectChangeFilter> = {
+    "one-handed-melee-attacks": { k: "roll.attack.mode", v: "oneHanded" },
+    "unarmed-attacks": ChangeHelper.UNARMED_FILTER,
+  };
 
   _addGlobalDamageBonus() {
     // melee restricted attacks
@@ -793,19 +832,14 @@ export default class EffectGenerator {
     const rangedRestrictionMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null, rangedRestrictions);
     this._damageBonus("rwak", rangedRestrictionMods);
 
-    const DAMAGE_SUBTYPE_MAP: Record<string, I5eAttackBonusTypes[]> = {
-      "one-handed-melee-attacks": ["mwak"],
-    };
-
-    for (const [subtype, damageTypes] of Object.entries(DAMAGE_SUBTYPE_MAP)) {
-      const subTypeMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", subtype);
-      for (const damageType of damageTypes) {
-        this._damageBonus(damageType, subTypeMods);
-      }
+    const modeSubTypes = EffectGenerator.ATTACK_MODE_DAMAGE_SUBTYPES;
+    for (const [subType, conditions] of Object.entries(modeSubTypes)) {
+      const subTypeMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", subType);
+      this._conditionedDamageBonus(subTypeMods, conditions, subType);
     }
 
     const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)
-      .filter((mod) => !Object.keys(DAMAGE_SUBTYPE_MAP).includes(mod.subType))
+      .filter((mod) => !Object.keys(modeSubTypes).includes(mod.subType))
       .filter((mod) => mod.dice || mod.die || mod.value);
     if (allBonusMods.length > 0) {
       logger.debug(`Generating all damage for ${this.document.name}`);

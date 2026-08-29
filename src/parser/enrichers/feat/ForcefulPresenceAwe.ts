@@ -21,13 +21,11 @@ export default class ForcefulPresenceAwe extends DDBEnricherData {
           durationSeconds: 600,
           description: "You have Advantage on Charisma (Intimidation, Performance, and Persuasion) checks.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.itm"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.prf"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.per"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("skill.itm || skill.prf || skill.per", 20, "flags.automated-conditions-5e.check.advantage"),
+        changes: [
+          // One rule change gated on the skill being rolled
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("check", {
+            conditions: { k: "roll.skill", o: "in", v: ["itm", "prf", "per"] },
+          }),
         ],
       },
     ];

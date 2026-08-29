@@ -1567,3 +1567,31 @@ describe("native teleport class activities", () => {
     expect(teleport.overrides).toMatchObject({ noConsumeTargets: true });
   });
 });
+
+describe("barbarian DangerSense", () => {
+  /**
+   * Was AC5e only. The dnd5e 6.0 rule change carries the same predicate in a condition the
+   * system evaluates against the save being rolled, so it works with no modules installed.
+   */
+  it("gates the 2024 wording on the Incapacitated condition alone", () => {
+    const effects = build(ClassEnrichers.Barbarian.DangerSense, { is2014: false }).effects;
+    expect(effects[0].ac5eChanges).toBeUndefined();
+    expect(effects[0].changes).toEqual([
+      expect.objectContaining({ key: "save", value: "1", type: "dnd5e.advantage" }),
+    ]);
+    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual([
+      { k: "roll.ability", v: "dex" },
+      { o: "NOT", v: { k: "statuses.incapacitated", o: "gte", v: 1 } },
+    ]);
+  });
+
+  it("adds Blinded and Deafened for the 2014 wording", () => {
+    const effects = build(ClassEnrichers.Barbarian.DangerSense, { is2014: true }).effects;
+    const conditions = JSON.parse(effects[0].changes[0].conditions);
+    expect(conditions.map((c: any) => c.v?.k ?? c.k)).toEqual([
+      "roll.ability", "statuses.blinded", "statuses.deafened", "statuses.incapacitated",
+    ]);
+    // "against effects that you can see" has no expression in the roll data
+    expect(effects[0].options.description).toContain("not checked");
+  });
+});

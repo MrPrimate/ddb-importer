@@ -47,10 +47,7 @@ export default class FloralForm extends DDBEnricherData {
             description: "Whenever you use a spell of 1st level or higher to restore Hit Points to a creature, it regains 1d4 additional Hit Points.",
           },
           changes: [
-            {
-              ...DDBEnricherData.ChangeHelper.healingBonusChange("1d4"),
-              conditions: JSON.stringify({ k: "item.level", o: "gte", v: 1 }),
-            },
+            DDBEnricherData.ChangeHelper.healingBonusChange("1d4", 20, DDBEnricherData.ChangeHelper.LEVELLED_SPELL_FILTER),
           ],
         },
       ];

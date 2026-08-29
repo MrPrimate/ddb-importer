@@ -27,6 +27,17 @@ interface OverTimeDamageParams {
   dc?: number | string;
 }
 
+interface RuleChangeOptions {
+  priority?: number;
+  conditions?: IEffectChangeFilter | IEffectChangeFilter[];
+}
+
+interface RuleChangeParams extends RuleChangeOptions {
+  category: TRuleChangeCategory;
+  type: TActiveEffectChangeType;
+  value: string | number;
+}
+
 interface OverTimeSaveParams {
   document: TAll5eItemDocuments;
   turn: string;
@@ -187,14 +198,78 @@ export default class ChangeHelper {
     return ChangeHelper.multiplyChange(value, priority, "system.attributes.movement.multiplier");
   }
 
-  /** Rule-type change adding a bonus to all healing rolls; the key is the rule category, not a data path. */
-  static healingBonusChange(value: string | number, priority = 20): IActiveEffectChangeData {
-    return {
-      key: "healing",
+  // dnd5e 6.0 rule changes. The `key` is a rule category rather than a data path, and the system
+  // collects them at roll time instead of writing them into actor data. Their `conditions` are
+  // skipped at application time (all four rule types are registered `skipConditions: true`) and
+  // evaluated against the roll data of the item actually being rolled, which is what lets a bonus
+  // apply only to some rolls. A condition belongs on the CHANGE: an effect-level `system.conditions`
+  // is evaluated during data prep and would suppress the whole effect.
+  // Values for `attack`, `check` and `save` may use `@` references (`constructParts` resolves them
+  // before the roll is built) but `damage` and `healing` values MUST be literal dice and numbers -
+  // roll formula replacement is single pass there, so a nested `@` breaks the roll. See
+  // docs/effect-condition-candidates.md.
+
+  /** Serialise one filter, or an implicitly ANDed array of them, for a change's `conditions`. */
+  static conditions(filter: IEffectChangeFilter | IEffectChangeFilter[]): string {
+    return JSON.stringify(filter);
+  }
+
+  /** Matches only when the roller does NOT have the status; absent statuses are missing, not null. */
+  static notStatusFilter(status: string): IEffectChangeFilter {
+    return { o: "NOT", v: { k: `statuses.${status}`, o: "gte", v: 1 } };
+  }
+
+  /**
+   * Matches only a spell, cantrips included. There is no "is a spell" key, so this tests a
+   * spell-only field: `item.level` is absent on features, weapons and potions, and a consumable
+   * carrying a `dnd5e.spellLevel` flag (a scroll) reports one, which is correct. Facility items
+   * also carry a level, but no facility rolls healing or damage.
+   */
+  static get SPELL_FILTER(): IEffectChangeFilter {
+    return { k: "item.level", o: "gte", v: 0 };
+  }
+
+  /** Matches a spell cast at 1st level or higher; a cantrip reports level 0. */
+  static get LEVELLED_SPELL_FILTER(): IEffectChangeFilter {
+    return { k: "item.level", o: "gte", v: 1 };
+  }
+
+  /**
+   * Matches an unarmed strike. "natural" is our own classification value - DDB's attackSubtype 2
+   * (claws, bites, talons, horns) maps to the natural WEAPON type and the activity builder reuses
+   * it - so both are matched; dnd5e itself only defines weapon, spell and unarmed.
+   */
+  static get UNARMED_FILTER(): IEffectChangeFilter {
+    return { k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] };
+  }
+
+  static ruleChange({ category, type, value, priority = 20, conditions }: RuleChangeParams): IActiveEffectChangeData {
+    const change: IActiveEffectChangeData = {
+      key: category,
       value: String(value).trim().replace(/^\+\s*/, ""),
-      type: "dnd5e.bonus",
+      type,
       priority,
     };
+    if (conditions) change.conditions = ChangeHelper.conditions(conditions);
+    return change;
+  }
+
+  /** Rule-type bonus added to every roll in the category that passes `conditions`. */
+  static ruleBonusChange(category: TRuleChangeCategory, value: string | number, { priority = 20, conditions }: RuleChangeOptions = {}): IActiveEffectChangeData {
+    return ChangeHelper.ruleChange({ category, type: "dnd5e.bonus", value, priority, conditions });
+  }
+
+  static ruleAdvantageChange(category: TRuleChangeCategory, { priority = 20, conditions }: RuleChangeOptions = {}): IActiveEffectChangeData {
+    return ChangeHelper.ruleChange({ category, type: "dnd5e.advantage", value: "1", priority, conditions });
+  }
+
+  static ruleDisadvantageChange(category: TRuleChangeCategory, { priority = 20, conditions }: RuleChangeOptions = {}): IActiveEffectChangeData {
+    return ChangeHelper.ruleChange({ category, type: "dnd5e.advantage", value: "-1", priority, conditions });
+  }
+
+  /** Rule-type change adding a bonus to healing rolls; the key is the rule category, not a data path. */
+  static healingBonusChange(value: string | number, priority = 20, conditions?: IEffectChangeFilter | IEffectChangeFilter[]): IActiveEffectChangeData {
+    return ChangeHelper.ruleBonusChange("healing", value, { priority, conditions });
   }
 
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {

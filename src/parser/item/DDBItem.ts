@@ -2285,7 +2285,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       }
     }
     // kensai monks
-    if (this.flags.classFeatures.includes("kensaiWeapon") || this.flags.classFeatures.includes("monkWeapon")) {
+    if (this.flags.classFeatures.includes("kenseiWeapon") || this.flags.classFeatures.includes("monkWeapon")) {
       const dexValue = abilityValue("dex");
       if (dexValue !== undefined && mockAbilityValue !== undefined && dexValue >= mockAbilityValue) {
         result = "dex";
@@ -2534,7 +2534,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();
-    const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
+    const proficientFeatures = ["pactWeapon", "kenseiWeapon"];
     if ("proficient" in this.data.system)
       this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
         ? true

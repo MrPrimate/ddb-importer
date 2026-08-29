@@ -325,3 +325,98 @@ describe("hazard gear regions", () => {
     expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Burning Oil Damage", "Douse a Creature"]);
   });
 });
+
+describe("MoonSickle", () => {
+  it("limits the healing die to spells, cantrips included", () => {
+    const effects = build(ItemEnrichers.MoonSickle).effects;
+    expect(effects[0].changes).toEqual([
+      expect.objectContaining({ key: "healing", value: "1d4", type: "dnd5e.bonus" }),
+    ]);
+    // "when you cast a spell that restores hit points": Lay on Hands and potions are not spells,
+    // and only a spell carries item.level, so the filter is a positive test on that
+    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "item.level", o: "gte", v: 0 });
+  });
+});
+
+/**
+ * Unarmed magic items split two ways. A plain numeric bonus is a rule change gated on the attack
+ * classification, which needs no enchantment and no user action. Anything that changes the strike
+ * itself - its die, its damage type, or making it magical - can only be an enchantment, because a
+ * rule change cannot mutate another item.
+ */
+describe("unarmed magic items", () => {
+  const unarmed = { k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] };
+
+  it("gives Wraps of Dyamak a bonus per vestige state", () => {
+    for (const [name, bonus] of [["Wraps of Dyamak (Dormant)", "1"], ["Wraps of Dyamak (Awakened)", "2"],
+      ["Wraps of Dyamak (Exalted)", "3"], ["Wraps of Dyamak", "3"]] as const) {
+      const changes = build(ItemEnrichers.WrapsOfDyamak, { name }).effects[0].changes ?? [];
+      expect(changes.map((c: any) => `${c.key}:${c.value}`)).toEqual([`attack:${bonus}`, `damage:${bonus}`]);
+      for (const change of changes) expect(JSON.parse(String(change.conditions))).toEqual(unarmed);
+    }
+  });
+
+  it("scales the Broodslinger spikes by rarity and types the damage", () => {
+    for (const [name, damage] of [["Broodslinger (Uncommon)", "1"], ["Broodslinger (Rare)", "1d4"],
+      ["Broodslinger (Very Rare)", "2d4"], ["Broodslinger", "1"]] as const) {
+      const changes = build(ItemEnrichers.Broodslinger, { name }).effects[0].changes ?? [];
+      expect(changes).toEqual([
+        expect.objectContaining({ key: "damage", value: `${damage}[piercing]`, type: "dnd5e.bonus" }),
+      ]);
+      expect(JSON.parse(String(changes[0].conditions))).toEqual(unarmed);
+    }
+  });
+
+  it("splits Demon Padded Armor between a rule and an enchantment", () => {
+    const enricher = build(ItemEnrichers.DemonPaddedArmor, { name: "Demon Padded Armor" });
+    const [bonusEffect, enchantEffect] = enricher.effects;
+
+    // the +1 needs no user action
+    expect((bonusEffect.changes ?? []).map((c: any) => `${c.key}:${c.value}`)).toEqual(["attack:1", "damage:1"]);
+    expect(JSON.parse(String(bonusEffect.changes[0].conditions))).toEqual(unarmed);
+
+    // the 1d8 slashing rewrites the strike, which only an enchantment can do
+    expect(enchantEffect.type).toBe("enchant");
+    expect((enchantEffect.changes ?? []).map((c: any) => `${c.key}=${c.value}`)).toEqual([
+      "system.damage.base.number=1",
+      "system.damage.base.denomination=8",
+      "system.damage.base.types=slashing",
+      // a "-" prefixed value removes the entry from the Set
+      "system.damage.base.types=-bludgeoning",
+    ]);
+    // the Unarmed Strike item's weapon type is "natural", which is what the restriction matches
+    expect(enricher.activity.data.restrictions).toMatchObject({ type: "weapon", categories: ["natural"] });
+  });
+
+  it("makes the Hypnovulfen bite an enchantment, not a bonus", () => {
+    const effects = build(ItemEnrichers.HypnovulfenFigure, { name: "Hypnovulfen Figure" }).effects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].type).toBe("enchant");
+    expect((effects[0].changes ?? []).map((c: any) => c.value)).toContain("piercing");
+  });
+
+  it("adds a damage type option to the elemental potions without losing the drink", () => {
+    for (const [name, type] of [["Salamander Sauce", "fire"], ["Last Rites Rum", "necrotic"]] as const) {
+      const enricher = build(ItemEnrichers.UnarmedElementalPotion, { name });
+      // the enchantment is an additional activity, so the parsed self-damage activity survives
+      const [additional] = enricher.additionalActivities;
+      expect(additional.init).toMatchObject({ name: expect.stringContaining("Empower Unarmed Strikes"), type: "enchant" });
+      expect(additional.overrides.data.restrictions).toMatchObject({ categories: ["natural"] });
+
+      const [effect] = enricher.effects;
+      expect(effect.type).toBe("enchant");
+      expect(effect.options.durationSeconds).toBe(3600);
+      // an added type is an extra option at roll time, the Sacred Weapon idiom
+      expect(effect.changes).toEqual([
+        expect.objectContaining({ key: "system.damage.base.types", value: type, type: "add" }),
+      ]);
+    }
+  });
+
+  it("gives Shepherd's Bane a timed claw enchantment", () => {
+    const enricher = build(ItemEnrichers.ShepherdsBane, { name: "Shepherd’s Bane" });
+    expect(enricher.effects[0].type).toBe("enchant");
+    expect(enricher.effects[0].options.durationSeconds).toBe(3600);
+    expect((enricher.effects[0].changes ?? []).map((c: any) => c.value)).toContain("slashing");
+  });
+});

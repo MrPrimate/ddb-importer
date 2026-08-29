@@ -106,6 +106,8 @@ global {
     | "melee-weapon-attacks"
     | "ranged-weapon-attacks"
     | "weapon-attacks"
+    | "unarmed-attacks"
+    | "one-handed-melee-attacks"
     | "melee-spell-attacks"
     | "ranged-spell-attacks"
     | "wizard-spell-attacks"
