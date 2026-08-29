@@ -42,8 +42,7 @@ function migrateSnipConfig(raw: any): SceneSnipConfig {
 export default class SceneSnipProcessor {
 
   static getSnips(scene: any): SceneSnipConfig[] {
-    // Prefer new namespace, fall back to legacy ddbimporter flags
-    let raw = scene.getFlag?.("snipsnipsnip", "snips");
+    let raw = scene.flags?.snipsnipsnip?.snips;
     if (!raw || !Array.isArray(raw) || raw.length === 0) {
       raw = (scene.flags?.ddbimporter as any)?.snips;
     }
