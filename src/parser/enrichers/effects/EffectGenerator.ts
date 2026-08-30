@@ -57,7 +57,7 @@ export const DAE_SPECIAL_DURATIONS = [
   "1Hit:rwak",
   "1Hit:msak",
   "1Hit:rsak",
-];
+] as const;
 
 const BASE_RESTRICTIONS = [
   "",

@@ -5,7 +5,7 @@ import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBModifiers from "../../lib/DDBModifiers";
 import SystemHelpers from "../../../lib/SystemHelpers";
 import ChangeHelper from "./ChangeHelper";
-import { applyDaeSpecialDurations, applyNativeExpiry } from "./EffectExpiryHelpers";
+import { applyNativeExpiry } from "./EffectExpiryHelpers";
 import MidiEffects from "./MidiEffects";
 
 interface IGenericConditionAdjustment {
@@ -314,8 +314,6 @@ export default class AutoEffects {
 
     // native expiry
     if (parsedStatus.expiry) applyNativeExpiry(effect, parsedStatus.expiry);
-    // apply any dae specific expiry
-    applyDaeSpecialDurations(effect, parsedStatus.specialDurations as TDAESpecialDuration[]);
 
     return effect;
   }

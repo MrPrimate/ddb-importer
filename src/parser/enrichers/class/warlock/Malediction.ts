@@ -8,7 +8,7 @@ interface IMaledictionCurse {
   ac5eChanges: IAC5eActiveEffectChangeData[];
   /** Native expiry for the curse effect; every curse ends on the target's next turn end. */
   expiry: T5eEffectExpiry;
-  daeSpecialDurations?: TDAESpecialDuration[];
+  daeSpecialDurations?: TDAEOnlySpecialDuration[];
 }
 
 type TMaledictionForm = "Action" | "Reaction";

@@ -1,19 +1,33 @@
+import logger from "../../../lib/Logger";
+
 /**
  * Expiry translation for dnd5e 6.0's `duration.expiry`
  */
 
-const EFFECT_EXPIRY_TYPES = [
+const TIMED_EFFECT_EXPIRY_TYPES = [
   "turnStart", "turnEnd", "roundStart", "roundEnd", "combatStart", "combatEnd",
 ] as const;
 
-export const DAE_EFFECT_EXPIRY_TYPES = [
-  ...EFFECT_EXPIRY_TYPES,
-  "sourceStart", "sourceEnd", "targetStart", "targetEnd",
+export const PSEUDO_EXPIRIES: readonly string[] = ["sourceStart", "sourceEnd", "targetStart", "targetEnd"];
+export const DURATIONLESS_EXPIRIES: readonly string[] = ["shortRest", "longRest"];
+
+export const EFFECT_EXPIRY_TYPES = [
+  ...PSEUDO_EXPIRIES,
+  ...DURATIONLESS_EXPIRIES,
+  ...TIMED_EFFECT_EXPIRY_TYPES,
 ] as const;
 
-export const PSEUDO_EXPIRIES: readonly string[] = ["sourceStart", "sourceEnd", "targetStart", "targetEnd"];
-
-export const DURATIONLESS_EXPIRIES: readonly string[] = ["shortRest", "longRest"];
+/**
+ * Every token dnd5e 6.0 expresses natively on `duration.expiry`.
+ * These are BANNED from `flags.dae.specialDuration`: an enricher states a turn edge with
+ * `options.expiry`, and the prose parser computes the native expiry itself
+ * (`DDBDescriptions.nextTurnExpiry`).
+ */
+export const NATIVE_EXPIRY_TOKENS: readonly string[] = [
+  ...EFFECT_EXPIRY_TYPES,
+  "turnStartSource",
+  "turnEndSource",
+];
 
 /**
  * Mirror of dnd5e's `ActiveEffect5e#expirySupportsDuration`: pseudo and durationless expiries
@@ -38,12 +52,6 @@ export function applyNativeExpiry(effect: I5eEffectData, expiry: T5eEffectExpiry
 /**
  * Write DAE special-duration FLAGS for the tokens dnd5e cannot express natively
  * (usage counts and triggers: 1Attack, isSave, isDamaged...).
- *
- * Previpously this traslated values into `duration.expiry`  it now handles the DAE-only remainder.
- *
- * Legacy `turnStart`/`turnEnd` style tokens are filtered from the flag as
- * natively covered; the source variants are deliberately NOT in
- * `DAE_EFFECT_EXPIRY_TYPES`, so they stay in the flag for DAE worlds.
  */
 export function applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]): I5eEffectData {
   effect.duration ??= {};
@@ -53,9 +61,14 @@ export function applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAES
     effect.duration.value = null;
   }
 
-  const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>
-    !(DAE_EFFECT_EXPIRY_TYPES as readonly string[]).includes(d),
-  );
+  for (const token of durations.filter((d) => NATIVE_EXPIRY_TOKENS.includes(d))) {
+    logger.error(
+      `Native expiry token "${token}" passed as a DAE special duration on effect "${effect.name}"; declare it with options.expiry instead - the token has been dropped`,
+      { effect, durations },
+    );
+  }
+
+  const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) => !NATIVE_EXPIRY_TOKENS.includes(d));
 
   if (durationsToFlag.length > 0) foundry.utils.setProperty(effect, "flags.dae.specialDuration", durationsToFlag);
   return effect;

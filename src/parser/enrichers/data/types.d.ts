@@ -270,7 +270,8 @@ global {
 
     // DAE
     daeStackable?: string;
-    daeSpecialDurations?: TDAESpecialDuration[];
+    /** DAE-only trigger tokens (1Attack, isSave...). Turn-edge expiry is declared with `options.expiry`. */
+    daeSpecialDurations?: TDAEOnlySpecialDuration[];
 
     // Status effects
     statuses?: typeof STATUSES;

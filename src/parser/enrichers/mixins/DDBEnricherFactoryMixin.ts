@@ -837,9 +837,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           // effect (Haste 2024's "until the end of its next turn" lethargy clause was
           // expiring the main 1-minute buff at the target's next turn end).
           if (!effectHint.daeSpecialDurations && !("expiry" in effectOptions)) {
-            const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
-            foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
-            // the parser computes the native expiry alongside the legacy tokens
+
             if (duration.expiry) {
               effect = EffectGenerator.applyNativeExpiry(effect, duration.expiry);
             }

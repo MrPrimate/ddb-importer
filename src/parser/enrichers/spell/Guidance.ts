@@ -68,7 +68,7 @@ export default class Guidance extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.addChange("1d4", 100, `system.skills.${skill.name}.roll.bonus`),
         ],
-        daeSpecialDurations: [`isSkill.${skill.name}` as TDAESpecialDuration],
+        daeSpecialDurations: [`isSkill.${skill.name}` as TDAEOnlySpecialDuration],
       };
     });
   }

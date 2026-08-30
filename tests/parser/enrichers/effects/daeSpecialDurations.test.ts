@@ -6,18 +6,21 @@ describe("EffectGenerator.applyDaeSpecialDurations", () => {
   // producer of a natively-mappable token also computes the native expiry
   // (DDBDescriptions.nextTurnExpiry), so translation here would be dead weight
 
-  it("keeps DAE-only specials in the flag alongside the legacy source tokens", () => {
-    const effect: any = {};
+  it("keeps DAE-only specials and REJECTS natively covered tokens with an error", () => {
+    // turnStartSource has native coverage (sourceStart) - passing it here is an
+    // authoring error: it is dropped from the flag and logged, never translated
+    const effect: any = { name: "Test Effect" };
     EffectGenerator.applyDaeSpecialDurations(effect, ["turnStartSource", "1Attack", "isSave"] as any);
-    expect(effect.flags.dae.specialDuration).toEqual(["turnStartSource", "1Attack", "isSave"]);
-    // no translation: the expiry comes from applyNativeExpiry at the call site
+    expect(effect.flags.dae.specialDuration).toEqual(["1Attack", "isSave"]);
     expect(effect.duration.expiry).toBeUndefined();
   });
 
-  it("filters natively covered turn tokens out of the flag", () => {
-    const effect: any = {};
-    EffectGenerator.applyDaeSpecialDurations(effect, ["turnEnd", "1Attack"] as any);
-    expect(effect.flags.dae.specialDuration).toEqual(["1Attack"]);
+  it("filters every natively covered turn token out of the flag", () => {
+    for (const banned of ["turnStart", "turnEnd", "turnStartSource", "turnEndSource", "combatEnd", "sourceStart", "targetEnd"]) {
+      const effect: any = { name: "Test Effect" };
+      EffectGenerator.applyDaeSpecialDurations(effect, [banned, "1Attack"] as any);
+      expect(effect.flags.dae.specialDuration).toEqual(["1Attack"]);
+    }
   });
 
   it("nulls the duration value when the effect already carries a pseudo expiry", () => {
@@ -28,6 +31,17 @@ describe("EffectGenerator.applyDaeSpecialDurations", () => {
     const counted: any = { duration: { value: 60, units: "seconds", expiry: "turnStart" } };
     EffectGenerator.applyDaeSpecialDurations(counted, ["1Attack" as any]);
     expect(counted.duration.value).toBe(60);
+  });
+});
+
+describe("daeSpecialDurations hint typing", () => {
+  it("rejects natively covered tokens at the type level", () => {
+    // the field takes TDAEOnlySpecialDuration; a turn-edge token belongs in options.expiry
+    const good: IDDBEffectHint = { daeSpecialDurations: ["1Attack", "isSave"] };
+    // @ts-expect-error turnEnd is natively covered and excluded from the hint union
+    const bad: IDDBEffectHint = { daeSpecialDurations: ["turnEnd"] };
+    expect(good).toBeTruthy();
+    expect(bad).toBeTruthy();
   });
 });
 

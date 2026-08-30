@@ -57,11 +57,20 @@ global {
     type: "ac5e";
   }
 
+  /**
+   * Tokens only DAE can express - usage counts and triggers. This is the ONLY
+   * union enricher hints may use: turn-edge tokens are natively covered by
+   * `duration.expiry` and are banned from `flags.dae.specialDuration`.
+   */
+  type TDAEOnlySpecialDuration = typeof DAE_SPECIAL_DURATIONS[number];
+
   type TDAESpecialDuration =
-    // for pre v6 only
+    // for pre v6 data only (legacy flags read back from old imports)
     | TDAEEffectExpiryTypes
+    | "turnStartSource"
+    | "turnEndSource"
     // Turn/Combat timing
-    | typeof DAE_SPECIAL_DURATIONS[number];
+    | TDAEOnlySpecialDuration;
 
   type TEffectType = "base" | "condition" | "enchantment";
 
