@@ -18,7 +18,7 @@ export default class VigilantBlessing extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.customChange("1", 30, "flags.dnd5e.initiativeAdv"),
         ],
-        daeSpecialDurations: ["Initiative" as const],
+        daeSpecialDurations: ["Initiative"],
         data: {
           duration: {
             value: null,

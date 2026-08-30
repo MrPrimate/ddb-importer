@@ -53,7 +53,7 @@ export default class Guidance extends DDBEnricherData {
             },
           },
         ],
-        daeSpecialDurations: ["isInitiative" as const],
+        daeSpecialDurations: ["isInitiative"],
       },
     ];
   }

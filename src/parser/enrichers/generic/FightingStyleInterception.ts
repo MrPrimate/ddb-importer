@@ -39,7 +39,7 @@ export default class FightingStyleInterception extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.rsak"),
           DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.msak"),
         ],
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
     ];
   }

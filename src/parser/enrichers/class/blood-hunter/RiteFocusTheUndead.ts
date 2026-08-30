@@ -34,7 +34,7 @@ export default class RiteFocusTheUndead extends _RiteFocus {
         // midiChanges: [
         //   DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.uncanny-dodge"),
         // ],
-        daeSpecialDurations: ["1Reaction" as const],
+        daeSpecialDurations: ["1Reaction"],
       },
     ];
   }

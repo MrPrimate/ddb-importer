@@ -57,7 +57,7 @@ export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnri
             "system.traits.dm.midi.rwak",
           ),
         ],
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
     ];
   }

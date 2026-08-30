@@ -29,7 +29,7 @@ export default class ReversalOfFortune extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.dm.midi.all"),
         ],
         daeSpecialDurations: [
-          "1Reaction" as const,
+          "1Reaction",
         ],
       },
     ];

@@ -37,7 +37,7 @@ export default class ManeuverBrace extends Maneuver {
         name: "Brace: Extra Damage (Automation)",
         midiOnly: true,
         activityMatch: "Brace",
-        daeSpecialDurations: ["1Attack:mwak" as const],
+        daeSpecialDurations: ["1Attack:mwak"],
         data: {
           duration: {
             value: 6,

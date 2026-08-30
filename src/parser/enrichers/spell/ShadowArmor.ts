@@ -13,7 +13,7 @@ export default class ShadowArmor extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),
         ],
         midiOnly: true,
-        daeSpecialDurations: ["isAttacked" as const],
+        daeSpecialDurations: ["isAttacked"],
       },
       {
         name: `${this.name}: Radiant Resistance`,

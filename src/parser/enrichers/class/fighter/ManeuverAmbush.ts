@@ -52,7 +52,7 @@ export default class ManeuverAmbush extends Maneuver {
       {
         name: "Ambush Bonus",
         activityMatch: "Initiative Bonus",
-        daeSpecialDurations: ["Initiative" as const],
+        daeSpecialDurations: ["Initiative"],
         data: {
           duration: {
             value: 6,

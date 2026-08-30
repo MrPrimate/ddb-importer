@@ -26,7 +26,7 @@ export default class ManeuverRiposte extends Maneuver {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        daeSpecialDurations: ["1Attack:mwak" as const],
+        daeSpecialDurations: ["1Attack:mwak"],
         data: {
           duration: {
             value: 6,
