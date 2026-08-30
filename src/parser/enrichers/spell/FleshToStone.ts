@@ -41,7 +41,7 @@ export default class FleshToStone extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        options: { expiry: "sourceStart" },
       });
     }
     effects.push(
@@ -55,8 +55,8 @@ export default class FleshToStone extends DDBEnricherData {
         ],
         options: {
           durationSeconds: 60,
+          expiry: "turnStart",
         },
-        daeSpecialDurations: [],
         data: {
           flags: {
             dae: {

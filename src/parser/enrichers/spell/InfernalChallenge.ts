@@ -83,10 +83,8 @@ export default class InfernalChallenge extends DDBEnricherData {
         name: "No Running",
         activityMatch: "Move Away Save",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetStart",
         },
-        daeSpecialDurations: ["turnStart"],
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],

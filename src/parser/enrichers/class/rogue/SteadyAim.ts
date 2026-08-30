@@ -35,11 +35,10 @@ export default class SteadyAim extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
-        daeSpecialDurations: ["turnStartSource"],
         daeStackable: "noneName",
         options: {
-          durationSeconds: 12,
-          durationRounds: 2,
+          // "your Speed is 0 until the end of the current turn"
+          expiry: "sourceEnd",
         },
       },
       {

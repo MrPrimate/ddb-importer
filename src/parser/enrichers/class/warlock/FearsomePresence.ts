@@ -47,10 +47,9 @@ export default class FearsomePresence extends DDBEnricherData {
         name: "Fearsome Presence: Restrained",
         statuses: ["Restrained"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Restrained until the end of the warlock's next turn.",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

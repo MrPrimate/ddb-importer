@@ -35,9 +35,8 @@ export default class FlusteringStrike extends DDBEnricherData {
       {
         name: "Flustered",
         changes,
-        daeSpecialDurations: ["turnEndSource" as const],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
       },
     ];

@@ -13,10 +13,10 @@ export default class Neurotoxin extends DDBEnricherData {
         statuses: ["Paralyzed"],
         activityMatch: "Neurotoxin: Toxin Effects",
         options: {
-          durationRounds: 1,
+          // "Paralyzed until the start of its next turn" - anchored on the poisoned creature
+          expiry: "targetStart",
           description: "Paralyzed until the start of its next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

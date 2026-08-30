@@ -253,9 +253,8 @@ export default class LunarPhenomenon extends DDBEnricherData {
         activityMatch: "Crescent Moon",
         changes: DDBEnricherData.allDamageTypes().map((type) => DDBEnricherData.ChangeHelper.damageResistanceChange(type)),
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

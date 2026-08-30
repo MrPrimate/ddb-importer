@@ -7,7 +7,7 @@ export default class Blink extends DDBEnricherData {
       {
         name: "Ethereal",
         statuses: ["Ethereal"],
-        daeSpecialDurations: ["turnStartSource"],
+        options: { expiry: "sourceStart" },
         data: {
           disabled: true,
         },

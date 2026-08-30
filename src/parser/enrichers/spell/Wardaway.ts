@@ -10,9 +10,9 @@ export default class Wardaway extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
         options: {
+          expiry: "sourceStart",
           description: "Target's Speed is halved until the start of your next turn, and on its next turn, it can take only an Action or a Bonus Action.",
         },
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

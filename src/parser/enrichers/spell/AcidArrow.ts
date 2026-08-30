@@ -45,8 +45,7 @@ export default class AcidArrow extends DDBEnricherData {
         activityMatch: "Cast",
         name: "Covered in Acid",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
@@ -55,7 +54,6 @@ export default class AcidArrow extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

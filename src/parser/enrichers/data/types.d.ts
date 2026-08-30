@@ -235,7 +235,7 @@ global {
     durationTurns?: number | null;
     transfer?: boolean;
     disabled?: boolean;
-    expiry?: TDAEEffectExpiryTypes;
+    expiry?: T5eEffectExpiry | null;
     showIcon?: TEffectShowIcon;
   }
 

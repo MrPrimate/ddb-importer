@@ -48,8 +48,8 @@ export default class VampireLilyDragonArmor extends DDBEnricherData {
         name: "Poisoned (Vampire Lily Spines)",
         activityMatch: "Poison Spines",
         statuses: ["Poisoned"],
-        daeSpecialDurations: ["turnEnd"],
         options: {
+          expiry: "targetEnd",
           description: "Poisoned until the end of its next turn.",
         },
       },

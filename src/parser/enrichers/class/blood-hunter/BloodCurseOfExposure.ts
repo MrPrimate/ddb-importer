@@ -43,21 +43,17 @@ export default class BloodCurseOfExposure extends _BloodCurse {
         name: "Exposed",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "You lose resistance to all the damage types dealt by the triggering attack or spell, including for that triggering effect.",
         },
-        daeSpecialDurations: ["turnEnd"],
       },
       {
         name: "Exposed (Amplified)",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "You lose invulnerability to the damage types of the triggering attack or spell, but have resistance to those damage types until the end of your next turn.",
         },
-        daeSpecialDurations: ["turnEnd"],
       },
     ];
   }

@@ -38,3 +38,30 @@ describe("EffectGenerator.applyDaeSpecialDurations", () => {
     expect(effect.duration.expiry).toBe("sourceEnd");
   });
 });
+
+describe("EffectGenerator.applyNativeExpiry", () => {
+  it.each([
+    ["sourceStart", null],
+    ["targetEnd", null],
+    ["shortRest", null],
+    ["longRest", null],
+    ["combatEnd", 60],
+    ["turnStart", 60],
+  ])("stamps %s and leaves the value as %s", (expiry, value) => {
+    const effect: any = { duration: { value: 60, units: "seconds" } };
+    EffectGenerator.applyNativeExpiry(effect, expiry as any);
+    expect(effect.duration).toMatchObject({ expiry, value });
+  });
+
+  it("clears the expiry without touching the duration when passed null", () => {
+    const effect: any = { duration: { value: 60, units: "seconds", expiry: "turnStart" } };
+    EffectGenerator.applyNativeExpiry(effect, null);
+    expect(effect.duration).toMatchObject({ expiry: null, value: 60 });
+  });
+
+  it("creates the duration object on a bare effect", () => {
+    const effect: any = {};
+    EffectGenerator.applyNativeExpiry(effect, "sourceEnd");
+    expect(effect.duration).toEqual({ expiry: "sourceEnd", value: null });
+  });
+});

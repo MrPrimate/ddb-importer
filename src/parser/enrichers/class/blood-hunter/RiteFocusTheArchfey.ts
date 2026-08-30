@@ -28,6 +28,7 @@ export default class RiteFocusTheArchfey extends _RiteFocus {
         name: "Faelight",
         activityMatch: this.activityName,
         options: {
+          expiry: "sourceEnd",
           description: "You shed faint light and gain no benefit from any cover or from being invisible, until the end of the blood hunter's next turn.",
         },
         changes: [
@@ -38,7 +39,6 @@ export default class RiteFocusTheArchfey extends _RiteFocus {
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("glow"),
         ],
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

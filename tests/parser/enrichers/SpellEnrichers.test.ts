@@ -718,34 +718,36 @@ describe("native teleport spell activities", () => {
 describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
   // The merged spells-6.0 PR converted "next turn" rider effects to the
   // pseudo-expiries (sourceStart/sourceEnd/targetStart/targetEnd). These pins
-  // hold our enrichers to the same anchors; end-to-end expiry values are
-  // visible in the audit JSON's effectDurations field.
+  // hold our enrichers to the same anchors, declared natively through
+  // `options.expiry`; end-to-end expiry values are visible in the audit JSON's
+  // effectDurations field.
 
   it("Shield anchors on the caster's turn start", () => {
-    expect(build(SpellEnrichers.Shield).effects[0].daeSpecialDurations).toEqual(["turnStartSource"]);
+    expect(build(SpellEnrichers.Shield).effects[0].options.expiry).toBe("sourceStart");
   });
 
   it("Guiding Bolt keeps isAttacked for DAE and adds the caster's turn-end native bound", () => {
-    expect(build(SpellEnrichers.GuidingBolt).effects[0].daeSpecialDurations)
-      .toEqual(["isAttacked", "turnEndSource"]);
+    const [glittering] = build(SpellEnrichers.GuidingBolt).effects;
+    expect(glittering.options.expiry).toBe("sourceEnd");
+    expect(glittering.daeSpecialDurations).toEqual(["isAttacked"]);
   });
 
   it("Starry Wisp's target-borne light expires on the caster's turn end", () => {
-    expect(build(SpellEnrichers.StarryWisp).effects[0].daeSpecialDurations).toEqual(["turnEndSource"]);
+    expect(build(SpellEnrichers.StarryWisp).effects[0].options.expiry).toBe("sourceEnd");
   });
 
   it("Haste explicitly suppresses description-parsed expiries on the buff and applies Lethargy separately", () => {
     const e = build(SpellEnrichers.Haste);
     const [buff, lethargy] = e.effects;
-    // [] is load-bearing: the lethargy sentence would otherwise be parsed onto
-    // the 1-minute buff (see DDBEnricherFactoryMixin's description-duration gate)
-    expect(buff.daeSpecialDurations).toEqual([]);
+    // stating the duration positively is load-bearing: the lethargy sentence would
+    // otherwise be parsed onto the 1-minute buff (see the mixin's description-duration gate)
+    expect(buff.options).toMatchObject({ durationSeconds: 60, expiry: "turnStart" });
     expect(buff.activityMatch).toBe("Cast");
     expect(lethargy).toMatchObject({
       name: "Lethargy",
       activityMatch: "Apply Lethargy",
       statuses: ["Incapacitated"],
-      daeSpecialDurations: ["turnEnd"],
+      options: { expiry: "targetEnd" },
     });
     const [apply] = e.additionalActivities;
     expect(apply.init).toEqual({ name: "Apply Lethargy", type: "utility" });
@@ -754,7 +756,7 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
 
   it("Otto's 2024 short dance uses the hint (not a raw flag) and the main effect pins the spell duration", () => {
     const [short, main] = build(SpellEnrichers.IrresistibleDance).effects;
-    expect(short.daeSpecialDurations).toEqual(["turnEnd"]);
+    expect(short.options.expiry).toBe("targetEnd");
     expect(short.data?.flags?.dae?.specialDuration).toBeUndefined();
     expect(main.options.durationSeconds).toBe(60);
   });
@@ -762,20 +764,21 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
   it("Ray of Enfeeblement 2024 bounds the save-success rider on the caster's turn start", () => {
     const [brief] = build(SpellEnrichers.RayOfEnfeeblement).effects;
     expect(brief.name).toBe("Briefly Enfeebled");
-    expect(brief.daeSpecialDurations).toEqual(["1Attack", "turnStartSource"]);
+    expect(brief.options.expiry).toBe("sourceStart");
+    expect(brief.daeSpecialDurations).toEqual(["1Attack"]);
   });
 
   it("Color Spray and Ray of Sickness amend their auto condition effects with caster turn-end expiry", () => {
     expect(build(SpellEnrichers.ColorSpray).effects[0]).toMatchObject({
       noCreate: true,
-      daeSpecialDurations: ["turnEndSource"],
+      options: { expiry: "sourceEnd" },
     });
     // 2014 Color Spray's 1-round blind is already right - no hint
     expect(build(SpellEnrichers.ColorSpray, { is2014: true }).effects).toEqual([]);
     for (const is2014 of [true, false]) {
       expect(build(SpellEnrichers.RayOfSickness, { is2014 }).effects[0]).toMatchObject({
         noCreate: true,
-        daeSpecialDurations: ["turnEndSource"],
+        options: { expiry: "sourceEnd" },
       });
     }
   });
@@ -785,7 +788,7 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
     expect(rider).toMatchObject({
       name: "Unable to Move",
       onSave: true,
-      daeSpecialDurations: ["turnStartSource"],
+      options: { expiry: "sourceStart" },
     });
     expect(build(SpellEnrichers.FleshToStone, { is2014: true }).effects[0].name)
       .toBe("Flesh to Stone (Automation)");
@@ -794,14 +797,14 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
   it("Sunbeam bounds the auto Blinded effect on the caster's turn start", () => {
     expect(build(SpellEnrichers.Sunbeam).effects[0]).toMatchObject({
       noCreate: true,
-      daeSpecialDurations: ["turnStartSource"],
+      options: { expiry: "sourceStart" },
     });
   });
 
   it("Power Word Stun 2024 adds the over-150-HP No Movement rider", () => {
     expect(build(SpellEnrichers.PowerWordStun).effects[0]).toMatchObject({
       name: "No Movement",
-      daeSpecialDurations: ["turnStartSource"],
+      options: { expiry: "sourceStart" },
     });
     expect(build(SpellEnrichers.PowerWordStun, { is2014: true }).effects).toEqual([]);
   });
@@ -809,7 +812,7 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
   it("Shocking Grasp ships a marker effect anchored on the target's turn start", () => {
     expect(build(SpellEnrichers.ShockingGrasp).effects[0]).toMatchObject({
       name: "Shocked: No Opportunity Attacks",
-      daeSpecialDurations: ["turnStart"],
+      options: { expiry: "targetStart" },
     });
     expect(build(SpellEnrichers.ShockingGrasp, { is2014: true }).effects[0].name)
       .toBe("Shocked: No Reactions");
@@ -819,7 +822,7 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
     expect(build(SpellEnrichers.Blink).effects[0]).toMatchObject({
       name: "Ethereal",
       statuses: ["Ethereal"],
-      daeSpecialDurations: ["turnStartSource"],
+      options: { expiry: "sourceStart" },
       data: { disabled: true },
     });
   });

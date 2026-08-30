@@ -23,24 +23,22 @@ export default class VexingDistraction extends DDBEnricherData {
       {
         name: "Vexing Distraction: Annoyed",
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Disadvantage on D20 Tests until the end of the warlock's next turn.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.all"),
         ],
-        daeSpecialDurations: ["turnEndSource"],
       },
       {
         name: "Vexing Distraction: Confounded",
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Speed reduced to 0 until the end of the warlock's next turn.",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 50),
         ],
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

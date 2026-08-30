@@ -581,13 +581,12 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Thunder Struck",
         activityMatch: "Guardian: Thunder Gauntlet",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: `Disadvantage on attack rolls against targets other than you until the start of your next turn`,
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
         data: {
           img: "icons/skills/melee/unarmed-punch-fist-white.webp",
           duration: {
@@ -669,13 +668,12 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Infiltrator: Flight",
         activityMatch: "Infiltrator: Fly",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
           description: `You gain flight equal to twice your speed until the end of your turn`,
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.speeds.walk)", 20, "system.attributes.movement.speeds.fly"),
         ],
-        daeSpecialDurations: ["turnEndSource" as const, "turnEnd" as const],
         data: {
           duration: {
             value: 6,

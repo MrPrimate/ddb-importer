@@ -78,7 +78,7 @@ export default class FormOfDread extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    const baseEffects = [
+    const baseEffects: IDDBEffectHint[] = [
       {
         name: "Form of Dread",
         activityMatch: "Transform",
@@ -113,9 +113,8 @@ export default class FormOfDread extends DDBEnricherData {
         activityMatch: "Save vs Frightened",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 12,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
     if (this.is2024) {

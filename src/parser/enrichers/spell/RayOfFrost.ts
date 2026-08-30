@@ -7,13 +7,12 @@ export default class RayOfFrost extends DDBEnricherData {
       {
         name: "Ray of Frost",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
         },
         noCreate: true,
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

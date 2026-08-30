@@ -44,22 +44,19 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
         name: "Cursed: Anxious",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description,
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
       {
         name: "Cursed: Anxious (Amplified)",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: `${description} Your next Wisdom saving throw before the curse ends has disadvantage.`,
         },
         // no isSave.wis special duration exists, so this expires on any save
-        daeSpecialDurations: ["turnEndSource", "isSave"],
+        daeSpecialDurations: ["isSave"],
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("wis"),
         ],

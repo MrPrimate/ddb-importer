@@ -73,11 +73,9 @@ export default class BloodCurseOfTheHowl extends _BloodCurse {
         name: "Howl",
         activitiesMatch: [this.curseName, this.amplifiedName],
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "You are frightened of the blood hunter. If you failed the saving throw by 5 or more, you are also stunned while frightened in this way. On a success you are immune to this blood curse for the next 24 hours.",
         },
-        daeSpecialDurations: ["turnEndSource"],
         statuses: ["Frightened"],
       },
     ];

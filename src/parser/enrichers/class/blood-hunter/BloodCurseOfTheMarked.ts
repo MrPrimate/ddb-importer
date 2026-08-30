@@ -43,21 +43,18 @@ export default class BloodCurseOfTheMarked extends _BloodCurse {
         name: "Marked",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description,
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
       {
         name: "Marked (Amplified)",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: `${description} Their next attack roll against you before the end of their turn has advantage.`,
         },
-        daeSpecialDurations: ["turnEndSource", "1Attack"],
+        daeSpecialDurations: ["1Attack"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],

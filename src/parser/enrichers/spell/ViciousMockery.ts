@@ -18,7 +18,8 @@ export default class ViciousMockery extends DDBEnricherData {
     return [
       {
         name: "Vicious Mockery",
-        daeSpecialDurations: ["1Attack", "turnEnd"],
+        options: { expiry: "targetEnd" },
+        daeSpecialDurations: ["1Attack"],
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],

@@ -32,7 +32,7 @@ export default class ColorSpray extends DDBEnricherData {
     return [
       {
         noCreate: true,
-        daeSpecialDurations: ["turnEndSource"],
+        options: { expiry: "sourceEnd" },
       },
     ];
   }

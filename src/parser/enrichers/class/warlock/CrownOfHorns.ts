@@ -145,19 +145,17 @@ export default class CrownOfHorns extends DDBEnricherData {
         activityMatch: "King of All: Aura Save",
         statuses: ["Charmed"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: "Charmed until the start of the origin's next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
       },
       {
         name: "King of All: Wickedness",
         activityMatch: "King of All: Aura Save",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: "Disadvantage on attack rolls and ability checks until the start of the origin's next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.check.all"),
@@ -172,10 +170,9 @@ export default class CrownOfHorns extends DDBEnricherData {
         activityMatch: "King of All: Aura Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: "Frightened until the start of the origin's next turn; it must move away from the origin by the safest route on its turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

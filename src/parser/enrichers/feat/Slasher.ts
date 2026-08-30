@@ -56,11 +56,10 @@ export default class Slasher extends DDBEnricherData {
       {
         name: "Slashed: Enhanced Critical",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: "Disadvantage on attack rolls until the start of the origins next turn",
         },
         activitiesMatch: ["Enhanced Critical"],
-        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
@@ -75,6 +74,7 @@ export default class Slasher extends DDBEnricherData {
           transfer: true,
           durationSeconds: undefined,
           durationRounds: undefined,
+          expiry: null,
         },
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "slasher.js", document: this.data },
@@ -82,11 +82,9 @@ export default class Slasher extends DDBEnricherData {
         data: {
           duration: {
             value: null,
-            expiry: null,
             expired: undefined,
           },
         },
-        daeSpecialDurations: [],
       },
     ];
   }

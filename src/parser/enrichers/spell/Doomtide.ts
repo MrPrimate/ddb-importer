@@ -38,13 +38,11 @@ export default class Doomtide extends DDBEnricherData {
       {
         name: "Doomed",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("-1d6", 20, "system.rolls.ability.save.bonus"),
         ],
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

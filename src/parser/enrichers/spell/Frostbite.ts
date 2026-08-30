@@ -8,14 +8,14 @@ export default class Frostbite extends DDBEnricherData {
         noCreate: true,
         name: `Frostbitten`,
         options: {
-          durationRounds: 2,
+          expiry: "targetEnd",
           description: "The target has disadvantage on the next weapon attack roll it makes before the end of its next turn.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.mwak"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.rwak"),
         ],
-        daeSpecialDurations: ["1Attack:rwak" as const, "1Attack:mwak" as const, "turnEnd" as const],
+        daeSpecialDurations: ["1Attack:rwak", "1Attack:mwak"],
       },
     ];
   }

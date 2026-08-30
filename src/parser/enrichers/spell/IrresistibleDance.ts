@@ -73,9 +73,8 @@ export default class IrresistibleDance extends DDBEnricherData {
       {
         name: "Comic Dancing",
         options: {
-          durationSeconds: 6,
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnEnd"],
       },
       {
         name: `Comic Dancing and Charmed`,

@@ -9,10 +9,9 @@ export default class AssemblysWrath extends DDBEnricherData {
         activityMatch: "Assembly's Wrath",
         statuses: ["Blinded", "Prone"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Blinded and Prone until the end of the warlock's next turn.",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

@@ -68,9 +68,8 @@ export default class ZealousPresence extends DDBEnricherData {
         name: "Zealous Presence",
         changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value)),
         options: {
-          durationTurns: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],

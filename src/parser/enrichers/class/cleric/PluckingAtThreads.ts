@@ -31,14 +31,13 @@ export default class PluckingAtThreads extends DDBEnricherData {
       {
         name: "Plucking at Threads: Fate's Favor",
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Advantage on attack rolls and saving throws until the end of the cleric's next turn.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.all"),
         ],
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

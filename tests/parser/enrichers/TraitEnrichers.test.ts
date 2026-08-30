@@ -66,7 +66,9 @@ describe("native teleport trait activities", () => {
     expect(e.effects[0]).toMatchObject({
       name: "Blessing of the Raven Queen: Resistance",
       activityMatch: "Teleport",
-      options: { durationSeconds: 6 },
+      // "The resistance lasts until the start of your next turn" - the pseudo expiry nulls
+      // duration.value, so no counted duration is carried alongside it
+      options: { expiry: "sourceStart" },
     });
   });
 });

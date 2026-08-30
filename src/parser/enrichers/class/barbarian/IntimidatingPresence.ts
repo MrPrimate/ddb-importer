@@ -99,7 +99,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
             expiry: "turnEnd",
           },
         },
-        daeSpecialDurations: ["turnEndSource" as const],
+        options: { expiry: "sourceEnd" },
       },
     ];
   }

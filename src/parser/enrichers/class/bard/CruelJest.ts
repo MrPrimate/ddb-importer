@@ -40,10 +40,9 @@ export default class CruelJest extends DDBEnricherData {
       {
         name: "Cruel Jest",
         options: {
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "Disadvantage on the next D20 Test the creature makes before the end of its next turn.",
         },
-        daeSpecialDurations: ["turnEnd"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.all"),
         ],

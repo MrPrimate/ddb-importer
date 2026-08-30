@@ -8,9 +8,8 @@ export default class NaturesVeil extends DDBEnricherData {
       {
         statuses: ["invisible"],
         options: {
-          durationSeconds: 12,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

@@ -24,13 +24,12 @@ export default class MisfortunesCurseOfTheClumsy extends DDBEnricherData {
         name: "Curse of the Clumsy",
         statuses: ["Prone"],
         options: {
-          durationTurns: 1,
+          expiry: "targetEnd",
           description: "Prone with Speed 0 until the end of its turn.",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 90),
         ],
-        daeSpecialDurations: ["turnEnd"],
       },
     ];
   }

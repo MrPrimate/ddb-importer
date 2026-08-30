@@ -104,10 +104,8 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         img: element.img,
         activityMatch: "Absorb Energy",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
       };
     }) as IDDBEffectHint[];
 

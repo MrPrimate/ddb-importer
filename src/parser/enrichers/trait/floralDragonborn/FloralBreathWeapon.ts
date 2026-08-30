@@ -31,8 +31,8 @@ export default class FloralBreathWeapon extends DDBEnricherData {
             name: "Charmed (Floral Breath Weapon)",
             activityMatch: this.activityName,
             statuses: ["Charmed"],
-            daeSpecialDurations: ["turnEnd"],
             options: {
+              expiry: "targetEnd",
               description: "Charmed by the floral dragonborn until the end of its next turn.",
             },
           },
@@ -42,8 +42,8 @@ export default class FloralBreathWeapon extends DDBEnricherData {
           {
             name: "Distracted (Floral Breath Weapon)",
             activityMatch: this.activityName,
-            daeSpecialDurations: ["turnEnd"],
             options: {
+              expiry: "targetEnd",
               description: "Disadvantage on attacks against creatures other than the floral dragonborn until the end of its next turn.",
             },
             ac5eChanges: [
@@ -61,8 +61,8 @@ export default class FloralBreathWeapon extends DDBEnricherData {
             name: "Poisoned (Floral Breath Weapon)",
             activityMatch: this.activityName,
             statuses: ["Poisoned"],
-            daeSpecialDurations: ["turnEnd"],
             options: {
+              expiry: "targetEnd",
               description: "Poisoned until the end of its next turn.",
             },
           },

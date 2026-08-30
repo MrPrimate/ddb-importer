@@ -109,9 +109,10 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           name: "Cloud Cover: Invisible to target",
           statuses: ["Invisible"],
           options: {
-            durationSeconds: 6,
+            // "you become invisible to it until the start of your next turn"
+            expiry: "sourceStart",
           },
-          daeSpecialDurations: ["turnStart" as const, "1Attack" as const, "1Spell" as const],
+          daeSpecialDurations: ["1Attack", "1Spell"],
         });
         break;
       case "Strike of the Giants: Frost Strike":
@@ -121,9 +122,8 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
           ],
           options: {
-            durationSeconds: 6,
+            expiry: "sourceStart",
           },
-          daeSpecialDurations: ["turnStartSource"],
         });
         break;
       case "Strike of the Giants: Storm Strike":
@@ -136,9 +136,8 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
           ],
           options: {
-            durationSeconds: 6,
+            expiry: "sourceStart",
           },
-          daeSpecialDurations: ["turnStartSource"],
         });
         break;
       // no default

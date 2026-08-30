@@ -44,7 +44,7 @@ export default class RayOfSickness extends DDBEnricherData {
     return [
       {
         noCreate: true,
-        daeSpecialDurations: ["turnEndSource" as const],
+        options: { expiry: "sourceEnd" },
       },
     ];
   }

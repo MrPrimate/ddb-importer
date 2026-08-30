@@ -15,12 +15,12 @@ export default class Frostbite extends DDBEnricherData {
         name: "Frostbitten",
         activityMatch: "Frostbite",
         options: {
+          expiry: "sourceStart",
           description: "Speed reduced by 10 feet until the start of the barbarian's next turn.",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

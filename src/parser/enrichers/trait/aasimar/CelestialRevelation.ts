@@ -165,9 +165,8 @@ export default class CelestialRevelation extends DDBEnricherData {
         activityMatch: "Necrotic Shroud Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

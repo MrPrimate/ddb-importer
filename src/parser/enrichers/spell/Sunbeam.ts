@@ -6,7 +6,7 @@ export default class Sunbeam extends DDBEnricherData {
     return [
       {
         noCreate: true,
-        daeSpecialDurations: ["turnStartSource" as const],
+        options: { expiry: "sourceStart" },
       },
     ];
   }

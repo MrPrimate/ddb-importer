@@ -18,12 +18,12 @@ export default class ShadowArmor extends DDBEnricherData {
       {
         name: `${this.name}: Radiant Resistance`,
         options: {
-          durationSeconds: 6,
+          // "you have resistance to radiant damage until the start of your next turn"
+          expiry: "sourceStart",
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
-        daeSpecialDurations: ["turnStart" as const],
       },
     ];
   }

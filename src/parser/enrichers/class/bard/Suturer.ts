@@ -140,9 +140,11 @@ export default class Suturer extends DDBEnricherData {
         name: "Restrained by Thread",
         activityMatch: "Unspool",
         options: {
+          // the restrain lasts a minute with a save at the end of each of the target's turns
+          // (the OverTime flag below); a pseudo expiry would null the counted duration
+          expiry: "turnStart",
           durationSeconds: 60,
         },
-        daeSpecialDurations: ["turnStart"],
         statuses: ["Restrained"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
@@ -156,10 +158,8 @@ export default class Suturer extends DDBEnricherData {
         name: "Acupuncture Paralysis",
         activityMatch: "Save vs Paralysis",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnEnd"],
         statuses: ["Paralyzed"],
       },
     ];

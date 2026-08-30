@@ -64,10 +64,8 @@ export default class PolychromaticBubble extends DDBEnricherData {
         name: "Polychromatic Bubble: Charmed",
         activityMatch: "Save",
         options: {
-          durationSeconds: 12,
-          durationRounds: 2,
+          expiry: "targetStart",
         },
-        daeSpecialDurations: ["turnStart"],
         statuses: ["Charmed"],
       },
     ];

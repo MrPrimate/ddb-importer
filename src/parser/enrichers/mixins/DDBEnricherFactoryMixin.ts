@@ -831,12 +831,12 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
               foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
             }
           }
-          // An enricher that declares daeSpecialDurations (even as []) owns the
-          // effect's special durations: description parsing is first-match over
-          // the WHOLE spell text, so a rider sentence can stamp the wrong effect
-          // (Haste 2024's "until the end of its next turn" lethargy clause was
+          // An enricher that declares options.expiry or daeSpecialDurations (either one
+          // even as an empty/null value) owns the effect's expiry: description parsing is
+          // first-match over the WHOLE spell text, so a rider sentence can stamp the wrong
+          // effect (Haste 2024's "until the end of its next turn" lethargy clause was
           // expiring the main 1-minute buff at the target's next turn end).
-          if (!effectHint.daeSpecialDurations) {
+          if (!effectHint.daeSpecialDurations && !("expiry" in effectOptions)) {
             const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
             foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
             // description-parsed specials get the native duration.expiry translation too
@@ -895,6 +895,12 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.daeSpecialDurations) {
         effect = EffectGenerator.applyDaeSpecialDurations(effect, effectHint.daeSpecialDurations);
+      }
+
+      // applied last so an explicit native expiry outranks a DAE token on the same hint;
+      // a hint's raw `data.duration` still wins over both at the merge below
+      if ("expiry" in effectOptions) {
+        effect = EffectGenerator.applyNativeExpiry(effect, effectOptions.expiry ?? null);
       }
 
       if (effectHint.midiProperties && applyMidiOnlyEffects) {

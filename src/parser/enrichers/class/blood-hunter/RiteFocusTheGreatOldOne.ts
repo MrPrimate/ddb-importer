@@ -32,9 +32,9 @@ export default class RiteFocusTheGreatOldOne extends _RiteFocus {
         activityMatch: this.activityName,
         statuses: ["frightened"],
         options: {
+          expiry: "sourceEnd",
           description: "You are frightened of the blood hunter until the end of their next turn.",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

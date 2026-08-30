@@ -87,9 +87,11 @@ export default class VengefulBlade extends DDBEnricherData {
       activityMatch: "Extra Attack Damage",
       name: "Vengeful Blade: Radiates Dark Aura of Energy",
       options: {
+        // "radiates a dark aura of energy until the start of your next turn"
+        expiry: "sourceStart",
         description: `If the target makes an attack or spell before then, [[/item ${this.data.name} activity="Extra Damage"]](it takes necrotic damage), and the spell ends.`,
       },
-      daeSpecialDurations: ["1Attack" as const, "1Spell" as const, "turnEndSource" as const],
+      daeSpecialDurations: ["1Attack", "1Spell"],
     }];
   }
 

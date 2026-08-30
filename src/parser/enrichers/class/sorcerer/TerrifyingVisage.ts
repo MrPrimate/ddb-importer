@@ -81,9 +81,8 @@ export default class TerrifyingVisage extends DDBEnricherData {
         activityMatch: "Frighten",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 12,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

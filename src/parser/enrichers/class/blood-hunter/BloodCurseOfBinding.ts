@@ -53,11 +53,9 @@ export default class BloodCurseOfBinding extends _BloodCurse {
         name: "Bound",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Your speed is 0 and you can't use reactions.",
         },
-        daeSpecialDurations: ["turnEndSource"],
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],

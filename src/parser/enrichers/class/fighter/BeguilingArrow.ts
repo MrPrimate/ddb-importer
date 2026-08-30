@@ -57,9 +57,9 @@ export default class BeguilingArrow extends ArcaneShotOption {
         activityMatch: "Save vs Charmed",
         statuses: ["Charmed"],
         options: {
-          durationSeconds: 12,
+          // "charmed by the chosen ally until the start of your next turn"
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

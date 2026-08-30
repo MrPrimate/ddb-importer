@@ -416,9 +416,8 @@ export default class WildSurge extends DDBEnricherData {
         name: "Bolt of Light (Blinded)",
         activityMatch: "8: Bolt of Light (Save vs Damage)",
         statuses: ["Blinded"],
-        daeSpecialDurations: ["turnStartSource"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
         },
       },
     ];

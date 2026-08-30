@@ -80,11 +80,9 @@ export default class BloodCurseOfBloatedAgony extends _BloodCurse {
         name: "Bloated Agony",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description,
         },
-        daeSpecialDurations: ["turnEndSource"],
         changes: swollen,
       },
       {

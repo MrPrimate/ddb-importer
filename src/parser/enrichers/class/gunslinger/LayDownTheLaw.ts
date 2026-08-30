@@ -31,9 +31,8 @@ export default class LayDownTheLaw extends DDBEnricherData {
         // resistance to bludgeoning, piercing and slashing damage
         name: "Iron-Clad Law",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),

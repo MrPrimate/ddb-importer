@@ -61,10 +61,10 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           name: "Briefly Enfeebled",
           activityMatch: "Cast",
           options: {
-            durationSeconds: 6,
+            expiry: "sourceStart",
             description: this.ddbParser?.ddbDefinition?.description ?? "",
           },
-          daeSpecialDurations: ["1Attack", "turnStartSource"],
+          daeSpecialDurations: ["1Attack"],
         },
         {
           name: "Enfeebled",

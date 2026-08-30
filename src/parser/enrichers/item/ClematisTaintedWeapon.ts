@@ -82,8 +82,8 @@ export default class ClematisTaintedWeapon extends DDBEnricherData {
         name: "Paralyzed (Clematis Toxin)",
         activityMatch: "Poison Save",
         statuses: ["Paralyzed"],
-        daeSpecialDurations: ["turnEnd"],
         options: {
+          expiry: "targetEnd",
           description: "Paralyzed until the end of its next turn, unless it is immune to the Poisoned condition. Once paralysed this way a creature is immune to the weapon's paralysing effect for 24 hours.",
         },
       },

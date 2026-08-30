@@ -183,8 +183,8 @@ export default class MacabreModifications extends DDBEnricherData {
         name: "Macabre Modification: Gaunt Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
-          expiry: "turnStart",
+          // "Frightened condition until the start of its next turn"
+          expiry: "targetStart",
         },
         activityMatch: "Macabre Modification: Gaunt Save",
         data: {

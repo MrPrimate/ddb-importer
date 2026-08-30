@@ -87,8 +87,8 @@ export default class SetTrapMiasma extends DDBEnricherData {
         activityMatch: "Activate Miasma",
         statuses: ["Poisoned"],
         // "poisoned until the start of its next turn"
-        daeSpecialDurations: ["turnStart"],
         options: {
+          expiry: "targetStart",
           description: "Poisoned until the start of its next turn; disadvantage on saving throws to maintain concentration while poisoned this way.",
         },
       },

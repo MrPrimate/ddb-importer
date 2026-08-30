@@ -104,8 +104,9 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
           {
             name: metal.effectName,
             statuses: ["Unconscious"],
-            daeSpecialDurations: ["turnStart", "isDamaged"],
+            daeSpecialDurations: ["isDamaged"],
             options: {
+              expiry: "targetStart",
               description: "Unconscious until the start of its next turn. A creature with 80 or more hit points is immune; ends if the creature takes damage or another creature uses an action to wake it.",
             },
           },
@@ -114,13 +115,13 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
         return [
           {
             name: metal.effectName,
-            daeSpecialDurations: ["turnStart"],
             changes: [
               DDBEnricherData.ChangeHelper.addChange("-2", 20, "system.attributes.ac.bonus"),
               DDBEnricherData.ChangeHelper.addChange("-2", 20, "system.abilities.dex.save.roll.bonus"),
               DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
             ],
             options: {
+              expiry: "targetStart",
               description: "As the slow spell until the start of its next turn: -2 AC and Dexterity saves, half speed, no reactions, one action or bonus action only (action economy is manual).",
             },
           },
@@ -129,11 +130,11 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
         return [
           {
             name: metal.effectName,
-            daeSpecialDurations: ["turnEnd"],
             midiChanges: [
               DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.all"),
             ],
             options: {
+              expiry: "targetEnd",
               description: "Disadvantage on ability checks, attack rolls, and saving throws; deals half damage with Strength-based attacks (halving is manual) until the end of its next turn.",
             },
           },
@@ -143,7 +144,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
           {
             name: metal.effectName,
             statuses: ["Paralyzed"],
-            daeSpecialDurations: ["turnStart"],
+            options: { expiry: "targetStart" },
           },
         ];
       default:

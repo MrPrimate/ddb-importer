@@ -45,11 +45,10 @@ export default class BloodCurseOfTheMuddledMind extends _BloodCurse {
         name: "Muddled Mind",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "You have disadvantage on the next Constitution saving throw you make to maintain concentration.",
         },
-        daeSpecialDurations: ["turnEndSource", "isSave"],
+        daeSpecialDurations: ["isSave"],
         changes,
       },
       {
@@ -57,11 +56,9 @@ export default class BloodCurseOfTheMuddledMind extends _BloodCurse {
         name: "Muddled Mind (Amplified)",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "You have disadvantage on all Constitution saving throws made to maintain concentration.",
         },
-        daeSpecialDurations: ["turnEndSource"],
         changes,
       },
     ];

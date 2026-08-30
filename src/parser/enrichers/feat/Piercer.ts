@@ -20,6 +20,7 @@ export default class Piercer extends DDBEnricherData {
           transfer: true,
           durationSeconds: undefined,
           durationRounds: undefined,
+          expiry: null,
         },
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "piercer.js", document: this.data },
@@ -30,11 +31,9 @@ export default class Piercer extends DDBEnricherData {
         data: {
           duration: {
             value: null,
-            expiry: null,
             expired: undefined,
           },
         },
-        daeSpecialDurations: [],
       },
     ];
 

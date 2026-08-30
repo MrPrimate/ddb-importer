@@ -18,9 +18,9 @@ export default class ManeuverBlindfire extends DDBEnricherData {
       {
         name: "Blindfire",
         options: {
-          durationTurns: 1,
+          // "gain Blindsight with a range of 30 feet until the end of your turn" - a self buff
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEnd"],
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.senses.ranges.blindsight"),
         ],

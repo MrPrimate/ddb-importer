@@ -83,10 +83,8 @@ export default class BloodCurseOfTheExorcist extends _BloodCurse {
         name: "Stunned by Exorcism",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource"],
         statuses: ["Stunned"],
       },
     ];

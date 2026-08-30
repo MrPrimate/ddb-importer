@@ -9,14 +9,11 @@ export default class Command extends DDBEnricherData {
         macroChanges: [
           { macroType: "spell", macroName: "command.js" },
         ],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnStart",
-            units: "seconds",
-          },
+        options: {
+          // "follow the command on its next turn" - the effect has to survive THROUGH that
+          // turn, so it lapses at its end, not its start
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnStart"],
       },
     ];
   }

@@ -19,10 +19,9 @@ export default class TheBeast extends DDBEnricherData {
       {
         name: "The Beast",
         options: {
-          durationTurns: 1,
+          expiry: "sourceStart",
           description: "Advantage on D20 Tests until the start of your next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.all"),
         ],

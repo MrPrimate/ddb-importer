@@ -8,9 +8,9 @@ export default class ShadowArrow extends ArcaneShotOption {
       {
         name: "Covered on Shadow",
         options: {
-          durationSeconds: 12,
+          // "unable to see anything farther than 5 feet away until the start of your next turn"
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

@@ -94,16 +94,15 @@ export default class HuntersMark extends DDBEnricherData {
           ],
         options: {
           transfer: true,
-          // durationSeconds: null,
+          // the midi automation effect runs until the macro clears it
+          expiry: null,
         },
-        // force non expiry for midi automation effect
         data: {
           duration: {
             "value": null,
             "units": "seconds",
           },
         },
-        daeSpecialDurations: [],
       },
     ];
   }

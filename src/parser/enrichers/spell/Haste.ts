@@ -44,18 +44,17 @@ export default class Haste extends DDBEnricherData {
     return [
       {
         activityMatch: "Cast",
-        data: {
-          duration: {
-            value: 60,
-            units: "seconds",
-          },
+        options: {
+          // stated positively so the lethargy sentence ("until the end of its next turn")
+          // cannot be parsed onto this 1-minute buff
+          durationSeconds: 60,
+          expiry: "turnStart",
         },
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
           DDBEnricherData.ChangeHelper.movementMultiplierChange("2", 30),
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("dex"),
         ],
-        daeSpecialDurations: [],
       },
       {
         name: "Lethargy",
@@ -64,7 +63,7 @@ export default class Haste extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
-        daeSpecialDurations: ["turnEnd"],
+        options: { expiry: "targetEnd" },
       },
     ];
   }

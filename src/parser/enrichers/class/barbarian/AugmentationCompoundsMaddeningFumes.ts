@@ -42,11 +42,11 @@ export default class AugmentationCompoundsMaddeningFumes extends DDBEnricherData
       {
         name: "Maddening Fumes: Aggression",
         // "until the start of its next turn" on the affected creature
-        daeSpecialDurations: ["turnStart"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
         options: {
+          expiry: "targetStart",
           description: "Disadvantage on attack rolls against targets other than the barbarian until the start of its next turn (the exemption for attacks against the barbarian is manual).",
         },
       },

@@ -6,13 +6,13 @@ export default class MomentaryStasis extends DDBEnricherData {
     return [
       {
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 90),
         ],
         statuses: ["Incapacitated"],
-        daeSpecialDurations: ["isDamaged" as const, "turnEndSource" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
     ];
   }

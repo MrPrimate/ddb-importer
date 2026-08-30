@@ -19,11 +19,11 @@ export const DAE_EFFECT_EXPIRY_TYPES = [
 ] as const;
 
 export const DAE_SPECIAL_DURATIONS = [
-  "turnStart",
-  "turnEnd",
-  "turnStartSource",
-  "turnEndSource",
-  "combatEnd",
+  // "turnStart",
+  // "turnEnd",
+  // "turnStartSource",
+  // "turnEndSource",
+  // "combatEnd",
   // Attack/Action triggers
   "1Action",
   "1Attack",
@@ -1216,6 +1216,28 @@ export default class EffectGenerator {
 
   static PSEUDO_EXPIRIES: readonly string[] = ["sourceStart", "sourceEnd", "targetStart", "targetEnd"];
 
+  static DURATIONLESS_EXPIRIES: readonly string[] = ["shortRest", "longRest"];
+
+  /**
+   * Mirror of dnd5e's `ActiveEffect5e#expirySupportsDuration`: pseudo and durationless expiries
+   * cannot carry a counted duration, and the system nulls `duration.value` for them
+   */
+  static expirySupportsDuration(expiry: string | null | undefined): boolean {
+    return !EffectGenerator.PSEUDO_EXPIRIES.includes(expiry ?? "")
+      && !EffectGenerator.DURATIONLESS_EXPIRIES.includes(expiry ?? "");
+  }
+
+  /**
+   * Stamp a native dnd5e 6.0 `duration.expiry` from an enricher's `options.expiry` hint.
+   * Nulling the value for expiries that cannot carry one
+   */
+  static applyNativeExpiry(effect: I5eEffectData, expiry: T5eEffectExpiry | null) {
+    effect.duration ??= {};
+    effect.duration.expiry = expiry;
+    if (expiry && !EffectGenerator.expirySupportsDuration(expiry)) effect.duration.value = null;
+    return effect;
+  }
+
   static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
     effect.duration ??= {};
 
@@ -1231,9 +1253,8 @@ export default class EffectGenerator {
       }
     }
 
-    // the system evaluates pseudo expiries live and forces their duration null at
-    // creation; matching that here keeps stored data consistent with world data
-    if (EffectGenerator.PSEUDO_EXPIRIES.includes(effect.duration.expiry ?? "")) {
+    // the system evaluates pseudo expiries live and forces their duration null at creation
+    if (!EffectGenerator.expirySupportsDuration(effect.duration.expiry)) {
       effect.duration.value = null;
     }
 

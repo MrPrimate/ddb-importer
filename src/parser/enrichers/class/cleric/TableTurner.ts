@@ -24,10 +24,9 @@ export default class TableTurner extends DDBEnricherData {
         name: "Table-Turner: Poisoned",
         statuses: ["Poisoned"],
         options: {
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "Poisoned until the end of its next turn (failed save only).",
         },
-        daeSpecialDurations: ["turnEnd"],
       },
     ];
   }

@@ -40,10 +40,9 @@ export default class BlessingOfTheRavenQueen extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("ALL", 20, "system.traits.dr.value"),
         ],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
         },
         activityMatch: "Teleport",
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

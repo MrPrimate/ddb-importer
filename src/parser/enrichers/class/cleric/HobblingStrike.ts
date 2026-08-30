@@ -26,13 +26,12 @@ export default class HobblingStrike extends DDBEnricherData {
       {
         name: "Hobbling Strike: Hobbled",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Speed halved until the start of the cleric's next turn (Cleric level 14+).",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 50),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

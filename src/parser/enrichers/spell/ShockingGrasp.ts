@@ -6,7 +6,7 @@ export default class ShockingGrasp extends DDBEnricherData {
     return [
       {
         name: this.is2014 ? "Shocked: No Reactions" : "Shocked: No Opportunity Attacks",
-        daeSpecialDurations: ["turnStart" as const],
+        options: { expiry: "targetStart" },
       },
     ];
   }

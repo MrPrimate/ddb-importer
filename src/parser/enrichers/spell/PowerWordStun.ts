@@ -10,7 +10,7 @@ export default class PowerWordStun extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        options: { expiry: "sourceStart" },
       },
     ];
   }

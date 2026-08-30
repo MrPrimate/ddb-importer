@@ -13,9 +13,8 @@ export default class HoldTheLine extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
         ],
-        daeSpecialDurations: ["turnEnd" as const],
         options: {
-          durationSeconds: 3,
+          expiry: "targetEnd",
         },
       },
     ];

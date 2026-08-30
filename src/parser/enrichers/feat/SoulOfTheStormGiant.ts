@@ -121,7 +121,7 @@ export default class SoulOfTheStormGiant extends DDBEnricherData {
       {
         name: "Maelstrom Aura",
         activityMatch: "Maelstrom Aura",
-        daeSpecialDurations: ["turnStartSource"],
+        options: { expiry: "sourceStart" },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("lightning", 20, "system.traits.dr.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("thunder", 20, "system.traits.dr.value"),
@@ -133,7 +133,7 @@ export default class SoulOfTheStormGiant extends DDBEnricherData {
       {
         name: "Maelstrom Aura: Halved Speed",
         activitiesMatch: this.saveActivities.map((a) => a.name),
-        daeSpecialDurations: ["turnStart"],
+        options: { expiry: "targetStart" },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],

@@ -1209,7 +1209,7 @@ describe("warlock Malediction", () => {
       "Agony (Attack) (Reaction)",
     ]);
     // the curse lasts until the end of the target's next turn, not the warlock's
-    expect(effects[0].daeSpecialDurations).toContain("turnEnd");
+    expect(effects[0].options.expiry).toBe("targetEnd");
     // each save-hampering curse carries exactly the one save it names
     expect(effects.slice(1, 5).map((e: any) => e.changes.map((c: any) => c.key))).toEqual([
       ["system.abilities.con.save.roll.mode"],

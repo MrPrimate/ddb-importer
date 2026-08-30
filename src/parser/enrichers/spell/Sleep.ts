@@ -52,9 +52,8 @@ export default class Sleep extends DDBEnricherData {
         name: "Incapacitated",
         statuses: ["Incapacitated"],
         options: {
-          durationSeconds: 6,
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnEnd" as const],
         activityMatch: "Cast",
       },
       {

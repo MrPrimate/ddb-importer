@@ -79,7 +79,7 @@ describe("Floral Dragonborn traits", () => {
         value: "effectOriginTokenId !== opponentId",
       }),
     ]);
-    expect(effects[0].daeSpecialDurations).toEqual(["turnEnd"]);
+    expect(effects[0].options.expiry).toBe("targetEnd");
   });
 
   it.each([
@@ -180,7 +180,7 @@ describe("Floral Dragons items", () => {
       name: "Paralyzed (Clematis Toxin)",
       statuses: ["Paralyzed"],
       activityMatch: "Poison Save",
-      daeSpecialDurations: ["turnEnd"],
+      options: { expiry: "targetEnd" },
     });
   });
 

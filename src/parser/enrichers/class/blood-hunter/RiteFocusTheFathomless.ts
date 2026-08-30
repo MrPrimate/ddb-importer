@@ -36,12 +36,12 @@ export default class RiteFocusTheFathomless extends _RiteFocus {
         name: "Dragged Under",
         activityMatch: this.activityName,
         options: {
+          expiry: "sourceStart",
           description: "Your speed is reduced by 10 feet until the start of the blood hunter's next turn.",
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange("-10", 20),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

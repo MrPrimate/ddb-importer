@@ -21,10 +21,9 @@ export default class LongArmOfTheLaw extends DDBEnricherData {
       {
         name: "Hobbled",
         options: {
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "Cannot move on its next turn unless it first takes the Disengage action.",
         },
-        daeSpecialDurations: ["turnEnd"],
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 20),
         ],

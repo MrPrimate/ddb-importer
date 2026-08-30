@@ -31,9 +31,9 @@ export default class ManeuverFalconsGlide extends DDBEnricherData {
         name: "Falcon's Glide: Fly",
         activityMatch: "Fly (1 Additional Point)",
         options: {
-          durationTurns: 1,
           description: "You have a fly speed of 30 feet until the end of the turn.",
-          expiry: "turnEnd",
+          // "until the end of the turn" - a self buff spent on your own turn
+          expiry: "sourceEnd",
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),

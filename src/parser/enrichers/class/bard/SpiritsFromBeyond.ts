@@ -344,8 +344,8 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
       {
         name: "Spirits from Beyond - Charmed",
         options: {
-          durationSeconds: 6,
-          expiry: "turnStart",
+          // Trickster: "has the Charmed condition until the start of your next turn"
+          expiry: "sourceStart",
         },
         statuses: ["Charmed"],
         activityMatch: "7. Trickster",
@@ -353,8 +353,8 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
       {
         name: "Spirits from Beyond - Invisible",
         options: {
-          durationSeconds: 6,
-          expiry: "turnEnd",
+          // Shade: "the Invisible condition until the end of its next turn"
+          expiry: "targetEnd",
         },
         statuses: ["Invisible"],
         activityMatch: "8. Shade",
@@ -362,11 +362,9 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
       {
         name: "Spirits from Beyond - Frightened",
         options: {
-          durationSeconds: 6,
-          expiry: "turnStart",
+          expiry: "sourceStart",
           description: "The creature can take either an action or a Bonus Action, not both",
         },
-        daeSpecialDurations: ["turnStartSource"],
         statuses: ["Frightened"],
         activityMatch: "10. Coward",
         changes: [

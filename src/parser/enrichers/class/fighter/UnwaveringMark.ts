@@ -48,13 +48,12 @@ export default class UnwaveringMark extends DDBEnricherData {
       {
         name: "Unwavering Mark",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
           description: `Disadvantage on attack rolls against targets other than you until the start of your next turn`,
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

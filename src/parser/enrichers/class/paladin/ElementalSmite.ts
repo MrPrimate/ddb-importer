@@ -153,9 +153,8 @@ export default class ElementalSmite extends DDBEnricherData {
       {
         name: "Djinni's Escape: Incorporeal Form",
         options: {
-          durationSeconds: 12,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
         activityMatch: "Djinni's Escape",
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),

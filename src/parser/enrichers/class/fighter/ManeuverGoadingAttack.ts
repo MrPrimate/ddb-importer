@@ -43,7 +43,7 @@ export default class ManeuverGoadingAttack extends Maneuver {
       {
         name: "Goaded",
         activityMatch: "Save vs Goading",
-        daeSpecialDurations: ["turnEndSource" as const],
+        options: { expiry: "sourceEnd" },
       },
     ];
   }

@@ -19,10 +19,9 @@ export default class GreaterDisciplineCelerity extends DDBEnricherData {
       {
         name: "Celerity: Supernatural Speed",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Your Speed is doubled and you have a +3 bonus to AC until the start of your next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("3", 20, "system.attributes.ac.bonus"),
           DDBEnricherData.ChangeHelper.movementMultiplierChange("2", 30),

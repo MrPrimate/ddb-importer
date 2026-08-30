@@ -172,9 +172,8 @@ export default class FeyStep extends DDBEnricherData {
         name: "Frightened",
         statuses: ["frightened"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
         activityMatch: "Winter (Save)",
       },
     ];

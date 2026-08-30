@@ -69,13 +69,12 @@ export default class WoodWose extends DDBEnricherData {
         name: "Coated in Elderwood Sap",
         activityMatch: "Elderwood Sap",
         options: {
-          durationTurns: 1,
+          expiry: "sourceStart",
           description: "While coated in Elderwood sap, the target has Disadvantage on attack rolls against targets other than the druid.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

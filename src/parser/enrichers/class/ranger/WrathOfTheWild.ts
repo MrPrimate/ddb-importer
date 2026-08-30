@@ -96,10 +96,13 @@ export default class WrathOfTheWild extends DDBEnricherData {
         name: "Ghastly Form",
         activityMatch: "Take Ghastly Form",
         options: {
-          durationSeconds: 60,
+          // the transformation runs "for 1 minute or until you have the Incapacitated
+          // condition, die, or end it" - a counted duration, NOT a turn anchor. The feature's
+          // only "next turn" clause belongs to the Unnerving Aura frightened rider, and a
+          // pseudo expiry here would null durationSeconds and drop the form after one turn.
           expiry: "turnStart",
+          durationSeconds: 60,
         },
-        daeSpecialDurations: ["turnStartSource"],
         data: {
           flags: {
             ddbimporter: {

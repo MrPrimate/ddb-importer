@@ -6,7 +6,9 @@ interface IMaledictionCurse {
   changes: IActiveEffectChangeData[];
   midiChanges: IActiveEffectChangeData[];
   ac5eChanges: IAC5eActiveEffectChangeData[];
-  daeSpecialDurations: TDAESpecialDuration[];
+  /** Native expiry for the curse effect; every curse ends on the target's next turn end. */
+  expiry: T5eEffectExpiry;
+  daeSpecialDurations?: TDAESpecialDuration[];
 }
 
 type TMaledictionForm = "Action" | "Reaction";
@@ -46,7 +48,8 @@ export default class Malediction extends DDBEnricherData {
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
-        daeSpecialDurations: ["turnEnd", "1Attack"],
+        expiry: "targetEnd",
+        daeSpecialDurations: ["1Attack"],
       },
       {
         label: "Agony (Concentration)",
@@ -56,7 +59,8 @@ export default class Malediction extends DDBEnricherData {
         ],
         midiChanges: [],
         ac5eChanges: [],
-        daeSpecialDurations: ["turnEnd", "isSave"],
+        expiry: "targetEnd",
+        daeSpecialDurations: ["isSave"],
       },
       {
         label: "Hate (Int)",
@@ -66,7 +70,8 @@ export default class Malediction extends DDBEnricherData {
         ],
         midiChanges: [],
         ac5eChanges: [],
-        daeSpecialDurations: ["turnEnd", "isSave"],
+        expiry: "targetEnd",
+        daeSpecialDurations: ["isSave"],
       },
       {
         label: "Hate (Wis)",
@@ -76,7 +81,8 @@ export default class Malediction extends DDBEnricherData {
         ],
         midiChanges: [],
         ac5eChanges: [],
-        daeSpecialDurations: ["turnEnd", "isSave"],
+        expiry: "targetEnd",
+        daeSpecialDurations: ["isSave"],
       },
       {
         label: "Hate (Cha)",
@@ -86,7 +92,8 @@ export default class Malediction extends DDBEnricherData {
         ],
         midiChanges: [],
         ac5eChanges: [],
-        daeSpecialDurations: ["turnEnd", "isSave"],
+        expiry: "targetEnd",
+        daeSpecialDurations: ["isSave"],
       },
       {
         label: "Rot",
@@ -94,7 +101,7 @@ export default class Malediction extends DDBEnricherData {
         changes: [],
         midiChanges: [],
         ac5eChanges: [],
-        daeSpecialDurations: ["turnEnd"],
+        expiry: "targetEnd",
       },
     ];
   }
@@ -255,6 +262,7 @@ export default class Malediction extends DDBEnricherData {
           durationSeconds: 6,
           durationRounds: 1,
           description: curse.description,
+          expiry: curse.expiry,
         },
         daeSpecialDurations: curse.daeSpecialDurations,
         changes: curse.changes,
