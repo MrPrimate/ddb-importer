@@ -1,5 +1,5 @@
 import { STATUSES } from "../config/dictionary/effects/data";
-import { DAE_EFFECT_EXPIRY_TYPES, DAE_SPECIAL_DURATIONS } from "../parser/enrichers/effects/EffectGenerator";
+import { DAE_SPECIAL_DURATIONS } from "../parser/enrichers/effects/EffectGenerator";
 
 export {};
 
@@ -36,7 +36,7 @@ global {
   type TEffectPseudoExpiry = "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
   /** Everything accepted in `duration.expiry` under dnd5e 6.0. */
   type T5eEffectExpiry = TEffectDurationExpiry | TEffectDurationlessExpiry | TEffectPseudoExpiry;
-  type TDAEEffectExpiryTypes = typeof DAE_EFFECT_EXPIRY_TYPES[number];
+  type TDAEEffectExpiryTypes = T5eEffectExpiry;
   type TEffectShowIcon = 0 | 1 | 2; // NEVER | CONDITIONAL | ALWAYS
 
   interface IActiveEffectChangeData {

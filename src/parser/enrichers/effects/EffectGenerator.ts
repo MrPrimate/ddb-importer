@@ -17,7 +17,7 @@ import {
 } from "./EffectExpiryHelpers";
 
 
-export { DAE_EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
+export { EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
 
 export const DAE_SPECIAL_DURATIONS = [
   // we handle these in core expiry now
