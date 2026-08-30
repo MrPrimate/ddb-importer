@@ -64,6 +64,9 @@ export default abstract class _StormAura extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(this.element),
         ],
+        options: {
+          durationSeconds: this.is2014 ? 60 : 600,
+        },
       },
     ];
   }
