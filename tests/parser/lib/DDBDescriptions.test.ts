@@ -429,3 +429,67 @@ describe("DDBDescriptions.splitStringByComma", () => {
     expect(DDBDescriptions.splitStringByComma("fireball")).toEqual(["fireball"]);
   });
 });
+
+describe("nextTurnExpiry", () => {
+  // dnd5e 6.0 anchors a turn edge on the effect's SOURCE or its TARGET; getting
+  // that backwards is a significant failure mode
+
+  it("anchors generic referents on the target", () => {
+    for (const whos of ["its", "the target's", "the creature's", "that creature's", "their"]) {
+      expect(DDBDescriptions.nextTurnExpiry(`is blinded until the end of ${whos} next turn.`))
+        .toMatchObject({ expiry: "targetEnd", dae: "turnEnd" });
+    }
+  });
+
+  it("anchors the caster's own wording on the source", () => {
+    expect(DDBDescriptions.nextTurnExpiry("lasts until the start of your next turn."))
+      .toMatchObject({ expiry: "sourceStart", dae: "turnStartSource" });
+    expect(DDBDescriptions.nextTurnExpiry("until the end of the caster's next turn"))
+      .toMatchObject({ expiry: "sourceEnd", dae: "turnEndSource" });
+  });
+
+  it("treats a noun naming the acting creature as the source", () => {
+    // a summon or class actor acts; the target is referred to generically
+    expect(DDBDescriptions.nextTurnExpiry("until the start of the aberration's next turn"))
+      .toMatchObject({ expiry: "sourceStart" });
+    expect(DDBDescriptions.nextTurnExpiry("until the end of the ranger's next turn"))
+      .toMatchObject({ expiry: "sourceEnd" });
+  });
+
+  it("reduces adjective-qualified generic referents to their head noun", () => {
+    for (const whos of ["the chosen creature's", "the hit creature's", "the frightened creature's"]) {
+      expect(DDBDescriptions.nextTurnExpiry(`until the end of ${whos} next turn`))
+        .toMatchObject({ expiry: "targetEnd" });
+    }
+  });
+
+  it("accepts 'beginning' as a synonym for 'start'", () => {
+    expect(DDBDescriptions.nextTurnExpiry("until the beginning of its next turn"))
+      .toMatchObject({ expiry: "targetStart" });
+    expect(DDBDescriptions.nextTurnExpiry("until the beginning of your next turn"))
+      .toMatchObject({ expiry: "sourceStart" });
+  });
+
+  it("survives a clause split by a newline or non-breaking space", () => {
+    expect(DDBDescriptions.nextTurnExpiry("until the end of\nits next turn")).toMatchObject({ expiry: "targetEnd" });
+    expect(DDBDescriptions.nextTurnExpiry("until the end of its next turn")).toMatchObject({ expiry: "targetEnd" });
+  });
+
+  it("treats an unrecognised possessive as the acting creature", () => {
+    // monster names are unbounded ("the demilich's next turn"); rules text names
+    // the actor specifically and the affected creature generically
+    expect(DDBDescriptions.nextTurnExpiry("Blinded until the end of the demilich's next turn"))
+      .toMatchObject({ expiry: "sourceEnd" });
+  });
+
+  it("returns null rather than guessing a non-possessive unknown referent", () => {
+    expect(DDBDescriptions.nextTurnExpiry("until the end of some nonsense next turn")).toBeNull();
+    expect(DDBDescriptions.nextTurnExpiry("for 1 minute")).toBeNull();
+  });
+
+  it("feeds getDuration's native expiry alongside the legacy DAE token", () => {
+    const duration = DDBDescriptions.getDuration("blinded until the end of its next turn.", false);
+    expect(duration.expiry).toBe("targetEnd");
+    expect(duration.dae).toEqual(["turnEnd"]);
+  });
+});

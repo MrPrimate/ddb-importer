@@ -5,6 +5,7 @@ import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBModifiers from "../../lib/DDBModifiers";
 import SystemHelpers from "../../../lib/SystemHelpers";
 import ChangeHelper from "./ChangeHelper";
+import { applyDaeSpecialDurations, applyNativeExpiry } from "./EffectExpiryHelpers";
 import MidiEffects from "./MidiEffects";
 
 interface IGenericConditionAdjustment {
@@ -279,7 +280,7 @@ export default class AutoEffects {
       system: { changes: [] },
       flags: foundry.utils.mergeObject({
         dae: {
-          specialDuration: parsedStatus.specialDurations,
+          specialDuration: [] as string[],
         },
       }, flags),
       statuses: [],
@@ -292,7 +293,6 @@ export default class AutoEffects {
     if (parsedStatus.group4) {
       const condition = parsedStatus.condition ?? "";
       ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
-      DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
       else effect.name = `Status: ${parsedStatus.conditionName}`;
       effect.img = CONFIG.DND5E.conditionTypes[condition]?.icon ?? undefined;
@@ -311,6 +311,11 @@ export default class AutoEffects {
     if (parsedStatus.riderStatuses) {
       effect.statuses.push(...parsedStatus.riderStatuses);
     }
+
+    // native expiry
+    if (parsedStatus.expiry) applyNativeExpiry(effect, parsedStatus.expiry);
+    // apply any dae specific expiry
+    applyDaeSpecialDurations(effect, parsedStatus.specialDurations as TDAESpecialDuration[]);
 
     return effect;
   }
@@ -338,7 +343,11 @@ export default class AutoEffects {
     if (Number.isFinite(conditionEffect.duration?.value)) {
       effect.duration.value = conditionEffect.duration.value;
       effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units ?? "") ?? undefined;
+    }
+    // stamp and correct expiry durations
+    if (conditionEffect.duration?.expiry) {
       effect.duration.expiry = conditionEffect.duration.expiry;
+      if (!Number.isFinite(conditionEffect.duration?.value)) effect.duration.value = null;
     }
 
     if (!effect.name || effect.name === "") {

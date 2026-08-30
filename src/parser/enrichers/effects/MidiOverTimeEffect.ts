@@ -3,6 +3,7 @@ import logger from "../../../lib/Logger";
 import DDBDescriptions from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
+import { expirySupportsDuration } from "./EffectExpiryHelpers";
 
 interface IGenerateDamageOverTimeEffectOptions {
   startTurn?: boolean;
@@ -131,6 +132,17 @@ export default class MidiOverTimeEffect {
     }
   }
 
+  /**
+   * Carry the condition effect's native `duration.expiry` onto the built effect.
+   */
+  applyConditionExpiry() {
+    const expiry = this.conditionEffect?.duration?.expiry;
+    if (!expiry) return;
+    foundry.utils.setProperty(this.effect, "duration.expiry", expiry);
+    // pseudo expiries cannot carry a counted duration
+    if (!expirySupportsDuration(expiry)) foundry.utils.setProperty(this.effect, "duration.value", null);
+  }
+
   generateOverTimeEffect() {
     logger.debug(`Checking for over time effects for ${this.document.name} on ${this.actor.name}`);
     if (!this.document.effects) this.document.effects = [];
@@ -143,6 +155,7 @@ export default class MidiOverTimeEffect {
       foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", true);
       const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document: this.document, save: this.conditionStatus.save, text: this.description });
       if (change) this.effect.system.changes.push(change);
+      this.applyConditionExpiry();
     }
 
     const duration = this.conditionStatus.duration;
@@ -243,6 +256,7 @@ export default class MidiOverTimeEffect {
     this.effect.statuses.push(...this.conditionEffect.statuses);
     if (this.conditionEffect.name && this.conditionEffect.name !== "") this.effect.name = this.conditionEffect.name;
     this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
+    this.applyConditionExpiry();
 
     const duration = this.conditionEffect.duration;
     if (duration.units === "rounds") {

@@ -318,6 +318,60 @@ export default class DDBDescriptions {
     }
   }
 
+  /**
+   * References that name the creature the effect is ON. "until the end of the
+   * creature's next turn" anchors on the target.
+   */
+  static NEXT_TURN_TARGET_REFERENTS = [
+    "it", "its", "the target", "the target's", "that target", "that target's",
+    "the creature", "the creature's", "that creature", "that creature's",
+    "their", "them", "the attacker", "the attacker's", "the victim", "the victim's",
+  ];
+
+  /**
+   * References that name the creature the effect came FROM. DDB rules
+   * text names the ACTING creature specifically ("the demilich's next turn",
+   * "the ranger's", "the aberration's") while referring to the thing affected
+   * generically ("the creature", "the target"). So any unrecognised POSSESSIVE
+   * noun phrase is treated as the source; a reference that is neither generic nor
+   * possessive yields no expiry
+   */
+  static NEXT_TURN_SOURCE_REFERENTS = ["your", "the caster", "the summoner"];
+
+  /** "the demilich's", "stokkvari's", "the boss' " - a possessive noun phrase. */
+  static POSSESSIVE_REFERENT = /(?:'s|s')$/;
+
+  /**
+   * Parse a "until the start/end of X's next turn" clause into native `duration.expiry`.
+   * Adjective-qualified generic referents ("the chosen creature's", "the hit creature's")
+   * reduce to their first noun before lookup. Returns null when the referent is not recognised
+   */
+  static nextTurnExpiry(text: string): { expiry: T5eEffectExpiry; dae: string; special: string } | null {
+    // real newlines and non-breaking spaces can break a clause that spans a line
+    const cleaned = utils.nameString(text).replace(/[\s\u00a0]+/g, " ");
+    const re = /until the (?<point>end|start|beginning) of (?<whos>[^.,;:]{1,40}?) next turn/i;
+    const match = re.exec(cleaned);
+    if (!match?.groups) return null;
+
+    const point = match.groups.point === "end" ? "End" : "Start";
+    const referent = match.groups.whos.toLowerCase().trim();
+    // "the chosen/hit/frightened creature's" -> "the creature's"
+    const generic = referent.replace(
+      /^(the|that) \w+ (creature'?s?|target'?s?)$/,
+      (_m, article, noun) => `${article} ${noun}`,
+    );
+
+    let source: boolean;
+    if (DDBDescriptions.NEXT_TURN_TARGET_REFERENTS.includes(generic)) source = false;
+    else if (DDBDescriptions.NEXT_TURN_SOURCE_REFERENTS.includes(referent.replace(DDBDescriptions.POSSESSIVE_REFERENT, ""))) source = true;
+    else if (DDBDescriptions.POSSESSIVE_REFERENT.test(referent)) source = true;
+    else return null;
+
+    const dae = `turn${point}${source ? "Source" : ""}`;
+    const expiry = (source ? `source${point}` : `target${point}`) as T5eEffectExpiry;
+    return { expiry, dae, special: match[0] };
+  }
+
   static getDuration(text: string, returnDefault = true, generateSpecial = true) {
     const defaultDurationSeconds = 60;
     const result: {
@@ -334,6 +388,7 @@ export default class DDBDescriptions {
       value: string | null;
       units: string;
       dae: string[];
+      expiry: T5eEffectExpiry | null;
     } = {
       type: returnDefault ? "second" : null,
       seconds: returnDefault ? defaultDurationSeconds : null,
@@ -348,6 +403,7 @@ export default class DDBDescriptions {
       value: null,
       units: "inst",
       dae: [],
+      expiry: null,
     };
     const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
     const match = text.match(re);
@@ -401,49 +457,46 @@ export default class DDBDescriptions {
 
     if (!generateSpecial) return result;
 
-    const smallMatchRe = /until the (?<point>end|start) of (?<whos>its|the target's|your) next turn/ig;
-    const smallMatch = smallMatchRe.exec(utils.nameString(text));
-    if (smallMatch) {
+    const nextTurn = DDBDescriptions.nextTurnExpiry(text);
+    if (nextTurn) {
       result.type = "special";
       result.units = "spec";
       result.seconds = 6;
       result.rounds = 1;
-      result.special = smallMatch[0];
-      // "turnStart" - expires at the start of the targets next turn
-      // "turnEnd" - expires at the end of the targets next turn
-      // "turnStartSource" - expires at the start of the source actors next turn
-      // "turnEndSource" - expires at the end of the source actors next turn
-      // "combatEnd" - expires at the end of combat
-      // "joinCombat" - expires at the start of combat
-      result.dae = [];
-      const smallGroups = smallMatch.groups;
-      if (smallGroups) {
-        if (["its", "the target's"].includes(smallGroups.whos)) {
-          result.dae.push(`turn${utils.capitalize(smallGroups.point)}`);
-        } else if (["your"].includes(smallGroups.whos)) {
-          result.dae.push(`turn${utils.capitalize(smallGroups.point)}Source`);
-        }
-      }
+      result.special = nextTurn.special;
+      result.expiry = nextTurn.expiry;
+      result.dae = [nextTurn.dae];
 
       return result;
     }
     return result;
   }
 
+  /**
+   * Merge a DAE special duration parsed from a dcParser match tail into an effect.
+   *
+   * Retained for the public `DDBEffectHelper.getSpecialDuration` API only - the
+   * parser itself no longer calls this.
+   *
+   * Note that `dcParser`'s trailing capture is lazy-optional (`(.*)??`),
+   * so `match[7]` is always undefined for matches produced by that regex;
+   * only an external caller supplying its own match can reach the classification
+   * below.
+   *
+   * It previously mapped ANY "until the start of the..." to
+   * `turnStartSource`, anchoring "the target's next turn" on the
+   * caster; it now shares `nextTurnExpiry`'s reference rules.
+   */
   static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match: any) {
-    const durations = [];
-    // minutes
-    if (match[7]
-      && (match[7].includes("until the end of its next turn")
-        || match[7].includes("until the end of the target's next turn"))
-    ) {
-      durations.push("turnEnd");
-    } else if (match[7] && match[7].includes("until the start of the")) {
-      durations.push("turnStartSource");
+    const durations: string[] = [];
+    const tail = match?.[7];
+    if (typeof tail === "string" && tail !== "") {
+      const parsed = DDBDescriptions.nextTurnExpiry(tail);
+      if (parsed) durations.push(parsed.dae);
     }
 
     const currentSpecialDurations: TDAESpecialDuration[] = foundry.utils.getProperty(effect, "flags.dae.specialDuration") as TDAESpecialDuration[] ?? [];
-    const specialDurations = utils.addArrayToProperties(currentSpecialDurations, durations ?? []);
+    const specialDurations = utils.addArrayToProperties(currentSpecialDurations, durations);
     foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
     return effect;
   }
@@ -740,6 +793,7 @@ export default class DDBDescriptions {
         units: null,
       },
       specialDurations: [],
+      expiry: null,
       match: null,
       riderStatuses: [],
     };
@@ -787,6 +841,7 @@ export default class DDBDescriptions {
         result.duration.units = AutoEffects.adjustDurationUnits(duration.units);
       }
       result.specialDurations = duration.dae ?? [];
+      result.expiry = duration.expiry;
     }
 
     result.riderStatuses = matchResults.riderStatuses;

@@ -27,6 +27,7 @@ global {
       units: TEffectDurationUnit | null;
     };
     specialDurations: string[];
+    expiry: T5eEffectExpiry | null;
     match: RegExpExecArray | null;
     riderStatuses: string[];
   }

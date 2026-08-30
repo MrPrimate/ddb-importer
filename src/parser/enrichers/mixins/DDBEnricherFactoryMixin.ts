@@ -839,9 +839,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           if (!effectHint.daeSpecialDurations && !("expiry" in effectOptions)) {
             const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
             foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
-            // description-parsed specials get the native duration.expiry translation too
-            if ((duration.dae ?? []).length > 0) {
-              effect = EffectGenerator.applyDaeSpecialDurations(effect, specialDurations);
+            // the parser computes the native expiry alongside the legacy tokens
+            if (duration.expiry) {
+              effect = EffectGenerator.applyNativeExpiry(effect, duration.expiry);
             }
           }
         }

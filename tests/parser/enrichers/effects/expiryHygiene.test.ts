@@ -6,10 +6,10 @@ import url from "node:url";
 // dnd5e 6.0 expresses turn-edge expiry natively on `duration.expiry`, and enrichers declare it
 // with the `options: { expiry }` hint. `daeSpecialDurations` is now reserved for the tokens only
 // DAE can express - usage counts and trigger conditions (1Attack, isSave, isDamaged, 1Spell,
-// isSkill.*, ...). A natively mappable token in a hint would be laundered through
-// EffectGenerator.DAE_TO_NATIVE_EXPIRY, which reintroduces the two problems the migration removed:
-// the source-anchored tokens leak into flags.dae.specialDuration, and the intent is stated in the
-// wrong vocabulary. The description-duration parser still produces these tokens from prose, which
+// isSkill.*, ...). Since the DAE_TO_NATIVE_EXPIRY retirement nothing translates a mappable token
+// in a hint at all - applyDaeSpecialDurations only writes flags - so a natively mappable token
+// here would produce NO native expiry: the effect would simply never expire without DAE.
+// The description-duration parser still produces these tokens from prose, which
 // is why the translator itself stays - this pin only covers hand-written enricher hints.
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));

@@ -8,17 +8,19 @@ import ProficiencyFinder from "../../lib/ProficiencyFinder";
 import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
+import {
+  applyDaeSpecialDurations,
+  applyNativeExpiry,
+  DURATIONLESS_EXPIRIES,
+  expirySupportsDuration,
+  PSEUDO_EXPIRIES,
+} from "./EffectExpiryHelpers";
 
 
-const EFFECT_EXPIRY_TYPES = [
-  "turnStart", "turnEnd", "roundStart", "roundEnd", "combatStart", "combatEnd",
-] as const;
-export const DAE_EFFECT_EXPIRY_TYPES = [
-  ...EFFECT_EXPIRY_TYPES,
-  "sourceStart", "sourceEnd", "targetStart", "targetEnd",
-] as const;
+export { DAE_EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
 
 export const DAE_SPECIAL_DURATIONS = [
+  // we handle these in core expiry now
   // "turnStart",
   // "turnEnd",
   // "turnStartSource",
@@ -1194,77 +1196,17 @@ export default class EffectGenerator {
 
   }
 
-  /**
-   * Translate DAE-style special durations into dnd5e 6.0's native `duration.expiry`.
-   * The source/target pseudo expiries are evaluated live by the system's
-   * `isExpiryEvent` against the effect's origin actor (stamped by the chat tray
-   * and region application), so "until the start of the CASTER's next turn"
-   * works regardless of whose turn the effect lands in. Specials the system
-   * cannot express (usage counts like 1Attack, isSave...) stay as DAE flags.
-   */
-  static DAE_TO_NATIVE_EXPIRY: Record<string, TDAEEffectExpiryTypes> = {
-    "turnStart": "targetStart",
-    "turnEnd": "targetEnd",
-    "turnStartSource": "sourceStart",
-    "turnEndSource": "sourceEnd",
-    "combatEnd": "combatEnd",
-    "sourceStart": "sourceStart",
-    "sourceEnd": "sourceEnd",
-    "targetStart": "targetStart",
-    "targetEnd": "targetEnd",
-  };
+  // expiry translation lives in the EffectExpiryHelpers leaf so AutoEffects can
+  // use it without importing EffectGenerator (which imports AutoEffects); these
+  // statics stay as the established call surface
+  static PSEUDO_EXPIRIES = PSEUDO_EXPIRIES;
 
-  static PSEUDO_EXPIRIES: readonly string[] = ["sourceStart", "sourceEnd", "targetStart", "targetEnd"];
+  static DURATIONLESS_EXPIRIES = DURATIONLESS_EXPIRIES;
 
-  static DURATIONLESS_EXPIRIES: readonly string[] = ["shortRest", "longRest"];
+  static expirySupportsDuration = expirySupportsDuration;
 
-  /**
-   * Mirror of dnd5e's `ActiveEffect5e#expirySupportsDuration`: pseudo and durationless expiries
-   * cannot carry a counted duration, and the system nulls `duration.value` for them
-   */
-  static expirySupportsDuration(expiry: string | null | undefined): boolean {
-    return !EffectGenerator.PSEUDO_EXPIRIES.includes(expiry ?? "")
-      && !EffectGenerator.DURATIONLESS_EXPIRIES.includes(expiry ?? "");
-  }
+  static applyNativeExpiry = applyNativeExpiry;
 
-  /**
-   * Stamp a native dnd5e 6.0 `duration.expiry` from an enricher's `options.expiry` hint.
-   * Nulling the value for expiries that cannot carry one
-   */
-  static applyNativeExpiry(effect: I5eEffectData, expiry: T5eEffectExpiry | null) {
-    effect.duration ??= {};
-    effect.duration.expiry = expiry;
-    if (expiry && !EffectGenerator.expirySupportsDuration(expiry)) effect.duration.value = null;
-    return effect;
-  }
-
-  static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
-    effect.duration ??= {};
-
-    // explicit source/target specials outrank the ambiguous legacy turn tokens
-    for (const group of [
-      ["turnStart", "turnEnd", "combatEnd", "turnStartSource", "turnEndSource"],
-      ["sourceStart", "sourceEnd", "targetStart", "targetEnd"],
-    ]) {
-      for (const special of group) {
-        if (!durations.includes(special as TDAESpecialDuration)) continue;
-        effect.duration.expiry = EffectGenerator.DAE_TO_NATIVE_EXPIRY[special];
-        break;
-      }
-    }
-
-    // the system evaluates pseudo expiries live and forces their duration null at creation
-    if (!EffectGenerator.expirySupportsDuration(effect.duration.expiry)) {
-      effect.duration.value = null;
-    }
-
-    const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>
-      !(DAE_EFFECT_EXPIRY_TYPES as readonly string[]).includes(d),
-    );
-
-    if (durationsToFlag.length > 0)
-      foundry.utils.setProperty(effect, "flags.dae.specialDuration", durationsToFlag);
-    return effect;
-  }
+  static applyDaeSpecialDurations = applyDaeSpecialDurations;
 
 }
