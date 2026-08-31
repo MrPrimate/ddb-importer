@@ -413,6 +413,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Variant Tiefling",
     "Genie's Vessel",
     "Reanimator's Skillset",
+    "Storm Aura",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -424,16 +425,17 @@ export const PARSING_CHOICE_FEATURES = {
     // "Variant Tiefling",
     // "Totem Spirit",
     // "Totemic Attunement",
-  ],
+    "Storm Aura",
+  ] as string[],
   // Parent features whose DDB description is a dump of every option (e.g. Blood
   // Curses ships all curses). Replace it with the chosen options' own descriptions.
   REPLACE_DESCRIPTION_WITH_CHOICES: [
     "Blood Curses",
-  ],
+  ] as string[],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
     // "Arcane Shot Options",
-  ],
+  ] as string[],
   NO_CHOICE_DESCRIPTION_ADDITION: [
     // the parent's own <ul> already enumerates the options, and each option is
     // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
