@@ -1227,6 +1227,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         hint: "Imported spells and features with areas (Moonbeam, Spike Growth, Stench...) gain DDB Importer Trigger region behaviors that prompt saves/damage in chat when tokens enter the area or start/end their turn there. Applies to newly imported documents; re-import to add or remove the behaviors.",
         label: "Add Region Triggers for Damage/Saves on Entry or per Turn?",
       },
+      {
+        name: "enable-region-expiry-cleanup",
+        isChecked: utils.getSetting<boolean>("enable-region-expiry-cleanup"),
+        enabled: true,
+        hint: "When a spell or feature effect expires, is deleted, or its concentration ends, prompt the GM to remove the area template it placed. Works around the 5e system leaving templates behind when their governing effect ends. Requires reload.",
+        label: "Prompt to Remove Expired Area Templates?",
+      },
     ];
 
     return enhancementConfig;

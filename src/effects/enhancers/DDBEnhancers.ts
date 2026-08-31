@@ -3,6 +3,7 @@ import GreatWeaponMaster from "./Feats/GreatWeaponMaster";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
+import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
 import { logger, utils } from "../../lib/_module";
 
 // DDB Enhancers adds built in light touch automation effects
@@ -87,6 +88,7 @@ export default class DDBEnhancers {
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
+    RegionExpiryCleanup.registerHooks();
   }
 
 }

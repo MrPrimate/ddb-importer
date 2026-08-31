@@ -30,6 +30,7 @@ import { createStorage } from "./hooks/ready/storage";
 import { sqliteCipherRaw } from "./lib/SqliteCipher";
 import NativeAdventureMunch from "./muncher/adventure/native/NativeAdventureMunch";
 import DDBKeyChangeDialog from "./apps/DDBKeyChangeDialog";
+import RegionExpiryCleanup from "./effects/enhancers/Regions/RegionExpiryCleanup";
 import { migrateJournalsToDDBSheet } from "./hooks/ready/migration/migration_5_6_0_journals";
 import { migration } from "./hooks/ready/migraton";
 import SpellListFactory from "./parser/spells/SpellListFactory";
@@ -274,6 +275,17 @@ export const API_BASE = {
     selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
     wait: DDBEffectHelper.wait,
     AuraAutomations,
+    // Activity-placed template (Region) cleanup. `scanAllScenes()` is the macro entry point:
+    // it sweeps every scene, views the ones with candidates, and prompts scene by scene.
+    RegionExpiry: {
+      scanAllScenes: () => RegionExpiryCleanup.scanAllScenes(),
+      scanCurrentScene: () => RegionExpiryCleanup.scanCurrentScene(),
+      sweepScene: (scene?: any) => RegionExpiryCleanup.sweepScene(scene),
+      trackedRegions: (scene?: any) => RegionExpiryCleanup.trackedRegions(scene),
+      report: () => RegionExpiryCleanup.report(),
+      forget: () => RegionExpiryCleanup.forget(),
+      cleanup: RegionExpiryCleanup,
+    },
   },
   executeDDBMacro: lib.DDBMacros.executeDDBMacro,
   // macro tools
@@ -303,6 +315,17 @@ export const API_BASE = {
     // every Quickplay-imported tile's raw DDB values, current placement, and
     // computed-at-import diagnostics.
     dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
+    // Region expiry cleanup diagnostics. `report()` explains why the watcher is or is not
+    // acting and how each activity-placed region currently resolves; `forget()` clears the
+    // session's "keep" decisions so kept templates are offered again. The user-facing entry
+    // points live on `DDBImporter.effects.RegionExpiry`.
+    regionExpiry: {
+      report: () => RegionExpiryCleanup.report(),
+      forget: () => RegionExpiryCleanup.forget(),
+      findTemplatesForEffect: (effect: any) => RegionExpiryCleanup.findTemplatesForEffect(effect),
+      governingEffect: (region: any) => RegionExpiryCleanup.governingEffect(region),
+      cleanup: RegionExpiryCleanup,
+    },
   },
   DICTIONARY: config.DICTIONARY,
   // STATUS lived on SETTINGS until activeUpdate moved to the updater; kept here

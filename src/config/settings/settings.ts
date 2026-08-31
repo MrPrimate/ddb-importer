@@ -116,7 +116,7 @@ const SETTINGS = {
   DISABLE_FOUNDRY_UPGRADE,
   MUNCH_DEFAULTS,
   DEFAULT_SETTINGS: {
-    // these settigs are loaded during renderSidebarTab
+    // these settings are loaded during renderSidebarTab
     EARLY: {
       "log-level": {
         name: "ddb-importer.settings.log-level.name",
@@ -168,7 +168,14 @@ const SETTINGS = {
         scope: "world",
         config: false,
         type: Boolean,
+        default: true,
+      },
+      "enable-region-expiry-cleanup": {
+        scope: "world",
+        config: false,
+        type: Boolean,
         default: false,
+        requiresReload: true,
       },
       "add-ddb-snippets-to-activities": {
         scope: "world",
