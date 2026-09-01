@@ -6,7 +6,7 @@ import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
 import Vestige from "./Vestige";
 import { addRestrictionFlags } from "../../effects/restrictions";
-import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 
@@ -83,7 +83,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
   /** Alternation of the six ability long names, for the save-parsing regexes. */
-  static SAVE_ABILITY_NAMES = DICTIONARY.actor.abilities.map((ability) => ability.long).join("|");
+  static SAVE_ABILITY_NAMES = DDBDescriptions.SAVE_ABILITY_NAMES;
 
   /**
    * Map long ability names captured from a description to system keys, dropping
@@ -91,11 +91,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * list, so "Strength or Dexterity saving throw" legitimately yields two.
    */
   static saveAbilityKeys(...names: (string | undefined)[]): string[] {
-    return names.reduce((keys: string[], name) => {
-      const key = DICTIONARY.actor.abilities.find((ability) => ability.long === name?.toLowerCase())?.value;
-      if (key && !keys.includes(key)) keys.push(key);
-      return keys;
-    }, []);
+    return DDBDescriptions.saveAbilityKeys(...names);
   }
 
   declare data: I5eInventoryItem;
@@ -148,6 +144,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   ddbCharacter: DDBCharacter;
   characterProficiencies: IDDBPCDnDBeyondProficiencyFlags[];
   actionData: IActionData;
+  // memoised by the multiSaveSections getter; [] means "single save, do not reshape"
+  #multiSaveSections?: { slice: ISectionSlice; save: IParsedSave }[];
   perSpell: IPerSpell;
   damageParts: I5eDamagePart[];
   healingParts: I5eDamagePart[];
@@ -1904,65 +1902,85 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "system.uses.autoDestroy", autoDestroyValue);
   }
 
-  targetsCreature(): boolean {
+  targetsCreature(text: string = this.ddbDefinition.description): boolean {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /attack against the target|at a target in range/gi;
-    return !!(this.ddbDefinition.description.match(creature)
-      || this.ddbDefinition.description.match(creaturesRange)
-      || this.ddbDefinition.description.match(targets));
+    return !!(text.match(creature)
+      || text.match(creaturesRange)
+      || text.match(targets));
   }
 
+
+  /**
+   * The labelled sections of this item's description that each name a save, memoised.
+   *
+   * A multi-mode item ("Acid Jet.", "Frost Shot.") gets one activity per section, so the primary
+   * activity must read only the FIRST section rather than the whole description - otherwise it
+   * claims every mode's damage and area.
+   */
+  get multiSaveSections(): { slice: ISectionSlice; save: IParsedSave }[] {
+    this.#multiSaveSections ??= this._saveBearingSections(this.ddbDefinition.description ?? "");
+    return this.#multiSaveSections;
+  }
+
+  /**
+   * Does the primary activity describe the FIRST labelled section, or something else entirely?
+   *
+   * On a wondrous item or a potion the primary activity is the save `parseSaveFromDescription`
+   * found, which is the first section's - so scoping its damage, area and name to that section
+   * keeps it honest. On a weapon the primary is the weapon attack, so every section is an extra
+   * and the item's own damage and target must be left alone. This mirrors the ordering in
+   * `_getActivitiesType`, which cannot be called speculatively because it has side effects.
+   */
+  get #primaryIsFirstSection(): boolean {
+    if (this.multiSaveSections.length === 0) return false;
+    if (this.documentType === "container") return false;
+    if (["tool", "weapon", "staff"].includes(this.parsingType ?? "")) return false;
+    return Boolean(this.actionData.save);
+  }
+
+  /** The name the primary activity takes on a multi-mode item, or null to leave it unnamed. */
+  get #primaryActivityName(): string | null {
+    if (!this.#primaryIsFirstSection) return null;
+    return DDBActivityFactoryMixin.multiSaveActivityName(this.multiSaveSections[0].slice.rawLabel) || null;
+  }
+
+  /** The description text the primary activity describes: its own section, or the whole item. */
+  get #primaryDescription(): string {
+    return this.#primaryIsFirstSection
+      ? this.multiSaveSections[0].slice.section
+      : this.ddbDefinition.description ?? "";
+  }
+
+  /**
+   * Build one save activity per mode of a multi-mode item.
+   *
+   * Called from build() rather than from the description scan so that it also reaches items whose
+   * damage came from DDB - a weapon carrying two save riders never enters
+   * #generateDamageFromDescription at all.
+   */
+  #generateMultiSaveActivities(): void {
+    this._multiSaveActivityGeneration({
+      text: this.ddbDefinition.description ?? "",
+      primarySave: this.actionData.save,
+      skipFirstSection: this.#primaryIsFirstSection,
+      targetOverrideForSection: (section) => this.#sectionTarget(section),
+    });
+  }
 
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
       return;
     }
-    const description = utils.stripHtml(this.ddbDefinition.description).replace(/[–-–−]/g, "-");
-    // console.warn(hit);
-    // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
-    const matches = [...description.matchAll(damageExpression)];
+    const source = this.#primaryDescription;
+    const sectioned = this.#primaryIsFirstSection;
+    const description = utils.stripHtml(source).replace(/[\u2013-\u2013\u2212]/g, "-");
 
-    logger.debug(`${this.name} Description Damage matches`, { description, matches });
-    const otherParts = [];
-    for (const dmg of matches) {
-      if (!dmg.groups) continue; // the regex defines named groups, so this always exists
-      let other = false;
-      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
-        continue;
-      }
-      // check for other
-      if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
-      const damage = dmg.groups.damageDice ?? dmg.groups.flat;
-
-      // Make sure we did match a damage
-      if (damage) {
-        const includesDiceRegExp = /[0-9]*d[0-9]+/;
-        const includesDice = includesDiceRegExp.test(damage);
-        const finalDamage = (this.actionData && includesDice)
-          ? utils.parseDiceString(damage.replace("plus", "+"), "").diceString
-          : damage.replace("plus", "+");
-
-        const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
-
-        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
-        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
-            || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
-          && this.damageParts.length >= 1
-        ) {
-          other = true;
-        }
-        // assumption here is that there is just one field added to versatile. this is going to be rare.
-        if (other) {
-          otherParts.push(part);
-        } else {
-          this.damageParts.push(part);
-        }
-      }
-    }
+    const { parts, otherParts } = DDBDescriptions.parseDamageParts(source);
+    logger.debug(`${this.name} Description Damage matches`, { description, parts, otherParts });
+    this.damageParts.push(...parts);
 
     const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9 ]+d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
     const regainMatch = description.match(regainExpression);
@@ -1977,7 +1995,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.healingParts.push(part);
     }
 
-    if (otherParts.length > 0) {
+    // On a sectioned item the leftover parts belong to the other modes' own activities, which
+    // _multiSaveActivityGeneration builds; a catch-all "Damage" activity would double them up.
+    if (otherParts.length > 0 && !sectioned) {
       this.additionalActivities.push({
         name: `Damage`,
         type: "damage",
@@ -2003,7 +2023,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   }
 
-  #generateTargets() {
+  /**
+   * Read an activity target out of a piece of the item's rules text.
+   */
+  #targetFromDescription(text: string, { mutateRange = false } = {}): I5eActivityTarget {
     const affects = {
       count: "",
       type: "" as TTarget,
@@ -2019,36 +2042,45 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       height: "",
       units: "ft" as TTemplateUnits,
     };
-    this.actionData.target = {
+    const target: I5eActivityTarget = {
       prompt: true,
       affects,
       template,
     };
 
-    const targetsCreature = this.targetsCreature();
-    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(this.ddbDefinition.description);
+    const targetsCreature = this.targetsCreature(text);
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(text);
 
     if (targetsCreature || creatureTargetCount) {
       affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
     const aoeSizeRegex = /(?<!creature you can see |an object you can see |one creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
-    const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
-
-    // console.warn(`Target generation for ${this.name}`, {
-    //   targetsCreature,
-    //   creatureTargetCount,
-    //   aoeSizeMatch,
-    // });
+    const aoeSizeMatch = aoeSizeRegex.exec(text);
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
       template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
       template.size = aoeSizeMatch[1] ?? "";
-      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you" && this.actionData.range) {
+      if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you" && this.actionData.range) {
         this.actionData.range.units = "self";
       }
     }
+
+    return target;
+  }
+
+  /**
+   * The target of one mode of a multi-mode item, or null when its section names no area of its
+   * own - in which case the generated activity inherits the item's target.
+   */
+  #sectionTarget(section: string): I5eActivityTarget | null {
+    const target = this.#targetFromDescription(section);
+    return target.template?.size ? target : null;
+  }
+
+  #generateTargets(text: string = this.#primaryDescription) {
+    this.actionData.target = this.#targetFromDescription(text, { mutateRange: true });
   }
 
   #removeMasteryContainer(text: string): string {
@@ -3325,8 +3357,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       if (this.documentType !== "container") {
         // containers can't have activities.
+        this.#generateMultiSaveActivities();
         if (!this.enricher.stopDefaultActivity)
-          await this._generateActivity({}, this.activityOptions);
+          // an item's primary activity is normally unnamed; on a multi-mode item it describes the
+          // first section, so it takes that section's label to tell it from its siblings
+          await this._generateActivity({ name: this.#primaryActivityName }, this.activityOptions);
         this.#addHealAdditionalActivities();
         if (this.enricher.addAutoAdditionalActivities)
           await this._generateAdditionalActivities();
@@ -3583,7 +3618,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (["weapon", "staff"].includes(this.parsingType ?? "")) {
       // some attacks will have a save and attack
       if (this.actionData.save) {
-        if (this.damageParts.length > 1) {
+        // on a multi-mode weapon every save already has its own named activity
+        if (this.damageParts.length > 1 && this.multiSaveSections.length === 0) {
           this.#addSaveAdditionalActivity(false);
         }
       }

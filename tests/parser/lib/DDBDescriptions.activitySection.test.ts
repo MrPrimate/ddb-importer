@@ -279,3 +279,62 @@ describe("DDBDescriptions.snippetToHtml", () => {
     expect(stripped).toBe("One. Two.");
   });
 });
+
+// =============================================================================
+// sections - the enumerate-all sibling of matchActivitySection, used to give a
+// multi-mode item one activity per property rather than one save for the lot.
+// =============================================================================
+describe("DDBDescriptions.sections", () => {
+  it("splits an Arcane Cannon shaped description into one slice per bold label", () => {
+    const description = [
+      "<p>This Large cannon is imbued with magic.</p>",
+      "<p><strong>Acid Jet.</strong> Each creature must make a DC 15 Dexterity saving throw.</p>",
+      "<p><strong>Fire Jet.</strong> Each creature must make a DC 15 Dexterity saving throw.</p>",
+      "<p><strong>Frost Shot.</strong> Each creature must make a DC 15 Constitution saving throw.</p>",
+      "<p><strong>Lightning Shot.</strong> Each creature must make a DC 15 Dexterity saving throw.</p>",
+      "<p><strong>Poison Spray.</strong> Each creature must make a DC 15 Constitution saving throw.</p>",
+    ].join("");
+
+    const sections = DDBDescriptions.sections(description);
+    expect(sections.map((section) => section.rawLabel)).toEqual([
+      "Acid Jet", "Fire Jet", "Frost Shot", "Lightning Shot", "Poison Spray",
+    ]);
+    expect(sections.map((section) => section.label)).toEqual([
+      "acid jet", "fire jet", "frost shot", "lightning shot", "poison spray",
+    ]);
+    expect(sections[2].section).toBe("<p>Each creature must make a DC 15 Constitution saving throw.</p>");
+    expect(sections[0].start).toBeLessThan(sections[1].start);
+  });
+
+  it("keeps a colon-and-charge-cost label intact for the caller to trim", () => {
+    const description = [
+      "<p><strong>Splashing Mucous (1 Charge):</strong> a DC 15 Dexterity saving throw.</p>",
+      "<p><strong>Parasitic Mucous (2 Charges):</strong> a DC 15 Constitution saving throw.</p>",
+    ].join("");
+
+    expect(DDBDescriptions.sections(description).map((section) => section.rawLabel))
+      .toEqual(["Splashing Mucous (1 Charge)", "Parasitic Mucous (2 Charges)"]);
+  });
+
+  it("does not split on a weaker label nested inside a bold section", () => {
+    const description = [
+      "<p><strong>Orb of Lightning.</strong> You cast <em>lightning bolt</em> from the orb.</p>",
+      "<p><strong>Thunderclap.</strong> A fearsome thunderclap.</p>",
+    ].join("");
+
+    const sections = DDBDescriptions.sections(description);
+    expect(sections.map((section) => section.rawLabel)).toEqual(["Orb of Lightning", "Thunderclap"]);
+    expect(sections[0].section).toContain("<em>lightning bolt</em>");
+  });
+
+  it("reads bare Title Case labels in a snippet with no markup", () => {
+    const snippet = "Acid Jet. A DC 15 Dexterity saving throw.\nFrost Shot. A DC 15 Constitution saving throw.";
+
+    expect(DDBDescriptions.sections(snippet).map((section) => section.rawLabel))
+      .toEqual(["Acid Jet", "Frost Shot"]);
+  });
+
+  it("returns nothing for an unsectioned description", () => {
+    expect(DDBDescriptions.sections("<p>A perfectly ordinary hat with no labels at all.</p>")).toEqual([]);
+  });
+});

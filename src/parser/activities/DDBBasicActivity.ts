@@ -275,9 +275,14 @@ export default class DDBBasicActivity {
     logger.debug(`Stubbed summon generation for ${this.name}`);
   }
 
+  // Every one of these assigns a CLONE. A parser hands the same `actionData.target`/`save`/`uses`
+  // object to every activity it builds, so assigning by reference makes the activities alias each
+  // other - an enricher override applied to one could then silently rewrote its siblings (the whole
+  // Quiver of Elemental Chaos ended up sharing the last section's template).
+
   _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}): void {
     if (durationOverride) {
-      this.data.duration = durationOverride;
+      this.data.duration = foundry.utils.deepClone(durationOverride);
       this.data.duration.override = true;
     }
   }
@@ -289,21 +294,21 @@ export default class DDBBasicActivity {
 
   _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}): void {
     if (rangeOverride) {
-      this.data.range = rangeOverride;
+      this.data.range = foundry.utils.deepClone(rangeOverride);
       this.data.range.override = true;
     }
   }
 
   _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}): void {
     if (targetOverride) {
-      this.data.target = targetOverride;
+      this.data.target = foundry.utils.deepClone(targetOverride);
       this.data.target.override = true;
     }
   }
 
   _generateUses({ usesOverride = null }: { usesOverride?: I5eSystemLimitedUses | I5eConsumableUses | null } = {}): void {
     if (usesOverride) {
-      this.data.uses = usesOverride;
+      this.data.uses = foundry.utils.deepClone(usesOverride);
       this.data.uses.override = true;
     }
   }
@@ -311,7 +316,7 @@ export default class DDBBasicActivity {
   _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}): void {
     if (!("check" in this.data)) return;
     if (checkOverride) {
-      this.data.check = checkOverride;
+      this.data.check = foundry.utils.deepClone(checkOverride);
     };
   }
 
@@ -387,7 +392,7 @@ export default class DDBBasicActivity {
   _generateSave({ saveOverride = null }: { saveOverride?: I5eActivitySave | null } = {}): void {
     if (!("save" in this.data)) return;
     if (saveOverride) {
-      this.data.save = saveOverride;
+      this.data.save = foundry.utils.deepClone(saveOverride);
       return;
     }
     this.data.save = {

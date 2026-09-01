@@ -465,22 +465,117 @@ describe("items with more than one roll", () => {
     });
   });
 
-  it("adds the Sphere of Annihilation's control check without touching its save", () => {
+  it("builds the Sphere of Annihilation's SRD activity set", () => {
     const enricher = build(ItemEnrichers.SphereOfAnnihilation, { name: "Sphere of Annihilation" });
 
     // the Dexterity save and its damage differ between printings and both parse
-    // correctly, so the enricher only names it
-    expect(enricher.activity).toEqual({
+    // correctly, so the enricher only names it - and strips the template the parser
+    // reads out of the planar-portal table's "180 feet of the sphere"
+    expect(enricher.activity).toMatchObject({
       name: "Touched by the Sphere",
       activationCondition: "A creature's space the sphere enters",
+      noTemplate: true,
     });
 
-    const control = enricher.additionalActivities[0];
-    expect(control.init).toMatchObject({ name: "Control the Sphere", type: "check" });
+    expect(enricher.additionalActivities.map((a: any) => a.init.name))
+      .toEqual(["Engulfed", "Control the Sphere"]);
+
+    const [engulfed, control] = enricher.additionalActivities;
+    expect(engulfed.init.type).toBe("damage");
+    expect(control.init.type).toBe("check");
     expect(control.build.checkOverride).toMatchObject({
       ability: "int",
       associated: ["arc"],
       dc: { formula: "25" },
     });
+  });
+
+  it("doubles the sphere's touch damage for the 2024 reprint", () => {
+    const legacy = build(ItemEnrichers.SphereOfAnnihilation, { name: "Sphere of Annihilation", is2014: true });
+    const modern = build(ItemEnrichers.SphereOfAnnihilation, { name: "Sphere of Annihilation", is2014: false });
+
+    expect(legacy.additionalActivities[0].build.damageParts[0]).toMatchObject({ number: 4, denomination: 10 });
+    expect(modern.additionalActivities[0].build.damageParts[0]).toMatchObject({ number: 8, denomination: 10 });
+  });
+
+  it("builds the Bag of Beans' SRD activity set", () => {
+    const enricher = build(ItemEnrichers.BagOfBeans, { name: "Bag of Beans" });
+
+    // the parser reads the DC 15 save but scoops the d100 table's dice in with it
+    expect(enricher.activity.name).toBe("Dump Beans");
+    expect(enricher.activity.removeDamageParts).toBe(true);
+    expect(enricher.activity.damageParts).toHaveLength(1);
+    expect(enricher.activity.data.damage.onSave).toBe("half");
+    expect(enricher.activity.data.target.template).toMatchObject({ type: "sphere", size: "10" });
+
+    expect(enricher.additionalActivities.map((a: any) => a.init.name)).toEqual(["Count Beans", "Plant Bean"]);
+    // a negative consumption ADDS uses: rolling Count Beans sets the bean count
+    expect(enricher.additionalActivities[0].overrides.data.consumption.targets[0])
+      .toMatchObject({ type: "itemUses", value: "-3d4" });
+    expect(enricher.override.uses).toMatchObject({ max: "12" });
+
+    // the table-derived "Damage" activity the parser would otherwise add
+    expect(enricher.addAutoAdditionalActivities).toBe(false);
+  });
+
+  it("burns for fire in 2014 and force in the 2024 reprint", () => {
+    const legacy = build(ItemEnrichers.BagOfBeans, { name: "Bag of Beans", is2014: true });
+    const modern = build(ItemEnrichers.BagOfBeans, { name: "Bag of Beans", is2014: false });
+
+    expect(legacy.activity.damageParts[0].types).toEqual(["fire"]);
+    expect(modern.activity.damageParts[0].types).toEqual(["force"]);
+  });
+
+  it("names every mode of the Quiver of Elemental Chaos", () => {
+    const enricher = build(ItemEnrichers.QuiverOfElementalChaos, { name: "Quiver of Elemental Chaos" });
+
+    // the section splitter cannot read this item - DDB nests its labels both ways
+    // round - so the generator would fall back to "Dex Save"/"Con Save"
+    expect(enricher.addAutoAdditionalActivities).toBe(false);
+    expect(enricher.activity.name).toBe("Air Ammunition");
+    expect(enricher.activity.removeDamageParts).toBe(true);
+
+    const names = enricher.additionalActivities.map((a: any) => a.init.name);
+    expect(names).toEqual([
+      "Earth Ammunition", "Earth Ammunition: Push",
+      "Fire Ammunition", "Fire Ammunition: Explosion",
+      "Water Ammunition",
+      "Ice Ammunition", "Ice Ammunition: Paralysis",
+      "Magma Ammunition", "Magma Ammunition: Searing Heat",
+      "Ooze Ammunition: Grease",
+    ]);
+
+    // the on-hit extra damage and the rider are separate rolls, so they stay separate
+    // activities: folding them together would gate the extra damage on the save
+    const byName = Object.fromEntries(enricher.additionalActivities.map((a: any) => [a.init.name, a]));
+    expect(byName["Ice Ammunition"].init.type).toBe("damage");
+    expect(byName["Ice Ammunition"].build.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["cold"] });
+    expect(byName["Ice Ammunition: Paralysis"].init.type).toBe("save");
+    expect(byName["Ice Ammunition: Paralysis"].build.saveOverride).toMatchObject({
+      ability: ["con"], dc: { formula: "15" },
+    });
+    expect(byName["Ice Ammunition: Paralysis"].build.damageParts).toEqual([]);
+
+    // only the riders that cover an area carry one
+    expect(byName["Magma Ammunition: Searing Heat"].overrides.data.target.template)
+      .toMatchObject({ type: "sphere", size: "10" });
+    expect(byName["Earth Ammunition: Push"].overrides.noTemplate).toBe(true);
+  });
+
+  it("gives the quiver's ice rider both of its outcomes", () => {
+    const enricher = build(ItemEnrichers.QuiverOfElementalChaos, { name: "Quiver of Elemental Chaos" });
+
+    const [paralysed, slowed] = enricher.effects;
+    expect(paralysed).toMatchObject({
+      activityMatch: "Ice Ammunition: Paralysis",
+      statuses: ["Paralyzed"],
+      options: { durationSeconds: 60 },
+    });
+    // the halved speed is what a SUCCESSFUL save leaves behind
+    expect(slowed.onSave).toBe(true);
+    expect(slowed.options.expiry).toBe("targetEnd");
+    expect(slowed.changes[0]).toEqual(
+      expect.objectContaining({ key: "system.attributes.movement.multiplier", value: "0.5" }),
+    );
   });
 });

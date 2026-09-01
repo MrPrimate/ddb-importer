@@ -152,4 +152,27 @@ global {
     actions: Record<string, IDDBRuleLink>;
     weaponproperties: Record<string, IDDBRuleLink>;
   }
+
+  /** A labelled slice of a DDB description, as returned by {@link DDBDescriptions.sections}. */
+  interface ISectionSlice {
+    /** normalized label, matching {@link DDBDescriptions.normalizeSectionLabel} */
+    label: string;
+    /** the label as DDB wrote it, trailing punctuation stripped */
+    rawLabel: string;
+    /** the section's rules text, as a balanced html fragment */
+    section: string;
+    /** index of the label in the source, so callers can order or locate slices */
+    start: number;
+  }
+
+  /** A saving throw found in rules text by {@link DDBDescriptions.parseSaves}. */
+  interface IParsedSave {
+    /** system ability keys; a list because "Strength or Dexterity" is a choice */
+    ability: string[];
+    dc: { calculation: string; formula: string };
+    /** index of the match in the scanned text */
+    index: number;
+    /** the text says a successful save halves the damage */
+    half: boolean;
+  }
 }

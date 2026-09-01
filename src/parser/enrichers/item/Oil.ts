@@ -64,6 +64,14 @@ export default class Oil extends DDBEnricherData {
             },
             template: {},
           },
+          // the burning square is placed by "Douse a Space", so this rolls against whoever is
+          // already in it;
+          rangeOverride: {
+            override: true,
+            value: null,
+            units: "self",
+            special: "",
+          },
           damageParts: [
             DDBEnricherData.basicDamagePart({
               bonus: "5",

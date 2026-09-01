@@ -61,6 +61,9 @@ export default class EverlastingSugarbomb extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          targetType: "self",
+        },
       },
     ];
   }

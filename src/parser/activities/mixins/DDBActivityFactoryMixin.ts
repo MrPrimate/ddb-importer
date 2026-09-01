@@ -27,6 +27,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   enricher: DDBEnricherFactoryMixin<any>;
   activityGenerator: new (...args: any[]) => TDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];
+  // a document can pass through more than one build path; the extras are emitted once
+  _multiSaveGenerated = false;
   // Activity description values inherited wholesale from the parent document rather than
   // written for one activity. Keyed by VALUE so clones and enricher id rewrites are covered,
   // and so an enricher-authored replacement de-stages itself. See _finaliseActivityDescriptions().
@@ -671,6 +673,182 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
 
     return DDBActivityFactoryMixin.filterCombinedDamageParts(additionalDamageParts);
 
+  }
+
+  // A document with more modes than this is a table or a set of unrelated properties
+  // or, you kow, third party nonsense
+  static MULTI_SAVE_MAX_EXTRAS = 5;
+
+  /**
+   * The labelled sections of a description that each name a saving throw.
+   *
+   * DDB writes a multi-mode item's properties as bold-labelled subsections - "Acid Jet.",
+   * "Frost Shot.", "Empty Light of Death." - and it is those labels, not the saves themselves,
+   * that tell one property from another. Returns an empty list unless at least two sections
+   * carry a save, so a single-save document is never reshaped.
+   *
+   * `<table>` blocks are stripped first: a random-table item states a different save on every
+   * row and none of them is a property of the item.
+   */
+  _saveBearingSections(text: string): { slice: ISectionSlice; save: IParsedSave }[] {
+    if (!text?.trim()) return [];
+    const sections = DDBDescriptions.sections(DDBDescriptions.stripTables(text));
+    const bearing: { slice: ISectionSlice; save: IParsedSave }[] = [];
+    for (const slice of sections) {
+      // only the first save in a section counts: a repeat is the "repeat the save at the end of
+      // each of its turns" restatement of the one the section already described
+      const [save] = DDBDescriptions.parseSaves(slice.section);
+      if (save) bearing.push({ slice, save });
+    }
+    return bearing.length >= 2 ? bearing : [];
+  }
+
+  // Beyond this a "label" is a prerequisite clause or a sentence, not a name for an activity.
+  static MULTI_SAVE_NAME_MAX_LENGTH = 40;
+
+  /**
+   * Trim a DDB section label down to an activity name, or return "" when it does not read as a
+   * name at all.
+   *
+   * DDB terminates labels with a period or colon and often appends a charge cost
+   * ("Splashing Mucous (1 Charge)"). Some sections are labelled with a wholly parenthesised
+   * qualifier instead - Silverwind's "(Prerequisite: 8th level, Fey Ancestry trait...)" - and
+   * those fall back to the ability-and-save name.
+   */
+  static multiSaveActivityName(rawLabel: string): string {
+    const name = rawLabel
+      .replace(/\s*\((?:\d+\s*charges?|\d+\s*uses?)\)\s*$/i, "")
+      .replace(/[.:;]+$/, "")
+      .trim();
+    if (name.startsWith("(")) return "";
+    if (name.length > DDBActivityFactoryMixin.MULTI_SAVE_NAME_MAX_LENGTH) return "";
+    return name;
+  }
+
+  /** "Dex Save", or "Str/Dex Save" for an either/or, used when no section label names the mode. */
+  static multiSaveFallbackName(save: IParsedSave): string {
+    const abilities = save.ability
+      .map((ability) => `${ability.charAt(0).toUpperCase()}${ability.slice(1)}`)
+      .join("/");
+    return `${abilities} Save`;
+  }
+
+  /**
+   * Emit one save activity per property beyond the first for a document whose rules text
+   * describes several saving throws.
+   *
+   * Only the first save survives the single-save parsers (`DDBItem.parseSaveFromDescription`,
+   * `DDBDescriptions.dcParser`), so everything else an item does exists only as prose. Where the
+   * text is sectioned each section becomes an activity named after its own label and carrying its
+   * own damage and area; where it is flat the saves are deduplicated by roll and DC and named
+   * "<Abl> Save".
+   *
+   * Nothing is emitted when an enricher already authors additional activities
+   */
+  _multiSaveActivityGeneration({
+    text,
+    primarySave = null,
+    skipFirstSection = true,
+    noSpellslot = false,
+    sectionDamage = true,
+    targetOverrideForSection = null,
+    maxExtras = DDBActivityFactoryMixin.MULTI_SAVE_MAX_EXTRAS,
+  }: {
+    text: string;
+    primarySave?: I5eActivitySave | null;
+    /** false when the primary activity describes something else - a weapon attack, say - and every section is an extra */
+    skipFirstSection?: boolean;
+    noSpellslot?: boolean;
+    sectionDamage?: boolean;
+    targetOverrideForSection?: ((section: string) => I5eActivityTarget | null) | null;
+    maxExtras?: number;
+  }): void {
+    if (this._multiSaveGenerated) return;
+    this._multiSaveGenerated = true;
+    if (!this.enricher.addAutoAdditionalActivities) return;
+    // an enricher that authors its own extras
+    if ((this.enricher.additionalActivities ?? []).length > 0) return;
+    if (!text?.trim()) return;
+
+    const outlines: IAdditionalActivityOutline[] = [];
+    const sections = this._saveBearingSections(text);
+
+    if (sections.length >= 2) {
+      for (const { slice, save } of skipFirstSection ? sections.slice(1) : sections) {
+        const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel)
+          || DDBActivityFactoryMixin.multiSaveFallbackName(save);
+        outlines.push(DDBActivityFactoryMixin.#multiSaveOutline({
+          name, save, section: slice.section, noSpellslot, sectionDamage, targetOverrideForSection,
+        }));
+      }
+    } else {
+      const flatSaves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(text));
+      // one save is the document's own; this only reshapes documents that describe several
+      if (new Set(flatSaves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return;
+      const seen = new Set<string>();
+      if (primarySave) seen.add(DDBDescriptions.saveKey(primarySave));
+      for (const save of flatSaves) {
+        const key = DDBDescriptions.saveKey(save);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        outlines.push(DDBActivityFactoryMixin.#multiSaveOutline({
+          name: DDBActivityFactoryMixin.multiSaveFallbackName(save),
+          save,
+          section: null,
+          noSpellslot,
+          sectionDamage,
+          targetOverrideForSection,
+        }));
+      }
+    }
+
+    if (outlines.length === 0) return;
+    if (outlines.length > maxExtras) {
+      logger.debug(`Skipping multi-save activity generation for ${this.name}: ${outlines.length} extra saves is a table or an enricher job`, {
+        names: outlines.map((outline) => outline.name),
+      });
+      return;
+    }
+
+    logger.debug(`Generating ${outlines.length} additional save activities for ${this.name}`, { outlines });
+    this.additionalActivities.push(...outlines);
+  }
+
+  static #multiSaveOutline({ name, save, section, noSpellslot, sectionDamage, targetOverrideForSection }: {
+    name: string;
+    save: IParsedSave;
+    section: string | null;
+    noSpellslot: boolean;
+    sectionDamage: boolean;
+    targetOverrideForSection: ((section: string) => I5eActivityTarget | null) | null;
+  }): IAdditionalActivityOutline {
+    const damageParts = section && sectionDamage
+      ? DDBDescriptions.parseDamageParts(section).parts
+      : [];
+    const targetOverride = section && targetOverrideForSection
+      ? targetOverrideForSection(section)
+      : null;
+
+    return {
+      type: ACTIVITY_TYPES.SAVE,
+      name,
+      options: {
+        generateSave: true,
+        generateDamage: damageParts.length > 0,
+        generateActivation: true,
+        generateTarget: true,
+        generateConsumption: false,
+        includeBaseDamage: false,
+        damageParts,
+        onSave: save.half ? "half" : "none",
+        saveOverride: {
+          ability: save.ability,
+          dc: { calculation: save.dc.calculation, formula: save.dc.formula },
+        },
+        ...(targetOverride ? { targetOverride } : {}),
+        ...(noSpellslot ? { noSpellslot: true } : {}),
+      },
+    };
   }
 
   _escapeCheckGeneration(): void {

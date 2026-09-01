@@ -57,6 +57,9 @@ export default class MuscleGraft extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          targetType: "self",
+        },
       },
     ];
   }

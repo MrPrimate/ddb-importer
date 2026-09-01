@@ -58,6 +58,12 @@ export default class WandOfFear extends DDBEnricherData {
               units: "ft",
             },
           },
+          rangeOverride: {
+            override: true,
+            value: null,
+            units: "self",
+            special: "",
+          },
         },
         overrides: {
           addItemConsume: true,

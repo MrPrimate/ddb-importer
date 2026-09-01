@@ -1,6 +1,7 @@
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import { DICTIONARY } from "../../config/_module";
+import SystemHelpers from "../../lib/SystemHelpers";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 
 /** A dwescription section label found in a DDB description or snippet. */
@@ -16,6 +17,8 @@ interface ISectionMarker {
   rank: number;
   /** normalized label text */
   name: string;
+  /** the label as DDB wrote it, for naming a generated activity */
+  rawLabel: string;
 }
 
 export default class DDBDescriptions {
@@ -183,10 +186,39 @@ export default class DDBDescriptions {
         blockTag: isHeading ? null : blockStart?.groups?.block?.toLowerCase() ?? null,
         rank: rankOf(tag),
         name: DDBDescriptions.normalizeSectionLabel(match[2]),
+        rawLabel: DDBDescriptions.#rawSectionLabel(match[2]),
       });
     }
 
     return markers;
+  }
+
+  /**
+   * The label as DDB wrote it, minus markup and the punctuation that terminates it.
+   * DDB labels sections "Frost Shot." or "Splashing Mucous (1 Charge):", and a generated
+   * activity wants the words without either terminator; the case is kept so the activity
+   * reads "Frost Shot" rather than the lowercased form used for matching.
+   */
+  static #NAMED_ENTITIES: Record<string, string> = {
+    amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " ",
+    ldquo: "\u201c", rdquo: "\u201d", lsquo: "\u2018", rsquo: "\u2019",
+    hellip: "\u2026", ndash: "\u2013", mdash: "\u2014",
+  };
+
+  static #rawSectionLabel(value: string): string {
+    return value
+      .replace(/<[^>]*>/g, "")
+      .replace(/&#(\d+);/g, (_match, dec: string) => String.fromCodePoint(Number(dec)))
+      .replace(/&#x([0-9a-f]+);/gi, (_match, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+      // named entities are decoded before the terminator strip, or "&rdquo;" loses its semicolon
+      .replace(/&([a-z]+);/gi, (match, name: string) => DDBDescriptions.#NAMED_ENTITIES[name.toLowerCase()] ?? match)
+      .replace(/\s+/g, " ")
+      .trim()
+      // DDB quotes a spoken command word as its own label: <strong>"Cower."</strong>
+      .replace(/^["'\u201c\u2018]+/, "")
+      .replace(/["'\u201d\u2019]+$/, "")
+      .replace(/[.:;!?]+$/g, "")
+      .trim();
   }
 
   /**
@@ -210,6 +242,7 @@ export default class DDBDescriptions {
         blockTag: null,
         rank: 2,
         name: DDBDescriptions.normalizeSectionLabel(label),
+        rawLabel: DDBDescriptions.#rawSectionLabel(label),
       });
     }
 
@@ -285,8 +318,18 @@ export default class DDBDescriptions {
     }
     if (targetIndex === -1) return null;
 
-    const target = markers[targetIndex];
-    const next = markers.slice(targetIndex + 1).find((marker) => marker.rank >= target.rank);
+    const section = DDBDescriptions.#sliceSection(source, markers, targetIndex);
+
+    return section ? { label: markers[targetIndex].name, section } : null;
+  }
+
+  /**
+   * The rules text belonging to one marker: everything up to the next marker of equal or
+   * greater emphasis, returned as a html fragment.
+   */
+  static #sliceSection(source: string, markers: ISectionMarker[], index: number): string {
+    const target = markers[index];
+    const next = markers.slice(index + 1).find((marker) => marker.rank >= target.rank);
     let section = source.slice(target.end, next?.boundaryStart ?? source.length).trim();
 
     // Restore the partial block containing an inline heading so the result is
@@ -298,14 +341,191 @@ export default class DDBDescriptions {
       section = section.replace(emptyBlock, "");
     }
 
-    section = DDBDescriptions.#balanceSectionFragment(section);
+    return DDBDescriptions.#balanceSectionFragment(section);
+  }
 
-    return section ? { label: target.name, section } : null;
+  /**
+   * Every section of a DDB description, in source order.
+   *
+   * Only the markers at the strongest rank present are treated as boundaries, so a bold
+   * "Frost Shot." opens a section while an italicised spell name inside it does not. This is
+   * the enumerate-all sibling of {@link matchActivitySection}, which looks one section up by
+   * name; callers that need to act on each mode of a multi-mode item want this one.
+   */
+  static sections(source: string): ISectionSlice[] {
+    if (!source?.trim()) return [];
+    const markers = DDBDescriptions.#sectionMarkers(source);
+    if (markers.length === 0) return [];
+
+    const topRank = Math.max(...markers.map((marker) => marker.rank));
+    const slices: ISectionSlice[] = [];
+    markers.forEach((marker, index) => {
+      if (marker.rank !== topRank) return;
+      const section = DDBDescriptions.#sliceSection(source, markers, index);
+      if (!section) return;
+      slices.push({
+        label: marker.name,
+        rawLabel: marker.rawLabel,
+        section,
+        start: marker.boundaryStart,
+      });
+    });
+
+    return slices;
   }
 
   /** The rules text of {@link matchActivitySection}, for callers that do not need the label. */
   static extractActivitySection(source: string, activityName: string, { exactOnly = false } = {}): string | null {
     return DDBDescriptions.matchActivitySection(source, activityName, { exactOnly })?.section ?? null;
+  }
+
+  /** Alternation of the six ability long names, for the save-parsing regexes. */
+  static SAVE_ABILITY_NAMES = DICTIONARY.actor.abilities.map((ability) => ability.long).join("|");
+
+  /**
+   * Map long ability names captured from a description to system keys, dropping
+   * anything that is not one of the six abilities. `save.ability` is a choice
+   * list, so "Strength or Dexterity saving throw" legitimately yields two.
+   */
+  static saveAbilityKeys(...names: (string | undefined)[]): string[] {
+    return names.reduce((keys: string[], name) => {
+      const key = DICTIONARY.actor.abilities.find((ability) => ability.long === name?.toLowerCase())?.value;
+      if (key && !keys.includes(key)) keys.push(key);
+      return keys;
+    }, []);
+  }
+
+  static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success: Half damage/i;
+
+  /** Does this text say a successful save halves the damage? */
+  static halfOnSave(text: string): boolean {
+    return DDBDescriptions.#HALF_ON_SAVE_REGEX.test(text ?? "");
+  }
+
+  /** Remove `<table>` blocks, whose saves are rows of a random table rather than properties. */
+  static stripTables(text: string): string {
+    return (text ?? "").replace(/<table[\s\S]*?<\/table>/gi, " ");
+  }
+
+  /**
+   * Every saving throw named in a piece of rules text, in source order.
+   *
+   * Unlike {@link DDBDescriptions.dcParser} and `DDBItem.parseSaveFromDescription`, which stop at
+   * the first match, this collects them all so a caller can build one activity per property of a
+   * multi-mode item. Abilities are matched against the whitelist alternation rather than a `\w+`
+   * wildcard: a wildcard swallows the "DC 15 " prefix and pairs a DC with an ability from a
+   * different sentence.
+   *
+   * Both printings' word orders are read - the 2014 "DC 15 Dexterity saving throw" and the 2024
+   * "Dexterity Saving Throw: DC 15" - plus the spell-save-DC phrasing, which has a  `calculation` instead of a `formula`.
+   */
+  static parseSaves(text: string): IParsedSave[] {
+    if (!text?.trim()) return [];
+    const abilities = DDBDescriptions.SAVE_ABILITY_NAMES;
+    const half = DDBDescriptions.halfOnSave(text);
+    const saves: IParsedSave[] = [];
+    // Several patterns can describe one sentence; the first to claim a span of the text owns it,
+    // so an explicit DC is never re-read as a bare spell-save phrasing.
+    const claimed: { start: number; end: number }[] = [];
+
+    const push = (match: RegExpExecArray | RegExpMatchArray, ability: string[], calculation: string, formula: string): void => {
+      if (ability.length === 0) return;
+      const start = match.index ?? 0;
+      const end = start + match[0].length;
+      if (claimed.some((span) => start < span.end && end > span.start)) return;
+      claimed.push({ start, end });
+      saves.push({ ability, dc: { calculation, formula }, index: start, half });
+    };
+
+    const explicit = new RegExp(`DC (\\d+) (${abilities})(?: or (${abilities}))? sav(?:e|ing throw)`, "gi");
+    for (const match of text.matchAll(explicit)) {
+      push(match, DDBDescriptions.saveAbilityKeys(match[2], match[3]), "", match[1]);
+    }
+
+    const explicit2024 = new RegExp(`(${abilities})(?: or (${abilities}))? Saving Throw: DC (\\d+)`, "gi");
+    for (const match of text.matchAll(explicit2024)) {
+      push(match, DDBDescriptions.saveAbilityKeys(match[1], match[2]), "", match[3]);
+    }
+
+    const spellSave = new RegExp(
+      `(${abilities})(?: or (${abilities}))? sav(?:e|ing throw)[^.]{0,40}?against your spell save DC`, "gi",
+    );
+    for (const match of text.matchAll(spellSave)) {
+      push(match, DDBDescriptions.saveAbilityKeys(match[1], match[2]), "spellcasting", "");
+    }
+
+    return saves.sort((a, b) => a.index - b.index);
+  }
+
+  /** Two saves are the same property when they ask for the same roll against the same DC. */
+  static saveKey(save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null }): string {
+    const ability = [...(save.ability ?? [])].sort().join("+");
+    return `${save.dc?.calculation ?? ""}|${save.dc?.formula ?? ""}|${ability}`;
+  }
+
+  // The damage expression the item parser uses.
+  //
+  // eslint-disable-next-line no-useless-escape
+  static DAMAGE_EXPRESSION = /(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi;
+
+  /**
+   * Read damage out of rules text.
+   *
+   * `parts` is the damage the roll deals;
+   * `otherParts` is everything the text describes as a separate calculation - an ongoing tick, or a second damage entry
+   *    on a save-based effect once the first has been claimed.
+   * `parseDice` decides whether dice strings are normalised through `utils.parseDiceString`, which the item parser
+   *    only does when it has action data.
+   */
+  static parseDamageParts(text: string, { parseDice = true } = {}): {
+    parts: I5eDamagePart[];
+    otherParts: I5eDamagePart[];
+  } {
+    const parts: I5eDamagePart[] = [];
+    const otherParts: I5eDamagePart[] = [];
+    if (!text?.trim()) return { parts, otherParts };
+
+    const description = utils.stripHtml(text).replace(/[–-–−]/g, "-");
+    const matches = [...description.matchAll(DDBDescriptions.DAMAGE_EXPRESSION)];
+
+    for (const dmg of matches) {
+      if (!dmg.groups) continue; // the regex defines named groups, so this always exists
+      let other = false;
+      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
+        continue;
+      }
+      // check for other
+      if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
+      const damage = dmg.groups.damageDice ?? dmg.groups.flat;
+
+      // Make sure we did match a damage
+      if (damage) {
+        const includesDiceRegExp = /[0-9]*d[0-9]+/;
+        const includesDice = includesDiceRegExp.test(damage);
+        const finalDamage = (parseDice && includesDice)
+          ? utils.parseDiceString(damage.replace("plus", "+"), "").diceString
+          : damage.replace("plus", "+");
+
+        const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+
+        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
+        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
+        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
+            || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
+          && parts.length >= 1
+        ) {
+          other = true;
+        }
+        // assumption here is that there is just one field added to versatile. this is going to be rare.
+        if (other) {
+          otherParts.push(part);
+        } else {
+          parts.push(part);
+        }
+      }
+    }
+
+    return { parts, otherParts };
   }
 
   static startOrEnd(text: string) {

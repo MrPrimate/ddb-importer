@@ -493,3 +493,103 @@ describe("nextTurnExpiry", () => {
     expect(duration.dae).toEqual(["turnEnd"]);
   });
 });
+
+// =============================================================================
+// parseSaves - every save in a body of rules text, not just the first. The
+// single-save parsers stop at the first match, which is why a multi-mode item's
+// other properties never reach an activity.
+// =============================================================================
+describe("DDBDescriptions.parseSaves", () => {
+  it("reads every explicit-DC save in source order", () => {
+    const text = "Each creature must make a DC 15 Dexterity saving throw."
+      + " Others must succeed on a DC 19 Charisma save.";
+
+    expect(DDBDescriptions.parseSaves(text).map((save) => [save.ability, save.dc.formula]))
+      .toEqual([[["dex"], "15"], [["cha"], "19"]]);
+  });
+
+  it("reads the 2024 word order", () => {
+    const text = "Constitution Saving Throw: DC 15, each creature in the area.";
+
+    expect(DDBDescriptions.parseSaves(text)).toEqual([
+      { ability: ["con"], dc: { calculation: "", formula: "15" }, index: 0, half: false },
+    ]);
+  });
+
+  it("keeps both halves of an either/or in the ability list", () => {
+    expect(DDBDescriptions.parseSaves("must make a DC 16 Strength or Dexterity saving throw")[0].ability)
+      .toEqual(["str", "dex"]);
+  });
+
+  it("reads the spell save DC phrasing as a calculation", () => {
+    expect(DDBDescriptions.parseSaves("must succeed on an Intelligence saving throw against your spell save DC"))
+      .toEqual([
+        { ability: ["int"], dc: { calculation: "spellcasting", formula: "" }, index: 19, half: false },
+      ]);
+  });
+
+  it("does not read one sentence twice when patterns overlap", () => {
+    const text = "must succeed on a DC 15 Dexterity saving throw against your spell save DC";
+
+    expect(DDBDescriptions.parseSaves(text)).toHaveLength(1);
+    expect(DDBDescriptions.parseSaves(text)[0].dc).toEqual({ calculation: "", formula: "15" });
+  });
+
+  it("marks a half-on-save damage rider", () => {
+    const text = "make a DC 15 Dexterity saving throw, taking 8d6 cold damage on a failed save,"
+      + " or half as much damage on a successful one.";
+
+    expect(DDBDescriptions.parseSaves(text)[0].half).toBe(true);
+  });
+
+  it("never emits an ability outside the six", () => {
+    expect(DDBDescriptions.parseSaves("must succeed on a death saving throw")).toEqual([]);
+    expect(DDBDescriptions.parseSaves("must make a DC 13 saving throw of your choice")).toEqual([]);
+  });
+
+  it("returns nothing for text naming no save", () => {
+    expect(DDBDescriptions.parseSaves("A perfectly ordinary hat.")).toEqual([]);
+    expect(DDBDescriptions.parseSaves("")).toEqual([]);
+  });
+});
+
+// =============================================================================
+// stripTables / saveKey
+// =============================================================================
+describe("DDBDescriptions.stripTables", () => {
+  it("removes a random table, whose saves are rows rather than item properties", () => {
+    const description = "<p>Roll on the table.</p>"
+      + "<table><tr><td>1</td><td>DC 15 Constitution saving throw</td></tr>"
+      + "<tr><td>2</td><td>DC 20 Dexterity saving throw</td></tr></table>";
+
+    expect(DDBDescriptions.parseSaves(DDBDescriptions.stripTables(description))).toEqual([]);
+  });
+
+  it("leaves prose outside the table alone", () => {
+    const description = "<p>A DC 11 Constitution saving throw.</p><table><tr><td>DC 15 Dexterity save</td></tr></table>";
+
+    expect(DDBDescriptions.parseSaves(DDBDescriptions.stripTables(description)).map((save) => save.dc.formula))
+      .toEqual(["11"]);
+  });
+});
+
+describe("DDBDescriptions.saveKey", () => {
+  it("treats the same roll against the same DC as one property", () => {
+    const [first, second] = DDBDescriptions.parseSaves(
+      "make a DC 15 Constitution saving throw. It repeats the DC 15 Constitution save each turn.",
+    );
+    expect(DDBDescriptions.saveKey(first)).toBe(DDBDescriptions.saveKey(second));
+  });
+
+  it("separates the same ability at a different DC", () => {
+    const [first, second] = DDBDescriptions.parseSaves(
+      "a DC 13 Wisdom saving throw. Later, a DC 18 Wisdom saving throw.",
+    );
+    expect(DDBDescriptions.saveKey(first)).not.toBe(DDBDescriptions.saveKey(second));
+  });
+
+  it("ignores the order the abilities were written in", () => {
+    expect(DDBDescriptions.saveKey({ ability: ["dex", "str"], dc: { calculation: "", formula: "15" } }))
+      .toBe(DDBDescriptions.saveKey({ ability: ["str", "dex"], dc: { calculation: "", formula: "15" } }));
+  });
+});

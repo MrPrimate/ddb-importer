@@ -855,7 +855,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     } else if ((this.ddbDefinition.tags.includes("Damage") && this.ddbDefinition.requiresAttackRoll)
       || this.ddbDefinition.attackType !== null
     ) {
-      if (this.ddbDefinition.requiresSavingThrow) {
+      // a multi-mode spell already has one named save activity per section
+      if (this.ddbDefinition.requiresSavingThrow && this._saveBearingSections(this.ddbDefinition.description ?? "").length === 0) {
         this.additionalActivities.push({
           name: "Save",
           type: "save",
@@ -973,6 +974,43 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
   }
 
+  /**
+   * The save the spell describes, used to keep the primary out of the generated set.
+   * Unlike an item, a spell's save comes from DDB rather than its prose, so it usually carries a
+   * spellcasting calculation rather than a printed DC.
+   */
+  get #primarySpellSave(): I5eActivitySave | null {
+    if (!this.ddbDefinition.requiresSavingThrow || !this.ddbDefinition.saveDcAbilityId) return null;
+    const ability = DICTIONARY.actor.abilities
+      .find((entry) => entry.id === this.ddbDefinition.saveDcAbilityId)?.value;
+    if (!ability) return null;
+    return {
+      ability: [ability],
+      dc: this.spellData.overrideSaveDc
+        ? { formula: String(this.spellData.overrideSaveDc), calculation: "" }
+        : { formula: "", calculation: "spellcasting" },
+    };
+  }
+
+  /**
+   * Build one save activity per mode of a spell whose text describes several saving throws.
+   *
+   * Rarely fires: spell text names an ability without a DC ("make a Dexterity saving throw"),
+   * which the save parser deliberately will not read. The extras consume no slot - two
+   * slot-consuming activities on one spell is an audit failure.
+   */
+  #generateMultiSaveActivities(): void {
+    // A summoning spell embeds the summoned creature's stat block in its own description, so its
+    // traits' saving throws read as extra modes of the spell. Those belong to the summon.
+    if (this.isSummons) return;
+    this._multiSaveActivityGeneration({
+      text: this.ddbDefinition.description ?? "",
+      primarySave: this.#primarySpellSave,
+      skipFirstSection: Boolean(this.ddbDefinition.requiresSavingThrow && !this.ddbDefinition.requiresAttackRoll),
+      noSpellslot: true,
+    });
+  }
+
   override async _generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
     logger.debug(`Additional Spell Activities for ${this.data.name}`, this.additionalActivities);
@@ -1048,6 +1086,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     await this._generateCompanions();
 
     this._studyCheckGeneration();
+    this.#generateMultiSaveActivities();
 
     if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();
