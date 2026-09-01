@@ -127,7 +127,7 @@ declare global {
     children?: Record<string, I5eLanguageGroup | string>;
   }
 
-  interface CONFIG extends CONFIG {
+  interface CONFIG {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {

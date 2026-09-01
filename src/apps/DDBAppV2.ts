@@ -11,9 +11,11 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Naming the mixed base type stops subclasses re-inferring the mixin's return type: when tsserver
 // checks a subclass file first, that inference resolves cold and drops every ApplicationV2 member
 // (`element`, `render`, `close`...) from the base.
-// The intersection with the mixin's own BaseClass satisfies its branded constraint without the
-// cold check having to resolve ApplicationV2's `__ApplicationV2Brand` symbol (fvtt-types 14.366).
-type TDDBAppV2BaseClass = typeof ApplicationV2 & foundry.applications.api.HandlebarsApplicationMixin.BaseClass;
+type TApplicationV2Brand = Pick<
+  foundry.applications.api.ApplicationV2.Internal.Constructor,
+  keyof foundry.applications.api.ApplicationV2.Internal.Constructor
+>;
+type TDDBAppV2BaseClass = typeof ApplicationV2 & TApplicationV2Brand;
 const DDBAppV2Base: foundry.applications.api.HandlebarsApplicationMixin.Mix<TDDBAppV2BaseClass>
   = HandlebarsApplicationMixin(ApplicationV2 as TDDBAppV2BaseClass);
 

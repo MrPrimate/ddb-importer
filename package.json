@@ -9,6 +9,7 @@
     "lint-fix": "npx eslint src/ tools/ --fix",
     "typecheck": "tsc --noEmit",
     "typecheck:editor": "node tools/typecheck-editor-order.mjs --all --no-enrichers",
+    "typecheck:editor:changed": "node tools/typecheck-editor-order.mjs --changed",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
