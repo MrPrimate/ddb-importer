@@ -7,13 +7,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  *
  * Hybrid Transformation Mastery (18th level) removes the limit; that is not modelled here because
  * clearing max would break the consumption target on the child feature.
+ *
+ * Combines Stalkers Prowess changes as well
  */
 export default class HybridTransformation extends DDBEnricherData {
 
 
+  // One activity pair per (die, attack bonus)
   static STRIKE_IDS = {
     small: { action: "ddbLycanStrike01", bonus: "ddbLycanStrike02" },
+    smallImproved: { action: "ddbLycanStrike21", bonus: "ddbLycanStrike22" },
     large: { action: "ddbLycanStrike11", bonus: "ddbLycanStrike12" },
+    largeGreater: { action: "ddbLycanStrike31", bonus: "ddbLycanStrike32" },
   };
 
   static BLOODLUST_ID = "ddbLycanBloodlst";
@@ -51,7 +56,16 @@ export default class HybridTransformation extends DDBEnricherData {
     };
   }
 
-  _strikeActivities(denomination: number, ids: { action: string; bonus: string }): IDDBAdditionalActivity[] {
+  /**
+   * The strike pair for one level band. `attackBonus` is Stalker's Prowess' Improved Predatory
+   * Strikes, which only applies in hybrid form and so is carried here rather than as a rule on
+   * that feature.
+   */
+  _strikeActivities(
+    denomination: number,
+    ids: { action: string; bonus: string },
+    attackBonus = 0,
+  ): IDDBAdditionalActivity[] {
     const damageParts = [
       DDBEnricherData.basicDamagePart({
         customFormula: `1d${denomination} + ${HybridTransformation.DAMAGE_BONUS}`,
@@ -61,7 +75,9 @@ export default class HybridTransformation extends DDBEnricherData {
 
     const attack = {
       ability: "none" as T5eActivityAttackAbility,
-      bonus: HybridTransformation.ATTACK_BONUS,
+      bonus: attackBonus > 0
+        ? `${HybridTransformation.ATTACK_BONUS} + ${attackBonus}`
+        : HybridTransformation.ATTACK_BONUS,
       type: {
         value: "melee",
         classification: "unarmed",
@@ -136,10 +152,39 @@ export default class HybridTransformation extends DDBEnricherData {
     ];
   }
 
+  // Feral Might's damage bands (3rd/11th/18th) and the Improved Predatory Strikes attack bands
+  // (7th/11th/18th) differ only below 7th level.
+  static BANDS: {
+    damageBonus: number;
+    attackBonus: number;
+    denomination: number;
+    effectId: string;
+    strikeIds: { action: string; bonus: string };
+    level: { min: number | null; max: number | null };
+  }[] = [
+    {
+      damageBonus: 1, attackBonus: 0, denomination: 6, effectId: "ddbLycanForm0001",
+      strikeIds: HybridTransformation.STRIKE_IDS.small, level: { min: null, max: 6 },
+    },
+    {
+      damageBonus: 1, attackBonus: 1, denomination: 6, effectId: "ddbLycanForm0001",
+      strikeIds: HybridTransformation.STRIKE_IDS.smallImproved, level: { min: 7, max: 10 },
+    },
+    {
+      damageBonus: 2, attackBonus: 2, denomination: 8, effectId: "ddbLycanForm0002",
+      strikeIds: HybridTransformation.STRIKE_IDS.large, level: { min: 11, max: 17 },
+    },
+    {
+      damageBonus: 3, attackBonus: 3, denomination: 8, effectId: "ddbLycanForm0003",
+      strikeIds: HybridTransformation.STRIKE_IDS.largeGreater, level: { min: 18, max: null },
+    },
+  ];
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      ...this._strikeActivities(6, HybridTransformation.STRIKE_IDS.small),
-      ...this._strikeActivities(8, HybridTransformation.STRIKE_IDS.large),
+      ...HybridTransformation.BANDS.flatMap((band) =>
+        this._strikeActivities(band.denomination, band.strikeIds, band.attackBonus),
+      ),
       {
         init: {
           name: "Bloodlust",
@@ -239,15 +284,15 @@ export default class HybridTransformation extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    const bands = [
-      { damageBonus: 1, effectId: "ddbLycanForm0001", strikeIds: HybridTransformation.STRIKE_IDS.small, level: { min: null, max: 10 } },
-      { damageBonus: 2, effectId: "ddbLycanForm0002", strikeIds: HybridTransformation.STRIKE_IDS.large, level: { min: 11, max: 17 } },
-      { damageBonus: 3, effectId: "ddbLycanForm0003", strikeIds: HybridTransformation.STRIKE_IDS.large, level: { min: 18, max: null } },
-    ];
+    const riders = new Map<string, IDDBEffectHint>();
+    for (const band of HybridTransformation.BANDS) {
+      if (riders.has(band.effectId)) continue;
+      riders.set(band.effectId, this._hybridFormEffect(band.damageBonus, band.effectId));
+    }
 
     return [
-      ...bands.map((band) => this._hybridFormEffect(band.damageBonus, band.effectId)),
-      ...bands.map((band) => this._enchantProfile(band)),
+      ...riders.values(),
+      ...HybridTransformation.BANDS.map((band) => this._enchantProfile(band)),
     ];
   }
 
@@ -287,7 +332,7 @@ export default class HybridTransformation extends DDBEnricherData {
       }),
       // only the transformation toggle spends a Hybrid Transformation use
       ignoredConsumptionActivities: ["Predatory Strike", "Predatory Strike (Bonus Action)", "Bloodlust"],
-      descriptionSuffix: `${this._featuresDescription}<p><em>Crimson Rite is not applied to the Predatory Strike activities automatically; add the rite die to the damage roll manually or apply the enchantment to this item.</em></p>`,
+      descriptionSuffix: `${this._featuresDescription}<p><em>The Predatory Strike activities are banded by level and include the Improved Predatory Strikes attack bonus from Stalker's Prowess. Crimson Rite is not applied to them automatically; add the rite die to the damage roll manually or apply the enchantment to this item.</em></p>`,
       // runs after descriptionSuffix has been appended
       func: ({ enricher }) => {
         const description = enricher.data.system.description;

@@ -897,6 +897,10 @@ export default class DDBFeature extends DDBFeatureMixin {
         .some((prefix) => (pool[0].label ?? "").startsWith(prefix));
   }
 
+  override get suppressesChoiceBuild(): boolean {
+    return super.suppressesChoiceBuild || this.isSingleToggleChoice;
+  }
+
   /**
    * DDB often ships an option whose description is a verbatim copy of the parent
    * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
@@ -994,9 +998,7 @@ ${description}`;
       || ["feat"].includes(this.type) // don't add choice options for feats
       || joinedText.trim() === ""
       ? ""
-      : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
-        || this.enricher.noChoiceBuild
-        || this.isSingleToggleChoice
+      : this.suppressesChoiceBuild
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
         ? `<hr>${joinedText}`
         : `<hr><section class="secret">${joinedText}</section>`;

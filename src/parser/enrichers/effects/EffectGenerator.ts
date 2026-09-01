@@ -764,17 +764,32 @@ export default class EffectGenerator {
       "weapon-attacks",
       "system.rolls.attack.rwak.bonus",
     );
-    // `bonus/unarmed-attacks` is deliberately NOT emitted from this generic path, because every
-    // source is already handled closer to the thing it modifies and a rule here would double it:
-    //   - features: DDBAction.getBonusDamage bakes it into each martial arts activity's attack bonus
-    //   - items whose bonus is a plain number: the item's own enricher emits a conditioned rule
-    //     change (item/WrapsOfDyamak, item/DemonPaddedArmor)
-    //   - items that change the strike itself: an enchantment, because a rule cannot mutate another
-    //     item (item/WrapsOfUnarmedPower, item/EldritchClawTattoo, item/HypnovulfenFigure,
-    //     item/ShepherdsBane, item/UnarmedElementalPotion)
-    // This path cannot tell those cases apart, which is why the choice lives in the enrichers. Any
-    // new item carrying the subtype needs one of the two treatments; see
-    // docs/effect-condition-candidates.md.
+    this._addUnarmedAttackBonus();
+  }
+
+  /**
+   * Generator types whose document is a character feature.
+   */
+  static FEATURE_TYPES: TEffectGeneratorType[] = ["feat", "feature"];
+
+  /**
+   * `bonus/unarmed-attacks` translates to `system.rolls.attack.<type>.bonus` and has a classification of the attack being
+   * rolled (unarmed, plus "natural" for DDB natural weapons). Features only.
+   * An item carrying the subtype is already handled by its own enricher.
+   * Only unrestricted modifiers qualify: a restricted one needs its own reviewed
+   * condition rather than a silently widened gate. See docs/effect-condition-candidates.md.
+   */
+  _addUnarmedAttackBonus() {
+    if (!EffectGenerator.FEATURE_TYPES.includes(this.type)) return;
+    // getValueFromModifiers disables restriction filtering, so the restriction gate is applied here
+    const unrestricted = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "unarmed-attacks");
+    const bonus = DDBModifiers.getValueFromModifiers(unrestricted, this.document.name, "unarmed-attacks", "bonus");
+    if (!bonus) return;
+    logger.debug(`Generating unarmed attack bonus rule for ${this.document.name}`, bonus);
+    this.effect.system.changes.push(ChangeHelper.ruleBonusChange("attack", bonus, {
+      priority: 20,
+      conditions: ChangeHelper.UNARMED_FILTER,
+    }));
   }
 
   _damageBonusFormula(modifiers: IModifiersMod[]): string | null {

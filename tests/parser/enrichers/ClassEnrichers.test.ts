@@ -1282,6 +1282,57 @@ describe("blood-hunter CrimsonRite", () => {
   });
 });
 
+describe("blood-hunter HybridTransformation level bands", () => {
+  const Enricher = ClassEnrichers.BloodHunter.HybridTransformation;
+
+  // Feral Might damage (3rd/11th/18th) and the Improved Predatory Strikes attack bonus
+  // (7th/11th/18th) from Stalker's Prowess, which is hybrid form only and so lives here
+  const EXPECTED = [
+    { level: { min: null, max: 6 }, denomination: 6, attackBonus: 0, effectId: "ddbLycanForm0001", action: "ddbLycanStrike01" },
+    { level: { min: 7, max: 10 }, denomination: 6, attackBonus: 1, effectId: "ddbLycanForm0001", action: "ddbLycanStrike21" },
+    { level: { min: 11, max: 17 }, denomination: 8, attackBonus: 2, effectId: "ddbLycanForm0002", action: "ddbLycanStrike11" },
+    { level: { min: 18, max: null }, denomination: 8, attackBonus: 3, effectId: "ddbLycanForm0003", action: "ddbLycanStrike31" },
+  ];
+
+  it("builds one strike pair per band, carrying that band's attack bonus", () => {
+    const e = build(Enricher);
+    const strikes = e.additionalActivities.filter((a: any) => a.init.name.startsWith("Predatory Strike"));
+    expect(strikes).toHaveLength(EXPECTED.length * 2);
+    expect(e.additionalActivities.at(-1).init.name).toBe("Bloodlust");
+
+    for (const [index, band] of EXPECTED.entries()) {
+      const pair = strikes.slice(index * 2, index * 2 + 2);
+      expect(pair.map((a: any) => a.init.name)).toEqual(["Predatory Strike", "Predatory Strike (Bonus Action)"]);
+      expect(pair[0].overrides.id).toBe(band.action);
+      const expectedBonus = band.attackBonus > 0
+        ? `${Enricher.ATTACK_BONUS} + ${band.attackBonus}`
+        : Enricher.ATTACK_BONUS;
+      for (const activity of pair) {
+        expect(activity.overrides.data.attack.bonus).toBe(expectedBonus);
+        expect(activity.overrides.data.attack.type.classification).toBe("unarmed");
+        expect(activity.build.damageParts[0].custom.formula).toContain(`1d${band.denomination}`);
+      }
+    }
+  });
+
+  it("binds each band's enchantment to its own strikes, sharing the +1 rider effect", () => {
+    const e = build(Enricher);
+    const profiles = e.effects.filter((effect: any) => effect.type === "enchant");
+    const riders = e.effects.filter((effect: any) => effect.type !== "enchant");
+
+    // the two d6 bands differ only in attack bonus, so they share the Feral Might +1 effect
+    expect(riders.map((r: any) => r.data._id)).toEqual(["ddbLycanForm0001", "ddbLycanForm0002", "ddbLycanForm0003"]);
+    expect(profiles).toHaveLength(EXPECTED.length);
+
+    for (const [index, band] of EXPECTED.entries()) {
+      const flags = profiles[index].data.flags.ddbimporter;
+      expect(flags.effectIdLevel).toEqual(band.level);
+      expect(flags.effectRiders).toEqual([band.effectId]);
+      expect(flags.activityRiders[0]).toBe(band.action);
+    }
+  });
+});
+
 describe("illrigger InfernalConduit", () => {
   it("scales the transfer with the conduit dice pool", () => {
     const e = build(ClassEnrichers.Illrigger.InfernalConduit);

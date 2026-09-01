@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
-import { DDBDataUtils, DDBModifiers } from "../lib/_module";
+import { DDBDataUtils } from "../lib/_module";
 import DDBFeatureMixin from "./DDBFeatureMixin";
 
 export default class DDBAction extends DDBFeatureMixin {
@@ -71,11 +71,10 @@ export default class DDBAction extends DDBFeatureMixin {
       && meleeOrRangedAction
       ? " + @mod"
       : "";
-    const unarmedDamageBonus = DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
-      .reduce((prev, cur) => prev + (cur.value as number), 0);
-
+    // unarmed damage and attack bonuses (damage/unarmed-attacks, bonus/unarmed-attacks) are
+    // now generated on effects with conditions
     const damage = this.ddbDefinition.isMartialArts
-      ? super.getMartialArtsDamage(bonuses.concat((unarmedDamageBonus === 0 ? [] : [`+ ${unarmedDamageBonus}`])))
+      ? super.getMartialArtsDamage(bonuses)
       : super.getDamage(bonuses.concat([modBonus]));
 
     if (damage.number || damage.custom?.enabled) {
@@ -112,13 +111,6 @@ export default class DDBAction extends DDBFeatureMixin {
     } else {
       return "";
     }
-  }
-
-  getBonusDamage() {
-    if (this.ddbDefinition.isMartialArts) {
-      return DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + (cur.value as number), 0);
-    }
-    return "";
   }
 
   _generateProperties() {

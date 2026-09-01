@@ -120,6 +120,8 @@ export const EXCLUDED_EFFECT_MODIFIERS: Record<string, IExcludedEffectModifier[]
     { type: "bonus", subType: "ranged-attacks" },
     { type: "bonus", subType: "melee-weapon-attacks" },
     { type: "bonus", subType: "ranged-weapon-attacks" },
+    // feature-only attack rule gated on the rolled classification, EffectGenerator._addUnarmedAttackBonus
+    { type: "bonus", subType: "unarmed-attacks" },
     { type: "damage", subType: null },
 
     // spell modifiers

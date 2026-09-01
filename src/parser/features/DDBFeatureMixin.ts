@@ -58,6 +58,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   static SPECIAL_ADVANCEMENTS = DICTIONARY.parsing.levelScale.SPECIAL_ADVANCEMENTS;
   static UTILITY_FEATURES = DICTIONARY.parsing.levelScale.UTILITY_FEATURES;
 
+  /**
+   * Effect-owned modifier subtypes that a feature whose choice children are never built inherits
+   * from those children, see _suppressedChoiceModifiers. Widen only after checking the parent's
+   * enricher does not already automate the same thing.
+   */
+  static SUPPRESSED_CHOICE_EFFECT_MODIFIERS: { type: string; subType: string }[] = [
+    { type: "bonus", subType: "unarmed-attacks" },
+  ];
+
   DDB_TYPE_ENRICHERS: Record<string, new (...args: any[]) => TDDBEnricher> = {
     class: DDBClassFeatureEnricher,
     race: DDBSpeciesTraitEnricher,
@@ -954,6 +963,43 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
+  /**
+   * Whether this feature's choice options are folded into the parent instead of being built as
+   * child documents. The one predicate shared by DDBChoiceFeature.buildChoiceFeatures, the
+   * description-secret logic and the suppressed-choice modifier ownership below; DDBFeature adds
+   * the single-toggle case on top.
+   */
+  get suppressesChoiceBuild(): boolean {
+    return DICTIONARY.parsing.choiceFeatures.NO_CHOICE_BUILD.includes(this.originalName)
+      || (this.enricher?.noChoiceBuild ?? false);
+  }
+
+  /**
+   * Effect-owned modifiers granted by the child options of a feature whose children are never
+   * built. Those options have no document of their own, and ordinary ownership rejects their
+   * modifiers on the parent because the component ids differ, so the bonus would otherwise land nowhere.
+   * Deliberately narrow: only the subtypes in SUPPRESSED_CHOICE_EFFECT_MODIFIERS, only unrestricted modifiers, and only
+   * options whose parent is this feature. Many suppressed parents have custom parsing or
+   * enrichers, so a wholesale merge would double their automation; an enricher that automates its
+   * own options opts out with noSuppressedChoiceModifiers.
+   */
+  _suppressedChoiceModifiers(modifiers: IModifiersMod[], type: IActionTypes, owned: IModifiersMod[]): IModifiersMod[] {
+    if (!this.suppressesChoiceBuild) return [];
+    if (this.enricher?.noSuppressedChoiceModifiers) return [];
+    const options = this.ddbData.character.options[type] ?? [];
+    return modifiers.filter((mod) =>
+      DDBFeatureMixin.SUPPRESSED_CHOICE_EFFECT_MODIFIERS.some((m) => m.type === mod.type && m.subType === mod.subType)
+      && (mod.restriction === "" || mod.restriction === null)
+      && !owned.includes(mod)
+      && options.some((option) =>
+        option.componentId == this.ddbDefinition.id
+        && option.componentTypeId == this.ddbDefinition.entityTypeId
+        && option.definition.id == mod.componentId
+        && option.definition.entityTypeId == mod.componentTypeId,
+      ),
+    );
+  }
+
   _getFeatModifierItem(choice: IDDBChoiceResult | undefined, type: IActionTypes) {
     if ("grantedModifiers" in this.ddbDefinition && this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     const modifierItem = foundry.utils.duplicate(this.ddbDefinition) as any;
@@ -966,6 +1012,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     if (!modifierItem.definition) modifierItem.definition = {};
     modifierItem.definition.grantedModifiers = modifiers.filter((mod) => this._filterModForChoice(mod, choice, type));
+    if (!choice) {
+      modifierItem.definition.grantedModifiers.push(
+        ...this._suppressedChoiceModifiers(modifiers, type, modifierItem.definition.grantedModifiers),
+      );
+    }
 
     if (type === "race") {
       // we add choice modifiers back in for senses that are granted as part of a choice feature,

@@ -582,12 +582,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       type = "ranged";
     }
 
-    const bonusParent = this.ddbParent as { getBonusDamage?: () => string | number };
-    const bonus = bonusParent.getBonusDamage ? bonusParent.getBonusDamage() : "";
-
     const attack: I5eActivityAttack = {
       ability: this.ddbParent.getActionAttackAbility(),
-      bonus: bonus && bonus !== 0 ? String(bonus) : "",
+      // feature-granted attack bonuses (bonus/unarmed-attacks) are rule changes owned by the
+      // granting feature's effect, never baked into another document's activity
+      bonus: "",
       critical: {
         threshold: undefined,
       },

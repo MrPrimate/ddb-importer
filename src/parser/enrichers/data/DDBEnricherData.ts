@@ -436,6 +436,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return false;
   }
 
+  /**
+   * Refuse the option modifiers that DDBFeatureMixin._suppressedChoiceModifiers would otherwise
+   * carry onto this feature, for a parent whose enricher automates those options itself. Order of
+   * the Lycan: Improved Predatory Strikes/Stalker's Prowess.
+   */
+  get noSuppressedChoiceModifiers(): boolean {
+    return false;
+  }
+
   get itemMacro(): IDDBItemMacro | null {
     return null;
   }

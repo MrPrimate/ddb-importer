@@ -97,19 +97,49 @@ describe("EffectGenerator attack mode gated damage", () => {
 });
 
 describe("EffectGenerator unarmed attack bonuses", () => {
-  it("does not emit an attack rule for a feature, which DDBAction bakes into the activity", () => {
-    // Improved Predatory Strikes grants this and its Predatory Strike actions are martial arts,
-    // so DDBAction.getBonusDamage already puts the bonus on the attack; emitting would double it
-    const generator = buildGenerator([modifier("bonus", "unarmed-attacks", 1)], "feature");
+  const UNARMED_CONDITION = { k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] };
+
+  // real callers pass "feat" (DDBFeatureMixin._addEffects) while the generator's own union and
+  // these builders say "feature"; the gate must accept both or one side silently gets nothing
+  it.each(["feat", "feature"])("emits a %s document's unarmed attack bonus as a classification-gated rule", (type) => {
+    // Improved Predatory Strikes (Order of the Lycan). The bonus used to be baked into martial
+    // arts activities by DDBAction.getBonusDamage, which never reached the enricher-built
+    // Predatory Strike activities; the feature's own transfer effect now owns it
+    const generator = buildGenerator([modifier("bonus", "unarmed-attacks", 1)], type);
+    generator._addWeaponAttackBonuses();
+
+    expect(generator.effect.system.changes).toHaveLength(1);
+    const [change] = generator.effect.system.changes;
+    expect(change).toMatchObject({ key: "attack", value: "1", type: "dnd5e.bonus", priority: 20 });
+    expect(JSON.parse(change.conditions)).toEqual(UNARMED_CONDITION);
+  });
+
+  it("combines the incremental stages into one rule rather than competing changes", () => {
+    // the three Improved Predatory Strikes options each grant +1
+    const generator = buildGenerator([
+      modifier("bonus", "unarmed-attacks", 1),
+      modifier("bonus", "unarmed-attacks", 1),
+      modifier("bonus", "unarmed-attacks", 1),
+    ], "feat");
+    generator._addWeaponAttackBonuses();
+
+    expect(generator.effect.system.changes).toHaveLength(1);
+    expect(generator.effect.system.changes[0].value).toBe("1 + 1 + 1");
+  });
+
+  it("leaves a restricted modifier to a reviewed condition instead of widening the gate", () => {
+    const generator = buildGenerator([
+      { ...modifier("bonus", "unarmed-attacks", 2), restriction: "while raging" },
+    ], "feat");
     generator._addWeaponAttackBonuses();
     expect(generator.effect.system.changes).toEqual([]);
   });
 
-  it("does not emit an attack rule for an item, whose own enricher owns the choice", () => {
+  it.each(["item", "equipment", "infusion", "spell"])("does not emit an attack rule for a %s, whose own enricher owns the choice", (type) => {
     // per item that is either a conditioned rule (Wraps of Dyamak, Demon Padded Armor) or an
     // enchantment (Wraps of Unarmed Power, Eldritch Claw Tattoo); either way a generic rule
     // emitted here would be a second copy
-    const generator = buildGenerator([modifier("bonus", "unarmed-attacks", 1)], "item");
+    const generator = buildGenerator([modifier("bonus", "unarmed-attacks", 1)], type);
     generator._addWeaponAttackBonuses();
     expect(generator.effect.system.changes).toEqual([]);
   });

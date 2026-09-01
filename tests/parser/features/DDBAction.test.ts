@@ -240,31 +240,6 @@ describe("DDBAction.getActionAttackAbility", () => {
   });
 });
 
-describe("DDBAction.getBonusDamage", () => {
-  it("returns an empty string for non martial arts actions", () => {
-    expect(buildAction().getBonusDamage()).toBe("");
-  });
-
-  it("sums unarmed-attack bonus modifiers for martial arts actions", () => {
-    const action = buildAction({
-      action: { isMartialArts: true },
-      character: {
-        modifiers: {
-          class: [],
-          race: [
-            {
-              type: "bonus", subType: "unarmed-attacks", value: 2,
-              isGranted: true, restriction: "", statId: null, componentId: 1, componentTypeId: 1,
-            },
-          ],
-          background: [], item: [], feat: [], condition: [],
-        },
-      },
-    });
-    expect(action.getBonusDamage()).toBe(2);
-  });
-});
-
 describe("DDBAction._generateProperties", () => {
   const kiClass = () => makeDdbClass({
     definition: { id: 50002, name: "Monk" },
@@ -372,5 +347,43 @@ describe("DDBAction.build", () => {
     await action.build();
     expect(action.data.system.description.value).toBe("<p>A test action.</p>");
     expect(action.data.system.identifier).toBe("test-action");
+  });
+
+  it("never bakes a character's unarmed attack bonus into a martial arts attack activity", async () => {
+    // bonus/unarmed-attacks is effect-side: the granting feature's transfer effect carries a
+    // classification-gated attack rule (EffectGenerator._addUnarmedAttackBonus), so the
+    // activity must not carry a second, unremovable copy
+    const action = buildAction({
+      action: {
+        name: "Unarmed Strike",
+        actionType: 1,
+        attackTypeRange: 1,
+        attackSubtype: 3,
+        abilityModifierStatId: 1,
+        isMartialArts: true,
+        damageTypeId: 1,
+        dice: makeDdbDice({ diceValue: 4, diceString: "1d4" }),
+      },
+      character: {
+        modifiers: {
+          class: [],
+          race: [
+            {
+              type: "bonus", subType: "unarmed-attacks", value: 2,
+              isGranted: true, restriction: "", statId: null, componentId: 1, componentTypeId: 1,
+            },
+          ],
+          background: [], item: [], feat: [], condition: [],
+        },
+      },
+    });
+    await action.loadEnricher();
+    await action.build();
+
+    const activities = Object.values(action.data.system.activities) as any[];
+    const attack = activities.find((a) => a.type === "attack");
+    expect(attack).toBeDefined();
+    expect(attack.attack.type.classification).toBe("unarmed");
+    expect(attack.attack.bonus).toBe("");
   });
 });

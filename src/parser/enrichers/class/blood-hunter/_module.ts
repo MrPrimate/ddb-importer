@@ -67,5 +67,6 @@ export { default as RiteOfTheOracle } from "./RiteOfTheOracle";
 export { default as RiteOfTheRoar } from "./RiteOfTheRoar";
 export { default as RiteOfTheStorm } from "./RiteOfTheStorm";
 export { default as SanguineMastery } from "./SanguineMastery";
+export { default as StalkersProwess } from "./StalkersProwess";
 export { default as StrangeMetabolism } from "./StrangeMetabolism";
 

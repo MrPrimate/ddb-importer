@@ -43,6 +43,7 @@ const DELEGATED_GETTERS = {
   stopDefaultActivity: { default: () => false },
   parseAllChoiceFeatures: { default: () => false },
   noChoiceBuild: { default: () => false },
+  noSuppressedChoiceModifiers: { default: () => false },
   ddbMacroDescriptionData: { default: () => null },
   summonsFunction: { default: () => null },
   generateSummons: { default: () => false },
@@ -1767,6 +1768,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly stopDefaultActivity: boolean;
   readonly parseAllChoiceFeatures: boolean;
   readonly noChoiceBuild: boolean;
+  readonly noSuppressedChoiceModifiers: boolean;
   readonly ddbMacroDescriptionData: IDDBMacroDescriptionData | null;
   readonly summonsFunction: ((data: ICompanionData) => Promise<ICompanionResult>) | null;
   readonly generateSummons: boolean;
