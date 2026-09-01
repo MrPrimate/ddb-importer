@@ -1419,8 +1419,8 @@ export default class AdventureMunch {
   async _createAdventure(): Promise<I5eAdventureData> {
     logger.debug("Packing up adventure");
     if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData);
-    const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true) as Item.Implementation[];
-    const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true) as Item.Implementation[];
+    const itemData = await AdventureMunchHelpers.getDocuments("item", (this.adventure.required.items ?? []), {}, true) as Item.Implementation[];
+    const spellData = await AdventureMunchHelpers.getDocuments("spell", (this.adventure.required.spells ?? []), {}, true) as Item.Implementation[];
 
     const ddbSource = CONFIG.DDB.sources.find((source) => source.description === this.adventure.name);
     const image = ddbSource?.avatarURL

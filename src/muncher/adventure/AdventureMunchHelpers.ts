@@ -129,11 +129,34 @@ export default class AdventureMunchHelpers {
     });
   }
 
+  /**
+   * COMPENDIUM_LOOKUP holds singular and plural spellings of each compendium type; these helpers
+   * only branch on the three document families, so collapse the spelling first.
+   * @param {string} type compendium type
+   * @returns {string | null} the document family, or null if these helpers do not handle the type
+   */
+  static documentFamily(type: TCompendiumTypes): "monster" | "item" | "spell" | null {
+    switch (type) {
+      case "monster":
+      case "monsters":
+      case "npc":
+        return "monster";
+      case "item":
+      case "items":
+        return "item";
+      case "spell":
+      case "spells":
+        return "spell";
+      default:
+        return null;
+    }
+  }
+
   static async getCompendiumIndex(type: TCompendiumTypes) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     // getCompendiumType with fail=true (default) throws when missing, so this is unreachable
     if (!compendium) throw new Error(`Unable to find compendium for type ${type}`);
-    const fields = (type === "monster")
+    const fields = (AdventureMunchHelpers.documentFamily(type) === "monster")
       ? ["flags.ddbimporter.id"]
       : ["flags.ddbimporter.definitionId"];
 
@@ -144,7 +167,9 @@ export default class AdventureMunchHelpers {
 
   static async getMissingIds(type: TCompendiumTypes, ids: (string | number)[]): Promise<number[]> {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
-    const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
+    const flagPath = (AdventureMunchHelpers.documentFamily(type) === "monster")
+      ? "flags.ddbimporter.id"
+      : "flags.ddbimporter.definitionId";
     return ids.filter((id) =>
       !index.some((i) => {
         const v = foundry.utils.getProperty(i, flagPath);
@@ -171,6 +196,7 @@ export default class AdventureMunchHelpers {
   static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides: Record<string, unknown> = {}, temporary = false) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
+    const family = AdventureMunchHelpers.documentFamily(type);
     const ddbIds = ids.map((num) => {
       return String(num);
     });
@@ -178,7 +204,7 @@ export default class AdventureMunchHelpers {
     return new Promise((resolve) => {
       const documents = index
         .filter((idx) => {
-          switch (type) {
+          switch (family) {
             case "monster":
               return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
             case "spell":
@@ -194,7 +220,7 @@ export default class AdventureMunchHelpers {
               { clone: (data: Record<string, unknown>, context: { keepId: boolean }) => unknown } | null | undefined;
             return source?.clone(overrides, { keepId: true }) ?? null;
           }
-          switch (type) {
+          switch (family) {
             case "monster":
               return game.actors.importFromCompendium(
                 compendium as CompendiumCollection<"Actor">,
