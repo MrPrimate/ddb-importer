@@ -296,7 +296,7 @@ export default class DDBPartySync extends DDBAppV2 {
       const info = await DDBPartyInventory.fetchCampaignInfo({ campaignId: this.campaignId });
       const characters = info?.characters ?? [];
       const partyMemberIds = this.isPartyActor
-        ? new Set<string>((this.actor.system?.members ?? []).map((m: any) => m.actor).filter((id: string) => !!id))
+        ? new Set<string>(((this.actor.system as unknown as { members?: { actor?: string }[] } | undefined)?.members ?? []).map((m: any) => m.actor).filter((id: string) => !!id))
         : new Set<string>();
       const enriched: ICampaignCharacterRow[] = characters.map((c) => {
         const owner = DDBPartySync._findOwnerActor(c.characterId);

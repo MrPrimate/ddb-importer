@@ -285,7 +285,7 @@ export default class DDBClass extends DDBBaseClass {
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
       if (!foundryKlass) continue;
-      const startingEquipment = foundry.utils.duplicate(foundryKlass.system.startingEquipment);
+      const startingEquipment = foundry.utils.duplicate((foundryKlass.system as unknown as I5eClassSystemData).startingEquipment);
       this.data.system.startingEquipment = startingEquipment;
       return;
     }

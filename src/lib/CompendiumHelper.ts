@@ -334,7 +334,7 @@ const CompendiumHelper = {
     const id = index.find((entity) => utils.normalizeString(entity.name ?? "") === documentName);
     if (id && getDocument) {
       const entity = await compendium.getDocument(id._id);
-      return entity;
+      return entity ?? null;
     }
     return id ? id : null;
   },
@@ -455,6 +455,11 @@ const CompendiumHelper = {
         return new Promise<T5eCompendiumDocuments | null>((resolve) => {
           if (entry) {
             compendium.getDocument(entry._id).then((entity) => {
+              // fvvt types ffs
+              if (!entity) {
+                resolve(null);
+                return;
+              }
               const doc = entity.toObject() as unknown as T5eCompendiumDocuments;
               doc.name = entry.name; // transfer restrictions over, if any
               // remove redundant info

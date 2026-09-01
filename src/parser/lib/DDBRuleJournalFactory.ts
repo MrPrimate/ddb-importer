@@ -299,7 +299,7 @@ export default class DDBRuleJournalFactory {
 
   async _getJournalRulePage(journal: JournalEntry, rulePageName: string, source: IRuleFactorySource) {
     const ruleIdentifier = DDBDataUtils.classIdentifierName(rulePageName);
-    const page = journal.pages.find((p: JournalEntryPage.Implementation) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
+    const page = journal.pages?.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     if (page) return page;
 
     const pageData: I5eRuleJournalPageData = foundry.utils.deepClone(BASE_RULE_PAGE);
@@ -309,7 +309,7 @@ export default class DDBRuleJournalFactory {
 
     logger.debug(`Creating Rule Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData] as any, { keepId: true });
-    const newPage = journal.pages.find((p: JournalEntryPage.Implementation) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
+    const newPage = journal.pages?.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     return newPage;
   }
 
@@ -322,6 +322,10 @@ export default class DDBRuleJournalFactory {
     }
 
     const page = await this._getJournalRulePage(journal, ruleName, source);
+    if (!page) {
+      logger.error(`Rule page ${ruleName} could not be created for ${source.label}`);
+      return;
+    }
     const update = {
       _id: page._id,
       text: {
@@ -351,12 +355,12 @@ export default class DDBRuleJournalFactory {
     );
 
     for (const journal of ruleJournals) {
-      logger.debug(`Processing journal ${journal.name} with ID ${journal._id} for rule injection`);
+      logger.debug(`Processing journal ${(journal as unknown as INameMatchIndexEntry).name} with ID ${journal._id} for rule injection`);
       const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
       const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId") as number;
       const allowedSourceIds = getAllowedSourceIds();
       if (!allowedSourceIds.includes(sourceId)) continue;
-      const rulePages = journalEntry.pages.filter((p: JournalEntryPage.Implementation) => p.type === "rule") as unknown as JournalEntryPage.Implementation[];
+      const rulePages = (journalEntry.pages?.filter((p) => p.type === "rule") ?? []) as unknown as JournalEntryPage.Implementation[];
       switch (this.flagTag) {
         case "weapon-masteries": {
           for (const page of rulePages) {

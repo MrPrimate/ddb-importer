@@ -8,6 +8,7 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 
+
 interface IDDBMonsterImporterBuildOptions {
   temporary?: boolean;
   update?: boolean;
@@ -68,7 +69,8 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       const spells = (
         await Promise.all(
           // TODO: what is the dnd5e activity type here?
-          item.system.activities.getByType("cast").map((a: any) => a.getCachedSpellData()),
+          // dnd5e-types types the initialized ActivitiesField as a plain record; the runtime value is an ActivityCollection
+          (item.system.activities as unknown as dnd5e.types.Activity.Collection).getByType("cast").map((a: any) => a.getCachedSpellData()),
         )).filter((spell: any) => !(compendiumActor.items as unknown as Item.Implementation[]).find((i) =>
         i.type === "spell" && foundry.utils.hasProperty(i, "flags.dnd5e.cachedFor")
         && i.flags?.dnd5e?.cachedFor === spell.flags?.dnd5e?.cachedFor,
@@ -112,7 +114,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         } else {
           item["_id"] = existingItem.id ?? undefined;
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
-            item.img = existingItem.img;
+            item.img = existingItem.img ?? undefined;
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
           }
           const existingMonsterFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags | undefined;
@@ -499,15 +501,14 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         throw new Error(`Unable to update world actor for ${this.monster.name}: monster has no _id`);
       }
       const npc = game.actors.get(this.monster._id);
+      if (!npc) {
+        throw new Error(`Unable to update world actor for ${this.monster.name}: actor ${this.monster._id} not found`);
+      }
       await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
       await Actor.updateDocuments([this.monster as any]);
       this.data = npc as Actor.Implementation;
     } else {
-      const options = {
-        displaySheet: false,
-        temporary: false, // default
-      };
-      if (temporary) options.temporary = true;
+      const options = { renderSheet: false };
       const npc = temporary
         ? new (Actor.implementation as any)(this.monster, options)
         : await Actor.create(this.monster as any, options);

@@ -583,6 +583,7 @@ export default class ThirdPartyMunch extends FormApplication {
       }
       scene.folder = folder.id ?? undefined;
       const worldScene = await game.scenes.importFromCompendium(compendium as unknown as CompendiumCollection<"Scene">, compendiumScene._id, scene as any, { keepId: true });
+      if (!worldScene) throw new Error(`Import of scene ${scene.name} (${compendiumScene._id}) returned no document`);
       logger.info(`Scene: ${scene.name} folder:`, folder);
       logger.debug("worldScene:", worldScene);
       return worldScene;

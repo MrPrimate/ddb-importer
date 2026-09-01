@@ -77,7 +77,8 @@ global {
   interface ICombatantData {
     // token placeables report `id` as string | null in fvtt-types
     tokenId: string | null;
-    actorId: string;
+    // unlinked or actorless tokens have a null actorId
+    actorId: string | null;
     hidden: boolean;
     initiative?: number;
   }

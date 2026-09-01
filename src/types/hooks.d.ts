@@ -3,6 +3,20 @@ import type DDBCharacter from "../parser/DDBCharacter";
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export {};
 
+type Activity = dnd5e.types.Activity.Instance;
+type ActivityUseConfiguration = dnd5e.types.documents.activity.ActivityUseConfiguration;
+type RollProcessConfig = dnd5e.types.Dice.BasicRollProcessConfiguration;
+type RollDialogConfig = dnd5e.types.Dice.BasicRollDialogConfiguration;
+type RollMessageConfig = dnd5e.types.Dice.BasicRollMessageConfiguration;
+type BasicRollConfig = dnd5e.types.Dice.BasicRollConfiguration;
+type D20RollOptions = dnd5e.types.Dice.D20RollOptions;
+type DamageDescription = dnd5e.types.documents.DamageDescription;
+type DamageApplicationOptions = dnd5e.types.documents.DamageApplicationOptions;
+type AnyMutableObject = fvttUtils.AnyMutableObject;
+// midi-qol publishes no types; its payloads stay loose
+type Workflow = Record<string, any>;
+type UndoData = Record<string, any>;
+
 // Bridge custom hooks into the configuration HookConfig.
 // fvtt-types resolves HookName = keyof HookConfig.HookConfig where HookConfig
 // is `import { Hooks as HookConfig } from "#configuration"`. The Hooks namespace

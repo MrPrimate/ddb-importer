@@ -2,6 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import DDBEffectHelper from "../../effects/DDBEffectHelper";
 import { logger } from "../../lib/_module";
 
+
 export function getCondition(conditionDDBName: string) {
   return DICTIONARY.conditions.find((condition) => condition.label === conditionDDBName);
 }
@@ -22,8 +23,8 @@ export function getActorConditionStates(actor: TImporterActor, ddb: IDDBData, ke
           ? foundry.utils.duplicate(conditionApplied) as unknown as I5eEffectData
           : undefined,
         needsAdd: ddbCondition && !conditionApplied,
-        needsRemove: !ddbCondition && conditionApplied && !keepLocal,
-        needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
+        needsRemove: !!(!ddbCondition && conditionApplied && !keepLocal),
+        needsUpdate: !!((ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal)),
       };
       const conditionState: IDDBConditionState = foundry.utils.mergeObject(condition, conditionData, { inplace: false }) as IDDBConditionState;
       return conditionState;

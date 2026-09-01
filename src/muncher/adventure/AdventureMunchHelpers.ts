@@ -4,6 +4,7 @@ import DDBItemsImporter from "../DDBItemsImporter";
 import { SETTINGS } from "../../config/_module";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
+
 type TGameDataType = "scenes" | "actors" | "items" | "journal" | "tables" | "playlist" | "macros";
 type TEntityType = Scene | Actor | Item | JournalEntry | RollTable | Playlist | Macro;
 
@@ -167,7 +168,7 @@ export default class AdventureMunchHelpers {
    * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
-  static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides = {}, temporary = false) {
+  static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides: Record<string, unknown> = {}, temporary = false) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const ddbIds = ids.map((num) => {
@@ -187,25 +188,33 @@ export default class AdventureMunchHelpers {
               return false;
           }
         })
-        .map((i) => {
+        .map(async (i) => {
+          if (temporary) {
+            const source = await compendium?.getDocument(i._id) as
+              { clone: (data: Record<string, unknown>, context: { keepId: boolean }) => unknown } | null | undefined;
+            return source?.clone(overrides, { keepId: true }) ?? null;
+          }
           switch (type) {
             case "monster":
               return game.actors.importFromCompendium(
                 compendium as CompendiumCollection<"Actor">,
-                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
+                i._id, overrides, { keepId: true, keepEmbeddedIds: true },
               );
             case "spell":
             case "item":
               return game.items.importFromCompendium(
                 compendium as CompendiumCollection<"Item">,
-                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
+                i._id, overrides, { keepId: true, keepEmbeddedIds: true },
               );
             default:
               return undefined;
           }
         });
-      logger.debug(`${type} documents loaded`, documents);
-      resolve(documents);
+      // the map above yields promises; hand back the resolved documents, not the promises
+      Promise.all(documents).then((loaded) => {
+        logger.debug(`${type} documents loaded`, loaded);
+        resolve(loaded);
+      });
     });
   }
 
@@ -391,14 +400,14 @@ export default class AdventureMunchHelpers {
       );
       if (!worldActor) {
         const override: IAdventureMuncherOverrideById = overridesById?.get?.(ddbId) ?? {};
-        const overrides = { folder: folderId, ...override };
+        const overrides: Record<string, unknown> = { folder: folderId, ...override };
         try {
           worldActor = await game.actors.importFromCompendium(
             compendium as CompendiumCollection<"Actor">,
             idx._id, overrides, { keepId: true, keepEmbeddedIds: true },
           );
         } catch (err) {
-          logger.warn(`AdventureMunchHelpers: failed to import monster ${idx.name} (ddbId ${ddbId}) into world: ${(err as Error).message ?? err}`);
+          logger.warn(`AdventureMunchHelpers: failed to import monster ${(idx as unknown as INameMatchIndexEntry).name} (ddbId ${ddbId}) into world: ${(err as Error).message ?? err}`);
           continue;
         }
       }
@@ -460,6 +469,8 @@ export default class AdventureMunchHelpers {
       ],
     });
 
+    // the "All" button resolves null via its callback; the action id is only in the inferred type
+    if (response === "all") return null;
     return response ?? null;
   }
 

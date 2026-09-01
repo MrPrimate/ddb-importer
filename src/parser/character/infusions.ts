@@ -50,8 +50,10 @@ export async function linkSelectedEnchantments(actor: TImporterActor) {
     // loot items don't have activities, so we can't link the enchantment to them
     if (!item.system.activities) continue;
 
-    const activity: I5eEnchantActivity = item.system.activities.getByType("enchant")
-      .find((a: I5eEnchantActivity) => a._id === enchantmentFlag.activityId);
+    // dnd5e-types types the initialized ActivitiesField as a plain record; the runtime value is an ActivityCollection
+    const enchantActivities = (item.system.activities as unknown as dnd5e.types.Activity.Collection)
+      .getByType("enchant") as unknown as I5eEnchantActivity[];
+    const activity = enchantActivities.find((a) => a._id === enchantmentFlag.activityId);
 
     if (!activity) continue;
 
@@ -108,7 +110,8 @@ export async function createInfusedItems(ddb: IDDBData, actor: TImporterActor) {
     );
 
     if (!infusionFeature?.system.activities) continue;
-    const infusionActivities: I5eEnchantActivity[] = infusionFeature.system.activities.getByType("enchant");
+    const infusionActivities = (infusionFeature.system.activities as unknown as dnd5e.types.Activity.Collection)
+      .getByType("enchant") as unknown as I5eEnchantActivity[];
 
     for (const activity of infusionActivities) {
       const activityEffects = activity.effects ?? [];

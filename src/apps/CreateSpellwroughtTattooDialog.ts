@@ -86,7 +86,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @returns {Promise<ApplicationRenderContext>}
    * @protected
    */
-  override async _prepareContentContext(context: any, _options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
+  override async _prepareContentContext(context: any, _options: any) {
     const config = this.#config;
     // config is only null after close without submission; no further renders happen then
     if (!config) return context;

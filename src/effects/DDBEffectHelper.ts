@@ -174,7 +174,7 @@ export default class DDBEffectHelper {
    * @param {string} [icon=null] An icon to use for the effect.
    * @returns {Promise<void>}
    */
-  static async addSaveAdvantageToTarget(targetActor: Actor.Known, originItem: Item.Known, ability: T5eAbility, additionLabel = "", icon: string | null = null) {
+  static async addSaveAdvantageToTarget(targetActor: Actor.Implementation, originItem: Item.Implementation, ability: T5eAbility, additionLabel = "", icon: string | null = null) {
 
     const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
@@ -377,6 +377,7 @@ export default class DDBEffectHelper {
    */
   static async displayItemCard(item: Item.Known) {
     const msg = await item.displayCard({ create: false });
+    if (!msg) return;
     const DIV = document.createElement("DIV");
     DIV.innerHTML = msg.content;
     DIV.querySelector("div.card-buttons")?.remove();
@@ -482,7 +483,7 @@ export default class DDBEffectHelper {
    * @param {string} uuid The UUID of the actor.
    * @returns {Actor|null} Returns the actor document or null if not found.
    */
-  static fromActorUuid(uuid: string): Actor.Known | Actor | Actor.Implementation | null {
+  static fromActorUuid(uuid: string): Actor.Implementation | null {
     const doc = fromUuidSync(uuid);
     if (doc instanceof CONFIG.Token.documentClass) return doc.actor;
     if (doc instanceof CONFIG.Actor.documentClass) return doc;
@@ -495,7 +496,7 @@ export default class DDBEffectHelper {
    * @param {any} actorRef The actor reference to retrieve the actor from.
    * @returns {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
    */
-  static getActor(actorRef: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): Actor | Actor.Implementation | null {
+  static getActor(actorRef: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): Actor.Implementation | null {
     if (actorRef instanceof Actor) return actorRef;
     if (actorRef instanceof foundry.canvas.placeables.Token) return actorRef.actor;
     if (actorRef instanceof TokenDocument) return actorRef.actor;
@@ -616,12 +617,16 @@ export default class DDBEffectHelper {
     const heightDifference = DDBEffectHelper._calculateTokenHeightDifference(t1, t2);
 
     // measurePath applies the scene's configured diagonal rule (CONST.GRID_DIAGONALS) in 3D
-    const distances = segments.map(({ origin, dest }) =>
-      grid.measurePath([
+    const distances = segments.map(({ origin, dest }) => {
+      // typed up front: the grid union's measurePath overloads do not infer the 3D waypoint shape
+      const waypoints: foundry.grid.BaseGrid.Waypoint<foundry.grid.BaseGrid.Coordinates3D>[] = [
         { x: origin.x, y: origin.y, elevation: 0 },
         { x: dest.x, y: dest.y, elevation: heightDifference },
-      ], {}).distance,
-    );
+      ];
+      // fvtt-types declares BaseGrid#measurePath with `never` parameters and the concrete grid union's
+      // overloads intersect to never; every grid type shares the 3D signature SquareGrid declares
+      return (grid as foundry.grid.SquareGrid).measurePath(waypoints, {}).distance;
+    });
 
     return Math.min(...distances);
   }
@@ -765,8 +770,8 @@ export default class DDBEffectHelper {
    */
   static async getTokenImage(token: Token) {
     const midiConfigSettings = utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol");
-    let img = token.document?.texture?.src ?? token.actor.img ?? "";
-    if (midiConfigSettings.usePlayerPortrait && token.actor.type === "character") {
+    let img = token.document?.texture?.src ?? token.actor?.img ?? "";
+    if (midiConfigSettings.usePlayerPortrait && token.actor?.type === "character") {
       img = token.actor?.img ?? token.document?.texture?.src ?? "";
     }
     if (VideoHelper.hasVideoExtension(img)) {
@@ -921,7 +926,12 @@ export default class DDBEffectHelper {
    * @returns {Promise} A promise that resolves with the save result
    */
   static async rollSaveForItem(item: Item.Implementation, targetToken: Token, workflow: any = null) {
-    const { ability, dc } = foundry.utils.duplicate(item.system.save);
+    if (!("save" in item.system)) return undefined;
+    // pre-activities save shape kept by midi-qol workflows; not on every item subtype
+    const { ability, dc } = foundry.utils.duplicate(
+      (item.system as unknown as { save: { ability: string; dc: number } }).save,
+    );
+    // const { ability, dc } = foundry.utils.duplicate(item.system.save);
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
       : game.users.activeGM?.id;
@@ -958,7 +968,7 @@ export default class DDBEffectHelper {
     if (includeSource) {
       aoeTargets.unshift(sourceToken);
     }
-    const aoeTargetIds = aoeTargets.map((t) => t.document.id);
+    const aoeTargetIds = aoeTargets.map((t) => t.document.id).filter((id): id is string => id !== null);
     DDBEffectHelper.setTokenTargets(aoeTargetIds);
     (game.user as unknown as ITokenTargetUser)?.broadcastActivity({ aoeTargetIds });
     return aoeTargets;
@@ -1624,23 +1634,27 @@ export default class DDBEffectHelper {
     if (!derivedType) throw new Error("No type specified, and no default removal type found in document flags!");
     const viaNameStub = name ? ` (via ${name})` : "";
     const flavor = `${condition}${viaNameStub} : ${CONFIG.DND5E.abilities[derivedAbility].label} ${derivedType} vs DC${derivedSaveDc}`;
+    const targetActor = targetToken.actor;
+    if (!targetActor) throw new Error("Condition removal roll requested for a token with no actor!");
     const speaker = ChatMessage.getSpeaker({
-      targetActor: targetToken.actor,
+      targetActor,
       scene: canvas.scene,
       token: targetToken?.document ?? targetToken,
     } as unknown as Parameters<typeof ChatMessage.getSpeaker>[0]);
 
     const rollResult = derivedType === "check"
-      ? (await targetToken.actor.rollAbilityCheck({
+      // dnd5e-types marks `rolls` required on the process configuration; the system fills it in
+      ? ((await targetActor.rollAbilityCheck({
         ability: derivedAbility,
-      }, {}, { data: { speaker, flavor } }))[0].total
-      : (await targetToken.actor.rollSavingThrow({
+      } as dnd5e.types.Dice.AbilityRollProcessConfiguration, {}, { data: { speaker, flavor } }) ?? [])[0])?.total
+      : ((await targetActor.rollSavingThrow({
         ability: derivedAbility,
         target: derivedSaveDc,
-      }, {}, { data: { speaker, flavor } }))[0].total;
+      } as dnd5e.types.Dice.AbilityRollProcessConfiguration, {}, { data: { speaker, flavor } }) ?? [])[0])?.total;
 
+    if (rollResult === undefined) return rollResult;
     if (rollResult >= derivedSaveDc) {
-      await DDBEffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetToken.actor });
+      await DDBEffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetActor });
     } else if (rollResult < derivedSaveDc) {
       const nameStub = name ? ` for ${name}` : "";
       ChatMessage.create({
@@ -1667,7 +1681,9 @@ export default class DDBEffectHelper {
     ask?: boolean;
     checkConditionExists?: boolean;
   } = {}) {
-    if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)
+    const targetActor = targetToken.actor;
+    if (!targetActor) return;
+    if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetActor)
       && checkConditionExists)
       return;
 
@@ -1839,7 +1855,7 @@ export default class DDBEffectHelper {
     return (actor as unknown as { update(data: object): Promise<unknown> }).update({ [key]: _del });
   }
 
-  static async setFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {
+  static async setFlag(targetActor: Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorUuid: targetActor, flagId, value });
     } else if (typeof targetActor === "string") {
@@ -1857,7 +1873,7 @@ export default class DDBEffectHelper {
     });
   }
 
-  static async unsetFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string) {
+  static async unsetFlag(targetActor: Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorUuid: targetActor, flagId });
     } else if (typeof targetActor === "string") {

@@ -48,7 +48,10 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.attributes.movement.all": {
       if (change.value == null) return true;
       if (!("attributes" in actor.system)) break;
-      const movement = actor.system.attributes.movement;
+      // group actors carry travel rather than movement under attributes
+      const movement = (actor.system as unknown as { attributes?: { movement?: I5eMovementRecord } }).attributes?.movement;
+      // const movement = actor.system.attributes.movement;
+      if (!movement) break;
       let op = "";
       if (typeof change.value === "string") {
         change.value = change.value.trim();

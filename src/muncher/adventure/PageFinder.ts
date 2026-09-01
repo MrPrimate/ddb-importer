@@ -9,7 +9,7 @@ export class PageFinder {
   elementIds: Record<string, Set<string>>;
 
   generateContentLinks() {
-    for (const page of this.journal.pages.filter((p: JournalEntryPage.Implementation) => p.type === "text")) {
+    for (const page of this.journal.pages.filter((p) => p.type === "text")) {
       const pageId = page._id;
       if (!pageId) continue;
       const dom = utils.htmlToDocumentFragment(page.text.content ?? "");

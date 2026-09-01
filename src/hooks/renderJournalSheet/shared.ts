@@ -66,14 +66,14 @@ async function createPage(journal: JournalEntry.Implementation, name: string, ty
   }
 
   await JournalEntryPage.create(page as unknown as JournalEntryPage.CreateInput, { parent: journal, keepId: true, displaySheet: false } as Parameters<typeof JournalEntryPage.create>[1]);
-  return journal.pages.find((jp: JournalEntryPage) => page._id === jp._id);
+  return journal.pages?.find((jp: JournalEntryPage) => page._id === jp._id);
 }
 
 export async function createAndShowPlayerHandout(name: string, content: string, type: string, bookCode: string | null) {
 
   const journal = await getJournal(bookCode);
 
-  const existingPage = journal.pages.find((page: JournalEntryPage) => {
+  const existingPage = journal.pages?.find((page: JournalEntryPage) => {
     const nameCheck = page.name === name;
     const typeCheck = type === "image"
       ? page.src === content
@@ -87,5 +87,7 @@ export async function createAndShowPlayerHandout(name: string, content: string, 
     ? existingPage
     : await createPage(journal, name, type, content);
 
-  foundry.documents.collections.Journal.showDialog(page);
+  if (!page) return;
+  // fvtt-types' Stored<JournalEntryPage> is not assignable to dnd5e-types' JournalEntryPage5e union
+  foundry.documents.collections.Journal.showDialog(page as unknown as Parameters<typeof foundry.documents.collections.Journal.showDialog>[0]);
 }

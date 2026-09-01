@@ -47,6 +47,17 @@ global {
     download: () => void;
   }
 
+  /** Structural stand-in for a compendium index entry in looseItemNameMatch's candidate list;
+   * CompendiumCollection.IndexEntry<"Item"> drags the whole Item schema into the signature.
+   *
+   * This should only be used within filters for the index, never as a returned index document
+   * */
+  interface INameMatchIndexEntry {
+    name?: string;
+    type?: string;
+    flags?: object | null;
+  }
+
   interface ICompendiumIconMapEntry {
     type: string;
     folder: string | null;

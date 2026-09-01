@@ -126,7 +126,11 @@ export default class DDBEffectImporter {
     for (const effect of effects) {
       const folder = await folders.createEffectFolder(effect);
       (effect as I5eEffectData & { folder?: string }).folder = folder._id;
-      const existing = effect._id ? await compendium.getDocument(effect._id) : null;
+      // the effects compendium only holds ActiveEffects; narrowing here keeps `.update` from
+      // resolving against the full compendium-document union (TS2590 in editor-order checks)
+      const existing = effect._id
+        ? (await compendium.getDocument(effect._id)) as ActiveEffect.Implementation | null
+        : null;
       if (existing) {
         await existing.update(effect as any);
       } else {

@@ -3,9 +3,10 @@ import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
-import type TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
 import AdvancementWrapper from "./AdvancementWrapper";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
+
+type TraitAdvancement = dnd5e.types.Advancement.OfType<"Trait">;
 
 function htmlToText(html: string) {
   // keep html brakes and tabs
@@ -1158,10 +1159,10 @@ export default class AdvancementHelper {
     if (!("configuration" in advancement) || !advancement.configuration) return advancement;
     const configuration = advancement.configuration;
     if (!("scale" in configuration) || !configuration.scale) return advancement;
-    const scale = configuration.scale;
+    const scale = configuration.scale as Record<string, I5eAdvScaleValueDiceEntry>;
     advancement.title += ` (Die)`;
     for (const key of Object.keys(scale)) {
-      (scale[key] as I5eAdvScaleValueDiceEntry).number = 1;
+      scale[key].number = 1;
     }
     return advancement;
   }

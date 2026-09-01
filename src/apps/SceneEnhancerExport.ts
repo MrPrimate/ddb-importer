@@ -53,7 +53,7 @@ function getNotes(scene: Scene, bookCode: string) {
   );
 
   // get all notes placed on the map
-  const journalNotes = scene.notes
+  const journalNotes = scene.notes!
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
     .filter((note: NoteDocument) => relatedJournalEntries.some((journal) => journal.id === note.entryId))
@@ -62,7 +62,7 @@ function getNotes(scene: Scene, bookCode: string) {
       // the preceding filter only keeps notes whose entryId matches a related journal
       if (!journal) throw new Error(`No journal entry found for note ${note.id}`);
       const page = note.pageId
-        ? journal.pages.find((page: JournalEntryPage) => page._id === note.pageId)
+        ? journal.pages?.find((page: JournalEntryPage) => page._id === note.pageId)
         : journal;
       if (!page) throw new Error(`No journal page found for note ${note.id} (pageId ${note.pageId})`);
       const index = parseInt(journal.flags.ddb?.ddbId ?? "");
@@ -129,7 +129,7 @@ function getNotes(scene: Scene, bookCode: string) {
       return a.index - b.index;
     });
 
-  const unLinkedNotes: TExportNoteUnlinked[] = scene.notes
+  const unLinkedNotes: TExportNoteUnlinked[] = scene.notes!
     .filter((note: NoteDocument) => !note.entryId)
     .map((note: NoteDocument): TExportNoteUnlinked => ({
       label: note.text,
@@ -170,12 +170,12 @@ export function collectSceneData(scene: Scene, bookCode: string) {
     return l;
   });
 
-  const walls = scene.walls.map((wall: WallDocument) => {
+  const walls = scene.walls!.map((wall: WallDocument) => {
     const { _id, ...w } = wall.toObject();
     return w;
   });
 
-  const lights = scene.lights.map((light: AmbientLightDocument) => {
+  const lights = scene.lights!.map((light: AmbientLightDocument) => {
     const { _id, ...l } = light.toObject();
     return l;
   });
@@ -226,7 +226,7 @@ export function collectSceneData(scene: Scene, bookCode: string) {
   data.flags.ddb.foundryVersion = game.version;
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
-  data.flags.ddb.tokens = scene.tokens
+  data.flags.ddb.tokens = scene.tokens!
     .filter((token: TokenDocument) => !token.actorLink)
     .map((token: TokenDocument) => {
       const result = {
@@ -316,9 +316,10 @@ function getCompendiumScenes(compendiumCollection: string, selectedId: string | 
     compendium.index.forEach((scene) => {
       const option = {
         _id: scene._id,
-        name: scene.name,
+        name: (scene as unknown as INameMatchIndexEntry).name,
         selected: (!!selectedId && selectedId == scene._id)
-          || (!!selectedName && !!scene.name && selectedName.trim().includes(scene.name)),
+          || (!!selectedName && !!(scene as unknown as INameMatchIndexEntry).name
+            && selectedName.trim().includes((scene as unknown as INameMatchIndexEntry).name as string)),
       };
       scenes.push(option);
     });
@@ -579,9 +580,10 @@ export class SceneEnhancerExport extends Application {
 
     if (formData["export-actors"] !== "on") delete sceneData.flags.ddb?.tokens;
     if (formData["export-notes"] !== "on") delete sceneData.flags.ddb?.notes;
-    if (formData["export-lights"] !== "on") delete sceneData.lights;
-    if (formData["export-walls"] !== "on") delete sceneData.walls;
-    if (formData["export-drawings"] !== "on") delete sceneData.drawings;
+    const optionalSceneData = sceneData as { lights?: unknown; walls?: unknown; drawings?: unknown };
+    if (formData["export-lights"] !== "on") delete optionalSceneData.lights;
+    if (formData["export-walls"] !== "on") delete optionalSceneData.walls;
+    if (formData["export-drawings"] !== "on") delete optionalSceneData.drawings;
     if (formData["export-config"] !== "on") {
       delete sceneData.navName;
       delete sceneData.width;

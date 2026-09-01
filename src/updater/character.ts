@@ -117,7 +117,7 @@ async function getUpdateItemIndex(): Promise<IUpdateItemIndex> {
 
 async function getCompendiumItemInfo(item: TImporterItem | I5eItemData) {
   const index = await getUpdateItemIndex();
-  const match = NameMatcher.looseItemNameMatch(item, index.contents, true, false, true);
+  const match = NameMatcher.looseItemNameMatch(item, index.contents as INameMatchIndexEntry[], true, false, true);
   return match;
 }
 
@@ -553,8 +553,10 @@ async function hitDice(actor: TSyncCharacterActor, ddbCharacter: DDBCharacter): 
       if (!klassId) return;
       const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter?.id === klassId) as I5eClassItem | undefined;
       // hitDiceUsed no longer exists on either side; the parser stamps hd.spent
-      if (classMatch && classMatch.system.hd?.spent !== klass.system.hd.spent) {
-        hitDiceData.classHitDiceUsed[klassId] = klass.system.hd.spent;
+      const spent = (klass.system as I5eClassSystemData).hd?.spent;
+      if (spent === undefined) return;
+      if (classMatch && classMatch.system.hd?.spent !== spent) {
+        hitDiceData.classHitDiceUsed[klassId] = spent;
       }
     });
 
@@ -578,8 +580,10 @@ async function updateDDBSpellsPrepared(actor: TSyncCharacterActor, spells: TImpo
 
   for (const spell of spells) {
     if (spell.type !== "spell") continue;
-    if (spell.system.method !== "spell") continue;
-    if (spell.system.prepared === CONFIG.DND5E.spellPreparationStates.always.value) continue;
+    // subtype narrowing
+    const spellSystem = spell.system as unknown as I5eSpellSystemData;
+    if (spellSystem.method !== "spell") continue;
+    if (spellSystem.prepared === CONFIG.DND5E.spellPreparationStates.always.value) continue;
     const ddbFlags = spell.flags.ddbimporter;
     if (!ddbFlags?.dndbeyond?.characterClassId) continue;
     if (ddbFlags.dndbeyond.granted) continue;
@@ -589,7 +593,7 @@ async function updateDDBSpellsPrepared(actor: TSyncCharacterActor, spells: TImpo
         characterClassId: ddbFlags.dndbeyond.characterClassId,
         entityTypeId: ddbFlags.entityTypeId,
         id: ddbFlags.id,
-        prepared: spell.system.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value,
+        prepared: spellSystem.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value,
       },
     };
     logger.debug(`Updating spell prepared state for ${spell.name} to ${spellPreparedData.spellInfo.prepared}`);
@@ -604,10 +608,12 @@ async function spellsPrepared(actor: TSyncCharacterActor, ddbCharacter: DDBChara
   const ddbSpells = ddbCharacter.data.spells;
 
   const preparedSpells = actor.items.filter((item: TImporterItem) => {
+    // subtype narrowing
+    const itemSystem = item.system as unknown as I5eSpellSystemData;
     const spellMatch = ddbSpells.find((s) =>
       s.name === item.name
-      && item.system.method === "spell"
-      && item.system.prepared !== CONFIG.DND5E.spellPreparationStates.always.value
+      && itemSystem.method === "spell"
+      && itemSystem.prepared !== CONFIG.DND5E.spellPreparationStates.always.value
       && foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.characterClassId")
       && item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId,
     );
@@ -702,6 +708,8 @@ async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInve
     const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
       ? parseInt(String(item.flags.ddbimporter.containerEntityTypeId))
       : parseInt("1581111423");
+    // subtype narrowing
+    const itemSystem = item.system as I5eEquipmentSystemData;
     const customData = {
       itemState: "NEW",
       customValues: {
@@ -709,10 +717,10 @@ async function addDDBCustomItems(actor: TSyncCharacterActor, itemsToAdd: I5eInve
         containerEntityId,
         containerEntityTypeId,
         name: item.name,
-        description: getCustomItemDescription(item.system.description.value),
-        quantity: item.system.quantity,
+        description: getCustomItemDescription(itemSystem.description.value),
+        quantity: itemSystem.quantity,
         cost: null as number | null,
-        weight: Number.isInteger(item.system.weight) ? item.system.weight : 0,
+        weight: Number.isInteger(itemSystem.weight) ? itemSystem.weight : 0,
       },
     };
 
@@ -1091,9 +1099,11 @@ async function updateDDBEquipmentStatus(actor: TSyncCharacterActor, updateItemDe
     const item = rawItem._id ? actor.items.get(rawItem._id) : undefined;
     const ddbFlags = item?.flags.ddbimporter;
     if (!item || !ddbFlags?.id) return;
+    // live uses carry a derived numeric value beside the persisted max formula
+    const uses = (item.system as unknown as { uses: I5eSystemLimitedUses & { value?: number } }).uses;
     const itemData = {
       itemId: ddbFlags.id,
-      charges: Math.max(0, parseInt(item.system.uses.max) - parseInt(item.system.uses.value)),
+      charges: Math.max(0, parseInt(String(uses.max)) - parseInt(String(uses.value))),
     };
     if (Number.isInteger(itemData.charges)) {
       promises.push(updateCharacterCall(actor, "equipment/charges", itemData, { name: item.name }));
@@ -1346,10 +1356,12 @@ async function updateDDBActionUseStatus(actor: TSyncCharacterActor, actions: (I5
     const action = rawAction._id ? actor.items.get(rawAction._id) : undefined;
     const ddbFlags = action?.flags.ddbimporter;
     if (!action || !ddbFlags?.id) return;
+    // live uses carry a derived numeric value beside the persisted max formula
+    const uses = (action.system as unknown as { uses: I5eSystemLimitedUses & { value?: number } }).uses;
     const actionData = {
       actionId: ddbFlags.id,
       entityTypeId: ddbFlags.entityTypeId,
-      uses: Math.max(0, parseInt(action.system.uses.max) - parseInt(action.system.uses.value)),
+      uses: Math.max(0, parseInt(String(uses.max)) - parseInt(String(uses.value))),
     };
     promises.push(updateActionUseStatus(actor, actionData, action.name));
   });
@@ -1729,7 +1741,7 @@ async function activeUpdateUpdateItem(document: TImporterItem, update: Record<st
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
       } else if (document.type === "spell" && syncSpellsPrepared
-        && document.system.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value
+        && (document.system as unknown as I5eSpellSystemData).prepared === CONFIG.DND5E.spellPreparationStates.prepared.value
       ) {
         logger.debug("Updating DDB SpellsPrepared...");
         updateSpellPrep(parentActor, document).then((results: ISyncResult[]) => {
@@ -1803,9 +1815,12 @@ async function activeUpdateAddOrDeleteItem(document: TImporterItem, state: strin
 
     const charNow = findCharacterOwningDDBItem(ddbItemId);
     if (charNow) {
-      const targetCharacterId = parseInt(charNow.actor.flags.ddbimporter.dndbeyond.characterId);
+      // a character without the ddbimporter flags was never imported
+      const ddbCharacterId = charNow.actor.flags.ddbimporter?.dndbeyond?.characterId;
+      if (!ddbCharacterId) return [];
+      const targetCharacterId = parseInt(ddbCharacterId);
       logger.debug(`Item ${document.name} pulled from party to character ${charNow.actor.name}`);
-      return moveDDBEquipment(charNow.actor, [{
+      return moveDDBEquipment(charNow.actor as unknown as TSyncCharacterActor, [{
         itemId: ddbItemId,
         containerEntityId: targetCharacterId,
         containerEntityTypeId: CHARACTER_CONTAINER_ENTITY_TYPE_ID,

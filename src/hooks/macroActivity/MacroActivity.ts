@@ -17,13 +17,13 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static override LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
+  static override LOCALIZATION_PREFIXES = [...BaseMacroActivity.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
 
   /* -------------------------------------------- */
 
   /** @inheritDoc */
   static override metadata = Object.freeze(
-    foundry.utils.mergeObject(super.metadata, {
+    foundry.utils.mergeObject(BaseMacroActivity.metadata, {
       type: "ddbmacro",
       img: "systems/dnd5e/icons/svg/items/tool.svg",
       title: "ddb-importer.activities.macro.Title",
@@ -41,8 +41,9 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @override */
-  override async _usageChatButtons(message: Record<string, any>) {
-    const superButtons = await super._usageChatButtons(message);
+  // synchronous like the base: dnd5e reads the returned array directly when it builds the usage card
+  override _usageChatButtons(message: dnd5e.types.documents.activity.ActivityMessageConfiguration) {
+    const superButtons = super._usageChatButtons(message);
     if (!this.macro.function) return superButtons;
     const macroButton = {
       label: this.macro.name || game.i18n.localize("ddb-importer.activities.macro.Button"),
@@ -131,7 +132,7 @@ export default class MacroActivity extends BaseMacroActivity {
     const targets = Array.from(game.user.targets);
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.document.uuid));
+      this._executeDDBMacro(targets.map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid));
     } else {
       this._executeFoundryMacro(targets);
     }
@@ -149,7 +150,7 @@ export default class MacroActivity extends BaseMacroActivity {
     const regionContext = usageConfig?.ddbRegionContext;
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.document.uuid), parametersOverride, regionContext);
+      this._executeDDBMacro(targets.map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid), parametersOverride, regionContext);
     } else {
       this._executeFoundryMacro(targets, parametersOverride, regionContext);
     }

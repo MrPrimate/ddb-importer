@@ -1,4 +1,3 @@
-import TokenDocument5e from "dnd5e/dnd5e/module/documents/token.d.mts";
 
 export {};
 
@@ -134,7 +133,8 @@ global {
   //   hidden?: boolean;
   // }
 
-  interface I5eTokenData extends TokenDocument5e {
+  // TokenDocument.Implementation resolves to dnd5e-types' TokenDocument5e through its document-class funnel
+  interface I5eTokenData extends TokenDocument.Implementation {
     name?: string;
     flags: {
       ddbActorFlags?: IDDBSceneFlagTokenDDBActorFlags;

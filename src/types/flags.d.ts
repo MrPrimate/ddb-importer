@@ -274,7 +274,9 @@ global {
     MeasuredTemplateDocument: {
       dnd5e?: {
         origin?: string;
-        dependentOn?: ActiveEffect.Implementation | null;
+        // uuid string; a document type here puts ActiveEffect.Implementation inside FlagConfig,
+        // which closes a flags -> document -> flags cycle that tsserver's cold check cannot resolve
+        dependentOn?: string | null;
       };
       "midi-qol"?: {
         dependentOn?: string; // UUID of parent document (Actor/Item) for midi-qol dependent tracking

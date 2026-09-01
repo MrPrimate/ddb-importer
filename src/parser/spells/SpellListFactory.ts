@@ -2,6 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "../lib/_module";
 
+
 const BASE_CLASS_PAGE: I5eSpellsJournalPageData = {
   sort: 1,
   name: "Spell List",
@@ -205,7 +206,7 @@ export default class SpellListFactory {
 
   async _getJournalSpellListPage(journal: JournalEntry.Implementation, spellListName: string, source: ISpellListSource) {
     const spellListIdentifier = DDBDataUtils.classIdentifierName(spellListName);
-    const page = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const page = journal.pages?.find((p) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE) as typeof BASE_CLASS_PAGE & { _id?: string };
@@ -221,7 +222,7 @@ export default class SpellListFactory {
     // });
     logger.debug(`Creating Spell Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData as unknown as JournalEntryPage.CreateInput], { keepId: true });
-    const newPage = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const newPage = journal.pages?.find((p) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     return newPage;
   }
 
@@ -238,7 +239,11 @@ export default class SpellListFactory {
 
     if (spells.length === 0) return;
     const page = await this._getJournalSpellListPage(journal, spellListName, source);
-    const newSpells = new Set([...page.system.spells, ...spells]);
+    if (!page) {
+      logger.error(`Spell list page ${spellListName} could not be created for ${source.acronym}`);
+      return;
+    }
+    const newSpells = new Set([...(page.system.spells ?? []), ...spells]);
     const update = {
       _id: page._id,
       system: {
@@ -282,8 +287,8 @@ export default class SpellListFactory {
 
     for (const journal of spellListJournals) {
       const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
-      const spellListPages = journalEntry.pages.filter((p: JournalEntryPage.Implementation) => p.type === "spells");
-      pages.push(...spellListPages.map((p: JournalEntryPage.Implementation) => p.uuid));
+      const spellListPages = journalEntry.pages?.filter((p) => p.type === "spells") ?? [];
+      pages.push(...spellListPages.map((p) => p.uuid));
     }
 
     for (const page of pages) {

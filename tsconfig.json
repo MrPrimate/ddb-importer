@@ -11,7 +11,7 @@
     "isolatedModules": true,
     "types": [
       "fvtt-types",
-      "dnd5e/dnd5e/dnd5e.d.mts",
+      "dnd5e",
       "vitest/globals",
     ],
     "paths": {

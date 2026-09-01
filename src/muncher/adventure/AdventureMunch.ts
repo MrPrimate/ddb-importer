@@ -15,6 +15,7 @@ import {
 
 import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
+
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 interface INeededTokens {
@@ -607,21 +608,28 @@ export default class AdventureMunch {
             logger.warn(`Unable to find compendium for item type ${item.type}`, { item, sceneToken });
             continue;
           }
-          const itemRef = compendium.index.find((i) => i.name === item.name && (i as { type?: string }).type === item.type);
+          const itemRef = compendium.index.find((i) => {
+            const entry = i as unknown as INameMatchIndexEntry;
+            return entry.name === item.name && entry.type === item.type;
+          });
           if (itemRef) {
             const compendiumItem = await compendium.getDocument(itemRef._id);
+            if (!compendiumItem) {
+              logger.error(`Unable to load compendium item ${item.name}`, { item, sceneToken, itemRef });
+              continue;
+            }
             const jsonItem = compendiumItem.toObject();
-            delete jsonItem._id;
+            delete (jsonItem as { _id?: string })._id;
             items.push(jsonItem);
           } else {
             logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
           }
         } else {
           // fetch actor item here
-          const actorItem = worldActor.items.find((i: Item.Implementation) => i.name === item.name && i.type === item.type);
+          const actorItem = worldActor.items?.find((i: Item.Implementation) => i.name === item.name && i.type === item.type);
           if (actorItem) {
             const jsonItem = actorItem.toObject();
-            delete jsonItem._id;
+            delete (jsonItem as { _id?: string })._id;
             items.push(jsonItem);
           } else {
             logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
@@ -688,8 +696,9 @@ export default class AdventureMunch {
     }
 
     const updateData = foundry.utils.mergeObject(tokenStub, sceneToken);
-    if (updateData.name !== worldActor.name && !foundry.utils.hasProperty(updateData, "delta.name")) {
-      foundry.utils.setProperty(updateData, "delta.name", updateData.name);
+    const updateName = foundry.utils.getProperty(updateData, "name") as string | undefined;
+    if (updateName !== worldActor.name && !foundry.utils.hasProperty(updateData, "delta.name")) {
+      foundry.utils.setProperty(updateData, "delta.name", updateName);
     }
 
     let result;
@@ -776,6 +785,7 @@ export default class AdventureMunch {
               loadedDocs.push(this.fetchTemporaryItem(itemUuid));
             }
             for (const document of loadedDocs) {
+              if (!document) continue;
               switch (document.documentName) {
                 case "Scene": {
                   await this._revisitScene(document as Scene);
@@ -1031,7 +1041,9 @@ export default class AdventureMunch {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
           const options = { keepId: true, keepEmbeddedIds: true };
-          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId } as any, options);
+          const imported = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId } as any, options);
+          if (!imported) throw new Error(`Import of ${actor.name} (${actor.compendiumId}) from ${monsterCompendium.metadata.name} returned no actor`);
+          worldActor = imported;
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);

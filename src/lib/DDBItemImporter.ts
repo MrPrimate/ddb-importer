@@ -687,6 +687,7 @@ ${item.system.description.chat}
     const loadedItems = [];
     for (const i of firstPassItems) {
       const item = await this.compendium.getDocument(i._id).then((doc) => {
+        if (!doc) return null;
         const docData = doc.toObject() as unknown as TAll5eDocuments;
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
@@ -696,6 +697,10 @@ ${item.system.description.chat}
 
         return docData;
       });
+      if (!item) {
+        logger.warn(`Indexed document ${i._id} is missing from ${this.compendium.metadata.id}, skipping`);
+        continue;
+      }
       foundry.utils.setProperty(item, "flags.ddbimporter.pack", `${this.compendium.metadata.id}`);
       loadedItems.push(item);
     }

@@ -146,7 +146,8 @@ export default class SystemHelpers {
         return game.dnd5e?.dataModels.journal.RuleJournalPageData.schema.getInitialValue();
       case "dnd-tashas-cauldron.tattoo":
       case "tattoo":
-        return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.getInitialValue();
+        // module subtype registered at runtime by Tasha's Cauldron, not part of the dnd5e-types item map
+        return (CONFIG.Item.dataModels as Record<string, { schema: { getInitialValue: () => any } }>)["dnd-tashas-cauldron.tattoo"]?.schema.getInitialValue();
       default:
         return undefined;
     }

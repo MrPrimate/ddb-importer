@@ -6,12 +6,12 @@ import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
 import { logger, utils } from "../../lib/_module";
 
-// DDB Enhancers adds built in light touch automation effects
 
+// DDB Enhancers adds built in light touch automation effects
 export default class DDBEnhancers {
 
   static addFeatureToEffects(subject: Actor, delta: any, featureName: string) {
-    const feature = subject.items.find((i: any) => i.name === featureName);
+    const feature = subject.items?.find((i: any) => i.name === featureName);
     if (feature && feature.effects) {
       logger.debug(`Adding effects from ${featureName} to delta`, {
         subject, delta, feature, featureName,

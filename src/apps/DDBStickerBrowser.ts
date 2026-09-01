@@ -533,7 +533,10 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       let currentWidth = tileWidth;
       let currentHeight = tileHeight;
       let currentRotation = 0;
-      let currentElevation = canvas?.level?.elevation?.base ?? 0;
+
+      // `elevation.base` is derived at runtime by Level#prepareBaseData (client/documents/level.mjs) and is
+      // what core uses to place tiles (tile.mjs); fvtt-types only declares the {bottom, top} schema
+      let currentElevation = (canvas?.level?.elevation as { base?: number } | undefined)?.base ?? 0;
 
       // Cursor-follow ghost. Attached to the tiles layer's preview container
       // so it shares the layer's transform (zoom/pan track for free).

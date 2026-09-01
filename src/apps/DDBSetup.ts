@@ -70,6 +70,11 @@ interface IDDBSetupContext extends DDBAppV2Context {
   enhancementConfig?: ISettingsPolicyExpandedItem[];
 }
 
+// the configured FilePicker class; named so the constructor type does not depend on
+// resolving the generic class cold
+const FilePickerClass = foundry.applications.apps.FilePicker.implementation as unknown as
+  new (options: Record<string, unknown>) => foundry.applications.apps.FilePicker & { render: (force?: boolean) => unknown };
+
 export default class DDBSetup extends DDBAppV2 {
   static patreonKey: string;
   static patreonTier: string;
@@ -772,13 +777,13 @@ export default class DDBSetup extends DDBAppV2 {
     const currentDir = utils.getSetting<string>(targetDirSetting);
     const current = await FileHelper.getFileUrl(currentDir, "");
 
-    const filePicker = new foundry.applications.apps.FilePicker.implementation({
+    const filePicker = new FilePickerClass({
       type: "folder",
       current: current,
       // source: parsedDir.activeSource,
       // activeSource: parsedDir.activeSource,
       // bucket: parsedDir.bucket,
-      callback: async (path, picker) => {
+      callback: async (path: string, picker: foundry.applications.apps.FilePicker) => {
         const activeSource = picker.activeSource;
         const bucket = activeSource === "s3" && picker.sources.s3?.bucket && picker.sources.s3.bucket !== ""
           ? picker.sources.s3.bucket

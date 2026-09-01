@@ -340,7 +340,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
       return existingMacro;
     } else {
       logger.debug(`Creating new macro ${name}.`);
-      const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false, temporary: isTemp });
+      const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false });
       if (!macro) throw new Error(`Unable to create macro ${name}`);
       return macro;
     }

@@ -8,9 +8,17 @@ import { DDBReferenceLinker } from "../parser/lib/_module";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+// Naming the mixed base type stops subclasses re-inferring the mixin's return type: when tsserver
+// checks a subclass file first, that inference resolves cold and drops every ApplicationV2 member
+// (`element`, `render`, `close`...) from the base.
+// The intersection with the mixin's own BaseClass satisfies its branded constraint without the
+// cold check having to resolve ApplicationV2's `__ApplicationV2Brand` symbol (fvtt-types 14.366).
+type TDDBAppV2BaseClass = typeof ApplicationV2 & foundry.applications.api.HandlebarsApplicationMixin.BaseClass;
+const DDBAppV2Base: foundry.applications.api.HandlebarsApplicationMixin.Mix<TDDBAppV2BaseClass>
+  = HandlebarsApplicationMixin(ApplicationV2 as TDDBAppV2BaseClass);
 
 // tab contexts here are deep nested partials, wider than the base Tab record
-export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2)<DDBAppV2Context> {
+export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
 
   static override get PARTS(): Record<string, DDBApplicationPart> {
     return super.PARTS;

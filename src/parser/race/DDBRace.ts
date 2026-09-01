@@ -522,7 +522,7 @@ export default class DDBRace {
       // Your Charisma score increases by 2. In addition, one other ability score of your choice increases by 1.
       // Your Constitution score increases by 2, and      one other ability score of your choice increases by 1.
 
-      const update = foundry.utils.duplicate(this.abilityAdvancement.configuration);
+      const update = foundry.utils.duplicate(this.abilityAdvancement.configuration) as unknown as dnd5e.types.Advancement.OfType<"AbilityScoreImprovement">["configuration"];
       const fixedRegex = /Your (\w+) score increases by (\d)/i;
       const fixedMatch = trait.description.match(fixedRegex);
       if (fixedMatch) {

@@ -170,7 +170,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
-  _addAdvancement(advancement: dnd5e.types.Advancement.Any | null) {
+  _addAdvancement(advancement: dnd5e.types.Advancement.Instance | null) {
     if (!advancement) return;
     const advancementData = advancement.toObject() as unknown as I5eAdvancement;
     if (
@@ -336,7 +336,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
 
-  _addFeatAbilityScoreAdvancement(update: I5eAdvancementAbilityScoreImprovement, advancement: dnd5e.types.Advancement.Any) {
+  _addFeatAbilityScoreAdvancement(update: I5eAdvancementAbilityScoreImprovement, advancement: dnd5e.types.Advancement.Instance) {
     advancement.updateSource(update as any);
     if (!this.isMuncher) {
       const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
@@ -362,7 +362,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     this.data.system.advancement ??= {};
     // the Advancement _id schema initial is a randomID, so it is always set
-    const advancementId = advancement._id as string;
+    const advancementId = foundry.utils.getProperty(advancement, "_id") as string;
     this.data.system.advancement[advancementId] = advancement.toObject() as I5eAdvancement;
   }
 
@@ -716,7 +716,7 @@ export default class DDBFeature extends DDBFeatureMixin {
           is2024: this.is2024,
         }, this.spellLinks);
         if (advancements) {
-          advancements.forEach((advancement) => this._addAdvancement(advancement as dnd5e.types.Advancement.Any));
+          advancements.forEach((advancement) => this._addAdvancement(advancement as dnd5e.types.Advancement.Instance));
         }
       }
       // no default
