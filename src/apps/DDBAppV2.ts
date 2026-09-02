@@ -123,6 +123,16 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   }
 
   /**
+   * Resolve once every setting write queued so far has been applied. A munch button read its
+   * settings at click time, so a category change made a moment earlier could still be in flight and
+   * the import would run against the previous value. Waits for the writes only, never for the
+   * follow-up render, which may be parked on user focus indefinitely.
+   */
+  protected async awaitSettingUpdates(): Promise<void> {
+    await this.settingUpdateChain;
+  }
+
+  /**
    * Is the user part way through using a control in this app? An open `<select>` popup keeps
    * focus on the select, so this also covers a dropdown the user has opened but not chosen from.
    */

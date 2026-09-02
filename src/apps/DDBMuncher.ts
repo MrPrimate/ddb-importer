@@ -795,6 +795,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching monsters!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       const monsterFactory = new DDBMonsterFactory({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
@@ -805,6 +807,10 @@ export default class DDBMuncher extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Monster import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this.clearProgressBars();
       this._enableButtons();
@@ -815,6 +821,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching vehicles!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       const vehicleFactory = new DDBVehicleFactory({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
@@ -825,6 +833,10 @@ export default class DDBMuncher extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Vehicle import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this.clearProgressBars();
       this._enableButtons();
@@ -835,6 +847,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching spells!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await parseSpells({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
@@ -845,6 +859,10 @@ export default class DDBMuncher extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Spell import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -855,6 +873,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching items!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await DDBItemsImporter.fetchAndImportItems({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
@@ -865,6 +885,10 @@ export default class DDBMuncher extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Item import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1483,12 +1507,18 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching feats!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await this._parseWithMule("feat");
       this.notifier(`Finished importing feats!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Feat import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1502,12 +1532,18 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching backgrounds!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await this._parseWithMule("background");
       this.notifier(`Finished importing backgrounds!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Background import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1521,12 +1557,18 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching classes!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await this._parseClassesWithMule();
       this.notifier(`Finished importing classes!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Class import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1540,12 +1582,18 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching species!");
       this._disableButtons();
+      // a category or class change a moment ago may still be writing; read settings after it lands
+      await this.awaitSettingUpdates();
       await this._parseWithMule("species");
       this.notifier(`Finished importing species!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
       if (error instanceof Error) logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Species import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
