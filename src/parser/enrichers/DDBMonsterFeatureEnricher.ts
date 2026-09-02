@@ -339,6 +339,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Spectator": {
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
     },
+    "Death Tyrant": {
+      // the legendary "Eye Ray" (use one random ray) has no ray table of its own to carve up
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
     "Dullahan": {
       "Headless Wail (Costs 2 Actions)": MonsterEnrichers.Dullahan.HeadlessWail,
       "Headless Summoning (Recharges After A Short Or Long Rest)": MonsterEnrichers.Dullahan.HeadlessSummoning,

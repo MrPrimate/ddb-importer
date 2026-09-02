@@ -258,6 +258,59 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.affects.type).toBe("creature");
     expect(target.affects.count).toBe("1");
   });
+
+  // an eye ray table: the Disintegration Ray destroys "a 10-foot cube of it" (an object),
+  // and the intro aims "at a target it can see within 120 feet of it" - neither is an area
+  it("does not read the portion of an object a ray disintegrates as a cube", () => {
+    const mock2024 = makeFeatureMock({
+      strippedHtml: "If the target is a nonmagical object or a creation of magical force, a 10-foot Cube of it disintegrates into dust.",
+    });
+    expect(mock2024.getTarget().template.type).toBe("");
+    const mock2014 = makeFeatureMock({
+      strippedHtml: "If the target is a Huge or larger object or creation of magical force, this ray disintegrates a 10-foot cube of it.",
+    });
+    expect(mock2014.getTarget().template.type).toBe("");
+  });
+
+  it("does not read a range to an object as a radius or the portion destroyed as a cube", () => {
+    const mock = makeFeatureMock({
+      strippedHtml: "The rust monster corrodes a nonmagical ferrous metal object it can see within 5 feet of it."
+        + " If the object isn't being worn or carried, the touch destroys a 1-foot cube of it.",
+    });
+    expect(mock.getTarget().template.type).toBe("");
+  });
+
+  it("does not read 'a target it can see within N feet of it' as a radius", () => {
+    const mock = makeFeatureMock({
+      strippedHtml: "The death tyrant randomly shoots one of the following magical rays at a target it can see within 120 feet of itself.",
+    });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("");
+    expect(target.template.size).toBe("");
+  });
+
+  it("reads a section's text instead of the feature's when given one", () => {
+    const charmRay = "Charm Ray. The targeted creature must succeed on a DC 17 Wisdom saving throw or be charmed"
+      + " by the tyrant for 1 hour, or until the beholder harms the creature.";
+    const mock = makeFeatureMock({
+      strippedHtml: `The dragon exhales fire in a 60-foot cone. ${charmRay}`,
+    });
+    const target = mock.getTarget({ text: charmRay });
+    expect(target.template.type).toBe("");
+    expect(target.affects.type).toBe("creature");
+    expect(target.affects.count).toBe("1");
+  });
+
+  it("leaves the feature range alone when a section's area is centred on the monster", () => {
+    const mock = makeFeatureMock({ strippedHtml: "irrelevant" });
+    const text = "Each creature within 30 feet of you must make a DC 15 Constitution saving throw.";
+
+    expect(mock.getTarget({ text, mutateRange: false }).template.type).toBe("radius");
+    expect(mock.actionData.range.units).toBe("");
+    // the feature-level read still rewrites it, as before
+    expect(mock.getTarget({ text }).template.type).toBe("radius");
+    expect(mock.actionData.range.units).toBe("self");
+  });
 });
 
 

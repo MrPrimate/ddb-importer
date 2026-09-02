@@ -95,6 +95,9 @@ export default class EyeRays extends DDBEnricherData {
         },
         overrides: {
           id: EyeRays.getId(ray.title),
+          // a ray hits one target; without this the Disintegration Ray's "10-foot cube of it"
+          // (the portion of an object destroyed) would read as an area on that ray
+          noTemplate: true,
           data: {
             description: {
               value: rayDescription,

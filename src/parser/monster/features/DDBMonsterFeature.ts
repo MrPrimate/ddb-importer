@@ -811,7 +811,15 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   }
 
 
-  getTarget(): I5eActivityTarget {
+  /**
+   * Derive an activity target from rules text, by default the whole feature.
+   *
+   * A multi-mode feature passes one section at a time: an eye ray table's Disintegration Ray
+   * mentions a "10-foot cube" of an object, and read over the whole feature that cube would land
+   * on every ray. `mutateRange` is off for a section so a "within N feet of you" match cannot
+   * rewrite the feature's own range.
+   */
+  getTarget({ text = this.strippedHtml, mutateRange = true }: { text?: string; mutateRange?: boolean } = {}): I5eActivityTarget {
     // fully populated template/affects so the narrowing survives the regex branches below
     const target: I5eActivityTarget & {
       template: NonNullable<I5eActivityTarget["template"]>;
@@ -838,11 +846,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     // 90-foot line that is 10 feet wide
     // in a 90-foot cone
-    const matchText = this.strippedHtml.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
+    const matchText = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
     // console.warn(matchText);
     const lineSearch = /(\d+)-foot line|line that is (\d+) feet/i;
     const coneSearch = /(\d+)-foot cone/i;
-    const cubeSearch = /(\d+)-foot cube/i;
+    // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
+    const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
     const sphereSearch = /(\d+)-foot-radius sphere/i;
 
     const coneMatch = matchText.match(coneSearch);
@@ -867,7 +876,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = "sphere";
     } else {
-      const aoeSizeRegex = /(?<!creature (?:it|you) can see |an object (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
@@ -881,7 +890,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
         target.template.size = aoeSizeMatch[1] ?? "";
         target.template.units = "ft";
-        if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+        if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
           this.actionData.range.units = "self";
         }
       }
@@ -1446,7 +1455,26 @@ ${this.data.system.description.value}
     if (!(this.isSave && !this.isAttack)) return {};
     const first = this.multiSaveSections[0];
     if (!first) return {};
-    return { data: { description: { value: first.slice.section } } };
+    return {
+      data: { description: { value: first.slice.section } },
+      targetOverride: this.#sectionTarget(first.slice.section),
+    };
+  }
+
+  /**
+   * The target of one mode of a multi-mode feature, read from its own section.
+   *
+   * Always returns a target: for a monster, "inherit" would mean the target regexed from the
+   * whole feature.
+   * A section names a save by construction, so a section that names no target defaults to a
+   * creature.
+   * That also overrides the "self" a healing feature's templateless target defaults to a save mode
+   * of a feature that elsewhere heals (Nymph's Gaze, Serpent Surprise) is still rolled by someone else.
+   */
+  #sectionTarget(section: string): I5eActivityTarget {
+    const target = this.getTarget({ text: utils.stripHtml(section).trim(), mutateRange: false });
+    if (target.affects && (!target.affects.type || target.affects.type === "self")) target.affects.type = "creature";
+    return target;
   }
 
   /**
@@ -1462,6 +1490,7 @@ ${this.data.system.description.value}
       text: this.html,
       primarySave: this.descriptionSave,
       skipFirstSection: this.isSave && !this.isAttack,
+      targetOverrideForSection: (section) => this.#sectionTarget(section),
     });
   }
 
