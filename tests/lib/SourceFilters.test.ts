@@ -61,7 +61,7 @@ describe("applySpellFilters", () => {
     const raw = [spell("Fortune's Favor", [59]), spell("Fireball", [2]), spell("Reprint", [2, 59])];
     const { data, counts } = applySpellFilters(raw, spellOptions);
     expect(data.map((s) => s.definition.name)).toEqual(["Fortune's Favor", "Reprint"]);
-    expect(data[1].definition.sources.map((s) => s.sourceId)).toEqual([59]);
+    expect(data[1]?.definition.sources?.map((s) => s.sourceId)).toEqual([59]);
     expect(counts).toEqual({ raw: 3, category: 2, book: 2, homebrew: 2, search: 2 });
   });
 
