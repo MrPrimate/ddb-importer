@@ -482,6 +482,24 @@ export default class DDBDescriptions {
     return `${save.dc?.calculation ?? ""}|${save.dc?.formula ?? ""}|${ability}`;
   }
 
+  /**
+   * Whichever of these matches sits earliest in the text, or null if none did.
+   *
+   * The saving throw a feature is ABOUT is the one its text states first. The two word orders
+   * the parsers look for - "DC 15 Dexterity saving throw" (2014) and "Dexterity Saving Throw:
+   * DC 15" (2024) - are printing conventions, not a precedence, so preferring one of them
+   * wherever it appeared let a trailing clause supply the primary save: a Behir's Swallow read
+   * the DC 14 Constitution throw the BEHIR makes to regurgitate rather than the DC 18 Dexterity
+   * throw its victim makes to avoid being swallowed. A tie keeps the earlier argument.
+   */
+  static firstMatch(...matches: (RegExpMatchArray | null)[]): RegExpMatchArray | null {
+    return matches.reduce((first: RegExpMatchArray | null, match) => {
+      if (!match) return first;
+      if (!first) return match;
+      return (match.index ?? 0) < (first.index ?? 0) ? match : first;
+    }, null);
+  }
+
   // The damage expression the item parser uses.
   //
   // eslint-disable-next-line no-useless-escape
@@ -1148,7 +1166,8 @@ export default class DDBDescriptions {
     const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
     const saveSearchNewMatch = text.match(saveSearchNew);
 
-    const savingThrow = saveSearchMatch ?? saveSearchNewMatch;
+    // earliest wins, NOT 2014-first: see firstMatch
+    const savingThrow = DDBDescriptions.firstMatch(saveSearchMatch, saveSearchNewMatch);
     const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
     const halfMatch = halfSaveSearch.test(text);
     if (halfMatch) save.half = true;

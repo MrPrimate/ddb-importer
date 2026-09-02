@@ -350,6 +350,48 @@ describe("DDBDescriptions.featureBasics", () => {
     expect(result.save.ability).toEqual(["wis"]);
   });
 
+  // The primary save is whichever the text states FIRST, not whichever printing's word order
+  // the parser happens to try first. See DDBDescriptions.firstMatch.
+  describe("picks the save its text states first", () => {
+    it("takes the 2024 wording when the 2014 wording is a trailing clause", () => {
+      // Behir (2024) Swallow: the DC 14 Con throw is the BEHIR's, to regurgitate its meal
+      const result = DDBDescriptions.featureBasics({ text: "Swallow. Dexterity Saving Throw: DC 18, one Large or "
+        + "smaller creature Grappled by the behir. Failure: 17 (5d6) Piercing damage. If the behir takes 30 damage or "
+        + "more on a single turn from the swallowed creature, the behir must succeed on a DC 14 Constitution saving "
+        + "throw at the end of that turn or regurgitate the creature." });
+      expect(result.save.ability).toEqual(["dex"]);
+      expect(result.save.dc.formula).toBe("18");
+    });
+
+    it("takes the 2014 wording when it comes first", () => {
+      const result = DDBDescriptions.featureBasics({ text: "Each creature must make a DC 15 Wisdom saving throw. A "
+        + "creature that fails repeats the roll at the end of its turns. Constitution Saving Throw: DC 12 to end the "
+        + "effect early." });
+      expect(result.save.ability).toEqual(["wis"]);
+      expect(result.save.dc.formula).toBe("15");
+    });
+
+    it("prefers a save over a later escape check", () => {
+      // Florivore Dig In: the Strength check is the escape DC, not the feature's save
+      const result = DDBDescriptions.featureBasics({ text: "Dig In. Constitution Saving Throw: DC 15, one creature "
+        + "within 5 feet. Failure: 3 (1d6) Piercing damage, and the target has the Grappled condition (escape DC 15 "
+        + "Strength check)." });
+      expect(result.save.ability).toEqual(["con"]);
+      expect(result.save.dc.formula).toBe("15");
+    });
+
+    // Deliberate non-change: featureBasics reads "check" and "saving throw" with one regex, so a
+    // feature whose only DC is an escape check still builds a save. Seventy monster features rely
+    // on this; unpicking it means moving off these regexes entirely.
+    it("still treats a lone escape check as a save", () => {
+      const result = DDBDescriptions.featureBasics({ text: "The target is restrained. A creature can free itself by "
+        + "succeeding on a DC 12 Strength check." });
+      expect(result.properties.isSave).toBe(true);
+      expect(result.save.ability).toEqual(["str"]);
+      expect(result.save.dc.formula).toBe("12");
+    });
+  });
+
   it("detects spell save DC", () => {
     const result = DDBDescriptions.featureBasics({ text: "The target must make a Dexterity saving throw against your spell save DC." });
     expect(result.properties.isSpellSave).toBe(true);
