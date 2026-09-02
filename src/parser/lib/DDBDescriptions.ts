@@ -395,6 +395,21 @@ export default class DDBDescriptions {
     }, []);
   }
 
+  /**
+   * Rules text with its markup and entities resolved, for the regexes that read a whole sentence.
+   * Block tags become spaces so two paragraphs never run their last and first words together.
+   */
+  static plainText(source: string): string {
+    return (source ?? "")
+      .replace(/<(?:br|\/?p|\/?div|\/?li|\/?ul|\/?ol|\/?tr|\/?td|\/?th|\/?table|\/?h[1-6]|\/?blockquote)\b[^>]*>/gi, " ")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&#(\d+);/g, (_match, dec: string) => String.fromCodePoint(Number(dec)))
+      .replace(/&#x([0-9a-f]+);/gi, (_match, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+      .replace(/&([a-z]+);/gi, (match, name: string) => DDBDescriptions.#NAMED_ENTITIES[name.toLowerCase()] ?? match)
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success: Half damage/i;
 
   /** Does this text say a successful save halves the damage? */
@@ -419,8 +434,12 @@ export default class DDBDescriptions {
    * Both printings' word orders are read - the 2014 "DC 15 Dexterity saving throw" and the 2024
    * "Dexterity Saving Throw: DC 15" - plus the spell-save-DC phrasing, which has a  `calculation` instead of a `formula`.
    */
-  static parseSaves(text: string): IParsedSave[] {
-    if (!text?.trim()) return [];
+  static parseSaves(source: string): IParsedSave[] {
+    if (!source?.trim()) return [];
+    // Tags are stripped before matching: DDB splits the 2024 wording across markup
+    // ("<em>Dexterity Saving Throw:</em> DC 18"), which no single regex can span. A regex strip
+    // rather than a DOM round-trip keeps this usable in DOM-less environments.
+    const text = DDBDescriptions.plainText(source);
     const abilities = DDBDescriptions.SAVE_ABILITY_NAMES;
     const half = DDBDescriptions.halfOnSave(text);
     const saves: IParsedSave[] = [];

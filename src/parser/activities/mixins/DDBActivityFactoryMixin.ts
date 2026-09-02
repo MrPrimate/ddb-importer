@@ -676,8 +676,13 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   }
 
   // A document with more modes than this is a table or a set of unrelated properties
-  // or, you kow, third party nonsense
+  // or, you kow, third party nonsense. Flat prose carries no structure to trust, so this is
+  // where a run of loose saves stops being a set of modes.
   static MULTI_SAVE_MAX_EXTRAS = 5;
+
+  // Labelled sections ARE trustworthy structure, so they get a higher ceiling - a beholder's
+  // eye ray table is legitimately ten modes. Past this the text is probably a statblock, not a feature.
+  static MULTI_SAVE_MAX_SECTIONS = 10;
 
   /**
    * The labelled sections of a description that each name a saving throw.
@@ -700,7 +705,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       const [save] = DDBDescriptions.parseSaves(slice.section);
       if (save) bearing.push({ slice, save });
     }
-    return bearing.length >= 2 ? bearing : [];
+    // The ceiling is applied here rather than at emission so every consumer agrees: a document
+    // past it is not multi-mode at all, and its primary keeps its own name and its own scope.
+    if (bearing.length < 2 || bearing.length > DDBActivityFactoryMixin.MULTI_SAVE_MAX_SECTIONS) return [];
+    return bearing;
   }
 
   // Beyond this a "label" is a prerequisite clause or a sentence, not a name for an activity.
@@ -803,8 +811,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     }
 
     if (outlines.length === 0) return;
-    if (outlines.length > maxExtras) {
-      logger.debug(`Skipping multi-save activity generation for ${this.name}: ${outlines.length} extra saves is a table or an enricher job`, {
+    // sections are already bounded by MULTI_SAVE_MAX_SECTIONS; this caps the flat path, where a
+    // long run of saves is far more likely to be a table than a set of modes
+    if (sections.length === 0 && outlines.length > maxExtras) {
+      logger.debug(`Skipping multi-save activity generation for ${this.name}: ${outlines.length} loose saves is a table or an enricher job`, {
         names: outlines.map((outline) => outline.name),
       });
       return;
@@ -833,6 +843,12 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       type: ACTIVITY_TYPES.SAVE,
       name,
       options: {
+        // The section IS the rules text for this mode. Without it dnd5e falls back to the whole
+        // document description, so every generated activity's card would repeat all the others -
+        // the thing the split was meant to stop. `_generateSnippetDescription` cannot supply this:
+        // it copies the PARENT's snippet, and skips NPCs outright on the reasoning that a monster
+        // feature's own text already covers its one activity, which stops being true here.
+        ...(section ? { data: { description: { value: section } } } : {}),
         generateSave: true,
         generateDamage: damageParts.length > 0,
         generateActivation: true,

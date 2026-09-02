@@ -76,6 +76,25 @@ describe("_multiSaveActivityGeneration - sectioned text", () => {
     expect(frostShot.options.onSave).toBe("none");
   });
 
+  it("carries each section's own rules text onto its activity", () => {
+    const [frostShot, poisonSpray] = generate(ARCANE_CANNON);
+
+    // dnd5e falls back to the whole document description when an activity has none, so without
+    // this every generated activity's card would repeat all the others
+    expect(frostShot.options.data.description.value).toContain("Constitution saving throw");
+    expect(frostShot.options.data.description.value).not.toContain("Acid Jet");
+    expect(poisonSpray.options.data.description.value).toContain("60-foot cone");
+  });
+
+  it("leaves the description alone in flat mode, where no section owns the text", () => {
+    const text = "<p>Anyone who can see you must succeed on a DC 19 Wisdom saving throw."
+      + " Each creature in that area must make a DC 19 Constitution saving throw.</p>";
+    const [conSave] = generate(text, { primarySave: { ability: ["wis"], dc: { calculation: "", formula: "19" } } });
+
+    expect(conSave.name).toBe("Con Save");
+    expect(conSave.options.data).toBeUndefined();
+  });
+
   it("asks the caller for a per-section target and omits it when the section names no area", () => {
     const outlines = generate(ARCANE_CANNON, {
       targetOverrideForSection: (section: string) => section.includes("60-foot cone")
@@ -169,13 +188,30 @@ describe("_multiSaveActivityGeneration - guards", () => {
     expect(generate(text)).toEqual([]);
   });
 
-  it("leaves a document with more modes than the cap to an enricher", () => {
-    const text = ["str", "dex", "con", "int", "wis", "cha"]
-      .map((_ability, index) => `<p><strong>Mode ${index}.</strong> a DC 1${index} Wisdom saving throw.</p>`)
-      .join("");
+  it("trusts a labelled section list well past the flat cap - an eye ray table is ten modes", () => {
+    const text = Array.from({ length: 8 }, (_v, index) =>
+      `<p><strong>Mode ${index}.</strong> a DC 1${index} Wisdom saving throw.</p>`).join("");
 
+    expect(generate(text, { skipFirstSection: false })).toHaveLength(8);
+  });
+
+  it("leaves a document with more sections than the ceiling to an enricher", () => {
+    const text = Array.from({ length: 11 }, (_v, index) =>
+      `<p><strong>Mode ${index}.</strong> a DC ${10 + index} Wisdom saving throw.</p>`).join("");
+
+    // the ceiling is applied in _saveBearingSections, so nothing downstream sees this as
+    // multi-mode at all - the primary keeps its own name and scope
+    const stub: any = { _saveBearingSections: (DDBActivityFactoryMixin.prototype as any)._saveBearingSections };
+    expect(stub._saveBearingSections(text)).toEqual([]);
     expect(generate(text, { skipFirstSection: false })).toEqual([]);
-    expect(generate(text, { skipFirstSection: false, maxExtras: 6 })).toHaveLength(6);
+  });
+
+  it("caps a long run of loose saves, which is far more likely to be a table", () => {
+    const text = Array.from({ length: 7 }, (_v, index) =>
+      `A DC ${10 + index} Wisdom saving throw.`).join(" ");
+
+    expect(generate(text)).toEqual([]);
+    expect(generate(text, { maxExtras: 7 })).toHaveLength(7);
   });
 
   it("emits nothing for a single-save document", () => {

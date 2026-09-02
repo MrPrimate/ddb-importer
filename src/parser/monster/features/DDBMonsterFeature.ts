@@ -43,6 +43,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   // fields marked with ! are assigned in prepare(), which the constructor always calls
   descriptionParse!: IFeatureBasicsResult;
   descriptionSave!: IFeatureBasicsSave;
+  // memoised by the multiSaveSections getter; [] means "one save, do not reshape"
+  #multiSaveSectionCache?: { slice: ISectionSlice; save: IParsedSave }[];
   name: string;
   isAction = null;
   legacy: boolean;
@@ -1407,6 +1409,62 @@ ${this.data.system.description.value}
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /**
+   * The labelled sections of this feature's text that each name a save, memoised.
+   *
+   * A monster feature is normally one roll, but a few describe several: an eye ray table
+   * (Mindwitness numbers its rays in italics), a swallow (the save to be swallowed and the save
+   * to regurgitate), a monk-style strike offering a choice of rider, and the lair/regional
+   * blocks, which DDB ships as one blob covering every lair action.
+   */
+  get multiSaveSections(): { slice: ISectionSlice; save: IParsedSave }[] {
+    this.#multiSaveSectionCache ??= this._saveBearingSections(this.html);
+    return this.#multiSaveSectionCache;
+  }
+
+  /**
+   * The name the primary activity takes on a multi-mode feature, or null to leave it unnamed.
+   * Only set where the primary IS the first section - an attack describes something else.
+   */
+  get #primaryActivityName(): string | null {
+    if (!(this.isSave && !this.isAttack)) return null;
+    const first = this.multiSaveSections[0];
+    if (!first) return null;
+    const name = DDBActivityFactoryMixin.multiSaveActivityName(first.slice.rawLabel);
+    // a lair block labels its first section with the feature's own name; restating it says nothing
+    if (!name || DDBDescriptions.normalizeSectionLabel(name) === DDBDescriptions.normalizeSectionLabel(this.name)) {
+      return null;
+    }
+    return name;
+  }
+
+  /**
+   * On a multi-mode feature the primary describes the first section, so it needs that section's
+   * text for the same reason its siblings do - otherwise its card shows every mode.
+   */
+  get #primaryActivityOptions(): IDDBActivityBuild {
+    if (!(this.isSave && !this.isAttack)) return {};
+    const first = this.multiSaveSections[0];
+    if (!first) return {};
+    return { data: { description: { value: first.slice.section } } };
+  }
+
+  /**
+   * Build one save activity per mode of a feature whose text describes several.
+   *
+   * `featureBasics` reads only the first save, so on a swallow or an eye ray table everything
+   * past it existed only in the description. The first section is skipped only when the primary
+   * activity IS that save; where the primary is an attack, every section becomes an extra and
+   * the generic "Save" activity is suppressed in favour of the named ones.
+   */
+  #generateMultiSaveActivities(): void {
+    this._multiSaveActivityGeneration({
+      text: this.html,
+      primarySave: this.descriptionSave,
+      skipFirstSection: this.isSave && !this.isAttack,
+    });
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
     const parts = this.templateType !== "weapon" || includeBase
       ? this.actionData.damageParts.map((dp) => dp.part)
@@ -1458,8 +1516,8 @@ ${this.data.system.description.value}
       // some attacks will have a save and attack
       // console.warn("isAttack", this.isAttack, this.isSave);
       if (this.isSave) {
-        // console.warn("add save additional activity");
-        this.#addSaveAdditionalActivity();
+        // a multi-mode feature already has one named save activity per section
+        if (this.multiSaveSections.length === 0) this.#addSaveAdditionalActivity();
       }
       return "attack";
     }
@@ -1906,7 +1964,8 @@ ${this.data.system.description.value}
 
     if (!this.actionCopy) {
       await this.#handleSpellCasting();
-      await this._generateActivity();
+      this.#generateMultiSaveActivities();
+      await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
       this.#addHealAdditionalActivities();
       if (this.enricher.addAutoAdditionalActivities)
         await this._generateAdditionalActivities();
