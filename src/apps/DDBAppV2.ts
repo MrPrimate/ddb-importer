@@ -78,6 +78,110 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   /*  Life-Cycle Handlers                         */
   /* -------------------------------------------- */
 
+  protected settingUpdateChain: Promise<void> = Promise.resolve();
+  protected pendingSettingUpdates = 0;
+  // the most recently queued write per key, so superseded writes can be skipped
+  protected latestSettingUpdates = new Map<string, symbol>();
+  // the render scheduled behind the queue
+  protected settingRenderPromise: Promise<void> | null = null;
+  // releases the waiters parked in awaitControlIdle when the app closes
+  protected settingIdleWaiters = new Set<() => void>();
+
+  /**
+   * Serialise an async setting write triggered by a UI control, re-rendering once the queue has
+   * drained and the user has finished with whatever control they are using.
+   *
+   * Tag removals on a `<multi-select>` fire their change events far faster than a settings write
+   * plus a re-render round trip.
+   * @param {() => Promise<void>} update  The setting write to perform.
+   * @param {object} [options]
+   * @param {string} [options.key]  Coalescing key, normally the setting name. A newer write with
+   *                                the same key supersedes any queued write that has not run yet.
+   * @param {boolean} [options.render=true]  Re-render once no further writes are queued.
+   */
+  protected async queueSettingUpdate(update: () => Promise<void>, { key = null, render = true }: {
+    key?: string | null;
+    render?: boolean;
+  } = {}): Promise<void> {
+    const token = Symbol(key ?? "setting-update");
+    if (key) this.latestSettingUpdates.set(key, token);
+    this.pendingSettingUpdates += 1;
+    this.settingUpdateChain = this.settingUpdateChain.then(async () => {
+      try {
+        const superseded = key !== null && this.latestSettingUpdates.get(key) !== token;
+        if (!superseded) await update();
+      } catch (err) {
+        logger.error("DDBAppV2: queued setting update failed", err);
+      } finally {
+        if (key !== null && this.latestSettingUpdates.get(key) === token) this.latestSettingUpdates.delete(key);
+        this.pendingSettingUpdates -= 1;
+      }
+      // rendering now would rebuild the control from a value the later clicks have not reached yet
+      if (render && this.pendingSettingUpdates === 0) this.scheduleSettingRender();
+    });
+    return this.settingUpdateChain;
+  }
+
+  /**
+   * Is the user part way through using a control in this app? An open `<select>` popup keeps
+   * focus on the select, so this also covers a dropdown the user has opened but not chosen from.
+   */
+  protected isUserEditingControl(): boolean {
+    const root = this.element;
+    if (!root?.isConnected) return false;
+    const active = document.activeElement;
+    if (!active || !root.contains(active)) return false;
+    return !!active.closest("multi-select, string-tags, select, input, textarea");
+  }
+
+  /** Resolve once no control inside the app holds focus, or the app closes. */
+  protected async awaitControlIdle(): Promise<void> {
+    if (!this.isUserEditingControl()) return;
+    const root = this.element;
+    return new Promise<void>((resolve) => {
+      const release = () => {
+        root.removeEventListener("focusout", onFocusOut, true);
+        this.settingIdleWaiters.delete(release);
+        resolve();
+      };
+      // activeElement only settles after the event, and focus may move to another control here
+      const onFocusOut = () => setTimeout(() => {
+        if (!this.isUserEditingControl()) release();
+      }, 0);
+      this.settingIdleWaiters.add(release);
+      root.addEventListener("focusout", onFocusOut, true);
+    });
+  }
+
+  /**
+   * Render once the queue has drained and the user is not mid-interaction. Kept off the update
+   * chain so that waiting on the user cannot hold up the writes their next clicks queue.
+   */
+  protected scheduleSettingRender(): Promise<void> {
+    if (this.settingRenderPromise) return this.settingRenderPromise;
+    const scheduled = (async () => {
+      try {
+        await this.awaitControlIdle();
+        // further writes arrived while we waited; their own drain schedules the render
+        if (this.pendingSettingUpdates > 0) return;
+        if (this.rendered) await this.render();
+      } catch (err) {
+        logger.error("DDBAppV2: queued render failed", err);
+      } finally {
+        this.settingRenderPromise = null;
+      }
+    })();
+    this.settingRenderPromise = scheduled;
+    return scheduled;
+  }
+
+  /** @inheritDoc */
+  override _onClose(options: foundry.applications.api.Application.RenderOptions) {
+    super._onClose(options);
+    // nothing is left to render into, so let any parked render give up
+    for (const release of [...this.settingIdleWaiters]) release();
+  }
+
   static getMultiSelectValues(event: Event): string[] {
     const target = event.currentTarget as (EventTarget & { _value?: Set<string> | string[] }) | null;
     // Foundry's <multi-select> element stores its selection in `_value` (a Set).

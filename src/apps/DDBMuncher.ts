@@ -365,37 +365,45 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // custom listeners
     // multi-selects
-    this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", async (event) => {
-      await DDBSources.updateIncludedCategories(DDBMuncher.getMultiSelectValues(event));
-      await this.render();
+    this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", (event) => {
+      const categoryIds = DDBMuncher.getMultiSelectValues(event);
+      this.queueSettingUpdate(async () => DDBSources.updateIncludedCategories(categoryIds), {
+        key: "munching-policy-muncher-included-source-categories",
+      });
     });
 
-    this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
-      await DDBSources.updateSelectedSources(DDBMuncher.getMultiSelectValues(event));
-      await this.render();
+    this.element.querySelector("#muncher-source-select")?.addEventListener("change", (event) => {
+      const sourceIds = DDBMuncher.getMultiSelectValues(event);
+      this.queueSettingUpdate(async () => DDBSources.updateSelectedSources(sourceIds), {
+        key: "munching-policy-muncher-sources",
+      });
     });
 
-    this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", async (event) => {
-      await DDBSources.updateSelectedMonsterTypes(DDBMuncher.getMultiSelectValues(event));
-      await this.render();
+    this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", (event) => {
+      const typeIds = DDBMuncher.getMultiSelectValues(event);
+      this.queueSettingUpdate(async () => DDBSources.updateSelectedMonsterTypes(typeIds), {
+        key: "munching-policy-muncher-monster-types",
+      });
     });
 
-    this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
+    this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", (event) => {
       const newClassIds = DDBMuncher.getMultiSelectValues(event).map((id) => parseInt(id));
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", newClassIds);
-      const currentSubclassMap = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
-      const prunedSubclassMap: Record<string, number[]> = {};
-      for (const classId of newClassIds) {
-        if (currentSubclassMap[classId]) prunedSubclassMap[classId] = currentSubclassMap[classId];
-      }
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", prunedSubclassMap);
-      await this.render();
+      this.queueSettingUpdate(async () => {
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", newClassIds);
+        const currentSubclassMap = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
+        const prunedSubclassMap: Record<string, number[]> = {};
+        for (const classId of newClassIds) {
+          if (currentSubclassMap[classId]) prunedSubclassMap[classId] = currentSubclassMap[classId];
+        }
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", prunedSubclassMap);
+      }, { key: "munching-policy-character-classes" });
     });
 
-    this.element.querySelector("#muncher-species-source-select")?.addEventListener("change", async (event) => {
+    this.element.querySelector("#muncher-species-source-select")?.addEventListener("change", (event) => {
       const newSpeciesIds = DDBMuncher.getMultiSelectValues(event).map((id) => parseInt(id));
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", newSpeciesIds);
-      await this.render();
+      this.queueSettingUpdate(async () => {
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", newSpeciesIds);
+      }, { key: "munching-policy-character-species" });
     });
 
     this.element.querySelector("#muncher-class-select-core")?.addEventListener("click", async (event) => {
@@ -408,11 +416,13 @@ export default class DDBMuncher extends DDBAppV2 {
           .map((s) => s.id),
       );
       // ensure the core category is active in the source filter so core classes are visible
-      const includedCategories = utils.getSetting<string[]>("munching-policy-muncher-included-source-categories")
-        .map((id) => parseInt(id));
-      if (!includedCategories.includes(coreCategoryId)) {
+      await this.queueSettingUpdate(async () => {
+        // read inside the write: a queued category change may have landed since the click
+        const includedCategories = utils.getSetting<string[]>("munching-policy-muncher-included-source-categories")
+          .map((id) => parseInt(id));
+        if (includedCategories.includes(coreCategoryId)) return;
         await DDBSources.updateIncludedCategories([...includedCategories, coreCategoryId]);
-      }
+      }, { render: false });
       const classes = await DDBMuleHandler.getList<IDDBMuleClassDefinition>("class", Array.from(coreSourceIds));
       const coreClassIds = classes
         .filter((klass) => klass.sources.some((s) => coreSourceIds.has(s.sourceId)))
@@ -421,12 +431,13 @@ export default class DDBMuncher extends DDBAppV2 {
           return rulesVersion === "2014" ? is2014 : !is2014;
         })
         .map((klass) => klass.id);
-      const existing = utils.getSetting<number[]>("munching-policy-character-classes")
-        .map((id) => parseInt(String(id)));
-      const merged = Array.from(new Set([...existing, ...coreClassIds]));
-      logger.info(`Select Core Classes: selecting ${coreClassIds.length} classes for ${rulesVersion}`, { coreClassIds, merged });
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", merged);
-      await this.render();
+      await this.queueSettingUpdate(async () => {
+        const existing = utils.getSetting<number[]>("munching-policy-character-classes")
+          .map((id) => parseInt(String(id)));
+        const merged = Array.from(new Set([...existing, ...coreClassIds]));
+        logger.info(`Select Core Classes: selecting ${coreClassIds.length} classes for ${rulesVersion}`, { coreClassIds, merged });
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", merged);
+      }, { key: "munching-policy-character-classes" });
     });
 
     // shared by the class and species rules-version toggles (same setting)
@@ -452,12 +463,13 @@ export default class DDBMuncher extends DDBAppV2 {
           });
           if (!proceed) return;
         }
-        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
-        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
-        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
-        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", []);
-        this.subClassMap = {};
-        await this.render();
+        await this.queueSettingUpdate(async () => {
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", []);
+          this.subClassMap = {};
+        }, { key: "munching-policy-character-class-rules-version" });
       });
     });
 
@@ -468,14 +480,17 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelectorAll(".ddb-subclass-select").forEach((el) => {
-      el.addEventListener("change", async (event) => {
+      el.addEventListener("change", (event) => {
         const el = event.currentTarget as HTMLElement | null;
         const classId = parseInt(el?.dataset.classId ?? "0");
         const selectedSubIds = DDBAppV2.getMultiSelectValues(event).map((id) => parseInt(id));
-        const currentMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
-        const nextMap = { ...currentMap, [classId]: selectedSubIds };
-        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", nextMap);
-        await this.render();
+        this.queueSettingUpdate(async () => {
+          // read the map inside the queued write: a sibling class' select may have just changed it
+          const currentMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
+          const nextMap = { ...currentMap, [classId]: selectedSubIds };
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", nextMap);
+          // keyed per class: a write for another class carries a different slice of the map
+        }, { key: `munching-policy-character-subclasses.${classId}` });
       });
     });
 
