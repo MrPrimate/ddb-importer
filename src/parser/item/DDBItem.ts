@@ -1946,6 +1946,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return DDBActivityFactoryMixin.multiSaveActivityName(this.multiSaveSections[0].slice.rawLabel) || null;
   }
 
+  /**
+   * On a multi-mode item the primary describes the first section, so it needs that section's text
+   * for the same reason its siblings do - dnd5e falls back to the whole item description, which
+   * on this item describes every other mode too.
+   */
+  get #primaryActivityOptions(): IDDBActivityBuild {
+    if (!this.#primaryIsFirstSection) return {};
+    return { data: { description: { value: this.multiSaveSections[0].slice.section } } };
+  }
+
   /** The description text the primary activity describes: its own section, or the whole item. */
   get #primaryDescription(): string {
     return this.#primaryIsFirstSection
@@ -3361,7 +3371,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         if (!this.enricher.stopDefaultActivity)
           // an item's primary activity is normally unnamed; on a multi-mode item it describes the
           // first section, so it takes that section's label to tell it from its siblings
-          await this._generateActivity({ name: this.#primaryActivityName }, this.activityOptions);
+          await this._generateActivity(
+            { name: this.#primaryActivityName },
+            foundry.utils.mergeObject(foundry.utils.deepClone(this.activityOptions), this.#primaryActivityOptions),
+          );
         this.#addHealAdditionalActivities();
         if (this.enricher.addAutoAdditionalActivities)
           await this._generateAdditionalActivities();

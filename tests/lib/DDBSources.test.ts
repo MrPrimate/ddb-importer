@@ -142,6 +142,49 @@ describe("DDBSources.getChosenSourceIdSet", () => {
   });
 });
 
+describe("DDBSources.getBookFilter", () => {
+  // PHB (2) sits in category 26, EGtW (59) in category 2
+  const bookFilter = (overrides: Record<string, unknown> = {}) => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [26],
+      "munching-policy-use-source-filter": true,
+      "munching-policy-muncher-sources": [2],
+      ...overrides,
+    });
+    return DDBSources.getBookFilter();
+  };
+
+  it("is inert while the filter is off, but still exposes the raw selection", () => {
+    expect(bookFilter({ "munching-policy-use-source-filter": false })).toEqual({
+      enabled: false, selected: [2], effective: [], ignored: [],
+    });
+  });
+
+  it("keeps books inside the included categories", () => {
+    expect(bookFilter()).toEqual({ enabled: true, selected: [2], effective: [2], ignored: [] });
+  });
+
+  it("ignores a selection made entirely of books outside the included categories", () => {
+    expect(bookFilter({ "munching-policy-muncher-included-source-categories": [2] })).toEqual({
+      enabled: true, selected: [2], effective: [], ignored: [2],
+    });
+  });
+
+  it("splits a mixed selection", () => {
+    expect(bookFilter({
+      "munching-policy-muncher-included-source-categories": [2],
+      "munching-policy-muncher-sources": [2, 59],
+    })).toEqual({ enabled: true, selected: [2, 59], effective: [59], ignored: [2] });
+  });
+
+  it("no longer empties the chosen book set when the selection is ineffective", () => {
+    bookFilter({ "munching-policy-muncher-included-source-categories": [21] });
+    const ids = DDBSources.getChosenSourceIdSet({ includeCore: false });
+    expect(ids.has(238)).toBe(true);
+    expect(ids.has(239)).toBe(true);
+  });
+});
+
 describe("DDBSources.isDefinitionInSourceIds", () => {
   it("matches when any source is allowed", () => {
     const definition: IDDBSourcesDefinition = { sources: [makeSource(238), makeSource(2)] };

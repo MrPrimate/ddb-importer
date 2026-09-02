@@ -18,6 +18,7 @@ type TQueueApp = DDBAppV2 & {
   render: ReturnType<typeof vi.fn>;
   settingRenderPromise: Promise<void> | null;
   queueSettingUpdate: (update: () => Promise<void>, options?: { key?: string | null; render?: boolean }) => Promise<void>;
+  awaitSettingUpdates: () => Promise<void>;
 };
 
 // DDBAppV2 is abstract and its constructor needs foundry globals, so exercise the queue
@@ -37,6 +38,7 @@ function buildApp(markup = ""): TQueueApp {
     settingRenderPromise: null,
     settingIdleWaiters: new Set<() => void>(),
     queueSettingUpdate: proto.queueSettingUpdate,
+    awaitSettingUpdates: proto.awaitSettingUpdates,
     isUserEditingControl: proto.isUserEditingControl,
     awaitControlIdle: proto.awaitControlIdle,
     scheduleSettingRender: proto.scheduleSettingRender,
@@ -62,6 +64,29 @@ describe("DDBAppV2 setting update queue", () => {
 
   afterEach(() => {
     document.body.replaceChildren();
+  });
+
+  it("awaitSettingUpdates resolves only once the queued writes have landed", async () => {
+    const app = buildApp();
+    const held = defer();
+    let written = false;
+
+    void app.queueSettingUpdate(async () => {
+      await held.promise;
+      written = true;
+    }, { render: false });
+
+    let idle = false;
+    const waiter = app.awaitSettingUpdates().then(() => {
+      idle = true;
+    });
+    await Promise.resolve();
+    expect(idle).toBe(false);
+
+    held.resolve();
+    await waiter;
+    expect(written).toBe(true);
+    expect(idle).toBe(true);
   });
 
   it("writes queued updates in order and renders once, after the last one", async () => {

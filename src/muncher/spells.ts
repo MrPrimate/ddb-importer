@@ -12,6 +12,7 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
   postJson,
 } from "../lib/_module";
 import { ExternalAutomations } from "../effects/_module";
@@ -19,48 +20,6 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
 import DDBSpellSocket, { DDBSpellEvent } from "../lib/streaming/DDBSpellSocket";
-
-function applySpellFilters(raw: IDDBSpellEntry[], { sourceFilter, sources, exactMatch, searchFilter }:
-{
-  sourceFilter: boolean;
-  sources: number[];
-  exactMatch: boolean;
-  searchFilter?: string;
-}): IDDBSpellEntry[] {
-  let data = raw;
-  if (sourceFilter) {
-    data = data
-      .map((spell) => {
-        spell.definition.sources = (spell.definition.sources ?? []).filter((source) =>
-          DDBSources.isSourceInAllowedCategory(source),
-        );
-        return spell;
-      })
-      .filter((spell) => {
-        if (spell.definition.isHomebrew) return true;
-        return (spell.definition.sources?.length ?? 0) > 0;
-      });
-  }
-  if (sources.length > 0 && sourceFilter) {
-    data = data.filter((spell) =>
-      spell.definition.sources?.some((source) => sources.includes(source.sourceId)) ?? false,
-    );
-  } else if (sources.length === 0) {
-    if (utils.getSetting<boolean>("munching-policy-spell-homebrew-only")) {
-      data = data.filter((spell) => spell.definition.isHomebrew);
-    } else if (!utils.getSetting<boolean>("munching-policy-spell-homebrew")) {
-      data = data.filter((spell) => !spell.definition.isHomebrew);
-    }
-  }
-  if (searchFilter && searchFilter !== "") {
-    if (exactMatch) {
-      data = data.filter((spell) => spell.definition.name.toLowerCase() === searchFilter.toLowerCase());
-    } else {
-      data = data.filter((spell) => spell.definition.name.toLowerCase().includes(searchFilter.toLowerCase()));
-    }
-  }
-  return data;
-}
 
 /**
  * Dev-only capture buffer.
@@ -115,18 +74,17 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
     rulesVersion: rulesVersion ?? "2014",
   };
   const debugJson = utils.getSetting<boolean>("debug-json");
-  const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
   // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
-  const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+  const sources = sourcesOverride ?? DDBSources.getBookFilter().effective;
   const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
   const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
   logger.debug(`Fetching Spells (HTTP) with:`, {
-    debugJson, enableSources, sources, sourceFilter: effectiveSourceFilter, exactMatch,
+    debugJson, sources, sourceFilter: effectiveSourceFilter, exactMatch,
     rulesVersion, className, searchFilter,
   });
 
-  return new Promise<IDDBSpellEntry[]>((resolve, reject) => {
+  return new Promise<ClassSpellSet>((resolve, reject) => {
     postJson(`${parsingApi}/proxy/class/spells`, body)
       .then((data: IDDBClassSpellsProxyResponse) => {
         if (debugJson) {
@@ -142,7 +100,9 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
       .then((raw) => {
         if (raw == null) return;
         collectRawSpellsBySource(raw, className, rulesVersion ?? "2014");
-        resolve(applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter }));
+        const { data, counts } = SourceFilters.applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter });
+        logger.debug(`[spells] ${className} (${rulesVersion ?? "2014"}) filter stages`, counts);
+        resolve({ className, rulesVersion: rulesVersion ?? "2014", spellData: data, counts });
       })
       .catch((error) => {
         logger.warn(error);
@@ -155,6 +115,7 @@ interface ClassSpellSet {
   className: string;
   rulesVersion: string;
   spellData: IDDBSpellEntry[];
+  counts: SourceFilters.ISourceFilterCounts;
 }
 
 interface IStreamAllClassSpellsOptions {
@@ -173,9 +134,8 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
   const betaKey = PatreonHelper.getPatreonKey();
 
   const debugJson = utils.getSetting<boolean>("debug-json");
-  const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
   // explicit sourcesOverride wins over the setting
-  const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+  const sources = sourcesOverride ?? DDBSources.getBookFilter().effective;
   const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
   const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
@@ -193,7 +153,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
       const rules = rulesVersion ?? "2014";
       for (const className of klassNames) {
         logger.debug(`Streaming Spells with:`, {
-          debugJson, enableSources, sources, sourceFilter: effectiveSourceFilter,
+          debugJson, sources, sourceFilter: effectiveSourceFilter,
           exactMatch, rulesVersion: rules, className, searchFilter,
         });
 
@@ -214,11 +174,9 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
 
         if (debugJson) debugDump.push(...raw);
         collectRawSpellsBySource(raw, className, rules);
-        out.push({
-          className,
-          rulesVersion: rules,
-          spellData: applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter }),
-        });
+        const { data, counts } = SourceFilters.applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter });
+        logger.debug(`[spells] ${className} (${rules}) filter stages`, counts);
+        out.push({ className, rulesVersion: rules, spellData: data, counts });
       }
     }
   } finally {
@@ -271,7 +229,12 @@ export async function parseSpells({
   const sourceFilter = sources && sources.length > 0
     ? true
     : !(ids !== null && ids.length > 0);
+  // an explicit source or id list is a programmatic caller (adventure import), not the muncher UI
+  if (sources === null && !(ids !== null && ids.length > 0)) {
+    SourceFilters.preflightSourceSettings("spells", resolvedNotifier);
+  }
   const results: IDDBSpellEntry[] = [];
+  const stageCounts: SourceFilters.ISourceFilterCounts[] = [];
   const spellListFactory = new DDBSpellListFactory();
 
   // Prefer streaming all classes over one reused socket. On any streaming
@@ -287,14 +250,15 @@ export async function parseSpells({
   }
 
   if (classSpellSets) {
-    for (const { className, spellData } of classSpellSets) {
+    for (const { className, spellData, counts } of classSpellSets) {
       spellListFactory.extractClassSpellListData(className, spellData);
       results.push(...spellData);
+      stageCounts.push(counts);
     }
   } else {
     for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
       for (const className of klassNames) {
-        const spellData = await getSpellDataHttp({
+        const { spellData, counts } = await getSpellDataHttp({
           className,
           sourceFilter,
           notifier: resolvedNotifier,
@@ -304,11 +268,13 @@ export async function parseSpells({
         });
         spellListFactory.extractClassSpellListData(className, spellData);
         results.push(...spellData);
+        stageCounts.push(counts);
       }
     }
   }
 
   await downloadCollectedRawSpells();
+  SourceFilters.reportFilterResult("spells", SourceFilters.sumCounts(stageCounts), resolvedNotifier);
 
   resolvedNotifier("Parsing spell data...");
 

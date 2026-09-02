@@ -492,11 +492,10 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
       game.settings.set(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects", false);
     }
 
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sourceArray = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
-    const sourcesSelected = enableSources && sourceArray.length > 0;
+    const bookFilter = DDBSources.getBookFilter();
+    const enableSources = bookFilter.enabled;
+    // only books inside the included categories actually restrict an import
+    const sourcesSelected = bookFilter.effective.length > 0;
     const sourceNames = MuncherSettings.getSourcesLookups().filter((source) => source.selected).map((source) => source.label);
     const homebrewDescription = sourcesSelected
       ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"

@@ -8,6 +8,7 @@ import {
   DDBCompendiumFolders,
   Iconizer,
   DDBSources,
+  SourceFilters,
   utils,
   postJson,
   DDBRunContext,
@@ -231,10 +232,9 @@ export default class DDBMonsterFactory {
   static defaultFetchOptions(ids: number[] | null, searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
+    if (ids === null || ids.length === 0) SourceFilters.preflightSourceSettings("monsters", utils.munchNote);
     const homebrew = sources.length > 0
       ? false
       : utils.getSetting<boolean>("munching-policy-monster-homebrew");
@@ -422,6 +422,7 @@ export default class DDBMonsterFactory {
       this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
       logger.info(`Retrieved ${result.data.length} monsters from DDB`);
       this.source = applyCategoryFilter(result.data);
+      logger.info(`[monsters] ${this.source.length} of ${result.data.length} monsters in the included source categories`);
       return this.source;
     };
 
@@ -451,6 +452,7 @@ export default class DDBMonsterFactory {
         this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
         logger.info(`Retrieved ${raw.length} monsters from DDB`);
         this.source = applyCategoryFilter(raw);
+        logger.info(`[monsters] ${this.source.length} of ${raw.length} monsters in the included source categories`);
         return this.source;
       } finally {
         socket.close();
