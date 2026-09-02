@@ -1,5 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * 2024: a 10-foot-radius, 40-foot-high cylinder the caster moves along with
+ * themself. "Cast" places it; the region fires Healing Light for allies and
+ * Searing Light for enemies whenever a creature enters the cylinder or ends its
+ * turn there (once per turn) - the two behaviors take their dispositions from
+ * the activity they fire. The cylinder moving into a creature's space is
+ * mover-inverted and stays manual, as does choosing the "wrong" light for a
+ * creature. 2014 is a plain summon.
+ */
 export default class ConjureCelestial extends DDBEnricherData {
 
   override get useDefaultAdditionalActivities(): boolean {
@@ -13,11 +22,15 @@ export default class ConjureCelestial extends DDBEnricherData {
   override get activity(): IDDBActivityData | null {
     if (this.is2014) return null;
     if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type ?? "")) return null;
+    const isSave = this.ddbEnricher?._originalActivity?.type === "save";
     return {
-      name: this.ddbEnricher?._originalActivity?.type === "save" ? "Searing Light" : "Healing Light",
+      name: isSave ? "Searing Light" : "Healing Light",
+      targetType: isSave ? "enemy" : "ally",
       noSpellslot: true,
       noTemplate: true,
       overrideTemplate: true,
+      activationType: "special",
+      activationCondition: "Enters the Cylinder or ends its turn there (once per turn); or the Cylinder moves into its space",
       data: {
         sort: 10000,
         healing: {
@@ -53,10 +66,34 @@ export default class ConjureCelestial extends DDBEnricherData {
           generateConsumption: true,
           generateTarget: true,
           generateRange: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "cylinder",
+              size: "10",
+              height: "40",
+              units: "ft",
+            },
+          },
         },
         overrides: {
           data: {
             sort: 1,
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter", "tokenTurnEnd"],
+                activityName: "Healing Light",
+              }),
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter", "tokenTurnEnd"],
+                activityName: "Searing Light",
+              }),
+            ],
           },
         },
       },

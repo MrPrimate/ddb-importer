@@ -1,47 +1,27 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Path of the World Tree: the parsed reaction save is the primary; "Branches
- * Aura" places a 30-foot emanation on the raging barbarian whose region offers
- * the reaction when a creature starts its turn inside. The teleport and the
- * optional speed 0 are manual.
+ * Circle of Spores: the parsed reaction save (Con, scale-driven necrotic) stays
+ * the primary; "Place Halo" puts a 10-foot emanation on the druid whose region
+ * offers that reaction whenever a creature moves within 10 feet or starts its
+ * turn there. The card is the prompt: the druid declines by not rolling.
  */
-export default class BranchesOfTheTree extends DDBEnricherData {
-  override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
-  }
+export default class HaloOfSpores extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Branches of the Tree",
-      activationType: "reaction",
-      data: {
-        save: {
-          ability: ["str"],
-          dc: {
-            calculation: "str",
-            formula: "",
-          },
-        },
-        target: {
-          affects: {
-            type: "creature",
-            count: "1",
-          },
-        },
-        range: {
-          value: "30",
-          units: "ft",
-        },
-      },
+      name: "Halo of Spores",
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    // Spreading Spores pulls the Halo of Spores class ACTION for its own save;
+    // the emanation belongs to the feature document only
+    if (this.isAction) return [];
     return [
       {
         init: {
-          name: "Branches Aura",
+          name: "Place Halo",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -50,7 +30,7 @@ export default class BranchesOfTheTree extends DDBEnricherData {
           generateTarget: true,
           activationOverride: {
             type: "special",
-            condition: "While your Rage is active",
+            condition: "Places the 10-foot halo of spores around you",
           },
           targetOverride: {
             override: true,
@@ -61,7 +41,7 @@ export default class BranchesOfTheTree extends DDBEnricherData {
               count: "1",
               contiguous: false,
               type: "radius",
-              size: "30",
+              size: "10",
               units: "ft",
             },
           },
@@ -74,8 +54,8 @@ export default class BranchesOfTheTree extends DDBEnricherData {
             },
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
-                events: ["tokenTurnStart"],
-                activityName: "Branches of the Tree",
+                events: ["tokenEnter", "tokenMoveIn", "tokenTurnStart"],
+                activityName: "Halo of Spores",
                 excludeSelf: true,
               }),
             ],
@@ -84,4 +64,5 @@ export default class BranchesOfTheTree extends DDBEnricherData {
       },
     ];
   }
+
 }

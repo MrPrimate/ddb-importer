@@ -57,7 +57,11 @@ export async function getFaithfulHound({
   const manager = new DDBCompanionMixin(biteDamage, { forceRulesVersion: version }, { addMonsterEffects: true });
   manager.npc = stub;
   const features = await manager.getFeature(biteDamage, "special");
-  stub.items = features;
+  // the barking alert is its own trait so the Bark enricher can hang the 30-foot
+  // watch region off the hound rather than off the caster's summon activity
+  const bark = "<p><em><strong>Bark.</strong></em> When a Small or larger creature comes within 30 feet of the hound without first speaking the password, the hound starts barking loudly.</p>";
+  const barkFeatures = await manager.getFeature(bark, "special");
+  stub.items = [...features, ...barkFeatures];
   stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 

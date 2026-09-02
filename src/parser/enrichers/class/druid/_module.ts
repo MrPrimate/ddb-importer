@@ -33,6 +33,7 @@ export { default as FullOfStars } from "./FullOfStars";
 export { default as FungalInfestation } from "./FungalInfestation";
 export { default as FutureSight } from "./FutureSight";
 export { default as GuardianSpirit } from "./GuardianSpirit";
+export { default as HaloOfSpores } from "./HaloOfSpores";
 export { default as ImprovedCircleForms } from "./ImprovedCircleForms";
 export { default as LandsAid } from "./LandsAid";
 export { default as LunarForm } from "./LunarForm";

@@ -827,3 +827,68 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
     });
   });
 });
+
+describe("region-behavior spells (2026-09-02 wave)", () => {
+  function macros(activity: any): any[] {
+    return (activity?.data?.behaviors ?? []).filter((b: any) => b.type === "ddbMacro");
+  }
+
+  it("Doomtide: the Cast region fires the Ongoing Save duplicate on enter and turn end", () => {
+    const e = build(SpellEnrichers.Doomtide);
+    expect(macros(e.activity)[0].config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], activity: "ddbDoomTideAdSa1" });
+    const [ongoing] = e.additionalActivities;
+    expect(ongoing).toMatchObject({ duplicate: true, id: "ddbDoomTideAdSa1" });
+    // the duplicate must not inherit the region trigger or it would recurse
+    expect(ongoing.overrides.data.behaviors).toEqual([]);
+    expect(e.effects[0].options.expiry).toBe("targetEnd");
+  });
+
+  it("Forbiddance: a 200 ft square whose region damages the warded types on the ruleset's turn edge", () => {
+    const legacy = build(SpellEnrichers.Forbiddance, { is2014: true });
+    expect(legacy.type).toBe("utility");
+    expect(legacy.activity.data.target.template).toMatchObject({ type: "square", size: "200" });
+    expect(macros(legacy.activity)[0].config).toMatchObject({
+      events: ["tokenEnter", "tokenTurnStart"],
+      types: ["celestial", "elemental", "fey", "fiend", "undead"],
+      args: { activityName: "Damage" },
+    });
+    const modern = build(SpellEnrichers.Forbiddance);
+    expect(macros(modern.activity)[0].config).toMatchObject({
+      events: ["tokenEnter", "tokenTurnEnd"],
+      types: ["aberration", "celestial", "elemental", "fey", "fiend", "undead"],
+    });
+    expect(modern.additionalActivities[0]).toMatchObject({ init: { name: "Damage", type: "damage" }, overrides: { noSpellslot: true, activationType: "special" } });
+  });
+
+  it("Alarm: a 20 ft cube whose region whispers the caster on entry", () => {
+    const e = build(SpellEnrichers.Alarm);
+    expect(e.type).toBe("utility");
+    expect(e.activity.data.target.template).toMatchObject({ type: "cube", size: "20" });
+    const [behavior] = macros(e.activity);
+    expect(behavior.name).toBe("Alarm");
+    expect(behavior.config).toMatchObject({ function: "notify", events: ["tokenEnter"], excludeSelf: true, activity: "" });
+    expect(behavior.config.args.message).toContain("{token}");
+  });
+
+  it("Conjure Celestial (2024): the Cast cylinder carries an ally Healing Light arm and an enemy Searing Light arm", () => {
+    const searing = build(SpellEnrichers.ConjureCelestial);
+    searing.ddbEnricher._originalActivity = { type: "save" };
+    expect(searing.activity).toMatchObject({ name: "Searing Light", targetType: "enemy", noSpellslot: true, activationType: "special" });
+    const healing = build(SpellEnrichers.ConjureCelestial);
+    healing.ddbEnricher._originalActivity = { type: "heal" };
+    expect(healing.activity).toMatchObject({ name: "Healing Light", targetType: "ally" });
+
+    const [cast] = searing.additionalActivities;
+    expect(cast.init).toEqual({ name: "Cast", type: "utility" });
+    expect(cast.build.targetOverride.template).toMatchObject({ type: "cylinder", size: "10", height: "40" });
+    expect(macros(cast.overrides).map((b: any) => [b.config.events, b.config.args.activityName])).toEqual([
+      [["tokenEnter", "tokenTurnEnd"], "Healing Light"],
+      [["tokenEnter", "tokenTurnEnd"], "Searing Light"],
+    ]);
+
+    // 2014 stays a plain summon
+    const legacy = build(SpellEnrichers.ConjureCelestial, { is2014: true });
+    expect(legacy.activity).toBeNull();
+    expect(legacy.additionalActivities).toBeNull();
+  });
+});

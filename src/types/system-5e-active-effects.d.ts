@@ -89,6 +89,8 @@ global {
     behavior?: string;
     effect?: string;
     item?: string;
+    /** Chat message the effect was applied from (dnd5e #7155, runtime-stamped by the chat tray / enchant activity). */
+    message?: string;
     /** Transform profile id (DocumentIdField, not a uuid). */
     profile?: string;
   }

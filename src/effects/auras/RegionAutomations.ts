@@ -59,6 +59,16 @@ interface IExecuteMacroArgs extends ITokenFilterArgs {
   excludeSelf?: boolean;
 }
 
+interface INotifyArgs extends ITokenFilterArgs {
+  /**
+   * Chat text; `{token}`, `{region}` and `{event}` are substituted. Defaults to the
+   * localized "<token> triggered <region>" line.
+   */
+  message?: string;
+  oncePerTurn?: boolean;
+  excludeSelf?: boolean;
+}
+
 interface IUseActivityArgs extends ITokenFilterArgs {
   /** Use this sibling activity of the placing activity instead of the placing activity itself. */
   activityName?: string;
@@ -440,6 +450,10 @@ export default class RegionAutomations {
           // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
           // depend on canvas targeting state - and fall back to the selected
           // token, usually the caster, whenever that lookup came up empty.
+          // The card's damage/healing button then rolls against the user's live
+          // targets at click time (dnd5e passes no message data from the button), so
+          // the user targets the token from the card's recorded-target pill first;
+          // `autoRoll` is the opt-in for rolling immediately instead.
           { data: { system: { targets: RegionAutomations.targetDescriptors(token) } } },
         );
       }
@@ -519,12 +533,70 @@ export default class RegionAutomations {
     }
   }
 
+  /**
+   * Users a region notification is whispered to: every GM plus the owners of the
+   * actor whose activity placed the region (the Alarm caster, the Faithful
+   * Hound's summoner). With no placing actor it is GM-only.
+   */
+  static notifyRecipients(actor: { testUserPermission?: (user: unknown, permission: string) => boolean } | null): string[] {
+    const ids = new Set<string>();
+    for (const user of (game.users ?? []) as Iterable<{ id: string | null; isGM?: boolean }>) {
+      if (!user.id) continue;
+      if (user.isGM || actor?.testUserPermission?.(user, "OWNER")) ids.add(user.id);
+    }
+    return [...ids];
+  }
+
+  /**
+   * Whisper a chat message to the placing actor's owners and the GM naming the
+   * token that triggered the region: the alert of an Alarm spell or a Faithful
+   * Hound's bark, where the rules effect is "you are told", not a roll.
+   */
+  static async notifyHandler(context: IRegionEventContext): Promise<void> {
+    const token = RegionAutomations.getEventToken(context);
+    if (!token) return;
+
+    const args = (context.args ?? {}) as INotifyArgs;
+    if (!RegionAutomations.matchesTokenFilters(token, args)) {
+      logger.debug(`Region ${context.region.name}: ${token.name} filtered by disposition/size/creature type`, { context });
+      return;
+    }
+    if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
+      logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
+      return;
+    }
+    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
+
+    const placingActivity = await RegionAutomations.getActivity(context.region);
+    const actor = (placingActivity?.item?.actor ?? placingActivity?.actor ?? null) as
+      { name?: string; testUserPermission?: (user: unknown, permission: string) => boolean } | null;
+    const eventKey = `ddb-importer.behaviors.macro.events.${context.event.name}`;
+    const eventLabel = game.i18n?.has?.(eventKey, false) ? game.i18n.localize(eventKey) : context.event.name;
+    const replacements = {
+      token: token.name ?? "",
+      region: context.region.name ?? "",
+      event: eventLabel,
+    };
+    const messageKey = "ddb-importer.behaviors.macro.notifyMessage";
+    const template = args.message
+      ?? (game.i18n?.has?.(messageKey, false) ? game.i18n.localize(messageKey) : "{token} triggered {region} ({event}).");
+    const content = template.replace(/\{(token|region|event)\}/g, (_match, key: keyof typeof replacements) => replacements[key]);
+
+    logger.debug(`Region ${context.region.name}: notifying for ${token.name}`, { context, content });
+    await ChatMessage.create({
+      content: `<p>${content}</p>`,
+      whisper: RegionAutomations.notifyRecipients(actor),
+      speaker: { alias: actor?.name ?? context.region.name ?? "" },
+    } as unknown as ChatMessage.CreateInput);
+  }
+
   static handlers: Record<string, TRegionHandler> = {
     log: (context) => {
       logger.debug(`Region event ${context.event.name} for ${context.region.name}`, context);
     },
     useActivity: (context) => RegionAutomations.useActivityHandler(context),
     executeMacro: (context) => RegionAutomations.executeMacroHandler(context),
+    notify: (context) => RegionAutomations.notifyHandler(context),
   };
 
   static async handleRegionEvent(context: IRegionEventContext): Promise<void> {

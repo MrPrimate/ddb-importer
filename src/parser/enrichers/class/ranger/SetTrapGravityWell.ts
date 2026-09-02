@@ -1,15 +1,14 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Trapper ranger, "Set Trap: Miasma (Magical)". Split into two steps:
- * - "Create Magical Trap" (the parsed activity, keeps its itemUses consumption)
- *   places a plain 5x5 ft template marking the untriggered trap - no behaviors.
- * - "Trigger Magical Trap" (no consumption) places the 20-foot-radius gas cloud
- *   whose region fires the parsed "Activate Miasma" save on enter/turn start:
- *   3d6 poison half on success, poisoned until the start of its next turn on a
- *   failure. The gas lasts 1 minute.
+ * Trapper ranger, "Set Trap: Gravity Well (Magical)". "Create Magical Trap"
+ * (the parsed activity) places the 5 ft marker; "Trigger Magical Trap" places
+ * the 30-foot well: difficult terrain plus the parsed "Gravity Well: Damage"
+ * Strength save for creatures that start their turn inside. The activation
+ * burst ("Activate Gravity Well") and the end-of-next-turn "Critical Mass" are
+ * the ranger's own rolls.
  */
-export default class SetTrapMiasma extends DDBEnricherData {
+export default class SetTrapGravityWell extends DDBEnricherData {
 
   /**
    * The trap sub-feature may parse with no activity of its own (Snapfrost, Bear
@@ -45,7 +44,19 @@ export default class SetTrapMiasma extends DDBEnricherData {
     return [
       {
         action: {
-          name: "Activate Miasma",
+          name: "Activate Gravity Well",
+          type: "class",
+        },
+      },
+      {
+        action: {
+          name: "Gravity Well: Damage",
+          type: "class",
+        },
+      },
+      {
+        action: {
+          name: "Gravity Well: Critical Mass",
           type: "class",
         },
       },
@@ -61,7 +72,7 @@ export default class SetTrapMiasma extends DDBEnricherData {
           noSpellslot: true,
           activationOverride: {
             type: "special",
-            condition: "The trap is triggered",
+            condition: "The trap is triggered; the well lasts until the end of your next turn",
           },
           targetOverride: {
             override: true,
@@ -72,7 +83,7 @@ export default class SetTrapMiasma extends DDBEnricherData {
               count: "1",
               contiguous: false,
               type: "radius",
-              size: "20",
+              size: "30",
               units: "ft",
             },
           },
@@ -82,30 +93,16 @@ export default class SetTrapMiasma extends DDBEnricherData {
             duration: {
               override: true,
               value: "1",
-              units: "minute",
+              units: "round",
             },
             behaviors: [
+              DDBEnricherData.BehaviorHelper.difficultTerrain(),
               DDBEnricherData.BehaviorHelper.activity({
-                events: ["tokenEnter", "tokenTurnStart"],
-                activityName: "Activate Miasma",
+                events: ["tokenTurnStart"],
+                activityName: "Gravity Well: Damage",
               }),
             ],
           },
-        },
-      },
-    ];
-  }
-
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Miasma Poison",
-        activityMatch: "Activate Miasma",
-        statuses: ["Poisoned"],
-        // "poisoned until the start of its next turn"
-        options: {
-          expiry: "targetStart",
-          description: "Poisoned until the start of its next turn; disadvantage on saving throws to maintain concentration while poisoned this way.",
         },
       },
     ];

@@ -285,6 +285,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Bond of Shelter": ClassEnrichers.Druid.BondOfShelter,
     "Dread Lord": ClassEnrichers.Paladin.DreadLord,
     "Set Trap: Miasma (Magical)": ClassEnrichers.Ranger.SetTrapMiasma,
+    "Set Trap: Snapfrost (Magical)": ClassEnrichers.Ranger.SetTrapSnapfrost,
+    "Set Trap: Gravity Well (Magical)": ClassEnrichers.Ranger.SetTrapGravityWell,
+    "Set Trap: Bear Trap (Physical)": ClassEnrichers.Ranger.SetTrapBearTrap,
     "Vascular Corruption Aura": ClassEnrichers.Cleric.VascularCorruptionAura,
     Barbarian: {
       "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,

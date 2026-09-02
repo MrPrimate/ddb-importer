@@ -22,10 +22,34 @@ export default class TurnStartAuraSave extends DDBEnricherData {
     "Drone": { excludeTypes: ["fiend"] },
     // Nupperibo: "Any creature, other than a devil..."
     "Cloud of Vermin": { excludeTypes: ["fiend"] },
+    // Far Realm zealot: "Any non-Aberration creature..."
+    "Aberrant Form": { excludeTypes: ["aberration"] },
+    // rutterkin, alkilith, Bael: "a creature that isn't a demon" / "other than a devil"
+    "Immobilizing Fear": { excludeTypes: ["fiend"] },
+    "Crippling Fear": { excludeTypes: ["fiend"] },
+    "Foment Confusion": { excludeTypes: ["fiend"] },
+    "Foment Madness": { excludeTypes: ["fiend"] },
+    "Dread": { excludeTypes: ["fiend"] },
+    "Dreadful": { excludeTypes: ["fiend"] },
+    // swarm of ravens: "any creature (other than a Fiend) with a Fly Speed"
+    "Wing Bind": { excludeTypes: ["fiend"] },
+    // hag: "Any Humanoid that starts its turn within 60 feet"
+    "Confounding Ugliness": { types: ["humanoid"] },
   };
 
   get behaviorFilters(): { sizes?: string[]; types?: string[]; excludeTypes?: string[] } {
     return TurnStartAuraSave.NAME_FILTERS[this.name] ?? {};
+  }
+
+  /**
+   * The monster feature parser's raw trait text. The document description is
+   * not built when the activity hook runs, so `this.document` is not usable here.
+   */
+  get traitText(): string {
+    const parser = this.ddbParser as { strippedHtml?: string; html?: string } | undefined;
+    return parser?.strippedHtml
+      ?? parser?.html
+      ?? ((this.document?.system?.description?.value ?? "") as string);
   }
 
   /**
@@ -34,22 +58,56 @@ export default class TurnStartAuraSave extends DDBEnricherData {
    * region trigger when this monster's wording is the target-turn shape.
    */
   get isTargetTurnAura(): boolean {
-    // the document description is not built when the activity hook runs, so read the
-    // monster feature parser's raw trait text
-    const parser = this.ddbParser as { strippedHtml?: string; html?: string } | undefined;
-    const description = parser?.strippedHtml
-      ?? parser?.html
-      ?? ((this.document?.system?.description?.value ?? "") as string);
-    return (/starts? (?:its|their|each) turn (?:within|in\b)/i).test(description);
+    return (/starts? (?:its|their|each) turn (?:within|in\b)/i).test(this.traitText);
+  }
+
+  /**
+   * "...or enters that area for the first time on a turn" (Arcane Leak): the aura
+   * also fires on entry, which the once-per-turn default keeps to one trigger.
+   */
+  get firesOnEntry(): boolean {
+    return (/enters (?:that|the) (?:area|emanation)/i).test(this.traitText);
+  }
+
+  /**
+   * The aura radius when the text names the monster ("within 30 feet of Rakdos",
+   * "within 10 feet of Bael"): the parser's area regex only recognises a generic
+   * referent ("of it", "of the mouther"), so those traits parse with no template
+   * and the emanation would have no size. Null when the parser already found one.
+   */
+  get missingTemplateRadius(): string | null {
+    const parser = this.ddbParser as { actionData?: { target?: { template?: { size?: string | number | null } } } } | undefined;
+    if (parser?.actionData?.target?.template?.size) return null;
+    const match = this.traitText.match(/starts? (?:its|their|each) turn (?:within|in an?) (\d+)[ -](?:feet|foot|ft)/i);
+    return match ? match[1] : null;
   }
 
   override get activity(): IDDBActivityData {
     if (!this.isTargetTurnAura) return {};
+    const radius = this.missingTemplateRadius;
     return {
+      ...(radius ? { targetType: "creature" } : {}),
       data: {
+        ...(radius
+          ? {
+            target: {
+              override: true,
+              affects: {
+                type: "creature",
+              },
+              template: {
+                count: "1",
+                contiguous: false,
+                type: "radius",
+                size: radius,
+                units: "ft",
+              },
+            },
+          }
+          : {}),
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenTurnStart"],
+            events: this.firesOnEntry ? ["tokenEnter", "tokenTurnStart"] : ["tokenTurnStart"],
             // the emanation originates from the monster, which does not save
             // against its own stench/presence/thing
             excludeSelf: true,

@@ -40,7 +40,14 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     // Match the native activity behaviors: ally/enemy targets are relative to
     // the token that placed the region, falling back to the actor's token data.
     const { disposition } = token ?? activity.actor?.token ?? activity.actor?.prototypeToken ?? {};
-    args.dispositions = [...this.getDispositions(activity.target, { relativeTo: disposition })];
+    // A behavior that fires a siblinb activity takes that activity's targeting, so one
+    // Cast can carry an ally arm and an enemy arm (Conjure Celestial's Healing Light
+    // and Searing Light); the placing activity's target is the fallback.
+    const triggered = DDBMacroActivityBehavior.siblingActivity(activity, {
+      id: this.activity,
+      name: (args.activityName as string | undefined) ?? "",
+    });
+    args.dispositions = [...this.getDispositions(triggered?.target ?? activity.target, { relativeTo: disposition })];
     if (this.activity) args.activityId = this.activity;
     if (this.macroName) args.macroFunction = this.macroName;
     args.oncePerTurn = this.oncePerTurn;
@@ -59,6 +66,28 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       events: this.events,
       args,
     });
+  }
+
+  /**
+   * The sibling activity a behavior fires, on the placing activity's item:
+   * by id when the behavior names one, else by `activityName` in its arguments with the
+   * same exact-then-prefix match `useActivityHandler` applies at trigger time.
+   * Enrichers reference additional activities by Name (their ids are generated at
+   * parse and never copied into the behavior), so the id alone is rarely set.
+   */
+  static siblingActivity(activity: any, { id, name }: { id?: string; name?: string }): { target?: unknown } | null {
+    const activities = activity?.item?.system?.activities;
+    if (!activities) return null;
+    if (id && typeof activities.get === "function") {
+      const byId = activities.get(id);
+      if (byId) return byId;
+    }
+    if (name && typeof activities.find === "function") {
+      return activities.find((a: { name?: string }) => a.name === name)
+        ?? activities.find((a: { name?: string }) => a.name?.startsWith(name))
+        ?? null;
+    }
+    return null;
   }
 
   override customizeField(field: any, data: any) {

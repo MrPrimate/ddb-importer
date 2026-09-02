@@ -320,10 +320,12 @@
           "tokenRoundEnd": "Token Round End"
         },
         "placingActivity": "(The activity that placed this region)",
+        "notifyMessage": "{token} triggered {region} ({event}).",
         "handlers": {
           "useActivity": "Use Activity",
           "log": "Log Event (Debug)",
-          "executeMacro": "Execute Macro"
+          "executeMacro": "Execute Macro",
+          "notify": "Notify Owner"
         }
       }
     }

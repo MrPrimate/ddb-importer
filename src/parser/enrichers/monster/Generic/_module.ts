@@ -3,6 +3,7 @@
 export { default as _SaveAdvantageVsCondition } from "./_SaveAdvantageVsCondition";
 export { default as AberrantGround } from "./AberrantGround";
 export { default as Absorption } from "./Absorption";
+export { default as AllyBuffAura } from "./AllyBuffAura";
 export { default as BloodFrenzy } from "./BloodFrenzy";
 export { default as Brave } from "./Brave";
 export { default as Camouflage } from "./Camouflage";

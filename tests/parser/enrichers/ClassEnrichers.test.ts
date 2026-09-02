@@ -1659,3 +1659,125 @@ describe("barbarian DangerSense", () => {
     expect(effects[0].options.description).toContain("not checked");
   });
 });
+
+describe("region-behavior class features (2026-09-02 wave)", () => {
+  function macros(activity: any): any[] {
+    return (activity?.data?.behaviors ?? []).filter((b: any) => b.type === "ddbMacro");
+  }
+
+  it("sorcerer DraconicPresence: an awe and a fear cast, each firing its own save on hostile turn start", () => {
+    const e = build(ClassEnrichers.Sorcerer.DraconicPresence);
+    expect(e.type).toBe("utility");
+    expect(e.clearAutoEffects).toBe(true);
+    expect(e.activity).toMatchObject({
+      name: "Draconic Presence: Awe",
+      targetType: "enemy",
+      itemConsumeTargetName: "Sorcery Points",
+      itemConsumeValue: "5",
+    });
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "60" });
+    expect(macros(e.activity)[0].config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true, args: { activityName: "Awe Save" } });
+
+    const [fear, aweSave, fearSave] = e.additionalActivities;
+    expect(fear).toMatchObject({ duplicate: true, id: "ddbDracPresFear1" });
+    expect(fear.overrides.name).toBe("Draconic Presence: Fear");
+    expect(macros(fear.overrides)[0].config.args.activityName).toBe("Fear Save");
+    expect(aweSave.init).toEqual({ name: "Awe Save", type: "save" });
+    expect(fearSave.init).toEqual({ name: "Fear Save", type: "save" });
+    expect(aweSave.build.saveOverride.ability).toEqual(["wis"]);
+    expect(e.effects.map((f: any) => [f.activityMatch, f.statuses])).toEqual([
+      ["Awe Save", ["Charmed"]],
+      ["Fear Save", ["Frightened"]],
+    ]);
+  });
+
+  it("druid HaloOfSpores: Place Halo offers the parsed reaction on move-in and turn start", () => {
+    const e = build(ClassEnrichers.Druid.HaloOfSpores);
+    expect(e.activity.name).toBe("Halo of Spores");
+    const [halo] = e.additionalActivities;
+    expect(halo.init).toEqual({ name: "Place Halo", type: "utility" });
+    expect(halo.build.targetOverride.template).toMatchObject({ type: "radius", size: "10" });
+    expect(macros(halo.overrides)[0].config).toMatchObject({
+      events: ["tokenEnter", "tokenMoveIn", "tokenTurnStart"],
+      excludeSelf: true,
+      args: { activityName: "Halo of Spores" },
+    });
+  });
+
+  it("fighter StoneRune: the feature gains a 30-foot Rune Aura offering Invoke Rune at turn end", () => {
+    const e = build(ClassEnrichers.Fighter.StoneRune, { isAction: false });
+    const aura = e.additionalActivities.find((a: any) => a.init?.name === "Rune Aura");
+    expect(aura.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
+    expect(macros(aura.overrides)[0].config).toMatchObject({ events: ["tokenTurnEnd"], excludeSelf: true, args: { activityName: "Invoke Rune" } });
+    // the action document is the roll itself and gets no aura
+    expect(build(ClassEnrichers.Fighter.StoneRune, { isAction: true }).additionalActivities).toEqual([]);
+  });
+
+  it("barbarian BranchesOfTheTree: a named save plus a 30-foot aura firing it on turn start", () => {
+    const e = build(ClassEnrichers.Barbarian.BranchesOfTheTree);
+    expect(e.activity.name).toBe("Branches of the Tree");
+    const [aura] = e.additionalActivities;
+    expect(aura.init.name).toBe("Branches Aura");
+    expect(macros(aura.overrides)[0].config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true, args: { activityName: "Branches of the Tree" } });
+  });
+
+  it("sorcerer SpiritAura: one cast carrying an enemy save arm and an ally buff arm", () => {
+    const e = build(ClassEnrichers.Sorcerer.SpiritAura);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Spirit Aura", activationType: "bonus", addItemConsume: true });
+    expect(macros(e.activity).map((b: any) => b.config.args.activityName)).toEqual(["Maddening Whispers", "Bolstering Whispers"]);
+    const [maddening, bolstering, restore] = e.additionalActivities;
+    expect(maddening.init).toEqual({ name: "Maddening Whispers", type: "save" });
+    expect(maddening.build.targetOverride.affects.type).toBe("enemy");
+    expect(bolstering.init).toEqual({ name: "Bolstering Whispers", type: "utility" });
+    expect(bolstering.build.targetOverride.affects.type).toBe("ally");
+    expect(restore.init.name).toBe("Spend Sorcery Points to Restore Use");
+    // native rule changes replace the midi flags; both riders end on the target's next turn end
+    const [madEffect, bolEffect] = e.effects;
+    expect(madEffect.options.expiry).toBe("targetEnd");
+    expect(madEffect.changes.map((c: any) => [c.key, c.type, c.value])).toEqual([["attack", "dnd5e.advantage", "-1"], ["check", "dnd5e.advantage", "-1"]]);
+    expect(bolEffect.changes.map((c: any) => [c.key, c.type, c.value])).toEqual([["attack", "dnd5e.advantage", "1"], ["check", "dnd5e.advantage", "1"]]);
+    expect(madEffect.midiChanges).toBeUndefined();
+  });
+
+  it("ranger Trapper traps: the Miasma create/trigger split for Snapfrost and Gravity Well, a one-shot square for Bear Trap", () => {
+    const trigger = (e: any) => e.additionalActivities.find((a: any) => a.init?.name === "Trigger Magical Trap");
+    const pulled = (e: any) => e.additionalActivities.filter((a: any) => a.action).map((a: any) => a.action.name);
+
+    const snap = build(ClassEnrichers.Ranger.SetTrapSnapfrost);
+    expect(snap.type).toBe("utility");
+    expect(snap.activity).toMatchObject({ name: "Create Magical Trap", addItemConsume: true });
+    // the trigger fires the trap's class action by name, so that action is pulled onto the document
+    expect(pulled(snap)).toEqual(["Activate Snapfrost"]);
+    const snapTrigger = trigger(snap);
+    expect(snapTrigger.build.targetOverride.template).toMatchObject({ type: "radius", size: "20" });
+    expect(macros(snapTrigger.overrides)[0].config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], args: { activityName: "Activate Snapfrost" } });
+
+    const well = build(ClassEnrichers.Ranger.SetTrapGravityWell);
+    expect(pulled(well)).toEqual(["Activate Gravity Well", "Gravity Well: Damage", "Gravity Well: Critical Mass"]);
+    const wellTrigger = trigger(well);
+    expect(wellTrigger.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
+    expect(wellTrigger.overrides.data.duration).toMatchObject({ value: "1", units: "round" });
+    expect(wellTrigger.overrides.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
+    expect(macros(wellTrigger.overrides)[0].config).toMatchObject({ events: ["tokenTurnStart"], args: { activityName: "Gravity Well: Damage" } });
+
+    const bear = build(ClassEnrichers.Ranger.SetTrapBearTrap);
+    expect(bear.activity.name).toBe("Deploy Bear Trap");
+    expect(pulled(bear)).toEqual(["Bear Trap: Damage"]);
+    expect(bear.activity.data.target.template).toMatchObject({ type: "square", size: "5" });
+    expect(macros(bear.activity)[0].config).toMatchObject({
+      events: ["tokenEnter", "tokenMoveIn"],
+      sizes: ["tiny", "sm", "med", "lg"],
+      args: { activityName: "Bear Trap: Damage" },
+    });
+  });
+
+  it("sorcerer CreateIce: five contiguous squares of ice difficult terrain for a round", () => {
+    const e = build(ClassEnrichers.Sorcerer.CreateIce);
+    expect(e.type).toBe("utility");
+    expect(e.activity.data.target.template).toMatchObject({ type: "square", size: "5", count: "5", contiguous: true });
+    expect(e.activity.data.duration).toMatchObject({ value: "1", units: "round" });
+    expect(e.activity.data.behaviors).toEqual([expect.objectContaining({ type: "difficultTerrain", config: { types: ["ice"] } })]);
+    expect(e.additionalActivities.map((a: any) => a.action?.name)).toEqual(["Create Ice: Freeze"]);
+  });
+});

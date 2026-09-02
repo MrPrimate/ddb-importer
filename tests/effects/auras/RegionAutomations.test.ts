@@ -496,3 +496,80 @@ describe("RegionAutomations.executeMacroHandler", () => {
     await expect(RegionAutomations.executeMacroHandler(context)).resolves.toBeUndefined();
   });
 });
+
+describe("RegionAutomations.notifyHandler", () => {
+  const originalUser = (globalThis as any).game.user;
+  const originalUsers = (globalThis as any).game.users;
+  const originalI18n = (globalThis as any).game.i18n;
+  const originalFromUuid = (globalThis as any).fromUuid;
+  const originalChatMessage = (globalThis as any).ChatMessage;
+
+  function setup({ actor = null as any } = {}) {
+    const create = vi.fn().mockResolvedValue({});
+    (globalThis as any).ChatMessage = { create };
+    (globalThis as any).game.user = { isActiveGM: true };
+    (globalThis as any).game.users = [
+      { id: "gm1", isGM: true },
+      { id: "owner1", isGM: false },
+      { id: "other1", isGM: false },
+    ];
+    (globalThis as any).game.i18n = {
+      has: (key: string) => key === "ddb-importer.behaviors.macro.notifyMessage" || key.startsWith("ddb-importer.behaviors.macro.events."),
+      localize: (key: string) => (key.endsWith("notifyMessage") ? "{token} triggered {region} ({event})." : "Token Enter"),
+    };
+    const placing = { item: { actor }, actor };
+    (globalThis as any).fromUuid = vi.fn().mockResolvedValue(placing);
+    const context = makeContext("notify");
+    context.region.getFlag = vi.fn((_scope: string, key: string) => (key === "activity" ? "Actor.a.Item.b.Activity.c" : undefined));
+    return { context, create };
+  }
+
+  afterEach(() => {
+    (globalThis as any).game.user = originalUser;
+    (globalThis as any).game.users = originalUsers;
+    (globalThis as any).game.i18n = originalI18n;
+    (globalThis as any).fromUuid = originalFromUuid;
+    (globalThis as any).ChatMessage = originalChatMessage;
+    vi.restoreAllMocks();
+  });
+
+  it("whispers the GM and the placing actor's owners, naming the token, region and event", async () => {
+    const actor = {
+      name: "Alarm Caster",
+      testUserPermission: (user: { id: string }) => user.id === "owner1",
+    };
+    const { context, create } = setup({ actor });
+
+    await RegionAutomations.notifyHandler(context);
+
+    expect(create).toHaveBeenCalledWith({
+      content: "<p>Bob triggered Test Region (Token Enter).</p>",
+      whisper: ["gm1", "owner1"],
+      speaker: { alias: "Alarm Caster" },
+    });
+  });
+
+  it("uses a custom message and honours the shared filters", async () => {
+    const { context, create } = setup();
+    context.args = { message: "The hound barks at {token}!", excludeSelf: true, dispositions: [-1] };
+    context.event.data.token.disposition = -1;
+    context.region.getFlag = vi.fn((_scope: string, key: string) => {
+      if (key === "activity") return "Actor.a.Item.b.Activity.c";
+      if (key === "origin") return "Scene.s.Token.origin";
+      return undefined;
+    });
+    (globalThis as any).fromUuidSync = vi.fn(() => ({ id: "origin", uuid: "Scene.s.Token.origin" }));
+
+    await RegionAutomations.notifyHandler(context);
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({
+      content: "<p>The hound barks at Bob!</p>",
+      // no placing actor: GM only
+      whisper: ["gm1"],
+    }));
+
+    create.mockClear();
+    context.event.data.token.disposition = 1;
+    await RegionAutomations.notifyHandler(context);
+    expect(create).not.toHaveBeenCalled();
+  });
+});

@@ -31,6 +31,51 @@ export default class StoneRune extends DDBEnricherData {
           type: "class",
         },
       },
+      // "Rune Aura" places a 30-foot emanation on the fighter whose region offers
+      // Invoke Rune (the once-per-rest reaction) when a creature ends its turn inside
+      {
+        init: {
+          name: "Rune Aura",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateTarget: true,
+          activationOverride: {
+            type: "special",
+            condition: "Places the 30-foot aura the rune watches",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+        overrides: {
+          data: {
+            range: {
+              override: true,
+              units: "self",
+            },
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenTurnEnd"],
+                activityName: "Invoke Rune",
+                excludeSelf: true,
+              }),
+            ],
+          },
+        },
+      },
     ];
   }
 

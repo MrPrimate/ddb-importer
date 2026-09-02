@@ -1,6 +1,14 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * The importer-built 2024 Conjure Animals pack.
+ * Using Pack Damage from the pack token places a 10-foot emanation attached to it;
+ * the region fires the savevwhen a creature enters or ends its turn inside (once per turn).
+ * The pack moving within 10 feet of a creature is mover-inverted and stays manual. The
+ * "(Aura Automation)" activity below is the Aura Effects + midi arm of the same
+ * automation, so the region arm only emits without Aura Effects.
+ */
 export default class PackDamage extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
@@ -14,10 +22,26 @@ export default class PackDamage extends DDBEnricherData {
       activationCondition:
         "Moves within 10 feet of a creature you can see and whenever a creature you can see enters a space within 10 feet of the pack or ends its turn there",
       data: {
-        range: {
-          units: "ft",
-          value: "10",
+        target: {
+          override: true,
+          affects: {
+            type: "creature",
+          },
+          template: {
+            count: "1",
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            excludeSelf: true,
+            auraeffectsNever: true,
+          }),
+        ],
         save: {
           ability: ["dex"],
           dc: {

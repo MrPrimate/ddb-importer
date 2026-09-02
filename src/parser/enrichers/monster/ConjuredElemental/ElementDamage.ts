@@ -1,6 +1,12 @@
-// import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * The importer-built 2024 Conjure Elemental spirits. Using the element damage
+ * from the spirit token places a 5-foot emanation attached to it; the region
+ * fires the save when a creature enters or starts its turn inside. The rules
+ * only allow the save while the spirit has nobody Restrained, and the
+ * Restrained target's repeat save is its own turn logic - both stay with the GM.
+ */
 export default class ElementDamage extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
@@ -31,12 +37,27 @@ export default class ElementDamage extends DDBEnricherData {
       id: "ddbElemDamageSav",
       targetType: "creature",
       activationType: "special",
-      activationCondition: "Enters the spirit’s space or starts its turn within 5 feet of it",
+      activationCondition: "Enters the spirit’s space or starts its turn within 5 feet of it, while the spirit has no creature Restrained",
       data: {
-        range: {
-          units: "ft",
-          value: "5",
+        target: {
+          override: true,
+          affects: {
+            type: "creature",
+          },
+          template: {
+            count: "1",
+            contiguous: false,
+            type: "radius",
+            size: "5",
+            units: "ft",
+          },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnStart"],
+            excludeSelf: true,
+          }),
+        ],
         save: {
           ability: ["dex"],
           dc: {
@@ -67,10 +88,5 @@ export default class ElementDamage extends DDBEnricherData {
       },
     ];
   }
-
-  // get clearAutoEffects() {
-  //   return true;
-  // }
-
 
 }

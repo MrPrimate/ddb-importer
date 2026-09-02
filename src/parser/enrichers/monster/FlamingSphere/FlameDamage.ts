@@ -1,5 +1,13 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * The importer-built Flaming Sphere summon. Using Flame Damage from the sphere
+ * token places a 5-foot emanation attached to it, so every creature that ends
+ * its turn inside gets the Dex save; the sphere itself never saves. Ramming the
+ * sphere into a creature is the mover's own trigger and stays on Move and
+ * Attack. The auraeffects + midi OverTime effect below is the module arm of the
+ * same automation, so the region arm only emits without Aura Effects.
+ */
 export default class FlameDamage extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
@@ -9,12 +17,28 @@ export default class FlameDamage extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
-      activationCondition: "Any creature that ends its turn within 5 feet of the sphere ",
+      activationCondition: "Any creature that ends its turn within 5 feet of the sphere",
       data: {
-        range: {
-          units: "ft",
-          value: "5",
+        target: {
+          override: true,
+          affects: {
+            type: "creature",
+          },
+          template: {
+            count: "1",
+            contiguous: false,
+            type: "radius",
+            size: "5",
+            units: "ft",
+          },
         },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnEnd"],
+            excludeSelf: true,
+            auraeffectsNever: true,
+          }),
+        ],
         save: {
           ability: ["dex"],
           dc: {

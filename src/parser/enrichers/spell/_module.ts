@@ -4,6 +4,7 @@ export { default as AbsorbElements } from "./AbsorbElements";
 export { default as AccelerateDecelerate } from "./AccelerateDecelerate";
 export { default as AcidArrow } from "./AcidArrow";
 export { default as Aid } from "./Aid";
+export { default as Alarm } from "./Alarm";
 export { default as AlterSelf } from "./AlterSelf";
 export { default as AlustrielsMooncloak } from "./AlustrielsMooncloak";
 export { default as AnimalFriendship } from "./AnimalFriendship";
