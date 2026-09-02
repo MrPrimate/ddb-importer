@@ -26,6 +26,8 @@ import DDBCharacter from "../parser/DDBCharacter";
 import DDBItemsImporter from "../muncher/DDBItemsImporter";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBSetup from "./DDBSetup";
+import DDBCookie from "./DDBCookie";
+import DDBMuncherLoader, { DDBMuncherLoadCancelled } from "./DDBMuncherLoader";
 import DDBSourcePruner from "./DDBSourcePruner";
 import DDBMapBrowser from "./DDBMapBrowser";
 import DDBStickerBrowser from "./DDBStickerBrowser";
@@ -111,6 +113,16 @@ export default class DDBMuncher extends DDBAppV2 {
   // restored when the overlay is dismissed. null when no munch is in progress.
   preMunchHeight: number | "auto" | null = null;
 
+  // the loading dialog reporting first-render progress; null once the window is up, so the
+  // re-renders that setting changes trigger report nothing
+  loader: DDBMuncherLoader | null = null;
+
+  // steps reported to the loader: cookie check, Patreon check, then the four _prepareContext blocks
+  static LOAD_STEPS = 6;
+
+  // the open() in flight, so a second click while loading joins it rather than starting another
+  static #opening: Promise<DDBMuncher | null> | null = null;
+
   /**
    * The rules version the character munch tabs are set to, shared by the class,
    * species, feat and background rules toggles. Falls back to the 5e system setting.
@@ -121,14 +133,82 @@ export default class DDBMuncher extends DDBAppV2 {
     return utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" ? "2024" : "2014";
   }
 
-  constructor() {
+  constructor({ loader = null }: { loader?: DDBMuncherLoader | null } = {}) {
     super();
+    this.loader = loader;
     this.encounterFactory = new DDBEncounterFactory({
       notifier: this.notifier.bind(this),
     });
 
     const URL = utils.getSetting<string>("munching-policy-character-url");
     this.getCharacterId(URL);
+  }
+
+  /**
+   * Open the muncher behind a loading dialog. Runs the cookie and Patreon checks, then the first
+   * render, reporting each step to the dialog; a cancel from the dialog stops the sequence before
+   * the window exists. An already-open muncher is brought to the front instead, and a call made
+   * while one is loading joins that load.
+   * @returns {Promise<DDBMuncher | null>}  The open muncher, or null when the sequence stopped
+   *                                        (cancelled, failed a check, or errored).
+   */
+  static async open(): Promise<DDBMuncher | null> {
+    const existing = foundry.applications.instances.get(DDBMuncher.DEFAULT_OPTIONS.id);
+    if (existing instanceof DDBMuncher && existing.rendered) {
+      existing.bringToFront();
+      return existing;
+    }
+    if (DDBMuncher.#opening) return DDBMuncher.#opening;
+    DDBMuncher.#opening = DDBMuncher.#openWithLoader().finally(() => {
+      DDBMuncher.#opening = null;
+    });
+    return DDBMuncher.#opening;
+  }
+
+  static async #openWithLoader(): Promise<DDBMuncher | null> {
+    const loader = await DDBMuncherLoader.open(DDBMuncher.LOAD_STEPS);
+    try {
+      loader.step("Checking your D&D Beyond cookie...");
+      const cobaltStatus = await Secrets.checkCobalt();
+      loader.checkCancelled();
+      if (!cobaltStatus.success) {
+        new DDBCookie({ callMuncher: true }).render(true);
+        return null;
+      }
+
+      loader.step("Checking your Patreon key...");
+      // opens the key change dialog itself (with callMuncher) when the key is bad
+      const validKey = await PatreonHelper.isValidKey();
+      loader.checkCancelled();
+      if (!validKey) return null;
+
+      const muncher = new DDBMuncher({ loader });
+      // rejects with DDBMuncherLoadCancelled if the user cancels during _prepareContext
+      await muncher.render({ force: true });
+      muncher.loader = null;
+      return muncher;
+    } catch (err) {
+      if (err instanceof DDBMuncherLoadCancelled) {
+        logger.debug("DDB Muncher load cancelled");
+        return null;
+      }
+      logger.error("DDB Muncher failed to open", err);
+      ui.notifications.error("DDB Muncher failed to open, see the console for details.");
+      return null;
+    } finally {
+      // a no-op when Cancel or the window close already removed it
+      await loader.close();
+    }
+  }
+
+  /**
+   * Report a first-render step to the loading dialog, stopping the render if the user cancelled.
+   * @param {string} message  What the next await is waiting on.
+   */
+  #loadStep(message: string): void {
+    if (!this.loader) return;
+    this.loader.checkCancelled();
+    this.loader.step(message);
   }
 
 
@@ -640,7 +720,9 @@ export default class DDBMuncher extends DDBAppV2 {
     let context: IDDBMuncherContext = MuncherSettings.getMuncherSettings() as IDDBMuncherContext;
     context = foundry.utils.mergeObject(context, MuncherSettings.getCharacterImportSettings());
     context = foundry.utils.mergeObject(context, MuncherSettings.getEncounterSettings());
+    this.#loadStep("Loading campaigns and encounters...");
     context = await this._prepareEncounterContext(context);
+    this.#loadStep("Loading class and species lists...");
     context = await this._prepareCharacterContext(context);
 
     if (this.encounter) {
@@ -649,7 +731,9 @@ export default class DDBMuncher extends DDBAppV2 {
         return setting;
       });
     }
+    this.#loadStep("Loading compendium indexes...");
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false }) as unknown as IDDBMuncherContext;
+    this.#loadStep("Building the muncher window...");
     context.searchTermMonster = this.searchTermMonster;
     context.searchTermItem = this.searchTermItem;
     context.searchTermSpell = this.searchTermSpell;

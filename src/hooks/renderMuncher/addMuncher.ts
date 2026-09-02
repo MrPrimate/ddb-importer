@@ -1,6 +1,5 @@
-import DDBCookie from "../../apps/DDBCookie";
 import DDBSetup from "../../apps/DDBSetup";
-import { PatreonHelper, Secrets, utils } from "../../lib/_module";
+import { utils } from "../../lib/_module";
 import DDBMuncher from "../../apps/DDBMuncher";
 
 export function addMuncher(app: any, html: HTMLElement) {
@@ -14,21 +13,17 @@ export function addMuncher(app: any, html: HTMLElement) {
   `;
 
   button.addEventListener("click", async (_event) => {
-    ui.notifications.info("Checking your DDB details - this might take a few seconds!");
-    const setupComplete = DDBSetup.isSetupComplete();
-
-    if (setupComplete) {
-      const cobaltStatus = await Secrets.checkCobalt();
-      if (cobaltStatus.success) {
-        const validKey = await PatreonHelper.isValidKey();
-        if (validKey) {
-          new DDBMuncher().render({ force: true });
-        }
+    // the loader dialog covers the wait; the button stays disabled until the muncher is up (or the
+    // load stops) so a second click cannot start a second load
+    button.disabled = true;
+    try {
+      if (DDBSetup.isSetupComplete()) {
+        await DDBMuncher.open();
       } else {
-        new DDBCookie({ callMuncher: true }).render(true);
+        new DDBSetup({ callMuncher: true }).render({ force: true });
       }
-    } else {
-      new DDBSetup({ callMuncher: true }).render({ force: true });
+    } finally {
+      button.disabled = false;
     }
   });
 
