@@ -483,6 +483,22 @@ export default class DDBSources {
     return book || "Unknown";
   }
 
+  /**
+   * The cover image for a source book, or null when DDB does not have one.
+   *
+   * A book with no cover comes back with the avatar directory and no file on the end
+   * (`https://www.dndbeyond.com/avatars/`, currently about a fifth of the catalog) rather than an
+   * empty string, so a plain truthiness check passes and the page renders a broken image.
+   * @param {{ avatarURL?: string | null } | null} [source]  A DDB source book.
+   */
+  static getSourceCoverURL(source?: { avatarURL?: string | null } | null): string | null {
+    const url = source?.avatarURL?.trim();
+    if (!url) return null;
+    const path = url.split(/[?#]/)[0];
+    const file = path.slice(path.lastIndexOf("/") + 1);
+    return file === "" ? null : url;
+  }
+
   static getBooksInCategories(categoryIds: number[]): IDDBConfigSource[] {
     const books = CONFIG.DDB.sources.filter((book) => categoryIds.includes(book.sourceCategoryId));
     return books;

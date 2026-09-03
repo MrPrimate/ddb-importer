@@ -180,6 +180,9 @@ const noopClass = class {};
     },
   },
   applications: {
+    // the live registry of open windows, keyed by application id, which the apps use to find and
+    // reuse an already-open window rather than rendering a second one into the same id
+    instances: new Map<string, unknown>(),
     api: {
       ApplicationV2: noopClass,
       HandlebarsApplicationMixin: (cls: any) => cls,
@@ -188,6 +191,10 @@ const noopClass = class {};
       DialogV2: class DialogV2 {
         static async wait(_config: any): Promise<any> {
           return undefined;
+        }
+
+        static async confirm(_config: any): Promise<boolean> {
+          return false;
         }
       },
     },

@@ -1,10 +1,6 @@
 import { DeepPartial } from "fvtt-types/utils";
 import { DICTIONARY } from "../config/_module";
-import {
-  logger,
-} from "../lib/_module";
-
-import { DDBReferenceLinker } from "../parser/lib/_module";
+import logger from "../lib/Logger";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -110,7 +106,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   // pointer/keyboard quiet required in the app before a queued render runs, and how often the
   // parked render re-checks for it. A render replaces the part's DOM, so one landing between two
   // clicks hands the user a control rebuilt from a setting their later clicks have moved past.
-  protected settingRenderIdleMs = 600;
+  protected settingRenderIdleMs = 400;
   protected settingRenderPollMs = 100;
   protected lastInteractionAt = 0;
 
@@ -321,7 +317,12 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
 
   override async _prepareContext(options: any): Promise<DDBAppV2Context> {
     const noCacheLoad = options?.noCacheLoad ?? false;
-    if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
+    if (!noCacheLoad) {
+      // Keep the large parser/import graph out of lightweight browser applications that explicitly
+      // skip cache loading. Loading it eagerly creates an apps -> parser -> apps module cycle.
+      const DDBReferenceLinker = await import("../parser/lib/DDBReferenceLinker");
+      await DDBReferenceLinker.importCacheLoad();
+    }
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false }) as DDBAppV2Context;
     context.tabs = this._getTabs() as Record<string, IDDBTab>;
     logger.debug("DDBAppV2: _prepareContext", context);

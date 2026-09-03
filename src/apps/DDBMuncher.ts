@@ -32,6 +32,7 @@ import DDBSourcePruner from "./DDBSourcePruner";
 import DDBMapBrowser from "./DDBMapBrowser";
 import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
+import DDBSourceBookBrowser from "./DDBSourceBookBrowser";
 
 
 interface IDDBMuncherContext extends
@@ -244,6 +245,8 @@ export default class DDBMuncher extends DDBAppV2 {
       openMapBrowser: DDBMuncher.openMapBrowser,
       openStickerBrowser: DDBMuncher.openStickerBrowser,
       openAdventureBrowser: DDBMuncher.openAdventureBrowser,
+      openSourceBookBrowser: DDBMuncher.openSourceBookBrowser,
+      toggleSourceBookView: DDBMuncher.toggleSourceBookView,
       closeDetails: DDBMuncher.closeDetails,
     },
     position: {
@@ -447,7 +450,13 @@ export default class DDBMuncher extends DDBAppV2 {
     // multi-selects
     this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", (event) => {
       const categoryIds = DDBMuncher.getMultiSelectValues(event);
-      this.queueSettingUpdate(async () => DDBSources.updateIncludedCategories(categoryIds), {
+      this.queueSettingUpdate(async () => {
+        await DDBSources.updateIncludedCategories(categoryIds);
+        const sourceBookBrowser = foundry.applications.instances.get(DDBSourceBookBrowser.DEFAULT_OPTIONS.id);
+        if (sourceBookBrowser instanceof DDBSourceBookBrowser && sourceBookBrowser.rendered) {
+          await sourceBookBrowser.render();
+        }
+      }, {
         key: "munching-policy-muncher-included-source-categories",
       });
     });
@@ -1740,6 +1749,29 @@ export default class DDBMuncher extends DDBAppV2 {
     new DDBAdventureBrowser().render({ force: true });
   }
 
+  static async openSourceBookBrowser(this: DDBMuncher, _event: Event, _target: HTMLElement): Promise<void> {
+    await DDBSourceBookBrowser.open({
+      // the muncher is resolved when the write happens rather than captured here: this window may
+      // have been closed and reopened by then, and queueing against the dead instance would leave
+      // the live one showing categories it no longer has
+      queueCategoryUpdate: async (update) => {
+        const muncher = foundry.applications.instances.get(DDBMuncher.DEFAULT_OPTIONS.id);
+        if (!(muncher instanceof DDBMuncher) || !muncher.rendered) return false;
+        // sharing the muncher's queue keeps both windows' writes to this setting in one order
+        await muncher.queueSettingUpdate(update, {
+          key: "munching-policy-muncher-included-source-categories",
+        });
+        return true;
+      },
+    });
+  }
+
+  static async toggleSourceBookView(this: DDBMuncher, _event: Event, _target: HTMLElement): Promise<void> {
+    const showCovers = utils.getSetting<boolean>("muncher-show-source-book-covers");
+    await game.settings.set(SETTINGS.MODULE_ID, "muncher-show-source-book-covers", !showCovers);
+    await this.render();
+  }
+
   static async updateWorldMonsters(this: DDBMuncher, _event: any, _target: any) {
     try {
       logger.info("Updating world monsters!");
@@ -1934,4 +1966,3 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 }
-

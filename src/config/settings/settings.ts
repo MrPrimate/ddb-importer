@@ -1088,6 +1088,11 @@ const SETTINGS = {
             // 2014 core/expanded and 2024 core/expanded only enabled by default
             default: [1, 24, 26, 38],
           },
+          "muncher-show-source-book-covers": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-muncher-monster-types": {
             type: Array,
             default: [] as number[],

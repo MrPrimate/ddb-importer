@@ -1,5 +1,5 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
-import { logger, utils, FileHelper, CompendiumHelper, isGridDetectionEnabled } from "../../lib/_module";
+import { logger, utils, FileHelper, CompendiumHelper, DDBSources, isGridDetectionEnabled } from "../../lib/_module";
 import { generateAdventureConfig } from "../adventure";
 import { SETTINGS } from "../../config/_module";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
@@ -1423,9 +1423,8 @@ export default class AdventureMunch {
     const spellData = await AdventureMunchHelpers.getDocuments("spell", (this.adventure.required.spells ?? []), {}, true) as Item.Implementation[];
 
     const ddbSource = CONFIG.DDB.sources.find((source) => source.description === this.adventure.name);
-    const image = ddbSource?.avatarURL
-      ? ddbSource.avatarURL
-      : await this.importImage("assets/images/cover.jpg");
+    const cover = DDBSources.getSourceCoverURL(ddbSource);
+    const image = cover ?? await this.importImage("assets/images/cover.jpg");
 
     await this._revisitItems();
 

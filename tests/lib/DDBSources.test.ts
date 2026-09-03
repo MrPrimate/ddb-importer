@@ -25,6 +25,34 @@ describe("DDBSources.getSource", () => {
   });
 });
 
+describe("DDBSources.getSourceCoverURL", () => {
+  it("returns the cover for a book that has one", () => {
+    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("PHB")))
+      .toBe("https://www.dndbeyond.com/avatars/10435/389/637248131811862290.jpeg");
+  });
+
+  it("rejects the bare avatar directory DDB sends for a book with no cover", () => {
+    // 52 of the 245 shipped sources look like this, and the URL is truthy enough to render as a
+    // broken image; Critical Role is one of them
+    expect(DDBSources.getSource("CR")?.avatarURL).toBe("https://www.dndbeyond.com/avatars/");
+    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("CR"))).toBeNull();
+  });
+
+  it.each([
+    ["an empty string", ""],
+    ["whitespace", "   "],
+    ["a directory with a query string", "https://www.dndbeyond.com/avatars/?v=2"],
+  ])("returns null for %s", (_label, avatarURL) => {
+    expect(DDBSources.getSourceCoverURL({ avatarURL })).toBeNull();
+  });
+
+  it("returns null for a missing source or a missing avatarURL", () => {
+    expect(DDBSources.getSourceCoverURL(null)).toBeNull();
+    expect(DDBSources.getSourceCoverURL(undefined)).toBeNull();
+    expect(DDBSources.getSourceCoverURL({})).toBeNull();
+  });
+});
+
 describe("DDBSources.getBookName", () => {
   it("returns the description for legacy and 2024 books", () => {
     expect(DDBSources.getBookName("PHB")).toBe("Player’s Handbook (2014)");

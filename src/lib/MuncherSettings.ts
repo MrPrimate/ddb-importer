@@ -824,7 +824,7 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
 
     const includedCategories = MuncherSettings.getIncludedCategoriesLookup();
     const excludedCategories = MuncherSettings.getExcludedCategoriesLookup();
-    const categoryBooks = MuncherSettings.getCategoryBookMapping();
+    const includedCategoryBooks = MuncherSettings.getIncludedCategoryBookMapping();
     const bookSources = MuncherSettings.getSourcesLookups();
 
     const selectedSources = MuncherSettings.getSourcesLookups().map((source) => ({
@@ -899,7 +899,8 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
       monsterTypes,
       includedCategories,
       excludedCategories,
-      categoryBooks,
+      includedCategoryBooks,
+      showSourceBookCovers: utils.getSetting<boolean>("muncher-show-source-book-covers"),
       basicMonsterConfig,
       filterMonsterConfig,
       filterSpellConfig,
@@ -1062,20 +1063,33 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
     });
   },
 
-  getCategoryBookMapping: (): { categoryName: string; books: { name: string; description: string }[] }[] => {
-    const categories = DDBSources.getDisplaySourceCategories();
-    return categories
-      .map((cat) => {
-        const books = DDBSources.getBooksInCategories([cat.id])
+  /**
+   * The released books enabled by the included source categories. This intentionally ignores the
+   * deprecated per-book filter: the summary describes the category selection immediately above it.
+   * An included category with no released books is kept, with an empty book list, so that the
+   * summary always accounts for every category selected above rather than silently dropping one.
+   */
+  getIncludedCategoryBookMapping: (): IMuncherSourceCategoryBooks[] => {
+    const includedCategoryIds = new Set(DDBSources.getIncludedCategoryIds());
+    return DDBSources.getDisplaySourceCategories()
+      .filter((category) => includedCategoryIds.has(category.id))
+      .map((category) => {
+        const books = DDBSources.getBooksInCategories([category.id])
           .filter((book) => book.isReleased)
+          .map((book) => ({
+            id: book.id,
+            code: book.name,
+            name: book.description || book.name,
+            avatarURL: DDBSources.getSourceCoverURL(book),
+          }))
           .sort((a, b) => a.name.localeCompare(b.name));
         return {
-          categoryName: cat.name,
-          books: books.map((b) => ({ name: b.name, description: b.description })),
+          id: category.id,
+          name: category.name,
+          books,
         };
       })
-      .filter((entry) => entry.books.length > 0)
-      .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+      .sort((a, b) => a.name.localeCompare(b.name));
   },
 
   updateMuncherSettings: async (event: Event) => {

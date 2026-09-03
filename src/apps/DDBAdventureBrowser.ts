@@ -361,7 +361,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
               id: b.id,
               name: b.description,
               code: b.name,
-              cover: b.avatarURL || null,
+              cover: DDBSources.getSourceCoverURL(b),
               importing: this.importingId === b.id,
               owned: isOwned,
               notOwned: isOwned === false,

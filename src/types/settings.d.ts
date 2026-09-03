@@ -46,6 +46,19 @@ declare global {
     label: string;
   }
 
+  interface IMuncherSourceBook {
+    id: number;
+    code: string;
+    name: string;
+    avatarURL: string | null;
+  }
+
+  interface IMuncherSourceCategoryBooks {
+    id: number;
+    name: string;
+    books: IMuncherSourceBook[];
+  }
+
   interface IMuncherSettings {
     characterMunch: boolean;
     adventureOptions: ISettingsPolicyExpandedItem[];
@@ -77,7 +90,8 @@ declare global {
     version: string;
     campaignId: string;
     isCampaign: string | boolean;
-    categoryBooks: { categoryName: string; books: { name: string; description: string }[] }[];
+    includedCategoryBooks: IMuncherSourceCategoryBooks[];
+    showSourceBookCovers: boolean;
   }
 
   interface IEncounterSettings {
@@ -328,6 +342,7 @@ declare global {
     "ddb-importer.munching-policy-use-source-filter": boolean;
     "ddb-importer.munching-policy-muncher-sources": any[];
     "ddb-importer.munching-policy-muncher-included-source-categories": any[];
+    "ddb-importer.muncher-show-source-book-covers": boolean;
     "ddb-importer.munching-policy-muncher-monster-types": any[];
     "ddb-importer.munching-policy-maps-included-types": string[];
     "ddb-importer.munching-policy-maps-exclude-dm": boolean;
