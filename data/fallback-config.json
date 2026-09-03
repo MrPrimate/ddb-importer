@@ -3402,6 +3402,16 @@
       "id": 148,
       "name": "Worg",
       "avatarUrl": null
+    },
+    {
+      "id": 149,
+      "name": "Floral Dragonborn",
+      "avatarUrl": "https://www.dndbeyond.com/avatars/58467/502/639229267580623425.jpeg"
+    },
+    {
+      "id": 150,
+      "name": "Duskling",
+      "avatarUrl": null
     }
   ],
   "spellRangeTypes": [
@@ -10432,6 +10442,15 @@
       "sourceURL": "sources/dnd/dmau"
     },
     {
+      "id": 293,
+      "name": "FGFD",
+      "description": "The Field Guide to Floral Dragons",
+      "sourceCategoryId": 47,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58073/476/639210382668485800.jpeg",
+      "sourceURL": "sources/dnd/fgfd"
+    },
+    {
       "id": 294,
       "name": "DDBD-626",
       "description": "D&amp;D Beyond Drops - June 2026",
@@ -10459,6 +10478,33 @@
       "sourceURL": "sources/dnd/foeq"
     },
     {
+      "id": 301,
+      "name": "AU",
+      "description": "Arcana Unleashed",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58590/215/639234955044123715.jpeg",
+      "sourceURL": "sources/dnd/au"
+    },
+    {
+      "id": 302,
+      "name": "AUD",
+      "description": "Arcana Unleashed: Deadfall",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58590/220/639234955418000596.jpeg",
+      "sourceURL": "sources/dnd/aud"
+    },
+    {
+      "id": 303,
+      "name": "AUMP",
+      "description": "Arcana Unleashed Digital Map Pack",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": ""
+    },
+    {
       "id": 304,
       "name": "taro",
       "description": "Tarokka",
@@ -10475,6 +10521,15 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/57412/510/639180190136593932.jpeg",
       "sourceURL": "sources/dnd/tfj"
+    },
+    {
+      "id": 307,
+      "name": "RWG",
+      "description": "Red Wizards’ Gambit",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58590/243/639234956685776363.jpeg",
+      "sourceURL": "sources/dnd/rwg"
     },
     {
       "id": 308,
@@ -10511,6 +10566,24 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/58114/864/639212260187681012.png",
       "sourceURL": "sources/dnd/dppap"
+    },
+    {
+      "id": 315,
+      "name": "LoGDoG",
+      "description": "Legends of Greyhawk: Dreams of the Chained God",
+      "sourceCategoryId": 44,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58412/845/639226504352100151.jpeg",
+      "sourceURL": "sources/dnd/logdog"
+    },
+    {
+      "id": 317,
+      "name": "FrEnc",
+      "description": "Free Encounters",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/frenc"
     }
   ],
   "levelProficiencyBonuses": [
@@ -17495,9 +17568,9 @@
       "id": 47,
       "name": "Floral Dragons",
       "description": "<p>This contains content from&nbsp;<em>The Field Guide to Floral Dragons</em>, by Hit Point Press</p>",
-      "isHideable": false,
-      "isEnabledByDefault": false,
-      "isToggleable": false,
+      "isHideable": true,
+      "isEnabledByDefault": true,
+      "isToggleable": true,
       "avatarUrl": ""
     },
     {
@@ -17513,6 +17586,24 @@
       "id": 49,
       "name": "West Coast Adventurers Guild",
       "description": "<p>This contains content from West Coast Adventurers Guild.</p>",
+      "isHideable": false,
+      "isEnabledByDefault": false,
+      "isToggleable": false,
+      "avatarUrl": ""
+    },
+    {
+      "id": 50,
+      "name": "KibblesTasty",
+      "description": "<p>This contains content from KibblesTasty.</p>",
+      "isHideable": false,
+      "isEnabledByDefault": false,
+      "isToggleable": false,
+      "avatarUrl": ""
+    },
+    {
+      "id": 51,
+      "name": "Blizzard",
+      "description": "<p><span style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-style: normal; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1); display: inline !important; float: none\">Character options from the&nbsp;</span><em style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1)\">World of Warcraft</em><span style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-style: normal; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1); display: inline !important; float: none\">&nbsp;sourcebook.</span></p>",
       "isHideable": false,
       "isEnabledByDefault": false,
       "isToggleable": false,
