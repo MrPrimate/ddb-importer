@@ -112,7 +112,6 @@ export default class CharacterSpellFactory {
   ddb: IDDBData;
   ddbCharacter: DDBCharacter;
   proficiencyModifier: number;
-  healingBoost: number;
   healingReroll: boolean;
   levelSlots: boolean;
   pactSlots: boolean;
@@ -131,9 +130,6 @@ export default class CharacterSpellFactory {
     this.character = ddbCharacter.raw.character;
     this.proficiencyModifier = this.character.flags?.ddbimporter?.dndbeyond?.profBonus ?? 0;
     this.characterAbilities = this.character.flags?.ddbimporter?.dndbeyond?.effectAbilities ?? undefined;
-    this.healingBoost = DDBModifiers
-      .filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" })
-      .reduce((a, b) => a + parseInt(String(b.value)), 0);
     // AC5e applies the Healer reroll at roll time, so only one of the two channels should activate
     // (the Healer enricher's ac5eOnly effect covers the AC5e case).
     this.healingReroll = hasHealingReroll(this.ddb) && !SystemHelpers.effectModules().ac5eInstalled;
@@ -208,7 +204,6 @@ export default class CharacterSpellFactory {
           overrideDC: false,
           id: spell.id ?? undefined,
           entityTypeId: spell.entityTypeId ?? undefined,
-          healingBoost: this.healingBoost,
           usesSpellSlot: spell.usesSpellSlot,
           forceMaterial: classInfo.definition.name === "Artificer",
           homebrew: spell.definition.isHomebrew,
@@ -487,7 +482,6 @@ export default class CharacterSpellFactory {
             overrideDC: false,
             id: spell.id ?? undefined,
             entityTypeId: spell.entityTypeId ?? undefined,
-            healingBoost: this.healingBoost,
             cantripBoost,
             usesSpellSlot: spell.usesSpellSlot,
             forceMaterial: klass?.definition?.name === "Artificer",
@@ -668,7 +662,6 @@ export default class CharacterSpellFactory {
             overrideDC: false,
             id: spell.id ?? undefined,
             entityTypeId: spell.entityTypeId ?? undefined,
-            healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
             alwaysPrepared: spell.alwaysPrepared,
@@ -740,7 +733,6 @@ export default class CharacterSpellFactory {
             overrideDC: false,
             id: spell.id ?? undefined,
             entityTypeId: spell.entityTypeId ?? undefined,
-            healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
             alwaysPrepared: spell.alwaysPrepared,
@@ -801,7 +793,6 @@ export default class CharacterSpellFactory {
             overrideDC: false,
             id: spell.id ?? undefined,
             entityTypeId: spell.entityTypeId ?? undefined,
-            healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
             alwaysPrepared: spell.alwaysPrepared,

@@ -265,6 +265,7 @@ global {
 
   interface I5eSystemDurationData {
     concentration?: boolean;
+    expiry?: T5eEffectExpiry | null;
     special?: string;
     units?: TDurationUnit;
     value?: string | null;
@@ -551,8 +552,6 @@ global {
     id?: number;
     /** DDB entity type ID */
     entityTypeId?: number;
-    /** Healing bonus modifier */
-    healingBoost?: number;
     /** Whether the spell uses a spell slot */
     usesSpellSlot?: boolean;
     /** Whether material components are forced (e.g. Artificer) */

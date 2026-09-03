@@ -37,7 +37,6 @@ interface IDDBSpell {
   enricher?: DDBSpellEnricher | null;
   generateSummons?: boolean | null;
   notifier?: NotifierV1 | null;
-  healingBoost?: number | string | null;
   cantripBoost?: boolean | null;
   unPreparedCantrip?: boolean | null;
   noSpellcasting?: boolean;
@@ -113,7 +112,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   isCantrip: boolean;
   unPreparedCantrip: boolean;
   cantripBoost: boolean;
-  healingBonus: string;
   noSpellcasting: boolean;
   spellData: IDDBSpellEntry;
   declare ddbDefinition: IDDBSpellDefinition;
@@ -220,7 +218,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
-    generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
+    generateSummons = null, notifier = null, cantripBoost = null, unPreparedCantrip = null,
     noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
     addSpellEffects = null, legacyPostfix = null, pactSpellsPrepared = null,
   }: IDDBSpell) {
@@ -301,9 +299,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.unPreparedCantrip = this.isCantrip && (unPreparedCantrip ?? false);
     const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost")as boolean;
     this.cantripBoost = this.isCantrip && boost;
-
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.healingBoost") as string;
-    this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
     this.noSpellcasting = noSpellcasting;
 
     this.classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
@@ -758,7 +753,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const activityParser = new DDBSpellActivity({
       type: "heal",
       ddbParent: this,
-      healingBoost: this.healingBonus,
       cantripBoost: this.cantripBoost,
     });
 
@@ -782,9 +776,11 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         : heal.die?.fixedValue
           ? heal.die.fixedValue
           : "";
+      // healing bonuses from features (Disciple of Life) are not baked in here: they are
+      // native healing rule changes on the granting feature's effect (EffectGenerator)
       const diceString = heal.usePrimaryStat
-        ? `${healValue} + @mod${this.healingBonus}`
-        : `${healValue}${this.healingBonus}`;
+        ? `${healValue} + @mod`
+        : `${healValue}`;
       if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
         const damage = activityParser.buildDamagePart({
           damageString: diceString,

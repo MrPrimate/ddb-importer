@@ -12,7 +12,6 @@ interface IDDBSpellActivity {
   nameIdPostfix?: string | null;
   spellEffects?: boolean | null;
   cantripBoost?: boolean | null;
-  healingBoost?: string | null;
   id?: string | null;
 }
 
@@ -23,7 +22,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   damageRestrictionHints: boolean;
   isCantrip: boolean;
   cantripBoost: boolean;
-  healingBonus: string;
   additionalActivityDamageParts: I5eDamagePart[];
   declare ddbParent: DDBSpell;
 
@@ -33,7 +31,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   constructor({
     type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
-    cantripBoost = null, healingBoost = null, id = null,
+    cantripBoost = null, id = null,
   }: IDDBSpellActivity) {
 
     super({
@@ -58,9 +56,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
     const boost = cantripBoost ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.dndbeyond.cantripBoost") as boolean;
     this.cantripBoost = this.isCantrip && boost;
-
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.dndbeyond.healingBoost") as string;
-    this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
 
     this.additionalActivityDamageParts = [];
   }

@@ -6,6 +6,10 @@ export default class DiscipleOfLife extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
+  // The bonus itself is automated natively: the feature's transfer effect carries a
+  // healing rule of "2 + @item.level" gated on levelled spells (EffectGenerator
+  // _addSpellAttackBonuses). This heal activity is a manual claim for tables that
+  // disable that effect; using both double-counts the bonus.
   override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
@@ -22,27 +26,6 @@ export default class DiscipleOfLife extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     };
-  }
-
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        // AC5e automates the bonus on healing spells; the heal activity above
-        // remains as the manual claim for users without the module
-        name: "Disciple of Life",
-        ac5eOnly: true,
-        options: {
-          transfer: true,
-        },
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=2 + castingLevel; isHeal && isSpell && defaultDamageType.healing",
-            20,
-            "flags.automated-conditions-5e.damage.bonus",
-          ),
-        ],
-      },
-    ];
   }
 
 }

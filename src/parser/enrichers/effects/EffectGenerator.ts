@@ -511,14 +511,19 @@ export default class EffectGenerator {
     }
 
     this._addAddBonusChanges(this.grantedModifiers, "spell-save-dc", "system.bonuses.spell.dc");
-    // Disciple of Life's "+ spell level" is omitted: rule values are injected into
-    // the heal roll as one @ruleBonus part and a nested @item.level does not
-    // resolve. Restore "+ @item.level" once dnd5e PR #7354 is merged.
+    // "Spell Group - Healing" is Disciple of Life's "2 + the spell's level". The rule value
+    // rides into the heal roll as the @ruleBonus part; dnd5e resolves nested references in it
+    // (recursive formula replacement, dnd5e #7354), so @item.level reads the CAST level (base
+    // plus upcast, SpellData#getRollData). The levelled-spell gate is RAW ("a spell of 1st level
+    // or higher") and also keeps @item.level off potions and features, whose roll data has no
+    // item.level to substitute.
     const healingBonus = DDBModifiers
       .filterModifiersOld(this.grantedModifiers, "bonus", "spell-group-healing")
       .reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (healingBonus !== 0) {
-      this.effect.system.changes.push(ChangeHelper.healingBonusChange(`${healingBonus}`, 18));
+      this.effect.system.changes.push(
+        ChangeHelper.healingBonusChange(`${healingBonus} + @item.level`, 18, ChangeHelper.LEVELLED_SPELL_FILTER),
+      );
     }
   }
 
