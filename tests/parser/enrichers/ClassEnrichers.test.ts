@@ -222,30 +222,16 @@ describe("cleric ChannelDivinity", () => {
 });
 
 /**
- * The AC5e half of Potent Spellcasting. isCantripBoost in CharacterSpellFactory drops the baked-in
- * `+ @mod` when AC5e is installed, so if these effects stop being produced the bonus vanishes
- * silently. The audit harness cannot see them: ac5eOnly hints are filtered out unless the module
- * is active.
+ * Potent Spellcasting's bonus is a native damage rule generated from the DDB modifier
+ * (EffectGenerator._addCantripDamageBonus, pinned in EffectGenerator.cantripDamage.test.ts); the
+ * enrichers must not add a second channel for it.
  */
 describe("cleric and druid PotentSpellcasting", () => {
   it.each([
-    ["Cleric", "cleric"],
-    ["Druid", "druid"],
-  ])("gives %s an AC5e only cantrip damage bonus keyed to its own class", (klass, identifier) => {
-    const Enricher = klass === "Cleric"
-      ? ClassEnrichers.Cleric.BlessedStrikesPotentSpellcasting
-      : ClassEnrichers.Druid.ElementalFuryPotentSpellcasting;
-    const e = build(Enricher);
-    expect(e.effects).toHaveLength(1);
-    expect(e.effects[0]).toMatchObject({ name: "Potent Spellcasting (Automation)", ac5eOnly: true });
-    expect(e.effects[0].options.transfer).toBe(true);
-    expect(e.effects[0].ac5eChanges).toEqual([{
-      key: "flags.automated-conditions-5e.damage.bonus",
-      value: `bonus=rollingActor.abilities.wis.mod; item.classIdentifier === '${identifier}' && isCantrip;`,
-      type: "ac5e",
-      priority: 2,
-      phase: "initial",
-    }]);
+    ["Cleric", ClassEnrichers.Cleric.BlessedStrikesPotentSpellcasting],
+    ["Druid", ClassEnrichers.Druid.ElementalFuryPotentSpellcasting],
+  ])("declares no effect hint for %s (the bonus is the generated damage rule)", (_klass, Enricher) => {
+    expect(build(Enricher).effects ?? []).toEqual([]);
   });
 
   it("routes the bare 2014 and homebrew feature name to the cleric enricher", async () => {
@@ -259,10 +245,11 @@ describe("cleric and druid PotentSpellcasting", () => {
     expect(ClassEnrichers.Cleric[Utils.pascalCase(hint) as keyof typeof ClassEnrichers.Cleric]).toBeDefined();
   });
 
-  it("carries no activity on the cleric, and keeps the manual damage one on the druid", () => {
+  it("carries no activity on the cleric, and keeps the manual damage claim on the druid", () => {
     expect(build(ClassEnrichers.Cleric.BlessedStrikesPotentSpellcasting).type).toBe("none");
     const druid = build(ClassEnrichers.Druid.ElementalFuryPotentSpellcasting);
     expect(druid.type).toBe("damage");
+    expect(druid.activity.data.damage.parts[0].custom.formula).toBe("@abilities.wis.mod");
     expect(druid.activity.data.damage.parts[0].types).toEqual(["cold", "fire", "lightning", "thunder"]);
   });
 });

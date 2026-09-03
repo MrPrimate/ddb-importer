@@ -235,6 +235,20 @@ export default class ChangeHelper {
     return { k: "item.level", o: "gte", v: 1 };
   }
 
+  /** Matches a cantrip: only spells carry `item.level`, and a cantrip reports exactly 0. */
+  static get CANTRIP_FILTER(): IEffectChangeFilter {
+    return { k: "item.level", o: "exact", v: 0 };
+  }
+
+  /**
+   * Matches a spell granted by the class with this dnd5e identifier. dnd5e derives
+   * `item.classIdentifier` from the spell's `system.sourceItem` (`class:cleric`), so a wizard cantrip
+   * on a cleric/wizard does not match a cleric-only bonus.
+   */
+  static classSpellFilter(identifier: string): IEffectChangeFilter {
+    return { k: "item.classIdentifier", o: "exact", v: identifier };
+  }
+
   /**
    * Matches an unarmed strike. "natural" is our own classification value - DDB's attackSubtype 2
    * (claws, bites, talons, horns) maps to the natural WEAPON type and the activity builder reuses

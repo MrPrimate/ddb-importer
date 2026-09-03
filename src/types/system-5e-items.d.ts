@@ -314,7 +314,8 @@ global {
     source: I5eSourceInfo;
     target: I5eSystemTargetData;
     uses: I5eSystemLimitedUses;
-    sourceClass?: string;
+    /** dnd5e 6.0 `class:<identifier>` of the class that granted the spell; drives `item.classIdentifier` in roll data. */
+    sourceItem?: string;
   }
 
   interface I5eSpellItem extends I5eSystemBaseDocumentData {
@@ -544,8 +545,6 @@ global {
     mod?: number;
     /** Spell save DC */
     dc?: number | null;
-    /** Whether the cantrip damage is boosted */
-    cantripBoost?: boolean;
     /** Whether to override the default DC calculation */
     overrideDC?: boolean;
     /** DDB spell ID */

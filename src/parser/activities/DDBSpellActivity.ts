@@ -11,7 +11,6 @@ interface IDDBSpellActivity {
   nameIdPrefix?: string | null;
   nameIdPostfix?: string | null;
   spellEffects?: boolean | null;
-  cantripBoost?: boolean | null;
   id?: string | null;
 }
 
@@ -21,7 +20,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   spellEffects: boolean;
   damageRestrictionHints: boolean;
   isCantrip: boolean;
-  cantripBoost: boolean;
   additionalActivityDamageParts: I5eDamagePart[];
   declare ddbParent: DDBSpell;
 
@@ -31,7 +29,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   constructor({
     type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
-    cantripBoost = null, id = null,
+    id = null,
   }: IDDBSpellActivity) {
 
     super({
@@ -51,11 +49,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.damageRestrictionHints = utils.getSetting<boolean>("add-damage-restrictions-to-hints") && !this.spellEffects;
 
     this.isCantrip = this.ddbDefinition.level === 0;
-    if (this.isCantrip && cantripBoost === null) {
-      cantripBoost = foundry.utils.getProperty(this, "ddbParent.cantripBoost") as boolean ?? false;
-    }
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.dndbeyond.cantripBoost") as boolean;
-    this.cantripBoost = this.isCantrip && boost;
 
     this.additionalActivityDamageParts = [];
   }
@@ -414,7 +407,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         if (!this.damageRestrictionHints && restrictionText !== "") {
           chatFlavor.push(`Restriction: ${restrictionText}`);
         }
-        const addMod = damageMod.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
+        // class cantrip damage bonuses (Potent Spellcasting) are now native damage rules on the granting feature's effect
+        const addMod = damageMod.usePrimaryStat ? " + @mod" : "";
         // parseDiceString stringifies its input, so a missing die keeps the historic "null" handling below
         const diceString = utils.parseDiceString(String(damageMod.die?.diceString ?? null), addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
@@ -428,10 +422,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       });
 
       // This is probably just for Toll the dead.
-      const alternativeFormula = this.#getAlternativeFormula();
-      versatile = this.cantripBoost && alternativeFormula && alternativeFormula != ""
-        ? `${alternativeFormula} + @mod`
-        : alternativeFormula;
+      versatile = this.#getAlternativeFormula();
     }
 
     this.data.description ??= { chatFlavor: "" };

@@ -122,6 +122,13 @@ export const EXCLUDED_EFFECT_MODIFIERS: Record<string, IExcludedEffectModifier[]
     { type: "bonus", subType: "ranged-weapon-attacks" },
     // feature-only attack rule gated on the rolled classification, EffectGenerator._addUnarmedAttackBonus
     { type: "bonus", subType: "unarmed-attacks" },
+    // feature-only damage rule gated on a cantrip of the class (Potent Spellcasting),
+    // EffectGenerator._addCantripDamageBonus; the list is exact-match, so each class DDB emits is named
+    { type: "bonus", subType: "cleric-cantrip-damage" },
+    { type: "bonus", subType: "druid-cantrip-damage" },
+    { type: "bonus", subType: "artificer-cantrip-damage" },
+    { type: "bonus", subType: "wizard-cantrip-damage" },
+    { type: "bonus", subType: "warlock-cantrip-damage" },
     { type: "damage", subType: null },
 
     // spell modifiers

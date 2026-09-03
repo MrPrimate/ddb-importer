@@ -1,6 +1,4 @@
-// Mock the barrel/circular-dependency chains the same way ChangeHelper.test does:
-// MidiOverTimeEffect imports DDBEffectHelper directly (circular via effects/_module).
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 
 import MidiOverTimeEffect from "../../../../src/parser/enrichers/effects/MidiOverTimeEffect";
 

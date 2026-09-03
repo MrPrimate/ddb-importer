@@ -70,7 +70,6 @@ global {
       ddbMonster?: DDBMonster | null;
       // DDBSpell fields read by spell enrichers
       lookupName?: string;
-      cantripBoost?: boolean;
       itemCompendium?: CompendiumCollection.Any;
     };
 

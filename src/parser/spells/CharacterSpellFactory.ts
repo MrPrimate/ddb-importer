@@ -7,7 +7,7 @@ import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbil
 import DDBSpell from "./DDBSpell";
 import SpellDataUtils, { IDDBSpellLookup } from "./SpellDataUtils";
 import { DICTIONARY } from "../../config/_module";
-import { DDBDataUtils, DDBModifiers } from "../lib/_module";
+import { DDBDataUtils } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
 
 const SPELLIST_ADDITION_MATCHES = [
@@ -37,14 +37,6 @@ interface ISpellCompendiumIndexEntry {
   };
 }
 
-// Classes whose cantrip-damage bonus is applied by AC5e via a transfer effect on the feature
-// itself (see the Cleric and Druid PotentSpellcasting enrichers), so it must not also be baked
-// into the spell's damage formula.
-const AC5E_HANDLED_CANTRIP_BOOSTS: Record<string, string[]> = {
-  Cleric: ["Potent Spellcasting"],
-  Druid: ["Potent Spellcasting"],
-};
-
 /**
  * The 2024 Healer feat rerolls 1s on any die rolled to restore hit points, "with a spell or with
  * Battle Medic". dnd5e 6 has no rule-change type that can add a die modifier at roll time (only
@@ -56,32 +48,6 @@ export function hasHealingReroll(ddb: IDDBData): boolean {
     feat.definition?.name === "Healer"
     && (feat.definition.sources ?? []).some((source) => DDBSources.is2024Source(source)),
   );
-}
-
-export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
-  const cantripBoosts
-    = DDBModifiers.getChosenClassModifiers(ddb).filter(
-      (mod) =>
-        mod.type === "bonus"
-        && mod.subType === `${klassName?.toLowerCase()}-cantrip-damage`
-        && (mod.restriction === null || mod.restriction === ""),
-    );
-
-  if (cantripBoosts.length === 0) return false;
-
-  // Every boost has to come from an AC5e handled feature before we can drop the bake-in;
-  // any other source of cantrip damage still needs it.
-  const ac5eFeatures = AC5E_HANDLED_CANTRIP_BOOSTS[klassName] ?? [];
-  if (ac5eFeatures.length > 0
-    && SystemHelpers.effectModules().ac5eInstalled
-    && cantripBoosts.every((mod) =>
-      ac5eFeatures.some((featureName) => DDBDataUtils.isModifierFromNamedFeature(ddb, mod, featureName)),
-    )
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 export default class CharacterSpellFactory {
@@ -152,6 +118,16 @@ export default class CharacterSpellFactory {
     return utils.calculateModifier(abilityValue);
   }
 
+  /**
+   * dnd5e 6 `system.sourceItem` (`type:identifier`) for a spell granted by a feature document the
+   * importer builds: species traits and feats are `feat` items and backgrounds `background` items,
+   * each carrying the identifier DDBFeatureMixin stamps from its DDB name. dnd5e resolves it through
+   * `Actor#identifiedItems` for the sheet's source subtitle and `SpellData#classIdentifier`.
+   */
+  static featureSourceItem(documentType: "feat" | "background", name: string): string {
+    return `${documentType}:${utils.referenceNameString(name.toLowerCase())}`;
+  }
+
   static getDDBSpellLookup(ddb: IDDBData, type: string, id: number | null): IDDBSpellLookup | undefined {
     return SpellDataUtils.getDDBSpellLookup(ddb, type, id);
   }
@@ -174,7 +150,6 @@ export default class CharacterSpellFactory {
     spell,
     spellCastingAbility,
     abilityModifier,
-    cantripBoost,
     unPreparedCantrip = null,
   }: {
     classInfo: IDDBClass;
@@ -183,7 +158,6 @@ export default class CharacterSpellFactory {
     spell: IDDBSpellEntry;
     spellCastingAbility: string;
     abilityModifier: number;
-    cantripBoost: boolean;
     unPreparedCantrip?: boolean | null;
   }) {
     // add some data for the parsing of the spells into the data structure
@@ -200,7 +174,6 @@ export default class CharacterSpellFactory {
           ability: spellCastingAbility,
           mod: abilityModifier,
           dc: 8 + this.proficiencyModifier + abilityModifier,
-          cantripBoost,
           overrideDC: false,
           id: spell.id ?? undefined,
           entityTypeId: spell.entityTypeId ?? undefined,
@@ -232,7 +205,7 @@ export default class CharacterSpellFactory {
       unPreparedCantrip,
       flagData,
     });
-    foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(classInfo.definition.name));
+    foundry.utils.setProperty(parsedSpell, "system.sourceItem", `class:${DDBDataUtils.classIdentifierName(classInfo.definition.name)}`);
     const duplicateSpell = this._generated.class.findIndex(
       (existingSpell) => {
         const existingName = (existingSpell.flags.ddbimporter?.originalName ?? existingSpell.name);
@@ -303,8 +276,6 @@ export default class CharacterSpellFactory {
       }
       logger.debug("Spell parsing, class info", classInfo);
 
-      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
-
       const rawSpells = [
         ...playerClass.spells,
         ...(playerClass.alwaysPreparedSpells ?? []),
@@ -338,7 +309,6 @@ export default class CharacterSpellFactory {
           spell,
           spellCastingAbility,
           abilityModifier,
-          cantripBoost,
         });
       }
     }
@@ -367,8 +337,6 @@ export default class CharacterSpellFactory {
         });
       }
       logger.debug("Spell parsing, class info", classInfo);
-
-      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
 
       const allCantrips = (playerClass.cantrips ?? []).map((cantrip) => {
         cantrip.unPreparedCantrip = true;
@@ -400,7 +368,6 @@ export default class CharacterSpellFactory {
           spell,
           spellCastingAbility,
           abilityModifier,
-          cantripBoost,
           unPreparedCantrip: spell.unPreparedCantrip ?? null,
         });
       }
@@ -465,7 +432,6 @@ export default class CharacterSpellFactory {
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
       const klassName = klass?.definition?.name;
-      const cantripBoost = isCantripBoost(this.ddb, klassName ?? "");
 
       // add some data for the parsing of the spells into the data structure
       const flagData: IParseSpellFlagData = {
@@ -482,7 +448,6 @@ export default class CharacterSpellFactory {
             overrideDC: false,
             id: spell.id ?? undefined,
             entityTypeId: spell.entityTypeId ?? undefined,
-            cantripBoost,
             usesSpellSlot: spell.usesSpellSlot,
             forceMaterial: klass?.definition?.name === "Artificer",
             homebrew: spell.definition.isHomebrew,
@@ -512,7 +477,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
           flagData,
         });
-        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class));
+        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceItem", `class:${DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class)}`);
         this._granted.class.push(parsedSpell);
 
         // check for class granted spells here
@@ -536,7 +501,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
         });
         if (flagData.ddbimporter.dndbeyond.class)
-          foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class));
+          foundry.utils.setProperty(parsedSpell, "system.sourceItem", `class:${DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class)}`);
         this._generated.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
@@ -682,6 +647,10 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      // the granting racial trait is imported as a feat item; the fallback lookup names no document
+      if (raceInfo.data) {
+        foundry.utils.setProperty(parsedSpell, "system.sourceItem", CharacterSpellFactory.featureSourceItem("feat", raceInfo.name));
+      }
       // this._generated.race.push(parsedSpell);
       this._granted.race.push(parsedSpell);
     }
@@ -758,6 +727,9 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      if (featInfo.data) {
+        foundry.utils.setProperty(parsedSpell, "system.sourceItem", CharacterSpellFactory.featureSourceItem("feat", featInfo.name));
+      }
       // if (spell.definition.level === 0) {
       //   this._generated.feat.push(parsedSpell);
       // } else {
@@ -812,6 +784,11 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      const background = this.ddb.character.background;
+      const backgroundName = background?.definition?.name ?? background?.customBackground?.name;
+      if (backgroundName) {
+        foundry.utils.setProperty(parsedSpell, "system.sourceItem", CharacterSpellFactory.featureSourceItem("background", backgroundName));
+      }
       this._generated.background.push(parsedSpell);
     }
   }

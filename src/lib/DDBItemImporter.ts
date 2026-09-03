@@ -284,6 +284,9 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     if ("equipped" in itemData.system && "equipped" in replaceData.system) replaceData.system.equipped = itemData.system.equipped;
     if ("method" in itemData.system && "method" in replaceData.system) replaceData.system.method = itemData.system.method;
     if ("prepared" in itemData.system && "prepared" in replaceData.system) replaceData.system.prepared = itemData.system.prepared;
+    if (itemData.type === "spell" && "sourceItem" in itemData.system) {
+      foundry.utils.setProperty(replaceData, "system.sourceItem", itemData.system.sourceItem);
+    }
     if ("proficient" in itemData.system && "proficient" in replaceData.system) replaceData.system.proficient = itemData.system.proficient;
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;

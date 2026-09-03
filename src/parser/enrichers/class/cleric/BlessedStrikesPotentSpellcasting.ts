@@ -1,27 +1,14 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * The Wisdom bonus to cleric cantrip damage is a native damage rule on this feature's transfer
+ * effect, generated from the DDB modifier (EffectGenerator._addCantripDamageBonus), so the
+ * enricher only has to keep the feature passive.
+ */
 export default class BlessedStrikesPotentSpellcasting extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return "none";
   }
 
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Potent Spellcasting (Automation)",
-        ac5eOnly: true,
-        options: {
-          transfer: true,
-        },
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=rollingActor.abilities.wis.mod; item.classIdentifier === 'cleric' && isCantrip;",
-            2,
-            "flags.automated-conditions-5e.damage.bonus",
-          ),
-        ],
-      },
-    ];
-  }
 }

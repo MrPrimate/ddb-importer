@@ -37,7 +37,6 @@ interface IDDBSpell {
   enricher?: DDBSpellEnricher | null;
   generateSummons?: boolean | null;
   notifier?: NotifierV1 | null;
-  cantripBoost?: boolean | null;
   unPreparedCantrip?: boolean | null;
   noSpellcasting?: boolean;
   is2014Class?: boolean | null;
@@ -111,7 +110,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   DDBCompanionFactory: DDBCompanionFactory | null;
   isCantrip: boolean;
   unPreparedCantrip: boolean;
-  cantripBoost: boolean;
   noSpellcasting: boolean;
   spellData: IDDBSpellEntry;
   declare ddbDefinition: IDDBSpellDefinition;
@@ -218,7 +216,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
-    generateSummons = null, notifier = null, cantripBoost = null, unPreparedCantrip = null,
+    generateSummons = null, notifier = null, unPreparedCantrip = null,
     noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
     addSpellEffects = null, legacyPostfix = null, pactSpellsPrepared = null,
   }: IDDBSpell) {
@@ -297,8 +295,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
     this.isCantrip = this.ddbDefinition.level === 0;
     this.unPreparedCantrip = this.isCantrip && (unPreparedCantrip ?? false);
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost")as boolean;
-    this.cantripBoost = this.isCantrip && boost;
     this.noSpellcasting = noSpellcasting;
 
     this.classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
@@ -753,7 +749,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const activityParser = new DDBSpellActivity({
       type: "heal",
       ddbParent: this,
-      cantripBoost: this.cantripBoost,
     });
 
     const heals = this.ddbDefinition.modifiers.filter((mod) =>
@@ -1065,7 +1060,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
-      this.data.system.sourceClass = DDBDataUtils.classIdentifierName(this.spellClass);
+      this.data.system.sourceItem = `class:${DDBDataUtils.classIdentifierName(this.spellClass)}`;
     }
     this._generateProperties();
     this._generateMaterials();

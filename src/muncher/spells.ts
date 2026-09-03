@@ -300,6 +300,9 @@ export async function parseSpells({
     .filter((spell) => spell?.name)
     .map((spell) => {
       spell.name = utils.nameString(spell.name);
+      // compendium spells belong to no class: sourceItem (the granting class, which drives dnd5e's
+      // item.classIdentifier) is stamped on a character's own copy at import
+      foundry.utils.setProperty(spell, "system.sourceItem", "");
       return spell;
     });
 

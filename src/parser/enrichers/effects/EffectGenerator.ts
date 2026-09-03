@@ -770,6 +770,7 @@ export default class EffectGenerator {
       "system.rolls.attack.rwak.bonus",
     );
     this._addUnarmedAttackBonus();
+    this._addCantripDamageBonus();
   }
 
   /**
@@ -795,6 +796,35 @@ export default class EffectGenerator {
       priority: 20,
       conditions: ChangeHelper.UNARMED_FILTER,
     }));
+  }
+
+  /**
+   * `bonus/<class>-cantrip-damage` carrying a stat is Potent Spellcasting ("add your Wisdom modifier to
+   * the damage you deal with any cleric cantrip"): a `damage:bonus` rule of that ability modifier, gated
+   * on a cantrip granted by that class.
+   *
+   * The rules iterator applies a rule once per roll and every  cleric and druid cantrip is a single roll, so per roll is per cast.
+   *
+   * Features only, unrestricted modifiers only (the 2024 temp-HP rider is restricted and stays with its enricher)
+   *
+   * A feature whose rules text is not per-roll (artificer Fine Tuning: "one damage roll of the spell") opts out with
+   * `clearAutoEffects` in an enricher and keeps its own automation.
+   */
+  _addCantripDamageBonus() {
+    if (!EffectGenerator.FEATURE_TYPES.includes(this.type)) return;
+    for (const modifier of this.grantedModifiers) {
+      if (modifier.type !== "bonus") continue;
+      const match = (/^([a-z-]+)-cantrip-damage$/).exec(modifier.subType ?? "");
+      if (!match) continue;
+      if (modifier.restriction && modifier.restriction !== "") continue;
+      const ability = DICTIONARY.actor.abilities.find((a) => a.id === modifier.statId)?.value;
+      if (!ability) continue;
+      logger.debug(`Generating ${match[1]} cantrip damage rule for ${this.document.name}`, ability);
+      this.effect.system.changes.push(ChangeHelper.ruleBonusChange("damage", `@abilities.${ability}.mod`, {
+        priority: 20,
+        conditions: [ChangeHelper.CANTRIP_FILTER, ChangeHelper.classSpellFilter(match[1])],
+      }));
+    }
   }
 
   _damageBonusFormula(modifiers: IModifiersMod[]): string | null {
