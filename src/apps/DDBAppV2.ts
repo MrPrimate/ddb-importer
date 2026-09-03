@@ -19,6 +19,16 @@ type TDDBAppV2BaseClass = typeof ApplicationV2 & TApplicationV2Brand;
 const DDBAppV2Base: foundry.applications.api.HandlebarsApplicationMixin.Mix<TDDBAppV2BaseClass>
   = HandlebarsApplicationMixin(ApplicationV2 as TDDBAppV2BaseClass);
 
+// Foundry's <multi-select> keeps its selection in `_value` and repaints its tags in `_refresh`;
+// neither is part of the public element typing
+type TMultiSelectInternals = HTMLElement & { _value: Set<string>; _refresh: () => void };
+
+// the part state Foundry threads from _preSyncPartState to _syncPartState, plus the control values
+// carried across a replacement here
+type TDDBPartState = foundry.applications.api.HandlebarsApplicationMixin.PartState & {
+  ddbControlValues?: Record<string, string[]>;
+};
+
 // tab contexts here are deep nested partials, wider than the base Tab record
 export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
 
@@ -32,6 +42,15 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     secondary: ".munching-progress-secondary",
     overall: ".munching-progress-overall",
   };
+
+  // every status row in handlebars/muncher/details.hbs
+  static DETAIL_MESSAGE_IDS: string[] = [
+    "munching-task-name",
+    "munching-task-monster",
+    "munching-task-notes",
+    "munching-task-import",
+    "munching-task-overall",
+  ];
 
   notifier: NotifierV1;
 
@@ -79,17 +98,28 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   /* -------------------------------------------- */
 
   protected settingUpdateChain: Promise<void> = Promise.resolve();
+
   protected pendingSettingUpdates = 0;
+
   // the most recently queued write per key, so superseded writes can be skipped
   protected latestSettingUpdates = new Map<string, symbol>();
+
   // the render scheduled behind the queue
   protected settingRenderPromise: Promise<void> | null = null;
-  // releases the waiters parked in awaitControlIdle when the app closes
-  protected settingIdleWaiters = new Set<() => void>();
+
+  // pointer/keyboard quiet required in the app before a queued render runs, and how often the
+  // parked render re-checks for it. A render replaces the part's DOM, so one landing between two
+  // clicks hands the user a control rebuilt from a setting their later clicks have moved past.
+  protected settingRenderIdleMs = 600;
+  protected settingRenderPollMs = 100;
+  protected lastInteractionAt = 0;
+
+  // the root the interaction listeners are attached to, replaced when the app is reopened
+  protected interactionElement: HTMLElement | null = null;
 
   /**
    * Serialise an async setting write triggered by a UI control, re-rendering once the queue has
-   * drained and the user has finished with whatever control they are using.
+   * drained and the user has finished interacting.
    *
    * Tag removals on a `<multi-select>` fire their change events far faster than a settings write
    * plus a re-render round trip.
@@ -126,7 +156,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
    * Resolve once every setting write queued so far has been applied. A munch button read its
    * settings at click time, so a category change made a moment earlier could still be in flight and
    * the import would run against the previous value. Waits for the writes only, never for the
-   * follow-up render, which may be parked on user focus indefinitely.
+   * follow-up render, which may be parked on the user indefinitely.
    */
   protected async awaitSettingUpdates(): Promise<void> {
     await this.settingUpdateChain;
@@ -144,36 +174,43 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     return !!active.closest("multi-select, string-tags, select, input, textarea");
   }
 
-  /** Resolve once no control inside the app holds focus, or the app closes. */
-  protected async awaitControlIdle(): Promise<void> {
-    if (!this.isUserEditingControl()) return;
-    const root = this.element;
-    return new Promise<void>((resolve) => {
-      const release = () => {
-        root.removeEventListener("focusout", onFocusOut, true);
-        this.settingIdleWaiters.delete(release);
-        resolve();
-      };
-      // activeElement only settles after the event, and focus may move to another control here
-      const onFocusOut = () => setTimeout(() => {
-        if (!this.isUserEditingControl()) release();
-      }, 0);
-      this.settingIdleWaiters.add(release);
-      root.addEventListener("focusout", onFocusOut, true);
-    });
+  /**
+   * Note that the user just did something in this app. Clicking a `<multi-select>` tag focuses
+   * nothing - the tag is a plain div - so focus alone cannot tell a burst of removals from a user
+   * who has finished; the timestamp can.
+   */
+  protected trackInteractions(): void {
+    if (this.interactionElement === this.element) return;
+    this.interactionElement = this.element;
+    const mark = () => {
+      this.lastInteractionAt = Date.now();
+    };
+    for (const type of ["pointerdown", "pointerup", "keydown", "change"]) {
+      this.element.addEventListener(type, mark, { capture: true });
+    }
+  }
+
+  /** May a render queued behind a setting write run now, without disrupting the user? */
+  protected canRunQueuedRender(): boolean {
+    if (this.pendingSettingUpdates > 0) return false;
+    if (this.isUserEditingControl()) return false;
+    return (Date.now() - this.lastInteractionAt) >= this.settingRenderIdleMs;
   }
 
   /**
-   * Render once the queue has drained and the user is not mid-interaction. Kept off the update
-   * chain so that waiting on the user cannot hold up the writes their next clicks queue.
+   * Render once the queue has drained and the user has paused. Kept off the update chain so that
+   * waiting on the user cannot hold up the writes their next clicks queue, and polled rather than
+   * event driven because the wait ends on the absence of input rather than on any one event.
    */
   protected scheduleSettingRender(): Promise<void> {
     if (this.settingRenderPromise) return this.settingRenderPromise;
     const scheduled = (async () => {
       try {
-        await this.awaitControlIdle();
-        // further writes arrived while we waited; their own drain schedules the render
-        if (this.pendingSettingUpdates > 0) return;
+        while (this.rendered && !this.canRunQueuedRender()) {
+          await new Promise<void>((resolve) => {
+            setTimeout(resolve, this.settingRenderPollMs);
+          });
+        }
         if (this.rendered) await this.render();
       } catch (err) {
         logger.error("DDBAppV2: queued render failed", err);
@@ -185,11 +222,47 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     return scheduled;
   }
 
+  /**
+   * Build a selector that finds the same control again in freshly rendered markup.
+   * @param {HTMLElement} element  A control in the part about to be replaced.
+   */
+  static controlSelector(element: HTMLElement): string | null {
+    if (element.id) return `#${CSS.escape(element.id)}`;
+    const tag = element.localName;
+    // the per-class subclass selects share a name, so the class id is what tells them apart
+    if (element.dataset.classId) return `${tag}[data-class-id="${CSS.escape(element.dataset.classId)}"]`;
+    const name = element.getAttribute("name");
+    return name ? `${tag}[name="${CSS.escape(name)}"]` : null;
+  }
+
   /** @inheritDoc */
-  override _onClose(options: foundry.applications.api.Application.RenderOptions) {
-    super._onClose(options);
-    // nothing is left to render into, so let any parked render give up
-    for (const release of [...this.settingIdleWaiters]) release();
+  override _preSyncPartState(partId: string, newElement: HTMLElement, priorElement: HTMLElement, state: TDDBPartState) {
+    super._preSyncPartState(partId, newElement, priorElement, state);
+    // with writes still in flight the DOM holds clicks the setting has not caught up with, so the
+    // new markup would put back a tag the user has already removed - and their next click would
+    // then be computed from that resurrected value and write it straight back
+    if (this.pendingSettingUpdates === 0) return;
+    const values: Record<string, string[]> = {};
+    for (const element of priorElement.querySelectorAll<HTMLElement>("multi-select")) {
+      const selector = DDBAppV2.controlSelector(element);
+      const value = (element as TMultiSelectInternals)._value;
+      if (selector && value instanceof Set) values[selector] = Array.from(value);
+    }
+    state.ddbControlValues = values;
+  }
+
+  /** @inheritDoc */
+  override _syncPartState(partId: string, newElement: HTMLElement, priorElement: HTMLElement, state: TDDBPartState) {
+    super._syncPartState(partId, newElement, priorElement, state);
+    for (const [selector, value] of Object.entries(state.ddbControlValues ?? {})) {
+      const element = newElement.querySelector<HTMLElement>(selector) as TMultiSelectInternals | null;
+      if (!element?._value) continue;
+      // the render may have dropped options this control no longer offers
+      const options = new Set(Array.from(element.querySelectorAll("option")).map((option) => option.value));
+      // assigning `value` here would dispatch change and queue the same write a second time
+      element._value = new Set(value.filter((id) => options.has(id)));
+      element._refresh();
+    }
   }
 
   static getMultiSelectValues(event: Event): string[] {
@@ -205,6 +278,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   /** @inheritDoc */
   override async _onRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
+    this.trackInteractions();
     // Allow multi-select tags to be removed when the whole tag is clicked.
     this.element.querySelectorAll<HTMLSelectElement>("multi-select").forEach((select) => {
       if (select.disabled) return;
@@ -403,6 +477,19 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     // this row only captions the overall bar, so it goes with it
     const overallMessage = this.element.querySelector("#munching-task-overall") as HTMLElement | null;
     if (overallMessage) overallMessage.textContent = "";
+  }
+
+  /**
+   * Blank every status row in the import details pane and reset the bars, so a finished or
+   * dismissed run leaves nothing behind for the next one to show before it writes its own text.
+   */
+  clearDetails() {
+    if (!this.element) return;
+    for (const id of DDBAppV2.DETAIL_MESSAGE_IDS) {
+      const row = this.element.querySelector(`#${id}`) as HTMLElement | null;
+      if (row) row.textContent = "";
+    }
+    this.clearProgressBars();
   }
 
   intervalId: any = null;

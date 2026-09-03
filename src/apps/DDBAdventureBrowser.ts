@@ -144,11 +144,10 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
       b.disabled = true;
     });
 
-    // reset status rows + bars
+    // reset every status row + bar, then state where this run starts from
+    this.clearDetails();
     this.notifierV2({ section: "name", message: bookName });
     this.notifierV2({ section: "monster", message: "Starting import..." });
-    this.notifierV2({ section: "import", message: "", clear: true, progressBar: "secondary" });
-    this.clearProgressBars();
   }
 
   // Stop the spinner and reveal the Okay button; leave the overlay up so the

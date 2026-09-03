@@ -616,9 +616,9 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener("change", async (event) => {
-        await MuncherSettings.updateMuncherSettings(event);
-        await this.render();
+      checkbox.addEventListener("change", (event) => {
+        const section = (event.target as HTMLInputElement).dataset.section;
+        this.queueSettingUpdate(async () => MuncherSettings.updateMuncherSettings(event), { key: section });
       });
     });
 
@@ -774,6 +774,9 @@ export default class DDBMuncher extends DDBAppV2 {
     const progressElement = this.element.querySelector(".ddb-overlay");
     if (progressElement) progressElement.classList.remove("munching-invalid");
 
+    // a previous run's status text and bar positions are still in the pane, and rows this
+    // run never writes to would keep showing them
+    this.clearDetails();
     const detailsElement = this.element.querySelector(".ddb-muncher-details");
     if (detailsElement) detailsElement.classList.remove("munching-details-hidden");
     const okayButton = this.element.querySelector("#munch-details-okay");
@@ -805,6 +808,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   _enableButtons() {
+    this.clearProgressBars();
     const okayButton = this.element.querySelector("#munch-details-okay") as HTMLButtonElement | null;
     if (okayButton) {
       okayButton.classList.remove("munching-hidden");
@@ -817,6 +821,7 @@ export default class DDBMuncher extends DDBAppV2 {
   static async closeDetails(this: DDBMuncher, _event: any, _target: any) {
     const detailsElement = this.element.querySelector(".ddb-muncher-details");
     if (detailsElement) detailsElement.classList.add("munching-details-hidden");
+    this.clearDetails();
     this._restoreAfterDetails();
     this._doEnableButtons();
   }
@@ -896,7 +901,6 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error(message);
       this.notifier(message, { nameField: true });
     } finally {
-      this.clearProgressBars();
       this._enableButtons();
     }
   }
@@ -922,7 +926,6 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error(message);
       this.notifier(message, { nameField: true });
     } finally {
-      this.clearProgressBars();
       this._enableButtons();
     }
   }
