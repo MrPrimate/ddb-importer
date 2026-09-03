@@ -635,3 +635,154 @@ describe("DDBDescriptions.saveKey", () => {
       .toBe(DDBDescriptions.saveKey({ ability: ["str", "dex"], dc: { calculation: "", formula: "15" } }));
   });
 });
+
+// =============================================================================
+// parseChecks - every explicit-DC ability check in a body of rules text, classified by
+// whether it releases something the item did. See docs/build/multi-roll-items.md.
+// =============================================================================
+describe("DDBDescriptions.parseChecks", () => {
+  it("reads the DC, ability and skill of a skill check", () => {
+    const [check] = DDBDescriptions.parseChecks(
+      "To escape, the target must take an action to make a DC 15 Strength (Athletics) check, freeing the Restrained creature on a success.",
+    );
+    expect(check.dc).toEqual({ calculation: "", formula: "15" });
+    expect(check.abilities).toEqual(["str"]);
+    expect(check.associated).toEqual(["ath"]);
+  });
+
+  it("leaves associated empty for a bare ability check", () => {
+    const [check] = DDBDescriptions.parseChecks("A creature can use its action to make a DC 13 Strength check, freeing itself on a success.");
+    expect(check.abilities).toEqual(["str"]);
+    expect(check.associated).toEqual([]);
+  });
+
+  it("reads both halves of an either/or check with skills", () => {
+    const [check] = DDBDescriptions.parseChecks(
+      "A target Restrained by the rope can take an action to make its choice of a DC 15 Strength (Athletics) or Dexterity (Acrobatics) check.",
+    );
+    expect(check.abilities).toEqual(["str", "dex"]);
+    expect(check.associated).toEqual(["ath", "acr"]);
+  });
+
+  it("reads an either/or check without skills and drops the choice qualifier", () => {
+    const [check] = DDBDescriptions.parseChecks(
+      "A grappled creature can use its action to make a DC 13 Strength or Dexterity check (its choice), freeing itself on a success.",
+    );
+    expect(check.abilities).toEqual(["str", "dex"]);
+    expect(check.associated).toEqual([]);
+  });
+
+  it("reads two skills named in one parenthesis", () => {
+    const [check] = DDBDescriptions.parseChecks("If a character succeeds on a DC 20 Intelligence (Arcana or History) check, the character recalls lore.");
+    expect(check.associated).toEqual(["arc", "his"]);
+  });
+
+  it("maps tool names, in parentheses or after 'using', with either apostrophe", () => {
+    expect(DDBDescriptions.parseChecks("spends 1 hour to make a DC 16 Dexterity (smith’s or tinker’s tools) check.")[0].associated)
+      .toEqual(["smith", "tinker"]);
+    expect(DDBDescriptions.parseChecks("succeeding on a DC 30 Dexterity check using thieves' tools.")[0].associated)
+      .toEqual(["thief"]);
+  });
+
+  describe("release checks", () => {
+    const releases: [string, string][] = [
+      ["freeing", "A creature can use its action to make a DC 13 Strength check, freeing itself or another creature within its reach on a success."],
+      ["to escape", "To escape, the target or a creature within 5 feet of it must take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success."],
+      ["bursting", "Bursting free of the Barrel requires a successful DC 20 Strength (Athletics) check as an action."],
+      ["breaking them", "Breaking them requires a successful DC 20 Strength check."],
+      ["ending the restrained condition", "The creature can use its action to make a DC 16 Strength check, ending the restrained condition on a success."],
+      ["ending the effect of wounds", "The wounded creature can use an action to make a DC 15 Wisdom (Medicine) check, ending the effect of such wounds on it on a success."],
+      ["pulling off", "A creature can use its action to make a DC 14 Strength check, pulling the scarf off itself or another creature within its reach on a success."],
+      ["break the restraint", "As an action, a creature Restrained by an arrow can make a DC 20 Strength (Athletics) check to try to break the restraint."],
+      ["to free it", "The target or a creature within reach of it can take an action to make a DC 15 Strength (Athletics) check to free it."],
+      ["dislodging", "A creature can use its action to make a DC 15 Strength check, dislodging the spear on a success."],
+      ["extinguish", "A creature can end this damage by using its action to make a DC 10 Dexterity check to extinguish the flames."],
+      ["doing so with a successful", "As an action, a restrained creature can attempt to free itself from the ice, doing so with a successful DC 20 Strength (Athletics) check."],
+    ];
+    for (const [label, text] of releases) {
+      it(`recognises "${label}"`, () => {
+        expect(DDBDescriptions.parseChecks(text)[0].release).toBe(true);
+      });
+    }
+
+    it("reads the outcome from the sentence that follows a bare check", () => {
+      const [check] = DDBDescriptions.parseChecks(
+        "The restrained target can use its action to make a DC 15 Strength check. On a success, it is no longer restrained. The scarf is silk.",
+      );
+      expect(check.release).toBe(true);
+      expect(check.sentence).toBe("The restrained target can use its action to make a DC 15 Strength check. On a success, it is no longer restrained.");
+    });
+
+    it("does not read a following section label as the outcome", () => {
+      const [check] = DDBDescriptions.parseChecks(
+        "<p>A creature must make a DC 15 Strength check.</p><p><strong>Flight of the Couatls.</strong> The bow frees the target on a success.</p>",
+      );
+      expect(check.sentence).toBe("A creature must make a DC 15 Strength check.");
+      expect(check.release).toBe(false);
+    });
+  });
+
+  describe("checks that are not a release", () => {
+    const scenery: [string, string][] = [
+      ["an attack-or-check alternative", "either by making a successful attack roll against AC 24 or a successful DC 24 Dexterity (Acrobatics) check, freeing the stone."],
+      ["holding a lid shut", "a creature outside the vase can make a DC 25 Strength check, preventing you from leaving on a success."],
+      ["lock-picking", "A creature proficient with thieves' tools can pick this lock with a successful DC 15 Dexterity check."],
+      ["a repair at a rest", "The penalty can be removed by casting the Mending spell on the object or by succeeding on a DC 10 Dexterity check using Smith’s Tools as part of a Short Rest or Long Rest."],
+      ["noticing", "A creature notices the caltrops with a successful DC 20 Wisdom (Perception) check."],
+      ["prying a book open", "A DC 25 Strength check is required to close it, pry it open, or tear out a page against its will."],
+      ["identifying an illusion", "Someone who uses an action to visually inspect the creature identifies it as illusory with a successful DC 15 Intelligence (Investigation) check."],
+    ];
+    for (const [label, text] of scenery) {
+      it(`stays silent on ${label}`, () => {
+        const [check] = DDBDescriptions.parseChecks(text);
+        expect(check).toBeDefined();
+        expect(check.release).toBe(false);
+      });
+    }
+  });
+
+  describe("activation", () => {
+    it("reads an action, a bonus action and a reaction", () => {
+      expect(DDBDescriptions.parseChecks("As an action, make a DC 10 Strength check to escape.")[0].activation).toBe("action");
+      expect(DDBDescriptions.parseChecks("As a bonus action, make a DC 10 Strength check to escape.")[0].activation).toBe("bonus");
+      expect(DDBDescriptions.parseChecks("can use its reaction to make a DC 10 Strength check to escape.")[0].activation).toBe("reaction");
+      expect(DDBDescriptions.parseChecks("take the Utilize action to make a DC 30 Strength (Athletics) check to escape.")[0].activation).toBe("action");
+    });
+
+    it("defaults an escape to an action and anything else to special", () => {
+      expect(DDBDescriptions.parseChecks("Bursting free requires a successful DC 20 Strength check.")[0].activation).toBe("action");
+      expect(DDBDescriptions.parseChecks("A controlled creature can make a DC 17 Charisma check each day at dawn. On a success, it is no longer affected.")[0].activation).toBe("special");
+    });
+  });
+
+  it("ignores checks that are rows of a table once the caller strips it", () => {
+    const text = "<p>Roll on the table.</p><table><tr><td>It takes a successful DC 20 Strength check to free yourself.</td></tr></table>";
+    expect(DDBDescriptions.parseChecks(DDBDescriptions.stripTables(text))).toEqual([]);
+  });
+
+  it("returns checks in source order", () => {
+    const text = "Escaping requires a successful DC 20 Dexterity (Sleight of Hand) check as an action. Bursting them requires a successful DC 25 Strength (Athletics) check as an action.";
+    expect(DDBDescriptions.parseChecks(text).map((check) => check.dc.formula)).toEqual(["20", "25"]);
+  });
+
+  it("returns nothing for text without a check", () => {
+    expect(DDBDescriptions.parseChecks("must succeed on a DC 15 Strength saving throw")).toEqual([]);
+    expect(DDBDescriptions.parseChecks("")).toEqual([]);
+  });
+});
+
+describe("DDBDescriptions.checkKey", () => {
+  it("treats the same roll at the same DC as one property", () => {
+    const [first, second] = DDBDescriptions.parseChecks(
+      "make a DC 15 Strength (Athletics) check to escape. Later it can repeat the DC 15 Strength (Athletics) check to escape.",
+    );
+    expect(DDBDescriptions.checkKey(first)).toBe(DDBDescriptions.checkKey(second));
+  });
+
+  it("separates the same DC asked of a different skill", () => {
+    const [first, second] = DDBDescriptions.parseChecks(
+      "make a DC 20 Dexterity (Sleight of Hand) check to escape. Or make a DC 20 Strength (Athletics) check to escape.",
+    );
+    expect(DDBDescriptions.checkKey(first)).not.toBe(DDBDescriptions.checkKey(second));
+  });
+});

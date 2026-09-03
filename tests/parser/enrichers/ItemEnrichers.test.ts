@@ -579,3 +579,123 @@ describe("items with more than one roll", () => {
     );
   });
 });
+
+// Formula-DC items: the second save's DC is derived from the item's rarity bonus or from a
+// count the user picks at roll time. See docs/build/multi-roll-items.md.
+function spellSaveDcModifiers(...values: number[]): any[] {
+  return values.map((value) => ({ type: "bonus", subType: "spell-save-dc", value }));
+}
+
+describe("BanjoOfOlJerichoSticks", () => {
+  const Enricher = ItemEnrichers.BanjoOfOlJerichoSticks;
+  const banjo = (name: string, ...bonuses: number[]) =>
+    build(Enricher, { name, ddbParser: { ddbDefinition: { grantedModifiers: spellSaveDcModifiers(...bonuses) } } });
+
+  it("derives the Fiendish Lure DC from the record's spell save DC bonus", () => {
+    expect(banjo("Banjo of Ol' Jericho Sticks, +1", 1).activity.data.save.dc.formula).toBe("17");
+    expect(banjo("Banjo of Ol' Jericho Sticks, +3", 3).activity.data.save.dc.formula).toBe("19");
+  });
+
+  it("builds the Varies record at the lowest tier and says so", () => {
+    const varies = banjo("Banjo of Ol' Jericho Sticks", 1, 2, 3);
+    expect(varies.activity.data.save.dc.formula).toBe("17");
+    expect(varies.override.descriptionSuffix).toContain("Rare tier");
+    expect(banjo("Banjo of Ol' Jericho Sticks, +3", 3).override).toEqual({});
+  });
+
+  it("gives Birdcage only to the Legendary tier", () => {
+    expect(banjo("Banjo of Ol' Jericho Sticks, +1", 1).additionalActivities.map((a: any) => a.init.name)).toEqual(["Scarecrow's Dance"]);
+    expect(banjo("Banjo of Ol' Jericho Sticks, +3", 3).additionalActivities.map((a: any) => a.init.name)).toEqual(["Scarecrow's Dance", "Birdcage"]);
+    expect(banjo("Banjo of Ol' Jericho Sticks", 1, 2, 3).additionalActivities.map((a: any) => a.init.name)).toContain("Birdcage");
+  });
+
+  it("gives Fiendish Lure its own once-per-dusk clock and a non-transferring Charmed effect", () => {
+    const lure = banjo("Banjo of Ol' Jericho Sticks, +3", 3);
+    expect(lure.activity.addActivityConsume).toBe(true);
+    expect(lure.activity.data.uses).toEqual({ spent: 0, max: "1", recovery: [{ period: "dusk", type: "recoverAll" }] });
+    expect(lure.effects[0]).toMatchObject({ activityMatch: "Fiendish Lure", statuses: ["Charmed"], options: { transfer: false, durationSeconds: 60 } });
+  });
+});
+
+describe("BellOfTheDuskMother", () => {
+  const Enricher = ItemEnrichers.BellOfTheDuskMother;
+  const bell = (name: string, ...bonuses: number[]) =>
+    build(Enricher, { name, ddbParser: { ddbDefinition: { grantedModifiers: spellSaveDcModifiers(...bonuses) } } });
+
+  it("derives the Dolorous Tolling DC from the bonus and replaces the parsed damage", () => {
+    const plusTwo = bell("Bell of the Dusk Mother, +2", 2);
+    expect(plusTwo.activity.data.save.dc.formula).toBe("18");
+    expect(plusTwo.activity.removeDamageParts).toBe(true);
+    expect(plusTwo.activity.damageParts).toHaveLength(1);
+    expect(plusTwo.activity.damageParts[0]).toMatchObject({ number: 3, denomination: 10, types: ["psychic"] });
+    expect(plusTwo.activity.data.target.template).toMatchObject({ type: "radius", size: "30" });
+  });
+
+  it("unlocks Call of the Bell at Very Rare and Death Knell at Legendary", () => {
+    expect(bell("Bell of the Dusk Mother, +1", 1).additionalActivities.map((a: any) => a.init.name)).toEqual([]);
+    expect(bell("Bell of the Dusk Mother, +2", 2).additionalActivities.map((a: any) => a.init.name)).toEqual(["Call of the Bell"]);
+    expect(bell("Bell of the Dusk Mother, +3", 3).additionalActivities.map((a: any) => a.init.name)).toEqual(["Call of the Bell", "Death Knell"]);
+  });
+
+  it("builds Death Knell as a half-damage Constitution save at the printed DC", () => {
+    const knell = bell("Bell of the Dusk Mother, +3", 3).additionalActivities[1];
+    expect(knell.build.saveOverride).toEqual({ ability: ["con"], dc: { calculation: "", formula: "19" } });
+    expect(knell.build.onSave).toBe("half");
+    expect(knell.build.damageParts[0]).toMatchObject({ number: 5, denomination: 10, types: ["necrotic"] });
+    expect(knell.build.usesOverride.recovery[0].period).toBe("dusk");
+  });
+
+  it("applies the Bane-style penalty for a minute on a failed Dolorous Tolling save", () => {
+    const [penalty] = bell("Bell of the Dusk Mother, +1", 1).effects;
+    expect(penalty.activityMatch).toBe("Dolorous Tolling");
+    expect(penalty.options).toMatchObject({ transfer: false, durationSeconds: 60 });
+    expect(penalty.changes.map((change: any) => change.key)).toContain("system.rolls.ability.save.bonus");
+    expect(penalty.changes.every((change: any) => change.value === "-1d4")).toBe(true);
+  });
+});
+
+describe("PhoenixRocketSword", () => {
+  const Enricher = ItemEnrichers.PhoenixRocketSword;
+
+  it("turns the auto riders off so the restriction-gated damage is not doubled", () => {
+    expect(build(Enricher).addAutoAdditionalActivities).toBe(false);
+  });
+
+  it("scales the flame jet and the push DC with the charges expended", () => {
+    const [jet, rocket] = build(Enricher).additionalActivities;
+    expect(jet.init.name).toBe("Flame Jet");
+    expect(jet.build.saveOverride.dc.formula).toBe("16");
+    expect(jet.build.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["fire"], scaling: { mode: "whole", number: 1 } });
+    expect(jet.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "4" });
+
+    expect(rocket.init.name).toBe("Rocket");
+    expect(rocket.build.saveOverride).toEqual({ ability: ["str"], dc: { calculation: "", formula: "11 + @scaling" } });
+    expect(rocket.build.targetOverride.affects.type).toBe("self");
+    expect(rocket.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "4" });
+  });
+});
+
+describe("Requiem", () => {
+  const Enricher = ItemEnrichers.Requiem;
+
+  it("keys the addiction DC and the question pool on the drug", () => {
+    const bliss = build(Enricher, { name: "Requiem Bliss" });
+    expect(bliss.activity.data.save.dc.formula).toBe("13 + @scaling");
+    expect(bliss.activity.data.uses.max).toBe("10");
+    expect(bliss.activity.addConsumptionScalingMax).toBe("9");
+    expect(bliss.additionalActivities[0].build.saveOverride.dc.formula).toBe("15");
+
+    const clay = build(Enricher, { name: "Requiem Clay" });
+    expect(clay.activity.data.save.dc.formula).toBe("11 + @scaling");
+    expect(clay.activity.data.uses.max).toBe("5");
+    expect(clay.additionalActivities[0].build.saveOverride.dc.formula).toBe("13");
+  });
+
+  it("rolls the poison per question regardless of the save", () => {
+    const smoke = build(Enricher, { name: "Requiem Bliss" }).activity;
+    expect(smoke.removeDamageParts).toBe(true);
+    expect(smoke.damageParts[0]).toMatchObject({ number: 1, denomination: 6, types: ["poison"], scaling: { mode: "whole", number: 1 } });
+    expect(smoke.data.damage.onSave).toBe("full");
+    expect(smoke.addActivityScalingMode).toBe("amount");
+  });
+});

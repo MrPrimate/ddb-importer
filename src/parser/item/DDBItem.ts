@@ -1979,6 +1979,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     });
   }
 
+  /**
+   * Build one check activity per release check in the description.
+   *
+   * Sentence-scoped, so the whole description is read rather than the primary's section: a weapon
+   * writes its escape check inside the grapple section. Called from build() rather than from the
+   * damage scan, which never runs for an item whose damage came from DDB.
+   */
+  #generateCheckActivities(): void {
+    this._checkActivityGeneration({ text: this.ddbDefinition.description ?? "" });
+  }
+
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
@@ -2028,9 +2039,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         },
       });
     }
-
-    this._escapeCheckGeneration();
-
   }
 
   /**
@@ -3368,6 +3376,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       if (this.documentType !== "container") {
         // containers can't have activities.
         this.#generateMultiSaveActivities();
+        this.#generateCheckActivities();
         if (!this.enricher.stopDefaultActivity)
           // an item's primary activity is normally unnamed; on a multi-mode item it describes the
           // first section, so it takes that section's label to tell it from its siblings

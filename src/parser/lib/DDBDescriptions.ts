@@ -482,6 +482,162 @@ export default class DDBDescriptions {
     return `${save.dc?.calculation ?? ""}|${save.dc?.formula ?? ""}|${ability}`;
   }
 
+  // ---------------------------------------------------------------------------
+  // Ability checks
+  // ---------------------------------------------------------------------------
+
+  /**
+   * "DC 15 Strength (Athletics) check", with an optional "or Dexterity (Acrobatics)" alternative
+   * and an optional "using thieves' tools" suffix. Only the prose order is read: the 2024
+   * stat-block "Check: DC 15" order does not occur in the item corpus.
+   */
+  static #CHECK_REGEX = new RegExp(
+    `DC (\\d+) (${DDBDescriptions.SAVE_ABILITY_NAMES})(?: \\(([^)]+)\\))?`
+    + `(?: or (${DDBDescriptions.SAVE_ABILITY_NAMES})(?: \\(([^)]+)\\))?)?`
+    + ` (?:ability )?check(?: using (?:the )?([A-Za-z\\u2019' ]+?(?:tools|supplies|kit)))?`,
+    "gi",
+  );
+
+  /** A sentence boundary: terminal punctuation followed by whitespace and a capital, digit or quote. */
+  static #SENTENCE_SPLIT_REGEX = /(?<=[.!?])\s+(?=[A-Z0-9“"(])/g;
+
+  /** The sentence after a check names its outcome, so it belongs to the check. */
+  static #CHECK_OUTCOME_REGEX = /^(?:On a success|If (?:the check|you|it) succeeds?|If you succeed|Success:)/i;
+
+  /**
+   * A check RELEASES something the item did: frees, escapes, breaks or bursts a restraint, ends an
+   * effect or condition, pulls something off, extinguishes.
+   * Deliberately absent: move/push/knock (contests against a fixed object such as the Immovable Rod), and a general "remove".
+   * The Silver ammunition family says a penalty "can be removed by" a tool check at a rest.
+   */
+  static #RELEASE_CHECK_REGEX = new RegExp([
+    String.raw`\bescap(?:e|es|ed|ing)\b`,
+    String.raw`\bfree(?:s|d|ing)?\b(?!\s+(?:hand|action|use))`,
+    String.raw`\bburst(?:s|ing)?\b`,
+    String.raw`\bbreak(?:s|ing)? (?:free|the|them|it|out)\b`,
+    String.raw`\bno longer (?:restrained|grappled|affected|bound)\b`,
+    String.raw`\bend(?:s|ing)? (?:the|this) (?:\w+ )?(?:effect|condition|damage|grapple)\b`,
+    String.raw`\b(?:condition|effect) ends\b`,
+    String.raw`\bceases to be affected\b`,
+    String.raw`\bextinguish`,
+    String.raw`\bpull(?:s|ing)? [^.]{0,30}\b(?:off|out|free)\b`,
+    String.raw`\bdislodg|\bliberat|\breleas(?:e|es|ing)\b`,
+    String.raw`\bremov(?:e|es|ing) the (?:dagger|arm ring)\b`,
+    String.raw`\bforces its way out\b`,
+  ].join("|"), "i");
+
+  /**
+   * Wording that vetoes a release reading of the check sentence itself: an Ioun Stone's
+   * "attack roll against AC 24 or a successful DC 24 Dexterity (Acrobatics) check", a Hideaway
+   * Vase lid held shut "preventing you from leaving", lock-picking, and repair checks at a rest.
+   */
+  static #NOT_RELEASE_CHECK_REGEX = /\bagainst AC \d+|\bpreventing\b|\bpick (?:the|this)\b|\b(?:Short|Long) Rest\b/i;
+
+  /** A release check worded as getting out of something, which names the activity "Escape Check". */
+  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out/i;
+
+  static #CHECK_ACTIVATION_REGEX = /(bonus action)|(\breaction\b)|(\b(?:an?|its|their|your|the) action\b|\b(?:Utilize|Magic|Study|Influence|Search) action\b)/i;
+
+  /** Skill labels DDB writes that are not the dnd5e label. */
+  static #SKILL_LABEL_ALIASES: Record<string, string> = {
+    "handle animal": "ani",
+  };
+
+  /**
+   * Map the parenthesised qualifier of a check ("Athletics", "Arcana or History",
+   * "smith's or tinker's tools") to skill and tool keys. Unknown labels - "its choice" - are dropped.
+   */
+  static checkAssociatedKeys(...qualifiers: (string | undefined)[]): string[] {
+    const keys: string[] = [];
+    for (const qualifier of qualifiers) {
+      if (!qualifier) continue;
+      for (const rawLabel of qualifier.split(/\s+or\s+|,\s*/)) {
+        const label = rawLabel.replace(/’/g, "'").trim().toLowerCase();
+        if (!label) continue;
+        const skill = DICTIONARY.actor.skills.find((entry) => entry.label.toLowerCase() === label)?.name
+          ?? DDBDescriptions.#SKILL_LABEL_ALIASES[label];
+        const tool = skill ? undefined : DICTIONARY.actor.proficiencies.find((entry) =>
+          entry.type === "Tool" && entry.baseTool && entry.name.replace(/’/g, "'").toLowerCase().startsWith(label),
+        )?.baseTool;
+        const key = skill ?? tool;
+        if (key && !keys.includes(key)) keys.push(key);
+      }
+    }
+    return keys;
+  }
+
+  /** The sentences of a plain-text passage with their offsets, so a match can be located in one. */
+  static #sentences(text: string): { start: number; end: number; text: string }[] {
+    const sentences: { start: number; end: number; text: string }[] = [];
+    let start = 0;
+    for (const match of text.matchAll(DDBDescriptions.#SENTENCE_SPLIT_REGEX)) {
+      const end = match.index ?? 0;
+      sentences.push({ start, end, text: text.slice(start, end) });
+      start = end + match[0].length;
+    }
+    sentences.push({ start, end: text.length, text: text.slice(start) });
+    return sentences;
+  }
+
+  /**
+   * Every explicit-DC ability check named in a piece of rules text, in source order, each
+   * classified by whether it releases something the item did.
+   *
+   * The unit of classification is the sentence: the check's own sentence, plus the next one when
+   * it opens with the outcome ("The restrained target can use its action to make a DC 15 Strength
+   * check. On a success, ..."). The veto wording is tested on the check sentence alone.
+   * Callers strip `<table>` blocks first, as for {@link DDBDescriptions.parseSaves}.
+   */
+  static parseChecks(source: string): IParsedCheck[] {
+    if (!source?.trim()) return [];
+    const text = DDBDescriptions.plainText(source);
+    const sentences = DDBDescriptions.#sentences(text);
+    const checks: IParsedCheck[] = [];
+
+    for (const match of text.matchAll(DDBDescriptions.#CHECK_REGEX)) {
+      const index = match.index ?? 0;
+      const abilities = DDBDescriptions.saveAbilityKeys(match[2], match[4]);
+      if (abilities.length === 0) continue;
+      const position = sentences.findIndex((sentence) => index >= sentence.start && index < sentence.end);
+      const checkSentence = sentences[position]?.text ?? text;
+      const next = sentences[position + 1];
+      const sentence = next && DDBDescriptions.#CHECK_OUTCOME_REGEX.test(next.text)
+        ? `${checkSentence} ${next.text}`
+        : checkSentence;
+      const release = DDBDescriptions.#RELEASE_CHECK_REGEX.test(sentence)
+        && !DDBDescriptions.#NOT_RELEASE_CHECK_REGEX.test(checkSentence);
+      const escape = release && DDBDescriptions.#ESCAPE_CHECK_REGEX.test(sentence);
+      const activationMatch = checkSentence.match(DDBDescriptions.#CHECK_ACTIVATION_REGEX);
+      // escaping is an action in both rulesets even when the sentence does not say so
+      const activation = activationMatch?.[1]
+        ? "bonus"
+        : activationMatch?.[2]
+          ? "reaction"
+          : activationMatch?.[3] || escape
+            ? "action"
+            : "special";
+      checks.push({
+        abilities,
+        associated: DDBDescriptions.checkAssociatedKeys(match[3], match[5], match[6]),
+        dc: { calculation: "", formula: match[1] },
+        index,
+        sentence: sentence.trim(),
+        release,
+        escape,
+        activation,
+      });
+    }
+
+    return checks.sort((a, b) => a.index - b.index);
+  }
+
+  /** Two checks are the same property when they ask for the same roll against the same DC. */
+  static checkKey(check: { abilities?: string[] | null; associated?: string[] | null; dc?: { formula?: string } | null }): string {
+    const abilities = [...(check.abilities ?? [])].sort().join("+");
+    const associated = [...(check.associated ?? [])].sort().join("+");
+    return `${check.dc?.formula ?? ""}|${abilities}|${associated}`;
+  }
+
   /**
    * Whichever of these matches sits earliest in the text, or null if none did.
    *

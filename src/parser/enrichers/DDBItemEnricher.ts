@@ -47,6 +47,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
     "Absorbing Tattoo": "Absorbing Tattoo",
+    "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
+    "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
+    "Bell of the Dusk Mother": "Bell of the Dusk Mother",
     "Cabal's Ruin": "Cabal's Ruin",
     "Clematis-tainted": "Clematis-tainted Weapon",
     "Flame Tongue": "Flame Tongue",
@@ -65,6 +68,11 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
 
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
+    "Banjo of Ol' Jericho Sticks": ItemEnrichers.BanjoOfOlJerichoSticks,
+    "Bell of the Dusk Mother": ItemEnrichers.BellOfTheDuskMother,
+    "Phoenix Rocket Sword": ItemEnrichers.PhoenixRocketSword,
+    "Requiem Bliss": ItemEnrichers.Requiem,
+    "Requiem Clay": ItemEnrichers.Requiem,
     "Acid (vial)": ItemEnrichers.AcidVial,
     "Ball Bearings": ItemEnrichers.BallBearings,
     "Caltrops": ItemEnrichers.Caltrops,

@@ -29,6 +29,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   additionalActivities: IAdditionalActivityOutline[] = [];
   // a document can pass through more than one build path; the extras are emitted once
   _multiSaveGenerated = false;
+  _checkGenerated = false;
   // Activity description values inherited wholesale from the parent document rather than
   // written for one activity. Keyed by VALUE so clones and enricher id rewrites are covered,
   // and so an enricher-authored replacement de-stages itself. See _finaliseActivityDescriptions().
@@ -867,34 +868,152 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     };
   }
 
-  _escapeCheckGeneration(): void {
-    const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
-    if (escape) {
-      const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
-      if (escape) {
-        this.additionalActivities.push({
-          type: ACTIVITY_TYPES.CHECK,
-          name: `Escape Check`,
-          options: {
-            generateCheck: true,
-            generateTarget: false,
-            generateRange: false,
-            noSpellslot: true,
-            checkOverride: {
-              "associated": [
-                "acr",
-                "ath",
-              ],
-              "ability": [],
-              "dc": {
-                "calculation": "",
-                "formula": escape[1],
-              },
-            },
-          },
-        });
-      }
+  // A fourth distinct release check on one item is a table, not a set of properties.
+  static CHECK_MAX_EXTRAS = 3;
+
+  /** The bare "escape DC 15" wording, which names no ability: Acrobatics or Athletics, the creature's choice. */
+  static escapeDcCheck(dc: string): IParsedCheck {
+    return {
+      abilities: [],
+      associated: ["acr", "ath"],
+      dc: { calculation: "", formula: dc },
+      index: 0,
+      sentence: "",
+      release: true,
+      escape: true,
+      activation: "action",
+    };
+  }
+
+  /** The activity outline for a bare "escape DC N", for consumers that read no other check wording. */
+  static escapeCheckOutline(dc: string): IAdditionalActivityOutline {
+    return DDBActivityFactoryMixin.#checkOutline(DDBActivityFactoryMixin.escapeDcCheck(dc), "Escape Check");
+  }
+
+  /**
+   * "Escape Check" for a check worded as getting out of something; otherwise the skill, or failing
+   * that the ability - "Medicine Check" for the Wounding family's wound-closing roll.
+   */
+  static checkActivityName(check: IParsedCheck): string {
+    if (check.escape) return "Escape Check";
+    if (check.associated.length === 1) return `${DDBActivityFactoryMixin.#associatedLabel(check.associated[0])} Check`;
+    const ability = DICTIONARY.actor.abilities.find((entry) => entry.value === check.abilities[0])?.long ?? "Ability";
+    return `${ability.charAt(0).toUpperCase()}${ability.slice(1)} Check`;
+  }
+
+  static #associatedLabel(key: string): string {
+    return DICTIONARY.actor.skills.find((skill) => skill.name === key)?.label
+      ?? DICTIONARY.actor.proficiencies.find((entry) => entry.type === "Tool" && entry.baseTool === key)?.name
+      ?? key;
+  }
+
+  /**
+   * Emit one check activity per release check a document's rules text describes: the Wisdom
+   * (Medicine) check that closes a Sword of Wounding's wounds, the Strength (Athletics) check that
+   * frees a creature from a Net. Scenery checks - noticing, identifying, recalling - emit nothing.
+   *
+   * The bare "escape DC 15" wording is read too, but a sentence naming the same DC wins over it:
+   * the sentence says which ability and skill the roll actually uses. Nothing is emitted when an
+   * enricher already authors additional activities.
+   */
+  _checkActivityGeneration({
+    text,
+    maxExtras = DDBActivityFactoryMixin.CHECK_MAX_EXTRAS,
+  }: {
+    text: string;
+    maxExtras?: number;
+  }): void {
+    if (this._checkGenerated) return;
+    this._checkGenerated = true;
+    if (!this.enricher.addAutoAdditionalActivities) return;
+    // an enricher that authors its own extras
+    if ((this.enricher.additionalActivities ?? []).length > 0) return;
+    if (!text?.trim()) return;
+
+    const seen = new Set<string>();
+    const checks: IParsedCheck[] = [];
+    for (const check of DDBDescriptions.parseChecks(DDBDescriptions.stripTables(text))) {
+      if (!check.release) continue;
+      const key = DDBDescriptions.checkKey(check);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      checks.push(check);
     }
+    // read from the whole text, tables included, as the escape-only generator always did
+    const escape = text.match(/escape DC (\d+)/);
+    if (escape && !checks.some((check) => check.dc.formula === escape[1])) {
+      checks.push(DDBActivityFactoryMixin.escapeDcCheck(escape[1]));
+    }
+
+    if (checks.length === 0) return;
+    if (checks.length > maxExtras) {
+      logger.debug(`Skipping check activity generation for ${this.name}: ${checks.length} release checks is a table or an enricher job`, {
+        sentences: checks.map((check) => check.sentence),
+      });
+      return;
+    }
+
+    // Manacles carry an "Escaping" Sleight of Hand check and a "Bursting" Athletics check; a
+    // shared name is legal but tells the user nothing, so a duplicate takes its skill as a suffix.
+    const names = checks.map((check) => DDBActivityFactoryMixin.checkActivityName(check));
+    const outlines = checks.map((check, i) => {
+      const duplicate = names.filter((name) => name === names[i]).length > 1;
+      const suffix = check.associated.length > 0
+        ? check.associated.map((key) => DDBActivityFactoryMixin.#associatedLabel(key)).join("/")
+        : DICTIONARY.actor.abilities.find((entry) => entry.value === check.abilities[0])?.long ?? "";
+      const name = duplicate && suffix ? `${names[i]} (${suffix})` : names[i];
+      return DDBActivityFactoryMixin.#checkOutline(check, name);
+    });
+
+    logger.debug(`Generating ${outlines.length} check activities for ${this.name}`, { outlines });
+    this.additionalActivities.push(...outlines);
+  }
+
+  static #escapeHtml(text: string): string {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  static #checkOutline(check: IParsedCheck, name: string): IAdditionalActivityOutline {
+    const longName = (key: string | undefined): string => {
+      const long = DICTIONARY.actor.abilities.find((entry) => entry.value === key)?.long ?? "";
+      return `${long.charAt(0).toUpperCase()}${long.slice(1)}`;
+    };
+    // dnd5e's check.ability is a single string. Two abilities that each name a skill leave it
+    // blank and let the skill supply the ability; two bare abilities cannot be offered as a
+    // choice, so the first is used and the alternative called out in the activation condition.
+    const twoSkills = check.abilities.length > 1 && check.associated.length > 1;
+    const ability = twoSkills ? "" : (check.abilities[0] ?? "");
+    const condition = check.abilities.length > 1 && check.associated.length === 0
+      ? `${longName(check.abilities[0])} or ${longName(check.abilities[1])} check, the creature's choice: switch the ability on this activity to use ${longName(check.abilities[1])}`
+      : "";
+
+    return {
+      type: ACTIVITY_TYPES.CHECK,
+      name,
+      options: {
+        // the sentence IS the rules text for this roll; without it dnd5e shows the whole item
+        ...(check.sentence
+          ? { data: { description: { value: `<p>${DDBActivityFactoryMixin.#escapeHtml(check.sentence)}</p>` } } }
+          : {}),
+        generateCheck: true,
+        generateActivation: true,
+        generateTarget: false,
+        generateRange: false,
+        generateConsumption: false,
+        generateDamage: false,
+        noSpellslot: true,
+        activationOverride: {
+          type: check.activation,
+          value: check.activation === "special" ? null : 1,
+          condition,
+        },
+        checkOverride: {
+          ability,
+          associated: check.associated,
+          dc: { calculation: "", formula: check.dc.formula },
+        },
+      },
+    };
   }
 
   _studyCheckGeneration(): void {
