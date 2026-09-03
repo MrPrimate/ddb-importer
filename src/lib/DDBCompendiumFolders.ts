@@ -1885,6 +1885,10 @@ export class DDBCompendiumFolders {
 
 
   #getIndexFields() {
+    return CompendiumHelper.safeIndexFields(this.compendium, this.#rawIndexFields());
+  }
+
+  #rawIndexFields() {
     switch (this.type) {
       case "spells":
       case "spell": {

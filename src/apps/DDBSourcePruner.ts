@@ -152,7 +152,7 @@ export default class DDBSourcePruner extends DDBAppV2 {
       // toScan is filtered on entry.pack above; TS cannot narrow through the filter
       if (!pack) continue;
       utils.munchNote(`Scanning ${entry.title}...`, { nameField: true });
-      const indexFields = ["name", "flags.ddbimporter", "system.source.book"];
+      const indexFields = CompendiumHelper.safeIndexFields(pack, ["name", "flags.ddbimporter", "system.source.book"]);
       const index = await pack.getIndex({ fields: indexFields });
       const matched: IMatchedDocument[] = [];
 

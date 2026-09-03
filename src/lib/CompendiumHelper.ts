@@ -109,13 +109,36 @@ const CompendiumHelper = {
     return compendium;
   },
 
-  loadCompendiumIndex: async (type: TCompendiumTypes, indexOptions = {}) => {
+  /**
+   * Drops requested index fields that sit beneath a field already covered by the pack's default
+   * index fields or by another requested field. Foundry's client merges the pack defaults with the
+   * request and the server builds its projection with `setProperty(projection, field, 1)` per
+   * field, so a parent path followed by a child path ("system.source" then "system.source.book")
+   * throws "Cannot create property 'book' on number '1'" and the whole getIndex call fails.
+   * dnd5e 6.0 indexes "system.source" on every Item pack by default. The parent path already
+   * returns the whole object, so reads of the sub-path on the index entries keep working.
+   */
+  safeIndexFields: (pack: { indexFields?: Iterable<string> } | null | undefined, fields: readonly string[]): string[] => {
+    const covered = new Set<string>([...(pack?.indexFields ?? []), ...fields]);
+    return fields.filter((field) => {
+      const parts = field.split(".");
+      for (let i = 1; i < parts.length; i++) {
+        if (covered.has(parts.slice(0, i).join("."))) return false;
+      }
+      return true;
+    });
+  },
+
+  loadCompendiumIndex: async (type: TCompendiumTypes, indexOptions: { fields?: readonly string[] } = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel);
 
     if (compendium) {
-      const index = await compendium.getIndex(indexOptions);
+      const options = indexOptions.fields
+        ? { ...indexOptions, fields: CompendiumHelper.safeIndexFields(compendium, indexOptions.fields) }
+        : indexOptions;
+      const index = await compendium.getIndex(options as Parameters<typeof compendium.getIndex>[0]);
       foundry.utils.setProperty(CONFIG.DDBI, `compendium.index.${type}`, index);
       return index;
     } else {
@@ -364,7 +387,7 @@ const CompendiumHelper = {
 
     // retrieve the compendium index
     const matchedPropertiesKeys = Object.keys(matchedProperties);
-    const fields = ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys];
+    const fields = CompendiumHelper.safeIndexFields(compendium, ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys]);
     const rawIndex = await compendium.getIndex({ fields });
     const index = rawIndex.map((entry: any) => {
       entry.normalizedName = utils.normalizeString(entry.name);

@@ -150,7 +150,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       }
     }
     this.indexFilter = indexFilter;
-    this.indexFilter.fields = Array.from(flagSet) as CompendiumCollection.GetIndexOptions["fields"];
+    this.indexFilter.fields = CompendiumHelper.safeIndexFields(this.compendium, Array.from(flagSet)) as CompendiumCollection.GetIndexOptions["fields"];
     this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 

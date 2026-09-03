@@ -204,10 +204,11 @@ export default class ChangeHelper {
   // evaluated against the roll data of the item actually being rolled, which is what lets a bonus
   // apply only to some rolls. A condition belongs on the CHANGE: an effect-level `system.conditions`
   // is evaluated during data prep and would suppress the whole effect.
-  // Values for `attack`, `check` and `save` may use `@` references (`constructParts` resolves them
-  // before the roll is built) but `damage` and `healing` values MUST be literal dice and numbers -
-  // roll formula replacement is single pass there, so a nested `@` breaks the roll. See
-  // docs/effect-condition-candidates.md.
+  // Values may use `@` references in every category: `attack`, `check` and `save` values are
+  // resolved by `constructParts` before the roll is built, and `damage` / `healing` values ride in
+  // as the `@ruleBonus` part, which dnd5e's `BasicRoll.replaceFormulaData` now expands recursively
+  // (#7354, depth 3) against the rolled item's data - so `@item.level` or `@abilities.wis.mod`
+  // work there too.
 
   /** Serialise one filter, or an implicitly ANDed array of them, for a change's `conditions`. */
   static conditions(filter: IEffectChangeFilter | IEffectChangeFilter[]): string {

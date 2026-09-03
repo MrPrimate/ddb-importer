@@ -487,7 +487,7 @@ export default class DDBRuleJournalFactory {
       logger.warn("registerWeaponIds: unable to load items compendium");
       return;
     }
-    await itemCompendium.getIndex({ fields: ITEM_INDEX_FIELDS });
+    await itemCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(itemCompendium, ITEM_INDEX_FIELDS) });
     for (const weapon of CONFIG.DDB.weapons) {
       logger.verbose(`Processing DDB weapon: ${weapon.name}`);
       const handledCase = DICTIONARY.actor.proficiencies
@@ -541,7 +541,7 @@ export default class DDBRuleJournalFactory {
       logger.warn("registerAmmunitionTypes: unable to load items compendium");
       return;
     }
-    await itemCompendium.getIndex({ fields: AMMUNITION_INDEX_FIELDS });
+    await itemCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(itemCompendium, AMMUNITION_INDEX_FIELDS) });
 
     const ammunitionEntries = itemCompendium.index.filter((i) =>
       foundry.utils.getProperty(i, "type") === "consumable"
