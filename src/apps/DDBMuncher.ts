@@ -33,6 +33,7 @@ import DDBMapBrowser from "./DDBMapBrowser";
 import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
 import DDBSourceBookBrowser from "./DDBSourceBookBrowser";
+import SourceSelectionPreview from "./lib/SourceSelectionPreview";
 
 
 interface IDDBMuncherContext extends
@@ -117,6 +118,9 @@ export default class DDBMuncher extends DDBAppV2 {
   // the loading dialog reporting first-render progress; null once the window is up, so the
   // re-renders that setting changes trigger report nothing
   loader: DDBMuncherLoader | null = null;
+
+  // hover preview for the Source Selection buttons, built on first render and torn down on close
+  #sourcePreview: SourceSelectionPreview | null = null;
 
   // steps reported to the loader: cookie check, Patreon check, then the four _prepareContext blocks
   static LOAD_STEPS = 6;
@@ -297,6 +301,7 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/munch/characters/backgrounds.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters/species.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters/class.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/source-selection.hbs",
       ],
     },
     tools: {
@@ -440,11 +445,24 @@ export default class DDBMuncher extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
+  override _onClose(options: foundry.applications.api.Application.RenderOptions) {
+    super._onClose(options);
+    this.#sourcePreview?.destroy();
+    this.#sourcePreview = null;
+  }
+
+  /** @inheritDoc */
   override async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
 
     // a re-render mid-munch must not drop the height reserved for the overlay
     if (this.preMunchHeight !== null) this.element.classList.add("munching-active");
+
+    this.#sourcePreview?.hide();
+    this.#sourcePreview ??= new SourceSelectionPreview(() => MuncherSettings.getEffectiveSourceSelection());
+    for (const button of this.element.querySelectorAll<HTMLElement>(".ddb-munch-sources-button")) {
+      this.#sourcePreview.attach(button);
+    }
 
     // custom listeners
     // multi-selects

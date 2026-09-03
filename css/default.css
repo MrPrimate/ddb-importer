@@ -723,3 +723,122 @@ header > a.header-button.control.ddb-open-url {
 .ddbi-region-expiry .template-expiry-toggle {
   margin-top: 0.5rem;
 }
+
+/* Munch button rows: the munch button takes the space, the sources button a fifth of it. */
+.munch-button-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.375rem;
+}
+
+.munch-button-row > .munch-button {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.munch-button-row > .ddb-munch-sources-button {
+  flex: 0 0 20%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Hover preview of the sources an import will use. Fixed and parented to <body> by
+ * SourceSelectionPreview, because the muncher's scrolling, backdrop-filtered window content would
+ * otherwise clip it.
+ */
+.ddb-source-preview {
+  position: fixed;
+  z-index: calc(var(--z-index-tooltip, 200) + 1);
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, 90vw);
+  max-height: 60vh;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-border-dark, rgba(0, 0, 0, 0.5));
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.45);
+  background: var(--color-bg-option, var(--color-cool-5, #23221d));
+  color: var(--color-text-primary, #f7f3e8);
+  font-size: var(--font-size-12, 0.75rem);
+  pointer-events: auto;
+}
+
+.ddb-source-preview-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.ddb-source-preview-header h4 {
+  margin: 0;
+  border: none;
+}
+
+.ddb-source-preview-note {
+  flex: 0 0 auto;
+  margin: 0.25rem 0 0;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.ddb-source-preview-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.375rem;
+  align-items: start;
+}
+
+.ddb-source-preview-category {
+  min-width: 0;
+  border: 1px solid var(--color-border-light-2, rgba(255, 255, 255, 0.2));
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ddb-source-preview-category > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.4rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(255, 255, 255, 0.2));
+}
+
+.ddb-source-preview-category h5 {
+  margin: 0;
+  border: none;
+  font-size: var(--font-size-12, 0.75rem);
+}
+
+.ddb-source-preview-category > header span {
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+.ddb-source-preview-category ul {
+  margin: 0;
+  padding: 0.3rem 0.4rem 0.35rem 1.1rem;
+  list-style: disc;
+}
+
+.ddb-source-preview-category li {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.ddb-source-preview-empty {
+  grid-column: 1 / -1;
+  margin: 0.5rem 0;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
+}

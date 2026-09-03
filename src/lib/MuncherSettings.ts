@@ -1092,6 +1092,45 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
       .sort((a, b) => a.name.localeCompare(b.name));
   },
 
+  /**
+   * The source selection an import will actually run with: the included categories, narrowed by
+   * the deprecated per-book filter when that filter names at least one book inside them. This
+   * calls the same helper the import paths do, so the preview cannot drift from what is sent to
+   * the proxy - unlike getIncludedCategoryBookMapping, which describes the category picker alone.
+   */
+  getEffectiveSourceSelection: (): IMuncherEffectiveSources => {
+    const bookFilter = DDBSources.getBookFilter();
+    const categoriesById = new Map(CONFIG.DDB.sourceCategories.map((category) => [category.id, category]));
+    const booksById = new Map(CONFIG.DDB.sources.map((book) => [book.id, book]));
+
+    const categories = DDBSources.getChosenCategoriesAndBooks()
+      .map((entry) => ({
+        id: entry.categoryId,
+        name: categoriesById.get(entry.categoryId)?.name ?? `Category ${entry.categoryId}`,
+        books: entry.sourceIds
+          .map((sourceId) => booksById.get(sourceId))
+          // unreleased books are part of the request but can never come back with content, so
+          // listing them would only pad the preview with books that import nothing
+          .filter((book): book is IDDBConfigSource => book !== undefined && book.isReleased)
+          .map((book) => ({ id: book.id, code: book.name, name: book.description || book.name }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      }))
+      .filter((category) => category.books.length > 0)
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return {
+      categories,
+      bookCount: categories.reduce((count, category) => count + category.books.length, 0),
+      bookFilterActive: bookFilter.enabled && bookFilter.effective.length > 0,
+      ignoredBooks: bookFilter.ignored
+        .map((sourceId) => {
+          const book = booksById.get(sourceId);
+          return book ? book.description || book.name : `book ${sourceId}`;
+        })
+        .sort((a, b) => a.localeCompare(b)),
+    };
+  },
+
   updateMuncherSettings: async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const selection = target.dataset.section;

@@ -59,6 +59,16 @@ declare global {
     books: IMuncherSourceBook[];
   }
 
+  /** The source selection an import will actually run with, as previewed next to a munch button. */
+  interface IMuncherEffectiveSources {
+    categories: { id: number; name: string; books: { id: number; code: string; name: string }[] }[];
+    bookCount: number;
+    /** The deprecated per-book filter is on and names at least one book inside the categories. */
+    bookFilterActive: boolean;
+    /** Books named by that filter which sit outside the included categories, so DDB never sees them. */
+    ignoredBooks: string[];
+  }
+
   interface IMuncherSettings {
     characterMunch: boolean;
     adventureOptions: ISettingsPolicyExpandedItem[];

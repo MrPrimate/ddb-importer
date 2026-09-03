@@ -72,7 +72,7 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     id: "ddb-source-book-browser",
     classes: ["dnd5e2", "ddb-source-book-browser"],
     window: {
-      title: "What book is in what category?",
+      title: "Source Category Selection",
       icon: "fas fa-book-open",
       resizable: true,
       minimizable: true,

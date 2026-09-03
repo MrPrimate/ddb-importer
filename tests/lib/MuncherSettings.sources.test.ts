@@ -86,6 +86,72 @@ describe("Muncher selected source summaries", () => {
     expect(MuncherSettings.getIncludedCategoryBookMapping()).toEqual([]);
   });
 
+  it("previews every book in the included categories when no book filter is on", () => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [CATEGORY_A.id, CATEGORY_B.id],
+      "munching-policy-use-source-filter": false,
+      "munching-policy-muncher-sources": [],
+    });
+
+    const selection = MuncherSettings.getEffectiveSourceSelection();
+
+    expect(selection.categories.map((category) => ({
+      name: category.name,
+      books: category.books.map((book) => book.name),
+    }))).toEqual([
+      { name: "Alpha Rules", books: ["Other Book"] },
+      // the unreleased Archived Book is in the request but can never return content
+      { name: "Zeta Rules", books: ["Alpha Book", "Coverless Book", "Zeta Book"] },
+    ]);
+    expect(selection.bookCount).toBe(4);
+    expect(selection.bookFilterActive).toBe(false);
+    expect(selection.ignoredBooks).toEqual([]);
+  });
+
+  it("narrows the preview to the deprecated book filter, exactly as an import would", () => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [CATEGORY_A.id, CATEGORY_B.id],
+      "munching-policy-use-source-filter": true,
+      "munching-policy-muncher-sources": [1],
+    });
+
+    const selection = MuncherSettings.getEffectiveSourceSelection();
+
+    expect(selection.categories.map((category) => ({
+      name: category.name,
+      books: category.books.map((book) => book.name),
+    }))).toEqual([{ name: "Zeta Rules", books: ["Zeta Book"] }]);
+    expect(selection.bookFilterActive).toBe(true);
+  });
+
+  it("reports book filter entries outside the included categories, which are ignored", () => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [CATEGORY_A.id],
+      "munching-policy-use-source-filter": true,
+      // book 4 lives in the category that is not included, so DDB never sees it
+      "munching-policy-muncher-sources": [1, 4],
+    });
+
+    const selection = MuncherSettings.getEffectiveSourceSelection();
+
+    expect(selection.categories.map((category) => category.name)).toEqual(["Zeta Rules"]);
+    expect(selection.bookFilterActive).toBe(true);
+    expect(selection.ignoredBooks).toEqual(["Other Book"]);
+  });
+
+  it("previews nothing when no category is included", () => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [],
+      "munching-policy-use-source-filter": false,
+      "munching-policy-muncher-sources": [],
+    });
+
+    const selection = MuncherSettings.getEffectiveSourceSelection();
+
+    expect(selection.categories).toEqual([]);
+    expect(selection.bookCount).toBe(0);
+  });
+
   it("registers a hidden, player-scoped, text-first display preference", () => {
     expect(SETTINGS.DEFAULT_SETTINGS.READY.MUNCHER.MUNCH["muncher-show-source-book-covers"]).toMatchObject({
       scope: "player",
