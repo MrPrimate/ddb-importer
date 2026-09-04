@@ -13,6 +13,8 @@ export default class SpiritLantern extends DDBEnricherData {
       name: "Cast",
       targetType: "self",
       noTemplate: true,
+      addItemConsume: true,
+      itemConsumeValue: "-@item.uses.spent",
       data: { damage: { parts: [] } },
     };
   }
