@@ -94,3 +94,32 @@ describe("CharacterSpellFactory.featureSourceItem", () => {
     expect(CharacterSpellFactory.featureSourceItem("feat", "Fey Ancestry's Gift (Eladrin)")).toBe("feat:fey-ancestrys-gift-eladrin");
   });
 });
+
+describe("CharacterSpellFactory.isIgnoredFeatureSpell", () => {
+  // Wondrous Alteration ships Alter Self twice: the free once-per-rest cast and the always-prepared slot copy
+  const freeCast: any = { usesSpellSlot: false, limitedUse: { maxUses: 1, resetType: 2 }, definition: { name: "Alter Self" } };
+  const slotCopy: any = { usesSpellSlot: true, limitedUse: null, definition: { name: "Alter Self" } };
+  // 2014 invocations such as Bewitching Whispers cast with a slot but once per Long Rest
+  const slotLimited: any = { usesSpellSlot: true, limitedUse: { maxUses: 1, resetType: 2 }, definition: { name: "Compulsion" } };
+  // at-will invocation grants such as Mask of Many Faces
+  const atWill: any = { usesSpellSlot: false, limitedUse: null, definition: { name: "Disguise Self" } };
+
+  it("drops the slot-less and limited-use copies of a listed feature's spell", () => {
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Wondrous Alteration", freeCast)).toBe(true);
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Bewitching Whispers", slotLimited)).toBe(true);
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Mask of Many Faces", atWill)).toBe(true);
+  });
+
+  it("keeps the always-prepared slot copy of a listed feature's spell in the spellbook", () => {
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Wondrous Alteration", slotCopy)).toBe(false);
+  });
+
+  it("matches DDB's curly apostrophes against the straight-quoted list entry", () => {
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Paladin\u2019s Smite", freeCast)).toBe(true);
+  });
+
+  it("ignores nothing for features outside the list", () => {
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell("Spirit Seeker", freeCast)).toBe(false);
+    expect(CharacterSpellFactory.isIgnoredFeatureSpell(undefined, freeCast)).toBe(false);
+  });
+});

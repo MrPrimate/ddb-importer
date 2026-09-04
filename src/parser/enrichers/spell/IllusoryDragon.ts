@@ -1,7 +1,24 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-/** The Frightened save on appearance is the cast; the breath is a bonus-action Intelligence save. */
+/**
+ * Casting summons the importer-built Illusory Dragon actor (see the IllusoryDragon
+ * companion type and monster enrichers for the token's own actions). The two saves
+ * are kept on the spell as well so the caster can roll them without the token:
+ * the Frightened save on appearance and the bonus-action breath.
+ */
 export default class IllusoryDragon extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
+  }
+
+  override get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
+    return DDBImporter.lib.DDBSummonsInterface.getIllusoryDragon;
+  }
+
+  override get generateSummons(): boolean {
+    return true;
+  }
 
   override get addAutoAdditionalActivities(): boolean {
     return false;
@@ -13,18 +30,50 @@ export default class IllusoryDragon extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Cast (Wisdom Save vs Frightened)",
-      targetType: "enemy",
+      name: "Summon Dragon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
+      profileKeys: [
+        { count: 1, name: this.is2014 ? "IllusoryDragon2014" : "IllusoryDragon2024" },
+      ],
+      summons: {
+        match: {
+          proficiency: true,
+          attacks: false,
+          saves: true,
+        },
+      },
       data: {
-        save: { ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } },
-        damage: { parts: [] },
+        creatureSizes: ["huge"],
       },
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      {
+        init: {
+          name: "Frightful Appearance (Wisdom Save)",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateActivation: true,
+          generateConsumption: false,
+          generateRange: true,
+          generateTarget: true,
+          noSpellslot: true,
+          saveOverride: { ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } },
+        },
+        overrides: {
+          activationType: "special",
+          activationCondition: "When the dragon appears, any enemy that can see it",
+          targetType: "enemy",
+          noTemplate: true,
+          data: { range: { units: "spec" } },
+        },
+      },
       {
         init: {
           name: "Breath (Intelligence Save)",
@@ -66,11 +115,25 @@ export default class IllusoryDragon extends DDBEnricherData {
     return [
       {
         name: "Frightened by Illusory Dragon",
-        activityMatch: "Cast (Wisdom Save vs Frightened)",
+        activityMatch: "Frightful Appearance (Wisdom Save)",
         statuses: ["Frightened"],
         options: { durationSeconds: 60 },
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            disposition: {
+              match: true,
+            },
+          },
+        },
+      },
+    };
   }
 
 }
