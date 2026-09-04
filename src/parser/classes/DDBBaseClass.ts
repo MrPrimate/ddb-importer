@@ -137,6 +137,55 @@ export default abstract class DDBBaseClass {
     "Knightly Envoy",
     "Unfettered Mind",
     "Training In War and Song",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Slippery Mind",
+    "Disciplined Survivor",
+    "Diamond Soul",
+    "Filth and Fortitude",
+    "True Grit",
+    "Raven's Spirit",
+    "Well-Rounded",
+    "Keeper of History",
+    "Student of Arcana",
+    "Arcane Initiate",
+    "Community Almanac",
+    "Acolyte of Nature",
+    "Cover of Night",
+    "Blighted Shape",
+    "Arcane Archer Lore",
+    "Melder of Flesh and Bone",
+    "One of the People",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Eagle Eye",
+    "Poker Face",
+    "Operative Training",
+    "Asmodeus's Blessing",
+    "Sutekh's Blessing",
+    "Tall Tales",
+    "Wise Words",
+    "Acolyte of the Occult",
+    "Sneaky and Crafty",
+    "Bad Attitude",
+    "Research Skills",
+    "Whispers of Knowledge",
+    "Tools of the Trade",
+    "Medic",
+    "Occult Expertise",
+    "Nimble Trickery",
+    "Enchanting Conversationalist",
+    "Anatomical Expert",
+    "Potion Craft",
+    "Whispers of the Dead",
+    "Genie's Splendor",
+    "Primal Lore",
+    "Student of War",
+    "Iron Mind",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -148,6 +197,19 @@ export default abstract class DDBBaseClass {
     "Scholar",
     "Muscle Mass",
     // "Tool Expertise", // revisit,this doesn't work the same way
+    "9: Expertise",
+    "6: Expertise",
+    "Keeper of History",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Medic",
+    "Heartbeat of the Land",
+    "Student of Alchemy",
+    "Tools of the Trade",
+    "Trapper's Tools",
+    "Impressionist",
+    "Visionary",
+    "Bonus Proficiencies",
   ];
 
   static PROFICIENCY_OR_EXPERTISE_FEATURES = [
@@ -174,6 +236,18 @@ export default abstract class DDBBaseClass {
     "Speech of the Woods",
     "Knightly Envoy",
     "Unfettered Mind",
+    "Demontongue",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Primal Lore",
+    "Bonus Proficiencies",
+    "Draconic Lore",
+    "Forked Tongue",
+    "9: Forked Tongue",
+    "Moloch's Blessing",
+    "Mystical Erudition (Additional)",
+    "Forbidden Knowledge",
+    "Dragon Ancestor",
   ];
 
   // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.
@@ -206,6 +280,44 @@ export default abstract class DDBBaseClass {
     "Blessings of Knowledge",
     "Reanimator's Skillset",
     "Channeler",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Alchemical Experiments",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Culinary Exploration",
+    "Malleable Visage",
+    "Thespian",
+    "Primal Lore",
+    "Blessing of the Hearth",
+    "Community Almanac",
+    "Melder of Flesh and Bone",
+    "Student of Alchemy",
+    "Poker Face",
+    "Operative Training",
+    "Path of the Kensei",
+    "An Artist's Soul",
+    "Alchemical Gastronomy",
+    "Sneaky and Crafty",
+    "Oath Tools",
+    "Genie's Splendor",
+    "Herbal Lore",
+    "Whispers of Knowledge",
+    "Trapper's Tools",
+    "Assassin's Tools",
+    "Impressionist",
+    "Get Jinxed",
+    "Unhinged Asservations",
+    "Arcane Artisan",
+    "Alchemical Knowledge",
+    "Potion Craft",
+    "Biomancy Savant",
+    "Whispers of the Dead",
+    "Skilled Guardian",
   ];
 
   static ARMOR_FEATURES = [
@@ -227,6 +339,20 @@ export default abstract class DDBBaseClass {
     "Bonus Proficiency",
     "Bonus Proficiencies",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Symbiotic Reinforcement",
+    "Martial Sorcery",
+    "Equipped for Battle",
+    "Dispater's Blessing",
   ];
 
   static WEAPON_FEATURES = [
@@ -249,6 +375,21 @@ export default abstract class DDBBaseClass {
     "Bonus Proficiencies",
     "Training In War and Song",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Martial Sorcery",
+    "Brutal Brawler",
+    "Ranged Specialist",
+    "Kensei Weapon",
+    "Herding Sheep",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -311,6 +452,42 @@ export default abstract class DDBBaseClass {
     "Draconic Resistance",
     "Hellish Resistance",
     "Magic Resistance",
+    "Permafrost",
+    "Infernal Warrior",
+    "Galvanic Heart",
+    "Strange Metabolism",
+    "Otherworldly Calm",
+    "Strong Stomach",
+    "Blood Lust",
+    "Fungal Body",
+    "Full of Stars",
+    "Incarnation of Corruption",
+    "Swarmsense",
+    "Nature's Ward",
+    "Blood Hound Anatomy",
+    "Toxin Transmutation",
+    "Kindred Biology",
+    "Gift of Pestilence",
+    "Poison Control",
+    "Grave Bond",
+    "Ancient Might",
+    "Windswept",
+    "Depraved Mind",
+    "Filth and Fortitude",
+    "Frigid Explorer",
+    "Bear Witness",
+    "Scarlet Vigor",
+    "Cold-Hearted",
+    "Frozen Soul",
+    "Deathly Pallor",
+    "Extradimensional Mastery",
+    "Seeing Unseen Threads",
+    "Dark Inoculation",
+    "Eternal Night",
+    "Necromancy Spellbook",
+    "Breathe It In",
+    "Second Skin",
+    "Intransigent",
   ];
 
   // don't generate feature advancements for these features
@@ -323,6 +500,8 @@ export default abstract class DDBBaseClass {
     "16: Ability Score Improvement",
     "Ability Score Improvement",
     "Expertise",
+    "9: Expertise",
+    "6: Expertise",
     "Bonus Proficiencies",
     "Bonus Proficiency",
     "Tool Proficiency",
@@ -1181,8 +1360,10 @@ export default abstract class DDBBaseClass {
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const filterModOptions = { subType: `choose-a-${this.name.toLowerCase()}-skill` };
-    const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
+    // "choose-a-<class>-skill", "choose-a-barbarian-skill-proficiency", "choose-nature-or-survival"...
+    const skillChooseMods = mods.filter((mod) =>
+      mod.type === "proficiency" && AdvancementHelper.isSkillChoiceSubType(mod.subType),
+    );
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
     return this.advancementHelper.getSkillAdvancement({
@@ -1421,16 +1602,29 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  _generateExpertiseAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    // the class's own Expertise keeps its pick-two shape whatever DDB ships; a subclass
+    // feature sharing a listed name only counts when it carries expertise modifiers
+    const expertiseMods = AdvancementHelper.isExpertiseFeature(feature.name) ? null : mods;
+    return this.advancementHelper.getExpertiseAdvancement(feature, level, expertiseMods);
+  }
+
   _generateExpertiseAdvancements() {
     const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
-      const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-
-      if (!expertiseFeature) continue;
-
-      const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
-      if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+      for (const expertiseFeature of this._expertiseFeatures.filter((f) => f.requiredLevel === i)) {
+        const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
+        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+      }
     }
 
     this._addAdvancements(advancements);
