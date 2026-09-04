@@ -3,7 +3,7 @@ import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 import { illusoryDragonFeatureText } from "./IllusoryDragonText";
 
-const DRAGON_ICON = "icons/creatures/abilities/dragon-breath-purple.webp";
+const DRAGON_ICON = "icons/creatures/reptiles/dragon-winged-blue.webp";
 
 /**
  * Builds the shadowy dragon as a summon actor. The stub already carries immunity to

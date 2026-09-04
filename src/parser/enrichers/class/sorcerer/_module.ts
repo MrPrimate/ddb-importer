@@ -14,6 +14,7 @@ export { default as CrownOfSpellfire } from "./CrownOfSpellfire";
 export { default as DraconicPresence } from "./DraconicPresence";
 export { default as DraconicResilience } from "./DraconicResilience";
 export { default as DragonAncestor } from "./DragonAncestor";
+export { default as DragonCompanion } from "./DragonCompanion";
 export { default as DragonWings } from "./DragonWings";
 export { default as ElementalAffinity } from "./ElementalAffinity";
 export { default as ExtraSpells } from "./ExtraSpells";

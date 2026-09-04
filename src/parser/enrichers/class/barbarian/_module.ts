@@ -12,6 +12,7 @@ export { default as BrutalCritical } from "./BrutalCritical";
 export { default as BrutalStrike } from "./BrutalStrike";
 export { default as CarrionRavenManeuvers } from "./CarrionRavenManeuvers";
 export { default as ColdFortress } from "./ColdFortress";
+export { default as ConsultTheSpirits } from "./ConsultTheSpirits";
 export { default as ConsumeDarkness } from "./ConsumeDarkness";
 export { default as CrushingSteps } from "./CrushingSteps";
 export { default as DangerSense } from "./DangerSense";

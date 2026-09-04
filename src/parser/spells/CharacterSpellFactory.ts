@@ -136,6 +136,75 @@ export default class CharacterSpellFactory {
     return CharacterSpellFactory.getDDBSpellLookup(this.ddb, type, id);
   }
 
+  /** Class features whose picks are spellbook spells the wizard always has prepared. */
+  static MASTERED_SPELL_FEATURES = ["Spell Mastery", "Signature Spells"];
+
+  /**
+   * Spell definition ids picked for Spell Mastery / Signature Spells through the features'
+   * "Choose a Spell" choices (the option id is the spell definition id).
+   */
+  static masteredSpellChoiceIds(ddb: IDDBData): Set<number> {
+    const featureIds = new Set<number>();
+    for (const klass of ddb.character?.classes ?? []) {
+      for (const feature of klass.classFeatures ?? []) {
+        if (CharacterSpellFactory.MASTERED_SPELL_FEATURES.includes(utils.nameString(feature.definition?.name ?? ""))) {
+          featureIds.add(feature.definition.id);
+        }
+      }
+    }
+    const ids = new Set<number>();
+    if (featureIds.size === 0) return ids;
+    for (const choice of ddb.character?.choices?.class ?? []) {
+      if (featureIds.has(choice.componentId) && typeof choice.optionValue === "number") ids.add(choice.optionValue);
+    }
+    return ids;
+  }
+
+  /**
+   * A wizard's Spell Mastery or Signature Spells pick. DDB flags the pick on the class spell
+   * list entry, or only records the choice on the feature; both are read. The pick is always
+   * prepared and keeps its slot casting for higher levels; the free cast is the feature's
+   * cast activity (wizard/_MasteredSpells).
+   */
+  static isMasteredSpell(spell: IDDBSpellEntry, choiceIds: Set<number>): boolean {
+    if (spell.baseLevelAtWill === true || spell.isSignatureSpell === true || spell.atWillLimitedUseLevel !== null) return true;
+    return spell.definition?.id !== undefined && choiceIds.has(spell.definition.id);
+  }
+
+  /**
+   * DDB moves a Spell Mastery / Signature Spells pick off the wizard's spell list and hangs it on
+   * the feature as a slot-less copy (with a 1/SR limited use for a signature spell). That copy
+   * is the only one in the payload, so it is parsed as the always-prepared spellbook spell
+   * instead: slot casting for higher levels, no uses.
+   */
+  static asMasteredSpellbookSpell(spell: IDDBSpellEntry): IDDBSpellEntry {
+    return {
+      ...spell,
+      usesSpellSlot: true,
+      alwaysPrepared: true,
+      limitedUse: null,
+    };
+  }
+
+  /**
+   * A spell DDB attaches to a class feature listed in FEATURE_SPELLS_IGNORE is the feature's own
+   * casting (no spell slot, or a limited use) and is provided by the feature's enricher as a cast
+   * activity instead. Features such as Wondrous Alteration or Faithful Steed also ship a plain
+   * always-prepared copy that spends a slot; that copy is the spellbook entry and is kept.
+   */
+  static isIgnoredFeatureSpell(featureName: string | undefined, spell: IDDBSpellEntry): boolean {
+    if (!featureName) return false;
+    if (!DICTIONARY.parsing.featureSpellsIgnore.includes(utils.nameString(featureName))) return false;
+    return !spell.usesSpellSlot || Boolean(spell.limitedUse);
+  }
+
+  _masteredSpellChoiceIds: Set<number> | null = null;
+
+  get masteredSpellChoiceIds(): Set<number> {
+    this._masteredSpellChoiceIds ??= CharacterSpellFactory.masteredSpellChoiceIds(this.ddb);
+    return this._masteredSpellChoiceIds;
+  }
+
   _getSpellCount(name: string) {
     if (!this.spellCounts[name]) {
       this.spellCounts[name] = 0;
@@ -160,6 +229,11 @@ export default class CharacterSpellFactory {
     abilityModifier: number;
     unPreparedCantrip?: boolean | null;
   }) {
+    if (CharacterSpellFactory.isMasteredSpell(spell, this.masteredSpellChoiceIds)) {
+      spell.alwaysPrepared = true;
+      spell.usesSpellSlot = true;
+    }
+
     // add some data for the parsing of the spells into the data structure
     const flagData: IParseSpellFlagData = {
       ddbimporter: {
@@ -376,12 +450,17 @@ export default class CharacterSpellFactory {
 
 
   async generateSpecialClassSpells() {
-    for (const spell of this.ddb.character.spells.class ?? []) {
-      if (!spell.definition) continue;
+    for (const rawSpell of this.ddb.character.spells.class ?? []) {
+      if (!rawSpell.definition) continue;
       // If the spell has an ability attached, use that
       let spellCastingAbility: T5eAbility;
-      const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
+      const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, rawSpell.componentId);
       const classInfo = this.getLookup("classFeature", featureId);
+
+      const mastered = classInfo !== undefined
+        && CharacterSpellFactory.MASTERED_SPELL_FEATURES.includes(utils.nameString(classInfo.name))
+        && CharacterSpellFactory.isMasteredSpell(rawSpell, this.masteredSpellChoiceIds);
+      const spell = mastered ? CharacterSpellFactory.asMasteredSpellbookSpell(rawSpell) : rawSpell;
 
       logger.debug("Class spell parsing, class info", classInfo);
       // Sometimes there are spells here which don't have an class Info
@@ -398,7 +477,7 @@ export default class CharacterSpellFactory {
 
       logger.debug("Class spell, class found?", klass);
 
-      if (DICTIONARY.parsing.featureSpellsIgnore.includes(classInfo.name)) {
+      if (CharacterSpellFactory.isIgnoredFeatureSpell(classInfo.name, spell)) {
         logger.debug(`Skipping ${spell.definition.name} for ${classInfo.name} as included in feature`);
         continue;
       }

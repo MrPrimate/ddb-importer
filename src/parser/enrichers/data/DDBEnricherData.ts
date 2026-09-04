@@ -267,8 +267,8 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
       const lookup = SpellDataUtils.getDDBSpellLookup(ddbData, lookupType, id);
-      if (lookup?.name === name) return true;
-      return false;
+      // DDB feature names carry curly apostrophes ("Paladin’s Smite"); enrichers use straight ones
+      return lookup?.name !== undefined && utils.nameString(lookup.name) === utils.nameString(name);
     });
     return spells;
   }
@@ -276,16 +276,18 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
+    // no spell on the payload (compendium imports): the caller's max and period stand in
+    let uses: I5eSystemLimitedUses;
     if (spells.length === 0) {
       logger.error(`No spells found for feature ${name} of type ${type}`);
-      return {
+      uses = {
         spent: defaultSpent,
         max,
         recovery: [],
       };
+    } else {
+      uses = SpellDataUtils.getUses(spells[0].limitedUse);
     }
-
-    const uses: I5eSystemLimitedUses = SpellDataUtils.getUses(spells[0].limitedUse);
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];

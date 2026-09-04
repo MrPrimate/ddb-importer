@@ -50,6 +50,7 @@ export { default as RuinIncarnate } from "./RuinIncarnate";
 export { default as ShadowMass } from "./ShadowMass";
 export { default as SpiritTotem } from "./SpiritTotem";
 export { default as SpreadingSpores } from "./SpreadingSpores";
+export { default as StarMap } from "./StarMap";
 export { default as StarryForm } from "./StarryForm";
 export { default as Stormborn } from "./Stormborn";
 export { default as SummonWildfireSpirit } from "./SummonWildfireSpirit";

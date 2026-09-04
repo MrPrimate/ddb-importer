@@ -26,6 +26,7 @@ export * as GraspingVine from "./GraspingVine/_module";
 export * as Grim from "./Grim/_module";
 export * as GuardianOfFaith from "./GuardianOfFaith/_module";
 export * as HomunculusServant from "./HomunculusServant/_module";
+export * as IllusoryDragon from "./IllusoryDragon/_module";
 export * as Imp from "./Imp/_module";
 export * as LivingBladeOfDisaster from "./LivingBladeOfDisaster/_module";
 export * as Nosferatu from "./Nosferatu/_module";

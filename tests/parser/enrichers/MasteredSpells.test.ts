@@ -17,7 +17,7 @@ const FEATURE_ID = 413;
 const CHOICE_TYPE_ID = 12168134;
 
 function classSpell(name: string, level: number, flags: Record<string, any> = {}): any {
-  return { componentId: 999, usesSpellSlot: true, prepared: true, alwaysPrepared: true, limitedUse: null, definition: { name, level }, ...flags };
+  return { componentId: 999, usesSpellSlot: true, prepared: true, alwaysPrepared: true, limitedUse: null, atWillLimitedUseLevel: null, definition: { name, level }, ...flags };
 }
 
 /** A "Choose a Spell" pick on the feature, resolving through choiceDefinitions like the real payload. */
@@ -101,7 +101,8 @@ describe("Wizard SignatureSpells", () => {
   it("casts each signature spell at level 3 with its own once per Short Rest use", () => {
     const e = build(SignatureSpells, "Signature Spells", {
       spells: [
-        classSpell("Fireball", 3, { isSignatureSpell: true, atWillLimitedUseLevel: 3, limitedUse: { maxUses: 1, resetType: 1, numberUsed: 1 } }),
+        // DDB's real shape: isSignatureSpell stays null, the at-will level and a 1/SR use mark the pick
+        classSpell("Fireball", 3, { isSignatureSpell: null, atWillLimitedUseLevel: 3, usesSpellSlot: false, limitedUse: { maxUses: 1, resetType: 1, numberUsed: 1 } }),
         classSpell("Counterspell", 3, { isSignatureSpell: true, atWillLimitedUseLevel: 3 }),
         classSpell("Magic Missile", 1, { baseLevelAtWill: true }),
       ],

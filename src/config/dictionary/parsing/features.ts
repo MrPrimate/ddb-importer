@@ -386,6 +386,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimator's Skillset",
     "Spirits from Beyond",
     "Stalker's Prowess",
+    "Transmutation Savant",
+    "Signature Spells",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -569,6 +571,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Transmuter's Stone",
     "Transmutation Savant",
     "Signature Spells",
+    "Spell Mastery",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -629,6 +632,24 @@ export const FEATURE_SPELLS_IGNORE = [
   "Beasts of Ill Omen",
   "Spiteful Curse",
   "Shape-Shifter",
+  "Wondrous Alteration",
+  "Undead Thralls",
+  "Phantasmal Creatures",
+  "Shapechanger",
+  "Faithful Steed",
+  "Paladin's Smite",
+  "Contact Patron",
+  "Steps of the Fey",
+  "Fey Reinforcements",
+  "Misty Wanderer",
+  "Ethereal Step",
+  "Dragon Companion",
+  "Star Map",
+  "Consult the Spirits",
+  "Restorative Reagents",
+  "Chemical Mastery",
+  "Mapping Magic",
+  "Superior Atlas",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
