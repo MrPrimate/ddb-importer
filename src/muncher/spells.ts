@@ -225,7 +225,7 @@ export async function parseSpells({
 
   resolvedNotifier("Downloading spell data...");
 
-  // disable source filter if ids provided; explicit `sources` (override) wins → force on
+  // disable source filter if ids provided; explicit `sources` (override) wins -> force on
   const sourceFilter = sources && sources.length > 0
     ? true
     : !(ids !== null && ids.length > 0);

@@ -105,7 +105,7 @@ describe("Transmuter's Stone self-enchantment", () => {
       expect.objectContaining({ key: "system.traits.dr.value", value: "fire" }),
     ]);
     const speed = riders.find((hint) => hint.name === "Transmuter's Stone: Speed")!;
-    expect(speed.changes[1]).toMatchObject({ key: "system.attributes.movement.speeds.walk", value: "10" });
+    expect(speed.changes![1]).toMatchObject({ key: "system.attributes.movement.speeds.walk", value: "10" });
   });
 
   it("with Potent Stone adds a free second enchant activity and the Mighty Build and Tremorsense profiles", () => {
@@ -131,7 +131,7 @@ describe("Transmuter's Stone self-enchantment", () => {
     ]);
 
     const mighty = enricher.effects.find((hint) => hint.name === "Transmuter's Stone: Mighty Build")!;
-    expect(mighty.changes.map((change) => change.key)).toEqual([
+    expect(mighty.changes!.map((change) => change.key)).toEqual([
       "system.abilities.con.proficient",
       "system.abilities.str.save.roll.mode",
       "flags.dnd5e.powerfulBuild",

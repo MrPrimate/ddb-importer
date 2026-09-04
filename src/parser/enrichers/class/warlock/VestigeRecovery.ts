@@ -22,7 +22,11 @@ export default class VestigeRecovery extends DDBEnricherData {
       activationCondition: "When your Vestige Companion would drop to 0 HP",
       addItemConsume: true,
       additionalConsumptionTargets: [
-        { type: "spellSlots", value: "1", target: "pact", scaling: { mode: "", formula: "" } },
+        {
+          type: "attribute",
+          value: "1",
+          target: "spells.pact.value",
+        },
       ],
     };
   }

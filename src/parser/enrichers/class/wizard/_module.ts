@@ -26,6 +26,7 @@ export { default as HypnoticGaze } from "./HypnoticGaze";
 export { default as HypnoticPresence } from "./HypnoticPresence";
 export { default as IllusorySelf } from "./IllusorySelf";
 export { default as MomentaryStasis } from "./MomentaryStasis";
+export { default as NecromancySpellbook } from "./NecromancySpellbook";
 export { default as Overchannel } from "./Overchannel";
 export { default as PhantasmalCreatures } from "./PhantasmalCreatures";
 export { default as PowerSurge } from "./PowerSurge";

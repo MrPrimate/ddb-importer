@@ -746,6 +746,27 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  /**
+   * Necromancer (Arcana Unleashed): Necromancy Spellbook puts Find Familiar in the spellbook at
+   * level 3, but DDB does not add the spell to the character, so the subclass grants it. It is a
+   * spellbook entry rather than an always-prepared spell, hence the unprepared state.
+   */
+  async _wizardFixes() {
+    if (this.data.name.startsWith("Necromancer") && !this.is2014) {
+      const findFamiliar = await AdvancementHelper.getSpellGrantAdvancement({
+        name: "Necromancy Spellbook",
+        spellGrants: [{ name: "Find Familiar", level: 3 }],
+        spellLinks: this.spellLinks,
+        method: "spell",
+        requireSlot: true,
+        prepared: CONFIG.DND5E.spellPreparationStates.unprepared.value,
+        level: 3,
+        is2024: this.is2024,
+      });
+      if (findFamiliar) this._addAdvancement(findFamiliar.toObject() as I5eAdvancement);
+    }
+  }
+
   async _clericFixes() {
     if (this.data.name.startsWith("Grave Domain")) {
       const pullOfDeath: I5eAdvancementScaleValue = {
@@ -776,6 +797,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._monkFixes();
     this._clericFixes();
     this._warlockFixes();
+    await this._wizardFixes();
     await this._bardFixes();
   }
 

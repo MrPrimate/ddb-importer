@@ -429,12 +429,13 @@ global {
     type: "transform";
     transform?: I5eActivityTransform;
     settings?: I5eActivitySettings;
+    profiles?: I5eSummonProfile[];
   };
 
   /**
    * dnd5e 6.0 teleport distance. Normally leave the whole object unset - the distance is derived
-   * from the activity's `range` (`units: "any"` → Infinity). Only set `override: true` with
-   * `value`/`units` for a custom distance; `value` is a deterministic formula ("" → Infinity).
+   * from the activity's `range` (`units: "any"` -> Infinity). Only set `override: true` with
+   * `value`/`units` for a custom distance; `value` is a deterministic formula ("" -> Infinity).
    */
   interface I5eActivityTeleport {
     override?: boolean;

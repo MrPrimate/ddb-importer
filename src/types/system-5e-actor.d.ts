@@ -126,7 +126,7 @@ global {
     bonus?: string;
     hover?: boolean;
     special?: string;
-    /** dnd5e 6.0 - speeds moved under this MappingField (`movement.walk` → `movement.speeds.walk`; old paths shimmed for AE keys only). */
+    /** dnd5e 6.0 - speeds moved under this MappingField (`movement.walk` -> `movement.speeds.walk`; old paths shimmed for AE keys only). */
     speeds?: I5eMovementRecord;
     units?: string;
     ignoredDifficultTerrain?: string[];
