@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-export default class EverReadyShot extends DDBEnricherData {
+export default class FiendishSwap extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -8,11 +8,10 @@ export default class EverReadyShot extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Regain 1 Use",
-      addItemConsume: true,
-      itemConsumeTargetName: "Arcane Shot",
-      itemConsumeValue: "-1",
-      activationType: "encounter",
+      name: "Divine Power: Fiendish Swap",
+      targetType: "self",
+      activationType: "bonus",
+      data: { range: { value: "60", units: "ft" } },
     };
   }
 

@@ -171,7 +171,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Enfeebling Arrow": "Arcane Shot Option",
     // "Piercing Arrow": "Arcane Shot Option",
     // "Seeking Arrow": "Arcane Shot Option",
-    "Shadow Arrow": "Arcane Shot Option",
+    // "Shadow Arrow": "Arcane Shot Option",
     "Circle of the Land Spells": "Circle of the Spells",
     "Circle of the Moon Spells": "Circle of the Spells",
     "Circle of the Sea Spells": "Circle of the Spells",

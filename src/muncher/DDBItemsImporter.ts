@@ -88,11 +88,20 @@ function mergeItemPayloads(accumulated: TDDBItemsPayload | null, incoming: unkno
   const previous = accumulated !== null && !Array.isArray(accumulated)
     ? accumulated
     : { items: [], spells: [], extra: [] } as IDDBItemsResponseData;
+  const evolved = { ...(previous.evolved ?? {}), ...(chunk.evolved ?? {}) };
   return {
     items: [...(previous.items ?? []), ...items],
     spells: [...(previous.spells ?? []), ...spells],
     extra: [...(previous.extra ?? []), ...extra],
+    ...(Object.keys(evolved).length > 0 ? { evolved } : {}),
   };
+}
+
+export function registerEvolvedProperties(evolved: Record<string, string> | undefined): void {
+  if (!evolved || Object.keys(evolved).length === 0) return;
+  if (!foundry.utils.hasProperty(CONFIG, "DDB")) return;
+  CONFIG.DDB.EVOLVED_PROPERTIES = { ...(CONFIG.DDB.EVOLVED_PROPERTIES ?? {}), ...evolved };
+  logger.debug(`Registered ${Object.keys(evolved).length} evolved item property texts from the proxy`);
 }
 
 function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinition[]): IDDBItemsSource {
@@ -101,10 +110,12 @@ function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinitio
     return { items: payload as IDDBItemDefinition[], spells: [], extra: [] };
   }
   const raw = payload as IDDBItemsResponseData;
+  registerEvolvedProperties(raw.evolved);
   return {
     items: raw.items,
     spells: (raw.spells ?? []).map((s) => s.data),
     extra: raw.extra ?? [],
+    ...(raw.evolved ? { evolved: raw.evolved } : {}),
   };
 }
 

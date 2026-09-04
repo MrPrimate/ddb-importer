@@ -980,7 +980,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
 
       if (effectHint.standalone) {
-        effect._id = utils.namedIDStub(`${this.data.name} ${effect.name}`, { prefix: "ddb" });
+        effect._id = utils.namedIDStub(effectHint.standaloneKey ?? `${this.data.name} ${effect.name}`, { prefix: "ddb" });
         effect.transfer = false;
         if (effectHint.originReplacement) {
           for (const change of effect.system?.changes ?? []) {

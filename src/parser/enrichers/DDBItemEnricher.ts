@@ -64,10 +64,23 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
     "Wyrm's Breath Grenade": "Wyrm's Breath Grenade",
     "of the Vampire Lily Dragon": "Vampire Lily Dragon Armor",
+    // Arcana Unleashed item families
+    "Staff of Skulls": "Staff of Skulls",
+    "Tramontane ": "Tramontane Armor",
+    "Goading ": "Goading Ammunition",
+    // Arcana Unleashed evolving-item example families, "<Property> <Base>"
+    "Blade of the Guardian": "Evolved Item",
+    "Breastplate of the Tyrant": "Evolved Item",
+    "Rod of the Honed Mind": "Evolved Item",
+    "Wand of Celestial Prowess": "Evolved Item",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
+    "Staff of Skulls": ItemEnrichers.StaffOfSkulls,
+    "Tramontane Armor": ItemEnrichers.TramontaneArmor,
+    "Goading Ammunition": ItemEnrichers.GoadingAmmunition,
+    "Evolved Item": ItemEnrichers.EvolvedItem,
     "Banjo of Ol' Jericho Sticks": ItemEnrichers.BanjoOfOlJerichoSticks,
     "Bell of the Dusk Mother": ItemEnrichers.BellOfTheDuskMother,
     "Phoenix Rocket Sword": ItemEnrichers.PhoenixRocketSword,

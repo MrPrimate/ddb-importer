@@ -1,0 +1,44 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class ExtinguishUndead extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Extinguish Undead",
+      targetType: "creature",
+      activationType: "special",
+      activationCondition: "An Undead you can see drops to 0 HP; roll d6s equal to half its unexpended Hit Dice",
+      data: {
+        save: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
+        damage: {
+          onSave: "half",
+          parts: [
+            DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "necrotic", scalingMode: "none" }),
+          ],
+        },
+        target: {
+          affects: { type: "creature" },
+          template: { type: "radius", size: "10", units: "ft" },
+        },
+      },
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Extinguished: No Reactions",
+        activityMatch: "Extinguish Undead",
+        options: { expiry: "targetStart" },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.noReaction"),
+        ],
+      },
+    ];
+  }
+
+}

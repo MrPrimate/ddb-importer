@@ -565,6 +565,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Floral Legacy",
     "Floral Breath Weapon",
     "Floral Fortitude",
+    "Student of Arcana",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

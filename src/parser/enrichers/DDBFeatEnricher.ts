@@ -46,6 +46,8 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Strike of the Giants (": "Strike of the Giants",
     "Strike of the Giants:": "Strike of the Giants",
     "Greater Mark of ": "Greater Mark of",
+    "Arcane Infiltrator (": "Arcane Infiltrator",
+    "Familiar Friend (": "Familiar Friend",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -53,6 +55,8 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     Generic: FeatEnrichers.Generic,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
     "Greater Mark of": FeatEnrichers._GreaterMarkOf,
+    "Arcane Infiltrator": FeatEnrichers.ArcaneInfiltrator,
+    "Familiar Friend": FeatEnrichers.FamiliarFriend,
     "Greater Aberrant Mark": FeatEnrichers._GreaterMarkOf,
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
