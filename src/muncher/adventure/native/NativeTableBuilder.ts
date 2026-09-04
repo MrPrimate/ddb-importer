@@ -90,7 +90,7 @@ export async function buildTables(
       const node = tableNodes[tableNum];
       try {
         const diceKeys: string[] = findDiceColumns(node);
-        if (diceKeys.length === 0) continue; // only dice tables → RollTables
+        if (diceKeys.length === 0) continue; // only dice tables -> RollTables
 
         const parsed = parseTable(node) as I5eParsedTable;
         const keys: string[] = getHeadings(node);

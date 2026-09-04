@@ -44,7 +44,7 @@ async function createFoldersInPack(pack: CompendiumCollection.Any, folderDocs: I
 
 /**
  * Scenes are intentionally NOT copied to a compendium - they live in the world
- * only. Compendium re-import would break note → journal and token → monster links
+ * only. Compendium re-import would break note -> journal and token -> monster links
  * (Foundry doesn't resolve cross-pack note targets cleanly), so scene folders
  * here are also ignored.
  *
@@ -75,7 +75,7 @@ export async function importToCompendiums(journals: any[], tables: any[], folder
   await createFoldersInPack(journalPack, folders.filter((f) => f.type === "JournalEntry"));
   await createFoldersInPack(tablePack, folders.filter((f) => f.type === "RollTable"));
 
-  // journals → compendium copies (repoint refs, keep world docs untouched via clone)
+  // journals -> compendium copies (repoint refs, keep world docs untouched via clone)
   const jToCreate: JournalEntry.CreateData[] = [];
   for (const journal of journals) {
     if (journalPack.index.has(journal._id)) continue;
@@ -92,7 +92,7 @@ export async function importToCompendiums(journals: any[], tables: any[], folder
     await JournalEntry.createDocuments(jToCreate, { pack: jPackId, keepId: true, keepEmbeddedIds: true });
   }
 
-  // tables → compendium copies (repoint result-text refs)
+  // tables -> compendium copies (repoint result-text refs)
   const tToCreate: RollTable.CreateData[] = [];
   for (const table of tables) {
     if (tablePack.index.has(table._id)) continue;

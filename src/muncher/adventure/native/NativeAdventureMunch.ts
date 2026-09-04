@@ -144,7 +144,7 @@ export default class NativeAdventureMunch {
     // compendium-only implies adding to compendiums; both fall back to their settings
     const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters } = this.#effectiveFlags(options);
 
-    // 2014→2024 monster swap: prompt once (chooser dialog) for which referenced
+    // 2014->2024 monster swap: prompt once (chooser dialog) for which referenced
     // monsters to upgrade, then thread the map to compendium import, journal-link
     // replacement and scene tokens. Empty map when the option is off / lookup fails.
     const monsterSwap: Map<number, MonsterSwap> = use2024monsters
@@ -174,7 +174,7 @@ export default class NativeAdventureMunch {
     if (zip) {
       this.#phase("Downloading assets");
       imageOpts = { bookCode, assetMap: await importAssets({ zip, adventureName: bookName, enhancements, notify: this.#item }) };
-      // extract the book's native :root theme vars → scoped css stored on the
+      // extract the book's native :root theme vars -> scoped css stored on the
       // journal flags, injected as a <style> when a journal opens (renderJournalSheet).
       themeCss = await buildBookThemeCss({ zip, bookCode, assetMap: imageOpts.assetMap });
     }
@@ -182,7 +182,7 @@ export default class NativeAdventureMunch {
     const processed = rows.map((row) => processRow(row, adventureConfig, imageOpts));
     adjustParentRows(processed, getJournalHints(bookCode));
 
-    // RollTables: parse <table> elements → world tables in nested per-chapter
+    // RollTables: parse <table> elements -> world tables in nested per-chapter
     // folders (created lazily via FolderHelper  no empty folders), and append
     // "Open RollTable" links into the journal content.
     this.#phase("Building journals & tables");
@@ -307,7 +307,7 @@ export default class NativeAdventureMunch {
 
   /**
    * POC harness: prompt for a `.db3` + key + bookCode, then import journals.
-   * Lets us validate rows→journals before the proxy routes exist.
+   * Lets us validate rows->journals before the proxy routes exist.
    * Call: DDBImporter.debug.nativeAdventureImportFile()
    */
   static async promptImportFromFile(): Promise<any> {

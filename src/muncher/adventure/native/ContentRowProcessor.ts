@@ -67,8 +67,8 @@ export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint
  * Port of the journals-relevant parts of the muncher's Row.js +
  * Journal._generateJournalEntryWithPages.
  *
- * Pipeline: parse → addClasses → ddb:// link replacement → strip the leading
- * title heading → collapse whitespace. JSDOM is replaced by `utils.htmlToDoc`
+ * Pipeline: parse -> addClasses -> ddb:// link replacement -> strip the leading
+ * title heading -> collapse whitespace. JSDOM is replaced by `utils.htmlToDoc`
  * (DOMParser). Dice replacement and cross-page dynamic links are deferred.
  */
 export function processRow(row: ContentRow, adventureConfig: any, images?: ImageOpts): ProcessedRow {
@@ -82,7 +82,7 @@ export function processRow(row: ContentRow, adventureConfig: any, images?: Image
 
   const doc = utils.htmlToDoc(linked);
 
-  // 2. image links → uploaded stored paths (only when assets were imported)
+  // 2. image links -> uploaded stored paths (only when assets were imported)
   if (images) replaceImageLinks(doc, images.bookCode, images.assetMap);
 
   // capture pre-strip, PRE-dice HTML (tables + headings intact) for table parsing.

@@ -6,7 +6,7 @@ import { IMAGE_EXT } from "./NativeShared";
  * Native (journals-only) adventure link rewriting. The compendium-link logic is
  * shared with the zip importer via CompendiumLinkReplacer; here we only add the
  * native-specific image-path rewrite + CSS classes, plus a thin wrapper that
- * passes the native `adventureConfig.lookups` and the optional 2014→2024
+ * passes the native `adventureConfig.lookups` and the optional 2014->2024
  * `monstersToReplace` map (the world-actor branch stays off via shared defaults).
  */
 
@@ -14,9 +14,9 @@ import { IMAGE_EXT } from "./NativeShared";
  * Rewrite adventure image links (port of the muncher's replaceImageLinks), then
  * point them at the uploaded stored paths.
  *
- *  - `<img src="./<bookCode>/X">` (or `"<bookCode>/X"`) → `assets/X`
- *  - `<a href="ddb://file/<bookCode>/X">`: image ext → drop href; else → `assets/X`
- *  - finally, any `assets/X` ref → the uploaded stored path from `assetMap`
+ *  - `<img src="./<bookCode>/X">` (or `"<bookCode>/X"`) -> `assets/X`
+ *  - `<a href="ddb://file/<bookCode>/X">`: image ext -> drop href; else -> `assets/X`
+ *  - finally, any `assets/X` ref -> the uploaded stored path from `assetMap`
  *
  * Mutates the live document nodes (DOMParser persists setAttribute into innerHTML).
  */
@@ -24,7 +24,7 @@ export function replaceImageLinks(doc: Document, bookCode: string, assetMap: Map
   const dotPrefix = `./${bookCode}/`;
   const barePrefix = `${bookCode}/`;
 
-  // 1. relative <img> src → assets/
+  // 1. relative <img> src -> assets/
   doc.querySelectorAll("img[src]").forEach((img) => {
     const src = img.getAttribute("src") ?? "";
     if (src.startsWith(dotPrefix)) img.setAttribute("src", `assets/${src.slice(dotPrefix.length)}`);
@@ -64,7 +64,7 @@ export function addClasses(doc: Document): void {
 /**
  * Replace ddb:// links in journal HTML with compendium links, or fall back to DDB urls.
  * Thin wrapper over the shared CompendiumLinkReplacer (journals-only: the world-actor
- * branch stays off; 2014→2024 monster swap applied when adventureConfig carries it).
+ * branch stays off; 2014->2024 monster swap applied when adventureConfig carries it).
  * @param text the page HTML
  * @param adventureConfig result of generateAdventureConfig({ full: true }), optionally
  *   carrying `monstersToReplace: {id2014,id2024}[]` from the native importer

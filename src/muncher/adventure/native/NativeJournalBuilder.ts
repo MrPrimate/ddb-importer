@@ -41,9 +41,9 @@ function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5
 /**
  * Port of the journals-relevant parts of JournalFactory.js + Journal.js.
  *
- * - A row with a `cobaltId` is a chapter → its own JournalEntry (forceAdd).
- * - A row with neither cobaltId nor parentId is a standalone → its own JournalEntry.
- * - A row with a `parentId` (and no cobaltId) is a section → its page is appended to
+ * - A row with a `cobaltId` is a chapter -> its own JournalEntry (forceAdd).
+ * - A row with neither cobaltId nor parentId is a standalone -> its own JournalEntry.
+ * - A row with a `parentId` (and no cobaltId) is a section -> its page is appended to
  *   the chapter JournalEntry whose `cobaltId === parentId`.
  *
  * Returns an array of JournalEntry document objects (each with `pages`).

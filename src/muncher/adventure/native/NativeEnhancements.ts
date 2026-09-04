@@ -6,7 +6,7 @@ import { ensureAssetsPrefix } from "./NativeShared";
  * proxy. Mirrors the muncher's `getEnhancedData` (ddb-adventure-muncher/munch/data/enhance.js).
  *
  * Endpoint: POST {proxy}/proxy/adventure/enhancement
- * body { cobalt, bookId } → { success, data: [{ img, bookCode, scene_img?, hiresImg, ... }] }.
+ * body { cobalt, bookId } -> { success, data: [{ img, bookCode, scene_img?, hiresImg, ... }] }.
  * Enhancements are optional: any failure degrades to an empty list.
  */
 
@@ -32,7 +32,7 @@ export async function fetchEnhancements(bookId: number | string): Promise<any[]>
   }
 }
 
-/** Map `assets/<path>` → enhanced `hiresImg` url for every entry that has one.
+/** Map `assets/<path>` -> enhanced `hiresImg` url for every entry that has one.
  *
  * Per-entry keys: `img` (original path, used in journal HTML) and `scene_img`
  * (scene-only override, often points at a player-version map distinct from
@@ -52,7 +52,7 @@ export function buildEnhancedUrlMap(list: any[]): Map<string, string> {
   return map;
 }
 
-/** Map `assets/<path>` → enhancement display name (`adjustName` else `name`) for
+/** Map `assets/<path>` -> enhancement display name (`adjustName` else `name`) for
  * every entry that carries one. Keyed by both `img` and `scene_img` so a scene
  * background resolved from either points at the same name. Lets NativeSceneBuilder
  * prefer the enrichment name over the parsed HTML caption (the proxy meta-data

@@ -14,7 +14,7 @@ import { IMAGE_EXT } from "./NativeShared";
  * FileHelper.uploadImage + the CONFIG.DDBI.KNOWN cache to match the existing
  * AdventureMunch.importImage uses for zip-based imports.
  *
- * Returns a map of `assets/<rest>` → uploaded stored path, for the HTML rewrite.
+ * Returns a map of `assets/<rest>` -> uploaded stored path, for the HTML rewrite.
  */
 
 // Upload one asset to its muncher-matching path (dir-ensure + dedupe + cache).

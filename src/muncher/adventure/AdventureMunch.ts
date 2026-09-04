@@ -1143,7 +1143,7 @@ export default class AdventureMunch {
           }
         }
       }
-      // v13 background.offsetX/Y → v14 root shiftX/Y (only if not already set).
+      // v13 background.offsetX/Y -> v14 root shiftX/Y (only if not already set).
       if (data.shiftX == null && Number.isFinite(stray.offsetX)) data.shiftX = stray.offsetX;
       if (data.shiftY == null && Number.isFinite(stray.offsetY)) data.shiftY = stray.offsetY;
 
@@ -1190,11 +1190,11 @@ export default class AdventureMunch {
     data.levels = [level];
     data.initialLevel = DEFAULT_LEVEL_ID;
 
-    // v13 background.offsetX/Y → v14 top-level shiftX/Y
+    // v13 background.offsetX/Y -> v14 top-level shiftX/Y
     data.shiftX = foundry.utils.getProperty(bg, "offsetX") ?? data.shiftX ?? 0;
     data.shiftY = foundry.utils.getProperty(bg, "offsetY") ?? data.shiftY ?? 0;
 
-    // Fog format: { exploration, overlay, colors } → { mode, colors }
+    // Fog format: { exploration, overlay, colors } -> { mode, colors }
     if (data.fog && !("mode" in data.fog)) {
       data.fog = {
         mode: data.fog.exploration ? 1 : 0,
@@ -1897,7 +1897,7 @@ export default class AdventureMunch {
   /**
    * Replaced ddb links with compendium or world links, or links back to DDB.
    * Thin wrapper over the shared CompendiumLinkReplacer (the zip importer feeds
-   * its instance state: world-actor + 2014→2024 monster-swap branches).
+   * its instance state: world-actor + 2014->2024 monster-swap branches).
    * @param {string} text HTML text to act on
    * @returns {string} HTML with modified links
    */

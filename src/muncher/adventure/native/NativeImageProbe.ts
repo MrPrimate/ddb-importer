@@ -3,10 +3,10 @@ import { logger, sampleEdgeBackgroundColor } from "../../../lib/_module";
 /**
  * Browser equivalent of the muncher's `image-size` lib + edge-colour sampling.
  *
- * One fetch per image → Blob → createImageBitmap (real width/height) + edge
+ * One fetch per image -> Blob -> createImageBitmap (real width/height) + edge
  * pixel sampling (sympathetic background colour matching DDBMap's behaviour
  * via [sampleEdgeBackgroundColor](src/lib/ImageEdgeColor.ts#L18)). Falls back
- * to `new Image()` size probe on fetch/CORS/decode failure; edgeColor → null.
+ * to `new Image()` size probe on fetch/CORS/decode failure; edgeColor -> null.
  *
  * 2000x2000 size fallback matches the muncher
  * ([Scene.js#imageSize](ddb-adventure-muncher/munch/adventure/Scenes/Scene.js)).
@@ -84,7 +84,7 @@ function probeViaImage(url: string, timeoutMs: number): Promise<ImageProbeResult
   });
 }
 
-/** Probe size + edge colour. Same url → same Promise across the whole run. */
+/** Probe size + edge colour. Same url -> same Promise across the whole run. */
 export function probeImage(url: string, timeoutMs = 5000): Promise<ImageProbeResult> {
   if (!url) return Promise.resolve(FALLBACK);
   const hit = cache.get(url);

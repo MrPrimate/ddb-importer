@@ -322,7 +322,7 @@ export default class DDBQuickplay {
     const xImg = e.position[0] * DDBQuickplay.POSITION_UNIT_PX + imageWidth / 2;
     const yImg = -e.position[1] * DDBQuickplay.POSITION_UNIT_PX + imageHeight / 2;
 
-    // Image-pixel space → scene-canvas space. NO offset subtraction: tile
+    // Image-pixel space -> scene-canvas space. NO offset subtraction: tile
     // coordinates are in canvas (post-padding) space and Foundry's texture
     // offset only adjusts grid-vs-image alignment, not tile placement.
     const xScene = xImg * sceneScale;

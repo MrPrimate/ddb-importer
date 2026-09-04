@@ -65,7 +65,7 @@ global {
 
   /* ---- NativeMonsterImporter ---- */
 
-  /** A selected 2014→2024 monster swap (subset of MonsterReplacer's hint payload). */
+  /** A selected 2014->2024 monster swap (subset of MonsterReplacer's hint payload). */
   interface MonsterSwap {
     id2014: number;
     id2024: number;

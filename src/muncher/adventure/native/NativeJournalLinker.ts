@@ -7,15 +7,15 @@ import { normSlug } from "./NativeNoteResolution";
  * DynamicLinkReplacer.moduleReplaceLinks. Applied to journal pages and to
  * RollTable result text.
  *
- *  - `ddb://compendium/<bookCode>/<slug>[#header]` → `@UUID[JournalEntry.<jid>.JournalEntryPage.<pid>[#header]]{text}`
+ *  - `ddb://compendium/<bookCode>/<slug>[#header]` -> `@UUID[JournalEntry.<jid>.JournalEntryPage.<pid>[#header]]{text}`
  *    (resolved by slug; compendium links inside headings are flattened to text)
- *  - same-page `#anchor` (only with a current page) → `@UUID[...currentPage#anchor]{text}`
- *  - unresolved → left as-is + warning
+ *  - same-page `#anchor` (only with a current page) -> `@UUID[...currentPage#anchor]{text}`
+ *  - unresolved -> left as-is + warning
  */
 
 type SlugIndex = Map<string, { jid: string; pid: string }>;
 
-// slug → { jid, pid } across every page (sections resolve to their chapter journal)
+// slug -> { jid, pid } across every page (sections resolve to their chapter journal)
 function buildSlugIndex(journals: any[]): SlugIndex {
   const index: SlugIndex = new Map();
   for (const journal of journals) {
@@ -70,7 +70,7 @@ function resolveInHtml(
     changed = true;
   });
 
-  // same-page #anchor links → link to the current page (journals only)
+  // same-page #anchor links -> link to the current page (journals only)
   if (current) {
     doc.querySelectorAll("a[href^='#']").forEach((node) => {
       const anchor = (node.getAttribute("href") ?? "").slice(1);

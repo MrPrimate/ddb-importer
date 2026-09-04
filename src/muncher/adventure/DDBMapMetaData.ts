@@ -289,7 +289,7 @@ export default class DDBMapMetaData {
   //   - `gridType`, `gridDistance`, `gridUnits`, `gridColor`, `gridAlpha` are
   //     separate top-level scalars
   // V12+ collapses these into a `grid: { type, size, distance, units, color,
-  // alpha }` object. `_migrateSceneDataToV14` migrates V12→V14 but doesn't
+  // alpha }` object. `_migrateSceneDataToV14` migrates V12->V14 but doesn't
   // know about the V10/V11 split-grid shape, so we normalise here first.
   // Subsequent migration + buildSceneUpdate then see a proper grid object.
   private static _normaliseLegacyGrid(info: any): void {
@@ -1176,7 +1176,7 @@ export default class DDBMapMetaData {
       } catch (_e) { /* ignore */ }
     };
 
-    // 2014→2024 monster swap (native importer): map a token's legacy DDB id to its
+    // 2014->2024 monster swap (native importer): map a token's legacy DDB id to its
     // 2024 replacement id; unswapped ids pass through unchanged.
     const swapId = (id: number): number =>
       (Number.isFinite(id) ? (options.monsterSwap?.get(id)?.id2024 ?? id) : id);
@@ -1197,7 +1197,7 @@ export default class DDBMapMetaData {
       }
     }
 
-    // Step 2: collect DDB monster ids (post 2014→2024 swap, so the 2024 actors
+    // Step 2: collect DDB monster ids (post 2014->2024 swap, so the 2024 actors
     // get imported and placed).
     const ddbIds = [...new Set(
       metaTokens
@@ -1265,7 +1265,7 @@ export default class DDBMapMetaData {
     const tokenData: any[] = [];
     for (const t of metaTokens) {
       const rawId = Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id"));
-      // Apply the 2014→2024 swap: place the 2024 actor and use its name when the
+      // Apply the 2014->2024 swap: place the 2024 actor and use its name when the
       // token carried a hard-coded legacy name.
       const ddbEntityId = swapId(rawId);
       const swapped = Number.isFinite(rawId) ? options.monsterSwap?.get(rawId) : undefined;

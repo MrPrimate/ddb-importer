@@ -18,9 +18,9 @@ import type { NativeBookZip } from "./BookData";
  * file + `<link>` is not viable - the CSS travels on the journal flag instead.)
  */
 
-// `../background_texture.png` (relative to css/) → `assets/background_texture.png`
+// `../background_texture.png` (relative to css/) -> `assets/background_texture.png`
 // which is the assetMap key for the uploaded file. Two-or-more `../` (DDB CDN
-// `../../manifest/…` images, never uploaded) cannot be resolved → blank url().
+// `../../manifest/…` images, never uploaded) cannot be resolved -> blank url().
 //
 // The bare stored path is used (as journal image src does): an inline <style>
 // resolves url() against the document, so the same relative path that works for

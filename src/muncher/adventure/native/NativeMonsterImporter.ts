@@ -13,12 +13,12 @@ export function scanMonsterIds(rows: ContentRow[]): number[] {
 }
 
 /**
- * Build the 2014→2024 monster swap map for the native importer (parity with the
+ * Build the 2014->2024 monster swap map for the native importer (parity with the
  * legacy AdventureMunch._updateMonsterData). Scans the journal-referenced monster
  * ids, fetches the 2024 hints from the proxy, and prompts the user (single
  * chooser dialog) for which to upgrade.
  *
- * Resilient: no cobalt / proxy down / non-supporter / nothing selected → empty
+ * Resilient: no cobalt / proxy down / non-supporter / nothing selected -> empty
  * map + warn (links + tokens stay 2014).
  */
 export async function buildMonsterSwapMap(rows: ContentRow[], adventureName: string): Promise<Map<number, MonsterSwap>> {
@@ -42,7 +42,7 @@ export async function buildMonsterSwapMap(rows: ContentRow[], adventureName: str
         name2024: data.name2024,
       });
     }
-    logger.info(`NativeMonsterImporter: ${swap.size} monster(s) selected for 2014→2024 replacement`);
+    logger.info(`NativeMonsterImporter: ${swap.size} monster(s) selected for 2014->2024 replacement`);
   } catch (error) {
     logger.warn(`NativeMonsterImporter: 2024 monster lookup failed (${(error as Error).message ?? error}); keeping 2014 monsters`);
   }
@@ -58,14 +58,14 @@ export async function buildMonsterSwapMap(rows: ContentRow[], adventureName: str
  * DDBMonsterFactory.processIntoCompendium. Once present, the existing
  * foundryCompendiumReplace resolves the links (after generateAdventureConfig).
  *
- * Optional + resilient: no cobalt / proxy down / non-Patreon → warn and continue
+ * Optional + resilient: no cobalt / proxy down / non-Patreon -> warn and continue
  * (those links fall back to DDB urls).
  */
 export async function importRequiredMonsters(rows: ContentRow[], swap?: Map<number, MonsterSwap>): Promise<void> {
   const ids = scanIds(rows, MONSTER_REF_RE);
   if (ids.size === 0) return;
 
-  // Apply the 2014→2024 swap so the 2024 target ids get imported (unswapped
+  // Apply the 2014->2024 swap so the 2024 target ids get imported (unswapped
   // ids pass through unchanged). Dedup via Set in case two 2014 ids collapse.
   const mapped = new Set<number>([...ids].map((id) => swap?.get(Number(id))?.id2024 ?? Number(id)));
 
@@ -102,7 +102,7 @@ export async function importAllMonstersToWorld(rows: ContentRow[], bookName: str
   const ids = scanIds(rows, MONSTER_REF_RE);
   if (ids.size === 0) return;
 
-  // Apply the 2014→2024 swap (replaced ids → 2024, others unchanged) so the world
+  // Apply the 2014->2024 swap (replaced ids -> 2024, others unchanged) so the world
   // gets only the not-replaced legacy actors + their 2024 replacements - never the
   // replaced 2014 actor alongside its 2024 version. Dedup via Set.
   const mapped = [...new Set([...ids].map((id) => swap?.get(Number(id))?.id2024 ?? Number(id)))];

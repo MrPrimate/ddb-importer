@@ -14,10 +14,10 @@ import { getNativeSessionCache } from "./NativeSessionCache";
  * resolve their references. Always into the compendiums (never world).
  *
  * Edition is selected from the book's DDB source category:
- *   1 or 26 → sources [1, 2]    (2014 core)
- *   24 or 38 → sources [148, 145] (2024 core)
- *   otherwise → DDBSources.is2024Source({sourceId: source.id}) → [148, 145];
- *               DDBSources.is2014Source / fallback → [1, 2].
+ *   1 or 26 -> sources [1, 2]    (2014 core)
+ *   24 or 38 -> sources [148, 145] (2024 core)
+ *   otherwise -> DDBSources.is2024Source({sourceId: source.id}) -> [148, 145];
+ *               DDBSources.is2014Source / fallback -> [1, 2].
  *
  * Heavy on first run; toggles `munching-policy-update-existing` to false for the
  * duration (restored in finally) so existing docs aren't re-updated.

@@ -5,7 +5,7 @@ import { DDBReferenceLinker } from "../../parser/lib/_module";
  * Shared `ddb://` link replacement for adventure journal HTML, used by both the
  * zip-based importer (AdventureMunch) and the native in-browser importer
  * (NativeLinkReplacer). The two callers differ only in whether they resolve
- * world-actor links and apply the 2014→2024 monster swap, so those are opt-in.
+ * world-actor links and apply the 2014->2024 monster swap, so those are opt-in.
  */
 
 export const COMPENDIUM_MAP: Record<string, string> = {
@@ -36,7 +36,7 @@ export const CONFIG_MAP: Record<string, string> = {
 export interface LinkReplaceOptions {
   /** `adventureConfig.lookups` - per-type arrays of compendium entries. */
   lookups: Record<string, any[]>;
-  /** Monsters being swapped 2014→2024 (zip importer only). */
+  /** Monsters being swapped 2014->2024 (zip importer only). */
   monstersToReplace?: { id2014: number; id2024: number | string }[];
   /** Resolve `ddb://monsters/<id>` to a world `@UUID[Actor.<id>]` (zip importer only). */
   journalWorldActors?: boolean;
@@ -135,7 +135,7 @@ export function foundryCompendiumReplace(text: string, options: LinkReplaceOptio
     }
   });
 
-  // final fallback: any remaining ddb:// compendium links → guessed DDB url
+  // final fallback: any remaining ddb:// compendium links -> guessed DDB url
   for (const lookupKey in COMPENDIUM_MAP) {
     doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`).forEach((node) => {
       const target = node.outerHTML;

@@ -53,8 +53,8 @@ export class NativeBookZip {
  * ddb.js/Config.js download flow.
  *
  * Proxy routes (in the proxy repo):
- *   POST /proxy/adventure/book-codes       → SQLCipher key (base64)
- *   POST /proxy/adventure/book-url/{bookId} → signed CDN url + bookCode
+ *   POST /proxy/adventure/book-codes       -> SQLCipher key (base64)
+ *   POST /proxy/adventure/book-url/{bookId} -> signed CDN url + bookCode
  *
  * The book zip is downloaded through the CORS-proxy. The
  * `.db3` is extracted; the zip stays open (NativeBookZip) for the asset phase.
