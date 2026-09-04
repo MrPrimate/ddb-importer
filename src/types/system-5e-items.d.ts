@@ -815,6 +815,12 @@ global {
     healingReroll?: boolean;
     arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
     isSpellItem?: boolean;
+    /** Generated to carry automation other documents grant or reference; filed under "Effect Items". */
+    isEffectItem?: boolean;
+    /** "Effect Items" sub-folder name of a generated effect item. */
+    effectName?: string;
+    /** The evolving-item property an effect item hosts. */
+    evolvedProperty?: string;
     spellName?: string;
     shadowBlade?: boolean;
     shadowBladeTier?: string;

@@ -111,6 +111,19 @@ export default class DDBCompanionFactory {
 
   static MULTI_2024 = DICTIONARY.companions.MULTI_COMPANIONS_2024;
 
+  /**
+   * The forms of a multi-companion stat block that its text actually names. A table entry may
+   * list the forms of several printings (Summon Plant's GHPG and Arcana Unleashed sets), and
+   * building a form the block never mentions yields a bad actor. When the text
+   * names none of them the whole list is kept, so a block that describes its forms elsewhere
+   * still builds as before.
+   */
+  static subTypesInBlock(name: string, text: string): string[] {
+    const subTypes = DDBCompanionFactory.MULTI_2024[name] ?? [];
+    const present = subTypes.filter((subType) => new RegExp(`\\b${subType}\\b`, "i").test(text));
+    return present.length > 0 ? present : subTypes;
+  }
+
   async #buildCompanion(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
     logger.debug("Beginning companion parse", { block });
     const finalOverrides: IDDBCompanionMixinOptions = {
@@ -197,7 +210,7 @@ export default class DDBCompanionFactory {
 
     for (const block of statBlockDivs) {
       const name = (block
-        .querySelector("h4.compendium-hr, h5.compendium-hr, h4")
+        .querySelector("h3.compendium-hr, h4.compendium-hr, h5.compendium-hr, h4")
         ?.textContent ?? "")
         .trim()
         .toLowerCase()
@@ -206,7 +219,7 @@ export default class DDBCompanionFactory {
         .join(" ");
 
       if (name && name in DDBCompanionFactory.MULTI_2024) {
-        for (const subType of DDBCompanionFactory.MULTI_2024[name]) {
+        for (const subType of DDBCompanionFactory.subTypesInBlock(name, block.textContent ?? "")) {
           await this.#buildCompanion(block as HTMLElement, { name, subType });
         }
       } else {

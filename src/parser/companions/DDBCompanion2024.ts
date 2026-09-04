@@ -117,7 +117,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   }
 
   #generateHitPoints() {
-    const hpString = this._extractValue("HP");
+    // AU Semblance of Life spirit forms carry their pool under a "Temp HP" label
+    const hpString = this._extractValue("HP") ?? this._extractValue("Temp HP");
     if (!hpString) return;
     this._handleHitPoints(hpString);
     this._handleHitDice(hpString);

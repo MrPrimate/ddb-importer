@@ -72,6 +72,36 @@ export default class DDBEffectImporter {
     return `Compendium.${CompendiumHelper.getCompendiumLabel("effects")}.ActiveEffect.${effectId}`;
   }
 
+  static enchantActivityUuid({ itemId, activityId }: { itemId: string; activityId: string }): string {
+    return `Compendium.${CompendiumHelper.getCompendiumLabel("items")}.Item.${itemId}.Activity.${activityId}`;
+  }
+
+  /**
+   * Point the origin at the compendium document now.
+   */
+  static resolveStandaloneOrigins(document: Record<string, any>): void {
+    for (const effect of (document.effects ?? []) as I5eEffectData[]) {
+      const standaloneId = effect.flags?.ddbimporter?.standaloneOrigin;
+      if (standaloneId) {
+        const uuid = DDBEffectImporter.effectUuid(standaloneId);
+        effect.origin = uuid;
+        effect.system ??= {};
+        foundry.utils.setProperty(effect.system, "origin.effect", uuid);
+        delete effect.flags!.ddbimporter!.standaloneOrigin;
+      }
+      const enchantmentOrigin = effect.flags?.ddbimporter?.enchantmentOrigin;
+      if (enchantmentOrigin) {
+        const uuid = DDBEffectImporter.enchantActivityUuid(enchantmentOrigin);
+        effect.origin = uuid;
+        effect.system ??= {};
+        foundry.utils.setProperty(effect.system, "origin.activity", uuid);
+        foundry.utils.setProperty(effect.system, "origin.profile", enchantmentOrigin.profileId);
+        foundry.utils.setProperty(effect, "flags.dnd5e.enchantmentProfile", enchantmentOrigin.profileId);
+        delete effect.flags!.ddbimporter!.enchantmentOrigin;
+      }
+    }
+  }
+
   /**
    * Remove the standalone effects from the documents and point the activities'
    * applyActiveEffect behaviors at the compendium copies. Behaviors may name an
@@ -80,13 +110,17 @@ export default class DDBEffectImporter {
   static extractStandaloneEffects(documents: Record<string, any>[]): I5eEffectData[] {
     const extracted = new Map<string, I5eEffectData>();
     for (const document of documents) {
+      DDBEffectImporter.resolveStandaloneOrigins(document);
       const effects = (foundry.utils.getProperty(document, DDBEffectImporter.FLAG_PATH) ?? []) as I5eEffectData[];
       if (effects.length === 0) continue;
       const byName = new Map(effects.map((effect) => [effect.name, effect]));
       const parent = DDBEffectImporter.parentInfo(document);
       for (const effect of effects) {
         if (!effect._id) continue;
-        foundry.utils.setProperty(effect, "flags.ddbimporter.parent", parent);
+        // an effect shared by several documents names its own folder parent up front
+        if (!foundry.utils.hasProperty(effect, "flags.ddbimporter.parent")) {
+          foundry.utils.setProperty(effect, "flags.ddbimporter.parent", parent);
+        }
         extracted.set(effect._id, effect);
       }
 

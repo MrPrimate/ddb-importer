@@ -47,6 +47,8 @@ const COMPANION_SPELLS_2024 = [
   "Homunculus Servant",
   "Summon Plant",
   "Summon Sea Spirit",
+  "Battle Familiar",
+  "Summon Dinosaur",
 ];
 
 const MULTI_COMPANIONS_2024: Record<string, string[]> = {
@@ -62,12 +64,20 @@ const MULTI_COMPANIONS_2024: Record<string, string[]> = {
   "Animated Object": ["Tiny", "Small", "Medium", "Large", "Huge"],
   "Giant Insect": ["Centipede", "Spider", "Wasp"],
   "Otherworldly Steed": ["Celestial", "Fey", "Fiend"],
-  "Plant Spirit": ["Blooming", "Oaken", "Thorny"],
+  // Summon Plant: the GHPG printing offers Blooming/Oaken/Thorny, the Arcana Unleashed one
+  // Fungus/Tree/Vine. Only the forms named in the stat block are built, so either printing
+  // yields three actors, never six.
+  "Plant Spirit": ["Blooming", "Oaken", "Thorny", "Fungus", "Tree", "Vine"],
+  "Battle Familiar": ["Brute", "Flyer", "Stalker"],
+  "Dinosaur Spirit": ["Ankylosaur", "Triceratops", "Tyrannosaur"],
   "Sea Serpent Spirit": ["Enormous Mouth", "Glowing Lantern", "Scaled Wings"],
 };
 
 const COMPANION_FEATURES = [
   "Steel Defender",
+  // AU Vestige Patron: the stat block sits in the chosen option's description under an h3; the
+  // choice children share the originalName, so each parses its own option text
+  "Vestige Companion",
   "Artificer Infusions",
   "Summon Wildfire Spirit",
   // "Primal Companion",

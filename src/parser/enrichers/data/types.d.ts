@@ -302,6 +302,12 @@ global {
      */
     standalone?: boolean;
     /**
+     * With `standalone`: the string the compendium id is derived from instead of
+     * "<document name> <effect name>", for an effect several documents share (the evolved
+     * item property enchantments).
+     */
+    standaloneKey?: string;
+    /**
      * With `standalone`: stamp `replacement: "origin"` on changes whose value carries roll data,
      * so caster-derived formulas (@abilities.cha.mod, @scale...) resolve against the placing
      * activity when the region applies the effect to another actor.

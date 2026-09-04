@@ -4,6 +4,9 @@ export const CONSUMPTION_LINKS = {
     "Banishing Arrow", "Beguiling Arrow", "Bursting Arrow",
     "Enfeebling Arrow", "Grasping Arrow", "Piercing Arrow", "Seeking Arrow",
     "Shadow Arrow",
+    // AU 2024 printing: prefix-stripped option names and the initiative regain
+    "Banishing Shot", "Beguiling Shot", "Bursting Shot", "Enfeebling Shot", "Grasping Shot",
+    "Piercing Shot", "Seeking Shot", "Shadow Shot", "Ever-Ready Shot",
   ],
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",

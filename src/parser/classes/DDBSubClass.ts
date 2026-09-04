@@ -725,6 +725,27 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  _warlockFixes() {
+    if (this.data.name.startsWith("Vestige Patron")) {
+      // Semblance of Life: the spirit form uses the Summon Celestial/Fiend/Undead stat block at a
+      // spell level of half the warlock level (round down, maximum 9)
+      const spiritLevel: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "semblance-spirit-level",
+          type: "number",
+          scale: {
+            14: { value: 7 },
+            16: { value: 8 },
+            18: { value: 9 },
+          },
+        },
+        title: "Semblance of Life Spirit Level",
+      };
+      this._addAdvancement(spiritLevel);
+    }
+  }
+
   async _clericFixes() {
     if (this.data.name.startsWith("Grave Domain")) {
       const pullOfDeath: I5eAdvancementScaleValue = {
@@ -754,6 +775,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._artificerFixes();
     this._monkFixes();
     this._clericFixes();
+    this._warlockFixes();
     await this._bardFixes();
   }
 

@@ -201,6 +201,11 @@ export const PARSING_FEATURES = {
     "Gunslinger": [
       "Maneuvers",
     ],
+    // AU 2024 Arcane Archer: the options container is in klass.classFeatures but in neither
+    // definition list, and it owns the Banishing Shot... choices
+    "Fighter": [
+      "Arcane Shot Options",
+    ],
   } as Record<string, string[]>,
   IGNORED_PARENT_CHOICE_FEATURES: [
     "Dark Bargain",
@@ -268,6 +273,8 @@ export const PARSING_CHOICE_FEATURES = {
   } as Record<string, string>,
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
+    // AU 2024 Arcane Archer hangs its shot options off the pool feature itself
+    "Arcane Shot",
     "Primal Companion",
     "Giant Ancestry",
     "Arcane Shot Options",

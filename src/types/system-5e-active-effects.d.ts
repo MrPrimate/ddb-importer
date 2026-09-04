@@ -161,6 +161,14 @@ global {
         characterEffect?: boolean;
         /** Set on standalone (compendium) effects: the document that declared the effect, used for compendium folders. */
         parent?: IDDBStandaloneEffectParent;
+        /** Set on an embedded effect applied from a compendium copy: that copy's id, resolved to its uuid at import (DDBEffectImporter). */
+        standaloneOrigin?: string;
+        /** Set on an applied enchantment: the compendium host item, its enchant activity and the profile id, resolved at import (DDBEffectImporter). */
+        enchantmentOrigin?: {
+          itemId: string;
+          activityId: string;
+          profileId: string;
+        };
         entityTypeId?: string | null;
         itemId?: string | null;
         effectOnSave?: boolean;
