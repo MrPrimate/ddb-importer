@@ -3313,6 +3313,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   async _addEffects() {
     if (this.data.name === "") this.data.name = "Unknown Object";
+    // effects already on the document (item-spell riders, status effects) are not DDB
+    // modifier effects, so an enricher clearing the auto effects keeps them
+    const existingEffects = [...(this.data.effects ?? [])];
     this.data = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.raw.character,
@@ -3324,6 +3327,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ? this.data.system.description.chat
         : this.data.system.description.value,
     }) as I5eInventoryItem;
+    if (this.enricher.clearAutoEffects) this.data.effects = existingEffects;
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
     const effects = await this.enricher.createEffects();

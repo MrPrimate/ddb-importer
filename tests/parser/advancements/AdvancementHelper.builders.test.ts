@@ -484,10 +484,104 @@ describe("AdvancementHelper.getWeaponAdvancement", () => {
   });
 });
 
+describe("AdvancementHelper skill choice subtypes", () => {
+  it("recognises DDB choose subtypes and names their skills", () => {
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-barbarian-skill-proficiency")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-nature-or-survival")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("magical-knowledge-skill")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("enchanter-proficiency")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-kensei-tool")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-an-iron-mind-saving-throw")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-gaming-set")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("perception")).toBe(false);
+
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-nature-or-survival")).toEqual(["nat", "sur"]);
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-deception-investigation-persuasion-slight-of-hand-or-stealth"))
+      .toEqual(["dec", "inv", "per", "slt", "ste"]);
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-a-skill")).toEqual([]);
+  });
+
+  it("builds a skill pick from a choose subtype the description does not spell out", () => {
+    const feature = makeFeature({ name: "Research Skills", requiredLevel: 3, description: "<p>You gain a proficiency.</p>" });
+    const adv: any = makeHelper({ isSubclass: true }).getSkillAdvancement({
+      feature,
+      mods: [profMod("choose-history-investigation-or-nature", "Choose History, Investigation, or Nature")],
+      level: 3,
+    });
+    expect(adv.toObject().configuration.choices).toEqual([{ count: 1, pool: ["skills:his", "skills:inv", "skills:nat"] }]);
+
+    const open: any = makeHelper({ isSubclass: true }).getSkillAdvancement({
+      feature: makeFeature({ name: "Well-Rounded", requiredLevel: 6, description: "<p>You gain a proficiency.</p>" }),
+      mods: [profMod("choose-a-skill", "Choose a Skill")],
+      level: 6,
+    });
+    expect(open.toObject().configuration.choices).toEqual([{ count: 1, pool: ["skills:*"] }]);
+  });
+});
+
+describe("AdvancementHelper.getSaveAdvancement all saves", () => {
+  it("expands Diamond Soul's single saving-throws modifier to every save", () => {
+    const adv: any = makeHelper().getSaveAdvancement({
+      feature: makeFeature({ name: "Diamond Soul", requiredLevel: 14 }),
+      mods: [profMod("saving-throws", "Saving Throws")],
+      availableToMulticlass: false,
+      level: 14,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["saves:str", "saves:dex", "saves:con", "saves:int", "saves:wis", "saves:cha"]);
+  });
+
+  it("offers a pick of any save for a choose-a-saving-throw modifier", () => {
+    const adv: any = makeHelper({ isSubclass: true }).getSaveAdvancement({
+      feature: makeFeature({ name: "Iron Mind", requiredLevel: 7 }),
+      mods: [profMod("choose-an-iron-mind-saving-throw", "Choose a Saving Throw")],
+      availableToMulticlass: false,
+      level: 7,
+    });
+    const data = adv.toObject();
+    expect(data.configuration.grants).toEqual([]);
+    expect(data.configuration.choices).toEqual([{ count: 1, pool: ["saves:*"] }]);
+  });
+});
+
 // =============================================================================
 // getExpertiseAdvancement
 // =============================================================================
 describe("AdvancementHelper.getExpertiseAdvancement", () => {
+  it("treats the 2024 level-prefixed repeats as Expertise", () => {
+    expect(AdvancementHelper.isExpertiseFeature("9: Expertise")).toBe(true);
+    expect(AdvancementHelper.isExpertiseFeature("Expertise")).toBe(true);
+    expect(AdvancementHelper.isExpertiseFeature("Keeper of History")).toBe(false);
+    const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "9: Expertise", requiredLevel: 9 }), 9);
+    const data = adv.toObject();
+    expect(data.title).toBe("Expertise");
+    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:*", "tool:thief"] }]);
+  });
+
+  it("grants the skills and tools a feature's expertise modifiers name", () => {
+    const mods = [
+      { type: "expertise", subType: "history", friendlySubtypeName: "History", restriction: "", componentId: 101 },
+      { type: "expertise", subType: "thieves-tools", friendlySubtypeName: "Thieves' Tools", restriction: "", componentId: 101 },
+    ] as any[];
+    const adv: any = makeHelper({ isSubclass: true }).getExpertiseAdvancement(makeFeature({ name: "Trapper's Tools", requiredLevel: 3 }), 3, mods);
+    const data = adv.toObject();
+    expect(data.title).toBe("Trapper's Tools");
+    expect(data.configuration.grants).toEqual(["skills:his", "tool:thief"]);
+    expect(data.configuration.choices ?? []).toEqual([]);
+  });
+
+  it("counts choose modifiers and yields nothing for a listed name without expertise modifiers", () => {
+    const choose = [{ type: "expertise", subType: "choose-a-skill-expertise", friendlySubtypeName: "Choose a Skill", restriction: "", componentId: 101 }] as any[];
+    const adv: any = makeHelper({ isSubclass: true }).getExpertiseAdvancement(makeFeature({ name: "Visionary", requiredLevel: 11 }), 11, choose);
+    expect(adv.toObject().configuration.choices).toEqual([{ count: 1, pool: ["skills:*"] }]);
+
+    const none = makeHelper({ isSubclass: true }).getExpertiseAdvancement(
+      makeFeature({ name: "Bonus Proficiencies", requiredLevel: 3 }),
+      3,
+      [profMod("giant", "Giant")],
+    );
+    expect(none).toBeNull();
+  });
+
   it("builds the default Expertise choice", () => {
     const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "Expertise" }), 1);
     const data = adv.toObject();

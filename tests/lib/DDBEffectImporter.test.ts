@@ -1,6 +1,6 @@
 vi.mock("../../src/lib/CompendiumHelper", () => ({
   default: {
-    getCompendiumLabel: vi.fn(() => "world.ddb-effects"),
+    getCompendiumLabel: vi.fn((type: string) => (type === "items" ? "world.ddb-items" : "world.ddb-effects")),
     getCompendiumType: vi.fn(),
   },
 }));
@@ -72,6 +72,60 @@ describe("DDBEffectImporter", () => {
   it("is a no-op for documents without standalone effects", () => {
     const doc = { name: "Plain", flags: { ddbimporter: {} }, system: { activities: {} } };
     expect(DDBEffectImporter.extractStandaloneEffects([doc])).toEqual([]);
+  });
+
+  it("points an applied copy at its compendium original, even on documents with nothing to extract", () => {
+    const doc = {
+      name: "Studious Blade of the Guardian",
+      type: "weapon",
+      flags: { ddbimporter: {} },
+      system: { activities: {} },
+      effects: [
+        { _id: "ddbEvolvedStudio", type: "enchantment", flags: { ddbimporter: { standaloneOrigin: "ddbEvolvedStudio" } } },
+        { _id: "ddbRiderVigilant", flags: { ddbimporter: {} } },
+      ],
+    };
+    expect(DDBEffectImporter.extractStandaloneEffects([doc])).toEqual([]);
+    const [enchantment, rider] = doc.effects as any[];
+    expect(enchantment.origin).toBe("Compendium.world.ddb-effects.ActiveEffect.ddbEvolvedStudio");
+    expect(enchantment.system.origin.effect).toBe(enchantment.origin);
+    expect(enchantment.flags.ddbimporter.standaloneOrigin).toBeUndefined();
+    expect(rider.origin).toBeUndefined();
+  });
+
+  it("points an applied enchantment at its host item's enchant activity and profile", () => {
+    const doc = {
+      name: "Studious Blade of the Guardian",
+      type: "weapon",
+      flags: { ddbimporter: {} },
+      system: { activities: {} },
+      effects: [
+        {
+          _id: "ddbEvolvedStudio",
+          type: "enchantment",
+          flags: { ddbimporter: { enchantmentOrigin: { itemId: "ddbHostStudious0", activityId: "ddbApplyStudious", profileId: "ddbEvolvedStudio" } } },
+        },
+      ],
+    };
+    DDBEffectImporter.extractStandaloneEffects([doc]);
+    const [enchantment] = doc.effects as any[];
+    const uuid = "Compendium.world.ddb-items.Item.ddbHostStudious0.Activity.ddbApplyStudious";
+    expect(enchantment.origin).toBe(uuid);
+    expect(enchantment.system.origin).toEqual({ activity: uuid, profile: "ddbEvolvedStudio" });
+    expect(enchantment.flags.dnd5e.enchantmentProfile).toBe("ddbEvolvedStudio");
+    expect(enchantment.flags.ddbimporter.enchantmentOrigin).toBeUndefined();
+  });
+
+  it("keeps a folder parent an effect shared by several documents already names", () => {
+    const shared = { name: "Evolved Magic Item Properties", type: "item", bookCode: "AU", isLegacy: false };
+    const doc = {
+      name: "Blade of the Guardian",
+      type: "weapon",
+      flags: { ddbimporter: { standaloneEffects: [{ _id: "ddbEvolvedStudio", name: "Studious", flags: { ddbimporter: { parent: shared } } }] } },
+      system: { activities: {} },
+    };
+    const [effect] = DDBEffectImporter.extractStandaloneEffects([doc]);
+    expect(effect.flags?.ddbimporter?.parent).toEqual(shared);
   });
 });
 

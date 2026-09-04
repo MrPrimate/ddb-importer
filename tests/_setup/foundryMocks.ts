@@ -139,8 +139,13 @@ const noopClass = class {};
     isNewerVersion() {
       return false;
     },
+    // Foundry ids are exactly 16 alphanumeric characters and the audit harness checks for it;
+    // Math.random().toString(36) alone yields 9 to 12
     randomID() {
-      return Math.random().toString(36).substring(2, 18);
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let id = "";
+      for (let i = 0; i < 16; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      return id;
     },
     Semaphore: class Semaphore {
       max: number;

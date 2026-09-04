@@ -566,6 +566,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Floral Breath Weapon",
     "Floral Fortitude",
     "Student of Arcana",
+    "Transmuter's Stone",
+    "Transmutation Savant",
+    "Signature Spells",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -625,6 +628,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Tokens of the Departed",
   "Beasts of Ill Omen",
   "Spiteful Curse",
+  "Shape-Shifter",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
