@@ -61,6 +61,7 @@ export { default as MaskOfMyriadForms } from "./MaskOfMyriadForms";
 export { default as MinionsOfChaos } from "./MinionsOfChaos";
 export { default as MireTheMind } from "./MireTheMind";
 export { default as MistyVisions } from "./MistyVisions";
+export { default as MysticArcanum } from "./MysticArcanum";
 export { default as NecroticHusk } from "./NecroticHusk";
 export { default as OneWithShadows } from "./OneWithShadows";
 export { default as OtherworldlyLeap } from "./OtherworldlyLeap";

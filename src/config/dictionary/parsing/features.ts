@@ -597,6 +597,15 @@ export const PARSING_CHOICE_FEATURES = {
 };
 
 export const FEATURE_SPELLS_IGNORE = [
+  // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
+  "Mystic Arcanum (6th level)",
+  "Mystic Arcanum (7th level)",
+  "Mystic Arcanum (8th level)",
+  "Mystic Arcanum (9th level)",
+  "Mystic Arcanum (Level 6 Spell)",
+  "Mystic Arcanum (Level 7 Spell)",
+  "Mystic Arcanum (Level 8 Spell)",
+  "Mystic Arcanum (Level 9 Spell)",
   // "Mantle of Majesty",
   "Activate Mantle of Majesty",
   "Gaseous Form",
@@ -653,6 +662,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Chemical Mastery",
   "Mapping Magic",
   "Superior Atlas",
+  "War God's Blessing",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [

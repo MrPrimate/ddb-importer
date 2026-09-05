@@ -408,7 +408,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       }
     } else if (
-      // Warlock Mystic Arcanum are passed in as Features
+      // Warlock Mystic Arcanum are passed in as Features. The standard features drop their
+      // spell copy via FEATURE_SPELLS_IGNORE in favour of a cast activity on the feature, so
+      // this only catches renamed or homebrew arcanum features.
       this.lookupName?.startsWith("Mystic Arcanum")
     ) {
       // these have limited uses (set with getUses())
