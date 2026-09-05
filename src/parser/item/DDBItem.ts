@@ -1463,14 +1463,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
-   * dnd5e 6.0 holds rarity as a set with no "varies" member, so DDB's "Varies" and "Unknown Rarity"
-   * labels become an empty set; the label itself is kept on the dndbeyond flags so the rarity
-   * compendium folders can still bucket those items.
+   * dnd5e 6.0 holds rarity as a set with no "varies" member. A DDB "Varies" family root gets the
+   * tiers its description and its batch siblings name (the sheet then shows "Varies" and the
+   * compendium browser matches every tier); "Unknown Rarity" and an unparseable "Varies" become an
+   * empty set. The DDB label is kept on the dndbeyond flags either way so the rarity compendium
+   * folders can still bucket those items.
    */
   #generateItemRarity() {
-    this.data.system.rarities = ItemRarity.fromDDB(this.ddbDefinition.rarity, this.ddbDefinition.magic);
-    if (this.ddbDefinition.rarity) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.rarity", this.ddbDefinition.rarity);
+    const label = this.ddbDefinition.rarity;
+    let rarities = ItemRarity.fromDDB(label, this.ddbDefinition.magic);
+    if (rarities.length === 0 && label === "Varies") {
+      const siblings = (this.ddbData?.character?.inventory ?? []).map((item) => item.definition);
+      rarities = ItemRarity.forVaries(this.ddbDefinition.name, this.ddbDefinition.description, siblings);
+    }
+    this.data.system.rarities = rarities;
+    if (label) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.rarity", label);
     }
   }
 

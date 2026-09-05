@@ -1198,8 +1198,9 @@ export class DDBCompendiumFolders {
   }
 
   /**
-   * Buckets an item by rarity. This sees parsed plain objects and raw compendium index entries alike,
-   * so it reads the dnd5e 6.0 `rarities` set first, then the DDB label kept on the dndbeyond flags
+   * Buckets an item by rarity. An item with several rarities is "Varies", as on its sheet. This sees
+   * parsed plain objects and raw compendium index entries alike, so it reads the dnd5e 6.0
+   * `rarities` set first, then the DDB label kept on the dndbeyond flags
    * (the only trace of "Varies" on a new import; any other label without a key is mundane gear, which
    * has always been filed under Unknown), then a pre-6.0 `system.rarity` string, but only from an
    * un-migrated entry: a re-munched entry keeps a stale string beside its set.
@@ -1208,7 +1209,8 @@ export class DDBCompendiumFolders {
     let name;
     const ddbLabel = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.rarity") as string | undefined;
     const hasSet = document.system?.rarities !== undefined && document.system?.rarities !== null;
-    const rarity = ItemRarity.first(document.system)
+    const keys = ItemRarity.keys(document.system);
+    const rarity = (keys.length > 1 ? "varies" : keys[0])
       ?? (ddbLabel === "Varies" ? "varies" : undefined)
       ?? (hasSet ? undefined : ItemRarity.legacyString(document.system));
 

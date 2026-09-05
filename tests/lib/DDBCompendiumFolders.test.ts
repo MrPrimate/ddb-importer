@@ -193,10 +193,14 @@ describe("DDBCompendiumFolders effect folders", () => {
 describe("DDBCompendiumFolders.getItemFolderNameForRarity", () => {
   const name = (document: any) => DDBCompendiumFolders.getItemFolderNameForRarity(document).name;
 
-  it("buckets by the first key of a rarities array or Set", () => {
+  it("buckets a single rarity from an array or Set", () => {
     expect(name({ system: { rarities: ["veryRare"] } })).toBe("Very Rare");
-    expect(name({ system: { rarities: new Set(["uncommon", "rare"]) } })).toBe("Uncommon");
-    expect(name({ system: { rarities: ["artifact"] } })).toBe("Artifact");
+    expect(name({ system: { rarities: new Set(["artifact"]) } })).toBe("Artifact");
+  });
+
+  it("files an item with several rarities under Varies, as its sheet shows", () => {
+    expect(name({ system: { rarities: new Set(["uncommon", "rare"]) } })).toBe("Varies");
+    expect(name({ system: { rarities: ["common", "uncommon", "rare", "veryRare"] } })).toBe("Varies");
   });
 
   it("ignores a stale legacy string once rarities is present", () => {

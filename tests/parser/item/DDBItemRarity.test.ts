@@ -24,18 +24,24 @@ const WANTED = [
   "Arrows",
   "Spell Scroll (0 - Cantrip)",
   "Dragongleam",
+  "Potion of Healing (Normal)",
+  "Horn of Valhalla",
+  "Rejuvenating Draft",
 ];
 
-/** Pull the first fixture definition for each wanted item name, reading files until all are found. */
+/** Concrete variants that sit beside the Varies roots in a real munch batch. */
+const SIBLING_PREFIXES = ["Horn of Valhalla (", "Figurine of Wondrous Power ("];
+
+/** Pull the first fixture definition for each wanted item name (and the siblings), reading every file. */
 function findDefinitions(): Map<string, any> {
   const found = new Map<string, any>();
   const files = fs.readdirSync(FIXTURE_DIR).filter((f) => f.startsWith("RAW-") && f.endsWith(".json")).sort();
   for (const file of files) {
     const payload = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, file), "utf-8"));
     for (const item of payload.data?.items ?? []) {
-      if (WANTED.includes(item.name) && !found.has(item.name)) found.set(item.name, item);
+      const wanted = WANTED.includes(item.name) || SIBLING_PREFIXES.some((prefix) => item.name.startsWith(prefix));
+      if (wanted && !found.has(item.name)) found.set(item.name, item);
     }
-    if (found.size === WANTED.length) break;
   }
   return found;
 }
@@ -124,10 +130,20 @@ describe.skipIf(!fixturesPresent())("DDBItem rarity on real payloads", () => {
     expect(rarityOf("Arrows").flag).toBe("Common");
   });
 
-  it("gives Varies and Unknown Rarity items an empty set with the label on the flag", () => {
-    expect(rarityOf("Figurine of Wondrous Power").rarities).toEqual([]);
-    expect(rarityOf("Figurine of Wondrous Power").flag).toBe("Varies");
+  it("gives an Unknown Rarity item an empty set with the label on the flag", () => {
     expect(rarityOf("Dragongleam").rarities).toEqual([]);
     expect(rarityOf("Dragongleam").flag).toBe("Unknown Rarity");
+  });
+
+  it("fills a Varies root from its description tiers and its batch siblings", () => {
+    // prose "(rare)" style plus the (Silver Raven) uncommon and (Obsidian Steed) very rare figurines
+    expect(rarityOf("Figurine of Wondrous Power").rarities).toEqual(["uncommon", "rare", "veryRare"]);
+    expect(rarityOf("Figurine of Wondrous Power").flag).toBe("Varies");
+    // table with a Rarity column
+    expect(rarityOf("Potion of Healing (Normal)").rarities).toEqual(["common", "uncommon", "rare", "veryRare"]);
+    // parenthesised tiers in prose
+    expect(rarityOf("Rejuvenating Draft").rarities).toEqual(["uncommon", "rare", "veryRare", "legendary"]);
+    // no text signal at all: the (Silver)/(Brass)/(Bronze)/(Iron) siblings supply the set
+    expect(rarityOf("Horn of Valhalla").rarities).toEqual(["rare", "veryRare", "legendary"]);
   });
 });
