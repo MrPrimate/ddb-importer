@@ -146,10 +146,6 @@ export const CONSUMPTION_SPELL_LINKS = {
   "Divine Intervention": [
     { name: "Wish", cost: 1, lookupName: "Greater Divine Intervention", nameUpdate: "Wish (Divine Intervention)" },
   ],
-  "War God's Blessing": [
-    { name: "Shield of Faith", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Shield of Faith (War God's Blessing)" },
-    { name: "Spiritual Weapon", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Spiritual Weapon (War God's Blessing)" },
-  ],
   "Telekinetic Master": [
     { name: "Telekinesis", cost: 1, lookupName: "Telekinetic Master", nameUpdate: "Telekinesis (Telekinetic Master)" },
   ],

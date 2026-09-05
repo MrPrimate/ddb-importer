@@ -71,6 +71,8 @@ describe("FEATURE_SPELLS_IGNORE", () => {
       "Paladin's Smite", "Contact Patron", "Steps of the Fey", "Fey Reinforcements", "Misty Wanderer",
       "Ethereal Step", "Dragon Companion", "Star Map", "Consult the Spirits", "Restorative Reagents",
       "Chemical Mastery", "Mapping Magic", "Superior Atlas", "Shape-Shifter",
+      "Mystic Arcanum (6th level)", "Mystic Arcanum (7th level)", "Mystic Arcanum (8th level)", "Mystic Arcanum (9th level)",
+      "Mystic Arcanum (Level 6 Spell)", "Mystic Arcanum (Level 7 Spell)", "Mystic Arcanum (Level 8 Spell)", "Mystic Arcanum (Level 9 Spell)",
     ]) {
       expect(DICTIONARY.parsing.featureSpellsIgnore).toContain(name);
     }
@@ -93,6 +95,30 @@ describe("once per Long Rest casts of an always-prepared spell", () => {
 
   it("falls back to one use per Long Rest when the character payload carries no spell", () => {
     const e = build(ClassEnrichers.Paladin.FaithfulSteed, "Faithful Steed", [], { klass: "Paladin" });
+    expect(e.override.uses).toMatchObject({ max: "1", recovery: [{ period: "lr", type: "recoverAll" }] });
+  });
+});
+
+describe("Warlock MysticArcanum", () => {
+  it("casts the chosen 2024 arcanum spell once per Long Rest from the feature", () => {
+    const e = build(ClassEnrichers.Warlock.MysticArcanum, "Mystic Arcanum (Level 6 Spell)", [
+      grantedSpell(0, "Circle of Death", oncePerLongRest, false),
+    ], { klass: "Warlock" });
+    expectFreeCast(e, "Circle of Death", { period: "lr" });
+    expect(e.activity.name).toBe("Circle of Death");
+  });
+
+  it("reads the 2014 feature name for the chosen spell", () => {
+    const e = build(ClassEnrichers.Warlock.MysticArcanum, "Mystic Arcanum (9th level)", [
+      grantedSpell(0, "Foresight", { ...oncePerLongRest, numberUsed: 0 }, false),
+    ], { is2014: true, klass: "Warlock" });
+    expectFreeCast(e, "Foresight", { period: "lr", spent: 0 });
+  });
+
+  it("keeps only the once per Long Rest use when no arcanum spell is chosen", () => {
+    const e = build(ClassEnrichers.Warlock.MysticArcanum, "Mystic Arcanum (Level 7 Spell)", [], { klass: "Warlock" });
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
     expect(e.override.uses).toMatchObject({ max: "1", recovery: [{ period: "lr", type: "recoverAll" }] });
   });
 });

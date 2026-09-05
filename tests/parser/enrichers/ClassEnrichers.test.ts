@@ -236,11 +236,32 @@ describe("cleric WarPriest and WarGodsBlessing", () => {
     expect(e.override.uses.recovery).toEqual([{ period: "sr", type: "recoverAll", formula: undefined }]);
   });
 
-  it("shapes War God's Blessing as a 2014 reaction and a 2024 special action", () => {
-    expect(build(ClassEnrichers.Cleric.WarGodsBlessing, { is2014: true }).activity)
-      .toMatchObject({ activationType: "reaction", targetType: "creature" });
-    expect(build(ClassEnrichers.Cleric.WarGodsBlessing).activity)
-      .toMatchObject({ activationType: "special", targetType: "self" });
+  it("shapes War God's Blessing as a 2014 reaction with no extra activities", () => {
+    const e = build(ClassEnrichers.Cleric.WarGodsBlessing, { is2014: true });
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ activationType: "reaction", targetType: "creature" });
+    expect(e.additionalActivities).toEqual([]);
+  });
+
+  it("casts Shield of Faith and Spiritual Weapon off Channel Divinity without Concentration in 2024", () => {
+    const e = build(ClassEnrichers.Cleric.WarGodsBlessing);
+    expect(e.type).toBe("cast");
+    const expected = {
+      noSpellslot: true,
+      addItemConsume: true,
+      itemConsumeTargetName: "Channel Divinity",
+      data: {
+        duration: { value: "1", units: "minute", concentration: false, override: true },
+        spell: { properties: ["concentration"], spellbook: false },
+      },
+    };
+    expect(e.activity).toMatchObject({ name: "Cast Shield of Faith", addSpellUuid: "Shield of Faith", ...expected });
+    expect(e.additionalActivities).toHaveLength(1);
+    expect(e.additionalActivities[0]).toMatchObject({
+      init: { name: "Cast Spiritual Weapon", type: "cast" },
+      build: { generateSpell: true, generateConsumption: false },
+      overrides: { name: "Cast Spiritual Weapon", addSpellUuid: "Spiritual Weapon", ...expected },
+    });
   });
 });
 
