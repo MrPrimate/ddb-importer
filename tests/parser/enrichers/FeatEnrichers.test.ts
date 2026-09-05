@@ -82,6 +82,7 @@ describe("War Caster", () => {
     expect(e.effects[0].options).toMatchObject({ transfer: true });
     expect(e.override).toMatchObject({ midiManualReaction: true });
   });
+});
 
 describe("native expiry owns the duration (no raw data.duration shadow)", () => {
   it("Dragonscarred Fearsome Power frightens until the end of the feat user's next turn", () => {
@@ -91,4 +92,31 @@ describe("native expiry owns the duration (no raw data.duration shadow)", () => 
     expect(frightened.data).toBeUndefined();
   });
 });
+
+/**
+ * dnd5e's off-hand damage roll drops a positive `@mod`; the 2024 feat restores it for a Light
+ * crossbow. The rule is scoped by a change condition on the roll; the crossbow base items stand in
+ * for "crossbow" since no such property exists, and Light narrows it to the hand crossbow.
+ */
+describe("Crossbow Expert Light crossbow extra attack", () => {
+  it("adds the modifier back on an off-hand crossbow attack (2024)", () => {
+    const effects = makeEnricherData(FeatEnrichers.CrossbowExpert).effects;
+    expect(effects.map((e) => e.midiOnly ?? false)).toEqual([true, false]);
+    const changes = effects[1].changes ?? [];
+    expect(changes).toEqual([
+      expect.objectContaining({ key: "damage", value: "@abilities.dex.mod", type: "dnd5e.bonus" }),
+    ]);
+    expect(JSON.parse(String(changes[0].conditions))).toEqual([
+      { k: "roll.attack.mode", o: "in", v: ["offhand"] },
+      { k: "item.type.baseItem", o: "in", v: ["handcrossbow", "heavycrossbow", "lightcrossbow"] },
+      { k: "item.properties", o: "has", v: "lgt" },
+      { k: "abilities.dex.mod", o: "gte", v: 1 },
+    ]);
+  });
+
+  it("emits only the midi nearby-foes flag for the 2014 feat", () => {
+    const effects = makeEnricherData(FeatEnrichers.CrossbowExpert, { is2014: true }).effects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].midiOnly).toBe(true);
+  });
 });
