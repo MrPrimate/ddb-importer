@@ -8,12 +8,6 @@ import ArcaneShotOption from "./ArcaneShotOption";
  */
 export default abstract class _ArcaneShot2024Option extends ArcaneShotOption {
 
-  /** whether the character carries a DDB class action with this exact name */
-  protected hasDdbClassAction(name: string): boolean {
-    const actions = this.ddbParser?.ddbData?.character?.actions?.class ?? [];
-    return actions.some((action) => action.name === name);
-  }
-
   /** number of Arcane Shot Dice the option rolls */
   protected get diceCount(): number {
     return 1;

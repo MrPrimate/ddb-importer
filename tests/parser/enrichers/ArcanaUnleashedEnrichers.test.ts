@@ -33,6 +33,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 
 import FocusedStrike from "../../../src/parser/enrichers/class/monk/FocusedStrike";
 import StaffOfSkulls from "../../../src/parser/enrichers/item/StaffOfSkulls";
+import ArcaneShot from "../../../src/parser/enrichers/class/fighter/ArcaneShot";
 import BeguilingShot from "../../../src/parser/enrichers/class/fighter/BeguilingShot";
 import EnfeeblingShot from "../../../src/parser/enrichers/class/fighter/EnfeeblingShot";
 import PiercingShot from "../../../src/parser/enrichers/class/fighter/PiercingShot";
@@ -71,28 +72,33 @@ describe("Arcana Unleashed AC5e pins", () => {
 });
 
 describe("Arcana Unleashed Arcane Shot options", () => {
-  it("Beguiling Shot builds its own damage and save instead of matching the mis-named DDB action", () => {
-    const enricher = makeEnricherData(BeguilingShot, { name: "Beguiling Shot", actions: null });
+  it("Arcane Shot (2024) spends the Intelligence-modifier pool through one utility activity", () => {
+    const enricher = makeEnricherData(ArcaneShot, { name: "Arcane Shot", actions: null });
+    expect(enricher.type).toBe("utility");
+    expect(enricher.activity).toMatchObject({ name: "Arcane Shot", addItemConsume: true, noTemplate: true });
     expect(enricher.useDefaultAdditionalActivities).toBe(false);
-    expect(enricher.addAutoAdditionalActivities).toBe(false);
-    const activity = enricher.activity as any;
-    expect(activity.data.damage.parts[0].custom.formula).toBe("2@scale.arcane-archer.arcane-shot.die");
-    expect(enricher.additionalActivities.map((a: any) => a.init.name)).toEqual(["Save vs Charmed"]);
+    expect((enricher.override as any).uses.max).toBe("max(1, @abilities.int.mod)");
   });
 
-  it("Beguiling and Piercing Shot switch to the action path once DDB names the Piercing Shot action", () => {
-    const fixedData = { ddbData: { character: { actions: { class: [{ name: "Beguiling Shot" }, { name: "Piercing Shot" }] } } } };
-    const beguiling = makeEnricherData(BeguilingShot, { name: "Beguiling Shot", actions: null, ddbParser: fixedData });
-    expect(beguiling.ddbActionBug).toBe(false);
-    expect(beguiling.additionalActivities).toEqual([]);
-    expect(beguiling.effects[0].activityMatch).toBe("Beguiling Shot");
-    const piercing = makeEnricherData(PiercingShot, { name: "Piercing Shot", actions: null, ddbParser: fixedData });
-    expect(piercing.ddbActionBug).toBe(false);
-    expect((piercing.activity as any).name).toBeUndefined();
-    expect((piercing.activity as any).data.target.template.type).toBe("line");
-    const bugged = makeEnricherData(PiercingShot, { name: "Piercing Shot", actions: null });
-    expect(bugged.ddbActionBug).toBe(true);
-    expect((bugged.activity as any).name).toBe("Piercing Line");
+  it("Beguiling Shot rides the DDB action with two dice, no template and a Charmed rider", () => {
+    const enricher = makeEnricherData(BeguilingShot, { name: "Beguiling Shot", actions: null });
+    expect(enricher.useDefaultAdditionalActivities).toBe(true);
+    expect(enricher.additionalActivities ?? []).toEqual([]);
+    const activity = enricher.activity as any;
+    expect(activity.noTemplate).toBe(true);
+    expect(activity.data.damage.parts[0].custom.formula).toBe("2@scale.arcane-archer.arcane-shot.die");
+    expect(activity.data.damage.onSave).toBe("full");
+    expect(enricher.effects[0]).toMatchObject({ activityMatch: "Beguiling Shot", statuses: ["Charmed"], options: { expiry: "sourceStart" } });
+  });
+
+  it("Piercing Shot is a 30 ft line with a Dexterity save for half", () => {
+    const enricher = makeEnricherData(PiercingShot, { name: "Piercing Shot", actions: null });
+    const activity = enricher.activity as any;
+    expect(activity.name).toBeUndefined();
+    expect(activity.data.target.template).toMatchObject({ type: "line", size: "30", width: "1" });
+    expect(activity.data.save.ability).toEqual(["dex"]);
+    expect(activity.data.damage.onSave).toBe("half");
+    expect(activity.data.damage.parts[0].custom.formula).toBe("2@scale.arcane-archer.arcane-shot.die");
   });
 
   it("Enfeebling Shot rolls two Arcane Shot Dice and subtracts one from the target's damage", () => {
