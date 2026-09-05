@@ -514,12 +514,12 @@ export default class AdvancementHelper {
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const title = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+    const advancementName = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
       ? feature.name
       : "Skill Proficiencies";
 
     const update: I5eAdvancementTrait = {
-      title,
+      name: advancementName,
       classRestriction,
       configuration: {
         allowReplacements: true,
@@ -623,7 +623,7 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Languages",
       configuration: {
@@ -710,7 +710,7 @@ export default class AdvancementHelper {
     }
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Tool Proficiencies",
       classRestriction,
@@ -749,7 +749,7 @@ export default class AdvancementHelper {
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Tool Proficiencies",
       configuration: {
@@ -846,7 +846,7 @@ export default class AdvancementHelper {
     }
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Armor Training",
       classRestriction,
@@ -935,7 +935,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Proficiencies",
       classRestriction,
@@ -1059,7 +1059,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Masteries",
       configuration: {
@@ -1140,7 +1140,7 @@ export default class AdvancementHelper {
     const pool = count === 0 && grants.length > 0 && feature.name !== "Survivalist" ? [] : basePool;
 
     const update: I5eAdvancementTrait = {
-      title: feature.name === "Survivalist"
+      name: feature.name === "Survivalist"
         ? `${feature.name} (Expertise)`
         : isExpertise ? "Expertise" : `${feature.name}`,
       configuration: {
@@ -1211,7 +1211,7 @@ export default class AdvancementHelper {
       : conditionsFromMods.map((choice) => choice);
 
     const update: I5eAdvancementTrait = {
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+      name: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "",
       configuration: {
@@ -1247,7 +1247,7 @@ export default class AdvancementHelper {
     const configuration = advancement.configuration;
     if (!("scale" in configuration) || !configuration.scale) return advancement;
     const scale = configuration.scale as Record<string, I5eAdvScaleValueDiceEntry>;
-    advancement.title += ` (Die)`;
+    advancement.name += ` (Die)`;
     for (const key of Object.keys(scale)) {
       scale[key].number = 1;
     }
@@ -1255,12 +1255,12 @@ export default class AdvancementHelper {
   }
 
   static renameTotal(advancement: I5eAdvancement) {
-    advancement.title += ` (Total)`;
+    advancement.name += ` (Total)`;
     return advancement;
   }
 
   static rename(advancement: I5eAdvancement, { newName = null, identifier = null }: IDDBFixFunctionArgs = {}) {
-    if (newName) advancement.title = newName;
+    if (newName) advancement.name = newName;
     // all advancement configurations upcast safely to I5eAdvConfig for the identifier write
     const configuration = "configuration" in advancement ? advancement.configuration as I5eAdvConfig | undefined : undefined;
     if (identifier && configuration && "identifier" in configuration) configuration.identifier = identifier;
@@ -1279,7 +1279,7 @@ export default class AdvancementHelper {
         type: "number",
         scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
       },
-      title: `${advancement.title} (Uses)`,
+      name: `${advancement.name} (Uses)`,
     };
 
     for (const [key, value] of Object.entries(configuration?.scale ?? {})) {
@@ -1293,31 +1293,59 @@ export default class AdvancementHelper {
   }
 
   /**
-   * Builds an additional-advancement function producing a numeric scale value that DDB has no
-   * levelScale for, so the values come from the rules text (e.g. a point pool whose DDB scale
-   * tracks something else). The generated source advancement is ignored.
+   * A numeric scale value advancement from hand-written level entries, for pools DDB has no
+   * levelScale for (the values come from the rules text). Built through the system class so the
+   * data model supplies the remaining defaults.
    */
-  static fixedNumberScale({ title, identifier, scale }: {
-    title: string;
+  static buildNumberScale({ name, identifier, scale }: {
+    name: string;
     identifier: string;
     scale: Record<string, number>;
-  }): TDDBScaleValueFixFunction {
-    return (_advancement: I5eAdvancementScaleValue): I5eAdvancement => {
-      const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
-      const update = {
-        configuration: {
-          identifier,
-          type: "number",
-          scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
-        },
-        title,
-      };
-      for (const [level, value] of Object.entries(scale)) {
-        update.configuration.scale[level] = { value };
-      }
-      adv.updateSource(update as any);
-      return adv.toObject() as unknown as I5eAdvancement;
+  }): I5eAdvancement {
+    const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
+    const update = {
+      configuration: {
+        identifier,
+        type: "number",
+        scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
+      },
+      name,
     };
+    for (const [level, value] of Object.entries(scale)) {
+      update.configuration.scale[level] = { value };
+    }
+    adv.updateSource(update as any);
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /** The dice-typed twin of buildNumberScale; each level entry is the die count and faces. */
+  static buildDiceScale({ name, identifier, scale }: {
+    name: string;
+    identifier: string;
+    scale: Record<string, { number: number; faces: number }>;
+  }): I5eAdvancement {
+    const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
+    const update = {
+      configuration: {
+        identifier,
+        type: "dice",
+        scale: {} as Record<string, I5eAdvScaleValueDiceEntry>,
+      },
+      name,
+    };
+    for (const [level, die] of Object.entries(scale)) {
+      update.configuration.scale[level] = { number: die.number, faces: die.faces };
+    }
+    adv.updateSource(update as any);
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /**
+   * buildNumberScale as an additional-advancement function for the SPECIAL_ADVANCEMENTS tables,
+   * where the generated source advancement is ignored.
+   */
+  static fixedNumberScale(options: Parameters<typeof AdvancementHelper.buildNumberScale>[0]): TDDBScaleValueFixFunction {
+    return (_advancement: I5eAdvancementScaleValue): I5eAdvancement => AdvancementHelper.buildNumberScale(options);
   }
 
   /**
@@ -1376,7 +1404,7 @@ export default class AdvancementHelper {
         scale: {} as Record<string, I5eAdvScaleValueEntry>,
       },
       value: {},
-      title: name,
+      name: name,
     } satisfies I5eAdvancementScaleValue;
 
     levelScales.forEach((scale) => {
@@ -3235,7 +3263,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     }
 
     const update: I5eAdvancementItemChoice = {
-      title: name,
+      name: name,
       hint,
       configuration: {
         allowDrops: true,
@@ -3299,7 +3327,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     }
 
     const update: I5eAdvancementItemChoice = {
-      title: name,
+      name: name,
       level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
       configuration: {
         allowDrops: true,
@@ -3353,7 +3381,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     });
 
     const update: I5eAdvancementItemGrant = {
-      title: name,
+      name: name,
       level: 1,
       configuration: {
         items: uuids.map((s) => {
@@ -3403,7 +3431,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     });
 
     const update: I5eAdvancementItemGrant = {
-      title: name,
+      name: name,
       level: level ? parseInt(String(level)) : parseInt(String(spellGrant.level)),
       configuration: {
         items: uuids.map((s) => {

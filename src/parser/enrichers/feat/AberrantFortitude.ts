@@ -32,7 +32,7 @@ export default class AberrantFortitude extends DDBEnricherData {
           },
         },
       },
-      "title": this.name,
+      "name": this.name,
       "hint": "A scale value which can be updated by its Greater Mark feat.",
     };
     // to do determine advancement here

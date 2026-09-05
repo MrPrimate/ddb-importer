@@ -195,7 +195,7 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
       level: 1,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Skill Proficiencies");
+    expect(data.name).toBe("Skill Proficiencies");
     expect(data.classRestriction).toBe("primary");
     expect(data.configuration.allowReplacements).toBe(true);
     expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:ath", "skills:prc", "skills:sur"] }]);
@@ -210,13 +210,13 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
       level: 1,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Skill Proficiencies");
+    expect(data.name).toBe("Skill Proficiencies");
     expect(data.classRestriction).toBeUndefined();
     expect(data.configuration.grants).toEqual(["skills:med", "skills:rel"]);
     expect(data.value.chosen).toEqual(["skills:med", "skills:rel"]);
   });
 
-  it("uses the feature name as title for non-base features", () => {
+  it("uses the feature name as name for non-base features", () => {
     const adv: any = makeHelper().getSkillAdvancement({
       feature: makeFeature({ name: "Bonus Proficiency", description: "<p>You gain proficiency in the Intimidation skill.</p>" }),
       mods: [],
@@ -224,7 +224,7 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
       level: 3,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Bonus Proficiency");
+    expect(data.name).toBe("Bonus Proficiency");
     expect(data.configuration.grants).toEqual(["skills:itm"]);
   });
 
@@ -274,7 +274,7 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
       1,
     );
     const data = adv.toObject();
-    expect(data.title).toBe("Extra Languages");
+    expect(data.name).toBe("Extra Languages");
     expect(data.configuration.choices).toEqual([{ count: 2, pool: ["languages:standard:dwarvish", "languages:exotic:undercommon"] }]);
     expect(data.value.chosen).toEqual(["languages:standard:dwarvish", "languages:exotic:undercommon"]);
   });
@@ -286,8 +286,8 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
       1,
     );
     const data = adv.toObject();
-    // "Background:" prefixed names fall back to the generic title
-    expect(data.title).toBe("Languages");
+    // "Background:" prefixed names fall back to the generic name
+    expect(data.name).toBe("Languages");
     expect(data.configuration.grants).toEqual(["languages:standard:giant"]);
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["languages:*"] }]);
     expect(data.value.chosen).toEqual(["languages:standard:giant"]);
@@ -316,7 +316,7 @@ describe("AdvancementHelper.getToolAdvancement", () => {
       level: 1,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Tool Proficiencies");
+    expect(data.name).toBe("Tool Proficiencies");
     expect(data.configuration.grants).toEqual(["tool:herb"]);
     expect(data.value.chosen).toEqual(["tool:herb"]);
     expect(data.classRestriction).toBe("primary");
@@ -369,7 +369,7 @@ describe("AdvancementHelper.getEmptyToolAdvancement", () => {
       level: 1,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Tool Proficiencies");
+    expect(data.name).toBe("Tool Proficiencies");
     expect(data.configuration.grants).toEqual(["tool:art:smith"]);
     expect(data.value.chosen).toEqual(["tool:art:smith"]);
   });
@@ -418,7 +418,7 @@ describe("AdvancementHelper.getArmorAdvancement", () => {
       level: 1,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Armor Training");
+    expect(data.name).toBe("Armor Training");
     expect(data.configuration.allowReplacements).toBe(false);
     expect(data.configuration.grants).toEqual(["armor:lgt", "armor:shl"]);
     expect(data.value.chosen).toEqual(["armor:lgt", "armor:shl"]);
@@ -433,7 +433,7 @@ describe("AdvancementHelper.getArmorAdvancement", () => {
       level: 4,
     });
     const data = adv.toObject();
-    expect(data.title).toBe("Bonus Armor Training");
+    expect(data.name).toBe("Bonus Armor Training");
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["armor:med"] }]);
     expect(data.value.chosen).toEqual(["armor:med"]);
   });
@@ -461,7 +461,7 @@ describe("AdvancementHelper.getWeaponAdvancement", () => {
       1,
     );
     const data = adv.toObject();
-    expect(data.title).toBe("Weapon Proficiencies");
+    expect(data.name).toBe("Weapon Proficiencies");
     expect(data.configuration.mode).toBe("default");
     expect(data.configuration.allowReplacements).toBe(false);
     expect(data.configuration.grants).toEqual(["weapon:sim", "weapon:mar"]);
@@ -477,7 +477,7 @@ describe("AdvancementHelper.getWeaponAdvancement", () => {
       2,
     );
     const data = adv.toObject();
-    expect(data.title).toBe("Extra Training");
+    expect(data.name).toBe("Extra Training");
     expect(data.classRestriction).toBe("");
     expect(data.configuration.choices).toEqual([{ count: 2, pool: ["weapon:mar:longsword", "weapon:mar:rapier"] }]);
     expect(data.value.chosen).toEqual(["weapon:mar:longsword", "weapon:mar:rapier"]);
@@ -553,7 +553,7 @@ describe("AdvancementHelper.getExpertiseAdvancement", () => {
     expect(AdvancementHelper.isExpertiseFeature("Keeper of History")).toBe(false);
     const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "9: Expertise", requiredLevel: 9 }), 9);
     const data = adv.toObject();
-    expect(data.title).toBe("Expertise");
+    expect(data.name).toBe("Expertise");
     expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:*", "tool:thief"] }]);
   });
 
@@ -564,7 +564,7 @@ describe("AdvancementHelper.getExpertiseAdvancement", () => {
     ] as any[];
     const adv: any = makeHelper({ isSubclass: true }).getExpertiseAdvancement(makeFeature({ name: "Trapper's Tools", requiredLevel: 3 }), 3, mods);
     const data = adv.toObject();
-    expect(data.title).toBe("Trapper's Tools");
+    expect(data.name).toBe("Trapper's Tools");
     expect(data.configuration.grants).toEqual(["skills:his", "tool:thief"]);
     expect(data.configuration.choices ?? []).toEqual([]);
   });
@@ -585,7 +585,7 @@ describe("AdvancementHelper.getExpertiseAdvancement", () => {
   it("builds the default Expertise choice", () => {
     const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "Expertise" }), 1);
     const data = adv.toObject();
-    expect(data.title).toBe("Expertise");
+    expect(data.name).toBe("Expertise");
     expect(data.configuration.mode).toBe("expertise");
     expect(data.configuration.allowReplacements).toBe(false);
     expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:*", "tool:thief"] }]);
@@ -594,7 +594,7 @@ describe("AdvancementHelper.getExpertiseAdvancement", () => {
   it("grants fixed skills for Survivalist", () => {
     const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "Survivalist" }), 1);
     const data = adv.toObject();
-    expect(data.title).toBe("Survivalist (Expertise)");
+    expect(data.name).toBe("Survivalist (Expertise)");
     expect(data.configuration.grants).toEqual(["skills:prc", "skills:nat"]);
     // count 0 is dropped from the pool entry
     expect(data.configuration.choices).toEqual([{ pool: ["skills:prc", "skills:nat"] }]);
@@ -645,7 +645,7 @@ describe("AdvancementHelper.getConditionAdvancement", () => {
       1,
     );
     const data = adv.toObject();
-    expect(data.title).toBe("Psychic Resilience");
+    expect(data.name).toBe("Psychic Resilience");
     expect(data.configuration.allowReplacements).toBe(false);
     expect(data.configuration.grants).toEqual(["dr:psychic"]);
     expect(data.value.chosen).toEqual(["dr:psychic"]);
@@ -689,7 +689,7 @@ describe("AdvancementHelper.generateScaleValueAdvancement", () => {
       ],
     });
     const result: any = AdvancementHelper.generateScaleValueAdvancement(feature);
-    expect(result.title).toBe("Sneak Attack");
+    expect(result.name).toBe("Sneak Attack");
     expect(result.configuration.identifier).toBe("sneak-attack");
     expect(result.configuration.type).toBe("dice");
     expect(result.configuration.scale["1"]).toEqual({ number: 1, faces: 6 });

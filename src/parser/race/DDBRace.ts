@@ -653,7 +653,7 @@ export default class DDBRace {
 
     // use our advancement mock to validate the update before we update advancement
     const update: I5eAdvancementItemChoice = {
-      title: trait.name,
+      name: trait.name,
       hint: trait.snippet ?? trait.description ?? undefined,
       configuration: {
         allowDrops: true,
@@ -816,7 +816,7 @@ export default class DDBRace {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const updateData: I5eAdvancementItemChoice = {
-      title: utils.nameString(trait.name),
+      name: utils.nameString(trait.name),
       hint: trait.snippet ?? trait.description ?? "",
       configuration: {
         restriction: {
@@ -921,7 +921,7 @@ export default class DDBRace {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const advancementData: I5eAdvancementItemChoice = {
-      title: utils.nameString(trait.name),
+      name: utils.nameString(trait.name),
       hint: trait.snippet ?? trait.description ?? "",
       configuration: {
         restriction: {
@@ -1171,7 +1171,7 @@ export default class DDBRace {
         },
         value: {},
         level: requiredLevel,
-        title: "Traits",
+        name: "Traits",
         icon: "",
         classRestriction: "",
       };
@@ -1387,7 +1387,7 @@ export default class DDBRace {
         },
       },
       value: {},
-      title: `Breath Weapon Dice`,
+      name: `Breath Weapon Dice`,
       icon: null,
     };
     this._addAdvancement(breathWeapon as unknown as I5eAdvancement);
@@ -1398,7 +1398,7 @@ export default class DDBRace {
     const advancementRecord = this.data.system.advancement ?? {};
     for (const key of Object.keys(advancementRecord)) {
       const advancement = advancementRecord[key];
-      if (advancement.title !== "Celestial Revelation") continue;
+      if (advancement.name !== "Celestial Revelation") continue;
       advancement.type = "ItemGrant";
       // reshape the choice configuration into an ItemGrant configuration
       const configuration = advancement.configuration as Record<string, any>;

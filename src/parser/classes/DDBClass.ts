@@ -181,7 +181,7 @@ export default class DDBClass extends DDBBaseClass {
       if (!abilityAdvancementFeature) continue;
       const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
       const update: I5eAdvancementAbilityScoreImprovement = {
-        title: abilityAdvancementFeature.name,
+        name: abilityAdvancementFeature.name,
         hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
         configuration: { points: 2 },
         level: i,
@@ -311,7 +311,7 @@ export default class DDBClass extends DDBBaseClass {
     }
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.SubclassAdvancement);
     advancement.updateSource({
-      title: subClassFeature.name,
+      name: subClassFeature.name,
       hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
       level: subClassFeature.requiredLevel,
     } as any);
@@ -323,7 +323,7 @@ export default class DDBClass extends DDBBaseClass {
     if (this.data.name !== "Druid") return;
     const advancementData = this._advancementData;
     for (const [id, advancement] of Object.entries(advancementData)) {
-      if (advancement.title !== "Wild Shape CR") continue;
+      if (advancement.name !== "Wild Shape CR") continue;
       const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
       configuration.type = "cr";
       configuration.scale = {
@@ -334,100 +334,55 @@ export default class DDBClass extends DDBBaseClass {
       advancementData[id] = advancement;
     };
     if (this.is2014) {
-      const wildshape: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "wild-shape-uses",
-          type: "number",
-          scale: {
-            2: { value: 2 },
-            20: { value: 99 },
-          },
+      const wildshape = AdvancementHelper.buildNumberScale({
+        name: "Wild Shape Uses",
+        identifier: "wild-shape-uses",
+        scale: {
+          2: 2,
+          20: 99,
         },
-        value: {},
-        title: "Wild Shape Uses",
-        icon: null,
-      };
+      });
       this._addAdvancement(wildshape);
     } else {
-      const wildshape: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "wild-shape-uses",
-          type: "number",
-          scale: {
-            2: { value: 2 },
-            6: { value: 3 },
-            17: { value: 4 },
-          },
+      const wildshape = AdvancementHelper.buildNumberScale({
+        name: "Wild Shape Uses",
+        identifier: "wild-shape-uses",
+        scale: {
+          2: 2,
+          6: 3,
+          17: 4,
         },
-        value: {},
-        title: "Wild Shape Uses",
-        icon: null,
-      };
+      });
       this._addAdvancement(wildshape);
-      const elementalFury: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "elemental-fury",
-          type: "dice",
-          scale: {
-            7: { number: 1, faces: 8 },
-            18: { number: 2, faces: 8 },
-          },
+      const elementalFury = AdvancementHelper.buildDiceScale({
+        name: "Elemental Fury Damage",
+        identifier: "elemental-fury",
+        scale: {
+          7: { number: 1, faces: 8 },
+          18: { number: 2, faces: 8 },
         },
-        value: {},
-        title: "Elemental Fury Damage",
-        icon: null,
-      };
+      });
       this._addAdvancement(elementalFury);
-      const knownForms: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "known-forms",
-          type: "number",
-          scale: {
-            2: { value: 4 },
-            4: { value: 6 },
-            8: { value: 8 },
-          },
+      const knownForms = AdvancementHelper.buildNumberScale({
+        name: "Known Forms",
+        identifier: "known-forms",
+        scale: {
+          2: 4,
+          4: 6,
+          8: 8,
         },
-        value: {},
-        title: "Known Forms",
-        icon: null,
-      };
+      });
       this._addAdvancement(knownForms);
     }
   }
 
   _monkFixes() {
     if (this.data.name !== "Monk") return;
-    const kiScale: Record<string, I5eAdvScaleValueEntry> = {};
-    const ki: I5eAdvancement = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: this.is2014 ? "ki-points" : "focus-points",
-        type: "number",
-        scale: kiScale,
-      },
-      value: {},
-      title: this.is2014 ? "Ki Points" : "Focus Points",
-      icon: null,
-    };
-    utils.arrayRange(19, 1, 2).forEach((i) => {
-      kiScale[i] = {
-        value: i,
-      };
+    // one point per monk level, 2 to 20
+    const ki = AdvancementHelper.buildNumberScale({
+      name: this.is2014 ? "Ki Points" : "Focus Points",
+      identifier: this.is2014 ? "ki-points" : "focus-points",
+      scale: Object.fromEntries(utils.arrayRange(19, 1, 2).map((i) => [i, i])),
     });
     this._addAdvancement(ki);
   }
@@ -435,47 +390,31 @@ export default class DDBClass extends DDBBaseClass {
   _rogueFixes() {
     if (this.data.name !== "Rogue") return;
     if (this.is2014) return;
-    const cunningStrike: I5eAdvancement = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "cunning-strike-uses",
-        type: "number",
-        scale: {
-          5: { value: 1 },
-          11: { value: 2 },
-        },
+    const cunningStrike = AdvancementHelper.buildNumberScale({
+      name: "Cunning Strike Uses",
+      identifier: "cunning-strike-uses",
+      scale: {
+        5: 1,
+        11: 2,
       },
-      value: {},
-      title: "Cunning Strike Uses",
-      icon: null,
-    };
+    });
     this._addAdvancement(cunningStrike);
-    const sneakAttack: I5eAdvancement = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "sneak-attack",
-        type: "dice",
-        scale: {
-          1: { number: 1, faces: 6 },
-          3: { number: 2, faces: 6 },
-          5: { number: 3, faces: 6 },
-          7: { number: 4, faces: 6 },
-          9: { number: 5, faces: 6 },
-          11: { number: 6, faces: 6 },
-          13: { number: 7, faces: 6 },
-          15: { number: 8, faces: 6 },
-          17: { number: 9, faces: 6 },
-          19: { number: 10, faces: 6 },
-        },
+    const sneakAttack = AdvancementHelper.buildDiceScale({
+      name: "Sneak Attack",
+      identifier: "sneak-attack",
+      scale: {
+        1: { number: 1, faces: 6 },
+        3: { number: 2, faces: 6 },
+        5: { number: 3, faces: 6 },
+        7: { number: 4, faces: 6 },
+        9: { number: 5, faces: 6 },
+        11: { number: 6, faces: 6 },
+        13: { number: 7, faces: 6 },
+        15: { number: 8, faces: 6 },
+        17: { number: 9, faces: 6 },
+        19: { number: 10, faces: 6 },
       },
-      value: {},
-      title: "Sneak Attack",
-      icon: null,
-    };
+    });
     this._addAdvancement(sneakAttack);
   }
 
@@ -485,30 +424,22 @@ export default class DDBClass extends DDBBaseClass {
     if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "rage-damage")
     ) {
-      const damage: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "rage-damage",
-          type: "number",
-          scale: {
-            1: { value: 2 },
-            9: { value: 3 },
-            16: { value: 4 },
-          },
+      const damage = AdvancementHelper.buildNumberScale({
+        name: "Rage Damage",
+        identifier: "rage-damage",
+        scale: {
+          1: 2,
+          9: 3,
+          16: 4,
         },
-        value: {},
-        title: "Rage Damage",
-        icon: null,
-      };
+      });
       this._addAdvancement(damage);
     }
 
     if (this.is2014) return;
     const advancementData = this._advancementData;
     for (const [id, advancement] of Object.entries(advancementData)) {
-      if (advancement.title !== "Brutal Strike") continue;
+      if (advancement.name !== "Brutal Strike") continue;
       const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
       configuration.type = "dice";
       configuration.scale = {
@@ -525,50 +456,28 @@ export default class DDBClass extends DDBBaseClass {
     if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "inspiration")
     ) {
-      const bardicInspiration: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "inspiration",
-          type: "dice",
-          scale: {
-            1: { number: 1, faces: 6 },
-            5: { number: 1, faces: 8 },
-            10: { number: 1, faces: 10 },
-            15: { number: 1, faces: 12 },
-          },
+      const bardicInspiration = AdvancementHelper.buildDiceScale({
+        name: "Bardic Inspiration",
+        identifier: "inspiration",
+        scale: {
+          1: { number: 1, faces: 6 },
+          5: { number: 1, faces: 8 },
+          10: { number: 1, faces: 10 },
+          15: { number: 1, faces: 12 },
         },
-        value: {},
-        title: "Bardic Inspiration",
-        icon: null,
-      };
+      });
       this._addAdvancement(bardicInspiration);
     }
   }
 
   _sorcererFixes() {
     if (this.data.name !== "Sorcerer") return;
-    const pointsScale: Record<string, I5eAdvScaleValueEntry> = {};
-    const points: I5eAdvancement = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "points",
-        type: "number",
-        scale: pointsScale,
-      },
-      value: {},
-      title: "Sorcery Points",
-      icon: null,
-    };
-    utils.arrayRange(20, 1, 2).forEach((i) => {
-      pointsScale[i] = {
-        value: i,
-      };
+    // one point per sorcerer level, 2 to 20
+    const points = AdvancementHelper.buildNumberScale({
+      name: "Sorcery Points",
+      identifier: "points",
+      scale: Object.fromEntries(utils.arrayRange(20, 1, 2).map((i) => [i, i])),
     });
-
     this._addAdvancement(points);
   }
 
@@ -576,11 +485,11 @@ export default class DDBClass extends DDBBaseClass {
     // only run on non-spellcasting classes
     if (!["Fighter", "Rogue", "Barbarian", "Monk", "Gunslinger", "Monster Hunter", "Pugilist", "Illrigger", "Blood Hunter"].includes(this.data.name)) return;
     const advancementData = this._advancementData;
-    const foundCantrips = Object.values(advancementData).find((a) => a.title === "Cantrips Known");
+    const foundCantrips = Object.values(advancementData).find((a) => a.name === "Cantrips Known");
     if (foundCantrips?._id) {
       delete advancementData[foundCantrips._id];
     }
-    const foundSpells = Object.values(advancementData).find((a) => a.title === "Spells Known");
+    const foundSpells = Object.values(advancementData).find((a) => a.name === "Spells Known");
     if (foundSpells?._id) {
       delete advancementData[foundSpells._id];
     }
@@ -590,7 +499,7 @@ export default class DDBClass extends DDBBaseClass {
     if (this.data.name !== "Artificer") return;
     const advancementData = this._advancementData;
     for (const [id, advancement] of Object.entries(advancementData)) {
-      if (advancement.title === "Magic Item Plans") {
+      if (advancement.name === "Magic Item Plans") {
         ((advancement as I5eAdvancementScaleValue).configuration ??= {}).scale = {
           2: { value: 4 },
           6: { value: 5 },
@@ -599,7 +508,7 @@ export default class DDBClass extends DDBBaseClass {
           18: { value: 8 },
         };
         advancementData[id] = advancement;
-      } else if (advancement.title === "Tool Proficiencies") {
+      } else if (advancement.name === "Tool Proficiencies") {
         advancement.configuration = {
           "allowReplacements": true,
           "choices": [{
@@ -630,31 +539,23 @@ export default class DDBClass extends DDBBaseClass {
 
   _pugilistFixes() {
     if (this.data.name !== "Pugilist") return;
-    const points: I5eAdvancement = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "moxie",
-        type: "number",
-        scale: {
-          2: { value: 2 },
-          4: { value: 3 },
-          6: { value: 4 },
-          8: { value: 5 },
-          10: { value: 6 },
-          12: { value: 7 },
-          14: { value: 8 },
-          16: { value: 9 },
-          18: { value: 10 },
-          19: { value: 11 },
-          20: { value: 12 },
-        },
+    const points = AdvancementHelper.buildNumberScale({
+      name: "Moxie",
+      identifier: "moxie",
+      scale: {
+        2: 2,
+        4: 3,
+        6: 4,
+        8: 5,
+        10: 6,
+        12: 7,
+        14: 8,
+        16: 9,
+        18: 10,
+        19: 11,
+        20: 12,
       },
-      value: {},
-      title: "Moxie",
-      icon: null,
-    };
+    });
 
     this._addAdvancement(points);
   }

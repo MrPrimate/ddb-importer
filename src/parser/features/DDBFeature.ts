@@ -789,7 +789,7 @@ export default class DDBFeature extends DDBFeatureMixin {
           .map((id) => matchFeatId(id)?.uuid)
           .filter((uuid): uuid is string => Boolean(uuid));
         const update: I5eAdvancementItemChoice = {
-          title: "Feat",
+          name: "Feat",
           configuration: {
             allowDrops: true,
             pool: uuids.map((uuid) => {
@@ -814,7 +814,7 @@ export default class DDBFeature extends DDBFeatureMixin {
           configuration: {
             items: chosenMatch ? [{ uuid: chosenMatch.uuid }] : [],
           },
-          title: "Feat",
+          name: "Feat",
         };
         advancement.updateSource(update as any);
       }

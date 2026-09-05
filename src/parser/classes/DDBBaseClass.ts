@@ -993,7 +993,7 @@ export default abstract class DDBBaseClass {
         },
         value: {},
         level: feature.requiredLevel ?? 0,
-        title: "Features",
+        name: "Features",
         icon: "",
         classRestriction: "",
       } as I5eAdvancement;
@@ -1103,7 +1103,7 @@ export default abstract class DDBBaseClass {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const source: I5eAdvancement = {
-      title: utils.nameString(feature.name),
+      name: utils.nameString(feature.name),
       hint: feature.snippet ?? feature.description ?? "",
       configuration: {
         restriction: {
@@ -1189,11 +1189,11 @@ export default abstract class DDBBaseClass {
           return null;
         }
         logger.debug(`Generated scale value advancement for feature ${feature.name}`, { generated });
-        if (!generated.title) return generated;
+        if (!generated.name) return generated;
         let advancement: I5eAdvancement = generated;
-        const specialLookup = this.SPECIAL_ADVANCEMENTS[generated.title];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[generated.name];
         if (specialLookup) {
-          logger.debug(`Found special advancement for ${generated.title}`, { specialLookup, generated });
+          logger.debug(`Found special advancement for ${generated.name}`, { specialLookup, generated });
           if (specialLookup.additionalAdvancements) {
             (specialLookup.additionalFunctions ?? []).forEach((fn) => {
               specialFeatures.push(fn(generated));
@@ -1238,7 +1238,7 @@ export default abstract class DDBBaseClass {
           scale,
         },
         value: {},
-        title: "Maximum Prepared Spells",
+        name: "Maximum Prepared Spells",
         icon: null,
       };
       for (let i = 1; i < this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.length; i += 1) {
@@ -1266,7 +1266,7 @@ export default abstract class DDBBaseClass {
           scale,
         },
         value: {},
-        title: "Cantrips Known",
+        name: "Cantrips Known",
         icon: null,
       };
       for (let i = 1; i < this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes.length; i += 1) {
@@ -1294,7 +1294,7 @@ export default abstract class DDBBaseClass {
           scale,
         },
         value: {},
-        title: "Spells Known",
+        name: "Spells Known",
         icon: null,
       };
       for (let i = 1; i < this.ddbClassDefinition.spellRules.levelSpellKnownMaxes.length; i += 1) {
@@ -1723,13 +1723,13 @@ export default abstract class DDBBaseClass {
       "Additional Fighting Style",
     ];
     const advancementFound = Object.values(this._advancementData)
-      .some((a) => FIGHTING_STYLE_FEATURES.includes(a.title ?? ""));
+      .some((a) => FIGHTING_STYLE_FEATURES.includes(a.name ?? ""));
     const feature = this.classFeatures.find((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
     if (!advancementFound && !feature) return;
     if (!advancementFound && feature) {
       const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
       const update: I5eAdvancementItemChoice = {
-        title: feature.name,
+        name: feature.name,
         hint: feature.snippet ?? feature.description ?? "",
         configuration: {
           choices: this.configChoices[feature.name] ?? {},
@@ -1755,7 +1755,7 @@ export default abstract class DDBBaseClass {
 
     const advancementData = this._advancementData;
     for (const [id, advancement] of Object.entries(advancementData)) {
-      if (!FIGHTING_STYLE_FEATURES.includes(advancement.title ?? "")) continue;
+      if (!FIGHTING_STYLE_FEATURES.includes(advancement.name ?? "")) continue;
       const advConfig = advancement.configuration as I5eAdvItemChoiceConfig;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
@@ -1775,7 +1775,7 @@ export default abstract class DDBBaseClass {
 
       let lowestLevel = 1;
       const description = feature?.description ?? feature?.snippet ?? "";
-      const advancementTitle = advancement.title ?? "";
+      const advancementTitle = advancement.name ?? "";
 
       if (feature?.name === "Fighting Style")
         this.configChoices[advancementTitle] ??= { 1: { count: 1, replacement: true } };

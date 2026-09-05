@@ -52,7 +52,7 @@ describe("DDBSubClass._wizardFixes", () => {
     expect(advancements).toHaveLength(1);
     const [grant] = advancements;
     expect(grant.type).toBe("ItemGrant");
-    expect(grant.title).toBe("Necromancy Spellbook");
+    expect(grant.name).toBe("Necromancy Spellbook");
     expect(grant.level).toBe(3);
     expect(grant.configuration.type).toBe("spell");
     expect(grant.configuration.items).toEqual([
@@ -87,8 +87,8 @@ describe("DDBSubClass._wizardFixes", () => {
 // known and has no Jinx Points scale; Steal Luck only records its level 17 value.
 describe("DDBSubClass.SPECIAL_ADVANCEMENTS Misfortune Bringer", () => {
   /** Mirrors DDBBaseClass._generateScaleValueAdvancementsFromFeatures: extras first, then fixes. */
-  function applySpecial(title: string, generated: any): { advancement: any; extras: any[] } {
-    const special = DDBSubClass.SPECIAL_ADVANCEMENTS[title];
+  function applySpecial(name: string, generated: any): { advancement: any; extras: any[] } {
+    const special = DDBSubClass.SPECIAL_ADVANCEMENTS[name];
     const extras = special.additionalAdvancements
       ? (special.additionalFunctions ?? []).map((fn) => fn(generated))
       : [];
@@ -100,15 +100,15 @@ describe("DDBSubClass.SPECIAL_ADVANCEMENTS Misfortune Bringer", () => {
 
   it("renames the known-count scale and adds Jinx Points", () => {
     const generated = {
-      title: "Misfortunist",
+      name: "Misfortunist",
       configuration: { identifier: "misfortunist", type: "number", scale: { 3: { value: 2 }, 9: { value: 3 }, 13: { value: 4 }, 17: { value: 5 } } },
     };
     const { advancement, extras } = applySpecial("Misfortunist", generated);
-    expect(advancement.title).toBe("Misfortunes Known");
+    expect(advancement.name).toBe("Misfortunes Known");
     expect(advancement.configuration.identifier).toBe("misfortunes-known");
     expect(advancement.configuration.scale["17"]).toEqual({ value: 5 });
     expect(extras).toHaveLength(1);
-    expect(extras[0].title).toBe("Jinx Points");
+    expect(extras[0].name).toBe("Jinx Points");
     expect(extras[0].configuration).toMatchObject({
       identifier: "jinx-points",
       type: "number",
@@ -118,7 +118,7 @@ describe("DDBSubClass.SPECIAL_ADVANCEMENTS Misfortune Bringer", () => {
 
   it("gives Steal Luck its level 9 single use", () => {
     const generated = {
-      title: "Steal Luck",
+      name: "Steal Luck",
       configuration: { identifier: "steal-luck", type: "number", scale: { 17: { value: 3 } } },
     };
     const { advancement, extras } = applySpecial("Steal Luck", generated);

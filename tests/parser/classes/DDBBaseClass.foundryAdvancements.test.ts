@@ -61,7 +61,7 @@ describe("DDBBaseClass._addFoundryAdvancements", () => {
   const generatedSneakAttack = {
     _id: "ddbSneakAttack00",
     type: "ScaleValue",
-    title: "Sneak Attack",
+    name: "Sneak Attack",
     configuration: { identifier: "sneak-attack", type: "dice", scale: { 1: { number: 1, faces: 6 } } },
   };
 

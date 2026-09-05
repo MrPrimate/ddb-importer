@@ -8,6 +8,7 @@ global {
     _id?: string;
     type?: string;
     name?: string;
+    /** pre-6.0 spelling of `name`; only read off other modules' documents, dnd5e migrates it away */
     title?: string;
     hint?: string;
     level?: number;
