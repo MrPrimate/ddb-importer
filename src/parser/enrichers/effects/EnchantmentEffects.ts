@@ -15,7 +15,7 @@ export default class EnchantmentEffects {
       durationRounds: durationRounds ?? undefined,
       durationTurns,
     });
-    foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
+    effect.type = "enchantment";
     effect._id = id ?? foundry.utils.randomID();
     if (origin) AutoEffects.setEffectOrigin(effect, origin, "item");
     return effect;

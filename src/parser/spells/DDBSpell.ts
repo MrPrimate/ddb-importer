@@ -945,6 +945,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
+    AutoEffects.markMagical(this.data);
     this._activityEffectLinking();
     this._activityBehaviorNaming();
   }

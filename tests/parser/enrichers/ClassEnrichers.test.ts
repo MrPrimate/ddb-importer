@@ -252,7 +252,7 @@ describe("cleric WarPriest and WarGodsBlessing", () => {
       itemConsumeTargetName: "Channel Divinity",
       data: {
         duration: { value: "1", units: "minute", concentration: false, override: true },
-        spell: { properties: ["concentration"], spellbook: false },
+        spell: { properties: ["concentration"], spellbook: true },
       },
     };
     expect(e.activity).toMatchObject({ name: "Cast Shield of Faith", addSpellUuid: "Shield of Faith", ...expected });

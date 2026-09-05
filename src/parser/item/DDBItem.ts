@@ -3346,6 +3346,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     Vestige.generateStageEnchantments(this, DDBItem);
+    Effects.AutoEffects.markMagical(this.data);
     this._activityEffectLinking();
     this._activityBehaviorNaming();
   }

@@ -237,6 +237,12 @@ global {
     disabled?: boolean;
     expiry?: T5eEffectExpiry | null;
     showIcon?: TEffectShowIcon;
+    /**
+     * Explicit `system.magical` for the effect. Leave undefined to inherit the document rule
+     * (spells, scrolls and `mgc` items mark their effects magical, see AutoEffects.markMagical);
+     * set false for a mundane rider on a magical source, such as a weapon-mastery condition.
+     */
+    magical?: boolean;
   }
 
   // -- Aura Effects -----------------------------------------------------------

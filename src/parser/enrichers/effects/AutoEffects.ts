@@ -86,6 +86,7 @@ export default class AutoEffects {
       durationRounds,
       durationTurns,
       showIcon,
+      magical,
     }: IDDBEffectOptions = {},
   ): TAutoEffect {
     const effect: TAutoEffect = {
@@ -129,14 +130,15 @@ export default class AutoEffects {
       effect.duration.units = "turns";
       effect.duration.expiry = "turnStart";
     }
+    if (magical !== undefined) effect.system.magical = magical;
     return effect;
   }
 
   static SpellEffect(document: TEffectDocument, label: string,
     { transfer = false, disabled = false, description, durationSeconds,
-      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+      durationRounds, durationTurns, showIcon, magical }: IDDBEffectOptions = {},
   ): TAutoEffect {
-    const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
+    const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon, magical };
     return AutoEffects.BaseEffect(document, label, options);
   }
 
@@ -179,6 +181,36 @@ export default class AutoEffects {
         foundry.utils.setProperty(document, "system.target.type", "self");
       }
       foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
+    }
+    return document;
+  }
+
+  /**
+   * dnd5e's own rule for which documents make their effects magical (`isSpellOrScroll` plus the
+   * `mgc` property in its 6.0 migration). The system only applies that rule when migrating
+   */
+  static isMagicalSource(document: { type?: string; system?: unknown }): boolean {
+    const system = document.system as { type?: { value?: string }; properties?: string[] | Set<string> } | undefined;
+    if (document.type === "spell") return true;
+    if (document.type === "consumable" && system?.type?.value === "scroll") return true;
+    const properties = system?.properties;
+    if (!properties) return false;
+    return properties instanceof Set ? properties.has("mgc") : properties.includes("mgc");
+  }
+
+  /**
+   * Stamps `system.magical` onto a document's effects (embedded and stashed standalone) when the
+   * document is a magical source. Conditions have no such field; an effect that already carries an
+   * explicit value (a builder option or an enricher `data` hint) keeps it, so an enricher can mark a
+   * mundane rider on a magic item with `magical: false`.
+   */
+  static markMagical<T extends TEffectDocument>(document: T): T {
+    if (!AutoEffects.isMagicalSource(document)) return document;
+    const standalone = (foundry.utils.getProperty(document, "flags.ddbimporter.standaloneEffects") ?? []) as I5eEffectData[];
+    for (const effect of [...(document.effects ?? []), ...standalone]) {
+      if (effect.type === "condition") continue;
+      const system = (effect.system ??= {}) as I5eEffectSystem | I5eEnchantmentEffectSystem;
+      if (system.magical === undefined) system.magical = true;
     }
     return document;
   }
