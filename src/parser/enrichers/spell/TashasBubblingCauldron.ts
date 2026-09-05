@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import ItemRarity from "../../../lib/ItemRarity";
 
 export default class TashasBubblingCauldron extends DDBEnricherData {
 
@@ -66,7 +67,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     let descriptionSuffix = "";
     if (this.ddbParser.itemCompendium?.index) {
       const possibleItems = this.ddbParser.itemCompendium.index
-        .filter((i: Record<string, any>) => ["common", "uncommon"].includes(i.system?.rarity)
+        .filter((i: Record<string, any>) => ItemRarity.keys(i.system).some((r) => ["common", "uncommon"].includes(r))
           && i.type == "consumable"
           && i.system.type.value === "potion"
           && i.name.toLowerCase().includes("potion"),

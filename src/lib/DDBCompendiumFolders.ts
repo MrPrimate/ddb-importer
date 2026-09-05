@@ -3,6 +3,7 @@ import utils from "./Utils";
 import logger from "./Logger";
 import CompendiumHelper from "./CompendiumHelper";
 import DDBSources from "./DDBSources";
+import ItemRarity from "./ItemRarity";
 
 interface ICompendiumFolderCreateOptions {
   name?: string;
@@ -1196,9 +1197,20 @@ export class DDBCompendiumFolders {
     return this.compendium.folders;
   }
 
+  /**
+   * Buckets an item by rarity. This sees parsed plain objects and raw compendium index entries alike,
+   * so it reads the dnd5e 6.0 `rarities` set first, then the DDB label kept on the dndbeyond flags
+   * (the only trace of "Varies" on a new import; any other label without a key is mundane gear, which
+   * has always been filed under Unknown), then a pre-6.0 `system.rarity` string, but only from an
+   * un-migrated entry: a re-munched entry keeps a stale string beside its set.
+   */
   static getItemFolderNameForRarity(document: I5eInventoryItem, useSource = false) {
     let name;
-    const rarity = document.system.rarity;
+    const ddbLabel = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.rarity") as string | undefined;
+    const hasSet = document.system?.rarities !== undefined && document.system?.rarities !== null;
+    const rarity = ItemRarity.first(document.system)
+      ?? (ddbLabel === "Varies" ? "varies" : undefined)
+      ?? (hasSet ? undefined : ItemRarity.legacyString(document.system));
 
     if (rarity) {
       switch (rarity.toLowerCase().trim()) {
@@ -1225,6 +1237,8 @@ export class DDBCompendiumFolders {
           name = "Varies";
           break;
         case "unknown":
+        case "unknown rarity":
+        case "unknownrarity":
         case "":
         default:
           name = "Unknown";
@@ -1951,8 +1965,9 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.legacy",
           "system.armor.type",
           "system.type.value",
+          "system.rarities",
           "system.rarity",
-          "system.type.value",
+          "flags.ddbimporter.dndbeyond.rarity",
           "system.details.type.value",
           "system.type.subtype",
         ];

@@ -34,8 +34,8 @@ export default class DDBAttackAction extends DDBAction {
       this._generateDescription();
       if ("equipped" in this.data.system)
         this.data.system.equipped = true;
-      if ("rarity" in this.data.system)
-        this.data.system.rarity = "";
+      if ("rarities" in this.data.system)
+        this.data.system.rarities = [];
       if ("identified" in this.data.system)
         this.data.system.identified = true;
       this._generateRange();

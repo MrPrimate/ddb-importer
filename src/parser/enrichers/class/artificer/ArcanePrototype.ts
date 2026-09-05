@@ -144,7 +144,7 @@ export default class ArcanePrototype extends DDBEnricherData {
         },
         quantity: 1,
         weight: { value: 0 },
-        rarity: "common",
+        rarities: ["common"],
         uses: { spent: 0, max: "1", autoDestroy: true, recovery: [] },
         properties: ["mgc"],
         identified: true,

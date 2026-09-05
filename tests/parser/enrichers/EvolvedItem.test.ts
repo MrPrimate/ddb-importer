@@ -113,7 +113,7 @@ describe("Evolved item property table", () => {
     expect(effect.transfer).toBe(false);
     expect(effect.system?.changes?.map((c) => [c.key, c.type, c.value])).toEqual([
       ["name", "add", "Resistant {}"],
-      ["system.rarity", "override", "veryRare"],
+      ["system.rarities", "override", "veryRare"],
       ["system.properties", "add", "mgc"],
       ["system.description.value", "override", expect.stringContaining("{}<p><strong>Resistant.</strong>")],
       ["system.attunement", "override", "required"],
@@ -147,7 +147,7 @@ describe("EvolvedItem enricher", () => {
     });
     expect(enchantment.flags.ddbimporter.parent).toBeUndefined();
     // DDB already prefixed the name and printed the property text
-    expect(enchantment.system.changes.map((c: any) => c.key)).toEqual(["system.rarity", "system.properties"]);
+    expect(enchantment.system.changes.map((c: any) => c.key)).toEqual(["system.rarities", "system.properties"]);
 
     const activities = enricher.additionalActivities;
     expect(activities).toHaveLength(1);

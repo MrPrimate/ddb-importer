@@ -296,7 +296,7 @@ function systemTemplate(): Record<string, any> {
     requirements: "",
     proficient: 0,
     equipped: false,
-    rarity: "",
+    rarities: [],
     identified: true,
     advancement: [],
   };

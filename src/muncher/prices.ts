@@ -1,6 +1,6 @@
 
 import { DICTIONARY } from "../config/_module";
-import { logger, CompendiumHelper } from "../lib/_module";
+import { logger, CompendiumHelper, ItemRarity } from "../lib/_module";
 
 // Function to calculate the new price
 export async function calculatePrice(rarity: string, consumable = false) {
@@ -18,6 +18,8 @@ export async function calculatePrice(rarity: string, consumable = false) {
 const UPDATE_PRICE_INDEX_FIELDS = [
   "name",
   "type",
+  "system.rarities",
+  // pre-6.0 packs still hold the string; an index is raw source, so both must be requested
   "system.rarity",
   "system.price.value",
   "flags.ddbimporter.price",
@@ -30,7 +32,8 @@ interface IUpdatePriceIndexItem {
   type: string;
   system: {
     price: I5ePrice;
-    rarity: string;
+    rarities?: string[];
+    rarity?: string;
   };
   flags: {
     ddbimporter: {
@@ -57,8 +60,8 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
     fields: UPDATE_PRICE_INDEX_FIELDS,
   })) as unknown as IUpdatePriceIndexItem[];
   const filteredItems = items.filter((i) => {
-    const rarity = i.system.rarity;
-    if (!(rarity in DICTIONARY.equipment.priceFormulas)) {
+    const rarity = ItemRarity.first(i.system);
+    if (!rarity || !(rarity in DICTIONARY.equipment.priceFormulas)) {
       logger.info(`No update needed for ${i.name}, item has no rarity`);
       return false;
     }
@@ -79,7 +82,7 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
   // const items = await pack.getDocuments();
 
   for (const item of filteredItems) {
-    const rarity = item.system.rarity;
+    const rarity = ItemRarity.first(item.system) ?? "";
     const gpPrice = item.system.price.value;
     const isConsumable = item.type === "consumable";
 

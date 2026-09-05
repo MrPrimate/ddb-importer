@@ -19,7 +19,7 @@ global {
 
   type TArmorType = "light" | "medium" | "heavy" | "shield" | "natural";
 
-  type TItemRarity = "" | "common" | "uncommon" | "rare" | "veryRare" | "legendary" | "artifact";
+  type TItemRarity = "common" | "uncommon" | "rare" | "veryRare" | "legendary" | "artifact";
 
   type TWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
 
@@ -194,7 +194,7 @@ global {
     properties: TWeaponProperties[];
     quantity: number;
     range: I5eWeaponRange;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     requirements: string;
     container?: string;
     source: I5eSourceInfo;
@@ -349,7 +349,7 @@ global {
     proficient: boolean | null;
     properties: TEquipmentProperties[];
     quantity: number;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     source: I5eSourceInfo;
     strength: number;
     container?: string;
@@ -398,7 +398,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     attunement: string;
     currency: I5eCurrency;
     capacity: I5eContainerCapacity;
@@ -432,7 +432,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     attunement: string;
     ability: string;
     bonus: string;
@@ -474,7 +474,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     attunement: string;
     attuned: boolean;
     equipped: boolean;
@@ -504,7 +504,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: TItemRarity;
+    rarities: TItemRarity[];
     properties: string[];
     type: {
       value: TLootTypes;
@@ -623,6 +623,7 @@ global {
     largeAvatarUrl?: string;
     pictureUrl?: string;
     filterType?: string;
+    rarity?: string;
     ability2?: string;
     damage?: { parts?: string[][] };
     classFeatures?: number[];

@@ -1,4 +1,4 @@
-import { logger, CompendiumHelper, DDBCampaigns } from "../lib/_module";
+import { logger, CompendiumHelper, DDBCampaigns, ItemRarity } from "../lib/_module";
 import DDBPartyInventory, {
   IDDBPartyInventory,
   IDDBPartyInventoryItem,
@@ -103,7 +103,7 @@ export default class DDBPartyInventoryImporter {
         quantity: ddbItem.quantity ?? 1,
         weight: { value: def.weight ?? 0, units: "lb" },
         price: { value: def.cost ?? 0, denomination: "gp" },
-        rarity: (def.rarity ?? "").toLowerCase(),
+        rarities: ItemRarity.fromDDB(def.rarity, def.magic ?? true),
         description: { value: def.description ?? def.snippet ?? "" },
         equipped: ddbItem.equipped ?? false,
         attuned: ddbItem.isAttuned ?? false,

@@ -183,3 +183,45 @@ describe("DDBCompendiumFolders effect folders", () => {
     }
   });
 });
+
+/**
+ * dnd5e 6.0 stores rarity as the `rarities` set and a compendium index is raw source, so the
+ * rarity folder pass meets three entry shapes over a pack's life: legacy (`rarity` string only),
+ * updated (`rarities` plus a stale `rarity`), fresh (`rarities` only). DDB's "Varies" survives only
+ * on the dndbeyond flag (new imports) or as the old "varies" string (un-migrated packs).
+ */
+describe("DDBCompendiumFolders.getItemFolderNameForRarity", () => {
+  const name = (document: any) => DDBCompendiumFolders.getItemFolderNameForRarity(document).name;
+
+  it("buckets by the first key of a rarities array or Set", () => {
+    expect(name({ system: { rarities: ["veryRare"] } })).toBe("Very Rare");
+    expect(name({ system: { rarities: new Set(["uncommon", "rare"]) } })).toBe("Uncommon");
+    expect(name({ system: { rarities: ["artifact"] } })).toBe("Artifact");
+  });
+
+  it("ignores a stale legacy string once rarities is present", () => {
+    expect(name({ system: { rarities: ["common"], rarity: "rare" } })).toBe("Common");
+    expect(name({ system: { rarities: [], rarity: "rare" } })).toBe("Unknown");
+    expect(name({ system: { rarities: [], rarity: "rare" }, flags: { ddbimporter: { dndbeyond: { rarity: "Varies" } } } }))
+      .toBe("Varies");
+  });
+
+  it("uses the DDB label on the flag for Varies and Unknown Rarity", () => {
+    expect(name({ system: { rarities: [] }, flags: { ddbimporter: { dndbeyond: { rarity: "Varies" } } } })).toBe("Varies");
+    expect(name({ system: { rarities: [] }, flags: { ddbimporter: { dndbeyond: { rarity: "Unknown Rarity" } } } }))
+      .toBe("Unknown");
+  });
+
+  it("files mundane gear under Unknown even though DDB labels it Common", () => {
+    expect(name({ system: { rarities: [] }, flags: { ddbimporter: { dndbeyond: { rarity: "Common" } } } })).toBe("Unknown");
+    expect(name({ system: { rarities: [] } })).toBe("Unknown");
+    expect(name({ system: {} })).toBe("Unknown");
+  });
+
+  it("still reads a pre-6.0 pack entry", () => {
+    expect(name({ system: { rarity: "veryRare" } })).toBe("Very Rare");
+    expect(name({ system: { rarity: "Very Rare" } })).toBe("Very Rare");
+    expect(name({ system: { rarity: "varies" } })).toBe("Varies");
+    expect(name({ system: { rarity: "" } })).toBe("Unknown");
+  });
+});

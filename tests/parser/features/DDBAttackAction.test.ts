@@ -97,7 +97,7 @@ describe("DDBAttackAction.build weapon documents", () => {
     expect(action.documentType).toBe("weapon");
     expect(action.data.system.proficient).toBe(true);
     expect(action.data.system.equipped).toBe(true);
-    expect(action.data.system.rarity).toBe("");
+    expect(action.data.system.rarities).toEqual([]);
     expect(action.data.system.identified).toBe(true);
   });
 

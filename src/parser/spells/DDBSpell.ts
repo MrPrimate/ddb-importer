@@ -204,6 +204,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       await this.itemCompendium.getIndex({
         fields: [
           "name",
+          "system.rarities",
+          // pre-6.0 packs still hold the string; an index is raw source, so both must be requested
           "system.rarity",
           "system.type.value",
         ],

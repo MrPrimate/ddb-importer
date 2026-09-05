@@ -239,7 +239,7 @@ export default class EerieToken extends DDBEnricherData {
           "value": 0,
           "units": "lb",
         },
-        "rarity": "",
+        "rarities": [],
         "properties": [
           "mgc",
         ],

@@ -369,7 +369,8 @@ export default class EvolvedItemProperties {
     (effect.system as I5eEnchantmentEffectSystem).magical = true;
     const changes: IActiveEffectChangeData[] = [
       ChangeHelper.addChange(`${property.name} {}`, 20, "name"),
-      ChangeHelper.overrideChange(property.tier, 20, "system.rarity"),
+      // a bare string override on the rarities SetField becomes Set{tier}
+      ChangeHelper.overrideChange(property.tier, 20, "system.rarities"),
       ChangeHelper.addChange("mgc", 20, "system.properties"),
       ChangeHelper.overrideChange(`{}<p><strong>${property.name}.</strong> ${EvolvedItemProperties.text(property)}</p>`, 20, "system.description.value"),
     ];

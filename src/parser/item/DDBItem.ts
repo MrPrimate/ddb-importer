@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import type { IPublisherAmmunitionType } from "../../config/dictionary/items/ammunition";
-import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies } from "../../lib/_module";
+import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies, ItemRarity } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
@@ -1462,13 +1462,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * dnd5e 6.0 holds rarity as a set with no "varies" member, so DDB's "Varies" and "Unknown Rarity"
+   * labels become an empty set; the label itself is kept on the dndbeyond flags so the rarity
+   * compendium folders can still bucket those items.
+   */
   #generateItemRarity() {
-    const tmpRarity = this.ddbDefinition.rarity;
-    const isMundaneItem = this.ddbDefinition?.rarity === "Common" && !this.ddbDefinition.magic;
-    const rarity: TItemRarity = this.ddbDefinition.rarity && !isMundaneItem
-      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "") as TItemRarity
-      : "";
-    this.data.system.rarity = rarity;
+    this.data.system.rarities = ItemRarity.fromDDB(this.ddbDefinition.rarity, this.ddbDefinition.magic);
+    if (this.ddbDefinition.rarity) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.rarity", this.ddbDefinition.rarity);
+    }
   }
 
   #getActivityRange(): I5eActivityRange {
@@ -2190,7 +2193,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         }
       }
     } else {
-      switch (this.data.system.rarity) {
+      switch (ItemRarity.first(this.data.system)) {
         case "common":
           price = 100;
           break;
