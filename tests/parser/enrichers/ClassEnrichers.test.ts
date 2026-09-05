@@ -222,6 +222,40 @@ describe("cleric ChannelDivinity", () => {
 });
 
 /**
+ * Features build hints-only, so an enricher that only declares `type` used to produce no activity
+ * at all and silently dropped the DDB action the Generic fallback had matched (War Priest lost its
+ * bonus attack). The guard in DDBFeatureMixin now treats a bare `type` as a request; these pin
+ * the explicit activities the two cleric enrichers grew when that was found.
+ */
+describe("cleric WarPriest and WarGodsBlessing", () => {
+  it("gives War Priest a self-targeted bonus action on its own Wisdom pool", () => {
+    const e = build(ClassEnrichers.Cleric.WarPriest);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Bonus Attack", activationType: "bonus", targetType: "self" });
+    expect(e.override.uses).toMatchObject({ max: "max(1, @abilities.wis.mod)" });
+    expect(e.override.uses.recovery).toEqual([{ period: "sr", type: "recoverAll", formula: undefined }]);
+  });
+
+  it("shapes War God's Blessing as a 2014 reaction and a 2024 special action", () => {
+    expect(build(ClassEnrichers.Cleric.WarGodsBlessing, { is2014: true }).activity)
+      .toMatchObject({ activationType: "reaction", targetType: "creature" });
+    expect(build(ClassEnrichers.Cleric.WarGodsBlessing).activity)
+      .toMatchObject({ activationType: "special", targetType: "self" });
+  });
+});
+
+describe("wizard SculptSpells", () => {
+  it("transfers the midi sculpt flag to the actor, since nothing ever activates it", () => {
+    const e = build(ClassEnrichers.Wizard.SculptSpells);
+    expect(e.activity).toBeNull();
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0].midiOnly).toBe(true);
+    expect(e.effects[0].options).toMatchObject({ transfer: true });
+    expect(e.effects[0].midiChanges?.map((c: any) => c.key)).toEqual(["flags.midi-qol.sculptSpell"]);
+  });
+});
+
+/**
  * Potent Spellcasting's bonus is a native damage rule generated from the DDB modifier
  * (EffectGenerator._addCantripDamageBonus, pinned in EffectGenerator.cantripDamage.test.ts); the
  * enrichers must not add a second channel for it.

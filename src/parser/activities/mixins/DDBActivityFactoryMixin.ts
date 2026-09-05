@@ -405,7 +405,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   } = {}, optionsOverride: TDDBActivityBuildOptions = {},
   ): Promise<string | undefined> {
     if (this.ignoreActivityGeneration) return undefined;
-    if (hintsOnly && !this.enricher.activity) return undefined;
+    if (hintsOnly && !this.enricher.activity && !this.enricher.type) return undefined;
     if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 
     const activityOptions: TDDBActivityBuildOptions = (foundry.utils.getProperty(this.enricher, "activity.options") ?? {}) as TDDBActivityBuildOptions;

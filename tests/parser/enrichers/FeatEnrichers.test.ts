@@ -73,3 +73,13 @@ describe("Kindred feat consumption targets", () => {
     expect(makeEnricherData(Enricher).activity.itemConsumeTargetName).toBe("feat:blood-potency");
   });
 });
+
+describe("War Caster", () => {
+  it("keeps the transferred concentration advantage and adds the opportunity-spell reaction", () => {
+    const e = makeEnricherData(FeatEnrichers.WarCaster);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Opportunity Spell", activationType: "reaction" });
+    expect(e.effects[0].options).toMatchObject({ transfer: true });
+    expect(e.override).toMatchObject({ midiManualReaction: true });
+  });
+});

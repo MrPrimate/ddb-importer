@@ -72,7 +72,7 @@ export default class SpiritLantern extends DDBEnricherData {
       retainUseSpent: true,
       uses: {
         spent: null,
-        max: "max(1, @mod)",
+        max: "max(1, @attributes.spell.mod)",
         recovery: [{ period: "lr", type: "loseAll" }],
       },
     };

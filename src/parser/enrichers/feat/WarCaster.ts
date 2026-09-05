@@ -6,6 +6,14 @@ export default class WarCaster extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Opportunity Spell",
+      activationType: "reaction",
+      targetType: "creature",
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

@@ -10,7 +10,7 @@ export const CONSUMPTION_LINKS = {
   ],
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
-    "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
+    "War God's Blessing", "Guided Strike", "Inspiring Smite", "Peerless Athlete",
     "Nature's Wrath", "Vow of Enmity", "Preserve Life",
     // "Sear Undead",
   ],
