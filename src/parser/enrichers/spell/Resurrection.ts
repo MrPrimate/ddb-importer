@@ -17,10 +17,11 @@ export default class Resurrection extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    // dnd5e folds rolls.ability.check into the initiative roll, so a separate
+    // attributes.init.roll.bonus entry would penalise initiative twice.
     const keys = [
       "system.rolls.ability.check.bonus",
       "system.rolls.ability.save.bonus",
-      "system.attributes.init.roll.bonus",
       "system.rolls.attack.mwak.bonus",
       "system.rolls.attack.msak.bonus",
       "system.rolls.attack.rwak.bonus",

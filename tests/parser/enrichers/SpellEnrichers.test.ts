@@ -900,3 +900,29 @@ describe("region-behavior spells (2026-09-02 wave)", () => {
     expect(legacy.additionalActivities).toBeNull();
   });
 });
+
+describe("revival penalty spells", () => {
+  const PENALTY_KEYS = [
+    "system.rolls.ability.check.bonus",
+    "system.rolls.ability.save.bonus",
+    "system.rolls.attack.mwak.bonus",
+    "system.rolls.attack.msak.bonus",
+    "system.rolls.attack.rwak.bonus",
+    "system.rolls.attack.rsak.bonus",
+  ];
+
+  // dnd5e's initiative roll already combines rolls.ability.check, so an extra
+  // attributes.init.roll.bonus change would apply the penalty twice.
+  it.each([
+    ["Raise Dead", SpellEnrichers.RaiseDead],
+    ["Resurrection", SpellEnrichers.Resurrection],
+  ])("%s penalises checks, saves and attacks once per day without a separate initiative change", (name, Enricher) => {
+    const enricher = build(Enricher, { name });
+    const effects = enricher.effects;
+    expect(effects.map((e: any) => e.name)).toEqual([1, 2, 3, 4].map((day) => `${name} Penalty (Day ${day})`));
+    effects.forEach((effect: any, index: number) => {
+      expect(effect.changes.map((c: any) => c.key)).toEqual(PENALTY_KEYS);
+      expect(new Set(effect.changes.map((c: any) => c.value))).toEqual(new Set([`-${4 - index}`]));
+    });
+  });
+});
