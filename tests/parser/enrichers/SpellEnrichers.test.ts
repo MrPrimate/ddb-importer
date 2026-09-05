@@ -278,18 +278,14 @@ describe("SpiritGuardians", () => {
 });
 
 describe("region behavior spells", () => {
-  it("Silence applies the stock silenced/deafened/thunder-immunity effects through an applyActiveEffect behavior", () => {
+  it("Silence applies the official Silenced spell effect through an applyActiveEffect behavior", () => {
     const e = build(SpellEnrichers.Silence);
     expect(e.type).toBe("utility");
     expect(e.activity.data.behaviors).toEqual([
       expect.objectContaining({
         type: "applyActiveEffect",
         config: {
-          effects: [
-            SRDEffects.condition("silenced"),
-            SRDEffects.condition("deafened"),
-            SRDEffects.damageImmunity("thunder"),
-          ],
+          effects: [SRDEffects.spell("silenced")],
           sizes: [],
           types: [],
         },
@@ -300,9 +296,9 @@ describe("region behavior spells", () => {
     expect(e.setMidiOnUseMacroFlag).toBeNull();
   });
 
-  it("Aura of Life applies the stock necrotic resistance to allies", () => {
+  it("Aura of Life applies the official Aura of Life spell effect to allies", () => {
     const e = build(SpellEnrichers.AuraOfLife);
-    expect(e.activity.data.behaviors[0].config.effects).toEqual([SRDEffects.damageResistance("necrotic")]);
+    expect(e.activity.data.behaviors[0].config.effects).toEqual([SRDEffects.spell("auraOfLife")]);
     expect(e.effects).toEqual([]);
     expect(e.override.data.system.target.affects.type).toBe("ally");
   });
@@ -724,6 +720,18 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
 
   it("Shield anchors on the caster's turn start", () => {
     expect(build(SpellEnrichers.Shield).effects[0].options.expiry).toBe("sourceStart");
+  });
+
+  it("Absorb Elements' midi effects keep only their declared anchors (no raw data.duration shadow)", () => {
+    const effects = build(SpellEnrichers.AbsorbElements).effects.filter((e: any) => e.midiOnly);
+    const [extraDamage, resistance] = effects;
+    // "the first time you hit with a melee attack on your next turn" - survives THROUGH that turn
+    expect(extraDamage.options).toEqual({ expiry: "sourceEnd" });
+    expect(extraDamage.daeSpecialDurations).toEqual(["DamageDealt"]);
+    expect(extraDamage.data).toBeUndefined();
+    // "until the start of your next turn"
+    expect(resistance.options).toEqual({ expiry: "sourceStart" });
+    expect(resistance.data).toBeUndefined();
   });
 
   it("Guiding Bolt keeps isAttacked for DAE and adds the caster's turn-end native bound", () => {

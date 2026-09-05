@@ -11,14 +11,14 @@ export default class AuraOfLife extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    // dnd5e PR #7332 ships an "Aura of Life" spell effect (SRDEffects.spell("auraOfLife")); the stock
-    // resistance covers the automatable part until that pack content is released
+    // the official effect covers the automatable part (necrotic resistance); the max-HP floor and
+    // the 1 HP regain for downed allies stay on the description
     return {
       name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.applyEffect({
-            effects: DDBEnricherData.SRDEffects.damageResistance("necrotic"),
+            effects: DDBEnricherData.SRDEffects.spell("auraOfLife"),
           }),
         ],
       },

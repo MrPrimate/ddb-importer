@@ -82,4 +82,13 @@ describe("War Caster", () => {
     expect(e.effects[0].options).toMatchObject({ transfer: true });
     expect(e.override).toMatchObject({ midiManualReaction: true });
   });
+
+describe("native expiry owns the duration (no raw data.duration shadow)", () => {
+  it("Dragonscarred Fearsome Power frightens until the end of the feat user's next turn", () => {
+    const [frightened] = makeEnricherData(FeatEnrichers.Dragonscarred).effects;
+    expect(frightened).toMatchObject({ name: "Frightened", activityMatch: "Fearsome Power", statuses: ["Frightened"] });
+    expect(frightened.options).toEqual({ expiry: "sourceEnd" });
+    expect(frightened.data).toBeUndefined();
+  });
+});
 });

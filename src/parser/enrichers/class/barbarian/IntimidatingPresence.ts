@@ -92,14 +92,12 @@ export default class IntimidatingPresence extends DDBEnricherData {
         noCreate: true,
         midiOnly: true,
         name: "Intimidating Presence: Frightened",
-        data: {
-          duration: {
-            value: 6,
-            units: "seconds",
-            expiry: "turnEnd",
-          },
-        },
-        options: { expiry: "sourceEnd" },
+        // 2014: "frightened of you until the end of your next turn"; 2024: "the Frightened
+        // condition for 1 minute" with repeat saves, so the counted minute must not be cut by
+        // a pseudo expiry
+        options: this.is2014
+          ? { expiry: "sourceEnd" }
+          : { expiry: "turnStart", durationSeconds: 60 },
       },
     ];
   }

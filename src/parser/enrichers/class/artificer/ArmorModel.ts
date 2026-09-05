@@ -589,11 +589,6 @@ export default class ArmorModel extends DDBEnricherData {
         ],
         data: {
           img: "icons/skills/melee/unarmed-punch-fist-white.webp",
-          duration: {
-            value: 6,
-            units: "seconds",
-            expiry: "turnStart",
-          },
         },
       },
     ];
@@ -674,13 +669,6 @@ export default class ArmorModel extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.speeds.walk)", 20, "system.attributes.movement.speeds.fly"),
         ],
-        data: {
-          duration: {
-            value: 6,
-            units: "seconds",
-            expiry: "turnEnd",
-          },
-        },
       },
     ];
   }

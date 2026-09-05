@@ -1822,4 +1822,33 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
     expect(e.activity.data.behaviors).toEqual([expect.objectContaining({ type: "difficultTerrain", config: { types: ["ice"] } })]);
     expect(e.additionalActivities.map((a: any) => a.action?.name)).toEqual(["Create Ice: Freeze"]);
   });
+
+  describe("native expiry owns the duration (no raw data.duration shadow)", () => {
+    // a raw `data.duration` merges AFTER applyNativeExpiry, so a hint that carries one silently
+    // replaces its declared anchor with the legacy turnStart/turnEnd; these hints must not carry one
+    it("barbarian IntimidatingPresence: 2014 ends at the barbarian's next turn end, 2024 runs its minute", () => {
+      const legacy = build(ClassEnrichers.Barbarian.IntimidatingPresence, { is2014: true }).effects[0];
+      expect(legacy.options).toEqual({ expiry: "sourceEnd" });
+      expect(legacy.data).toBeUndefined();
+      const modern = build(ClassEnrichers.Barbarian.IntimidatingPresence, { is2014: false }).effects[0];
+      expect(modern.options).toEqual({ expiry: "turnStart", durationSeconds: 60 });
+      expect(modern.data).toBeUndefined();
+    });
+
+    it("artificer ArmorModel: Thunder Struck and Infiltrator Flight keep only their declared anchors", () => {
+      const effects = build(ClassEnrichers.Artificer.ArmorModel, { is2014: true }).effects;
+      const thunder = effects.find((e: any) => e.name === "Thunder Struck");
+      expect(thunder.options.expiry).toBe("sourceStart");
+      expect(thunder.data).toEqual({ img: "icons/skills/melee/unarmed-punch-fist-white.webp" });
+      const flight = effects.find((e: any) => e.name === "Infiltrator: Flight");
+      expect(flight.options.expiry).toBe("sourceEnd");
+      expect(flight.data).toBeUndefined();
+    });
+
+    it("generic RecklessAttack expires at the attacker's next turn start", () => {
+      const [reckless] = build(GenericEnrichers.RecklessAttack).effects;
+      expect(reckless.options).toEqual({ expiry: "sourceStart" });
+      expect(reckless.data).toBeUndefined();
+    });
+  });
 });

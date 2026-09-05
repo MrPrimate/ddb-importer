@@ -23,13 +23,6 @@ export default class RecklessAttack extends DDBEnricherData {
         // against you have advantage until the start of your next turn
         name: "Attacking Recklessly",
         daeStackable: "noneName",
-        data: {
-          duration: {
-            value: 6,
-            units: "seconds",
-            expiry: "turnStart",
-          },
-        },
         options: { expiry: "sourceStart" },
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.str"),

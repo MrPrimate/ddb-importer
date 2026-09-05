@@ -76,7 +76,7 @@ export default class SRDEffects {
     return SRDEffects.uuid("speeds", type);
   }
 
-  /** Spell-specific effects from dnd5e PR #7332; only usable once that content ships. */
+  /** Spell-specific effects shipped in the dnd5e `effects` pack since 6.0 (Silenced, Aura of Life). */
   static spell(key: TSRDKey<"spells">): string {
     return SRDEffects.uuid("spells", key);
   }

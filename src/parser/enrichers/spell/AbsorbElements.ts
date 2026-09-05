@@ -66,13 +66,6 @@ export default class AbsorbElements extends DDBEnricherData {
         // rides the caster, so the caster's turn end is the bound
         options: { expiry: "sourceEnd" },
         daeSpecialDurations: ["DamageDealt"],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnEnd",
-            units: "seconds",
-          },
-        },
       },
       {
         name: `${this.data.name}: Resistance`,
@@ -81,13 +74,6 @@ export default class AbsorbElements extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
         options: { expiry: "sourceStart" },
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnEnd",
-            units: "seconds",
-          },
-        },
       },
     ];
     return [...noMidiEffects, ...midiEffects];
