@@ -1292,6 +1292,50 @@ export default class AdvancementHelper {
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
+  /**
+   * Builds an additional-advancement function producing a numeric scale value that DDB has no
+   * levelScale for, so the values come from the rules text (e.g. a point pool whose DDB scale
+   * tracks something else). The generated source advancement is ignored.
+   */
+  static fixedNumberScale({ title, identifier, scale }: {
+    title: string;
+    identifier: string;
+    scale: Record<string, number>;
+  }): TDDBScaleValueFixFunction {
+    return (_advancement: I5eAdvancementScaleValue): I5eAdvancement => {
+      const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
+      const update = {
+        configuration: {
+          identifier,
+          type: "number",
+          scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
+        },
+        title,
+      };
+      for (const [level, value] of Object.entries(scale)) {
+        update.configuration.scale[level] = { value };
+      }
+      adv.updateSource(update as any);
+      return adv.toObject() as unknown as I5eAdvancement;
+    };
+  }
+
+  /**
+   * Adds level entries missing from a generated scale, for DDB levelScales that only record the
+   * value at the level it changes (a scale with no entry at or below the current level resolves
+   * to nothing in dnd5e). Existing entries win.
+   */
+  static addScaleEntries(advancement: I5eAdvancement, { scale = undefined }: IDDBFixFunctionArgs = {}): I5eAdvancement {
+    if (!scale) return advancement;
+    if (!("configuration" in advancement) || !advancement.configuration) return advancement;
+    const configuration = advancement.configuration as I5eAdvScaleValueConfig;
+    configuration.scale ??= {};
+    for (const [level, entry] of Object.entries(scale)) {
+      configuration.scale[level] ??= foundry.utils.deepClone(entry);
+    }
+    return advancement;
+  }
+
   static addSingularDie(advancement: I5eAdvancement): I5eAdvancement {
     const scaleValue: I5eAdvancement = AdvancementHelper.convertToSingularDie(foundry.utils.duplicate(advancement) as I5eAdvancement);
 

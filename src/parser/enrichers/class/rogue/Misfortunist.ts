@@ -1,14 +1,14 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Misfortune Bringer rogue level 3. The Jinx Points pool is the separate "Jinx Points" action
+ * document (rogue/JinxPoints); this feature keeps the rules text and points at it.
+ */
 export default class Misfortunist extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      uses: {
-        max: "@classes.rogue.levels >= 13 ? 6 : 4",
-        recovery: [{ period: "sr", type: "recoverAll", formula: "" }],
-      },
-      descriptionSuffix: "<p><i>This feature tracks your Jinx Points. Misfortune activities consume points from this feature.</i></p>",
+      descriptionSuffix: "<p><i>Your Jinx Points are tracked on the Jinx Points feature. Misfortune activities consume points from it.</i></p>",
     };
   }
 

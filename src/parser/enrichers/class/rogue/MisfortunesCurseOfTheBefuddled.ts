@@ -1,31 +1,25 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Misfortune from "./Misfortune";
 
-export default class MisfortunesCurseOfTheBefuddled extends DDBEnricherData {
+export default class MisfortunesCurseOfTheBefuddled extends Misfortune {
+
+  override get jinxCost(): number {
+    return 2;
+  }
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return Misfortune.ACTIVITY_TYPES.SAVE;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Curse of the Befuddled",
-      targetType: "creature",
+      ...super.activity,
       activationType: "action",
-      addItemConsume: true,
-      itemConsumeTargetName: "Misfortunist",
-      itemConsumeValue: "2",
       data: {
         range: {
           units: "ft",
           value: "60",
         },
-        save: {
-          ability: ["wis"],
-          dc: {
-            calculation: "",
-            formula: "8 + max(@abilities.cha.mod, @abilities.int.mod) + @prof",
-          },
-        },
+        ...this.wisdomSave,
       },
     };
   }
@@ -41,16 +35,6 @@ export default class MisfortunesCurseOfTheBefuddled extends DDBEnricherData {
         },
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        system: {
-          uses: { spent: null, max: "", recovery: [] },
-        },
-      },
-    };
   }
 
 }

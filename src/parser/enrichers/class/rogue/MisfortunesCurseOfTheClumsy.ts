@@ -1,20 +1,16 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Misfortune from "./Misfortune";
 
-export default class MisfortunesCurseOfTheClumsy extends DDBEnricherData {
+export default class MisfortunesCurseOfTheClumsy extends Misfortune {
 
-  override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  override get jinxCost(): number {
+    return 3;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Curse of the Clumsy",
-      targetType: "creature",
+      ...super.activity,
       activationType: "reaction",
       activationCondition: "A creature cursed by your Evil Eye moves at least 5 feet on its turn",
-      addItemConsume: true,
-      itemConsumeTargetName: "Misfortunist",
-      itemConsumeValue: "3",
     };
   }
 
@@ -28,20 +24,10 @@ export default class MisfortunesCurseOfTheClumsy extends DDBEnricherData {
           description: "Prone with Speed 0 until the end of its turn.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 90),
+          Misfortune.ChangeHelper.movementMultiplierChange("0", 90),
         ],
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        system: {
-          uses: { spent: null, max: "", recovery: [] },
-        },
-      },
-    };
   }
 
 }

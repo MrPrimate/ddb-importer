@@ -21,7 +21,7 @@ import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
 import SoulOfTheStormGiant from "../../../src/parser/enrichers/feat/SoulOfTheStormGiant";
 import * as GenericEnrichers from "../../../src/parser/enrichers/generic/_module";
 import Utils from "../../../src/lib/Utils";
-import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { makeDdbClass, makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
 beforeAll(() => {
@@ -1061,6 +1061,114 @@ describe("rogue TokensOfTheDeparted", () => {
     const e = build(Enricher, { is2014: true, ddbParser: { ddbCharacter: { profBonus: 4 } } });
     expect(e.override.uses.max).toBe("@prof");
     expect(e.override.uses.recovery[0].type).toBe("formula");
+  });
+});
+
+describe("rogue Misfortune Bringer", () => {
+  const Rogue = ClassEnrichers.Rogue;
+  const jinxAction = { class: [{ name: "Jinx Points", limitedUse: { maxUses: 6, numberUsed: 2 } }] };
+
+  it("pools Jinx Points on the kept action document from the hand-built scale with DDB spent", () => {
+    const e = build(Rogue.JinxPoints, { actions: jinxAction, isAction: true });
+    expect(e.type).toBe("none");
+    expect(e.override.uses).toEqual({
+      spent: 2,
+      max: "@scale.misfortune-bringer.jinx-points",
+      recovery: [{ period: "sr", type: "recoverAll", formula: undefined }],
+    });
+    // no DDB action (compendium build): the pool still has its max
+    expect(build(Rogue.JinxPoints).override.uses.spent).toBeUndefined();
+    // Misfortunist itself no longer carries the pool
+    expect(build(Rogue.Misfortunist).override.uses).toBeUndefined();
+  });
+
+  it("builds nothing on the Misfortunes container", () => {
+    expect(build(Rogue.Misfortunes).type).toBe("none");
+  });
+
+  it("takes a curse's cost from the (N Points) name the choice parser stripped", () => {
+    const e = named(Rogue.MisfortunesCurseOfTheUnlucky, "Misfortunes: Curse of the Unlucky", {
+      ddbParser: { resourceCharges: 4 },
+    });
+    expect(e.activity).toMatchObject({
+      name: "Curse of the Unlucky",
+      targetType: "creature",
+      activationType: "bonus",
+      addItemConsume: true,
+      itemConsumeTargetName: "Jinx Points",
+      itemConsumeValue: "4",
+    });
+    // the curse document must not carry a pool of its own
+    expect(e.override.data.system.uses).toEqual({ spent: null, max: "", recovery: [] });
+  });
+
+  it("falls back to the rules-text cost when the name carried no points", () => {
+    const unlucky = named(Rogue.MisfortunesCurseOfTheUnlucky, "Misfortunes: Curse of the Unlucky", {
+      ddbParser: { resourceCharges: null },
+    });
+    expect(unlucky.activity.itemConsumeValue).toBe("3");
+    expect(named(Rogue.MisfortunesCurseOfTheDoomed, "Misfortunes: Curse of the Doomed").activity.itemConsumeValue).toBe("1");
+  });
+
+  it("gives save curses the Misfortunist DC and stops Somnolent growing a template", () => {
+    const somnolent = named(Rogue.MisfortunesCurseOfTheSomnolent, "Misfortunes: Curse of the Somnolent");
+    expect(somnolent.type).toBe("save");
+    expect(somnolent.activity.noTemplate).toBe(true);
+    expect(somnolent.activity.data.save).toEqual({
+      ability: ["wis"],
+      dc: { calculation: "", formula: "8 + max(@abilities.cha.mod, @abilities.int.mod) + @prof" },
+    });
+    const befuddled = named(Rogue.MisfortunesCurseOfTheBefuddled, "Misfortunes: Curse of the Befuddled");
+    expect(befuddled.activity.data.range).toEqual({ units: "ft", value: "60" });
+    expect(befuddled.activity.data.save.dc.formula).toBe(somnolent.activity.data.save.dc.formula);
+  });
+
+  it("keeps Debilitated as a consuming damage reaction", () => {
+    const e = named(Rogue.MisfortunesCurseOfTheDebilitated, "Misfortunes: Curse of the Debilitated");
+    expect(e.type).toBe("damage");
+    expect(e.activity.activationType).toBe("reaction");
+    expect(e.activity.itemConsumeValue).toBe("1");
+    expect(e.activity.damageParts[0]).toMatchObject({ number: 1, denomination: 12, types: ["necrotic"] });
+  });
+
+  const stealLuckOptions = (level: number) => ({
+    actions: { class: [{ name: "Steal Luck", limitedUse: { maxUses: 1, numberUsed: 1 } }] },
+    character: {
+      classes: [makeDdbClass({
+        level,
+        definition: { name: "Rogue" },
+        classFeatures: [{ definition: { name: "Improved Steal Luck", requiredLevel: 17 } }],
+      })],
+    },
+  });
+
+  it("recovers Steal Luck on a Long Rest only once Improved Steal Luck is reached", () => {
+    const improved = build(Rogue.StealLuck, stealLuckOptions(17));
+    expect(improved.override.uses).toMatchObject({
+      spent: 1,
+      max: "@scale.misfortune-bringer.steal-luck",
+      recovery: [{ period: "lr", type: "recoverAll" }],
+    });
+    // the feature is on the class list but not yet reached
+    const early = build(Rogue.StealLuck, stealLuckOptions(9));
+    expect(early.override.uses.recovery[0].period).toBe("sr");
+    // the reaction still refunds a Jinx Point
+    expect(early.activity.additionalConsumptionTargets[0]).toMatchObject({ target: "Jinx Points", value: "-1" });
+  });
+
+  it("casts Bestow Curse from the Misfortunist pool without a slot", () => {
+    const e = build(Rogue.CurseCaster);
+    expect(e.type).toBe("cast");
+    expect(e.activity).toMatchObject({
+      name: "Cast Bestow Curse",
+      addSpellUuid: "Bestow Curse",
+      noSpellslot: true,
+      addItemConsume: true,
+      itemConsumeTargetName: "Jinx Points",
+      itemConsumeValue: "3",
+    });
+    expect(e.additionalActivities).toBeNull();
+    expect(e.override.replaceActivityUses).toBe(true);
   });
 });
 

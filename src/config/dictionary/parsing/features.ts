@@ -663,6 +663,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Mapping Magic",
   "Superior Atlas",
   "War God's Blessing",
+  "Curse Caster",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [

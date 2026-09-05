@@ -43,6 +43,28 @@ export default class DDBSubClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
+    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand
+    "Misfortunist": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Misfortunes Known", identifier: "misfortunes-known" },
+      additionalAdvancements: true,
+      additionalFunctions: [
+        // deferred so this static table only reads the helper while modules load (tests stub it empty)
+        (advancement) => AdvancementHelper.fixedNumberScale({
+          title: "Jinx Points",
+          identifier: "jinx-points",
+          scale: { 3: 4, 13: 6 },
+        })(advancement),
+      ],
+    },
+    // DDB only records the level 17 value; a scale with no entry at or below the current level
+    // resolves to nothing, so the level 9 single use is added
+    "Steal Luck": {
+      fix: true,
+      fixFunctions: [{ fn: AdvancementHelper.addScaleEntries, args: { scale: { 9: { value: 1 } } } }],
+    },
     // "Arcane Shot Options": {
     //   fix: true,
     //   fixFunction: AdvancementHelper.rename,

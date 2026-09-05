@@ -156,6 +156,35 @@ describe("AdvancementHelper.rename", () => {
   });
 });
 
+describe("AdvancementHelper.fixedNumberScale", () => {
+  it("builds a numeric scale advancement from hand-written levels, ignoring its input", () => {
+    const fn = AdvancementHelper.fixedNumberScale({ title: "Jinx Points", identifier: "jinx-points", scale: { 3: 4, 13: 6 } });
+    const result: any = fn({ title: "Misfortunist", configuration: { identifier: "misfortunist", scale: { 3: { value: 2 } } } } as any);
+    expect(result.type).toBe("ScaleValue");
+    expect(result.title).toBe("Jinx Points");
+    expect(result.configuration).toMatchObject({
+      identifier: "jinx-points",
+      type: "number",
+      scale: { 3: { value: 4 }, 13: { value: 6 } },
+    });
+  });
+});
+
+describe("AdvancementHelper.addScaleEntries", () => {
+  it("adds missing levels and leaves recorded ones alone", () => {
+    const adv: any = { title: "Steal Luck", configuration: { identifier: "steal-luck", scale: { 17: { value: 3 } } } };
+    const result: any = AdvancementHelper.addScaleEntries(adv, { scale: { 9: { value: 1 }, 17: { value: 99 } } });
+    expect(result.configuration.scale).toEqual({ 9: { value: 1 }, 17: { value: 3 } });
+  });
+
+  it("returns the advancement unchanged without entries or configuration", () => {
+    const adv: any = { title: "Plain" };
+    expect(AdvancementHelper.addScaleEntries(adv, { scale: { 1: { value: 1 } } })).toBe(adv);
+    const configured: any = { title: "T", configuration: { scale: { 1: { value: 2 } } } };
+    expect((AdvancementHelper.addScaleEntries(configured) as any).configuration.scale).toEqual({ 1: { value: 2 } });
+  });
+});
+
 describe("AdvancementHelper.addSingularDie", () => {
   it("returns a singular-die copy with a fresh id and -die identifier", () => {
     const adv: any = {

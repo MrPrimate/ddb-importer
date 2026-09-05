@@ -1,20 +1,16 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Misfortune from "./Misfortune";
 
-export default class MisfortunesCurseOfThePlagued extends DDBEnricherData {
+export default class MisfortunesCurseOfThePlagued extends Misfortune {
 
-  override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  override get jinxCost(): number {
+    return 1;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Curse of the Plagued",
-      targetType: "creature",
+      ...super.activity,
       activationType: "reaction",
       activationCondition: "A creature cursed by your Evil Eye would regain Hit Points",
-      addItemConsume: true,
-      itemConsumeTargetName: "Misfortunist",
-      itemConsumeValue: "1",
     };
   }
 
@@ -28,16 +24,6 @@ export default class MisfortunesCurseOfThePlagued extends DDBEnricherData {
         },
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        system: {
-          uses: { spent: null, max: "", recovery: [] },
-        },
-      },
-    };
   }
 
 }

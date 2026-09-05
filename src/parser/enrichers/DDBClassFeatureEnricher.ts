@@ -391,6 +391,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Giant's Havoc: Crushing Throw": ClassEnrichers.Barbarian.GiantsHavocCrushingThrow,
     "Giant's Havoc: Giant Stature": ClassEnrichers.Barbarian.GiantsHavocGiantStature,
     "Improved Blessed Strikes: Potent Spellcasting": ClassEnrichers.Cleric.ImprovedBlessedStrikesPotentSpellcasting,
+    "Jinx Points": ClassEnrichers.Rogue.JinxPoints,
     "Lay On Hands: Purify Poison": ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
     "Lay on Hands": ClassEnrichers.Paladin.LayOnHands,
     "Lay On Hands": ClassEnrichers.Paladin.LayOnHands,

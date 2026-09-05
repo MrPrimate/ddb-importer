@@ -27,6 +27,8 @@ export { default as FinalJudgement } from "./FinalJudgement";
 export { default as GhostWalk } from "./GhostWalk";
 export { default as HorseLord } from "./HorseLord";
 export { default as InsightfulFighting } from "./InsightfulFighting";
+export { default as JinxPoints } from "./JinxPoints";
+export { default as Misfortune } from "./Misfortune";
 export { default as Misfortunes } from "./Misfortunes";
 export { default as MisfortunesCurseOfTheBefuddled } from "./MisfortunesCurseOfTheBefuddled";
 export { default as MisfortunesCurseOfTheClumsy } from "./MisfortunesCurseOfTheClumsy";

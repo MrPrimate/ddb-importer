@@ -1,13 +1,20 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Container for the Misfortune options. DDB hangs the "Jinx Points" action and the raw curse
+ * actions off this feature; none are built here. Jinx Points is its own document (KEEP_ACTIONS,
+ * rogue/JinxPoints) and each chosen option parses as its own "Misfortunes: Curse of the X"
+ * feature consuming it.
+ */
 export default class Misfortunes extends DDBEnricherData {
 
-  // The chosen Misfortunes each parse as their own "Misfortunes: Curse of the X"
-  // feature with pool consumption; suppress the duplicate raw DDB actions here.
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.NONE;
+  }
 
   override get override(): IDDBOverrideData {
     return {
-      descriptionSuffix: "<p><i>Your chosen Misfortunes are separate features that consume Jinx Points from the Misfortunist feature.</i></p>",
+      descriptionSuffix: "<p><i>Your chosen Misfortunes are separate features that consume points from the Jinx Points feature.</i></p>",
     };
   }
 

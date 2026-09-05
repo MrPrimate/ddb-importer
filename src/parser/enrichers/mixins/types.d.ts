@@ -55,6 +55,8 @@ global {
       isMuncher?: boolean;
       ddbCharacter?: DDBCharacter | null;
       _chosen?: { label: string; [key: string]: any }[];
+      /** point cost stripped from a "(N Points)" choice-feature name by DDBChoiceFeature */
+      resourceCharges?: number | null;
       ddbFeature?: any;
       extraFlags?: IItemFlagConfig;
       _parent?: IDDBClassFeature | IDDBRacialTrait;
