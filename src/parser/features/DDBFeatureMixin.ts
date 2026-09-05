@@ -1275,7 +1275,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       }
     }
 
-    if (hintsOnly && !this.enricher.activity) {
+    // Features are built hints-only, so a bare `type` getter on the enricher is enough to
+    // request an activity; without it the type would never be consulted and the enricher
+    // would silently drop the DDB action the Generic fallback used to match.
+    if (hintsOnly && !this.enricher.activity && !this.enricher.type) {
       await this.enricher.customFunction({
         name: name as string,
       });
