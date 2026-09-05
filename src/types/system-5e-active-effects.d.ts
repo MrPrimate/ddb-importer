@@ -109,21 +109,28 @@ global {
     };
   }
 
-  /** `type: "condition"` system data (dnd5e 6.0 ConditionData). Changes here use the plain core schema (no _id/conditions/replacement). */
+  /**
+   * `type: "condition"` system data (dnd5e 6.0 ConditionData). It shares the common effect data model, so
+   * `changes` carry the extended `_id` / `conditions` / `replacement` fields, but the model deletes `origin`
+   * from its schema - writing `system.origin` on a condition drops it silently. There is no effect-level
+   * `conditions`, `magical` or `rider` either; only `CONFIG.statusEffects[status].riders` apply.
+   */
   interface I5eConditionEffectSystem {
     changes?: IActiveEffectChangeData[];
-    origin?: I5eEffectSystemOrigin;
     /** Condition level for levelled conditions (Exhaustion); clamped to `CONFIG.DND5E.conditionTypes[type].levels`. */
     level?: number | null;
     /** The primary status id, e.g. "exhaustion". */
     type?: string;
   }
 
-  /** `type: "enchantment"` system data (dnd5e 6.0 EnchantmentData). */
+  /**
+   * `type: "enchantment"` system data (dnd5e 6.0 EnchantmentData). The schema is the common effect data model
+   * plus `magical`; it has NO effect-level `conditions` field, so restrict an enchantment through the enchant
+   * activity's own restriction or through change-level `conditions`.
+   */
   interface I5eEnchantmentEffectSystem {
     changes?: IActiveEffectChangeData[];
     origin?: I5eEffectSystemOrigin;
-    conditions?: string;
     /** Defaults to true for enchantments. */
     magical?: boolean;
   }

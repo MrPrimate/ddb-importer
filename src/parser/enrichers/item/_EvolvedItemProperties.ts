@@ -15,7 +15,7 @@ import ChangeHelper from "../effects/ChangeHelper";
  *   an enchant activity whose profile lists the riders, so any item can be evolved with it;
  * - the applied form on a munched "<Property> <Base>" item, whose riders and activities hang
  *   off the enchantment through `flags.dnd5e.dependentOn` and whose origin is the host
- *   activity, exactly as dnd5e's own `applyEnchantment` / `collectRiderEnchantments` leave it.
+ *   activity, exactly as dnd5e's own `applyEnchantment` / `EnchantmentData#collectRiders` leave it.
  */
 
 export type TEvolvedTier = "rare" | "veryRare" | "legendary";
