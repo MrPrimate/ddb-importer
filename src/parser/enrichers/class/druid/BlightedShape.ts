@@ -1,6 +1,23 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * +2 AC and 60 ft darkvision while in Wild Shape. The Wild Shape effect enhancer applies the
+ * effect automatically when the druid transforms; the activity is the manual route.
+ */
 export default class BlightedShape extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Apply Blighted Shape",
+      activationType: "special",
+      activationCondition: "When you use Wild Shape",
+      targetType: "self",
+    };
+  }
 
   override get effects(): IDDBEffectHint[] {
     return [
@@ -18,4 +35,3 @@ export default class BlightedShape extends DDBEnricherData {
   }
 
 }
-

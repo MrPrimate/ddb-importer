@@ -134,3 +134,51 @@ describe("sorcerer ElementalAffinity", () => {
     expect(build(ClassEnrichers.Sorcerer.ElementalAffinity).type).toBe("damage");
   });
 });
+
+describe("wizard MomentaryStasis", () => {
+  it("is a Constitution save on the Int-mod pool that incapacitates on a fail", () => {
+    const e = build(ClassEnrichers.Wizard.MomentaryStasis);
+    expect(e.type).toBe("save");
+    expect(e.activity).toMatchObject({ activationType: "action", rangeValue: 60, addItemConsume: true });
+    expect(e.activity.data.save).toEqual({ ability: ["con"], dc: { calculation: "spellcasting", formula: "" } });
+    expect(e.effects[0].statuses).toEqual(["Incapacitated"]);
+    expect(e.effects[0].options.expiry).toBe("sourceEnd");
+    expect(e.effects[0].daeSpecialDurations).toEqual(["isDamaged"]);
+  });
+});
+
+describe("druid BlightedShape", () => {
+  it("offers a manual Wild Shape activity that applies the AC and darkvision effect", () => {
+    const e = build(ClassEnrichers.Druid.BlightedShape);
+    expect(e.activity).toMatchObject({ activationType: "special", targetType: "self" });
+    expect(e.effects[0].options.transfer).toBeUndefined();
+  });
+});
+
+describe("druid WrathOfTheSea carries Stormborn", () => {
+  it("gates the flight and resistance effect at druid level 10 on the activation", () => {
+    const e = build(ClassEnrichers.Druid.WrathOfTheSea);
+    expect(e.activity.data.visibility).toEqual({ identifier: "druid" });
+    const stormborn = e.effects.find((h: any) => h.name === "Stormborn");
+    expect(stormborn.activityMatch).toBe("Activate Emanation/Aura");
+    expect(stormborn.data.flags.ddbimporter.effectIdLevel).toEqual({ min: 10, max: null });
+    expect(stormborn.changes.map((c: any) => c.value)).toEqual(["@attributes.movement.speeds.walk", "cold", "lightning", "thunder"]);
+    expect(build(ClassEnrichers.Druid.Stormborn).effects).toEqual([]);
+  });
+});
+
+describe("monk ElementalAttunement carries Stride of the Elements", () => {
+  it("splits the enchantment at monk 11 and rides the speeds on the upper profile", () => {
+    const e = build(ClassEnrichers.Monk.ElementalAttunement);
+    const [low, high, stride] = e.effects;
+    expect(low.data.flags.ddbimporter.effectIdLevel).toEqual({ min: null, max: 10 });
+    expect(low.data.flags.ddbimporter.effectRiders).toEqual([]);
+    expect(high.data.flags.ddbimporter.effectIdLevel).toEqual({ min: 11, max: null });
+    expect(high.data.flags.ddbimporter.effectRiders).toEqual(["ddbStrideElemEff"]);
+    expect(high.data.flags.ddbimporter.activityRiders).toEqual(["ddbElementStriAt", "ddbElementStriSa"]);
+    expect(stride).toMatchObject({ name: "Stride of the Elements", data: { _id: "ddbStrideElemEff" } });
+    expect(stride.options.transfer).toBe(true);
+    expect(stride.changes.map((c: any) => c.key)).toEqual(["system.attributes.movement.speeds.fly", "system.attributes.movement.speeds.swim"]);
+    expect(build(ClassEnrichers.Monk.StrideOfTheElements).effects).toEqual([]);
+  });
+});
