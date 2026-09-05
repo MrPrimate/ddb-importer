@@ -7,6 +7,7 @@ global {
   interface I5eAdvancementBase {
     _id?: string;
     type?: string;
+    name?: string;
     title?: string;
     hint?: string;
     level?: number;

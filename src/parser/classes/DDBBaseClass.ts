@@ -1657,6 +1657,17 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  /**
+   * The identifier dnd5e resolves for a scale value: the configured one, else the slug of its name.
+   * System compendium scale values ship with an empty identifier, and dnd5e 6 stores the name as
+   * `name` (migrating `title` away), so both spellings are read.
+   */
+  static scaleValueIdentifier(advancement: I5eAdvancement): string {
+    const configured = foundry.utils.getProperty(advancement, "configuration.identifier") as string | undefined;
+    if (configured && configured !== "") return configured;
+    return utils.referenceNameString(advancement.name ?? advancement.title ?? "");
+  }
+
   async _addFoundryAdvancements() {
     const packIds = this.is2014
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
@@ -1671,16 +1682,12 @@ export default abstract class DDBBaseClass {
       );
       if (!klassMatch) continue;
       const foundryKlass: I5eClassItem = await pack.getDocument(klassMatch._id) as any;
+      const existingIdentifiers = new Set(
+        Object.values(this._advancementData).map((ddbA) => DDBBaseClass.scaleValueIdentifier(ddbA)),
+      );
       const scaleAdvancements: I5eAdvancement[] = Object.values(foundry.utils.getProperty(foundryKlass, "_source.system.advancement") as Record<string, I5eAdvancement>).filter((foundryA) => {
         if (foundryA.type !== "ScaleValue") return false;
-        let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
-        if (!identifier || identifier === "") {
-          identifier = DDBDataUtils.classIdentifierName(foundryA.title ?? "");
-        }
-        const exitingIdentifiers = Object.values(this._advancementData)
-          .some((ddbA) => foundry.utils.getProperty(ddbA, "configuration.identifier") === identifier);
-        if (exitingIdentifiers) return false;
-        return true;
+        return !existingIdentifiers.has(DDBBaseClass.scaleValueIdentifier(foundryA));
       });
       logger.debug(`Adding scale advancements from compendium class ${this.name} in pack ${pack.collection}`, {
         scaleAdvancements,
