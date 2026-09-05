@@ -170,6 +170,58 @@ describe("CharacterFeatureFactory.getNameMatchedFeature", () => {
   });
 });
 
+describe("CharacterFeatureFactory.mergeClassFeature", () => {
+  const feat = (name: string, description: string, activities: Record<string, any> = {}, klass = "Warlock"): any => ({
+    name,
+    type: "feat",
+    system: { description: { value: description }, activities },
+    flags: { ddbimporter: { originalName: name, type: "class", dndbeyond: { class: klass } } },
+  });
+  const summon = (id: string, profiles: any[] = []): any => ({
+    _id: id, type: "summon", name: "Summon", profiles,
+    bonuses: { ac: "@abilities.cha.mod" }, match: { proficiency: true },
+  });
+
+  // DDB ships the Vestige Companion twice; the sheet-hidden copy carries the stat block, so its
+  // text and its parsed-actor summon link both belong on the builder copy that survives
+  it("overwrites a FORCE_DUPLICATE_OVERWRITE feature's text and carries its summon link across", () => {
+    const survivor = feat("Vestige Companion", "<p>Builder text.</p>", { summonAAAAAAAAAAA: summon("summonAAAAAAAAAAA") });
+    const sheetCopy = feat("Vestige Companion", "<p>Sheet text with stat block.</p>", {
+      summonBBBBBBBBBBB: summon("summonBBBBBBBBBBB", [{ _id: "p1", name: "Vestige Companion (Celestial)", uuid: "Actor.c" }]),
+    });
+    const features = [survivor];
+    CharacterFeatureFactory.mergeClassFeature(features, sheetCopy);
+    expect(features).toEqual([survivor]);
+    expect(survivor.system.description.value).toBe("<p>Sheet text with stat block.</p>");
+    expect(survivor.system.activities.summonAAAAAAAAAAA.profiles).toEqual([{ _id: "p1", name: "Vestige Companion (Celestial)", uuid: "Actor.c" }]);
+    expect(survivor.system.activities.summonAAAAAAAAAAA.bonuses).toEqual({ ac: "@abilities.cha.mod" });
+  });
+
+  it("overwriteDuplicateFeature is safe for documents without activities", () => {
+    const survivor: any = { name: "X", system: { description: { value: "<p>A.</p>" } }, flags: {} };
+    const other: any = { name: "X", system: { description: { value: "<p>B.</p>" } }, flags: {} };
+    CharacterFeatureFactory.overwriteDuplicateFeature(survivor, other);
+    expect(survivor.system.description.value).toBe("<p>B.</p>");
+  });
+
+  it("appends a second class's copy of a feature under a class heading and keeps its own summon", () => {
+    const survivor = feat("Shared Feature", "<p>First.</p>", { summonAAAAAAAAAAA: summon("summonAAAAAAAAAAA") });
+    const other = feat("Shared Feature", "<p>Second.</p>", { summonBBBBBBBBBBB: summon("summonBBBBBBBBBBB", [{ _id: "p1", uuid: "Actor.x" }]) }, "Sorcerer");
+    const features = [survivor];
+    CharacterFeatureFactory.mergeClassFeature(features, other);
+    expect(features).toEqual([survivor]);
+    expect(survivor.system.description.value).toBe("<p>First.</p><h3>Sorcerer</h3><p>Second.</p>");
+    expect(survivor.system.activities.summonAAAAAAAAAAA.profiles).toEqual([]);
+  });
+
+  it("adds a feature nothing matches", () => {
+    const features: any[] = [];
+    const doc = feat("Lone Feature", "<p>Text.</p>");
+    CharacterFeatureFactory.mergeClassFeature(features, doc);
+    expect(features).toEqual([doc]);
+  });
+});
+
 describe("CharacterFeatureFactory.includedFeatureNameCheck", () => {
   beforeEach(() => {
     // the allowed-path return value is the raw && chain, so pin a boolean

@@ -71,12 +71,11 @@ const MULTI_COMPANIONS_2024: Record<string, string[]> = {
   "Battle Familiar": ["Brute", "Flyer", "Stalker"],
   "Dinosaur Spirit": ["Ankylosaur", "Triceratops", "Tyrannosaur"],
   "Sea Serpent Spirit": ["Enormous Mouth", "Glowing Lantern", "Scaled Wings"],
+  "Vestige Companion": ["Celestial", "Fiend", "Undead"],
 };
 
 const COMPANION_FEATURES = [
   "Steel Defender",
-  // AU Vestige Patron: the stat block sits in the chosen option's description under an h3; the
-  // choice children share the originalName, so each parses its own option text
   "Vestige Companion",
   "Artificer Infusions",
   "Summon Wildfire Spirit",
@@ -145,6 +144,7 @@ const FIND_FAMILIAR_MATCHES = [
   "Pact Boon: Pact of the Chain",
   "Invocation: Pact of the Chain",
   "Eldritch Invocations: Pact of the Chain",
+  "Necromancy Spellbook",
 ];
 
 const FAMILIAR_COUNTS: Record<string, string> = {

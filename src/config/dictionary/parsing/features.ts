@@ -190,6 +190,7 @@ export const PARSING_FEATURES = {
     "Cosmic Omen",
     "Trance of Order",
     "Divine Foreknowledge",
+    "Vestige Companion",
   ],
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",
@@ -253,6 +254,8 @@ export const PARSING_CHOICE_FEATURES = {
     // "Draconic Ancestry",
     "Elegant Courtier",
     "Draconic Disciple",
+    // the option child must stay a companion feature by name (companions.ts)
+    "Vestige Companion",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",

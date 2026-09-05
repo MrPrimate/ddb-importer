@@ -439,6 +439,16 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
+   * When a lone chosen option merges into a parent that already has activities, append the
+   * option's activities instead of dropping them, skipping any whose name the parent already
+   * carries. For parents whose enricher builds the primary activity itself but still wants
+   * DDB's per-option actions beside it (Semblance of Life's spirit-form attacks).
+   */
+  get mergeChoiceActivities(): boolean {
+    return false;
+  }
+
+  /**
    * Refuse the option modifiers that DDBFeatureMixin._suppressedChoiceModifiers would otherwise
    * carry onto this feature, for a parent whose enricher automates those options itself. Order of
    * the Lycan: Improved Predatory Strikes/Stalker's Prowess.

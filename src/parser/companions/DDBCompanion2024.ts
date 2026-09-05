@@ -267,7 +267,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     for (const header of this.block.querySelectorAll(".monster-header")) {
       let now = header.nextElementSibling as HTMLElement | null;
       if (!now) continue;
-      const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText);
+      // jsdom (the audit harness) has no innerText
+      const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText ?? header.textContent ?? "");
       let block = now.outerHTML;
       while (now !== null) {
         if (now.nextElementSibling === null || now.nextElementSibling.classList.contains("monster-header")) {

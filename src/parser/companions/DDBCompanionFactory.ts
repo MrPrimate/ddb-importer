@@ -98,9 +98,18 @@ export default class DDBCompanionFactory {
     this.itemHandler = null;
   }
 
+  /**
+   * Opens the summons compendium. Without one (the audit harness, a broken setup) the companions
+   * still parse so the origin document keeps its summon activity, they just cannot be stored.
+   */
   async init() {
-    await this.summonsManager.init();
-    this.itemHandler = this.summonsManager.itemHandler;
+    try {
+      await this.summonsManager.init();
+      this.itemHandler = this.summonsManager.itemHandler;
+    } catch (err) {
+      logger.error(`Unable to open the summons compendium, companions for ${this.originName} will not be stored: ${utils.errorMessage(err)}`);
+      this.itemHandler = null;
+    }
   }
 
   get data(): I5eMonsterData[] {

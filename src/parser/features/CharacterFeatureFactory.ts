@@ -903,24 +903,48 @@ export default class CharacterFeatureFactory {
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     this._ddbClassFeatures.data.forEach((doc) => {
-      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
-      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
-      const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
-      const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
-        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
-      if (existingFeature && !duplicateFeature) {
-        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
-          if (existingFeature.system.description) {
-            existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
-          }
-        } else {
-          const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
-          if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
-        }
-      } else if (!existingFeature) {
-        this.parsed.features.push(doc);
-      }
+      CharacterFeatureFactory.mergeClassFeature(this.parsed.features, doc);
     });
+  }
+
+  /**
+   * A FORCE_DUPLICATE_OVERWRITE copy replaces the surviving feature's text and hands over its
+   * summon link: DDB's sheet-hidden Vestige Companion copy is the one carrying the stat block, so
+   * the actors it parsed would otherwise be dropped with it. Shared by every duplicate pass
+   * (DDBClassFeatures' class and subclass passes run before the factory's).
+   */
+  static overwriteDuplicateFeature(existingFeature: T5eFeatureMixinDataTypes, doc: T5eFeatureMixinDataTypes): void {
+    if (existingFeature.system.description) {
+      existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
+    }
+    if ("activities" in existingFeature.system && "activities" in doc.system) {
+      DDBChoiceFeature.foldChoiceSummons(existingFeature.system.activities, doc.system.activities);
+    }
+  }
+
+  /**
+   * Adds a built class feature to the list, or folds it into a same-named feature already there:
+   * a second class contributing the feature appends its text under a class heading, a
+   * FORCE_DUPLICATE_OVERWRITE name replaces the text outright, and an exact duplicate is dropped.
+   * An overwriting copy also hands over its summon link: DDB's sheet-hidden Vestige Companion copy
+   * is the one carrying the stat block, so its parsed actors would otherwise be lost with it.
+   */
+  static mergeClassFeature(features: T5eFeatureMixinDataTypes[], doc: T5eFeatureMixinDataTypes): void {
+    const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
+    const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(features, doc, { matchClass: forceFeatureClassMatch });
+    const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
+    const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(features, doc)
+      || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
+    if (existingFeature && !duplicateFeature) {
+      if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
+        CharacterFeatureFactory.overwriteDuplicateFeature(existingFeature, doc);
+      } else {
+        const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
+        if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
+      }
+    } else if (!existingFeature) {
+      features.push(doc);
+    }
   }
 
 

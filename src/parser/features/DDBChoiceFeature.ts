@@ -210,6 +210,35 @@ export default class DDBChoiceFeature extends DDBFeature {
   ];
 
 
+  /**
+   * Folds the summon activities of a second document (a choice child, or a duplicate copy of the
+   * feature) into the first document's summon activity: the other document parsed the stat block,
+   * so its bonuses, match rules and actor profiles belong on the surviving summon. A profile whose
+   * actor is already linked is not added twice.
+   */
+  static foldChoiceSummons(
+    parentActivities: I5eFeatSystemData["activities"],
+    choiceActivities: I5eFeatSystemData["activities"],
+  ): boolean {
+    let folded = false;
+    for (const activity of Object.values(parentActivities)) {
+      if (activity.type !== "summon") continue;
+      for (const cActivity of Object.values(choiceActivities)) {
+        if (cActivity.type !== "summon") continue;
+        activity.bonuses = cActivity.bonuses;
+        activity.match = cActivity.match;
+        if (!activity.profiles) activity.profiles = [];
+        const linked = new Set(activity.profiles.map((profile) => profile.uuid).filter(Boolean));
+        for (const profile of cActivity.profiles ?? []) {
+          if (profile.uuid && linked.has(profile.uuid)) continue;
+          activity.profiles.push(profile);
+        }
+        folded = true;
+      }
+    }
+    return folded;
+  }
+
   static async buildChoiceFeatures(ddbFeature: DDBFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
     const features: T5eFeatureMixinDataTypes[] = [];
     if (ddbFeature.suppressesChoiceBuild) {
@@ -289,6 +318,17 @@ export default class DDBChoiceFeature extends DDBFeature {
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
           featureSystem.activities = choiceSystem.activities;
+        } else if (ddbFeature.enricher.mergeChoiceActivities) {
+          // the parent's enricher built the primary activity; keep the option's own actions
+          // beside it, letting a same-named parent activity win over DDB's copy. A companion
+          // option's summon folds into the parent's summon rather than sitting beside it.
+          const summonsFolded = DDBChoiceFeature.foldChoiceSummons(featureSystem.activities, choiceSystem.activities);
+          const parentNames = new Set(Object.values(featureSystem.activities).map((a) => a.name));
+          for (const [id, activity] of Object.entries(choiceSystem.activities)) {
+            if (summonsFolded && activity.type === "summon") continue;
+            if (activity.name && parentNames.has(activity.name)) continue;
+            featureSystem.activities[id] = activity;
+          }
         }
         if ((ddbFeature.data.effects?.length ?? 0) === 0
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
@@ -310,19 +350,10 @@ export default class DDBChoiceFeature extends DDBFeature {
         }
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
-
-        for (const [_key, activity] of Object.entries((ddbFeature.data.system as I5eFeatSystemData).activities)) {
-          if (activity.type !== "summon") continue;
-
-          for (const [_cKey, cActivity] of Object.entries((choiceFeature.data.system as I5eFeatSystemData).activities)) {
-
-            if (cActivity.type !== "summon") continue;
-            activity.bonuses = cActivity.bonuses;
-            activity.match = cActivity.match;
-            if (!activity.profiles) activity.profiles = [];
-            activity.profiles.push(...(cActivity.profiles ?? []));
-          }
-        }
+        DDBChoiceFeature.foldChoiceSummons(
+          (ddbFeature.data.system as I5eFeatSystemData).activities,
+          (choiceFeature.data.system as I5eFeatSystemData).activities,
+        );
       } else {
         logger.debug(`Adding Choice Feature ${choiceFeature.data.name} as a separate feature for ${ddbFeature.originalName}`);
         features.push(choiceFeature.data);
