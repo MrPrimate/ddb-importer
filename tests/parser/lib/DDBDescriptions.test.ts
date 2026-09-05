@@ -472,6 +472,60 @@ describe("DDBDescriptions.splitStringByComma", () => {
   });
 });
 
+// =============================================================================
+// parseMonsterSpellEntry / parseOutMonsterSpells
+// =============================================================================
+describe("DDBDescriptions.parseMonsterSpellEntry", () => {
+  it("returns a plain name untouched", () => {
+    expect(DDBDescriptions.parseMonsterSpellEntry(" fireball ")).toEqual({
+      name: "fireball", level: null, extra: null, targetSelf: null, duration: null,
+    });
+  });
+
+  it("splits a level qualifier out of the name and does not keep it as an extra", () => {
+    expect(DDBDescriptions.parseMonsterSpellEntry("charm person (level 5 version)")).toMatchObject({
+      name: "charm person", level: "5", extra: null,
+    });
+  });
+
+  it("treats self only as a self target and keeps it as the extra label", () => {
+    expect(DDBDescriptions.parseMonsterSpellEntry("invisibility (self only)")).toMatchObject({
+      name: "invisibility", targetSelf: true, extra: "self only",
+    });
+  });
+
+  it("parses a duration qualifier", () => {
+    expect(DDBDescriptions.parseMonsterSpellEntry("fly (1-hour duration)")).toMatchObject({
+      name: "fly", duration: { override: true, value: "1", units: "hour" }, extra: "1-hour duration",
+    });
+  });
+
+  it("handles combined qualifiers", () => {
+    expect(DDBDescriptions.parseMonsterSpellEntry("invisibility (level 2 version, self only)")).toMatchObject({
+      name: "invisibility", level: "2", targetSelf: true, extra: "self only",
+    });
+  });
+});
+
+describe("DDBDescriptions.parseOutMonsterSpells", () => {
+  it("parses an innate per-period line", () => {
+    const spells = DDBDescriptions.parseOutMonsterSpells("3/day each: charm person (level 5 version), color spray");
+    expect(spells).toHaveLength(2);
+    expect(spells[0]).toMatchObject({ name: "charm person", level: "5", period: "day", quantity: "3" });
+    expect(spells[1]).toMatchObject({ name: "color spray", level: null, period: "day", quantity: "3" });
+  });
+
+  it("parses an at will line without period data", () => {
+    const spells = DDBDescriptions.parseOutMonsterSpells("At will: dancing lights, minor illusion");
+    expect(spells.map((s) => s.name)).toEqual(["dancing lights", "minor illusion"]);
+    expect(spells[0].period).toBeUndefined();
+  });
+
+  it("returns nothing for non-spell lines", () => {
+    expect(DDBDescriptions.parseOutMonsterSpells("The mage is a 9th-level spellcaster.")).toEqual([]);
+  });
+});
+
 describe("nextTurnExpiry", () => {
   // dnd5e 6.0 anchors a turn edge on the effect's SOURCE or its TARGET; getting
   // that backwards is a significant failure mode

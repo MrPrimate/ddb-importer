@@ -1390,48 +1390,54 @@ export default class DDBDescriptions {
     return result.map((item) => item.replaceAll("*", "").trim().replace(/\.$/, ""));
   }
 
-  static parseOutMonsterSpells(text: string): IDDBParsedMonsterSpell[] {
-    const results: IDDBParsedMonsterSpell[] = [];
+  /**
+   * Parse a single spell entry from monster text, e.g. "charm person (level 5 version)" or
+   * "invisibility (self only, 1-hour duration)", splitting the parenthetical qualifiers into
+   * level / self-target / duration data and keeping any unrecognised qualifier as the `extra` label.
+   */
+  static parseMonsterSpellEntry(spellName: string): IDDBParsedMonsterSpell {
+    const extraCheckRegex = /(.*)\((.*)\)/i;
+    const extraMatch = extraCheckRegex.exec(spellName.trim());
 
-    const processSpell = (spellName: string) => {
-      const extraCheckRegex = /(.*)\((.*)\)/i;
-      const extraMatch = extraCheckRegex.exec(spellName.trim());
+    let level = null;
+    let targetSelf = null;
+    let duration = null;
+    const extras = [];
 
-      let level = null;
-      let targetSelf = null;
-      let duration = null;
-      const extras = [];
-
-      if (extraMatch) {
-        for (const extra of extraMatch[2].split(",")) {
-          const levelRegex = /level (\d) version/i;
-          const levelMatch = levelRegex.exec(extra);
-          if (levelMatch) level = levelMatch[1];
-          const targetSelfRegex = /(self only|on itself)/i;
-          const targetSelfMatch = targetSelfRegex.exec(extra);
-          if (targetSelfMatch) targetSelf = true;
-          const durationRegex = /(\d+)-(\w+) duration/i;
-          const durationMatch = durationRegex.exec(extra);
-          if (durationMatch) {
-            duration = {
-              override: true,
-              value: durationMatch[1],
-              units: durationMatch[2],
-            };
-          }
-          if (!levelMatch) {
-            extras.push(extra.trim());
-          }
+    if (extraMatch) {
+      for (const extra of extraMatch[2].split(",")) {
+        const levelRegex = /level (\d) version/i;
+        const levelMatch = levelRegex.exec(extra);
+        if (levelMatch) level = levelMatch[1];
+        const targetSelfRegex = /(self only|on itself)/i;
+        const targetSelfMatch = targetSelfRegex.exec(extra);
+        if (targetSelfMatch) targetSelf = true;
+        const durationRegex = /(\d+)-(\w+) duration/i;
+        const durationMatch = durationRegex.exec(extra);
+        if (durationMatch) {
+          duration = {
+            override: true,
+            value: durationMatch[1],
+            units: durationMatch[2],
+          };
+        }
+        if (!levelMatch) {
+          extras.push(extra.trim());
         }
       }
-      return {
-        name: extraMatch ? extraMatch[1].trim() : spellName.trim(),
-        level,
-        extra: extras.length > 0 ? extras.join(", ") : null,
-        targetSelf,
-        duration,
-      };
+    }
+    return {
+      name: extraMatch ? extraMatch[1].trim() : spellName.trim(),
+      level,
+      extra: extras.length > 0 ? extras.join(", ") : null,
+      targetSelf,
+      duration,
     };
+  }
+
+  static parseOutMonsterSpells(text: string): IDDBParsedMonsterSpell[] {
+    const results: IDDBParsedMonsterSpell[] = [];
+    const processSpell = DDBDescriptions.parseMonsterSpellEntry;
 
     // 3/day each: charm person (level 5 version), color spray, detect thoughts, hold person (level 3 version)
     const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/i;

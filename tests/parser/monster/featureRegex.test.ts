@@ -355,3 +355,84 @@ describe("DDBMonsterFeature.prototype._linkActivityDescriptions", () => {
     expect(mock.data.system.activities.blank.description.value).toBe("  ");
   });
 });
+
+// =============================================================================
+// getOtherCastSpells - spells cast by non-Spellcasting features
+// =============================================================================
+describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
+  function makeCastMock(strippedHtml: string, usesMax = "") {
+    return makeFeatureMock({
+      strippedHtml,
+      name: "Feature",
+      ddbMonster: { name: "Monster" },
+      data: { system: { uses: { max: usesMax } } },
+    });
+  }
+
+  it("does not glue a cast count onto the last spell in a list", () => {
+    const mock = makeCastMock(
+      "The archmage casts Fireball, Ice Storm, or Lightning Bolt twice in any combination, using the same spellcasting ability as Spellcasting.",
+      "1",
+    );
+    const spells = mock.getOtherCastSpells();
+    expect(spells.map((s: any) => s.name)).toEqual(["Fireball", "Ice Storm", "Lightning Bolt"]);
+    expect(spells.every((s: any) => s.consumeType === "itemUses")).toBe(true);
+    expect(spells.every((s: any) => !s.ability)).toBe(true);
+  });
+
+  it("parses a level qualifier, a cast count and Material component wording", () => {
+    const mock = makeCastMock(
+      "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21).",
+    );
+    const spells = mock.getOtherCastSpells();
+    expect(spells).toHaveLength(1);
+    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", noComponents: true, ability: "Charisma" });
+    expect(spells[0].extra).toBeUndefined();
+  });
+
+  it("accepts a named spellcasting feature as the ability source", () => {
+    const mock = makeCastMock(
+      "The knight casts Command (level 3 version), using the same spellcasting ability as Commanding Magic. The knight can't take this action again until the start of its next turn.",
+    );
+    const spells = mock.getOtherCastSpells();
+    expect(spells).toHaveLength(1);
+    expect(spells[0]).toMatchObject({ name: "Command", level: "3" });
+    expect(spells[0].ability).toBeUndefined();
+  });
+
+  it("carries a (self only) qualifier through as a self target", () => {
+    const mock = makeCastMock(
+      "The fiend casts Dispel Magic, Invisibility (self only), Misty Step, or Suggestion, requiring no Material components and using the same spellcasting ability as Spellcasting.",
+    );
+    const spells = mock.getOtherCastSpells();
+    expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Invisibility", "Misty Step", "Suggestion"]);
+    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", noComponents: true });
+    expect(spells[0].targetSelf).toBeUndefined();
+  });
+
+  it("still parses a single spell with an explicit ability", () => {
+    const mock = makeCastMock(
+      "The drider casts Darkness, requiring no spell components and using Wisdom as the spellcasting ability (spell save DC 14).",
+    );
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", noComponents: true, ability: "Wisdom" }]);
+  });
+
+  it("still parses the on itself form", () => {
+    const mock = makeCastMock(
+      "The dragon casts Greater Invisibility on itself, requiring no spell components and using the same spellcasting ability as Spellcasting.",
+    );
+    const spells = mock.getOtherCastSpells();
+    expect(spells).toHaveLength(1);
+    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", noComponents: true });
+  });
+
+  it("still parses the uses Spellcasting to cast form", () => {
+    const mock = makeCastMock("The mage uses Spellcasting to cast Misty Step, and it can move up to 10 feet.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Misty Step"]);
+  });
+
+  it("returns nothing for text that does not cast a spell", () => {
+    const mock = makeCastMock("The giant makes two greatsword attacks.");
+    expect(mock.getOtherCastSpells()).toEqual([]);
+  });
+});

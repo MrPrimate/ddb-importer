@@ -1852,8 +1852,15 @@ ${this.data.system.description.value}
     }
   }
 
-  async #buildOtherSpellActivities() {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no spell components and )?using (?:the same spellcasting ability as Spellcasting|(?<ability>\w+) as the spellcasting ability)/i;
+  /**
+   * Extract the spells a non-Spellcasting feature casts, e.g. "The archmage casts Fireball, Ice Storm, or
+   * Lightning Bolt twice in any combination, using the same spellcasting ability as Spellcasting." The
+   * optional `count` group ("twice", "three times", "... in any combination") sits between the spell list
+   * and the ability clause so it is not swallowed into the last spell name. A cast count has no home on a
+   * dnd5e cast activity; the parent feature's recharge/uses already gate the action.
+   */
+  getOtherCastSpells(): IMonsterSpellcastingSpell[] {
+    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:spell|spellcasting|material) components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
@@ -1861,64 +1868,66 @@ ${this.data.system.description.value}
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (?<spells>.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
 
-    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no spell components and )?using the same spellcasting ability as its Spellcasting action./i;
+    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:spell|spellcasting|material) components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
     const spells: IMonsterSpellcastingSpell[] = [];
     const matchGroups = matches?.groups;
-    if (matchGroups) {
-      // console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
-      //   matches,
-      //   strippedHtml: this.strippedHtml,
-      //   originalName: this.originalName,
-      //   this: this,
-      // });
+    if (!matchGroups) return spells;
 
-      const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
-      const perUseMatch = this.strippedHtml.match(perUseRegex);
+    const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
+    const perUseMatch = this.strippedHtml.match(perUseRegex);
 
-      const names = DDBDescriptions
-        .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
-        .filter((n) => n.trim() !== "");
-      for (const name of names) {
-        const spell: IMonsterSpellcastingSpell = {
-          name: name, // required
-          // level: "5", // optional
-          // extra: null, // extra to append to name string
-          // period: "Day", // reset timeframe
-          // quantity: "2",
-          // consumeType: "itemUses",
-          // targetSelf: true,
-          // noComponents: true,
-          // duration: {},
-        };
+    const names = DDBDescriptions
+      .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
+      .filter((n) => n.trim() !== "");
+    for (const name of names) {
+      // parenthetical qualifiers such as "(level 5 version)" or "(self only)" are parsed the same way
+      // as the Spellcasting block path so the compendium lookup sees the bare spell name
+      const entry = DDBDescriptions.parseMonsterSpellEntry(name);
+      const spell: IMonsterSpellcastingSpell = {
+        name: entry.name,
+      };
 
-        if (matchGroups.self) {
-          spell.extra = "on itself";
-          spell.targetSelf = true;
-        }
-        if (matchGroups.components) {
-          spell.noComponents = true;
-        }
+      if (entry.level) spell.level = entry.level;
+      if (entry.extra) spell.extra = entry.extra;
+      if (entry.targetSelf) spell.targetSelf = true;
+      if (entry.duration) spell.duration = entry.duration;
 
-        if (matchGroups.ability) {
-          spell.ability = matchGroups.ability;
-        }
-
-        if (perUseMatch) {
-          spell.period = perUseMatch[1].trim();
-          spell.quantity = "1";
-          spell.consumeType = "activityUses";
-        } else if (this.data.system.uses.max) {
-          spell.consumeType = "itemUses";
-          spell.quantity = "1";
-        }
-        spells.push(spell);
+      if (matchGroups.self) {
+        spell.extra = "on itself";
+        spell.targetSelf = true;
+      }
+      if (matchGroups.components) {
+        spell.noComponents = true;
       }
 
-      logger.verbose(spells);
+      if (matchGroups.ability) {
+        spell.ability = matchGroups.ability;
+      }
+
+      if (perUseMatch) {
+        spell.period = perUseMatch[1].trim();
+        spell.quantity = "1";
+        spell.consumeType = "activityUses";
+      } else if (this.data.system.uses.max) {
+        spell.consumeType = "itemUses";
+        spell.quantity = "1";
+      }
+      spells.push(spell);
     }
+
+    logger.verbose(`${this.ddbMonster.name}: ${this.name}: Parsed cast spells`, {
+      spells,
+      count: matchGroups.count?.trim() ?? null,
+    });
+
+    return spells;
+  }
+
+  async #buildOtherSpellActivities() {
+    const spells = this.getOtherCastSpells();
     if (spells.length > 0) {
       await this.#buildSpellcastingActivities(spells);
     }
