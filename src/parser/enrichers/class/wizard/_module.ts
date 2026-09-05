@@ -16,6 +16,7 @@ export { default as DistantTransposition } from "./DistantTransposition";
 export { default as DurableMagic } from "./DurableMagic";
 export { default as DurableSummons } from "./DurableSummons";
 export { default as EmpoweredEvocation } from "./EmpoweredEvocation";
+export { default as EnchantingConversationalist } from "./EnchantingConversationalist";
 export { default as EventHorizon } from "./EventHorizon";
 export { default as ExpertDivination } from "./ExpertDivination";
 export { default as ExtinguishUndead } from "./ExtinguishUndead";

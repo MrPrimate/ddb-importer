@@ -6,6 +6,7 @@ export { default as ApocalypticRevelation } from "./ApocalypticRevelation";
 export { default as AuraOfAlacrity } from "./AuraOfAlacrity";
 export { default as AuraOfClarity } from "./AuraOfClarity";
 export { default as AuraOfConquest } from "./AuraOfConquest";
+export { default as AuraOfDevotion } from "./AuraOfDevotion";
 export { default as AuraOfElementalShielding } from "./AuraOfElementalShielding";
 export { default as AuraOfHate } from "./AuraOfHate";
 export { default as AuraOfTheGuardian } from "./AuraOfTheGuardian";

@@ -2,6 +2,36 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GraveStrike extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  }
+
+  // the DC is the damage dealt by the critical hit (max 30), which no formula can see, so the
+  // save ships with a custom DC for the player to fill in when they use it
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Grave Strike",
+      activationType: "special",
+      activationCondition: "When you score a Critical Hit against a creature type in your Monster Grimoire. The DC equals the damage taken, up to 30",
+      targetType: "creature",
+      targetCount: 1,
+      addItemConsume: true,
+      noeffect: true,
+      data: {
+        range: {
+          units: "spec",
+        },
+        save: {
+          ability: ["con"],
+          dc: {
+            calculation: "custom",
+            formula: "",
+          },
+        },
+      },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

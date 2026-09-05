@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Half Cover for the paladin and allies inside the Aura of Protection until the start of the
- * paladin's next turn, triggered by casting Divine Smite. Without auraeffects the activity places
- * a template whose region applies the standalone effect.
+ * Charmed immunity for the paladin and allies inside the Aura of Protection. With auraeffects
+ * the transferred effect radiates on its own; otherwise the activity places a template whose
+ * region applies the standalone effect.
  */
-export default class SmiteOfProtection extends DDBEnricherData {
+export default class AuraOfDevotion extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -13,10 +13,9 @@ export default class SmiteOfProtection extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Smite of Protection",
-      activationType: "special",
-      activationCondition: "When you cast Divine Smite",
+      name: "Place Aura",
       targetType: "ally",
+      activationType: "special",
       data: {
         target: {
           template: {
@@ -28,7 +27,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
         },
         behaviors: [
           DDBEnricherData.BehaviorHelper.applyEffect({
-            effects: "Smite of Protection",
+            effects: "Aura of Devotion",
             auraeffectsNever: true,
           }),
         ],
@@ -39,21 +38,18 @@ export default class SmiteOfProtection extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        name: "Smite of Protection",
+        name: "Aura of Devotion",
         standalone: true,
         auraeffectsNever: true,
-        statuses: ["coverHalf"],
-        options: {
-          expiry: "sourceStart",
-        },
+        changes: [
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
+        ],
       },
       {
-        name: "Smite of Protection",
-        activityMatch: "Smite of Protection",
+        name: "Aura of Devotion",
         auraeffectsOnly: true,
-        statuses: ["coverHalf"],
         options: {
-          expiry: "sourceStart",
+          transfer: true,
         },
         daeStackable: "noneNameOnly",
         auraeffects: {
@@ -69,8 +65,15 @@ export default class SmiteOfProtection extends DDBEnricherData {
           overrideName: "",
           script: "",
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
+        ],
       },
     ];
+  }
+
+  override get clearAutoEffects(): boolean {
+    return true;
   }
 
 }
