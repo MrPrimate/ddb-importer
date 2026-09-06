@@ -1421,16 +1421,45 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  _parseExpertiseAdditionalLevels(description: string): number[] {
+    const text = utils.stripHtml(description);
+    const regex = /At \w+ level (\d+)/gi;
+    const levels: number[] = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      levels.push(parseInt(match[1]));
+    }
+    return levels;
+  }
+
   _generateExpertiseAdvancements() {
     const advancements: I5eAdvancement[] = [];
+    const handledLevels = new Set<number>();
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
 
       if (!expertiseFeature) continue;
 
+      handledLevels.add(i);
       const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
       if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+    }
+
+    // For 2024 rules, a single "Expertise" feature may describe grants at additional levels
+    // (e.g. Rogue's level-1 Expertise says "At Rogue level 6, you gain Expertise in two more...").
+    // DDB only has one feature entry in this case, so we parse the description to find the extra levels.
+    if (!this.is2014) {
+      for (const expertiseFeature of this._expertiseFeatures) {
+        if (expertiseFeature.name !== "Expertise") continue;
+        const extraLevels = this._parseExpertiseAdditionalLevels(expertiseFeature.description ?? "");
+        for (const level of extraLevels) {
+          if (handledLevels.has(level)) continue;
+          handledLevels.add(level);
+          const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, level);
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+        }
+      }
     }
 
     this._addAdvancements(advancements);
