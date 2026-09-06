@@ -100,4 +100,42 @@ export default defineConfig(
       ],
     },
   },
+  // Layer guards. These keep the barrel-import cycles from coming back: the test harness loads
+  // modules in ESM order, where a cycle through a barrel surfaces as a TDZ crash in a static
+  // initialiser (see tests/smoke/enricherFirstLoad.test.ts).
+  {
+    // src/config is a leaf package: pure data only. An import into module code
+    // recreates the config <-> lib barrel cycle.
+    files: ["src/config/**/*.ts"],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "^(\\.\\./)+(lib|effects|parser|muncher|apps|hooks|updater)/",
+          message: "src/config is a leaf package; do not import module code into it.",
+        }],
+      }],
+    },
+  },
+  {
+    // These files form the transitive import closure of DDBEnricherData, which
+    // must finish evaluating before any enricher class `extends` it. A static
+    // import of a heavy barrel from here re-enters the enricher tree
+    // mid-evaluation and crashes with a TDZ error. config/_module and the small
+    // enrichers/effects/_module sub-barrel are deliberately not restricted.
+    files: [
+      "src/parser/enrichers/data/**/*.ts",
+      "src/parser/enrichers/effects/**/*.ts",
+      "src/parser/lib/{DDBDataUtils,DDBTemplateStrings,DDBReferenceLinker,DDBDescriptions,DDBModifiers,ProficiencyFinder,SpecialAdvancements,SystemHelpers}.ts",
+      "src/parser/spells/SpellDataUtils.ts",
+      "src/effects/DDBEffectHelperText.ts",
+    ],
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          regex: "(^|/)lib/_module$|\\.\\./_module$",
+          message: "This file is in DDBEnricherData's import closure; import specific files, not barrels (config/_module and enrichers/effects/_module are fine).",
+        }],
+      }],
+    },
+  },
 );
