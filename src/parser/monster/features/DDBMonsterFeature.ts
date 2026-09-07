@@ -3,7 +3,6 @@ import { DICTIONARY } from "../../../config/_module";
 import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
-import type { IFeatureBasicsResult, IFeatureBasicsSave } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
@@ -33,6 +32,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   actionData: IDDBMonsterActionData;
   descriptionParse: IFeatureBasicsResult;
   descriptionSave: IFeatureBasicsSave;
+  // memoised by the multiSaveSections getter; [] means "one save, do not reshape"
+  #multiSaveSectionCache?: { slice: ISectionSlice; save: IParsedSave }[];
   name: string;
   isAction: null;
   legacy: boolean;
@@ -778,8 +779,20 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   }
 
 
-  getTarget(): I5eActivityTarget {
-    const target: I5eActivityTarget = {
+  /**
+   * Derive an activity target from rules text, by default the whole feature.
+   *
+   * A multi-mode feature passes one section at a time: an eye ray table's Disintegration Ray
+   * mentions a "10-foot cube" of an object, and read over the whole feature that cube would land
+   * on every ray. `mutateRange` is off for a section so a "within N feet of you" match cannot
+   * rewrite the feature's own range.
+   */
+  getTarget({ text = this.strippedHtml, mutateRange = true }: { text?: string; mutateRange?: boolean } = {}): I5eActivityTarget {
+    // fully populated template/affects so the narrowing survives the regex branches below
+    const target: I5eActivityTarget & {
+      template: NonNullable<I5eActivityTarget["template"]>;
+      affects: NonNullable<I5eActivityTarget["affects"]>;
+    } = {
       template: {
         count: "",
         contiguous: false,
@@ -801,11 +814,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     // 90-foot line that is 10 feet wide
     // in a 90-foot cone
-    const matchText = this.strippedHtml.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
+    const matchText = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
     // console.warn(matchText);
     const lineSearch = /(\d+)-foot line|line that is (\d+) feet/i;
     const coneSearch = /(\d+)-foot cone/i;
-    const cubeSearch = /(\d+)-foot cube/i;
+    // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
+    const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
     const sphereSearch = /(\d+)-foot-radius sphere/i;
 
     const coneMatch = matchText.match(coneSearch);
@@ -830,7 +844,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = "sphere";
     } else {
-      const aoeSizeRegex = /(?<!creature (?:it|you) can see |an object (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
@@ -844,7 +858,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
         target.template.size = aoeSizeMatch[1] ?? "";
         target.template.units = "ft";
-        if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+        if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
           this.actionData.range.units = "self";
         }
       }
@@ -1068,12 +1082,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     if (this.originalName === "Multiattack") {
       description = this.#processMultiAttack(description);
     }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbMonster.npc);
-
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbMonster.npc });
-    description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbMonster.npc);
+    description = await DDBReferenceLinker.parseMonsterDescription({
+      text: description,
+      document: this.data,
+      actor: this.ddbMonster.npc,
+    });
 
     this.data.system.description.value = await DDBTable.generateTable({
       parentName: this.ddbMonster.npc.name,
@@ -1353,6 +1366,78 @@ ${this.data.system.description.value}
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /**
+   * The labelled sections of this feature's text that each name a save, memoised.
+   *
+   * A monster feature is normally one roll, but a few describe several: an eye ray table
+   * (Mindwitness numbers its rays in italics), a swallow (the save to be swallowed and the save
+   * to regurgitate), a monk-style strike offering a choice of rider, and the lair/regional
+   * blocks, which DDB ships as one blob covering every lair action.
+   */
+  get multiSaveSections(): { slice: ISectionSlice; save: IParsedSave }[] {
+    this.#multiSaveSectionCache ??= this._saveBearingSections(this.html);
+    return this.#multiSaveSectionCache;
+  }
+
+  /**
+   * The name the primary activity takes on a multi-mode feature, or null to leave it unnamed.
+   * Only set where the primary IS the first section - an attack describes something else.
+   */
+  get #primaryActivityName(): string | null {
+    if (!(this.isSave && !this.isAttack)) return null;
+    const first = this.multiSaveSections[0];
+    if (!first) return null;
+    const name = DDBActivityFactoryMixin.multiSaveActivityName(first.slice.rawLabel);
+    // a lair block labels its first section with the feature's own name; restating it says nothing
+    if (!name || DDBDescriptions.normalizeSectionLabel(name) === DDBDescriptions.normalizeSectionLabel(this.name)) {
+      return null;
+    }
+    return name;
+  }
+
+  /** Scope the primary target to the first section of a multi-mode feature. */
+  get #primaryActivityOptions(): IDDBActivityBuild {
+    if (!(this.isSave && !this.isAttack)) return {};
+    const first = this.multiSaveSections[0];
+    if (!first) return {};
+    return {
+      targetOverride: this.#sectionTarget(first.slice.section),
+    };
+  }
+
+  /**
+   * The target of one mode of a multi-mode feature, read from its own section.
+   *
+   * Always returns a target: for a monster, "inherit" would mean the target regexed from the
+   * whole feature.
+   * A section names a save by construction, so a section that names no target defaults to a
+   * creature.
+   * That also overrides the "self" a healing feature's templateless target defaults to a save mode
+   * of a feature that elsewhere heals (Nymph's Gaze, Serpent Surprise) is still rolled by someone else.
+   */
+  #sectionTarget(section: string): I5eActivityTarget {
+    const target = this.getTarget({ text: utils.stripHtml(section).trim(), mutateRange: false });
+    if (target.affects && (!target.affects.type || target.affects.type === "self")) target.affects.type = "creature";
+    return target;
+  }
+
+  /**
+   * Build one save activity per mode of a feature whose text describes several.
+   *
+   * `featureBasics` reads only the first save, so on a swallow or an eye ray table everything
+   * past it existed only in the description. The first section is skipped only when the primary
+   * activity IS that save; where the primary is an attack, every section becomes an extra and
+   * the generic "Save" activity is suppressed in favour of the named ones.
+   */
+  #generateMultiSaveActivities(): void {
+    this._multiSaveActivityGeneration({
+      text: this.html,
+      primarySave: this.descriptionSave,
+      skipFirstSection: this.isSave && !this.isAttack,
+      targetOverrideForSection: (section) => this.#sectionTarget(section),
+    });
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
     const parts = this.templateType !== "weapon" || includeBase
       ? this.actionData.damageParts.map((dp) => dp.part)
@@ -1405,7 +1490,8 @@ ${this.data.system.description.value}
       // console.warn("isAttack", this.isAttack, this.isSave);
       if (this.isSave) {
         // console.warn("add save additional activity");
-        this.#addSaveAdditionalActivity();
+        // a multi-mode feature already has one named save activity per section
+        if (this.multiSaveSections.length === 0) this.#addSaveAdditionalActivity();
       }
       return "attack";
     }
@@ -1700,8 +1786,15 @@ ${this.data.system.description.value}
     }
   }
 
-  async #buildOtherSpellActivities() {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no spell components and )?using (?:the same spellcasting ability as Spellcasting|(?<ability>\w+) as the spellcasting ability)/i;
+  /**
+   * Extract the spells a non-Spellcasting feature casts, e.g. "The archmage casts Fireball, Ice Storm, or
+   * Lightning Bolt twice in any combination, using the same spellcasting ability as Spellcasting." The
+   * optional `count` group ("twice", "three times", "... in any combination") sits between the spell list
+   * and the ability clause so it is not swallowed into the last spell name. A cast count has no home on a
+   * dnd5e cast activity; the parent feature's recharge/uses already gate the action.
+   */
+  getOtherCastSpells(): IMonsterSpellcastingSpell[] {
+    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:spell|spellcasting|material) components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
@@ -1709,63 +1802,66 @@ ${this.data.system.description.value}
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (?<spells>.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
 
-    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no spell components and )?using the same spellcasting ability as its Spellcasting action./i;
+    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:spell|spellcasting|material) components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
     const spells: IMonsterSpellcastingSpell[] = [];
-    if (matches) {
-      // console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
-      //   matches,
-      //   strippedHtml: this.strippedHtml,
-      //   originalName: this.originalName,
-      //   this: this,
-      // });
+    const matchGroups = matches?.groups;
+    if (!matchGroups) return spells;
 
-      const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
-      const perUseMatch = this.strippedHtml.match(perUseRegex);
+    const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
+    const perUseMatch = this.strippedHtml.match(perUseRegex);
 
-      const names = DDBDescriptions
-        .splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "))
-        .filter((n) => n.trim() !== "");
-      for (const name of names) {
-        const spell: IMonsterSpellcastingSpell = {
-          name: name, // required
-          // level: "5", // optional
-          // extra: null, // extra to append to name string
-          // period: "Day", // reset timeframe
-          // quantity: "2",
-          // consumeType: "itemUses",
-          // targetSelf: true,
-          // noComponents: true,
-          // duration: {},
-        };
+    const names = DDBDescriptions
+      .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
+      .filter((n) => n.trim() !== "");
+    for (const name of names) {
+      // parenthetical qualifiers such as "(level 5 version)" or "(self only)" are parsed the same way
+      // as the Spellcasting block path so the compendium lookup sees the bare spell name
+      const entry = DDBDescriptions.parseMonsterSpellEntry(name);
+      const spell: IMonsterSpellcastingSpell = {
+        name: entry.name,
+      };
 
-        if (matches.groups.self) {
-          spell.extra = "on itself";
-          spell.targetSelf = true;
-        }
-        if (matches.groups.components) {
-          spell.noComponents = true;
-        }
+      if (entry.level) spell.level = entry.level;
+      if (entry.extra) spell.extra = entry.extra;
+      if (entry.targetSelf) spell.targetSelf = true;
+      if (entry.duration) spell.duration = entry.duration;
 
-        if (matches.groups.ability) {
-          spell.ability = matches.groups.ability;
-        }
-
-        if (perUseMatch) {
-          spell.period = perUseMatch[1].trim();
-          spell.quantity = "1";
-          spell.consumeType = "activityUses";
-        } else if (this.data.system.uses.max) {
-          spell.consumeType = "itemUses";
-          spell.quantity = "1";
-        }
-        spells.push(spell);
+      if (matchGroups.self) {
+        spell.extra = "on itself";
+        spell.targetSelf = true;
+      }
+      if (matchGroups.components) {
+        spell.noComponents = true;
       }
 
-      logger.verbose(spells);
+      if (matchGroups.ability) {
+        spell.ability = matchGroups.ability;
+      }
+
+      if (perUseMatch) {
+        spell.period = perUseMatch[1].trim();
+        spell.quantity = "1";
+        spell.consumeType = "activityUses";
+      } else if (this.data.system.uses.max) {
+        spell.consumeType = "itemUses";
+        spell.quantity = "1";
+      }
+      spells.push(spell);
     }
+
+    logger.verbose(`${this.ddbMonster.name}: ${this.name}: Parsed cast spells`, {
+      spells,
+      count: matchGroups.count?.trim() ?? null,
+    });
+
+    return spells;
+  }
+
+  async #buildOtherSpellActivities() {
+    const spells = this.getOtherCastSpells();
     if (spells.length > 0) {
       await this.#buildSpellcastingActivities(spells);
     }
@@ -1839,7 +1935,8 @@ ${this.data.system.description.value}
 
     if (!this.actionCopy) {
       await this.#handleSpellCasting();
-      await this._generateActivity();
+      this.#generateMultiSaveActivities();
+      await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
       this.#addHealAdditionalActivities();
       if (this.enricher.addAutoAdditionalActivities)
         await this._generateAdditionalActivities();

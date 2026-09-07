@@ -1,5 +1,6 @@
 import { logger } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBClass from "./DDBClass";
@@ -19,6 +20,37 @@ export default class DDBSubClass extends DDBClass {
       functionArgs: { newName: "Known Runes", identifier: "rune" },
       additionalAdvancements: false,
       additionalFunctions: [],
+    },
+    // Gunslinger (TGC) Secret Agent: bracketed name would slug to
+    // parting-shot-maneuver; the scale is the maneuver's own risk-sized die
+    "Parting Shot [Maneuver]": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Parting Shot Die", identifier: "parting-shot" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
+    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand
+    "Misfortunist": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Misfortunes Known", identifier: "misfortunes-known" },
+      additionalAdvancements: true,
+      additionalFunctions: [
+        // deferred so this static table only reads the helper while modules load
+        (advancement) => AdvancementHelper.fixedNumberScale({
+          title: "Jinx Points",
+          identifier: "jinx-points",
+          scale: { 3: 4, 13: 6 },
+        })(advancement as I5eAdvancementScaleValue),
+      ],
+    },
+    // DDB only records the level 17 value; a scale with no entry at or below the current level
+    // resolves to nothing, so the level 9 single use is added
+    "Steal Luck": {
+      fix: true,
+      fixFunctions: [{ fn: AdvancementHelper.addScaleEntries, args: { scale: { 9: { value: 1 } } } }],
     },
     "Psionic Power": {
       fix: true,
@@ -42,7 +74,13 @@ export default class DDBSubClass extends DDBClass {
     // },
   };
 
-  static NOT_ADVANCEMENT_FOR_FEATURE = ["Soul Blades"];
+  static NOT_ADVANCEMENT_FOR_FEATURE = [
+    "Soul Blades",
+    // Kindred (VtM): text-only levelScales (a sentence, no dice/number) that
+    // would generate junk string scale advancements
+    "Depth of Feelings",
+    "Hidden in Plain Sight",
+  ];
 
   static NOT_SPELL_LIST_ADVANCEMENTS = [
     "Circle of the Land Spells",
@@ -601,6 +639,67 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  _warlockFixes() {
+    if (this.data.name.startsWith("Vestige Patron")) {
+      // Semblance of Life: the spirit form uses the Summon Celestial/Fiend/Undead stat block at a
+      // spell level of half the warlock level (round down, maximum 9)
+      const spiritLevel: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "semblance-spirit-level",
+          type: "number",
+          scale: {
+            14: { value: 7 },
+            16: { value: 8 },
+            18: { value: 9 },
+          },
+        },
+        value: {},
+        title: "Semblance of Life Spirit Level",
+      };
+      this._addAdvancement(spiritLevel);
+    }
+  }
+
+  /**
+   * Necromancer (Arcana Unleashed): Necromancy Spellbook puts Find Familiar in the spellbook at
+   * level 3, but DDB does not add the spell to the character, so the subclass grants it. It is a
+   * spellbook entry rather than an always-prepared spell, hence the unprepared state.
+   */
+  async _wizardFixes() {
+    if (this.data.name.startsWith("Necromancer") && !this.is2014) {
+      const findFamiliar = await AdvancementHelper.getSpellGrantAdvancement({
+        name: "Necromancy Spellbook",
+        spellGrants: [{ name: "Find Familiar", level: 3 }],
+        spellLinks: this.spellLinks,
+        method: "spell",
+        requireSlot: true,
+        prepared: CONFIG.DND5E.spellPreparationStates.unprepared.value,
+        level: 3,
+        is2024: this.is2024,
+      });
+      if (findFamiliar) this._addAdvancement(findFamiliar.toObject() as I5eAdvancement);
+    }
+  }
+
+  async _clericFixes() {
+    if (this.data.name.startsWith("Grave Domain")) {
+      const pullOfDeath: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "pull-of-death",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 4 },
+            11: { number: 1, faces: 6 },
+          },
+        },
+        value: {},
+        title: "Pull of Death",
+      };
+      this._addAdvancement(pullOfDeath);
+    }
+  }
 
   async _fixes() {
     this._fightingStyleAdvancement();
@@ -612,6 +711,9 @@ export default class DDBSubClass extends DDBClass {
     this._sorcererFixes();
     this._artificerFixes();
     this._monkFixes();
+    this._clericFixes();
+    this._warlockFixes();
+    await this._wizardFixes();
     await this._bardFixes();
   }
 
@@ -703,3 +805,5 @@ export default class DDBSubClass extends DDBClass {
     await this._addToCompendium();
   }
 }
+
+registerSpecialAdvancements("subclass", DDBSubClass.SPECIAL_ADVANCEMENTS);

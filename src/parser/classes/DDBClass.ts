@@ -8,6 +8,7 @@ import {
 } from "../../lib/_module";
 import { getSpellCastingAbility } from "../spells/ability";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
@@ -73,11 +74,58 @@ export default class DDBClass {
     subclasses: CompendiumHelper.getCompendiumType("subclasses", false),
   };
 
-  static SPECIAL_ADVANCEMENTS = {
+  static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Wild Shape": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
       functionArgs: { newName: "Wild Shape CR" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Kindred (VtM): the "Blood Potency" feature scale is the Blood Points pool
+    "Blood Potency": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Blood Points", identifier: "blood-points" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Blood Hunter: the Blood Maledict scale is the canonical hemocraft die
+    // (Crimson Rite and Blood Curses carry duplicate copies of the same scale)
+    "Blood Maledict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Hemocraft Die", identifier: "hemocraft-die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Monster Hunter: the scale is the number of monster types in the grimoire
+    "Monster Grimoire": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Monster Types Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Illrigger (MCDM)
+    "Baleful Interdict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Baleful Interdict Seals", identifier: "seals" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Interdiction": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Interdict Boons Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Infernal Conduit": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Infernal Conduit Dice" },
       additionalAdvancements: false,
       additionalFunctions: [],
     },
@@ -147,6 +195,55 @@ export default class DDBClass {
     "Knightly Envoy",
     "Unfettered Mind",
     "Training In War and Song",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Slippery Mind",
+    "Disciplined Survivor",
+    "Diamond Soul",
+    "Filth and Fortitude",
+    "True Grit",
+    "Raven's Spirit",
+    "Well-Rounded",
+    "Keeper of History",
+    "Student of Arcana",
+    "Arcane Initiate",
+    "Community Almanac",
+    "Acolyte of Nature",
+    "Cover of Night",
+    "Blighted Shape",
+    "Arcane Archer Lore",
+    "Melder of Flesh and Bone",
+    "One of the People",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Eagle Eye",
+    "Poker Face",
+    "Operative Training",
+    "Asmodeus's Blessing",
+    "Sutekh's Blessing",
+    "Tall Tales",
+    "Wise Words",
+    "Acolyte of the Occult",
+    "Sneaky and Crafty",
+    "Bad Attitude",
+    "Research Skills",
+    "Whispers of Knowledge",
+    "Tools of the Trade",
+    "Medic",
+    "Occult Expertise",
+    "Nimble Trickery",
+    "Enchanting Conversationalist",
+    "Anatomical Expert",
+    "Potion Craft",
+    "Whispers of the Dead",
+    "Genie's Splendor",
+    "Primal Lore",
+    "Student of War",
+    "Iron Mind",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -158,6 +255,19 @@ export default class DDBClass {
     "Scholar",
     "Muscle Mass",
     // "Tool Expertise", // revisit,this doesn't work the same way
+    "9: Expertise",
+    "6: Expertise",
+    "Keeper of History",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Medic",
+    "Heartbeat of the Land",
+    "Student of Alchemy",
+    "Tools of the Trade",
+    "Trapper's Tools",
+    "Impressionist",
+    "Visionary",
+    "Bonus Proficiencies",
   ];
 
   static PROFICIENCY_OR_EXPERTISE_FEATURES = [
@@ -184,6 +294,18 @@ export default class DDBClass {
     "Speech of the Woods",
     "Knightly Envoy",
     "Unfettered Mind",
+    "Demontongue",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Primal Lore",
+    "Bonus Proficiencies",
+    "Draconic Lore",
+    "Forked Tongue",
+    "9: Forked Tongue",
+    "Moloch's Blessing",
+    "Mystical Erudition (Additional)",
+    "Forbidden Knowledge",
+    "Dragon Ancestor",
   ];
 
   // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.
@@ -213,6 +335,47 @@ export default class DDBClass {
     "Implements of Mercy",
     "Master of Intrigue",
     "Blessings of Knowledge",
+    "Tools Proficiency",
+    "Reanimator's Skillset",
+    "Channeler",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Alchemical Experiments",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Culinary Exploration",
+    "Malleable Visage",
+    "Thespian",
+    "Primal Lore",
+    "Blessing of the Hearth",
+    "Community Almanac",
+    "Melder of Flesh and Bone",
+    "Student of Alchemy",
+    "Poker Face",
+    "Operative Training",
+    "Path of the Kensei",
+    "An Artist's Soul",
+    "Alchemical Gastronomy",
+    "Sneaky and Crafty",
+    "Oath Tools",
+    "Genie's Splendor",
+    "Herbal Lore",
+    "Whispers of Knowledge",
+    "Trapper's Tools",
+    "Assassin's Tools",
+    "Impressionist",
+    "Get Jinxed",
+    "Unhinged Asservations",
+    "Arcane Artisan",
+    "Alchemical Knowledge",
+    "Potion Craft",
+    "Biomancy Savant",
+    "Whispers of the Dead",
+    "Skilled Guardian",
   ];
 
   static ARMOR_FEATURES = [
@@ -234,6 +397,20 @@ export default class DDBClass {
     "Bonus Proficiency",
     "Bonus Proficiencies",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Symbiotic Reinforcement",
+    "Martial Sorcery",
+    "Equipped for Battle",
+    "Dispater's Blessing",
   ];
 
   static WEAPON_FEATURES = [
@@ -256,6 +433,21 @@ export default class DDBClass {
     "Bonus Proficiencies",
     "Training In War and Song",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Martial Sorcery",
+    "Brutal Brawler",
+    "Ranged Specialist",
+    "Kensei Weapon",
+    "Herding Sheep",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -318,6 +510,42 @@ export default class DDBClass {
     "Draconic Resistance",
     "Hellish Resistance",
     "Magic Resistance",
+    "Permafrost",
+    "Infernal Warrior",
+    "Galvanic Heart",
+    "Strange Metabolism",
+    "Otherworldly Calm",
+    "Strong Stomach",
+    "Blood Lust",
+    "Fungal Body",
+    "Full of Stars",
+    "Incarnation of Corruption",
+    "Swarmsense",
+    "Nature's Ward",
+    "Blood Hound Anatomy",
+    "Toxin Transmutation",
+    "Kindred Biology",
+    "Gift of Pestilence",
+    "Poison Control",
+    "Grave Bond",
+    "Ancient Might",
+    "Windswept",
+    "Depraved Mind",
+    "Filth and Fortitude",
+    "Frigid Explorer",
+    "Bear Witness",
+    "Scarlet Vigor",
+    "Cold-Hearted",
+    "Frozen Soul",
+    "Deathly Pallor",
+    "Extradimensional Mastery",
+    "Seeing Unseen Threads",
+    "Dark Inoculation",
+    "Eternal Night",
+    "Necromancy Spellbook",
+    "Breathe It In",
+    "Second Skin",
+    "Intransigent",
   ];
 
   ddbData: IDDBData;
@@ -778,6 +1006,8 @@ export default class DDBClass {
 
     // tashas
     "Martial Versatility",
+    "9: Expertise",
+    "6: Expertise",
   ];
 
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
@@ -998,7 +1228,7 @@ export default class DDBClass {
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
-        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement?.title];
         if (specialLookup) {
           if (specialLookup.additionalAdvancements) {
             specialLookup.additionalFunctions.forEach((fn) => {
@@ -1160,8 +1390,10 @@ export default class DDBClass {
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const filterModOptions = { subType: `choose-a-${this.name.toLowerCase()}-skill` };
-    const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
+    // "choose-a-<class>-skill", "choose-a-barbarian-skill-proficiency", "choose-nature-or-survival"...
+    const skillChooseMods = mods.filter((mod) =>
+      mod.type === "proficiency" && AdvancementHelper.isSkillChoiceSubType(mod.subType),
+    );
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
     return this.advancementHelper.getSkillAdvancement({
@@ -1394,16 +1626,29 @@ export default class DDBClass {
     this._addAdvancement(advancements);
   }
 
+  _generateExpertiseAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    // the class's own Expertise keeps its pick-two shape whatever DDB ships; a subclass
+    // feature sharing a listed name only counts when it carries expertise modifiers
+    const expertiseMods = AdvancementHelper.isExpertiseFeature(feature.name) ? null : mods;
+    return this.advancementHelper.getExpertiseAdvancement(feature, level, expertiseMods);
+  }
+
   _generateExpertiseAdvancements() {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-
-      if (!expertiseFeature) continue;
-
-      const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
-      if (advancement) advancements.push(advancement.toObject());
+      for (const expertiseFeature of this._expertiseFeatures.filter((f) => f.requiredLevel === i)) {
+        const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
     }
 
     this._addAdvancement(advancements);
@@ -1467,6 +1712,17 @@ export default class DDBClass {
   }
 
 
+  /**
+   * The identifier dnd5e resolves for a scale value: the configured one, else the slug of its name.
+   * System compendium scale values ship with an empty identifier, and newer system data stores the
+   * name as `name` rather than `title`, so both spellings are read.
+   */
+  static scaleValueIdentifier(advancement: I5eAdvancement): string {
+    const configured = foundry.utils.getProperty(advancement, "configuration.identifier") as string | undefined;
+    if (configured && configured !== "") return configured;
+    return utils.referenceNameString(advancement.name ?? advancement.title ?? "");
+  }
+
   async _addFoundryAdvancements() {
     const packIds = this.is2014
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
@@ -1481,13 +1737,12 @@ export default class DDBClass {
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
+      const existingIdentifiers = new Set(
+        this.data.system.advancement.map((ddbA) => DDBClass.scaleValueIdentifier(ddbA)),
+      );
       const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) => {
-        let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
-        if (!identifier || identifier === "") {
-          identifier = DDBDataUtils.classIdentifierName(foundryA.title);
-        }
         return foundryA.type === "ScaleValue"
-          && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === identifier);
+          && !existingIdentifiers.has(DDBClass.scaleValueIdentifier(foundryA));
       }).map((advancement) => {
         return advancement.toObject();
       });
@@ -2021,6 +2276,37 @@ export default class DDBClass {
     }
   }
 
+  _pugilistFixes() {
+    if (this.data.name !== "Pugilist") return;
+    const points: I5eAdvancement = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "moxie",
+        type: "number",
+        scale: {
+          2: { value: 2 },
+          4: { value: 3 },
+          6: { value: 4 },
+          8: { value: 5 },
+          10: { value: 6 },
+          12: { value: 7 },
+          14: { value: 8 },
+          16: { value: 9 },
+          18: { value: 10 },
+          19: { value: 11 },
+          20: { value: 12 },
+        },
+      },
+      value: {},
+      title: "Moxie",
+      icon: null,
+    };
+
+    this._addAdvancement(points);
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
     this._druidFixes();
@@ -2031,6 +2317,7 @@ export default class DDBClass {
     this._sorcererFixes();
     this._spellFixes();
     this._artificerFixes();
+    this._pugilistFixes();
   }
 
   _generatePrimaryAbility() {
@@ -2187,3 +2474,5 @@ export default class DDBClass {
   }
 
 }
+
+registerSpecialAdvancements("class", DDBClass.SPECIAL_ADVANCEMENTS);

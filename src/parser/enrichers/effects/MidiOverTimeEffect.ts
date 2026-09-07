@@ -1,6 +1,6 @@
-import DDBEffectHelper from "../../../effects/DDBEffectHelper";
-import { logger } from "../../../lib/_module";
-import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions";
+import DDBEffectHelperText from "../../../effects/DDBEffectHelperText";
+import logger from "../../../lib/Logger";
+import DDBDescriptions from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 
@@ -56,6 +56,29 @@ export default class MidiOverTimeEffect {
     // });
   }
 
+  /**
+   * The v13 effect duration for a duration the shared description parser found (value/units),
+   * falling back to the description's own duration text.
+   */
+  static effectDuration(
+    parsed: { value: number | null; units: string | null } | null | undefined,
+    description: string,
+  ): { seconds: number | null; rounds: number | null } {
+    if (parsed?.units && parsed.value !== null && parsed.value !== undefined) {
+      switch (parsed.units) {
+        case "seconds": return { seconds: parsed.value, rounds: null };
+        case "minutes": return { seconds: parsed.value * 60, rounds: null };
+        case "hours": return { seconds: parsed.value * 3600, rounds: null };
+        case "days": return { seconds: parsed.value * 86400, rounds: null };
+        case "rounds":
+        case "turns": return { seconds: null, rounds: parsed.value };
+        default: break;
+      }
+    }
+    const duration = DDBDescriptions.getDuration(description);
+    return { seconds: duration.seconds ?? null, rounds: duration.rounds ?? null };
+  }
+
   static getOverTimeSaveEndChange({ document, save, text }) {
     const saveSearch = /repeat the saving throw at the (end|start) of each/;
     const match = text.match(saveSearch);
@@ -105,7 +128,7 @@ export default class MidiOverTimeEffect {
       if (change) this.effect.changes.push(change);
     }
 
-    const duration = this.conditionStatus.duration ?? DDBDescriptions.getDuration(this.description);
+    const duration = MidiOverTimeEffect.effectDuration(this.conditionStatus.duration, this.description);
     if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
     if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
 
@@ -125,7 +148,7 @@ export default class MidiOverTimeEffect {
     const saveAbility = save.ability;
     const dc = save.dc;
 
-    const dmg = DDBEffectHelper.getOvertimeDamage(this.description, this.document);
+    const dmg = DDBEffectHelperText.getOvertimeDamage(this.description, this.document);
     if (!dmg) {
       logger.debug(`Adding non damage Overtime effect for ${this.document.name} on ${this.actor.name}`);
       this.effectCleanup();
