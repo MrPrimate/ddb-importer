@@ -5,7 +5,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Activate Mortal Bulwark",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -17,7 +17,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -65,15 +65,15 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Mortal Bulwark",
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.truesight"),
-      ],
       atlChanges: [
         DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
         DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
+      ],
+      changes: [
+        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.truesight"),
       ],
       activitiesMatch: ["Activate Mortal Bulwark"],
     }];

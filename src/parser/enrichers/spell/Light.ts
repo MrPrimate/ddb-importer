@@ -2,85 +2,17 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Light extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    const template: IDDBAdditionalActivity = {
-      init: {
-        name: "Place or Remove Light",
-        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
-      },
-      build: {
-        noeffect: true,
-        generateConsumption: false,
-        generateTarget: true,
-        generateRange: false,
-        generateActivation: true,
-        generateDDBMacro: true,
-        ddbMacroOverride: {
-          name: "Place or Remove Light",
-          function: "ddb.generic.light",
-          visible: false,
-          parameters: `{"distance":20,"isTemplate":true,"lightConfig":{"dim":40,"bright":20},"flag":"light","forceOn":true}`,
-        },
-        targetOverride: {
-          override: true,
-          affects: { type: "" },
-          template: {},
-        },
-      },
-    };
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return [
-        template,
-        {
-          init: {
-            name: "Apply Light Effect",
-            type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-          },
-          build: {
-            generateConsumption: true,
-            generateTarget: true,
-            generateRange: false,
-            generateActivation: true,
-            targetOverride: {
-              override: true,
-              affects: { type: "" },
-              template: {},
-            },
-          },
-        },
-      ];
-    } else {
-      return [
-        template,
-        {
-          init: {
-            name: "Place on Targetted Token or Remove",
-            type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
-          },
-          build: {
-            generateConsumption: false,
-            generateTarget: true,
-            generateRange: false,
-            generateActivation: true,
-            generateDDBMacro: true,
-            ddbMacroOverride: {
-              name: "Place on Targetted Token",
-              function: "ddb.generic.light",
-              visible: false,
-              parameters: `{"distance":20,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light","forceOn":true}`,
-            },
-            targetOverride: {
-              override: true,
-              affects: { type: "" },
-              template: {},
-            },
-          },
-        },
-      ];
-    }
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get override(): IDDBOverrideData {
+  override get activity(): IDDBActivityData {
+    return {
+      targetType: "object",
+    };
+  }
+
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "flags.midiProperties.autoFailFriendly": true,
@@ -88,16 +20,20 @@ export default class Light extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
-        activityMatch: "Apply Light Effect",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "40"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "20"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
+        options: {
+          durationSeconds: 3600,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.speed"),
         ],
       },
     ];

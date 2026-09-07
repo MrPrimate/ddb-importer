@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AbsorbSpells extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Regain Sorcery Points",
       activationType: "special",
@@ -14,7 +14,7 @@ export default class AbsorbSpells extends DDBEnricherData {
         {
           type: "itemUses",
           value: "-1d4",
-          target: "sorcery-points",
+          target: "feat:sorcery-points",
           scaling: { allowed: false, max: "" },
         },
       ],

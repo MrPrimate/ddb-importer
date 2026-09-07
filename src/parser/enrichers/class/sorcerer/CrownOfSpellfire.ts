@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CrownOfSpellfire extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "self",
@@ -21,7 +21,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     };
   }
 
-  getSkeleton(hd): IDDBAdditionalActivity {
+  getSkeleton(hd: number): IDDBAdditionalActivity {
     return {
       init: {
         name: `Burning Life Force (d${hd})`,
@@ -64,12 +64,12 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     };
   }
 
-  get hdActivities() {
+  get hdActivities(): IDDBAdditionalActivity[] {
     const base = [this.getSkeleton(6)] as IDDBAdditionalActivity[];
 
     const hitDiceSize = this.ddbParser.isMuncher
       ? []
-      : this.ddbParser.ddbCharacter.source.ddb.character.classes
+      : (this.ddbParser.ddbCharacter?.source?.ddb?.character.classes ?? [])
         .map((klass) => klass.definition.hitDice)
         .filter((hd) => hd && hd !== 6);
 
@@ -81,7 +81,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return base;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = this.hdActivities as IDDBAdditionalActivity[];
     results.push(
       {
@@ -125,7 +125,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "5",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { mode: "", formula: "" },
               },
             ],
@@ -136,7 +136,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return results;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Crown of Spellfire (Flight)",
@@ -155,7 +155,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
         data: {
           flags: {
             ddbimporter: {
-              activityRiders: this.hdActivities.map((r) => r.overrides.id).concat(["ddbSpellAvoidanc"]),
+              activityRiders: this.hdActivities.map((r) => r.overrides?.id ?? "").concat(["ddbSpellAvoidanc"]),
               effectRiders: ["CrownOfSpellfire"],
             },
           },
@@ -170,7 +170,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Infuse Spellfire",

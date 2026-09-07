@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Resistance extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const rollName = this.is2014 ? "Save Bonus" : "Damage Reduction";
     return {
       name: "Cast",
@@ -18,7 +18,7 @@ export default class Resistance extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {
@@ -32,7 +32,7 @@ export default class Resistance extends DDBEnricherData {
               },
             },
           ],
-          daeSpecialDurations: ["isSave" as const],
+          daeSpecialDurations: ["isSave"],
         },
       ];
     }

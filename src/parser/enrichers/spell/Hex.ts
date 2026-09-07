@@ -4,11 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Hex extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Mark Target",
       id: "ddbHexMarkTarget",
@@ -18,7 +18,7 @@ export default class Hex extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -43,6 +43,7 @@ export default class Hex extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
+          noSpellslot: true,
         },
         overrides: {
           noConsumeTargets: true,
@@ -57,18 +58,18 @@ export default class Hex extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return DICTIONARY.actor.abilities.map((ability) => {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll.mode`),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
         ],
       };
     });
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       name: "hex.js",
       type: "spell",
@@ -76,7 +77,7 @@ export default class Hex extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       name: "hex.js",
       type: "spell",

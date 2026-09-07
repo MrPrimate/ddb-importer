@@ -2,15 +2,14 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class GuidingBolt extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: `Glittering`,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["isAttacked" as const],
+        daeSpecialDurations: ["isAttacked"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BladeWard extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {
@@ -11,12 +11,24 @@ export default class BladeWard extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.damageResistanceChange("slashing", 10),
             DDBEnricherData.ChangeHelper.damageResistanceChange("piercing", 10),
           ],
-          daeSpecialDurations: ["turnEnd"],
+          // "Until the end of your next turn, you have resistance" - a self buff
+          options: { expiry: "sourceEnd" },
         },
       ];
     } else {
       return [
-
+        {
+          // 2024: attackers subtract 1d4 from attack rolls against the warded
+          // creature for the duration
+          name: "Blade Ward",
+          ac5eOnly: true,
+          options: {
+            durationSeconds: 60,
+          },
+          ac5eChanges: [
+            DDBEnricherData.ChangeHelper.ac5eChange("bonus=-1d4", 20, "flags.automated-conditions-5e.grants.attack.bonus"),
+          ],
+        },
       ];
     }
   }

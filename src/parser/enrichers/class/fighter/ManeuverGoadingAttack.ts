@@ -2,7 +2,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverGoadingAttack extends Maneuver {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -38,17 +38,17 @@ export default class ManeuverGoadingAttack extends Maneuver {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Goaded",
         activityMatch: "Save vs Goading",
-        daeSpecialDurations: ["turnEndSource" as const],
+        options: { expiry: "sourceEnd" },
       },
     ];
   }
 
-  get ignoredConsumptionActivities() {
+  override get ignoredConsumptionActivities(): string[] {
     return ["Save vs Goading"];
   }
 

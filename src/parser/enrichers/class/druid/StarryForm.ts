@@ -2,16 +2,17 @@ import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StarryForm extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       targetType: "self",
       activationType: "bonus",
       name: "Assume Starry Form",
+      useActivitySnippet: true,
       id: utils.namedIDStub("assume", { prefix: "starry", postfix: "core" }),
       data: {
         enchant: {
@@ -22,11 +23,11 @@ export default class StarryForm extends DDBEnricherData {
     };
   }
 
-  get starForms() {
+  get starForms(): string[] {
     return ["Archer", "Chalice", "Dragon"];
   }
 
-  formActivityName(formType) {
+  formActivityName(formType: string) {
     if (formType === "Archer") {
       return "Archer Attack";
     }
@@ -159,14 +160,14 @@ export default class StarryForm extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       ...this.formActivities,
     ];
   }
 
-  get enchantEffects() {
-    const results = [];
+  get enchantEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     for (const formType of this.starForms) {
       [
@@ -174,7 +175,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        let activityRiders = [];
+        let activityRiders: string[] = [];
         if (formType === "Archer") {
           activityRiders = [
             utils.namedIDStub("Archer", { prefix: "form", postfix: "" }),
@@ -190,7 +191,7 @@ export default class StarryForm extends DDBEnricherData {
             utils.namedIDStub("Twinkling", { prefix: "act", postfix: "" }),
           );
         }
-        const effect = {
+        const effect: IDDBEffectHint = {
           // name: `Type: ${formType} (${data.min !== null ? data.min : "1"}-${data.max !== null ? data.max : "20"})`,
           name: formType,
           type: "enchant",
@@ -201,13 +202,7 @@ export default class StarryForm extends DDBEnricherData {
           data: {
             _id: utils.namedIDStub(formType, { prefix: "choice", postfix: `ef${data.min !== null ? data.min : "1"}` }),
             duration: {
-              "seconds": 600,
-              "startTime": null,
-              "rounds": 100,
-              "turns": null,
-              "startRound": null,
-              "startTurn": null,
-              "combat": null,
+              seconds: 600,
             },
             flags: {
               ddbimporter: {
@@ -227,20 +222,17 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get formEffects() {
-    const results = [];
+  get formEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
-
-    const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#f3f5e5"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.35"),
-      DDBEnricherData.ChangeHelper.atlChange(
-        "ATL.light.animation",
-        CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        "{\"type\": \"\"starlight\"\", \"speed\": 5,\"intensity\": 5}",
-      ),
+    const lightChanges = [
+      DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
+      DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+      DDBEnricherData.ChangeHelper.overrideChange("#f3f5e5", 20, "ATL.light.color"),
+      DDBEnricherData.ChangeHelper.overrideChange("0.35", 20, "ATL.light.alpha"),
+      DDBEnricherData.ChangeHelper.overrideChange("5", 20, "ATL.light.animation.intensity"),
+      DDBEnricherData.ChangeHelper.overrideChange("starlight", 20, "ATL.light.animation.type"),
+      DDBEnricherData.ChangeHelper.overrideChange("5", 20, "ATL.light.animation.speed"),
     ];
 
     for (const formType of this.starForms) {
@@ -249,7 +241,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        const changes = [];
+        const changes = [...lightChanges];
         if (formType === "Dragon") {
           changes.push(
             DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
@@ -276,7 +268,6 @@ export default class StarryForm extends DDBEnricherData {
           },
           activityMatch: this.formActivityName(formType),
           changes,
-          atlChanges,
           data: {
             _id: utils.namedIDStub(formType, { prefix: "ef", postfix: `${data.min !== null ? data.min : "1"}` }),
             flags: {
@@ -303,7 +294,7 @@ export default class StarryForm extends DDBEnricherData {
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
       ...this.formEffects,
@@ -313,7 +304,7 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Archer Attack", "Chalice Healing", "Dragon Constitution", "Twinkling Constellations (Change Form)"],
     };

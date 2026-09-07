@@ -2,11 +2,11 @@ import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CircleForms extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       targetType: "self",
@@ -27,9 +27,9 @@ export default class CircleForms extends DDBEnricherData {
         },
         profiles: [
           {
-            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -39,9 +39,9 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -51,9 +51,9 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
+            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
             name: "Circle Form",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: [],
@@ -67,7 +67,7 @@ export default class CircleForms extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Circle Form AC",

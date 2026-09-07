@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GiantsMight extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -18,7 +18,7 @@ export default class GiantsMight extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -43,20 +43,20 @@ export default class GiantsMight extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
-        options: {
-          durationSeconds: 60,
-        },
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
           DDBEnricherData.ChangeHelper.atlChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
         ],
+        options: {
+          durationSeconds: 60,
+        },
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
         ],
         midiOptionalChanges: [
           {
@@ -68,6 +68,14 @@ export default class GiantsMight extends DDBEnricherData {
               criticalDamage: "1",
             },
           },
+        ],
+        // this effect is only active while transformed, which gates the AC5e opt-in too
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
         ],
       },
     ];

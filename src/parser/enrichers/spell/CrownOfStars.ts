@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CrownOfStars extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast Spell",
       targetType: "self",
@@ -24,7 +24,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -61,7 +61,7 @@ export default class CrownOfStars extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "A Crown of Stars",
@@ -69,9 +69,11 @@ export default class CrownOfStars extends DDBEnricherData {
         options: {
           description: "Star-like motes of light orbit your head",
         },
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "60"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "30"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange("#d5e2e6", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
         ],
         macroChanges: [
           { macroType: "spell", macroName: "crownOfStars.js" },
@@ -88,7 +90,7 @@ export default class CrownOfStars extends DDBEnricherData {
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "crownOfStars.js",
@@ -96,7 +98,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {
@@ -110,7 +112,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       name: "crownOfStars.js",
       type: "spell",

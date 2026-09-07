@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ShadowArmor extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: `${this.name}:Attack Disadvantage`,
@@ -13,17 +13,17 @@ export default class ShadowArmor extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),
         ],
         midiOnly: true,
-        daeSpecialDurations: ["isAttacked" as const],
+        daeSpecialDurations: ["isAttacked"],
       },
       {
         name: `${this.name}: Radiant Resistance`,
         options: {
-          durationSeconds: 6,
+          // "you have resistance to radiant damage until the start of your next turn"
+          expiry: "sourceStart",
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
-        daeSpecialDurations: ["turnStart" as const],
       },
     ];
   }

@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class NaturesWard extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const multiple: IDDBEffectHint[] = [
       {
         name: "Poison Immunity",
@@ -11,7 +11,7 @@ export default class NaturesWard extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("poisoned"),
         ],
       },
     ];
@@ -41,7 +41,7 @@ export default class NaturesWard extends DDBEnricherData {
   }
 
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

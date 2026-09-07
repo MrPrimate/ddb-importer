@@ -2,12 +2,12 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class GreatWeaponMaster extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     if (this.is2014) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Toggle Effect",
       activationType: "special",
@@ -15,7 +15,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -42,7 +42,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     if (this.is2014) {
       return [
@@ -50,18 +50,12 @@ export default class GreatWeaponMaster extends DDBEnricherData {
           options: {
             transfer: true,
             disabled: true,
+            showIcon: 2,
           },
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 20, "system.bonuses.mwak.attack"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 20, "system.bonuses.mwak.damage"),
           ],
-          data: {
-            flags: {
-              dae: {
-                showIcon: true,
-              },
-            },
-          },
         },
       ];
     } else {
@@ -70,7 +64,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const description = this.is2014
       ? `
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">

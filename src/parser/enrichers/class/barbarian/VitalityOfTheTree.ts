@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VitalityOfTheTree extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Vitality Surge",
       targetType: "self",
@@ -21,7 +21,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -53,6 +53,9 @@ export default class VitalityOfTheTree extends DDBEnricherData {
             customFormula: "(@scale.barbarian.rage-damage)d6",
             type: "temphp",
           }),
+        },
+        overrides: {
+          useActivitySnippet: true,
         },
       },
     ];

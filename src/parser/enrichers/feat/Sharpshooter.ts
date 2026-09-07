@@ -2,31 +2,25 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Sharpshooter extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
-    const damageEffects = this.is2014
+  override get effects(): IDDBEffectHint[] {
+    const damageEffects: IDDBEffectHint[] = this.is2014
       ? [
         {
           name: "Sharpshooter Penalty/Bonus",
           options: {
             transfer: true,
             disabled: true,
+            showIcon: 2,
           },
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 30, "system.bonuses.rwak.attack"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 30, "system.bonuses.rwak.damage"),
           ],
-          data: {
-            flags: {
-              dae: {
-                showIcon: true,
-              },
-            },
-          },
         },
       ]
       : [];
 
-    const versionedChanges = this.is2014
+    const versionedChanges: IActiveEffectChangeData[] = this.is2014
       ? []
       : [
         DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.ignoreNearbyFoes"),
@@ -49,7 +43,7 @@ export default class Sharpshooter extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

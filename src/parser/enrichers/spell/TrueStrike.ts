@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class TrueStrike extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return null;
     } else {
@@ -22,11 +22,14 @@ export default class TrueStrike extends DDBEnricherData {
     }
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [{
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
       }];
     } else {

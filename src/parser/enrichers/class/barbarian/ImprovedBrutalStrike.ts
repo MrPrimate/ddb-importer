@@ -3,11 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ImprovedBrutalStrike extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       name: "Brutal Strike Damage",
@@ -21,7 +21,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -56,23 +56,24 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Staggered: Opportunity Attacks",
         options: {
+          expiry: "sourceStart",
           description: `Can't make opportunity attacks.`,
         },
         activityMatch: "Staggering Blow",
-        daeSpecialDurations: ["turnStartSource"],
       },
       {
         name: "Staggered: Saving Throws",
-        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`)),
+        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value)),
         options: {
+          expiry: "sourceStart",
           description: `Disadvantage on next saving throw.`,
         },
-        daeSpecialDurations: ["turnStartSource", "isSave" as const],
+        daeSpecialDurations: ["isSave"],
         activityMatch: "Staggering Blow",
       },
       {

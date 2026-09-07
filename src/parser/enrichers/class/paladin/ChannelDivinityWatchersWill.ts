@@ -5,7 +5,7 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       name: "Activate Watcher's Will",
@@ -23,16 +23,16 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Watcher's Will",
       options: {
         durationSeconds: 60,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.int.save.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.save.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.cha.save.roll.mode"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("int"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("wis"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("cha"),
       ],
     }];
   }

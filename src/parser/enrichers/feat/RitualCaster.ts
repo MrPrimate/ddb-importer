@@ -4,11 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RitualCaster extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
     if (!this.is2014) {
       return {
         name: "Quick Ritual",
@@ -22,21 +22,22 @@ export default class RitualCaster extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [];
 
     if (this.ddbParser.isMuncher) return results;
 
     const chosenAbilities = DICTIONARY.actor.abilities.map((a) => a.long.toLowerCase());
-    const ability = this.ddbEnricher.ddbParser._chosen.find((c) => chosenAbilities.includes(c.label));
-    const spells = this.ddbEnricher.ddbParser._chosen.filter((c) => !chosenAbilities.includes(c.label.toLowerCase()));
+    const chosen = this.ddbEnricher.ddbParser._chosen ?? [];
+    const ability = chosen.find((c) => chosenAbilities.includes(c.label));
+    const spells = chosen.filter((c) => !chosenAbilities.includes(c.label.toLowerCase()));
 
 
     for (const spell of spells) {
 
       const name = utils.nameString(spell.label);
 
-      const activity = {
+      const activity: IDDBAdditionalActivity = {
         init: {
           name,
           type: DDBEnricherData.ACTIVITY_TYPES.CAST,
@@ -47,12 +48,12 @@ export default class RitualCaster extends DDBEnricherData {
           generateSpell: true,
           generateActivation: true,
           spellOverride: {
-            ability: ability ? ability.value : null,
-            uuid: null,
+            ability: ability ? ability.value : undefined,
+            uuid: undefined,
             properties: [],
             challenge: {
-              attack: null,
-              save: null,
+              attack: undefined,
+              save: undefined,
               override: false,
             },
             spellbook: this.is2024,
@@ -69,7 +70,7 @@ export default class RitualCaster extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData | null {
     return this.is2014
       ? null
       : {

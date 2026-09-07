@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Illumination extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     // The myrmidon sheds bright light in a 20-foot radius and dim light in a 40-foot radius
     // The councilor magically sheds bright light in a 15-foot radius and dim light for an additional 15 feet
@@ -19,10 +19,10 @@ export default class Illumination extends DDBEnricherData {
     // The sphere is bright light, sheds dim light for an additional 30 feet, and moves with the faerie
     // The faerie sheds dim light in a 15-foot radius.
     const basicRegex = /sheds bright light in a (?<bright>\d+)-\s?foot radius and dim light (in a|for an additional) (?<dim>\d+)-?\s?(foot radius|feet)/i;
-    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml);
+    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     const justDimRegex = /sheds dim light in a (?<dim>\d+)-\s?foot radius/i;
-    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml);
+    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     // console.warn("Illumination", {
     //   this: this,
@@ -31,38 +31,43 @@ export default class Illumination extends DDBEnricherData {
     // });
 
     const match = basicMatch ?? justDimMatch;
-    if (match && DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
+    if (match) {
+      const groups = match.groups ?? {};
       const effect = {
+        atlOnly: true,
         options: {
           transfer: true,
         },
         name: `Illumination`,
-        atlOnly: true,
-        atlChanges: [],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+        ],
       };
-      if (match.groups.bright) {
-        effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, match.groups.bright),
+      if (groups.bright) {
+        effect.changes.push(
+          DDBEnricherData.ChangeHelper.upgradeChange(groups.bright, 10, "ATL.light.bright"),
         );
       }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, parseInt(`${dim}`)),
+      if (groups.dim) {
+        const dim = groups.bright ? parseInt(groups.bright) + parseInt(groups.dim) : groups.dim;
+        effect.changes.push(
+          DDBEnricherData.ChangeHelper.upgradeChange(dim, 10, "ATL.light.dim"),
         );
       }
       return [effect];
-    } else if (match) {
-      if (match.groups.bright) {
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.bright = parseInt(match.groups.bright);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.bright", parseInt(match.groups.bright));
-      }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
-      }
     }
+    // else if (match) {
+    //   if (match.groups.bright) {
+    //     this.ddbParser.ddbMonster.npc.prototypeToken.light.bright = parseInt(match.groups.bright);
+    //     // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.bright", parseInt(match.groups.bright));
+    //   }
+    //   if (match.groups.dim) {
+    //     const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
+    //     this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
+    //     // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
+    //   }
+    // }
 
     return [];
   }

@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RaiseDead extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
@@ -16,11 +16,12 @@ export default class RaiseDead extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
+    // dnd5e folds rolls.ability.check into the initiative roll, so a separate
+    // attributes.init.roll.bonus entry would penalise initiative twice.
     const keys = [
       "system.bonuses.abilities.check",
       "system.bonuses.abilities.save",
-      "system.attributes.init.bonus",
       "system.bonuses.mwak.attack",
       "system.bonuses.msak.attack",
       "system.bonuses.rwak.attack",

@@ -2,37 +2,34 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Command extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Command",
         macroChanges: [
           { macroType: "spell", macroName: "command.js" },
         ],
-        data: {
-          duration: {
-            seconds: 12,
-            rounds: 1,
-            turns: 1,
-          },
+        options: {
+          // "follow the command on its next turn" - the effect has to survive THROUGH that
+          // turn, so it lapses at its end, not its start
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnStart" as const],
       },
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "command.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.is2014) return null;
     return {
       name: "command.js",

@@ -1,11 +1,27 @@
+export { default as _SaveAdvantageVsCondition } from "./_SaveAdvantageVsCondition";
 export { default as Absorption } from "./Absorption";
+export { default as BloodFrenzy } from "./BloodFrenzy";
+export { default as Brave } from "./Brave";
+export { default as Camouflage } from "./Camouflage";
+export { default as DarkDevotion } from "./DarkDevotion";
+export { default as DwarvenResilience } from "./DwarvenResilience";
 export { default as Evasion } from "./Evasion";
+export { default as FeyAncestry } from "./FeyAncestry";
+export { default as Grappler } from "./Grappler";
 export { default as Illumination } from "./Illumination";
+export { default as ImprovedCritical } from "./ImprovedCritical";
 export { default as Invisibility } from "./Invisibility";
+export { default as KeenSenses } from "./KeenSenses";
 export { default as LegendaryResistance } from "./LegendaryResistance";
+export { default as MagicResistance } from "./MagicResistance";
 export { default as MaskOfTheWild } from "./MaskOfTheWild";
+export { default as MentalFortitude } from "./MentalFortitude";
 export { default as NamedEffect } from "./NamedEffect";
 export { default as PackTactics } from "./PackTactics";
+export { default as PetrifyingGaze } from "./PetrifyingGaze";
 export { default as ReversalOfFortune } from "./ReversalOfFortune";
 export { default as SuaveDefense } from "./SuaveDefense";
+export { default as SunlightSensitivity } from "./SunlightSensitivity";
+export { default as TwoHeads } from "./TwoHeads";
+export { default as WeakeningBreath } from "./WeakeningBreath";
 

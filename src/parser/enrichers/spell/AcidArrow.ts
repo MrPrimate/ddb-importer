@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AcidArrow extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       data: {
@@ -19,7 +19,7 @@ export default class AcidArrow extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -39,14 +39,13 @@ export default class AcidArrow extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast",
         name: "Covered in Acid",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "targetEnd",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
@@ -55,7 +54,6 @@ export default class AcidArrow extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

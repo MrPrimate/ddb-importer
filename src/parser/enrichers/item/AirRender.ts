@@ -2,33 +2,31 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AirRender extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Attack as Normal Bow",
       noeffect: true,
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
-        system: {
-          magicalBonus: null,
-          "ammunition.type": "",
-        },
+        "system.magicalBonus": null,
+        "system.ammunition.type": "",
       },
     };
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

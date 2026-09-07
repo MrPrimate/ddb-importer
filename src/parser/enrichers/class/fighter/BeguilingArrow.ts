@@ -2,11 +2,11 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class BeguilingArrow extends ArcaneShotOption {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? ArcaneShotOption.ACTIVITY_TYPES.DAMAGE : ArcaneShotOption.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Extra Damage",
       noTemplate: true,
@@ -19,7 +19,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? [
         {
@@ -49,7 +49,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
       : [];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {
@@ -57,18 +57,18 @@ export default class BeguilingArrow extends ArcaneShotOption {
         activityMatch: "Save vs Charmed",
         statuses: ["Charmed"],
         options: {
-          durationSeconds: 12,
+          // "charmed by the chosen ally until the start of your next turn"
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Save vs Charmed"],
     };

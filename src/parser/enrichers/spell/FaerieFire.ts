@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FaerieFire extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       { colour: "Blue", hex: "#5ab9e2" },
       { colour: "Green", hex: "#55d553" },
@@ -13,11 +13,13 @@ export default class FaerieFire extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange(data.hex, 30, "ATL.light.color"),
-          DDBEnricherData.ChangeHelper.overrideChange("0.65", 30, "ATL.light.alpha"),
-          DDBEnricherData.ChangeHelper.overrideChange("10", 30, "ATL.light.dim"),
-          DDBEnricherData.ChangeHelper.overrideChange("{\"type\": \"pulse\",\"speed\": 1,\"intensity\": 3}", 30, "ATL.light.animation"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange(data.hex, 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.65", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.speed"),
         ],
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("glow"),

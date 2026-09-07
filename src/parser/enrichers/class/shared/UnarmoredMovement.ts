@@ -2,13 +2,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UnarmoredMovement extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     const value = this.isClass("Monk")
       ? "@scale.monk.unarmored-movement.value"
       : this.ddbParser.ddbData?.character?.modifiers && this.is2024
         ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
-          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc, mod) => acc + mod.value, 0)
+          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc: number, mod) => acc + Number(mod.value), 0)
         : 10;
 
     return [{
@@ -19,7 +19,7 @@ export default class UnarmoredMovement extends DDBEnricherData {
     }];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",
@@ -13,8 +13,8 @@ export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@ability.wis.mod",
-              types: ["cold", "fire", "lighting", "thunder"],
+              customFormula: "@abilities.wis.mod",
+              types: ["cold", "fire", "lightning", "thunder"],
             }),
           ],
         },
@@ -22,12 +22,13 @@ export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbElementalFuryPotentSpellcasting">
 <p><strong>Implementation Details</strong></p>
-<p>DDB Importer will automatically adjust cantrip damage on spells when importing a character.</p>
+<p>DDB Importer adds the Wisdom bonus to your druid cantrip damage when importing the character. The damage
+activity is a manual claim for spells imported another way; using both double-counts the bonus.</p>
 </section>`,
     };
   }

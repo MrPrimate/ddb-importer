@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class DelayedBlastFireball extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Create Bead",
       addItemConsume: true,
@@ -27,7 +27,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -38,6 +38,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
           generateSave: true,
           generateActivation: true,
           generateDuration: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
@@ -74,6 +75,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
         build: {
           generateDuration: true,
           generateActivation: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
@@ -107,6 +109,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
           generateSave: true,
           generateActivation: true,
           generateDuration: true,
+          noSpellslot: true,
           durationOverride: {
             units: "inst",
             concentration: false,
@@ -134,7 +137,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">

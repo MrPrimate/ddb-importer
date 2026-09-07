@@ -2,17 +2,17 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RayOfEnfeeblement extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -33,7 +33,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {
@@ -61,10 +61,10 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           name: "Briefly Enfeebled",
           activityMatch: "Cast",
           options: {
-            durationSeconds: 6,
+            expiry: "sourceStart",
             description: this.ddbParser?.ddbDefinition?.description ?? "",
           },
-          daeSpecialDurations: ["1Attack" as const],
+          daeSpecialDurations: ["1Attack"],
         },
         {
           name: "Enfeebled",
@@ -93,7 +93,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
   }
 
   // macro needs updating to activities based damaged halfing
-  // get itemMacro() {
+  // get itemMacro(): IDDBItemMacro {
   //   if (this.is2014) {
   //     return {
   //       type: "spell",

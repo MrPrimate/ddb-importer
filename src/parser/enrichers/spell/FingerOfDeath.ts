@@ -2,15 +2,15 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FingerOfDeath extends DDBEnricherData {
 
-  get summonsFunction() {
+  override get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
     return DDBImporter.lib.DDBSummonsInterface.getFingerOfDeath;
   }
 
-  get generateSummons() {
+  override get generateSummons(): boolean {
     return true;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -19,6 +19,7 @@ export default class FingerOfDeath extends DDBEnricherData {
         },
         build: {
           generateSummon: true,
+          noSpellslot: true,
         },
         overrides: {
           noTemplate: true,
@@ -48,7 +49,7 @@ export default class FingerOfDeath extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

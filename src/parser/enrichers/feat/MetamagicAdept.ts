@@ -2,8 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MetamagicAdept extends DDBEnricherData {
 
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       uses: this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })
@@ -21,7 +24,7 @@ export default class MetamagicAdept extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Metamagic Adept",

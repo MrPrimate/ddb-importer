@@ -2,18 +2,18 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HolyStarOfMystra extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast Spell",
       targetType: "self",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -56,7 +56,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results: IDDBEffectHint[] = [
       { type: "Acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "Cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
@@ -67,7 +67,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
       return {
         name: `Elemental Immunity: ${element.type}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.type.toLowerCase(), 1, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange(element.type, 1),
         ],
         img: element.img,
         activityMatch: "Cast Spell",
@@ -81,9 +81,9 @@ export default class HolyStarOfMystra extends DDBEnricherData {
       {
         name: "Mote of Light",
         activityMatch: "Cast Spell",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "5"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.dim"),
         ],
         statuses: ["coverHalf"],
       },

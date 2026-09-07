@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DreadAmbusher extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Ambusher's Leap",
       targetType: "self",
@@ -15,7 +15,7 @@ export default class DreadAmbusher extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? [
         {
@@ -53,7 +53,7 @@ export default class DreadAmbusher extends DDBEnricherData {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Ambusher's Leap",
@@ -62,9 +62,9 @@ export default class DreadAmbusher extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.addChange("10", 10, "system.attributes.movement.walk"),
         ],
         options: {
-          durationSeconds: 6,
+          // "your Speed increases by 10 feet until the end of that turn" - a self buff
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

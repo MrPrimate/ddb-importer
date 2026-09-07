@@ -2,21 +2,24 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CelestialRevelation extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Unleash Celestial Energy",
       addItemConsume: true,
       activationType: "bonus",
       targetType: "self",
       noeffect: true,
+      data: {
+        midiProperties: { chooseEffects: true },
+      },
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -61,6 +64,25 @@ export default class CelestialRevelation extends DDBEnricherData {
               types: ["radiant", "necrotic"],
             }),
           ],
+          data: {
+            range: {
+              value: 10,
+              units: "ft",
+            },
+            target: {
+              affects: {
+                count: "1",
+                type: "creature",
+              },
+              template: {
+                contiguous: false,
+                type: "radius",
+                size: "10",
+                units: "ft",
+              },
+              prompt: false,
+            },
+          },
         },
       },
       {
@@ -84,29 +106,53 @@ export default class CelestialRevelation extends DDBEnricherData {
                 formula: "",
               },
             },
+            target: {
+              affects: {
+                count: "1",
+                type: "enemy",
+              },
+              template: {
+                contiguous: false,
+                type: "radius",
+                size: "10",
+                units: "ft",
+              },
+              prompt: false,
+            },
           },
         },
       },
     ];
   }
 
-  // get activity(): IDDBActivityData {
-  //   return {
-  //     noTemplate: true,
-  //     data: {
-  //       damage: {
-  //         parts: [
-  //           DDBEnricherData.basicDamagePart({ customFormula: "@prof", types: ["radiant", "necrotic"] }),
-  //         ],
-  //       },
-  //     },
-  //   };
-  // }
-
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
+        name: "Celestial Revelation: Tracker",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+      },
+      {
+        name: "Inner Radiance Light",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("12", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.speed"),
+        ],
+      },
+      {
         name: "Heavenly Wings",
+        activityMatch: "Unleash Celestial Energy",
         options: {
           durationSeconds: 60,
         },
@@ -116,27 +162,13 @@ export default class CelestialRevelation extends DDBEnricherData {
       },
       {
         name: "Necrotic Shroud: Frightened",
+        activityMatch: "Necrotic Shroud Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
-  }
-
-  get override(): IDDBOverrideData {
-    return {
-      ddbMacroDescription: true,
-    };
-  }
-
-  get ddbMacroDescriptionData() {
-    return {
-      name: "innerRadiance",
-      label: "Toggle Inner Radiance Light", // optional
-      type: "feat",
-    };
   }
 
 }

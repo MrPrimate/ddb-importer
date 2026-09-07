@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BeguilingMagic extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Save",
       addItemConsume: true,
@@ -10,7 +10,7 @@ export default class BeguilingMagic extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -35,7 +35,7 @@ export default class BeguilingMagic extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",
@@ -48,19 +48,33 @@ export default class BeguilingMagic extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Frightened",
         options: {
         },
         statuses: ["Frightened"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Beguiling Magic (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Charmed",
         options: {
         },
         statuses: ["Charmed"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Beguiling Magic (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
     ];
   }

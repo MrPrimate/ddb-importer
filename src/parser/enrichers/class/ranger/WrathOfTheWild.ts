@@ -2,13 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WrathOfTheWild extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return  {
       name: "Take Ghastly Form",
+      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "bonus",
@@ -22,7 +23,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -46,6 +47,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
         },
         overrides: {
           id: "ddbUnnervingAura",
+          useActivitySnippet: true,
           data: {
             save: {
               ability: ["wis"],
@@ -78,7 +80,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Ancient Armor",
@@ -94,10 +96,13 @@ export default class WrathOfTheWild extends DDBEnricherData {
         name: "Ghastly Form",
         activityMatch: "Take Ghastly Form",
         options: {
+          // the transformation runs "for 1 minute or until you have the Incapacitated
+          // condition, die, or end it" - a counted duration, NOT a turn anchor. The feature's
+          // only "next turn" clause belongs to the Unnerving Aura frightened rider, and a
+          // pseudo expiry here would null durationSeconds and drop the form after one turn.
+          expiry: "turnStart",
           durationSeconds: 60,
-          expiryType: "turnStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         data: {
           flags: {
             ddbimporter: {
@@ -107,18 +112,18 @@ export default class WrathOfTheWild extends DDBEnricherData {
           },
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", true, "name"),
-          DDBEnricherData.ChangeHelper.overrideChange("spec", true, "activities[enchant].activation.type"),
-          DDBEnricherData.ChangeHelper.overrideChange("end of duration", true, "activities[enchant].activation.condition"),
-          DDBEnricherData.ChangeHelper.overrideChange("End Ghastly Form", true, "activities[enchant].name"),
-          DDBEnricherData.ChangeHelper.overrideChange("[]", true, "activities[enchant].consumption.targets"),
+          DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", 10, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("spec", 10, "activities[enchant].activation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("end of duration", 10, "activities[enchant].activation.condition"),
+          DDBEnricherData.ChangeHelper.overrideChange("End Ghastly Form", 10, "activities[enchant].name"),
+          DDBEnricherData.ChangeHelper.overrideChange("[]", 10, "activities[enchant].consumption.targets"),
         ],
         type: "enchant",
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Unnerving Aura"],
     };

@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverBaitAndSwitch extends Maneuver {
 
-  get type() {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "creature",
@@ -20,14 +20,14 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Maneuver: Bait and Switch",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.attributes.ac.bonus"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        options: { expiry: "sourceStart" },
       },
     ];
   }

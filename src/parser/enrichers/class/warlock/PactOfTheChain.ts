@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PactOfTheChain extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Summon",
       data: this.is2014
@@ -21,7 +21,7 @@ export default class PactOfTheChain extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -39,7 +39,7 @@ export default class PactOfTheChain extends DDBEnricherData {
         overrides: {
           noTemplate: true,
           func: async ({ activity }) => {
-            await this.ddbParser.ddbCompanionFactory.addCRSummoning(activity);
+            await this.ddbParser.ddbCompanionFactory?.addCRSummoning(activity);
           },
         },
       },

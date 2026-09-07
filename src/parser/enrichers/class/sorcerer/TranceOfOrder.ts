@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TranceOfOrder extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Enter Trance",
       activationType: "bonus",
@@ -22,7 +22,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -50,7 +50,7 @@ export default class TranceOfOrder extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "5",
-                target: "Sorcery Points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],
@@ -60,10 +60,11 @@ export default class TranceOfOrder extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
       retainOriginalConsumption: true,
+      retainUseSpent: true,
       uses: {
         spent: null,
         max: "1",
@@ -78,7 +79,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Trance of Order",
       options: {

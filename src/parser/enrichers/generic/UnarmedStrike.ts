@@ -2,11 +2,19 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class UnarmedStrike extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get activity(): IDDBActivityData {
+    return {
+      useActivitySnippet: {
+        section: "Damage",
+      },
+    };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const martialArtist = this.hasClassFeature({ featureName: "Martial Arts", className: "Monk" });
 
     const results: IDDBAdditionalActivity[] = martialArtist
@@ -65,11 +73,11 @@ export default class UnarmedStrike extends DDBEnricherData {
     return results;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grappled",
@@ -84,8 +92,22 @@ export default class UnarmedStrike extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
-    if (this.ddbParser.isMartialArtist()) return null;
+  override get override(): IDDBOverrideData {
+    const damageTypes = ["bludgeoning"];
+    if (this.hasSpeciesTrait({ traitName: "Feral Pounce" })) {
+      damageTypes.push("slashing");
+    }
+    const baseData: Record<string, any> = {
+      system: {
+        type: {
+          value: "natural",
+        },
+      },
+    };
+    const base: IDDBOverrideData = {
+      data: baseData,
+    };
+    if (this.ddbParser.isMartialArtist?.()) return base;
 
     const dazzlingFootwork = this.hasClassFeature({ featureName: "Dazzling Footwork", className: "Bard" });
 
@@ -93,18 +115,14 @@ export default class UnarmedStrike extends DDBEnricherData {
       ? "@scale.dance.dazzling-footwork + @abilities.dex.mod"
       : "1 + @abilities.str.mod";
 
-    return {
-      data: {
-        system: {
-          damage: {
-            base: DDBEnricherData.basicDamagePart({
-              customFormula: formula,
-              type: "bludgeoning",
-            }),
-          },
-        },
-      },
+    baseData.system.damage = {
+      base: DDBEnricherData.basicDamagePart({
+        customFormula: formula,
+        types: damageTypes,
+      }),
     };
+
+    return base;
   }
 
 }

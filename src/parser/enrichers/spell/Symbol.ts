@@ -1,8 +1,15 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+interface ISymbolGlyph {
+  name: string;
+  save: string;
+  data?: Record<string, any>;
+  effect?: IDDBEffectHint;
+}
+
 export default class Symbol extends DDBEnricherData {
 
-  get data2014() {
+  get data2014(): ISymbolGlyph[] {
     return [
       {
         name: "Death",
@@ -20,7 +27,7 @@ export default class Symbol extends DDBEnricherData {
         save: "con",
         effect: {
           changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
-            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability}.check.roll.mode`),
+            DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
           ),
           midiChanges: [
             DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
@@ -69,7 +76,7 @@ export default class Symbol extends DDBEnricherData {
     ];
   }
 
-  get data2024() {
+  get data2024(): ISymbolGlyph[] {
     return [
       {
         name: "Death",
@@ -87,7 +94,7 @@ export default class Symbol extends DDBEnricherData {
         save: "wis",
         effect: {
           changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
-            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability}.check.roll.mode`),
+            DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
           ),
           midiChanges: [
             DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
@@ -125,11 +132,11 @@ export default class Symbol extends DDBEnricherData {
     ];
   }
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return {
         init: {
@@ -157,7 +164,7 @@ export default class Symbol extends DDBEnricherData {
     });
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return foundry.utils.mergeObject({
         name: symbol.name,

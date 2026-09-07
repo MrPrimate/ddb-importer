@@ -1,3 +1,4 @@
+export { default as FadeAway } from "./FadeAway";
 export { default as Generic } from "./Generic";
 export { default as HoldBreath } from "./HoldBreath";
 export { default as Lineage } from "./Lineage";

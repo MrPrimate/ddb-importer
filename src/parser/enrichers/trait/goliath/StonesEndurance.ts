@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StonesEndurance extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       midiDamageReaction: true,
@@ -22,14 +22,14 @@ export default class StonesEndurance extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("[[1d12 + @abilities.con.mod]]", 30, "system.traits.dm.midi.all"),
         ],
-        daeSpecialDurations: ["1Reaction" as const],
+        daeSpecialDurations: ["1Reaction"],
         data: {
           flags: {
             dae: {
@@ -42,7 +42,7 @@ export default class StonesEndurance extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "race",

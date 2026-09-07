@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class IntimidatingPresence extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       // type: "save",
       name: "Save",
@@ -34,7 +34,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -69,7 +69,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Save"],
       retainOriginalConsumption: true,
@@ -85,20 +85,19 @@ export default class IntimidatingPresence extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Save",
         noCreate: true,
         midiOnly: true,
         name: "Intimidating Presence: Frightened",
-        data: {
-          duration: {
-            seconds: 12,
-            turns: 2,
-          },
-        },
-        daeSpecialDurations: ["turnEndSource" as const],
+        // 2014: "frightened of you until the end of your next turn"; 2024: "the Frightened
+        // condition for 1 minute" with repeat saves, so the counted minute must not be cut by
+        // a pseudo expiry
+        options: this.is2014
+          ? { expiry: "sourceEnd" }
+          : { expiry: "turnStart", durationSeconds: 60 },
       },
     ];
   }

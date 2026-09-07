@@ -2,51 +2,32 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CoronaOfLight extends DDBEnricherData {
 
-  get type() {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled
-      ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
-      : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return {
-        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-        data: {
-          name: "Use/Apply Light",
-        },
-      };
-    } else {
-      return {
-        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
-        data: {
-          name: "Use/Apply Light",
-          macro: {
-            name: "Apply Light",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: `{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":60,"bright":30},"flag":"light"}`,
-          },
-        },
-      };
-    }
+  override get activity(): IDDBActivityData {
+    return {
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+      data: {
+        name: "Use/Apply Light",
+      },
+    };
   }
 
 
-  get effects(): IDDBEffectHint[] {
-    if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [];
+  override get effects(): IDDBEffectHint[] {
     return [{
       options: {
       },
       activityMatch: "Use/Apply Light",
-      atlChanges: [
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "30"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "60"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+      changes: [
+        DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "ATL.light.bright"),
+        DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.light.dim"),
+        DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+        DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
       ],
     }];
-
   }
 
 

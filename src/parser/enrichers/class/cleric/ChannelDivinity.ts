@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinity extends DDBEnricherData {
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return null;
     } else if (this.is2024) {
@@ -123,7 +123,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) {
       return this._additionalActivitiesCleric2014;
     } else if (this.is2024) {
@@ -133,7 +133,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     return [];
   }
 
-  get _effectCleric2024() {
+  get _effectCleric2024(): IDDBEffectHint {
     return {
       name: "Turned",
       options: {
@@ -145,7 +145,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [];
     } else if (this.is2024) {
@@ -153,10 +153,11 @@ export default class ChannelDivinity extends DDBEnricherData {
 
     }
 
-    return null;
+    // unreachable: a feature is always 2014 or 2024; the consumer treats null and [] identically
+    return [];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
 
     const uses = this._getUsesWithSpent({

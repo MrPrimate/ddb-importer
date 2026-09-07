@@ -2,12 +2,12 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Aid extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     if (this.useMidiAutomations) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       stopHealSpellActivity: !this.useMidiAutomations,
@@ -22,8 +22,8 @@ export default class Aid extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
-    const noMidiEffects = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
+  override get effects(): IDDBEffectHint[] {
+    const noMidiEffects: IDDBEffectHint[] = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
       return {
         name: `Aid: Level ${level} Max HP Bonus`,
         midiNever: true,
@@ -33,7 +33,7 @@ export default class Aid extends DDBEnricherData {
       };
     });
 
-    const midiEffects = [
+    const midiEffects: IDDBEffectHint[] = [
       {
         name: "Aid: Max HP Bonus",
         midiOnly: true,
@@ -49,7 +49,7 @@ export default class Aid extends DDBEnricherData {
     return [...noMidiEffects, ...midiEffects];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "aid.js",

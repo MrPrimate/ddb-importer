@@ -2,31 +2,17 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FountOfMoonlight extends DDBEnricherData {
 
-  get type() {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return {
-        name: "Cast Spell",
-      };
-    } else {
-      return {
-        name: "Cast Spell",
-        data: {
-          macro: {
-            name: "Place Light on Token",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: `{"distance":20,"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}`,
-          },
-        },
-      };
-    }
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Cast Spell",
+    };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -67,11 +53,11 @@ export default class FountOfMoonlight extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Wreathed in Moonlight",
@@ -84,12 +70,10 @@ export default class FountOfMoonlight extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
-        ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "40"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "20"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+          DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
         ],
       },
       {

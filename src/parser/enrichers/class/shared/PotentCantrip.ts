@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PotentCantrip extends DDBEnricherData {
-  get effect() {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Potent Cantrip (Automation)",

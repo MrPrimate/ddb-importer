@@ -2,24 +2,25 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsionicPower extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
-    const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass)}.energy-die.die`;
+  override get activity(): IDDBActivityData {
+    const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
+    const activityData: Partial<I5eActivity> = {
+      roll: {
+        prompt: false,
+        visible: false,
+        formula,
+        name: "Roll Bonus",
+      },
+    };
     const result: IDDBActivityData = {
       name: "",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
-      data: {
-        roll: {
-          prompt: false,
-          visible: false,
-          formula,
-          name: "Roll Bonus",
-        },
-      },
+      data: activityData,
     };
 
     if (this.isSubclass("Soulknife")) {
@@ -28,7 +29,7 @@ export default class PsionicPower extends DDBEnricherData {
       result.name = "Protective Field";
       result.activationType = "reaction";
       result.targetType = "creature";
-      result.data.range = {
+      activityData.range = {
         units: "ft",
         value: "30",
       };
@@ -36,8 +37,8 @@ export default class PsionicPower extends DDBEnricherData {
     return result;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    const results = [];
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [];
     if (this.isSubclass("Soulknife")) {
       results.push(
         { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },
@@ -57,7 +58,7 @@ export default class PsionicPower extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const spent = this.isSubclass("Soulknife")
       ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
       : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");

@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HuntersMark extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         name: "Cast",
@@ -14,7 +14,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const damageTypes = this.is2014
       ? DDBEnricherData.allDamageTypes()
       : ["force"];
@@ -56,7 +56,11 @@ export default class HuntersMark extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
+    const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
+    const markBonus = this.is2014
+      ? `bonus=1d6; effectOriginTokenId === tokenId && hasAttack;`
+      : `bonus=1d${hasFoeSlayer ? 10 : 6}[force]; effectOriginTokenId === tokenId && hasAttack;`;
     return [
       {
         name: "Hunter's Mark: Marked",
@@ -68,6 +72,10 @@ export default class HuntersMark extends DDBEnricherData {
           // }),
           DDBEnricherData.ChangeHelper.customChange("Hunter's Mark", 20, "flags.dae.onUpdateSource"),
         ],
+        ac5eChanges: [
+          // the marked target grants the caster bonus damage on attacks
+          DDBEnricherData.ChangeHelper.ac5eChange(markBonus, 20, "flags.automated-conditions-5e.grants.damage.bonus"),
+        ],
         options: {
           durationSeconds: 3600,
         },
@@ -77,7 +85,7 @@ export default class HuntersMark extends DDBEnricherData {
         midiOnly: true,
         name: "Hunter's Mark (Automation)",
         damageBonusMacroChanges: [
-          { macroType: "spell", macroName: "huntersMark.js", document },
+          { macroType: "spell", macroName: "huntersMark.js", document: this.data },
         ],
         daeChanges: this.is2014
           ? []
@@ -86,25 +94,20 @@ export default class HuntersMark extends DDBEnricherData {
           ],
         options: {
           transfer: true,
-          // durationSeconds: null,
+          // the midi automation effect runs until the macro clears it
+          expiry: null,
         },
-        // force non expiry for midi automation effect
         data: {
           duration: {
-            "seconds": null,
-            "startTime": null,
-            "rounds": null,
-            "turns": null,
-            "startRound": null,
-            "startTurn": null,
+            seconds: null,
+            rounds: null,
           },
         },
-        daeSpecialDurations: [],
       },
     ];
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "huntersMark.js",
@@ -112,7 +115,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "huntersMark.js",

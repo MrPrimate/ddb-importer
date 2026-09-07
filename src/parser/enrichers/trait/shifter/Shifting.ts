@@ -3,19 +3,19 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Shifting extends DDBEnricherData {
 
-  get shifterType() {
+  get shifterType(): string {
     if (!this.ddbParser._chosen || this.ddbParser._chosen.length === 0) {
-      return this.ddbParser.ddbCharacter._ddbRace.fullName;
+      return this.ddbParser.ddbCharacter?._ddbRace.fullName ?? "";
     }
 
     return this.ddbParser._chosen[0].label;
   }
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Shifter Choice",
       targetType: "self",
@@ -31,8 +31,8 @@ export default class Shifting extends DDBEnricherData {
     };
   }
 
-  get shiftActivities() {
-    const results = [];
+  get shiftActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [];
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
       results.push({
         init: {
@@ -40,7 +40,8 @@ export default class Shifting extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
-          generateHeal: true,
+          // was generateHeal, which nothing reads
+          generateHealing: true,
           generateConsumption: false,
           generateTarget: true,
         },
@@ -50,7 +51,7 @@ export default class Shifting extends DDBEnricherData {
           activationType: "bonus",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: this.ddbParser.ddbCharacter._ddbRace.isLegacy
+              customFormula: this.ddbParser.ddbCharacter?._ddbRace.isLegacy
                 ? "max(1, @abilities.con.mod) + @detail.level"
                 : shifterType === "Beasthide"
                   ? "(2 * @prof) + 1d6"
@@ -64,7 +65,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivitiesLongtooth() {
+  get additionalActivitiesLongtooth(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -102,7 +103,7 @@ export default class Shifting extends DDBEnricherData {
     ];
   }
 
-  get additionalActivitiesSwiftstride() {
+  get additionalActivitiesSwiftstride(): IDDBAdditionalActivity[] {
     return [
       {
         action: {
@@ -118,7 +119,7 @@ export default class Shifting extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [
       ...this.shiftActivities,
       ...this.additionalActivitiesLongtooth,
@@ -130,50 +131,46 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get enchantEffects() {
-    const results = [];
+  get enchantEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
-      const effect = {
+      const activityRiders = [utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" })];
+      const effect: IDDBEffectHint = {
         name: `Type: ${shifterType}`,
         type: "enchant",
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`Chosen: ${shifterType}`, 20, "activities[enchant].name"),
-          DDBEnricherData.ChangeHelper.overrideChange("spec", true, "activities[enchant].activation.type"),
-          DDBEnricherData.ChangeHelper.overrideChange("End", true, "activities[enchant].activation.condition"),
-          DDBEnricherData.ChangeHelper.overrideChange("[]", true, "activities[enchant].consumption.targets"),
+          DDBEnricherData.ChangeHelper.overrideChange("spec", 1, "activities[enchant].activation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("End", 1, "activities[enchant].activation.condition"),
+          DDBEnricherData.ChangeHelper.overrideChange("[]", 1, "activities[enchant].consumption.targets"),
         ],
         activityMatch: "Shifter Choice",
         data: {
           _id: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
           duration: {
-            "seconds": null,
-            "startTime": null,
-            "rounds": null,
-            "turns": null,
-            "startRound": null,
-            "startTurn": null,
-            "combat": null,
+            seconds: null,
+            rounds: null,
           },
           flags: {
             ddbimporter: {
-              activityRiders: [utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" })],
+              activityRiders,
               effectRiders: [utils.namedIDStub(shifterType, { postfix: "ef" })],
             },
           },
         },
       };
       if (shifterType === "Longtooth") {
-        effect.data.flags.ddbimporter.activityRiders.push("ddblongtoothatta");
+        activityRiders.push("ddblongtoothatta");
       } else if (shifterType === "Swiftstride") {
-        effect.data.flags.ddbimporter.activityRiders.push("ddbswiftstridemo");
+        activityRiders.push("ddbswiftstridemo");
       }
       results.push(effect);
     }
     return results;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
     ];
@@ -190,7 +187,7 @@ export default class Shifting extends DDBEnricherData {
         );
       } else if (shifterType === "Wildhunt") {
         changes.push(
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.wis.check.roll.mode`),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("wis"),
         );
       }
       results.push(
@@ -217,8 +214,8 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
-    const uses = this.ddbParser.ddbCharacter._ddbRace.isLegacy
+  override get override(): IDDBOverrideData {
+    const uses = this.ddbParser.ddbCharacter?._ddbRace.isLegacy
       ? {}
       : this._getUsesWithSpent({
         type: "race",

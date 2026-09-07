@@ -2,24 +2,29 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlameBlade extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Summon Blade",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Flame Blade",
         activityMatch: "Summon Blade",
-        atlChanges: [
+        changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
           DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#a78942", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("4", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("torch", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "ATL.light.animation.speed"),
         ],
         data: {
           flags: {
@@ -33,7 +38,7 @@ export default class FlameBlade extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

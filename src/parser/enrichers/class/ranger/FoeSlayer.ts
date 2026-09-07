@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FoeSlayer extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.is2014
       ? {}
       : {
@@ -20,12 +20,12 @@ export default class FoeSlayer extends DDBEnricherData {
       };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014
       ? [{
         name: "Foe Slayer (Automation)",
         options: {
-          transer: true,
+          transfer: true,
         },
         midiOptionalChanges: [
           {

@@ -6,7 +6,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   // }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -16,7 +16,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("@system.attributes.prof", 20, "system.attributes.ac.bonus"),
         ],
-        daeSpecialDurations: this.is2014 ? ["isAttacked" as const] : [],
+        daeSpecialDurations: this.is2014 ? ["isAttacked"] : [],
         data: {
           flags: {
             dae: {
@@ -30,7 +30,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   }
 
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
