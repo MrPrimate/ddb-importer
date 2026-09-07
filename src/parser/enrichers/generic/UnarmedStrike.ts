@@ -8,9 +8,6 @@ export default class UnarmedStrike extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      useActivitySnippet: {
-        section: "Damage",
-      },
     };
   }
 

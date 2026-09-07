@@ -70,9 +70,18 @@ function addSpellLists() {
   spellListFactory.registerSpellLists();
 }
 
+const FEAT_TYPES = {
+  dragonmark: "Dragonmark Feat",
+  darkGift: "Dark Gift",
+  kindred: "Kindred",
+};
+
 function addFeatTypes() {
-  if (foundry.utils.getProperty(CONFIG.DND5E, "featureTypes.feat.subtypes.dragonmark")) return;
-  CONFIG.DND5E.featureTypes.feat.subtypes.dragonmark = "Dragonmark Feat";
+  for (const [key, value] of Object.entries(FEAT_TYPES)) {
+    if (!foundry.utils.getProperty(CONFIG.DND5E, `featureTypes.feat.subtypes.${key}`)) {
+      foundry.utils.setProperty(CONFIG.DND5E, `featureTypes.feat.subtypes.${key}`, value);
+    }
+  }
 }
 
 export default async function addDDBConfig() {

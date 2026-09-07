@@ -39,8 +39,8 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
       if (monsterSkill) {
         this.npc.system.skills[key].value = 1;
         if (additionalBonus > 0) {
+          // Check bonuses already contribute to passive scores.
           this.npc.system.skills[key].bonuses.check = `${additionalBonus}`;
-          this.npc.system.skills[key].bonuses.passive = `${additionalBonus}`;
         }
       }
 
@@ -73,7 +73,8 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(",");
   const skillsMaps: { name: string; value: string }[] = skillsHTML.filter((str) => str != "").map((str) => {
-    const skillMatch = str.match(/(\w+\s*\w*\s*\w*)(?:\s*)([+-])(?:\s*)(\d+)/);
+    // negative modifiers are written as "+-", e.g. "Athletics +-8"
+    const skillMatch = str.match(/(\w+\s*\w*\s*\w*)(?:\s*)\+?(?:\s*)([+-])(?:\s*)(\d+)/);
     let result = {};
     if (skillMatch) {
       result = {
@@ -106,8 +107,8 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
       if (monsterSkill) {
         this.npc.system.skills[key].value = 1;
         if (additionalBonus > 0) {
+          // Check bonuses already contribute to passive scores.
           this.npc.system.skills[key].bonuses.check = `${additionalBonus}`;
-          this.npc.system.skills[key].bonuses.passive = `${additionalBonus}`;
         }
       }
 
@@ -115,8 +116,19 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
 
       const htmlSkill = skillsMaps.find((skl) => skl.name == lookupSkill.label);
 
-      if (htmlSkill && parseInt(htmlSkill.value) > calculatedScore) {
-        this.npc.system.skills[key].value = 2;
+      if (htmlSkill) {
+        const htmlValue = parseInt(htmlSkill.value);
+        if (htmlValue === calculatedScore + proficiencyBonus) {
+          skill.value = 2;
+        } else if (htmlValue !== calculatedScore) {
+          // the html total matches neither proficiency nor expertise (e.g.
+          // Zuul's "Athletics +-8"); apply the remainder as a flat check bonus
+          // so the sheet total matches the source stat block. check bonuses
+          // already flow into the passive score, so no passive bonus needed
+          const bonus = htmlValue - mod - (proficiencyBonus * (skill.value ?? 1));
+          skill.bonuses ??= {};
+          skill.bonuses.check = `${bonus}`;
+        }
       }
 
     });

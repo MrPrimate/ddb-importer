@@ -30,7 +30,8 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
         conditionState.id === condition.ddbId
         && conditionState.level === condition.levelId,
       );
-      const conditionState: DDBConditionState = foundry.utils.mergeObject(condition,
+      // a fresh object per call: mergeObject is in place and the dictionary entry is shared
+      const conditionState: DDBConditionState = foundry.utils.mergeObject(foundry.utils.deepClone(condition),
         {
           ddbCondition: ddbCondition,
           applied: conditionApplied !== undefined,

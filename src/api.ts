@@ -7,7 +7,7 @@ import DDBItemsImporter from "./muncher/DDBItemsImporter";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters, parseTransports } from "./muncher/tools";
 import DDBEncounterFactory from "./parser/DDBEncounterFactory";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure";
-import { updateDDBCharacter } from "./updater/character";
+import { updateDDBCharacter, activeUpdate } from "./updater/character";
 import DDBCharacterManager from "./apps/DDBCharacterManager";
 import { External, DDBEffectHelper, AuraAutomations } from "./effects/_module";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014";
@@ -262,7 +262,9 @@ export function registerApi() {
       },
     },
     DICTIONARY: config.DICTIONARY,
-    SETTINGS: config.SETTINGS,
+    // STATUS lived on SETTINGS until activeUpdate moved to the updater; kept here
+    // so external macros calling DDBImporter.SETTINGS.STATUS.activeUpdate() still work.
+    SETTINGS: { ...config.SETTINGS, STATUS: { activeUpdate } },
   };
 
   globalThis["DDBImporter"] = API;

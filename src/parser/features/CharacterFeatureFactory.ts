@@ -118,15 +118,34 @@ export default class CharacterFeatureFactory {
     };
   }
 
+  // DDB names the leveled repeats of a feature with a level prefix ("9: Critical Shot").
+  // DDBFeatureMixin strips that prefix from the document name but leaves originalName
+  // intact, so a FORCE_DUPLICATE_* entry keyed on the feature's real name never matches
+  // the repeats it exists to suppress.
+  static LEVEL_PREFIX_MATCH = /^\d+: (.*)$/;
+
+  /** the name to test against the FORCE_DUPLICATE_* lists, level prefix removed */
+  static duplicateCheckName(doc): string {
+    const name = doc.flags?.ddbimporter?.originalName ?? doc.name;
+    return CharacterFeatureFactory.LEVEL_PREFIX_MATCH.exec(name)?.[1].trim() ?? name;
+  }
+
+  // DDB ships some features twice, once for the builder and once for the sheet, and the sheet
+  // copy carries crud the builder copy does not (a stripped note's leftover <hr>, &nbsp;,
+  // different wrapping). Comparing rendered text rather than markup keeps those pairs matched,
+  // otherwise the caller treats the second copy as a new level's text and appends it whole.
   static isDuplicateFeature(items, item, { matchClass = false } = {}) {
     const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
+    const itemDescription = utils.renderLesserString(item.system.description?.value ?? "");
     return items.some((dup) => {
       const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
         && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
         && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
         && dup.flags.ddbimporter.class === item.flags.ddbimporter.class);
 
-      return dup.name === item.name && dup.system.description.value === item.system.description.value && classMatched;
+      return dup.name === item.name
+        && utils.renderLesserString(dup.system.description?.value ?? "") === itemDescription
+        && classMatched;
     });
   }
 
@@ -153,7 +172,7 @@ export default class CharacterFeatureFactory {
       && !CharacterFeatureFactory.SKIPPED_FEATURES_STARTS_WITH.some((text) => featName.startsWith(text))
       && !CharacterFeatureFactory.SKIPPED_FEATURES_ENDS_WITH.some((text) => featName.endsWith(text))
       && !CharacterFeatureFactory.SKIPPED_FEATURES_INCLUDES.some((text) => featName.includes(text))
-      && !featName.match(/(?:\w+) Weapon Masteries(?:y|ies)(?:$|:)/igm)
+      && !featName.match(/(?:\w+) Weapon Master(?:y|ies)(?:$|:)/igm)
       && !featName.match(/(?:\d+:) Weapon Master(?:y|ies)(?:$|:)/igm)
       && (includeTashaVersatile || (!includeTashaVersatile && !CharacterFeatureFactory.TASHA_VERSATILE.includes(featName)));
 
@@ -305,6 +324,7 @@ export default class CharacterFeatureFactory {
       .filter((a) => a.name === action.name)
       .reduce((prev, cur) => {
         const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, cur.componentId);
+        if (!klass) return prev;
         const feature = klass.classFeatures.find((f) => f.definition.id === cur.componentId);
         if (!feature) return prev;
         if (feature.definition.requiredLevel > klass.level) return prev;
@@ -630,7 +650,7 @@ export default class CharacterFeatureFactory {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
           // ||
-          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
+          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(CharacterFeatureFactory.duplicateCheckName(item));
         logger.debug(`Processing racial trait ${item.name}`, {
           trait,
           existingFeature,
@@ -794,21 +814,46 @@ export default class CharacterFeatureFactory {
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     this._ddbClassFeatures.data.forEach((doc) => {
-      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter.originalName ?? doc.name);
-      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
-      const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
-        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter.originalName ?? doc.name);
-      if (existingFeature && !duplicateFeature) {
-        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(doc.flags.ddbimporter.originalName ?? doc.name)) {
-          existingFeature.system.description.value = `${doc.system.description.value}`;
-        } else {
-          const klassAdjustment = `<h3>${doc.flags.ddbimporter.dndbeyond.class}</h3>${doc.system.description.value}`;
-          existingFeature.system.description.value += klassAdjustment;
-        }
-      } else if (!existingFeature) {
-        this.parsed.features.push(doc);
-      }
+      CharacterFeatureFactory.mergeClassFeature(this.parsed.features, doc);
     });
+  }
+
+  /**
+   * A FORCE_DUPLICATE_OVERWRITE copy replaces the surviving feature's text and hands over its
+   * summon link: DDB's sheet-hidden Vestige Companion copy is the one carrying the stat block, so
+   * the actors it parsed would otherwise be dropped with it. Shared by every duplicate pass
+   * (DDBClassFeatures' class and subclass passes run before the factory's).
+   */
+  static overwriteDuplicateFeature(existingFeature: T5eFeatureMixinDataTypes, doc: T5eFeatureMixinDataTypes): void {
+    if (existingFeature.system.description) {
+      existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
+    }
+    if ("activities" in existingFeature.system && "activities" in doc.system) {
+      DDBChoiceFeature.foldChoiceSummons(existingFeature.system.activities, doc.system.activities);
+    }
+  }
+
+  /**
+   * Adds a built class feature to the list, or folds it into a same-named feature already there:
+   * a second class contributing the feature appends its text under a class heading, a
+   * FORCE_DUPLICATE_OVERWRITE name replaces the text outright, and an exact duplicate is dropped.
+   */
+  static mergeClassFeature(features: T5eFeatureMixinDataTypes[], doc: T5eFeatureMixinDataTypes): void {
+    const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
+    const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(features, doc, { matchClass: forceFeatureClassMatch });
+    const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
+    const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(features, doc)
+      || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
+    if (existingFeature && !duplicateFeature) {
+      if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
+        CharacterFeatureFactory.overwriteDuplicateFeature(existingFeature, doc);
+      } else {
+        const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
+        if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
+      }
+    } else if (!existingFeature) {
+      features.push(doc);
+    }
   }
 
 
@@ -871,7 +916,7 @@ export default class CharacterFeatureFactory {
     return ddbAction.data;
   }
 
-  getActions({ name, type }) {
+  getActions({ name, type }: { name: string; type: IActionTypes }): IDDBAction[] {
     const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === utils.nameString(name));
     const levelAdjustedActions = nameMatchedActions.length > 1
       ? nameMatchedActions.filter((a) =>

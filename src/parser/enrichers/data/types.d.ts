@@ -54,7 +54,6 @@ global {
     id?: string;
     type?: string;
     parent?: IDDBActivityParentLookup[];
-
     // Consume targets
     noConsumeTargets?: boolean;
     addItemConsume?: boolean;
@@ -207,12 +206,26 @@ global {
 
   // -- Effect Options ---------------------------------------------------------
 
+  /**
+   * Native effect expiry points used by enrichers shared with the v14 branch. Foundry v13 has no
+   * `duration.expiry`, so these are translated to DAE special durations where a token exists
+   * (see effects/EffectExpiryHelpers.ts). `null` means the enricher owns expiry and no
+   * description-derived token should be stamped.
+   */
+  export type TDDBEffectExpiry =
+    | "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd"
+    | "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd"
+    | "shortRest" | "longRest";
+
   export interface IDDBEffectOptions {
     description?: string;
-    durationSeconds?: number;
-    durationRounds?: number;
+    durationSeconds?: number | null;
+    durationRounds?: number | null;
+    durationTurns?: number | null;
     transfer?: boolean;
     disabled?: boolean;
+    showIcon?: TEffectShowIcon;
+    expiry?: TDDBEffectExpiry | null;
     [key: string]: any;
   }
 
@@ -241,6 +254,11 @@ global {
     tokenMagicChanges?: IActiveEffectChangeData[];
     midiChanges?: IActiveEffectChangeData[];
     daeChanges?: IActiveEffectChangeData[];
+    // Automated Conditions 5e flag changes, only pushed when the module is installed
+    ac5eChanges?: IActiveEffectChangeData[];
+    // v14 native token changes (token.*); accepted for shared code but ignored on this branch,
+    // where token attributes are driven by atlChanges
+    tokenChanges?: IActiveEffectChangeData[];
 
     // DAE
     daeStackable?: string;
@@ -274,6 +292,8 @@ global {
     // Module conditional flags
     daeOnly?: boolean;
     daeNever?: boolean;
+    ac5eOnly?: boolean;
+    ac5eNever?: boolean;
     atlOnly?: boolean;
     atlNever?: boolean;
     midiOnly?: boolean;
@@ -301,9 +321,14 @@ global {
     ddbMacroDescription?: boolean;
     retainResourceConsumption?: boolean;
     ignoredConsumptionActivities?: string[];
+    // blank consumption targets on the named activities after resource linking
+    noConsumeTargetActivities?: string[];
     retainOriginalConsumption?: boolean;
     retainChildUses?: boolean;
     retainUseSpent?: boolean;
+    // carry activity level uses.spent over from the previously imported document.
+    // true covers every activity with its own uses, an array selects them by name
+    retainActivityUseSpent?: boolean | string[];
     uses?: I5eSystemLimitedUses | I5eConsumableUses;
     // To Do add a data object here with flags
     data?: Record<string, any>;

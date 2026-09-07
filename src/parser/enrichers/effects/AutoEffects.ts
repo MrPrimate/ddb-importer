@@ -1,6 +1,9 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger, utils } from "../../../lib/_module";
-import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
+import DDBDescriptions from "../../lib/DDBDescriptions";
+import DDBModifiers from "../../lib/DDBModifiers";
+import SystemHelpers from "../../lib/SystemHelpers";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 
@@ -10,7 +13,37 @@ interface IGenericConditionAdjustment {
   midiValues?: any[];
 }
 
+// activity/duration unit names to the effect duration unit names the shared parser emits
+const UNIT_MAP: Record<string, TEffectDurationUnit | null> = {
+  turn: "turns",
+  turns: "turns",
+  round: "rounds",
+  rounds: "rounds",
+  hour: "hours",
+  hours: "hours",
+  minute: "minutes",
+  minutes: "minutes",
+  second: "seconds",
+  seconds: "seconds",
+  day: "days",
+  days: "days",
+  spec: null,
+  special: null,
+  inst: null,
+};
+
 export default class AutoEffects {
+
+  static UNIT_MAP = UNIT_MAP;
+
+  static adjustDurationUnits(units: string): TEffectDurationUnit | null {
+    if (units && UNIT_MAP[units] !== undefined) {
+      return UNIT_MAP[units];
+    }
+    logger.error(`No mapping found for duration units ${units}`);
+    return null;
+  }
+
 
   static effectModules(): IEffectModules {
     return SystemHelpers.effectModules();
@@ -46,6 +79,15 @@ export default class AutoEffects {
     return duration;
   }
 
+  /**
+   * DAE's showIcon flag is a boolean. Enrichers shared with the v14 branch may pass the numeric
+   * display modes (0 never, 1 conditional, 2 always); conditional is left to DAE's default.
+   */
+  static daeShowIcon(showIcon: TEffectShowIcon | undefined): boolean | null {
+    if (typeof showIcon === "number") return showIcon === 1 ? null : showIcon === 2;
+    return showIcon ?? null;
+  }
+
   static BaseEffect(
     document: any,
     name: string,
@@ -70,7 +112,7 @@ export default class AutoEffects {
       disabled,
       flags: {
         dae: {
-          showIcon,
+          showIcon: AutoEffects.daeShowIcon(showIcon),
           transfer,
           stackable: "noneNameOnly",
         },

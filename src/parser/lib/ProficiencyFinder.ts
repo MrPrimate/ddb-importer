@@ -1,19 +1,35 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
 
 interface IProficiencyBasic {
   name: string;
 }
 
+// a free text proficiency the user typed into DDB (character.customProficiencies)
+interface IDDBCustomProficiency {
+  name: string;
+  type: number;
+  statId?: number | null;
+  proficiencyLevel?: number | null;
+  miscBonus?: number | null;
+  magicBonus?: number | null;
+  notes?: string | null;
+  description?: string | null;
+}
+
 export default class ProficiencyFinder {
 
   ddb: IDDBData | null;
   excludeCustom: boolean;
+  // Populated by getToolProficiencies with any tool that dnd5e has no key for
+  customTools: ICustomToolDefinition[];
 
   constructor({ ddb = null, excludeCustom = false } = {}) {
     this.ddb = ddb;
     this.excludeCustom = excludeCustom;
+    this.customTools = [];
   }
 
   isHalfProficiencyRoundedUp(skill, modifiers = null) {
@@ -86,7 +102,7 @@ export default class ProficiencyFinder {
 
     // lookup the characters's proficiencies in the DICT
     const allToolProficiencies = DICTIONARY.actor.proficiencies
-      .filter((prof) => prof.type === "Tool" && prof.baseTool);
+      .filter((prof) => prof.type === "Tool");
 
     const mods = this.ddb
       ? DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true })
@@ -102,7 +118,7 @@ export default class ProficiencyFinder {
 
     const processToolProficiency = (prof) => {
       const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
-      if (profMatch && profMatch.baseTool) {
+      if (profMatch) {
         const modifiers = mods
           .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
           .map((mod) => mod.type);
@@ -127,9 +143,18 @@ export default class ProficiencyFinder {
             ? toolExpertise
             : halfProficiency;
 
-        results[profMatch.baseTool] = {
+        // the same key DDBToolProficiencies.getToolKey derives; inlined so this file stays out
+        // of the lib barrel (DDBToolProficiencies pulls the compendium helpers in)
+        const key = profMatch.baseTool ?? utils.idString(profMatch.name.toLowerCase());
+        const ability = (profMatch.ability ?? "dex") as T5eAbility;
+
+        if (!profMatch.baseTool) {
+          this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
+        }
+
+        results[key] = {
           value: proficient,
-          ability: profMatch.ability,
+          ability,
           bonuses: {
             check: "",
           },
@@ -147,9 +172,67 @@ export default class ProficiencyFinder {
       customProfs.forEach((prof) => {
         processToolProficiency({ name: prof, customProficiency: true });
       });
+
+      // free text tool proficiencies the user typed into DDB. These have no dictionary
+      // entry, so they are keyed off their name and registered into CONFIG.DND5E.tools.
+      if (!this.excludeCustom) {
+        (this.ddb.character.customProficiencies as IDDBCustomProficiency[]).forEach((proficiency) => {
+          // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
+          if (proficiency.type !== 2) return;
+          const result = this.#buildFreeTextTool(proficiency);
+          if (result) results[result.key] = result.tool;
+        });
+      }
     }
 
     return results;
+  }
+
+  #addCustomTool(tool: ICustomToolDefinition) {
+    if (this.customTools.some((t) => t.key === tool.key)) return;
+    this.customTools.push(tool);
+  }
+
+  /**
+   * Build a system.tools entry for a free text D&D Beyond tool proficiency. dnd5e has no
+   * key for these, so one is generated and recorded on this.customTools for registration.
+   */
+  #buildFreeTextTool(proficiency: IDDBCustomProficiency): { key: string; tool: I5eToolProficiency } | null {
+    const name = utils.nameString(proficiency.name);
+    if (!name) return null;
+
+    const key = utils.idString(name.toLowerCase());
+    const ability = (DICTIONARY.actor.abilities.find((a) => a.id == proficiency.statId)?.value ?? "int") as T5eAbility;
+
+    const proficiencyEntry = DICTIONARY.actor.customSkillProficiencies
+      .find((entry) => entry.value === proficiency.proficiencyLevel);
+    if (!proficiencyEntry) {
+      logger.warn(`No proficiency mapping for custom tool level ${proficiency.proficiencyLevel}`, { proficiency });
+      return null;
+    }
+
+    const miscBonus = proficiency.miscBonus && proficiency.miscBonus !== 0
+      ? `+ ${proficiency.miscBonus}`
+      : "";
+    const magicBonus = proficiency.magicBonus && proficiency.magicBonus !== 0
+      ? ` + ${proficiency.magicBonus}`
+      : "";
+    const checkBonus = (miscBonus + magicBonus).trim();
+
+    const description = utils.nameString(proficiency.notes ?? proficiency.description ?? "");
+
+    this.#addCustomTool({ key, name, ability, toolType: "", description });
+
+    return {
+      key,
+      tool: {
+        value: proficiencyEntry.proficient,
+        ability,
+        bonuses: {
+          check: parseInt(checkBonus) === 0 ? "" : checkBonus,
+        },
+      },
+    };
 
     // tools no longer support easily modifiable custom tools, see
     // https://github.com/foundryvtt/dnd5e/issues/2372

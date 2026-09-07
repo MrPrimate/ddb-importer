@@ -1098,7 +1098,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       identifier = DICTIONARY.identifierAdjustments[identifier];
     }
     this.data.system.identifier = identifier;
-    this._finaliseActivityDescriptions();
 
     await this.enricher.cleanup();
   }

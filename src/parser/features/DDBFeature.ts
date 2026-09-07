@@ -13,6 +13,10 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare include: boolean;
   declare hasRequiredLevel: boolean;
 
+  // assigned in _init() from the mixin constructor, so these must not be runtime fields
+  declare _parentOnlyChoices: ReturnType<typeof DDBDataUtils.getChoices>;
+  declare _parentOnlyChosen: ReturnType<typeof DDBDataUtils.getChoices>;
+
   static DOC_TYPE = {
     class: "feat" as const, // class feature
     subclass: "feat" as const, // subclass feature
@@ -45,14 +49,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       : DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
-    this._class = this.ddbData.character.classes.find((klass) =>
-      (this.ddbDefinition.classId
-        && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
-      || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
-        && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
-          || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-      ),
-    );
+    this._class = this._findClassForDefinition(this.ddbDefinition);
     this._choices = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
@@ -90,7 +87,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      isMuncher: this.ddbCharacter.isMuncher,
+      isMuncher: this.ddbCharacter?.isMuncher ?? this.isMuncher,
     });
   }
 
@@ -174,11 +171,14 @@ export default class DDBFeature extends DDBFeatureMixin {
   _addAdvancement(advancement) {
     if (!advancement) return;
     const advancementData = advancement.toObject();
+    // an advancement built from a bare configuration (no choices, grants or items) carries nothing
     if (
-      advancementData.configuration.choices.length !== 0
-      || advancementData.configuration.grants.length !== 0
-      || (advancementData.value && Object.keys(advancementData.value).length !== 0)
+      (advancementData.value && Object.keys(advancementData.value).length !== 0)
+      || (foundry.utils.getProperty(advancementData, "configuration.choices") as unknown[] | undefined)?.length !== 0
+      || (foundry.utils.getProperty(advancementData, "configuration.grants") as unknown[] | undefined)?.length !== 0
+      || (foundry.utils.getProperty(advancementData, "configuration.items") as unknown[] | undefined)?.length !== 0
     ) {
+      if (!advancementData._id) advancementData._id = foundry.utils.randomID();
       this.data.system.advancement.push(advancementData);
     }
   }
@@ -320,7 +320,8 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   generateFeatAbilityScoreAdvancement() {
     const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-    const configuration = advancement.configuration.toObject();
+    // duplicate rather than toObject: works on the live DataModel and on plain configuration objects
+    const configuration = foundry.utils.duplicate(advancement.configuration ?? {});
     configuration.points = 0;
     configuration.cap = 1;
     configuration.level = 0;
@@ -377,7 +378,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       hasMatch = true;
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].trim().toLowerCase());
       if (ability) {
-        configuration.fixed[ability.value] = parseInt(fixedMatch[2]);
+        (configuration.fixed ??= {})[ability.value] = parseInt(fixedMatch[2]);
       }
       this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
       return;
@@ -547,6 +548,53 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   static CHOICE_DEFS = DICTIONARY.parsing.choiceFeatures;
 
+  static MIN_CHOICE_CONTAINMENT_LENGTH = 40;
+
+  // DDB truncates the option copy mid-sentence and terminates it, where the parent runs on
+  // ("...finish a Long Rest." vs "...finish a Long Rest unless you take a level of
+  // Exhaustion")
+  static TRAILING_SENTENCE_PUNCTUATION = /[\s.,;:]+$/;
+
+  /**
+   * DDB represents builder on/off toggles as a choice with exactly one
+   * available option, labelled "Activate <Feature>" or "Invoke the <Feature>"
+   * (Bladesong, Elemental Attunement, ...). Building that lone option as a
+   * choice feature only renames the parent; suppress it instead.
+   * Tested against the raw parent-only pool, not the NEVER_CHOICES/skill/tool
+   * filtered list - the rule only applies when the toggle is the whole pool.
+   * Opt out via KEEP_CHOICE_FEATURE if a real "Activate X" choice needs building.
+   */
+  get isSingleToggleChoice(): boolean {
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices ?? [];
+    return pool.length === 1
+      && DDBFeature.CHOICE_DEFS.SINGLE_CHOICE_TOGGLE_PREFIXES
+        .some((prefix) => (pool[0].label ?? "").startsWith(prefix));
+  }
+
+  get suppressesChoiceBuild(): boolean {
+    return super.suppressesChoiceBuild || this.isSingleToggleChoice;
+  }
+
+  /**
+   * DDB often ships an option whose description is a verbatim copy of the parent
+   * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
+   * Appending that as a choice block just repeats the paragraph above it, so detect
+   * it by content rather than growing NO_CHOICE_DESCRIPTION_ADDITION for each one.
+   */
+  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string): boolean {
+    const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
+    const lesserParent = utils.renderLesserString(parentDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
+    if (lesserChoice === "" || lesserParent === "") return false;
+    if (lesserChoice === lesserParent) return true;
+    // a short option line can appear inside an unrelated parent by coincidence;
+    // exact matches are always safe, containment needs some substance behind it
+    return lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
+      && lesserParent.includes(lesserChoice);
+  }
+
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
@@ -560,19 +608,34 @@ export default class DDBFeature extends DDBFeatureMixin {
     // this._generateRange();
 
     const listItems = [];
-    const chosenOnly = DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
+    const replaceDescription = DDBFeature.CHOICE_DEFS.REPLACE_DESCRIPTION_WITH_CHOICES.includes(this.originalName);
+    const chosenOnly = replaceDescription || DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
     const choices = chosenOnly
       ? this._chosen
       : DDBFeature.CHOICE_DEFS.USE_ALL_CHOICES.includes(this.originalName)
         ? this._choices
         : this._parentOnlyChoices;
 
+    const parentDescription = this.descriptionOverride
+      ?? (foundry.utils.getProperty(this.ddbDefinition, "description") as string)
+      ?? "";
+
     const choiceText = choices
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
-        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.label).includes(utils.nameString(c.label)),
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label)),
       )
+      .filter((c) => {
+        // Blood Curses et al. use the choice text AS the description; the parent is the
+        // full option list, so every choice would be "contained" and we'd erase the lot
+        if (replaceDescription) return true;
+        const redundant = DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "");
+        if (redundant) {
+          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description duplicated by the parent`);
+        }
+        return !redundant;
+      })
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
       .reduce((p, c) => {
         if (!p.some((e) => e.label === c.label)) p.push(c);
@@ -599,11 +662,18 @@ ${description}`;
 <ul>${listItems.join("")}</ul>`
       : choiceText;
 
-    const secretText = DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
+    // DDB ships the full option list as the parent description (e.g. every blood
+    // curse); swap it for the chosen options only. Skipped when nothing is chosen so
+    // the feature never ends up with a blank description.
+    const useChoicesAsDescription = replaceDescription && joinedText.trim() !== "";
+    if (useChoicesAsDescription) this.descriptionOverride = joinedText.trim();
+
+    const secretText = useChoicesAsDescription
+      || DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
       || joinedText.trim() === ""
       ? ""
-      : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
+      : this.suppressesChoiceBuild
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
         ? `<hr>${joinedText}`
         : `<hr><section class="secret">${joinedText}</section>`;

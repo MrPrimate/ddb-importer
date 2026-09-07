@@ -2,7 +2,7 @@ import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
-import { DDBDataUtils, DDBDescriptions, DDBTemplateStrings } from "../../lib/_module";
+import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 import { resolveDaeSpecialDurations } from "../effects/EffectExpiryHelpers";
@@ -441,133 +441,6 @@ export default abstract class DDBEnricherFactoryMixin {
 
   }
 
-  // The single setting gate for enricher-driven snippet handling; the two
-  // strategies below assume the gate has already been applied.
-  _applyActivitySnippet(activity: IActivityData, overrideData: IDDBActivityData): void {
-    if (utils.getSetting<boolean>("add-ddb-snippets-to-activities") !== true) return;
-    const hint = overrideData.useActivitySnippet;
-    const section = hint && hint !== true ? hint.section : undefined;
-    if (section) {
-      this._applyActivitySectionSnippet(activity, overrideData, section);
-    } else if (hint) {
-      this._applySelectedActionSnippet(activity, hint);
-    } else {
-      this._applyActivitySectionSnippet(activity, overrideData);
-    }
-  }
-
-  _applySelectedActionSnippet(activity: IActivityData, hint: true | IDDBActivitySnippetLookup): void {
-    const lookup = hint === true ? {} : hint;
-    const name = lookup.name ?? activity.name?.trim();
-    const type = lookup.type ?? (foundry.utils.getProperty(this.ddbParser, "type") as IActionTypes | undefined);
-    if (!name || !type) {
-      logger.debug(`Unable to resolve an action lookup for a ${this.ddbParser?.originalName} activity snippet`, {
-        lookup,
-        activity,
-        this: this,
-      });
-      return;
-    }
-    const actions = this._getActivityActions({ name, type });
-    if (actions.length === 0) {
-      // A missing action is a normal state - it usually hangs off a builder
-      // toggle the character has switched off - and the inherited parent
-      // snippet still covers the card.
-      logger.debug(`No "${name}" ${type} action found for ${this.ddbParser.originalName}; its activity snippet was not applied`, {
-        name,
-        type,
-        this: this,
-      });
-      return;
-    }
-    if (actions.length > 1) {
-      logger.warn(`Multiple "${name}" ${type} actions found for ${this.ddbParser.originalName}; using the first activity snippet`, {
-        name,
-        type,
-        actions,
-        this: this,
-      });
-    }
-    const action = actions[0];
-    const source = action.snippet?.trim() || action.description?.trim() || "";
-    if (!source) return;
-    const value = DDBTemplateStrings.parseSnippet({
-      ddbData: this.ddbParser.ddbData,
-      rawCharacter: this.ddbParser.rawCharacter,
-      text: source,
-      feature: action,
-    });
-    foundry.utils.setProperty(activity, "description.value", value);
-  }
-
-  /**
-   * Narrow an inherited whole-document snippet down to the section that describes the activity.
-   * An enricher can name that section outright when the activity name does not
-   * resemble it. otherwise the activity's own name is looked up.
-   */
-  _applyActivitySectionSnippet(activity: IActivityData, overrideData: IDDBActivityData, sectionName?: string): void {
-    const rawCharacter = this.ddbParser?.rawCharacter;
-    if (rawCharacter?.type !== "character") return;
-    if (foundry.utils.hasProperty(overrideData, "data.description.value")) return;
-
-    const activityName = sectionName?.trim() || activity.name?.trim();
-    const definition = this.ddbParser.ddbDefinition;
-    if (!activityName || !definition) return;
-
-    const ddbData = this.ddbParser.ddbData;
-    const feature = this.ddbParser.ddbFeature ?? definition;
-    const parse = (source: string): string =>
-      DDBTemplateStrings.parseSnippet({ ddbData, rawCharacter, text: source, feature });
-
-    // Do not replace a description authored by an enricher/activity builder.
-    const existing = foundry.utils.getProperty(activity, "description.value") as string | undefined;
-    if (existing?.trim()) {
-      const normalizedExisting = DDBDescriptions.normalizeSectionLabel(existing);
-      const inheritedSources = [
-        foundry.utils.getProperty(this.ddbParser, "snippet") as string | undefined,
-        definition.snippet,
-      ].filter((source): source is string => Boolean(source?.trim()));
-      const matchesInherited = inheritedSources.some((source) =>
-        DDBDescriptions.normalizeSectionLabel(source) === normalizedExisting
-        || DDBDescriptions.normalizeSectionLabel(parse(source)) === normalizedExisting,
-      );
-      if (!matchesInherited) return;
-    }
-
-    const sources = [
-      definition.snippet,
-      definition.description,
-      foundry.utils.getProperty(this.ddbParser, "snippet") as string | undefined,
-      foundry.utils.getProperty(this.ddbParser, "description") as string | undefined,
-    ].filter((source): source is string => Boolean(source?.trim()));
-
-    // An action document's own snippet already describes the action, so it must not be
-    // swapped for a section describing that same thing, only for one describing something
-    // else. THis is how a secondary activity  e.g. ("Autumn (Save)") finds its rules.
-    // Explicit sections are always honoured.
-    const documentName = this.ddbParser.isAction && !sectionName
-      ? DDBDescriptions.normalizeSectionLabel(this.ddbParser.originalName ?? definition.name ?? "")
-      : "";
-
-    for (const source of new Set(sources)) {
-      const match = DDBDescriptions.matchActivitySection(source, activityName, {
-        exactOnly: Boolean(sectionName),
-      });
-      if (!match) continue;
-      if (documentName !== "" && match.label === documentName) continue;
-      foundry.utils.setProperty(activity, "description.value", parse(match.section));
-      return;
-    }
-
-    if (sectionName) {
-      // 2014 and 2024 source variants ship different snippets
-      logger.debug(`No "${sectionName}" section found for ${this.ddbParser.originalName}`, {
-        activity,
-        this: this,
-      });
-    }
-  }
-
   _getActivityActions({ name, type }: { name: string; type: IActionTypes }): IDDBAction[] {
     const ddbCharacter = foundry.utils.getProperty(this.ddbParser, "ddbCharacter") as DDBCharacter | undefined;
     return ddbCharacter?._characterFeatureFactory.getActions({ name, type }) ?? [];
@@ -588,7 +461,6 @@ export default abstract class DDBEnricherFactoryMixin {
       }
     }
 
-    this._applyActivitySnippet(activity, overrideData);
 
     if (overrideData.noConsumeTargets) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
@@ -1344,11 +1216,7 @@ export default abstract class DDBEnricherFactoryMixin {
         if (activityHint.overrides) {
           this.originalActivity = activity;
           activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
-        } else if (!actionActivity) {
-          // Snippet handling only - the full override pipeline has
-          // activity-keyed branches (summon midiProperties, transform profile
-          // resolution) that must not start firing for hint-built activities.
-          this._applyActivitySnippet(activity, {});
+
         }
 
         this.data.system.activities[(activity as any)._id] = activity;

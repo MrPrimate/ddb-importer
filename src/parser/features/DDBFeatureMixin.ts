@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module";
 import { DDBFeatureActivity } from "../activities/_module";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory";
+import type DDBCompanionFactory from "../companions/DDBCompanionFactory";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
 import {
   DDBGenericEnricher,
@@ -94,6 +94,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   tagType: string;
   snippet: string;
   description: string;
+  // when set, replaces the DDB definition description in getDescription(). Used by
+  // REPLACE_DESCRIPTION_WITH_CHOICES features whose DDB description dumps every option.
+  descriptionOverride: string | null = null;
+  /**
+   * Ids of activities whose consumption came out empty only because the document
+   * had no uses when the activity was built. Reconciled in _final(), once an
+   * enricher override has had its chance to supply uses.
+   */
+  _activitiesAwaitingUses = new Set<string>();
   resourceCharges: number | null;
   ddbFeature: TFeatures | TDefinitions;
   declare ddbDefinition: TDefinitions;
@@ -124,6 +133,36 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
+  }
+
+  /**
+   * Whether this feature's choice options are folded into the parent instead of being built as
+   * child documents. The one predicate shared by DDBChoiceFeature.buildChoiceFeatures and the
+   * description-secret logic; DDBFeature adds the single-toggle case on top.
+   */
+  get suppressesChoiceBuild(): boolean {
+    return DICTIONARY.parsing.choiceFeatures.NO_CHOICE_BUILD.includes(this.originalName)
+      || (this.enricher?.noChoiceBuild ?? false);
+  }
+
+  /**
+   * Find the character class a definition belongs to. DDB's classId on a
+   * feature can be either the class or the subclass definition id.
+   */
+  _findClassForDefinition(definition) {
+    if (!definition) return undefined;
+    const classId = "classId" in definition ? definition.classId : null;
+    const className = "className" in definition ? definition.className : null;
+    const subclassName = "subclassName" in definition ? definition.subclassName : null;
+
+    return this.ddbData.character.classes.find((klass) =>
+      (classId
+        && (klass.definition.id === classId || klass.subclassDefinition?.id === classId))
+      || (className && klass.definition.name === className
+        && ((!subclassName || subclassName === "")
+          || (subclassName && klass.subclassDefinition?.name === subclassName))
+      ),
+    );
   }
 
   _generateDataStub() {
@@ -533,14 +572,16 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     const rawSnippet = this.ddbDefinition.snippet ? this.snippet : "";
 
     this.description
-      = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
-          .text
-        : !useCombinedSetting || forceFull
-          ? this.type === "race"
-            ? this._getRaceFeatureDescription()
-            : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
-          : "";
+      = this.descriptionOverride !== null
+        ? this.descriptionOverride
+        : this.ddbDefinition.description && this.ddbDefinition.description !== ""
+          ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
+            .text
+          : !useCombinedSetting || forceFull
+            ? this.type === "race"
+              ? this._getRaceFeatureDescription()
+              : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+            : "";
 
     const extraDescription
       = extra && extra !== ""
@@ -548,21 +589,28 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
+    // DDB descriptions carry instructions about DDB's own character sheet ("Deselect it
+    // to end..."), which mean nothing in Foundry. Stripped here rather than per-enricher
+    // because ~35 features ship one. Enricher descriptionSuffix text is appended later,
+    // in addDocumentOverride, so it is never a candidate for removal.
+    const stripNotes = (html: string): string =>
+      utils.stripNoteBlocks(html, DICTIONARY.parsing.features.DDB_SHEET_NOTE_MARKERS);
+
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
       const descriptionSnippet = (!useCombinedSetting || forceFull) && this.description !== "" ? null : snippet;
       const fullDescription = DDBFeatureMixin.buildFullDescription(this.description, descriptionSnippet);
 
       return {
-        value: fullDescription + extraDescription + macroHelper,
-        chat: chatAdd ? snippet + macroHelper : "",
+        value: stripNotes(fullDescription + extraDescription + macroHelper),
+        chat: chatAdd ? stripNotes(snippet + macroHelper) : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
       return {
-        value: this.description + extraDescription + macroHelper,
-        chat: snippet + macroHelper,
+        value: stripNotes(this.description + extraDescription + macroHelper),
+        chat: stripNotes(snippet + macroHelper),
       };
     }
   }
@@ -602,7 +650,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
             logger.error(`Prerequisites not set up correctly for ${this.data.name}`, this.ddbDefinition);
             continue;
           }
-          this.data.system.prerequisites.items.push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
+          (this.data.system.prerequisites.items ??= []).push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
         }
       }
     }
@@ -1014,6 +1062,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       if (categories.some((c) => c.tagName === "Origin")) return "origin";
       else if (categories.some((c) => c.tagName === "Fighting Style")) return "fightingStyle";
       else if (categories.some((c) => c.tagName === "Epic Boon")) return "epicBoon";
+      else if (categories.some((c) => c.tagName === "Dragonmark")) return "dragonmark";
+      else if (categories.some((c) => c.tagName === "Dark Gift")) return "darkGift";
+      else if (categories.some((c) => c.tagName === "Kindred")) return "kindred";
+      else if (categories.some((c) => c.tagName === "General")) return "general";
       else if (name.startsWith("Mark of ")) return "dragonmark";
       else if (name.startsWith("Greater Mark of ")) return "dragonmark";
       else if (name.includes("Dragonmark") || name.includes("Greater Aberrant Mark")) return "dragonmark";
@@ -1156,7 +1208,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       if (statusEffect) this.data.effects.push(statusEffect);
     }
 
-    if (hintsOnly && !this.enricher.activity) {
+    // Features are built hints-only, so a bare `type` getter on the enricher is enough to
+    // request an activity; without it the type would never be consulted and the enricher
+    // would silently drop the DDB action the Generic fallback used to match.
+    if (hintsOnly && !this.enricher.activity && !this.enricher.type) {
       await this.enricher.customFunction({
         name,
       });
@@ -1226,12 +1281,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-  createCompanionFactory() {
+  async createCompanionFactory() {
     const createOrUpdate
       = this.isMuncher
       || utils.getSetting<boolean>("character-update-policy-create-companions")
       || this.ddbCharacter.enableCompanions;
-    this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
+    // lazy: a static import closes an import cycle through the monster parser
+    const { default: CompanionFactory } = await import("../companions/DDBCompanionFactory");
+    this.ddbCompanionFactory = new CompanionFactory(this.ddbDefinition.description, {
       type: "feature",
       originDocument: this.data,
       is2014: this.is2014,
@@ -1249,7 +1306,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     //   dataCLone: deepClone(this.data),
     //   ddbDef: `${this.ddbDefinition.description}`,
     // });
-    if (!this.ddbCompanionFactory) this.createCompanionFactory();
+    if (!this.ddbCompanionFactory) await this.createCompanionFactory();
     await this.ddbCompanionFactory.parse();
 
     // always update compendium imports, but respect player import disable
@@ -1261,8 +1318,45 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     });
   }
 
+  /**
+   * An enricher override lands after the activities are built, so an activity
+   * that skipped its consumption target only for want of uses (see
+   * DDBFeatureActivity._generateConsumption) never gets one, even though the
+   * document ends up with uses. Re-run just that decision now the final uses are
+   * known, so a feature whose uses come from an enricher behaves like one whose
+   * uses came from the DDB payload.
+   */
+  _reconcileDeferredConsumption() {
+    if (this._activitiesAwaitingUses.size === 0) return;
+    if (!("uses" in this.data.system) || !("activities" in this.data.system)) return;
+
+    const max = this.data.system.uses?.max;
+    if (!max || max === "" || max === "0") return;
+
+    const type = this.usesOnActivity ? "activityUses" : "itemUses";
+    for (const activityId of this._activitiesAwaitingUses) {
+      const activity = this.data.system.activities[activityId];
+      if (!activity) continue;
+      const targets = activity.consumption?.targets ?? [];
+      // an enricher that filled the targets in itself needs no help
+      if (targets.length > 0) continue;
+      targets.push({
+        type,
+        target: "",
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+      foundry.utils.setProperty(activity, "consumption.targets", targets);
+      logger.debug(`Added deferred ${type} consumption to "${activity.name ?? activityId}" on ${this.name}`);
+    }
+  }
+
   async _final() {
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this._reconcileDeferredConsumption();
     this.data.system.identifier = this.identifier;
 
     // @ts-expect-error - is this proxy injected? TODO
