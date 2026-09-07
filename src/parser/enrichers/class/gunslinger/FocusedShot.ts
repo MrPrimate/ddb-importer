@@ -1,0 +1,33 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class FocusedShot extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      targetType: "self",
+      activationType: "special",
+      activationCondition: "You take the Attack action and make only one ranged attack roll (it also scores a Critical Hit on a hit)",
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Focused Shot",
+        ac5eOnly: true,
+        ac5eChanges: [
+          // automated-conditions-5e: advantage on the next attack roll only
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
+        ],
+        options: {
+          durationRounds: 1,
+        },
+      },
+    ];
+  }
+
+}

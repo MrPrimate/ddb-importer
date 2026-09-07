@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DivineStrike extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noeffect: true,
@@ -23,7 +23,7 @@ export default class DivineStrike extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -38,6 +38,22 @@ export default class DivineStrike extends DDBEnricherData {
             "damage.all": "@scale.order.divine-strike",
           },
         }],
+      },
+      {
+        name: "Divine Strike (Automation)",
+        ac5eOnly: true,
+        midiNever: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage on a hit with a weapon attack.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=@scale.order.divine-strike[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
       },
     ];
   }

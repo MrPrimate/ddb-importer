@@ -1,0 +1,25 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class CompoundCreatorPrestoPowder extends DDBEnricherData {
+
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Presto Powder",
+        activityMatch: "Consume Compound",
+        options: {
+          durationSeconds: 600,
+          description: "You have Advantage on Initiative rolls and can take the Dash or Disengage action as a Bonus Action.",
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageInitiativeChange(),
+        ],
+      },
+    ];
+  }
+
+}

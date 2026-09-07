@@ -2,14 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VampiricBite extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity(): IDDBActivityData {
-    if (this.is2014) {
-      return null;
-    }
+  override get activity(): IDDBActivityData | null {
     return {
       noConsumeTargets: true,
       data: {
@@ -28,19 +25,30 @@ export default class VampiricBite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) {
-      return [];
+      return [{
+        init: {
+          name: "Empower Self: Vampiric Bite",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        overrides: {
+          addItemConsume: true,
+          activationType: "special",
+          targetType: "self",
+        },
+      }];
     }
     return [
       {
         init: {
-          name: "Empower Self",
+          name: "Empower Self: Drain",
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         overrides: {
           addItemConsume: true,
           activationType: "special",
+          targetType: "self",
           data: {
             healing: DDBEnricherData.basicDamagePart({
               customFormula: "@scaling",
@@ -52,12 +60,52 @@ export default class VampiricBite extends DDBEnricherData {
                 max: "20",
               },
               spellSlot: true,
-              targets: [],
             },
           },
         },
       },
+      {
+        init: {
+          name: "Empower Self: Strengthen",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        overrides: {
+          addItemConsume: true,
+          activationType: "special",
+          targetType: "self",
+        },
+      },
     ];
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    if (this.is2014) {
+      return [
+        {
+          name: "Empower Self: Bonus",
+          activitiesMatch: ["Empower Self: Vampiric Bite"],
+        },
+      ];
+    }
+    return [
+      {
+        name: "Empower Self: Strengthened",
+        activitiesMatch: ["Empower Self: Strengthen"],
+      },
+    ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          type: {
+            value: "simpleM",
+          },
+          proficient: 1,
+        },
+      },
+    };
   }
 
 }

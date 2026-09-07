@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RendMind extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         addItemConsume: true,
@@ -20,11 +20,25 @@ export default class RendMind extends DDBEnricherData {
     }
   }
 
-  get effects(): IDDBEffectHint[] {
-    return [];
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        // merge into the auto-generated "Status: Stunned" effect rather than
+        // creating a second stun effect
+        noCreate: true,
+        midiOnly: true,
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Rend Mind (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=wis,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+      },
+    ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -62,7 +76,7 @@ export default class RendMind extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Psychic Blades: Rend Mind",

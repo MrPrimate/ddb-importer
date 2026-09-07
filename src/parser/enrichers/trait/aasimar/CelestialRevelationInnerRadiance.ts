@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "special",
       damageParts: [
@@ -15,18 +15,25 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
-    return {
-      ddbMacroDescription: true,
-    };
-  }
-
-  get ddbMacroDescriptionData() {
-    return {
-      name: "innerRadiance",
-      label: "Toggle Inner Radiance Light", // optional
-      type: "feat",
-    };
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Inner Radiance Light",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("12", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.speed"),
+        ],
+      },
+    ];
   }
 
 }
