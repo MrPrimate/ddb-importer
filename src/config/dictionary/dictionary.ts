@@ -5,6 +5,7 @@ import { COMPENDIUM_FOLDERS } from "./folders/compendiums";
 import { EQUIPMENT } from "./items/equipment";
 import { ITEM_GENERICS } from "./items/generics";
 import { WEAPONS } from "./items/weapons";
+import { AMMUNITION } from "./items/ammunition";
 import { ACTIONS } from "./actor/actions";
 import { MAGIC_ITEMS } from "./items/magicItems";
 import { SENSES } from "./actor/senses";
@@ -42,6 +43,7 @@ const DICTIONARY = {
   ...ITEM_GENERICS,
   equipment: EQUIPMENT,
   weapon: WEAPONS,
+  ammunition: AMMUNITION,
   actions: ACTIONS,
   spell: SPELL,
   monsters: MONSTERS,

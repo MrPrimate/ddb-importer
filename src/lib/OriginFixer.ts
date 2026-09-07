@@ -35,7 +35,8 @@ export default class OriginFixer {
         && (!effect.origin.startsWith("Compendium") || isDDBMonsterCompendium)
       ) {
         const testOrigin = OriginFixer._getEffectOrigin(effect, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
-        const originLoaded = await fromUuid(testOrigin);
+        // an origin already pointing at this actor needs no lookup
+        const originLoaded = testOrigin === effect.origin ? null : await fromUuid(testOrigin);
         if (originLoaded && testOrigin !== effect.origin) {
           changesMade = true;
           logger.debug(`${actor.name} effect ${effect.name} origin ${effect.origin} -> ${testOrigin} ${actorUuid}`);

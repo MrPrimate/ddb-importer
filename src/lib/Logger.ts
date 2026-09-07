@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 
-import { FileHelper } from "./_module";
 
 const logger = {
 
@@ -168,7 +167,10 @@ const getCircularReplacer = () => {
   };
 };
 
-function downloadLog() {
+async function downloadLog() {
+  // lazy: Logger is the first import of nearly every module, so a static FileHelper import
+  // (which pulls the lib barrel) would re-enter the enricher tree during load
+  const { default: FileHelper } = await import("./FileHelper");
   FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }

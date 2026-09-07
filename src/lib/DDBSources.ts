@@ -1,5 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { utils } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
 
 type TDDBSourceTypes = IDDBBaseSourcesDefinition | IDDBSourceIdAndPageDefinition | IDDBSourcesDefinition | IDDBSourceIdsDefinition;
 
@@ -245,9 +246,32 @@ export default class DDBSources {
     });
   }
 
+  /**
+   * The RAW book selection from the deprecated per-book filter, whether or not the filter is
+   * enabled and whether or not the books sit in an included category. Deliberately unfiltered:
+   * the UI lists it so a stale selection can be seen and removed. Import paths must use
+   * getBookFilter().effective instead.
+   */
   static getSelectedSourceIds(): number[] {
     return utils.getSetting<number[]>("munching-policy-muncher-sources")
       .map((id) => parseInt(`${id}`));
+  }
+
+  /**
+   * The per-book filter as it applies to an import. The category filter runs first and strips
+   * every source outside the included categories, so a selected book outside them can never
+   * match; it is reported as ignored rather than applied. When NO selected book survives the
+   * intersection the filter is treated as absent (effective = []), otherwise the whole import
+   * would silently come back empty.
+   */
+  static getBookFilter(): { enabled: boolean; selected: number[]; effective: number[]; ignored: number[] } {
+    const enabled = utils.getSetting<boolean>("munching-policy-use-source-filter");
+    const selected = DDBSources.getSelectedSourceIds();
+    if (!enabled) return { enabled, selected, effective: [], ignored: [] };
+    const allowed = new Set(DDBSources.getAllowedSourceIds());
+    const effective = selected.filter((id) => allowed.has(id));
+    const ignored = selected.filter((id) => !allowed.has(id));
+    return { enabled, selected, effective, ignored };
   }
 
   static getExcludedCategoryIds(): number[] {
@@ -423,6 +447,21 @@ export default class DDBSources {
     return book || "Unknown";
   }
 
+  /**
+   * The cover image for a source book, or null when DDB does not have one.
+   *
+   * A book with no cover comes back with the avatar directory and no file on the end
+   * (`https://www.dndbeyond.com/avatars/`, currently about a fifth of the catalog) rather than an
+   * empty string, so a plain truthiness check passes and the page renders a broken image.
+   */
+  static getSourceCoverURL(source?: { avatarURL?: string | null } | null): string | null {
+    const url = source?.avatarURL?.trim();
+    if (!url) return null;
+    const path = url.split(/[?#]/)[0];
+    const file = path.slice(path.lastIndexOf("/") + 1);
+    return file === "" ? null : url;
+  }
+
   static getBooksInCategories(categoryIds: number[]): IDDBConfigSource[] {
     const books = CONFIG.DDB.sources.filter((book) => categoryIds.includes(book.sourceCategoryId));
     return books;
@@ -436,8 +475,7 @@ export default class DDBSources {
   static getChosenCategoriesAndBooks(useOverride = true): { categoryId: number; sourceIds: number[] }[] {
     const sourceIdArrays: { categoryId: number; sourceIds: number[] }[] = [];
     const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const overrideSources = useOverride && enableSources ? DDBSources.getSelectedSourceIds() : [];
+    const overrideSources = useOverride ? DDBSources.getBookFilter().effective : [];
 
     for (const sourceCategoryId of sourceCategoryIds) {
       const sourceIds = DDBSources.getBookIdsInCategories([sourceCategoryId]);

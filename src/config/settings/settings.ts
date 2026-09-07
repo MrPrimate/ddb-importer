@@ -1,4 +1,3 @@
-import { PatreonHelper, utils } from "../../lib/_module";
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
 
@@ -99,16 +98,6 @@ const POPUPS = {
 
 const MODULE_ID = "ddb-importer" as const;
 
-function activeUpdate() {
-  const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
-  const available = tiers.god || tiers.undying || tiers.experimentalMid;
-  if (!available) return false;
-  const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
-  const updateUser = utils.getSetting<string>("dynamic-sync-user");
-  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-  return dynamicSync && gmSyncUser;
-}
-
 const SETTINGS = {
   MODULE_ID,
   FLAG_NAME: "ddbimporter" as const,
@@ -178,6 +167,12 @@ const SETTINGS = {
         default: true,
         requiresReload: true,
       },
+      "add-ddb-snippets-to-activities": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
       "developer-mode": {
         scope: "world",
         config: false,
@@ -187,6 +182,14 @@ const SETTINGS = {
       "add-ddb-languages": {
         name: "ddb-importer.settings.add-ddb-languages.name",
         hint: "ddb-importer.settings.add-ddb-languages.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+      },
+      "add-ddb-tools": {
+        name: "ddb-importer.settings.add-ddb-tools.name",
+        hint: "ddb-importer.settings.add-ddb-tools.hint",
         scope: "world",
         config: true,
         type: Boolean,
@@ -1054,6 +1057,11 @@ const SETTINGS = {
             // 2014 core/expanded and 2024 core/expanded only enabled by default
             default: [1, 24, 26, 38],
           },
+          "muncher-show-source-book-covers": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-muncher-monster-types": {
             type: Array,
             default: [],
@@ -1353,9 +1361,6 @@ const SETTINGS = {
   },
   GET_ALL_SETTINGS() {
     return foundry.utils.mergeObject(SETTINGS.GET_DEFAULT_SETTINGS(), SETTINGS.GET_DEFAULT_SETTINGS(true));
-  },
-  STATUS: {
-    activeUpdate,
   },
 };
 

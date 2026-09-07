@@ -52,7 +52,9 @@ type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.Document
 
 type TFlagType = TDDBImporterDocument | TIndexEntry;
 
-export default class DDBItemImporter {
+// The type parameter mirrors the v14 branch signature so shared enrichers compile; it does not
+// narrow anything on this branch.
+export default class DDBItemImporter<_TType = TDDBImporterDocument> {
 
   static DEFAULT_INDEX_FILTER: Record<string, any> = {
     fields: [
@@ -190,6 +192,67 @@ export default class DDBItemImporter {
   }
 
 
+  /**
+   * Take the source data of a document that may be live.
+   *
+   * A live Item's system.activities is an ActivityCollection (a Map subclass), so both
+   * keyed access and Object.values come back empty on it, and deep cloning one clones
+   * data models rather than data. Plain objects pass through untouched.
+   */
+  static sourceData<T>(document: T): T {
+    const toObject = (document as { toObject?: () => T } | undefined)?.toObject;
+    return typeof toObject === "function" ? toObject.call(document) : document;
+  }
+
+  /**
+   * Resolve a retain style flag for a matched item.
+   */
+  static retainFlagValue<T>(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments, flag: string): T | undefined {
+    const parsed = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`) as T | undefined;
+    if (parsed !== undefined && parsed !== null && parsed !== false) return parsed;
+    return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
+  }
+
+  /**
+   * Copy activity level uses.spent over from the previously imported document.
+   *
+   * Independent of the item level retainUseSpent: an activity can carry its own uses
+   * pool while the item has none, and vice versa.
+   *
+   * Activity ids are generated deterministically from the activity name
+   * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
+   * an activity changes its id, so fall back to matching on name rather than silently
+   * dropping the play state.
+   */
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+    const existingItem = DDBItemImporter.sourceData(existing);
+    if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    const names = Array.isArray(selection) ? selection : null;
+    if (names && names.length === 0) return;
+
+    for (const activity of Object.values(item.system.activities)) {
+      if (names && !names.includes(activity.name ?? "")) continue;
+      // an activity with no max of its own has no meaningful spent value
+      const max = activity.uses?.max;
+      if (!activity.uses || max === undefined || max === null || `${max}`.trim() === "") continue;
+
+      const original = existingItem.system.activities[activity._id ?? ""]
+        ?? Object.values(existingItem.system.activities).find((existingActivity) =>
+          Boolean(activity.name) && existingActivity.name === activity.name,
+        );
+      const spent = original?.uses?.spent;
+      if (typeof spent !== "number") continue;
+
+      const literalMax = (/^\d+$/).test(`${max}`.trim())
+        ? Number.parseInt(`${max}`.trim())
+        : null;
+      activity.uses.spent = literalMax === null
+        ? Math.max(spent, 0)
+        : Math.min(Math.max(spent, 0), literalMax);
+      logger.debug(`Retaining activity uses for ${item.name}: ${activity.name} spent ${activity.uses.spent}`);
+    }
+  }
+
   static updateCharacterItemFlags(itemData: TAll5eItemDocuments, replaceData: TAll5eItemDocuments): TAll5eItemDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
@@ -210,6 +273,10 @@ export default class DDBItemImporter {
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;
       if ("ability" in itemData.system && "ability" in replaceData.system) replaceData.system.ability = itemData.system.ability;
+    }
+    const retainActivitySpent = foundry.utils.getProperty(itemData, "flags.ddbimporter.retainActivityUseSpent") as boolean | string[] | undefined;
+    if (retainActivitySpent && "activities" in itemData.system && "activities" in replaceData.system) {
+      DDBItemImporter.restoreActivityUseSpent(itemData, replaceData, retainActivitySpent);
     }
     if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
       replaceData.system.levels = itemData.system.levels;
@@ -706,7 +773,7 @@ ${item.system.description.chat}
     return Promise.all(promises);
   }
 
-  static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
+  static async buildHandler<_TType = TDDBImporterDocument>(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,

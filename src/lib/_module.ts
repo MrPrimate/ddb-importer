@@ -4,6 +4,8 @@ export * as Notifications from "./Notifications";
 export { default as utils } from "./Utils";
 export { default as Utils } from "./Utils";
 export { default as DDBSources } from "./DDBSources";
+export * as SourceFilters from "./SourceFilters";
+export { default as DDBToolProficiencies } from "./DDBToolProficiencies";
 export { default as Iconizer } from "./Iconizer";
 export { ChooserDialog } from "./AdvancedDialog";
 export { default as CompendiumHelper } from "./CompendiumHelper";
