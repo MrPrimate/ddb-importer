@@ -2,7 +2,10 @@
   <fieldset>
     <legend>Species</legend>
     <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
-    <button data-action="parseSpecies" type="button" id="munch-species-start" class="munch-button"
-      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Species Munch</button>
+    <div class="munch-button-row">
+      <button data-action="parseSpecies" type="button" id="munch-species-start" class="munch-button"
+        {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Species Munch</button>
+      {{> "modules/ddb-importer/handlebars/muncher/munch/source-selection.hbs"}}
+    </div>
   </fieldset>
 </section>

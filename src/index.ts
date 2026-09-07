@@ -1,17 +1,23 @@
 import {
   init,
+  setup,
   onReady,
   onceReady,
   renderJournalSheet,
   renderJournalEntryPageSheet,
   renderCompendiumTab,
+  itemsCompendiumUpdateComplete,
+  characterProcessDataComplete,
 } from "./hooks";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure";
 
 // register hooks
 Hooks.once("init", init);
+Hooks.once("setup", setup);
 Hooks.once("ready", onceReady);
+Hooks.on("ddb-importer.itemsCompendiumUpdateComplete", itemsCompendiumUpdateComplete);
+Hooks.on("ddb-importer.characterProcessDataComplete", characterProcessDataComplete);
 Hooks.on("ready", onReady);
 Hooks.on("renderCompendiumDirectory", renderCompendiumTab);
 Hooks.on("renderJournalPageSheet", renderJournalSheet);

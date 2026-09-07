@@ -660,7 +660,7 @@ export default class DDBSetup extends DDBAppV2 {
       ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
       // throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
     } else if (this.callMuncher) {
-      new DDBMuncher().render(true);
+      DDBMuncher.open();
     } else if (this.actor) {
       const characterImport = new DDBCharacterManager(this.actor);
       characterImport.render(true);

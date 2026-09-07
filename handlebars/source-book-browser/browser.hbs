@@ -1,0 +1,52 @@
+<div class="ddb-source-book-browser-root">
+  <header class="ddb-source-book-browser-header">
+    <div>
+      <h2><i class="fas fa-book-open"></i> Source Category Selection</h2>
+      <p class="hint">What book is in what category? Browse released D&amp;D Beyond books by source category. Select a book to add or remove its category.</p>
+    </div>
+    <input type="search" id="source-book-browser-search" placeholder="Search categories or books" value="{{searchTerm}}" />
+  </header>
+
+  <div class="ddb-source-book-browser-body">
+    {{#each categories}}
+      <section class="ddb-source-book-browser-category {{#if this.expanded}}expanded{{/if}}">
+        <header class="ddb-source-book-browser-category-header">
+          <button type="button" class="ddb-source-book-browser-category-select" data-action="selectCategory" data-category-id="{{this.id}}" title="{{#if this.selected}}Remove{{else}}Add{{/if}} {{this.name}}" aria-label="{{#if this.selected}}Remove{{else}}Add{{/if}} {{this.name}} {{#if this.selected}}from{{else}}to{{/if}} the source selection">
+            <span class="ddb-source-selection-checkbox {{#if this.selected}}selected{{/if}}" aria-hidden="true">
+              {{#if this.selected}}<i class="fas fa-check"></i>{{/if}}
+            </span>
+          </button>
+          <button type="button" class="ddb-source-book-browser-category-toggle" data-action="toggleCategory" data-category-id="{{this.id}}" aria-label="{{this.name}}. Toggle category books.">
+            <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+            <span class="ddb-source-book-browser-category-name">{{this.name}}</span>
+            <span class="ddb-source-book-browser-category-count">{{this.count}}</span>
+          </button>
+        </header>
+        {{#if this.expanded}}
+          <ul class="ddb-source-book-browser-list">
+            {{#each this.books}}
+              <li>
+                <button type="button" class="ddb-source-book-browser-card" data-action="selectBook" data-category-id="{{../id}}" data-book-id="{{this.id}}" title="{{this.name}} ({{this.code}})" aria-label="{{this.name}} ({{this.code}}), category {{#if this.selected}}selected{{else}}not selected{{/if}}. Select to change the category.">
+                  <span class="ddb-source-selection-checkbox ddb-source-book-selection {{#if this.selected}}selected{{/if}}" aria-hidden="true">
+                    {{#if this.selected}}<i class="fas fa-check"></i>{{/if}}
+                  </span>
+                  <span class="ddb-source-book-browser-cover">
+                    {{#if this.avatarURL}}
+                      <img src="{{this.avatarURL}}" alt="Cover of {{this.name}}" loading="lazy" />
+                    {{else}}
+                      <i class="fas fa-book fa-3x"></i>
+                    {{/if}}
+                  </span>
+                  <span class="ddb-source-book-browser-book-name">{{this.name}}</span>
+                  <span class="hint">{{this.code}}</span>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </section>
+    {{else}}
+      <p class="ddb-source-book-browser-empty">No categories or books match the current search.</p>
+    {{/each}}
+  </div>
+</div>

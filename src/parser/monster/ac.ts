@@ -202,7 +202,14 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     }
   }
 
-  if (acItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
+  if (spellCastingAC && acItems.length === 0 && ac.calc !== "natural") {
+    // The published AC already includes Mage Armor. Keep the actor's base AC
+    // unarmored so disabling the generated effect removes the mage calc.
+    ac.flat = null;
+    ac.calc = "default";
+    ac.formula = "";
+    flatAC = false;
+  } else if (acItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
     // some kind o bonus in play, set to natural
     ac.calc = "natural";
     flatAC = false;

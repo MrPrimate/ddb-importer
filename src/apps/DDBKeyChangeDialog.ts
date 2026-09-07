@@ -104,7 +104,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     }
 
     if (this.callMuncher) {
-      new DDBMuncher().render(true);
+      DDBMuncher.open();
     }
     await this.close({ dnd5e: { submitted: true } });
   }

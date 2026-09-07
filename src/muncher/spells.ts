@@ -12,6 +12,7 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
@@ -32,15 +33,12 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
     rulesVersion: rulesVersion ?? "2014",
   };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-  const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-  const sources = enableSources
-    ? DDBSources.getSelectedSourceIds()
-    : [];
-  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
+  // the effective book list only; books outside the included categories are reported and ignored
+  const sources = DDBSources.getBookFilter().effective;
+  const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
   logger.debug(`Fetching Spells with:`, {
     debugJson,
-    enableSources,
     sources,
     sourceFilter,
     exactMatch,
@@ -49,7 +47,7 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
     searchFilter,
   });
 
-  return new Promise((resolve, reject) => {
+  return new Promise<{ spellData: IDDBSpellEntry[]; counts: SourceFilters.ISourceFilterCounts }>((resolve, reject) => {
     fetch(`${parsingApi}/proxy/class/spells`, {
       method: "POST",
       headers: {
@@ -69,45 +67,12 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
         return data;
       })
       .then((data) => {
-        if (!sourceFilter) return data.data;
-        const categorySpells = data.data
-          .map((spell) => {
-            spell.definition.sources = spell.definition.sources.filter((source) =>
-              DDBSources.isSourceInAllowedCategory(source),
-              // && source.sourceType === 1,
-            );
-            return spell;
-          })
-          .filter((spell) => {
-            if (spell.definition.isHomebrew) return true;
-            return spell.definition.sources.length > 0;
-          });
-        return categorySpells;
+        const { data: filtered, counts } = SourceFilters.applySpellFilters(data.data, {
+          sourceFilter, sources, exactMatch, searchFilter,
+        });
+        logger.debug(`[spells] ${className} (${rulesVersion ?? "2014"}) filter stages`, counts);
+        resolve({ spellData: filtered, counts });
       })
-      .then((data) => {
-        if (sources.length == 0 || !sourceFilter) return data;
-        return data.filter((spell) =>
-          spell.definition.sources.some((source) => sources.includes(source.sourceId)),
-        );
-      })
-      .then((data) => {
-        if (sources.length > 0) return data;
-        if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only")) {
-          return data.filter((spell) => spell.definition.isHomebrew);
-        } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew")) {
-          return data.filter((spell) => !spell.definition.isHomebrew);
-        } else {
-          return data;
-        }
-      })
-      .then((data) => {
-        if (!searchFilter || searchFilter === "") return data;
-        if (exactMatch) {
-          return data.filter((spell) => spell.definition.name.toLowerCase() === searchFilter.toLowerCase());
-        }
-        return data.filter((spell) => spell.definition.name.toLowerCase().includes(searchFilter.toLowerCase()));
-      })
-      .then((data) => resolve(data))
       .catch((error) => {
         logger.warn(error);
         reject(error);
@@ -115,7 +80,7 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
   });
 }
 
-export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, searchFilter = null } = {}) {
+export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
@@ -133,12 +98,14 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
+  if (sourceFilter) SourceFilters.preflightSourceSettings("spells", resolvedNotifier);
   const results = [];
+  const stageCounts: SourceFilters.ISourceFilterCounts[] = [];
   const spellListFactory = new DDBSpellListFactory();
 
   for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
     for (const className of klassNames) {
-      const spellData = await getSpellData({
+      const { spellData, counts } = await getSpellData({
         className,
         sourceFilter,
         notifier: resolvedNotifier,
@@ -147,8 +114,10 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
       });
       spellListFactory.extractClassSpellListData(className, spellData);
       results.push(...spellData);
+      stageCounts.push(counts);
     }
   }
+  SourceFilters.reportFilterResult("spells", SourceFilters.sumCounts(stageCounts), resolvedNotifier);
 
   resolvedNotifier("Parsing spell data.");
 
@@ -168,7 +137,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   //   })
   // });
 
-  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, resolvedNotifier);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, resolvedNotifier, null, notifierV2);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)
@@ -187,6 +156,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
     notifier: resolvedNotifier,
+    notifierV2,
   });
   await itemHandler.init();
   await itemHandler.iconAdditions();

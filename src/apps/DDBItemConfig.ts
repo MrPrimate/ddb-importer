@@ -14,11 +14,15 @@ export class DDBItemConfig extends FormApplication {
   async getData() {  
     // console.warn(this);
     // console.warn(this.object);
-    const item = this.object;
+    const item = this.object as I5ePCItem;
 
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
     const resource = item.flags.ddbimporter?.retainResourceConsumption;
+    const useSpent = item.flags.ddbimporter?.retainUseSpent;
+    // the flag also accepts an array of activity names from enrichers, the dialog only
+    // offers the all activities form
+    const activityUseSpent = Boolean(item.flags.ddbimporter?.retainActivityUseSpent);
     const chris = item.flags.ddbimporter?.ignoreItemForChrisPremades;
     const ignoreItemUpdate = item.flags.ddbimporter?.ignoreItemUpdate;
     const overrideId = item.flags.ddbimporter?.overrideId;
@@ -48,6 +52,16 @@ export class DDBItemConfig extends FormApplication {
         name: "retainResourceConsumption",
         isChecked: resource,
         description: "Retain Resource Consumption linking.",
+      },
+      {
+        name: "retainUseSpent",
+        isChecked: useSpent,
+        description: "Retain the spent uses on this item.",
+      },
+      {
+        name: "retainActivityUseSpent",
+        isChecked: activityUseSpent,
+        description: "Retain the spent uses on this item's activities.",
       },
     ];
 
@@ -107,6 +121,8 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter["ignoreItemImport"] = formData["ignoreItemImport"];
     item.flags.ddbimporter["ignoreItemForChrisPremades"] = formData["ignoreItemForChrisPremades"];
     item.flags.ddbimporter["retainResourceConsumption"] = formData["retainResourceConsumption"];
+    item.flags.ddbimporter["retainUseSpent"] = formData["retainUseSpent"];
+    item.flags.ddbimporter["retainActivityUseSpent"] = formData["retainActivityUseSpent"];
     item.flags.ddbimporter["ignoreItemUpdate"] = formData["ignoreItemUpdate"];
 
     this.object.actor.updateEmbeddedDocuments("Item", [item]);

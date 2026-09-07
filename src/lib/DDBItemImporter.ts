@@ -1,3 +1,4 @@
+import type { NotifierV2Props } from "../apps/DDBAppV2";
 import {
   logger,
   CompendiumHelper,
@@ -16,6 +17,7 @@ interface IDDBItemImporterOptions {
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
   recursive?: boolean | null;
+  notifierV2?: (props: NotifierV2Props) => void;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -73,6 +75,7 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
+  notifierV2: ((props: NotifierV2Props) => void) | null;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   totalDocuments: number;
   currentDocumentCount: number;
@@ -90,6 +93,7 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
     useCompendiumFolders = null,
     recursive = null,
     notifier = null,
+    notifierV2 = null,
   }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
@@ -107,6 +111,7 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? utils.getSetting<boolean>("munching-policy-delete-during-update");
     this.deleteAllBeforeUpdate = foundry.utils.getProperty(CONFIG, "DDBI.DEV.deleteAllBeforeUpdate") as boolean ?? false;
     this.notifier = notifier;
+    this.notifierV2 = notifierV2;
 
     if (!notifier) {
       this.notifier = (note, { nameField = false, monsterNote = false } = {}) => {
@@ -422,7 +427,16 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+    if (this.notifierV2) {
+      this.notifierV2({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "import",
+        message: `Creating ${item.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+    }
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
     // import document no longer retains the id
     // return this.compendium.importDocument(newItem, { keepId: true });
@@ -434,7 +448,16 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    if (this.notifierV2) {
+      this.notifierV2({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "import",
+        message: `Updating ${updateItem.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    }
     logger.debug(`Updating ${updateItem.name} compendium entry (${this.currentDocumentCount}/${this.totalDocuments})`, {
       updateItem,
       existingItem,
@@ -566,6 +589,8 @@ ${item.system.description.chat}
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
     this.notifier("", { nameField: true });
+
+    this.notifierV2?.({ progress: { current: this.totalDocuments, total: this.totalDocuments }, message: "", section: "import", progressBar: "secondary", clear: true });
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);

@@ -67,6 +67,8 @@
       "image-upload-directory.hint": "Specifies the image upload location on the server.",
       "add-ddb-languages.name": "Add D&D Beyond languages?",
       "add-ddb-languages.hint": "If unticked DDB languages will be added to the custom field",
+      "add-ddb-tools.name": "Add D&D Beyond tool proficiencies?",
+      "add-ddb-tools.hint": "Registers tool proficiencies that D&D Beyond has but the dnd5e system does not, such as exotic instruments and custom tools. If unticked these are dropped on import.",
       "other-image-upload-directory.name": "Other image upload directory",
       "other-image-upload-directory.hint": "Specifies the image upload location on the server.",
       "frame-image-upload-directory.name": "Image upload directory for frames",

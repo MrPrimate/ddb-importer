@@ -39,7 +39,10 @@
   </fieldset>
 
   <fieldset>
-    <button data-action="parseClasses" type="button" id="munch-classes-start" class="munch-button"
-      {{#if classMunchEnabled}}enabled{{else}}disabled{{/if}}>Class Munch</button>
+    <div class="munch-button-row">
+      <button data-action="parseClasses" type="button" id="munch-classes-start" class="munch-button"
+        {{#if classMunchEnabled}}enabled{{else}}disabled{{/if}}>Class Munch</button>
+      {{> "modules/ddb-importer/handlebars/muncher/munch/source-selection.hbs"}}
+    </div>
   </fieldset>
 </section>

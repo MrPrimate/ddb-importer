@@ -241,6 +241,74 @@
   visibility: hidden;
 }
 
+/* Full-window overlay atop the muncher window */
+#ddb-importer-monsters .window-content {
+  position: relative;
+}
+
+/* While the import details overlay is up, reserve room for it: the overlay is
+   out of flow (inset: 0) so it cannot grow an auto-height window on its own,
+   and the short tabs (feats, backgrounds, species) would clip it. */
+#ddb-importer-monsters.munching-active .window-content {
+  min-height: 400px;
+}
+
+.ddb-muncher-details {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.ddb-muncher-details.munching-details-hidden {
+  display: none;
+}
+
+.ddb-muncher-details #munching-task-details {
+  background: var(--background, var(--color-cool-5-90, #f4f1e8));
+  color: var(--color-text-primary, #191813);
+  border: 2px solid var(--color-fieldset-border, var(--color-border, #7a7971));
+  border-radius: 6px;
+  padding: 1.75rem 1.5rem 1rem;
+  width: 80%;
+  max-width: 600px;
+  min-width: 320px;
+  min-height: 250px;
+  overflow: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.ddb-muncher-details #munching-task-details legend {
+  position: static;
+  float: none;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  font-weight: bold;
+  /* color: #191813; */
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.ddb-muncher-details #munching-task-details .munching-task-name,
+.ddb-muncher-details #munching-task-details .munching-task-monster,
+.ddb-muncher-details #munching-task-details .munching-task-notes,
+.ddb-muncher-details #munching-task-details .munching-task-import,
+.ddb-muncher-details #munching-task-details .munching-task-overall {
+  color: var(--color-text-primary, #191813);
+  font-size: 1rem;
+  margin: 0.25rem 0;
+}
+
+.ddb-muncher-details #munch-details-okay {
+  margin-top: 1rem;
+  /* color: #191813; */
+}
+
 .ddb-muncher-details .munching-invalid {
   display: none;
 }
@@ -257,27 +325,62 @@
 
 .ddb-muncher-details .munching-progress .munching-progress-bar {
   max-width: 100%;
-  height: 24px;
+  height: 12px;
   background-color: green;
   text-align: center;
 }
 
 .ddb-muncher-details .munching-progress .munching-progress-bar span {
   white-space: nowrap;
-  line-height: 24px;
+  line-height: 12px;
+}
+
+/* the muncher loading dialog: one bar, one status row, one quip row. The
+   details overlay rules above are scoped to the absolute overlay, so these
+   are restated for a plain window */
+.ddb-muncher-loader .munching-task-notes {
+  color: var(--color-text-primary, #191813);
+  font-size: 1rem;
+  margin: 0.25rem 0;
+  min-height: 1.5rem;
+}
+
+.ddb-muncher-loader .munching-progress {
+  background-color: #f1f1f1;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.ddb-muncher-loader .munching-progress .munching-progress-bar {
+  max-width: 100%;
+  height: 12px;
+  background-color: green;
+  transition: width 0.2s ease-out;
+}
+
+.ddb-muncher-loader .munching-hidden {
+  visibility: hidden;
+}
+
+.ddb-muncher-loader .ddb-muncher-loader-quip {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #4b4a44);
+  min-height: 2.6rem;
+  margin: 0.25rem 0 0.5rem;
 }
 
 .ddb-muncher-details .ddb-overlay {
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: transparent;
   position: absolute;
   top: 0;
   left: 0;
 }
 
 .ddb-muncher-details .ddb-working {
-  color: white;
+  color: var(--color-text-primary, white);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -289,4 +392,15 @@
   transform: rotate(360deg);
   -webkit-animation: roll 3s infinite;
   animation: roll 3s infinite;
+}
+
+
+/* Distinguish the secondary (per-item) bar from the primary (phase) bar. */
+.ddb-muncher-details .munching-progress-secondary .munching-progress-bar {
+  background-color: #2e7dd1;
+}
+
+/* The overall bar tracks the whole run, not the current batch. */
+.ddb-muncher-details .munching-progress-overall .munching-progress-bar {
+  background-color: #c4772f;
 }

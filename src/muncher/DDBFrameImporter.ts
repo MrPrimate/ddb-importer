@@ -1,3 +1,4 @@
+import type { NotifierV2Props } from "../apps/DDBAppV2";
 // Main module class
 import {
   logger,
@@ -11,7 +12,7 @@ import { SETTINGS } from "../config/_module";
 
 export default class DDBFrameImporter {
 
-  static async getFrameData() {
+  static async getFrameData(): Promise<{ name: string; frameAvatarUrl: string }[]> {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
@@ -51,7 +52,7 @@ export default class DDBFrameImporter {
     });
   }
 
-  static async parseFrames() {
+  static async parseFrames(notifierV2: ((props: NotifierV2Props) => void) | null = null) {
     const frames = await DDBFrameImporter.getFrameData();
     logger.debug("Importing frames", frames);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -59,10 +60,16 @@ export default class DDBFrameImporter {
     const imageNamePrefix = useDeepPaths ? "" : "frames";
 
     utils.munchNote(`Fetching DDB Frames`);
-    frames.forEach(async (frame) => {
+    let current = 0;
+    for (const frame of frames) {
       const options = { type: "frame", name: `DDB ${frame.name}`, download: true, targetDirectory, pathPostfix: "", imageNamePrefix };
       await FileHelper.getImagePath(frame.frameAvatarUrl, options);
-    });
+      notifierV2?.({
+        progress: { current: ++current, total: frames.length },
+        section: "note",
+        message: `Downloading frame: ${frame.name}`,
+      });
+    }
 
     utils.munchNote("");
 

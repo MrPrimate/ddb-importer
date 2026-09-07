@@ -91,6 +91,15 @@ export default class DDBMonsterImporter {
             item.img = existingItem.img;
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
           }
+          const existingMonsterFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags | undefined;
+          const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
+            existingMonsterFlags, item, "retainActivityUseSpent",
+          );
+          if (retainActivitySpent) {
+            DDBItemImporter.restoreActivityUseSpent(
+              existingItem.toObject() as unknown as TAll5eItemDocuments, item, retainActivitySpent,
+            );
+          }
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
             if ("consume" in item.system) item.system.consume = existingItem.system.consume;
             item.system.uses.recovery = existingItem.system.uses.recovery;
