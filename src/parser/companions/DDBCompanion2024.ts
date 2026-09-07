@@ -106,7 +106,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   }
 
   #generateHitPoints() {
-    const hpString = this._extractValue("HP");
+    // AU Semblance of Life spirit forms carry their pool under a "Temp HP" label
+    const hpString = this._extractValue("HP") ?? this._extractValue("Temp HP");
     if (!hpString) return;
     this._handleHitPoints(hpString);
     this._handleHitDice(hpString);
@@ -155,7 +156,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     const types = Object.keys(CONFIG.DND5E.damageTypes);
 
     for (const value of values) {
-      if (types.includes(value.split("(")[0].trim())) damageTypes.push(value.trim());
+      if (types.includes(value.split("(")[0].trim().toLowerCase())) damageTypes.push(value.trim());
       else conditions.push(value.trim());
     }
 
@@ -249,7 +250,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   async #generateFeatures() {
     for (const header of this.block.querySelectorAll(".monster-header")) {
       let now = header.nextElementSibling;
-      const featType = DDBCompanion2024._getActionType(header.innerText);
+      const featType = DDBCompanion2024._getActionType(header.innerText ?? header.textContent ?? "");
       let block = now.outerHTML;
       while (now !== null) {
         if (now.nextElementSibling === null || now.nextElementSibling.classList.contains("monster-header")) {

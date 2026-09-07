@@ -23,6 +23,7 @@ import { getGraspingVines } from "./types/GraspingVine";
 import { getGuardianOfFaith } from "./types/GuardianOfFaith";
 import { getHoundOfIllOmen } from "./types/HoundOfIllOmen";
 import { getIllusions } from "./types/Illusions";
+import { getIllusoryDragon } from "./types/IllusoryDragon";
 import { getMageHands } from "./types/MageHand";
 import { getPhantomSteed } from "./types/PhantomSteed";
 import { getSpiritualWeapons } from "./types/SpiritualWeapon";
@@ -83,6 +84,8 @@ export default class DDBSummonsInterface {
   static getHoundOfIllOmen = getHoundOfIllOmen;
 
   static getIllusions = getIllusions;
+
+  static getIllusoryDragon = getIllusoryDragon;
 
   static getMageHands = getMageHands;
 

@@ -14,23 +14,55 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  get speciesGroupName(): any {
-    return this.ddbParser.species?.groupName;
+  get speciesFullRaceName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.fullRaceName : undefined;
+  }
+
+  get speciesRaceName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.baseRaceName : undefined;
+  }
+
+  get speciesGroupName(): string | undefined {
+    const species = this.ddbParser?.species;
+    return species && typeof species === "object" ? species.groupName : undefined;
+  }
+
+  _tryLoadEnricherEnricher(featName: string, speciesName: string): any {
+    // match _linkBuilder.js namespace derivation: hyphens split words too
+    // ("Shadar-kai" -> "ShadarKai", not pascalCase's "Shadarkai")
+    const speciesNameHint = utils.pascalCase(speciesName.replace(/-/g, " "));
+    const Enricher = SpeciesEnrichers[speciesNameHint]?.[featName];
+    if (!Enricher) {
+      return null;
+    }
+    return new Enricher({
+      ddbEnricher: this,
+    });
   }
 
   _defaultClassLoader(): any {
-    if (this.speciesGroupName) {
-      const speciesGroupNameHint = utils.pascalCase(this.speciesGroupName);
-      const featName = utils.pascalCase(this.hintName);
-      if (!SpeciesEnrichers[speciesGroupNameHint]?.[featName]) {
-        return null;
+    if (!this.hintName) return null;
+    const featName = utils.pascalCase(this.hintName);
+    const attempts = new Set<string>();
+
+    const speciesFullRaceName = this.speciesFullRaceName;
+    if (speciesFullRaceName) {
+      attempts.add(speciesFullRaceName);
+      if (speciesFullRaceName.includes("(")) {
+        attempts.add(speciesFullRaceName.split("(")[0].trim());
       }
-      return new SpeciesEnrichers[speciesGroupNameHint][featName]({
-        ddbEnricher: this,
-      });
-    } else {
-      return null;
     }
+    if (this.speciesGroupName) attempts.add(this.speciesGroupName);
+    if (this.speciesRaceName) attempts.add(this.speciesRaceName);
+
+    for (const name of attempts) {
+      const enricher = this._tryLoadEnricherEnricher(featName, name);
+      if (enricher) return enricher;
+    }
+
+    return null;
   }
 
   _defaultNameLoader(): any {
@@ -114,6 +146,15 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Fey Step": SpeciesEnrichers.Eladrin.FeyStep,
     "Natural Attack (Claws)": SpeciesEnrichers.Wulven.NaturalAttackClaws,
     "Draconic Flight": SpeciesEnrichers.Dragonborn.DraconicFlight,
+    // The species-name convention loader (_defaultClassLoader tries
+    // fullRaceName, name-before-paren, groupName, baseRaceName) resolves most
+    // trait enrichers; map entries below are only for names that cannot match
+    // by convention (file name differs from trait name, or the enricher is
+    // shared across species in the Generic namespace).
+    "Fade Away": SpeciesEnrichers.Generic.FadeAway,
+    "Necrotic Shroud": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
+    "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
+    "Halfling Lucky": SpeciesEnrichers.Halfling.Luck,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

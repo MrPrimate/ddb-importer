@@ -324,6 +324,12 @@ export default class DDBCompanionMixin {
         this.summons.bonuses.ac = "@prof";
       } else if (testString.includes("+ the level of the spell") || testString.includes("spell's level")) {
         this.summons.bonuses.ac = "@item.level";
+      } else if (acString.match(/half your (\w+) level/i)) {
+        // AU Semblance of Life spirit forms: "AC 11 + half your Warlock level (round down; maximum 9)"
+        const halfMatch = acString.match(/half your (\w+) level(?:.*?maximum (\d+))?/i);
+        const klass = halfMatch![1].toLowerCase();
+        const half = `floor(@classes.${klass}.levels / 2)`;
+        this.summons.bonuses.ac = halfMatch![2] ? `min(${halfMatch![2]}, ${half})` : half;
       } else {
         const modMatch = acString.match(/(?:\+|plus) your (\w+) modifier/i);
         if (modMatch) this.summons.bonuses.ac = `@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`;
@@ -367,7 +373,11 @@ export default class DDBCompanionMixin {
     // class level
     const klassMultiMatch = hpString.match(/(?:\+|plus) (\w+)?( times? )?your (\w+) level/);
     const twiceLevelMatch = hpString.match(/(?:twice|double) your (\w+) level/);
-    if (klassMultiMatch) {
+    const halfLevelMatch = hpString.match(/half your (\w+) level/i);
+    if (halfLevelMatch) {
+      const klass = halfLevelMatch[1].trim().toLowerCase();
+      hpAdjustments.push(`floor(@classes.${klass}.levels / 2)`);
+    } else if (klassMultiMatch) {
       const klass = klassMultiMatch[3].trim().toLowerCase();
       const multiplier = klassMultiMatch[1]
         ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase()).num

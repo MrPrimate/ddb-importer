@@ -24,7 +24,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       if (this.name.includes("(")) {
         return this._splitNameLoader();
       }
-      return null;
+      return this._genericFallbackLoader();
     }
     this.hints = {
       monsterHintName,
@@ -64,35 +64,50 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     }
 
     // no monster or monster partial match, check generic options
-    const genericKeys = Object.keys(this.GENERIC_FEATURE_NAME);
-    const splitName = this.name.split("(")[0].trim();
-    const genericHint = genericKeys.find((key: string) => this.name === key || splitName === key);
-
+    const genericHint = this._genericFeatureHint(this.name ?? "");
     if (genericHint) {
       this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME[genericHint];
-      return;
-    }
-
-    const startsWithKeys = Object.keys(this.GENERIC_FEATURE_NAME_STARTS_WITH);
-    const startsWithHint = startsWithKeys.find((key: string) => this.name.startsWith(key));
-    if (startsWithHint) {
-      this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME_STARTS_WITH[startsWithHint];
-      return;
-    }
-
-    const includesKeys = Object.keys(this.GENERIC_FEATURE_NAME_INCLUDES);
-    const includesHint = includesKeys.find((key: string) => this.name.includes(key));
-    if (includesHint) {
-      this.monsterHintName = "Generic";
-      this.hintName = this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
+      this.hintName = genericHint;
       return;
     }
 
     logger.debug(`No Monster Name Hint for ${this.name} (${this.monsterName})`);
 
     this.monsterHintName = this.monsterName;
+  }
+
+  /** Resolve a feature name against the generic feature-name maps. */
+  _genericFeatureHint(name: string): string | null {
+    const splitName = name.split("(")[0].trim();
+    const exactHint = Object.keys(this.GENERIC_FEATURE_NAME)
+      .find((key: string) => name === key || splitName === key);
+    if (exactHint) return this.GENERIC_FEATURE_NAME[exactHint];
+
+    const startsWithHint = Object.keys(this.GENERIC_FEATURE_NAME_STARTS_WITH)
+      .find((key: string) => name.startsWith(key));
+    if (startsWithHint) return this.GENERIC_FEATURE_NAME_STARTS_WITH[startsWithHint];
+
+    const includesHint = Object.keys(this.GENERIC_FEATURE_NAME_INCLUDES)
+      .find((key: string) => name.includes(key));
+    if (includesHint) return this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
+
+    return null;
+  }
+
+  /**
+   * A monster-name hint (MONSTER_NAME_HINT_INCLUDES) routes resolution to a
+   * per-monster enricher group before the generic feature-name maps are ever
+   * consulted. When that group has no match for the feature, fall back to the
+   * generic maps so hint-mapped monsters (e.g. "Empyrean (Celestial)") keep
+   * cross-monster automation like Legendary Resistance.
+   */
+  _genericFallbackLoader(): any {
+    if ((this.monsterHintName ?? this.monsterName) === "Generic") return null;
+    const genericHint = this._genericFeatureHint(this.name ?? "");
+    if (!genericHint) return null;
+    this.monsterHintName = "Generic";
+    this.hintName = genericHint;
+    return this._loadEnricherData();
   }
 
   _getNameHint(): void {
@@ -158,41 +173,75 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   GENERIC_FEATURE_NAME: Record<string, string> = {
+    "Blood Frenzy": "Blood Frenzy",
+    "Brave": "Brave",
+    "Dark Devotion": "Dark Devotion",
+    "Dwarven Resilience": "Dwarven Resilience",
     "Fallible Invisibility": "Invisibility",
+    "Fey Ancestry": "Fey Ancestry",
+    "Grappler": "Grappler",
+    "Improved Critical": "Improved Critical",
     "Invisibility": "Invisibility",
+    "Light Sensitivity": "Sunlight Sensitivity",
+    "Magic Resistance": "Magic Resistance",
     "Mask of the Wild": "Mask of the Wild",
+    "Mental Fortitude": "Mental Fortitude",
     "Multiattack": "Multiattack",
+    "Multiple Heads": "Two Heads",
+    "Petrifying Gaze": "Petrifying Gaze",
     "Reckless": "Reckless",
     "Reversal of Fortune": "Reversal of Fortune",
     "Shared Invisibility": "Invisibility",
     "Spell Reflection": "Spell Reflection",
     "Suave Defense": "Suave Defense",
+    "Sunlight Hypersensitivity": "Sunlight Sensitivity",
+    "Sunlight Sensitivity": "Sunlight Sensitivity",
+    "Sunlight Weakness": "Sunlight Sensitivity",
+    "Weakening Breath": "Weakening Breath",
     "Superior Invisibility": "Invisibility",
+    "Two Heads": "Two Heads",
     "Uncanny Dodge": "Uncanny Dodge",
     "Illumination": "Illumination",
     "Vanish": "Invisibility",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH: Record<string, string> = {
+    "Keen ": "Keen Senses",
     "Legendary Resistance": "Legendary Resistance",
     "Pack Tactics": "Pack Tactics",
   };
 
   GENERIC_FEATURE_NAME_INCLUDES: Record<string, string> = {
     "Absorption": "Absorption",
+    "Camouflage": "Camouflage",
   };
 
   GENERIC_ENRICHERS: Record<string, any> = {
     "Absorption": MonsterEnrichers.Generic.Absorption,
+    "Blood Frenzy": MonsterEnrichers.Generic.BloodFrenzy,
+    "Brave": MonsterEnrichers.Generic.Brave,
+    "Camouflage": MonsterEnrichers.Generic.Camouflage,
+    "Dark Devotion": MonsterEnrichers.Generic.DarkDevotion,
+    "Dwarven Resilience": MonsterEnrichers.Generic.DwarvenResilience,
+    "Fey Ancestry": MonsterEnrichers.Generic.FeyAncestry,
+    "Grappler": MonsterEnrichers.Generic.Grappler,
+    "Improved Critical": MonsterEnrichers.Generic.ImprovedCritical,
     "Invisibility": MonsterEnrichers.Generic.Invisibility,
+    "Keen Senses": MonsterEnrichers.Generic.KeenSenses,
     "Legendary Resistance": MonsterEnrichers.Generic.LegendaryResistance,
+    "Magic Resistance": MonsterEnrichers.Generic.MagicResistance,
     "Mask of the Wild": MonsterEnrichers.Generic.MaskOfTheWild,
+    "Mental Fortitude": MonsterEnrichers.Generic.MentalFortitude,
     "Pack Tactics": MonsterEnrichers.Generic.PackTactics,
+    "Petrifying Gaze": MonsterEnrichers.Generic.PetrifyingGaze,
     "Reckless": GenericEnrichers.RecklessAttack,
     "Reversal of Fortune": MonsterEnrichers.Generic.ReversalOfFortune,
     "Suave Defense": MonsterEnrichers.Generic.SuaveDefense,
+    "Sunlight Sensitivity": MonsterEnrichers.Generic.SunlightSensitivity,
+    "Two Heads": MonsterEnrichers.Generic.TwoHeads,
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
     "Illumination": MonsterEnrichers.Generic.Illumination,
+    "Weakening Breath": MonsterEnrichers.Generic.WeakeningBreath,
   };
 
   ENRICHERS: Record<string, any> = {
@@ -236,12 +285,20 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Spectator": {
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
     },
+    "Death Tyrant": {
+      // the legendary "Eye Ray" (use one random ray) has no ray table of its own to carve up
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
     "Dullahan": {
       "Headless Wail (Costs 2 Actions)": MonsterEnrichers.Dullahan.HeadlessWail,
       "Headless Summoning (Recharges After A Short Or Long Rest)": MonsterEnrichers.Dullahan.HeadlessSummoning,
     },
     "Spiritual Weapon": {
       "Move and Attack": MonsterEnrichers.SpiritualWeapon.Attack,
+    },
+    "Venom Troll": {
+      "Venom Spray": MonsterEnrichers.VenomTroll.VenomSpray,
+      "Venom Spray (Recharge 6)": MonsterEnrichers.VenomTroll.VenomSpray,
     },
   };
 }

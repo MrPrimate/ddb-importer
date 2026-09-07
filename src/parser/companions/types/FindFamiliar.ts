@@ -183,7 +183,10 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
 
   const isPactActivity = activity.name === "Find Familiar (Expanded Options)";
   const isPactSpell = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.dndbeyond.lookupName") === "Pact of the Chain";
-  const isPactFeature = (foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName") as string)?.includes("Pact of the Chain");
+  const originalName = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName") as string | undefined;
+  const isPactFeature = originalName?.includes("Pact of the Chain") ?? false;
+  // the Necromancer's Undead Familiar lets a normal form take the Undead creature type
+  const isNecromancySpellbook = originalName === "Necromancy Spellbook";
 
   const mapInUse = isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
 
@@ -229,7 +232,9 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   // });
 
   const activityData = {
-    creatureTypes: ["celestial", "fey", "fiend"],
+    creatureTypes: isNecromancySpellbook
+      ? ["celestial", "fey", "fiend", "undead"]
+      : ["celestial", "fey", "fiend"],
     profiles: profilesChoice,
     creatureSizes: [],
     match: {

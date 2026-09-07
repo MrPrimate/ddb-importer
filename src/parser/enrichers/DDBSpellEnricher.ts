@@ -33,8 +33,10 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
     "Dragon's Breath": SpellEnrichers.DragonsBreath,
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,
-    // "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
+    "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
+    "Hold Monster": SpellEnrichers.HoldThing,
+    "Hold Person": SpellEnrichers.HoldThing,
     "Hunter's Mark": SpellEnrichers.HuntersMark,
     "Jallarzi's Storm of Radiance": SpellEnrichers.JallarzisStormOfRadiance,
     "Melf's Acid Arrow": SpellEnrichers.AcidArrow,
@@ -46,5 +48,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Tasha's Caustic Brew": SpellEnrichers.TashasCausticBrew,
     "Tasha's Hideous Laughter": SpellEnrichers.HideousLaughter,
     "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
+    // Frontiers of Eberron reprint; same mechanics as the 2014 spell
+    "Absorb Elements (Frontiers of Eberron)": SpellEnrichers.AbsorbElements,
   };
 }
