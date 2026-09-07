@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArmsOfTheAstralSelf extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       noeffect: true,
@@ -24,7 +24,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() : IDDBAdditionalActivity[] {
+  override get additionalActivities() : IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
@@ -73,7 +73,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.isAction
       ? []
       : [
@@ -91,7 +91,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
       ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
       data: {

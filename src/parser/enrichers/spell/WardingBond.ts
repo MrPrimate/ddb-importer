@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WardingBond extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Warding Bond",
       data: {
@@ -21,7 +21,7 @@ export default class WardingBond extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHeroesFeast">
@@ -31,7 +31,7 @@ export default class WardingBond extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const damageChanges = DDBEnricherData.allDamageTypes().map((type) => {
       return DDBEnricherData.ChangeHelper.damageResistanceChange(type, 0);
     });
