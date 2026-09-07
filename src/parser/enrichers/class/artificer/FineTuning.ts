@@ -1,11 +1,19 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FineTuning extends DDBEnricherData {
-  get type() {
+
+  // DDB files this as artificer-cantrip-damage, which the generic generator would turn into a
+  // per-roll damage rule; the rules text is "one damage roll of the spell" (any artificer spell,
+  // once per cast), which the rules layer cannot express, so the activity + midi arm below stay
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noeffect: true,
@@ -24,7 +32,7 @@ export default class FineTuning extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -43,7 +51,7 @@ export default class FineTuning extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

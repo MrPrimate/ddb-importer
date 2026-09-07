@@ -14,9 +14,10 @@ export default class ArcanePrototype extends DDBEnricherData {
 
   static SLOT_NAME_REGEX = /^Arcane Prototype: Artificer Level \d+$/i;
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
+      addItemConsume: true,
       data: {
         macro: {
           name: "Create Arcane Prototype",
@@ -28,7 +29,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {
@@ -64,16 +65,16 @@ export default class ArcanePrototype extends DDBEnricherData {
 
     const results: IPrototypeSelection[] = [];
     for (const slot of slots) {
-      const outer = choices.find((c: any) =>
+      const outer = choices.find((c) =>
         c.componentId === slot.id && c.parentChoiceId === null && c.optionValue != null,
       );
       if (!outer) continue;
 
-      const optionDef = options.find((o: any) => o.definition?.id === outer.optionValue);
+      const optionDef = options.find((o) => o.definition?.id === outer.optionValue);
       const chargeMatch = optionDef?.definition?.name?.match(/Arcane Charge:\s*(\d+)/i);
       const imbuedLevel = chargeMatch ? Number(chargeMatch[1]) : null;
 
-      const spellChoice = choices.find((c: any) =>
+      const spellChoice = choices.find((c) =>
         c.parentChoiceId === outer.id && c.label === "Choose a Spell" && c.optionValue != null,
       );
       if (!spellChoice) continue;
@@ -98,14 +99,14 @@ export default class ArcanePrototype extends DDBEnricherData {
         playerClass.alwaysKnownSpells ?? [],
       ];
       for (const bucket of buckets) {
-        const found = bucket.find((s: any) => s?.definition?.id === ddbSpellId);
+        const found = bucket.find((s: IDDBSpellEntry) => s?.definition?.id === ddbSpellId);
         if (found) {
           return { name: found.definition.name, level: found.definition.level ?? 0 };
         }
       }
     }
     const flatSpells = ddb.character?.spells?.class ?? [];
-    const found = flatSpells.find((s: any) => s?.definition?.id === ddbSpellId);
+    const found = flatSpells.find((s: IDDBSpellEntry) => s?.definition?.id === ddbSpellId);
     if (found) return { name: found.definition.name, level: found.definition.level ?? 0 };
     return null;
   }
@@ -128,7 +129,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     spellImg?: string;
     imbuedLevel: number;
     ddbSpellId: number;
-  }): any {
+  }): I5eConsumableItem {
     const baseSystem = SystemHelpers.getTemplate("consumable");
     return {
       _id: foundry.utils.randomID(),
@@ -148,7 +149,7 @@ export default class ArcanePrototype extends DDBEnricherData {
         properties: ["mgc"],
         identified: true,
         activities: {},
-      }),
+      }) as I5eConsumableSystemData,
       flags: {
         ddbimporter: {
           arcanePrototype: { spellUuid, imbuedLevel, ddbSpellId, source: "ddb-import" },
@@ -158,23 +159,23 @@ export default class ArcanePrototype extends DDBEnricherData {
     };
   }
 
-  async _attachCastActivities(item: any, { spellName, spellUuid, imbuedLevel }: {
+  async _attachCastActivities(item: I5eInventoryItem, { spellName, spellUuid, imbuedLevel }: {
     spellName: string;
     spellUuid: string;
     imbuedLevel: number;
   }): Promise<void> {
-    const spellOverride = {
+    const spellOverride: I5eActivitySpell = {
       uuid: spellUuid,
       properties: ["vocal", "somatic"],
       level: imbuedLevel,
-      challenge: { attack: null, save: null, override: false },
+      challenge: { attack: undefined, save: undefined, override: false },
       spellbook: false,
     };
 
     await DDBBasicActivity.createActivity(
       {
         type: DDBEnricherData.ACTIVITY_TYPES.CAST,
-        character: this.ddbParser,
+        character: this.ddbParser?.ddbCharacter?.raw.character,
         document: item,
         name: `Cast ${spellName} (Destroy Prototype)`,
       },
@@ -194,7 +195,7 @@ export default class ArcanePrototype extends DDBEnricherData {
     await DDBBasicActivity.createActivity(
       {
         type: DDBEnricherData.ACTIVITY_TYPES.CAST,
-        character: this.ddbParser,
+        character: this.ddbParser?.ddbCharacter?.raw.character,
         document: item,
         name: `Cast ${spellName} (Spell Slot)`,
       },
@@ -219,11 +220,11 @@ export default class ArcanePrototype extends DDBEnricherData {
     );
   }
 
-  async cleanup() {
+  override async cleanup() {
     const selections = this._getPrototypeSelections();
     if (selections.length === 0) return;
 
-    const items: any[] = [];
+    const items: I5eInventoryItem[] = [];
     let totalSpent = 0;
 
     for (const sel of selections) {
@@ -260,7 +261,8 @@ export default class ArcanePrototype extends DDBEnricherData {
 
     const factory = this.ddbParser.ddbCharacter?._characterFeatureFactory;
     if (factory?.parsed?.features) {
-      factory.parsed.features.push(...items);
+      // our parsed features here actually assume no items - TODO loop back and refactor
+      factory.parsed.features.push(...(items as unknown as T5eFeatureMixinDataTypes[]));
     } else {
       logger.warn("ArcanePrototype: _characterFeatureFactory.parsed.features unavailable; skipping push");
     }

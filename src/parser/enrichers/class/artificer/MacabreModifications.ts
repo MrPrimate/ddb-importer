@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MacabreModifications extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       // {
       //   init: {
@@ -143,7 +143,7 @@ export default class MacabreModifications extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       // {
       //   type: "enchant",
@@ -168,6 +168,7 @@ export default class MacabreModifications extends DDBEnricherData {
         data: {
           duration: {
             seconds: null,
+            rounds: null,
           },
         },
       },
@@ -182,13 +183,14 @@ export default class MacabreModifications extends DDBEnricherData {
         name: "Macabre Modification: Gaunt Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
-          expiry: "turnStart",
+          // "Frightened condition until the start of its next turn"
+          expiry: "targetStart",
         },
         activityMatch: "Macabre Modification: Gaunt Save",
         data: {
           duration: {
             seconds: null,
+            rounds: null,
           },
         },
       },

@@ -1,0 +1,38 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class AidNotGivenHeal extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Aid Not Given: Heal",
+      activationType: "bonus",
+      targetType: "creature",
+      data: {
+        range: {
+          units: "touch",
+        },
+        healing: DDBEnricherData.basicDamagePart({
+          customFormula: "@scale.monk.die.die + @abilities.wis.mod",
+          type: "healing",
+        }),
+      },
+    };
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
+        },
+      },
+    };
+  }
+
+}
