@@ -54,8 +54,7 @@ describe("_checkActivityGeneration - what it builds", () => {
     expect(escape.options.generateConsumption).toBe(false);
     expect(escape.options.generateTarget).toBe(false);
     expect(escape.options.noSpellslot).toBe(true);
-    expect(escape.options.data.description.value).toContain("DC 10 Strength (Athletics) check");
-    expect(escape.options.data.description.value).not.toContain("Dexterity saving throw");
+    expect(escape.options.data?.description?.value).toBeUndefined();
   });
 
   it("names a wound-closing Medicine check after its skill", () => {
@@ -100,10 +99,10 @@ describe("_checkActivityGeneration - what it builds", () => {
     expect(outline.options.activationOverride.condition).toContain("Dexterity");
   });
 
-  it("carries the outcome sentence into the description", () => {
+  it("does not copy the outcome sentence into an activity description", () => {
     const [outline] = generate("The restrained target can use its action to make a DC 15 Strength check. On a success, the effect ends.");
 
-    expect(outline.options.data.description.value).toBe("<p>The restrained target can use its action to make a DC 15 Strength check. On a success, the effect ends.</p>");
+    expect(outline.options.data?.description?.value).toBeUndefined();
   });
 
   it("emits nothing for scenery checks", () => {

@@ -228,35 +228,6 @@ describe("DDBDataUtils.findComponentByComponentId", () => {
     expect(result?.definition?.name).toBe("Action Surge");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("wraps an optional class feature in a synthetic { definition, levelScale }", () => {
-    const ddb = makeOptionalDDB();
-    const result: any = DDBDataUtils.findComponentByComponentId(ddb, 500);
-    // definition is the classOptions element itself (same reference)
-    expect(result.definition).toBe(ddb.classOptions[0]);
-    // levelScale is the highest scale at/below the owning class level (5)
-    expect(result.levelScale.level).toBe(5);
-    expect(result.levelScale.fixedValue).toBe(2);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does NOT mutate the shared classOptions element", () => {
-    const ddb = makeOptionalDDB();
-    DDBDataUtils.findComponentByComponentId(ddb, 500);
-    expect("levelScale" in ddb.classOptions[0]).toBe(false);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null levelScale for an optional feature with no scales", () => {
-    const ddb = makeOptionalDDB();
-    const result: any = DDBDataUtils.findComponentByComponentId(ddb, 501);
-    expect(result.definition).toBe(ddb.classOptions[1]);
-    expect(result.levelScale).toBeNull();
-  });
-
   it("returns undefined for an unknown component id", () => {
     const ddb = makeDDB({ classOptions: [] });
     expect(DDBDataUtils.findComponentByComponentId(ddb, 99999)).toBeUndefined();

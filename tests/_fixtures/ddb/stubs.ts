@@ -91,9 +91,6 @@ class FakeActivityDocument {
         data.match = { proficiency: false, attacks: false, saves: false };
         data.bonuses = { ac: "", hd: "", hp: "", attackDamage: "", saveDamage: "", healing: "" };
         break;
-      case "teleport":
-        data.teleport = { override: false, units: "ft", value: "" };
-        break;
       case "enchant":
         data.enchant = { self: false };
         data.restrictions = { allowMagical: false, type: "" };
@@ -127,7 +124,6 @@ const ACTIVITY_TYPE_KEYS = [
   "heal",
   "save",
   "summon",
-  "teleport",
   "transform",
   "utility",
 ];

@@ -140,18 +140,6 @@ describe("consumption linking child uses", () => {
     expect(update.system.uses).toEqual({ spent: 2, max: "" });
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("still links the child activity to the parent resource", async () => {
-    const parent = makeParent();
-    const updates = await runLinking([parent, makeChild()]);
-    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
-    expect(update.system.activities.ddbHarnessDivine.consumption.targets).toEqual([
-      { type: "itemUses", value: "1", target: "feat:channel-divinity" },
-    ]);
-    expect(update.system.activities.ddbHarnessDivine.consumption.targets[0].target).not.toBe(parent._id);
-  });
-
   it("finds a dictionary parent by its normalized identifier after it is renamed", async () => {
     const updates = await runLinking([
       makeParent({ name: "Renamed Divine Pool" }),

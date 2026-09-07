@@ -67,31 +67,6 @@ describe("AdvancementHelper.getChoiceReplacements", () => {
 });
 
 // =============================================================================
-// hasScaleConfiguration
-// =============================================================================
-describe("AdvancementHelper.hasScaleConfiguration", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns true when configuration has a scale key", () => {
-    const adv: any = { configuration: { scale: {} } };
-    expect(AdvancementHelper.hasScaleConfiguration(adv)).toBe(true);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns false when configuration lacks scale", () => {
-    const adv: any = { configuration: { identifier: "x" } };
-    expect(AdvancementHelper.hasScaleConfiguration(adv)).toBe(false);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns false when configuration is missing", () => {
-    const adv: any = { name: "No Config" };
-    expect(AdvancementHelper.hasScaleConfiguration(adv)).toBe(false);
-  });
-});
-
-// =============================================================================
 // isBaseProficiency
 // =============================================================================
 describe("AdvancementHelper.isBaseProficiency", () => {
@@ -112,46 +87,7 @@ describe("AdvancementHelper.isBaseProficiency", () => {
   });
 });
 
-// =============================================================================
-// convertToSingularDie / renameTotal / rename / addSingularDie
-// =============================================================================
-describe("AdvancementHelper.convertToSingularDie", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("sets every scale entry's die number to 1 and appends (Die) to name", () => {
-    const adv: any = {
-      name: "Bardic Inspiration",
-      configuration: { scale: { 1: { number: 2, faces: 6 }, 5: { number: 3, faces: 8 } } },
-    };
-    const result: any = AdvancementHelper.convertToSingularDie(adv);
-    expect(result.name).toBe("Bardic Inspiration (Die)");
-    expect(result.configuration.scale["1"]).toEqual({ number: 1, faces: 6 });
-    expect(result.configuration.scale["5"]).toEqual({ number: 1, faces: 8 });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns the advancement unchanged when there is no scale", () => {
-    const adv: any = { name: "Plain", configuration: {} };
-    const result: any = AdvancementHelper.convertToSingularDie(adv);
-    expect(result.name).toBe("Plain");
-  });
-});
-
-describe("AdvancementHelper.renameTotal", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("appends (Total) to the name", () => {
-    const adv: any = { name: "Sneak Attack" };
-    expect((AdvancementHelper.renameTotal(adv) as any).name).toBe("Sneak Attack (Total)");
-  });
-});
-
 describe("AdvancementHelper.rename", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("replaces the name when newName is supplied", () => {
-    const adv: any = { name: "Old", configuration: {} };
-    const result: any = AdvancementHelper.rename(adv, { newName: "New" } as any);
-    expect(result.name).toBe("New");
-  });
 
   it("updates identifier only when configuration already has one", () => {
     const adv: any = { name: "T", configuration: { identifier: "old-id" } };
@@ -159,51 +95,6 @@ describe("AdvancementHelper.rename", () => {
     expect(result.configuration.identifier).toBe("new-id");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does not add an identifier to a configuration lacking one", () => {
-    const adv: any = { name: "T", configuration: {} };
-    const result: any = AdvancementHelper.rename(adv, { identifier: "new-id" } as any);
-    expect(result.configuration.identifier).toBeUndefined();
-  });
-});
-
-describe("AdvancementHelper.buildNumberScale / buildDiceScale", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("builds a numeric scale advancement from level to value entries", () => {
-    const result: any = AdvancementHelper.buildNumberScale({ name: "Moxie", identifier: "moxie", scale: { 2: 2, 4: 3 } });
-    expect(result.type).toBe("ScaleValue");
-    expect(result._id).toBeTruthy();
-    expect(result.name).toBe("Moxie");
-    expect(result.configuration).toMatchObject({ identifier: "moxie", type: "number", scale: { 2: { value: 2 }, 4: { value: 3 } } });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds a dice scale advancement from level to die entries", () => {
-    const result: any = AdvancementHelper.buildDiceScale({
-      name: "Sneak Attack", identifier: "sneak-attack", scale: { 1: { number: 1, faces: 6 }, 3: { number: 2, faces: 6 } },
-    });
-    expect(result.name).toBe("Sneak Attack");
-    expect(result.configuration).toMatchObject({
-      identifier: "sneak-attack", type: "dice", scale: { 1: { number: 1, faces: 6 }, 3: { number: 2, faces: 6 } },
-    });
-  });
-});
-
-describe("AdvancementHelper.fixedNumberScale", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("builds a numeric scale advancement from hand-written levels, ignoring its input", () => {
-    const fn = AdvancementHelper.fixedNumberScale({ name: "Jinx Points", identifier: "jinx-points", scale: { 3: 4, 13: 6 } });
-    const result: any = fn({ name: "Misfortunist", configuration: { identifier: "misfortunist", scale: { 3: { value: 2 } } } } as any);
-    expect(result.type).toBe("ScaleValue");
-    expect(result.name).toBe("Jinx Points");
-    expect(result.configuration).toMatchObject({
-      identifier: "jinx-points",
-      type: "number",
-      scale: { 3: { value: 4 }, 13: { value: 6 } },
-    });
-  });
 });
 
 describe("AdvancementHelper.addScaleEntries", () => {
@@ -222,19 +113,6 @@ describe("AdvancementHelper.addScaleEntries", () => {
 });
 
 describe("AdvancementHelper.addSingularDie", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns a singular-die copy with a fresh id and -die identifier", () => {
-    const adv: any = {
-      _id: "originalid1234567",
-      name: "Bardic Inspiration",
-      configuration: { identifier: "bardic-inspiration", scale: { 1: { number: 2, faces: 6 } } },
-    };
-    const result: any = AdvancementHelper.addSingularDie(adv);
-    expect(result._id).not.toBe("originalid1234567");
-    expect(result.name).toBe("Bardic Inspiration (Die)");
-    expect(result.configuration.identifier).toBe("bardic-inspiration-die");
-    expect(result.configuration.scale["1"]).toEqual({ number: 1, faces: 6 });
-  });
 
   it("does not mutate the original advancement", () => {
     const adv: any = {

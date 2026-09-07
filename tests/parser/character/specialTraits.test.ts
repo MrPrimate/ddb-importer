@@ -102,35 +102,4 @@ describe("DDBCharacter._setSpecialTraitFlags", () => {
     expect(mock.raw.character.flags.dnd5e.wildMagic).toBe(false);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("keeps wildMagic when a later multiclass subclass is iterated", () => {
-    // the classes.forEach once assigned dnd5e.wildMagic per class rather than
-    // OR-ing, so a wild magic sorcerer multiclassed into any other subclassed
-    // class lost the flag depending on class order; the flag now accumulates
-    const wildMagicClass = subclassed([{ name: "Wild Magic Surge", requiredLevel: 1 }], 3);
-    const otherSubclassed = {
-      level: 2,
-      classFeatures: [],
-      definition: { id: 3, name: "Cleric", classFeatures: [] },
-      subclassDefinition: { id: 4, classFeatures: [{ name: "Disciple of Life", requiredLevel: 1 }] },
-    };
-    const mock = traitMock({ classes: [wildMagicClass, otherSubclassed] });
-    setSpecialTraitFlags.call(mock);
-    expect(mock.raw.character.flags.dnd5e.wildMagic).toBe(true);
-
-    // order must not matter
-    const reversed = traitMock({ classes: [otherSubclassed, wildMagicClass] });
-    setSpecialTraitFlags.call(reversed);
-    expect(reversed.raw.character.flags.dnd5e.wildMagic).toBe(true);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does nothing without DDB source data", () => {
-    const mock = traitMock({});
-    mock.source = undefined;
-    setSpecialTraitFlags.call(mock);
-    expect(mock.raw.character.flags.dnd5e).toBeUndefined();
-  });
 });

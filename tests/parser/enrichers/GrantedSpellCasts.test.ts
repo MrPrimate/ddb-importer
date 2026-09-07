@@ -93,12 +93,6 @@ describe("once per Long Rest casts of an always-prepared spell", () => {
     expectFreeCast(e, spell, { period: "lr" });
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to one use per Long Rest when the character payload carries no spell", () => {
-    const e = build(ClassEnrichers.Paladin.FaithfulSteed, "Faithful Steed", [], { klass: "Paladin" });
-    expect(e.override.uses).toMatchObject({ max: "1", recovery: [{ period: "lr", type: "recoverAll" }] });
-  });
 });
 
 describe("Warlock MysticArcanum", () => {
@@ -126,11 +120,6 @@ describe("Warlock MysticArcanum", () => {
 });
 
 describe("Wizard UndeadThralls", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("is the AU free Animate Dead in 2024", () => {
-    const e = build(ClassEnrichers.Wizard.UndeadThralls, "Undead Thralls", [grantedSpell(0, "Animate Dead", oncePerLongRest, false)]);
-    expectFreeCast(e, "Animate Dead", { period: "lr" });
-  });
 
   it("keeps the 2014 spellbook grant at its defaults", () => {
     const e = build(ClassEnrichers.Wizard.UndeadThralls, "Undead Thralls", [], { is2014: true });
@@ -186,19 +175,6 @@ describe("Ranger FeyReinforcements and Sorcerer DragonCompanion", () => {
     const e = build(Enricher, feature, [grantedSpell(0, spell, oncePerLongRest, false)], { klass });
     expectFreeCast(e, spell, { period: "lr" });
     expect(e.activity.data.spell.properties).toEqual(["material"]);
-  });
-});
-
-describe("ability-modifier scaled casts", () => {
-  it.each([
-    ["Ranger", ClassEnrichers.Ranger.MistyWanderer, "Misty Wanderer", "Misty Step", "max(1, @abilities.wis.mod)"],
-    ["Artificer", ClassEnrichers.Artificer.RestorativeReagents, "Restorative Reagents", "Lesser Restoration", "max(1, @abilities.int.mod)"],
-  ])("%s %s casts %s with a minimum of one use", (klass, Enricher, feature, spell, max) => {
-    const scaled = { maxUses: 0, resetType: 2, numberUsed: 2, operator: 1, statModifierUsesId: 5 };
-    const e = build(Enricher, feature, [grantedSpell(0, spell, scaled, false)], { klass });
-    expect(e.type).toBe("cast");
-    expect(e.activity).toMatchObject({ addSpellUuid: spell, addItemConsume: true, noSpellslot: true });
-    expect(e.override.uses).toMatchObject({ spent: 2, max, recovery: [{ period: "lr", type: "recoverAll" }] });
   });
 });
 

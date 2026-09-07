@@ -44,13 +44,6 @@ describe("DDBCharacter.getBackgroundName", () => {
     expect(DDBCharacter.prototype.getBackgroundName.call(mock)).toBe("Void Sailor");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns an empty string when the source is not loaded", () => {
-    const mock = bioMock({});
-    mock.source = undefined;
-    expect(DDBCharacter.prototype.getBackgroundName.call(mock)).toBe("");
-  });
 });
 
 describe("DDBCharacter trait/ideal/bond/flaw", () => {
@@ -85,13 +78,6 @@ describe("DDBCharacter trait/ideal/bond/flaw", () => {
     expect(details(mock)).toEqual({ trait: "", ideal: "", bond: "", flaw: "" });
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does not throw without a details skeleton", () => {
-    const mock = bioMock({});
-    mock.raw.character.system.details = undefined;
-    expect(() => DDBCharacter.prototype._generateTrait.call(mock)).not.toThrow();
-  });
 });
 
 describe("DDBCharacter.getCharacteristics / _generateAppearance", () => {
@@ -172,57 +158,6 @@ describe("DDBCharacter._generateBiography / _generateDescription", () => {
 });
 
 describe("DDBCharacter.getBackgroundData", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("wraps a standard background definition", () => {
-    const mock = bioMock({
-      background: {
-        hasCustomBackground: false,
-        definition: {
-          id: 10,
-          entityTypeId: 20,
-          name: "Acolyte",
-          description: "<p>You have spent your life in service.</p>",
-          featureName: "Shelter of the Faithful",
-          featureDescription: "<p>You command respect.</p>",
-        },
-        customBackground: null,
-      },
-    });
-    const data = DDBCharacter.prototype.getBackgroundData.call(mock);
-    expect(data.name).toBe("Background: Acolyte");
-    expect(data.id).toBe(10);
-    expect(data.entityTypeId).toBe(20);
-    // the already-<p>-wrapped DDB description was once wrapped in a second <p>
-    // (invalid nesting); HTML descriptions now pass through unwrapped
-    expect(data.description).toBe(
-      "<h1>Background: Acolyte</h1><p>You have spent your life in service.</p>"
-      + "<h2>Shelter of the Faithful</h2><p>You command respect.</p>",
-    );
-    expect(data.definition.name).toBe("Background: Acolyte");
-    expect(data.definition.originalDescription).toBe("<p>You have spent your life in service.</p>");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("skips the feature heading when the feature description is blank html", () => {
-    const mock = bioMock({
-      background: {
-        hasCustomBackground: false,
-        definition: {
-          id: 11,
-          entityTypeId: 20,
-          name: "Urchin",
-          description: null,
-          shortDescription: "Street life.\r\n",
-          featureName: "City Secrets",
-          featureDescription: "<p> </p>",
-        },
-        customBackground: null,
-      },
-    });
-    const data = DDBCharacter.prototype.getBackgroundData.call(mock);
-    expect(data.description).toBe("<h1>Background: Urchin</h1>Street life.");
-  });
 
   it("wraps a plain-text homebrew description in a paragraph", () => {
     // custom backgrounds can carry free typed text with no markup; only those

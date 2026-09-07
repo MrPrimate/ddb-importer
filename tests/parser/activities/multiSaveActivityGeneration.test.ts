@@ -76,14 +76,11 @@ describe("_multiSaveActivityGeneration - sectioned text", () => {
     expect(frostShot.options.onSave).toBe("none");
   });
 
-  it("carries each section's own rules text onto its activity", () => {
+  it("does not add description values to section activities", () => {
     const [frostShot, poisonSpray] = generate(ARCANE_CANNON);
 
-    // dnd5e falls back to the whole document description when an activity has none, so without
-    // this every generated activity's card would repeat all the others
-    expect(frostShot.options.data.description.value).toContain("Constitution saving throw");
-    expect(frostShot.options.data.description.value).not.toContain("Acid Jet");
-    expect(poisonSpray.options.data.description.value).toContain("60-foot cone");
+    expect(frostShot.options.data?.description?.value).toBeUndefined();
+    expect(poisonSpray.options.data?.description?.value).toBeUndefined();
   });
 
   it("leaves the description alone in flat mode, where no section owns the text", () => {

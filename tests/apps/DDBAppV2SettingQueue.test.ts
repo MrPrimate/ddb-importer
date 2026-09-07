@@ -26,6 +26,9 @@ type TQueueApp = DDBAppV2 & {
   queueSettingUpdate: (update: () => Promise<void>, options?: { key?: string | null; render?: boolean }) => Promise<void>;
   trackInteractions: () => void;
   canRunQueuedRender: () => boolean;
+  flushSettingUpdates: () => Promise<void>;
+  settingRenderFlushRequested: boolean;
+  _preRender: (context: any, options: any) => Promise<void>;
   _preSyncPartState: (partId: string, newElement: HTMLElement, priorElement: HTMLElement, state: any) => void;
   _syncPartState: (partId: string, newElement: HTMLElement, priorElement: HTMLElement, state: any) => void;
 };
@@ -37,6 +40,7 @@ type TQueueApp = DDBAppV2 & {
 const base = Object.getPrototypeOf(DDBAppV2.prototype);
 base._preSyncPartState = vi.fn();
 base._syncPartState = vi.fn();
+base._preRender = vi.fn(async () => Promise.resolve());
 
 // DDBAppV2 is abstract and its constructor needs foundry globals, so exercise the queue
 // against a plain object carrying the state and the markup the methods touch
@@ -57,6 +61,8 @@ function buildApp(markup = ""): TQueueApp {
     settingRenderIdleMs: 30,
     settingRenderPollMs: 5,
     lastInteractionAt: 0,
+    controlSettled: false,
+    settingRenderFlushRequested: false,
     interactionElement: null,
     queueSettingUpdate: proto.queueSettingUpdate,
     awaitSettingUpdates: proto.awaitSettingUpdates,
@@ -64,6 +70,8 @@ function buildApp(markup = ""): TQueueApp {
     trackInteractions: proto.trackInteractions,
     canRunQueuedRender: proto.canRunQueuedRender,
     scheduleSettingRender: proto.scheduleSettingRender,
+    flushSettingUpdates: proto.flushSettingUpdates,
+    _preRender: proto._preRender,
     _preSyncPartState: proto._preSyncPartState,
     _syncPartState: proto._syncPartState,
   };
@@ -185,9 +193,7 @@ describe("DDBAppV2 setting update queue", () => {
     expect(app.render).toHaveBeenCalledTimes(1);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("holds the render until the user stops clicking", async () => {
+  it("holds the render until the user stops clicking", async () => {
     const app = buildApp(`<multi-select id="sources"></multi-select>`);
     app.trackInteractions();
     const sources = app.element.querySelector("multi-select")!;
@@ -203,9 +209,7 @@ describe("DDBAppV2 setting update queue", () => {
     expect(app.render).toHaveBeenCalledTimes(1);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("holds the render while a control in the app has focus", async () => {
+  it("holds the render while a control in the app has focus", async () => {
     const app = buildApp(`<multi-select id="sources"><select><option value="a">A</option></select></multi-select>`);
     const select = app.element.querySelector("select")!;
     // an open <select> popup keeps focus on the select
@@ -216,6 +220,93 @@ describe("DDBAppV2 setting update queue", () => {
     expect(app.render).not.toHaveBeenCalled();
 
     select.blur();
+    await settle(app);
+    expect(app.render).toHaveBeenCalledTimes(1);
+  });
+
+  it("lets the render land once a focused select has fired change", async () => {
+    const app = buildApp(`<multi-select id="classes"><select><option value="a">A</option></select></multi-select>`);
+    app.trackInteractions();
+    const select = app.element.querySelector("select")!;
+    select.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    select.focus();
+
+    // the popup is open: nothing chosen yet
+    await app.queueSettingUpdate(async () => Promise.resolve(), { key: "classes" });
+    expect(app.canRunQueuedRender()).toBe(false);
+
+    // choosing closes the popup and fires change, but the select keeps focus
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(document.activeElement).toBe(select);
+    await settle(app);
+    expect(app.render).toHaveBeenCalledTimes(1);
+
+    // touching the select again reopens the popup, so the hold returns
+    select.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    app.lastInteractionAt = 0;
+    expect(app.canRunQueuedRender()).toBe(false);
+  });
+
+  it("abandons a render whose context was prepared before the user reopened a dropdown", async () => {
+    const app = buildApp(`<multi-select id="classes"><select><option value="a">A</option></select></multi-select>`);
+    app.trackInteractions();
+    const select = app.element.querySelector("select")!;
+    let prepared = 0;
+    let swapped = 0;
+    // stand-in for Foundry's render: prepare the context, run _preRender, then swap the DOM
+    Object.assign(app, {
+      render: vi.fn(async (options: any) => {
+        prepared += 1;
+        // preparing the muncher's context is slow enough for the user to click the dropdown again
+        if (prepared === 1) select.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+        await app._preRender({}, options);
+        swapped += 1;
+        return app;
+      }),
+    });
+
+    // choose a class: the select keeps focus but has settled, so the render goes ahead
+    select.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    select.focus();
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    await app.queueSettingUpdate(async () => Promise.resolve(), { key: "classes" });
+
+    await vi.waitFor(() => expect(prepared).toBe(1));
+    expect(swapped).toBe(0);
+    expect(app.render).toHaveBeenCalledWith(expect.objectContaining({ ddbSettingRender: true }));
+
+    // the dropdown stays open until the user picks the next class
+    await new Promise((resolve) => {
+      setTimeout(resolve, 60);
+    });
+    expect(swapped).toBe(0);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    await settle(app);
+    expect(prepared).toBe(2);
+    expect(swapped).toBe(1);
+  });
+
+  it("a flush lands the parked render without waiting for the user to go quiet", async () => {
+    const app = buildApp(`<multi-select id="sources"><select><option value="a">A</option></select></multi-select>`);
+    app.element.querySelector("select")!.focus();
+    app.lastInteractionAt = Date.now();
+
+    await app.queueSettingUpdate(async () => Promise.resolve());
+    expect(app.render).not.toHaveBeenCalled();
+
+    await app.flushSettingUpdates();
+    expect(app.render).toHaveBeenCalledTimes(1);
+    expect(app.settingRenderFlushRequested).toBe(false);
+  });
+
+  it("a flush with nothing parked leaves the next queued render its usual wait", async () => {
+    const app = buildApp();
+    await app.flushSettingUpdates();
+    expect(app.settingRenderFlushRequested).toBe(false);
+
+    app.lastInteractionAt = Date.now();
+    await app.queueSettingUpdate(async () => Promise.resolve());
+    expect(app.canRunQueuedRender()).toBe(false);
     await settle(app);
     expect(app.render).toHaveBeenCalledTimes(1);
   });
@@ -231,9 +322,7 @@ describe("DDBAppV2 setting update queue", () => {
     expect(app.render).not.toHaveBeenCalled();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("carries live multi-select values across a render that lands mid-write", async () => {
+  it("carries live multi-select values across a render that lands mid-write", async () => {
     const app = buildApp();
     const prior = document.createElement("div");
     const next = document.createElement("div");

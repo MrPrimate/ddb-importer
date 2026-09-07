@@ -162,7 +162,6 @@ describe("Muncher selected source summaries", () => {
 
   it("restores the remembered display preference in the muncher context", () => {
     setMockSettings({
-      "add-ddb-snippets-to-activities": false,
       "munching-policy-use-source-filter": false,
       "munching-policy-muncher-sources": [],
       "munching-policy-muncher-included-source-categories": [CATEGORY_A.id],

@@ -52,15 +52,6 @@ describe("DDBMonster.getSizeFromId", () => {
     expect(result.size).toBe(4);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to Medium for an unknown sizeId", () => {
-    const mock = makeMockMonster();
-    const result = getSizeFromId.call(mock, 999);
-    expect(result.name).toBe("Medium");
-    expect(result.value).toBe("med");
-    expect(result.size).toBe(1);
-  });
 });
 
 describe("DDBMonster._generateSize", () => {

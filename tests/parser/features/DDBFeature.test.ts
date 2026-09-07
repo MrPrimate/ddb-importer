@@ -77,25 +77,4 @@ describe("DDBFeature naming", () => {
     expect(feature.originalName).toBe("Vampiric Bite");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("uses a custom name set on the trait's linked action", () => {
-    const feature = buildTrait([
-      { typeId: 8, valueId: "12052877", valueTypeId: "222216831", value: "Draining Strike" },
-    ]);
-    expect(feature.data.name).toBe("Draining Strike");
-    // enricher lookups, dedupe and FORCE_WEAPON_FEATURES all key off originalName
-    expect(feature.originalName).toBe("Vampiric Bite");
-    expect(feature.documentType).toBe("weapon");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("uses a custom name set directly on the trait", () => {
-    const feature = buildTrait([
-      { typeId: 8, valueId: "16553775", valueTypeId: "1960452172", value: "Blood Drinker" },
-    ]);
-    expect(feature.data.name).toBe("Blood Drinker");
-    expect(feature.originalName).toBe("Vampiric Bite");
-  });
 });

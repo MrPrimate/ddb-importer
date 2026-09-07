@@ -44,7 +44,6 @@ import DivineStrike from "../../../src/parser/enrichers/class/cleric/DivineStrik
 import BlessedStrikes from "../../../src/parser/enrichers/class/cleric/BlessedStrikes";
 import BlessedStrikesDivineStrike from "../../../src/parser/enrichers/class/cleric/BlessedStrikesDivineStrike";
 import ElementalFuryPrimalStrike from "../../../src/parser/enrichers/class/druid/ElementalFuryPrimalStrike";
-import SneakAttack from "../../../src/parser/enrichers/class/rogue/SneakAttack";
 import DivineFury from "../../../src/parser/enrichers/class/barbarian/DivineFury";
 import GiantsMight from "../../../src/parser/enrichers/class/fighter/GiantsMight";
 import GeniesVessel from "../../../src/parser/enrichers/class/warlock/GeniesVessel";
@@ -117,19 +116,6 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);
     expect(changes[0]).toMatchObject({ key: BONUS_KEY, value, mode: 5 /* OVERRIDE: this branch emits numeric change modes */ });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("Sneak Attack pins its condition including the nearby-ally fallback", () => {
-    const changes = ac5eChanges(SneakAttack);
-    expect(changes).toHaveLength(1);
-    expect(changes[0].value).toBe(
-      "bonus=@scale.rogue.sneak-attack; oncePerTurn; optin; (itemProperties.fin || actionType.rwak)"
-      + " && (hasAdvantage || (!hasDisadvantage && checkNearby(opponentId, 'different', 5, {count: (distance <= 5 ? 2 : 1)})))",
-    );
-    expect(changes[0].hint.midiNever).toBe(true);
-    expect(changes[0].hint.ac5eOnly).toBe(true);
   });
 
   it("Genie's Wrath types the bonus by patron and skips the base vessel", () => {
@@ -237,19 +223,6 @@ describe("Healer feat healing die rerolls", () => {
     const enricher = makeEnricherData(Healer, { name: "Healer", actions: null, is2014 });
     return (enricher.additionalActivities as any[]).map((a) => a.build.healingPart.modifiers);
   }
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("bakes r1 onto every 2024 Battle Medic die when AC5e is absent", () => {
-    expect(healingModifiers(false)).toEqual([["r1"], ["r1"], ["r1"], ["r1"], ["r1"]]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("leaves the dice alone when AC5e is installed, as its effect does the reroll", () => {
-    effectModulesMock.ac5eInstalled = true;
-    expect(healingModifiers(false)).toEqual([undefined, undefined, undefined, undefined, undefined]);
-  });
 
   it("emits nothing for the 2014 feat, which has no reroll", () => {
     expect(healingModifiers(true)).toEqual([]);

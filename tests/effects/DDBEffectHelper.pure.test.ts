@@ -72,11 +72,6 @@ function makeAttackActivity({
 }
 
 describe("DDBEffectHelper.isAttack", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns false without an activity", () => {
-    expect(DDBEffectHelper.isAttack()).toBe(false);
-    expect(DDBEffectHelper.isAttack({})).toBe(false);
-  });
 
   it("returns false when the activity is not an attack", () => {
     expect(DDBEffectHelper.isAttack({ activity: makeAttackActivity({ type: "save" }) })).toBe(false);
@@ -104,21 +99,6 @@ describe("DDBEffectHelper.isAttack", () => {
     expect(DDBEffectHelper.isAttack({ activity, andHasProperties: ["fin", "thr"] })).toBe(false);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("treats orHasProperties as an alternative to the type gate", () => {
-    // A thrown melee weapon (attack type "melee" plus "thr") counts as a ranged attack.
-    const thrown = makeAttackActivity({ value: "melee", properties: ["thr"] });
-    expect(DDBEffectHelper.isAttack({ activity: thrown, type: "ranged", orHasProperties: ["thr"] })).toBe(true);
-    // A plain melee weapon without "thr" is not a ranged attack.
-    const plainMelee = makeAttackActivity({ value: "melee", properties: [] });
-    expect(DDBEffectHelper.isAttack({ activity: plainMelee, type: "ranged", orHasProperties: ["thr"] })).toBe(false);
-    // A real ranged weapon still matches on type directly.
-    const ranged = makeAttackActivity({ value: "ranged", properties: [] });
-    expect(DDBEffectHelper.isAttack({ activity: ranged, type: "ranged", orHasProperties: ["thr"] })).toBe(true);
-    // With no type gate, orHasProperties does not reject.
-    expect(DDBEffectHelper.isAttack({ activity: plainMelee, orHasProperties: ["thr"] })).toBe(true);
-  });
 });
 
 describe("DDBEffectHelper.isMeleeWeaponAttack", () => {
@@ -134,27 +114,11 @@ describe("DDBEffectHelper.isMeleeWeaponAttack", () => {
     expect(DDBEffectHelper.isMeleeWeaponAttack({ activity: makeAttackActivity({ classification: "spell" }) })).toBe(false);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns false without an activity", () => {
-    expect(DDBEffectHelper.isMeleeWeaponAttack()).toBe(false);
-    expect(DDBEffectHelper.isMeleeWeaponAttack({})).toBe(false);
-  });
 });
 
 describe("DDBEffectHelper.isRangedWeaponAttack", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("treats a thrown melee weapon beyond melee range as a ranged attack", () => {
-    vi.spyOn(DDBEffectHelper, "getDistance").mockReturnValue(30);
-    const thrown = makeAttackActivity({ value: "melee", properties: ["thr"] });
-    expect(DDBEffectHelper.isRangedWeaponAttack({
-      activity: thrown, sourceToken: {} as any, targetToken: {} as any,
-    })).toBe(true);
   });
 
   it("does not count a thrown weapon used within melee range", () => {
@@ -266,51 +230,12 @@ describe("DDBEffectHelper.isEffectExpired", () => {
   });
 });
 
-describe("DDBEffectHelper.getMonsterFeatureDamage (pre-parsed branch)", () => {
-  const damageParts = [
-    { damage: "2d6 + 3", type: "fire" },
-    { damage: "1d4", type: "poison" },
-  ];
-
-  function makeFeatureDoc(): any {
-    return { flags: { monsterMunch: { actionData: { damageParts } } } };
-  }
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns the pre-parsed damage from flags.monsterMunch.actionData.damageParts", () => {
-    const result = DDBEffectHelper.getMonsterFeatureDamage("taking 7 (2d6) fire damage", makeFeatureDoc());
-    expect(result).toBe(damageParts);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("ignores the damage text entirely when pre-parsed data exists", () => {
-    const result = DDBEffectHelper.getMonsterFeatureDamage("completely unrelated text", makeFeatureDoc());
-    expect(result).toBe(damageParts);
-  });
-});
-
 describe("DDBEffectHelper.getOvertimeDamage", () => {
   const damageParts = [{ damage: "3d8", type: "necrotic" }];
 
   function makeFeatureDoc(): any {
     return { flags: { monsterMunch: { actionData: { damageParts } } } };
   }
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns damage for 'taking ... on a failed save' text", () => {
-    const text = "the target must make a DC 15 Constitution save, taking 13 (3d8) necrotic damage on a failed save";
-    expect(DDBEffectHelper.getOvertimeDamage(text, makeFeatureDoc())).toBe(damageParts);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns damage for 'taking ... damage on a failure' text", () => {
-    const text = "make a save, taking 13 (3d8) necrotic damage on a failure";
-    expect(DDBEffectHelper.getOvertimeDamage(text, makeFeatureDoc())).toBe(damageParts);
-  });
 
   it("returns undefined when the text has no 'taking' keyword", () => {
     const text = "suffers 13 (3d8) necrotic damage on a failed save";

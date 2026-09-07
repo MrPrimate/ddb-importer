@@ -108,7 +108,7 @@ export function makeMockMonster(overrides: MockMonsterOverrides = {}): any {
           hp: {},
           ac: {},
           init: { roll: { bonus: "" } },
-          movement: { speeds: { walk: 0, fly: 0, swim: 0, burrow: 0, climb: 0 }, hover: false, units: "ft" },
+          movement: { walk: 0, fly: 0, swim: 0, burrow: 0, climb: 0, hover: false, units: "ft" },
           senses: {},
           spell: { level: 0 },
           spellcasting: "",

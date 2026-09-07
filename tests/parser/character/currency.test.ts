@@ -24,15 +24,6 @@ describe("DDBCharacter._generateCurrency (synthetic)", () => {
     expect(mock._currency.gp).toBe(10);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does nothing without DDB source data", () => {
-    const mock = currencyMock({ pp: 1, gp: 1, ep: 1, sp: 1, cp: 1 });
-    mock.source = undefined;
-    generateCurrency.call(mock);
-    expect(mock.raw.character.system.currency).toBeUndefined();
-    expect(mock._currency).toBeUndefined();
-  });
 });
 
 describe.skipIf(!auditFixturesPresent())("DDBCharacter._generateCurrency (audit fixtures)", () => {

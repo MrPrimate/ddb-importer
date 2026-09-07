@@ -48,7 +48,6 @@ import DarkDevotion from "../../../src/parser/enrichers/monster/Generic/DarkDevo
 import MentalFortitude from "../../../src/parser/enrichers/monster/Generic/MentalFortitude";
 import TwoHeads from "../../../src/parser/enrichers/monster/Generic/TwoHeads";
 import Camouflage from "../../../src/parser/enrichers/monster/Generic/Camouflage";
-import ImprovedCritical from "../../../src/parser/enrichers/monster/Generic/ImprovedCritical";
 import BloodFrenzy from "../../../src/parser/enrichers/monster/Generic/BloodFrenzy";
 import Grappler from "../../../src/parser/enrichers/monster/Generic/Grappler";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
@@ -145,18 +144,6 @@ describe("Monster generic AC5e trait enrichers", () => {
     expect(effects[0].ac5eChanges[0]).toMatchObject({
       key: "flags.automated-conditions-5e.skill.advantage",
       value: "skill.ste",
-    });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("Improved Critical uses the core weapon critical threshold flag", () => {
-    const effects = effectsFor(ImprovedCritical, "Improved Critical");
-    expect(effects[0].ac5eChanges).toBeUndefined();
-    expect(effects[0].changes[0]).toMatchObject({
-      key: "flags.dnd5e.weaponCriticalThreshold",
-      value: "19",
-      type: "downgrade",
     });
   });
 

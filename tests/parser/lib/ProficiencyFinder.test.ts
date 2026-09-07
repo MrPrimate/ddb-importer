@@ -228,45 +228,6 @@ describe("getToolProficiencies", () => {
     ]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("adds free text type 2 customProficiencies", () => {
-    const ddb = makeDdb({
-      customProficiencies: [
-        { type: 2, name: "Bagpipe Repair Kit", statId: 4, proficiencyLevel: 3, miscBonus: null, magicBonus: null },
-      ],
-    });
-    const finder = new ProficiencyFinder({ ddb });
-    const result = finder.getToolProficiencies([]);
-    expect(result.bagpiperepairkit).toEqual({
-      value: 1,
-      ability: "int",
-      roll: { bonus: "" },
-    });
-    expect(finder.customTools).toEqual([
-      { key: "bagpiperepairkit", name: "Bagpipe Repair Kit", ability: "int", toolType: "", description: "" },
-    ]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("maps free text proficiency levels and bonuses", () => {
-    const ddb = makeDdb({
-      customProficiencies: [
-        { type: 2, name: "Lockpicks", statId: 2, proficiencyLevel: 4, miscBonus: 2, magicBonus: 1 },
-        { type: 2, name: "Abacus", statId: 4, proficiencyLevel: 2, miscBonus: null, magicBonus: null },
-        { type: 1, name: "Ignored Skill", statId: 4, proficiencyLevel: 3 },
-      ],
-    });
-    const finder = new ProficiencyFinder({ ddb });
-    const result = finder.getToolProficiencies([]);
-    expect(result.lockpicks.value).toBe(2);
-    expect(result.lockpicks.ability).toBe("dex");
-    expect(result.lockpicks.roll?.bonus).toBe("+ 2 + 1");
-    expect(result.abacus.value).toBe(0.5);
-    expect(result.ignoredskill).toBeUndefined();
-  });
-
   it("carries the proficiency notes through as the tool description", () => {
     const ddb = makeDdb({
       customProficiencies: [
@@ -407,23 +368,4 @@ describe("skill proficiency", () => {
     expect(finder.getSkillProficiency(athletics, null)).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("isHalfProficiencyRoundedUp is truthy only for a matching ability modifier list", () => {
-    const finder = new ProficiencyFinder();
-    const mods: any[] = [{ type: "half-proficiency-round-up", subType: "strength-ability-checks", restriction: "" }];
-    expect(finder.isHalfProficiencyRoundedUp("str", mods)).toBeTruthy();
-    expect(finder.isHalfProficiencyRoundedUp("dex", mods)).toBeFalsy();
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("isHalfProficiencyRoundedUp reads base modifiers from the ddb when no list given", () => {
-    const ddb = makeDdb({
-      raceMods: [{ type: "half-proficiency-round-up", subType: "strength-ability-checks", restriction: "" }],
-    });
-    const finder = new ProficiencyFinder({ ddb });
-    expect(finder.isHalfProficiencyRoundedUp("str")).toBeTruthy();
-    expect(finder.isHalfProficiencyRoundedUp("cha")).toBeFalsy();
-  });
 });

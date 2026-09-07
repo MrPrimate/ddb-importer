@@ -177,14 +177,6 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
     expect(result.choices).toEqual(["standard:elvish", "standard:gnomish", "standard:goblin", "exotic:sylvan"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("keeps all speak/read/write grants", () => {
-    const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and Dwarvish.</p>");
-    expect(result.grants).toEqual(["common", "standard:dwarvish"]);
-    expect(result.number).toBe(0);
-  });
-
   it("parses speak/read/write with an extra language of choice", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and one extra language of your choice.</p>");
     expect(result.grants).toEqual(["common"]);
@@ -303,12 +295,6 @@ describe("AdvancementHelper.parseHTMLArmorProficiencies", () => {
     expect(result).toEqual({ choices: [], grants: [], number: 0 });
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("prose 'You gain proficiency with heavy armor.' grants heavy armor", () => {
-    const result = AdvancementHelper.parseHTMLArmorProficiencies("<p>You gain proficiency with heavy armor.</p>");
-    expect(result.grants).toEqual(["hvy"]);
-  });
 });
 
 // =============================================================================
@@ -352,14 +338,6 @@ describe("AdvancementHelper.parseHTMLWeaponProficiencies", () => {
   it("returns empty for 'Weapons: None'", () => {
     const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p><strong>Weapons:</strong> None</p>");
     expect(result).toEqual({ choices: [], grants: [], number: 0 });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("prose 'You gain proficiency with martial weapons.' grants the martial group", () => {
-    const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>You gain proficiency with martial weapons.</p>");
-    expect(result.grants).toEqual(["mar"]);
-    expect(result.choices).toEqual([]);
   });
 
   it("expands the Bladesinger one-handed martial melee grant", () => {
@@ -425,33 +403,6 @@ describe("AdvancementHelper.parseHTMLConditions", () => {
     expect(result.grants).toEqual(["ci:poisoned"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("parses combined poison damage and poisoned condition immunity", () => {
-    // the damage branch normalises the 'immune' kind to 'immunity', matches the
-    // poison damage type (di:poison), and the nested cross-link adds ci:poisoned.
-    const result = AdvancementHelper.parseHTMLConditions("<p>You are immune to poison damage and the poisoned condition.</p>");
-    expect(result.grants).toEqual(["di:poison", "ci:poisoned"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("parses dragonborn ancestry resistance as a choice", () => {
-    const result = AdvancementHelper.parseHTMLConditions("<p>You have resistance to the damage type associated with your Metallic Ancestry: fire, lightning, acid, or cold.</p>");
-    expect(result.number).toBe(1);
-    expect(result.choices).toEqual(expect.arrayContaining(["dr:fire", "dr:lightning", "dr:acid", "dr:cold"]));
-    expect(result.hint).toContain("metallic ancestry");
-    expect(result.grants).toEqual([]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("parses an explicit resistance choice list", () => {
-    const result = AdvancementHelper.parseHTMLConditions("<p>You have Resistance to one of the following damage types of your choice: Cold, Necrotic, or Poison.</p>");
-    expect(result.number).toBe(1);
-    expect(result.choices).toEqual(["dr:cold", "dr:necrotic", "dr:poison"]);
-  });
-
   it("grants every damage type for resistance to all damage from creatures", () => {
     const result = AdvancementHelper.parseHTMLConditions("<p>You have resistance to all damage dealt by other creatures (their attacks, spells, and other effects).</p>");
     const expected = Object.keys(CONFIG.DND5E.damageTypes).map((key) => `dr:${key}`);
@@ -495,20 +446,6 @@ describe("AdvancementHelper.parseHTMLSpellCastingAbilities", () => {
     expect(result.properties).toEqual(["material", "vocal", "somatic"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("marks material only for 'no material component'", () => {
-    const result = AdvancementHelper.parseHTMLSpellCastingAbilities("<p>You can cast the spell with no material component.</p>");
-    expect(result.properties).toEqual(["material"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("clears concentration for 'no concentration'", () => {
-    const result = AdvancementHelper.parseHTMLSpellCastingAbilities("<p>The spell requires no concentration.</p>");
-    expect(result.concentration).toBe(false);
-    expect(result.properties).toEqual(["concentration"]);
-  });
 });
 
 // =============================================================================
@@ -521,36 +458,6 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
     expect(result.cantripChoices).toEqual(["dancing lights", "light", "sacred flame"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("parses cantrip choices separated by a semicolon (homebrew)", () => {
-    // Homebrew racial trait; previously threw "Cannot read properties of undefined (reading 'split')"
-    const html = "<p>You know one of the following cantrips of your choice; Minor Illusion, Ray of Frost or Frostbite. "
-      + "You also have the ability to cast Faerie Fire once per long rest. "
-      + "Intelligence, Wisdom, or Charisma is your spellcasting ability for it (choose when you select this race)</p>";
-    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
-    expect(result.cantripChoices).toEqual(["minor illusion", "ray of frost", "frostbite"]);
-    expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("parses 'you have the ability to cast' spell grants (homebrew)", () => {
-    const html = "<p>You have the ability to cast Faerie Fire once per long rest.</p>";
-    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
-    expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("still parses 'you can cast ... once' spell grants", () => {
-    const html = "<p>You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again.</p>";
-    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
-    expect(result.spellGrants).toEqual([
-      { level: 1, name: "barkskin", amount: "1" },
-      { level: 1, name: "spike growth", amount: "1" },
-    ]);
-  });
 });
 
 // =============================================================================

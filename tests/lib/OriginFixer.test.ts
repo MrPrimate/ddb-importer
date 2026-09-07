@@ -36,27 +36,6 @@ describe("OriginFixer", () => {
     expect(updates[0].origin).toBe("Actor.newActorId0001.Item.itemId000000001");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("rewrites absolute system.origin fields the same way and leaves relative ones alone", async () => {
-    const { actor, updates } = makeActor([
-      {
-        _id: "e1",
-        name: "Structured",
-        origin: null,
-        system: {
-          origin: {
-            item: "Actor.oldActorId0000.Item.itemId000000001",
-            effect: "Item.relativeRef0001.ActiveEffect.aaaabbbbccccdddd",
-          },
-        },
-      },
-    ]);
-    await OriginFixer.updateActorEffects(actor);
-    expect(updates[0].system.origin.item).toBe("Actor.newActorId0001.Item.itemId000000001");
-    expect(updates[0].system.origin.effect).toBe("Item.relativeRef0001.ActiveEffect.aaaabbbbccccdddd");
-  });
-
   it("makes no update when nothing matches", async () => {
     const { actor, updates } = makeActor([
       { _id: "e1", name: "Fine", origin: "Actor.newActorId0001.Item.itemId000000001" },

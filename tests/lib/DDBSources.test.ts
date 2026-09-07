@@ -9,42 +9,7 @@ function makeSource(sourceId: number, sourceType = 1, pageNumber: number | null 
   return { sourceId, sourceType, pageNumber };
 }
 
-describe("DDBSources.getSource", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("finds a source by book code", () => {
-    const source = DDBSources.getSource("PHB");
-    expect(source?.id).toBe(2);
-    expect(source?.sourceCategoryId).toBe(26);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("is case insensitive", () => {
-    expect(DDBSources.getSource("phb-2024")?.id).toBe(145);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null for an unknown code", () => {
-    expect(DDBSources.getSource("NOT-A-BOOK")).toBeNull();
-  });
-});
-
 describe("DDBSources.getSourceCoverURL", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns the cover for a book that has one", () => {
-    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("PHB")))
-      .toBe("https://www.dndbeyond.com/avatars/10435/389/637248131811862290.jpeg");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("rejects the bare avatar directory DDB sends for a book with no cover", () => {
-    // 52 of the 245 shipped sources look like this, and the URL is truthy enough to render as a
-    // broken image; Critical Role is one of them
-    expect(DDBSources.getSource("CR")?.avatarURL).toBe("https://www.dndbeyond.com/avatars/");
-    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("CR"))).toBeNull();
-  });
 
   it.each([
     ["an empty string", ""],
@@ -69,19 +34,6 @@ describe("DDBSources.getBookName", () => {
 
   it("returns an empty string for an unknown code", () => {
     expect(DDBSources.getBookName("NOT-A-BOOK")).toBe("");
-  });
-});
-
-describe("DDBSources.getBookId", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns the DDB id for a known book", () => {
-    expect(DDBSources.getBookId("MM")).toBe(5);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null for an unknown book", () => {
-    expect(DDBSources.getBookId("NOT-A-BOOK")).toBeNull();
   });
 });
 
@@ -135,60 +87,6 @@ describe("DDBSources.getAdjustedSourceBook", () => {
   });
 });
 
-describe("DDBSources.getChosenSourceIdSet", () => {
-  // PHB (2) sits in category 26, the Kobold Press Northlands books (238, 239) in category 21
-  const chooseCategories = (overrides: Record<string, unknown> = {}) => {
-    setMockSettings({
-      "munching-policy-muncher-included-source-categories": [26, 21],
-      "munching-policy-use-source-filter": false,
-      "munching-policy-muncher-sources": [],
-      ...overrides,
-    });
-  };
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("includes every book of the chosen categories when no source filter is used", () => {
-    chooseCategories();
-    const ids = DDBSources.getChosenSourceIdSet();
-    expect(ids.has(2)).toBe(true);
-    expect(ids.has(238)).toBe(true);
-    expect(ids.has(239)).toBe(true);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("always seeds the core books", () => {
-    chooseCategories({ "munching-policy-muncher-included-source-categories": [] });
-    const ids = DDBSources.getChosenSourceIdSet();
-    expect([...ids].sort((a, b) => a - b)).toEqual([1, 2, 145, 148]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("honours the source filter selection", () => {
-    chooseCategories({
-      "munching-policy-use-source-filter": true,
-      "munching-policy-muncher-sources": [2],
-    });
-    const ids = DDBSources.getChosenSourceIdSet();
-    expect(ids.has(2)).toBe(true);
-    expect(ids.has(238)).toBe(false);
-    expect(ids.has(239)).toBe(false);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("can skip the core books and ignore the filter override", () => {
-    chooseCategories({
-      "munching-policy-use-source-filter": true,
-      "munching-policy-muncher-sources": [2],
-    });
-    expect(DDBSources.getChosenSourceIdSet({ includeCore: false })).toEqual(new Set([2]));
-    expect(DDBSources.getChosenSourceIdSet({ includeCore: false, useOverride: false }).has(238)).toBe(true);
-  });
-});
-
 describe("DDBSources.getBookFilter", () => {
   // PHB (2) sits in category 26, EGtW (59) in category 2
   const bookFilter = (overrides: Record<string, unknown> = {}) => {
@@ -224,137 +122,6 @@ describe("DDBSources.getBookFilter", () => {
     })).toEqual({ enabled: true, selected: [2, 59], effective: [59], ignored: [2] });
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("no longer empties the chosen book set when the selection is ineffective", () => {
-    bookFilter({ "munching-policy-muncher-included-source-categories": [21] });
-    const ids = DDBSources.getChosenSourceIdSet({ includeCore: false });
-    expect(ids.has(238)).toBe(true);
-    expect(ids.has(239)).toBe(true);
-  });
-});
-
-describe("DDBSources.isDefinitionInSourceIds", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("matches when any source is allowed", () => {
-    const definition: IDDBSourcesDefinition = { sources: [makeSource(238), makeSource(2)] };
-    expect(DDBSources.isDefinitionInSourceIds(definition, new Set([2]))).toBe(true);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("rejects definitions from other sources", () => {
-    const definition: IDDBSourcesDefinition = { sources: [makeSource(238)] };
-    expect(DDBSources.isDefinitionInSourceIds(definition, new Set([2]))).toBe(false);
-    expect(DDBSources.isDefinitionInSourceIds(definition, [2])).toBe(false);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("allows definitions without source data unless told not to", () => {
-    expect(DDBSources.isDefinitionInSourceIds({}, [2])).toBe(true);
-    expect(DDBSources.isDefinitionInSourceIds({ sources: [] }, [2])).toBe(true);
-    expect(DDBSources.isDefinitionInSourceIds({}, [2], { allowMissingSources: false })).toBe(false);
-  });
-});
-
-describe("DDBSources.groupBySourceIds", () => {
-  const entry = (name: string, sourceIds: number[]) => ({
-    name,
-    definition: { name, sources: sourceIds.map((id) => makeSource(id)) },
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("buckets entries by source", () => {
-    const grouped = DDBSources.groupBySourceIds(
-      [entry("Fireball", [2]), entry("Shield", [2]), entry("Toll the Dead", [3])],
-      (spell) => spell.definition,
-    );
-    expect([...grouped.keys()].sort()).toEqual([2, 3]);
-    expect(grouped.get(2)?.map((spell) => spell.name)).toEqual(["Fireball", "Shield"]);
-    expect(grouped.get(3)?.map((spell) => spell.name)).toEqual(["Toll the Dead"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("files a reprinted entry under every source it lists", () => {
-    const grouped = DDBSources.groupBySourceIds([entry("Fireball", [2, 145])], (spell) => spell.definition);
-    expect([...grouped.keys()].sort((a, b) => a - b)).toEqual([2, 145]);
-    expect(grouped.get(2)?.map((spell) => spell.name)).toEqual(["Fireball"]);
-    expect(grouped.get(145)?.map((spell) => spell.name)).toEqual(["Fireball"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("buckets an entry once per source even when a source is listed twice", () => {
-    const duplicated = {
-      name: "Shield",
-      definition: { name: "Shield", sources: [makeSource(2, 1), makeSource(2, 2)] },
-    };
-    const grouped = DDBSources.groupBySourceIds([duplicated], (spell) => spell.definition);
-    expect(grouped.get(2)).toHaveLength(1);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("collects entries with no source data instead of dropping them", () => {
-    const grouped = DDBSources.groupBySourceIds(
-      [entry("Homebrew Bolt", []), { name: "No definition", definition: undefined }],
-      (spell) => spell.definition,
-    );
-    expect(grouped.get(DDBSources.UNKNOWN_SOURCE_ID)?.map((spell) => spell.name))
-      .toEqual(["Homebrew Bolt", "No definition"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("loses no entry, and gives every listed source a bucket", () => {
-    const entries = [entry("A", [2]), entry("B", [2, 3]), entry("C", [3]), entry("D", [])];
-    const grouped = DDBSources.groupBySourceIds(entries, (spell) => spell.definition);
-    expect([...grouped.keys()].sort((a, b) => a - b)).toEqual([DDBSources.UNKNOWN_SOURCE_ID, 2, 3]);
-    expect(new Set([...grouped.values()].flat()).size).toBe(entries.length);
-  });
-});
-
-describe("DDBSources.getPrimarySource", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("prefers the real book over reprint and reference entries", () => {
-    const definition: IDDBSourcesDefinition = {
-      sources: [makeSource(238, 2), makeSource(2, 1), makeSource(145, 1)],
-    };
-    expect(DDBSources.getPrimarySource(definition)?.sourceId).toBe(2);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to the first entry when nothing is typed as a book", () => {
-    expect(DDBSources.getPrimarySource({ sources: [makeSource(238, 2)] })?.sourceId).toBe(238);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null when there is no source data", () => {
-    expect(DDBSources.getPrimarySource({ sources: [] })).toBeNull();
-    expect(DDBSources.getPrimarySource({})).toBeNull();
-    expect(DDBSources.getPrimarySource(null)).toBeNull();
-  });
-});
-
-describe("DDBSources.getSourceCategoryForSourceId", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("resolves a source id to its category", () => {
-    // PHB (2) sits in category 26, PHB-2024 (145) in the 2024 core category
-    const phb = DDBSources.getSourceCategoryForSourceId(2);
-    expect(phb?.id).toBe(26);
-    expect(typeof phb?.name).toBe("string");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null for an unknown source id", () => {
-    expect(DDBSources.getSourceCategoryForSourceId(99999)).toBeNull();
-  });
 });
 
 describe("DDBSources.getDDBSourceBook", () => {
@@ -370,13 +137,6 @@ describe("DDBSources.getDDBSourceBook", () => {
 });
 
 describe("DDBSources.tweakSourceData", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns early when book is undefined", () => {
-    const source = { book: undefined, page: "12", license: "", custom: "", rules: null };
-    DDBSources.tweakSourceData(source);
-    expect(source.book).toBeUndefined();
-    expect(source.page).toBe("12");
-  });
 
   it("licenses BR as CC-BY-4.0 when basic rules are enabled", () => {
     setMockSettings({ "use-basic-rules": true, "no-source-book-pages": false });
@@ -453,16 +213,6 @@ describe("DDBSources.getSourceData", () => {
     expect(result[0].page).toBe("12");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns a Homebrew entry for isHomebrew definitions", () => {
-    const definition: IDDBBaseSourcesDefinition = { isHomebrew: true };
-    const result = DDBSources.getSourceData(definition);
-    expect(result).toEqual([
-      { book: "Homebrew", page: "", license: "", custom: "", id: 9999999, categoryId: 9999999, rules: null },
-    ]);
-  });
-
   it("returns an empty array when there is no source information", () => {
     expect(DDBSources.getSourceData({})).toEqual([]);
   });
@@ -485,15 +235,4 @@ describe("DDBSources.parseSource", () => {
     expect(result.categoryId).toBe(24);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to Homebrew when no sources resolve", () => {
-    expect(DDBSources.parseSource({})).toEqual({
-      book: "Homebrew",
-      page: "",
-      license: "",
-      custom: "",
-      rules: null,
-    });
-  });
 });

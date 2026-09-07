@@ -38,13 +38,6 @@ describe("DDBCharacter.resourceList (synthetic)", () => {
     expect(mock.resourceList().map((a: any) => a.name)).toEqual(["Rage", "ProfFeat"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns an empty list before DDB source data is loaded", () => {
-    const mock = resourceMock({});
-    mock.source = null;
-    expect(mock.resourceList()).toEqual([]);
-  });
 });
 
 describe("DDBCharacter.getSortedByUsedResourceList (synthetic)", () => {
@@ -87,19 +80,6 @@ describe("DDBCharacter.getSortedByUsedResourceList (synthetic)", () => {
     expect(mock.getSortedByUsedResourceList()).toEqual([
       { label: "DexPool", value: 3, max: 4, sr: false, lr: true },
     ]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("leaves max unchanged for an unknown stat id", () => {
-    const mock = resourceMock({
-      class: [
-        { name: "Odd", limitedUse: { maxUses: 2, numberUsed: 0, statModifierUsesId: 99, resetType: 2 } },
-      ],
-    });
-    expect(mock.getSortedByUsedResourceList()[0]).toEqual(
-      { label: "Odd", value: 2, max: 2, sr: false, lr: true },
-    );
   });
 
   it("applies the proficiency bonus additively or multiplicatively", () => {

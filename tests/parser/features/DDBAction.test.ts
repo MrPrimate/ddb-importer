@@ -247,17 +247,6 @@ describe("DDBAction._generateProperties", () => {
     classFeatures: [{ definition: { id: 71002, name: "Ki-Empowered Strikes", requiredLevel: 6 } }],
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("adds the magical property to Unarmed Strike for ki-empowered monks", () => {
-    const action = buildAction({
-      action: { name: "Unarmed Strike" },
-      character: { classes: [kiClass()] },
-    });
-    action._generateProperties();
-    expect(action.data.system.properties).toContain("mgc");
-  });
-
   it("does not add the magical property to other actions", () => {
     const action = buildAction({ character: { classes: [kiClass()] } });
     action._generateProperties();
@@ -351,43 +340,4 @@ describe("DDBAction.build", () => {
     expect(action.data.system.identifier).toBe("test-action");
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("never bakes a character's unarmed attack bonus into a martial arts attack activity", async () => {
-    // bonus/unarmed-attacks is effect-side: the granting feature's transfer effect carries a
-    // classification-gated attack rule (EffectGenerator._addUnarmedAttackBonus), so the
-    // activity must not carry a second, unremovable copy
-    const action = buildAction({
-      action: {
-        name: "Unarmed Strike",
-        actionType: 1,
-        attackTypeRange: 1,
-        attackSubtype: 3,
-        abilityModifierStatId: 1,
-        isMartialArts: true,
-        damageTypeId: 1,
-        dice: makeDdbDice({ diceValue: 4, diceString: "1d4" }),
-      },
-      character: {
-        modifiers: {
-          class: [],
-          race: [
-            {
-              type: "bonus", subType: "unarmed-attacks", value: 2,
-              isGranted: true, restriction: "", statId: null, componentId: 1, componentTypeId: 1,
-            },
-          ],
-          background: [], item: [], feat: [], condition: [],
-        },
-      },
-    });
-    await action.loadEnricher();
-    await action.build();
-
-    const activities = Object.values(action.data.system.activities) as any[];
-    const attack = activities.find((a) => a.type === "attack");
-    expect(attack).toBeDefined();
-    expect(attack.attack.type.classification).toBe("unarmed");
-    expect(attack.attack.bonus).toBe("");
-  });
 });

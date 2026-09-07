@@ -45,13 +45,6 @@ describe("DDBCharacter._generateSize (synthetic)", () => {
     expect(mock.raw.character.prototypeToken.width).toBe(2);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("does nothing without a prototype token skeleton", () => {
-    const mock = makeMockCharacter({ ddbCharacter: { race: { fullName: "Goblin", sizeId: 3 } } });
-    generateSize.call(mock);
-    expect(mock.raw.character.system.traits.size).toBeUndefined();
-  });
 });
 
 describe.skipIf(!auditFixturesPresent())("DDBCharacter._generateSize (audit fixtures)", () => {

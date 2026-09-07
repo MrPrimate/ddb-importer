@@ -187,53 +187,6 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds a class choice pool from parsed description and chosen from mods", () => {
-    const adv: any = makeHelper().getSkillAdvancement({
-      feature: makeFeature({ description: "<p><strong>Skills:</strong> Choose two from Athletics, Perception, and Survival</p>" }),
-      mods: [profMod("athletics", "Athletics"), profMod("perception", "Perception")],
-      availableToMulticlass: false,
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Skill Proficiencies");
-    expect(data.classRestriction).toBe("primary");
-    expect(data.configuration.allowReplacements).toBe(true);
-    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:ath", "skills:prc", "skills:sur"] }]);
-    expect(data.value.chosen).toEqual(["skills:ath", "skills:prc"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds grants from background descriptions", () => {
-    const adv: any = makeHelper({ type: "background" }).getSkillAdvancement({
-      feature: makeFeature({ name: "Background: Hermit", description: "<p><strong>Skill Proficiencies:</strong> Medicine, Religion</p>" }),
-      mods: [],
-      availableToMulticlass: undefined,
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Skill Proficiencies");
-    expect(data.classRestriction).toBeUndefined();
-    expect(data.configuration.grants).toEqual(["skills:med", "skills:rel"]);
-    expect(data.value.chosen).toEqual(["skills:med", "skills:rel"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("uses the feature name as name for non-base features", () => {
-    const adv: any = makeHelper().getSkillAdvancement({
-      feature: makeFeature({ name: "Bonus Proficiency", description: "<p>You gain proficiency in the Intimidation skill.</p>" }),
-      mods: [],
-      availableToMulticlass: undefined,
-      level: 3,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Bonus Proficiency");
-    expect(data.configuration.grants).toEqual(["skills:itm"]);
-  });
-
   it("muncher multiclass base proficiency uses the class dictionary count and grants from mods", () => {
     const adv: any = makeHelper({
       isMuncher: true,
@@ -273,35 +226,6 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds pool and chosen from language modifiers", () => {
-    const adv: any = makeHelper().getLanguageAdvancement(
-      [langMod("Dwarvish"), langMod("Undercommon")],
-      makeFeature({ name: "Extra Languages", description: "<p>Nothing parsable.</p>" }),
-      1,
-    );
-    const data = adv.toObject();
-    expect(data.name).toBe("Extra Languages");
-    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["languages:standard:dwarvish", "languages:exotic:undercommon"] }]);
-    expect(data.value.chosen).toEqual(["languages:standard:dwarvish", "languages:exotic:undercommon"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds grants and wildcard pool from parsed description", () => {
-    const adv: any = makeHelper().getLanguageAdvancement(
-      [],
-      makeFeature({ name: "Background: Outlander", description: "<p><strong>Languages:</strong> Giant and one other language of your choice</p>" }),
-      1,
-    );
-    const data = adv.toObject();
-    // "Background:" prefixed names fall back to the generic name
-    expect(data.name).toBe("Languages");
-    expect(data.configuration.grants).toEqual(["languages:standard:giant"]);
-    expect(data.configuration.choices).toEqual([{ count: 1, pool: ["languages:*"] }]);
-    expect(data.value.chosen).toEqual(["languages:standard:giant"]);
-  });
 });
 
 // =============================================================================
@@ -318,22 +242,6 @@ describe("AdvancementHelper.getToolAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants a parsed tool", () => {
-    const adv: any = makeHelper().getToolAdvancement({
-      feature: makeFeature({ description: "<p><strong>Tools:</strong> Herbalism kit</p>" }),
-      mods: [],
-      availableToMulticlass: false,
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Tool Proficiencies");
-    expect(data.configuration.grants).toEqual(["tool:herb"]);
-    expect(data.value.chosen).toEqual(["tool:herb"]);
-    expect(data.classRestriction).toBe("primary");
-  });
-
   it("builds a group choice pool", () => {
     const adv: any = makeHelper().getToolAdvancement({
       feature: makeFeature({ description: "<p><strong>Tools:</strong> Choose one type of artisan’s tools</p>" }),
@@ -343,74 +251,6 @@ describe("AdvancementHelper.getToolAdvancement", () => {
     });
     const data = adv.toObject();
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["tool:art:*"] }]);
-  });
-});
-
-describe("AdvancementHelper.getEmptyToolAdvancement", () => {
-  const choiceDefinitions = [{
-    id: "12-2",
-    options: [
-      { id: 7, label: "Smith's Tools" },
-      { id: 8, label: "Brewer's Supplies" },
-    ],
-  }];
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("returns null when the feature has no tool choices", () => {
-    const adv = makeHelper({ type: "background" }).getEmptyToolAdvancement({
-      feature: makeFeature({ name: "Background: Sage" }),
-      level: 1,
-    });
-    expect(adv).toBeNull();
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants the selected tool when a choice was made", () => {
-    const ddbData = makeDdbData({
-      choiceDefinitions,
-      background: [{
-        componentId: 101,
-        componentTypeId: 12,
-        subType: 1,
-        type: 2,
-        optionValue: 7,
-        optionIds: [7, 8],
-        defaultSubtypes: ["Smith's Tools"],
-      }],
-    });
-    const adv: any = makeHelper({ type: "background", ddbData }).getEmptyToolAdvancement({
-      feature: makeFeature({ name: "Background: Guild Artisan" }),
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Tool Proficiencies");
-    expect(data.configuration.grants).toEqual(["tool:art:smith"]);
-    expect(data.value.chosen).toEqual(["tool:art:smith"]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("offers the full pool when nothing is selected and no default exists", () => {
-    const ddbData = makeDdbData({
-      choiceDefinitions,
-      background: [{
-        componentId: 101,
-        componentTypeId: 12,
-        subType: 1,
-        type: 2,
-        optionValue: null,
-        optionIds: [7, 8],
-      }],
-    });
-    const adv: any = makeHelper({ type: "background", ddbData }).getEmptyToolAdvancement({
-      feature: makeFeature({ name: "Background: Guild Artisan" }),
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.configuration.grants).toBeUndefined();
-    expect(data.configuration.choices).toEqual([{ count: 1, pool: ["tool:art:smith", "tool:art:brewer"] }]);
   });
 });
 
@@ -428,37 +268,6 @@ describe("AdvancementHelper.getArmorAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants parsed armor groups", () => {
-    const adv: any = makeHelper().getArmorAdvancement({
-      feature: makeFeature({ description: "<p><strong>Armor:</strong> Light armor, shields</p>" }),
-      mods: [],
-      availableToMulticlass: false,
-      level: 1,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Armor Training");
-    expect(data.configuration.allowReplacements).toBe(false);
-    expect(data.configuration.grants).toEqual(["armor:lgt", "armor:shl"]);
-    expect(data.value.chosen).toEqual(["armor:lgt", "armor:shl"]);
-    expect(data.classRestriction).toBe("primary");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to armor modifiers when the description parses nothing", () => {
-    const adv: any = makeHelper().getArmorAdvancement({
-      feature: makeFeature({ name: "Bonus Armor Training", description: "<p>Nothing parsable.</p>" }),
-      mods: [profMod("medium-armor", "Medium Armor")],
-      availableToMulticlass: undefined,
-      level: 4,
-    });
-    const data = adv.toObject();
-    expect(data.name).toBe("Bonus Armor Training");
-    expect(data.configuration.choices).toEqual([{ count: 1, pool: ["armor:med"] }]);
-    expect(data.value.chosen).toEqual(["armor:med"]);
-  });
 });
 
 // =============================================================================
@@ -475,39 +284,6 @@ describe("AdvancementHelper.getWeaponAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants parsed weapon groups in default mode", () => {
-    const adv: any = makeHelper().getWeaponAdvancement(
-      [],
-      makeFeature({ description: "<p><strong>Weapons:</strong> Simple weapons, martial weapons</p>" }),
-      false,
-      1,
-    );
-    const data = adv.toObject();
-    expect(data.name).toBe("Weapon Proficiencies");
-    expect(data.configuration.mode).toBe("default");
-    expect(data.configuration.allowReplacements).toBe(false);
-    expect(data.configuration.grants).toEqual(["weapon:sim", "weapon:mar"]);
-    expect(data.value.chosen).toEqual(["weapon:sim", "weapon:mar"]);
-    expect(data.classRestriction).toBe("primary");
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to weapon modifiers when the description parses nothing", () => {
-    const adv: any = makeHelper().getWeaponAdvancement(
-      [profMod("longsword", "Longsword"), profMod("rapier", "Rapier")],
-      makeFeature({ name: "Extra Training", description: "<p>Nothing parsable.</p>" }),
-      false,
-      2,
-    );
-    const data = adv.toObject();
-    expect(data.name).toBe("Extra Training");
-    expect(data.classRestriction).toBe("");
-    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["weapon:mar:longsword", "weapon:mar:rapier"] }]);
-    expect(data.value.chosen).toEqual(["weapon:mar:longsword", "weapon:mar:rapier"]);
-  });
 });
 
 describe("AdvancementHelper skill choice subtypes", () => {
@@ -573,30 +349,6 @@ describe("AdvancementHelper.getSaveAdvancement all saves", () => {
 // getExpertiseAdvancement
 // =============================================================================
 describe("AdvancementHelper.getExpertiseAdvancement", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("treats the 2024 level-prefixed repeats as Expertise", () => {
-    expect(AdvancementHelper.isExpertiseFeature("9: Expertise")).toBe(true);
-    expect(AdvancementHelper.isExpertiseFeature("Expertise")).toBe(true);
-    expect(AdvancementHelper.isExpertiseFeature("Keeper of History")).toBe(false);
-    const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "9: Expertise", requiredLevel: 9 }), 9);
-    const data = adv.toObject();
-    expect(data.name).toBe("Expertise");
-    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:*", "tool:thief"] }]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants the skills and tools a feature's expertise modifiers name", () => {
-    const mods = [
-      { type: "expertise", subType: "history", friendlySubtypeName: "History", restriction: "", componentId: 101 },
-      { type: "expertise", subType: "thieves-tools", friendlySubtypeName: "Thieves' Tools", restriction: "", componentId: 101 },
-    ] as any[];
-    const adv: any = makeHelper({ isSubclass: true }).getExpertiseAdvancement(makeFeature({ name: "Trapper's Tools", requiredLevel: 3 }), 3, mods);
-    const data = adv.toObject();
-    expect(data.name).toBe("Trapper's Tools");
-    expect(data.configuration.grants).toEqual(["skills:his", "tool:thief"]);
-    expect(data.configuration.choices ?? []).toEqual([]);
-  });
 
   it("counts choose modifiers and yields nothing for a listed name without expertise modifiers", () => {
     const choose = [{ type: "expertise", subType: "choose-a-skill-expertise", friendlySubtypeName: "Choose a Skill", restriction: "", componentId: 101 }] as any[];
@@ -609,29 +361,6 @@ describe("AdvancementHelper.getExpertiseAdvancement", () => {
       [profMod("giant", "Giant")],
     );
     expect(none).toBeNull();
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds the default Expertise choice", () => {
-    const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "Expertise" }), 1);
-    const data = adv.toObject();
-    expect(data.name).toBe("Expertise");
-    expect(data.configuration.mode).toBe("expertise");
-    expect(data.configuration.allowReplacements).toBe(false);
-    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["skills:*", "tool:thief"] }]);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants fixed skills for Survivalist", () => {
-    const adv: any = makeHelper().getExpertiseAdvancement(makeFeature({ name: "Survivalist" }), 1);
-    const data = adv.toObject();
-    expect(data.name).toBe("Survivalist (Expertise)");
-    expect(data.configuration.grants).toEqual(["skills:prc", "skills:nat"]);
-    // count 0 is dropped from the pool entry
-    expect(data.configuration.choices).toEqual([{ pool: ["skills:prc", "skills:nat"] }]);
-    expect(data.value.chosen).toEqual(["skills:prc", "skills:nat"]);
   });
 
   it("uses the player's expertise selections for count and chosen", () => {
@@ -671,21 +400,6 @@ describe("AdvancementHelper.getConditionAdvancement", () => {
     expect(adv).toBeNull();
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("grants resistances parsed from the description", () => {
-    const adv: any = makeHelper().getConditionAdvancement(
-      [],
-      makeFeature({ name: "Psychic Resilience", description: "<p>You have resistance to psychic damage.</p>" }),
-      1,
-    );
-    const data = adv.toObject();
-    expect(data.name).toBe("Psychic Resilience");
-    expect(data.configuration.allowReplacements).toBe(false);
-    expect(data.configuration.grants).toEqual(["dr:psychic"]);
-    expect(data.value.chosen).toEqual(["dr:psychic"]);
-  });
-
   it("builds pool and chosen from resistance modifiers", () => {
     const mods = [{
       type: "resistance",
@@ -711,28 +425,6 @@ describe("AdvancementHelper.getConditionAdvancement", () => {
 // generateScaleValueAdvancement (static)
 // =============================================================================
 describe("AdvancementHelper.generateScaleValueAdvancement", () => {
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-  it.skip("returns null when the feature has no level scales", () => {
-    expect(AdvancementHelper.generateScaleValueAdvancement(makeFeature({ name: "No Scales" }))).toBeNull();
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("builds a dice scale value", () => {
-    const feature = makeFeature({
-      name: "Sneak Attack",
-      levelScales: [
-        { level: 1, description: "1d6", fixedValue: null, dice: { diceCount: 1, diceValue: 6, diceString: "1d6", fixedValue: null } },
-        { level: 5, description: "3d6", fixedValue: null, dice: { diceCount: 3, diceValue: 6, diceString: "3d6", fixedValue: null } },
-      ],
-    });
-    const result: any = AdvancementHelper.generateScaleValueAdvancement(feature);
-    expect(result.name).toBe("Sneak Attack");
-    expect(result.configuration.identifier).toBe("sneak-attack");
-    expect(result.configuration.type).toBe("dice");
-    expect(result.configuration.scale["1"]).toEqual({ number: 1, faces: 6 });
-    expect(result.configuration.scale["5"]).toEqual({ number: 3, faces: 6 });
-  });
 
   it("builds a number scale value and clamps levels to requiredLevel", () => {
     const feature = makeFeature({
@@ -748,23 +440,6 @@ describe("AdvancementHelper.generateScaleValueAdvancement", () => {
     // the level 1 scale is lifted to the feature's required level
     expect(result.configuration.scale["3"]).toEqual({ value: 2 });
     expect(result.configuration.scale["9"]).toEqual({ value: 3 });
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to a string scale using the scale description", () => {
-    const feature = makeFeature({
-      name: "Wild Shape CR",
-      requiredLevel: 2,
-      levelScales: [
-        { level: 2, description: "1/4", fixedValue: null },
-        { level: 8, description: "1", fixedValue: null },
-      ],
-    });
-    const result: any = AdvancementHelper.generateScaleValueAdvancement(feature);
-    expect(result.configuration.type).toBe("string");
-    expect(result.configuration.scale["2"]).toEqual({ value: "1/4" });
-    expect(result.configuration.scale["8"]).toEqual({ value: "1" });
   });
 
   it("combines dice string and fixed value for mixed scales", () => {

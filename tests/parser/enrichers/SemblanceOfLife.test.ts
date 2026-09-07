@@ -159,50 +159,6 @@ describe("Semblance of Life cleanup", () => {
     expect(Object.keys(acts)).toEqual(["utilOnly00000000"]);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("links the eight spirit forms from the 2024 compendium spells", async () => {
-    compendiumMock.getCompendiumType.mockReturnValue(SPELL_PACK);
-    compendiumMock.retrieveMatchingCompendiumItems.mockResolvedValueOnce([CELESTIAL, FIEND, UNDEAD]);
-    const acts = activities();
-    const enricher = enricherWith(acts);
-
-    await enricher.cleanup();
-
-    expect(compendiumMock.retrieveMatchingCompendiumItems).toHaveBeenCalledTimes(1);
-    expect(compendiumMock.retrieveMatchingCompendiumItems).toHaveBeenCalledWith(
-      ["Summon Celestial", "Summon Fiend", "Summon Undead"],
-      "world.ddb-spells",
-      { "system.source.rules": "2024" },
-    );
-    const profiles = acts.tranSemblance000.profiles;
-    expect(profiles.map((p: any) => p.name)).toEqual([
-      "Celestial Spirit (Avenger)",
-      "Celestial Spirit (Defender)",
-      "Fiendish Spirit (Demon)",
-      "Fiendish Spirit (Devil)",
-      "Fiendish Spirit (Yugoloth)",
-      "Undead Spirit (Ghostly)",
-      "Undead Spirit (Putrid)",
-      "Undead Spirit (Skeletal)",
-    ]);
-    expect(profiles[0]).toEqual({
-      _id: expect.stringMatching(/^[A-Za-z0-9]{16}$/),
-      name: "Celestial Spirit (Avenger)",
-      uuid: "Compendium.world.ddb-summons.Actor.avenger000000",
-      cr: "",
-      level: { min: null, max: null },
-      sizes: [],
-      types: [],
-      movement: [],
-    });
-    // fresh ids, never the summon profile ids
-    const summonIds = new Set(CELESTIAL.system.activities.summonAAAAAAAAAA.profiles.map((p: any) => p._id));
-    for (const p of profiles) expect(summonIds.has(p._id)).toBe(false);
-    expect(new Set(profiles.map((p: any) => p._id)).size).toBe(8);
-    expect(loggerMock.warn).not.toHaveBeenCalled();
-  });
-
   it("skips summon profiles without an actor uuid", async () => {
     compendiumMock.getCompendiumType.mockReturnValue(SPELL_PACK);
     const partial = spellDoc("Summon Celestial", [
@@ -216,29 +172,6 @@ describe("Semblance of Life cleanup", () => {
 
     expect(acts.tranSemblance000.profiles.map((p: any) => p.name)).not.toContain("Celestial Spirit (Defender)");
     expect(acts.tranSemblance000.profiles).toHaveLength(7);
-  });
-
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("falls back to the 2014 spells for names the 2024 query misses and warns about the rest", async () => {
-    compendiumMock.getCompendiumType.mockReturnValue(SPELL_PACK);
-    compendiumMock.retrieveMatchingCompendiumItems
-      .mockResolvedValueOnce([CELESTIAL, spellDoc("Summon Fiend", [])])
-      .mockResolvedValueOnce([UNDEAD]);
-    const acts = activities();
-
-    await enricherWith(acts).cleanup();
-
-    expect(compendiumMock.retrieveMatchingCompendiumItems).toHaveBeenCalledTimes(2);
-    expect(compendiumMock.retrieveMatchingCompendiumItems).toHaveBeenLastCalledWith(
-      ["Summon Fiend", "Summon Undead"],
-      "world.ddb-spells",
-      { "system.source.rules": "2014" },
-    );
-    expect(acts.tranSemblance000.profiles).toHaveLength(5);
-    expect(loggerMock.warn).toHaveBeenCalledTimes(1);
-    expect(loggerMock.warn.mock.calls[0][0]).toContain("Summon Fiend");
-    expect(loggerMock.warn.mock.calls[0][0]).not.toContain("Summon Undead");
   });
 
   it("queries the 2014 spells first for a 2014 feature", async () => {

@@ -164,29 +164,4 @@ describe("DDBMonster._generateSpellAttackBonus", () => {
     expect(mock.spellcasting.spellAttackBonus).toBe(0);
   });
 
-  // v7.0.x: skipped, expects dnd5e 6.0 / v14 branch behaviour or an API not on this branch; review before enabling
-
-  it.skip("defaults proficiency bonus to 2 for an unknown challengeRatingId", () => {
-    // +7 to hit, unknown CR (prof falls back to +2), INT 16 (mod +3)
-    // spellAttackBonus = 7 - 2 - 3 = 2
-    const mock = makeMockMonster({
-      source: {
-        challengeRatingId: 999999,
-        stats: [
-          { statId: 1, value: 10 },
-          { statId: 2, value: 10 },
-          { statId: 3, value: 10 },
-          { statId: 4, value: 16 },
-          { statId: 5, value: 10 },
-          { statId: 6, value: 10 },
-        ],
-      },
-    });
-    mock.getSpellcasting = DDBMonster.prototype.getSpellcasting;
-
-    generateSpellAttackBonus.call(mock,
-      "spellcasting ability is Intelligence (spell save DC 13, +7 to hit with spell attacks)");
-
-    expect(mock.spellcasting.spellAttackBonus).toBe(2);
-  });
 });
