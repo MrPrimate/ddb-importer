@@ -14,7 +14,6 @@ export default class RiteFocusTheArchfey extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
-      useActivitySnippet: true,
       targetType: "creature",
       targetCount: 1,
       activationType: "special",

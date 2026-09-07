@@ -10,7 +10,6 @@ export default class PartyAnimal extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Imbue Aura of Protection",
-      useActivitySnippet: true,
       targetType: "self",
       addItemConsume: true,
       activationType: "bonus",
@@ -51,7 +50,6 @@ export default class PartyAnimal extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
       {
@@ -73,7 +71,6 @@ export default class PartyAnimal extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

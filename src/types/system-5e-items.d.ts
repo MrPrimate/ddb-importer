@@ -13,7 +13,9 @@ global {
 
   type TFeatureEnchantmentSubtype = "artificerInfusion" | "rune";
 
-  type TFeatureFeatSubtype = "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin";
+  type TFeatureFeatSubtype = "kindred" | "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin" | "darkGift";
+
+  type TToolType = "art" | "game" | "music" | "vehicle" | "";
 
   type TFeatureSupernaturalGiftSubtype = "blessing" | "charm" | "epicBoon";
 
@@ -29,7 +31,7 @@ global {
 
   type TVolumeUnits = "cubicFoot" | "litre";
 
-  type TTemplateUnits = "ft" | "mi";
+  type TTemplateUnits = "ft" | "mi" | "";
 
   type TEquipmentTypes = TArmorType | "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
 
@@ -151,7 +153,7 @@ global {
 
   interface I5eConsumptionTarget {
     type: "itemUses" | "activityUses" | "spellSlots" | "attribute" | string;
-    target: string;
+    target?: string;
     value: string | number;
     scaling?: I5eConsumptionTargetScaling;
   }

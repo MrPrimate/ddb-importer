@@ -5,9 +5,24 @@ import { utils, logger, CompendiumHelper } from "../../lib/_module";
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
 import DDBSpell from "./DDBSpell";
+import SpellDataUtils from "./SpellDataUtils";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
 import DDBCharacter from "../DDBCharacter";
+
+export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
+  const cantripBoosts
+    = DDBModifiers.getChosenClassModifiers(ddb).filter(
+      (mod) =>
+        mod.type === "bonus"
+        && mod.subType === `${klassName?.toLowerCase()}-cantrip-damage`
+        && (mod.restriction === null || mod.restriction === ""),
+    );
+
+  // no enricher on this branch carries the cantrip bonus as an effect (that needs the dnd5e 6.0
+  // damage rules), so the parser always folds Potent Spellcasting and its kin into the cantrips
+  return cantripBoosts.length > 0;
+}
 
 const SPELLIST_ADDITION_MATCHES = [
   "using any spell slots you have of the appropriate level",
@@ -67,141 +82,7 @@ export default class CharacterSpellFactory {
   }
 
   static getDDBSpellLookup(ddb: IDDBData, type: string, id: number) {
-    let lookup;
-
-    switch (type) {
-      case "race": {
-        const match = ddb.character.race.racialTraits.find((t) => {
-          return t.definition.id === id;
-        });
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            data: match,
-          };
-        }
-        break;
-      }
-      case "feat": {
-        const match = ddb.character.feats.find((f) => {
-          return f.definition.id === id;
-        });
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            componentId: match.componentId,
-            data: match,
-          };
-        }
-        break;
-      }
-      case "class": {
-        const match1 = ddb.character.classes.find((c) => {
-          return c.definition.id === id;
-        });
-        if (match1) {
-          lookup = {
-            id: match1.definition.id,
-            name: match1.definition.name,
-            data: match1,
-          };
-          break;
-        }
-        const match2 = ddb.character.classes.find((c) => {
-          return c.subclassDefinition && c.subclassDefinition.id === id;
-        });
-        if (match2) {
-          lookup = {
-            id: match2.subclassDefinition.id,
-            name: match2.subclassDefinition.name,
-            data: match2.subclassDefinition,
-          };
-          break;
-        }
-        break;
-      }
-      case "classFeature": {
-        for (const c of ddb.character.classes) {
-          if (c.subclassDefinition && c.subclassDefinition.id === id) {
-            for (const option of ddb.classOptions) {
-
-              if (option.classId === c.subclassDefinition.id) {
-                lookup = {
-                  id: option.id,
-                  name: option.name,
-                  classId: c.subclassDefinition.id,
-                  data: option,
-                };
-                break;
-              }
-            }
-          }
-          if (lookup) break;
-
-          const match1 = c.classFeatures.find((f) => {
-            return f.definition.id === id;
-          });
-          if (match1) {
-            lookup = {
-              id: match1.definition.id,
-              name: match1.definition.name,
-              classId: match1.definition.classId,
-              componentId: match1.definition.componentId,
-              data: match1,
-            };
-            break;
-          }
-
-          for (const option of ddb.classOptions) {
-            if (option.classId === c.definition.id && option.id === id) {
-              lookup = {
-                id: option.id,
-                name: option.name,
-                classId: c.definition.id,
-                data: option,
-              };
-              break;
-            }
-          }
-        }
-        if (lookup) break;
-        const optionMatch = ddb.character.options.class.find((o) => {
-          return o.definition.id === id;
-        });
-        if (optionMatch) {
-          lookup = {
-            id: optionMatch.definition.id,
-            name: optionMatch.definition.name,
-            componentId: optionMatch.componentId,
-            data: optionMatch,
-          };
-        }
-        break;
-      }
-      case "item": {
-        const match = ddb.character.inventory.find((i) => {
-          return i.definition.id === id;
-        });
-        if (match) {
-          lookup = {
-            id: match.definition.id,
-            name: match.definition.name,
-            limitedUse: match.limitedUse,
-            equipped: match.equipped,
-            isAttuned: match.isAttuned,
-            canAttune: match.definition.canAttune,
-            canEquip: match.definition.canEquip,
-            data: match,
-          };
-        }
-        break;
-      }
-      // no default
-    }
-
-    return lookup;
+    return SpellDataUtils.getDDBSpellLookup(ddb, type, id);
   }
 
 
@@ -209,6 +90,75 @@ export default class CharacterSpellFactory {
     return CharacterSpellFactory.getDDBSpellLookup(this.ddb, type, id);
   }
 
+
+  /** Class features whose picks are spellbook spells the wizard always has prepared. */
+  static MASTERED_SPELL_FEATURES = ["Spell Mastery", "Signature Spells"];
+
+  /**
+   * Spell definition ids picked for Spell Mastery / Signature Spells through the features'
+   * "Choose a Spell" choices (the option id is the spell definition id).
+   */
+  static masteredSpellChoiceIds(ddb: IDDBData): Set<number> {
+    const featureIds = new Set<number>();
+    for (const klass of ddb.character?.classes ?? []) {
+      for (const feature of klass.classFeatures ?? []) {
+        if (CharacterSpellFactory.MASTERED_SPELL_FEATURES.includes(utils.nameString(feature.definition?.name ?? ""))) {
+          featureIds.add(feature.definition.id);
+        }
+      }
+    }
+    const ids = new Set<number>();
+    if (featureIds.size === 0) return ids;
+    for (const choice of ddb.character?.choices?.class ?? []) {
+      if (featureIds.has(choice.componentId) && typeof choice.optionValue === "number") ids.add(choice.optionValue);
+    }
+    return ids;
+  }
+
+  /**
+   * A wizard's Spell Mastery or Signature Spells pick. DDB flags the pick on the class spell
+   * list entry, or only records the choice on the feature; both are read. The pick is always
+   * prepared and keeps its slot casting for higher levels; the free cast is the feature's
+   * cast activity (wizard/_MasteredSpells).
+   */
+  static isMasteredSpell(spell: IDDBSpellEntry, choiceIds: Set<number>): boolean {
+    if (spell.baseLevelAtWill === true || spell.isSignatureSpell === true || spell.atWillLimitedUseLevel !== null) return true;
+    return spell.definition?.id !== undefined && choiceIds.has(spell.definition.id);
+  }
+
+  /**
+   * DDB moves a Spell Mastery / Signature Spells pick off the wizard's spell list and hangs it on
+   * the feature as a slot-less copy (with a 1/SR limited use for a signature spell). That copy
+   * is the only one in the payload, so it is parsed as the always-prepared spellbook spell
+   * instead: slot casting for higher levels, no uses.
+   */
+  static asMasteredSpellbookSpell(spell: IDDBSpellEntry): IDDBSpellEntry {
+    return {
+      ...spell,
+      usesSpellSlot: true,
+      alwaysPrepared: true,
+      limitedUse: null,
+    };
+  }
+
+  /**
+   * A spell DDB attaches to a class feature listed in FEATURE_SPELLS_IGNORE is the feature's own
+   * casting (no spell slot, or a limited use) and is provided by the feature's enricher as a cast
+   * activity instead. Features such as Wondrous Alteration or Faithful Steed also ship a plain
+   * always-prepared copy that spends a slot; that copy is the spellbook entry and is kept.
+   */
+  static isIgnoredFeatureSpell(featureName: string | undefined, spell: IDDBSpellEntry): boolean {
+    if (!featureName) return false;
+    if (!DICTIONARY.parsing.featureSpellsIgnore.includes(utils.nameString(featureName))) return false;
+    return !spell.usesSpellSlot || Boolean(spell.limitedUse);
+  }
+
+  _masteredSpellChoiceIds: Set<number> | null = null;
+
+  get masteredSpellChoiceIds(): Set<number> {
+    this._masteredSpellChoiceIds ??= CharacterSpellFactory.masteredSpellChoiceIds(this.ddb);
+    return this._masteredSpellChoiceIds;
+  }
 
   _getSpellCount(name) {
     if (!this.spellCounts[name]) {
@@ -227,6 +177,11 @@ export default class CharacterSpellFactory {
     cantripBoost,
     unPreparedCantrip = null,
   } = {}) {
+    if (CharacterSpellFactory.isMasteredSpell(spell, this.masteredSpellChoiceIds)) {
+      spell.alwaysPrepared = true;
+      spell.usesSpellSlot = true;
+    }
+
     // add some data for the parsing of the spells into the data structure
     const flagData: IParseSpellFlagData = {
       ddbimporter: {
@@ -341,13 +296,7 @@ export default class CharacterSpellFactory {
       }
       logger.debug("Spell parsing, class info", classInfo);
 
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
 
       const rawSpells = [
         ...playerClass.spells,
@@ -408,13 +357,7 @@ export default class CharacterSpellFactory {
       }
       logger.debug("Spell parsing, class info", classInfo);
 
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, classInfo.definition.name);
 
       const allCantrips = (playerClass.cantrips ?? []).map((cantrip) => {
         cantrip.unPreparedCantrip = true;
@@ -455,12 +398,17 @@ export default class CharacterSpellFactory {
 
 
   async generateSpecialClassSpells() {
-    for (const spell of this.ddb.character.spells.class) {
-      if (!spell.definition) continue;
+    for (const rawSpell of this.ddb.character.spells.class) {
+      if (!rawSpell.definition) continue;
       // If the spell has an ability attached, use that
       let spellCastingAbility;
-      const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
+      const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, rawSpell.componentId);
       const classInfo = this.getLookup("classFeature", featureId);
+
+      const mastered = classInfo !== undefined
+        && CharacterSpellFactory.MASTERED_SPELL_FEATURES.includes(utils.nameString(classInfo.name))
+        && CharacterSpellFactory.isMasteredSpell(rawSpell, this.masteredSpellChoiceIds);
+      const spell = mastered ? CharacterSpellFactory.asMasteredSpellbookSpell(rawSpell) : rawSpell;
 
       logger.debug("Class spell parsing, class info", classInfo);
       // Sometimes there are spells here which don't have an class Info
@@ -477,7 +425,7 @@ export default class CharacterSpellFactory {
 
       logger.debug("Class spell, class found?", klass);
 
-      if (DICTIONARY.parsing.featureSpellsIgnore.includes(classInfo.name)) {
+      if (CharacterSpellFactory.isIgnoredFeatureSpell(classInfo.name, spell)) {
         logger.debug(`Skipping ${spell.definition.name} for ${classInfo.name} as included in feature`);
         continue;
       }
@@ -511,13 +459,7 @@ export default class CharacterSpellFactory {
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
       const klassName = klass?.definition?.name;
-      const cantripBoost
-        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
-          (mod) =>
-            mod.type === "bonus"
-            && mod.subType === `${klassName.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === ""),
-        ).length > 0;
+      const cantripBoost = isCantripBoost(this.ddb, klassName ?? "");
 
       // add some data for the parsing of the spells into the data structure
       const flagData: IParseSpellFlagData = {

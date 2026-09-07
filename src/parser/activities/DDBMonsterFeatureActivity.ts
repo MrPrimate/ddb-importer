@@ -87,8 +87,10 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.data.range = this.actionData.range;
   }
 
-  _generateTarget() {
-    this.data.target = this.actionData.target;
+  override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {
+    // cloned: actionData.target is shared by every activity of the feature, and an enricher
+    // override that blanks one activity's template must not blank its siblings through it
+    this.data.target = foundry.utils.deepClone(targetOverride ?? this.actionData.target);
   }
 
   _getFeaturePartsDamage() {

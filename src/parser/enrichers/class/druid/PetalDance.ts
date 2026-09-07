@@ -10,7 +10,6 @@ export default class PetalDance extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Conjure Petals",
-      useActivitySnippet: true,
       activationType: "bonus",
       addItemConsume: true,
       itemConsumeTargetName: "Wild Shape",
@@ -54,7 +53,6 @@ export default class PetalDance extends DDBEnricherData {
           ],
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
       {
@@ -86,7 +84,6 @@ export default class PetalDance extends DDBEnricherData {
           }),
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

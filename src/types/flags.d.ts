@@ -236,10 +236,17 @@ global {
     revisitUuids?: string[];
   }
 
+  interface IDDBImporterTransferEnchantmentTargetItemMatches {
+    field: string;
+    value: string;
+  }
+
   interface IDDBImporterTransferEnchantmentFlags {
-    targetItemId: string;
     effectId: string;
     activityId: string;
+    targetItemId?: string;
+    targetItemName?: string;
+    targetItemMatches?: IDDBImporterTransferEnchantmentTargetItemMatches[];
   }
 
   interface IDDBImporterFlags {
@@ -373,6 +380,12 @@ global {
     ignoreItemForChrisPremades?: boolean;
     ignoreIcon?: boolean;
     retainResourceConsumption?: boolean;
+    retainOriginalConsumption?: boolean;
+    retainChildUses?: boolean;
+    retainUseSpent?: boolean;
+    retainActivityUseSpent?: boolean | string[];
+    ignoredConsumptionActivities?: string[];
+    consumptionValue?: string;
     parentId?: string;
 
     // Monster feature flags

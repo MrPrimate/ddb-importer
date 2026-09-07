@@ -8,6 +8,7 @@ import {
   DDBCompendiumFolders,
   Iconizer,
   DDBSources,
+  SourceFilters,
   utils,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
@@ -65,10 +66,9 @@ export default class DDBMonsterFactory {
   static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
+    if (!ids || ids.length === 0) SourceFilters.preflightSourceSettings("monsters", utils.munchNote);
     const homebrew = sources.length > 0
       ? false
       : utils.getSetting<boolean>("munching-policy-monster-homebrew");

@@ -16,7 +16,6 @@ export default class BloodCurseOfBloatedAgony extends _BloodCurse {
   override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
-      useActivitySnippet: true,
       targetType: "creature",
       targetCount: 1,
       activationType: "bonus",

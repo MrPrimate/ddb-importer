@@ -1,10 +1,11 @@
 import { DICTIONARY } from "../../config/_module";
 import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory";
+import type DDBCompanionFactory from "../companions/DDBCompanionFactory";
 import { DDBSpellActivity } from "../activities/_module";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 import { DDBSpellEnricher } from "../enrichers/_module";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
+import SpellDataUtils from "./SpellDataUtils";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
@@ -395,7 +396,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       }
     } else if (
-      // Warlock Mystic Arcanum are passed in as Features
+      // Warlock Mystic Arcanum are passed in as Features. The standard features drop their
+      // spell copy via FEATURE_SPELLS_IGNORE in favour of a cast activity on the feature, so
+      // this only catches renamed or homebrew arcanum features.
       this.lookupName?.startsWith("Mystic Arcanum")
     ) {
       // these have limited uses (set with getUses())
@@ -718,73 +721,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.#specialRange();
   }
 
-  static getUses(limitedUse: IDDBSpellLimitedUse) : I5eSystemLimitedUses{
-    let uses: I5eSystemLimitedUses = {
-      spent: null,
-      max: "",
-      recovery: [],
-    };
-
-    if (!limitedUse) return uses;
-    const resetType = DICTIONARY.resets.find((reset) => reset.id == limitedUse.resetType);
-    if (!resetType) {
-      logger.warn("Unknown reset type", {
-        resetType: limitedUse.resetType,
-        spell: this,
-      });
-      return uses;
-    }
-
-    if (limitedUse.maxUses || limitedUse.statModifierUsesId || limitedUse.useProficiencyBonus) {
-      let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : "";
-
-      if (limitedUse.statModifierUsesId) {
-        const ability = DICTIONARY.actor.abilities.find(
-          (ability) => ability.id === limitedUse.statModifierUsesId,
-        ).value;
-
-        switch (limitedUse.operator) {
-          case 2: {
-            maxUses = `${maxUses} * @abilities.${ability}.mod`;
-            break;
-          }
-          case 1:
-          default:
-            maxUses = `${maxUses} + @abilities.${ability}.mod`;
-        }
-      }
-
-      if (limitedUse.useProficiencyBonus) {
-        switch (limitedUse.proficiencyBonusOperator) {
-          case 2: {
-            maxUses = `${maxUses} * @prof`;
-            break;
-          }
-          case 1:
-          default:
-            maxUses = `${maxUses} + @prof`;
-        }
-      }
-
-      maxUses = maxUses.toString().trim().replace(/^\+/, "").trim();
-
-      const finalMaxUses = (maxUses !== "") ? maxUses : null;
-
-      uses = {
-        spent: limitedUse.numberUsed ?? null,
-        max: `${finalMaxUses}`,
-        recovery: resetType && !["charges", ""].includes(resetType.value)
-          ? [{
-            period: resetType.value as TLimitedUsePeriod,
-            type: "recoverAll",
-          }]
-          : [],
-      };
-
-      return uses;
-    }
-
-    return uses;
+  static getUses(limitedUse: IDDBSpellLimitedUse) : I5eSystemLimitedUses {
+    return SpellDataUtils.getUses(limitedUse);
   }
 
   _generateUses() {
@@ -853,7 +791,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const createOrUpdate = this.isGeneric
       || utils.getSetting<boolean>("character-update-policy-create-companions")
       || this.generateSummons;
-    this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
+    // lazy: a static import closes an import cycle through the monster parser
+    const { default: CompanionFactory } = await import("../companions/DDBCompanionFactory");
+    this.ddbCompanionFactory = new CompanionFactory(this.ddbDefinition.description, {
       type: "spell",
       originDocument: this.data,
       is2014: this.is2014,
@@ -891,7 +831,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     } else if ((this.ddbDefinition.tags.includes("Damage") && this.ddbDefinition.requiresAttackRoll)
       || this.ddbDefinition.attackType !== null
     ) {
-      if (this.ddbDefinition.requiresSavingThrow) {
+      // a multi-mode spell already has one named save activity per section
+      if (this.ddbDefinition.requiresSavingThrow && this._saveBearingSections(this.ddbDefinition.description ?? "").length === 0) {
         this.additionalActivities.push({
           name: "Save",
           type: "save",
@@ -994,10 +935,48 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
           generateHealing: true,
           healingPart: part.part,
           healingChatFlavor: part.chatFlavor,
-          noSpellslot: this.activityType !== "heal",
+          // the primary activity already consumes the slot (or the first healing part is the primary)
+          noSpellslot: true,
         },
       });
     }
+  }
+
+  /**
+   * The save the spell describes, used to keep the primary out of the generated set.
+   * Unlike an item, a spell's save comes from DDB rather than its prose, so it usually carries a
+   * spellcasting calculation rather than a printed DC.
+   */
+  get #primarySpellSave(): I5eActivitySave | null {
+    if (!this.ddbDefinition.requiresSavingThrow || !this.ddbDefinition.saveDcAbilityId) return null;
+    const ability = DICTIONARY.actor.abilities
+      .find((entry) => entry.id === this.ddbDefinition.saveDcAbilityId)?.value;
+    if (!ability) return null;
+    return {
+      ability: [ability],
+      dc: this.spellData.overrideSaveDc
+        ? { formula: String(this.spellData.overrideSaveDc), calculation: "" }
+        : { formula: "", calculation: "spellcasting" },
+    };
+  }
+
+  /**
+   * Build one save activity per mode of a spell whose text describes several saving throws.
+   *
+   * Rarely fires: spell text names an ability without a DC ("make a Dexterity saving throw"),
+   * which the save parser deliberately will not read. The extras consume no slot - two
+   * slot-consuming activities on one spell is an audit failure.
+   */
+  #generateMultiSaveActivities(): void {
+    // A summoning spell embeds the summoned creature's stat block in its own description, so its
+    // traits' saving throws read as extra modes of the spell. Those belong to the summon.
+    if (this.isSummons) return;
+    this._multiSaveActivityGeneration({
+      text: this.ddbDefinition.description ?? "",
+      primarySave: this.#primarySpellSave,
+      skipFirstSection: Boolean(this.ddbDefinition.requiresSavingThrow && !this.ddbDefinition.requiresAttackRoll),
+      noSpellslot: true,
+    });
   }
 
   async _generateAdditionalActivities() {
@@ -1075,6 +1054,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     await this._generateCompanions();
 
     this._studyCheckGeneration();
+    this.#generateMultiSaveActivities();
 
     if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();
@@ -1118,6 +1098,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       identifier = DICTIONARY.identifierAdjustments[identifier];
     }
     this.data.system.identifier = identifier;
+    this._finaliseActivityDescriptions();
 
     await this.enricher.cleanup();
   }

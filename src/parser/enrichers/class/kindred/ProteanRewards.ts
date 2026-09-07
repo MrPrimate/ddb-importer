@@ -10,7 +10,6 @@ export default class ProteanRewards extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Protean Rewards: Flesh of Marble",
-      useActivitySnippet: true,
       targetType: "self",
       activationType: "action",
       addItemConsume: true,
@@ -44,7 +43,6 @@ export default class ProteanRewards extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

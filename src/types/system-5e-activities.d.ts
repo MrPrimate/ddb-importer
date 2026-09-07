@@ -40,6 +40,7 @@ global {
     riders?: {
       activity?: string[];
       effect?: string[];
+      item?: string[];
     };
     level?: {
       min: number | null;
@@ -98,13 +99,26 @@ global {
     activation?: I5eActivityActivation;
     consumption?: I5eActivityConsumption;
     description?: {
-      chatFlavor: string;
+      chatFlavor?: string;
+      value?: string;
     };
     duration?: I5eActivityDuration;
+    // most activity types carry damage; declared on the base so partial activity data built
+    // by spreading a save/attack block type-checks
+    damage?: I5eActivityDamage;
     effects?: I5eActivityEffect[];
     flags?: {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
+        activityRiders?: string[];
+        effectRiders?: string[];
+        itemRiders?: string[];
+        [key: string]: any;
+      };
+      dnd5e?: {
+        /** Id of the applied enchantment (same item) this rider activity was created for; removed with it. */
+        dependentOn?: string;
+        [key: string]: unknown;
       };
     };
     range?: I5eActivityRange;
@@ -119,14 +133,16 @@ global {
     effectConditionText?: string;
   }
 
+  type T5eActivityAttackAbility = T5eAbility | "spellcasting" | "none" | "";
+
   interface I5eActivityAttack {
-    ability?: string;
+    ability?: T5eActivityAttackAbility | string;
     bonus?: string;
     critical?: {
       threshold?: number;
     };
     flat?: boolean;
-    type?: { value: string; classification: string };
+    type?: { value?: string; classification?: string };
   }
 
   interface I5eActivityDamage {
@@ -148,10 +164,14 @@ global {
 
   interface I5eActivitySave {
     ability?: string[];
+    // dnd5e 6.0 FormulaField appended to the target's roll; accepted from shared enrichers, ignored on 5.x
+    bonus?: string;
     dc?: {
       calculation?: string;
       formula?: string;
     };
+    // dnd5e 6.0 gates the chat save button; accepted from shared enrichers, ignored on 5.x
+    visible?: boolean;
     override?: boolean;
   }
 
@@ -186,8 +206,10 @@ global {
   type I5eActivityCastSpellProperties = typeof DICTIONARY.spell.components[keyof typeof DICTIONARY.spell.components];
   interface I5eActivitySpell {
     challenge?: {
-      attack?: number;
-      save?: number;
+      // NumberFields on dnd5e 5.x; shared enrichers may supply a numeric string, which the
+      // system coerces
+      attack?: number | string;
+      save?: number | string;
       override: boolean;
     };
     level?: number | null;
@@ -224,19 +246,38 @@ global {
     prompt?: boolean;
   }
 
+  interface I5eSummonProfile {
+    _id?: string;
+    name?: string;
+    uuid?: string;
+    count?: string | null;
+    cr?: string;
+    level?: {
+      min?: number | null;
+      max?: number | null;
+    };
+    sizes?: TActorSizes[];
+    types?: TCreatureTypes[];
+    movement?: string[];
+    [key: string]: any;
+  }
+
   interface I5eSummonActivity extends I5eActivityBase {
     type?: "summon";
     bonuses?: I5eSummonsBonuses;
     creatureSizes?: TActorSizes[];
     creatureTypes?: TCreatureTypes[];
     match?: I5eSummonsMatch;
-    profiles?: any[];
+    profiles?: I5eSummonProfile[];
     summon?: I5eActivitiesSummon;
   }
 
   interface I5eActivityCheck {
-    ability?: string[];
+    // dnd5e stores check.ability as a string, but some build paths supply arrays
+    ability?: string | string[];
     associated?: string[];
+    bonus?: string;
+    visible?: boolean;
     dc?: {
       calculation?: string;
       formula?: string;
@@ -248,6 +289,7 @@ global {
     check: I5eActivityCheck;
     damage: {
       critical?: Record<string, any>;
+      onSave?: string;
       parts: I5eDamagePart[];
     };
   }
@@ -314,6 +356,13 @@ global {
     minimumAC?: string;
   }
 
+  interface I5eTransformActivity extends I5eActivityBase {
+    type: "transform";
+    transform?: I5eActivityTransform;
+    settings?: I5eActivitySettings;
+    profiles?: I5eSummonProfile[];
+  };
+
   type I5eActivity =
     | I5eAttackActivity
     | I5eSaveActivity
@@ -325,39 +374,22 @@ global {
     | I5eCheckActivity
     | I5eDDBMacroActivity
     | I5eEnchantActivity
-    | I5eForwardActivity;
+    | I5eForwardActivity
+    | I5eTransformActivity;
 
-  type IActivityData = I5eBaseActivityBase
-    & I5eAttackActivity
-    & I5eSaveActivity
-    & I5eUtilityActivity
-    & I5eDamageActivity
-    & I5eHealActivity
-    & I5eCastActivity
-    & I5eSummonActivity
-    & I5eCheckActivity
-    & I5eDDBMacroActivity
-    & I5eEnchantActivity
-    & I5eForwardActivity
-    & {
-      // transform activity not implemented yet
-      settings?: I5eActivitySettings;
-    };
-
-  // interface IActivityData extends I5eActivityBase {
-  //   spell?: I5eActivitySpell;
-  //   restrictions?: I5eActivityRestrictions;
-  //   settings?: I5eActivitySettings;
-  //   activity?: I5eActivityActivity;
-  //   attack?: I5eActivityAttack;
-  //   damage?: I5eActivityDamage;
-  //   healing?: Partial<I5eDamagePart>;
-  //   roll?: I5eActivityRoll;
-  //   enchant?: I5eActivityEnchant;
-  //   creatureSizes?: string[];
-  //   macro?: IDDBActivityMacro;
-  //   save?: I5eActivitySave;
-  //   check?: I5eActivityCheck;
-  // }
+  /**
+   * A permissive view of any activity's data, for code that handles activities before
+   * their type is known (enricher overrides, snippet handling).
+   */
+  interface IActivityData extends I5eActivityBase {
+    spell?: I5eActivitySpell;
+    settings?: I5eActivitySettings;
+    attack?: I5eActivityAttack;
+    healing?: Partial<I5eDamagePart>;
+    roll?: I5eActivityRoll;
+    save?: I5eActivitySave;
+    check?: I5eActivityCheck;
+    [key: string]: any;
+  }
 }
 

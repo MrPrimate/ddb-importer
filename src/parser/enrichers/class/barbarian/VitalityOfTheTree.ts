@@ -55,7 +55,6 @@ export default class VitalityOfTheTree extends DDBEnricherData {
           }),
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

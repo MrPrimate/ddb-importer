@@ -19,7 +19,6 @@ export default class AetherWalk extends _BloodHunter {
   override get activity(): IDDBActivityData {
     return {
       name: "Aether Walk",
-      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "special",

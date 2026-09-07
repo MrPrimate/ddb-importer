@@ -10,7 +10,6 @@ export default class FifthManifestation extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "5th Manifestation",
-      useActivitySnippet: true,
       targetType: "self",
       activationType: "bonus",
       addItemConsume: true,
@@ -55,7 +54,6 @@ export default class FifthManifestation extends DDBEnricherData {
           ],
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

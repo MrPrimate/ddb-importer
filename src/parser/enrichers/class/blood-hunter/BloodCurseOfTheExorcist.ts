@@ -22,7 +22,6 @@ export default class BloodCurseOfTheExorcist extends _BloodCurse {
   override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
-      useActivitySnippet: true,
       targetType: "creature",
       targetCount: 1,
       rangeType: "ft",

@@ -5,7 +5,6 @@ export default class InnateSorcery extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Innate Sorcery",
-      useActivitySnippet: true,
       addItemConsume: true,
     };
   }

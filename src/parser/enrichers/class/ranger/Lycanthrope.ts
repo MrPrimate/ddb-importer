@@ -56,7 +56,6 @@ export default class Lycanthrope extends DDBEnricherData {
           ],
         },
         overrides: {
-          useActivitySnippet: true,
         },
       };
     });

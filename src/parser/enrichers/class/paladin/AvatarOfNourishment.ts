@@ -10,7 +10,6 @@ export default class AvatarOfNourishment extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Avatar of Nourishment",
-      useActivitySnippet: true,
       activationType: "bonus",
       addItemConsume: true,
       data: {
@@ -51,7 +50,6 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           }),
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
       {
@@ -82,7 +80,6 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           }),
         },
         overrides: {
-          useActivitySnippet: { name: "Avatar of Nourishment: Restoration" },
         },
       },
       {
@@ -110,7 +107,6 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

@@ -20,7 +20,6 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
   override get activity(): IDDBActivityData {
     return {
       name: this.curseName,
-      useActivitySnippet: true,
       targetType: "self",
       activationType: "reaction",
       activationCondition: "A creature that isn't a construct or undead is reduced to 0 hit points within 30 feet of you",

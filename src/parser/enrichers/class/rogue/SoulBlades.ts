@@ -20,7 +20,6 @@ export default class SoulBlades extends DDBEnricherData {
       {
         action: { name: homingStrikes, type: "class" },
         overrides: {
-          useActivitySnippet: { name: homingStrikes, type: "class" },
         },
       },
       { action: { name: psychicTeleportation, type: "class" } },

@@ -15,7 +15,6 @@ export default class RiteFocusTheUndying extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
-      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "special",

@@ -125,8 +125,8 @@ export default class DDBBasicActivity {
     if (!actionType) return;
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
-      type: actionType,
-      value: "1",
+      type: actionType as TActivationCost,
+      value: 1,
       condition: "",
     };
   }
@@ -215,7 +215,9 @@ export default class DDBBasicActivity {
 
   _generateDuration({ durationOverride = null }: { durationOverride?: any } = {}): void {
     if (durationOverride) {
-      this.data.duration = durationOverride;
+      // cloned: a parser hands the same override object to every activity it builds, and an
+      // enricher override applied to one must not silently rewrite its siblings
+      this.data.duration = foundry.utils.deepClone(durationOverride);
       this.data.duration.override = true;
     }
   }
@@ -227,28 +229,28 @@ export default class DDBBasicActivity {
 
   _generateRange({ rangeOverride = null }: { rangeOverride?: any } = {}): void {
     if (rangeOverride) {
-      this.data.range = rangeOverride;
+      this.data.range = foundry.utils.deepClone(rangeOverride);
       this.data.range.override = true;
     }
   }
 
   _generateTarget({ targetOverride = null }: { targetOverride?: any } = {}): void {
     if (targetOverride) {
-      this.data.target = targetOverride;
+      this.data.target = foundry.utils.deepClone(targetOverride);
       this.data.target.override = true;
     }
   }
 
   _generateUses({ usesOverride = null }: { usesOverride?: any } = {}): void {
     if (usesOverride) {
-      this.data.uses = usesOverride;
+      this.data.uses = foundry.utils.deepClone(usesOverride);
       this.data.uses.override = true;
     }
   }
 
   _generateCheck({ checkOverride = null }: { checkOverride?: any } = {}): void {
     if (checkOverride) {
-      this.data.check = checkOverride;
+      this.data.check = foundry.utils.deepClone(checkOverride);
     };
   }
 
@@ -314,7 +316,7 @@ export default class DDBBasicActivity {
 
   _generateSave({ saveOverride = null }: { saveOverride?: any } = {}): void {
     if (saveOverride) {
-      this.data.save = saveOverride;
+      this.data.save = foundry.utils.deepClone(saveOverride);
       return;
     }
     this.data.save = {

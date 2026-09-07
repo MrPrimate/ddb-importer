@@ -7,6 +7,7 @@ import {
   PatreonHelper,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
   Iconizer,
   DDBCampaigns,
   utils,
@@ -92,10 +93,9 @@ export default class DDBVehicleFactory {
   static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IFetchDDBVehicleSourceData {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
+    if (!ids || ids.length === 0) SourceFilters.preflightSourceSettings("vehicles", utils.munchNote);
     const homebrew = false;
     const homebrewOnly = false;
     // vehicles do not have homebrew filtering yet

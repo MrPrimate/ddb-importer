@@ -15,7 +15,6 @@ export default class RiteFocusTheGreatOldOne extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
-      useActivitySnippet: true,
       targetType: "creature",
       targetCount: "",
       rangeType: "ft",

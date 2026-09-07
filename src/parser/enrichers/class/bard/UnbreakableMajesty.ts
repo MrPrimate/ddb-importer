@@ -8,7 +8,6 @@ export default class UnbreakableMajesty extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      useActivitySnippet: { name: "Assume Unbreakable Majesty", type: "class" },
       data: {
         name: "Assume Unbreakable Majesty",
       },

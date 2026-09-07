@@ -66,7 +66,6 @@ export default class Chef extends DDBEnricherData {
         },
         overrides: {
           addItemConsume: true,
-          useActivitySnippet: { section: "Bolstering Treats" },
           data: {
             target: {
               affects: {

@@ -10,7 +10,6 @@ export default class MythicSwashbuckler extends DDBEnricherData {
     if (this.isAction) return {};
     return {
       name: "Mythic Swashbuckler",
-      useActivitySnippet: true,
       activationType: "action",
       addItemConsume: true,
       data: {
@@ -39,7 +38,6 @@ export default class MythicSwashbuckler extends DDBEnricherData {
           rangeOverride: { value: "5", units: "ft", special: "" },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
       {
@@ -58,7 +56,6 @@ export default class MythicSwashbuckler extends DDBEnricherData {
           rangeOverride: { value: "5", units: "ft", special: "" },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
       {
@@ -82,7 +79,6 @@ export default class MythicSwashbuckler extends DDBEnricherData {
           rangeOverride: { value: "5", units: "ft", special: "" },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

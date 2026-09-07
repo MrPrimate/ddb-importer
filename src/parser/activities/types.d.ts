@@ -28,6 +28,7 @@ global {
 
     // --- Damage ---
     allowCritical?: boolean | null;
+    criticalThreshold?: number | null;
     criticalDamage?: string | null;
     damageParts?: I5eDamagePart[] | null;
     damageScalingOverride?: any;

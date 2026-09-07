@@ -2,7 +2,6 @@ import { logger, FolderHelper, utils } from "../lib/_module";
 import DDBMonsterFactory from "./DDBMonsterFactory";
 import { getAbilityMods, IDDBAbilityMods } from "./monster/helpers";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import DDBCompanionFactory from "./companions/DDBCompanionFactory";
 import DDBCharacter from "./DDBCharacter";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
@@ -553,6 +552,8 @@ export async function generateCharacterExtras(_html, ddbCharacter, actor) {
     const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));
     logger.debug("Enhanced Parsed Extras:", foundry.utils.duplicate(enhancedExtras));
 
+    // lazy: a static import closes an import cycle through the companion mixin
+    const { default: DDBCompanionFactory } = await import("./companions/DDBCompanionFactory");
     const ddbCompanionFactory = new DDBCompanionFactory("", {
       actor,
       data: enhancedExtras,

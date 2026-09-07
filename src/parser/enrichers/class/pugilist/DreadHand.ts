@@ -102,7 +102,6 @@ export default class DreadHand extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

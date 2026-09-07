@@ -14,7 +14,6 @@ export default class RiteFocusTheUndead extends _RiteFocus {
   override get activity(): IDDBActivityData {
     return {
       name: this.activityName,
-      useActivitySnippet: true,
       targetType: "self",
       rangeSelf: true,
       activationType: "reaction",

@@ -208,6 +208,9 @@ declare global {
         id: string;
       }>;
       toolTypes: Record<string, string>;
+      // The tool trait's category list. dnd5e declares this as an enum of localized strings
+      // and third party modules (Epic Rolls...) call string methods on the values.
+      toolProficiencies: Record<string, string>;
       traits: Record<string, {
         labels: {
           title: string;

@@ -43,7 +43,6 @@ export default class SandForm extends DDBEnricherData {
           },
         },
         overrides: {
-          useActivitySnippet: true,
         },
       },
     ];

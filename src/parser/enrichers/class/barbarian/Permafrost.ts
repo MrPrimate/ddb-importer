@@ -9,7 +9,6 @@ export default class Permafrost extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Extend Rage",
-      useActivitySnippet: true,
       targetType: "self",
       activationType: "special",
       activationCondition: "Your Rage would end while you don't have the Unconscious condition",
