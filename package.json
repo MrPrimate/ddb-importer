@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "audit:enrichers": "vitest run tests/audit/classes.audit.test.ts tests/audit/feats.audit.test.ts tests/audit/species.audit.test.ts tests/audit/backgrounds.audit.test.ts tests/audit/spells.audit.test.ts tests/audit/items.audit.test.ts tests/audit/monsters.audit.test.ts",
+    "audit:enrichers": "vitest run tests/audit/classes.audit.test.ts tests/audit/feats.audit.test.ts tests/audit/species.audit.test.ts tests/audit/backgrounds.audit.test.ts tests/audit/spells.audit.test.ts tests/audit/items.audit.test.ts tests/audit/monsters.audit.test.ts tests/audit/characters.audit.test.ts",
     "audit:review": "node tools/review-enricher-findings.mjs",
     "build": "npm run clear; npm run link; webpack",
     "dev": "npm run link && node esbuild.config.mjs --watch",
