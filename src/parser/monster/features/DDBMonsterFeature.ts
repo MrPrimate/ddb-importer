@@ -827,6 +827,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const cubeMatch = matchText.match(cubeSearch);
     const sphereMatch = matchText.match(sphereSearch);
 
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(matchText);
+    const creatureCountWord = creatureTargetCount?.[1]?.toLowerCase() ?? "";
+    const singleCreatureWord = ["one", "a", "the"].includes(creatureCountWord);
+
     if (coneMatch) {
       target.template.size = coneMatch[1];
       target.template.units = "ft";
@@ -853,13 +857,22 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       //   aoeSizeMatch,
       // });
 
+      // A single-target ability (e.g. "one creature ... within 30 feet") must not
+      // gain an area template from a loose positional match like "control while
+      // within 60 feet of it". Emanations ("each creature within X feet of it")
+      // and real named shapes are unaffected.
+      const singleCreatureTarget = singleCreatureWord && !(/each creature/i).test(matchText);
+
       if (aoeSizeMatch) {
         const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-        target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
-        target.template.size = aoeSizeMatch[1] ?? "";
-        target.template.units = "ft";
+        const realShape = ["cone", "radius", "sphere", "line", "cube"].includes(type);
         if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
           this.actionData.range.units = "self";
+        }
+        if (realShape || !singleCreatureTarget) {
+          target.template.type = realShape ? type as TTemplate : "radius";
+          target.template.size = aoeSizeMatch[1] ?? "";
+          target.template.units = "ft";
         }
       }
     }
@@ -869,10 +882,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     }
 
     const targetsCreature = this._targetsCreature();
-    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(matchText);
-
     if (targetsCreature || creatureTargetCount) {
-      target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      target.affects.count = singleCreatureWord ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
 
