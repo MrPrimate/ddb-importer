@@ -289,6 +289,49 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.template.size).toBe("");
   });
 
+  // the 2024 aboleth's Dominate Mind targets one creature; the later "under its control while
+  // within 60 feet of it" is a leash, not an area
+  it("does not give a single-target ability a radius from a loose 'while within N feet of it'", () => {
+    const mock = makeFeatureMock({
+      strippedHtml: "Wisdom Saving Throw: DC 16, one creature the aboleth can see within 30 feet."
+        + " Failure: The target is charmed by the aboleth for 1 minute. While Charmed, the target acts"
+        + " as an ally to the aboleth and is under its control while within 60 feet of it.",
+    });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("");
+    expect(target.template.size).toBe("");
+    expect(target.affects.count).toBe("1");
+    expect(target.affects.type).toBe("creature");
+  });
+
+  it("keeps the emanation radius for 'each creature within N feet of it'", () => {
+    const mock = makeFeatureMock({
+      strippedHtml: "Each creature within 20 feet of it must make a DC 15 Constitution saving throw.",
+    });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("radius");
+    expect(target.template.size).toBe("20");
+    expect(target.affects.count).toBe("");
+  });
+
+  it("keeps a named shape on a single-target ability", () => {
+    const mock = makeFeatureMock({
+      strippedHtml: "One creature in a 30-foot cone must succeed on a DC 13 Wisdom saving throw.",
+    });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("cone");
+    expect(target.template.size).toBe("30");
+  });
+
+  it("reads a sentence-initial 'One creature' / 'A creature' as a single target", () => {
+    const one = makeFeatureMock({ strippedHtml: "One creature within 30 feet of it must succeed on a DC 13 Wisdom saving throw." });
+    expect(one.getTarget().affects.count).toBe("1");
+    expect(one.getTarget().template.type).toBe("");
+    const a = makeFeatureMock({ strippedHtml: "A creature also takes 35 (10d6) fire damage from hitting it with a melee attack while within 10 feet of it." });
+    expect(a.getTarget().affects.count).toBe("1");
+    expect(a.getTarget().template.type).toBe("");
+  });
+
   it("reads a section's text instead of the feature's when given one", () => {
     const charmRay = "Charm Ray. The targeted creature must succeed on a DC 17 Wisdom saving throw or be charmed"
       + " by the tyrant for 1 hour, or until the beholder harms the creature.";
