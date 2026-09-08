@@ -309,13 +309,15 @@ function makeFakeAdvancement(type: string) {
     _data: Record<string, any>;
 
     constructor(data: Record<string, any> = {}) {
-      this._data = {
+      // deep-merged like the real data model, so a caller's `configuration: {}` (AdvancementWrapper)
+      // keeps the schema defaults: the real ASI schema initialises fixed/points/cap and DDBRace
+      // writes into `configuration.fixed` directly for a 2014 species "Ability Score Increase"
+      this._data = foundry.utils.mergeObject({
         _id: foundry.utils.randomID(),
         type,
-        configuration: {},
+        configuration: type === "AbilityScoreImprovement" ? { fixed: {}, points: 0, cap: 2, locked: [] } : {},
         value: {},
-        ...data,
-      };
+      }, data);
     }
 
     toObject() {
@@ -324,6 +326,16 @@ function makeFakeAdvancement(type: string) {
 
     updateSource(changes: Record<string, any>) {
       foundry.utils.mergeObject(this._data, changes);
+    }
+
+    // the real advancement exposes its data model fields as live properties; DDBRace reads
+    // `advancement.configuration` back before updating it
+    get configuration() {
+      return this._data.configuration;
+    }
+
+    get value() {
+      return this._data.value;
     }
   };
 }

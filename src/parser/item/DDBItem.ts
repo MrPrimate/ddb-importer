@@ -3163,12 +3163,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         if (img) activity.img = img;
       }
 
-      await this.enricher.customFunction({
+      // enrichers receive the activity in the hint shape they are typed against
+      // (`activity.data`, see StaffOfHealing / CircletOfBlasting), and may replace the data
+      const customOptions: ICustomFunctionOptions = {
         name: spellLookupName ?? spell.name,
-        activity: activity,
-      });
+        activity: { data: activity },
+      };
+      await this.enricher.customFunction(customOptions);
 
-      this.data.system.activities[newId] = activity;
+      this.data.system.activities[newId] = (customOptions.activity?.data ?? activity) as typeof activity;
       i++;
     }
 
