@@ -448,7 +448,7 @@ class DDBCharacter {
 
       this.#sourceFixes();
 
-      if (utils.getSetting<boolean>("debug-json")) {
+      if (utils.getSetting<boolean>("debug-json") || CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(characterResponse), `${this.characterId}-${characterResponse.ddb.character.name}-raw.json`, "application/json");
       }
     } catch (error) {
