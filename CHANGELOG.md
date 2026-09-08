@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.20
+
 - Muncher imports now show a full-window progress overlay with separate phase, import and overall progress bars.
 - Backported the enricher library from the v14/dnd5e 6.0 branch: around 480 new class, feat, item, spell, monster and species enrichers (Gunslinger, Blood Hunter, Kindred, Illrigger, Monster Hunter, Pugilist, new subclasses and books) and updates to over 400 existing ones.
 - Automated Conditions 5e (AC5e) support.
