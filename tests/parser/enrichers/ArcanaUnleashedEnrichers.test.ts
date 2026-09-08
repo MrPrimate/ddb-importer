@@ -37,6 +37,10 @@ import ArcaneShot from "../../../src/parser/enrichers/class/fighter/ArcaneShot";
 import BeguilingShot from "../../../src/parser/enrichers/class/fighter/BeguilingShot";
 import EnfeeblingShot from "../../../src/parser/enrichers/class/fighter/EnfeeblingShot";
 import PiercingShot from "../../../src/parser/enrichers/class/fighter/PiercingShot";
+import HarvestUndead from "../../../src/parser/enrichers/class/wizard/HarvestUndead";
+import DeathsMaster from "../../../src/parser/enrichers/class/wizard/DeathsMaster";
+import ExtinguishUndead from "../../../src/parser/enrichers/class/wizard/ExtinguishUndead";
+import ExtinguishUndeadSpellSlot from "../../../src/parser/enrichers/class/wizard/ExtinguishUndeadSpellSlot";
 import { SPELL } from "../../../src/config/dictionary/spell/spell";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
@@ -105,6 +109,40 @@ describe("Arcana Unleashed Arcane Shot options", () => {
     const enricher = makeEnricherData(EnfeeblingShot, { name: "Enfeebling Shot", actions: null, isAction: true });
     const activity = enricher.activity as any;
     expect(activity.data.damage.parts[0].custom.formula).toBe("2@scale.arcane-archer.arcane-shot.die");
+  });
+});
+
+describe("Necromancer Death's Master", () => {
+  it("Harvest Undead is only the level 10 reaction heal", () => {
+    const enricher = makeEnricherData(HarvestUndead, { name: "Harvest Undead", actions: null });
+    expect(enricher.type).toBe("heal");
+    expect(enricher.additionalActivities ?? []).toEqual([]);
+    expect(enricher.useDefaultAdditionalActivities).toBe(false);
+    expect((enricher.activity as any).activationType).toBe("reaction");
+  });
+
+  it("Death's Master carries the Bolster and both Extinguish actions", () => {
+    const enricher = makeEnricherData(DeathsMaster, { name: "Death's Master", actions: null });
+    expect(enricher.type).toBe("none");
+    expect(enricher.additionalActivities.map((a: any) => a.action.name)).toEqual([
+      "Bolster Undead: Bonus Temp HP",
+      "Extinguish Undead",
+      "Extinguish Undead: Spell Slot",
+    ]);
+  });
+
+  it("the spell-slot Extinguish is a reaction costing a level 5 slot and shares the No Reactions effect", () => {
+    const base = makeEnricherData(ExtinguishUndead, { name: "Extinguish Undead", actions: null, isAction: true });
+    const slot = makeEnricherData(ExtinguishUndeadSpellSlot, { name: "Extinguish Undead: Spell Slot", actions: null, isAction: true });
+    const activity = slot.activity as any;
+    expect(activity.name).toBe("Extinguish Uncontrolled Undead");
+    expect(activity.activationType).toBe("reaction");
+    expect(activity.additionalConsumptionTargets).toEqual([
+      { type: "spellSlots", value: "1", target: "5", scaling: { mode: "level", formula: "" } },
+    ]);
+    expect(activity.data.save.ability).toEqual(["dex"]);
+    expect(slot.effects).toEqual([]);
+    expect(base.effects[0].activitiesMatch).toEqual(["Extinguish Undead", "Extinguish Uncontrolled Undead"]);
   });
 });
 

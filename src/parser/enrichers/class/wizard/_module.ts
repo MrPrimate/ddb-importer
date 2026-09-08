@@ -20,6 +20,7 @@ export { default as EnchantingConversationalist } from "./EnchantingConversation
 export { default as EventHorizon } from "./EventHorizon";
 export { default as ExpertDivination } from "./ExpertDivination";
 export { default as ExtinguishUndead } from "./ExtinguishUndead";
+export { default as ExtinguishUndeadSpellSlot } from "./ExtinguishUndeadSpellSlot";
 export { default as FullBlooded } from "./FullBlooded";
 export { default as GoodMedicineHealing } from "./GoodMedicineHealing";
 export { default as HarvestUndead } from "./HarvestUndead";

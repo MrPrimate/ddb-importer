@@ -1,9 +1,9 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Necromancer (AU 2024) level 14. DDB currently ships this feature under the level 10 name
- * "Harvest Undead" (bug reported 2026-09-03); once corrected it resolves here and carries the
- * Bolster / Extinguish actions, and HarvestUndead stops pulling them.
+ * Necromancer (AU 2024) level 14. The feature document is a container for the three DDB
+ * actions: the once-per-long-rest Bolster temp HP, the free Extinguish on a controlled Undead,
+ * and the reaction-plus-level-5-slot Extinguish on an Undead the wizard does not control.
  */
 export default class DeathsMaster extends DDBEnricherData {
 
@@ -23,6 +23,7 @@ export default class DeathsMaster extends DDBEnricherData {
     return [
       { action: { name: "Bolster Undead: Bonus Temp HP", type: "class" } },
       { action: { name: "Extinguish Undead", type: "class" } },
+      { action: { name: "Extinguish Undead: Spell Slot", type: "class" } },
     ];
   }
 
