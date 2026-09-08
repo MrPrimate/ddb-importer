@@ -37,13 +37,29 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
 
     if (!activity) continue;
 
-    const targetItem = enchantmentFlag.targetItemId === "self"
-      ? item
-      : items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
+    let targetItems: Item.Implementation[] = [];
+    if (enchantmentFlag.targetItemId === "self") {
+      targetItems = [item];
+    } else if (enchantmentFlag.targetItemId) {
+      // Only compare link IDs when an ID was provided: undefined must not match an unrelated item.
+      const targetItem = items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
         i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId);
-    if (!targetItem) continue;
+      if (targetItem) targetItems = [targetItem];
+    } else if (enchantmentFlag.targetItemName) {
+      const targetItem = items.find((i) =>
+        (foundry.utils.getProperty(i, "flags.ddbimporter.originalName") ?? i.name) === enchantmentFlag.targetItemName);
+      if (targetItem) targetItems = [targetItem];
+    } else if (enchantmentFlag.targetItemMatches?.length) {
+      // Wraps and similar items transfer their enchantment to every matching weapon.
+      targetItems = items.filter((i) => enchantmentFlag.targetItemMatches.every(({ field, value }) => {
+        const itemValue = foundry.utils.getProperty(i, field);
+        return itemValue !== undefined && itemValue === value;
+      }));
+    }
 
-    await linkSelectedEnchantment(targetItem as Item.Implementation, effect, activity, item.name);
+    for (const targetItem of targetItems) {
+      await linkSelectedEnchantment(targetItem, effect, activity, item.name);
+    }
   }
 }
 
