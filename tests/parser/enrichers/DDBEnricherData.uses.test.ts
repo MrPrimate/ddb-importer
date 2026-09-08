@@ -12,6 +12,7 @@ vi.mock("../../../src/parser/lib/DDBTemplateStrings", () => ({
 
 import logger from "../../../src/lib/Logger";
 import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
+import FuryOfTheSmall from "../../../src/parser/enrichers/trait/goblin/FuryOfTheSmall";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 
 class TestEnricherData extends DDBEnricherData<any> {}
@@ -35,6 +36,41 @@ const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
 
 beforeEach(() => {
   warnSpy.mockClear();
+});
+
+describe("Fury of the Small uses", () => {
+  it.each([
+    { scenario: "legacy short-rest use", limitedUse: { maxUses: 1, numberUsed: 1, resetType: 1 }, max: "1", period: "sr" },
+    { scenario: "proficiency-based long-rest uses", limitedUse: { maxUses: -1, useProficiencyBonus: true, numberUsed: 1, resetType: 2 }, max: "@prof", period: "lr" },
+  ])("reads the racial action's $scenario", ({ limitedUse, max, period }) => {
+    const enricher = makeEnricherData(FuryOfTheSmall, {
+      name: "Fury of the Small",
+      data: { name: "Fury of the Small", system: {} },
+      actions: { race: [{ name: "Fury of the Small", description: "", limitedUse }] },
+    });
+    expect(enricher.type).toBe("damage");
+    expect(enricher.override.uses).toMatchObject({ spent: 1, max, recovery: [{ period, type: "recoverAll" }] });
+  });
+});
+
+describe("DDBEnricherData._getGeneratedUses missing data", () => {
+  it.each(["absent bucket", "no matching action", "compendium"])("preserves parsed uses with %s", (scenario) => {
+    const existing = { spent: 1, max: "2", recovery: [{ period: "lr", type: "recoverAll" }] };
+    const data = makeData(scenario === "compendium" ? null : []);
+    data.ddbParser.data = { system: { uses: existing } };
+    if (scenario === "absent bucket") delete data.ddbParser.ddbData.character.actions.race;
+    expect(data._getGeneratedUses({ type: "race", name: "Fury of the Small" })).toEqual(existing);
+  });
+
+  it("omits unset uses when there is no matching action or existing pool", () => {
+    expect(makeData([])._getGeneratedUses({ type: "class", name: "Missing" })).toEqual({});
+  });
+
+  it("preserves parsed uses when an action has no limited-use data", () => {
+    const data = makeData([{ name: "Test", description: "", limitedUse: null }]);
+    data.ddbParser.data = { system: { uses: { max: "3", spent: 0 } } };
+    expect(data._getGeneratedUses({ type: "class", name: "Test" })).toEqual({ max: "3", spent: 0 });
+  });
 });
 
 describe("DDBEnricherData._getUsesWithSpent max handling", () => {

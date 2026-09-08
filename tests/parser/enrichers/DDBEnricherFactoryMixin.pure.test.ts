@@ -37,6 +37,9 @@ vi.mock("../../../src/parser/enrichers/_module", () => ({
 }));
 
 import DDBEnricherFactoryMixin from "../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin";
+import BloodCurseOfBloatedAgony from "../../../src/parser/enrichers/class/blood-hunter/BloodCurseOfBloatedAgony";
+import BloodCurseOfTheExorcist from "../../../src/parser/enrichers/class/blood-hunter/BloodCurseOfTheExorcist";
+import { makeEnricherData } from "../../_fixtures/ddb/factories";
 
 class TestEnricher extends DDBEnricherFactoryMixin<string> {
 
@@ -64,6 +67,39 @@ function makeEnricher(fields: Record<string, any> = {}): any {
   }, fields);
   return enricher;
 }
+
+describe("activity damage overrides", () => {
+  it.each([BloodCurseOfBloatedAgony, BloodCurseOfTheExorcist])("builds %s on a utility activity without a damage block", async (Enricher) => {
+    const curse = makeEnricherData(Enricher);
+    const activity = { type: curse.type };
+    const result = await makeEnricher()._applyActivityDataOverride(activity, curse.activity);
+    expect(result).toMatchObject({ type: "utility", name: curse.curseName, damage: { parts: [] } });
+  });
+
+  it("clears existing damage parts while retaining other damage settings", async () => {
+    const activity = { type: "save", damage: { parts: [{ number: 1, denomination: 6 }], onSave: "half" } };
+    const result = await makeEnricher()._applyActivityDataOverride(activity, { removeDamageParts: true });
+    expect(result.damage).toEqual({ parts: [], onSave: "half" });
+  });
+
+  it.each([{}, { damage: {} }])("adds damage parts when the activity has no parts array: %j", async (fields) => {
+    const part = { number: 1, denomination: 8, types: ["necrotic"] };
+    const result = await makeEnricher()._applyActivityDataOverride({ type: "damage", ...fields }, { damageParts: [part] });
+    expect(result.damage.parts).toEqual([part]);
+  });
+
+  it("appends damage parts, or replaces them when removal is also requested", async () => {
+    const existing = { number: 1, denomination: 6 };
+    const added = { number: 1, denomination: 8 };
+    for (const removeDamageParts of [false, true]) {
+      const result = await makeEnricher()._applyActivityDataOverride(
+        { type: "damage", damage: { parts: [existing] } },
+        { removeDamageParts, damageParts: [added] },
+      );
+      expect(result.damage.parts).toEqual(removeDamageParts ? [added] : [existing, added]);
+    }
+  });
+});
 
 // =============================================================================
 // _getNameHint

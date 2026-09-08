@@ -124,21 +124,27 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: string; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
-    const action = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
+    const action = this.ddbParser?.ddbData?.character.actions?.[type]?.find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     );
 
+    const existingUses = () => foundry.utils.deepClone(this.ddbParser?.data?.system?.uses ?? {});
+    if (!action) {
+      logger.warn(`No action found generating uses for "${name}" (${type})`, { this: this });
+      return existingUses();
+    }
+
     const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
-      data: action.limitedUse,
+      data: action.limitedUse ?? {},
       description: action.description,
       scaleValue: scaleLink
         ?? (this.ddbParser.useUsesScaleValueLink && this.ddbParser.scaleValueUsesLink
           ? this.ddbParser.scaleValueUsesLink
           : null),
     });
-    return uses;
+    return uses ?? existingUses();
   }
 
   _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {

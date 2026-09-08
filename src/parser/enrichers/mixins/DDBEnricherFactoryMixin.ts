@@ -641,11 +641,12 @@ export default abstract class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.removeDamageParts) {
-      activity.damage.parts = [];
+      foundry.utils.setProperty(activity, "damage.parts", []);
     }
 
     if (overrideData.damageParts) {
-      activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
+      const damageParts = (foundry.utils.getProperty(activity, "damage.parts") as Partial<I5eDamagePart>[] | undefined) ?? [];
+      foundry.utils.setProperty(activity, "damage.parts", damageParts.concat(overrideData.damageParts));
     }
 
     const isSummon = activity.type === "summon" || overrideData.type === "summon";
