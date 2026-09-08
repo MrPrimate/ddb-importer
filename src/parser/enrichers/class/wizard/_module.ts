@@ -14,6 +14,7 @@ export { default as DurableSummons } from "./DurableSummons";
 export { default as EmpoweredEvocation } from "./EmpoweredEvocation";
 export { default as ExpertDivination } from "./ExpertDivination";
 export { default as ExtinguishUndead } from "./ExtinguishUndead";
+export { default as ExtinguishUndeadSpellSlot } from "./ExtinguishUndeadSpellSlot";
 export { default as FullBlooded } from "./FullBlooded";
 export { default as GoodMedicineHealing } from "./GoodMedicineHealing";
 export { default as HarvestUndead } from "./HarvestUndead";

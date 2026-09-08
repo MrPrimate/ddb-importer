@@ -1,10 +1,9 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Necromancer (AU 2024). DDB currently names both the level 10 reaction and the level 14
- * mastery feature "Harvest Undead" (bug reported 2026-09-03), so one document carries the
- * reaction heal plus the level 14 Bolster / Extinguish actions until the character carries the
- * corrected "Death's Master" feature, which then owns them (see DeathsMaster).
+ * Necromancer (AU 2024) level 10: a reaction on becoming Bloodied that drops a controlled
+ * Undead to 0 HP and heals the wizard for their level. The level 14 Bolster / Extinguish
+ * actions belong to Death's Master (DDB shipped that feature under this name until 2026-09-08).
  */
 export default class HarvestUndead extends DDBEnricherData {
 
@@ -33,14 +32,6 @@ export default class HarvestUndead extends DDBEnricherData {
         }),
       },
     };
-  }
-
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (this.hasClassFeature({ featureName: "Death's Master" })) return [];
-    return [
-      { action: { name: "Bolster Undead: Bonus Temp HP", type: "class" } },
-      { action: { name: "Extinguish Undead", type: "class" } },
-    ];
   }
 
 }

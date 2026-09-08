@@ -1,5 +1,10 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Death's Master (Necromancer, AU 2024): explode an Undead that drops to 0 HP. The dice count
+ * depends on the creature's unexpended Hit Dice, so the 1d6 here is the minimum and the user
+ * scales it at roll time. ExtinguishUndeadSpellSlot covers the uncontrolled-Undead variant.
+ */
 export default class ExtinguishUndead extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -32,7 +37,7 @@ export default class ExtinguishUndead extends DDBEnricherData {
     return [
       {
         name: "Extinguished: No Reactions",
-        activityMatch: "Extinguish Undead",
+        activitiesMatch: ["Extinguish Undead", "Extinguish Uncontrolled Undead"],
         options: { expiry: "targetStart" },
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.noReaction"),
