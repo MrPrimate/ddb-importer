@@ -192,8 +192,8 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
     const data = enricher.override.data;
     expect(data["system.identifier"]).toBe("favored-foe");
-    const advancement = Object.entries(data)
-      .find(([key]) => key.startsWith("system.advancement."))?.[1] as any;
+    expect(Array.isArray(data["system.advancement"])).toBe(true);
+    const advancement = data["system.advancement"][0];
     expect(advancement.type).toBe("ScaleValue");
     expect(advancement.configuration.identifier).toBe("die");
     expect(advancement.configuration.scale).toEqual({
@@ -201,6 +201,17 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
       "6": { number: 1, faces: 6 },
       "14": { number: 1, faces: 8 },
     });
+  });
+
+  it("Favored Foe preserves other advancements and keeps one damage scale when enriched again", () => {
+    const existing = { _id: "other", type: "ScaleValue", configuration: { identifier: "uses" } };
+    const document = { system: { advancement: [existing] } };
+    const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", data: document });
+    document.system.advancement = enricher.override.data["system.advancement"];
+    const result = enricher.override.data["system.advancement"];
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(existing);
+    expect(result[1].configuration.identifier).toBe("die");
   });
 
   it("Omen of Doom grants origin-scoped bonus damage from the Doomed effect", () => {

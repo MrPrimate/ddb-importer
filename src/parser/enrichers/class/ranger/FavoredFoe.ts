@@ -7,11 +7,13 @@ export default class FavoredFoe extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
+    const advancements = Object.values(this.data?.system?.advancement ?? {}) as I5eAdvancement[];
+    const isDamageScale = (a: I5eAdvancement) => a.type === "ScaleValue" && a.configuration?.identifier === "die";
     // the damage die scales with ranger level (1d4, 1d6 at 6th, 1d8 at 14th);
     // the feature-held scale value surfaces as @scale.favored-foe.die
     const advancement = {
       "type": "ScaleValue",
-      "_id": foundry.utils.randomID(),
+      "_id": advancements.find(isDamageScale)?._id ?? foundry.utils.randomID(),
       "configuration": {
         "identifier": "die",
         "type": "dice",
@@ -37,7 +39,7 @@ export default class FavoredFoe extends DDBEnricherData {
     return {
       data: {
         "system.identifier": "favored-foe",
-        [`system.advancement.${advancement._id}`]: advancement,
+        "system.advancement": [...advancements.filter((a) => !isDamageScale(a)), advancement],
       },
     };
   }

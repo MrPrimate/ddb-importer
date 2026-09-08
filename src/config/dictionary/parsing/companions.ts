@@ -76,6 +76,7 @@ const MULTI_COMPANIONS_2024: Record<string, string[]> = {
 
 const COMPANION_FEATURES = [
   "Steel Defender",
+  "Reanimated Companion",
   "Vestige Companion",
   "Artificer Infusions",
   "Summon Wildfire Spirit",

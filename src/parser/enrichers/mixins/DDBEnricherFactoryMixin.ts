@@ -996,7 +996,7 @@ export default abstract class DDBEnricherFactoryMixin {
 
     if (!additionalAdvancements) return this.data;
     if (!Array.isArray(this.data.system.advancement)) {
-      this.data.system.advancement = [];
+      this.data.system.advancement = Object.values(this.data.system.advancement ?? {});
     }
 
     this.data.system.advancement.push(...(additionalAdvancements).flat());
@@ -1170,7 +1170,7 @@ export default abstract class DDBEnricherFactoryMixin {
         }
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
-      result.advancements.push(...(foundry.utils.deepClone(feature.system.advancement)));
+      result.advancements.push(...foundry.utils.deepClone(Object.values(feature.system.advancement ?? {})));
     });
     this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
@@ -1197,6 +1197,10 @@ export default abstract class DDBEnricherFactoryMixin {
 
       if (duplicate) {
         const key = Object.keys(this.data.system.activities)[0];
+        if (!key) {
+          logger.warn(`Unable to duplicate an activity for ${this.data.name}: no base activity exists`);
+          continue;
+        }
         const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
         activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
         activityData.activities = [activityClone];
@@ -1227,7 +1231,7 @@ export default abstract class DDBEnricherFactoryMixin {
         this.data.effects.push(...activityData.effects);
       }
       if (activityData.advancements) {
-        this.addDocumentAdvancements(...activityData.advancements);
+        this.addDocumentAdvancements(activityData.advancements);
       }
     }
   }
@@ -1295,7 +1299,7 @@ export default abstract class DDBEnricherFactoryMixin {
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
 
         if (feature.system.advancement) {
-          activityData.advancements.push(...foundry.utils.deepClone(feature.system.advancement));
+          activityData.advancements.push(...foundry.utils.deepClone(Object.values(feature.system.advancement)));
         }
 
         // console.warn(`Final activity map`,{

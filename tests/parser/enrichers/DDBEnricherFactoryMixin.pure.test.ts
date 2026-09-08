@@ -40,6 +40,8 @@ import DDBEnricherFactoryMixin from "../../../src/parser/enrichers/mixins/DDBEnr
 import BloodCurseOfBloatedAgony from "../../../src/parser/enrichers/class/blood-hunter/BloodCurseOfBloatedAgony";
 import BloodCurseOfTheExorcist from "../../../src/parser/enrichers/class/blood-hunter/BloodCurseOfTheExorcist";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import ReanimatedCompanion from "../../../src/parser/enrichers/class/artificer/ReanimatedCompanion";
+import { DICTIONARY } from "../../../src/config/_module";
 
 class TestEnricher extends DDBEnricherFactoryMixin<string> {
 
@@ -501,6 +503,19 @@ describe("DDBEnricherFactoryMixin._addDefaultActionMatchedActivities", () => {
     return e;
   }
 
+  it.each(["array", "record"])("merges action advancements stored as an %s without losing parent advancements", (shape) => {
+    const existing = { _id: "existing", type: "ScaleValue", configuration: { identifier: "uses" } };
+    const scale = { _id: "foeScale", type: "ScaleValue", configuration: { identifier: "die" } };
+    const e = makeActivityEnricher();
+    e.data.system.advancement = { existing };
+    const feature = makeFeature("Favored Foe", "abcdefghijklm001");
+    feature.system.advancement = shape === "array" ? [scale] : { foeScale: scale };
+    e.defaultActionFeatures = { "Favored Foe": [feature] };
+    e._addDefaultActionMatchedActivities();
+    expect(e.data.system.advancement).toEqual([existing, scale]);
+    expect(Object.values(e.data.system.activities)).toHaveLength(1);
+  });
+
   it("copies feature activities onto the data with new unique keys", () => {
     const e = makeActivityEnricher();
     e.defaultActionFeatures = {
@@ -547,5 +562,48 @@ describe("DDBEnricherFactoryMixin._addDefaultActionMatchedActivities", () => {
     const added = Object.keys(e.data.system.activities).filter((k) => !k.match(/Ne\d$/));
     expect(added).toEqual(["abcdefghijklNe10"]);
     expect(added[0]).toHaveLength(16);
+  });
+});
+
+describe("Reanimated Companion additional activities", () => {
+  it("is registered for companion parsing and summon activity generation", () => {
+    expect(DICTIONARY.companions.COMPANION_FEATURES).toContain("Reanimated Companion");
+  });
+
+  function makeCompanionEnricher(activities: Record<string, any>): any {
+    const e = makeEnricher();
+    e.document = { name: "Reanimated Companion", effects: [], system: { activities, advancement: [] } };
+    e.loadedEnricher = makeEnricherData(ReanimatedCompanion, { name: "Reanimated Companion" });
+    e.activityGenerator = class {
+      data: any;
+      constructor({ name, type }: any) {
+        this.data = { _id: "restoreCompanion", name, type };
+      }
+      build(options: any) {
+        this.data.consumption = options.consumptionOverride;
+      }
+    };
+    return e;
+  }
+
+  it("keeps the base summon, clones its profiles for level 9, and adds spell-slot recovery", async () => {
+    const base = { _id: "summonCompanion1", type: "summon", profiles: [{ uuid: "Actor.companion" }], visibility: { level: { max: 8 } } };
+    const e = makeCompanionEnricher({ [base._id]: base });
+    await e._addActivityHintAdditionalActivities({});
+    const activities: any[] = Object.values(e.data.system.activities);
+    expect(activities).toHaveLength(3);
+    expect(base.visibility.level).toEqual({ max: 8 });
+    const upgraded = activities.find((a) => a.visibility?.level?.min === 9);
+    expect(upgraded).toMatchObject({ profiles: base.profiles, bonuses: { saveDamage: "2d4" }, creatureSizes: ["med", "lg"] });
+    expect(activities.find((a) => a.type === "utility").consumption.targets).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "itemUses", value: -1 }),
+      expect.objectContaining({ type: "spellSlots", value: "1" }),
+    ]));
+  });
+
+  it("skips an unavailable duplicate and continues building independent activities", async () => {
+    const e = makeCompanionEnricher({});
+    await e._addActivityHintAdditionalActivities({});
+    expect(Object.values(e.data.system.activities)).toEqual([expect.objectContaining({ type: "utility" })]);
   });
 });

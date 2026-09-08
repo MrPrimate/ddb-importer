@@ -2,6 +2,21 @@
 import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBFeature from "../../../src/parser/features/DDBFeature";
 
+describe("Reanimated Companion classification", () => {
+  it("routes the class feature through companion parsing and summon activity generation", () => {
+    const feature = Object.create(DDBFeature.prototype);
+    feature.originalName = "Reanimated Companion";
+    feature.is2014 = false;
+    feature.ddbData = {
+      character: { classes: [{ classFeatures: [{ definition: { name: "Reanimated Companion" } }] }] },
+    };
+    feature._checkSummons();
+    expect(feature.isCompanionFeature2024).toBe(true);
+    expect(feature.isSummons).toBe(true);
+    expect(feature._getActivitiesType()).toBe("summon");
+  });
+});
+
 // dnd5e data model stubs now live in tests/_setup/foundryMocks.ts (game.dnd5e).
 
 // Dhampir 2024: the "Vampiric Bite" trait spawns a "Fanged Bite" action, and DDB
