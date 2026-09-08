@@ -260,7 +260,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: IActionTypes; name: string; onlyLimitedUse?: boolean }): any[] {
     const ddbData = this.ddbParser?.ddbData;
     if (!ddbData) return [];
-    const spells = (ddbData.character.spells[type] ?? []).filter((s) => {
+    const spells = (ddbData.character.spells?.[type] ?? []).filter((s) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
         ? DDBDataUtils.determineActualFeatureId(ddbData, s.componentId)
@@ -275,18 +275,18 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
+    const system = this.ddbParser?.data?.system;
 
-    // no spell on the payload (compendium imports): the caller's max and period stand in
-    let uses: I5eSystemLimitedUses;
+    const uses: I5eSystemLimitedUses = spells.length > 0
+      ? SpellDataUtils.getUses(spells[0].limitedUse)
+      : foundry.utils.deepClone(system && "uses" in system ? system.uses ?? {} : {});
+
     if (spells.length === 0) {
-      logger.error(`No spells found for feature ${name} of type ${type}`);
-      uses = {
-        spent: defaultSpent,
-        max,
-        recovery: [],
-      };
-    } else {
-      uses = SpellDataUtils.getUses(spells[0].limitedUse);
+      logger.warn(`No spells found for feature ${name} of type ${type}`);
+      // Preserve the feature's existing uses when DDB supplies no charge pool.
+      // Explicit defaults still apply, including the recovery configured below.
+      if (defaultSpent !== null) uses.spent = defaultSpent;
+      if (max !== null) uses.max = max;
     }
 
     if (formula) {

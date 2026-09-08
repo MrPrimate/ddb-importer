@@ -166,7 +166,7 @@ export default class DDBAction extends DDBFeatureMixin {
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${utils.errorMessage(err)}`,
         "extension",
       );
-      logger.error("Error", err);
+      logger.error(`Unable to Generate Action: ${this.name}`, err);
     }
   }
 

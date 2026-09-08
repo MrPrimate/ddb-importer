@@ -56,8 +56,7 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
       if (monsterSkill) {
         skill.value = 1;
         if (additionalBonus > 0) {
-          skill.bonuses ??= {};
-          skill.bonuses.passive = `${additionalBonus}`;
+          // Roll bonuses already contribute to passive scores.
           skill.roll = { ...(skill.roll ?? {}), bonus: `${additionalBonus}` };
         }
       }
@@ -142,8 +141,7 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
       if (monsterSkill) {
         skill.value = 1;
         if (additionalBonus > 0) {
-          skill.bonuses ??= {};
-          skill.bonuses.passive = `${additionalBonus}`;
+          // Roll bonuses already contribute to passive scores.
           skill.roll = { ...(skill.roll ?? {}), bonus: `${additionalBonus}` };
         }
       }
