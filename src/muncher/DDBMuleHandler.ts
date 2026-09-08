@@ -57,8 +57,9 @@
  * by id, so multi-pass subclasses count once.
  */
 import DDBMuncher from "../apps/DDBMuncher";
+import DDBProxyCacheSettings from "../lib/DDBProxyCacheSettings";
 import { DICTIONARY } from "../config/_module";
-import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
+import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBProxyCache, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
@@ -503,6 +504,39 @@ export default class DDBMuleHandler {
    * and the homebrew flags to tell those runs apart: without them every class that shares a
    * narrowed source list writes the same file.
    */
+  /**
+   * Human name for this run's cache entry. The request only carries ids; the names arrive with
+   * the stream, so this is derived from the buffered source once it is complete.
+   */
+  _cacheLabel(): string {
+    const source = this.source as Partial<IDDBMuleClassSource> | undefined;
+    const selection = (noun: string) => (this.filterIds.length > 0
+      ? `${noun}: ${this.filterIds.length} selected`
+      : `${noun}: all`);
+    switch (this.type) {
+      case "class": {
+        const className = source?.class?.name ?? (this.classId !== null ? `class ${this.classId}` : "class");
+        const subclasses = (this.classId !== null ? source?.subClasses?.[String(this.classId)] ?? [] : [])
+          .map((subclass) => subclass?.name)
+          .filter((name): name is string => typeof name === "string" && name !== "")
+          .sort((a, b) => a.localeCompare(b));
+        if (subclasses.length === 0) return className;
+        const shown = subclasses.slice(0, 6).join(", ");
+        const more = subclasses.length > 6 ? ` and ${subclasses.length - 6} more` : "";
+        return `${className}: ${shown}${more}`;
+      }
+      case "feat":
+        return selection("Feats");
+      case "background":
+        return selection("Backgrounds");
+      case "race":
+      case "species":
+        return selection("Species");
+      default:
+        return this.type ?? "mule";
+    }
+  }
+
   _rawExampleFileName(): string {
     const homebrewSegment = this.onlyHomebrew
       ? "onlyhb"
@@ -572,6 +606,30 @@ export default class DDBMuleHandler {
     };
 
     this._ensureSource();
+
+    // A local hit takes exactly the path a proxy-side cacheHit event does: the whole buffered
+    // payload becomes this.source and is replayed through the per-item processors.
+    const params = { element: streamElement, ...startParams };
+    const cacheRequest: IProxyCacheRequest = {
+      domain: "mule-stream",
+      params,
+      sourceSelection: DDBProxyCacheSettings.captureMuleSelection(params),
+    };
+    if (DDBProxyCache.isEnabled() && !DDBProxyCache.isRefreshing()) {
+      const cached = await DDBProxyCache.get<IDDBMuleClassSource>(cacheRequest);
+      if (cached !== undefined) {
+        this.source = cached;
+        await this._replayBufferedSourceThroughStreamProcessors();
+        if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
+          FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
+        }
+        logger.debug(`[DDBMuleSocket] served ${streamElement} from the proxy cache`);
+        return;
+      }
+    }
+
+    // captured before the stream so a clear issued while it runs drops the write
+    const cacheStamp = DDBProxyCache.stampFor(cacheRequest);
     const socket = new DDBMuleSocket(parsingApi);
     const startedAt = Date.now();
     let firstItemAt: number | null = null;
@@ -646,6 +704,10 @@ export default class DDBMuleHandler {
       } else {
         await this._drainStreamProcessing();
         this._streamProcessedAll = true;
+      }
+      // both branches leave the fully buffered payload in this.source
+      if (DDBProxyCache.isEnabled()) {
+        await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
@@ -1311,7 +1373,7 @@ export default class DDBMuleHandler {
       includeEquipment: false,
     };
 
-    let urlPostfix;
+    let urlPostfix: string | undefined;
     switch (type) {
       case "class":
         urlPostfix = "/proxy/classes";
@@ -1332,15 +1394,24 @@ export default class DDBMuleHandler {
         throw new Error(`Unknown mule type ${type}`);
     }
 
-    const data = await postJson(`${parsingApi}${urlPostfix}`, body);
+    // the list type selects the endpoint, so it has to be part of the cache key
+    const request: IProxyCacheRequest = { domain: "mule-list", params: { type, ...body } };
+    const stamp = DDBProxyCache.stampFor(request);
+    const list = await DDBProxyCache.wrap<T[]>(request, async () => {
+      const data = await postJson(`${parsingApi}${urlPostfix}`, body);
+      if (!data.success) {
+        logger.error(`Failure: ${data.message}`, { data });
+        throw new Error(data.message);
+      }
+      return data.data as T[];
+    });
 
-    if (!data.success) {
-      logger.error(`Failure: ${data.message}`, { data });
-      throw new Error(data.message);
+    // a clear or delete that landed while the download ran already dropped the persistent write;
+    // memoising the result here would hand the next lookup that same stale list without a fetch
+    if (DDBProxyCache.stampFor(request) === stamp) {
+      await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, list);
     }
-
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
-    return data.data as T[];
+    return list;
   }
 
   /**
@@ -1393,26 +1464,32 @@ export default class DDBMuleHandler {
     return DDBMuleHandler.#getExistingCompendiumIds("backgrounds", "id", rulesVersion);
   }
 
-  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
-    const cobaltCookie = Secrets.getCobalt();
-    const resolvedCampaignId = campaignId ?? DDBCampaigns.getCampaignId();
-    const parsingApi = DDBProxy.getProxy();
-    const betaKey = PatreonHelper.getPatreonKey();
+  /** The subclass request body and its cache request, shared by the fetch and the session memo. */
+  static #subclassRequest({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
     const body = {
-      cobalt: cobaltCookie,
-      campaignId: resolvedCampaignId,
-      betaKey,
+      cobalt: Secrets.getCobalt(),
+      campaignId: campaignId ?? DDBCampaigns.getCampaignId(),
+      betaKey: PatreonHelper.getPatreonKey(),
       className,
       rulesVersion,
       includeHomebrew,
     };
+    const request: IProxyCacheRequest = { domain: "subclasses", params: body };
+    return { body, request };
+  }
 
-    const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
-    if (!data.success) {
-      logger.error(`Failure: ${data.message}`);
-      throw new Error(data.message);
-    }
-    return data.data;
+  static async getSubclasses(options: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
+    const parsingApi = DDBProxy.getProxy();
+    const { body, request } = DDBMuleHandler.#subclassRequest(options);
+
+    return DDBProxyCache.wrap<IDDBMuleSubclassDefinition[]>(request, async () => {
+      const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
+      if (!data.success) {
+        logger.error(`Failure: ${data.message}`);
+        throw new Error(data.message);
+      }
+      return data.data;
+    });
 
   }
 
@@ -1426,8 +1503,12 @@ export default class DDBMuleHandler {
     const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
     const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey) as IDDBMuleSubclassDefinition[] | undefined;
     if (cacheHit) return cacheHit;
-    const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
+    const options = { className, rulesVersion, includeHomebrew, campaignId };
+    const { request } = DDBMuleHandler.#subclassRequest(options);
+    const stamp = DDBProxyCache.stampFor(request);
+    const data = await DDBMuleHandler.getSubclasses(options);
+    // same reasoning as getList: a clear during the fetch must not be undone by the memo
+    if (DDBProxyCache.stampFor(request) === stamp) await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
     return data;
   }
 

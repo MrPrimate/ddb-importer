@@ -465,6 +465,31 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
+  /**
+   * Empty the embedded collections (effects, table results) of an existing compendium document
+   * before it is updated.
+   *
+   * This is a non-recursive replacement of each branch rather than a deleteAll on purpose.
+   * deleteAll builds its id list from this client's cached copy of the document, and the server
+   * rejects the whole request when any of those ids is already gone
+   * ("ActiveEffect X does not exist!"). That is exactly what happens when two munches write the
+   * same document at the same time. A replacement is applied server side against the live
+   * document, so it cannot go stale.
+   */
+  async purgeEmbeddedDocuments(existingItem: Item.Implementation): Promise<void> {
+    const purge: Record<string, never[]> = {};
+    const results = foundry.utils.getProperty(existingItem, "results") as { size?: number } | undefined;
+    if (results?.size) purge.results = [];
+    if (existingItem.effects?.size) purge.effects = [];
+    if (foundry.utils.isEmpty(purge)) return;
+    logger.debug(`Purging ${Object.keys(purge).join(", ")} on ${existingItem.name} before update`);
+    await existingItem.update(purge as unknown as Parameters<typeof existingItem.update>[0], {
+      pack: this.compendium.metadata.id,
+      render: false,
+      recursive: false,
+    } as unknown as Parameters<typeof existingItem.update>[1]);
+  }
+
   async updateCompendiumItem(updateItem: TType, existingItem: Item.Implementation): Promise<TImportedDocumentResult> {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
@@ -486,14 +511,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       packId: this.compendium.metadata.id,
     });
 
-    if (foundry.utils.getProperty(existingItem, "results")) {
-      logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
-      await (existingItem as unknown as RollTable.Implementation).deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-    }
-    if (existingItem.effects?.size && existingItem.effects.size > 0) {
-      logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
-      await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    }
+    await this.purgeEmbeddedDocuments(existingItem);
 
     const update = await existingItem.update(updateItem as any, {
       pack: this.compendium.metadata.id,

@@ -1,0 +1,58 @@
+<section class="tab ddb-source-book-browser-tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+<div class="ddb-source-book-browser-root">
+  <header class="ddb-source-book-browser-header">
+    <div>
+      <h2><i class="fas fa-database"></i> Cache Management</h2>
+      <p class="hint">Downloads from D&amp;D Beyond are kept in this browser and reused by later munches for the same proxy and account until they expire. Entries matching the current source selection and settings are outlined in yellow for mule imports and green for other imports. "Use these settings" is available for non-mule entries to change the selection to match a download. Expire a single download with its <i class="fas fa-times"></i> button, a whole group with its <i class="fas fa-trash"></i> button, or clear everything.</p>
+    </div>
+    <button data-action="clearProxyCache" type="button" id="source-book-browser-clear-cache" class="munch-button" {{#unless cache.total}}disabled{{/unless}}>
+      <i class="fas fa-trash"></i> Clear Cache
+    </button>
+  </header>
+
+  <div class="ddb-source-book-browser-body ddb-proxy-cache-body">
+    {{#unless cache.available}}
+      <p class="ddb-source-book-browser-empty">This browser does not provide IndexedDB storage, so downloads are not cached.</p>
+    {{else}}
+      {{#unless cache.enabled}}
+        <p class="ddb-source-book-browser-empty">The proxy cache is disabled (setting <code>proxy-cache-enabled</code>). Existing entries are listed below but will not be used.</p>
+      {{/unless}}
+      {{#each cache.groups}}
+        <section class="ddb-proxy-cache-group" data-domain="{{this.domain}}">
+          <header class="ddb-proxy-cache-group-header">
+            <span class="ddb-proxy-cache-group-name">{{this.label}}</span>
+            <span class="ddb-source-book-browser-category-count">{{this.count}}</span>
+            <button type="button" class="ddb-proxy-cache-button" data-action="clearCacheDomain" data-domain="{{this.domain}}" title="Expire every cached {{this.label}} download" aria-label="Expire every cached {{this.label}} download">
+              <i class="fas fa-trash"></i>
+            </button>
+          </header>
+          <ul class="ddb-proxy-cache-list">
+            {{#each this.rows}}
+              <li class="ddb-proxy-cache-row {{#if this.matchesSettings}}matches{{/if}}">
+                <span class="ddb-proxy-cache-row-text">
+                  <span class="ddb-proxy-cache-row-label">{{this.label}}</span>
+                  {{#if this.detail}}<span class="ddb-proxy-cache-row-detail hint">{{this.detail}}</span>{{/if}}
+                </span>
+                {{#if this.matchesSettings}}<span class="ddb-proxy-cache-badge" title="A munch with the current settings would use this entry">current settings</span>{{/if}}
+                {{#if this.adoptable}}
+                  <button type="button" class="ddb-proxy-cache-adopt" data-action="adoptCacheSettings" data-key="{{this.key}}" title="Change the source selection and settings to match this entry:&#10;{{this.differences}}">
+                    <i class="fas fa-sliders-h"></i> Use these settings
+                  </button>
+                {{/if}}
+                <span class="ddb-proxy-cache-row-time hint" title="Cached {{this.cachedAt}}, expires {{this.expiresAt}}">cached {{this.cachedAt}} &middot; expires {{this.expiresAt}}</span>
+                {{#if this.key}}
+                  <button type="button" class="ddb-proxy-cache-button" data-action="deleteCacheEntry" data-key="{{this.key}}" title="Expire {{this.label}}" aria-label="Expire {{this.label}}">
+                    <i class="fas fa-times"></i>
+                  </button>
+                {{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        </section>
+      {{else}}
+        <p class="ddb-source-book-browser-empty">Nothing is cached yet. Munch spells, items, monsters or classes and their downloads will be listed here.</p>
+      {{/each}}
+    {{/unless}}
+  </div>
+</div>
+</section>

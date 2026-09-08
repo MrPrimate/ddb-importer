@@ -52,7 +52,7 @@ export default class SourceSelectionPreview {
   /**
    * Wire a button up to the preview. Called for every button on every render, as each render
    * replaces the elements; the listeners die with the elements they were attached to.
-   * @param {HTMLElement} button  A "Source Selection" button.
+   * @param {HTMLElement} button  A "Sources and Cache" button.
    */
   attach(button: HTMLElement): void {
     button.addEventListener("pointerenter", () => this.show(button));

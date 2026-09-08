@@ -1383,6 +1383,18 @@ const SETTINGS = {
           type: String,
           default: "",
         },
+        // IndexedDB is per browser, so these are client scoped. Neither has UI yet: the Sources and
+        // Cache window exposes a Clear button, and the TTL only applies to entries written after a change.
+        "proxy-cache-enabled": {
+          scope: "client",
+          type: Boolean,
+          default: true,
+        },
+        "proxy-cache-ttl-hours": {
+          scope: "client",
+          type: Number,
+          default: 168,
+        },
       },
       // dev settings
       DEV: {

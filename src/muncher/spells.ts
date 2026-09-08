@@ -14,6 +14,7 @@ import {
   DDBSources,
   SourceFilters,
   postJson,
+  DDBProxyCache,
 } from "../lib/_module";
 import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
@@ -84,21 +85,21 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
     rulesVersion, className, searchFilter,
   });
 
+  const fetchRaw = async (): Promise<IDDBSpellEntry[]> => {
+    const data: IDDBClassSpellsProxyResponse = await postJson(`${parsingApi}/proxy/class/spells`, body);
+    if (!data.success) {
+      notifier?.(`Failure: ${data.message}`);
+      throw new Error(data.message);
+    }
+    return data.data;
+  };
+
   return new Promise<ClassSpellSet>((resolve, reject) => {
-    postJson(`${parsingApi}/proxy/class/spells`, body)
-      .then((data: IDDBClassSpellsProxyResponse) => {
-        if (debugJson) {
-          FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
-        }
-        if (!data.success) {
-          notifier?.(`Failure: ${data.message}`);
-          reject(data.message);
-          return null;
-        }
-        return data.data;
-      })
+    DDBProxyCache.wrap<IDDBSpellEntry[]>({ domain: "spells", params: body }, fetchRaw)
       .then((raw) => {
-        if (raw == null) return;
+        if (debugJson) {
+          FileHelper.download(JSON.stringify({ success: true, data: raw }), `spells-raw.json`, "application/json");
+        }
         collectRawSpellsBySource(raw, className, rulesVersion ?? "2014");
         const { data, counts } = SourceFilters.applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter });
         logger.debug(`[spells] ${className} (${rulesVersion ?? "2014"}) filter stages`, counts);
@@ -139,16 +140,24 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
   const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
   const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
-  const socket = new DDBSpellSocket(parsingApi);
-  socket.connect();
+  // The socket is opened lazily so a run served entirely from the proxy cache never connects.
+  // held in an object because the assignment happens inside a closure, which control-flow narrowing
+  // cannot see from the finally block
+  const state: { socket: DDBSpellSocket | null } = { socket: null };
+  const ensureSocket = async (): Promise<DDBSpellSocket> => {
+    if (state.socket) return state.socket;
+    const opened = new DDBSpellSocket(parsingApi);
+    opened.connect();
+    state.socket = opened;
+    const authRes = await opened.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
+    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+    return opened;
+  };
 
   const out: ClassSpellSet[] = [];
   const debugDump: any[] = [];
 
   try {
-    const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
-    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-
     for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
       const rules = rulesVersion ?? "2014";
       for (const className of klassNames) {
@@ -157,20 +166,25 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
           exactMatch, rulesVersion: rules, className, searchFilter,
         });
 
-        let raw: IDDBSpellEntry[] = [];
-        await socket.runJob(
-          "class-spells",
-          { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie },
-          {
-            timeoutMs: 30000,
-            onEvent: (event: DDBSpellEvent) => {
-              if (event.kind === "classSpells") {
-                const payload = event.payload ?? {};
-                if (Array.isArray(payload.spells)) raw = payload.spells;
-              }
+        const jobParams = { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie };
+        const raw = await DDBProxyCache.wrap<IDDBSpellEntry[]>({ domain: "spells", params: jobParams }, async () => {
+          const live = await ensureSocket();
+          let streamed: IDDBSpellEntry[] = [];
+          await live.runJob(
+            "class-spells",
+            jobParams,
+            {
+              timeoutMs: 30000,
+              onEvent: (event: DDBSpellEvent) => {
+                if (event.kind === "classSpells") {
+                  const payload = event.payload ?? {};
+                  if (Array.isArray(payload.spells)) streamed = payload.spells;
+                }
+              },
             },
-          },
-        );
+          );
+          return streamed;
+        });
 
         if (debugJson) debugDump.push(...raw);
         collectRawSpellsBySource(raw, className, rules);
@@ -180,7 +194,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
       }
     }
   } finally {
-    socket.close();
+    state.socket?.close();
   }
 
   if (debugJson) {

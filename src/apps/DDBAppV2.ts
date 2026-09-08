@@ -26,6 +26,24 @@ type TDDBPartState = foundry.applications.api.HandlebarsApplicationMixin.PartSta
 };
 
 // tab contexts here are deep nested partials, wider than the base Tab record
+
+/**
+ * Thrown from `_preRender` to abandon a render that was scheduled behind setting writes. Foundry
+ * awaits `_preRender` after the context is prepared but before it touches the DOM, and a rejection
+ * there leaves the application exactly as it was, so the render can be re-run once the user is
+ * idle again. Preparing the muncher's context takes long enough for the user to have reopened the
+ * dropdown they had just chosen from, and a swap at that point closes it under them.
+ */
+class SettingRenderDeferred extends Error {}
+
+// marks a render as one scheduled behind setting writes, so _preRender knows it may be deferred.
+// Built per render: Foundry fills `parts` into the options object it is handed, so a shared object
+// would carry one window's part list into the next window's render
+type TSettingRenderOptions = DeepPartial<foundry.applications.api.Application.RenderOptions> & { ddbSettingRender?: boolean };
+function settingRenderOptions(): TSettingRenderOptions {
+  return { ddbSettingRender: true };
+}
+
 export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
 
   static override get PARTS(): Record<string, DDBApplicationPart> {
@@ -110,6 +128,15 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   protected settingRenderPollMs = 100;
   protected lastInteractionAt = 0;
 
+  // whether the last thing the user did in the app was commit a control (a change event) rather
+  // than start using one (pointer or key). Choosing from a `<select>` fires change and closes the
+  // popup but leaves focus on the select, so focus alone would hold the render until they click
+  // elsewhere - the class list on the mule tab never gained its new class
+  protected controlSettled = false;
+
+  // set while a flush (a tab change) wants the parked render to land without waiting for quiet
+  protected settingRenderFlushRequested = false;
+
   // the root the interaction listeners are attached to, replaced when the app is reopened
   protected interactionElement: HTMLElement | null = null;
 
@@ -167,7 +194,11 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     if (!root?.isConnected) return false;
     const active = document.activeElement;
     if (!active || !root.contains(active)) return false;
-    return !!active.closest("multi-select, string-tags, select, input, textarea");
+    if (!active.closest("multi-select, string-tags, select, input, textarea")) return false;
+    // a select that has fired change since it was last touched has its popup closed; the focus it
+    // keeps is a browser artefact, not the user part way through a choice
+    if (this.controlSettled && active.localName === "select") return false;
+    return true;
   }
 
   /**
@@ -178,8 +209,10 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   protected trackInteractions(): void {
     if (this.interactionElement === this.element) return;
     this.interactionElement = this.element;
-    const mark = () => {
+    const mark = (event: Event) => {
       this.lastInteractionAt = Date.now();
+      // pointerup is the tail of a click that pointerdown already counted as starting one
+      if (event.type !== "pointerup") this.controlSettled = event.type === "change";
     };
     for (const type of ["pointerdown", "pointerup", "keydown", "change"]) {
       this.element.addEventListener(type, mark, { capture: true });
@@ -189,6 +222,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   /** May a render queued behind a setting write run now, without disrupting the user? */
   protected canRunQueuedRender(): boolean {
     if (this.pendingSettingUpdates > 0) return false;
+    if (this.settingRenderFlushRequested) return true;
     if (this.isUserEditingControl()) return false;
     return (Date.now() - this.lastInteractionAt) >= this.settingRenderIdleMs;
   }
@@ -202,20 +236,56 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     if (this.settingRenderPromise) return this.settingRenderPromise;
     const scheduled = (async () => {
       try {
-        while (this.rendered && !this.canRunQueuedRender()) {
-          await new Promise<void>((resolve) => {
-            setTimeout(resolve, this.settingRenderPollMs);
-          });
+        while (this.rendered) {
+          while (this.rendered && !this.canRunQueuedRender()) {
+            await new Promise<void>((resolve) => {
+              setTimeout(resolve, this.settingRenderPollMs);
+            });
+          }
+          if (!this.rendered) break;
+          try {
+            await this.render(settingRenderOptions());
+            break;
+          } catch (err) {
+            if (!(err instanceof SettingRenderDeferred)) throw err;
+            // the user picked up a control while the context was being prepared: wait them out again
+          }
         }
-        if (this.rendered) await this.render();
       } catch (err) {
         logger.error("DDBAppV2: queued render failed", err);
       } finally {
         this.settingRenderPromise = null;
+        this.settingRenderFlushRequested = false;
       }
     })();
     this.settingRenderPromise = scheduled;
     return scheduled;
+  }
+
+  /** @inheritDoc */
+  override async _preRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
+    await super._preRender(context, options);
+    // the idle check passed before the context was prepared; re-check now, at the last point a
+    // render can still be abandoned without touching the DOM
+    const deferrable = (options as TSettingRenderOptions).ddbSettingRender === true;
+    if (deferrable && !this.canRunQueuedRender()) throw new SettingRenderDeferred("queued render deferred: the user is using a control");
+  }
+
+  /**
+   * Apply every queued setting write and land the render parked behind them now, rather than
+   * waiting for the user to go quiet. Used on a tab change: the user has moved on from the control
+   * they were using, and the tab they are arriving at should show the settings they just chose.
+   * Subclass guards that must hold the render regardless (a munch in progress) still apply.
+   */
+  protected async flushSettingUpdates(): Promise<void> {
+    this.settingRenderFlushRequested = true;
+    await this.awaitSettingUpdates();
+    // nothing was scheduled behind the writes, so leave the next queued render its usual wait
+    if (!this.settingRenderPromise) {
+      this.settingRenderFlushRequested = false;
+      return;
+    }
+    await this.settingRenderPromise;
   }
 
   /**
@@ -313,6 +383,9 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     if (["sheet"].includes(group)) {
       this._toggleNestedTabs();
     }
+    // Foundry's changeTab only swaps the active classes, so the render carrying any settings the
+    // user changed on the tab they are leaving has to be asked for; changeTab is synchronous
+    this.flushSettingUpdates().catch((err) => logger.error("DDBAppV2: flush on tab change failed", err));
   }
 
   override async _prepareContext(options: any): Promise<DDBAppV2Context> {

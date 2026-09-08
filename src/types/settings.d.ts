@@ -429,6 +429,8 @@ declare global {
     "ddb-importer.cobalt-cookie": string;
     "ddb-importer.cobalt-cookie-local": boolean;
     "ddb-importer.campaign-id": string;
+    "ddb-importer.proxy-cache-enabled": boolean;
+    "ddb-importer.proxy-cache-ttl-hours": number;
 
     // READY: DEV
     "ddb-importer.allow-scene-download": boolean;

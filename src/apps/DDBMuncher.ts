@@ -83,6 +83,24 @@ interface IDDBMuncherContext extends
   dontGrabExistingCharacterThings: boolean;
 }
 
+/**
+ * Disable every munch/import start button in the muncher window.
+ * Kept outside the class so it can run from a render as well as from a munch start: a re-render
+ * mid-munch rebuilds the DOM with live buttons, and a second click then runs a second munch
+ * concurrently against the same compendiums.
+ */
+function disableMunchButtons(element: HTMLElement): void {
+  const buttonSelectors = [
+    "button[id^=\"adventure-config-start\"]",
+    "button[id^=\"munch-\"]",
+  ];
+  for (const selector of buttonSelectors) {
+    for (const button of element.querySelectorAll<HTMLButtonElement>(selector)) {
+      button.disabled = true;
+    }
+  }
+}
+
 export default class DDBMuncher extends DDBAppV2 {
 
   processErrors: any[] = [];
@@ -455,8 +473,12 @@ export default class DDBMuncher extends DDBAppV2 {
   override async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);
 
-    // a re-render mid-munch must not drop the height reserved for the overlay
-    if (this.preMunchHeight !== null) this.element.classList.add("munching-active");
+    // a re-render mid-munch must not drop the height reserved for the overlay, nor hand back
+    // live start buttons while the previous run is still writing
+    if (this.preMunchHeight !== null) {
+      this.element.classList.add("munching-active");
+      disableMunchButtons(this.element);
+    }
 
     this.#sourcePreview?.hide();
     this.#sourcePreview ??= new SourceSelectionPreview(() => MuncherSettings.getEffectiveSourceSelection());
@@ -787,17 +809,23 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 
+  /** A munch is running or its details overlay is still up (cleared when the overlay is dismissed). */
+  get isMunching(): boolean {
+    return this.preMunchHeight !== null;
+  }
+
+  /**
+   * A render replaces the part's DOM, which takes the progress overlay with it while the import
+   * carries on underneath. Renders queued behind setting writes (a checkbox, a category change
+   * from the Sources and Cache window) therefore wait until the overlay has been dismissed.
+   */
+  protected override canRunQueuedRender(): boolean {
+    if (this.isMunching) return false;
+    return super.canRunQueuedRender();
+  }
+
   _disableButtons() {
-    const buttonSelectors = [
-      "button[id^=\"adventure-config-start\"]",
-      "button[id^=\"munch-\"]",
-    ];
-    buttonSelectors.forEach((selector) => {
-      const buttons = this.element.querySelectorAll(selector) as NodeListOf<HTMLButtonElement>;
-      buttons.forEach((button) => {
-        button.disabled = true;
-      });
-    });
+    disableMunchButtons(this.element);
     const progressElement = this.element.querySelector(".ddb-overlay");
     if (progressElement) progressElement.classList.remove("munching-invalid");
 
@@ -1013,6 +1041,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching frames!");
       this._disableButtons();
+      await this.awaitSettingUpdates();
       const result = await DDBFrameImporter.parseFrames(this.notifierV2.bind(this));
       this.notifierV2({
         section: "name",
@@ -1729,6 +1758,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Generating adventure config!");
       this._disableButtons();
+      await this.awaitSettingUpdates();
 
       const importFile = this.element.querySelector<HTMLInputElement>(`#munch-adventure-file`)?.files?.[0];
       if (!importFile) {
@@ -1772,13 +1802,12 @@ export default class DDBMuncher extends DDBAppV2 {
       // the muncher is resolved when the write happens rather than captured here: this window may
       // have been closed and reopened by then, and queueing against the dead instance would leave
       // the live one showing categories it no longer has
-      queueCategoryUpdate: async (update) => {
+      queueCategoryUpdate: async (update, key = "munching-policy-muncher-included-source-categories") => {
         const muncher = foundry.applications.instances.get(DDBMuncher.DEFAULT_OPTIONS.id);
         if (!(muncher instanceof DDBMuncher) || !muncher.rendered) return false;
-        // sharing the muncher's queue keeps both windows' writes to this setting in one order
-        await muncher.queueSettingUpdate(update, {
-          key: "munching-policy-muncher-included-source-categories",
-        });
+        // sharing the muncher's queue keeps both windows' writes in one order, and a munch started
+        // right afterwards drains that queue before it reads its settings
+        await muncher.queueSettingUpdate(update, { key });
         return true;
       },
     });
@@ -1794,6 +1823,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Updating world monsters!");
       this._disableButtons();
+      // the world-update checkboxes write through the queue; read them after the writes land
+      await this.awaitSettingUpdates();
       await updateWorldMonsters();
     } catch (error) {
       logger.error(error);
@@ -1855,6 +1886,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Checking to see if items need prices...");
       this._disableButtons();
+      await this.awaitSettingUpdates();
       const results = await updateItemPrices();
       const notifyString = `Added ${results.length} prices to items.`;
       this.notifier(notifyString, { nameField: true });
@@ -1906,6 +1938,8 @@ export default class DDBMuncher extends DDBAppV2 {
     const img = imgSelect.value;
     const sceneId = sceneSelect.value;
     const id = encounterSelect.value;
+    // the encounter policy checkboxes write through the queue; read them after the writes land
+    await this.awaitSettingUpdates();
 
     // console.warn("Munching encounter!", {
     //   encounterFactory: this.encounterFactory,

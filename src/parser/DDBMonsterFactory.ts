@@ -13,6 +13,7 @@ import {
   postJson,
   DDBRunContext,
   MunchProgressTracker,
+  DDBProxyCache,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -92,9 +93,27 @@ function getFetchQueue() {
 }
 // monster id -> source object, or null when a completed job returned nothing
 // for that id (so unknown ids aren't re-queried forever). Tied to the socket
-// session lifetime: cleared whenever the shared socket closes.
-const _idCache = new Map<number, any | null>();
+// session lifetime: cleared whenever the shared socket closes. Each entry
+// carries the moment it lapses: a record seeded from the persistent cache
+// keeps that record's expiry, and a remembered miss lasts NULL_ID_TTL_MS, so
+// neither outlives in memory what it would have on disk.
+const _idCache = new Map<number, IProxyCacheHit<IDDBMonsterSourceData | null>>();
 let _idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** The live in-memory record for an id, dropping it once its expiry has passed. */
+export function _idCacheGet(id: number): IProxyCacheHit<IDDBMonsterSourceData | null> | undefined {
+  const hit = _idCache.get(id);
+  if (!hit) return undefined;
+  if (hit.expiresAt <= Date.now()) {
+    _idCache.delete(id);
+    return undefined;
+  }
+  return hit;
+}
+
+export function _idCacheSet(id: number, data: IDDBMonsterSourceData | null, expiresAt: number): void {
+  _idCache.set(id, { data, expiresAt });
+}
 const SHARED_IDLE_MS = 3600000;
 
 function _monsterCredSig(parsingApi: string, cobalt: string, betaKey: string): string {
@@ -122,6 +141,80 @@ function _closeSharedMonsterSocket(): void {
 function _bumpSharedIdle(): void {
   if (_idleTimer) clearTimeout(_idleTimer);
   _idleTimer = setTimeout(_closeSharedMonsterSocket, SHARED_IDLE_MS);
+}
+
+// The in-memory id cache fronts the persistent one, so clearing or bypassing that must drop it too.
+// Only the memory is dropped: closing the shared socket here would leave a by-id job that is
+// streaming at that moment (a companion lookup mid spell import) waiting out its full timeout.
+// Registered on first fetch rather than at module load: this module sits inside the lib barrel's
+// import cycle, and the cache binding is not initialised yet when this file is evaluated.
+let _sessionCacheRegistered = false;
+function _ensureSessionCacheRegistered(): void {
+  if (_sessionCacheRegistered) return;
+  _sessionCacheRegistered = true;
+  DDBProxyCache.registerSessionCache(["monsters", "monster-id"], () => _idCache.clear());
+}
+
+/** Identity of a by-id record: the account, and the endpoint when a custom monster URL is wired. */
+interface IPersistedIdScope {
+  cobalt: string;
+  endpoint?: string;
+}
+
+// an id the proxy returned nothing for is remembered briefly, not for the full TTL, so a transient
+// proxy miss cannot hide a monster for a week
+const NULL_ID_TTL_MS = 3600000;
+
+/**
+ * Persisted by-id records for the requested ids. The map only holds ids the cache knows about; a
+ * null value is a remembered "the proxy has no such monster".
+ */
+export async function _readPersistedIds(ids: number[], { cobalt, endpoint }: IPersistedIdScope): Promise<Map<number, IProxyCacheHit<IDDBMonsterSourceData | null>>> {
+  const found = new Map<number, IProxyCacheHit<IDDBMonsterSourceData | null>>();
+  if (ids.length === 0 || !DDBProxyCache.isEnabled() || DDBProxyCache.isRefreshing()) return found;
+  const hits = await DDBProxyCache.getManyHits<IDDBMonsterSourceData | null>(
+    "monster-id",
+    ids.map((id) => ({ id, cobalt, endpoint })),
+  );
+  ids.forEach((id, index) => {
+    const hit = hits[index];
+    if (hit !== undefined) found.set(id, hit);
+  });
+  return found;
+}
+
+/**
+ * Persist a by-id response, one record per requested id. An empty response is treated as a failed
+ * fetch (the callers fall back to HTTP for it) and is not written, so nothing gets remembered as
+ * missing on the strength of a broken stream. `generation` is the cache generation captured before
+ * the fetch: if the cache was cleared meanwhile the write is dropped.
+ */
+export async function _writePersistedIds(
+  requested: number[],
+  raw: IDDBMonsterSourceData[],
+  { cobalt, endpoint, generation }: IPersistedIdScope & { generation?: number },
+): Promise<void> {
+  if (requested.length === 0 || raw.length === 0 || !DDBProxyCache.isEnabled()) return;
+  const byId = new Map<number, IDDBMonsterSourceData>();
+  for (const monster of raw) {
+    const key = Number(monster?.id);
+    if (Number.isFinite(key)) byId.set(key, monster);
+  }
+  await DDBProxyCache.setMany<IDDBMonsterSourceData | null>(
+    "monster-id",
+    requested.map((id) => (byId.has(id)
+      ? { params: { id, cobalt, endpoint }, data: byId.get(id) ?? null }
+      : { params: { id, cobalt, endpoint }, data: null, ttlMs: NULL_ID_TTL_MS })),
+    { generation },
+  );
+}
+
+/**
+ * A by-id stream that fetched ids but got nothing back is treated as a failure. Ids served from the
+ * caches are not fetches, so a request made entirely of remembered ids must not trigger the fallback.
+ */
+export function shouldFallbackAfterByIdStream(fetchedCount: number, rawCount: number): boolean {
+  return fetchedCount > 0 && rawCount === 0;
 }
 
 async function _getSharedMonsterSocket(
@@ -331,6 +424,7 @@ export default class DDBMonsterFactory {
     homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [],
     monsterTypes = [] }: IDDBMonsterFactoryFetchOptions,
   ) {
+    _ensureSessionCacheRegistered();
     // getCobalt treats a null and undefined postfix identically
     const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix ?? undefined;
     const useLocal = this.keys.useLocal ?? DDBRunContext.useLocal;
@@ -366,6 +460,9 @@ export default class DDBMonsterFactory {
       ? `${parsingApi}/proxy/monsters/ids`
       : `${parsingApi}/proxy/monster`;
     const url = CONFIG.DDBI.monsterURL ?? defaultUrl;
+    // If the user has wired a custom monsterURL (custom proxy), trust their
+    // override and skip streaming. Same logic applies to both bulk and by-id.
+    const customMonsterUrl = url !== defaultUrl;
 
     const isIdLookup = !!(ids && Array.isArray(ids) && ids.length > 0);
     const streamElement = isIdLookup ? "monsters-by-id" : "all-monsters";
@@ -404,8 +501,18 @@ export default class DDBMonsterFactory {
         });
     };
 
-    const fetchOverHttp = async () => {
-      const result = await postJson(url, body, { mode: "cors" }) as {
+    // Bulk searches key the proxy cache on the full search body (shared by the HTTP and streaming
+    // transports, which return the same raw shape). A custom monster URL is part of the key because
+    // it may serve a different catalogue from the configured proxy.
+    const cacheEndpoint = customMonsterUrl ? url : undefined;
+    const bulkCacheRequest = () => ({
+      domain: "monsters" as const,
+      params: { ...buildStartParams(), endpoint: cacheEndpoint },
+    });
+    const idScope = { cobalt: cobaltCookie, endpoint: cacheEndpoint };
+
+    const postMonsters = async (requestBody: IDDBMonsterFetchBody): Promise<IDDBMonsterSourceData[]> => {
+      const result = await postJson(url, requestBody, { mode: "cors" }) as {
         success: boolean;
         message?: string;
         data: IDDBMonsterSourceData[];
@@ -413,20 +520,47 @@ export default class DDBMonsterFactory {
       if (!result.success) {
         this.notifier(`API Failure: ${result.message}`);
         logger.error(`API Failure:`, result.message);
-        return Promise.reject(result.message);
+        throw new Error(String(result.message));
       }
+      return result.data;
+    };
+
+    const finishBulk = (raw: IDDBMonsterSourceData[]) => {
       if (debugJson) {
-        FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
+        FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
       }
-      downloadRawMonstersByCategoryAndVersion(result.data);
-      this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
-      logger.info(`Retrieved ${result.data.length} monsters from DDB`);
-      this.source = applyCategoryFilter(result.data);
-      logger.info(`[monsters] ${this.source.length} of ${result.data.length} monsters in the included source categories`);
+      downloadRawMonstersByCategoryAndVersion(raw);
+      this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
+      logger.info(`Retrieved ${raw.length} monsters from DDB`);
+      this.source = applyCategoryFilter(raw);
+      logger.info(`[monsters] ${this.source.length} of ${raw.length} monsters in the included source categories`);
       return this.source;
     };
 
-    const fetchOverStream = async () => {
+    const fetchOverHttp = async () => {
+      if (!isIdLookup) {
+        const raw = await DDBProxyCache.wrap<IDDBMonsterSourceData[]>(bulkCacheRequest(), () => postMonsters(body));
+        return finishBulk(raw);
+      }
+      // by id: serve remembered ids from the proxy cache and only ask the proxy for the rest
+      const requestedIds = (body.ids ?? []).map(Number);
+      const persisted = await _readPersistedIds(requestedIds, idScope);
+      const missing = requestedIds.filter((id) => !persisted.has(id));
+      const fetched = new Map<number, IDDBMonsterSourceData>();
+      if (missing.length > 0) {
+        const generation = DDBProxyCache.generation;
+        const raw = await postMonsters({ ...body, ids: missing });
+        for (const monster of raw) fetched.set(Number(monster?.id), monster);
+        await _writePersistedIds(missing, raw, { ...idScope, generation });
+      }
+      const combined = requestedIds
+        .map((id) => fetched.get(id) ?? persisted.get(id) ?? null)
+        .filter((monster): monster is IDDBMonsterSourceData => monster !== null);
+      logger.debug(`[monsters] by-id HTTP: ${requestedIds.length} requested, ${missing.length} fetched, ${combined.length} returned`);
+      return finishBulk(combined);
+    };
+
+    const streamBulk = async (): Promise<IDDBMonsterSourceData[]> => {
       const socket = new DDBMonsterSocket(parsingApi);
       socket.connect();
       try {
@@ -444,31 +578,45 @@ export default class DDBMonsterFactory {
             }
           },
         });
-
-        if (debugJson) {
-          FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
-        }
-        downloadRawMonstersByCategoryAndVersion(raw);
-        this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
-        logger.info(`Retrieved ${raw.length} monsters from DDB`);
-        this.source = applyCategoryFilter(raw);
-        logger.info(`[monsters] ${this.source.length} of ${raw.length} monsters in the included source categories`);
-        return this.source;
+        return raw;
       } finally {
         socket.close();
       }
     };
 
+    const fetchOverStream = async () => {
+      const raw = await DDBProxyCache.wrap<IDDBMonsterSourceData[]>(bulkCacheRequest(), streamBulk);
+      return finishBulk(raw);
+    };
+
+    // set by fetchByIdShared so the caller can tell a failed stream from a fully cached request
+    let byIdFetchedCount = 0;
+    let byIdRawCount = 0;
+
     // By-id lookups reuse one shared socket across the run and cache results by
     // monster id, so the many companion/summon lookups during spell parsing
     // don't each open a socket or re-fetch the same monsters.
     const fetchByIdShared = async () => {
-      const requestedIds: number[] = body.ids ?? [];
-      const missing = requestedIds.filter((id) => !_idCache.has(Number(id)));
+      const requestedIds: number[] = (body.ids ?? []).map(Number);
+      let missing = requestedIds.filter((id) => _idCacheGet(id) === undefined);
       let _lastByIdRawCount = 0;
+
+      // the persistent cache is the second layer behind the in-memory id cache
+      if (missing.length > 0) {
+        const generationBeforeRead = DDBProxyCache.generation;
+        const persisted = await _readPersistedIds(missing, idScope);
+        // a clear that landed during the read has already emptied the memory; do not refill it
+        // with what was read out just before
+        if (generationBeforeRead === DDBProxyCache.generation) {
+          for (const [id, hit] of persisted) _idCacheSet(id, hit.data, hit.expiresAt);
+        }
+        missing = missing.filter((id) => _idCacheGet(id) === undefined);
+      }
+      byIdFetchedCount = missing.length;
 
       if (missing.length > 0) {
         await getFetchQueue().add(async () => {
+          const generation = DDBProxyCache.generation;
           const socket = await _getSharedMonsterSocket(parsingApi, { betaKey, cobalt: cobaltCookie, characterId: null });
           const raw: IDDBMonsterSourceData[] = [];
           await socket.runJob("monsters-by-id", { ids: missing, cobalt: cobaltCookie }, {
@@ -483,19 +631,25 @@ export default class DDBMonsterFactory {
           for (const monster of raw) {
             // Coerce the key: tokens request numeric ids but the server may
             // return string ids; a strict Map key mismatch would drop everything.
+            // A freshly streamed monster is kept for the socket session, as before.
             const key = Number(monster?.id);
-            if (Number.isFinite(key)) _idCache.set(key, monster);
+            if (Number.isFinite(key)) _idCacheSet(key, monster, Number.POSITIVE_INFINITY);
           }
           // requested ids the server returned nothing for: cache as null so we
-          // don't keep re-querying them.
+          // don't keep re-querying them, but only for as long as the persisted miss lasts.
+          const missUntil = Date.now() + NULL_ID_TTL_MS;
           for (const id of missing) {
-            if (!_idCache.has(Number(id))) _idCache.set(Number(id), null);
+            if (_idCacheGet(Number(id)) === undefined) _idCacheSet(Number(id), null, missUntil);
           }
           _bumpSharedIdle();
+          await _writePersistedIds(missing, raw, { ...idScope, generation });
         });
       }
+      byIdRawCount = _lastByIdRawCount;
 
-      this.source = requestedIds.map((id) => _idCache.get(Number(id))).filter(Boolean);
+      this.source = requestedIds
+        .map((id) => _idCacheGet(Number(id))?.data)
+        .filter((monster): monster is IDDBMonsterSourceData => !!monster);
       if (debugJson) {
         FileHelper.download(JSON.stringify({ success: true, data: this.source }), `monsters-raw.json`, "application/json");
       }
@@ -504,17 +658,14 @@ export default class DDBMonsterFactory {
       return this.source;
     };
 
-    // If the user has wired a custom monsterURL (custom proxy), trust their
-    // override and skip streaming. Same logic applies to both bulk and by-id.
-    const customMonsterUrl = url !== defaultUrl;
     if (_monsterSocketDisabled || customMonsterUrl) return fetchOverHttp();
 
     try {
       if (isIdLookup) {
         const streamed = await fetchByIdShared();
-        // An empty by-id streaming result is treated as a failure: use fallback.
-        if (streamed.length === 0 && (body.ids?.length ?? 0) > 0) {
-          logger.warn(`[monsters] by-id streaming returned 0 for ${body.ids?.length} id(s); falling back to HTTP`);
+        // A by-id stream that fetched ids and got nothing back is treated as a failure: use fallback.
+        if (shouldFallbackAfterByIdStream(byIdFetchedCount, byIdRawCount)) {
+          logger.warn(`[monsters] by-id streaming returned 0 for ${byIdFetchedCount} id(s); falling back to HTTP`);
           _closeSharedMonsterSocket();
           return fetchOverHttp();
         }

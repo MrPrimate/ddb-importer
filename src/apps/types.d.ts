@@ -45,6 +45,37 @@ global {
     tab?: Partial<IDDBTab>;
   }
 
+  /** One listed download in the Sources and Cache window's Cache Management tab. */
+  interface ISourceBookBrowserCacheRow {
+    /** Full cache key for a single entry; absent on aggregate rows, which are cleared via their group. */
+    key?: string;
+    label: string;
+    /** Second line: the source categories / books the request covered, when the domain has them. */
+    detail: string | null;
+    cachedAt: string;
+    expiresAt: string;
+    /** The current settings would produce this request (per-run inputs such as a search term aside). */
+    matchesSettings: boolean;
+    /** The row offers "use these settings": the domain maps to settings and does not match now. */
+    adoptable: boolean;
+    /** Tooltip for the adopt button: what differs. */
+    differences: string;
+  }
+
+  interface ISourceBookBrowserCacheGroup {
+    domain: TProxyCacheDomain;
+    label: string;
+    count: number;
+    rows: ISourceBookBrowserCacheRow[];
+  }
+
+  interface ISourceBookBrowserCacheContext {
+    available: boolean;
+    enabled: boolean;
+    total: number;
+    groups: ISourceBookBrowserCacheGroup[];
+  }
+
   interface IMonsterReplacerData {
     id2014: number;
     name2014: string;

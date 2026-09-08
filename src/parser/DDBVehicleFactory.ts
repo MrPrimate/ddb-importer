@@ -14,6 +14,7 @@ import {
   postJson,
   DDBRunContext,
   MunchProgressTracker,
+  DDBProxyCache,
 } from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -196,22 +197,29 @@ export default class DDBVehicleFactory {
       : `${parsingApi}/proxy/vehicles`;
     const url = CONFIG.DDBI.vehicleURL ?? defaultUrl;
 
-    const result: {
-      success: boolean;
-      message: string;
-      data: IDDBVehicleSourceData[];
-    } = await postJson(url, body, { mode: "cors" });
+    const fetchRaw = async (): Promise<IDDBVehicleSourceData[]> => {
+      const result: {
+        success: boolean;
+        message: string;
+        data: IDDBVehicleSourceData[];
+      } = await postJson(url, body, { mode: "cors" });
+      if (!result.success) {
+        this.notifier(`API Failure: ${result.message}`);
+        logger.error(`API Failure:`, result.message);
+        throw new Error(String(result.message));
+      }
+      return result.data;
+    };
+    // a custom vehicle URL may serve a different catalogue, so it is part of the key
+    const data = await DDBProxyCache.wrap<IDDBVehicleSourceData[]>({
+      domain: "vehicles",
+      params: { ...body, endpoint: url !== defaultUrl ? url : undefined },
+    }, fetchRaw);
     if (debugJson) {
-      FileHelper.download(JSON.stringify(result), `vehicles-raw.json`, "application/json");
+      FileHelper.download(JSON.stringify({ success: true, data }), `vehicles-raw.json`, "application/json");
     }
-    if (!result.success) {
-      this.notifier(`API Failure: ${result.message}`);
-      logger.error(`API Failure:`, result.message);
-      return Promise.reject(result.message);
-    }
-    this.notifier(`Retrieved ${result.data.length} vehicles from DDB`, { nameField: true, monsterNote: false });
-    logger.info(`Retrieved ${result.data.length} vehicles from DDB`);
-    const data = result.data;
+    this.notifier(`Retrieved ${data.length} vehicles from DDB`, { nameField: true, monsterNote: false });
+    logger.info(`Retrieved ${data.length} vehicles from DDB`);
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
       FileHelper.download(JSON.stringify(data), `ddb-vehicles-source-${sources.join("_")}.json`, "application/json");
     }

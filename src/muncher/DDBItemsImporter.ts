@@ -13,6 +13,7 @@ import {
   DDBSources,
   SourceFilters,
   postJson,
+  DDBProxyCache,
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { ExternalAutomations } from "../effects/_module";
@@ -255,21 +256,21 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
+    const fetchRaw = async (): Promise<TDDBItemsPayload> => {
+      const data: IDDBItemsProxyResponse = await postJson(`${parsingApi}/proxy/items`, body);
+      if (!data.success) {
+        utils.munchNote(`Failure: ${data.message}`);
+        throw new Error(data.message);
+      }
+      return data.data;
+    };
+
     return new Promise<IItemFetchResult>((resolve, reject) => {
-      postJson(`${parsingApi}/proxy/items`, body)
-        .then((data: IDDBItemsProxyResponse) => {
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
-          }
-          if (!data.success) {
-            utils.munchNote(`Failure: ${data.message}`);
-            reject(data.message);
-            return null;
-          }
-          return data.data;
-        })
+      DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: body }, fetchRaw)
         .then(async (raw) => {
-          if (raw == null) return;
+          if (debugJson) {
+            FileHelper.download(JSON.stringify({ success: true, data: raw }), `items-raw.json`, "application/json");
+          }
           const normalised = normaliseItemPayload(raw);
           await downloadRawItemsBySource(normalised);
           resolve(SourceFilters.applyItemFilters(normalised, ctx.filters));
@@ -287,7 +288,10 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
-    return (async () => {
+    // The same params drive the cache key for both transports, so an HTTP-fetched catalogue serves
+    // a later streaming request and vice versa.
+    const jobParams = { campaignId, addSpells: true, cobalt: cobaltCookie };
+    const streamViaSocket = async (): Promise<TDDBItemsPayload> => {
       const socket = new DDBItemSocket(parsingApi);
       socket.connect();
       try {
@@ -295,7 +299,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
         let raw: TDDBItemsPayload | null = null;
-        await socket.runJob("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie }, {
+        await socket.runJob("all-items", jobParams, {
           timeoutMs: 60000,
           onEvent: (event: DDBItemEvent) => {
             if (event.kind !== "items") return;
@@ -304,21 +308,25 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
             raw = mergeItemPayloads(raw, event.payload);
           },
         });
-
-        if (debugJson) {
-          FileHelper.download(
-            JSON.stringify({ success: true, data: raw }),
-            `items-raw.json`,
-            "application/json",
-          );
-        }
         if (raw == null) throw new Error("Stream completed without items payload");
-        const normalised = normaliseItemPayload(raw);
-        await downloadRawItemsBySource(normalised);
-        return SourceFilters.applyItemFilters(normalised, ctx.filters);
+        return raw;
       } finally {
         socket.close();
       }
+    };
+
+    return (async () => {
+      const raw = await DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: jobParams }, streamViaSocket);
+      if (debugJson) {
+        FileHelper.download(
+          JSON.stringify({ success: true, data: raw }),
+          `items-raw.json`,
+          "application/json",
+        );
+      }
+      const normalised = normaliseItemPayload(raw);
+      await downloadRawItemsBySource(normalised);
+      return SourceFilters.applyItemFilters(normalised, ctx.filters);
     })();
   }
 

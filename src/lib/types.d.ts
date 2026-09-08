@@ -257,4 +257,82 @@ global {
     needsBaseItem: { _id: string; key: string }[];
   }
 
+  // ---------------------------------------------------------------------------
+  // Proxy response cache (src/lib/DDBProxyCache.ts)
+  // ---------------------------------------------------------------------------
+
+  type TProxyCacheDomain =
+    | "spells"
+    | "items"
+    | "monsters"
+    | "monster-id"
+    | "vehicles"
+    | "mule-list"
+    | "subclasses"
+    | "mule-stream";
+
+  /** Source selection before a mule run narrows its books to a particular class. */
+  interface IProxyCacheSourceSelection {
+    categories: number[];
+    /** Effective book filter; empty means every book in the selected categories. */
+    books: number[];
+    /** This category's books before class-specific filtering; absent for homebrew runs. */
+    runSources?: number[];
+  }
+
+  interface IProxyCacheRequest {
+    domain: TProxyCacheDomain;
+    /** The exact body / start params being sent. Secrets are stripped before keying. */
+    params: Record<string, unknown>;
+    ttlMs?: number;
+    /** Display name stored with the entry when the params alone cannot describe it (ids only). */
+    label?: string;
+    /** UI metadata only: does not affect the request key or go to the proxy. */
+    sourceSelection?: IProxyCacheSourceSelection;
+  }
+
+  /** Metadata record; the payload lives in a separate store and is never part of a listing. */
+  interface IProxyCacheEntry {
+    key: string;
+    namespace: string;
+    domain: TProxyCacheDomain;
+    createdAt: number;
+    expiresAt: number;
+    params: Record<string, unknown>;
+    label?: string;
+    sourceSelection?: IProxyCacheSourceSelection;
+  }
+
+  interface IProxyCacheSetManyEntry<T = unknown> {
+    params: Record<string, unknown>;
+    data: T;
+    ttlMs?: number;
+  }
+
+  /** A live cache hit with the moment it stops being one, for callers that front the cache in memory. */
+  interface IProxyCacheHit<T = unknown> {
+    data: T;
+    expiresAt: number;
+  }
+
+  /** How a cache entry relates to the current muncher settings. */
+  interface IProxyCacheSettingsMatch {
+    /** False when nothing a setting controls decides whether this entry is hit. */
+    supported: boolean;
+    matches: boolean;
+    /** Can `adopt` make the settings produce this entry? False when a difference lies outside the muncher's settings. */
+    adoptable: boolean;
+    /** Human descriptions of each settings-derived parameter that differs. */
+    differences: string[];
+  }
+
+  interface IProxyCacheStats {
+    available: boolean;
+    enabled: boolean;
+    entries: number;
+    byDomain: Record<string, number>;
+    originUsageBytes?: number;
+    originQuotaBytes?: number;
+  }
+
 }

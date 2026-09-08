@@ -252,6 +252,17 @@ export const API_BASE = {
   importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
   resetCompendiumActorImages,
   createStorage,
+  proxyCache: {
+    clear: lib.DDBProxyCache.clear,
+    stats: lib.DDBProxyCache.stats,
+    list: lib.DDBProxyCache.list,
+    // run an import with cache reads skipped; results are still written so the cache refreshes. The
+    // in-memory layers are dropped first, otherwise they would answer before the bypass is consulted.
+    bypass: <T>(fn: () => Promise<T>): Promise<T> => lib.DDBRunContext.runWith({ bypassProxyCache: true }, async () => {
+      lib.DDBProxyCache.invalidateSessionCaches();
+      return fn();
+    }),
+  },
 
   generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
   EffectHelper: DDBEffectHelper,

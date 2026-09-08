@@ -1,5 +1,7 @@
 import DDBAppV2 from "./DDBAppV2";
 import DDBSources from "../lib/DDBSources";
+import DDBProxyCache from "../lib/DDBProxyCache";
+import DDBProxyCacheSettings from "../lib/DDBProxyCacheSettings";
 
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) =>
@@ -21,26 +23,160 @@ interface ISourceBookBrowserCategory extends Omit<IMuncherSourceCategoryBooks, "
 interface ISourceBookBrowserContext extends DDBAppV2Context {
   searchTerm: string;
   categories: ISourceBookBrowserCategory[];
+  cache?: ISourceBookBrowserCacheContext;
 }
 
 interface IDDBSourceBookBrowserOptions {
   /**
-   * Runs the browser's category write on the opening application's update queue, so both windows
-   * order their writes to this setting together. Returns false when that application has gone
-   * away, leaving the browser to fall back to its own queue.
+   * Runs a settings write from this window on the opening application's update queue, so both
+   * windows order their writes together and a munch started right afterwards waits for them.
+   * `key` coalesces superseded writes and defaults to the category setting. Returns false when
+   * that application has gone away, leaving the browser to fall back to its own queue.
    */
-  queueCategoryUpdate?: (update: () => Promise<void>) => Promise<boolean>;
+  queueCategoryUpdate?: (update: () => Promise<void>, key?: string) => Promise<boolean>;
 }
 
 /**
- * Catalog of released DDB source books, grouped by the categories DDB assigns them to.
+ * Display order and heading for each proxy cache domain. The future display pass extends this
+ * table rather than the template.
+ */
+export const CACHE_DOMAIN_LABELS: { domain: TProxyCacheDomain; label: string }[] = [
+  { domain: "spells", label: "Spells" },
+  { domain: "items", label: "Items" },
+  { domain: "monsters", label: "Monsters" },
+  { domain: "monster-id", label: "Monsters by id" },
+  { domain: "vehicles", label: "Vehicles" },
+  { domain: "mule-list", label: "Class, feat, background and species lists" },
+  { domain: "subclasses", label: "Subclasses" },
+  { domain: "mule-stream", label: "Class, feat, background and species munches" },
+];
+
+function asText(value: unknown, fallback = "?"): string {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+/** The sources a search covered are shown on the detail line; the label carries only the search itself. */
+function searchDescription(params: Record<string, unknown>, noun: string): string {
+  const term = typeof params.search === "string" ? params.search.trim() : "";
+  const parts = [term ? `search "${term}"` : "all"];
+  // exact match only changes anything when there is a term to match
+  if (term && params.exactMatch) parts.push("exact match");
+  if (params.excludeLegacy) parts.push("no legacy");
+  return `${noun}: ${parts.join(", ")}`;
+}
+
+/**
+ * One-line, human description of a cached request
+ */
+export function describeCacheEntry(domain: TProxyCacheDomain, params: Record<string, unknown>, label?: string): string {
+  switch (domain) {
+    case "spells":
+      return `Spells: ${asText(params.className)} (${asText(params.rulesVersion, "2014")})`;
+    case "items": {
+      const campaign = params.campaignId ? ` (campaign ${params.campaignId})` : "";
+      return `Items: full catalogue${campaign}`;
+    }
+    case "monsters":
+      return searchDescription(params, "Monsters");
+    case "vehicles":
+      return searchDescription(params, "Vehicles");
+    case "monster-id":
+      return `Monster id ${asText(params.id)}`;
+    case "mule-list":
+      return `${asText(params.type)} list`;
+    case "subclasses":
+      return `Subclasses: ${asText(params.className)} (${asText(params.rulesVersion, "2024")})`;
+    case "mule-stream": {
+      // systemRules is the world's rules version; a modern world importing 2014 classes sends
+      // systemRules 2024 with include2014Adjusted off, so the rules alone would mislabel that run
+      const rules = asText(params.systemRules, "2014") === "2024" && params.include2014Adjusted === false
+        ? "2024 rules, 2014 content"
+        : asText(params.systemRules, "2014");
+      if (label) return `${label} (${rules})`;
+      // entries written before labels were stored, or a stream that never named its class
+      const element = asText(params.element);
+      const target = params.classId ? ` class ${params.classId}` : (params.backgroundId ? ` background ${params.backgroundId}` : "");
+      return `Munch: ${element}${target} (${rules})`;
+    }
+    default:
+      return `${domain}`;
+  }
+}
+
+function formatTime(ms: number): string {
+  try {
+    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(ms);
+  } catch (_err) {
+    return new Date(ms).toISOString();
+  }
+}
+
+/**
+ * Group live entries by domain in display order. Monster by-id records are collapsed into one
+ * aggregate row: a single spell munch can leave thousands of them.
+ */
+export function buildCacheGroups(
+  entries: IProxyCacheEntry[],
+  evaluate: typeof DDBProxyCacheSettings.evaluate = DDBProxyCacheSettings.evaluate,
+): ISourceBookBrowserCacheGroup[] {
+  const groups: ISourceBookBrowserCacheGroup[] = [];
+  for (const { domain, label } of CACHE_DOMAIN_LABELS) {
+    const matching = entries
+      .filter((entry) => entry.domain === domain)
+      .sort((a, b) => b.createdAt - a.createdAt);
+    if (matching.length === 0) continue;
+    if (domain === "monster-id") {
+      const newest = Math.max(...matching.map((entry) => entry.createdAt));
+      const soonest = Math.min(...matching.map((entry) => entry.expiresAt));
+      groups.push({
+        domain,
+        label,
+        count: matching.length,
+        rows: [{
+          label: `Monsters by id: ${matching.length} record${matching.length === 1 ? "" : "s"}`,
+          detail: null,
+          cachedAt: formatTime(newest),
+          expiresAt: formatTime(soonest),
+          matchesSettings: false,
+          adoptable: false,
+          differences: "",
+        }],
+      });
+      continue;
+    }
+    groups.push({
+      domain,
+      label,
+      count: matching.length,
+      rows: matching.map((entry) => {
+        const match = evaluate(domain, entry.params, entry.sourceSelection);
+        return {
+          key: entry.key,
+          label: describeCacheEntry(domain, entry.params, entry.label),
+          detail: DDBProxyCacheSettings.describeSources(domain, entry.params),
+          cachedAt: formatTime(entry.createdAt),
+          expiresAt: formatTime(entry.expiresAt),
+          matchesSettings: match.supported && match.matches,
+          adoptable: match.adoptable,
+          differences: match.differences.join("\n"),
+        };
+      }),
+    });
+  }
+  return groups;
+}
+
+/**
+ * Sources and Cache window: a catalog of released DDB source books grouped by the categories DDB
+ * assigns them to, plus management of the local proxy response cache.
  */
 export default class DDBSourceBookBrowser extends DDBAppV2 {
 
   expandedCategories = new Set<number>();
   searchTerm = "";
 
-  private _queueCategoryUpdate: ((update: () => Promise<void>) => Promise<boolean>) | null;
+  private _queueCategoryUpdate: ((update: () => Promise<void>, key?: string) => Promise<boolean>) | null;
   private _searchDebounce: (() => void) | null = null;
   private _searchCaret: { start: number; end: number } | null = null;
   private _scrollTop = 0;
@@ -72,7 +208,7 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     id: "ddb-source-book-browser",
     classes: ["dnd5e2", "ddb-source-book-browser"],
     window: {
-      title: "Source Category Selection",
+      title: "Sources and Cache",
       icon: "fas fa-book-open",
       resizable: true,
       minimizable: true,
@@ -81,18 +217,37 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
       selectBook: DDBSourceBookBrowser.selectBook,
       selectCategory: DDBSourceBookBrowser.selectCategory,
       toggleCategory: DDBSourceBookBrowser.toggleCategory,
+      clearProxyCache: DDBSourceBookBrowser.clearProxyCache,
+      clearCacheDomain: DDBSourceBookBrowser.clearCacheDomain,
+      deleteCacheEntry: DDBSourceBookBrowser.deleteCacheEntry,
+      adoptCacheSettings: DDBSourceBookBrowser.adoptCacheSettings,
     },
     position: { width: 900, height: 720 },
   };
 
   static override PARTS = {
-    content: {
-      template: "modules/ddb-importer/handlebars/source-book-browser/browser.hbs",
+    tabs: { template: "templates/generic/tab-navigation.hbs" },
+    sources: {
+      template: "modules/ddb-importer/handlebars/source-book-browser/sources.hbs",
+    },
+    cache: {
+      template: "modules/ddb-importer/handlebars/source-book-browser/cache.hbs",
     },
   };
 
+  override tabGroups: Record<string, string> = {
+    sheet: "sources",
+  };
+
   _getTabs(): IDDBTabs {
-    return {};
+    return this._markTabs({
+      sources: {
+        id: "sources", group: "sheet", label: "Source Selection", icon: "fas fa-book-open",
+      },
+      cache: {
+        id: "cache", group: "sheet", label: "Cache Management", icon: "fas fa-database",
+      },
+    });
   }
 
   static toggleCategory(this: DDBSourceBookBrowser, _event: Event, target: HTMLElement): void {
@@ -119,6 +274,91 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     if (!Number.isInteger(categoryId) || !Number.isInteger(bookId)) return;
 
     await this._confirmCategorySelection(categoryId, bookId);
+  }
+
+  /**
+   * Confirm, then empty the proxy cache and the in-memory caches layered in front of it, so the
+   * next munch of every type downloads fresh data.
+   */
+  static async clearProxyCache(this: DDBSourceBookBrowser, _event: Event, _target: HTMLElement): Promise<void> {
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: { title: "Clear Cache" },
+      content: `<p>Delete every cached D&amp;D Beyond download?</p>
+        <p>The next munch of each type will download its data again.</p>`,
+      yes: { label: "Clear Cache" },
+    });
+    if (!confirmed) return;
+
+    await DDBProxyCache.clear();
+    ui.notifications.info("DDB Importer proxy cache cleared.");
+    await this.render();
+  }
+
+  /** Expire every entry of one domain (the group heading's button), after confirmation. */
+  static async clearCacheDomain(this: DDBSourceBookBrowser, _event: Event, target: HTMLElement): Promise<void> {
+    const domain = target.dataset.domain as TProxyCacheDomain | undefined;
+    const group = CACHE_DOMAIN_LABELS.find((entry) => entry.domain === domain);
+    if (!domain || !group) return;
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: { title: `Clear Cache: ${group.label}` },
+      content: `<p>Delete every cached <strong>${escapeHtml(group.label)}</strong> download? The next munch will download it again.</p>`,
+      yes: { label: "Clear" },
+    });
+    if (!confirmed) return;
+
+    // clear() also drops the in-memory caches registered for the domain
+    await DDBProxyCache.clear(domain);
+    await this.render();
+  }
+
+  /**
+   * Rewrite the muncher settings so the next munch produces a listed entry's request. The writes
+   * go through the opening muncher's queue (when it is open) so a munch clicked straight afterwards
+   * waits for them, and its queued re-render refreshes the source preview once any running munch
+   * has finished. The muncher is looked up by id because importing it here would be circular.
+   */
+  static async adoptCacheSettings(this: DDBSourceBookBrowser, _event: Event, target: HTMLElement): Promise<void> {
+    const key = target.dataset.key;
+    if (!key) return;
+    const entry = (await DDBProxyCache.list()).find((candidate) => candidate.key === key);
+    if (!entry) {
+      ui.notifications.warn("That cache entry has gone; nothing was changed.");
+      await this.render();
+      return;
+    }
+    if (DDBProxyCacheSettings.isMuleDomain(entry.domain)) return;
+
+    const muncher = foundry.applications.instances.get("ddb-importer-monsters") as {
+      rendered?: boolean;
+      searchTermMonster?: string;
+    } | undefined;
+    if (muncher?.rendered) {
+      // the term is part of the request, so fill the tab's search box in as well (monsters and
+      // vehicles share one box); the queued render writes it into the input
+      const term = DDBProxyCacheSettings.searchTermOf(entry.domain, entry.params);
+      if (term !== null) muncher.searchTermMonster = term;
+    }
+
+    let applied = false;
+    const update = async () => {
+      applied = await DDBProxyCacheSettings.adopt(entry.domain, entry.params);
+    };
+    if (!(await this._queueCategoryUpdate?.(update, "proxy-cache-adopt"))) {
+      await this.queueSettingUpdate(update, { key: "proxy-cache-adopt", render: false });
+    }
+    if (!applied) return;
+    ui.notifications.info(`Muncher settings updated to match "${describeCacheEntry(entry.domain, entry.params, entry.label)}".`);
+    await this.render();
+  }
+
+  /** Expire one entry (a row's button). Cheap to re-download, so no confirmation. */
+  static async deleteCacheEntry(this: DDBSourceBookBrowser, _event: Event, target: HTMLElement): Promise<void> {
+    const key = target.dataset.key;
+    if (!key) return;
+    await DDBProxyCache.deleteKeys([key]);
+    await this.render();
   }
 
   /**
@@ -219,6 +459,26 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     context.searchTerm = this.searchTerm;
     context.categories = this._buildCategoryGroups();
     return context;
+  }
+
+  /** Only the cache part pays for the (metadata-only) cache read. */
+  override async _preparePartContext(partId: string, context: ISourceBookBrowserContext): Promise<ISourceBookBrowserContext> {
+    if (partId === "cache") context.cache = await this._buildCacheContext();
+    context.tab = context.tabs?.[partId];
+    return context;
+  }
+
+  /** Built on every render rather than memoised, so munches run while the window is open show up. */
+  async _buildCacheContext(): Promise<ISourceBookBrowserCacheContext> {
+    const available = DDBProxyCache.isAvailable();
+    const enabled = DDBProxyCache.isEnabled();
+    const entries = available ? await DDBProxyCache.list() : [];
+    return {
+      available,
+      enabled,
+      total: entries.length,
+      groups: buildCacheGroups(entries),
+    };
   }
 
   _buildCategoryGroups(): ISourceBookBrowserCategory[] {
