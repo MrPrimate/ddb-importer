@@ -542,7 +542,7 @@ export default class DDBFeature extends DDBFeatureMixin {
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
         "extension",
       );
-      logger.error("Error", err);
+      logger.error(`Unable to Generate Background Feature: ${this.name}`, err);
     }
   }
 
@@ -707,7 +707,7 @@ ${description}`;
         `Unable to Generate Basic Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
         "extension",
       );
-      logger.error("Error", err);
+      logger.error(`Unable to Generate Basic Feature: ${this.name}`, err);
     }
   }
 

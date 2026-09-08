@@ -2425,19 +2425,20 @@ export default class AdvancementHelper {
     const canCastMatches = strippedDescription.matchAll(canCastRegex);
 
     for (const match of canCastMatches) {
-      const spells = match[1]
+      const spells = match[2]
         .replace("spell", "")
         .replaceAll(" or ", " and ")
         .split(" and ")
         .map((s) => s.toLowerCase().trim());
-      const unlimited = match[2] && match[2].includes("unlimited");
-      const halfProficiency = match[2] && match[2].includes("half your proficiency bonus");
+      const unlimited = match[3] && match[3].includes("unlimited");
+      const halfProficiency = match[3] && match[3].includes("half your proficiency bonus");
       for (const spell of spells) {
         if (["it"].includes(spell)) continue;
         if (spellsAdded.has(spell)) continue;
         spellsAdded.add(spell);
+        const level = match[1] ? parseInt(match[1]) : 1;
         result.spellGrants.push({
-          level: 1,
+          level,
           name: spell,
           amount: unlimited
             ? ""

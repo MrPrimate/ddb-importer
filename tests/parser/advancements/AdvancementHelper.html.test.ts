@@ -452,6 +452,37 @@ describe("AdvancementHelper.parseHTMLSpellCastingAbilities", () => {
 // parseHTMLSpellAdvancementDataForTraits
 // =============================================================================
 describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
+  it.each([
+    {
+      scenario: "ordinary casting text without a level requirement",
+      description: "You can cast the levitate spell once with this trait.",
+      expected: [{ level: 1, name: "levitate", amount: "1" }],
+    },
+    {
+      scenario: "an explicit level requirement",
+      description: "When you reach 3rd level, you can cast the levitate spell once with this trait.",
+      expected: [{ level: 3, name: "levitate", amount: "1" }],
+    },
+    {
+      scenario: "unlimited uses",
+      description: "You can cast animal friendship an unlimited number of times with this trait.",
+      expected: [{ level: 1, name: "animal friendship", amount: "" }],
+    },
+    {
+      scenario: "half-proficiency uses",
+      description: "You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus.",
+      expected: [{ level: 1, name: "cure wounds", amount: "floor(@prof / 2)" }],
+    },
+    {
+      scenario: "homebrew ability-to-cast wording",
+      description: "You also have the ability to cast Faerie Fire once per long rest.",
+      expected: [{ level: 1, name: "faerie fire", amount: "1" }],
+    },
+  ])("parses spell grants with $scenario", ({ description, expected }) => {
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(`<p>${description}</p>`);
+    expect(result.spellGrants).toEqual(expected);
+  });
+
   it("parses cantrip choices separated by a colon", () => {
     const html = "<p>You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.</p>";
     const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);

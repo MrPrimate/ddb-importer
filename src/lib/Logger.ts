@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
 
+// Error's diagnostic properties are non-enumerable and otherwise export as {}.
+const serializeLogValue = (value) => value instanceof Error
+  ? { ...value, name: value.name, message: value.message, stack: value.stack }
+  : value;
 
 const logger = {
 
@@ -31,7 +35,7 @@ const logger = {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
       CONFIG.debug.ddbimporter.log.push({
         level: logLevel,
-        data: data,
+        data: data.map(serializeLogValue),
       });
     }
   },
@@ -46,10 +50,10 @@ const logger = {
       ? "DEBUG"
       : logLevel.toUpperCase();
 
-    const msgContent = data[0] && typeof (data[0] == "string")
+    const msgContent = typeof data[0] === "string"
       ? data[0]
       : logger.LOG_MSG_DEFAULT;
-    const payload = data[0] && typeof (data[0] == "string")
+    const payload = typeof data[0] === "string"
       ? data.length > 1
         ? data.slice(1)
         : null
@@ -91,7 +95,7 @@ const logger = {
         } else {
           console.error(msg);
         }
-        CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload });
+        CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload: payload?.map(serializeLogValue) ?? null });
         break;
       case "TIME":
         if (payload) {

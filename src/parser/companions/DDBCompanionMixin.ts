@@ -319,6 +319,14 @@ export default class DDBCompanionMixin {
         formula: "",
       };
 
+      // Keep form-specific flat bonuses on the actor so all forms can share
+      // the summon activity's spell-level scaling (e.g. Celestial Defender).
+      for (const match of acString.matchAll(/\+\s*(\d+)\s*\(([^)]+?) only\)/gi)) {
+        if (match[2].trim().toLowerCase() === this.subType?.toLowerCase()) {
+          this.npc.system.attributes.ac.flat += Number.parseInt(match[1]);
+        }
+      }
+
       const testString = utils.nameString(acString);
       if (testString.includes("plus PB") || acString.includes("+ PB")) {
         this.summons.bonuses.ac = "@prof";

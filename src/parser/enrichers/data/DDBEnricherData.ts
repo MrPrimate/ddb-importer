@@ -174,15 +174,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: string; name: string; onlyLimitedUse?: boolean } = { type: "", name: "" }): any[] {
-    const spells = this.ddbParser.ddbData.character.spells[type].filter((s: any) => {
+    const spells = (this.ddbParser?.ddbData?.character.spells?.[type] ?? []).filter((s: any) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
         ? DDBDataUtils.determineActualFeatureId(this.ddbParser.ddbData, s.componentId)
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
       const lookup = SpellDataUtils.getDDBSpellLookup(this.ddbParser.ddbData, lookupType, id);
-      if (lookup.name === name) return true;
-      return false;
+      // DDB can use curly apostrophes where the enricher uses straight ones.
+      return lookup?.name !== undefined && utils.nameString(lookup.name) === utils.nameString(name);
     });
     return spells;
   }
@@ -190,16 +190,17 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
-    if (spells.length === 0) {
-      logger.error(`No spells found for feature ${name} of type ${type}`);
-      return {
-        spent: defaultSpent,
-        max,
-        recovery: [],
-      };
-    }
+    const uses: I5eSystemLimitedUses = spells.length > 0
+      ? SpellDataUtils.getUses(spells[0].limitedUse)
+      : foundry.utils.deepClone(this.ddbParser?.data?.system?.uses ?? {});
 
-    const uses: I5eSystemLimitedUses = SpellDataUtils.getUses(spells[0].limitedUse);
+    if (spells.length === 0) {
+      logger.warn(`No spells found for feature ${name} of type ${type}`);
+      // Preserve the feature's existing uses when DDB supplies no charge pool.
+      // Explicit defaults still apply, including the recovery configured below.
+      if (defaultSpent !== null) uses.spent = defaultSpent;
+      if (max !== null) uses.max = max;
+    }
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];

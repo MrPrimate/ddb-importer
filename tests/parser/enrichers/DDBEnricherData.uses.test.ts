@@ -31,7 +31,7 @@ function makeData(actions: any[] | null, rawCharacter: any = null): any {
 /** The shape DDB returns for Channel Spirit: a real action with no charge pool. */
 const NO_LIMITED_USE = [{ name: "Channel Spirit", limitedUse: null }];
 
-const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
 
 beforeEach(() => {
   warnSpy.mockClear();
@@ -145,6 +145,33 @@ describe("DDBEnricherData._getUsesWithSpent recovery handling", () => {
     const data = makeData([{ name: "Channel Spirit", limitedUse: { maxUses: 3 } }]);
     const uses = data._getUsesWithSpent({ name: "Channel Spirit", type: "class", override: true });
     expect(uses.override).toBe(true);
+  });
+});
+
+describe("DDBEnricherData._getSpellUsesWithSpent lookup misses", () => {
+  it("keeps explicit max and long-rest recovery without emitting null spent", () => {
+    const uses = makeData([])._getSpellUsesWithSpent({ type: "class", name: "Paladin's Smite", max: "1", period: "lr" });
+    expect(uses).toEqual({ max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] });
+  });
+
+  it("omits unset uses when no spell pool or defaults are available", () => {
+    const uses = makeData([])._getSpellUsesWithSpent({ type: "feat", name: "Spellfire Spark" });
+    expect(uses).toEqual({});
+  });
+
+  it("preserves a feature's parsed charge pool when its spell has no limitedUse", () => {
+    const existing = { spent: 1, max: "@prof", recovery: [{ period: "lr", type: "recoverAll" }] };
+    const data = makeEnricherData(TestEnricherData, { data: { system: { uses: existing } } });
+    const uses = data._getSpellUsesWithSpent({ type: "feat", name: "Spellfire Spark" });
+    expect(uses).toEqual(existing);
+    expect(uses).not.toBe(existing);
+  });
+
+  it("applies spent, formula recovery and override defaults in a compendium context", () => {
+    const uses = makeData(null)._getSpellUsesWithSpent({
+      type: "class", name: "Test", max: "3", defaultSpent: 0, period: "lr", formula: "1d3", override: true,
+    });
+    expect(uses).toEqual({ spent: 0, max: "3", recovery: [{ period: "lr", type: "formula", formula: "1d3" }], override: true });
   });
 });
 

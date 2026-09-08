@@ -80,6 +80,21 @@ describe("FEATURE_SPELLS_IGNORE", () => {
 });
 
 describe("once per Long Rest casts of an always-prepared spell", () => {
+  it("matches DDB's curly apostrophe in Paladin’s Smite and retains spent uses", () => {
+    const e = build(ClassEnrichers.Paladin.PaladinsSmite, "Paladin’s Smite", [
+      grantedSpell(0, "Divine Smite", oncePerLongRest, false),
+    ], { klass: "Paladin" });
+    expectFreeCast(e, "Divine Smite", { period: "lr" });
+  });
+
+  it("keeps Paladin's Smite's free cast and recovery when DDB supplies only the prepared spell", () => {
+    const e = build(ClassEnrichers.Paladin.PaladinsSmite, "Paladin's Smite", [
+      grantedSpell(0, "Divine Smite", null, true),
+    ], { klass: "Paladin" });
+    expect(e.activity).toMatchObject({ addSpellUuid: "Divine Smite", addItemConsume: true, noSpellslot: true });
+    expect(e.override.uses).toEqual({ max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] });
+  });
+
   it.each([
     ["Paladin", ClassEnrichers.Paladin.FaithfulSteed, "Faithful Steed", "Find Steed"],
     ["Paladin", ClassEnrichers.Paladin.PaladinsSmite, "Paladin's Smite", "Divine Smite"],
