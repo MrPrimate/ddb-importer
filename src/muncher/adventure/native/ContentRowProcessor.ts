@@ -5,6 +5,22 @@ import { injectHeadingAnchors } from "./NativeHeadingAnchors";
 
 // ImageOpts, ContentRow + ProcessedRow are declared globally in ./types.d.ts.
 
+export const UNKNOWN_JOURNAL_NAME = "Unknown Journal";
+
+/**
+ * Some Content rows ship a null/blank Title (seen on the RWG introduction chapter).
+ * Foundry rejects a JournalEntry or page without a name, so recover one from the
+ * first h1, then h2, then h3 in the page HTML, and otherwise use a placeholder.
+ */
+export function deriveTitle(doc: Document, title: string | null | undefined): string {
+  if (title && title.trim() !== "") return title;
+  for (const tag of ["h1", "h2", "h3"]) {
+    const text = doc.querySelector(tag)?.textContent?.replace(/\s+/g, " ").trim();
+    if (text) return text;
+  }
+  return UNKNOWN_JOURNAL_NAME;
+}
+
 /**
  * Port of the muncher's row parent adjustments (Row.js:40-132), applied to the
  * processed rows in document order. Three repairs, mirroring the standalone:
@@ -72,7 +88,6 @@ export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint
  * (DOMParser). Dice replacement and cross-page dynamic links are deferred.
  */
 export function processRow(row: ContentRow, adventureConfig: any, images?: ImageOpts): ProcessedRow {
-  const title = row.title ?? "";
   const rawHtml = row.html ?? "";
 
   // 1. styling classes, then ddb:// link replacement
@@ -81,6 +96,8 @@ export function processRow(row: ContentRow, adventureConfig: any, images?: Image
   const linked = foundryCompendiumReplace(classDoc.body.innerHTML, adventureConfig);
 
   const doc = utils.htmlToDoc(linked);
+  // resolved before the heading strip below so a missing Title can borrow the page heading
+  const title = deriveTitle(doc, row.title);
 
   // 2. image links -> uploaded stored paths (only when assets were imported)
   if (images) replaceImageLinks(doc, images.bookCode, images.assetMap);

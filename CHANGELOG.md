@@ -9,6 +9,7 @@
 - Effects that generate a global damage bonus will add the types (previously just dice string). E.g. 2014 Paladin Improved Divine Smite
 - Characters imported with the Healer feat will get the appropriate rolls modified with appropriate dice modifiers
 - The `Add D&D Beyond tool proficiencies?` setting now also controls whether free-text and exotic tool proficiencies are added to the character, not just whether they are registered with the system.
+- Some adventure journals would fail to derive a title and not import.
 
 # Next Up
 
