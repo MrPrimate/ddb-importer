@@ -1,0 +1,95 @@
+// CharacterFeatureFactory must load first, it initialises the feature class chain
+import "../../../src/parser/features/CharacterFeatureFactory";
+import DDBFeature from "../../../src/parser/features/DDBFeature";
+
+describe("Reanimated Companion classification", () => {
+  it("routes the class feature through companion parsing and summon activity generation", () => {
+    const feature = Object.create(DDBFeature.prototype);
+    feature.originalName = "Reanimated Companion";
+    feature.is2014 = false;
+    feature.ddbData = {
+      character: { classes: [{ classFeatures: [{ definition: { name: "Reanimated Companion" } }] }] },
+    };
+    feature._checkSummons();
+    expect(feature.isCompanionFeature2024).toBe(true);
+    expect(feature.isSummons).toBe(true);
+    expect(feature._getActivitiesType()).toBe("summon");
+  });
+});
+
+// dnd5e data model stubs now live in tests/_setup/foundryMocks.ts (game.dnd5e).
+
+// Dhampir 2024: the "Vampiric Bite" trait spawns a "Fanged Bite" action, and DDB
+// stores a rename against the action rather than the trait
+const TRAIT = {
+  definition: {
+    id: 16553775,
+    entityTypeId: 1960452172,
+    name: "Vampiric Bite",
+    description: "<p>Your fanged bite is a natural weapon.</p>",
+    snippet: "",
+    sources: [],
+    requiredLevel: null,
+    hideInSheet: false,
+  },
+};
+
+const ACTION = {
+  id: 12052877,
+  entityTypeId: 222216831,
+  name: "Fanged Bite",
+  componentId: TRAIT.definition.id,
+  componentTypeId: TRAIT.definition.entityTypeId,
+  displayAsAttack: true,
+  activation: {},
+};
+
+function makeDDB(characterValues: any[] = []): any {
+  return {
+    character: {
+      classes: [],
+      feats: [],
+      race: { fullName: "Dhampir", racialTraits: [TRAIT] },
+      actions: { race: [ACTION], class: [], feat: [], item: [], background: [] },
+      options: { class: [], race: [], feat: [] },
+      choices: { class: [], race: [], feat: [] },
+      modifiers: { class: [], race: [], background: [], item: [], feat: [], condition: [] },
+      optionalClassFeatures: [],
+      characterValues,
+    },
+    classOptions: [],
+  };
+}
+
+function makeRawCharacter(characterValues: any[]): any {
+  return {
+    flags: { ddbimporter: { compendium: false, dndbeyond: { characterValues } } },
+    system: { resources: {} },
+  };
+}
+
+function buildTrait(characterValues: any[]) {
+  const ddb = makeDDB(characterValues);
+  return new DDBFeature({
+    ddbCharacter: {
+      totalLevels: 5,
+      _ddbRace: { fullName: "Dhampir", baseName: "Dhampir", baseRaceName: "Dhampir", groupName: "Dhampir", isLineage: false },
+    },
+    ddbData: ddb,
+    ddbDefinition: TRAIT,
+    rawCharacter: makeRawCharacter(characterValues),
+    type: "race",
+    source: null,
+    extraFlags: {},
+    fallbackEnricher: "Generic",
+  } as any);
+}
+
+describe("DDBFeature naming", () => {
+  it("uses the raw DDB name when nothing is renamed", () => {
+    const feature = buildTrait([]);
+    expect(feature.data.name).toBe("Vampiric Bite");
+    expect(feature.originalName).toBe("Vampiric Bite");
+  });
+
+});
