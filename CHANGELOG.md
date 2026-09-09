@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.22
+
+- v7.0.20/7.2.21 could fail to load
+
 # 7.0.21
 
 - Some effect conditions lost expiry times.
