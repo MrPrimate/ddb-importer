@@ -27,6 +27,10 @@ const UNIT_MAP: Record<string, TEffectDurationUnit | null> = {
   seconds: "seconds",
   day: "days",
   days: "days",
+  month: "months",
+  months: "months",
+  year: "years",
+  years: "years",
   spec: null,
   special: null,
   inst: null,
@@ -44,6 +48,59 @@ export default class AutoEffects {
     return null;
   }
 
+
+  /**
+   * The v13 ActiveEffect duration for a duration the shared description parser found. The parser
+   * emits `{ value, units }` (the shape dnd5e 6.0 effects store natively); Foundry 13 effects
+   * carry seconds, rounds and turns, so timed conditions are converted here rather than in every
+   * consumer. Unknown or missing units produce an empty duration.
+   */
+  static parsedDurationToEffectDuration(
+    parsed: { value?: number | string | null; units?: string | null } | null | undefined,
+  ): IEffectDuration {
+    const duration: IEffectDuration = {
+      seconds: null,
+      startTime: null,
+      rounds: null,
+      turns: null,
+      startRound: null,
+      startTurn: null,
+    };
+    const value = parsed?.value === null || parsed?.value === undefined ? null : Number(parsed.value);
+    if (value === null || Number.isNaN(value) || !parsed?.units) return duration;
+    switch (parsed.units) {
+      case "seconds": duration.seconds = value; break;
+      case "minutes": duration.seconds = value * 60; break;
+      case "hours": duration.seconds = value * 60 * 60; break;
+      case "days": duration.seconds = value * 60 * 60 * 24; break;
+      // the description parser's calendar lengths
+      case "months": duration.seconds = value * 60 * 60 * 24 * 30; break;
+      case "years": duration.seconds = value * 60 * 60 * 24 * 365; break;
+      case "rounds": duration.rounds = value; break;
+      case "turns": duration.turns = value; break;
+      // no default
+    }
+    return duration;
+  }
+
+  /**
+   * The v13 duration for a parsed condition: the converted `{ value, units }`, or, when the parser
+   * recorded no numeric value (next-turn wording such as "until the end of its next turn" only
+   * yields a special duration), the seconds and rounds the description parser derives from the text.
+   */
+  static conditionEffectDuration(
+    parsed: { value?: number | string | null; units?: string | null } | null | undefined,
+    text: string | null | undefined,
+  ): IEffectDuration {
+    const duration = AutoEffects.parsedDurationToEffectDuration(parsed);
+    const empty = duration.seconds === null && duration.rounds === null && duration.turns === null;
+    if (!empty || !text) return duration;
+    const fallback = DDBDescriptions.getDuration(text, false);
+    duration.seconds = fallback.seconds ?? null;
+    duration.rounds = fallback.rounds ?? null;
+    duration.turns = fallback.turns ?? null;
+    return duration;
+  }
 
   static effectModules(): IEffectModules {
     return SystemHelpers.effectModules();
@@ -283,7 +340,7 @@ export default class AutoEffects {
         },
       }, flags),
       statuses: [],
-      duration: parsedStatus.duration,
+      duration: AutoEffects.conditionEffectDuration(parsedStatus.duration, text),
     };
 
     if (parsedStatus.group4) {
@@ -319,7 +376,7 @@ export default class AutoEffects {
     const conditionResult = DDBDescriptions.parseStatusCondition({ text });
 
     if (!conditionResult.success) return null;
-    const conditionEffect = AutoEffects.getStatusConditionEffect({ status: conditionResult, nameHint: labelOverride });
+    const conditionEffect = AutoEffects.getStatusConditionEffect({ text, status: conditionResult, nameHint: labelOverride });
     if (!conditionEffect) return null;
 
     const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);

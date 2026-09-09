@@ -1,9 +1,12 @@
 # Next Up
 
+- Some effect conditions lost expiry times.
+- The `Add D&D Beyond tool proficiencies?` setting now also controls whether free-text and exotic tool proficiencies are added to the character, not just whether they are registered with the system.
+
 # 7.0.20
 
 - Muncher imports now show a full-window progress overlay with separate phase, import and overall progress bars.
-- Backported the enricher library from the v14/dnd5e 6.0 branch: around 480 new class, feat, item, spell, monster and species enrichers (Gunslinger, Blood Hunter, Kindred, Illrigger, Monster Hunter, Pugilist, new subclasses and books) and updates to over 400 existing ones.
+- Backported the library from the v14/dnd5e 6.0 branch: around 480 new class, feat, item, spell, monster and species tweaks (Gunslinger, Blood Hunter, Kindred, Illrigger, Monster Hunter, Pugilist, new subclasses and books) and updates to over 400 existing ones.
 - Automated Conditions 5e (AC5e) support.
 - Custom and exotic tool proficiencies from D&D Beyond are registered with the system (setting `Add D&D Beyond tool proficiencies?`).
 - Items of Vestige (dormant/awakened/exalted stages), firearm and ammunition parsing improvements, magic item reset fixes, overkill and critical threshold handling.

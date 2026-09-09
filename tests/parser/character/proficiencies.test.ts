@@ -1,7 +1,9 @@
 import "../../../src/parser/character/proficiencies";
 import DDBCharacter from "../../../src/parser/DDBCharacter";
 import ProficiencyFinder from "../../../src/parser/lib/ProficiencyFinder";
+import DDBToolProficiencies from "../../../src/lib/DDBToolProficiencies";
 import { makeMockCharacter } from "../../_fixtures/mockCharacter";
+import { setMockSettings } from "../../_setup/foundryMocks";
 import { auditFixturesPresent, loadFixtureCharacter } from "../../_fixtures/ddb/auditCharacterFixtures";
 
 function profMock(ddbCharacter: Record<string, any>): any {
@@ -179,5 +181,42 @@ describe.skipIf(!auditFixturesPresent())("DDBCharacter proficiencies (audit fixt
     ]);
     mock._generateProficiencies();
     expect(mock.raw.character.system.traits.weaponProf.mastery.value).toEqual(["greataxe"]);
+  });
+});
+
+// =============================================================================
+// add-ddb-tools: tools dnd5e has no key for are only kept when they can be registered
+// =============================================================================
+describe("DDBCharacter._generateProficiencies custom tools (synthetic)", () => {
+  const freeTextTool = { customProficiencies: [{ type: 2, name: "Review Tool", statId: 4, proficiencyLevel: 3 }] };
+
+  afterEach(() => {
+    setMockSettings({ "add-ddb-tools": true });
+    DDBToolProficiencies.registered.clear();
+  });
+
+  it("keeps and registers a free-text tool when the setting is on", () => {
+    setMockSettings({ "add-ddb-tools": true });
+    const mock = profMock(freeTextTool);
+    mock._generateProficiencies();
+    expect(mock.raw.character.system.tools).toHaveProperty("reviewtool");
+    expect(mock.raw.character.flags.ddbimporter.dndbeyond.customTools).toHaveLength(1);
+    expect(DDBToolProficiencies.registered.has("reviewtool")).toBe(true);
+  });
+
+  it("drops custom tools when add-ddb-tools is disabled", () => {
+    setMockSettings({ "add-ddb-tools": false });
+    const mock = profMock(freeTextTool);
+    mock._generateProficiencies();
+    expect(mock.raw.character.system.tools).not.toHaveProperty("reviewtool");
+    expect(mock.raw.character.flags.ddbimporter.dndbeyond.customTools).toBeUndefined();
+    expect(DDBToolProficiencies.registered.has("reviewtool")).toBe(false);
+  });
+
+  it("keeps tools that map to a dnd5e key when the setting is off", () => {
+    setMockSettings({ "add-ddb-tools": false });
+    const mock = profMock(raceMods([mod({ type: "proficiency", subType: "thieves-tools", friendlySubtypeName: "Thieves' Tools" })]));
+    mock._generateProficiencies();
+    expect(mock.raw.character.system.tools).toHaveProperty("thief");
   });
 });

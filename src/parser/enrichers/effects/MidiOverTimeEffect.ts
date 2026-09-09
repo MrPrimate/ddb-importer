@@ -42,7 +42,7 @@ export default class MidiOverTimeEffect {
     this.description = otherDescription ?? document.system.description.value;
     this.conditionStatus = DDBDescriptions.parseStatusCondition({ text: this.description });
     this.conditionEffect = this.conditionStatus.success
-      ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus, flags })
+      ? AutoEffects.getStatusConditionEffect({ text: this.description, status: this.conditionStatus, flags })
       : null;
     this.parsedDescription = DDBDescriptions.featureBasics({ text: this.description });
     this.flags = flags;
@@ -64,16 +64,10 @@ export default class MidiOverTimeEffect {
     parsed: { value: number | null; units: string | null } | null | undefined,
     description: string,
   ): { seconds: number | null; rounds: number | null } {
-    if (parsed?.units && parsed.value !== null && parsed.value !== undefined) {
-      switch (parsed.units) {
-        case "seconds": return { seconds: parsed.value, rounds: null };
-        case "minutes": return { seconds: parsed.value * 60, rounds: null };
-        case "hours": return { seconds: parsed.value * 3600, rounds: null };
-        case "days": return { seconds: parsed.value * 86400, rounds: null };
-        case "rounds":
-        case "turns": return { seconds: null, rounds: parsed.value };
-        default: break;
-      }
+    const converted = AutoEffects.parsedDurationToEffectDuration(parsed);
+    // over-time effects only track seconds and rounds, so a turn count is treated as rounds
+    if (converted.seconds !== null || converted.rounds !== null || converted.turns !== null) {
+      return { seconds: converted.seconds ?? null, rounds: converted.rounds ?? converted.turns ?? null };
     }
     const duration = DDBDescriptions.getDuration(description);
     return { seconds: duration.seconds ?? null, rounds: duration.rounds ?? null };
