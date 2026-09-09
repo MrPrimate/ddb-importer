@@ -11,6 +11,7 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBCharacter from "../parser/DDBCharacter";
@@ -36,6 +37,7 @@ export default class DDBItemsImporter {
   updateResults = null;
 
   notifier = utils.munchNote;
+  notifierV2: ((props: NotifierV2Props) => void) | null = null;
 
   updateBool = false;
 
@@ -56,6 +58,7 @@ export default class DDBItemsImporter {
   constructor({
     source = [],
     notifier = null,
+    notifierV2 = null,
     deleteBeforeUpdate = null,
     useSourceFilter = true,
     ids = [],
@@ -63,6 +66,7 @@ export default class DDBItemsImporter {
   } = {}) {
     this.source = source;
     if (notifier) this.notifier = notifier;
+    this.notifierV2 = notifierV2;
     if (this.deleteBeforeUpdate !== null) this.deleteBeforeUpdate = deleteBeforeUpdate;
     this.useSourceFilter = useSourceFilter;
     this.ids = ids;
@@ -98,17 +102,14 @@ export default class DDBItemsImporter {
     const betaKey = PatreonHelper.getPatreonKey();
     const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, addSpells: true };
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-    const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    const useGenerics = utils.getSetting<boolean>("munching-policy-use-generic-items");
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
 
-    const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match");
+    const exactMatch = utils.getSetting<boolean>("munching-policy-item-exact-match");
 
     logger.debug(`Fetching Items with:`, {
       debugJson,
-      enableSources,
       useGenerics,
       sources,
       useSourceFilter,
@@ -152,80 +153,11 @@ export default class DDBItemsImporter {
           }
         })
         .then((data) => {
-          // handle category filtering
-          if (ids.length > 0) return data;
-          const categoryItems = data.items
-            .map((item) => {
-              item.sources = item.sources.filter((source) =>
-                DDBSources.isSourceInAllowedCategory(source),
-                // && source.sourceType === 1,
-              );
-              return item;
-            })
-            .filter((item) => {
-              if (item.isHomebrew) return true;
-              return item.sources.length > 0;
-            });
-          return {
-            items: categoryItems,
-            spells: data.spells,
-            extra: data.extra,
-          };
-        })
-        .then((data) => {
-          // handle source filtering
-          const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
-          return {
-            items: (sources.length === 0 || !useSourceFilter)
-              ? filteredItems
-              : filteredItems.filter((item) =>
-                item.sources.some((source) => sources.includes(source.sourceId)),
-              ),
-            spells: data.spells,
-            extra: data.extra,
-          };
-        })
-        .then((data) => {
-          // handle homebrew filtering
-          if (sources.length > 0) return data;
-          if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
-            return {
-              items: data.items.filter((item) => item.isHomebrew),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
-            return {
-              items: data.items.filter((item) => !item.isHomebrew),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          } else {
-            return data;
-          }
-        })
-        .then((data) => {
-          if (ids.length > 0) return {
-            items: data.items.filter((item) => ids.includes(item.id)),
-            spells: data.spells,
-            extra: data.extra,
-          };
-          return data;
-        })
-        .then((data) => {
-          if (!searchFilter || searchFilter === "") return data;
-          if (exactMatch) {
-            return {
-              items: data.items.filter((item) => item.name.toLowerCase() === searchFilter.toLowerCase()),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          }
-          return {
-            items: data.items.filter((item) => item.name.toLowerCase().includes(searchFilter.toLowerCase())),
-            spells: data.spells,
-            extra: data.extra,
-          };
+          const { data: filtered, counts } = SourceFilters.applyItemFilters(data, {
+            ids, useSourceFilter, useGenerics, sources, exactMatch, searchFilter,
+          });
+          SourceFilters.reportFilterResult("items", counts, utils.munchNote);
+          return filtered;
         })
         .then((data) => resolve(data))
         .catch((error) => reject(error));
@@ -336,6 +268,8 @@ export default class DDBItemsImporter {
 
     // disable source filter if ids provided
     const sourceFilter = (this.ids === null || this.ids.length === 0) && this.useSourceFilter;
+    // an explicit id list is a programmatic caller (adventure import), not the muncher UI
+    if (sourceFilter) SourceFilters.preflightSourceSettings("items", this.notifier);
     this.source = await DDBItemsImporter._getItemData({
       useSourceFilter: sourceFilter,
       ids: this.ids,
@@ -353,6 +287,7 @@ export default class DDBItemsImporter {
       deleteBeforeUpdate: this.deleteBeforeUpdate,
       matchFlags: ["is2014", "is2024"],
       notifier: this.notifier,
+      notifierV2: this.notifierV2,
     });
     await this.itemHandler.init();
     this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
@@ -381,6 +316,8 @@ export default class DDBItemsImporter {
     await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
 
     DDBRuleJournalFactory.registerWeaponIds();
+    // ammunition just munched into the compendium can register its types now
+    await DDBRuleJournalFactory.registerAmmunitionTypes();
 
     logger.debug("Final Item Import Data", {
       finalItems: this.itemHandler.documents,
@@ -407,6 +344,7 @@ export default class DDBItemsImporter {
     ids = [],
     deleteBeforeUpdate = null,
     notifier = null,
+    notifierV2 = null,
     searchFilter = null,
   } = {}) {
     const ddbItems = new DDBItemsImporter({
@@ -414,6 +352,7 @@ export default class DDBItemsImporter {
       ids,
       deleteBeforeUpdate,
       notifier,
+      notifierV2,
       searchFilter,
     });
     await ddbItems.process();

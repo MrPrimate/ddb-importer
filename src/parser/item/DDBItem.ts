@@ -1,10 +1,12 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils, logger, Iconizer, CompendiumHelper, DDBSources } from "../../lib/_module";
+import type { IPublisherAmmunitionType } from "../../config/dictionary/items/ammunition";
+import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
+import Vestige from "./Vestige";
 import { addRestrictionFlags } from "../../effects/restrictions";
-import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 
@@ -79,6 +81,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static POTIONS = DICTIONARY.equipment.POTIONS;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
+  /** Alternation of the six ability long names, for the save-parsing regexes. */
+  static SAVE_ABILITY_NAMES = DDBDescriptions.SAVE_ABILITY_NAMES;
+
+  /**
+   * Map long ability names captured from a description to system keys, dropping
+   * anything that is not one of the six abilities. `save.ability` is a choice
+   * list, so "Strength or Dexterity saving throw" legitimately yields two.
+   */
+  static saveAbilityKeys(...names: (string | undefined)[]): string[] {
+    return DDBDescriptions.saveAbilityKeys(...names);
+  }
+
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
   rawCharacter: I5ePCData;
@@ -129,6 +143,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   ddbCharacter: DDBCharacter;
   characterProficiencies: IDDBPCDnDBeyondProficiencyFlags[];
   actionData: IActionData;
+  // memoised by the multiSaveSections getter; [] means "single save, do not reshape"
+  #multiSaveSections?: { slice: ISectionSlice; save: IParsedSave }[];
   perSpell: IPerSpell;
   damageParts: I5eDamagePart[];
   healingParts: I5eDamagePart[];
@@ -401,31 +417,62 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return duration;
   }
 
-  #generateSave() {
-    const save: I5eActivitySave = {
-      ability: [],
+  /**
+   * Read a save out of an item's rules text, or null when it names none.
+   *
+   * The ability is matched by name rather than captured with a wildcard. A
+   * wildcard swallows the "DC 15 " prefix of the usual phrasing, and the
+   * three-character truncation that followed turned it into a bogus "dc "
+   * ability; it also let a lazy match reach across a sentence and pair a DC
+   * with an ability from somewhere else entirely.
+   *
+   * DDB text writes the roll as both "saving throw" and the "save" shorthand
+   * ("must succeed on a DC 15 Constitution save"), so both are accepted.
+   *
+   * Where an item describes several saves - a magic item with two properties -
+   * the explicit-DC form wins, so that the ability and the DC at least come
+   * from the same sentence. An item whose two saves both matter needs an
+   * enricher; see docs/multi-roll-items.md.
+   */
+  static parseSaveFromDescription(description: string): I5eActivitySave | null {
+    const save = {
+      ability: [] as string[],
       dc: {
         calculation: "",
         formula: "",
       },
-    };
+    } satisfies I5eActivitySave;
+    let found = false;
+    const abilities = DDBItem.SAVE_ABILITY_NAMES;
 
-    const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
-    if (spellSaveCheck && spellSaveCheck[1]) {
-      save.ability.push(spellSaveCheck[1].toLowerCase().substring(0, 3));
-      if (spellSaveCheck[2]) {
-        save.dc.calculation = "spellcasting";
-      }
-      this.actionData.save = save;
+    // "succeed on a Dexterity saving throw against your spell save DC", and the
+    // far more common "succeed on a DC 15 Dexterity saving throw"
+    const spellSaveExpression
+      = new RegExp(`succeed on an? (?:DC (\\d+) )?(${abilities})(?: or (${abilities}))? sav(?:e|ing throw)( against your spell save DC)?`, "i");
+    const spellSaveCheck = description.match(spellSaveExpression);
+    if (spellSaveCheck) {
+      save.ability = DDBItem.saveAbilityKeys(spellSaveCheck[2], spellSaveCheck[3]);
+      if (spellSaveCheck[4]) save.dc.calculation = "spellcasting";
+      else if (spellSaveCheck[1]) save.dc.formula = spellSaveCheck[1];
+      found = true;
     }
 
-    const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
-    if (saveCheck && saveCheck[2]) {
-      save.ability.push(saveCheck[2].toLowerCase().substring(0, 3));
+    // any other phrasing carrying an explicit DC: "must make a DC 15 Dexterity saving throw"
+    const saveExpression = new RegExp(`DC (\\d+) (${abilities})(?: or (${abilities}))? sav(?:e|ing throw)`, "i");
+    const saveCheck = description.match(saveExpression);
+    if (saveCheck) {
+      save.ability = DDBItem.saveAbilityKeys(saveCheck[2], saveCheck[3]);
       save.dc.formula = `${saveCheck[1]}`;
       save.dc.calculation = "";
-      this.actionData.save = save;
+      found = true;
     }
+
+    return found ? save : null;
+  }
+
+  #generateSave() {
+    const save = DDBItem.parseSaveFromDescription(this.ddbDefinition.description ?? "");
+    if (save) this.actionData.save = save;
   }
 
   #generateActivityActivation() {
@@ -836,7 +883,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         } else if (this.ddbDefinition.name.toLowerCase().includes("staff")) {
           this.documentType = "weapon";
           this.systemType.value = "simpleM";
-          this.systemType.baseItem = "quaterstaff";
+          this.systemType.baseItem = "quarterstaff";
           this.parsingType = "weapon";
         } else {
           this.systemType.value = "trinket";
@@ -1253,10 +1300,46 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     });
   }
 
+  /**
+   * Overkill (Gunslinger 11)
+   * @param {IDDBClass[] | null | undefined} classes the character's classes
+   * @returns {boolean} true if the character has the feature at the required level
+   */
+  static hasOverkill(classes): boolean {
+    return (classes ?? []).some((cls) =>
+      cls.definition?.name === "Gunslinger"
+      && (cls.classFeatures ?? []).some((feature) =>
+        feature.definition.name === "Overkill"
+        && cls.level >= (feature.definition.requiredLevel ?? 0)),
+    );
+  }
+
+  #getGunslingerFeatures(): string[] {
+    return DDBItem.hasOverkill(this.ddbData.character?.classes) ? ["overkill"] : [];
+  }
+
+  /**
+   * Critical Shot (Gunslinger 2)
+   * @param {IDDBClass[] | null | undefined} classes the character's classes
+   * @returns {number | null} the critical hit threshold, or null without the feature
+   */
+  static getCriticalShotThreshold(classes): number | null {
+    for (const cls of classes ?? []) {
+      if (cls.definition?.name !== "Gunslinger") continue;
+      const feature = (cls.classFeatures ?? []).find((f) =>
+        f.definition.name === "Critical Shot"
+        && cls.level >= (f.definition.requiredLevel ?? 0),
+      );
+      if (feature?.levelScale?.fixedValue) return feature.levelScale.fixedValue;
+    }
+    return null;
+  }
+
   #getClassFeatures() {
     const warlockFeatures = this.#getWarlockFeatures();
     const monkFeatures = this.#getMonkFeatures();
-    return warlockFeatures.concat(monkFeatures);
+    const gunslingerFeatures = this.#getGunslingerFeatures();
+    return warlockFeatures.concat(monkFeatures, gunslingerFeatures);
   }
 
   #generateItemFlags() {
@@ -1461,7 +1544,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     let baseItem;
     let toolType;
 
-    if (this.ddbDefinition.filterType === "Weapon") {
+    // an enricher documentStub reshaping the document (e.g. a weapon DDB typed
+    // as ammunition) knows the base item better than the DDB definition does
+    if (this.systemType.baseItem) {
+      baseItem = this.systemType.baseItem;
+    } else if (this.ddbDefinition.filterType === "Weapon") {
       baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
       baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
@@ -1476,7 +1563,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === this.ddbDefinition.name.toLowerCase());
       if (baseTool) {
-        baseItem = baseTool.baseTool ?? utils.idString(this.ddbDefinition.name.toLowerCase());
+        baseItem = DDBToolProficiencies.getToolKey(baseTool);
         toolType = baseTool.toolType;
       }
     } else if (this.ddbDefinition.filterType === "Staff") {
@@ -1557,6 +1644,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           // @ts-expect-error we know this exists for these parsing types
           this.data.system.magicalBonus = magicalBonus;
           this.addMagical = true;
+          // dnd5e only applies system.magicalBonus to a weapon's *base* damage
+          // part, and a firearm deliberately has none, so fold it into the
+          // part the activity actually rolls. Known limitation: unlike
+          // dnd5e's own handling this isn't gated on `magicAvailable`, so an
+          // unattuned magical firearm still adds it to damage. Attack rolls are
+          // unaffected, they read system.magicalBonus directly.
+          if (this.isFirearm && this.damageParts.length > 0) {
+            const damagePart = this.damageParts[0];
+            if (damagePart.custom?.enabled) {
+              damagePart.custom.formula = `${damagePart.custom.formula} + ${magicalBonus}`;
+            } else {
+              damagePart.bonus = damagePart.bonus
+                ? `${damagePart.bonus} + ${magicalBonus}`
+                : `${magicalBonus}`;
+            }
+          }
         }
         break;
       }
@@ -1570,6 +1673,56 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         }
       }
     }
+  }
+
+  /**
+   * Guess a dnd5e ammunition subtype from a weapon or ammunition name, for the
+   * many DDB weapon types with no DICTIONARY.actor.proficiencies row. Texts are
+   * tried in order, so pass the most specific signal (the DDB weapon type)
+   * first. Returns null when nothing matches, which leaves the item as it is
+   * today -- dnd5e then offers every ammunition on the sheet.
+   */
+  static inferAmmunitionType(...texts: (string | null | undefined)[]): string | null {
+    for (const text of texts) {
+      if (!text) continue;
+      const match = DICTIONARY.weapon.ammunitionTypes.find((ammo) => ammo.pattern.test(text));
+      if (match) return match.value;
+    }
+    return null;
+  }
+
+  /**
+   * Publisher specific ammunition types, currently Mage Hand Press only. These
+   * are keyed off the DDB source category so nothing outside that publisher is
+   * re-typed -- the DMG Shotgun keeps firearmBullet.
+   */
+  static getPublisherAmmunitionTypes(sourceCategoryId: number | null): IPublisherAmmunitionType[] {
+    if (sourceCategoryId !== DICTIONARY.sourceCategories.mageHandPress) return [];
+    return DICTIONARY.ammunition.mageHandPress;
+  }
+
+  /**
+   * Match an ammunition item name against the publisher table. Names are matched
+   * as whole words anywhere in the name, since DDB ships count suffixes
+   * ("Shells (10)") and prefixes ("Portable Cannonballs"), and the module may
+   * append "(Legacy)". Word boundaries keep "Seashell" out.
+   */
+  static getPublisherAmmunitionTypeByName(name: string | null | undefined, sourceCategoryId: number | null): string | null {
+    if (!name) return null;
+    const lowerName = name.toLowerCase();
+    const match = DDBItem.getPublisherAmmunitionTypes(sourceCategoryId).find((ammo) =>
+      ammo.itemNames.some((itemName) => new RegExp(`\\b${itemName}\\b`, "i").test(lowerName)),
+    );
+    return match?.key ?? null;
+  }
+
+  /** Match a DDB weapon `type` against the publisher table. */
+  static getPublisherAmmunitionTypeByWeapon(weaponType: string | null | undefined, sourceCategoryId: number | null): string | null {
+    if (!weaponType) return null;
+    const match = DDBItem.getPublisherAmmunitionTypes(sourceCategoryId).find((ammo) =>
+      ammo.weaponTypes.some((type) => type.toLowerCase() === weaponType.toLowerCase()),
+    );
+    return match?.key ?? null;
   }
 
   static getRechargeFormula(description: string, maxCharges: number): string {
@@ -1625,33 +1778,28 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
-  static getMagicItemResetType(description: string): TActivationCost {
-    let resetType = null;
+  static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
+    let resetType: TLimitedUsePeriod | null = null;
+    const normalizedDescription = description.replaceAll("’", "'");
 
     const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
     const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
-    const chargeNextDawnFormula = /can't be used this way again until the next (dawn|dusk)/i;
+    const chargeNextDawnFormula = /can't be used (?:this way )?again until the next (dawn|dusk)/i;
 
-    const chargeMatch = chargeMatchFormula.exec(description);
-    const untilMatch = usedAgainFormula.exec(description);
-    const dawnMatch = chargeNextDawnFormula.exec(description);
+    const chargeMatch = chargeMatchFormula.exec(normalizedDescription);
+    const untilMatch = usedAgainFormula.exec(normalizedDescription);
+    const dawnMatch = chargeNextDawnFormula.exec(normalizedDescription);
 
     if (chargeMatch && chargeMatch[1] && ["dawn", "dusk"].includes(chargeMatch[1].toLowerCase())) {
-      resetType = chargeMatch[1].toLowerCase();
+      resetType = chargeMatch[1].toLowerCase() as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1] && ["sunset"].includes(chargeMatch[1].toLowerCase())) {
       resetType = "dusk";
     } else if (dawnMatch && dawnMatch[1]) {
-      resetType = utils.capitalize(dawnMatch[1].toLowerCase());
+      resetType = dawnMatch[1].toLowerCase() as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1]) {
       resetType = "day";
     } else if (untilMatch && untilMatch[1]) {
-      switch (untilMatch[1]) {
-        case "short or long":
-          resetType = "sr";
-          break;
-        default:
-          resetType = utils.capitalize(`${untilMatch[1]}Rest`);
-      }
+      resetType = untilMatch[1].startsWith("short") ? "sr" : "lr";
     }
 
     // console.warn("reset type", {
@@ -1667,6 +1815,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   _getCompendiumUses(defaultMax: string | null = null): I5eSystemLimitedUses {
     if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [] };
+
+    // Multi-stage items repeat every lower stage's text, so the whole-description scan below
+    // always reports the dormant numbers. Resolve the named stage first where one applies.
+    const stagedUses = Vestige.getStageUses(this.originalName, this.ddbDefinition.description, DDBItem);
+    if (stagedUses) {
+      this.actionData.consumptionValue = 1;
+      return stagedUses;
+    }
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
     const limitedUse = {
@@ -1733,64 +1889,96 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       || this.isSpellwrought;
   }
 
-  targetsCreature(): boolean {
+  targetsCreature(text: string = this.ddbDefinition.description): boolean {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /attack against the target|at a target in range/gi;
-    return !!(this.ddbDefinition.description.match(creature)
-      || this.ddbDefinition.description.match(creaturesRange)
-      || this.ddbDefinition.description.match(targets));
+    return !!(text.match(creature)
+      || text.match(creaturesRange)
+      || text.match(targets));
   }
 
+
+  /**
+   * The labelled sections of this item's description that each name a save, memoised.
+   *
+   * A multi-mode item ("Acid Jet.", "Frost Shot.") gets one activity per section, so the primary
+   * activity must read only the FIRST section rather than the whole description - otherwise it
+   * claims every mode's damage and area.
+   */
+  get multiSaveSections(): { slice: ISectionSlice; save: IParsedSave }[] {
+    this.#multiSaveSections ??= this._saveBearingSections(this.ddbDefinition.description ?? "");
+    return this.#multiSaveSections;
+  }
+
+  /**
+   * Does the primary activity describe the FIRST labelled section, or something else entirely?
+   *
+   * On a wondrous item or a potion the primary activity is the save `parseSaveFromDescription`
+   * found, which is the first section's - so scoping its damage, area and name to that section
+   * keeps it honest. On a weapon the primary is the weapon attack, so every section is an extra
+   * and the item's own damage and target must be left alone. This mirrors the ordering in
+   * `_getActivitiesType`, which cannot be called speculatively because it has side effects.
+   */
+  get #primaryIsFirstSection(): boolean {
+    if (this.multiSaveSections.length === 0) return false;
+    if (this.documentType === "container") return false;
+    if (["tool", "weapon", "staff"].includes(this.parsingType ?? "")) return false;
+    return Boolean(this.actionData.save);
+  }
+
+  /** The name the primary activity takes on a multi-mode item, or null to leave it unnamed. */
+  get #primaryActivityName(): string | null {
+    if (!this.#primaryIsFirstSection) return null;
+    return DDBActivityFactoryMixin.multiSaveActivityName(this.multiSaveSections[0].slice.rawLabel) || null;
+  }
+
+  /** The description text the primary activity describes: its own section, or the whole item. */
+  get #primaryDescription(): string {
+    return this.#primaryIsFirstSection
+      ? this.multiSaveSections[0].slice.section
+      : this.ddbDefinition.description ?? "";
+  }
+
+  /**
+   * Build one save activity per mode of a multi-mode item.
+   *
+   * Called from build() rather than from the description scan so that it also reaches items whose
+   * damage came from DDB - a weapon carrying two save riders never enters
+   * #generateDamageFromDescription at all.
+   */
+  #generateMultiSaveActivities(): void {
+    this._multiSaveActivityGeneration({
+      text: this.ddbDefinition.description ?? "",
+      primarySave: this.actionData.save,
+      skipFirstSection: this.#primaryIsFirstSection,
+      targetOverrideForSection: (section) => this.#sectionTarget(section),
+    });
+  }
+
+  /**
+   * Build one check activity per release check in the description.
+   *
+   * Sentence-scoped, so the whole description is read rather than the primary's section: a weapon
+   * writes its escape check inside the grapple section. Called from build() rather than from the
+   * damage scan, which never runs for an item whose damage came from DDB.
+   */
+  #generateCheckActivities(): void {
+    this._checkActivityGeneration({ text: this.ddbDefinition.description ?? "" });
+  }
 
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
       return;
     }
-    const description = utils.stripHtml(this.ddbDefinition.description).replace(/[–-–−]/g, "-");
-    // console.warn(hit);
-    // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
-    const matches = [...description.matchAll(damageExpression)];
+    const source = this.#primaryDescription;
+    const sectioned = this.#primaryIsFirstSection;
+    const description = utils.stripHtml(source).replace(/[\u2013-\u2013\u2212]/g, "-");
 
-    logger.debug(`${this.name} Description Damage matches`, { description, matches });
-    const otherParts = [];
-    for (const dmg of matches) {
-      let other = false;
-      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
-        continue;
-      }
-      // check for other
-      if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
-      const damage = dmg.groups.damageDice ?? dmg.groups.flat;
-
-      // Make sure we did match a damage
-      if (damage) {
-        const includesDiceRegExp = /[0-9]*d[0-9]+/;
-        const includesDice = includesDiceRegExp.test(damage);
-        const finalDamage = (this.actionData && includesDice)
-          ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
-          : damage.replace("plus", "+");
-
-        const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
-
-        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
-        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
-            || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
-          && this.damageParts.length >= 1
-        ) {
-          other = true;
-        }
-        // assumption here is that there is just one field added to versatile. this is going to be rare.
-        if (other) {
-          otherParts.push(part);
-        } else {
-          this.damageParts.push(part);
-        }
-      }
-    }
+    const { parts, otherParts } = DDBDescriptions.parseDamageParts(source);
+    logger.debug(`${this.name} Description Damage matches`, { description, parts, otherParts });
+    this.damageParts.push(...parts);
 
     const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9 ]+d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
     const regainMatch = description.match(regainExpression);
@@ -1799,13 +1987,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue, null).diceString,
+        damageString: utils.parseDiceString(damageValue, "").diceString,
         type: "healing",
       });
       this.healingParts.push(part);
     }
 
-    if (otherParts.length > 0) {
+    // On a sectioned item the leftover parts belong to the other modes' own activities, which
+    // _multiSaveActivityGeneration builds; a catch-all "Damage" activity would double them up.
+    if (otherParts.length > 0 && !sectioned) {
       this.additionalActivities.push({
         name: `Damage`,
         type: "damage",
@@ -1826,55 +2016,66 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         },
       });
     }
-
-    this._escapeCheckGeneration();
-
   }
 
-  #generateTargets() {
-    this.actionData.target = {
+  /**
+   * Read an activity target out of a piece of the item's rules text.
+   */
+  #targetFromDescription(text: string, { mutateRange = false } = {}): I5eActivityTarget {
+    const affects = {
+      count: "",
+      type: "" as TTarget,
+      choice: false,
+      special: "",
+    };
+    const template = {
+      count: "",
+      contiguous: false,
+      type: "" as TTemplate,
+      size: "",
+      width: "",
+      height: "",
+      units: "ft" as TTemplateUnits,
+    };
+    const target: I5eActivityTarget = {
       prompt: true,
-      affects: {
-        count: "",
-        type: "",
-        choice: false,
-        special: "",
-      },
-      template: {
-        count: "",
-        contiguous: false,
-        type: "",
-        size: "",
-        width: "",
-        height: "",
-        units: "ft",
-      },
+      affects,
+      template,
     };
 
-    const targetsCreature = this.targetsCreature();
-    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(this.ddbDefinition.description);
+    const targetsCreature = this.targetsCreature(text);
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(text);
 
     if (targetsCreature || creatureTargetCount) {
-      this.actionData.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
-      this.actionData.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+      affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
     const aoeSizeRegex = /(?<!creature you can see |an object you can see |one creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
-    const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
-
-    // console.warn(`Target generation for ${this.name}`, {
-    //   targetsCreature,
-    //   creatureTargetCount,
-    //   aoeSizeMatch,
-    // });
+    const aoeSizeMatch = aoeSizeRegex.exec(text);
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-      this.actionData.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
-      this.actionData.target.template.size = aoeSizeMatch[1] ?? "";
-      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+      template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
+      template.size = aoeSizeMatch[1] ?? "";
+      if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you" && this.actionData.range) {
         this.actionData.range.units = "self";
       }
     }
+
+    return target;
+  }
+
+  /**
+   * The target of one mode of a multi-mode item, or null when its section names no area of its
+   * own - in which case the generated activity inherits the item's target.
+   */
+  #sectionTarget(section: string): I5eActivityTarget | null {
+    const target = this.#targetFromDescription(section);
+    return target.template?.size ? target : null;
+  }
+
+  #generateTargets(text: string = this.#primaryDescription) {
+    this.actionData.target = this.#targetFromDescription(text, { mutateRange: true });
   }
 
   #removeMasteryContainer(text: string): string {
@@ -2039,20 +2240,34 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  // `injected` dictionary properties (e.g. TGC firearm props) only exist in
+  // the dnd5e system config once DDBRuleJournalFactory.registerRules has run.
+  // Emitting them before injection makes dnd5e's validProperties filtering drop
+  // them or render them unlabeled, so gate on the config being present.
+  #weaponPropertyAllowed(property: { value: string; injected?: boolean }) {
+    return !property.injected || foundry.utils.getProperty(CONFIG.DND5E, `itemProperties.${property.value}`) !== undefined;
+  }
+
   #generateStaffProperties() {
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     if (!weaponBehavior?.properties || !Array.isArray(weaponBehavior.properties)) return;
 
     DICTIONARY.weapon.properties.filter((p) =>
-      weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
+      weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined
+      && this.#weaponPropertyAllowed(p),
     ).map((p) => p.value).forEach((prop) => {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
     });
   }
 
   #generateWeaponProperties() {
-    this.data.system.properties = DICTIONARY.weapon.properties
+    // merge rather than assign, like every other property generator here:
+    // `overrides.earlyProperties` (e.g. `foc` on a "Staff of ..." Arcane Focus,
+    // which parses as a weapon) is applied during #prepare, and an assignment
+    // drops it.
+    DICTIONARY.weapon.properties
       .filter((property) => {
+        if (!this.#weaponPropertyAllowed(property)) return false;
         // if it is a weapon property
         if (this.ddbDefinition.properties
           && Array.isArray(this.ddbDefinition.properties)
@@ -2073,7 +2288,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // else not a property
         return false;
       })
-      .map((property) => property.value);
+      .map((property) => property.value)
+      .forEach((prop) => {
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
+      });
   }
 
   #getWeaponProficient(): boolean | null {
@@ -2207,14 +2425,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       };
     }
 
-    const ammoType = DICTIONARY.actor.proficiencies
-      .find((prof) =>
-        prof.type === "Ammunition"
-        && (
-          prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
-          || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
-        ),
-      )?.ammunitionType;
+    // dnd5e filters a weapon's ammunition dropdown on subtype equality, so an
+    // ammunition item we can't classify would be hidden from any weapon that
+    // does have a type. Fall back to the name inference rather than leave it blank.
+    const ammoType = DDBItem.getPublisherAmmunitionTypeByName(
+      this.ddbDefinition.name,
+      DDBSources.getDocumentSourceCategoryId(this.data),
+    )
+      ?? DICTIONARY.actor.proficiencies
+        .find((prof) =>
+          prof.type === "Ammunition"
+          && (
+            prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
+            || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
+          ),
+        )?.ammunitionType
+      ?? DDBItem.inferAmmunitionType(this.ddbDefinition.name);
 
     if (ammoType) {
       foundry.utils.setProperty(this.data, "system.type.subtype", ammoType);
@@ -2321,8 +2547,53 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this._generateUses();
   }
 
+  /**
+   * DDB's Firearm property (id 33): "You don't add your ability modifier to the
+   * weapon's damage, unless otherwise stated." dnd5e always appends @mod to a
+   * weapon's *base* damage part (attack-data.mjs#_processDamagePart) and offers
+   * no opt-out, so these weapons carry their damage on the activity instead,
+   * where non-base parts are left alone.
+   * @returns {boolean} true if this is a weapon with the DDB Firearm property
+   */
+  get isFirearm(): boolean {
+    if (this.parsingType !== "weapon") return false;
+    return (this.ddbDefinition.properties ?? []).some((property) => property.name === "Firearm");
+  }
+
+  /**
+   * Critical Shot (Gunslinger 2) expands the critical range of Ranged weapons.
+   * Unlike Overkill's 1d8 this does include firearms, which are Ranged weapons
+   * like any other; thrown melee weapons (attackType 1) are still excluded.
+   * @returns {number | null} the critical hit threshold, or null to leave it alone
+   */
+  get rangedCriticalThreshold(): number | null {
+    if (this.parsingType !== "weapon") return null;
+    if (this.ddbDefinition.attackType !== 2) return null;
+    // ac5e ships its own transferred effect for this feature
+    // (enrichers/class/gunslinger/CriticalShot.ts), so stand down and let it win
+    if (SystemHelpers.effectModules().ac5eInstalled) return null;
+    return DDBItem.getCriticalShotThreshold(this.ddbData.character?.classes);
+  }
+
+  /**
+   * Overkill's other half: "If you already add your modifier to the damage roll,
+   * the target takes an extra 1d8 damage of the weapon's type." That is every
+   * Ranged weapon which is not a firearm. DDB's attackType 2 marks the ranged
+   * weapon table, so thrown melee weapons (Dagger, Handaxe, Javelin) are
+   * excluded while the Dart, a Simple Ranged Weapon, is not.
+   * @returns {boolean} true if this weapon gains Overkill's extra 1d8
+   */
+  get hasOverkillRangedDamage(): boolean {
+    if (this.parsingType !== "weapon") return false;
+    if (!this.flags.classFeatures.includes("overkill")) return false;
+    if (this.isFirearm) return false;
+    return this.ddbDefinition.attackType === 2;
+  }
+
   #generateWeaponSpecifics() {
     this.activityOptions.generateAttack = true;
+    const criticalThreshold = this.rangedCriticalThreshold;
+    if (criticalThreshold) this.activityOptions.criticalThreshold = criticalThreshold;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();
@@ -2333,7 +2604,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : this.#getWeaponProficient();
 
     if (this.flags.classFeatures.includes("OffHand")) this.actionData.activation.type = "bonus";
-    if ("range" in this.data.system)
+    // a copySRD stub has already supplied a real range; DDB leaves both range
+    // fields null on the definitions those stubs exist to repair, so assigning
+    // here would wipe it
+    const keepSRDRange = Boolean(this.enricher.documentStub?.copySRD)
+      && !this.ddbDefinition.range
+      && !this.ddbDefinition.longRange;
+    if ("range" in this.data.system && !keepSRDRange)
       this.data.system.range = this.#getWeaponRange();
     this._generateUses();
     this.actionData.ability = this.#getWeaponAbility();
@@ -2343,13 +2620,37 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.meleeAttack = false;
     }
     if (this.damageParts.length > 0 && "damage" in this.data.system) {
-      this.data.system.damage = {
-        base: this.damageParts[0],
-        versatile: this.versatileDamage,
-        // parts: this.actionData.save
-        //   ? []
-        //   : this.damageParts.slice(1),
-      };
+      if (this.isFirearm) {
+        // leaving system.damage.base empty is the point: with no base part dnd5e has nothing to append @mod to.
+        // Note that a "Restricted Attack" rider activity (see
+        // #generateWeaponDamageParts) would roll only its rider dice on such a
+        // weapon; no DDB firearm has a restricted damage modifier today.
+        if (this.flags.classFeatures.includes("overkill")) {
+          // Overkill (Gunslinger 11) puts the modifier back. It rides along as
+          // its own part rather than restoring the base damage, so a firearm
+          // looks the same either way and only this part comes and goes.
+          this.damageParts.splice(1, 0, SystemHelpers.buildDamagePart({
+            damageString: "@mod",
+            types: this.damageParts[0].types ?? null,
+          }));
+        }
+        this.activityOptions.includeBaseDamage = false;
+        this.activityOptions.damageParts = this.damageParts;
+      } else {
+        if (this.hasOverkillRangedDamage) {
+          this.damageParts.push(SystemHelpers.buildDamagePart({
+            damageString: "1d8",
+            types: this.damageParts[0].types ?? null,
+          }));
+        }
+        this.data.system.damage = {
+          base: this.damageParts[0],
+          versatile: this.versatileDamage,
+          // parts: this.actionData.save
+          //   ? []
+          //   : this.damageParts.slice(1),
+        };
+      }
     }
 
     const dictionaryWeapon = DICTIONARY.actor.proficiencies
@@ -2357,13 +2658,32 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
       );
 
-    if (dictionaryWeapon?.ammunitionType) {
+    const publisherAmmunitionType = DDBItem.getPublisherAmmunitionTypeByWeapon(
+      this.ddbDefinition.type,
+      DDBSources.getDocumentSourceCategoryId(this.data),
+    );
+
+    if (publisherAmmunitionType) {
+      foundry.utils.setProperty(this.data, "system.ammunition.type", publisherAmmunitionType);
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "amm");
+    } else if (dictionaryWeapon?.ammunitionType) {
       foundry.utils.setProperty(this.data, "system.ammunition.type", dictionaryWeapon.ammunitionType);
+    } else if (this.ddbDefinition.attackType === 2) {
+      // ranged only: stops a melee weapon whose name happens to match a pattern
+      // (a "Bowstaff") from being handed an ammunition type and property.
+      const inferredAmmunitionType = DDBItem.inferAmmunitionType(this.ddbDefinition.type, this.ddbDefinition.name);
+      if (inferredAmmunitionType) {
+        foundry.utils.setProperty(this.data, "system.ammunition.type", inferredAmmunitionType);
+        // some third party firearms carry Firearm/Reload/Magazine but no DDB
+        // ammunition property at all, and dnd5e shows no ammunition selector
+        // without `amm` whatever the type is.
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, "amm");
+      }
     }
     if (dictionaryWeapon?.mastery) {
       foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
     } else if (this.ddbDefinition.properties) {
-      const masteryKeys = Object.keys(CONFIG.DND5E.weaponMasteries);
+      const masteryKeys = Object.keys(CONFIG.DND5E.weaponMasteries ?? {});
       const possibleMasteryPropertyKeys = this.ddbDefinition.properties.map((p) =>
         p.name.toLowerCase().replaceAll(" ", "").replaceAll("-", ""),
       );
@@ -2495,13 +2815,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       isPerSpell: false,
       charges: null,
     };
-    const limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
+    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast that spell again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
-      if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'"))) {
+      if (limitedUseRegex.test(this.ddbDefinition.description.replaceAll("’", "'"))) {
         result.isPerSpell = true;
         result.charges = 1;
         return result;
@@ -2517,7 +2837,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     if (!match) {
-      if (limitedUseRegex.test(useDescription.replace("’", "'"))) {
+      if (limitedUseRegex.test(useDescription.replaceAll("’", "'"))) {
         result.isPerSpell = true;
         result.charges = 1;
       }
@@ -2526,6 +2846,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return result;
   }
 
+
+  #getSpellReset(): { period: TLimitedUsePeriod | undefined; isCharges: boolean } {
+    const itemLimitedUse = this.ddbItem.limitedUse;
+    if (itemLimitedUse) {
+      const reset = itemLimitedUse.resetType
+        ? DICTIONARY.resets.find((candidate) => candidate.id == itemLimitedUse.resetType)
+        : undefined;
+      return {
+        period: reset?.value,
+        isCharges: reset?.isCharges ?? false,
+      };
+    }
+
+    return {
+      period: DDBItem.getMagicItemResetType(this.ddbDefinition.description) ?? undefined,
+      isCharges: true,
+    };
+  }
 
   async #addSpellAsCastActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
@@ -2575,11 +2913,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.data.system.uses = foundry.utils.deepClone(usesOverride);
     }
 
-    const resetType = this.ddbItem.limitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
-      )?.value ?? undefined
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
     const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionData.consumptionValue ?? 1}`;
@@ -2587,7 +2921,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // spells manage charges
       usesOverride.max = maxNumberConsumed;
       usesOverride.recovery.push({
-        period: resetType,
+        period: reset.period ?? null,
         type: "recoverAll",
       });
     }
@@ -2676,11 +3010,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const resetType = this.ddbItem.limitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
-      )
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const maxActivityUses = spellData.limitedUse?.maxUses && spellData.limitedUse?.maxUses > 0 ? `${spellData.limitedUse.maxUses}` : "1";
 
@@ -2688,7 +3018,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spent: 0,
       recovery: [
         {
-          period: resetType?.value,
+          period: reset.period ?? null,
           type: "recoverAll",
         },
       ],
@@ -2761,7 +3091,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : "";
       activity.consumption.spellSlot = false;
 
-      if (this.perSpell.isPerSpell && resetType?.isCharges) {
+      if (this.perSpell.isPerSpell && reset.isCharges) {
         activity.uses = activityUses;
       }
 
@@ -2795,11 +3125,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const resetType = this.ddbItem.limitedUse?.resetType
-      ? DICTIONARY.resets.find((reset) =>
-        reset.id == this.ddbItem.limitedUse.resetType,
-      )?.value ?? undefined
-      : undefined;
+    const reset = this.#getSpellReset();
 
     const uses = {
       spent: 0,
@@ -2812,7 +3138,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // spells manage charges
       uses.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
       uses.recovery.push({
-        period: resetType,
+        period: reset.period ?? null,
         type: "recoverAll",
       });
 
@@ -2939,6 +3265,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   async _addEffects() {
     if (this.data.name === "") this.data.name = "Unknown Object";
+    // effects already on the document (item-spell riders, status effects) are not DDB
+    // modifier effects, so an enricher clearing the auto effects keeps them
+    const existingEffects = [...(this.data.effects ?? [])];
     this.data = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.raw.character,
@@ -2950,11 +3279,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ? this.data.system.description.chat
         : this.data.system.description.value,
     }) as I5eInventoryItem;
+    if (this.enricher.clearAutoEffects) this.data.effects = existingEffects;
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
     const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
+    Vestige.generateStageEnchantments(this, DDBItem);
     this._activityEffectLinking();
   }
 
@@ -2995,8 +3326,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       if (this.documentType !== "container") {
         // containers can't have activities.
+        this.#generateMultiSaveActivities();
+        this.#generateCheckActivities();
         if (!this.enricher.stopDefaultActivity)
-          await this._generateActivity({}, this.activityOptions);
+          // an item's primary activity is normally unnamed; on a multi-mode item it describes the
+          // first section, so it takes that section's label to tell it from its siblings
+          await this._generateActivity(
+            { name: this.#primaryActivityName },
+            this.activityOptions,
+          );
         this.#addHealAdditionalActivities();
         if (this.enricher.addAutoAdditionalActivities)
           await this._generateAdditionalActivities();
@@ -3247,7 +3585,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // some attacks will have a save and attack
       if (this.actionData.save) {
         if (this.damageParts.length > 1) {
-          this.#addSaveAdditionalActivity(false);
+          // on a multi-mode weapon every save already has its own named activity
+          if (this.multiSaveSections.length === 0) this.#addSaveAdditionalActivity(false);
         }
       }
       return "attack";

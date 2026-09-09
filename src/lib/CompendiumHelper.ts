@@ -448,7 +448,8 @@ const CompendiumHelper = {
    * @param {object} matchedProperties an object containing properties and values to match in the index
    * @returns {object[]} the matching documents, or an empty array if none are found.
    */
-  async retrieveMatchingCompendiumItems(documents, compendiumName, matchedProperties = {}) {
+  // returns Foundry documents (callers use both document methods and system data)
+  async retrieveMatchingCompendiumItems(documents, compendiumName, matchedProperties = {}): Promise<any[]> {
     const documentNames = documents.map((item) => {
       if (typeof item === "string") return item;
       if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
@@ -461,14 +462,24 @@ const CompendiumHelper = {
       getDocuments: true,
       matchedProperties,
     });
-    const cleanResults = results.filter((item) => item !== null);
+    // a missing or unconfigured spell compendium yields null rather than an empty result set
+    const cleanResults = (results ?? []).filter((item) => item !== null);
 
     return cleanResults;
   },
 
   async createFolder({
     pack, name, parentId = null, color = "", folderId = null, flagTag = "", flags = {}, entityType,
-  } = {}) {
+  }: {
+    pack: any;
+    name: string;
+    parentId?: string | null;
+    color?: string;
+    folderId?: string | null;
+    flagTag?: string;
+    flags?: Record<string, unknown>;
+    entityType?: "Item" | "Actor" | "RollTable" | "Adventure" | "JournalEntry" | "Cards" | "Macro" | "Playlist" | "Scene" | "Compendium";
+  }) {
     logger.debug("Finding folder", {
       folders: pack.folders,
       name,

@@ -1,3 +1,4 @@
+import MunchProgressTracker from "../lib/MunchProgressTracker";
 import {
   logger,
   DDBItemImporter,
@@ -8,6 +9,7 @@ import {
   DDBCompendiumFolders,
   Iconizer,
   DDBSources,
+  SourceFilters,
   utils,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
@@ -18,6 +20,7 @@ import { DDBReferenceLinker } from "./lib/_module";
 interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
   extra?: boolean;
+  notifierV2?: (props: NotifierV2Props) => void;
   notifier?: (note: any, options?: NotifierV1Props) => void;
   type?: string;
   forceUpdate?: boolean | null;
@@ -40,6 +43,8 @@ interface IDDBMonsterFactoryFetchOptions {
 export default class DDBMonsterFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
+  notifierV2: ((props: NotifierV2Props) => void) | null;
+  overallProgress = new MunchProgressTracker();
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   type: string;
   compendiumFolders: DDBCompendiumFolders;
@@ -64,10 +69,9 @@ export default class DDBMonsterFactory {
   static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
+    if (!ids || ids.length === 0) SourceFilters.preflightSourceSettings("monsters", utils.munchNote);
     const homebrew = sources.length > 0
       ? false
       : utils.getSetting<boolean>("munching-policy-monster-homebrew");
@@ -93,8 +97,14 @@ export default class DDBMonsterFactory {
     return options;
   }
 
+  /** Report whole-run progress once the source count is known. */
+  #notifyOverall(message: string) {
+    if (!this.notifierV2 || !this.overallProgress.active) return;
+    this.notifierV2(this.overallProgress.payload(message));
+  }
+
   constructor ({
-    ddbData = null, extra = false, notifier = null, type = "monsters", forceUpdate = null,
+    ddbData = null, extra = false, notifier = null, notifierV2 = null, type = "monsters", forceUpdate = null,
     useLocalKey = null, keyPostfix = null,
   }: IDDBMonsterFactory = {}) {
     this.extra = extra;
@@ -105,6 +115,7 @@ export default class DDBMonsterFactory {
     this.npcs = [];
     this.source = ddbData;
     this.notifier = notifier ?? DDBMonsterFactory.#noteStub;
+    this.notifierV2 = notifierV2;
     this.type = type;
     this.compendiumFolders = new DDBCompendiumFolders(type);
     this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
@@ -258,7 +269,16 @@ export default class DDBMonsterFactory {
     for (const monster of monsterSource) {
       const name = `${monster.name}${monster.isLegacy ? " legacy" : ""}`;
       try {
-        this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
+        if (this.notifierV2) {
+          this.notifierV2({
+            progress: { current: i - this.currentDocument + 1, total: monsterSource.length },
+            section: "monster",
+            message: `Parsing monster: ${name}`,
+            progressBar: "primary",
+          });
+        } else {
+          this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
+        }
         i++;
         logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
         logger.time(`Monster Parse ${name}`);
@@ -279,7 +299,10 @@ export default class DDBMonsterFactory {
         logger.error(err.stack);
         failedMonsterNames.push(name);
       }
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Parsing Monsters...");
     }
+    this.notifierV2?.({ progress: { current: monsterSource.length, total: monsterSource.length }, message: "", progressBar: "primary", clear: true });
 
     const result = {
       actors: await Promise.all(foundryActors),
@@ -335,6 +358,7 @@ export default class DDBMonsterFactory {
 
     const itemHandler = new DDBItemImporter(this.type, monsterResults.actors, {
       notifier: this.notifier,
+      notifierV2: this.notifierV2,
       matchFlags: ["id"],
     });
     await itemHandler.init();
@@ -377,12 +401,24 @@ export default class DDBMonsterFactory {
   async #loadIntoCompendiums(documents) {
     const startingCount = this.currentDocument;
     for (const monster of documents) {
-      this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
+      if (this.notifierV2) {
+        this.notifierV2({
+          progress: { current: this.currentDocument - startingCount + 1, total: documents.length },
+          section: "import",
+          message: `Importing ${monster.name}`,
+          progressBar: "secondary",
+        });
+      } else {
+        this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
+      }
       logger.debug(`Preparing ${monster.name} data for import`);
       const munched = await DDBMonsterImporter.addNPC(monster, "monster");
       if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Importing Monsters...");
     }
+    this.notifierV2?.({ progress: { current: documents.length, total: documents.length }, message: "", progressBar: "secondary", clear: true });
   }
 
 
@@ -429,6 +465,8 @@ export default class DDBMonsterFactory {
     this.notifier("", { nameField: true });
 
     this.totalDocuments = this.source.length;
+    this.overallProgress.start(this.totalDocuments);
+    this.#notifyOverall("Monsters to Process");
 
     for (let i = 0; i < this.source.length; i += 100) {
       const sourceDocuments = this.source.slice(i, i + 100);
@@ -439,7 +477,12 @@ export default class DDBMonsterFactory {
       await this.compendiumFolders.createMonsterFoldersForDocuments({ documents });
       this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.#loadIntoCompendiums(documents);
+      // Existing documents can be culled before import; count the whole consumed batch.
+      this.overallProgress.snapTo(Math.min(i + 100, this.totalDocuments));
+      this.#notifyOverall("Importing Monsters...");
     }
+    this.overallProgress.finish();
+    this.#notifyOverall("Monsters Processed");
 
     logger.debug("Monsters Parsed", this.monstersParsed);
     this.notifier("", { monsterNote: true });

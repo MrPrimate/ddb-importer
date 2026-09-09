@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 
-import FileHelper from "./FileHelper";
-
 /**
  * Typed accessor for CONFIG.debug.ddbimporter.
  * CONFIG.debug is a closed inline type in foundry-vtt-types that cannot be
@@ -10,6 +8,11 @@ import FileHelper from "./FileHelper";
 export function ddbDebug(): IDDBImporterDebug {
   return (CONFIG.debug as CONFIG["debug"] & { ddbimporter: IDDBImporterDebug }).ddbimporter;
 }
+
+// Error's diagnostic properties are non-enumerable and otherwise export as {}.
+const serializeLogValue = (value) => value instanceof Error
+  ? { ...value, name: value.name, message: value.message, stack: value.stack }
+  : value;
 
 const logger = {
 
@@ -41,7 +44,7 @@ const logger = {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
       ddbDebug().log.push({
         level: logLevel,
-        data: data,
+        data: data.map(serializeLogValue),
       });
     }
   },
@@ -56,10 +59,10 @@ const logger = {
       ? "DEBUG"
       : logLevel.toUpperCase();
 
-    const msgContent = data[0] && typeof (data[0] == "string")
+    const msgContent = typeof data[0] === "string"
       ? data[0]
       : logger.LOG_MSG_DEFAULT;
-    const payload = data[0] && typeof (data[0] == "string")
+    const payload = typeof data[0] === "string"
       ? data.length > 1
         ? data.slice(1)
         : null
@@ -101,7 +104,7 @@ const logger = {
         } else {
           console.error(msg);
         }
-        CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload });
+        CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload: payload?.map(serializeLogValue) ?? null });
         break;
       case "TIME":
         if (payload) {
@@ -175,7 +178,10 @@ const getCircularReplacer = () => {
   };
 };
 
-function downloadLog() {
+async function downloadLog() {
+  // lazy: Logger is the first import of nearly every module, so a static FileHelper import
+  // (which pulls the lib barrel) would re-enter the enricher tree during load
+  const { default: FileHelper } = await import("./FileHelper");
   FileHelper.download(JSON.stringify(ddbDebug().log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }

@@ -39,10 +39,11 @@ function fakePack(advancement: Record<string, any>): any {
 }
 
 describe("DDBBaseClass.scaleValueIdentifier", () => {
-  it("prefers the configured identifier and otherwise slugs the dnd5e 6 name or legacy title", () => {
-    expect(DDBBaseClass.scaleValueIdentifier({ configuration: { identifier: "sneak-attack" }, name: "Other" } as any)).toBe("sneak-attack");
-    expect(DDBBaseClass.scaleValueIdentifier({ configuration: { identifier: "" }, name: "Sneak Attack" } as any)).toBe("sneak-attack");
+  it("prefers the configured identifier and otherwise slugs the title", () => {
+    expect(DDBBaseClass.scaleValueIdentifier({ configuration: { identifier: "sneak-attack" }, title: "Other" } as any)).toBe("sneak-attack");
+    expect(DDBBaseClass.scaleValueIdentifier({ configuration: { identifier: "" }, title: "Sneak Attack" } as any)).toBe("sneak-attack");
     expect(DDBBaseClass.scaleValueIdentifier({ configuration: {}, title: "Sneak Attack" } as any)).toBe("sneak-attack");
+    expect(DDBBaseClass.scaleValueIdentifier({ configuration: {} } as any)).toBe("");
   });
 });
 
@@ -61,15 +62,15 @@ describe("DDBBaseClass._addFoundryAdvancements", () => {
   const generatedSneakAttack = {
     _id: "ddbSneakAttack00",
     type: "ScaleValue",
-    name: "Sneak Attack",
+    title: "Sneak Attack",
     configuration: { identifier: "sneak-attack", type: "dice", scale: { 1: { number: 1, faces: 6 } } },
   };
 
-  it("skips a system scale value whose empty identifier resolves to a generated one (dnd5e 6 name)", async () => {
+  it("skips a system scale value whose empty identifier resolves to a generated one", async () => {
     pack = fakePack({
-      sneak: { _id: "4uOxepnMxb2TYDY4", type: "ScaleValue", name: "Sneak Attack", configuration: { identifier: "", type: "dice", scale: {} } },
-      other: { _id: "otherScale000000", type: "ScaleValue", name: "Stroke Dice", configuration: { identifier: "", type: "number", scale: {} } },
-      grant: { _id: "grant00000000000", type: "ItemGrant", name: "Expertise" },
+      sneak: { _id: "4uOxepnMxb2TYDY4", type: "ScaleValue", title: "Sneak Attack", configuration: { identifier: "", type: "dice", scale: {} } },
+      other: { _id: "otherScale000000", type: "ScaleValue", title: "Stroke Dice", configuration: { identifier: "", type: "number", scale: {} } },
+      grant: { _id: "grant00000000000", type: "ItemGrant", title: "Expertise" },
     });
     const stub = makeClassStub("Rogue", [generatedSneakAttack]);
     await DDBBaseClass.prototype._addFoundryAdvancements.call(stub);
@@ -78,12 +79,4 @@ describe("DDBBaseClass._addFoundryAdvancements", () => {
     expect(ids).toEqual(["ddbSneakAttack00", "otherScale000000"]);
   });
 
-  it("still dedupes a pre-6.0 document that carries title instead of name", async () => {
-    pack = fakePack({
-      sneak: { _id: "4uOxepnMxb2TYDY4", type: "ScaleValue", title: "Sneak Attack", configuration: { identifier: "", type: "dice", scale: {} } },
-    });
-    const stub = makeClassStub("Rogue", [generatedSneakAttack]);
-    await DDBBaseClass.prototype._addFoundryAdvancements.call(stub);
-    expect(Object.keys(stub.data.system.advancement)).toEqual(["ddbSneakAttack00"]);
-  });
 });

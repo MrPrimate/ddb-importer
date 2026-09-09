@@ -7,15 +7,24 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null, foundryFeature = null, actor = null }: {
+    type: IDDBActivityType;
+    name?: string | null;
+    ddbParent?: any;
+    nameIdPrefix?: string | null;
+    nameIdPostfix?: string | null;
+    id?: string | null;
+    foundryFeature?: any;
+    actor?: any;
+  }) {
     super({
       type,
       name,
       ddbParent,
-      foundryFeature: ddbParent.data,
+      foundryFeature: foundryFeature ?? ddbParent?.data,
       nameIdPrefix,
       nameIdPostfix,
-      actor: ddbParent.ddbVehicle.data,
+      actor: actor ?? ddbParent?.ddbVehicle?.data,
       id,
     });
 
@@ -168,7 +177,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   }
 
-  static createActivity({ document, type, name, vehicle } = {}, options = {}) {
+  static createActivity({ document, type, name, vehicle }: { document?: any; type: IDDBActivityType; name?: string | null; vehicle?: any }, options: any = {}): Promise<string> {
     const activity = new DDBVehicleActivity({
       name: name ?? null,
       type,
@@ -179,7 +188,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     activity.build(options);
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
 
-    return activity.data._id;
+    return Promise.resolve(activity.data._id);
 
   }
 

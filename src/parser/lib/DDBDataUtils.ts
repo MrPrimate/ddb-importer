@@ -1,8 +1,8 @@
-import { logger, utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import { DICTIONARY } from "../../config/_module";
-import { SystemHelpers } from "./_module";
-import DDBClass from "../classes/DDBClass";
-import DDBSubClass from "../classes/DDBSubClass";
+import SystemHelpers from "./SystemHelpers";
+import { findSpecialAdvancement } from "./SpecialAdvancements";
 import { IResetType } from "../../config/dictionary/actor/resets";
 
 interface IDDBDataUtilsLimitedUses {
@@ -13,10 +13,27 @@ interface IDDBDataUtilsLimitedUses {
 
 export default class DDBDataUtils {
 
+  static getLinkedActionCustomValue(ddb: IDDBData, item: { id?: number | null; entityTypeId?: number | null }, character: I5ePCData, type: number) {
+    const actions = ddb?.character?.actions;
+    // null ids would loosely match null componentIds, so only look up real ids
+    if (!actions || item.id == null || item.entityTypeId == null) return null;
+    const linkedActions = Object.values(actions)
+      .flat()
+      .filter((action) =>
+        action
+        && action.componentId == item.id
+        && action.componentTypeId == item.entityTypeId,
+      );
+    // ambiguous when a feature spawns more than one action (e.g. Breath Weapon), so skip
+    if (linkedActions.length !== 1) return null;
+    return DDBDataUtils.getCustomValueFromCharacter(linkedActions[0], character, type);
+  }
+
   static getName(ddb, item, character = null, allowCustom = true) {
     // spell name
     const customName = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 8)
+        ?? DDBDataUtils.getLinkedActionCustomValue(ddb, item, character, 8)
       : DDBDataUtils.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
       return utils.nameString(customName);
@@ -258,6 +275,36 @@ export default class DDBDataUtils {
   }
 
   /**
+   * Is this modifier granted by a class feature or class option with this name?
+   * DDB points a modifier at its granting component with componentId/componentTypeId,
+   * which may be a class feature (2014 subclass features), a chosen class option
+   * (the 2024 Blessed Strikes choice), or an optional class feature definition.
+   */
+  static isModifierFromNamedFeature(ddb: IDDBData, mod: IModifiersMod, featureName: string): boolean {
+    const classFeatureMatch = ddb.character.classes.some((klass) =>
+      klass.classFeatures.some((feature) =>
+        feature.definition.id === mod.componentId
+        && feature.definition.entityTypeId === mod.componentTypeId
+        && feature.definition.name === featureName,
+      ),
+    );
+    if (classFeatureMatch) return true;
+
+    const optionMatch = (ddb.character.options.class ?? []).some((option) =>
+      option.definition.name === featureName
+      && ((option.definition.id === mod.componentId && option.definition.entityTypeId === mod.componentTypeId)
+        || (option.componentId === mod.componentId && option.componentTypeId === mod.componentTypeId)),
+    );
+    if (optionMatch) return true;
+
+    return (ddb.classOptions ?? []).some((option) =>
+      option.id === mod.componentId
+      && option.entityTypeId === mod.componentTypeId
+      && option.name === featureName,
+    );
+  }
+
+  /**
    * Gets the levelscaling value for a feature
    * @param {*} feature
    * @returns {string}
@@ -287,8 +334,7 @@ export default class DDBDataUtils {
     if (klass) {
       let featureName = utils.referenceNameString(featDefinition.name);
 
-      const special = DDBClass.SPECIAL_ADVANCEMENTS[featDefinition.name]
-        ?? DDBSubClass.SPECIAL_ADVANCEMENTS[featDefinition.name];
+      const special = findSpecialAdvancement(featDefinition.name);
 
       if (special && special.fixFunction?.name === "rename") {
         if (special.functionArgs.identifier) {
@@ -361,14 +407,31 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : { ddbData: IDDBData; featureName: string; className?: string | null; subClassName?: string | null }) {
-    const result = ddbData.character.classes.some((klass) =>
-      klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
-      && ((className === null || klass.definition.name === className)
-        && (subClassName === null || klass.subclassDefinition?.name === subClassName)),
-    );
+  static getClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
+    ddbData: IDDBData;
+    featureName: string;
+    className?: string | null;
+    subClassName?: string | null;
+  }): IDDBClassFeature | undefined {
+    for (const klass of ddbData.character.classes) {
+      if (className !== null && klass.definition.name !== className) continue;
+      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName) continue;
+      const feature = klass.classFeatures.find((f) =>
+        f.definition.name === featureName && klass.level >= f.definition.requiredLevel,
+      );
+      if (feature) return feature;
+    }
 
-    return result;
+    return undefined;
+  }
+
+  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
+    ddbData: IDDBData;
+    featureName: string;
+    className?: string | null;
+    subClassName?: string | null;
+  }) {
+    return DDBDataUtils.getClassFeature({ ddbData, featureName, className, subClassName }) !== undefined;
   }
 
   static hasSpeciesTrait({ ddbData, traitName } : { ddbData: IDDBData; traitName: string }) {
@@ -709,6 +772,13 @@ export default class DDBDataUtils {
 
 
   // TO DO: this ignores charges
+  // DDB resetType 4 ("Other") and consumable-style resets have no rest period;
+  // emitting a recovery entry with an empty period produces junk on the sheet
+  static #recoveryForReset(resetType: IResetType | undefined): I5eSystemLimitedUsesRecovery[] {
+    if (!resetType?.value) return [];
+    return [{ period: resetType.value, type: "recoverAll", formula: undefined }];
+  }
+
   static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses {
     let resetType: IResetType | undefined;
 
@@ -785,9 +855,7 @@ export default class DDBDataUtils {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     } else if (scaleValue) {
       const maxUses = scaleValue;
@@ -795,17 +863,13 @@ export default class DDBDataUtils {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (maxUses !== "") ? maxUses : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     } else if (foundry.utils.hasProperty(data, "value")) {
       return {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: `${data.value}`,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
-        ],
+        recovery: DDBDataUtils.#recoveryForReset(resetType),
       };
     }
 

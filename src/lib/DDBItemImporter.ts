@@ -16,6 +16,7 @@ interface IDDBItemImporterOptions {
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
   recursive?: boolean | null;
+  notifierV2?: (props: NotifierV2Props) => void;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -52,7 +53,9 @@ type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.Document
 
 type TFlagType = TDDBImporterDocument | TIndexEntry;
 
-export default class DDBItemImporter {
+// The type parameter mirrors the v14 branch signature so shared enrichers compile; it does not
+// narrow anything on this branch.
+export default class DDBItemImporter<_TType = TDDBImporterDocument> {
 
   static DEFAULT_INDEX_FILTER: Record<string, any> = {
     fields: [
@@ -71,6 +74,7 @@ export default class DDBItemImporter {
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
+  notifierV2: ((props: NotifierV2Props) => void) | null;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   totalDocuments: number;
   currentDocumentCount: number;
@@ -88,6 +92,7 @@ export default class DDBItemImporter {
     useCompendiumFolders = null,
     recursive = null,
     notifier = null,
+    notifierV2 = null,
   }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
@@ -105,6 +110,7 @@ export default class DDBItemImporter {
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? utils.getSetting<boolean>("munching-policy-delete-during-update");
     this.deleteAllBeforeUpdate = foundry.utils.getProperty(CONFIG, "DDBI.DEV.deleteAllBeforeUpdate") as boolean ?? false;
     this.notifier = notifier;
+    this.notifierV2 = notifierV2;
 
     if (!notifier) {
       this.notifier = (note, { nameField = false, monsterNote = false } = {}) => {
@@ -190,6 +196,67 @@ export default class DDBItemImporter {
   }
 
 
+  /**
+   * Take the source data of a document that may be live.
+   *
+   * A live Item's system.activities is an ActivityCollection (a Map subclass), so both
+   * keyed access and Object.values come back empty on it, and deep cloning one clones
+   * data models rather than data. Plain objects pass through untouched.
+   */
+  static sourceData<T>(document: T): T {
+    const toObject = (document as { toObject?: () => T } | undefined)?.toObject;
+    return typeof toObject === "function" ? toObject.call(document) : document;
+  }
+
+  /**
+   * Resolve a retain style flag for a matched item.
+   */
+  static retainFlagValue<T>(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments, flag: string): T | undefined {
+    const parsed = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`) as T | undefined;
+    if (parsed !== undefined && parsed !== null && parsed !== false) return parsed;
+    return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
+  }
+
+  /**
+   * Copy activity level uses.spent over from the previously imported document.
+   *
+   * Independent of the item level retainUseSpent: an activity can carry its own uses
+   * pool while the item has none, and vice versa.
+   *
+   * Activity ids are generated deterministically from the activity name
+   * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
+   * an activity changes its id, so fall back to matching on name rather than silently
+   * dropping the play state.
+   */
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+    const existingItem = DDBItemImporter.sourceData(existing);
+    if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    const names = Array.isArray(selection) ? selection : null;
+    if (names && names.length === 0) return;
+
+    for (const activity of Object.values(item.system.activities)) {
+      if (names && !names.includes(activity.name ?? "")) continue;
+      // an activity with no max of its own has no meaningful spent value
+      const max = activity.uses?.max;
+      if (!activity.uses || max === undefined || max === null || `${max}`.trim() === "") continue;
+
+      const original = existingItem.system.activities[activity._id ?? ""]
+        ?? Object.values(existingItem.system.activities).find((existingActivity) =>
+          Boolean(activity.name) && existingActivity.name === activity.name,
+        );
+      const spent = original?.uses?.spent;
+      if (typeof spent !== "number") continue;
+
+      const literalMax = (/^\d+$/).test(`${max}`.trim())
+        ? Number.parseInt(`${max}`.trim())
+        : null;
+      activity.uses.spent = literalMax === null
+        ? Math.max(spent, 0)
+        : Math.min(Math.max(spent, 0), literalMax);
+      logger.debug(`Retaining activity uses for ${item.name}: ${activity.name} spent ${activity.uses.spent}`);
+    }
+  }
+
   static updateCharacterItemFlags(itemData: TAll5eItemDocuments, replaceData: TAll5eItemDocuments): TAll5eItemDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
@@ -210,6 +277,10 @@ export default class DDBItemImporter {
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;
       if ("ability" in itemData.system && "ability" in replaceData.system) replaceData.system.ability = itemData.system.ability;
+    }
+    const retainActivitySpent = foundry.utils.getProperty(itemData, "flags.ddbimporter.retainActivityUseSpent") as boolean | string[] | undefined;
+    if (retainActivitySpent && "activities" in itemData.system && "activities" in replaceData.system) {
+      DDBItemImporter.restoreActivityUseSpent(itemData, replaceData, retainActivitySpent);
     }
     if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
       replaceData.system.levels = itemData.system.levels;
@@ -355,7 +426,16 @@ export default class DDBItemImporter {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+    if (this.notifierV2) {
+      this.notifierV2({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "import",
+        message: `Creating ${item.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+    }
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
     // import document no longer retains the id
     // return this.compendium.importDocument(newItem, { keepId: true });
@@ -367,7 +447,16 @@ export default class DDBItemImporter {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    if (this.notifierV2) {
+      this.notifierV2({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "import",
+        message: `Updating ${updateItem.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    }
     logger.debug(`Updating ${updateItem.name} compendium entry (${this.currentDocumentCount}/${this.totalDocuments})`, {
       updateItem,
       existingItem,
@@ -499,6 +588,8 @@ ${item.system.description.chat}
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
     this.notifier("", { nameField: true });
+
+    this.notifierV2?.({ progress: { current: this.totalDocuments, total: this.totalDocuments }, message: "", section: "import", progressBar: "secondary", clear: true });
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);
@@ -706,7 +797,7 @@ ${item.system.description.chat}
     return Promise.all(promises);
   }
 
-  static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
+  static async buildHandler<_TType = TDDBImporterDocument>(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,

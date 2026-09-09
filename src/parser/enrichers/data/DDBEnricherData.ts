@@ -1,8 +1,9 @@
 import { DICTIONARY } from "../../../config/_module";
-import { logger } from "../../../lib/_module";
-import { DDBDataUtils } from "../../lib/_module";
-import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
-import DDBSpell from "../../spells/DDBSpell";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
+import DDBDataUtils from "../../lib/DDBDataUtils";
+import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
+import SpellDataUtils from "../../spells/SpellDataUtils";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 export interface IDDBBasicDamage {
@@ -17,14 +18,16 @@ export interface IDDBBasicDamage {
   customFormula?: string | null;
 }
 
-export default abstract class DDBEnricherData {
+// The generic lets an enricher narrow `ddbEnricher` to the factory it is loaded by
+// (e.g. `DDBEnricherData<DDBClassFeatureEnricher>` to reach `isParentClass2014`).
+export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnricher> {
 
   static AutoEffects = AutoEffects;
   static ChangeHelper = ChangeHelper;
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
-  ddbEnricher: TDDBEnricher;
+  ddbEnricher: T;
   ddbParser: any;
   is2014: boolean;
   is2024: boolean;
@@ -36,7 +39,7 @@ export default abstract class DDBEnricherData {
   isCustomAction: any;
   manager: any;
 
-  constructor({ ddbEnricher }: { ddbEnricher: TDDBEnricher }) {
+  constructor({ ddbEnricher }: { ddbEnricher: T }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
     this.is2014 = ddbEnricher.is2014;
@@ -129,28 +132,37 @@ export default abstract class DDBEnricherData {
   }
 
   _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: string; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
-    const action = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
+    const action = this.ddbParser?.ddbData?.character.actions?.[type]?.find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     );
 
+    const existingUses = () => foundry.utils.deepClone(this.ddbParser?.data?.system?.uses ?? {});
+    if (!action) {
+      logger.warn(`No action found generating uses for "${name}" (${type})`, { this: this });
+      return existingUses();
+    }
+
     const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
-      data: action.limitedUse,
+      data: action.limitedUse ?? {},
       description: action.description,
       scaleValue: scaleLink
         ?? (this.ddbParser.useUsesScaleValueLink && this.ddbParser.scaleValueUsesLink
           ? this.ddbParser.scaleValueUsesLink
           : null),
     });
-    return uses;
+    return uses ?? existingUses();
   }
 
   _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
-    const uses: I5eSystemLimitedUses = {
-      spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
-      max,
-    };
+    const uses: I5eSystemLimitedUses = {};
+
+    // dnd5e's spent is a non-nullable NumberField, so only set it if we have a value
+    const spent = this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent;
+    if (spent !== null) uses.spent = spent;
+
+    if (max) uses.max = max;
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
@@ -159,7 +171,13 @@ export default abstract class DDBEnricherData {
     }
 
     if (!max) {
-      uses.max = String(this._getMaxValue(type, name, matchSubClass, includesName));
+      // a null max would stringify to the literal "null", which is not a valid formula
+      const maxValue = this._getMaxValue(type, name, matchSubClass, includesName);
+      if (maxValue === null) {
+        logger.warn(`No max uses found for "${name}" (${type})`, { this: this });
+      } else {
+        uses.max = String(maxValue);
+      }
     }
 
     if (override) {
@@ -170,15 +188,15 @@ export default abstract class DDBEnricherData {
   }
 
   _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: string; name: string; onlyLimitedUse?: boolean } = { type: "", name: "" }): any[] {
-    const spells = this.ddbParser.ddbData.character.spells[type].filter((s: any) => {
+    const spells = (this.ddbParser?.ddbData?.character.spells?.[type] ?? []).filter((s: any) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
         ? DDBDataUtils.determineActualFeatureId(this.ddbParser.ddbData, s.componentId)
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
-      const lookup = CharacterSpellFactory.getDDBSpellLookup(this.ddbParser.ddbData, lookupType, id);
-      if (lookup.name === name) return true;
-      return false;
+      const lookup = SpellDataUtils.getDDBSpellLookup(this.ddbParser.ddbData, lookupType, id);
+      // DDB can use curly apostrophes where the enricher uses straight ones.
+      return lookup?.name !== undefined && utils.nameString(lookup.name) === utils.nameString(name);
     });
     return spells;
   }
@@ -186,16 +204,17 @@ export default abstract class DDBEnricherData {
   _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
-    if (spells.length === 0) {
-      logger.error(`No spells found for feature ${name} of type ${type}`);
-      return {
-        spent: defaultSpent,
-        max,
-        recovery: [],
-      };
-    }
+    const uses: I5eSystemLimitedUses = spells.length > 0
+      ? SpellDataUtils.getUses(spells[0].limitedUse)
+      : foundry.utils.deepClone(this.ddbParser?.data?.system?.uses ?? {});
 
-    const uses: I5eSystemLimitedUses = DDBSpell.getUses(spells[0].limitedUse);
+    if (spells.length === 0) {
+      logger.warn(`No spells found for feature ${name} of type ${type}`);
+      // Preserve the feature's existing uses when DDB supplies no charge pool.
+      // Explicit defaults still apply, including the recovery configured below.
+      if (defaultSpent !== null) uses.spent = defaultSpent;
+      if (max !== null) uses.max = max;
+    }
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
@@ -254,6 +273,60 @@ export default abstract class DDBEnricherData {
 
   get featureType(): any {
     return foundry.utils.getProperty(this.data, "flags.ddbimporter.type");
+  }
+
+  /**
+   * The parsed description of another class feature on this character, for enrichers that fold a
+   * sibling feature's text into their own document. Returns null when the feature is absent or the
+   * character has not reached its level.
+   */
+  getClassFeatureDescription({ featureName, className = null, subClassName = null }: { featureName: string; className?: string | null; subClassName?: string | null }): string | null {
+    if (!this.ddbParser?.ddbData) return null;
+
+    const feature = DDBDataUtils.getClassFeature({
+      ddbData: this.ddbParser.ddbData,
+      featureName,
+      className,
+      subClassName,
+    });
+
+    if (!feature?.definition.description) return null;
+
+    const rawCharacter = this.ddbParser.rawCharacter;
+    if (rawCharacter?.type !== "character") return feature.definition.description;
+
+    return DDBTemplateStrings.parse(
+      this.ddbParser.ddbData,
+      rawCharacter,
+      feature.definition.description,
+      this.ddbParser.ddbFeature,
+    )?.text ?? null;
+  }
+
+  /**
+   * The parsed description of a DDB action on this character, for enrichers whose document folds in
+   * an action's text (the default action match copies activities but not descriptions). Returns null
+   * when the action is absent.
+   */
+  getActionDescription({ name, type = "class" }: { name: string; type?: IActionTypes }): string | null {
+    const action = this.hasAction({ name, type });
+    if (!action?.description) return null;
+
+    const rawCharacter = this.ddbParser.rawCharacter;
+    if (rawCharacter?.type !== "character") return action.description;
+
+    return DDBTemplateStrings.parse(
+      this.ddbParser.ddbData,
+      rawCharacter,
+      action.description,
+      this.ddbParser.ddbFeature,
+    )?.text ?? null;
+  }
+
+  // DDB sheet instructions are now stripped centrally in DDBFeatureMixin.getDescription,
+  // so this is only needed for notes whose phrasing is not in DDB_SHEET_NOTE_MARKERS.
+  static stripBuilderNote(html: string, builderNote = "Character Builder"): string {
+    return utils.stripNoteBlocks(html, [builderNote]);
   }
 
   get type(): IDDBActivityType | null {
@@ -325,6 +398,34 @@ export default abstract class DDBEnricherData {
   }
 
   get parseAllChoiceFeatures(): boolean {
+    return false;
+  }
+
+  /**
+   * Suppress the per-choice child features, keeping the options as description text on the
+   * parent. The class-scoped equivalent of NO_CHOICE_BUILD, for names that are shared between
+   * classes and so cannot be listed there (e.g. Gunslinger vs Fighter "Maneuvers").
+   */
+  get noChoiceBuild(): boolean {
+    return false;
+  }
+
+  /**
+   * When a lone chosen option merges into a parent that already has activities, append the
+   * option's activities instead of dropping them, skipping any whose name the parent already
+   * carries. For parents whose enricher builds the primary activity itself but still wants
+   * DDB's per-option actions beside it (Semblance of Life's spirit-form attacks).
+   */
+  get mergeChoiceActivities(): boolean {
+    return false;
+  }
+
+  /**
+   * Refuse the option modifiers that a suppressed-choice parent would otherwise carry, for a
+   * parent whose enricher automates those options itself. Accepted for compatibility with the
+   * v14 branch; this branch does not carry suppressed choice modifiers onto the parent.
+   */
+  get noSuppressedChoiceModifiers(): boolean {
     return false;
   }
 

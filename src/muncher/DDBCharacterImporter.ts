@@ -492,7 +492,11 @@ ${item.system.description.chat}
     return remappedItems;
   }
 
-  static restoreDDBMatchedFlags(existingItem: I5ePCItem, item: I5ePCItem) {
+  static restoreDDBMatchedFlags(existing: I5ePCItem, item: I5ePCItem) {
+    // the match comes from the actor's embedded collection, so it is a live Item: its
+    // system.activities is an ActivityCollection that neither keyed access nor
+    // Object.values can read, and its system deep clones as data models
+    const existingItem = DDBItemImporter.sourceData(existing);
     const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags;
     logger.debug(`Item flags for ${existingItem.name}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
@@ -513,13 +517,14 @@ ${item.system.description.chat}
     // some items get ignored completly, if so we don't match these
     if (!(foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false)) {
       logger.debug(`Updating ${item.name} with id`);
-      item["_id"] = existingItem["id"];
+      item["_id"] = foundry.utils.getProperty(existing, "id") as string
+        ?? foundry.utils.getProperty(existingItem, "_id") as string;
       if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);
         item.flags.ddbimporter.matchedImg = existingItem.img;
         item.flags.ddbimporter.ignoreIcon = true;
       }
-      if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
+      if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
         if ("activities" in item.system && "activities" in existingItem.system) {
           for (const [key, activity] of Object.entries(item.system.activities)) {
@@ -539,9 +544,15 @@ ${item.system.description.chat}
         }
       }
       if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
-        if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
+        if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainUseSpent") ?? false) {
           item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
         }
+      }
+      const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
+        ddbItemFlags, item, "retainActivityUseSpent",
+      );
+      if (retainActivitySpent) {
+        DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
@@ -879,11 +890,17 @@ ${item.system.description.chat}
     });
   }
 
+  /**
+   * Works from the actor source rather than derived data: the derived hp block carries the
+   * contributions of the existing actor's active effects, and writing those back into the
+   * source would persist their formulas (and fail validation on any non-deterministic one).
+   */
   async setAtLeastOneHP() {
-    const hp = this.actor.system.attributes.hp;
+    const hp = foundry.utils.deepClone(this.actor.toObject().system.attributes.hp);
 
-    hp.bonuses.overall = `${hp.bonuses.overall ?? 0} + 1`;
-    hp.value += 1;
+    if (!hp.bonuses) hp.bonuses = {};
+    hp.bonuses.overall = `${hp.bonuses.overall || 0} + 1`;
+    hp.value = (hp.value ?? 0) + 1;
     await this.actor.update({
       // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,

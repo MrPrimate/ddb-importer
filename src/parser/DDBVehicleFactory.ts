@@ -1,3 +1,4 @@
+import MunchProgressTracker from "../lib/MunchProgressTracker";
 import {
   logger,
   FileHelper,
@@ -7,6 +8,7 @@ import {
   PatreonHelper,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
   Iconizer,
   DDBCampaigns,
   utils,
@@ -19,6 +21,7 @@ import DDBVehicle from "./DDBVehicle";
 interface IDDBVehicleFactoryOptions {
   ddbData?: IDDBVehicleSourceData[] | null;
   extra?: boolean;
+  notifierV2?: (props: NotifierV2Props) => void;
   notifier?: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
   forceUpdate?: boolean;
   useLocalKey?: boolean;
@@ -44,6 +47,8 @@ interface IFetchDDBVehicleSourceData {
 export default class DDBVehicleFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
+  notifierV2: ((props: NotifierV2Props) => void) | null;
+  overallProgress = new MunchProgressTracker();
   notifier: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
   type: "vehicles";
   compendiumFolders: DDBCompendiumFolders;
@@ -59,8 +64,14 @@ export default class DDBVehicleFactory {
   vehicles: I5eVehicleData[];
   vehiclesParsed: Actor.Implementation[];
 
+  /** Report whole-run progress once the source count is known. */
+  #notifyOverall(message: string) {
+    if (!this.notifierV2 || !this.overallProgress.active) return;
+    this.notifierV2(this.overallProgress.payload(message));
+  }
+
   constructor ({
-    ddbData = null, extra = false, notifier = null, forceUpdate = null,
+    ddbData = null, extra = false, notifier = null, notifierV2 = null, forceUpdate = null,
     useLocalKey = null, keyPostfix = null,
   }: IDDBVehicleFactoryOptions = {}) {
     this.extra = extra;
@@ -71,6 +82,7 @@ export default class DDBVehicleFactory {
     this.vehicles = [];
     this.source = ddbData;
     this.notifier = notifier ?? DDBVehicleFactory.#noteStub;
+    this.notifierV2 = notifierV2;
     this.type = "vehicles";
     this.compendiumFolders = new DDBCompendiumFolders("vehicles");
     this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
@@ -92,10 +104,9 @@ export default class DDBVehicleFactory {
   static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IFetchDDBVehicleSourceData {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
+    // the effective book list only; books outside the included categories are reported and ignored
+    const sources = DDBSources.getBookFilter().effective;
+    if (!ids || ids.length === 0) SourceFilters.preflightSourceSettings("vehicles", utils.munchNote);
     const homebrew = false;
     const homebrewOnly = false;
     // vehicles do not have homebrew filtering yet
@@ -266,6 +277,7 @@ export default class DDBVehicleFactory {
 
     const vehicleHandler = new DDBItemImporter(this.type, vehicleResults.actors, {
       notifier: this.notifier,
+      notifierV2: this.notifierV2,
       matchFlags: ["is2014", "is2024"],
     });
     await vehicleHandler.init();
@@ -308,14 +320,26 @@ export default class DDBVehicleFactory {
   async #loadIntoCompendiums(documents) {
     const startingCount = this.currentDocument;
     for (const doc of documents) {
-      this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${doc.name} to compendium`, { monsterNote: true });
+      if (this.notifierV2) {
+        this.notifierV2({
+          progress: { current: this.currentDocument - startingCount + 1, total: documents.length },
+          section: "import",
+          message: `Importing ${doc.name}`,
+          progressBar: "secondary",
+        });
+      } else {
+        this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${doc.name} to compendium`, { monsterNote: true });
+      }
       logger.debug(`Preparing ${doc.name} data for import`);
       const munched = await DDBMonsterImporter.addNPC(doc, "vehicle", {}, {
         fullWipe: true,
       });
       if (munched) this.vehiclesParsed.push(munched);
       this.currentDocument += 1;
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Importing Vehicles...");
     }
+    this.notifierV2?.({ progress: { current: documents.length, total: documents.length }, message: "", progressBar: "secondary", clear: true });
   }
 
 
@@ -345,6 +369,8 @@ export default class DDBVehicleFactory {
     this.notifier("", { nameField: true });
 
     this.totalDocuments = this.source.length;
+    this.overallProgress.start(this.totalDocuments);
+    this.#notifyOverall("Vehicles to Process");
 
     for (let i = 0; i < this.source.length; i += 100) {
       const sourceDocuments = this.source.slice(i, i + 100);
@@ -355,7 +381,12 @@ export default class DDBVehicleFactory {
       await this.compendiumFolders.createVehicleFoldersForDocuments({ documents });
       this.notifier(`Preparing dinner for vehicles ${i + 1} to ${vehicleCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.#loadIntoCompendiums(documents);
+      // Existing documents can be culled before import; count the whole consumed batch.
+      this.overallProgress.snapTo(Math.min(i + 100, this.totalDocuments));
+      this.#notifyOverall("Importing Vehicles...");
     }
+    this.overallProgress.finish();
+    this.#notifyOverall("Vehicles Processed");
 
     logger.debug("Vehicles Parsed", this.vehiclesParsed);
     this.notifier("", { monsterNote: true });
@@ -385,7 +416,16 @@ export default class DDBVehicleFactory {
     for (const vehicle of vehicleSource) {
       const name = `${vehicle.name}`;
       try {
-        this.notifier(`[${i}/${this.currentDocument + vehicleSource.length - 1} of ${totalVehicles}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
+        if (this.notifierV2) {
+          this.notifierV2({
+            progress: { current: i - this.currentDocument + 1, total: vehicleSource.length },
+            section: "monster",
+            message: `Parsing vehicle: ${name}`,
+            progressBar: "primary",
+          });
+        } else {
+          this.notifier(`[${i}/${this.currentDocument + vehicleSource.length - 1} of ${totalVehicles}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
+        }
         i++;
         logger.debug(`Attempting to parse ${i}/${totalVehicles} ${vehicle.name}`);
         logger.time(`Vehicle Parse ${name}`);
@@ -404,7 +444,10 @@ export default class DDBVehicleFactory {
         logger.error(err.stack);
         failedVehicleNames.push(name);
       }
+      this.overallProgress.advanceHalf();
+      this.#notifyOverall("Parsing Vehicles...");
     }
+    this.notifierV2?.({ progress: { current: vehicleSource.length, total: vehicleSource.length }, message: "", progressBar: "primary", clear: true });
 
     const result = {
       actors: await Promise.all(foundryActors),

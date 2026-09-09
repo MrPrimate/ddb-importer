@@ -1,5 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, utils, Utils } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
+import Utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
 
 interface IModFilterOptions {
@@ -79,7 +81,7 @@ export default class DDBModifiers {
       ? DDBModifiers.getEffectExcludedModifiers("item", true, true)
       : [];
     // get items we are going to interact on
-    const modifiers = ddb.character.inventory
+    const modifiers = (ddb.character.inventory ?? [])
       .filter(
         (item) =>
           ((!item.definition.canEquip && !item.definition.canAttune && !item.definition.isConsumable) // if item just gives a thing and not potion/scroll
@@ -450,10 +452,9 @@ export default class DDBModifiers {
         modBonus += utils.calculateModifier(character.system.abilities[ability.value].value);
       }
       if (die) {
-        const mod = die.diceString;
-        diceString += diceString === "" ? mod : " + " + mod;
         if (die.diceString) {
-          const mod = die.diceString + modBonus + fixedBonus;
+          // DDB's diceString already includes die.fixedValue
+          const mod = modBonus !== 0 ? `${die.diceString} + ${modBonus}` : die.diceString;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
           sum = Utils.stringIntAdder(sum, fixedBonus + modBonus);
@@ -473,7 +474,7 @@ export default class DDBModifiers {
 
     });
     if (diceString !== "") {
-      sum = diceString + " + " + sum;
+      sum = sum === "" ? diceString : `${diceString} + ${sum}`;
     }
 
     sum = `${sum}`.trim().replace(/\+\s*\+/, "+").replace(/^\+\s*/, "");

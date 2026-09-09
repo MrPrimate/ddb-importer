@@ -1,5 +1,7 @@
-import { utils, logger } from "../../lib/_module";
+import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
+import DDBDescriptions from "./DDBDescriptions";
 import { parseTags } from "./DDBReferenceLinker";
 
 interface IDDBTemplateStringDisplayString {
@@ -47,17 +49,25 @@ function evaluateMath(obj: string): number {
  * @param {IDDBData} ddb The DDB data object.
  * @param {I5ePCData} _character The character data object.
  * @param {string} match The match string containing template values.
- * @param {object} feature The feature object associated with the match.
+ * @param {TFeatures | TDefinitions | TDDBActionTypes} feature The feature object associated with the match.
  * @returns {IDDBTemplateStringDisplayString} An object containing the parsed string and link text.
  */
-function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: object): IDDBTemplateStringDisplayString {
-  // @ts-expect-error - ignore this check for now, revisit when we refactor the template string parsing and can properly type the feature object
-  const featureDef = feature.definition ?? feature;
+function parseMatch(
+  ddb: IDDBData,
+  _character: I5ePCData,
+  match: string,
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll,
+): IDDBTemplateStringDisplayString {
+  const featureDef = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
-  const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
-    .flat()
-    .find((option) => option.definition.id === featureDef.componentId);
+  // each option list can be null in DDB data; a null entry would previously
+  // survive .flat() and crash on .definition
+  const classOption = [
+    ...(ddb.character.options.race ?? []),
+    ...(ddb.character.options.class ?? []),
+    ...(ddb.character.options.feat ?? []),
+  ].find((option) => option.definition.id === featureDef.componentId);
   let linktext = `${result}`;
 
   // scalevalue
@@ -65,7 +75,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
     const scaleValue = DDBDataUtils.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     if (scaleValue && scaleValue.value) {
-      result = result.replace("scalevalue", scaleValue.value);
+      result = result.replace("scalevalue", String(scaleValue.value));
       linktext = result.replace("scalevalue", " (Scaled Value) ");
     } else {
       logger.warn("Unable to parse scalevalue", {
@@ -117,7 +127,8 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
         });
       const abRegexp = RegExp(match[0], "g");
       if (modValues.length > 1) {
-        result = result.replace(abRegexp, `max(${modValues.join(", ")})`);
+        const bareMods = modValues.map((m) => m.trim().replace(/^\+\s*/, ""));
+        result = result.replace(abRegexp, `max(${bareMods.join(", ")})`);
         linktext = result.replace(abRegexp, " (Modifier) ");
       } else {
         result = result.replace(abRegexp, modValues[0]);
@@ -130,12 +141,14 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
   // classlevel*5
   // (classlevel/2)@roundup
   if (result.includes("classlevel")) {
-    const cls = featureDef.classId
+    const cls = "classId" in featureDef
       ? ddb.character.classes.find((cls) =>
         cls.definition.id == featureDef.classId
         || featureDef.classId === cls.subclassDefinition?.id,
       )
-      : DDBDataUtils.findClassByFeatureId(ddb, featureDef.componentId);
+      : featureDef.componentId != null
+        ? DDBDataUtils.findClassByFeatureId(ddb, featureDef.componentId)
+        : undefined;
 
     if (cls) {
       const clsLevel = ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
@@ -154,7 +167,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
         );
       }
     } else if (["Enhanced Defense", "Enhanced Arcane Focus", "Enhanced Weapon"].includes(featureDef.name)) {
-      result = result.replace("classlevel", "@classes.artificer.levels`");
+      result = result.replace("classlevel", "@classes.artificer.levels");
       linktext = result.replace("classlevel", ` (Artificer Level) `);
     } else {
       if (!featureDef.componentId) {
@@ -202,8 +215,12 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
 
   // limiteduse
   if (result.includes("limiteduse")) {
-    const limitedUse = featureDef.limitedUse?.maxUses || "";
-    result = result.replace("limiteduse", limitedUse);
+    const limitedUse = "limitedUse" in featureDef
+      ? "maxUses" in featureDef.limitedUse
+        ? (featureDef.limitedUse.maxUses as number || "")
+        : ""
+      : "";
+    result = result.replace("limiteduse", String(limitedUse));
     linktext = result.replace("limiteduse", ` (Has limited uses) `);
   }
 
@@ -225,7 +242,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
  * @param {string} constraint The constraint string, in the format of a template string
  * @returns {number|string} The value with the constraint applied
  */
-const applyConstraint = (value, constraint) => {
+const applyConstraint = (value: string | number, constraint: string): string => {
   // {{(classlevel/2)@rounddown#unsigned}}
   // @ features
   // @roundup
@@ -236,24 +253,25 @@ const applyConstraint = (value, constraint) => {
   const multiConstraint = splitConstraint[0].split("*");
   const match = multiConstraint[0];
 
-  let result = value;
+  let result = String(value);
+  const intValue = parseInt(String(result));
 
   switch (match) {
     case "max": {
-      result = Math.min(splitConstraint[1], result);
+      result = String(Math.min(parseInt(splitConstraint[1]), intValue));
       break;
     }
     case "min": {
-      result = Math.max(splitConstraint[1], result);
+      result = String(Math.max(parseInt(splitConstraint[1]), intValue));
       break;
     }
     case "roundup": {
-      result = Math.ceil(result);
+      result = String(Math.ceil(intValue));
       break;
     }
     case "rounddown":
     case "roundown": {
-      result = Math.floor(result);
+      result = String(Math.floor(intValue));
       break;
     }
     case "unsigned":
@@ -269,7 +287,7 @@ const applyConstraint = (value, constraint) => {
 
   if (multiConstraint.length > 1) {
     const evalStatement = `${result}*${multiConstraint[1]}`;
-    result = evaluateMath(evalStatement.replace(")", ""));
+    result = String(evaluateMath(evalStatement.replace(")", "")));
   }
 
   if (match == "unsigned") {
@@ -291,7 +309,7 @@ const applyConstraint = (value, constraint) => {
  * @param {string} constraintList a comma-separated list of constraints
  * @returns {*} the value with any constraints applied
  */
-const addConstraintEvaluations = (value, constraintList) => {
+const addConstraintEvaluations = (value: string | number, constraintList: string): string => {
   let result = `${value}`;
 
   // {{@rounddown,max:9}}
@@ -301,18 +319,18 @@ const addConstraintEvaluations = (value, constraintList) => {
   // @roundown
   // min:1
   // max:3
-  constraintList.split(",").forEach((constraint) => {
+  constraintList.split(",").forEach((constraint: any) => {
     const splitConstraint = constraint.split(":");
     const multiConstraint = splitConstraint[0].split("*");
     const match = multiConstraint[0];
 
     switch (match) {
       case "max": {
-        result = `min(${result}, ${splitConstraint[1]})`;
+        result = `min(${`${result}`.trim().replace(/^\+\s*/, "")}, ${splitConstraint[1]})`;
         break;
       }
       case "min": {
-        result = `max(${result}, ${splitConstraint[1]})`;
+        result = `max(${`${result}`.trim().replace(/^\+\s*/, "")}, ${splitConstraint[1]})`;
         break;
       }
       case "roundup": {
@@ -345,18 +363,19 @@ const addConstraintEvaluations = (value, constraintList) => {
   return result;
 };
 
-const escapeRegExp = (string) => {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 };
 
-const getNumber = (theNumber, signed) => {
+const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | string | null) => {
+  let result = String(theNumber);
   if (signed == "unsigned") {
-    theNumber = `${theNumber}`.trim().replace(/^\+\s*/, "");
+    result = `${theNumber}`.trim().replace(/^\+\s*/, "");
   } else if (signed == "signed" && !`${theNumber}`.trim().startsWith("+") && !`${theNumber}`.trim().startsWith("-")) {
-    theNumber = `+ ${theNumber}`;
+    result = `+ ${theNumber}`;
   }
 
-  return theNumber.toString();
+  return result;
 };
 
 
@@ -392,10 +411,10 @@ function replaceRoll(match: string, _p1: string, p2: string): string {
  * @returns {string} The text with corrected rollables.
  */
 function fixRollables(text: string): string {
-  const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
+  const diceMatchRegex = /(?:<strong>)?\+*(\s*)(\d*d\d\d*)\s*\+*\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {
-    const replaceString = matches[2] ? "[[ $1 + " : "[[/roll $1 + ";
+    const replaceString = matches[2] ? "$1[[ $2 + " : "$1[[/roll $2 + ";
     text = text.replaceAll(diceMatchRegex, replaceString);
   }
 
@@ -407,23 +426,9 @@ function fixRollables(text: string): string {
   return text;
 }
 
-/**
- * Replaces occurrences of matchString in the text with a roll command where appropriate
- *
- * @param {string} text the input text
- * @param {string} matchString the string to match and replace
- * @returns {string} the text with replacements
- */
-function rollMatch(text: string, matchString: string): string {
-  const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
-  return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
-}
-
 type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
-
-type TActions = IDDBAction | IDDBConfigNaturalAction;
 
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
@@ -434,18 +439,22 @@ type TActions = IDDBAction | IDDBConfigNaturalAction;
  * @param {TFeatures | TDefinitions} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringResult | undefined {
+export function parse(
+  ddb: IDDBData,
+  character: I5ePCData,
+  text: string,
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll,
+): IDDBTemplateStringResult | undefined {
   if (!text) return;
-  // @ts-expect-error - ignore this check
-  const featureDefinition = feature.definition ?? feature;
+  const featureDefinition = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
-  const result = {
+  const result: IDDBTemplateStringResult = {
     id: featureDefinition.id,
     entityTypeId: featureDefinition.entityTypeId,
     componentId: featureDefinition.componentId ? featureDefinition.componentId : null,
-    componentTypeId: featureDefinition.componentTypeId ? featureDefinition.componentTypeId : null,
-    damageTypeId: featureDefinition.damageTypeId ? featureDefinition.damageTypeId : null,
+    componentTypeId: foundry.utils.getProperty(featureDefinition, "componentTypeId") as number ?? null,
+    damageTypeId: foundry.utils.getProperty(featureDefinition, "damageTypeId") as number ?? null,
     text,
     resultStrings: [],
     displayStrings: [],
@@ -511,11 +520,7 @@ export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature
       //   replacePattern: entry.replacePattern.test(result.text),
       //   match: entry.rollMatch.test(result.text),
       // });
-      if (entry.rollMatchTest) {
-        entry.parsed = rollMatch(text, entry.parsed);
-      } else {
-        entry.parsed = `[[/roll ${entry.parsed}]]`;
-      }
+      entry.parsed = `[[/roll ${entry.parsed}]]`;
 
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
@@ -572,11 +577,7 @@ export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature
         } else if (!isRoll && [undefined, null, "unsigned"].includes(signed)) {
           entry.parsed = `[[${entry.parsed.trim()}]]`;
         } else {
-          if (entry.rollMatchTest) {
-            entry.parsed = rollMatch(text, entry.parsed);
-          } else {
-            entry.parsed = `[[${entry.parsed}]]`;
-          }
+          entry.parsed = `[[${entry.parsed}]]`;
           logger.debug("template string odd match", {
             result,
             entry,
@@ -588,7 +589,7 @@ export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature
       } catch (err) {
         result.text = result.text.replace(entry.replacePattern, `{{${match}}}`);
         logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, err);
-        logger.warn(err.stack);
+        if (err instanceof Error) logger.warn(err.stack);
       }
     }
     if (entry.parsed && !entry.parsed.includes("NaN")) result.resultStrings.push(entry.parsed);
@@ -603,10 +604,49 @@ export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature
   result.text = result.text.replace(/\[\[([^\]]*?)\]\]\[\[\/roll d([^\]]*?)\]\]/g, "[[/roll ($1)d$2]] ");
 
   result.text = parseTags(result.text);
-  if (foundry.utils.hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
-    character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
+  const templateStrings = character.flags?.ddbimporter?.dndbeyond?.templateStrings;
+  if (templateStrings) {
+    templateStrings.push(result);
   }
 
   // console.warn(`${feature.name} tempalte`, result);
   return result;
+}
+
+/**
+ * Parse a snippet/description destined for an activity description.
+ * The source is first given back the paragraph structure DDB encodes as literal newlines, then
+ * template tokens are resolved whenever DDB data is available:
+ * - A character when one exists
+ * - otherwise a stub so muncher-side imports still parse
+ * TThe text passes through unparsed when parsing is impossible or fails.
+ *
+ * @param {object} args The arguments object.
+ * @param {IDDBData | null} [args.ddbData] The DDB data object, if available.
+ * @param {I5ePCData | I5eMonsterData | null} [args.rawCharacter] The importing actor, if available.
+ * @param {string} args.text The snippet or description text.
+ * @param {TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll} args.feature The owning feature context.
+ * @returns {string} The parsed text, or the raw text when it cannot be parsed.
+ */
+export function parseSnippet({
+  ddbData,
+  rawCharacter,
+  text,
+  feature,
+}: {
+  ddbData?: IDDBData | null;
+  rawCharacter?: I5ePCData | I5eMonsterData | null;
+  text: string;
+  feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll | IDDBCommonDefinition;
+}): string {
+  const html = DDBDescriptions.snippetToHtml(text);
+  if (!ddbData) return html;
+  const character = (rawCharacter?.type === "character" ? rawCharacter : { flags: {} }) as I5ePCData;
+  try {
+    // parse() reads feature fields through getProperty with fallbacks
+    return parse(ddbData, character, html, feature as TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll)?.text ?? html;
+  } catch (err) {
+    logger.debug("Snippet template parsing failed, using the unparsed text", { err, text, feature });
+    return html;
+  }
 }

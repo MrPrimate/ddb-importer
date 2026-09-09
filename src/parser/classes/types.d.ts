@@ -1,11 +1,20 @@
 export {};
 
 global {
-  type TDDBFixFunction = (advancement: I5eAdvancement, args?: Record<string, unknown>) => I5eAdvancement;
+  interface IDDBFixFunctionArgs {
+    newName?: string | null;
+    identifier?: string | null;
+    /** extra level entries for AdvancementHelper.addScaleEntries, keyed by level */
+    scale?: Record<string, I5eAdvScaleValueEntry>;
+    [key: string]: unknown;
+  }
+  type TDDBFixFunction = (advancement: I5eAdvancement, args?: IDDBFixFunctionArgs) => I5eAdvancement;
+  type TDDBScaleValueFixFunction = (advancement: I5eAdvancementScaleValue) => I5eAdvancement;
   type TDDBClassSpecialAdvancements = Record<string, {
     fix: boolean;
     fixFunction?: TDDBFixFunction;
-    functionArgs?: Record<string, unknown>;
+    functionArgs?: IDDBFixFunctionArgs;
+    fixFunctions?: { fn: TDDBFixFunction; args?: IDDBFixFunctionArgs }[];
     additionalAdvancements?: boolean;
     additionalFunctions?: TDDBFixFunction[];
   }>;

@@ -52,42 +52,38 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
 
     if (!activity) continue;
 
-    let targetItem: Item.Implementation | null = null;
-
-    if (enchantmentFlag) {
-      if ("equipped" in item.system && item.system.equipped === false) continue;
-      if ("attuned" in item.system && item.system.attuned === false) {
-        if (item.system.attunement === "required") continue;
-      }
-      if (enchantmentFlag.targetItemId === "self") {
-        targetItem = item;
-      } else if (enchantmentFlag.targetItemName) {
-        targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName) ?? null;
-      } else if (enchantmentFlag.targetItemMatches) {
-        const matchedFields = enchantmentFlag.targetItemMatches;
-        // @ts-expect-error - flipping fvtt types
-        const targetItems = items.filter((i) => matchFields(i, matchedFields));
-        if (targetItems.length === 0) {
-          logger.warn(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
-            item,
-            enchantmentFlag,
-            items,
-          });
-        } else {
-          for (const matchedItem of targetItems) {
-            await linkSelectedEnchantment(matchedItem, effect, activity, item.name);
-          }
-          continue;
-        }
-      }
-    } else {
-      targetItem = (items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
-        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId)) as Item.Implementation | null;
+    if ("equipped" in item.system && item.system.equipped === false) continue;
+    if ("attuned" in item.system && item.system.attuned === false) {
+      if (item.system.attunement === "required") continue;
     }
 
-    if (!targetItem) continue;
+    let targetItems: Item.Implementation[] = [];
+    if (enchantmentFlag.targetItemId === "self") {
+      targetItems = [item];
+    } else if (enchantmentFlag.targetItemId) {
+      // Only compare link IDs when an ID was provided: undefined must not match an unrelated item.
+      const targetItem = items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
+        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId);
+      if (targetItem) targetItems = [targetItem as Item.Implementation];
+    } else if (enchantmentFlag.targetItemName) {
+      const targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName);
+      if (targetItem) targetItems = [targetItem as Item.Implementation];
+    } else if (enchantmentFlag.targetItemMatches?.length) {
+      // Wraps and similar items transfer their enchantment to every matching weapon.
+      const matchedFields = enchantmentFlag.targetItemMatches;
+      // @ts-expect-error - flipping fvtt types
+      targetItems = items.filter((i) => matchFields(i, matchedFields)) as Item.Implementation[];
+      if (targetItems.length === 0) {
+        logger.debug(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
+          item,
+          enchantmentFlag,
+        });
+      }
+    }
 
-    await linkSelectedEnchantment(targetItem, effect, activity, item.name);
+    for (const targetItem of targetItems) {
+      await linkSelectedEnchantment(targetItem, effect, activity, item.name);
+    }
   }
 }
 

@@ -120,6 +120,55 @@ export default abstract class DDBBaseClass {
     "Knightly Envoy",
     "Unfettered Mind",
     "Training In War and Song",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Slippery Mind",
+    "Disciplined Survivor",
+    "Diamond Soul",
+    "Filth and Fortitude",
+    "True Grit",
+    "Raven's Spirit",
+    "Well-Rounded",
+    "Keeper of History",
+    "Student of Arcana",
+    "Arcane Initiate",
+    "Community Almanac",
+    "Acolyte of Nature",
+    "Cover of Night",
+    "Blighted Shape",
+    "Arcane Archer Lore",
+    "Melder of Flesh and Bone",
+    "One of the People",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Eagle Eye",
+    "Poker Face",
+    "Operative Training",
+    "Asmodeus's Blessing",
+    "Sutekh's Blessing",
+    "Tall Tales",
+    "Wise Words",
+    "Acolyte of the Occult",
+    "Sneaky and Crafty",
+    "Bad Attitude",
+    "Research Skills",
+    "Whispers of Knowledge",
+    "Tools of the Trade",
+    "Medic",
+    "Occult Expertise",
+    "Nimble Trickery",
+    "Enchanting Conversationalist",
+    "Anatomical Expert",
+    "Potion Craft",
+    "Whispers of the Dead",
+    "Genie's Splendor",
+    "Primal Lore",
+    "Student of War",
+    "Iron Mind",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -131,6 +180,19 @@ export default abstract class DDBBaseClass {
     "Scholar",
     "Muscle Mass",
     // "Tool Expertise", // revisit,this doesn't work the same way
+    "9: Expertise",
+    "6: Expertise",
+    "Keeper of History",
+    "Skilled Guardian",
+    "Royal Envoy",
+    "Medic",
+    "Heartbeat of the Land",
+    "Student of Alchemy",
+    "Tools of the Trade",
+    "Trapper's Tools",
+    "Impressionist",
+    "Visionary",
+    "Bonus Proficiencies",
   ];
 
   static PROFICIENCY_OR_EXPERTISE_FEATURES = [
@@ -157,6 +219,18 @@ export default abstract class DDBBaseClass {
     "Speech of the Woods",
     "Knightly Envoy",
     "Unfettered Mind",
+    "Demontongue",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Primal Lore",
+    "Bonus Proficiencies",
+    "Draconic Lore",
+    "Forked Tongue",
+    "9: Forked Tongue",
+    "Moloch's Blessing",
+    "Mystical Erudition (Additional)",
+    "Forbidden Knowledge",
+    "Dragon Ancestor",
   ];
 
   // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.
@@ -189,6 +263,44 @@ export default abstract class DDBBaseClass {
     "Blessings of Knowledge",
     "Reanimator's Skillset",
     "Channeler",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Alchemical Experiments",
+    "Mask of Civility",
+    "Well-Rounded",
+    "Culinary Exploration",
+    "Malleable Visage",
+    "Thespian",
+    "Primal Lore",
+    "Blessing of the Hearth",
+    "Community Almanac",
+    "Melder of Flesh and Bone",
+    "Student of Alchemy",
+    "Poker Face",
+    "Operative Training",
+    "Path of the Kensei",
+    "An Artist's Soul",
+    "Alchemical Gastronomy",
+    "Sneaky and Crafty",
+    "Oath Tools",
+    "Genie's Splendor",
+    "Herbal Lore",
+    "Whispers of Knowledge",
+    "Trapper's Tools",
+    "Assassin's Tools",
+    "Impressionist",
+    "Get Jinxed",
+    "Unhinged Asservations",
+    "Arcane Artisan",
+    "Alchemical Knowledge",
+    "Potion Craft",
+    "Biomancy Savant",
+    "Whispers of the Dead",
+    "Skilled Guardian",
   ];
 
   static ARMOR_FEATURES = [
@@ -210,6 +322,20 @@ export default abstract class DDBBaseClass {
     "Bonus Proficiency",
     "Bonus Proficiencies",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Symbiotic Reinforcement",
+    "Martial Sorcery",
+    "Equipped for Battle",
+    "Dispater's Blessing",
   ];
 
   static WEAPON_FEATURES = [
@@ -232,6 +358,21 @@ export default abstract class DDBBaseClass {
     "Bonus Proficiencies",
     "Training In War and Song",
     "Core Artificer Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Core Monster Hunter Traits",
+    "Core Pugilist Traits",
+    "Core Illrigger Traits",
+    "Core Blood Hunter Traits",
+    "Battle Ready",
+    "Martial Training",
+    "Sanctified Champion",
+    "Hex Warrior",
+    "Martial Sorcery",
+    "Brutal Brawler",
+    "Ranged Specialist",
+    "Kensei Weapon",
+    "Herding Sheep",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -294,6 +435,42 @@ export default abstract class DDBBaseClass {
     "Draconic Resistance",
     "Hellish Resistance",
     "Magic Resistance",
+    "Permafrost",
+    "Infernal Warrior",
+    "Galvanic Heart",
+    "Strange Metabolism",
+    "Otherworldly Calm",
+    "Strong Stomach",
+    "Blood Lust",
+    "Fungal Body",
+    "Full of Stars",
+    "Incarnation of Corruption",
+    "Swarmsense",
+    "Nature's Ward",
+    "Blood Hound Anatomy",
+    "Toxin Transmutation",
+    "Kindred Biology",
+    "Gift of Pestilence",
+    "Poison Control",
+    "Grave Bond",
+    "Ancient Might",
+    "Windswept",
+    "Depraved Mind",
+    "Filth and Fortitude",
+    "Frigid Explorer",
+    "Bear Witness",
+    "Scarlet Vigor",
+    "Cold-Hearted",
+    "Frozen Soul",
+    "Deathly Pallor",
+    "Extradimensional Mastery",
+    "Seeing Unseen Threads",
+    "Dark Inoculation",
+    "Eternal Night",
+    "Necromancy Spellbook",
+    "Breathe It In",
+    "Second Skin",
+    "Intransigent",
   ];
 
   // don't generate feature advancements for these features
@@ -321,6 +498,8 @@ export default abstract class DDBBaseClass {
 
     // tashas
     "Martial Versatility",
+    "9: Expertise",
+    "6: Expertise",
   ];
 
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
@@ -776,7 +955,7 @@ export default abstract class DDBBaseClass {
       advancement.updateSource(update);
       this.featureAdvancements.push(advancement.toObject());
     } else {
-      this.featureAdvancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid, optional: false });
+      ((this.featureAdvancements[levelAdvancement].configuration as I5eAdvItemGrantConfig).items ??= []).push({ uuid: featureMatch.uuid, optional: false });
       this._advancementMatches.features[this.featureAdvancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
     }
 
@@ -890,7 +1069,8 @@ export default abstract class DDBBaseClass {
         allowDrops: true,
       },
       icon: "icons/magic/symbols/cog-orange-red.webp",
-    });
+    // dnd5e-types narrows the restriction subtype to "" on updateSource; the runtime accepts any feat subtype
+    } as any);
 
     // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
     //   advancement,
@@ -955,7 +1135,7 @@ export default abstract class DDBBaseClass {
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
-        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement?.title];
         if (specialLookup) {
           if (specialLookup.additionalAdvancements) {
             specialLookup.additionalFunctions.forEach((fn) => {
@@ -1118,8 +1298,10 @@ export default abstract class DDBBaseClass {
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const filterModOptions = { subType: `choose-a-${this.name.toLowerCase()}-skill` };
-    const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
+    // "choose-a-<class>-skill", "choose-a-barbarian-skill-proficiency", "choose-nature-or-survival"...
+    const skillChooseMods = mods.filter((mod) =>
+      mod.type === "proficiency" && AdvancementHelper.isSkillChoiceSubType(mod.subType),
+    );
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
     return this.advancementHelper.getSkillAdvancement({
@@ -1200,7 +1382,9 @@ export default abstract class DDBBaseClass {
         // });
         if (skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0) {
           const advancement = skillAdvancement.toObject() as I5eAdvancement;
-          advancement.configuration.choices[0].pool.push(...languageAdvancement.toObject().configuration.choices[0].pool);
+          const advPool = (advancement.configuration as I5eAdvTraitConfig).choices?.[0]?.pool;
+          const languagePool = (languageAdvancement.toObject().configuration as I5eAdvTraitConfig).choices?.[0]?.pool;
+          if (advPool && languagePool) advPool.push(...languagePool);
           advancements.push(advancement);
         } else {
           logger.error(`Failed Skill or Lanugage Advancement Generation`, {
@@ -1352,16 +1536,29 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  _generateExpertiseAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    // the class's own Expertise keeps its pick-two shape whatever DDB ships; a subclass
+    // feature sharing a listed name only counts when it carries expertise modifiers
+    const expertiseMods = AdvancementHelper.isExpertiseFeature(feature.name) ? null : mods;
+    return this.advancementHelper.getExpertiseAdvancement(feature, level, expertiseMods);
+  }
+
   _generateExpertiseAdvancements() {
     const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
-      const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-
-      if (!expertiseFeature) continue;
-
-      const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
-      if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+      for (const expertiseFeature of this._expertiseFeatures.filter((f) => f.requiredLevel === i)) {
+        const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
+        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+      }
     }
 
     this._addAdvancements(advancements);
@@ -1394,6 +1591,16 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  /**
+   * The identifier dnd5e resolves for a scale value: the configured one, else the slug of its title.
+   * System compendium scale values ship with an empty identifier.
+   */
+  static scaleValueIdentifier(advancement: I5eAdvancement): string {
+    const configured = foundry.utils.getProperty(advancement, "configuration.identifier") as string | undefined;
+    if (configured && configured !== "") return configured;
+    return utils.referenceNameString(advancement.title ?? "");
+  }
+
   async _addFoundryAdvancements() {
     const packIds = this.is2014
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
@@ -1408,17 +1615,13 @@ export default abstract class DDBBaseClass {
       );
       if (!klassMatch) continue;
       const foundryKlass: I5eClassItem = await pack.getDocument(klassMatch._id) as any;
+      const existingIdentifiers = new Set(
+        Object.values(this.data.system.advancement ?? {}).map((ddbA) => DDBBaseClass.scaleValueIdentifier(ddbA)),
+      );
       // @ts-expect-error - source exists
       const scaleAdvancements: I5eAdvancement[] = Object.values(foundryKlass._source.system.advancement as Record<string, I5eAdvancement>).filter((foundryA) => {
         if (foundryA.type !== "ScaleValue") return false;
-        let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
-        if (!identifier || identifier === "") {
-          identifier = DDBDataUtils.classIdentifierName(foundryA.title);
-        }
-        // @ts-expect-error we check that it is a scale value above
-        const exitingIdentifiers = Object.values(this.data.system.advancement).some((ddbA) => ddbA.configuration.identifier === identifier);
-        if (exitingIdentifiers) return false;
-        return true;
+        return !existingIdentifiers.has(DDBBaseClass.scaleValueIdentifier(foundryA));
       });
       logger.debug(`Adding scale advancements from compendium class ${this.name} in pack ${pack.collection}`, {
         scaleAdvancements,
@@ -1489,10 +1692,12 @@ export default abstract class DDBBaseClass {
           return foundry.utils.getProperty(i, key) === value;
         });
       }).map((i) => i.uuid);
-      advancement.configuration.pool = feats.map((f) => {
+      const advConfig = advancement.configuration as I5eAdvItemChoiceConfig;
+      const advPool = feats.map((f) => {
         return { uuid: f };
       });
-      advancement.configuration.restriction.subType = "fightingStyle";
+      advConfig.pool = advPool;
+      (advConfig.restriction ??= {}).subtype = "fightingStyle";
 
       let lowestLevel = 1;
       const description = feature.description ?? feature.snippet ?? "";
@@ -1503,7 +1708,7 @@ export default abstract class DDBBaseClass {
         lowestLevel = 7;
         this.configChoices[advancement.title] ??= { 7: { count: 1, replacement: true } };
       }
-      advancement.configuration.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
+      advConfig.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
 
       if (this.data.name === "Paladin") {
         const special = this._compendiums.features.find((c) =>
@@ -1511,7 +1716,7 @@ export default abstract class DDBBaseClass {
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
+          advPool.push({ uuid: special.uuid });
         }
       } else if (this.data.name === "Ranger") {
         const special = this._compendiums.features.find((c) =>
@@ -1519,7 +1724,7 @@ export default abstract class DDBBaseClass {
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
+          advPool.push({ uuid: special.uuid });
         }
       }
       this.data.system.advancement[id] = advancement;

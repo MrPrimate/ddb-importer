@@ -1,5 +1,5 @@
-import { logger } from "../../../lib/_module";
-import { DDBModifiers } from "../../lib/_module";
+import logger from "../../../lib/Logger";
+import DDBModifiers from "../../lib/DDBModifiers";
 import ChangeHelper from "./ChangeHelper";
 
 const BASE_RESTRICTIONS = [

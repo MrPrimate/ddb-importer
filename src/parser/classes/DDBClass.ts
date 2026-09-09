@@ -6,6 +6,7 @@ import {
   DDBItemImporter,
 } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
@@ -18,6 +19,53 @@ export default class DDBClass extends DDBBaseClass {
       fix: true,
       fixFunction: AdvancementHelper.rename,
       functionArgs: { newName: "Wild Shape CR" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Kindred (VtM): the "Blood Potency" feature scale is the Blood Points pool
+    "Blood Potency": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Blood Points", identifier: "blood-points" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Blood Hunter: the Blood Maledict scale is the canonical hemocraft die
+    // (Crimson Rite and Blood Curses carry duplicate copies of the same scale)
+    "Blood Maledict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Hemocraft Die", identifier: "hemocraft-die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Monster Hunter: the scale is the number of monster types in the grimoire
+    "Monster Grimoire": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Monster Types Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Illrigger (MCDM)
+    "Baleful Interdict": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Baleful Interdict Seals", identifier: "seals" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Interdiction": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Interdict Boons Known" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Infernal Conduit": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Infernal Conduit Dice" },
       additionalAdvancements: false,
       additionalFunctions: [],
     },
@@ -569,6 +617,37 @@ export default class DDBClass extends DDBBaseClass {
     }
   }
 
+  _pugilistFixes() {
+    if (this.data.name !== "Pugilist") return;
+    const points: I5eAdvancement = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "moxie",
+        type: "number",
+        scale: {
+          2: { value: 2 },
+          4: { value: 3 },
+          6: { value: 4 },
+          8: { value: 5 },
+          10: { value: 6 },
+          12: { value: 7 },
+          14: { value: 8 },
+          16: { value: 9 },
+          18: { value: 10 },
+          19: { value: 11 },
+          20: { value: 12 },
+        },
+      },
+      value: {},
+      title: "Moxie",
+      icon: null,
+    };
+
+    this._addAdvancement(points);
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
     this._druidFixes();
@@ -579,6 +658,7 @@ export default class DDBClass extends DDBBaseClass {
     this._sorcererFixes();
     this._spellFixes();
     this._artificerFixes();
+    this._pugilistFixes();
   }
 
   _generatePrimaryAbility() {
@@ -723,3 +803,5 @@ export default class DDBClass extends DDBBaseClass {
   }
 
 }
+
+registerSpecialAdvancements("class", DDBClass.SPECIAL_ADVANCEMENTS);

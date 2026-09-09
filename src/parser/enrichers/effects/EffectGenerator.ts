@@ -1,8 +1,11 @@
-import { logger, utils } from "../../../lib/_module";
+import logger from "../../../lib/Logger";
+import utils from "../../../lib/Utils";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
-import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
+import DDBModifiers from "../../lib/DDBModifiers";
+import ProficiencyFinder from "../../lib/ProficiencyFinder";
+import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
@@ -474,7 +477,10 @@ export default class EffectGenerator {
       }
     });
 
-    const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
+    // hp.bonuses.overall is a deterministic formula field, so a dice-valued bonus (e.g. a
+    // homebrew "1d4 hit points") would fail actor validation; those are left to the description
+    const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points")
+      .filter((modifier) => !modifier.dice);
     if (hpBonusModifiers.length > 0 && (!("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)) {
       let hpBonus = "";
       hpBonusModifiers.forEach((modifier) => {
@@ -658,9 +664,9 @@ export default class EffectGenerator {
       .map((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         if (die) {
-          return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+          return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null, undefined, true).diceString;
         } else {
-          return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+          return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null, undefined, true).diceString;
         }
       });
     if (bonus && bonus.length > 0) {

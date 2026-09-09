@@ -309,7 +309,7 @@ export class DDBInfusion {
     for (const actionItem of this.actions) {
       const ids = Object.keys(actionItem.system.activities).map((i) => i);
       if (this.activity.data.effects?.length > 0) {
-        this.activity.data.effects[0].riders.activity.push(ids);
+        this.activity.data.effects[0].riders.activity.push(...ids);
       } else {
         this.actionsToAddToCompendium.push(actionItem);
       }

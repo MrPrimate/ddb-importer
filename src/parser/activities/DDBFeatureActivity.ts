@@ -6,6 +6,53 @@ import { DDBDescriptions } from "../lib/_module";
 
 type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition;
 
+interface IConsumptionPattern {
+  regex: RegExp;
+  // pool item identifier: dnd5e remaps bare identifiers via actor.identifiedItems,
+  // and features covered by DICTIONARY.CONSUMPTION_LINKS are retargeted post-import
+  // by autoLinkConsumption regardless
+  target: string | ((match: RegExpExecArray) => string);
+  type?: "hitDice";
+}
+
+// checked in order, first match wins; group 1 must capture the spend amount.
+// no g flag: these are module-level and a sticky lastIndex would leak between calls
+export const CONSUMPTION_PATTERNS: IConsumptionPattern[] = [
+  {
+    regex: /(?:spend|expend) (\d+|\w+) (ki|focus) points?\b/i,
+    target: (match) => (match[2].toLowerCase() === "ki" ? "ki" : "monks-focus"),
+  },
+  { regex: /(?:spend|expend) (\d+|\w+) sorcery points?\b/i, target: "sorcery-points" },
+  { regex: /(?:spend|expend) (\d+|\w+) risk d(?:ie|ice)\b/i, target: "risk" },
+  { regex: /(?:spend|expend) (\d+|\w+) blood points?\b/i, target: "blood-potency" },
+  { regex: /spend (\d+|\w+) wick points?\b/i, target: "wick-points" },
+  { regex: /(?:spend|expend) (\d+|\w+) grit points?\b/i, target: "grit-points" },
+  { regex: /spend (\d+|\w+)(?: or more)? maneuver points?\b/i, target: "maneuver-points" },
+  { regex: /(?:spend|expend) (\d+|\w+) moxie points?\b/i, target: "moxie" },
+  { regex: /expend (\d+|\w+)(?: or more)? seals?\b/i, target: "baleful-interdict" },
+  { regex: /expend (a|one) (?:use of (?:your )?)?bardic inspiration(?: die)?\b/i, target: "bardic-inspiration" },
+  { regex: /expend (a|one) use of (?:your )?channel divinity\b/i, target: "channel-divinity" },
+  { regex: /expend (a|one) superiority d(?:ie|ice)\b/i, target: "superiority-dice" },
+  {
+    regex: /expend (a|one) use of (?:your )?(wild shape|second wind|favored enemy)\b/i,
+    target: (match) => utils.referenceNameString(match[2]),
+  },
+  {
+    regex: /(?:spend|expend) (a|one|\d+|\w+)(?: or more)?(?: of (?:your|its))? hit (?:point )?d(?:ie|ice)\b/i,
+    target: "largest",
+    type: "hitDice",
+  },
+];
+
+export function parseConsumptionValue(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const digits = parseInt(raw);
+  if (Number.isInteger(digits)) return digits;
+  const lower = raw.toLowerCase();
+  if (lower === "an") return 1;
+  return DICTIONARY.numbers.find((num) => num.natural === lower)?.num ?? null;
+}
+
 interface IDDBFeatureActivity {
   name?: string;
   type: IDDBActivityType;
@@ -45,7 +92,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
       type: actionType,
-      cost: 1,
+      value: 1,
       condition: "",
     };
   }
@@ -69,7 +116,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     }
 
     this.data.activation = {
-      type: actionType.value,
+      type: actionType.value as TActivationCost,
       value: this.ddbDefinition.activation.activationTime || 1,
       condition: "",
     };
@@ -111,11 +158,22 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // you can spend one Hit Die to heal yourself.
     // right now most of these target other creatures
 
-    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/ig;
-    const sorceryPoint = /spend (\d) sorcery points/ig;
-    const match = kiPointRegex.exec(description)
-      ?? sorceryPoint.exec(description);
+    // actions often ship an empty-string description with the real text in the
+    // snippet, so search both rather than nullish-falling-through
+    const description = [this.ddbDefinition.description, this.ddbDefinition.snippet]
+      .filter((text): text is string => !!text)
+      .join("\n");
+    let target = "";
+    let match: RegExpExecArray | null = null;
+    let matchedType: "itemUses" | "hitDice" = "itemUses";
+    for (const pattern of CONSUMPTION_PATTERNS) {
+      match = pattern.regex.exec(description);
+      if (match) {
+        target = typeof pattern.target === "string" ? pattern.target : pattern.target(match);
+        if (pattern.type) matchedType = pattern.type;
+        break;
+      }
+    }
 
     const consumptionType = this.ddbParent.usesOnActivity
       ? "activityUses"
@@ -124,9 +182,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const maxUses = foundry.utils.getProperty(this.ddbParent, "data.system.uses.max") as string;
     if (match) {
       targets.push({
-        type: consumptionType,
-        target: "", // adjusted later
-        value: match[1],
+        // hit dice spends always consume the actor's hit dice pool, never own uses
+        type: matchedType === "hitDice" ? "hitDice" : consumptionType,
+        target, // also adjusted later
+        value: parseConsumptionValue(match[1]) ?? 1,
         scaling: {
           mode: "",
           formula: "",
@@ -135,7 +194,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     } else if (this.ddbParent.resourceCharges !== null) {
       targets.push({
         type: consumptionType,
-        target: "", // adjusted later
+        target, // also adjusted later
         value: this.ddbParent.resourceCharges ?? 1,
         scaling: {
           mode: "",
@@ -145,13 +204,17 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     } else if (maxUses && maxUses !== "" && maxUses !== "0") {
       targets.push({
         type: consumptionType,
-        target: "", // adjusted later
+        target, // also adjusted later
         value: 1,
         scaling: {
           mode: "",
           formula: "",
         },
       });
+    } else if (targets.length === 0 && this.data._id) {
+      // no uses to spend yet; an enricher override can still supply them after
+      // the activities are built, so let the parent revisit this in _final()
+      this.ddbParent._activitiesAwaitingUses.add(this.data._id);
     }
 
     this.data.consumption = {
@@ -183,7 +246,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     this.data.duration = {
       value: duration.value,
-      units: duration.units,
+      units: duration.units as TDurationUnit,
       special: duration.special,
     };
   }
@@ -380,7 +443,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       };
     }
 
-    this.data.target = data;
+    this.data.target = data as I5eActivityTarget;
 
   }
 

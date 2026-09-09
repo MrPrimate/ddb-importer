@@ -41,6 +41,17 @@ function findCharacterOwningDDBItem(ddbItemId: number) {
   return null;
 }
 
+/** Whether dynamic sync writes should run on this client: Patreon tier, setting, and GM sync user. */
+export function activeUpdate() {
+  const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
+  const available = tiers.god || tiers.undying || tiers.experimentalMid;
+  if (!available) return false;
+  const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
+  const updateUser = utils.getSetting<string>("dynamic-sync-user");
+  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+  return dynamicSync && gmSyncUser;
+}
+
 function getContainerItems(actor) {
   return actor.items
     .filter((item) =>
@@ -121,7 +132,7 @@ async function getCompendiumItemInfo(item) {
 async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = Secrets.getCobalt(actor.id);
-  const dynamicSync = SETTINGS.STATUS.activeUpdate();
+  const dynamicSync = activeUpdate();
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
@@ -1895,7 +1906,7 @@ async function activeUpdateEffectTrigger(document, state) {
 
 export function activateUpdateHooks() {
   // check to make sure we can sync back, currently only works for 1 gm user
-  if (SETTINGS.STATUS.activeUpdate()) {
+  if (activeUpdate()) {
     Hooks.on("updateActor", activeUpdateActor);
     Hooks.on("updateItem", activeUpdateUpdateItem);
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));

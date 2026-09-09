@@ -789,6 +789,18 @@ export class DDBCompendiumFolders {
     return `${name} (${version})`;
   }
 
+  /**
+   * DDB appends the source book to a legacy subclass served under the 2024
+   * ruleset, e.g. "Rune Knight (TCoE)". The specialist folder checks are on the
+   * subclass identity rather than the name DDB happens to ship, so they compare
+   * against the base name. The folders themselves keep the full name, so they
+   * still match the flagTag getClassFeatureFolderName builds from the
+   * document's own subClass flag.
+   */
+  static getBaseSubclassName(subclassName: string) {
+    return subclassName.replace(/\s*\([^()]*\)\s*$/, "").trim();
+  }
+
   async createSubClassFeatureFolder(subclassName, parentClassName, version) {
     logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}' (${version})`);
 
@@ -810,11 +822,13 @@ export class DDBCompendiumFolders {
       }));
     this.validFolderIds.push(folder._id);
 
-    if (parentClassName === "Fighter" && subclassName === "Battle Master") {
+    const baseSubclassName = DDBCompendiumFolders.getBaseSubclassName(subclassName);
+
+    if (parentClassName === "Fighter" && baseSubclassName === "Battle Master") {
       await this.createFeatureFolder(subclassName, "Maneuver Options", classFolderId, version);
-    } else if (parentClassName === "Fighter" && subclassName === "Rune Knight") {
+    } else if (parentClassName === "Fighter" && baseSubclassName === "Rune Knight") {
       await this.createFeatureFolder(subclassName, "Runes", classFolderId, version);
-    } else if (parentClassName === "Artificer" && subclassName === "Alchemist") {
+    } else if (parentClassName === "Artificer" && baseSubclassName === "Alchemist") {
       await this.createFeatureFolder(subclassName, "Experimental Elixirs", classFolderId, version);
     }
   }

@@ -1,7 +1,7 @@
 import { utils, logger } from "../../lib/_module";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../enrichers/_module";
-import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
+import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
@@ -609,12 +609,11 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     // if (this.originalName === "Multiattack") {
     //   description = this.#processMultiAttack(description);
     // }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
-
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data });
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbVehicle.data });
-    description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
+    description = await DDBReferenceLinker.parseMonsterDescription({
+      text: description,
+      document: this.data,
+      actor: this.ddbVehicle.data as unknown as I5eActorData,
+    });
 
     this.data.system.description.value = await DDBTable.generateTable({
       parentName: this.ddbVehicle.data.name,

@@ -122,6 +122,10 @@ export default class Utils {
     return result;
   }
 
+  static errorMessage(err: unknown): string {
+    return err instanceof Error ? err.message : String(err);
+  }
+
   static nameString(str: string): string {
     return str
       .replaceAll("&amp;", "&")
@@ -174,12 +178,42 @@ export default class Utils {
     return dom;
   }
 
+  // matches a single non-nested <p> or <blockquote>, plus any <hr> separator in front of
+  // it, since DDB fences its sheet notes off with one and removing the note alone would
+  // leave the rule dangling; a DOM round trip is not used here because re-serialising
+  // would escape the & in Foundry's &Reference[...] enrichers.
+  // The leading group is non-capturing, so \1 still backreferences the block tag.
+  static NOTE_BLOCK_REGEX = /(?:<hr\b[^>]*>\s*)?<(p|blockquote)\b[^>]*>(?:(?!<\/\1>)[\s\S])*<\/\1>\s*/gi;
+
+  /**
+   * Removes whole <p>/<blockquote> blocks containing any of the given marker phrases,
+   * along with a preceding <hr> separator. Used to drop D&D Beyond character-sheet
+   * instructions ("Deselect it to end...") which mean nothing in Foundry.
+   */
+  static stripNoteBlocks(html: string, markers: string[]): string {
+    if (!html || !markers.some((marker) => html.includes(marker))) return html;
+
+    return html.replace(Utils.NOTE_BLOCK_REGEX, (match) =>
+      markers.some((marker) => match.includes(marker)) ? "" : match,
+    );
+  }
+
   static replaceHtmlSpaces(str: string): string {
     return str.replace(/&nbsp;/g, " ").replace(/\xA0/g, " ").replace(/\s\s+/g, " ").trim();
   }
 
   static renderLesserString(str: string): string {
     return Utils.replaceHtmlSpaces(Utils.stripHtml(str)).trim().toLowerCase();
+  }
+
+  static escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  static stringKindaContains(haystack: string, needle: string): boolean {
+    const lesserNeedle = Utils.renderLesserString(needle);
+    if (lesserNeedle === "") return false;
+    return Utils.renderLesserString(haystack).includes(lesserNeedle);
   }
 
   static stringKindaEqual(a: string, b: string): boolean {
@@ -213,7 +247,7 @@ export default class Utils {
     return result;
   }
 
-  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = ""): DiceParserResult {
+  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = "", addHint = false): DiceParserResult {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
@@ -284,7 +318,7 @@ export default class Utils {
       }
     });
 
-    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
+    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags, addHint);
     return result;
   }
 

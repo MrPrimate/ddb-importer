@@ -1,4 +1,4 @@
-import { utils } from "../../lib/_module";
+import utils from "../../lib/Utils";
 
 export default class SystemHelpers {
 
@@ -19,6 +19,7 @@ export default class SystemHelpers {
       && foundry.utils.isNewerVersion(game.modules.get("chris-premades").version, "1.1.10")
     ) ?? false;
     const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
+    const ac5eInstalled = game.modules.get("automated-conditions-5e")?.active ?? false;
 
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
       hasCore: midiQolInstalled && timesUpInstalled && daeInstalled,
@@ -33,6 +34,7 @@ export default class SystemHelpers {
       autoAnimationsInstalled,
       chrisInstalled,
       vision5eInstalled,
+      ac5eInstalled,
     };
     return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
   }

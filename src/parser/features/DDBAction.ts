@@ -19,6 +19,13 @@ export default class DDBAction extends DDBFeatureMixin {
 
   _init() {
     this.isAction = true;
+    // A DDB action carries no classId/className of its own, so the class comes
+    // from the class feature it hangs off. Without it the ruleset version falls
+    // back to the source book, and a legacy subclass served under the 2024
+    // rules (e.g. Path of the Beast (TCoE)) produces actions stamped 2014 while
+    // the feature documents beside them are 2024.
+    this._class = this._findClassForDefinition(this.ddbDefinition)
+      ?? this._findClassForDefinition(this._parent?.definition);
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
   }
 
@@ -169,7 +176,7 @@ export default class DDBAction extends DDBFeatureMixin {
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,
         "extension",
       );
-      logger.error("Error", err);
+      logger.error(`Unable to Generate Action: ${this.name}`, err);
     }
   }
 
