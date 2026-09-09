@@ -66,7 +66,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   for (const ddbItem of ddb.character.inventory) {
     if (discardMissingContainerItems && ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
     ) {
-      logger.error(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have`, {
+      logger.warn(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have. This is, in most cases, harmless.`, {
         ddbItem,
         container: ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
       });
