@@ -12234,5 +12234,9 @@
   {
     "name": "Silvered Shortsword",
     "path": "icons/weapons/swords/shortsword-guard-silver.webp"
+  },
+  {
+    "name": "Yester Hill Axe",
+    "path": "icons/weapons/axes/axe-battle-green.webp"
   }
 ]

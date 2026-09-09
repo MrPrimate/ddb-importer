@@ -7,7 +7,7 @@
 if (scope.rolledActivity?.type !== "heal") return;
 
 if (workflow.targets.size === 0) {
-  logger.warn("No targets found");
+  console.warn("No targets found");
   ui.notifications.warn(`Please Target up to 12 creatures!`);
   item.update({ "system.uses.spent": item.system.uses.spent + extraSpent });
   return;

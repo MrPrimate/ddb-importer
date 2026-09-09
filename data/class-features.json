@@ -7617,5 +7617,13 @@
     "class": "Gunslinger",
     "subclass": "High Roller",
     "path": "icons/sundries/gaming/gaming-set-cards.webp"
+  },
+  {
+    "name": "Pack Hunter",
+    "path": "icons/creatures/mammals/wolf-shadow-black.webp"
+  },
+  {
+    "name": "Ritual Reskin",
+    "path": "icons/skills/wounds/injury-stapled-flesh-tan.webp"
   }
 ]

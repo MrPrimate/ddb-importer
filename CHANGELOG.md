@@ -1,5 +1,16 @@
 # Next Up
 
+- Backported the feature library from the v14/dnd5e 6.0 branch: around 480 new class, feat, item, spell, monster and species enrichers (Gunslinger, Blood Hunter, Kindred, Illrigger, Monster Hunter, Pugilist, new subclasses and books) and updates to over 400 existing ones.
+- Automated Conditions 5e (AC5e) support.
+- Custom and exotic tool proficiencies from D&D Beyond are registered with the system (setting `Add D&D Beyond tool proficiencies?`).
+- Items of Vestige (dormant/awakened/exalted stages), firearm and ammunition parsing improvements, magic item reset fixes, overkill and critical threshold handling.
+- Multi-save and check activity generation for monsters, spells and items (multiple saves in one description now produce separate activities).
+- Feature and choice parsing: deferred use consumption, duplicate feature detection, choice option suppression, mastered wizard spells (Spell Mastery, Signature Spells), Mystic Arcanum cast activities.
+- Advancement fixes: skill choice modifiers, expertise from subclass features, save proficiency choices, Misfortune Bringer, Steal Luck, Necromancy Spellbook, Vestige Patron.
+- Arcana Unleashed companion parsing (Semblance of Life spirit forms, Battle Familiar, Summon Dinosaur, Vestige Companion), Illusory Dragon summon.
+- Monster Mage Armor AC fixes, monster negative skill bonuses, damage bonus typing in effects, activity template override fixes.
+- Muncher imports now show a full-window progress overlay with separate phase, import and overall progress bars.
+- Source selection improvements: the Sources tab lists every included category with its released books (names or covers), a "Source Category Selection" window browses books by category and toggles categories, and every munch button has a Source Selection button that previews the exact books the import will request.
 - Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
 - Arcane Hand fixes
 - Vampiric Bite fixes

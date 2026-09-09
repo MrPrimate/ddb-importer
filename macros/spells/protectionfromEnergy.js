@@ -91,7 +91,7 @@ if (args[0] === "on") {
           const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
           const changes = [
             {
-              key: "data.traits.dr.value",
+              key: "system.traits.dr.value",
               mode: CONST.ACTIVE_EFFECT_MODES.ADD,
               priority: 30,
               value: element,
