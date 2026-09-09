@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MutateShape extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [
       {
         init: {
@@ -70,14 +70,14 @@ export default class MutateShape extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const action = this.ddbParser.ddbData?.character.actions["class"]
       .find((a) => a.name.includes(": Mutation Points"));
 
     const uses = this._getUsesWithSpent({
       type: "class",
       name: ": Mutation Points",
-      max: action?.limitedUse.maxUses ?? "9",
+      max: `${action?.limitedUse?.maxUses ?? "9"}`,
       period: "lr",
       includesName: true,
     });

@@ -2,12 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HadozeeDodge extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     if (!this.isAction) return null;
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
     if (!this.isAction) return null;
     return {
       name: "Reduce Damage",
@@ -25,17 +25,17 @@ export default class HadozeeDodge extends DDBEnricherData {
     };
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {
         midiOnly: true,
         name: "Hadozee Dodge",
-        daeSpecialDurations: ["1Reaction" as const],
+        daeSpecialDurations: ["1Reaction"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1d6 + @attributes.prof", 20, "system.traits.dm.midi.all"),
         ],
@@ -51,7 +51,7 @@ export default class HadozeeDodge extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       midiDamageReaction: true,
     };

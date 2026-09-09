@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UmbralForm extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: this.is2014 ? "bonus" : "special",
@@ -14,7 +14,7 @@ export default class UmbralForm extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? []
       : [
@@ -45,7 +45,7 @@ export default class UmbralForm extends DDBEnricherData {
                 {
                   type: "itemUses",
                   value: "6",
-                  target: "sorcery-points",
+                  target: "feat:sorcery-points",
                   scaling: { allowed: false, max: "" },
                 },
               ],
@@ -55,7 +55,7 @@ export default class UmbralForm extends DDBEnricherData {
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Umbral Form",
@@ -64,6 +64,18 @@ export default class UmbralForm extends DDBEnricherData {
         }),
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Umbral Form",
+        includesName: true,
+        max: "1",
+        period: "lr",
+      }),
+    };
   }
 
 }

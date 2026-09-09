@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BardicInspiration extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Inspire",
       targetType: "creature",
@@ -27,11 +27,11 @@ export default class BardicInspiration extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const diceString = "@scale.bard.inspiration";
-    const midiOptionalChange = {
+    const midiOptionalChange: IDDBMidiOptionalChange = {
       name: "bardicInspiration",
-      priortiy: 20,
+      priority: 20,
       data: {
         label: "Use Bardic Inspiration?",
         "attack.all": diceString,
@@ -65,7 +65,7 @@ export default class BardicInspiration extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         // "system.uses": this._getGeneratedUses({

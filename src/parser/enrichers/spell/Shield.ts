@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Shield extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [
@@ -11,7 +11,7 @@ export default class Shield extends DDBEnricherData {
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("water-field"),
         ],
-        daeSpecialDurations: ["turnStart"],
+        options: { expiry: "sourceStart" },
       },
     ];
   }

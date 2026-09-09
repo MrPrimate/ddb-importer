@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WildShape extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         duration: {
@@ -23,7 +23,7 @@ export default class WildShape extends DDBEnricherData {
           {
             cr: "max(1/4, @subclasses.moon.levels / 3)",
             name: "Wildshape",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -35,7 +35,7 @@ export default class WildShape extends DDBEnricherData {
           {
             cr: "max(1/2, @subclasses.moon.levels / 3)",
             name: "Wildshape",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: ["fly"],
@@ -47,7 +47,7 @@ export default class WildShape extends DDBEnricherData {
           {
             cr: "max(1, @subclasses.moon.levels / 3)",
             name: "Wildshape",
-            uuid: null,
+            uuid: undefined,
             sizes: [],
             types: ["beast"],
             movement: [],
@@ -61,7 +61,7 @@ export default class WildShape extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wild Shape",
@@ -70,6 +70,7 @@ export default class WildShape extends DDBEnricherData {
     });
 
     if (this.is2024) {
+      uses.recovery ??= [];
       uses.recovery.push({
         period: "sr",
         type: "formula",

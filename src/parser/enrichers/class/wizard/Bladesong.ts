@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Bladesong extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "bonus",
@@ -20,7 +20,7 @@ export default class Bladesong extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",
@@ -70,7 +70,7 @@ export default class Bladesong extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.attributes.ac.bonus"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.attributes.concentration.bonuses.save"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.acr.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("acr"),
         ],
         activitiesMatch: ["Not real"],
         data: {
@@ -78,6 +78,19 @@ export default class Bladesong extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData | null {
+    if (this.is2014) return null;
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Bladesong",
+        includesName: true,
+        max: "1 * @abilities.int.mod",
+        period: "lr",
+      }),
+    };
   }
 
 }

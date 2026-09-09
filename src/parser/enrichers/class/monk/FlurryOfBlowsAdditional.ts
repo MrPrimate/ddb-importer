@@ -1,27 +1,27 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FlurryOfBlowsAdditional extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     if (this.ddbParser.originalName === "Flurry of Blows: Addle") {
       return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     }
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "special",
       activationCondition: "You hit a creature with a Flurry of Blows strike",
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.ddbParser.originalName === "Flurry of Blows: Topple") {
       return [
         {
@@ -36,10 +36,9 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
           name: "Addled",
           activityMatch: "Addle",
           options: {
-            durationTurns: 1,
+            expiry: "targetStart",
             description: "Target cannot make opportunity attacks",
           },
-          daeSpecialDurations: ["turnStart" as const],
         },
       ];
     }

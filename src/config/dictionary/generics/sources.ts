@@ -7,6 +7,8 @@ export const SOURCE_CATEGORIES = {
     16, 9999999, 35,
   ],
   basicRules: [1, 148], // Basic rules and free-rules
+  // Mage Hand Press: VSSPP (164), TGC (197), VSSPP2 (281)
+  mageHandPress: 32,
 };
 
 export const SOURCE_DATA = {

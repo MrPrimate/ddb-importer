@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Light extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const template: IDDBAdditionalActivity = {
       init: {
         name: "Place or Remove Light",
@@ -80,7 +80,7 @@ export default class Light extends DDBEnricherData {
     }
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "flags.midiProperties.autoFailFriendly": true,
@@ -88,10 +88,13 @@ export default class Light extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Apply Light Effect",
+        options: {
+          durationSeconds: 3600,
+        },
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "40"),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "20"),

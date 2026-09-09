@@ -2,15 +2,15 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class ShadowArrow extends ArcaneShotOption {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {
         name: "Covered on Shadow",
         options: {
-          durationSeconds: 12,
+          // "unable to see anything farther than 5 feet away until the start of your next turn"
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

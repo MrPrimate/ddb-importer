@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UnbreakableMajesty extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         name: "Assume Unbreakable Majesty",
@@ -14,7 +14,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -25,7 +25,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -59,11 +59,14 @@ export default class UnbreakableMajesty extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          noConsumeTargets: true,
+        },
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class TruePolymorph extends DDBEnricherData {
 
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -12,6 +12,7 @@ export default class TruePolymorph extends DDBEnricherData {
         },
         overrides: {
           noConsumeTargets: true,
+          removeSpellSlotConsume: true,
           name: "Transform",
           data: {
             transform: {
@@ -47,7 +48,7 @@ export default class TruePolymorph extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

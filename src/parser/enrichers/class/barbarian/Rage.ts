@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Rage extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       addItemConsume: true,
@@ -17,12 +17,12 @@ export default class Rage extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         max: "@scale.barbarian.rages",
@@ -39,7 +39,7 @@ export default class Rage extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Rage",
       ignoreTransfer: true,
@@ -53,8 +53,8 @@ export default class Rage extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+        DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
       ],
       tokenMagicChanges: [
         DDBEnricherData.ChangeHelper.customChange("outline", 20, "macro.tokenMagic"),

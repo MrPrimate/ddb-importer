@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbsorbElements extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: `${this.data.name} Effect`,
       data: {
@@ -17,7 +17,7 @@ export default class AbsorbElements extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -43,8 +43,8 @@ export default class AbsorbElements extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
-    const noMidiEffects = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
+  override get effects(): IDDBEffectHint[] {
+    const noMidiEffects: IDDBEffectHint[] = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         midiNever: true,
         name: `Absorb ${element}`,
@@ -53,8 +53,8 @@ export default class AbsorbElements extends DDBEnricherData {
         ],
         activityMatch: `${this.data.name} Effect`,
       };
-    }) as IDDBEffectHint[];
-    const midiEffects = [
+    });
+    const midiEffects: IDDBEffectHint[] = [
       {
         name: `${this.data.name}: Extra Damage`,
         midiOnly: true,
@@ -62,13 +62,10 @@ export default class AbsorbElements extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.msak.damage"),
         ],
-        daeSpecialDurations: ["DamageDealt" as const, "turnEnd" as const],
-        data: {
-          duration: {
-            rounds: 2,
-            startTurn: 1,
-          },
-        },
+        // "the first time you hit with a melee attack on your next turn" - the effect
+        // rides the caster, so the caster's turn end is the bound
+        options: { expiry: "sourceEnd" },
+        daeSpecialDurations: ["DamageDealt"],
       },
       {
         name: `${this.data.name}: Resistance`,
@@ -76,25 +73,20 @@ export default class AbsorbElements extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
-        daeSpecialDurations: ["turnStartSource"],
-        data: {
-          duration: {
-            rounds: 2,
-          },
-        },
+        options: { expiry: "sourceStart" },
       },
-    ] as IDDBEffectHint[];
+    ];
     return [...noMidiEffects, ...midiEffects];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "absorbElements.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "absorbElements.js",
@@ -102,7 +94,7 @@ export default class AbsorbElements extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

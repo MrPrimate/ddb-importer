@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FiendishResilience extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -11,15 +11,16 @@ export default class FiendishResilience extends DDBEnricherData {
     return DDBEnricherData.allDamageTypes(["force"]);
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Resistance",
       activationType: "special",
       activationCondition: "Finish a short or long rest",
+      addItemConsume: true,
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,
@@ -29,10 +30,11 @@ export default class FiendishResilience extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const activeType = this.ddbParser.isMuncher
       ? null
       : this.ddbParser._chosen?.find((a) =>
@@ -56,7 +58,7 @@ export default class FiendishResilience extends DDBEnricherData {
 
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

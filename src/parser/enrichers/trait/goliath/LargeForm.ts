@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class LargeForm extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       data: {
@@ -18,21 +18,21 @@ export default class LargeForm extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
-        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.width"),
           DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.height"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
         ],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "race",
       name: "Activate Large Form",

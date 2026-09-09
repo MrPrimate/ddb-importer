@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FaerieFire extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       { colour: "Blue", hex: "#5ab9e2" },
       { colour: "Green", hex: "#55d553" },

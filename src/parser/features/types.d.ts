@@ -6,6 +6,10 @@ global {
 
   type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
+  type TDDBActionTypes = IDDBAction | IDDBConfigNaturalAction;
+
+  type TDDBFeatureMixinAll = TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | TDDBActionTypes;
+
   type TDDBFeatureMixinEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 
   type T5eFeatureMixinDataTypes = I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;

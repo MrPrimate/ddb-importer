@@ -3,25 +3,25 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WrapsOfUnarmedPower extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         _id: utils.namedIDStub("wrapsOfUnarmedPower", { postfix: "core" }),
         restrictions: {
           type: "weapon",
-          categories: ["unarmed"],
+          categories: ["natural"],
           allowMagical: true,
         },
       },
     };
   }
 
-  get bonus() {
-    const nameRegex = /Wraps of Unarmed Power, \+(\d)/;
+  get bonus(): number {
+    const nameRegex = /Wraps of Unarmed (?:Power|Prowess), \+(\d)/;
     const match = this.name.match(nameRegex);
     if (match) {
       return parseInt(match[1]);
@@ -29,7 +29,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
     return 1;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const bonus = this.bonus;
     return [
       {
@@ -54,7 +54,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
 
     const flags: IDDBImporterFlags = this.ddbParser.isMuncher
       ? {}

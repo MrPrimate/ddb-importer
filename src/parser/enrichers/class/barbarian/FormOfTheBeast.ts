@@ -2,24 +2,24 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FormOfTheBeast extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Tail (reaction)",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Form of the Beast: Tail AC Bonus",
         options: {
           durationTurns: 1,
         },
-        daeSpecialDurations: ["isAttacked" as const],
+        daeSpecialDurations: ["isAttacked"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
         ],
@@ -53,7 +53,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
   //   return true;
   // }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">

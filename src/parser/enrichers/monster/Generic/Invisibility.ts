@@ -2,18 +2,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Invisibility extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       rangeSelf: true,
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.ddbEnricher.originalActivity?.type === "cast") {
       return [];
     }
@@ -33,7 +33,7 @@ export default class Invisibility extends DDBEnricherData {
         daeStackable: "noneName",
         daeSpecialDurations: improvedEffect
           ? []
-          : ["1Attack" as const, "1Spell" as const, "1Action" as const],
+          : ["1Attack", "1Spell" as const, "1Action" as const],
         midiProperties: {
           concentration: true,
         },
@@ -50,7 +50,7 @@ export default class Invisibility extends DDBEnricherData {
         daeStackable: "noneName",
         daeSpecialDurations: improvedEffect
           ? []
-          : ["1Attack" as const, "1Spell" as const, "1Action" as const],
+          : ["1Attack", "1Spell" as const, "1Action" as const],
         midiProperties: {
           concentration: true,
         },

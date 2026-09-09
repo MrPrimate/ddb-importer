@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ElminstersEffulgentSpheres extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       targetSelf: true,
@@ -21,11 +21,11 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     };
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -88,7 +88,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const absorb = [
       { type: "Acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "Cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
@@ -104,10 +104,8 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         img: element.img,
         activityMatch: "Absorb Energy",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
       };
     }) as IDDBEffectHint[];
 
@@ -135,7 +133,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     return absorb;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

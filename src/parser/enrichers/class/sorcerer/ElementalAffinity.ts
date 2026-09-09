@@ -3,11 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalAffinity extends DDBEnricherData {
 
-  get type() {
-    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get damageTypes() {
+  get damageTypes(): string[] {
     return [
       "acid",
       "cold",
@@ -17,7 +17,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     ];
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Damage bonus",
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
@@ -33,7 +33,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     };
   }
 
-  get chosenDamageType() {
+  get chosenDamageType(): string {
     if (this.ddbParser.isMuncher) return "";
     const activeType = this.ddbParser._chosen?.find((a) =>
       utils.nameString(a.label).endsWith("Damage"),
@@ -48,7 +48,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     return "";
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const activeType = this.chosenDamageType ?? "";
 
     return this.damageTypes.map((type) => {
@@ -65,11 +65,11 @@ export default class ElementalAffinity extends DDBEnricherData {
     });
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const activeType = this.chosenDamageType;
     const flags = {
       ddbimporter: {

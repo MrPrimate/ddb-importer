@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GhaalShaarat extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       data: {
         restrictions: {
@@ -17,11 +17,11 @@ export default class GhaalShaarat extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",
@@ -49,8 +49,8 @@ export default class GhaalShaarat extends DDBEnricherData {
       {
         name: "Soul Bound",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("charmed", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.traits.dr.value"),
         ],
         activitiesMatch: ["Not real"],

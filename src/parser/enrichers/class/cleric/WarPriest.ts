@@ -2,11 +2,19 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WarPriest extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get override(): IDDBOverrideData {
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Bonus Attack",
+      activationType: "bonus",
+      targetType: "self",
+    };
+  }
+
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "War Priest: Bonus Attack",

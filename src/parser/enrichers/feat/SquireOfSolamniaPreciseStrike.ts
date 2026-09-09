@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",
@@ -24,7 +24,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -44,7 +44,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "squireOfSolamnia.js", document: this.data },
         ],
-        daeSpecialDurations: ["1Attack" as const],
+        daeSpecialDurations: ["1Attack"],
         data: {
           flags: {
             dae: {
@@ -57,7 +57,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "feat",
       name: "squireOfSolamnia.js",

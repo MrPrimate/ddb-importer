@@ -2,27 +2,27 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GiantsHavocGiantStature extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "special",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Giant Stature",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
-        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.width"),
           DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.height"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
         ],
       },
     ];

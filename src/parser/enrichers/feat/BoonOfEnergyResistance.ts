@@ -3,19 +3,19 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BoonOfEnergyResistance extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Energy Redirection", type: "class" } },
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const activeType = this.ddbParser.isMuncher
       ? ""
       : (this.ddbParser._chosen?.find((a) =>
@@ -23,7 +23,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
       )?.label ?? "");
 
     const types = ["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison", "Psychic", "Radiant", "Thunder"];
-    const multiple = [];
+    const multiple: IDDBEffectHint[] = [];
     types.forEach((type) => {
       multiple.push({
         name: `Boon of Energy Resistance: ${type}`,
@@ -40,7 +40,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
     return multiple;
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

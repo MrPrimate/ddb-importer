@@ -2,14 +2,14 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   /**
    * @returns {DDBActivityData}
    */
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Abjure the Extraplanar",
       targetType: "ally",
@@ -26,13 +26,13 @@ export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Abjured",
       options: {
         durationSeconds: 60,
       },
-      daeSpecialDurations: ["isDamaged" as const],
+      daeSpecialDurations: ["isDamaged"],
     }];
   }
 

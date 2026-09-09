@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RayOfSickness extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
     if (this.is2014) {
       return {
         noeffect: true,
@@ -12,7 +12,7 @@ export default class RayOfSickness extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) {
       return [
         {
@@ -35,9 +35,18 @@ export default class RayOfSickness extends DDBEnricherData {
     }
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     if (this.is2014) return false;
     return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        noCreate: true,
+        options: { expiry: "sourceEnd" },
+      },
+    ];
   }
 
 }

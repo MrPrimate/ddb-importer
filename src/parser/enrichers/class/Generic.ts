@@ -1,6 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../DDBClassFeatureEnricher";
 
-export default class Generic extends DDBEnricherData {
+export default class Generic extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   get actionType(): string {
     return "class";

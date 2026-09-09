@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FormOfTheBeastWeapons extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     const name = this.ddbParser.originalName;
 
     switch (name) {
@@ -15,7 +15,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return null;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
     const name = this.ddbParser.originalName;
 
     switch (name) {
@@ -51,7 +51,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     const name = this.ddbParser.originalName;
     switch (name) {
       case "Form of the Beast: Bite": {
@@ -86,7 +86,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return [];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.ddbParser.originalName.startsWith("Form of the Beast: Tail")) {
       return [
         {
@@ -95,7 +95,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
           options: {
             durationTurns: 1,
           },
-          daeSpecialDurations: ["isAttacked" as const],
+          daeSpecialDurations: ["isAttacked"],
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
           ],
@@ -113,7 +113,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return [];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
@@ -123,11 +123,11 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     };
   }
 
-  get useDefaultAdditionalActivities() {
+  override get useDefaultAdditionalActivities(): boolean {
     return true;
   }
 
-  get addToDefaultAdditionalActivities() {
+  override get addToDefaultAdditionalActivities(): boolean {
     return true;
   }
 

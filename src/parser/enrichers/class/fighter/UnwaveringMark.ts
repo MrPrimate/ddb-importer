@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UnwaveringMark extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Mark Target",
       activationType: "special",
@@ -10,7 +10,7 @@ export default class UnwaveringMark extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -43,23 +43,22 @@ export default class UnwaveringMark extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Unwavering Mark",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
           description: `Disadvantage on attack rolls against targets other than you until the start of your next turn`,
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         system: {

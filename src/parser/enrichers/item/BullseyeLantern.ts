@@ -3,12 +3,12 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class BullseyeLantern extends GenericLightSource {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const lightAnimation = "{type: \"torch\", speed: 2, intensity: 2}";
     return [
       {
-        atlOnly: true,
         name: "Bullseye Lantern Light",
+        atlOnly: true,
         activityMatch: "Light",
         options: {
           transfer: false,

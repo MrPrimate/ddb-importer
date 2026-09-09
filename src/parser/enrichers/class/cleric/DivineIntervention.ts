@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DivineIntervention extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -24,7 +24,7 @@ export default class DivineIntervention extends DDBEnricherData {
     }
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         spent: 0,
@@ -34,6 +34,7 @@ export default class DivineIntervention extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 

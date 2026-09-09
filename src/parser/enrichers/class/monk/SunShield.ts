@@ -2,13 +2,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SunShield extends DDBEnricherData {
 
-  get type() {
+  override get type() {
     return DDBEnricherData.AutoEffects.effectModules().atlInstalled
       ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
       : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         noTemplate: true,
@@ -31,7 +31,7 @@ export default class SunShield extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -57,7 +57,7 @@ export default class SunShield extends DDBEnricherData {
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [{
       name: `Sun Shield Aura`,
       activityMatch: "Toggle Light/Aura",

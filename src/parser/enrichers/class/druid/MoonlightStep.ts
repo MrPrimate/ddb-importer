@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class MoonlightStep extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Transport",
       targetType: "self",
@@ -19,7 +19,7 @@ export default class MoonlightStep extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Moonlight Step: Advantage on Next Attack",
@@ -27,7 +27,7 @@ export default class MoonlightStep extends DDBEnricherData {
           description: "You have Advantage on the next attack roll you make before the end of this turn.",
           durationTurns: 1,
         },
-        daeSpecialDurations: ["1Attack" as const],
+        daeSpecialDurations: ["1Attack"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],

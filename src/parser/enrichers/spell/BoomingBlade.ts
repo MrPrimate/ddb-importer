@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BoomingBlade extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast Spell (Automation)",
       targetType: "creature",
@@ -23,7 +23,7 @@ export default class BoomingBlade extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -96,14 +96,14 @@ export default class BoomingBlade extends DDBEnricherData {
           overrideTemplate: true,
           noTemplate: true,
           data: {
-            _id: "ddbboomingdama01",
+            _id: "ddbboommovedam01",
           },
         },
       },
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [{
       name: "Booming Blade: Sheaved in Booming Energy",
       options: {
@@ -113,14 +113,14 @@ export default class BoomingBlade extends DDBEnricherData {
     }];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "boomingBlade.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "boomingBlade.js",

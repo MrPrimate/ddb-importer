@@ -3,50 +3,33 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverCommandingPresence extends Maneuver {
 
-  get type() {
-    return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
+  override get type(): IDDBActivityType {
+    return DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  get activity(): IDDBActivityData {
-    return this.useMidiAutomations
-      ? {
-        targetType: "self",
-        activationType: "special",
-        addItemConsume: true,
-      }
-      : {
-        targetType: "self",
-        activationType: "special",
-        addItemConsume: true,
-        data: {
-          name: "Roll Check (Apply Effect First)",
-          check: {
-            associated: ["per", "itm", "prf"],
-            ability: [],
-            dc: {
-              calculation: "",
-              formula: "",
-            },
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Commanding Presence Check",
+      targetType: "self",
+      activationType: "special",
+      addItemConsume: true,
+      data: {
+        check: {
+          associated: ["itm", "prf", "per"],
+          ability: "cha",
+          bonus: this.diceString,
+          dc: {
+            calculation: "",
+            formula: "",
           },
+          visible: true,
         },
-      };
-  }
-
-  get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Commanding Presence Bonus",
-        daeSpecialDurations: ["isSkill.itm" as const, "isSkill.per" as const, "isSkill.prf" as const],
-        data: {
-          duration: {
-            turns: 2,
-          },
-        },
-        changes: ["per", "itm", "prf"].map((skill) =>
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, `system.skills.${skill}.bonuses.check`),
-        ),
       },
-    ];
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [];
   }
 
 }

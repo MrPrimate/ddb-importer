@@ -1,6 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class TouchOfTheLongDeath extends DDBEnricherData {
+export default class TouchOfTheLongDeath extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;

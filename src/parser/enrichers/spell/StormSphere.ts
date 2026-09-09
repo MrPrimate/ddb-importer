@@ -48,6 +48,7 @@ export default class StormSphere extends DDBEnricherData {
           targetType: "enemy",
           noTemplate: true,
           activationType: "bonus",
+          noSpellslot: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
               number: 4,

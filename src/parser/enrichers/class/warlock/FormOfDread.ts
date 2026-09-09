@@ -1,11 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FormOfDread extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Transform",
       activationType: "bonus",
@@ -22,7 +22,7 @@ export default class FormOfDread extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -62,7 +62,7 @@ export default class FormOfDread extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",
@@ -73,12 +73,12 @@ export default class FormOfDread extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
-    const baseEffects = [
+  override get effects(): IDDBEffectHint[] {
+    const baseEffects: IDDBEffectHint[] = [
       {
         name: "Form of Dread",
         activityMatch: "Transform",
@@ -86,7 +86,7 @@ export default class FormOfDread extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
         ],
       },
       {
@@ -96,7 +96,7 @@ export default class FormOfDread extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange("frightened"),
         ],
         data: {
           flags: {
@@ -113,9 +113,8 @@ export default class FormOfDread extends DDBEnricherData {
         activityMatch: "Save vs Frightened",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 12,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
     if (this.is2024) {

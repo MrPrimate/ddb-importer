@@ -13,7 +13,7 @@ const COMPANION_SPELLS_2014 = [
   // "Spirit of Death",
 ];
 
-const MULTI_COMPANIONS_2014 = {
+const MULTI_COMPANIONS_2014: Record<string, string[]> = {
   "Aberrant Spirit": ["Slaad", "Beholderkin", "Star Spawn"],
   "Bestial Spirit": ["Air", "Land", "Water"],
   "Celestial Spirit": ["Avenger", "Defender"],
@@ -47,9 +47,11 @@ const COMPANION_SPELLS_2024 = [
   "Homunculus Servant",
   "Summon Plant",
   "Summon Sea Spirit",
+  "Battle Familiar",
+  "Summon Dinosaur",
 ];
 
-const MULTI_COMPANIONS_2024 = {
+const MULTI_COMPANIONS_2024: Record<string, string[]> = {
   "Aberrant Spirit": ["Slaad", "Beholderkin", "Mind Flayer"],
   "Bestial Spirit": ["Air", "Land", "Water"],
   "Celestial Spirit": ["Avenger", "Defender"],
@@ -62,12 +64,20 @@ const MULTI_COMPANIONS_2024 = {
   "Animated Object": ["Tiny", "Small", "Medium", "Large", "Huge"],
   "Giant Insect": ["Centipede", "Spider", "Wasp"],
   "Otherworldly Steed": ["Celestial", "Fey", "Fiend"],
-  "Plant Spirit": ["Blooming", "Oaken", "Thorny"],
+  // Summon Plant: the GHPG printing offers Blooming/Oaken/Thorny, the Arcana Unleashed one
+  // Fungus/Tree/Vine. Only the forms named in the stat block are built, so either printing
+  // yields three actors, never six.
+  "Plant Spirit": ["Blooming", "Oaken", "Thorny", "Fungus", "Tree", "Vine"],
+  "Battle Familiar": ["Brute", "Flyer", "Stalker"],
+  "Dinosaur Spirit": ["Ankylosaur", "Triceratops", "Tyrannosaur"],
   "Sea Serpent Spirit": ["Enormous Mouth", "Glowing Lantern", "Scaled Wings"],
+  "Vestige Companion": ["Celestial", "Fiend", "Undead"],
 };
 
 const COMPANION_FEATURES = [
   "Steel Defender",
+  "Reanimated Companion",
+  "Vestige Companion",
   "Artificer Infusions",
   "Summon Wildfire Spirit",
   // "Primal Companion",
@@ -84,7 +94,7 @@ const COMPANION_FEATURES = [
   "Reanimated Companion",
 ];
 
-const COMPANION_OPTIONS = {
+const COMPANION_OPTIONS: Record<string, string[]> = {
   "Primal Companion": [
     "Beast of the Land",
     "Beast of the Sea",
@@ -135,9 +145,10 @@ const FIND_FAMILIAR_MATCHES = [
   "Pact Boon: Pact of the Chain",
   "Invocation: Pact of the Chain",
   "Eldritch Invocations: Pact of the Chain",
+  "Necromancy Spellbook",
 ];
 
-const FAMILIAR_COUNTS = {
+const FAMILIAR_COUNTS: Record<string, string> = {
   "Flock of Familiars": "3",
 };
 

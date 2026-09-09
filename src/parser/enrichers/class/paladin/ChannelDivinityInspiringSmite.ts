@@ -2,16 +2,16 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinityInspiringSmite extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activities() {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",
       activationCondition: "Immediately after you cast Divine Smite",
-      addItemUse: true,
+      addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: "@classes.paladin.levels", type: "temphp" }),
         range: {

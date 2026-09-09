@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Charger extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       data: {
@@ -16,6 +16,27 @@ export default class Charger extends DDBEnricherData {
         },
       },
     };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        // AC5e automates the bonus after 10+ ft of straight movement; the
+        // damage activity above remains as the manual claim otherwise
+        name: "Charger",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d8; actionType.mwak && movementLastSegment >= 10",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
+    ];
   }
 
 }

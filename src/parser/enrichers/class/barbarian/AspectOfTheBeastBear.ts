@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AspectOfTheBeastBear extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -10,7 +10,7 @@ export default class AspectOfTheBeastBear extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("1", 20, "system.attributes.encumbrance.multipliers.overall"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
         ],
       },
     ];

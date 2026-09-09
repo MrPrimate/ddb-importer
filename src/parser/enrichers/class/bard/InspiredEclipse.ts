@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class InspiredEclipse extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       addItemConsume: true,
@@ -15,14 +15,15 @@ export default class InspiredEclipse extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         statuses: ["Invisible"],
         options: {
-          durationSeconds: 6,
+          // "This invisibility lasts until the start of your next turn" - a self buff
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStart" as const, "1Attack" as const, "1Spell" as const],
+        daeSpecialDurations: ["1Attack", "1Spell"],
       },
     ];
   }

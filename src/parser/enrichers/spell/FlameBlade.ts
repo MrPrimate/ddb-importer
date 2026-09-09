@@ -2,17 +2,17 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlameBlade extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Summon Blade",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Flame Blade",
@@ -20,6 +20,9 @@ export default class FlameBlade extends DDBEnricherData {
         atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
           DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#a78942"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "{\"type\": \"torch\", \"speed\": 2,\"intensity\": 4}"),
         ],
         data: {
           flags: {
@@ -33,7 +36,7 @@ export default class FlameBlade extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

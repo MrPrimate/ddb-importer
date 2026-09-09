@@ -1,12 +1,13 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class DeflectMissiles extends DDBEnricherData {
+export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnricher> {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Reduce Damage",
       targetType: "self",
@@ -29,7 +30,7 @@ export default class DeflectMissiles extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Deflect Missiles Attack", type: "class", rename: ["Deflect Missiles Attack"] },
@@ -41,7 +42,7 @@ export default class DeflectMissiles extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -56,12 +57,12 @@ export default class DeflectMissiles extends DDBEnricherData {
             "system.traits.dm.midi.rwak",
           ),
         ],
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       midiDamageReaction: true,
       ignoredConsumptionActivities: ["Reduce Damage"],

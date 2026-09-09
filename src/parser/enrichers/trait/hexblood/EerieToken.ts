@@ -3,15 +3,16 @@ import { DDBCompendiumFolders, DDBItemImporter, utils, CompendiumHelper } from "
 
 
 export default class EerieToken extends DDBEnricherData {
-  handler: DDBItemImporter;
-  compendiumFolders: DDBCompendiumFolders;
-  tokens: any[] = [];
+  // assigned at the start of cleanup()/generateToken() before any read
+  handler!: DDBItemImporter;
+  compendiumFolders!: DDBCompendiumFolders;
+  tokens: I5eLootItem[] = [];
 
-  get type(): IDDBActivityType | null {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData | null {
+  override get activity(): IDDBActivityData | null {
     return {
       name: "Create Eerie Token",
       activationType: "bonus",
@@ -25,7 +26,7 @@ export default class EerieToken extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -92,7 +93,7 @@ export default class EerieToken extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData | null {
+  override get override(): IDDBOverrideData | null {
     const uses = this._getGeneratedUses({
       type: "class",
       name: "Eerie Token",
@@ -102,7 +103,7 @@ export default class EerieToken extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const compendium = CompendiumHelper.getCompendiumType("traits");
     if (!compendium) return [];
     const compendiumId = compendium?.metadata?.id;
@@ -162,11 +163,14 @@ export default class EerieToken extends DDBEnricherData {
   };
 
   async importToken() {
-    const updateFeatures = this.ddbParser.ddbCharacter.updateCompendiumItems
-      ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
+    const ddbCharacter = this.ddbParser.ddbCharacter;
+    const updateFeatures = (ddbCharacter
+      ? foundry.utils.getProperty(ddbCharacter, "updateCompendiumItems") as boolean | undefined
+        ?? ddbCharacter.forceCompendiumUpdate
+      : undefined)
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
-    const featureHandler = await DDBItemImporter.buildHandler("features", this.tokens, updateFeatures, EerieToken.handlerOptions, this.handler);
+    const featureHandler = await DDBItemImporter.buildHandler<I5eLootItem>("features", this.tokens, updateFeatures, EerieToken.handlerOptions, this.handler);
     await featureHandler.buildIndex(EerieToken.handlerOptions.indexFilter);
 
   }
@@ -174,7 +178,8 @@ export default class EerieToken extends DDBEnricherData {
   async buildCompendiumFolders() {
     this.compendiumFolders = new DDBCompendiumFolders("traits");
     await this.compendiumFolders.loadCompendium("traits");
-    await this.compendiumFolders.createSubTraitFolders(this.ddbParser.ddbCharacter.raw.race);
+    const race = this.ddbParser.ddbCharacter?.raw.race;
+    if (race) await this.compendiumFolders.createSubTraitFolders(race);
   }
 
   async generateToken() {
@@ -189,18 +194,18 @@ export default class EerieToken extends DDBEnricherData {
   linkUpItemUUIDs() {
     const updates = [];
     for (const token of this.tokens) {
-      const uuid = this.handler.compendiumIndex.find((e) => e._id === token._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e) =>
+      const uuid = this.handler.compendiumIndex?.find((e) => e._id === token._id)?.uuid
+        ?? this.handler.compendiumIndex?.find((e) =>
           foundry.utils.getProperty(e, "name") === token.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === token.flags?.ddbimporter?.is2014,
         )?.uuid;
       if (!uuid) continue;
-      updates.push({ name: token.name.split(":").pop().trim(), uuid });
+      updates.push({ name: (token.name.split(":").pop() ?? "").trim(), uuid });
     }
   }
 
-  async cleanup() {
-    this.handler = new DDBItemImporter("traits", [], EerieToken.handlerOptions);
+  override async cleanup() {
+    this.handler = new DDBItemImporter("trait", [], EerieToken.handlerOptions);
     if (game.user.isGM) await this.generateToken();
     this.linkUpItemUUIDs();
   }
@@ -234,7 +239,7 @@ export default class EerieToken extends DDBEnricherData {
           "value": 0,
           "units": "lb",
         },
-        "rarity": "",
+        rarity: "",
         "properties": [
           "mgc",
         ],

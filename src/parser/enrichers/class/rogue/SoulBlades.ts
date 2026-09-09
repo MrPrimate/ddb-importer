@@ -2,16 +2,28 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SoulBlades extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    return this.is2014
-      ? [
-        { action: { name: "Soul Blades: Homing Strikes", type: "class" } },
-        { action: { name: "Soul Blades: Psychic Teleportation", type: "class" } },
-      ]
-      : [
-        { action: { name: "Psychic Blades: Homing Strikes", type: "class" } },
-        { action: { name: "Psychic Teleportation", type: "class" } },
-      ];
+  override get override(): IDDBOverrideData {
+    return {
+      ignoredConsumptionActivities: ["Psychic Teleportation"],
+    };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const homingStrikes = this.is2014
+      ? "Soul Blades: Homing Strikes"
+      : "Psychic Blades: Homing Strikes";
+    const psychicTeleportation = this.is2014
+      ? "Soul Blades: Psychic Teleportation"
+      : "Psychic Teleportation";
+
+    return [
+      {
+        action: { name: homingStrikes, type: "class" },
+        overrides: {
+        },
+      },
+      { action: { name: psychicTeleportation, type: "class" } },
+    ];
   }
 
 }

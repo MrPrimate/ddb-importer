@@ -1,18 +1,14 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Circle of the Sea level 10. The benefits only apply while Wrath of the Sea is active, so the
+ * WrathOfTheSea enricher carries them as a level-gated effect on its activation; this document
+ * is description only.
+ */
 export default class Stormborn extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
-    return [
-      {
-        changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-          DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
-          DDBEnricherData.ChangeHelper.damageResistanceChange("lightning"),
-          DDBEnricherData.ChangeHelper.damageResistanceChange("thunder"),
-        ],
-      },
-    ];
+  override get effects(): IDDBEffectHint[] {
+    return [];
   }
 
 }

@@ -55,6 +55,14 @@ export const LEVEL_SCALE = {
 };
 
 export const PARSING_FEATURES = {
+  // Phrases that mark a DDB character-sheet instruction block, removed from every
+  // feature description. Keep these specific: "select this option" and "drop down"
+  // also appear in real rules text (Armed Combat Lessons, Dark Bargain, Evocation Lessons).
+  DDB_SHEET_NOTE_MARKERS: [
+    "Deselect",
+    "Character Builder",
+    "updated the character sheet",
+  ],
   LEGACY_SKIPPED_FEATURES: [
     "Hit Points",
     "Languages",
@@ -66,6 +74,8 @@ export const PARSING_FEATURES = {
     "Creature Type",
     "Age",
     "Alignment",
+    "Blood Hunter Order",
+    "Hybrid Transformation Features",
   ],
   SKIPPED_FEATURES_2014: [
     "Primal Knowledge",
@@ -96,6 +106,9 @@ export const PARSING_FEATURES = {
     "Core Monster Hunter Traits",
     "Core Artificer Traits",
     "Core Pugilist Traits",
+    "Core Gunslinger Traits",
+    "Core Kindred Traits",
+    "Monster Hunter Subclass: Hunting Guild",
     "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024
@@ -116,7 +129,6 @@ export const PARSING_FEATURES = {
     "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
-    "Elemental Attunement: Activate Elemental Attunement",
     "Muscle Mass",
     "Werewolf Instincts",
     "Strange Endurance",
@@ -165,15 +177,37 @@ export const PARSING_FEATURES = {
     "Kensei Weapon",
     "Umbral Form",
     "Form of Dread",
+    "Gifts of the Beast",
+    "Gangrel Bane",
+    "Gifts of Survival",
+    "Corporeal Mastery",
+    "Protean Rewards",
+    "Adaptive Wild Shape",
+    "Critical Shot",
+    "Travel along the Tree",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
     "Trance of Order",
     "Divine Foreknowledge",
+    "Vestige Companion",
   ],
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",
   ],
+  // Container features DDB ships on the character (klass.classFeatures) but leaves out of
+  // klass.definition.classFeatures, so deriveFeatures never yields them. Keyed by class name
+  // so a shared feature name (Fighter also has "Maneuvers") is not force-included everywhere.
+  FORCE_DERIVED_FEATURES: {
+    "Gunslinger": [
+      "Maneuvers",
+    ],
+    // AU 2024 Arcane Archer: the options container is in klass.classFeatures but in neither
+    // definition list, and it owns the Banishing Shot... choices
+    "Fighter": [
+      "Arcane Shot Options",
+    ],
+  } as Record<string, string[]>,
   IGNORED_PARENT_CHOICE_FEATURES: [
     "Dark Bargain",
   ],
@@ -220,12 +254,30 @@ export const PARSING_CHOICE_FEATURES = {
     // "Draconic Ancestry",
     "Elegant Courtier",
     "Draconic Disciple",
+    // the option child must stay a companion feature by name (companions.ts)
+    "Vestige Companion",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
   ],
+  // DDB models on/off toggle features as a choice with a single "Activate X" /
+  // "Invoke the X" option; building that as a choice just renames the parent to
+  // "X: Activate X". Suppress the choice build so the parent imports untouched.
+  // Opt out per feature via KEEP_CHOICE_FEATURE.
+  SINGLE_CHOICE_TOGGLE_PREFIXES: [
+    "Activate ",
+    "Invoke the ",
+  ],
+  // Replace the parent prefix on a choice document, for DDB feature names that are
+  // long or repeat the subclass: "Carrion Raven Martial Maneuvers: Apex Dominance"
+  // becomes "Maneuver: Apex Dominance". Use NO_FEATURE_PREFIX_NAME to drop it entirely.
+  CHOICE_FEATURE_PREFIX_RENAME: {
+    "Carrion Raven Martial Maneuvers": "Maneuver",
+  } as Record<string, string>,
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
+    // AU 2024 Arcane Archer hangs its shot options off the pool feature itself
+    "Arcane Shot",
     "Primal Companion",
     "Giant Ancestry",
     "Arcane Shot Options",
@@ -247,6 +299,10 @@ export const PARSING_CHOICE_FEATURES = {
     "Elven Lineage Spells",
     "Fiendish Resilience",
     "Gnomish Lineage Spells",
+    // Lycan hybrid form is a Foundry side enchantment toggle, the DDB Hybrid/Normal Form choice
+    // sub features would duplicate it (and rename the parent, as it is a single choice)
+    "Hybrid Transformation",
+    "Hybrid Transformation Features",
     "Linguist",
     "Magic Initiate (Cleric)",
     "Magic Initiate (Druid)",
@@ -333,6 +389,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimated Companion",
     "Reanimator's Skillset",
     "Spirits from Beyond",
+    "Stalker's Prowess",
+    "Transmutation Savant",
+    "Signature Spells",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -367,10 +426,11 @@ export const PARSING_CHOICE_FEATURES = {
     "Variant Tiefling",
     "Genie's Vessel",
     "Reanimator's Skillset",
+    "Storm Aura",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
-  ],
+  ] as string[],
   USE_CHOSEN_ONLY: [
     "Elven Lineage",
     // "Pact Boon",
@@ -378,12 +438,21 @@ export const PARSING_CHOICE_FEATURES = {
     // "Variant Tiefling",
     // "Totem Spirit",
     // "Totemic Attunement",
-  ],
+    "Storm Aura",
+  ] as string[],
+  // Parent features whose DDB description is a dump of every option (e.g. Blood
+  // Curses ships all curses). Replace it with the chosen options' own descriptions.
+  REPLACE_DESCRIPTION_WITH_CHOICES: [
+    "Blood Curses",
+  ] as string[],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
     // "Arcane Shot Options",
-  ],
+  ] as string[],
   NO_CHOICE_DESCRIPTION_ADDITION: [
+    // the parent's own <ul> already enumerates the options, and each option is
+    // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
+    "Adaptive Wild Shape",
     "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
@@ -488,6 +557,25 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimated Companion",
     "Reanimator's Skillset",
     "Spirits from Beyond",
+    "Crimson Rite",
+    "Heightened Senses",
+    "Hybrid Transformation Features",
+    "Hybrid Transformation",
+    "Hunter's Bane",
+    "Brand of Tethering",
+    "Dark Augmentation",
+    "Brand of Castigation",
+    "Stalker's Prowess",
+    "Aether Walk",
+    "Floral Form",
+    "Floral Legacy",
+    "Floral Breath Weapon",
+    "Floral Fortitude",
+    "Student of Arcana",
+    "Transmuter's Stone",
+    "Transmutation Savant",
+    "Signature Spells",
+    "Spell Mastery",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -500,6 +588,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Additional Fighting Style",
     "Pact Boon",
     "Magic Item Plans",
+    // duplicates the Martial Maneuvers rules text verbatim; only its maneuver
+    // choices are wanted, and the point pool lives on Martial Maneuvers
+    "Carrion Raven Martial Maneuvers",
   ],
   FORCE_FEAT_CHOICES: [
     "Dark Bargain",
@@ -507,6 +598,15 @@ export const PARSING_CHOICE_FEATURES = {
 };
 
 export const FEATURE_SPELLS_IGNORE = [
+  // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
+  "Mystic Arcanum (6th level)",
+  "Mystic Arcanum (7th level)",
+  "Mystic Arcanum (8th level)",
+  "Mystic Arcanum (9th level)",
+  "Mystic Arcanum (Level 6 Spell)",
+  "Mystic Arcanum (Level 7 Spell)",
+  "Mystic Arcanum (Level 8 Spell)",
+  "Mystic Arcanum (Level 9 Spell)",
   // "Mantle of Majesty",
   "Activate Mantle of Majesty",
   "Gaseous Form",
@@ -543,6 +643,28 @@ export const FEATURE_SPELLS_IGNORE = [
   "Spirit Query",
   "Tokens of the Departed",
   "Beasts of Ill Omen",
+  "Spiteful Curse",
+  "Shape-Shifter",
+  "Wondrous Alteration",
+  "Undead Thralls",
+  "Phantasmal Creatures",
+  "Shapechanger",
+  "Faithful Steed",
+  "Paladin's Smite",
+  "Contact Patron",
+  "Steps of the Fey",
+  "Fey Reinforcements",
+  "Misty Wanderer",
+  "Ethereal Step",
+  "Dragon Companion",
+  "Star Map",
+  "Consult the Spirits",
+  "Restorative Reagents",
+  "Chemical Mastery",
+  "Mapping Magic",
+  "Superior Atlas",
+  "War God's Blessing",
+  "Curse Caster",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
@@ -602,6 +724,6 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Wards and Seals",
 ];
 
-export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE = [
+export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];

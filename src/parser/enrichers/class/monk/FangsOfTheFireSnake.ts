@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FangsOfTheFireSnake extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Enchant Weapon",
       id: "ddbFireDamage123",
@@ -19,7 +19,7 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -42,18 +42,16 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",
         activityMatch: "Enchant Weapon",
         name: `Fangs of the Fire Snake`,
         options: {
+          expiry: "sourceEnd",
           description: `This weapon is infused with elemental energy.`,
-          durationTurns: 1,
-          durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnEndSource" as const],
         data: {
           flags: {
             ddbimporter: {

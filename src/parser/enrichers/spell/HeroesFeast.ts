@@ -35,13 +35,13 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return this.ddbEnricher?._originalActivity?.type === "heal"
       ? this._healActivity
       : this._utilityActivity;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: this.useMidiAutomations
         ? {
@@ -64,11 +64,11 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const extraChanges = this.is2014
       ? [
-        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.wis.save.roll.mode`),
+        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("wis"),
       ]
       : [];
 
@@ -77,9 +77,9 @@ export default class HeroesFeast extends DDBEnricherData {
         activityMatch: "Consume Feast",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("0", 20, "system.attributes.hp.tempmax"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("poisoned"),
+          DDBEnricherData.ChangeHelper.damageImmunityChange("poison"),
         ].concat(extraChanges),
         options: {
           durationSeconds: 86400,
@@ -88,14 +88,14 @@ export default class HeroesFeast extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "heroesFeast.js",
     };
   }
 
-  get setMidiOnUseMacroFlag() {
+  override get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag {
     return {
       type: "spell",
       name: "heroesFeast.js",

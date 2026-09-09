@@ -1,0 +1,45 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+import _RiteFocus from "./_RiteFocus";
+
+export default class RiteFocusTheArchfey extends _RiteFocus {
+
+  override get patronName(): string {
+    return "The Archfey";
+  }
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: this.activityName,
+      targetType: "creature",
+      targetCount: 1,
+      activationType: "special",
+      activationCondition: _RiteFocus.DAMAGE_CONDITION,
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Faelight",
+        activityMatch: this.activityName,
+        options: {
+          expiry: "sourceEnd",
+          description: "You shed faint light and gain no benefit from any cover or from being invisible, until the end of the blood hunter's next turn.",
+        },
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#c8a2e0"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.5"),
+        ],
+        tokenMagicChanges: [
+          DDBEnricherData.ChangeHelper.tokenMagicFXChange("glow"),
+        ],
+      },
+    ];
+  }
+
+}

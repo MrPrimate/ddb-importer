@@ -2,13 +2,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Maze extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -17,6 +17,7 @@ export default class Maze extends DDBEnricherData {
         },
         build: {
           generateCheck: true,
+          noSpellslot: true,
         },
         overrides: {
           data: {

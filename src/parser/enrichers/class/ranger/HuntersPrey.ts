@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HuntersPrey extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Choice",
       addItemConsume: true,
@@ -19,7 +19,7 @@ export default class HuntersPrey extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Colossus Slayer",
@@ -27,6 +27,13 @@ export default class HuntersPrey extends DDBEnricherData {
         data: {
           img: "icons/creatures/magical/construct-iron-stomping-yellow.webp",
         },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d8; oncePerTurn; optin; (actionType.mwak || actionType.rwak) && opponentActor.attributes.hp.value < opponentActor.attributes.hp.max",
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
       },
       {
         name: "Horde Breaker",
@@ -38,7 +45,7 @@ export default class HuntersPrey extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,
@@ -48,6 +55,7 @@ export default class HuntersPrey extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHuntersPrey">
 <p><strong>Implementation Details</strong></p>
@@ -56,7 +64,7 @@ export default class HuntersPrey extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -71,6 +79,7 @@ export default class HuntersPrey extends DDBEnricherData {
           targetType: "creature",
           activationType: "special",
           activationCondition: "Once per turn, if target is missing hit points",
+          addActivityConsume: true,
           data: {
             sort: 1,
             range: {

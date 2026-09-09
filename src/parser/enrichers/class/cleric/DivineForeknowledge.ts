@@ -3,13 +3,13 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DivineForeknowledge extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Divine Foreknowledge",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -48,15 +48,15 @@ export default class DivineForeknowledge extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const changes = [
-      DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
+      DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
     ];
 
     DICTIONARY.actor.abilities.forEach((ability) => {
       changes.push(
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll.mode`),
-        DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`),
+        DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
+        DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value),
       );
     });
     return [

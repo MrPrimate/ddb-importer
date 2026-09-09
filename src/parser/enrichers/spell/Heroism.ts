@@ -2,18 +2,18 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Heroism extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       stopHealSpellActivity: true,
       name: "Cast",
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -38,11 +38,11 @@ export default class Heroism extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast",
@@ -50,7 +50,7 @@ export default class Heroism extends DDBEnricherData {
           description: "Gain temp hp at the start of your turn",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.conditionImmunityChange("frightened"),
         ],
       },
       {
@@ -71,7 +71,7 @@ export default class Heroism extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro {
     return {
       type: "spell",
       name: "heroism.js",

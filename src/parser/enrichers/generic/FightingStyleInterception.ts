@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FightingStyleInterception extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       data: {
@@ -25,7 +25,7 @@ export default class FightingStyleInterception extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -39,7 +39,7 @@ export default class FightingStyleInterception extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.rsak"),
           DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.msak"),
         ],
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
     ];
   }

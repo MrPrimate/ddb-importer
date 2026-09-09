@@ -30,10 +30,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
-    const uses = this._getGeneratedUses({
-      type: "race",
-      name: this.data.name,
-    });
+    const uses = this._getGeneratedUses({ type: "race", name: this.data.name });
     return {
       uses,
     };

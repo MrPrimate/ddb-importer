@@ -1,0 +1,20 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+import _Mutagen from "./_Mutagen";
+
+/** Flying speed of 20 feet for 1 hour, at the cost of Strength and Dexterity checks. */
+export default class FormulaAether extends _Mutagen {
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      this.mutagenEffect({
+        durationSeconds: 3600,
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("dex"),
+        ],
+      }),
+    ];
+  }
+
+}

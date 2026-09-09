@@ -2,11 +2,19 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WarCaster extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Opportunity Spell",
+      activationType: "reaction",
+      targetType: "creature",
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -19,7 +27,7 @@ export default class WarCaster extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
     };

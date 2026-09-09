@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Illumination extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     // The myrmidon sheds bright light in a 20-foot radius and dim light in a 40-foot radius
     // The councilor magically sheds bright light in a 15-foot radius and dim light for an additional 15 feet
@@ -19,10 +19,10 @@ export default class Illumination extends DDBEnricherData {
     // The sphere is bright light, sheds dim light for an additional 30 feet, and moves with the faerie
     // The faerie sheds dim light in a 15-foot radius.
     const basicRegex = /sheds bright light in a (?<bright>\d+)-\s?foot radius and dim light (in a|for an additional) (?<dim>\d+)-?\s?(foot radius|feet)/i;
-    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml);
+    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     const justDimRegex = /sheds dim light in a (?<dim>\d+)-\s?foot radius/i;
-    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml);
+    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml ?? "");
 
     // console.warn("Illumination", {
     //   this: this,
@@ -31,8 +31,9 @@ export default class Illumination extends DDBEnricherData {
     // });
 
     const match = basicMatch ?? justDimMatch;
+    const groups = match?.groups ?? {};
     if (match && DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      const effect = {
+      const effect: IDDBEffectHint = {
         options: {
           transfer: true,
         },
@@ -40,27 +41,28 @@ export default class Illumination extends DDBEnricherData {
         atlOnly: true,
         atlChanges: [],
       };
-      if (match.groups.bright) {
-        effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, match.groups.bright),
+      if (groups.bright) {
+        effect.atlChanges?.push(
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, groups.bright),
         );
       }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        effect.atlChanges.push(
+      if (groups.dim) {
+        const dim = groups.bright ? parseInt(groups.bright) + parseInt(groups.dim) : groups.dim;
+        effect.atlChanges?.push(
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, parseInt(`${dim}`)),
         );
       }
       return [effect];
     } else if (match) {
-      if (match.groups.bright) {
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.bright = parseInt(match.groups.bright);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.bright", parseInt(match.groups.bright));
+      // without ATL the light is written straight onto the prototype token; setProperty because
+      // the token light block may not exist yet on the npc data being built
+      const npc = this.ddbParser.ddbMonster?.npc;
+      if (npc && groups.bright) {
+        foundry.utils.setProperty(npc, "prototypeToken.light.bright", parseInt(groups.bright));
       }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
+      if (npc && groups.dim) {
+        const dim = groups.bright ? parseInt(groups.bright) + parseInt(groups.dim) : groups.dim;
+        foundry.utils.setProperty(npc, "prototypeToken.light.dim", parseInt(`${dim}`));
       }
     }
 

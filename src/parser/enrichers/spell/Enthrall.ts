@@ -2,8 +2,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Enthrall extends DDBEnricherData {
 
-  get effects(): IDDBEffectHint[] {
-    if (this.is2014) return null;
+  override get effects(): IDDBEffectHint[] {
+    if (this.is2014) return [];
 
     return [
       {

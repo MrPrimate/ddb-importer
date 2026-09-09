@@ -1,21 +1,21 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnsnaringStrike extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014 && this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast (Automation)",
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -66,8 +66,8 @@ export default class EnsnaringStrike extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
-    const automationEffects = this.is2014
+  override get effects(): IDDBEffectHint[] {
+    const automationEffects: IDDBEffectHint[] = this.is2014
       ? [
         {
           name: `${this.data.name} (Automation)`,
@@ -108,7 +108,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+  override get itemMacro(): IDDBItemMacro | null {
     if (!this.is2014) return null;
     return {
       type: "spell",

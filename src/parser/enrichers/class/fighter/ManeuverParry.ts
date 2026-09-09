@@ -3,11 +3,11 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverParry extends Maneuver {
 
-  get type() {
+  override get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "self",
@@ -22,14 +22,14 @@ export default class ManeuverParry extends Maneuver {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.traits.dm.midi.all"),
         ],
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
       },
       // Future Enhancement: Add a macro that rolls dice and applies dr effect
       // {
@@ -37,19 +37,19 @@ export default class ManeuverParry extends Maneuver {
       //     {
       //       key: "system.traits.dm.amount.bludgeoning",
       //       value: "-@scale.battle-master.combat-superiority-die",
-      //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      //       type: "add",
       //       priority: 20,
       //     },
       //     {
       //       key: "system.traits.dm.amount.piercing",
       //       value: "-@scale.battle-master.combat-superiority-die",
-      //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      //       type: "add",
       //       priority: 20,
       //     },
       //     {
       //       key: "system.traits.dm.amount.slashing",
       //       value: "-@scale.battle-master.combat-superiority-die",
-      //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      //       type: "add",
       //       priority: 20,
       //     },
       //   ],

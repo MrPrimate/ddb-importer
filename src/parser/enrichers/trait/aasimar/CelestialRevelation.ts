@@ -2,21 +2,24 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CelestialRevelation extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Unleash Celestial Energy",
       addItemConsume: true,
       activationType: "bonus",
       targetType: "self",
       noeffect: true,
+      data: {
+        midiProperties: { chooseEffects: true },
+      },
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -61,6 +64,25 @@ export default class CelestialRevelation extends DDBEnricherData {
               types: ["radiant", "necrotic"],
             }),
           ],
+          data: {
+            range: {
+              value: 10,
+              units: "ft",
+            },
+            target: {
+              affects: {
+                count: "1",
+                type: "creature",
+              },
+              template: {
+                contiguous: false,
+                type: "radius",
+                size: "10",
+                units: "ft",
+              },
+              prompt: false,
+            },
+          },
         },
       },
       {
@@ -84,29 +106,52 @@ export default class CelestialRevelation extends DDBEnricherData {
                 formula: "",
               },
             },
+            target: {
+              affects: {
+                count: "1",
+                type: "enemy",
+              },
+              template: {
+                contiguous: false,
+                type: "radius",
+                size: "10",
+                units: "ft",
+              },
+              prompt: false,
+            },
           },
         },
       },
     ];
   }
 
-  // get activity(): IDDBActivityData {
-  //   return {
-  //     noTemplate: true,
-  //     data: {
-  //       damage: {
-  //         parts: [
-  //           DDBEnricherData.basicDamagePart({ customFormula: "@prof", types: ["radiant", "necrotic"] }),
-  //         ],
-  //       },
-  //     },
-  //   };
-  // }
-
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
+        name: "Celestial Revelation: Tracker",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+      },
+      {
+        name: "Inner Radiance Light",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+        atlOnly: true,
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
+        ],
+      },
+      {
         name: "Heavenly Wings",
+        activityMatch: "Unleash Celestial Energy",
         options: {
           durationSeconds: 60,
         },
@@ -116,22 +161,23 @@ export default class CelestialRevelation extends DDBEnricherData {
       },
       {
         name: "Necrotic Shroud: Frightened",
+        activityMatch: "Necrotic Shroud Save",
         statuses: ["Frightened"],
         options: {
-          durationSeconds: 6,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  // Without ATL the light is toggled by the linked macro in the description instead
+  override get override(): IDDBOverrideData {
     return {
-      ddbMacroDescription: true,
+      ddbMacroDescription: !DDBEnricherData.AutoEffects.effectModules().atlInstalled,
     };
   }
 
-  get ddbMacroDescriptionData() {
+  override get ddbMacroDescriptionData(): IDDBMacroDescriptionData {
     return {
       name: "innerRadiance",
       label: "Toggle Inner Radiance Light", // optional

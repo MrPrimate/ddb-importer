@@ -896,8 +896,20 @@ global {
     campaign?: IDDBPCDnDBeyondCampaignFlags;
     profBonus?: number;
     weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
+    // Tool proficiencies dnd5e has no key for. Replayed into CONFIG.DND5E at ready so
+    // they keep rendering after a reload.
+    customTools?: IDDBPCDnDBeyondCustomToolFlags[];
     effectAbilities?: I5eAbilities;
     abilityOverrides?: Record<string, number>;
+  }
+
+  /** A tool proficiency registered into CONFIG.DND5E.tools by ddb-importer. */
+  interface IDDBPCDnDBeyondCustomToolFlags {
+    key: string;
+    name: string;
+    ability: T5eAbility;
+    toolType: TToolType;
+    description?: string;
   }
 
   interface IDDBPCAutoAC {

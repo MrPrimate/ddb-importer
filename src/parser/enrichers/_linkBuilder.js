@@ -29,6 +29,13 @@ function getContentsOfDirectory(directoryPath) {
     if (['.js', '.mjs', '.ts'].includes(fileExtension)) {
       const content = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
 
+      // abstract helper bases (e.g. _StormAura) are extended by sibling enrichers and must not
+      // be exported as enrichers themselves
+      if (/export\s+default\s+abstract\s+class\s/.test(content)) {
+        seen.add(baseName);
+        return;
+      }
+
       const className = content.match(/class\s+([a-zA-Z_$][\w$]*)/);
       if (className) {
         if (className[1] === "Empty") {
@@ -98,8 +105,10 @@ for (const directory of nestedDirs) {
     for (const directory of directories) {
       const fullDirPath = path.join(basePath, directory);
       if (fs.lstatSync(fullDirPath).isDirectory()) {
-        //capitalise the directory name and remove spaces/hyphens for the export
-        const exportLine = `export * as ${capitalize(directory.replace(/[\s-]/g, ''))} from "./${directory}/_module";`
+        // pascal-case the directory name for the export so it matches the
+        // convention lookup pascalCase(className) in _defaultClassLoader
+        // (e.g. blood-hunter -> BloodHunter, monster-hunter -> MonsterHunter)
+        const exportLine = `export * as ${directory.split(/[\s-]/).map(capitalize).join('')} from "./${directory}/_module";`
         contents.push(exportLine);
       }
     }

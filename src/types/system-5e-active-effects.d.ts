@@ -18,6 +18,10 @@ global {
     | "turnStartSource"
     | "turnEndSource"
     | "combatEnd"
+    // Rest timing
+    | "shortRest"
+    | "longRest"
+    | "newDay"
     // Attack/Action triggers
     | "1Action"
     | "1Attack"
@@ -49,6 +53,20 @@ global {
     | "1Hit:rwak"
     | "1Hit:msak"
     | "1Hit:rsak";
+
+  // v14 branch splits native expiry from DAE-only tokens; here every token is DAE-only
+  type TDAEOnlySpecialDuration = DAESpecialDuration;
+  type TDAESpecialDuration = DAESpecialDuration;
+
+  // Foundry v14 effect duration units, kept only as the intermediate form the shared parser
+  // emits before durations are written back as seconds/rounds on this branch
+  type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
+
+  // v14 branch registers a dedicated AC5e change type; here an AC5e change is a plain change
+  type IAC5eActiveEffectChangeData = IActiveEffectChangeData;
+
+  // native effect expiry points of the v14 branch, translated to DAE tokens on this branch
+  type T5eEffectExpiry = TDDBEffectExpiry;
 
   type TEffectType = "base" | "enchant";
 
@@ -122,8 +140,8 @@ global {
     midiQolInstalled: boolean;
     atlInstalled: boolean;
     timesUpInstalled: boolean;
-    atlInstalled: boolean;
     tokenMagicInstalled: boolean;
+    ac5eInstalled: boolean;
     activeAurasInstalled: boolean;
     auraeffectsInstalled: boolean;
     autoAnimationsInstalled: boolean;

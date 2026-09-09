@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CunningStrike extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",
@@ -22,7 +22,7 @@ export default class CunningStrike extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -117,7 +117,7 @@ export default class CunningStrike extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Poisoned",
@@ -126,6 +126,13 @@ export default class CunningStrike extends DDBEnricherData {
         },
         statuses: ["Poisoned"],
         activityMatch: "Poison",
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Cunning Strike: Poison (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Prone",
@@ -136,7 +143,7 @@ export default class CunningStrike extends DDBEnricherData {
   }
 
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

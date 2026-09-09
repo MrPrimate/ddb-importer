@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlusteringStrike extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const data: Partial<I5eActivity> = this.ddbParser.isMuncher
       ? {
         save: {
@@ -26,24 +26,23 @@ export default class FlusteringStrike extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const changes = DICTIONARY.actor.abilities.map((ability) => {
-      return DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`);
+      return DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value);
     });
     return [
       {
         name: "Flustered",
         changes,
-        daeSpecialDurations: ["turnEndSource" as const],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
       },
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.ddbParser.isMuncher
       ? [
         {

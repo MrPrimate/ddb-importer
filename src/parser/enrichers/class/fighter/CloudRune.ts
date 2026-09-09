@@ -6,13 +6,13 @@ export default class CloudRune extends DDBEnricherData {
   //   return true;
   // }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Invoke Rune (Redirect Attack)",
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,
@@ -21,14 +21,14 @@ export default class CloudRune extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.slt.roll.mode"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.dec.roll.mode"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("slt"),
+          DDBEnricherData.ChangeHelper.advantageSkillChange("dec"),
         ],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Cloud Rune",
       type: "class",

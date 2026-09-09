@@ -1,6 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class EmptyBody extends DDBEnricherData {
+export default class EmptyBody extends DDBEnricherData<DDBClassFeatureEnricher> {
   get activity(): IDDBActivityData {
     return {
       name: "Go Invisible",

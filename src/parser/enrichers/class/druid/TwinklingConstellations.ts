@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TwinklingConstellations extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -32,7 +32,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
   //   return true;
   // }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbSecret">

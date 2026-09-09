@@ -2,11 +2,11 @@ import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StarryForm extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       targetType: "self",
@@ -22,11 +22,11 @@ export default class StarryForm extends DDBEnricherData {
     };
   }
 
-  get starForms() {
+  get starForms(): string[] {
     return ["Archer", "Chalice", "Dragon"];
   }
 
-  formActivityName(formType) {
+  formActivityName(formType: string) {
     if (formType === "Archer") {
       return "Archer Attack";
     }
@@ -159,14 +159,14 @@ export default class StarryForm extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       ...this.formActivities,
     ];
   }
 
-  get enchantEffects() {
-    const results = [];
+  get enchantEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     for (const formType of this.starForms) {
       [
@@ -174,7 +174,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        let activityRiders = [];
+        let activityRiders: string[] = [];
         if (formType === "Archer") {
           activityRiders = [
             utils.namedIDStub("Archer", { prefix: "form", postfix: "" }),
@@ -190,7 +190,7 @@ export default class StarryForm extends DDBEnricherData {
             utils.namedIDStub("Twinkling", { prefix: "act", postfix: "" }),
           );
         }
-        const effect = {
+        const effect: IDDBEffectHint = {
           // name: `Type: ${formType} (${data.min !== null ? data.min : "1"}-${data.max !== null ? data.max : "20"})`,
           name: formType,
           type: "enchant",
@@ -201,13 +201,7 @@ export default class StarryForm extends DDBEnricherData {
           data: {
             _id: utils.namedIDStub(formType, { prefix: "choice", postfix: `ef${data.min !== null ? data.min : "1"}` }),
             duration: {
-              "seconds": 600,
-              "startTime": null,
-              "rounds": 100,
-              "turns": null,
-              "startRound": null,
-              "startTurn": null,
-              "combat": null,
+              seconds: 600,
             },
             flags: {
               ddbimporter: {
@@ -227,9 +221,8 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get formEffects() {
-    const results = [];
-
+  get formEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     const atlChanges = [
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
@@ -239,7 +232,7 @@ export default class StarryForm extends DDBEnricherData {
       DDBEnricherData.ChangeHelper.atlChange(
         "ATL.light.animation",
         CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        "{\"type\": \"\"starlight\"\", \"speed\": 5,\"intensity\": 5}",
+        "{\"type\": \"starlight\", \"speed\": 5,\"intensity\": 5}",
       ),
     ];
 
@@ -249,7 +242,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        const changes = [];
+        const changes: IActiveEffectChangeData[] = [];
         if (formType === "Dragon") {
           changes.push(
             DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
@@ -303,7 +296,7 @@ export default class StarryForm extends DDBEnricherData {
   }
 
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
       ...this.formEffects,
@@ -313,7 +306,7 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Archer Attack", "Chalice Healing", "Dragon Constitution", "Twinkling Constellations (Change Form)"],
     };

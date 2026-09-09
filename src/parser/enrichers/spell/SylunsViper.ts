@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SylunsViper extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Cast",
       targetSelf: true,
@@ -22,11 +22,11 @@ export default class SylunsViper extends DDBEnricherData {
     };
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Spectral Snake",
@@ -42,20 +42,18 @@ export default class SylunsViper extends DDBEnricherData {
         name: "Viper Poison",
         activityMatch: "Spectral Snake Attack",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         statuses: ["Poisoned", "Incapacitated"],
       },
     ];
   }
 
-  get addAutoAdditionalActivities() {
+  override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

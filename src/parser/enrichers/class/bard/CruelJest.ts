@@ -1,0 +1,53 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class CruelJest extends DDBEnricherData {
+
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
+
+  override get type(): IDDBActivityType | null {
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      targetType: "creature",
+      activationType: "reaction",
+      activationCondition: "A creature you can see or hear within 30 ft fails a D20 Test",
+      addItemConsume: true,
+      itemConsumeTargetName: "Bardic Inspiration",
+      data: {
+        range: {
+          value: 30,
+          units: "ft",
+        },
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.bard.inspiration + @abilities.cha.mod",
+              types: ["psychic"],
+            }),
+          ],
+        },
+      },
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    if (!this.isAction) return [];
+    return [
+      {
+        name: "Cruel Jest",
+        options: {
+          expiry: "targetEnd",
+          description: "Disadvantage on the next D20 Test the creature makes before the end of its next turn.",
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.all"),
+        ],
+      },
+    ];
+  }
+
+}

@@ -269,6 +269,8 @@ global {
   export interface IDDBConfigTool {
     id: number;
     name: string;
+    // present on the live config only.
+    description?: string;
   }
 
   export interface IDDBConfigWeapon {

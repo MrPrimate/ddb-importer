@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TokensOfTheDeparted extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -63,14 +63,14 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     ];
   }
 
-  get _2024SoulTrinketMax() {
-    const level = this.ddbParser._class.level;
+  get _2024SoulTrinketMax(): number {
+    const level = this.ddbParser._class?.level ?? 0;
     if (level >= 17) return 4;
     if (level >= 13) return 3;
     return 2;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: this.is2014 ? "Tokens of the Departed: Create Soul Trinket" : "Soul Trinkets",
@@ -81,8 +81,8 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
 
     // uses are inverted here
     uses.spent = this.is2014
-      ? Math.max(maxInt - uses.spent, 0)
-      : Math.max(maxInt - uses.spent, 0);
+      ? Math.max(maxInt - (uses.spent ?? 0), 0)
+      : Math.max(maxInt - (uses.spent ?? 0), 0);
 
     if (this.is2014) {
       uses.recovery = [{ period: "lr", type: "formula", formula: "max(0, min(2,  2 -@item.uses.value))" }];
@@ -100,7 +100,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,
@@ -114,7 +114,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("(token.actor.items.getName('Tokens of the Departed')?.system.uses.value ?? 0) > 0", 20, "flags.midi-qol.advantage.ability.save.con"),
           DDBEnricherData.ChangeHelper.customChange("(token.actor.items.getName('Tokens of the Departed')?.system.uses.value ?? 0) > 0", 20, "flags.midi-qol.advantage.deathSave"),
         ],
-        // DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
+        // DDBEnricherData.ChangeHelper.advantageDeathSaveChange(),
       },
     ];
   }

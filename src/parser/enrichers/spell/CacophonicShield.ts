@@ -29,6 +29,7 @@ export default class CacophonicShield extends DDBEnricherData {
         },
         overrides: {
           activationType: "special",
+          noSpellslot: true,
         },
       },
     ];

@@ -1,11 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SearingSmite extends DDBEnricherData {
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Initial Damage",
       allowCritical: true,
@@ -25,7 +25,7 @@ export default class SearingSmite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -33,6 +33,14 @@ export default class SearingSmite extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateSave: true,
+          saveOverride: {
+            ability: ["con"],
+            dc: {
+              calculation: "spellcasting",
+              formula: "",
+            },
+          },
           generateDamage: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
@@ -44,6 +52,7 @@ export default class SearingSmite extends DDBEnricherData {
             }),
           ],
           noeffect: true,
+          noSpellslot: true,
           activationOverride: { type: "special", condition: "Start of the creatures turn" },
         },
         overrides: {
@@ -62,7 +71,7 @@ export default class SearingSmite extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "On fire from Searing Smite",

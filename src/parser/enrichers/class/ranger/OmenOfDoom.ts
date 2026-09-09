@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class OmenOfDoom extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Activate Omen of Doom",
       targetType: "creature",
@@ -16,7 +16,7 @@ export default class OmenOfDoom extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {
@@ -32,7 +32,7 @@ export default class OmenOfDoom extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     return [
       {
@@ -41,11 +41,18 @@ export default class OmenOfDoom extends DDBEnricherData {
         options: {
           durationSeconds: 3600,
         },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6[necrotic]; oncePerTurn; effectOriginTokenId === tokenId && hasAttack",
+            20,
+            "flags.automated-conditions-5e.grants.damage.bonus",
+          ),
+        ],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
 
     const uses = this._getUsesWithSpent({
       type: "class",

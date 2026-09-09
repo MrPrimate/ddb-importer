@@ -9,9 +9,10 @@ interface IShadowBladeVariant {
 }
 
 export default class ShadowBlade extends DDBEnricherData {
-  handler: DDBItemImporter;
-  compendiumFolders: DDBCompendiumFolders;
-  shadowBlades: any[] = [];
+  // assigned at the start of cleanup()/generateShadowBlades() before any read
+  handler!: DDBItemImporter<I5eInventoryItem>;
+  compendiumFolders!: DDBCompendiumFolders;
+  shadowBlades: I5eWeaponItem[] = [];
 
   static VARIANTS: IShadowBladeVariant[] = [
     { tier: "2d8", minSlot: 2, maxSlot: 2, number: 2 },
@@ -35,11 +36,11 @@ export default class ShadowBlade extends DDBEnricherData {
     },
   };
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {
@@ -51,8 +52,8 @@ export default class ShadowBlade extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
-    const compendium = CompendiumHelper.getCompendiumType("items");
+  override get effects(): IDDBEffectHint[] {
+    const compendium = CompendiumHelper.getCompendiumType("items", false);
     if (!compendium) return [];
     const compendiumId = compendium?.metadata?.id;
     return ShadowBlade.VARIANTS.map((v) => {
@@ -82,9 +83,9 @@ export default class ShadowBlade extends DDBEnricherData {
     });
   }
 
-  getShadowBladeWeapon(variant: IShadowBladeVariant) {
+  getShadowBladeWeapon(variant: IShadowBladeVariant): I5eWeaponItem {
     const itemName = `Shadow Blade (${variant.tier})`;
-    return {
+    const data: DeepPartial<I5eWeaponItem> = {
       "_id": utils.namedIDStub(itemName, {
         prefix: "sb",
         postfix: variant.tier,
@@ -105,7 +106,7 @@ export default class ShadowBlade extends DDBEnricherData {
         "identified": true,
         "quantity": 1,
         "equipped": true,
-        "proficient": 1,
+        "proficient": true,
         "properties": ["fin", "lgt", "thr", "mgc"],
         "type": {
           "value": "simpleM",
@@ -124,9 +125,9 @@ export default class ShadowBlade extends DDBEnricherData {
             "bonus": "",
           },
         },
-        "attack": {
-          "ability": "",
-        },
+        // "attack": {
+        //   "ability": "",
+        // },
       },
       "effects": [],
       "flags": {
@@ -140,10 +141,11 @@ export default class ShadowBlade extends DDBEnricherData {
         },
       },
     };
+    return data as unknown as I5eWeaponItem;
   }
 
   async importShadowBlades() {
-    const updateBool = this.ddbParser?.ddbCharacter?.updateCompendiumItems
+    const updateBool = foundry.utils.getProperty(this.ddbParser?.ddbCharacter ?? {}, "updateCompendiumItems") as boolean | undefined
       ?? this.ddbParser?.ddbCharacter?.forceCompendiumUpdate
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
@@ -173,8 +175,8 @@ export default class ShadowBlade extends DDBEnricherData {
   linkUpItemUUIDs() {
     const links: string[] = [];
     for (const blade of this.shadowBlades) {
-      const uuid = this.handler.compendiumIndex.find((e: any) => e._id === blade._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e: any) =>
+      const uuid = this.handler.compendiumIndex?.find((e: TIndexEntry) => e._id === blade._id)?.uuid
+        ?? this.handler.compendiumIndex?.find((e: TIndexEntry) =>
           foundry.utils.getProperty(e, "name") === blade.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === blade.flags?.ddbimporter?.is2014,
         )?.uuid;
@@ -202,8 +204,11 @@ export default class ShadowBlade extends DDBEnricherData {
     }
   }
 
-  async cleanup() {
-    this.handler = new DDBItemImporter("items", [], ShadowBlade.handlerOptions);
+  override async cleanup() {
+    // without a configured items compendium (e.g. the test environment) the
+    // variant weapons cannot be generated or linked
+    if (!CompendiumHelper.getCompendiumType("items", false)) return;
+    this.handler = new DDBItemImporter<I5eInventoryItem>("items", [], ShadowBlade.handlerOptions);
     if (game.user.isGM) await this.generateShadowBlades();
     this.linkUpItemUUIDs();
   }

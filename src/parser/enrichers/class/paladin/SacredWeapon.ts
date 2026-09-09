@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SacredWeapon extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",
@@ -17,7 +17,7 @@ export default class SacredWeapon extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return DDBEnricherData.AutoEffects.effectModules().atlInstalled
       ? []
       : [{
@@ -43,7 +43,7 @@ export default class SacredWeapon extends DDBEnricherData {
       }];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       // ddbMacroDescription: !DDBEnricherData.AutoEffects.effectModules().atlInstalled,
       ignoredConsumptionActivities: ["Sacred Weapon Light Toggle"],
@@ -67,7 +67,7 @@ export default class SacredWeapon extends DDBEnricherData {
 
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const lightAnimation = `{"type": "sunburst", "speed": 2,"intensity": 4}`;
     const atlChanges = [
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, (this.is2014 ? "5" : "40")),

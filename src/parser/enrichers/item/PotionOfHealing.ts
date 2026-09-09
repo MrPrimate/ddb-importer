@@ -2,11 +2,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class PotionOfHealing extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       activationType: this.is2014 ? "action" : "bonus",
@@ -20,8 +20,8 @@ export default class PotionOfHealing extends DDBEnricherData {
   }
 
 
-  get override(): IDDBOverrideData {
-    if (this.ddbParser.ddbDefinition.sources.some((s) => s.sourceId === 1)) {
+  override get override(): IDDBOverrideData {
+    if ((foundry.utils.getProperty(this.ddbParser.ddbDefinition, "sources") as IDDBSource[] | undefined)?.some((s) => s.sourceId === 1)) {
       return {
         data: {
           "flags.ddbimporter": {

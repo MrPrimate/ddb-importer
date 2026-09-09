@@ -46,6 +46,29 @@ declare global {
     label: string;
   }
 
+  interface IMuncherSourceBook {
+    id: number;
+    code: string;
+    name: string;
+    avatarURL: string | null;
+  }
+
+  interface IMuncherSourceCategoryBooks {
+    id: number;
+    name: string;
+    books: IMuncherSourceBook[];
+  }
+
+  /** The source selection an import will actually run with, as previewed next to a munch button. */
+  interface IMuncherEffectiveSources {
+    categories: { id: number; name: string; books: { id: number; code: string; name: string }[] }[];
+    bookCount: number;
+    /** The deprecated per-book filter is on and names at least one book inside the categories. */
+    bookFilterActive: boolean;
+    /** Books named by that filter which sit outside the included categories, so DDB never sees them. */
+    ignoredBooks: string[];
+  }
+
   interface IMuncherSettings {
     characterMunch: boolean;
     adventureOptions: ISettingsPolicyExpandedItem[];
@@ -77,6 +100,8 @@ declare global {
     version: string;
     campaignId: string;
     isCampaign: string | boolean;
+    includedCategoryBooks: IMuncherSourceCategoryBooks[];
+    showSourceBookCovers: boolean;
   }
 
   interface IEncounterSettings {
@@ -138,6 +163,7 @@ declare global {
     "ddb-importer.encounter-muncher-enabled": boolean;
     "ddb-importer.developer-mode": boolean;
     "ddb-importer.add-ddb-languages": boolean;
+    "ddb-importer.add-ddb-tools": boolean;
     "ddb-importer.register-source-books": boolean;
     "ddb-importer.no-source-book-pages": boolean;
     "ddb-importer.use-basic-rules": boolean;
@@ -319,6 +345,7 @@ declare global {
     "ddb-importer.munching-policy-use-source-filter": boolean;
     "ddb-importer.munching-policy-muncher-sources": any[];
     "ddb-importer.munching-policy-muncher-included-source-categories": any[];
+    "ddb-importer.muncher-show-source-book-covers": boolean;
     "ddb-importer.munching-policy-muncher-monster-types": any[];
     "ddb-importer.munching-policy-maps-included-types": string[];
     "ddb-importer.munching-policy-maps-exclude-dm": boolean;

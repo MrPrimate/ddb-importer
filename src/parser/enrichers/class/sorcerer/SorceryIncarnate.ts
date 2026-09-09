@@ -2,18 +2,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SorceryIncarnate extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Restore Innate Sorcery Use",
       noConsumeTargets: true,
       additionalConsumptionTargets: [
         {
           type: "itemUses",
-          target: "Sorcery Points",
+          target: "feat:sorcery-points",
           value: "2",
           scaling: {
             mode: "",
@@ -33,7 +33,7 @@ export default class SorceryIncarnate extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

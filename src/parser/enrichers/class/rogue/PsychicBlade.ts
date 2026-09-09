@@ -30,7 +30,7 @@ export default class PsychicBlade extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isClass("Bard")) return this.bardActivities;
     if (!this.isAction) return [];
     if (!this.isClass("Rogue")) return [];
@@ -69,7 +69,7 @@ export default class PsychicBlade extends DDBEnricherData {
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData | null {
     if (!this.isClass("Rogue")) return null;
 
     if (this.document.type === "feat") {
@@ -94,7 +94,9 @@ This features attacks have been created as the "Psychic Blade" weapon and can be
             range: {
               long: 120,
             },
-            "type.value": "simpleM",
+            type: {
+              value: "simpleM",
+            },
             properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
           },
         },

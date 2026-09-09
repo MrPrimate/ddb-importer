@@ -2,15 +2,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ControlledChanneling extends DDBEnricherData {
 
-  get type() {
+  // without this the action data auto-detects as a save/damage activity;
+  // the Bardic Inspiration consumption comes from the description parse
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
-    return {
-      addItemConsume: true,
-      itemConsumeTargetName: "Bardic Inspiration",
-      itemConsumeValue: 1,
-    };
-  }
 }

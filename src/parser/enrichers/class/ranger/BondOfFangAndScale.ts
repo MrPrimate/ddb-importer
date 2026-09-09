@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BondOfFangAndScale extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -17,7 +17,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     ];
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Damage bonus",
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
@@ -37,11 +37,11 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
 
     const activeType = this.ddbParser.isMuncher
       ? null
-      : this.ddbParser?._chosen?.find((a) =>
+      : this.ddbParser._chosen?.find((a) =>
         utils.nameString(a.label).endsWith(" Resistance"),
       )?.label?.split(" Resistance")[0].toLowerCase() ?? "";
 
@@ -49,8 +49,8 @@ export default class BondOfFangAndScale extends DDBEnricherData {
       return {
         name: ` Bond of Fang and Scale, Resistance: ${utils.capitalize(type)}`,
         options: {
-          transfer: activeType.includes(type),
-          disabled: !activeType.includes(type),
+          transfer: activeType?.includes(type) ?? false,
+          disabled: !activeType?.includes(type),
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(type),
@@ -59,7 +59,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     });
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 

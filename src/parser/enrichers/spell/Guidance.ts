@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Guidance extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     const midiProperties = this.is2014
       ? {}
       : {
@@ -23,7 +23,7 @@ export default class Guidance extends DDBEnricherData {
     };
   }
 
-  get effects2014() {
+  get effects2014(): IDDBEffectHint[] {
     return [
       {
         name: `Guidance`,
@@ -53,12 +53,12 @@ export default class Guidance extends DDBEnricherData {
             },
           },
         ],
-        daeSpecialDurations: ["isInitiative" as const],
+        daeSpecialDurations: ["isInitiative"],
       },
     ];
   }
 
-  get effects2024() {
+  get effects2024(): IDDBEffectHint[] {
     return DICTIONARY.actor.skills.map((skill) => {
       return {
         name: `${skill.label} Guidance`,
@@ -68,12 +68,12 @@ export default class Guidance extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.addChange("1d4", 100, `system.skills.${skill.name}.bonuses.check`),
         ],
-        daeSpecialDurations: [`isSkill.${skill.name}` as DAESpecialDuration],
+        daeSpecialDurations: [`isSkill.${skill.name}` as TDAEOnlySpecialDuration],
       };
     });
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return this.is2014 ? this.effects2014 : this.effects2024;
   }
 

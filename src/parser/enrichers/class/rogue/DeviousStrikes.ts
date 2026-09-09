@@ -2,11 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DeviousStrikes extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Daze",
       targetType: "creature",
@@ -22,7 +22,7 @@ export default class DeviousStrikes extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -127,7 +127,7 @@ export default class DeviousStrikes extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Knocked Out",
@@ -136,6 +136,13 @@ export default class DeviousStrikes extends DDBEnricherData {
         },
         statuses: ["Unconscious"],
         activityMatch: "Knock Out",
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "label=Devious Strikes: Knock Out (End of Turn Save),turn=end,saveDC=@abilities.dex.dc,saveAbility=con,savingThrow=true,saveRemove=true,killAnim=true",
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
       },
       {
         name: "Blinded",
@@ -147,7 +154,7 @@ export default class DeviousStrikes extends DDBEnricherData {
     ];
   }
 
-  get clearAutoEffects() {
+  override get clearAutoEffects(): boolean {
     return true;
   }
 }

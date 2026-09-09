@@ -15,7 +15,8 @@ export const SPELL = {
   components: {
     MATERIAL: "material",
     SOMATIC: "somatic",
-    VERBAL: "verbal",
+    // dnd5e's item property key for the V component is "vocal"
+    VERBAL: "vocal",
     CONCENTRATION: "concentration",
     RITUAL: "ritual",
   } as const,
@@ -78,7 +79,7 @@ export const SPELL = {
     { name: "Sorcerer", value: "full" },
     { name: "Warlock", value: "pact" },
     { name: "Wizard", value: "full" },
-    { name: "Monk", value: "none" },
+    { name: "Monk", value: "third" },
     { name: "Illrigger", value: "third" },
   ] as ISpellProgression[],
   preparationModes: [

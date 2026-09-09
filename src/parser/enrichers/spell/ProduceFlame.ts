@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ProduceFlame extends DDBEnricherData {
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
 
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return [
@@ -54,7 +54,7 @@ export default class ProduceFlame extends DDBEnricherData {
     }
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       data: {
         "system.range": {
@@ -65,7 +65,7 @@ export default class ProduceFlame extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Apply Light Effect",

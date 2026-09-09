@@ -1,6 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData {
+export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   get activity(): IDDBActivityData {
     return {

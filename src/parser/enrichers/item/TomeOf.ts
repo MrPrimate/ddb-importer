@@ -2,13 +2,16 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default abstract class TomeOf extends DDBEnricherData {
 
-  abstract effectData;
+  abstract effectData: {
+    name: string;
+    ability: string;
+  };
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Read Tome",
       addItemConsume: true,
@@ -20,7 +23,7 @@ export default abstract class TomeOf extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     const effectData = this.effectData;
 
     return [
@@ -29,14 +32,14 @@ export default abstract class TomeOf extends DDBEnricherData {
         name: effectData.name,
         changesOverwrite: true,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("2", "5", `system.abilities.${effectData.ability}.value`),
-          DDBEnricherData.ChangeHelper.addChange("2", "1", `system.abilities.${effectData.ability}.max`),
+          DDBEnricherData.ChangeHelper.addChange("2", 5, `system.abilities.${effectData.ability}.value`),
+          DDBEnricherData.ChangeHelper.addChange("2", 1, `system.abilities.${effectData.ability}.max`),
         ],
       },
     ];
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
