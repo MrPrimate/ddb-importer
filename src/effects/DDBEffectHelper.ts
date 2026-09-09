@@ -7,8 +7,11 @@ import {
 } from "../lib/_module";
 import { DICTIONARY } from "../config/_module";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature";
-import { DDBDescriptions } from "../parser/lib/_module";
-import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
+import DDBDescriptions from "../parser/lib/DDBDescriptions";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects";
+import ChangeHelper from "../parser/enrichers/effects/ChangeHelper";
+import MidiOverTimeEffect from "../parser/enrichers/effects/MidiOverTimeEffect";
+import DDBEffectHelperText from "./DDBEffectHelperText";
 
 interface IDamageOverTimeEffectOptions {
   document: I5ePCItem | I5eMonsterItem;
@@ -25,7 +28,10 @@ interface IDamageOverTimeEffectOptions {
 
 export default class DDBEffectHelper {
 
-  static baseEffect = AutoEffects.BaseEffect;
+  // a getter: the effects barrel is still evaluating when this class loads under some import orders
+  static get baseEffect() {
+    return AutoEffects.BaseEffect;
+  }
 
   static Crosshairs = Crosshairs;
 
@@ -1043,49 +1049,12 @@ export default class DDBEffectHelper {
 
   }
 
-  static extractListItems(text, { type = "ol", titleType = "em" } = {}) {
-    const results = [];
-    const parsedDoc = utils.htmlToDoc(text);
-    const list = parsedDoc.body.querySelector(type);
-    if (list) {
-      const listItems = list.querySelectorAll("li");
-      listItems.forEach((item, index) => {
-        // console.log('Item ' + (index + 1) + ': ' + item.textContent);
-        const title = item.querySelector(titleType);
-        const content = title.nextSibling;
-        results.push({
-          number: index + 1,
-          title: title.textContent.replace(/\.$/, "").trim(),
-          content: content.innerHTML ?? content.wholeText ?? content.textContent,
-          full: item.innerHTML,
-        });
-      });
-    }
-    if (results.length > 0) return results;
-    return DDBEffectHelper.extractParagraphItems(text, { titleType });
+  static extractListItems(text: string, { type = "ol", titleType = "em" } = {}): IExtractedHtmlItem[] {
+    return DDBEffectHelperText.extractListItems(text, { type, titleType });
   }
 
-  static extractParagraphItems(text, { type = "p", titleType = "em" } = {}) {
-    const results = [];
-    const parsedDoc = utils.htmlToDoc(text);
-
-    const listItems = parsedDoc.querySelectorAll(type);
-    let i = 1;
-    for (const item of listItems) {
-      const title = item.querySelector(titleType);
-
-      if (!title) continue;
-      const content = title.nextSibling;
-      results.push({
-        number: i,
-        title: title.textContent.replace(/\.$/, "").trim(),
-        content: content.innerHTML?.trim() ?? content.wholeText?.trim() ?? content.textContent?.trim(),
-        full: item.innerHTML,
-      });
-      i++;
-    }
-
-    return results;
+  static extractParagraphItems(text: string, { type = "p", titleType = "em" } = {}): IExtractedHtmlItem[] {
+    return DDBEffectHelperText.extractParagraphItems(text, { type, titleType });
   }
 
   static async _verySimpleDamageRollToChat({ actor, flavor, formula, damageType = "damage", item, itemId, itemUuid } = {}) {
@@ -1158,6 +1127,19 @@ export default class DDBEffectHelper {
     targets = undefined, showFullCard = false, scaling = false,
     configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
     createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
+    forceAutoRolls = true,
+  }: {
+    targets?: Token[] | undefined;
+    showFullCard?: boolean;
+    scaling?: boolean;
+    configureDialog?: boolean;
+    targetConfirmation?: boolean | undefined;
+    slotLevel?: number | undefined;
+    createMeasuredTemplate?: boolean | undefined;
+    consumeResource?: boolean;
+    consumeSpellSlot?: boolean;
+    /** false leaves attack/damage rolling to the user's midi settings instead of forcing auto rolls */
+    forceAutoRolls?: boolean;
   } = {}) {
     return [
       // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
@@ -1192,9 +1174,13 @@ export default class DDBEffectHelper {
         configure: configureDialog,
         options: {},
         workflowOptions: {
-          autoRollDamage: "always",
-          autoFastDamage: true,
-          autoRollAttack: true,
+          ...(forceAutoRolls
+            ? {
+              autoRollDamage: "always",
+              autoFastDamage: true,
+              autoRollAttack: true,
+            }
+            : {}),
           targetConfirmation,
         },
       },

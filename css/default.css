@@ -162,6 +162,37 @@ header > a.header-button.control.ddb-open-url {
   white-space: nowrap;
 }
 
+.ddb-included-source-summary {
+  margin-top: 0.75rem;
+}
+
+.ddb-included-source-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ddb-included-source-toolbar .hint {
+  flex: 1 1 240px;
+  margin: 0;
+}
+
+.ddb-included-source-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.ddb-included-source-actions button {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
 .ddb-party-sync table {
   width: 100%;
   border-collapse: collapse;
@@ -223,4 +254,467 @@ header > a.header-button.control.ddb-open-url {
 
 .ddb-party-sync .ddb-character-cell .character-name {
   font-weight: 600;
+}
+
+.ddb-included-source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.ddb-included-source-category {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ddb-included-source-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.25));
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ddb-included-source-category-header h4 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-included-source-category-header span {
+  flex: 0 0 auto;
+  opacity: 0.7;
+  font-size: 0.72rem;
+}
+
+.ddb-included-source-books {
+  max-height: 18rem;
+  overflow-y: auto;
+  padding: 0.4rem;
+  scrollbar-width: thin;
+}
+
+.ddb-included-source-name-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.ddb-included-source-name-list li + li {
+  margin-top: 0.15rem;
+}
+
+.ddb-included-source-cover-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  align-items: start;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ddb-included-source-cover-card {
+  min-width: 0;
+  text-align: center;
+}
+
+.ddb-included-source-cover-card > span {
+  display: -webkit-box;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  font-size: 0.65rem;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.ddb-included-source-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.25));
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.ddb-included-source-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ddb-included-source-cover i {
+  opacity: 0.5;
+  font-size: 1.5rem;
+}
+
+.ddb-included-source-empty {
+  margin: 0.75rem 0 0.25rem;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+#ddb-source-book-browser .window-content {
+  min-height: 0;
+}
+
+.ddb-source-book-browser-root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ddb-source-book-browser-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ddb-source-book-browser-header h2,
+.ddb-source-book-browser-header p {
+  margin: 0;
+}
+
+.ddb-source-book-browser-header h2 {
+  font-size: 1.1rem;
+}
+
+.ddb-source-book-browser-header input[type="search"] {
+  flex: 0 1 280px;
+  min-width: 180px;
+  height: 30px;
+}
+
+.ddb-source-book-browser-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.ddb-source-book-browser-category-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ddb-source-book-browser-category-select,
+.ddb-source-book-browser-category-toggle {
+  height: 30px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.ddb-source-book-browser-category-select {
+  display: flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+  border-right: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+}
+
+.ddb-source-book-browser-category-toggle {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+  padding: 0.4rem 0.55rem;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.ddb-source-book-browser-category-select:hover,
+.ddb-source-book-browser-category-select:focus-visible,
+.ddb-source-book-browser-category-toggle:hover,
+.ddb-source-book-browser-category-toggle:focus-visible {
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: none;
+}
+
+.ddb-source-book-browser-category-name {
+  flex: 1 1 auto;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ddb-source-book-browser-category-count {
+  flex: 0 0 auto;
+  opacity: 0.65;
+  font-size: 0.75rem;
+}
+
+.ddb-source-selection-checkbox {
+  display: inline-flex;
+  flex: 0 0 14px;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid currentcolor;
+  border-radius: 2px;
+  opacity: 0.6;
+  font-size: 9px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.ddb-source-selection-checkbox.selected {
+  border-color: var(--color-warm-2, #9f6b38);
+  background: var(--color-warm-2, #9f6b38);
+  color: var(--color-light-1, #fff);
+  opacity: 1;
+}
+
+.ddb-source-book-browser-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  align-items: start;
+  gap: 0.65rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ddb-source-book-browser-list > li {
+  min-width: 0;
+}
+
+.ddb-source-book-browser-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  min-width: 0;
+  padding: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+}
+
+.ddb-source-book-browser-card:hover,
+.ddb-source-book-browser-card:focus-visible {
+  border-color: var(--color-warm-2, #9f6b38);
+  box-shadow: 0 0 0 1px var(--color-warm-2, #9f6b38);
+}
+
+.ddb-source-book-selection {
+  position: absolute;
+  z-index: 1;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: var(--color-light-1, #fff);
+  color: var(--color-dark-1, #111);
+}
+
+.ddb-source-book-browser-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.ddb-source-book-browser-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ddb-source-book-browser-cover i {
+  opacity: 0.5;
+}
+
+.ddb-source-book-browser-book-name {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ddb-source-book-browser-card .hint {
+  display: block;
+  margin: 0.1rem 0 0;
+  overflow: hidden;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-source-book-browser-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* Munch button rows: the munch button takes the space, the sources button a fifth of it. */
+.munch-button-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.375rem;
+}
+
+.munch-button-row > .munch-button {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.munch-button-row > .ddb-munch-sources-button {
+  flex: 0 0 20%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Hover preview of the sources an import will use. Fixed and parented to <body> by
+ * SourceSelectionPreview, because the muncher's scrolling, backdrop-filtered window content would
+ * otherwise clip it.
+ */
+.ddb-source-preview {
+  position: fixed;
+  z-index: calc(var(--z-index-tooltip, 200) + 1);
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, 90vw);
+  max-height: 60vh;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-border-dark, rgba(0, 0, 0, 0.5));
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.45);
+  background: var(--color-bg-option, var(--color-cool-5, #23221d));
+  color: var(--color-text-primary, #f7f3e8);
+  font-size: var(--font-size-12, 0.75rem);
+  pointer-events: auto;
+}
+
+.ddb-source-preview-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.ddb-source-preview-header h4 {
+  margin: 0;
+  border: none;
+}
+
+.ddb-source-preview-note {
+  flex: 0 0 auto;
+  margin: 0.25rem 0 0;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.ddb-source-preview-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.375rem;
+  align-items: start;
+}
+
+.ddb-source-preview-category {
+  min-width: 0;
+  border: 1px solid var(--color-border-light-2, rgba(255, 255, 255, 0.2));
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ddb-source-preview-category > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.4rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(255, 255, 255, 0.2));
+}
+
+.ddb-source-preview-category h5 {
+  margin: 0;
+  border: none;
+  font-size: var(--font-size-12, 0.75rem);
+}
+
+.ddb-source-preview-category > header span {
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+.ddb-source-preview-category ul {
+  margin: 0;
+  padding: 0.3rem 0.4rem 0.35rem 1.1rem;
+  list-style: disc;
+}
+
+.ddb-source-preview-category li {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.ddb-source-preview-empty {
+  grid-column: 1 / -1;
+  margin: 0.5rem 0;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
 }
