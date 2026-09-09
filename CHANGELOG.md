@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.21
+
 - Some effect conditions lost expiry times.
 - The `Add D&D Beyond tool proficiencies?` setting now also controls whether free-text and exotic tool proficiencies are added to the character, not just whether they are registered with the system.
 
