@@ -110,6 +110,7 @@ async function updateDDBCharacters(debug = false) {
 
 
 export const API_BASE = {
+  socket: undefined as unknown as import("./hooks/socket/sockets").DDBSocket,
   notification: lib.Notifications.NOTIFICATION_API,
   hint: lib.Notifications.HINT_API,
   // libWrapper,

@@ -74,10 +74,7 @@ declare global {
       autoToken: (actor: Actor | I5eActor, options?: object) => Promise<string>;
     };
     Tokenizer2: ITokenizer2API;
-    DDBImporter: {
-      lib: Record<string, any>;
-      [key: string]: any;
-    };
+    DDBImporter: typeof import("../api").API_BASE;
     dnd5eCustomSkills: any;
     PIXI: any;
   }

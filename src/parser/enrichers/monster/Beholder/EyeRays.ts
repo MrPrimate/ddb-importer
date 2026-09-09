@@ -1,6 +1,7 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 import type { DDBMonsterDamage } from "../../../monster/features/DDBMonsterDamage";
+import type DDBMonsterFeature from "../../../monster/features/DDBMonsterFeature";
 
 export default class EyeRays extends DDBEnricherData {
 
@@ -76,7 +77,9 @@ export default class EyeRays extends DDBEnricherData {
         .matchActivitySection(ray.full, name)?.section ?? ray.full;
       const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml }) as IFeatureBasicsResult;
 
-      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser }) as DDBMonsterDamage;
+      // Eye Rays is a monster-only enricher, so the parser is always the monster feature.
+      const ddbMonsterFeature = this.ddbParser as DDBMonsterFeature;
+      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature }) as DDBMonsterDamage;
       ddbMonsterDamage.generateDamage();
       ddbMonsterDamage.generateRegain();
 

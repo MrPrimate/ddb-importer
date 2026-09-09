@@ -48,7 +48,7 @@ const DANCING_LIGHTS_BASE: Partial<I5eMonsterData> = {
 };
 
 
-export function getDancingLights(): ICompanionResult {
+export async function getDancingLights(): Promise<ICompanionResult> {
 
   const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
   const results: ICompanionResult = {
