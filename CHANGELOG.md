@@ -1,4 +1,6 @@
-# Next Up
+# 7.1.37
+
+Final v13 release for D&D 5.3.x system (@redarchongaming)
 
 - Backported the feature library from the v14/dnd5e 6.0 branch: around 480 new class, feat, item, spell, monster and species enrichers (Gunslinger, Blood Hunter, Kindred, Illrigger, Monster Hunter, Pugilist, new subclasses and books) and updates to over 400 existing ones.
 - Automated Conditions 5e (AC5e) support.
