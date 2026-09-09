@@ -126,7 +126,6 @@ export default class ElementalAttunement extends DDBEnricherData {
       activityMatch: "Activate Attunement",
       data: {
         flags: {
-          activityMatch: "Activate Attunement",
           ddbimporter: {
             effectIdLevel: { min, max },
             activityRiders: ["ddbElementStriAt", "ddbElementStriSa"],

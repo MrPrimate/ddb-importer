@@ -172,7 +172,7 @@ global {
       dnd5e?: {
         /** Id of the applied enchantment (same item) this rider activity was created for; removed with it. */
         dependentOn?: string;
-        [key: string]: unknown;
+        // [key: string]: unknown;
       };
       // some enrichers write midi properties via activity flags overrides
       midiProperties?: IMidiActivityProperties;

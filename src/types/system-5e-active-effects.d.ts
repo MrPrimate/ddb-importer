@@ -194,13 +194,14 @@ global {
         riders?: {
           statuses?: string[];
         };
-        [key: string]: any;
+        // [key: string]: any;
+        spellLevel?: number;
       };
       "midi-qol"?: {
         forceCEOff?: boolean;
       };
       core?: Record<string, unknown>;
-      [key: string]: any;
+      // [key: string]: any;
     };
     description?: string;
   }

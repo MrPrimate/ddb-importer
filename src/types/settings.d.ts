@@ -139,7 +139,7 @@ declare global {
     onChange?: (value: any) => void;
     requiresReload?: boolean;
     filePicker?: string;
-    [key: string]: any;
+    // [key: string]: any;
   }
 
   interface CompleteSettingConfig extends IPartialSettingConfig {

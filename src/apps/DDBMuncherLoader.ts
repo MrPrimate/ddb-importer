@@ -43,7 +43,11 @@ export default class DDBMuncherLoader extends DDBAppV2 {
       height: "auto" as const,
     },
     actions: {
-      cancel: DDBMuncherLoader.cancel,
+      // `this` rather than the class name: a private `#method` that mentions
+      // DDBMuncherLoader makes TypeScript route every self-reference through
+      // an alias assigned after the class body, so a class-name reference here
+      // would read undefined during the static initializer in the release build.
+      cancel: this.cancel,
     },
   };
 
