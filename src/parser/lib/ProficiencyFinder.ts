@@ -116,6 +116,10 @@ export default class ProficiencyFinder {
       ? DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true })
       : [];
 
+    // tools dnd5e has no key for (exotic instruments, free-text entries) only exist on the actor
+    // when the setting allows registering them into CONFIG.DND5E; otherwise the sheet cannot show them
+    const includeCustomTools = Boolean(utils.getSetting<boolean>("add-ddb-tools"));
+
     const toolExpertise = this.ddb
       ? this.ddb.character.classes.some((cls) =>
         cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel),
@@ -155,6 +159,7 @@ export default class ProficiencyFinder {
         const ability = (profMatch.ability ?? "dex") as T5eAbility;
 
         if (!profMatch.baseTool) {
+          if (!includeCustomTools) return;
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
         }
 
@@ -181,7 +186,7 @@ export default class ProficiencyFinder {
 
       // free text tool proficiencies the user typed into DDB. These have no dictionary
       // entry, so they are keyed off their name and registered into CONFIG.DND5E.tools.
-      if (!this.excludeCustom) {
+      if (!this.excludeCustom && includeCustomTools) {
         this.ddb.character.customProficiencies.forEach((proficiency) => {
           // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
           if (proficiency.type !== 2) return;

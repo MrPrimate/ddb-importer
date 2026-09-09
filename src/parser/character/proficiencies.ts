@@ -1,4 +1,4 @@
-import { DDBToolProficiencies, logger } from "../../lib/_module";
+import { DDBToolProficiencies, logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
@@ -96,7 +96,7 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
   // them from display. Register so this import renders, and stash them on the actor
   // so they can be replayed on the next world load.
   const customTools = this.proficiencyFinder.customTools;
-  if (customTools.length > 0) {
+  if (customTools.length > 0 && utils.getSetting<boolean>("add-ddb-tools")) {
     dndbeyondFlags.customTools = customTools;
     DDBToolProficiencies.registerAll(customTools);
   }
