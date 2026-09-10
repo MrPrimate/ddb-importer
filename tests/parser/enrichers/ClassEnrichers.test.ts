@@ -2036,3 +2036,41 @@ describe("sorcerer InnateSorcery effect", () => {
     ]);
   });
 });
+
+
+/**
+ * Roll data carries the rolling actor's statuses, so "while you are Bloodied" bonuses can be
+ * always-on rules instead of toggles. "Against a Bloodied creature" is about the target and only
+ * AC5e can see it.
+ */
+describe("bloodied status rules", () => {
+  it("Assertive Attacker adds Wis to monk weapon damage only while the monk is Bloodied", () => {
+    const [effect] = build(ClassEnrichers.Monk.AssertiveAttacker).effects;
+    expect(effect.options).toMatchObject({ transfer: true });
+    expect(effect.options.disabled).toBeUndefined();
+    const [change] = effect.changes;
+    expect(change).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "@abilities.wis.mod" });
+    const [status, weapon] = JSON.parse(change.conditions);
+    expect(status).toEqual({ k: "statuses.bloodied", o: "gte", v: 1 });
+    expect(weapon.o).toBe("OR");
+  });
+
+  it("Redoubled Efforts adds a Martial Arts die on a critical hit while Bloodied", () => {
+    const e = build(ClassEnrichers.Monk.RedoubledEfforts);
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+    const [change] = e.effects[0].changes;
+    expect(change).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "@scale.monk.die.die" });
+    expect(JSON.parse(change.conditions)).toEqual([
+      { k: "statuses.bloodied", o: "gte", v: 1 },
+      { k: "roll.isCritical", o: "exact", v: true },
+    ]);
+  });
+
+  it("Ruin Incarnate gains its advantage against Bloodied targets through AC5e", () => {
+    const [effect] = build(ClassEnrichers.Druid.RuinIncarnate).effects;
+    expect(effect.activityMatch).toBe("Activate");
+    expect(effect.ac5eChanges).toEqual([
+      expect.objectContaining({ key: "flags.automated-conditions-5e.attack.advantage", value: "opponentActor.statuses.bloodied", type: "ac5e" }),
+    ]);
+  });
+});

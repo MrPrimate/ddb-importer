@@ -44,6 +44,10 @@ export default class RuinIncarnate extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.acFormulaAddChange("17 + max(1, @abilities.wis.mod)", 15),
         ],
+        // "against Bloodied creatures" is about the target; core roll data has no target, AC5e does
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("opponentActor.statuses.bloodied", 20, "flags.automated-conditions-5e.attack.advantage"),
+        ],
       },
     ];
   }

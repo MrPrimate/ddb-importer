@@ -63,6 +63,7 @@ export { default as PhysiciansTouch } from "./PhysiciansTouch";
 export { default as PsychicCrush } from "./PsychicCrush";
 export { default as QuickenedHealing } from "./QuickenedHealing";
 export { default as RadiantSunBolt } from "./RadiantSunBolt";
+export { default as RedoubledEfforts } from "./RedoubledEfforts";
 export { default as RighteousStrike } from "./RighteousStrike";
 export { default as SearingArcStrike } from "./SearingArcStrike";
 export { default as SearingSunburst } from "./SearingSunburst";

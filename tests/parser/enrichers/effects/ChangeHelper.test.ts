@@ -430,3 +430,24 @@ describe("ChangeHelper cantrip and class-spell filters", () => {
     expect(ChangeHelper.classSpellFilter("druid")).toEqual({ k: "roll.item.classIdentifier", o: "exact", v: "druid" });
   });
 });
+
+
+describe("ChangeHelper status filters", () => {
+  it("reads the roller's own status; the count form covers concentrating and exhaustion", () => {
+    expect(ChangeHelper.statusFilter("bloodied")).toEqual({ k: "statuses.bloodied", o: "gte", v: 1 });
+  });
+
+  it("scopes a monk weapon rule to unarmed, flagged, simple melee or light martial melee weapons", () => {
+    const filter = ChangeHelper.MONK_WEAPON_FILTER;
+    expect(filter.o).toBe("OR");
+    expect(filter.v).toEqual([
+      { k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] },
+      { k: "roll.item.flags.ddbimporter.dndbeyond.isMonkWeapon", o: "exact", v: true },
+      { k: "roll.item.type.value", o: "exact", v: "simpleM" },
+      { o: "AND", v: [
+        { k: "roll.item.type.value", o: "exact", v: "martialM" },
+        { k: "roll.item.properties", o: "has", v: "lgt" },
+      ] },
+    ]);
+  });
+});

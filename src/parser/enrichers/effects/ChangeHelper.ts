@@ -221,6 +221,38 @@ export default class ChangeHelper {
   }
 
   /**
+   * Matches while the ROLLER has the status. Roll data only carries the rolling actor's statuses
+   * (`statuses.bloodied`, `statuses.concentrating` as a count, exhaustion as its level), so this
+   * can never express "against a Bloodied creature"; that needs AC5e's `opponentActor`.
+   */
+  static statusFilter(status: string): IEffectChangeFilter {
+    return { k: `statuses.${status}`, o: "gte", v: 1 };
+  }
+
+  /**
+   * Matches an Unarmed Strike or a Monk weapon. The importer stamps DDB's `isMonkWeapon` on
+   * imported weapons; the simple-melee / light-martial-melee clauses are the 2024 definition for
+   * weapons that arrived without the flag.
+   */
+  static get MONK_WEAPON_FILTER(): IEffectChangeFilter {
+    return {
+      o: "OR",
+      v: [
+        ChangeHelper.UNARMED_FILTER,
+        { k: "roll.item.flags.ddbimporter.dndbeyond.isMonkWeapon", o: "exact", v: true },
+        { k: "roll.item.type.value", o: "exact", v: "simpleM" },
+        {
+          o: "AND",
+          v: [
+            { k: "roll.item.type.value", o: "exact", v: "martialM" },
+            { k: "roll.item.properties", o: "has", v: "lgt" },
+          ],
+        },
+      ],
+    };
+  }
+
+  /**
    * Matches only a spell, cantrips included. There is no "is a spell" key, so this tests a
    * spell-only field: `level` is absent on features, weapons and potions, and a consumable
    * carrying a `dnd5e.spellLevel` flag (a scroll) reports one, which is correct. Facility items
