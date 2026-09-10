@@ -529,13 +529,6 @@ const SETTINGS = {
             config: false,
             requiresReload: true,
           },
-          "allow-great-weapon-master-enhancer": {
-            type: Boolean,
-            scope: "world",
-            default: false,
-            config: false,
-            requiresReload: true,
-          },
           "allow-warding-bond-enhancer": {
             type: Boolean,
             scope: "world",

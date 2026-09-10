@@ -16,7 +16,7 @@ const ddb: any = {
   },
 };
 
-const buildGenerator = (grantedModifiers: any[], type = "feature"): any => {
+const buildGenerator = (grantedModifiers: any[], type = "feature", documentType?: string): any => {
   return new (EffectGenerator as any)({
     ddb,
     character: { flags: {}, system: {} },
@@ -29,7 +29,7 @@ const buildGenerator = (grantedModifiers: any[], type = "feature"): any => {
         canAttune: false,
       },
     },
-    document: { name: "Test Feature", effects: [], flags: {} },
+    document: { name: "Test Feature", type: documentType, effects: [], flags: {} },
     type,
     isCompendiumItem: true,
     separateACEffects: false,
@@ -161,5 +161,60 @@ describe("EffectGenerator item damage modifiers", () => {
     const generator = buildGenerator([modifier("damage", "unarmed-attacks", 1)], "item");
     generator._addGlobalDamageBonus();
     expect(generator.effect.system.changes).toEqual([]);
+  });
+});
+
+describe("EffectGenerator weapon-specific damage bonuses", () => {
+  // Bracers of Archery: DDB puts the weapon slug in the damage modifier subtype. These used to fall
+  // through to the unconditional melee AND ranged bonuses, so the +2 landed on every weapon roll.
+  it("emits one rule per weapon gated on the rolled item's base item", () => {
+    const generator = buildGenerator([
+      modifier("damage", "longbow", 2),
+      modifier("damage", "shortbow", 2),
+    ]);
+    generator._addGlobalDamageBonus();
+
+    const changes = generator.effect.system.changes;
+    expect(changes.map((c: any) => c.key)).toEqual(["damage", "damage"]);
+    expect(changes.map((c: any) => JSON.parse(c.conditions))).toEqual([
+      { k: "roll.item.type.baseItem", o: "exact", v: "longbow" },
+      { k: "roll.item.type.baseItem", o: "exact", v: "shortbow" },
+    ]);
+    expect(changes.map((c: any) => c.value)).toEqual(["2", "2"]);
+  });
+
+  it("resolves hyphenated DDB weapon slugs to the dnd5e id", () => {
+    expect(EffectGenerator.weaponBaseItemForSubType("hand-crossbow")).toBe("handcrossbow");
+    expect(EffectGenerator.weaponBaseItemForSubType("light-hammer")).toBe("lighthammer");
+    expect(EffectGenerator.weaponBaseItemForSubType("additional")).toBeNull();
+    expect(EffectGenerator.weaponBaseItemForSubType(null)).toBeNull();
+  });
+
+  it("keeps weapon-scoped damage modifiers on equipment but not on a weapon", () => {
+    // items normally drop damage modifiers because a weapon bakes them into its damage parts
+    const bracers = buildGenerator([modifier("damage", "longbow", 2), modifier("damage", "additional", 1)], "item", "equipment");
+    bracers._addGlobalDamageBonus();
+    expect(bracers.effect.system.changes.map((c: any) => [c.key, JSON.parse(c.conditions).v])).toEqual([["damage", "longbow"]]);
+
+    const bow = buildGenerator([modifier("damage", "longbow", 2)], "item", "weapon");
+    bow._addGlobalDamageBonus();
+    expect(bow.effect.system.changes).toEqual([]);
+  });
+
+  it("keeps a weapon-specific bonus out of the unconditional bonuses", () => {
+    const generator = buildGenerator([
+      modifier("damage", "longbow", 2),
+      modifier("damage", "additional", 1),
+    ]);
+    generator._addGlobalDamageBonus();
+
+    const changes = generator.effect.system.changes;
+    expect(changes.map((c: any) => c.key)).toEqual([
+      "damage",
+      "system.rolls.damage.mwak.bonus",
+      "system.rolls.damage.rwak.bonus",
+    ]);
+    expect(changes[1].value).toBe("1");
+    expect(changes[2].value).toBe("1");
   });
 });

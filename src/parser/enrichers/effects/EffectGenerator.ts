@@ -143,8 +143,14 @@ export default class EffectGenerator {
       : [];
 
     if (this.grantedModifiers && type === "item") {
+      // A weapon bakes its own damage modifiers into its damage parts (DDBItem), so they must not
+      // become effect changes as well. Other items cannot: Bracers of Archery is equipment whose
+      // damage modifiers name a weapon, and those only reach the actor as a weapon-scoped rule.
+      const isWeapon = this.document.type === "weapon";
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>
-        modifier.type !== "damage" && modifier.subType !== null,
+        modifier.subType !== null
+        && (modifier.type !== "damage"
+          || (!isWeapon && EffectGenerator.weaponBaseItemForSubType(modifier.subType) !== null)),
       );
     }
 
@@ -854,9 +860,8 @@ export default class EffectGenerator {
 
   /**
    * A damage bonus that only applies to some attacks. `system.rolls.damage.<type>.bonus` cannot
-   * express "in one hand" or "unarmed", so these emit a rule change instead and let the system
-   * test the filter against the attack actually being rolled. The value stays a literal formula:
-   * damage rule values are not resolved recursively, so an `@` reference would break the roll.
+   * express "in one hand", "unarmed" or "with a longbow", so these emit a rule change instead and
+   * let the system test the filter against the attack actually being rolled.
    */
   _conditionedDamageBonus(modifiers: IModifiersMod[], conditions: IEffectChangeFilter | IEffectChangeFilter[], label: string) {
     const bonus = this._damageBonusFormula(modifiers);
@@ -875,6 +880,20 @@ export default class EffectGenerator {
     "unarmed-attacks": ChangeHelper.UNARMED_FILTER,
   };
 
+  /**
+   * DDB names a weapon-specific damage bonus (Bracers of Archery: +2 with a longbow or shortbow)
+   * by putting the weapon's slug in the modifier subtype. Resolve that slug to the dnd5e base item
+   * id through the proficiency table so the rule can test `roll.item.type.baseItem`; null for any
+   * subtype that is not a weapon we know.
+   */
+  static weaponBaseItemForSubType(subType: string | null | undefined): string | null {
+    if (!subType) return null;
+    const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const weapon = DICTIONARY.actor.proficiencies.find((p) =>
+      p.type === "Weapon" && Boolean(p.foundryValue) && slug(p.name) === subType);
+    return weapon?.foundryValue || null;
+  }
+
   _addGlobalDamageBonus() {
     // melee restricted attacks
     const meleeRestrictions = ["Melee Weapon Attacks"];
@@ -891,8 +910,20 @@ export default class EffectGenerator {
       this._conditionedDamageBonus(subTypeMods, conditions, subType);
     }
 
+    // weapon-specific bonuses used to fall through to the unconditional melee AND ranged bonuses
+    const weaponSubTypes = new Set<string>();
+    for (const mod of DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)) {
+      if (mod.subType && EffectGenerator.weaponBaseItemForSubType(mod.subType)) weaponSubTypes.add(mod.subType);
+    }
+    for (const subType of weaponSubTypes) {
+      const baseItem = EffectGenerator.weaponBaseItemForSubType(subType) as string;
+      const subTypeMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", subType);
+      this._conditionedDamageBonus(subTypeMods, { k: "roll.item.type.baseItem", o: "exact", v: baseItem }, subType);
+    }
+
     const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)
       .filter((mod) => !Object.keys(modeSubTypes).includes(mod.subType))
+      .filter((mod) => !weaponSubTypes.has(mod.subType))
       .filter((mod) => mod.dice || mod.die || mod.value);
     if (allBonusMods.length > 0) {
       logger.debug(`Generating all damage for ${this.document.name}`);

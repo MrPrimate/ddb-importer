@@ -18,7 +18,6 @@ export { default as BellowsOfStrangulation } from "./BellowsOfStrangulation";
 export { default as BloodAmulet } from "./BloodAmulet";
 export { default as BloodFuryTattoo } from "./BloodFuryTattoo";
 export { default as BootsOfSpeed } from "./BootsOfSpeed";
-export { default as BracersOfArchery } from "./BracersOfArchery";
 export { default as Broodslinger } from "./Broodslinger";
 export { default as BullseyeLantern } from "./BullseyeLantern";
 export { default as CabalsRuin } from "./CabalsRuin";

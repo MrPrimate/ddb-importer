@@ -1,5 +1,4 @@
 import WildShape from "./ClassFeatures/Druid/Wildshape";
-import GreatWeaponMaster from "./Feats/GreatWeaponMaster";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
@@ -28,10 +27,7 @@ export default class DDBEnhancers {
   }
 
   static _loadPreRollDamageV2Hooks() {
-    if (utils.getSetting<boolean>("allow-great-weapon-master-enhancer"))
-      Hooks.on("dnd5e.preRollDamageV2", (rollData, options, message) => {
-        GreatWeaponMaster.dnd5ePreRollDamageV2Hook(rollData, options, message);
-      });
+    // empty
   }
 
   static _preUpdateActorHooks() {

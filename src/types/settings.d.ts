@@ -238,7 +238,6 @@ declare global {
     "ddb-importer.allow-moon-druid-wildshape-enhancer": boolean;
     "ddb-importer.allow-arcane-ward-enhancer": boolean;
     "ddb-importer.allow-mighty-summoner-enhancer": boolean;
-    "ddb-importer.allow-great-weapon-master-enhancer": boolean;
     "ddb-importer.allow-warding-bond-enhancer": boolean;
 
     // READY: CHARACTER IMPORT

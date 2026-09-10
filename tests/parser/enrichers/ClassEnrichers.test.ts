@@ -1219,11 +1219,17 @@ describe("sorcerer ElementalAffinity", () => {
 
   it("enables only the chosen damage type's resistance", () => {
     const e = build(Enricher, { ddbParser: { _chosen: [{ label: "Fire Damage" }] } });
-    const enabled = e.effects.filter((effect: any) => effect.options.transfer).map((effect: any) => effect.name);
+    const enabled = e.effects
+      .filter((effect: any) => effect.options.transfer && !effect.options.disabled)
+      .map((effect: any) => effect.name);
     expect(enabled).toEqual(["Elemental Affinity, Resistance: Fire"]);
-    // the other four still ship, disabled, so a DM can flip them
-    expect(e.effects).toHaveLength(5);
-    expect(e.effects.filter((effect: any) => effect.options.disabled)).toHaveLength(4);
+    // the other four resistances still ship, disabled, so a DM can flip them; the five damage
+    // bonus effects ship disabled by default (Jack 2026-09-10) and only the chosen one transfers
+    expect(e.effects).toHaveLength(10);
+    expect(e.effects.filter((effect: any) => effect.options.disabled)).toHaveLength(9);
+    const bonuses = e.effects.filter((effect: any) => effect.name.includes("Damage Bonus"));
+    expect(bonuses.filter((effect: any) => effect.options.transfer).map((effect: any) => effect.name))
+      .toEqual(["Elemental Affinity, Damage Bonus: Fire"]);
   });
 
   it("falls back to the damage type in the feature name", () => {
@@ -1958,5 +1964,62 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
       expect(reckless.options).toEqual({ expiry: "sourceStart" });
       expect(reckless.data).toBeUndefined();
     });
+  });
+});
+
+/**
+ * Spell-scoped damage rules. dnd5e mirrors the rolled spell under `roll.item`, so a transfer
+ * effect on the feature can gate on the spell's level, class and school; each keeps its damage
+ * activity as the manual fallback. The rule effects ship DISABLED by default (Jack 2026-09-10) so
+ * a table opts in per character rather than discovering a doubled bonus.
+ */
+describe("wizard EmpoweredEvocation", () => {
+  it("adds Intelligence to wizard evocation spell damage through a rule", () => {
+    const e = build(ClassEnrichers.Wizard.EmpoweredEvocation);
+    expect(e.type).toBe("damage");
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0].name).toBe("Empowered Evocation: Damage Bonus");
+    expect(e.effects[0].options).toMatchObject({ transfer: true, disabled: true });
+    const [change] = e.effects[0].changes;
+    expect(change).toMatchObject({ key: "damage", value: "@abilities.int.mod", type: "dnd5e.bonus" });
+    expect(JSON.parse(change.conditions)).toEqual([
+      { k: "roll.item.level", o: "gte", v: 0 },
+      { k: "roll.item.classIdentifier", o: "exact", v: "wizard" },
+      { k: "roll.item.school", o: "exact", v: "evo" },
+    ]);
+  });
+});
+
+describe("artificer ArcaneFirearm", () => {
+  it("adds a d8 to artificer spell damage through a rule", () => {
+    const e = build(ClassEnrichers.Artificer.ArcaneFirearm);
+    expect(e.type).toBe("damage");
+    expect(e.effects[0].name).toBe("Arcane Firearm: Damage Bonus");
+    expect(e.effects[0].options).toMatchObject({ transfer: true, disabled: true });
+    const [change] = e.effects[0].changes;
+    expect(change).toMatchObject({ key: "damage", value: "1d8", type: "dnd5e.bonus" });
+    expect(JSON.parse(change.conditions)).toEqual([
+      { k: "roll.item.level", o: "gte", v: 0 },
+      { k: "roll.item.classIdentifier", o: "exact", v: "artificer" },
+    ]);
+  });
+});
+
+describe("sorcerer ElementalAffinity damage bonus", () => {
+  const rule = (effect: any) => effect.changes.find((c: any) => c.key === "damage");
+
+  it("adds Charisma to spell damage of the chosen type on a separate, disabled effect", () => {
+    const e = build(ClassEnrichers.Sorcerer.ElementalAffinity, { ddbParser: { _chosen: [{ label: "Fire Damage" }] } });
+    const fire = e.effects.find((effect: any) => effect.name === "Elemental Affinity, Damage Bonus: Fire");
+    expect(fire.options).toMatchObject({ transfer: true, disabled: true });
+    expect(rule(fire)).toMatchObject({ value: "@abilities.cha.mod", type: "dnd5e.bonus" });
+    expect(JSON.parse(rule(fire).conditions)).toEqual([
+      { k: "roll.item.level", o: "gte", v: 0 },
+      { k: "roll.damage.type", o: "exact", v: "fire" },
+    ]);
+    // the siblings carry their own type so flipping one on is enough
+    const cold = e.effects.find((effect: any) => effect.name === "Elemental Affinity, Damage Bonus: Cold");
+    expect(cold.options.transfer).toBe(false);
+    expect(JSON.parse(rule(cold).conditions)[1]).toEqual({ k: "roll.damage.type", o: "exact", v: "cold" });
   });
 });

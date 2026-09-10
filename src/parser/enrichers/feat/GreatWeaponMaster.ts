@@ -59,9 +59,25 @@ export default class GreatWeaponMaster extends DDBEnricherData {
         },
       ];
     } else {
-      return [];
+      return [
+        {
+          name: "Great Weapon Master: Heavy Weapon Mastery",
+          options: {
+            transfer: true,
+            disabled: true,
+            description: "Adds your Proficiency Bonus to the damage of a hit with a Heavy weapon. The rule cannot see whether the hit came from the Attack action on your turn, so enable/disable as required.",
+          },
+          changes: [
+            DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "@prof", {
+              conditions: [
+                { k: "roll.attack.classification", o: "exact", v: "weapon" },
+                { k: "roll.item.properties", o: "has", v: "hvy" },
+              ],
+            }),
+          ],
+        },
+      ];
     }
-
   }
 
   override get override(): IDDBOverrideData {
@@ -76,7 +92,7 @@ An effect is provided that can be toggled to enable or disable the Melee Weapon 
       : `
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
-<p>DDB Importer will automated the proficiency bonus damage for weapons with the Heavy property if you have this feat. A damage action is provided for situations where this might not be applied.</p>
+<p>DDB Importer can add the Proficiency Bonus damage on Heavy weapon hits through the feat's effect (any weapon attack with a Heavy weapon; the Attack-action-on-your-turn clause is not checked). The Damage action is a manual fallback for tables that disable that effect; using both applies the bonus twice.</p>
 </section>`;
     return {
       descriptionSuffix: description,

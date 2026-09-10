@@ -120,3 +120,34 @@ describe("Crossbow Expert Light crossbow extra attack", () => {
     expect(effects[0].midiOnly).toBe(true);
   });
 });
+
+/**
+ * 2024 Great Weapon Master adds the proficiency bonus to Heavy weapon hits. The rolled weapon's
+ * properties are visible to the rule under `roll.item`, so the feat's transfer effect carries a
+ * damage rule; the Damage activity stays as the manual fallback.
+ */
+describe("Great Weapon Master heavy weapon mastery", () => {
+  it("adds proficiency to Heavy weapon attack damage through a rule (2024)", () => {
+    const effects = makeEnricherData(FeatEnrichers.GreatWeaponMaster).effects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].options).toMatchObject({ transfer: true });
+    const changes = effects[0].changes ?? [];
+    expect(changes).toEqual([
+      expect.objectContaining({ key: "damage", value: "@prof", type: "dnd5e.bonus" }),
+    ]);
+    expect(JSON.parse(String(changes[0].conditions))).toEqual([
+      { k: "roll.attack.classification", o: "exact", v: "weapon" },
+      { k: "roll.item.properties", o: "has", v: "hvy" },
+    ]);
+  });
+
+  it("keeps the 2014 toggle effect unchanged", () => {
+    const effects = makeEnricherData(FeatEnrichers.GreatWeaponMaster, { is2014: true }).effects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].options).toMatchObject({ transfer: true, disabled: true });
+    expect((effects[0].changes ?? []).map((c) => c.key)).toEqual([
+      "system.rolls.attack.mwak.bonus",
+      "system.rolls.damage.mwak.bonus",
+    ]);
+  });
+});
