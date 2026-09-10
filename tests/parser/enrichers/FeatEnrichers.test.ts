@@ -75,11 +75,13 @@ describe("Kindred feat consumption targets", () => {
 });
 
 describe("War Caster", () => {
-  it("keeps the transferred concentration advantage and adds the opportunity-spell reaction", () => {
+  it("adds the opportunity-spell reaction and leaves the concentration advantage to the generator", () => {
     const e = makeEnricherData(FeatEnrichers.WarCaster);
     expect(e.type).toBe("utility");
     expect(e.activity).toMatchObject({ name: "Opportunity Spell", activationType: "reaction" });
-    expect(e.effects[0].options).toMatchObject({ transfer: true });
+    // the DDB modifier's "maintain your concentration" restriction resolves through
+    // RestrictionRules to attributes.concentration.roll.mode; a second copy here doubled it
+    expect(e.effects).toEqual([]);
     expect(e.override).toMatchObject({ midiManualReaction: true });
   });
 });

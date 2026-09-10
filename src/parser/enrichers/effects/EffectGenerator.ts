@@ -3,6 +3,7 @@ import utils from "../../../lib/Utils";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
+import RestrictionRules from "./RestrictionRules";
 import DDBModifiers from "../../lib/DDBModifiers";
 import ProficiencyFinder from "../../lib/ProficiencyFinder";
 import DDBDataUtils from "../../lib/DDBDataUtils";
@@ -99,6 +100,8 @@ export default class EffectGenerator {
   isCompendiumItem: boolean;
   type: TEffectGeneratorType;
   grantedModifiers: IDDBModifier[];
+  /** Save modifiers restricted to concentration, routed to `attributes.concentration.roll`. */
+  concentrationModifiers: IDDBModifier[];
   noGenerate: boolean;
   separateACEffects: boolean | undefined;
 
@@ -154,7 +157,17 @@ export default class EffectGenerator {
       );
     }
 
-    this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
+    // Concentration-restricted save modifiers have a native home (attributes.concentration.roll)
+    // and must stay out of the plain save paths, which would flatten them onto every Con save.
+    this.concentrationModifiers = (this.grantedModifiers ?? []).filter((modifier) =>
+      RestrictionRules.isConcentration(modifier.restriction)
+      && ["saving-throws", "constitution-saving-throws"].includes(modifier.subType ?? ""),
+    );
+    if (this.concentrationModifiers.length > 0) {
+      this.grantedModifiers = this.grantedModifiers.filter((modifier) => !this.concentrationModifiers.includes(modifier));
+    }
+
+    this.noGenerate = (!this.grantedModifiers || this.grantedModifiers.length === 0) && this.concentrationModifiers.length === 0;
 
     this.separateACEffects = separateACEffects ?? utils.getSetting<boolean>("separate-ac-effects");
 
@@ -683,6 +696,65 @@ export default class EffectGenerator {
     }
   }
 
+  /**
+   * "Advantage on Constitution saving throws to maintain concentration" and its bonus cousins.
+   * dnd5e rolls concentration through `attributes.concentration.roll`, so the mode and bonus land
+   * there rather than on the ability save, which would also catch poison and petrification.
+   */
+  _addConcentrationChanges() {
+    const key = "system.attributes.concentration.roll";
+    for (const mode of ["advantage", "disadvantage"] as const) {
+      const mods = this.concentrationModifiers.filter((mod) => mod.type === mode);
+      if (mods.length === 0) continue;
+      logger.debug(`Generating concentration ${mode} for ${this.document.name}`);
+      const value = mode === "advantage" ? ChangeHelper.ADVANTAGE : ChangeHelper.DISADVANTAGE;
+      this.effect.system.changes.push(ChangeHelper.upgradeChange(value, 20, `${key}.mode`));
+    }
+    const bonus = this.concentrationModifiers
+      .filter((mod) => mod.type === "bonus")
+      .map((mod) => DDBModifiers.extractModifierValue(mod))
+      .filter((value) => value !== "")
+      .join(" + ");
+    if (bonus) {
+      logger.debug(`Generating concentration bonus for ${this.document.name}`, bonus);
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `${key}.bonus`));
+    }
+  }
+
+  /**
+   * Advantage or disadvantage on a class of attack roll (DDB subtypes such as `spell-attacks` or
+   * `weapon-attacks`) as a dnd5e attack rule gated on the attack being rolled. An unrestricted
+   * modifier gets the subtype's scope; a restricted one only lands when RestrictionRules can
+   * express the restriction, otherwise it stays dropped like every other restricted modifier.
+   */
+  _addAttackRollModeRules() {
+    const emitted = new Set<string>();
+    for (const mode of ["advantage", "disadvantage"] as const) {
+      for (const [subType, scope] of Object.entries(RestrictionRules.ATTACK_SUBTYPE_CONDITIONS)) {
+        const mods = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, subType, null);
+        for (const mod of mods) {
+          let conditions = scope;
+          if (mod.restriction && mod.restriction.trim() !== "") {
+            const match = RestrictionRules.match(mod.restriction);
+            if (!match?.conditions) {
+              logger.debug(`Skipping restricted ${mode} ${subType} for ${this.document.name}: "${mod.restriction}"`);
+              continue;
+            }
+            conditions = scope.concat(match.conditions);
+          }
+          const change = mode === "advantage"
+            ? ChangeHelper.ruleAdvantageChange("attack", { conditions })
+            : ChangeHelper.ruleDisadvantageChange("attack", { conditions });
+          const signature = `${mode}:${change.conditions}`;
+          if (emitted.has(signature)) continue;
+          emitted.add(signature);
+          logger.debug(`Generating ${mode} ${subType} attack rule for ${this.document.name}`);
+          this.effect.system.changes.push(change);
+        }
+      }
+    }
+  }
+
   _addAttackRollDisadvantage() {
     if (!game.modules.get("midi-qol")?.active) return;
     const disadvantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you");
@@ -1030,6 +1102,8 @@ export default class EffectGenerator {
     this._addHPEffect();
     this._addSkillBonuses();
     this._addInitiativeBonuses();
+    this._addConcentrationChanges();
+    this._addAttackRollModeRules();
     this._addAttackRollDisadvantage();
     this._addMagicalAdvantage();
     this._addBonusSpeeds();

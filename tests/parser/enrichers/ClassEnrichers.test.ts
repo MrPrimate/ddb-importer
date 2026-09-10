@@ -2023,3 +2023,16 @@ describe("sorcerer ElementalAffinity damage bonus", () => {
     expect(JSON.parse(rule(cold).conditions)[1]).toEqual({ k: "roll.damage.type", o: "exact", v: "cold" });
   });
 });
+
+describe("sorcerer InnateSorcery effect", () => {
+  it("carries the DC bonus and a sorcerer-scoped spell attack advantage rule", () => {
+    const [effect] = build(ClassEnrichers.Sorcerer.InnateSorcery).effects;
+    expect(effect.activityMatch).toBe("Innate Sorcery");
+    expect(effect.changes.map((c: any) => c.key)).toEqual(["system.bonuses.spell.dc", "attack"]);
+    expect(effect.changes[1]).toMatchObject({ type: "dnd5e.advantage", value: "1" });
+    expect(JSON.parse(effect.changes[1].conditions)).toEqual([
+      { k: "roll.attack.classification", o: "exact", v: "spell" },
+      { k: "roll.item.classIdentifier", o: "exact", v: "sorcerer" },
+    ]);
+  });
+});
