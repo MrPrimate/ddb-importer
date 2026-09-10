@@ -9,6 +9,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 const FIXTURE_DIR = path.resolve(__dirname, "../../audit/fixtures/items");
+// Non-literal specifier on purpose: the harness lives in the private submodule, and a literal
+// path makes `tsc` resolve it, which fails on CI checkouts where tests/audit is empty.
+const HARNESS_MODULE = "../../audit/_classAuditHarness";
 
 function fixturesPresent(): boolean {
   try {
@@ -50,7 +53,7 @@ describe.skipIf(!fixturesPresent())("DDBItem rarity on real payloads", () => {
   const docs = new Map<string, any>();
 
   beforeAll(async () => {
-    const harness = await import("../../audit/_classAuditHarness");
+    const harness = await import(HARNESS_MODULE);
     harness.installDDBImporterGlobalStub();
     harness.installCompendiumStub();
     await harness.setupClassAuditEnvironment();
