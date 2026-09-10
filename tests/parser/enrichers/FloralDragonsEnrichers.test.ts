@@ -110,8 +110,8 @@ describe("Circle of Flowers", () => {
     expect(effects[0].changes).toEqual([
       expect.objectContaining({ key: "healing", value: "1d4", type: "dnd5e.bonus" }),
     ]);
-    // a cantrip reports item.level 0 and non-spell healing reports no level at all
-    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "item.level", o: "gte", v: 1 });
+    // a cantrip reports roll.item.level 0 and non-spell healing reports no level at all
+    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "roll.item.level", o: "gte", v: 1 });
   });
 
   it("adds the poison save advantage for the Azalea group", () => {

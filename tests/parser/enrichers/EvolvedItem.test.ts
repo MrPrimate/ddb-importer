@@ -211,7 +211,8 @@ describe("EvolvedItem enricher", () => {
   it("dual-arms Spellguarding and scopes Quickening's disadvantage to reaction attacks", () => {
     const spellguarding = enricherFor("Spellguarding Breastplate of the Tyrant").effects
       .find((hint) => !hint.standalone && hint.raw?.name === "Spellguarding Ward")!;
-    expect(spellguarding.raw?.system?.changes?.[0]).toMatchObject({ key: "save", type: "dnd5e.advantage" });
+    // no core rule: a target's save roll data carries no item, so nothing can gate a save on the incoming spell
+    expect(spellguarding.raw?.system?.changes ?? []).toEqual([]);
     expect(spellguarding.ac5eChanges?.[0]?.value).toBe("isSpell || isMagical");
     expect(spellguarding.midiChanges?.[0]?.key).toBe("flags.midi-qol.magicResistance.all");
 

@@ -516,7 +516,8 @@ export default class EffectGenerator {
     // (recursive formula replacement, dnd5e #7354), so @item.level reads the CAST level (base
     // plus upcast, SpellData#getRollData). The levelled-spell gate is RAW ("a spell of 1st level
     // or higher") and also keeps @item.level off potions and features, whose roll data has no
-    // item.level to substitute.
+    // item.level to substitute. The gate reads roll.item.level (the rolled spell); plain item is
+    // this feature since dnd5e 14e7a9db0.
     const healingBonus = DDBModifiers
       .filterModifiersOld(this.grantedModifiers, "bonus", "spell-group-healing")
       .reduce((a, b) => a + parseInt(String(b.value)), 0);

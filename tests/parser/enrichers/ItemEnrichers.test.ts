@@ -333,8 +333,8 @@ describe("MoonSickle", () => {
       expect.objectContaining({ key: "healing", value: "1d4", type: "dnd5e.bonus" }),
     ]);
     // "when you cast a spell that restores hit points": Lay on Hands and potions are not spells,
-    // and only a spell carries item.level, so the filter is a positive test on that
-    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "item.level", o: "gte", v: 0 });
+    // and only a spell carries roll.item.level, so the filter is a positive test on that
+    expect(JSON.parse(effects[0].changes[0].conditions)).toEqual({ k: "roll.item.level", o: "gte", v: 0 });
   });
 });
 

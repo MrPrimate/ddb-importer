@@ -400,8 +400,8 @@ describe("ChangeHelper rule changes", () => {
   });
 
   it("tests for a spell with a spell-only field, cantrips included", () => {
-    expect(ChangeHelper.SPELL_FILTER).toEqual({ k: "item.level", o: "gte", v: 0 });
-    expect(ChangeHelper.LEVELLED_SPELL_FILTER).toEqual({ k: "item.level", o: "gte", v: 1 });
+    expect(ChangeHelper.SPELL_FILTER).toEqual({ k: "roll.item.level", o: "gte", v: 0 });
+    expect(ChangeHelper.LEVELLED_SPELL_FILTER).toEqual({ k: "roll.item.level", o: "gte", v: 1 });
   });
 });
 
@@ -417,16 +417,16 @@ describe("ChangeHelper.healingBonusChange", () => {
 
   it("accepts a condition as its third argument", () => {
     const change = ChangeHelper.healingBonusChange("1d4", 20, ChangeHelper.LEVELLED_SPELL_FILTER);
-    expect(JSON.parse(change.conditions!)).toEqual({ k: "item.level", o: "gte", v: 1 });
+    expect(JSON.parse(change.conditions!)).toEqual({ k: "roll.item.level", o: "gte", v: 1 });
   });
 });
 
 describe("ChangeHelper cantrip and class-spell filters", () => {
   it("matches a cantrip by an exact level of 0, which only spells carry", () => {
-    expect(ChangeHelper.CANTRIP_FILTER).toEqual({ k: "item.level", o: "exact", v: 0 });
+    expect(ChangeHelper.CANTRIP_FILTER).toEqual({ k: "roll.item.level", o: "exact", v: 0 });
   });
 
   it("matches the granting class through dnd5e's derived classIdentifier", () => {
-    expect(ChangeHelper.classSpellFilter("druid")).toEqual({ k: "item.classIdentifier", o: "exact", v: "druid" });
+    expect(ChangeHelper.classSpellFilter("druid")).toEqual({ k: "roll.item.classIdentifier", o: "exact", v: "druid" });
   });
 });

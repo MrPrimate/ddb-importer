@@ -222,31 +222,39 @@ export default class ChangeHelper {
 
   /**
    * Matches only a spell, cantrips included. There is no "is a spell" key, so this tests a
-   * spell-only field: `item.level` is absent on features, weapons and potions, and a consumable
+   * spell-only field: `level` is absent on features, weapons and potions, and a consumable
    * carrying a `dnd5e.spellLevel` flag (a scroll) reports one, which is correct. Facility items
    * also carry a level, but no facility rolls healing or damage.
+   *
+   * The key is `roll.item`, not `item`: since dnd5e 14e7a9db0 rule conditions are checked against
+   * `ActiveEffect5e#getReplacementData`, which overwrites `item` with the effect's HOST item, so on
+   * a transfer effect `item.level` is the class feature's (absent). `roll.item` (91fb97d50) is the
+   * rolled item and is only populated on rolls made with roll options: attack, damage and heal
+   * rolls plus the actor's d20 rolls. A save rolled by a target carries the target's roll data with
+   * no item at all, so these filters cannot gate save rules on the incoming spell.
    */
   static get SPELL_FILTER(): IEffectChangeFilter {
-    return { k: "item.level", o: "gte", v: 0 };
+    return { k: "roll.item.level", o: "gte", v: 0 };
   }
 
   /** Matches a spell cast at 1st level or higher; a cantrip reports level 0. */
   static get LEVELLED_SPELL_FILTER(): IEffectChangeFilter {
-    return { k: "item.level", o: "gte", v: 1 };
+    return { k: "roll.item.level", o: "gte", v: 1 };
   }
 
-  /** Matches a cantrip: only spells carry `item.level`, and a cantrip reports exactly 0. */
+  /** Matches a cantrip: only spells carry `roll.item.level`, and a cantrip reports exactly 0. */
   static get CANTRIP_FILTER(): IEffectChangeFilter {
-    return { k: "item.level", o: "exact", v: 0 };
+    return { k: "roll.item.level", o: "exact", v: 0 };
   }
 
   /**
    * Matches a spell granted by the class with this dnd5e identifier. dnd5e derives
-   * `item.classIdentifier` from the spell's `system.sourceItem` (`class:cleric`), so a wizard cantrip
-   * on a cleric/wizard does not match a cleric-only bonus.
+   * `classIdentifier` in the spell's roll data from `system.sourceItem` (`class:cleric`), so a wizard
+   * cantrip on a cleric/wizard does not match a cleric-only bonus. Read through `roll.item` for the
+   * reason given on `SPELL_FILTER`.
    */
   static classSpellFilter(identifier: string): IEffectChangeFilter {
-    return { k: "item.classIdentifier", o: "exact", v: identifier };
+    return { k: "roll.item.classIdentifier", o: "exact", v: identifier };
   }
 
   /**

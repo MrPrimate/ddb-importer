@@ -41,8 +41,8 @@ describe("EffectGenerator._addCantripDamageBonus", () => {
     expect(rules).toHaveLength(1);
     expect(rules[0]).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "@abilities.wis.mod", priority: 20 });
     expect(JSON.parse(rules[0].conditions)).toEqual([
-      { k: "item.level", o: "exact", v: 0 },
-      { k: "item.classIdentifier", o: "exact", v: "cleric" },
+      { k: "roll.item.level", o: "exact", v: 0 },
+      { k: "roll.item.classIdentifier", o: "exact", v: "cleric" },
     ]);
   });
 
@@ -51,7 +51,7 @@ describe("EffectGenerator._addCantripDamageBonus", () => {
     generator._addCantripDamageBonus();
     const [rule] = damageRules(generator);
     expect(rule.value).toBe("@abilities.int.mod");
-    expect(JSON.parse(rule.conditions)[1]).toEqual({ k: "item.classIdentifier", o: "exact", v: "artificer" });
+    expect(JSON.parse(rule.conditions)[1]).toEqual({ k: "roll.item.classIdentifier", o: "exact", v: "artificer" });
   });
 
   it("ignores a restricted modifier (the 2024 temp-HP rider) and one with no stat", () => {

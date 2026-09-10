@@ -41,7 +41,7 @@ describe("EffectGenerator spell-group-healing rule", () => {
     // a cantrip reports item.level 0 and a potion or feature has no item.level at all, so this
     // one clause is both the RAW "spell of 1st level or higher" and the guard against an
     // unresolvable @item.level on non-spell healing
-    expect(JSON.parse(rules[0].conditions)).toEqual({ k: "item.level", o: "gte", v: 1 });
+    expect(JSON.parse(rules[0].conditions)).toEqual({ k: "roll.item.level", o: "gte", v: 1 });
   });
 
   it("emits nothing without the modifier", () => {
