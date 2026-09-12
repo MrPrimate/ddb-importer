@@ -17,6 +17,23 @@ global {
     ddb: IDDBData;
   }
 
+  /**
+   * The file the `debug-import-capture` setting downloads after a character import: the
+   * proxy response the parser consumed and the actor as it stands once the import has
+   * finished, kept in one document so the pair can never drift apart on disk.
+   */
+  export interface IDDBImportCapture {
+    format: number;
+    capturedAt: string;
+    characterId: number | null;
+    versions: { game: string; system: string; ddbimporter: string };
+    modules: string[];
+    importSettings: Record<string, unknown>;
+    importError: string | null;
+    source: IDDBCharacterResponse | null;
+    actor: I5ePCData;
+  }
+
   export interface IDDBData {
     name: string;
     character: IDDBCharacterData;
