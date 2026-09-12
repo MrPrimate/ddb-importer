@@ -53,6 +53,13 @@ const COUNTED_DURATION = /durationSeconds: \d/;
 // `data.duration` block could still smuggle the units in, so both spellings are scanned.
 const COMBAT_UNIT_OPTION = /duration(?:Rounds|Turns)\s*:/;
 const COMBAT_UNIT_LITERAL = /units:\s*["'`](?:rounds|turns)["'`]/;
+// the shapes the legacy builders and macros used to write: a units assignment, the pre-v14
+// `duration.rounds = n` / `{ rounds: n }` keys (core only tolerates those through a shim)
+const LEGACY_COMBAT_UNIT = new RegExp([
+  /duration\.units\s*=\s*["'`](?:rounds|turns)["'`]/.source,
+  /duration\.(?:rounds|turns)\s*=/.source,
+  /duration:\s*\{[^}]*\b(?:rounds|turns)\s*:/.source,
+].join("|"));
 
 describe("enricher effect expiry hygiene", () => {
   it("finds enricher files to scan", () => {
@@ -108,7 +115,9 @@ describe("enricher effect expiry hygiene", () => {
     for (const root of roots) {
       for (const file of collectFiles(root, [".ts", ".js"])) {
         for (const line of fs.readFileSync(file, "utf8").split("\n")) {
-          if (COMBAT_UNIT_LITERAL.test(line)) offenders.push(`${path.relative(root, file)}: ${line.trim()}`);
+          if (COMBAT_UNIT_LITERAL.test(line) || LEGACY_COMBAT_UNIT.test(line)) {
+            offenders.push(`${path.relative(root, file)}: ${line.trim()}`);
+          }
         }
       }
     }

@@ -279,6 +279,18 @@ describe("DDBEffectHelper.generateConditionOnlyEffect", () => {
     // the effect's 60s is translated to a valid dnd5e minute item duration
     expect(doc.system.duration).toEqual({ units: "minute", value: 1 });
   });
+
+  it("keeps a month-long condition counted instead of leaving it indefinite", () => {
+    const doc = makeFeatureDoc({ system: {
+      description: { value: conditionText.replace("for 1 minute", "for 1 month") },
+      duration: { units: "inst" },
+      activities: {},
+    } });
+    DDBEffectHelper.generateConditionOnlyEffect(makeActor(), doc);
+    const [effect] = doc.effects;
+    // 30-day month, mirroring DDBDescriptions.getDuration
+    expect(effect.duration).toMatchObject({ value: 86400 * 30, units: "seconds" });
+  });
 });
 
 describe("DDBEffectHelper.generateOverTimeEffect", () => {

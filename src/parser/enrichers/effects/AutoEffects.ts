@@ -65,15 +65,12 @@ export default class AutoEffects {
     return null;
   }
 
-  static adjustDuration(duration: IEffectDuration) {
-    duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "") ?? undefined;
-  }
-
   /**
    * Normalise a parsed or inherited duration to the shape generated effects carry: every unit
    * maps to its plural effect unit and round or turn counts become seconds. Anything but a whole
-   * integer (a formula such as "2d4" or "1 + @prof", blank, null) yields a null value, since an
-   * active effect duration must be an integer.
+   * positive integer (a formula such as "2d4" or "1 + @prof", 1.5, -1, 0, blank, null) yields a
+   * null value: Foundry validates an active effect duration as an integer of at least zero, and a
+   * zero-length duration means "no counted duration" everywhere in this module.
    */
   static toEffectDuration(
     value: number | string | null | undefined,
@@ -83,7 +80,7 @@ export default class AutoEffects {
     const parsed = typeof value === "string"
       ? ((/^\s*\d+\s*$/).test(value) ? parseInt(value) : null)
       : value ?? null;
-    if (parsed === null || !Number.isFinite(parsed)) return { value: null, units: mappedUnits };
+    if (parsed === null || !Number.isInteger(parsed) || parsed <= 0) return { value: null, units: mappedUnits };
     const multiplier = (units ? COMBAT_UNIT_SECONDS[units] : undefined) ?? 1;
     return { value: parsed * multiplier, units: mappedUnits };
   }
@@ -149,16 +146,18 @@ export default class AutoEffects {
     };
     effect.duration = AutoEffects.generateBasicEffectDuration(document);
     effect.description = description ?? "";
-    // a number replaces the host document's duration; an explicit null clears it so the effect
-    // carries no counted duration (and no inherited expiry) at all; undefined inherits
-    if (durationSeconds === null) {
-      effect.duration.value = null;
-      effect.duration.units = "seconds";
-      effect.duration.expiry = null;
-    } else if (durationSeconds) {
+    // a positive number replaces the host document's duration; null or zero clears it so the
+    // effect carries no counted duration (and no inherited expiry) at all; undefined inherits
+    if (durationSeconds === undefined) {
+      // inherit the host duration
+    } else if (typeof durationSeconds === "number" && durationSeconds > 0) {
       effect.duration.value = durationSeconds;
       effect.duration.units = "seconds";
       effect.duration.expiry = "turnStart";
+    } else {
+      effect.duration.value = null;
+      effect.duration.units = "seconds";
+      effect.duration.expiry = null;
     }
     if (magical !== undefined) effect.system.magical = magical;
     return effect;

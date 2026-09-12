@@ -232,8 +232,8 @@ global {
     description?: string;
     /**
      * Counted duration in seconds, the only counted unit generated effects carry (rounds and
-     * turns are never emitted, see AutoEffects). A number replaces the host document's own
-     * duration; an explicit null clears it so the effect has no counted duration; undefined
+     * turns are never emitted, see AutoEffects). A positive number replaces the host document's
+     * own duration; null or 0 clears it so the effect has no counted duration; undefined
      * inherits the host duration.
      */
     durationSeconds?: number | null;

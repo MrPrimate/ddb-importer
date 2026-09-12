@@ -31,6 +31,13 @@ describe("AutoEffects.toEffectDuration", () => {
     expect(AutoEffects.toEffectDuration(" 3 ", "round")).toEqual({ value: 18, units: "seconds" });
   });
 
+  it("rejects fractional, negative and zero values: a zero-length duration is no duration", () => {
+    expect(AutoEffects.toEffectDuration(1.5, "minute")).toEqual({ value: null, units: "minutes" });
+    expect(AutoEffects.toEffectDuration(-1, "round")).toEqual({ value: null, units: "seconds" });
+    expect(AutoEffects.toEffectDuration(0, "round")).toEqual({ value: null, units: "seconds" });
+    expect(AutoEffects.toEffectDuration("0", "minute")).toEqual({ value: null, units: "minutes" });
+  });
+
   it("passes the calendar units the description parser produces straight through", () => {
     expect(AutoEffects.toEffectDuration("1", "month")).toEqual({ value: 1, units: "months" });
     expect(AutoEffects.toEffectDuration("2", "years")).toEqual({ value: 2, units: "years" });
@@ -62,6 +69,16 @@ describe("AutoEffects.BaseEffect duration", () => {
   it("clears the inherited duration and its expiry for an explicit null", () => {
     const effect = AutoEffects.BaseEffect(host({ value: "1", units: "round" }), "Wind Sprint", { durationSeconds: null });
     expect(effect.duration).toMatchObject({ value: null, units: "seconds", expiry: null });
+  });
+
+  it("treats durationSeconds 0 like null: no counted duration, not the host's", () => {
+    const effect = AutoEffects.BaseEffect(host({ value: "1", units: "round" }), "Marker", { durationSeconds: 0 });
+    expect(effect.duration).toMatchObject({ value: null, units: "seconds", expiry: null });
+  });
+
+  it("inherits a zero-length host duration as no duration", () => {
+    const effect = AutoEffects.BaseEffect(host({ value: "0", units: "round" }), "Marker");
+    expect(effect.duration).toEqual({ value: null, units: "seconds", expiry: null, expired: false });
   });
 
   it("inherits when durationSeconds is undefined", () => {

@@ -25,7 +25,15 @@ interface IMidiOverTimeEffectOptions {
   addToMonster?: boolean;
 }
 
-const SECONDS_PER_UNIT: Record<string, number> = { seconds: 1, minutes: 60, hours: 3600, days: 86400 };
+// the calendar multipliers mirror DDBDescriptions.getDuration (30-day month, 365-day year)
+const SECONDS_PER_UNIT: Record<string, number> = {
+  seconds: 1,
+  minutes: 60,
+  hours: 3600,
+  days: 86400,
+  months: 86400 * 30,
+  years: 86400 * 365,
+};
 
 /**
  * Elapsed seconds for a parsed condition duration. Over-time effects always carry seconds:
