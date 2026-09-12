@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.5.1
+
 - A good number of effects generated turn or round based durations which do not work well with the new expiry system. The importer will now emit time based durations only.
 - A number of improvements to detecting the scalevalue in text descriptions.
 
