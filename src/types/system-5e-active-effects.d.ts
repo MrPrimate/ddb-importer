@@ -236,16 +236,6 @@ global {
     time?: number;
   }
 
-  interface IBaseEffectOptions {
-    transfer?: boolean;
-    disabled?: boolean;
-    description?: string | null;
-    durationSeconds?: number | null;
-    durationRounds?: number | null;
-    durationTurns?: number | null;
-    showIcon?: TEffectShowIcon;
-  }
-
   interface IStatusConditionEffectOptions {
     text?: string | null;
     status?: any;

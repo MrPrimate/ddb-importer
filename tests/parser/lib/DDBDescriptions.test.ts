@@ -59,6 +59,13 @@ describe("DDBDescriptions.getDuration", () => {
     expect(result.rounds).toBe(3);
   });
 
+  it("counts a turn as six seconds of elapsed time", () => {
+    const result = DDBDescriptions.getDuration("for 1 turn");
+    expect(result.type).toBe("turn");
+    expect(result.turns).toBe(1);
+    expect(result.seconds).toBe(6);
+  });
+
   it("parses 'for 1 day'", () => {
     const result = DDBDescriptions.getDuration("for 1 day");
     expect(result.type).toBe("day");

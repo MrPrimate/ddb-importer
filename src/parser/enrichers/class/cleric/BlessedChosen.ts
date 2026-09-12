@@ -26,7 +26,7 @@ export default class BlessedChosen extends DDBEnricherData {
       {
         name: "Blessed Chosen: Disadvantage",
         options: {
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "Disadvantage on the triggering attack roll.",
         },
         midiChanges: [

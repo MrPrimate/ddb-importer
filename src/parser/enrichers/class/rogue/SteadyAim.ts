@@ -26,11 +26,11 @@ export default class SteadyAim extends DDBEnricherData {
         daeSpecialDurations: ["1Attack"],
         daeStackable: "noneName",
         options: {
-          durationTurns: 1,
+          // "Advantage on your next attack roll on the current turn"
+          expiry: "turnEnd",
         },
       },
       {
-        daeOnly: true,
         name: "Steady Aim Speed Reduction",
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
@@ -38,18 +38,7 @@ export default class SteadyAim extends DDBEnricherData {
         daeStackable: "noneName",
         options: {
           // "your Speed is 0 until the end of the current turn"
-          expiry: "sourceEnd",
-        },
-      },
-      {
-        daeNever: true,
-        name: "Steady Aim Speed Reduction",
-        changes: [
-          DDBEnricherData.ChangeHelper.movementMultiplierChange("0", 100),
-        ],
-        options: {
-          durationSeconds: 12,
-          durationRounds: 2,
+          expiry: "turnEnd",
         },
       },
     ];

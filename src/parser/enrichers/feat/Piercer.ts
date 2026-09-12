@@ -19,7 +19,6 @@ export default class Piercer extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: undefined,
-          durationRounds: undefined,
           expiry: null,
         },
         damageBonusMacroChanges: [

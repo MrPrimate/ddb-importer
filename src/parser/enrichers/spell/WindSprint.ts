@@ -23,8 +23,10 @@ export default class WindSprint extends DDBEnricherData {
         name: "Wind Sprint",
         ac5eOnly: true,
         options: {
-          // "the next time you hit ... before the end of the turn" - rides the caster
-          expiry: "sourceEnd",
+          // "the next time you hit ... before the end of the turn" - rides the caster; the
+          // spell's own duration must not be inherited beside a turn-edge expiry
+          expiry: "turnEnd",
+          durationSeconds: null,
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(

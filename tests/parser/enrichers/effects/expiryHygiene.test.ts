@@ -23,12 +23,12 @@ const NATIVE_TOKENS = [
 /** Every `daeSpecialDurations: [ ... ]` literal in the enricher tree, including multi-line ones. */
 const DECLARATION = /daeSpecialDurations:\s*\[[^\]]*\]/gs;
 
-function collectFiles(dir: string): string[] {
+function collectFiles(dir: string, extensions: string[] = [".ts"]): string[] {
   const found: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...collectFiles(full));
-    else if (entry.name.endsWith(".ts")) found.push(full);
+    if (entry.isDirectory()) found.push(...collectFiles(full, extensions));
+    else if (extensions.some((ext) => entry.name.endsWith(ext))) found.push(full);
   }
   return found;
 }
@@ -44,7 +44,15 @@ const files = collectFiles(enricherRoot).filter((file) =>
 // make DAE and midi-QOL hold the effect long enough for their own expiry pass, and are now dead
 // weight that misrepresents the effect's real lifetime in the source.
 const PSEUDO_EXPIRY = /expiry: "(?:source|target)(?:Start|End)"/;
-const COUNTED_DURATION = /duration(?:Seconds|Rounds|Turns): \d/;
+const COUNTED_DURATION = /durationSeconds: \d/;
+
+// Generated effects carry elapsed seconds or a native expiry, never dnd5e's combat units:
+// rounds and turns count round changes and initiative slots rather than the creature's own
+// turn, so they misexpire depending on when in the round the effect landed
+// (foundryvtt/dnd5e#7434). The option keys were removed from IDDBEffectOptions; a raw
+// `data.duration` block could still smuggle the units in, so both spellings are scanned.
+const COMBAT_UNIT_OPTION = /duration(?:Rounds|Turns)\s*:/;
+const COMBAT_UNIT_LITERAL = /units:\s*["'`](?:rounds|turns)["'`]/;
 
 describe("enricher effect expiry hygiene", () => {
   it("finds enricher files to scan", () => {
@@ -74,5 +82,36 @@ describe("enricher effect expiry hygiene", () => {
       }
     }
     expect(offenders, "a pseudo expiry nulls duration.value - drop the counted duration").toEqual([]);
+  });
+
+  it("requests no rounds or turns duration on any effect hint", () => {
+    const offenders: string[] = [];
+    for (const file of files) {
+      const source = fs.readFileSync(file, "utf8");
+      for (const line of source.split("\n")) {
+        if (COMBAT_UNIT_OPTION.test(line) || COMBAT_UNIT_LITERAL.test(line)) {
+          offenders.push(`${path.relative(enricherRoot, file)}: ${line.trim()}`);
+        }
+      }
+    }
+    expect(
+      offenders,
+      "use durationSeconds for elapsed time, options: { expiry } for a turn edge (turnEnd = the current turn,"
+      + " sourceStart/sourceEnd/targetStart/targetEnd = the next one)",
+    ).toEqual([]);
+  });
+
+  it("writes no rounds or turns units from the legacy effect builders or the macros either", () => {
+    // src/effects and macros/ emit effects without going through the enricher hints
+    const roots = [path.resolve(dirname, "../../../../src/effects"), path.resolve(dirname, "../../../../macros")];
+    const offenders: string[] = [];
+    for (const root of roots) {
+      for (const file of collectFiles(root, [".ts", ".js"])) {
+        for (const line of fs.readFileSync(file, "utf8").split("\n")) {
+          if (COMBAT_UNIT_LITERAL.test(line)) offenders.push(`${path.relative(root, file)}: ${line.trim()}`);
+        }
+      }
+    }
+    expect(offenders, "effects carry seconds (value null for a native expiry), never rounds or turns").toEqual([]);
   });
 });

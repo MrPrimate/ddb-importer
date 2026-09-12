@@ -663,7 +663,10 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Infiltrator: Flight",
         activityMatch: "Infiltrator: Fly",
         options: {
-          expiry: "sourceEnd",
+          // "until the end of your turn"; the feature text also parses a one-minute clause,
+          // which must not become a counted ceiling beside the turn edge
+          expiry: "turnEnd",
+          durationSeconds: null,
           description: `You gain flight equal to twice your speed until the end of your turn`,
         },
         changes: [

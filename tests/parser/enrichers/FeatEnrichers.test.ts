@@ -236,3 +236,17 @@ describe("feat action hints match what DDB ships", () => {
     });
   });
 });
+
+describe("DefensiveDuelist expiry by ruleset (dnd5e #7434)", () => {
+  it("2014: the bonus covers that attack only, so the current turn is the ceiling and DAE ends it on the attack", () => {
+    const [effect] = makeEnricherData(FeatEnrichers.DefensiveDuelist, { is2014: true }).effects;
+    expect(effect.options?.expiry).toBe("turnEnd");
+    expect(effect.daeSpecialDurations).toEqual(["isAttacked"]);
+  });
+
+  it("2024: the bonus lasts until the start of your next turn", () => {
+    const [effect] = makeEnricherData(FeatEnrichers.DefensiveDuelist, { is2014: false }).effects;
+    expect(effect.options?.expiry).toBe("sourceStart");
+    expect(effect.daeSpecialDurations).toEqual([]);
+  });
+});

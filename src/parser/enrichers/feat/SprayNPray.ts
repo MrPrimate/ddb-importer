@@ -24,7 +24,7 @@ export default class SprayNPray extends DDBEnricherData {
         name: "Spray 'n' Pray: 2 Attacks",
         options: {
           // the -5 penalty is on the shooter for their own turn
-          expiry: "sourceEnd",
+          expiry: "turnEnd",
         },
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("-5", 20, "system.rolls.attack.rwak.bonus"),

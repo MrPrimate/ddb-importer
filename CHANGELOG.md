@@ -1,5 +1,8 @@
 # Next Up
 
+- A good number of effects generated turn or round based durations which do not work well with the new expiry system. The importer will now emit second based durations only.
+- A number of improvements to detecting the scalevalue in text descriptions.
+
 # 7.5.0
 
 This version works ONLY on D&D 5e v6.0x and Foundry v14.

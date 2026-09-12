@@ -193,7 +193,9 @@ export default class DDBEffectHelper {
       disabled: false,
       transfer: false,
       img: icon ?? undefined,
-      duration: { value: 1, units: "turns" },
+      // DAE ends the effect on the next save of that ability; the counted minute is the ceiling
+      // for worlds where that trigger never fires
+      duration: { value: 60, units: "seconds", expiry: "turnStart" },
       flags: {
         dae: {
           specialDuration: [`isSave.${ability}` as any],

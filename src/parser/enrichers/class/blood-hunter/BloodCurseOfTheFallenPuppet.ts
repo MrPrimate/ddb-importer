@@ -44,8 +44,7 @@ export default class BloodCurseOfTheFallenPuppet extends _BloodCurse {
         name: "Fallen Puppet",
         activityMatch: this.curseName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "You immediately make one weapon attack against a target of the blood hunter's choice within your range.",
         },
         daeSpecialDurations: ["1Attack"],
@@ -54,8 +53,7 @@ export default class BloodCurseOfTheFallenPuppet extends _BloodCurse {
         name: "Fallen Puppet (Amplified)",
         activityMatch: this.amplifiedName,
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "You can first move up to half your speed, then immediately make one weapon attack against a target of the blood hunter's choice within your range, with a bonus to the attack roll equal to their Hemocraft modifier (minimum of +1).",
         },
         daeSpecialDurations: ["1Attack"],

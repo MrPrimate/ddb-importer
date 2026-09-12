@@ -153,7 +153,7 @@ export default class SpiritOfTheValkyrie extends DDBEnricherData {
         activitiesMatch: ["Thunderstruck"],
         statuses: ["stunned"],
         options: {
-          durationRounds: 1,
+          expiry: "targetEnd",
           description: "Stunned until the end of its next turn.",
         },
       },

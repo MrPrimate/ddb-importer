@@ -19,7 +19,6 @@ export default class BootsOfSpeed extends DDBEnricherData {
         options: {
           transfer: false,
           durationSeconds: 600,
-          durationRounds: 100,
         },
         data: {
           system: {

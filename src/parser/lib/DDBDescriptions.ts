@@ -818,7 +818,7 @@ export default class DDBDescriptions {
       dae: [],
       expiry: null,
     };
-    const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
+    const re = /for (\d+) (minute|hour|round|turn|day|month|year)/;
     const match = text.match(re);
     if (match) {
       let seconds = parseInt(match[1]);
@@ -842,6 +842,8 @@ export default class DDBDescriptions {
           break;
         }
         case "turn": {
+          // a turn ends no later than its round, so it counts as six seconds of elapsed time
+          seconds *= 6;
           result.turns = parseInt(match[1]);
           break;
         }
@@ -1250,8 +1252,9 @@ export default class DDBDescriptions {
       const duration = DDBDescriptions.getDuration(parserText);
 
       if (duration.type && duration.value !== null) {
-        result.duration.value = parseInt(duration.value);
-        result.duration.units = AutoEffects.adjustDurationUnits(duration.units);
+        const normalised = AutoEffects.toEffectDuration(duration.value, duration.units);
+        result.duration.value = normalised.value;
+        result.duration.units = normalised.units;
       }
       result.specialDurations = duration.dae ?? [];
       result.expiry = duration.expiry;

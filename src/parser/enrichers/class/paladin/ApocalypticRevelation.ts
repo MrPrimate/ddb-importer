@@ -138,7 +138,7 @@ export default class ApocalypticRevelation extends DDBEnricherData {
         activitiesMatch: ["Blinding Glory"],
         statuses: ["blinded"],
         options: {
-          durationRounds: 1,
+          expiry: "targetStart",
           description: "Blinded until the start of its next turn.",
         },
       },

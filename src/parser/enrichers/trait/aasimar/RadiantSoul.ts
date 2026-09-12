@@ -49,7 +49,6 @@ export default class RadiantSoul extends DDBEnricherData {
         name: "Radiant Soul",
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.fly"),

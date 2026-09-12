@@ -13,7 +13,7 @@ export default class WingsUnfurled extends Generic {
           Generic.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
         ],
         // "grant you a Flying Speed equal to your Speed until the end of your turn" - self
-        options: { expiry: "sourceEnd" },
+        options: { expiry: "turnEnd" },
       },
     ];
   }

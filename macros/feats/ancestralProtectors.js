@@ -66,7 +66,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
 
     origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
     disabled: false,
-    duration: { value: 1, units: "rounds" },
+    // "until the start of your next turn"
+    duration: { value: null, units: "seconds", expiry: "sourceStart" },
     img: sourceItem.img,
     name: `${sourceItemName} - Target`,
   };
@@ -92,7 +93,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
 
     origin: effectData.origin, // flag the effect as associated to the source item used
     disabled: false,
-    duration: { value: 1, units: "rounds" },
+    // "until the start of your next turn"
+    duration: { value: null, units: "seconds", expiry: "sourceStart" },
     img: sourceItem.img,
     name: `Marked by ${sourceItemName}`,
   };
@@ -177,7 +179,8 @@ async function handlePreDamageByMarkedTarget(macroData) {
 
       origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
       disabled: false,
-      duration: { value: 1, units: "turns" },
+      // resistance against the marked creature's attack this turn; DAE removes it once damaged
+      duration: { value: null, units: "seconds", expiry: "turnEnd" },
       img: sourceItem.img,
       name: `${sourceItemName} - Damage resistance`,
     };

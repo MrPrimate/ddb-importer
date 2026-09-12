@@ -1,5 +1,4 @@
 const lastArg = args[args.length - 1];
-const gameRound = game.combat ? game.combat.round : 0;
 
 for (const target of lastArg.targets) {
 
@@ -14,7 +13,7 @@ for (const target of lastArg.targets) {
     img: "icons/svg/sleep.svg",
     origin: args[0].uuid,
     disabled: false,
-    duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
+    duration: { value: 60, units: "seconds", expiry: "turnStart" },
     flags: { dae: { specialDuration: ["isDamaged"] } },
     statuses: ["unconscious"],
   };

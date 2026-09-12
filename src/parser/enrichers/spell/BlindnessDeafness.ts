@@ -43,7 +43,6 @@ export default class BlindnessDeafness extends DDBEnricherData {
         midiChanges,
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
       },
       {
@@ -53,7 +52,6 @@ export default class BlindnessDeafness extends DDBEnricherData {
         midiChanges,
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
       },
     ];

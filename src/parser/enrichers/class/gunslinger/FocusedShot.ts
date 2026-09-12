@@ -24,7 +24,8 @@ export default class FocusedShot extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
         options: {
-          durationRounds: 1,
+          // the single attack this turn
+          expiry: "turnEnd",
         },
       },
     ];

@@ -49,7 +49,6 @@ export default class InsightfulFighting extends DDBEnricherData {
         activityMatch: "No Match",
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
           description: "You can use sneak attack against the target even if you don’t have advantage on the attack roll.",
         },
       },

@@ -259,8 +259,6 @@ export default class Malediction extends DDBEnricherData {
           Malediction.activityName(curse.label, "Reaction"),
         ],
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
           description: curse.description,
           expiry: curse.expiry,
         },

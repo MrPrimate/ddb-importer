@@ -19,7 +19,7 @@ export default class BurstOfSpeed extends DDBEnricherData {
       {
         name: "Burst of Speed",
         options: {
-          durationTurns: 1,
+          expiry: "turnEnd",
           description: "Your Speed increases by 30 feet until the end of the turn.",
         },
         changes: [

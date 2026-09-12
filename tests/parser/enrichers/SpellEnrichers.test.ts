@@ -926,3 +926,26 @@ describe("revival penalty spells", () => {
     });
   });
 });
+
+describe("seconds-canonical effect durations (dnd5e #7434)", () => {
+  // rounds and turns are never requested: elapsed time is seconds, turn edges are native expiries
+
+  it("Blindness/Deafness carries its minute as 60 seconds on both effects", () => {
+    const effects = build(SpellEnrichers.BlindnessDeafness).effects;
+    expect(effects.map((e: any) => e.name)).toEqual(["Blindness", "Deafness"]);
+    for (const effect of effects) {
+      expect(effect.options).toEqual({ durationSeconds: 60 });
+    }
+  });
+
+  it("Mind Sliver keeps the DAE save trigger and bounds it by the caster's next turn end", () => {
+    const [effect] = build(SpellEnrichers.MindSliver).effects;
+    expect(effect.daeSpecialDurations).toEqual(["isSave"]);
+    expect(effect.options).toEqual({ expiry: "sourceEnd" });
+  });
+
+  it("Wind Sprint ends with the turn it is cast on and clears the inherited spell duration", () => {
+    const [effect] = build(SpellEnrichers.WindSprint).effects;
+    expect(effect.options).toEqual({ expiry: "turnEnd", durationSeconds: null });
+  });
+});

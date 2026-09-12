@@ -14,11 +14,21 @@ interface IGenericConditionAdjustment {
   midiValues?: any[];
 }
 
+// Generated effects never carry combat units: dnd5e counts rounds and turns inexactly
+// (foundryvtt/dnd5e#7434), so both become elapsed seconds. A round is six seconds and a turn
+// ends no later than its round, so a turn is approximated as six seconds too.
+const COMBAT_UNIT_SECONDS: Record<string, number> = {
+  turn: 6,
+  turns: 6,
+  round: 6,
+  rounds: 6,
+};
+
 const UNIT_MAP: Record<string, TEffectDurationUnit | null> = {
-  turn: "turns",
-  turns: "turns",
-  round: "rounds",
-  rounds: "rounds",
+  turn: "seconds",
+  turns: "seconds",
+  round: "seconds",
+  rounds: "seconds",
   hour: "hours",
   hours: "hours",
   minute: "minutes",
@@ -27,6 +37,10 @@ const UNIT_MAP: Record<string, TEffectDurationUnit | null> = {
   seconds: "seconds",
   day: "days",
   days: "days",
+  month: "months",
+  months: "months",
+  year: "years",
+  years: "years",
   spec: null,
   special: null,
   inst: null,
@@ -55,6 +69,25 @@ export default class AutoEffects {
     duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "") ?? undefined;
   }
 
+  /**
+   * Normalise a parsed or inherited duration to the shape generated effects carry: every unit
+   * maps to its plural effect unit and round or turn counts become seconds. Anything but a whole
+   * integer (a formula such as "2d4" or "1 + @prof", blank, null) yields a null value, since an
+   * active effect duration must be an integer.
+   */
+  static toEffectDuration(
+    value: number | string | null | undefined,
+    units: string | null | undefined,
+  ): { value: number | null; units: TEffectDurationUnit | null } {
+    const mappedUnits = units ? AutoEffects.adjustDurationUnits(units) : null;
+    const parsed = typeof value === "string"
+      ? ((/^\s*\d+\s*$/).test(value) ? parseInt(value) : null)
+      : value ?? null;
+    if (parsed === null || !Number.isFinite(parsed)) return { value: null, units: mappedUnits };
+    const multiplier = (units ? COMBAT_UNIT_SECONDS[units] : undefined) ?? 1;
+    return { value: parsed * multiplier, units: mappedUnits };
+  }
+
   static generateBasicEffectDuration(document: TAll5eItemDocuments, activity?: IActivityData): IEffectDuration {
     const duration: IEffectDuration = {
       value: null,
@@ -67,9 +100,12 @@ export default class AutoEffects {
 
     const mappedUnit = docData.units ? UNIT_MAP[docData.units] : undefined;
     if (mappedUnit && docData.value) {
-      duration.value = parseInt(docData.value);
-      duration.units = AutoEffects.adjustDurationUnits(mappedUnit);
-      duration.expiry = "turnStart";
+      const normalised = AutoEffects.toEffectDuration(docData.value, docData.units);
+      if (normalised.value !== null) {
+        duration.value = normalised.value;
+        duration.units = normalised.units;
+        duration.expiry = "turnStart";
+      }
     }
 
     return duration;
@@ -83,8 +119,6 @@ export default class AutoEffects {
       disabled = false,
       description,
       durationSeconds,
-      durationRounds,
-      durationTurns,
       showIcon,
       magical,
     }: IDDBEffectOptions = {},
@@ -115,19 +149,15 @@ export default class AutoEffects {
     };
     effect.duration = AutoEffects.generateBasicEffectDuration(document);
     effect.description = description ?? "";
-    if (durationSeconds) {
+    // a number replaces the host document's duration; an explicit null clears it so the effect
+    // carries no counted duration (and no inherited expiry) at all; undefined inherits
+    if (durationSeconds === null) {
+      effect.duration.value = null;
+      effect.duration.units = "seconds";
+      effect.duration.expiry = null;
+    } else if (durationSeconds) {
       effect.duration.value = durationSeconds;
       effect.duration.units = "seconds";
-      effect.duration.expiry = "turnStart";
-    }
-    if (durationRounds) {
-      effect.duration.value = durationRounds;
-      effect.duration.units = "rounds";
-      effect.duration.expiry = "turnStart";
-    }
-    if (durationTurns) {
-      effect.duration.value = durationTurns;
-      effect.duration.units = "turns";
       effect.duration.expiry = "turnStart";
     }
     if (magical !== undefined) effect.system.magical = magical;
@@ -135,18 +165,16 @@ export default class AutoEffects {
   }
 
   static SpellEffect(document: TEffectDocument, label: string,
-    { transfer = false, disabled = false, description, durationSeconds,
-      durationRounds, durationTurns, showIcon, magical }: IDDBEffectOptions = {},
+    { transfer = false, disabled = false, description, durationSeconds, showIcon, magical }: IDDBEffectOptions = {},
   ): TAutoEffect {
-    const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon, magical };
+    const options = { transfer, disabled, description, durationSeconds, showIcon, magical };
     return AutoEffects.BaseEffect(document, label, options);
   }
 
   static FeatEffect(document: TEffectDocument, label: string,
-    { transfer = false, disabled = false, description, durationSeconds,
-      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+    { transfer = false, disabled = false, description, durationSeconds, showIcon }: IDDBEffectOptions = {},
   ): TAutoEffect {
-    return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
+    return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, showIcon });
   }
 
   static MonsterFeatureEffect(document: TEffectDocument, label: string,
@@ -157,10 +185,9 @@ export default class AutoEffects {
 
 
   static ItemEffect(document: TEffectDocument, label: string,
-    { transfer = true, disabled = false, description, durationSeconds,
-      durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+    { transfer = true, disabled = false, description, durationSeconds, showIcon }: IDDBEffectOptions = {},
   ): TAutoEffect {
-    const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
+    const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, showIcon });
     return effect;
   }
 
@@ -371,8 +398,9 @@ export default class AutoEffects {
     if (conditionEffect.name && conditionEffect.name !== "") effect.name = conditionEffect.name;
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
     if (Number.isFinite(conditionEffect.duration?.value)) {
-      effect.duration.value = conditionEffect.duration.value;
-      effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units ?? "") ?? undefined;
+      const normalised = AutoEffects.toEffectDuration(conditionEffect.duration.value, conditionEffect.duration.units);
+      effect.duration.value = normalised.value;
+      effect.duration.units = normalised.units ?? undefined;
     }
     // stamp and correct expiry durations
     if (conditionEffect.duration?.expiry) {

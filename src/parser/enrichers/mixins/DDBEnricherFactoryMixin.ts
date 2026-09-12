@@ -820,18 +820,18 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
             effect = AutoEffects.BaseEffect(this.data, name, effectOptions);
         }
 
-        if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
+        // a numeric durationSeconds owns the whole duration and silences description parsing;
+        // an explicit null owns only the COUNTED duration ("none"), so the description may still
+        // contribute a native turn-edge expiry; undefined lets it contribute both
+        if (!effectOptions.durationSeconds) {
           const duration = DDBDescriptions.getDuration(this.data.system.description?.value ?? "", false);
-          if (duration.type) {
-            if (duration.seconds) {
-              foundry.utils.setProperty(effect, "duration.value", duration.seconds);
-              foundry.utils.setProperty(effect, "duration.units", "seconds");
-              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
-            } else if (duration.rounds) {
-              foundry.utils.setProperty(effect, "duration.value", duration.rounds);
-              foundry.utils.setProperty(effect, "duration.units", "rounds");
-              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
-            }
+          // a parsed "next turn" sentence (type "special") carries a six-second stand-in for the
+          // native expiry it also yields; a hint that declares its own expiry gets neither
+          const parsedStandIn = duration.type === "special" && "expiry" in effectOptions;
+          if (effectOptions.durationSeconds === undefined && duration.type && duration.seconds && !parsedStandIn) {
+            foundry.utils.setProperty(effect, "duration.value", duration.seconds);
+            foundry.utils.setProperty(effect, "duration.units", "seconds");
+            foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
           }
           // An enricher that declares options.expiry or daeSpecialDurations (either one
           // even as an empty/null value) owns the effect's expiry: description parsing is

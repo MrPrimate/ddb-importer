@@ -18,7 +18,7 @@ export default class CloakOfShadowsEnshrouded extends DDBEnricherData {
       {
         name: "Enshrouded",
         options: {
-          durationTurns: 1,
+          expiry: "turnEnd",
           description: "You have Advantage on your next Dexterity (Stealth) check this turn.",
         },
         daeSpecialDurations: ["isSkill.ste"],

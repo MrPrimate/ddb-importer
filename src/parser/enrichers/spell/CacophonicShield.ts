@@ -82,7 +82,6 @@ export default class CacophonicShield extends DDBEnricherData {
         activityMatch: "Cast",
         options: {
           durationSeconds: 600,
-          durationRounds: 60,
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("thunder"),

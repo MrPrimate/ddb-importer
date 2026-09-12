@@ -32,8 +32,8 @@ export default class PatientDefense extends DDBEnricherData {
       return [{
         name: "Patient Defense: Dodging",
         options: {
-          durationRounds: 1,
-          durationSeconds: 6,
+          // the Dodge action lasts until the start of your next turn
+          expiry: "sourceStart",
         },
         statuses: ["dodging"],
         activitiesMatch: ["Patient Defense: Dodge"],
@@ -43,16 +43,16 @@ export default class PatientDefense extends DDBEnricherData {
         {
           name: "Patient Defense: Disengaged",
           options: {
-            durationRounds: 1,
-            durationSeconds: 6,
+            // the Disengage action lasts for the turn it is taken on
+            expiry: "turnEnd",
           },
           activitiesMatch: ["Patient Defense: Disengage"],
         },
         {
           name: "Patient Defense: Disengaged & Dodging",
           options: {
-            durationRounds: 1,
-            durationSeconds: 6,
+            // the Dodge action lasts until the start of your next turn
+            expiry: "sourceStart",
           },
           statuses: ["dodging"],
           activitiesMatch: ["Patient Defense: Disengage & Dodge"],

@@ -92,7 +92,7 @@ export default class EventHorizon extends DDBEnricherData {
         name: "Event Horizon: Held",
         activityMatch: "Ongoing Save",
         options: {
-          durationRounds: 1,
+          expiry: "targetStart",
           description: "Speed 0 until the start of its next turn (on a success, every foot of movement costs 2 extra feet this turn).",
         },
         changes: [

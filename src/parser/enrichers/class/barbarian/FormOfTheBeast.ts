@@ -17,7 +17,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
       {
         name: "Form of the Beast: Tail AC Bonus",
         options: {
-          durationTurns: 1,
+          expiry: "turnEnd",
         },
         daeSpecialDurations: ["isAttacked"],
         changes: [

@@ -26,7 +26,7 @@ export default class WardOfShadows extends DDBEnricherData {
       {
         name: "Ward of Shadows: Disadvantage",
         options: {
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "Disadvantage on the triggering attack roll. Attackers that can't be Blinded are immune.",
         },
         midiChanges: [

@@ -64,7 +64,6 @@ export default class FountOfMoonlight extends DDBEnricherData {
         activityMatch: "Cast Spell",
         options: {
           durationSeconds: 600,
-          durationRounds: 60,
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),

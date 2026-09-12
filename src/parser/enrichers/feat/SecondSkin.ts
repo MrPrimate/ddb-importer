@@ -74,7 +74,6 @@ export default class SecondSkin extends DDBEnricherData {
         activityMatch: "Involuntary Change",
         options: {
           durationSeconds: 6,
-          durationRounds: 1,
         },
         riderStatuses: ["stunned"],
       },

@@ -48,7 +48,6 @@ export default class Crusher extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: undefined,
-          durationRounds: undefined,
           expiry: null,
         },
         damageBonusMacroChanges: [

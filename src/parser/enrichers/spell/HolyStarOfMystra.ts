@@ -73,7 +73,6 @@ export default class HolyStarOfMystra extends DDBEnricherData {
         activityMatch: "Cast Spell",
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
       };
     });

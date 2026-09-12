@@ -11,7 +11,6 @@ export default class _GreaterMarkOf extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: undefined,
-          durationRounds: undefined,
         },
         data: {
           duration: {

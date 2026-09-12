@@ -58,7 +58,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             _id: effectId,
             changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "boomingBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
-            duration: { rounds: 1 },
+            // the rider lasts "until the start of your next turn"
+            duration: { value: null, units: "seconds", expiry: "sourceStart" },
             img: sourceItemData.img,
             name: sourceItemData.name,
             origin,

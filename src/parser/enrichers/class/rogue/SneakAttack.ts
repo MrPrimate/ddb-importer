@@ -37,7 +37,6 @@ export default class SneakAttack extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: null,
-          durationRounds: null,
         },
         midiOnly: true,
         damageBonusMacroChanges: [

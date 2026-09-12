@@ -699,3 +699,15 @@ describe("Requiem", () => {
     expect(smoke.addActivityScalingMode).toBe("amount");
   });
 });
+
+describe("seconds-canonical effect durations (dnd5e #7434)", () => {
+  it("Boots of Speed carries ten minutes as 600 seconds and nothing in rounds", () => {
+    const [effect] = build(ItemEnrichers.BootsOfSpeed).effects;
+    expect(effect.options).toEqual({ transfer: false, durationSeconds: 600 });
+  });
+
+  it("Armor of Invulnerability and Bead of Force carry their minutes as seconds", () => {
+    expect(build(ItemEnrichers.ArmorOfInvulnerability).effects[0].options.durationSeconds).toBe(600);
+    expect(build(ItemEnrichers.BeadOfForce).effects[0].options.durationSeconds).toBe(60);
+  });
+});

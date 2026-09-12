@@ -7,9 +7,8 @@ function avalancheOfBonesEffect(document: I5eMonsterItem): I5eMonsterItem {
   foundry.utils.setProperty(document, "system.range", { value: null, long: null, units: "self" });
 
   const effect = baseFeatEffect(document, document.name);
+  // prone lasts until the creature stands, so the effect carries no counted duration
   addStatusEffectChange({ effect, statusName: "Prone" });
-  foundry.utils.setProperty(effect, "duration.value", 99);
-  foundry.utils.setProperty(effect, "duration.units", "turns");
   effect.transfer = false;
 
   document.effects ??= [];

@@ -23,8 +23,10 @@ export default class RiskyBusiness extends DDBEnricherData {
         name: "Risky Attack",
         ac5eOnly: true,
         options: {
-          durationRounds: 1,
+          // the single attack roll this turn
+          expiry: "turnEnd",
         },
+        daeSpecialDurations: ["1Attack"],
         ac5eChanges: [
           // automated-conditions-5e: the next attack roll is made at
           // disadvantage; "once" expires the flag after a single use

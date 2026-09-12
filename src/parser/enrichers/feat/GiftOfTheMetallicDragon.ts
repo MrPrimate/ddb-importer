@@ -13,7 +13,7 @@ export default class GiftOfTheMetallicDragon extends DDBEnricherData {
         name: "Protective Wings",
         activityMatch: "Gift of the Metallic Dragon: Protective Wings",
         options: {
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "Add a bonus to AC equal to your proficiency bonus against one attack that would hit.",
         },
         daeSpecialDurations: ["isAttacked"],

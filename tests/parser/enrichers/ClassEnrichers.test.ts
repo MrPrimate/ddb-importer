@@ -1955,7 +1955,9 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
       expect(thunder.options.expiry).toBe("sourceStart");
       expect(thunder.data).toEqual({ img: "icons/skills/melee/unarmed-punch-fist-white.webp" });
       const flight = effects.find((e: any) => e.name === "Infiltrator: Flight");
-      expect(flight.options.expiry).toBe("sourceEnd");
+      // "until the end of your turn" is the turn the flight is activated on: core turnEnd,
+      // not dnd5e's sourceEnd, which skips the creation turn
+      expect(flight.options.expiry).toBe("turnEnd");
       expect(flight.data).toBeUndefined();
     });
 
@@ -2153,5 +2155,71 @@ describe("class action hints match what DDB ships", () => {
     it("adds Divine Sense on 2024", () => {
       expect(names(build(Enricher))).toEqual(["Channel Divinity: Divine Sense"]);
     });
+  });
+});
+
+describe("seconds-canonical effect durations (dnd5e #7434)", () => {
+  it("Planar Warrior's mark ends with the ranger's current turn wherever the target sits in initiative", () => {
+    const [mark] = build(ClassEnrichers.Ranger.PlanarWarrior).effects;
+    expect(mark.activityMatch).toBe("Mark Target");
+    expect(mark.options).toEqual({ expiry: "turnEnd" });
+  });
+
+  it("Steady Aim uses one native turn-end expiry for every module combination", () => {
+    const effects = build(ClassEnrichers.Rogue.SteadyAim, { isAction: true }).effects;
+    expect(effects.map((e: any) => e.name)).toEqual(["Steady Aim Bonus", "Steady Aim Speed Reduction"]);
+    for (const effect of effects) {
+      expect(effect.options.expiry).toBe("turnEnd");
+      expect(effect.daeOnly).toBeUndefined();
+      expect(effect.daeNever).toBeUndefined();
+    }
+    expect(effects[0].daeSpecialDurations).toEqual(["1Attack"]);
+  });
+
+  it("Lunar Phenomenon anchors each rider on the creature the wording names", () => {
+    const effects = build(ClassEnrichers.Sorcerer.LunarPhenomenon).effects;
+    const byName = Object.fromEntries(effects.map((e: any) => [e.name, e.options?.expiry]));
+    // "blinded until the end of its next turn" / "speed reduced to 0 until the end of its next turn"
+    expect(byName["Blinded"]).toBe("targetEnd");
+    expect(byName["New Moon: Speed Reduced"]).toBe("targetEnd");
+    // "you become invisible until the end of your next turn"
+    expect(byName["Invisible"]).toBe("sourceEnd");
+  });
+
+  it("Arcane Exemplar lasts the current turn and charges a second rune to extend through the next", () => {
+    const e = build(ClassEnrichers.Sorcerer.ArcaneExemplar);
+    expect(e.activity.name).toBe("Arcane Exemplar Form");
+    expect(e.additionalActivities).toHaveLength(2);
+    expect(e.additionalActivities[0].overrides).toMatchObject({
+      addItemConsume: true,
+      itemConsumeTargetName: "Essence Runes",
+      data: { name: "Extend Exemplar Form" },
+    });
+    const [form, extended] = e.effects;
+    expect(form).toMatchObject({ activityMatch: "Arcane Exemplar Form", options: { expiry: "turnEnd" } });
+    expect(extended).toMatchObject({ activityMatch: "Extend Exemplar Form", options: { expiry: "sourceEnd" } });
+    expect(extended.changes).toEqual(form.changes);
+  });
+
+  it("Malediction pairs no counted duration with its target-turn-end expiry", () => {
+    const effects = build(ClassEnrichers.Warlock.Malediction, {
+      actions: { class: [{ name: "Malediction", limitedUse: { statModifierUsesId: 6, resetType: 2, numberUsed: 0, maxUses: 0 } }] },
+      character: {
+        classes: [{
+          level: 6,
+          definition: { name: "Warlock" },
+          subclassDefinition: { name: "The Horned King (2014)" },
+          classFeatures: [
+            { definition: { name: "Malediction", requiredLevel: 1 } },
+            { definition: { name: "Spiteful Curse", requiredLevel: 6 } },
+          ],
+        }],
+      },
+    }).effects;
+    expect(effects.length).toBeGreaterThan(0);
+    for (const effect of effects) {
+      expect(effect.options.expiry).toBe("targetEnd");
+      expect(effect.options.durationSeconds).toBeUndefined();
+    }
   });
 });

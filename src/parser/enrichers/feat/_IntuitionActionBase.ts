@@ -19,7 +19,6 @@ export default class _IntuitionActionBase extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: undefined,
-          durationRounds: undefined,
         },
         data: {
           duration: {

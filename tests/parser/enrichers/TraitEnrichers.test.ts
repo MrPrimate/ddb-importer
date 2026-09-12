@@ -4,6 +4,8 @@ import GhostlyFlesh from "../../../src/parser/enrichers/trait/stygian-shade/Ghos
 import HornedRepose from "../../../src/parser/enrichers/trait/the-manyhorn/HornedRepose";
 import HungryJaws from "../../../src/parser/enrichers/trait/lizardfolk/HungryJaws";
 import EerieToken from "../../../src/parser/enrichers/trait/hexblood/EerieToken";
+import FelineAgility from "../../../src/parser/enrichers/trait/tabaxi/FelineAgility";
+import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpeed";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -112,5 +114,17 @@ describe("hexblood Eerie Token uses", () => {
       actions: { race: [{ name: "Eerie Token - Create", limitedUse: null }] },
     });
     expect(e.override.uses).toEqual({ max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] });
+  });
+});
+
+describe("seconds-canonical effect durations (dnd5e #7434)", () => {
+  // "until the end of the turn" is core's turnEnd: the turn the effect was applied in, with
+  // no counted duration (dnd5e's sourceEnd would skip the creation turn and last a turn longer)
+  it("Feline Agility and Burst of Speed end with the turn they are used on", () => {
+    for (const Enricher of [FelineAgility, BurstOfSpeed]) {
+      const [effect] = build(Enricher).effects;
+      expect(effect.options.expiry).toBe("turnEnd");
+      expect(effect.options.durationSeconds).toBeUndefined();
+    }
   });
 });

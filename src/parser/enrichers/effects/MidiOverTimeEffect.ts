@@ -25,6 +25,21 @@ interface IMidiOverTimeEffectOptions {
   addToMonster?: boolean;
 }
 
+const SECONDS_PER_UNIT: Record<string, number> = { seconds: 1, minutes: 60, hours: 3600, days: 86400 };
+
+/**
+ * Elapsed seconds for a parsed condition duration. Over-time effects always carry seconds:
+ * rounds and turns normalise through AutoEffects.toEffectDuration and calendar units multiply
+ * out; anything else (special, instantaneous, no value) yields null.
+ */
+function durationSeconds(duration: { value?: number | string | null; units?: string | null } | undefined): number | null {
+  if (!duration?.units || !duration.value) return null;
+  const normalised = AutoEffects.toEffectDuration(duration.value, duration.units);
+  const multiplier = normalised.units ? SECONDS_PER_UNIT[normalised.units] : undefined;
+  if (!normalised.value || !multiplier) return null;
+  return normalised.value * multiplier;
+}
+
 export default class MidiOverTimeEffect {
   parsedDescription: IFeatureBasicsResult;
   document: TAll5eItemDocuments;
@@ -158,26 +173,13 @@ export default class MidiOverTimeEffect {
       this.applyConditionExpiry();
     }
 
-    const duration = this.conditionStatus.duration;
-    if (duration.units === "rounds" && duration.value) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
-      foundry.utils.setProperty(this.effect, "duration.units", "rounds");
-    } else if (duration.units === "seconds" && duration.value) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
+    // the parsed condition duration, else the description's own (which defaults to a minute);
+    // a pseudo expiry stamped above owns the lifetime and carries no counted value
+    const seconds = durationSeconds(this.conditionStatus.duration)
+      ?? DDBDescriptions.getDuration(this.description).seconds;
+    if (seconds && expirySupportsDuration(this.effect.duration?.expiry)) {
+      foundry.utils.setProperty(this.effect, "duration.value", seconds);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
-    } else if (duration.value && duration.units && ["minutes", "hours", "days"].includes(duration.units)) {
-      const multipliers: Record<string, number> = { minutes: 60, hours: 3600, days: 86400 };
-      foundry.utils.setProperty(this.effect, "duration.value", Number(duration.value) * multipliers[duration.units]);
-      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
-    } else {
-      const duration = DDBDescriptions.getDuration(this.description);
-      if (duration.rounds) {
-        foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
-        foundry.utils.setProperty(this.effect, "duration.units", "rounds");
-      } else if (duration.seconds) {
-        foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
-        foundry.utils.setProperty(this.effect, "duration.units", "seconds");
-      }
     }
 
     const turn = DDBDescriptions.startOrEnd(this.description);
@@ -258,16 +260,9 @@ export default class MidiOverTimeEffect {
     this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
     this.applyConditionExpiry();
 
-    const duration = this.conditionEffect.duration;
-    if (duration.units === "rounds") {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
-      foundry.utils.setProperty(this.effect, "duration.units", "rounds");
-    } else if (duration.units === "seconds") {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
-      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
-    } else if (duration.value && duration.units && ["minutes", "hours", "days"].includes(duration.units)) {
-      const multipliers: Record<string, number> = { minutes: 60, hours: 3600, days: 86400 };
-      foundry.utils.setProperty(this.effect, "duration.value", Number(duration.value) * multipliers[duration.units]);
+    const seconds = durationSeconds(this.conditionEffect.duration);
+    if (seconds && expirySupportsDuration(this.effect.duration?.expiry)) {
+      foundry.utils.setProperty(this.effect, "duration.value", seconds);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
     }
 

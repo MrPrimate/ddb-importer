@@ -24,7 +24,6 @@ export default class DrunkenTechnique extends DDBEnricherData {
         ],
         options: {
           expiry: "turnEnd",
-          durationRounds: 1,
           description: "You gain the benefit of the Disengage action and your walking speed increases by 10 feet until the end of the current turn.",
         },
       },

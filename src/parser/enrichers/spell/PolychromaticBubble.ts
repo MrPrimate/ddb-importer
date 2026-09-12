@@ -57,7 +57,6 @@ export default class PolychromaticBubble extends DDBEnricherData {
         activityMatch: "Create Bubble",
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
       },
       {

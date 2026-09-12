@@ -32,7 +32,7 @@ export default class RecklessTactics extends DDBEnricherData {
       {
         name: "Reckless Tactics",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Advantage on this attack; attack rolls against you have Advantage until the start of your next turn.",
         },
         midiChanges: [

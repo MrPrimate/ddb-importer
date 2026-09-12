@@ -5,29 +5,26 @@ export function effectModules() {
 }
 
 export function baseEffect(foundryItem: I5ePCConsumptionItems, name: string,
-  { transfer = true, disabled = false, description, durationSeconds,
-    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  { transfer = true, disabled = false, description, durationSeconds, showIcon }: IDDBEffectOptions = {},
 ): TInitializedEffect {
   return AutoEffects.BaseEffect(foundryItem, name, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
+    transfer, disabled, description, durationSeconds, showIcon,
   }) as TInitializedEffect;
 }
 
 export function baseItemEffect(foundryItem: I5ePCConsumptionItems, name: string,
-  { transfer = true, disabled = false, description, durationSeconds,
-    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  { transfer = true, disabled = false, description, durationSeconds, showIcon }: IDDBEffectOptions = {},
 ): TInitializedEffect {
   return AutoEffects.BaseEffect(foundryItem, name, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
+    transfer, disabled, description, durationSeconds, showIcon,
   }) as TInitializedEffect;
 }
 
 export function baseFeatEffect(document: I5ePCConsumptionItems, label: string,
-  { transfer = false, disabled = false, description, durationSeconds,
-    durationRounds, durationTurns, showIcon }: IDDBEffectOptions = {},
+  { transfer = false, disabled = false, description, durationSeconds, showIcon }: IDDBEffectOptions = {},
 ): TInitializedEffect {
   return AutoEffects.BaseEffect(document, label, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
+    transfer, disabled, description, durationSeconds, showIcon,
   }) as TInitializedEffect;
 }
 

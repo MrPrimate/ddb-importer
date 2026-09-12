@@ -202,8 +202,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             _id: effectId,
             changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "greenFlameBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
-            // duration: { turns: 0 },
-            duration: { turns: 1 },
+            // the flame leaps on the hit made this turn
+            duration: { value: null, units: "seconds", expiry: "turnEnd" },
             img: sourceItemData.img,
             name: sourceItemData.name,
             origin,

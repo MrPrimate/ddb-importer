@@ -18,7 +18,6 @@ export default class BeadOfForce extends DDBEnricherData {
         options: {
           transfer: false,
           description: "Trapped in a sphere of force!",
-          durationRounds: 10,
           durationSeconds: 60,
         },
       },

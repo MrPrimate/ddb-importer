@@ -12,7 +12,7 @@ export default class MentalAgony extends DDBEnricherData {
       {
         name: "Mental Agony",
         options: {
-          durationRounds: 1,
+          expiry: "turnEnd",
           description: "The target subtracts 1d10 from the triggering Intelligence, Wisdom, or Charisma saving throw. Creatures that are immune to the Frightened condition are immune to this effect.",
         },
         changes: [

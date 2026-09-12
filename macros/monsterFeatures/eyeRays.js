@@ -83,8 +83,10 @@ async function petrificationRayEffect(document) {
   const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
   await DDBImporter.lib.DDBMacros.setItemMacroFlag(document, "monsterFeature", "petrification.js");
   effect.system.changes.push(DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "petrification.js" }));
-  effect.duration.value = 2;
-  effect.duration.units = "rounds";
+  // two rounds of elapsed time bound the repeat save the endEveryTurn macro drives
+  effect.duration.value = 12;
+  effect.duration.units = "seconds";
+  effect.duration.expiry = "turnEnd";
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "endEveryTurn");
   document.effects.push(effect);
 }

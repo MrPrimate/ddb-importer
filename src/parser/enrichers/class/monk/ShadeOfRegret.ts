@@ -32,8 +32,7 @@ export default class ShadeOfRegret extends DDBEnricherData<DDBClassFeatureEnrich
       {
         name: "Shade of Regret",
         options: {
-          durationRounds: 1,
-          durationSeconds: 6,
+          expiry: "sourceEnd",
           description: "The shade is intangible and doesn't occupy its space. It lasts until the end of your next turn, but ends early if you dismiss it (no action required) or have the Incapacitated condition. Flurry of Blows attacks can originate from the shade, dealing Necrotic or Force damage (your choice).",
         },
         activitiesMatch: ["Create Shade of Regret"],

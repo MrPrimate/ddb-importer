@@ -55,7 +55,7 @@ export default class BadLuckCharm extends DDBEnricherData {
         name: "Bad Luck Charm",
         activityMatch: "Bad Luck Charm: Impose Disadvantage",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Disadvantage on the next D20 Test made before the start of the source's next turn.",
         },
         midiChanges: [

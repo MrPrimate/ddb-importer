@@ -10,8 +10,10 @@ export default class DefensiveDuelist extends DDBEnricherData {
     return [
       {
         options: {
-          durationSeconds: 6,
-          durationTurns: 1,
+          // 2014: "add your proficiency bonus to your AC for that attack" - the current turn is
+          // the ceiling and DAE ends it on the attack; 2024: the bonus lasts until the start of
+          // your next turn and covers further melee attacks
+          expiry: this.is2014 ? "turnEnd" : "sourceStart",
         },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("@system.attributes.prof", 20, "system.attributes.ac.bonus"),

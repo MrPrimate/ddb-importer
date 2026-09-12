@@ -28,7 +28,6 @@ export default class RadiantSoul extends DDBEnricherData {
         options: {
           transfer: true,
           durationSeconds: null,
-          durationRounds: null,
         },
         midiOnly: true,
         damageBonusMacroChanges: [
