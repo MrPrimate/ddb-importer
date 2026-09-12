@@ -153,3 +153,86 @@ describe("Great Weapon Master heavy weapon mastery", () => {
     ]);
   });
 });
+
+/**
+ * These hints used to name DDB actions the character does not carry (wrong bucket, or a
+ * 2024-only action on a 2014 build), which the audit reports as "No <action> feat action
+ * found". The character audit only sees the warning, so the hint shapes are pinned here.
+ */
+describe("feat action hints match what DDB ships", () => {
+  it("reads Energy Redirection from the feat bucket and rolls 2d12 + Con", () => {
+    const boon = makeEnricherData(FeatEnrichers.BoonOfEnergyResistance);
+    expect(boon.additionalActivities).toEqual([{ action: { name: "Energy Redirection", type: "feat" } }]);
+    const redirect: any = makeEnricherData(FeatEnrichers.EnergyRedirection).activity;
+    expect(redirect.data.damage.parts[0]).toMatchObject({ number: 2, denomination: 12, bonus: "@abilities.con.mod" });
+    expect(redirect.data.save).toMatchObject({ ability: ["dex"], dc: { calculation: "con" } });
+  });
+
+  describe("Telekinetic builds Shove itself", () => {
+    // DDB generates the "Telekinetic Shove" action only once the feat's ability is chosen
+    it("keys the DC off the chosen ability", () => {
+      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser: { _chosen: [{ label: "Wisdom" }] } });
+      expect(e.activity).toEqual({ type: "none" });
+      expect(e.additionalActivities.some((a: any) => a.action)).toBe(false);
+      const [shove] = e.additionalActivities;
+      expect(shove.init).toEqual({ name: "Shove", type: "save" });
+      expect(shove.build.saveOverride).toEqual({ ability: ["str"], dc: { calculation: "wis", formula: "" } });
+      expect(shove.build.rangeOverride).toEqual({ units: "ft", value: "30" });
+      expect(shove.build.targetOverride.affects).toMatchObject({ count: "1", type: "creature" });
+      expect(shove.overrides).toMatchObject({ activationType: "bonus", overrideActivation: true });
+    });
+
+    it("falls back to the spellcasting ability with no choice recorded", () => {
+      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser: { _chosen: [] } });
+      expect(e.additionalActivities[0].build.saveOverride.dc.calculation).toBe("spellcasting");
+    });
+
+    it("uses the spellcasting ability for the muncher", () => {
+      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser: { isMuncher: true, _chosen: [{ label: "Charisma" }] } });
+      expect(e.additionalActivities[0].build.saveOverride.dc.calculation).toBe("spellcasting");
+    });
+  });
+
+  it("Durable asks for Speedy Recovery only on 2024 builds", () => {
+    expect(makeEnricherData(FeatEnrichers.Durable, { is2014: true }).additionalActivities).toEqual([]);
+    expect(makeEnricherData(FeatEnrichers.Durable).additionalActivities)
+      .toEqual([{ action: { name: "Speedy Recovery", type: "feat" } }]);
+  });
+
+  describe("Inspiring Leader builds Bolstering Performance itself", () => {
+    it("wants no activity on 2014 builds", () => {
+      expect(makeEnricherData(FeatEnrichers.InspiringLeader, { is2014: true }).additionalActivities).toEqual([]);
+    });
+
+    it("builds both ability variants for the muncher, ignoring any recorded choice", () => {
+      const hints: any[] = makeEnricherData(FeatEnrichers.InspiringLeader, {
+        ddbParser: { isMuncher: true, _chosen: [{ label: "Wisdom" }] },
+      }).additionalActivities;
+      expect(hints.some((a) => a.action)).toBe(false);
+      expect(hints.map((a) => a.init.name))
+        .toEqual(["Bolstering Performance: Temp HP (Wisdom)", "Bolstering Performance: Temp HP (Charisma)"]);
+      expect(hints.map((a) => a.build.healingPart.custom.formula))
+        .toEqual(["@details.level + @abilities.wis.mod", "@details.level + @abilities.cha.mod"]);
+      expect(hints[0].build.healingPart.types).toEqual(["temphp"]);
+      expect(hints[0].build.activationOverride.type).toBe("special");
+      expect(hints[0].build.targetOverride.affects).toMatchObject({ count: "6", type: "ally" });
+    });
+
+    // DDB records the feat's ability pick as a "Wisdom" / "Charisma" choice label
+    it("builds only the chosen ability's variant on a character import", () => {
+      const hints: any[] = makeEnricherData(FeatEnrichers.InspiringLeader, {
+        ddbParser: { isMuncher: false, _chosen: [{ label: "Charisma" }] },
+      }).additionalActivities;
+      expect(hints.map((a) => a.init.name)).toEqual(["Bolstering Performance: Temp HP"]);
+      expect(hints[0].build.healingPart.custom.formula).toBe("@details.level + @abilities.cha.mod");
+    });
+
+    it("falls back to both variants when the character has not picked an ability yet", () => {
+      const hints: any[] = makeEnricherData(FeatEnrichers.InspiringLeader, {
+        ddbParser: { isMuncher: false, _chosen: [] },
+      }).additionalActivities;
+      expect(hints.map((a) => a.build.healingPart.custom.formula))
+        .toEqual(["@details.level + @abilities.wis.mod", "@details.level + @abilities.cha.mod"]);
+    });
+  });
+});

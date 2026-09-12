@@ -297,6 +297,45 @@ describe("scalevalue templates", () => {
     const result = parse(ddbWithWizard, character, "{{scalevalue}}", feature);
     expect(result?.text).toBe("[[/roll @scale.wizard.sneak-attack]]");
   });
+
+  // Real class features arrive as { definition, levelScale } with no componentId anywhere;
+  // only DDB actions carry one. The TypeScript port briefly required both.
+  it("resolves a class feature wrapper that has no componentId", () => {
+    const feature = {
+      definition: {
+        id: 55,
+        entityTypeId: 100,
+        classId: 42,
+        name: "Sneak Attack",
+        levelScales: [{ level: 1, fixedValue: null, dice: { diceString: "1d6" } }],
+      },
+      levelScale: { level: 1, fixedValue: null, dice: { diceString: "1d6" } },
+    };
+    const result = parse(ddbWithWizard, character, "{{scalevalue}}", feature as any);
+    expect(result?.text).toBe("[[/roll @scale.wizard.sneak-attack]]");
+  });
+
+  it("resolves a class feature wrapper whose current level has no scale row yet", () => {
+    const feature = {
+      definition: {
+        id: 55,
+        entityTypeId: 100,
+        classId: 42,
+        name: "Sneak Attack",
+        levelScales: [{ level: 3, fixedValue: null, dice: { diceString: "2d6" } }],
+      },
+      levelScale: null,
+    };
+    const result = parse(ddbWithWizard, character, "{{scalevalue}}", feature as any);
+    expect(result?.text).toBe("[[/roll @scale.wizard.sneak-attack]]");
+  });
+
+  it("hands the template back verbatim when no scale can be found", () => {
+    const feature = makeFeature({ componentId: 999 }, { componentId: 999 });
+    const result = parse(ddb, character, "use it {{scalevalue}} times", feature);
+    expect(result?.text).toBe("use it {{scalevalue}} times");
+    expect(result?.text).not.toContain("[[scalevalue]]");
+  });
 });
 
 // =============================================================================

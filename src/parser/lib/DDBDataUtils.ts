@@ -384,8 +384,16 @@ export default class DDBDataUtils {
       ...(ddb.character.options.feat ?? []),
     ].find((option) => option.definition.id === componentId);
 
-    let feat = "levelScale" in feature && feature.levelScale && componentId
-      ? feature
+    // A class feature arrives as its own { definition, levelScale } wrapper and carries no
+    // componentId (only DDB actions do), so it is the scale source itself whenever it has a
+    // current levelScale or any levelScales on the definition. Actions go through their
+    // componentId to the feature they belong to.
+    const definition = "definition" in feature ? feature.definition : undefined;
+    const definitionScales = definition && "levelScales" in definition ? definition.levelScales : undefined;
+    const isScaleSource = ("levelScale" in feature && Boolean(feature.levelScale))
+      || (definitionScales?.length ?? 0) > 0;
+    let feat: IDDBClassFeature | IDDBRacialTrait | undefined = isScaleSource
+      ? feature as IDDBClassFeature
       : componentId != null
         ? DDBDataUtils.findComponentByComponentId(ddb, componentId)
         : undefined;

@@ -83,6 +83,10 @@ function parseMatch(
         feature: featureDef,
         scaleValue,
       });
+      // hand the template back verbatim; the caller would otherwise box the bare word
+      // as an inline roll ("[[scalevalue]]") on the sheet
+      result = `{{${match}}}`;
+      linktext = result;
     }
   }
 
@@ -505,8 +509,12 @@ export function parse(
     entry.type = typeSplit[0];
 
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
-    // do we have a dice string, e.g. sneak attack?
-    if (parsedMatch.match(dicePattern) || parsedMatch.includes("@scale")) {
+    if (parsedMatch === `{{${match}}}`) {
+      // parseMatch could not resolve the template and handed it back verbatim; leave it
+      // readable on the sheet rather than boxing the bare word as an inline roll
+      result.text = result.text.replace(entry.replacePattern, parsedMatch);
+    } else if (parsedMatch.match(dicePattern) || parsedMatch.includes("@scale")) {
+      // do we have a dice string, e.g. sneak attack?
       if (parsedMatch.match(dicePattern)) entry.type = "dice";
       entry.parsed = parsedMatch;
       if (splitMatchAt.length > 1) {

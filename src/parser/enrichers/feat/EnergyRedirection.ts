@@ -15,7 +15,7 @@ export default class EnergyRedirection extends DDBEnricherData {
           },
         },
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: "@abilities.con.mod", types: DDBEnricherData.allDamageTypes() })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 12, bonus: "@abilities.con.mod", types: DDBEnricherData.allDamageTypes() })],
         },
       },
     };

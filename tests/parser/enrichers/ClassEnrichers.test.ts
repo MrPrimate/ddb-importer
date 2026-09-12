@@ -2074,3 +2074,84 @@ describe("bloodied status rules", () => {
     ]);
   });
 });
+
+/**
+ * Class enrichers whose action hints used to name DDB actions the build does not carry
+ * (2024-only actions on 2014 builds, a renamed 2014 action, or every oath's Channel Divinity
+ * option on every paladin). The character audit reports those as advisory warnings only.
+ */
+describe("class action hints match what DDB ships", () => {
+  it("sorcerer SorceryPoints absorbs Convert Sorcery Points on 2014", () => {
+    expect(build(ClassEnrichers.Sorcerer.SorceryPoints, { is2014: true }).additionalActivities)
+      .toEqual([{ action: { name: "Convert Sorcery Points", type: "class" } }]);
+    expect(build(ClassEnrichers.Sorcerer.SorceryPoints).additionalActivities)
+      .toEqual([{ action: { name: "Font of Magic: Sorcery Points", type: "class" } }]);
+  });
+
+  it("sorcerer BastionOfLaw names no action", () => {
+    const e = build(ClassEnrichers.Sorcerer.BastionOfLaw);
+    expect(e.additionalActivities).toBeNull();
+    expect(e.activity.itemConsumeTargetName).toBe("Sorcery Points");
+  });
+
+  it("druid Archdruid is passive on 2014 and active on 2024", () => {
+    const old = build(ClassEnrichers.Druid.Archdruid, { is2014: true });
+    expect(old.activity).toEqual({ type: "none" });
+    expect(old.additionalActivities).toEqual([]);
+    const current = build(ClassEnrichers.Druid.Archdruid);
+    expect(current.activity.name).toBe("Regain A Wild Shape Use");
+    expect(current.additionalActivities).toEqual([{ action: { name: "Nature Magician", type: "class" } }]);
+  });
+
+  describe("paladin LayOnHands", () => {
+    it("hardcodes the 2014 cure spending five uses", () => {
+      const hints = build(ClassEnrichers.Paladin.LayOnHands, { is2014: true }).additionalActivities;
+      expect(hints.map((a: any) => a.init?.name)).toEqual(["Lay On Hands Macro", "Cure Disease / Neutralize Poison"]);
+      expect(hints.some((a: any) => a.action)).toBe(false);
+      const cure = hints[1];
+      expect(cure.init.type).toBe("utility");
+      expect(cure.build.consumptionOverride.targets).toEqual([
+        { type: "itemUses", target: "", value: "5", scaling: { mode: "", formula: "" } },
+      ]);
+      expect(cure.build.rangeOverride.units).toBe("touch");
+    });
+
+    it("pulls the 2024 Purify Poison action", () => {
+      const hints = build(ClassEnrichers.Paladin.LayOnHands).additionalActivities;
+      expect(hints.map((a: any) => a.init?.name ?? a.action?.name))
+        .toEqual(["Lay On Hands Macro", "Lay On Hands: Purify Poison"]);
+    });
+  });
+
+  describe("paladin ChannelDivinity 2014 options", () => {
+    const Enricher = ClassEnrichers.Paladin.ChannelDivinity;
+    const names = (e: any) => e.additionalActivities.map((a: any) => a.action.name);
+    const paladin = (oath: string) => ({
+      classes: [{ definition: { id: 1, name: "Paladin" }, subclassDefinition: { id: 2, name: oath }, classFeatures: [] }],
+    });
+
+    it("lists only the character's oath, ignoring a source suffix on the name", () => {
+      const e = build(Enricher, { is2014: true, character: paladin("Oath of the Crown (SCAG)") });
+      expect(names(e)).toEqual(["Channel Divinity: Champion Challenge", "Channel Divinity: Turn the Tide"]);
+    });
+
+    it("keeps an option the character carries even without a mapped oath", () => {
+      const e = build(Enricher, {
+        is2014: true,
+        character: paladin("Oath of Somewhere Else"),
+        actions: { class: [{ name: "Channel Divinity: Watcher’s Will" }, { name: "Channel Divinity: Mark of the Heretic" }] },
+      });
+      expect(names(e)).toEqual(["Channel Divinity: Watcher's Will", "Channel Divinity: Mark of the Heretic"]);
+    });
+
+    it("lists every option for the muncher", () => {
+      const e = build(Enricher, { is2014: true, ddbParser: { isMuncher: true } });
+      expect(names(e)).toHaveLength(26);
+      expect(names(e)).toContain("Channel Divinity: Sacred Weapon");
+    });
+
+    it("adds Divine Sense on 2024", () => {
+      expect(names(build(Enricher))).toEqual(["Channel Divinity: Divine Sense"]);
+    });
+  });
+});

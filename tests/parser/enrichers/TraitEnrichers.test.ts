@@ -3,6 +3,7 @@ import BlessingOfTheRavenQueen from "../../../src/parser/enrichers/trait/shadar-
 import GhostlyFlesh from "../../../src/parser/enrichers/trait/stygian-shade/GhostlyFlesh";
 import HornedRepose from "../../../src/parser/enrichers/trait/the-manyhorn/HornedRepose";
 import HungryJaws from "../../../src/parser/enrichers/trait/lizardfolk/HungryJaws";
+import EerieToken from "../../../src/parser/enrichers/trait/hexblood/EerieToken";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -94,5 +95,22 @@ describe("action-specific trait snippets", () => {
 
   it("keeps Hungry Jaws' complete parent snippet instead of the generic Bite action snippet", () => {
     expect(build(HungryJaws).activity.useActivitySnippet).toBeUndefined();
+  });
+});
+
+describe("hexblood Eerie Token uses", () => {
+  it("reads the 2024 action from the race bucket", () => {
+    const e: any = makeEnricherData(EerieToken, {
+      actions: { race: [{ name: "Eerie Token", limitedUse: { maxUses: 1, numberUsed: 1, resetType: 2 } }] },
+    });
+    expect(e.override.uses).toMatchObject({ max: "1", spent: 1 });
+  });
+
+  it("states one use per long rest on 2014, where DDB ships no limited use", () => {
+    const e: any = makeEnricherData(EerieToken, {
+      is2014: true,
+      actions: { race: [{ name: "Eerie Token - Create", limitedUse: null }] },
+    });
+    expect(e.override.uses).toEqual({ max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] });
   });
 });
