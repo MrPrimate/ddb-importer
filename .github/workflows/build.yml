@@ -46,6 +46,7 @@ jobs:
     - run: npm ci
     - run: npm run lint
     - run: npm run typecheck
+    - run: npm run typecheck:ts6
     - run: npm test
 
   build:

@@ -233,7 +233,10 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       await this.generateCastSpells();
     }
 
-    await Hooks.callAll("ddb-importer.monsterAddToCompendiumComplete", { actor: this.compendiumActor });
+    await Hooks.callAll<"ddb-importer.monsterAddToCompendiumComplete">(
+      "ddb-importer.monsterAddToCompendiumComplete",
+      { actor: this.compendiumActor },
+    );
 
   }
 

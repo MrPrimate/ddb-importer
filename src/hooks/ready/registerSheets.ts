@@ -343,7 +343,7 @@ function tidySheets() {
     });
 
     // Provider header controls to Tidy Character and NPC sheets in the App V2 manner
-    Hooks.on("getHeaderControlsActorSheetV2", (config, buttons) => {
+    Hooks.on<"getHeaderControlsActorSheetV2">("getHeaderControlsActorSheetV2", (config, buttons) => {
       const sheetConfig = config as { object?: { isOwner?: boolean }; document?: { isOwner?: boolean } };
       const doc = sheetConfig.object ?? sheetConfig.document;
       if (!doc?.isOwner) return;
@@ -366,7 +366,7 @@ function tidySheets() {
   if (api) {
     runTidyIntegrations(api);
   } else {
-    Hooks.once("tidy5e-sheet.ready", (api) => {
+    Hooks.once<"tidy5e-sheet.ready">("tidy5e-sheet.ready", (api) => {
       runTidyIntegrations(api);
     });
   }
@@ -394,7 +394,7 @@ const addPartySyncContext = (_html: HTMLElement | JQuery<HTMLElement>, options: 
 };
 
 export default function () {
-  Hooks.once("getActorContextOptions", addPartySyncContext);
+  Hooks.once<"getActorContextOptions">("getActorContextOptions", addPartySyncContext);
 
   /**
    * Character sheets
@@ -413,11 +413,11 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
-  Hooks.on("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
-  Hooks.on("getActorSheet5eHeaderButtons", createDefault5eButtons);
-  Hooks.on("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
+  Hooks.on<"getHeaderControlsBaseActorSheet">("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
+  Hooks.on<"getActorSheet5eHeaderButtons">("getActorSheet5eHeaderButtons", createDefault5eButtons);
+  Hooks.on<"getActorSheetHeaderButtons">("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
-    Hooks.on(`render${sheetName}`, (app, html, data) => {
+    Hooks.on<`render${string}`>(`render${sheetName}`, (app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
@@ -440,7 +440,7 @@ export default function () {
     .map((sheet) => sheet.name);
 
   npcSheetNames.forEach((sheetName) => {
-    Hooks.on(`render${sheetName}`, (app, html, data) => {
+    Hooks.on<`render${string}`>(`render${sheetName}`, (app, html, data) => {
       // only for GMs or the owner of this npc
       if (!data.owner || !data.actor) return;
       if (!app.document.flags?.monsterMunch?.url) return;
@@ -461,7 +461,7 @@ export default function () {
     .map((sheet) => sheet.name);
 
   groupSheetNames.forEach((sheetName) => {
-    Hooks.on(`render${sheetName}`, (_app, html, data) => {
+    Hooks.on<`render${string}`>(`render${sheetName}`, (_app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;

@@ -1088,25 +1088,28 @@ export default class RegionExpiryCleanup {
    * Each handler gates on the setting and on being the active GM at event time (see #active).
    */
   static registerHooks(): void {
-    Hooks.on("dnd5e.createMeasuredTemplate", (activity: unknown, regionData: Record<string, unknown>[]) => {
-      RegionExpiryCleanup.stampTemplateDurations(activity, regionData);
-    });
-    Hooks.on("updateActiveEffect", (effect, changed) =>
+    Hooks.on<"dnd5e.createMeasuredTemplate">(
+      "dnd5e.createMeasuredTemplate",
+      (activity: unknown, regionData: Record<string, unknown>[]) => {
+        RegionExpiryCleanup.stampTemplateDurations(activity, regionData);
+      },
+    );
+    Hooks.on<"updateActiveEffect">("updateActiveEffect", (effect, changed) =>
       RegionExpiryCleanup.#onUpdateActiveEffect(
         effect as TEffectDoc,
         changed as { duration?: { expired?: boolean } },
       ));
-    Hooks.on("deleteActiveEffect", (effect) =>
+    Hooks.on<"deleteActiveEffect">("deleteActiveEffect", (effect) =>
       RegionExpiryCleanup.#onDeleteActiveEffect(effect as TEffectDoc));
-    Hooks.on("updateCombat", (combat, changed) =>
+    Hooks.on<"updateCombat">("updateCombat", (combat, changed) =>
       RegionExpiryCleanup.#onUpdateCombat(combat as TCombatDoc, changed as Record<string, unknown>));
-    Hooks.on("deleteCombat", (combat) =>
+    Hooks.on<"deleteCombat">("deleteCombat", (combat) =>
       RegionExpiryCleanup.#onDeleteCombat(combat as TCombatDoc));
-    Hooks.on("dnd5e.endConcentration", (actor, effect) =>
+    Hooks.on<"dnd5e.endConcentration">("dnd5e.endConcentration", (actor, effect) =>
       RegionExpiryCleanup.#onEndConcentration(actor, effect));
-    Hooks.on("canvasReady", () =>
+    Hooks.on<"canvasReady">("canvasReady", () =>
       RegionExpiryCleanup.#onCanvasReady());
-    Hooks.on("updateWorldTime", () =>
+    Hooks.on<"updateWorldTime">("updateWorldTime", () =>
       RegionExpiryCleanup.#onUpdateWorldTime());
     logger.debug(`${LOG} hooks registered (updateActiveEffect, deleteActiveEffect, updateCombat, `
       + "deleteCombat, dnd5e.endConcentration, canvasReady, updateWorldTime, "

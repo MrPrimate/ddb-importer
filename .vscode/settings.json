@@ -1,0 +1,6 @@
+{
+    "cSpell.language": "en-GB,en-gb,en",
+    "js/ts.experimental.useTsgo": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+}

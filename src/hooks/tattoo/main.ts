@@ -70,7 +70,11 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @returns {boolean}                        Explicitly return `false` to prevent the tattoo to be created.
    */
-  if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell as unknown as TImporterItem, config) === false) return undefined;
+  if (Hooks.call<"ddb-importer.preCreateTattooFromSpell">(
+    "ddb-importer.preCreateTattooFromSpell",
+    spell as unknown as TImporterItem,
+    config,
+  ) === false) return undefined;
 
   if (config.level === undefined || !config.values) {
     logger.warn("Spellwrought tattoo configuration is missing level or values, unable to create tattoo", { config });
@@ -147,7 +151,12 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    * @param {object} spellTattooData           The final item data used to make the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    */
-  Hooks.callAll("ddb-importer.createTattooFromSpell", spell as unknown as TImporterItem, spellTattooData, config);
+  Hooks.callAll<"ddb-importer.createTattooFromSpell">(
+    "ddb-importer.createTattooFromSpell",
+    spell as unknown as TImporterItem,
+    spellTattooData,
+    config,
+  );
 
   return new (Item.implementation as any)(spellTattooData);
 }
@@ -241,12 +250,12 @@ export function addTattooConsumable() {
   // );
 
   // v13hooks
-  Hooks.on("getItemContextOptions", compendiumContext);
+  Hooks.on<"getItemContextOptions">("getItemContextOptions", compendiumContext);
   // v12 hooks
-  Hooks.on("getCompendiumEntryContext", compendiumContext);
-  Hooks.on("getItemDirectoryEntryContext", compendiumContext);
+  Hooks.on<"getCompendiumEntryContext">("getCompendiumEntryContext", compendiumContext);
+  Hooks.on<"getItemDirectoryEntryContext">("getItemDirectoryEntryContext", compendiumContext);
 
   // character sheet option
-  Hooks.on("dnd5e.getItemContextOptions", addCharacterSheetContext);
+  Hooks.on<"dnd5e.getItemContextOptions">("dnd5e.getItemContextOptions", addCharacterSheetContext);
 
 }

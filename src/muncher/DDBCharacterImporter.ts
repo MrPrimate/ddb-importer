@@ -1113,7 +1113,10 @@ ${itemDescription.chat}
       }
     }
 
-    await Hooks.callAll("ddb-importer.characterProcessDataComplete", { actor: this.actor, ddbCharacter: this.ddbCharacter });
+    await Hooks.callAll<"ddb-importer.characterProcessDataComplete">(
+      "ddb-importer.characterProcessDataComplete",
+      { actor: this.actor, ddbCharacter: this.ddbCharacter },
+    );
   }
 
 

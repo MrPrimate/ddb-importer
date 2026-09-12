@@ -664,7 +664,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         window.removeEventListener("wheel", onWheel, true);
         view.removeEventListener("contextmenu", onContextMenu, true);
         document.removeEventListener("keydown", onKeyDown, true);
-        Hooks.off("canvasInit", onCanvasInit);
+        Hooks.off<"canvasInit">("canvasInit", onCanvasInit);
         if (ghost) {
           try {
             ghost.parent?.removeChild?.(ghost);
@@ -749,12 +749,11 @@ export default class DDBStickerBrowser extends DDBAppV2 {
             preventDefault() { /* noop */ },
             stopPropagation() { /* noop */ },
           };
-          // @ts-expect-error - allowed
-          const allowed = Hooks.call(
+          const allowed = Hooks.call<"dropCanvasData">(
             "dropCanvasData",
             canvas,
             { type: "Tile", ...createData },
-            syntheticEvent,
+            syntheticEvent as unknown as DragEvent,
           );
           if (allowed === false) {
             resolve(null);
@@ -799,7 +798,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       window.addEventListener("wheel", onWheel, { capture: true, passive: false });
       view.addEventListener("contextmenu", onContextMenu, true);
       document.addEventListener("keydown", onKeyDown, true);
-      Hooks.on("canvasInit", onCanvasInit);
+      Hooks.on<"canvasInit">("canvasInit", onCanvasInit);
     });
   }
 

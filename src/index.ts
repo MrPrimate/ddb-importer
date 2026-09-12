@@ -20,26 +20,38 @@ export const setAllRenderFlags = () => {
   canvas.notes?.setAllRenderFlags({ refreshState: true });
 };
 
-Hooks.on("canvasReady", setAllRenderFlags);
+Hooks.on<"canvasReady">("canvasReady", setAllRenderFlags);
 
 // register hooks
-Hooks.once("init", init);
-Hooks.once("setup", setup);
-Hooks.once("ready", onceReady);
-Hooks.on("ready", onReady);
-Hooks.on("renderCompendiumDirectory", renderCompendiumTab);
-Hooks.on("renderJournalPageSheet", renderJournalSheet);
-Hooks.on("renderJournalEntryPageSheet", renderJournalEntryPageSheet);
-Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
-Hooks.on("getSceneContextOptions", extendSceneNavigationContext);
-Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
-Hooks.on("renderSceneDirectory", addMetaDataIndicators);
-Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
-Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntrySheetButtons);
-Hooks.on("activateNote", activateMetaNote);
-Hooks.on("getSceneControlButtons", getSceneControlButtons);
-Hooks.on("ddb-importer.itemsCompendiumUpdateComplete", itemsCompendiumUpdateComplete);
-Hooks.on("ddb-importer.characterProcessDataComplete", characterProcessDataComplete);
+Hooks.once<"init">("init", init);
+Hooks.once<"setup">("setup", setup);
+Hooks.once<"ready">("ready", onceReady);
+Hooks.on<"ready">("ready", onReady);
+Hooks.on<"renderCompendiumDirectory">("renderCompendiumDirectory", renderCompendiumTab);
+Hooks.on<"renderJournalPageSheet">("renderJournalPageSheet", renderJournalSheet);
+Hooks.on<"renderJournalEntryPageSheet">("renderJournalEntryPageSheet", renderJournalEntryPageSheet);
+Hooks.on<"getSceneNavigationContext">("getSceneNavigationContext", extendSceneNavigationContext);
+Hooks.on<"getSceneContextOptions">("getSceneContextOptions", extendSceneNavigationContext);
+Hooks.on<"getSceneDirectoryEntryContext">("getSceneDirectoryEntryContext", extendSceneNavigationContext);
+Hooks.on<"renderSceneDirectory">("renderSceneDirectory", addMetaDataIndicators);
+Hooks.on<"getJournalSheet5eHeaderButtons">(
+  "getJournalSheet5eHeaderButtons",
+  getJournalSheet5eHeaderButtons,
+);
+Hooks.on<"getHeaderControlsJournalEntrySheet">(
+  "getHeaderControlsJournalEntrySheet",
+  getHeaderControlsJournalEntrySheetButtons,
+);
+Hooks.on<"activateNote">("activateNote", activateMetaNote);
+Hooks.on<"getSceneControlButtons">("getSceneControlButtons", getSceneControlButtons);
+Hooks.on<"ddb-importer.itemsCompendiumUpdateComplete">(
+  "ddb-importer.itemsCompendiumUpdateComplete",
+  itemsCompendiumUpdateComplete,
+);
+Hooks.on<"ddb-importer.characterProcessDataComplete">(
+  "ddb-importer.characterProcessDataComplete",
+  characterProcessDataComplete,
+);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");

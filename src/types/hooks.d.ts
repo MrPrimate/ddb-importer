@@ -31,7 +31,6 @@ declare module "fvtt-types/configuration" {
       // client/hooks.mjs
       "applyActiveEffect": (actor: Actor.Implementation, change: any, current: any, delta: any, changes: Record<string, unknown>) => void;
 
-      "dropCanvasData": (canvas: Canvas, data: Record<string, unknown>, event: Event) => boolean | void;
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet
       // class. registerSheets.ts registers `render${sheetName}` where sheetName

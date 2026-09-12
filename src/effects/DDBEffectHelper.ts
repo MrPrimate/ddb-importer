@@ -74,7 +74,7 @@ interface IAttackStubActivity {
 
 interface IRemovalActivity {
   type?: string;
-  save?: { dc?: { value?: number }; ability?: { first(): string } };
+  save?: { dc?: { value?: number }; ability?: { first(): string | undefined } };
 }
 
 export default class DDBEffectHelper {
@@ -1621,14 +1621,27 @@ export default class DDBEffectHelper {
   } = {}) {
     const name = document?.name ?? "";
     const caster = document?.parent;
+    const activities = foundry.utils.getProperty(document ?? {}, "system.activities") as
+      | Record<string, IRemovalActivity>
+      | undefined;
     const derivedActivity = activity
-      ?? Object.values(foundry.utils.getProperty(document ?? {}, "system.activities") ?? {}).find((a) => a.type === "save");
+      ?? Object.values(activities ?? {}).find((candidate) => candidate.type === "save");
     const casterSystem = caster?.system as unknown as { attributes?: { spell?: { dc?: number } } } | undefined;
     const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? casterSystem?.attributes?.spell?.dc;
     if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
-    const removalCheck = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalCheck");
-    const removalSave = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalSave");
-    const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? derivedActivity?.save?.ability.first();
+    const removalCheckValue = foundry.utils.getProperty(
+      document ?? {},
+      "flags.ddbimporter.effect.removalCheck",
+    );
+    const removalSaveValue = foundry.utils.getProperty(
+      document ?? {},
+      "flags.ddbimporter.effect.removalSave",
+    );
+    const removalCheck = typeof removalCheckValue === "string" ? removalCheckValue : undefined;
+    const removalSave = typeof removalSaveValue === "string" ? removalSaveValue : undefined;
+    const derivedAbility = ability
+      ?? (removalCheck ? removalCheck : removalSave)
+      ?? derivedActivity?.save?.ability?.first();
     if (!derivedAbility) throw new Error("No ability specified, and no default removal ability found in document flags!");
     const derivedType = type ?? (removalCheck ? "check" : removalSave ? "save" : null);
     if (!derivedType) throw new Error("No type specified, and no default removal type found in document flags!");

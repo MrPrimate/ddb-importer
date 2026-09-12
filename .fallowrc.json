@@ -29,7 +29,6 @@
     "src/effects/spells/**"
   ],
   "ignoreDependencies": [
-    "@typescript-eslint/eslint-plugin",
     "eslint-plugin-jsdoc",
     "node-fetch",
     "prettier-eslint",

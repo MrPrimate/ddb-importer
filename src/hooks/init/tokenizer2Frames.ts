@@ -83,7 +83,7 @@ async function _loadDDBFrames() {
 }
 
 export function registerTokenizer2FrameLoader() {
-  Hooks.on("tokenizer-2.registerFrames", (registry: any) => {
+  Hooks.on<"tokenizer-2.registerFrames">("tokenizer-2.registerFrames", (registry: any) => {
     if (!registry || typeof registry.registerLoader !== "function") return;
     registry.registerLoader({
       id: LOADER_ID,

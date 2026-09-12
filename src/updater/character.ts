@@ -1950,13 +1950,20 @@ async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: st
 export function activateUpdateHooks() {
   // check to make sure we can sync back, currently only works for 1 gm user
   if (activeUpdate()) {
-    Hooks.on("updateActor", (document, update) => activeUpdateActor(document as unknown as TSyncCharacterActor, update));
+    Hooks.on<"updateActor">("updateActor", (document, update) =>
+      activeUpdateActor(document as unknown as TSyncCharacterActor, update));
     // the hook passes an Item.Implementation, TImporterItem is our flag-aware view of it
-    Hooks.on("updateItem", (document, update) => activeUpdateUpdateItem(document as unknown as TImporterItem, update));
-    Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document as unknown as TImporterItem, "CREATE"));
-    Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document as unknown as TImporterItem, "DELETE"));
-    Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "CREATE"));
-    Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "UPDATE"));
-    Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document as ActiveEffect.Known, "DELETE"));
+    Hooks.on<"updateItem">("updateItem", (document, update) =>
+      activeUpdateUpdateItem(document as unknown as TImporterItem, update));
+    Hooks.on<"createItem">("createItem", (document) =>
+      activeUpdateAddOrDeleteItem(document as unknown as TImporterItem, "CREATE"));
+    Hooks.on<"deleteItem">("deleteItem", (document) =>
+      activeUpdateAddOrDeleteItem(document as unknown as TImporterItem, "DELETE"));
+    Hooks.on<"createActiveEffect">("createActiveEffect", (document) =>
+      activeUpdateEffectTrigger(document as ActiveEffect.Known, "CREATE"));
+    Hooks.on<"updateActiveEffect">("updateActiveEffect", (document) =>
+      activeUpdateEffectTrigger(document as ActiveEffect.Known, "UPDATE"));
+    Hooks.on<"deleteActiveEffect">("deleteActiveEffect", (document) =>
+      activeUpdateEffectTrigger(document as ActiveEffect.Known, "DELETE"));
   }
 }

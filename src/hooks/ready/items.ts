@@ -44,7 +44,7 @@ function createItemHeaderButtonV2(config: Record<string, any>, buttons: Record<s
 }
 
 export function itemSheets() {
-  Hooks.on("getItemSheet5eHeaderButtons", createItemHeaderButtonV1);
-  Hooks.on("getHeaderControlsDocumentSheetV2", createItemHeaderButtonV2);
+  Hooks.on<"getItemSheet5eHeaderButtons">("getItemSheet5eHeaderButtons", createItemHeaderButtonV1);
+  Hooks.on<"getHeaderControlsDocumentSheetV2">("getHeaderControlsDocumentSheetV2", createItemHeaderButtonV2);
 }
 

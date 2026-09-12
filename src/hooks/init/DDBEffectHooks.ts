@@ -105,11 +105,11 @@ export default class DDBEffectHooks {
 
   static loadHooks() {
     // special effect functions
-    Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
+    Hooks.on<"applyActiveEffect">("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
       // the hook types the actor as Actor5e with optional flags; TImporterActor requires flags
       // but daeStubEffects never reads them, so the cast is safe
-      Hooks.on(
+      Hooks.on<"applyActiveEffect">(
         "applyActiveEffect",
         daeStubEffects as unknown as (
           actor: Actor.Implementation,
