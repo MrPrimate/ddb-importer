@@ -438,6 +438,7 @@ declare global {
     "ddb-importer.third-party-scenes-notes-merged": boolean;
     "ddb-importer.allow-dev-generation": boolean;
     "ddb-importer.debug-json": boolean;
+    "ddb-importer.debug-import-capture": boolean;
 
     // OTHER MODULES
     "dnd5e.disableConcentration": boolean;

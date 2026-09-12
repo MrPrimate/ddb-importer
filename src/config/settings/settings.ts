@@ -1416,6 +1416,11 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
+        "debug-import-capture": {
+          scope: "player",
+          type: Boolean,
+          default: false,
+        },
       },
     },
   },

@@ -928,6 +928,59 @@ ${itemDescription.chat}
     }
   }
 
+  /**
+   * Assembles the `debug-import-capture` document from a finished import.
+   */
+  static buildImportCapture({ source, actor, settings, importError, versions, modules }: {
+    source: IDDBCharacterResponse | null;
+    actor: TImporterActor;
+    settings: DDBCharacterImporter["settings"];
+    importError: string | null;
+    versions: IDDBImportCapture["versions"];
+    modules: string[];
+  }): IDDBImportCapture {
+    // midiConfig is the live midi-qol settings object: large, sometimes circular, and the
+    // module list already records whether midi was present for the import
+    const { midiConfig: _midiConfig, ...importSettings } = settings;
+    return {
+      format: 1,
+      capturedAt: new Date().toISOString(),
+      characterId: source?.ddb?.character?.id ?? null,
+      versions,
+      modules,
+      importSettings,
+      importError,
+      source,
+      actor: actor.toObject() as unknown as I5ePCData,
+    };
+  }
+
+  /**
+   * Downloads the proxy response and the finished actor as one `<id>-<name>-import.json`,
+   */
+  downloadImportCapture(importError: string | null) {
+    if (!utils.getSetting<boolean>("debug-import-capture")) return;
+    try {
+      const capture = DDBCharacterImporter.buildImportCapture({
+        source: this.ddbCharacter.source,
+        actor: this.actor,
+        settings: this.settings,
+        importError,
+        versions: {
+          game: game.version,
+          system: game.system.version,
+          ddbimporter: game.modules.get("ddb-importer")?.version ?? "unknown",
+        },
+        modules: game.modules.filter((m) => m.active).map((m) => m.id),
+      });
+      const characterId = capture.characterId ?? this.ddbCharacter.characterId ?? "unknown";
+      const name = this.ddbCharacter.source?.ddb?.character?.name ?? this.actor.name;
+      FileHelper.download(JSON.stringify(capture), `${characterId}-${name}-import.json`, "application/json");
+    } catch (error) {
+      logger.warn("Unable to build the import capture", { error });
+    }
+  }
+
   async processCharacterData() {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
@@ -942,6 +995,7 @@ ${itemDescription.chat}
     await this.ddbCharacter.disableDynamicUpdates();
     await this.setAtLeastOneHP();
 
+    let importError: string | null = null;
     try {
       this.importId = foundry.utils.randomID();
       foundry.utils.setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
@@ -1097,6 +1151,7 @@ ${itemDescription.chat}
       await this.resetHitPoints();
 
     } catch (error) {
+      importError = utils.errorMessage(error);
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
       if (error instanceof Error) logger.error(error.stack);
       this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: utils.errorMessage(error), isError: true });
@@ -1111,6 +1166,7 @@ ${itemDescription.chat}
       if (CONFIG.DDBI.DEV.downloadFinalActorJSON) {
         FileHelper.download(JSON.stringify(this.actor._source), `${this.actor.name}-${this.actor.id}.json`, "application/json");
       }
+      this.downloadImportCapture(importError);
     }
 
     await Hooks.callAll<"ddb-importer.characterProcessDataComplete">(
