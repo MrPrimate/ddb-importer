@@ -181,21 +181,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     }
   }
 
-  static NEVER_CHOICES = [
-    "Strength",
-    "Dexterity",
-    "Constitution",
-    "Intelligence",
-    "Wisdom",
-    "Charisma",
-    "Strength Score",
-    "Dexterity Score",
-    "Constitution Score",
-    "Intelligence Score",
-    "Wisdom Score",
-    "Charisma Score",
-    "Fighting Style feat",
-  ];
+  static NEVER_CHOICES = DICTIONARY.parsing.nonItemChoiceLabels;
 
   static _copyFlags = [
     "class",

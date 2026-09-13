@@ -3,7 +3,7 @@ import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBBaseClass from "../../../src/parser/classes/DDBBaseClass";
 import logger from "../../../src/lib/Logger";
 import DDBChoiceFeature from "../../../src/parser/features/DDBChoiceFeature";
-import { NON_ITEM_CHOICE_LABELS } from "../../../src/parser/lib/FeatureChoiceRules";
+import { NON_ITEM_CHOICE_LABELS } from "../../../src/config/dictionary/parsing/features";
 
 const feature = { id: 100, name: "Example Choice", requiredLevel: 3, description: "Choose an option." } as IDDBClassDefinitionFeature;
 const choice = (optionIds: number[]) => ({ componentTypeId: 12168134, componentId: 100, type: 3,

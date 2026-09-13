@@ -83,6 +83,30 @@ describe("DDBCharacter._getCoreMasteries (synthetic)", () => {
       { weapon: "Longsword", mastery: "Sap", dnd5eName: "longsword" },
     ]);
   });
+
+  it("resolves nested ammunition labels and deduplicates their canonical weapon", () => {
+    const mock = profMock(raceMods([
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Vex (Shortbow (Wooden Arrows))" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Vex (Shortbow)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Push (Heavy Crossbow (Wooden Bolts))" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Vex (Pistol (Wooden Bullets))" }),
+    ]));
+    expect(mock._getCoreMasteries(false).map((m: IDDBPCDnDBeyondWeaponMasteryFlags) => m.dnd5eName))
+      .toEqual(["shortbow", "heavycrossbow", "pistol"]);
+  });
+
+  it("preserves registered catalog variants and parentheses in mastery names", () => {
+    const mock = profMock(raceMods([
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Scatter (5 ft.) (Dragon Pistol)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Nick (Dagger, Silver)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Nick (Dagger, Wooden)" }),
+    ]));
+    expect(mock._getCoreMasteries(false)).toEqual([
+      { weapon: "Dragon Pistol", mastery: "Scatter (5 ft.)", dnd5eName: "dragonpistol" },
+      { weapon: "Dagger, Silver", mastery: "Nick", dnd5eName: "silverdagger" },
+      { weapon: "Dagger, Wooden", mastery: "Nick", dnd5eName: "woodendagger" },
+    ]);
+  });
 });
 
 // =============================================================================

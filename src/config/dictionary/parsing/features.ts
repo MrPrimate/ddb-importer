@@ -728,6 +728,23 @@ export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];
 
+/** DDB choices that configure their parent rather than creating another item. */
+export const NON_ITEM_CHOICE_LABELS: string[] = [
+  "Strength",
+  "Dexterity",
+  "Constitution",
+  "Intelligence",
+  "Wisdom",
+  "Charisma",
+  "Strength Score",
+  "Dexterity Score",
+  "Constitution Score",
+  "Intelligence Score",
+  "Wisdom Score",
+  "Charisma Score",
+  "Fighting Style feat",
+];
+
 /**
  * DDB template expressions that are wrong at source. Matched on the exact template body and a
  * feature-name fragment; the formula replaces the whole template as an inline roll value.

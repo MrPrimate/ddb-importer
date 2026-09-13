@@ -20,6 +20,17 @@ vi.mock("../../../src/parser/classes/DDBSubClass", () => ({ default: class DDBSu
 
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
 
+describe("weapon mastery name resolution", () => {
+  it("uses canonical names in advancement choices including nested ammunition", () => {
+    const helper = makeHelper();
+    const mods = ["Push (Heavy Crossbow (Wooden Bolts))", "Push (Crossbow, Heavy)", "Vex (Shortbow (Wooden Arrows))"]
+      .map((friendlySubtypeName) => ({ type: "weapon-mastery", friendlySubtypeName, restriction: "", isGranted: true }));
+    const advancement = helper.getWeaponMasteryAdvancement(mods as IModifiersMod[], makeFeature(), 1)?.toObject();
+    expect(advancement).toMatchObject({ configuration: { mode: "mastery", choices: [{ count: 2 }] },
+      value: { chosen: ["weapon:mar:heavycrossbow", "weapon:sim:shortbow"] } });
+  });
+});
+
 // =============================================================================
 // Fixtures
 // =============================================================================
