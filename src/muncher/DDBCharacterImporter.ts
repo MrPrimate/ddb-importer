@@ -621,19 +621,8 @@ ${itemDescription.chat}
     this.notifier("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
-    const spellsAsActivities = utils.getSetting<boolean>("spells-on-items-as-activities");
-    // If there is no magicitems module fall back to importing the magic
-    // item spells as normal spells fo the character
-    if (!spellsAsActivities) {
-      logger.debug("No magic items module(s) found, adding spells to sheet.");
-      items.push(
-        ...(this.result.itemSpells.filter((item) => {
-          const active = item.flags.ddbimporter?.dndbeyond?.active === true;
-          if (!active) logger.info(`Missing active flag on item spell ${item.name}`);
-          return active;
-        })),
-      );
-    }
+    // item spells are cast activities on their items (linked to the spells compendium during
+    // the parse), never separate spell documents on the sheet
     logger.debug("Finished item fetch");
     return items;
   }

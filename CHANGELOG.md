@@ -1,5 +1,6 @@
 # Next Up
 
+- Spells on magic items are always cast activities linked to the spells compendium; the `spells-on-items-as-activities` setting and the "spells as spells" fallback are gone. When the compendium lacks a spell the character's items cast, a GM import munches it in on the spot, and a player import stops with the list of spells and source books the GM needs to munch.
 - Background equipment improvements for some 2014 backgrounds.
 - Fix Divine Spark's level 7/13/18 dice increases, and Defile Ground's level-10 radius increase.
 - Preserve weapon masteries with ammunition annotations, grant starting Pugilists improvised-weapon proficiency.

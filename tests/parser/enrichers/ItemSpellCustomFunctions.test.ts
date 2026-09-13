@@ -1,7 +1,7 @@
 /**
  * Item enrichers that adjust a spell-as-activity copy through `customFunction`.
  *
- * DDBItem.#addSpellAsActivity hands the cloned spell activity to the enricher wrapped in the
+ * DDBItem.#addSpellAsCastActivity hands the cast activity to the enricher wrapped in the
  * hint shape the enrichers are typed against (`{ activity: { data } }`). Before that wrap the
  * enrichers read `activity.data` off a raw activity object: Staff of Healing silently never
  * applied and Circlet of Blasting threw inside mergeObject on every character wearing one

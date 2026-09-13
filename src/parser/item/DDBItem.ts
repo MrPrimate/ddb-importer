@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import type { IPublisherAmmunitionType } from "../../config/dictionary/items/ammunition";
-import { utils, logger, Iconizer, CompendiumHelper, DDBSources, DDBToolProficiencies, ItemRarity } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBSources, DDBToolProficiencies, ItemRarity } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
 import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
@@ -135,8 +135,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   };
   addAutomationEffects: boolean;
   updateExisting: boolean;
-  spellsAsCastActivity: boolean;
-  spellsAsActivities: boolean;
   removeWeaponMasteryDescription: boolean;
   versatileDamage: I5eDamagePart | null;
   addMagical: boolean;
@@ -262,10 +260,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.updateExisting = this.isMuncher
       ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
-    this.spellsAsCastActivity = true;
-    this.spellsAsActivities = isCompendium
-      || utils.getSetting<boolean>("spells-on-items-as-activities");
-
     this.removeWeaponMasteryDescription = this.is2014
       || utils.getSetting<boolean>("munching-policy-remove-weapon-mastery-description");
     this._init();
@@ -3046,232 +3040,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   }
 
-  // if this.spellsAsActivities
-
-  async #addSpellAsActivity(spell: I5eSpellItem) {
-    if (!("activities" in this.data.system)) return;
-    logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
-    const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
-
-    const reset = this.#getSpellReset();
-
-    const maxActivityUses = spellData.limitedUse?.maxUses && spellData.limitedUse?.maxUses > 0 ? `${spellData.limitedUse.maxUses}` : "1";
-
-    const activityUses: I5eSystemLimitedUses = {
-      spent: 0,
-      recovery: [
-        {
-          period: reset.period ?? null,
-          type: "recoverAll",
-        },
-      ],
-      max: maxActivityUses,
-    };
-
-    const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
-      ? {
-        type: "activityUses",
-        value: spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1,
-        scaling: {},
-      }
-      : spellData.limitedUse
-        ? {
-          type: "itemUses",
-          target: "",
-          value: spellData.limitedUse.minNumberConsumed ?? this.actionData.consumptionValue ?? 1,
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        }
-        : null;
-
-    const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: String(spell.flags.ddbimporter?.dndbeyond?.dc ?? "") }
-      : { calculation: "spellcasting", formula: "" };
-
-    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
-    const scalingValue = this.data.system.uses.max ?? "";
-    let i = 0;
-    for (const id of Object.keys(spell.system.activities)) {
-      const activity = foundry.utils.deepClone(spell.system.activities[id]);
-
-      const currentConsumptionValue = foundry.utils.getProperty(activity, "consumption.value") as number | undefined;
-
-      if (currentConsumptionValue && activityConsumptionTarget?.type === "itemUses") {
-        activityConsumptionTarget.value = currentConsumptionValue;
-      }
-
-      // console.warn(`Copying Spell ${spell.name} Activity`, {
-      //   spell,
-      //   this: this,
-      //   id,
-      //   activity,
-      // });
-
-      const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") as string;
-      const currentName = activity.name ? `${activity.name}`.trim() : "";
-      const adjustedName = currentName === ""
-        ? utils.capitalize(activity.type ?? "")
-        : currentName;
-      activity.name = `${spellLookupName ?? spell.name} (${adjustedName})`;
-      const newId = utils.namedIDStub(spell.name, {
-        postfix: i,
-        prefix: activity.type,
-      });
-
-      if (!activity.activation?.override) activity.activation = spell.system.activation as I5eActivityActivation;
-      if (!activity.duration?.override) activity.duration = spell.system.duration;
-      if (!activity.range?.override) activity.range = spell.system.range;
-      if (!activity.target?.override) activity.target = spell.system.target;
-
-      activity._id = newId;
-
-      activity.consumption ??= {};
-      if (activityConsumptionTarget) {
-        activity.consumption.targets = [activityConsumptionTarget];
-      }
-      const sourceConsumption = spell.system.activities[id].consumption ??= {};
-      sourceConsumption.scaling ??= {};
-      sourceConsumption.scaling.allowed = Boolean(scalingAllowed);
-      sourceConsumption.scaling.max = scalingAllowed
-        ? scalingValue
-        : "";
-      activity.consumption.spellSlot = false;
-
-      if (this.perSpell.isPerSpell && reset.isCharges) {
-        activity.uses = activityUses;
-      }
-
-      const activitySave = foundry.utils.getProperty(activity, "save") as I5eActivitySave | undefined;
-      if (this.actionData.save?.dc && activitySave?.dc) {
-        activitySave.dc = saveDC;
-      }
-
-      foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
-
-      // The copied spell's rules go on the activity body, and stay on
-      // chatFlavor as well - dnd5e renders chatFlavor as the usage-card
-      // subtitle, which existing cards rely on.
-      activity.description ??= {};
-      activity.description.chatFlavor = spell.system.description.value;
-      activity.description.value = spell.system.description.value;
-
-      if (!activity.img || activity.img === "") {
-        const mockItem = { name: (spellLookupName ?? spell.name), type: "spell" } as I5eSpellItem;
-        const img = await Iconizer.iconPath(mockItem);
-        if (img) activity.img = img;
-      }
-
-      // enrichers receive the activity in the hint shape they are typed against
-      // (`activity.data`, see StaffOfHealing / CircletOfBlasting), and may replace the data
-      const customOptions: ICustomFunctionOptions = {
-        name: spellLookupName ?? spell.name,
-        activity: { data: activity },
-      };
-      await this.enricher.customFunction(customOptions);
-
-      this.data.system.activities[newId] = (customOptions.activity?.data ?? activity) as typeof activity;
-      i++;
-    }
-
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.perSpell.isPerSpell);
-  }
-
-  async #spellsAsSpells(spell: I5eSpellItem) {
-    if (!("uses" in this.data.system)) return;
-    logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
-    const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
-
-    const reset = this.#getSpellReset();
-
-    const uses = {
-      spent: 0,
-      recovery: [] as I5eSystemLimitedUsesRecovery[],
-      max: null as string | null,
-    } satisfies I5eSystemLimitedUses;
-
-    if (this.perSpell.isPerSpell) {
-      // spells manage charges
-      uses.max = spellData.limitedUse?.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
-      uses.recovery.push({
-        period: reset.period ?? null,
-        type: "recoverAll",
-      });
-
-      foundry.utils.setProperty(spell, "system.uses", uses);
-    } else {
-      foundry.utils.setProperty(spell, "system.uses.recovery", []);
-      foundry.utils.setProperty(spell, "system.uses.max", null);
-      foundry.utils.setProperty(spell, "system.uses.spent", null);
-    }
-
-    const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
-      ? {
-        type: "itemUses",
-        value: spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1,
-        scaling: {},
-      }
-      : spellData.limitedUse
-        ? {
-          type: "itemUses",
-          target: `${this.data._id}`,
-          value: spellData.limitedUse.minNumberConsumed ?? this.actionData.consumptionValue ?? 1,
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        }
-        : null;
-
-    const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: String(spell.flags.ddbimporter?.dndbeyond?.dc ?? "") }
-      : { calculation: "spellcasting", formula: "" };
-
-    // console.warn(`Spell update details for ${spell.name}`, {
-    //   reset,
-    //   uses,
-    //   activityConsumptionTarget,
-    //   saveDC,
-    //   spellData,
-    // });
-
-    foundry.utils.setProperty(spell, "system.level", Number(spellData.level));
-
-    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
-    const scalingValue = this.data.system.uses?.max ?? "";
-    for (const id of Object.keys(spell.system.activities)) {
-      const spellActivity = spell.system.activities[id];
-      const consumption = spellActivity.consumption ??= {};
-      if (activityConsumptionTarget)
-        consumption.targets = [activityConsumptionTarget];
-
-      consumption.scaling ??= {};
-      consumption.scaling.allowed = Boolean(scalingAllowed);
-      consumption.scaling.max = scalingAllowed
-        ? scalingValue
-        : "";
-      consumption.spellSlot = false;
-      const spellActivitySave = foundry.utils.getProperty(spellActivity, "save") as I5eActivitySave | undefined;
-      if (this.actionData.save?.dc && spellActivitySave?.dc) {
-        spellActivitySave.dc = saveDC;
-      }
-      spellActivity.description ??= { chatFlavor: "" };
-      spellActivity.description.chatFlavor = `Cast from ${this.data.name}`;
-      await this.enricher.customFunction({
-        name: spell.name,
-        activity: spellActivity,
-      });
-    }
-
-    // console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
-    //   spell: foundry.utils.deepClone(spell),
-    //   this: this,
-    //   id: `${this.data._id}`,
-    // });
-
-  }
-
   async #basicMagicItem() {
     if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description ?? "")) {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
@@ -3289,6 +3057,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
     if (!this.raw.itemSpells) return;
+    // every item spell becomes a cast activity linked to the spells compendium; the character
+    // parse has already made sure the compendium holds them (ensureItemSpellsInCompendium)
     for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
         && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
@@ -3300,22 +3070,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (this.isMuncher) return;
 
+    // a linked spell leaves the character's spell list; one the compendium still lacks stays
+    // there so the sheet at least shows it
     this.raw.itemSpells = this.raw.itemSpells.filter((spell) => {
       const matchedSpell = foundry.utils.getProperty(spell, "flags.ddbimporter.removeSpell")
         && spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
         && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
       return !matchedSpell;
     });
-
-    for (const spell of this.raw.itemSpells) {
-      const isItemSpell = spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
-        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
-      if (isItemSpell) {
-        logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        if (this.spellsAsActivities) await this.#addSpellAsActivity(spell);
-        else await this.#spellsAsSpells(spell);
-      }
-    }
 
     // const spent = foundry.utils.getProperty(this.data, "system.uses.spent");
     // const activation = this.actionData.activation?.type ?? "";

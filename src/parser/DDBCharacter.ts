@@ -275,6 +275,7 @@ class DDBCharacter {
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;
+  ensureItemSpellsInCompendium: boolean;
   _spellParser: CharacterSpellFactory;
   _infusionFactory: DDBInfusionFactory;
   _characterFeatureFactory: CharacterFeatureFactory;
@@ -298,7 +299,7 @@ class DDBCharacter {
   constructor({
     currentActor = null, characterId = null, selectResources = false, enableCompanions = false, isMuncher = false,
     enableSummons = false, addToCompendiums = null, compendiumImportTypes = null, forceCompendiumUpdate = null,
-    collectCompendiumDocumentsOnly = false,
+    collectCompendiumDocumentsOnly = false, ensureItemSpellsInCompendium = true,
   }: DDBCharacterImportOptions = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
@@ -370,6 +371,7 @@ class DDBCharacter {
     // this.source is always null at this point; process() replaces this with a character-based finder
     this.proficiencyFinder = new ProficiencyFinder({ ddb: null });
     this.isMuncher = isMuncher;
+    this.ensureItemSpellsInCompendium = ensureItemSpellsInCompendium;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
     this.collectCompendiumDocumentsOnly = collectCompendiumDocumentsOnly;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
