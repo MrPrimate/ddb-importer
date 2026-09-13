@@ -441,13 +441,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "spells-on-items-as-activities": {
-          name: "ddb-importer.settings.spells-on-items-as-activities.name",
-          hint: "ddb-importer.settings.spells-on-items-as-activities.hint",
-          config: false,
-          type: Boolean,
-          default: false,
-        },
         "separate-ac-effects": {
           name: "ddb-importer.settings.separate-ac-effects.name",
           hint: "ddb-importer.settings.separate-ac-effects.hint",

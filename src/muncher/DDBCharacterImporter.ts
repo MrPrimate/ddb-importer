@@ -920,19 +920,22 @@ ${itemDescription.chat}
   /**
    * Assembles the `debug-import-capture` document from a finished import.
    */
-  static buildImportCapture({ source, actor, settings, importError, versions, modules }: {
+  static buildImportCapture({ source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null }: {
     source: IDDBCharacterResponse | null;
     actor: TImporterActor;
     settings: DDBCharacterImporter["settings"];
     importError: string | null;
     versions: IDDBImportCapture["versions"];
     modules: string[];
+    derived?: IDDBImportCaptureDerived | null;
+    moduleSettings?: Record<string, unknown> | null;
   }): IDDBImportCapture {
     // midiConfig is the live midi-qol settings object: large, sometimes circular, and the
     // module list already records whether midi was present for the import
     const { midiConfig: _midiConfig, ...importSettings } = settings;
     return {
-      format: 1,
+      // format 2: `source` is the pre-parse snapshot and `derived` carries the prepared totals
+      format: 2,
       capturedAt: new Date().toISOString(),
       characterId: source?.ddb?.character?.id ?? null,
       versions,
@@ -941,6 +944,56 @@ ${itemDescription.chat}
       importError,
       source,
       actor: actor.toObject() as unknown as I5ePCData,
+      ...(derived ? { derived } : {}),
+      ...(moduleSettings ? { settings: moduleSettings } : {}),
+    };
+  }
+
+  /** Settings whose values are credentials and must never leave the world. */
+  static SECRET_SETTING_PATTERN = /cookie|key|token|secret|patreon/i;
+
+  /**
+   * Every registered module setting as the import saw it. The parse branches on dozens of
+   * them (spells on items as activities, container policies, effect toggles), so a replay
+   * without them compares against a different import.
+   */
+  static collectModuleSettings(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(SETTINGS.GET_ALL_SETTINGS())) {
+      if (DDBCharacterImporter.SECRET_SETTING_PATTERN.test(key)) {
+        result[key] = "REDACTED";
+        continue;
+      }
+      try {
+        result[key] = utils.getSetting<unknown>(key);
+      } catch (_error) {
+        // a setting registered late (or not at all in this world) is simply absent
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The sheet totals dnd5e computes at prepareData and toObject() leaves out: what a user
+   * reads on the sheet, and what the lifecycle audit needs to check the parsed numbers.
+   */
+  static deriveSheetValues(actor: TImporterActor): IDDBImportCaptureDerived {
+    const system: any = actor.system ?? {};
+    const num = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
+    const record = (source: Record<string, any> | undefined, pick: (entry: any) => unknown): Record<string, number | null> =>
+      Object.fromEntries(Object.entries(source ?? {}).map(([key, entry]) => [key, num(pick(entry))]));
+    return {
+      ac: num(system.attributes?.ac?.value),
+      hpMax: num(system.attributes?.hp?.max),
+      prof: num(system.attributes?.prof),
+      abilities: Object.fromEntries(Object.entries(system.abilities ?? {}).map(([key, ability]: [string, any]) => [
+        key, { value: num(ability?.value), mod: num(ability?.mod), save: num(ability?.save?.value ?? ability?.save) },
+      ])),
+      skills: record(system.skills, (skill) => skill?.total),
+      spells: record(system.spells, (slot) => slot?.max),
+      movement: record(system.attributes?.movement, (value) => value),
+      senses: record(system.attributes?.senses, (value) => value),
+      init: num(system.attributes?.init?.total),
     };
   }
 
@@ -951,10 +1004,13 @@ ${itemDescription.chat}
     if (!utils.getSetting<boolean>("debug-import-capture")) return;
     try {
       const capture = DDBCharacterImporter.buildImportCapture({
-        source: this.ddbCharacter.source,
+        // process() mutates source in place; the audit replays the snapshot taken at fetch time
+        source: this.ddbCharacter.sourceSnapshot ?? this.ddbCharacter.source,
         actor: this.actor,
         settings: this.settings,
         importError,
+        derived: DDBCharacterImporter.deriveSheetValues(this.actor),
+        moduleSettings: DDBCharacterImporter.collectModuleSettings(),
         versions: {
           game: game.version,
           system: game.system.version,

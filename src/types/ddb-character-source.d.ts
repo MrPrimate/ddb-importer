@@ -30,8 +30,25 @@ global {
     modules: string[];
     importSettings: Record<string, unknown>;
     importError: string | null;
+    /** the response before the parser touched it (format 2); format 1 captured it post-parse */
     source: IDDBCharacterResponse | null;
     actor: I5ePCData;
+    /** sheet totals from the prepared actor, which toObject() does not carry (format 2) */
+    derived?: IDDBImportCaptureDerived;
+    /** every module setting in force, secrets redacted, so a replay can use the same policies (format 2) */
+    settings?: Record<string, unknown>;
+  }
+
+  export interface IDDBImportCaptureDerived {
+    ac: number | null;
+    hpMax: number | null;
+    prof: number | null;
+    abilities: Record<string, { value: number | null; mod: number | null; save: number | null }>;
+    skills: Record<string, number | null>;
+    spells: Record<string, number | null>;
+    movement: Record<string, number | null>;
+    senses: Record<string, number | null>;
+    init: number | null;
   }
 
   export interface IDDBData {

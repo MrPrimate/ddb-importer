@@ -108,6 +108,8 @@ export interface DDBCharacterImportOptions {
   selectResources?: boolean;
   enableCompanions?: boolean;
   isMuncher?: boolean;
+  /** munch missing item spells into the spells compendium before linking them; off only where no compendium can be written (test replays) */
+  ensureItemSpellsInCompendium?: boolean;
   enableSummons?: boolean;
   addToCompendiums?: boolean | null;
   collectCompendiumDocumentsOnly?: boolean;
@@ -238,6 +240,8 @@ export interface IDDBCharacterDataStub {
 class DDBCharacter {
 
   source: IDDBCharacterResponse | null;
+  /** the response as fetched; process() mutates `source` in place and the import capture needs the pre-parse copy */
+  sourceSnapshot: IDDBCharacterResponse | null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   // null means "use the compendium update setting" downstream
   forceCompendiumUpdate: boolean | null;
@@ -319,6 +323,7 @@ class DDBCharacter {
       };
     // raw data received from DDB
     this.source = null;
+    this.sourceSnapshot = null;
     // this is the raw items processed before filtering
     this.raw = {
       // character and race are populated by _generateCharacter/_generateRace
@@ -449,6 +454,7 @@ class DDBCharacter {
       if (!characterResponse.success) return;
 
       this.#sourceFixes();
+      this.sourceSnapshot = foundry.utils.deepClone(characterResponse);
 
       if (utils.getSetting<boolean>("debug-json") || CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(characterResponse), `${this.characterId}-${characterResponse.ddb.character.name}-raw.json`, "application/json");
