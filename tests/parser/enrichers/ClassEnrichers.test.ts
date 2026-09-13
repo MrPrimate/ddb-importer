@@ -195,6 +195,19 @@ describe("bard BragisRuneOfSpeech", () => {
 describe("cleric ChannelDivinity", () => {
   const Enricher = ClassEnrichers.Cleric.ChannelDivinity;
 
+  it("increases both Divine Spark dice pools at levels 7, 13 and 18", () => {
+    const e = build(Enricher);
+    const formulas: string[] = [e.activity.data.healing.custom.formula,
+      e.additionalActivities[0].build.damageParts[0].custom.formula];
+    for (const formula of formulas) {
+      expect(formula).toBe("(@scale.channel-divinity.spark)d8 + @abilities.wis.mod");
+    }
+    const advancement = e.override.data.system.advancement.divineSparkScale;
+    expect(advancement).toMatchObject({ type: "ScaleValue", configuration: { identifier: "spark", type: "number",
+      scale: { 2: { value: 1 }, 7: { value: 2 }, 13: { value: 3 }, 18: { value: 4 } } } });
+    expect(e.override.data.system.identifier).toBe("channel-divinity");
+  });
+
   it("gives 2014 only Turn Undead and no base activity", () => {
     const e = build(Enricher, { is2014: true });
     expect(e.activity).toBeNull();
@@ -218,6 +231,27 @@ describe("cleric ChannelDivinity", () => {
       { period: "lr", type: "recoverAll", formula: undefined },
     ]);
     expect(e.override.uses.spent).toBe(1);
+    expect(e.override.data.flags.ddbimporter.skipScale).toBe(true);
+  });
+
+  it("links the feature scale to the imported Cleric class", () => {
+    const e = build(Enricher, { ddbParser: { ddbCharacter: { raw: {
+      classes: [{ _id: "clericClass00000", name: "Cleric" }],
+    } } } });
+    expect(e.override.data.flags.dnd5e.advancementRoot).toBe("clericClass00000");
+  });
+});
+
+describe("druid DefileGround", () => {
+  it("uses a 10-foot radius below level 10 and 20 feet thereafter for placement and movement", () => {
+    const e = build(ClassEnrichers.Druid.DefileGround);
+    const formulas: string[] = [e.activity.data.target.template.size,
+      e.additionalActivities[0].overrides.data.target.template.size];
+    for (const formula of formulas) {
+      expect([9, 10, 20].map((level) => Function("min", "floor",
+        `return ${formula.replaceAll("@classes.druid.levels", String(level))};`)(Math.min, Math.floor)))
+        .toEqual([10, 20, 20]);
+    }
   });
 });
 

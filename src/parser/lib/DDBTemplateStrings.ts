@@ -1,6 +1,8 @@
+import { compileTemplateExpression } from "./DDBTemplateExpression";
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
+import { TEMPLATE_CORRECTIONS } from "../../config/dictionary/parsing/features";
 import DDBDescriptions from "./DDBDescriptions";
 import { parseTags } from "./DDBReferenceLinker";
 
@@ -383,6 +385,13 @@ const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | s
 };
 
 
+/** Find the replacement formula for a template body DDB ships wrong, if there is one. */
+function correctFeatureTemplate(template: string, featureName: string): string | null {
+  const correction = TEMPLATE_CORRECTIONS.find((entry) =>
+    entry.template === template && featureName.includes(entry.featureNameIncludes));
+  return correction?.formula ?? null;
+}
+
 /**
  * Replaces the matched string with the appropriate value or format, based on the value of p2.
  *
@@ -475,13 +484,48 @@ export function parse(
       parsed: null,
       match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),
-      rollMatch: new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${match}}})(?:$|[., "')+<])`, "g"),
+      rollMatch: new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${escapeRegExp(match)}}})(?:$|[., "')+<])`, "g"),
       rollMatchTest: false,
       type: null,
       subType: null,
     };
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
+
+    const correctedFormula = correctFeatureTemplate(match, featureDefinition.name);
+    if (correctedFormula) {
+      entry.parsed = `[[${correctedFormula}]]`;
+      entry.evalConstraint = correctedFormula;
+      result.text = result.text.replace(entry.replacePattern, entry.parsed);
+      result.resultStrings.push(entry.parsed);
+      result.definitions.push(entry);
+      return;
+    }
+    const constraints = [...match.matchAll(/[@#]([a-z]+)/gi)].map((m) => m[1]);
+    const unknownConstraint = constraints.find((constraint) => !["roundup", "rounddown", "roundown", "min", "max", "signed", "unsigned"].includes(constraint));
+    if (unknownConstraint) {
+      logger.warn(`ddb-importer does not know about template constraint ${unknownConstraint} in {{${match}}}. Please log a bug.`);
+      result.definitions.push(entry);
+      return;
+    }
+    const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
+      || (/#(?:min|max):/).test(match) || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
+    if (compound) {
+      try {
+        const signed = match.match(/#(signed|unsigned)\b/)?.[1]
+          ?? (match.includes("modifier") ? "signed" : null);
+        const expression = match.replace(/#(?:signed|unsigned)\b/g, "");
+        const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
+        entry.parsed = `[[${getNumber(formula, signed)}]]`;
+        entry.evalConstraint = formula;
+        result.text = result.text.replace(entry.replacePattern, entry.parsed);
+        result.resultStrings.push(entry.parsed);
+      } catch (error) {
+        logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, error);
+      }
+      result.definitions.push(entry);
+      return;
+    }
 
     // console.warn("parseTemplateString", { text: foundry.utils.duplicate(text), feature, entry, match, result });
 

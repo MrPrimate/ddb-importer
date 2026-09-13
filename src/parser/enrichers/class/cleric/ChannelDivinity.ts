@@ -11,7 +11,7 @@ export default class ChannelDivinity extends DDBEnricherData {
         name: "Divine Spark (Healing)",
         targetType: "creature",
         data: {
-          healing: DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8 + @abilities.wis.mod", types: ["healing"] }),
+          healing: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["healing"] }),
           range: {
             value: "30",
             units: "ft",
@@ -75,7 +75,7 @@ export default class ChannelDivinity extends DDBEnricherData {
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8 + @abilities.wis.mod", types: ["radiant", "necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["radiant", "necrotic"] }),
           ],
           onSave: "half",
           rangeOverride: {
@@ -159,6 +159,7 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
+    const cleric = this.ddbParser.ddbCharacter?.raw.classes.find((klass) => klass.name === "Cleric");
 
     const uses = this._getUsesWithSpent({
       type: "class",
@@ -174,6 +175,34 @@ export default class ChannelDivinity extends DDBEnricherData {
 
     return {
       uses,
+      // The Channel Divinity scale counts uses; it must not replace activity damage.
+      data: {
+        flags: {
+          ddbimporter: { skipScale: true },
+          ...(cleric ? { dnd5e: { advancementRoot: cleric._id } } : {}),
+        },
+        system: {
+          identifier: "channel-divinity",
+          advancement: {
+            divineSparkScale: {
+              _id: "divineSparkScale",
+              type: "ScaleValue",
+              name: "Divine Spark Die Count",
+              configuration: {
+                identifier: "spark",
+                type: "number",
+                scale: {
+                  2: { value: 1 },
+                  7: { value: 2 },
+                  13: { value: 3 },
+                  18: { value: 4 },
+                },
+              },
+              value: {},
+            },
+          },
+        },
+      },
     };
   }
 

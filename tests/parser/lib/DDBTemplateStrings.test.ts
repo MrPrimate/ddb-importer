@@ -5,6 +5,7 @@ vi.mock("../../../src/parser/lib/DDBReferenceLinker", () => ({
 }));
 
 import { parse } from "../../../src/parser/lib/DDBTemplateStrings";
+import logger from "../../../src/lib/Logger";
 
 // =============================================================================
 // Fixtures
@@ -52,6 +53,57 @@ function makeCharacter(withFlags = false): any {
 const ddb = makeDdb();
 const ddbWithWizard = makeDdb({ classes: [wizardClass] });
 const character = makeCharacter();
+
+describe("compound template constraints", () => {
+  function evaluate(text: string, level: number, cha = 4): number {
+    const formula = text.replace(/^\[\[/, "").replace(/\]\]$/, "")
+      .replaceAll("@classes.wizard.levels", String(level)).replaceAll("@classes.cleric.levels", String(level))
+      .replaceAll("@abilities.cha.mod", String(cha));
+    return Function("floor", "ceil", "min", "max", `return (${formula});`)(Math.floor, Math.ceil, Math.min, Math.max);
+  }
+
+  it("adds an ability modifier after rounding an odd or even class level", () => {
+    const text = parse(ddbWithWizard, character, "{{(classlevel/2)@rounddown+modifier:cha#unsigned}}", makeFeature({ classId: 42 }))!.text;
+    expect(evaluate(text, 11)).toBe(9);
+    expect(evaluate(text, 12)).toBe(10);
+    expect(evaluate(text, 11, -1)).toBe(4);
+  });
+
+  it("preserves outer parentheses and a numeric constraint after #", () => {
+    const text = parse(ddbWithWizard, character, "{{((classlevel/10)@rounddown+1)*10#max:20}}", makeFeature({ classId: 42 }))!.text;
+    expect([9, 10, 20].map((level) => evaluate(text, level))).toEqual([10, 20, 20]);
+  });
+
+  it("keeps arithmetic outside a parenthesized rounded expression", () => {
+    const text = parse(ddbWithWizard, character, "{{((classlevel/2)@rounddown)+3}}", makeFeature({ classId: 42 }))!.text;
+    expect(evaluate(text, 11)).toBe(8);
+  });
+
+  it("resolves constraint operands without reversing min/max", () => {
+    const feature = makeFeature({ classId: 42 });
+    const capped = parse(ddbWithWizard, character, "{{classlevel@max:modifier:cha}}", feature)!.text;
+    const bounded = parse(ddbWithWizard, character, "{{classlevel@min:modifier:cha}}", feature)!.text;
+    expect(evaluate(capped, 10)).toBe(4);
+    expect(evaluate(bounded, 2)).toBe(4);
+  });
+
+  it("replaces the captured Divine Spark expression with the feature's spark scale", () => {
+    const source = "Restore <strong>{{1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown}}d8{{modifier:wis}}</strong> HP";
+    const feature = makeFeature({ classId: 42, name: "Channel Divinity: Divine Spark" });
+    const text = parse(ddbWithWizard, character, source, feature)!.text;
+    expect(text).toContain("[[/roll (@scale.channel-divinity.spark)d8 + @abilities.wis.mod]]");
+  });
+
+  it.each(["{{classlevel@unknown}}", "{{(classlevel/2)@rounddown+unknown}}", "{{((classlevel/2)@rounddown+1}}"])("preserves unsupported input %s and warns", (source) => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      expect(parse(ddbWithWizard, character, source, makeFeature({ classId: 42 }))!.text).toBe(source);
+      expect(warn).toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+});
 
 // =============================================================================
 // Basics
