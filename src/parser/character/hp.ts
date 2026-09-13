@@ -44,8 +44,12 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DD
     }
   });
 
+  // DDB also files healing riders such as "regain 1d4 extra when a spell restores HP" as
+  // hit-points bonuses, with no value and only a dice block; those never raise the maximum,
+  // and a NaN here would leave the character with no hit points at all after import
   const fixedBonusHitPointValuesWithEffects = bonusHitPointModifiersWithEffects
-    .map((bonus) => parseInt(String(bonus.value)))
+    .map((bonus) => Number(bonus.value ?? bonus.fixedValue))
+    .filter((value) => Number.isFinite(value))
     .reduce((prev, cur) => prev + cur, 0);
 
   // sum up the bonus HP per class level

@@ -190,6 +190,54 @@ describe("DDBCharacter._generateHitPoints", () => {
     expect(mock.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects).toBe(5);
   });
 
+  it("ignores hit-points bonuses that carry only a healing die and no value", () => {
+    const mock = makeMockCharacter({
+      ddbCharacter: {
+        baseHitPoints: 103,
+        modifiers: {
+          class: [
+            {
+              type: "bonus",
+              subType: "hit-points",
+              value: null,
+              fixedValue: null,
+              dice: { diceCount: 1, diceValue: 4, diceMultiplier: null, fixedValue: null, diceString: "1d4" },
+              componentId: 601,
+              componentTypeId: 1,
+              restriction: "Whenever you use a Lvl. 1+ spell to restore HP",
+              isGranted: true,
+            },
+          ],
+          race: [
+            {
+              type: "bonus",
+              subType: "hit-points",
+              value: null,
+              fixedValue: 3,
+              componentId: 602,
+              componentTypeId: 1,
+              restriction: "",
+              isGranted: true,
+            },
+          ],
+          background: [],
+          item: [],
+          feat: [],
+          condition: [],
+        },
+      },
+    });
+    mock.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.value = 13;
+    mock.raw.character.flags.ddbimporter.dndbeyond.totalLevels = 20;
+
+    generateHP.call(mock);
+
+    // 20 levels of +1 con, base 103, the 1d4 rider contributes nothing, the fixed 3 counts
+    expect(mock.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects).toBe(3);
+    expect(mock.raw.character.flags.ddbimporter.totalHP).toBe(126);
+    expect(mock.raw.character.system.attributes.hp.value).toBe(123);
+  });
+
   it("stores metadata flags", () => {
     const mock = makeMockCharacter({
       ddbCharacter: { baseHitPoints: 25, removedHitPoints: 3 },
