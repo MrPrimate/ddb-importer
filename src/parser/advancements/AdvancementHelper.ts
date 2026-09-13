@@ -2239,6 +2239,9 @@ export default class AdvancementHelper {
           for (const weapon of weapons) {
             proficiencies.add(weapon);
           }
+        } else if (name.toLowerCase() === "improvised weapons") {
+          // This proficiency is a dnd5e special flag, emitted by its granting class or feat.
+          logger.debug("Improvised weapon proficiency uses the system's special proficiency flag");
         } else {
           logger.warn(`unknown weapon group choices ${name}`);
         }
