@@ -1,5 +1,6 @@
 # Next Up
 
+- Some class builds could end up granting spells twice during import to spell lists.
 - Characters with a dice-only "hit points" bonus mod (for example the Flower Circle druid's extra healing die) imported with 0 hit points because the rider was summed into the hit point total as NaN. Those mods are now ignored when computing the total.
 - Spells on magic items are always cast activities linked to the spells compendium; the `spells-on-items-as-activities` setting and the "spells as spells" fallback are gone. When the compendium lacks a spell the character's items cast, a GM import munches it in on the spot, and a player import stops with the list of spells and source books the GM needs to munch.
 - Background equipment improvements for some 2014 backgrounds.
