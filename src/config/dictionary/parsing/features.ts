@@ -391,6 +391,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Stalker's Prowess",
     "Transmutation Savant",
     "Signature Spells",
+    "Rage of the Wilds",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
