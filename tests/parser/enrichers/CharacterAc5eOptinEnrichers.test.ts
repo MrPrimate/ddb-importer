@@ -204,9 +204,12 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
     const data = enricher.override.data;
     expect(data["system.identifier"]).toBe("favored-foe");
-    const advancement = Object.entries(data)
-      .find(([key]) => key.startsWith("system.advancement."))?.[1] as any;
+    expect(Object.keys(data).some((key) => key.startsWith("system.advancement"))).toBe(false);
+    expect(enricher.additionalAdvancements).toHaveLength(1);
+    const advancement = enricher.additionalAdvancements[0];
     expect(advancement.type).toBe("ScaleValue");
+    expect(advancement.name).toBe("Favored Foe Damage");
+    expect(advancement.hint).toBe("The extra damage dealt to a marked favored enemy.");
     expect(advancement.configuration.identifier).toBe("die");
     expect(advancement.configuration.scale).toEqual({
       "1": { number: 1, faces: 4 },

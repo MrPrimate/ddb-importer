@@ -1039,6 +1039,22 @@ describe("DDBEnricherFactoryMixin.addDocumentAdvancements", () => {
     const result = await e.addDocumentAdvancements();
     expect(result.system.advancement).toEqual({ advC: adv });
   });
+
+  it("converts an array-shaped advancement field to an id-keyed object before adding", async () => {
+    const existing = { _id: "advOld", type: "ItemGrant" };
+    const adv = { _id: "advNew", type: "ScaleValue" };
+    const e = makeEnricher({ document: makeDocument({ system: { advancement: [existing] } }) });
+    const result = await e.addDocumentAdvancements([adv] as any);
+    expect(Array.isArray(result.system.advancement)).toBe(false);
+    expect(result.system.advancement).toEqual({ advOld: existing, advNew: adv });
+  });
+
+  it("leaves the advancement field untouched when there is nothing to add", async () => {
+    const advancement: any[] = [];
+    const e = makeEnricher({ document: makeDocument({ system: { advancement } }) });
+    const result = await e.addDocumentAdvancements([] as any);
+    expect(result.system.advancement).toBe(advancement);
+  });
 });
 
 // =============================================================================

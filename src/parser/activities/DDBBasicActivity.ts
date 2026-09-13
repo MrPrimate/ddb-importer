@@ -672,6 +672,7 @@ export default class DDBBasicActivity {
     const effects = (await enricher?.createEffects()) ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
+    await enricher?.addDocumentAdvancements();
     await enricher?.addDocumentOverride();
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
     await enricher?.addAdditionalActivities(enricher?.ddbParser);

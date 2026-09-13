@@ -173,6 +173,16 @@ describe("AdvancementHelper.buildNumberScale / buildDiceScale", () => {
     expect(result.configuration).toMatchObject({
       identifier: "sneak-attack", type: "dice", scale: { 1: { number: 1, faces: 6 }, 3: { number: 2, faces: 6 } },
     });
+    expect(result.hint).toBeUndefined();
+  });
+
+  it("writes an optional hint on either builder", () => {
+    const dice: any = AdvancementHelper.buildDiceScale({
+      name: "Foe", identifier: "die", hint: "Dice hint", scale: { 1: { number: 1, faces: 4 } },
+    });
+    const number: any = AdvancementHelper.buildNumberScale({ name: "Pool", identifier: "pool", hint: "Number hint", scale: { 1: 2 } });
+    expect(dice.hint).toBe("Dice hint");
+    expect(number.hint).toBe("Number hint");
   });
 });
 

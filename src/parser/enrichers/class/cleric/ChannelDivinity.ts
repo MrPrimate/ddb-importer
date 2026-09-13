@@ -183,27 +183,21 @@ export default class ChannelDivinity extends DDBEnricherData {
         },
         system: {
           identifier: "channel-divinity",
-          advancement: {
-            divineSparkScale: {
-              _id: "divineSparkScale",
-              type: "ScaleValue",
-              name: "Divine Spark Die Count",
-              configuration: {
-                identifier: "spark",
-                type: "number",
-                scale: {
-                  2: { value: 1 },
-                  7: { value: 2 },
-                  13: { value: 3 },
-                  18: { value: 4 },
-                },
-              },
-              value: {},
-            },
-          },
         },
       },
     };
+  }
+
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (this.is2014) return [];
+    // backs @scale.channel-divinity.spark in the Divine Spark activities
+    return [
+      DDBEnricherData.AdvancementBuilder.buildNumberScale({
+        name: "Divine Spark Die Count",
+        identifier: "spark",
+        scale: { 2: 1, 7: 2, 13: 3, 18: 4 },
+      }),
+    ];
   }
 
 }

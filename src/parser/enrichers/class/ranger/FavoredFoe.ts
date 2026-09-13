@@ -7,39 +7,28 @@ export default class FavoredFoe extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    // the damage die scales with ranger level (1d4, 1d6 at 6th, 1d8 at 14th);
-    // the feature-held scale value surfaces as @scale.favored-foe.die
-    const advancement = {
-      "type": "ScaleValue",
-      "_id": foundry.utils.randomID(),
-      "configuration": {
-        "identifier": "die",
-        "type": "dice",
-        "scale": {
-          "1": {
-            "number": 1,
-            "faces": 4,
-          },
-          "6": {
-            "number": 1,
-            "faces": 6,
-          },
-          "14": {
-            "number": 1,
-            "faces": 8,
-          },
-        },
-      },
-      "name": "Favored Foe Damage",
-      "hint": "The extra damage dealt to a marked favored enemy.",
-    };
-
     return {
       data: {
         "system.identifier": "favored-foe",
-        [`system.advancement.${advancement._id}`]: advancement,
       },
     };
+  }
+
+  override get additionalAdvancements(): I5eAdvancement[] {
+    // the damage die scales with ranger level (1d4, 1d6 at 6th, 1d8 at 14th);
+    // the feature-held scale value surfaces as @scale.favored-foe.die
+    return [
+      DDBEnricherData.AdvancementBuilder.buildDiceScale({
+        name: "Favored Foe Damage",
+        identifier: "die",
+        hint: "The extra damage dealt to a marked favored enemy.",
+        scale: {
+          1: { number: 1, faces: 4 },
+          6: { number: 1, faces: 6 },
+          14: { number: 1, faces: 8 },
+        },
+      }),
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {

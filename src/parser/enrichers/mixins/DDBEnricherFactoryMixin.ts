@@ -1020,18 +1020,26 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
 
     if (!additionalAdvancements) return this.data;
+    const advancements = additionalAdvancements.flat();
+    if (advancements.length === 0) return this.data;
     if (!("advancement" in this.data.system)) return this.data;
-    if (!this.data.system.advancement) {
-      this.data.system.advancement = {};
-    }
+    // an item stub can carry the array form, which dnd5e migrates to an id-keyed object; string
+    // keys written onto the array would be dropped the next time the data is cloned
+    const existing: unknown = this.data.system.advancement;
+    const target: Record<string, I5eAdvancement> = Array.isArray(existing)
+      ? Object.fromEntries(existing
+        .filter((advancement) => advancement?._id)
+        .map((advancement) => [advancement._id, advancement]))
+      : (existing as Record<string, I5eAdvancement> | null | undefined) ?? {};
 
-    for (const advancement of (additionalAdvancements).flat()) {
+    for (const advancement of advancements) {
       if (!advancement._id) {
         logger.warn(`Advancement missing _id for ${this.name}`, { advancement });
         continue;
       }
-      this.data.system.advancement[advancement._id] = advancement;
+      target[advancement._id] = advancement;
     }
+    this.data.system.advancement = target;
     return this.data;
   }
 

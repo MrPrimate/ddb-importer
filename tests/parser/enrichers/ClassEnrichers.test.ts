@@ -202,10 +202,17 @@ describe("cleric ChannelDivinity", () => {
     for (const formula of formulas) {
       expect(formula).toBe("(@scale.channel-divinity.spark)d8 + @abilities.wis.mod");
     }
-    const advancement = e.override.data.system.advancement.divineSparkScale;
-    expect(advancement).toMatchObject({ type: "ScaleValue", configuration: { identifier: "spark", type: "number",
-      scale: { 2: { value: 1 }, 7: { value: 2 }, 13: { value: 3 }, 18: { value: 4 } } } });
+    expect(e.additionalAdvancements).toHaveLength(1);
+    expect(e.additionalAdvancements[0]).toMatchObject({ type: "ScaleValue", name: "Divine Spark Die Count",
+      configuration: { identifier: "spark", type: "number",
+        scale: { 2: { value: 1 }, 7: { value: 2 }, 13: { value: 3 }, 18: { value: 4 } } } });
     expect(e.override.data.system.identifier).toBe("channel-divinity");
+    expect(e.override.data.system.advancement).toBeUndefined();
+  });
+
+  it("adds no Divine Spark scale for 2014", () => {
+    const e = build(Enricher, { is2014: true });
+    expect(e.additionalAdvancements).toEqual([]);
   });
 
   it("gives 2014 only Turn Undead and no base activity", () => {

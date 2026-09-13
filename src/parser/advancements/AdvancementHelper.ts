@@ -5,6 +5,7 @@ import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
 import AdvancementWrapper from "./AdvancementWrapper";
+import AdvancementBuilder from "./AdvancementBuilder";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 
 type TraitAdvancement = dnd5e.types.Advancement.OfType<"Trait">;
@@ -1270,52 +1271,14 @@ export default class AdvancementHelper {
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
-  /**
-   * A numeric scale value advancement from hand-written level entries, for pools DDB has no
-   * levelScale for (the values come from the rules text). Built through the system class so the
-   * data model supplies the remaining defaults.
-   */
-  static buildNumberScale({ name, identifier, scale }: {
-    name: string;
-    identifier: string;
-    scale: Record<string, number>;
-  }): I5eAdvancement {
-    const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
-    const update = {
-      configuration: {
-        identifier,
-        type: "number",
-        scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
-      },
-      name,
-    };
-    for (const [level, value] of Object.entries(scale)) {
-      update.configuration.scale[level] = { value };
-    }
-    adv.updateSource(update as any);
-    return adv.toObject() as unknown as I5eAdvancement;
+  /** See AdvancementBuilder.buildNumberScale. */
+  static buildNumberScale(options: Parameters<typeof AdvancementBuilder.buildNumberScale>[0]): I5eAdvancement {
+    return AdvancementBuilder.buildNumberScale(options);
   }
 
-  /** The dice-typed twin of buildNumberScale; each level entry is the die count and faces. */
-  static buildDiceScale({ name, identifier, scale }: {
-    name: string;
-    identifier: string;
-    scale: Record<string, { number: number; faces: number }>;
-  }): I5eAdvancement {
-    const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
-    const update = {
-      configuration: {
-        identifier,
-        type: "dice",
-        scale: {} as Record<string, I5eAdvScaleValueDiceEntry>,
-      },
-      name,
-    };
-    for (const [level, die] of Object.entries(scale)) {
-      update.configuration.scale[level] = { number: die.number, faces: die.faces };
-    }
-    adv.updateSource(update as any);
-    return adv.toObject() as unknown as I5eAdvancement;
+  /** See AdvancementBuilder.buildDiceScale. */
+  static buildDiceScale(options: Parameters<typeof AdvancementBuilder.buildDiceScale>[0]): I5eAdvancement {
+    return AdvancementBuilder.buildDiceScale(options);
   }
 
   /**

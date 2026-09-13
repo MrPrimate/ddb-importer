@@ -22,5 +22,6 @@ describe("enricher tree first-load smoke", () => {
     // means the import cycle regressed
     expect(DDBEnricherData.AutoEffects).toBeDefined();
     expect(DDBEnricherData.ChangeHelper).toBeDefined();
+    expect(DDBEnricherData.AdvancementBuilder.buildDiceScale).toBeDefined();
   });
 });

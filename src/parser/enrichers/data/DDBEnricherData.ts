@@ -5,6 +5,7 @@ import DDBDataUtils from "../../lib/DDBDataUtils";
 import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
 import SpellDataUtils from "../../spells/SpellDataUtils";
 import type DDBSummonsManager from "../../companions/DDBSummonsManager";
+import AdvancementBuilder from "../../advancements/AdvancementBuilder";
 import { AutoEffects, BehaviorHelper, ChangeHelper, SRDEffects } from "../effects/_module";
 
 export interface IDDBBasicDamage {
@@ -38,6 +39,10 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   static get ChangeHelper(): typeof ChangeHelper {
     return ChangeHelper;
+  }
+
+  static get AdvancementBuilder(): typeof AdvancementBuilder {
+    return AdvancementBuilder;
   }
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;

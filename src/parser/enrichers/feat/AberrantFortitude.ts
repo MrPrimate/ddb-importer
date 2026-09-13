@@ -18,29 +18,15 @@ export default class AberrantFortitude extends DDBEnricherData {
     };
   }
 
-  override get override(): IDDBOverrideData {
-    const advancement = {
-      "type": "ScaleValue",
-      "_id": foundry.utils.randomID(),
-      "configuration": {
-        "identifier": "die",
-        "type": "dice",
-        "scale": {
-          "0": {
-            "number": 1,
-            "faces": 4,
-          },
-        },
-      },
-      "name": this.name,
-      "hint": "A scale value which can be updated by its Greater Mark feat.",
-    };
+  override get additionalAdvancements(): I5eAdvancement[] {
     // to do determine advancement here
-
-    return {
-      data: {
-        [`system.advancement.${advancement._id}`]: advancement,
-      },
-    };
+    return [
+      DDBEnricherData.AdvancementBuilder.buildDiceScale({
+        name: this.name,
+        identifier: "die",
+        hint: "A scale value which can be updated by its Greater Mark feat.",
+        scale: { 0: { number: 1, faces: 4 } },
+      }),
+    ];
   }
 }
