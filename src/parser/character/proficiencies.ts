@@ -1,3 +1,4 @@
+import { parseWeaponMastery } from "../lib/WeaponMastery";
 import { DDBToolProficiencies, logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
@@ -21,30 +22,17 @@ DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this: DDBC
     logger.warn("Unable to get core masteries, no DDB source data");
     return [];
   }
-  return DDBModifiers
-    .filterBaseModifiers(ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
-    .map((prof) => {
-      try {
-        const weaponRegex = /(.*) \(([\w-, ]+)\)$/ig;
-        const masteryDetails = weaponRegex.exec(prof.friendlySubtypeName);
-        if (!masteryDetails) {
-          logger.warn("Unable to parse weapon mastery proficiency", {
-            proficiency: prof,
-            friendlySubtypeName: prof.friendlySubtypeName,
-            this: this,
-          });
-          return null;
-        }
-        const dnd5eNameArray = masteryDetails[2].trim().toLowerCase().split(",");
-        const dnd5eName = dnd5eNameArray.length === 2
-          ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
-          : dnd5eNameArray[0].replaceAll(" ", "");
-        return { weapon: masteryDetails[2].trim(), mastery: masteryDetails[1].trim(), dnd5eName };
-      } catch (error) {
-        logger.error(`Error parsing weapon mastery proficiency ${prof.friendlySubtypeName}`, { error, prof, this: this });
-        return null;
-      }
-    }).filter((mastery) => mastery !== null) as IDDBPCDnDBeyondWeaponMasteryFlags[];
+  const masteries = new Map<string, IDDBPCDnDBeyondWeaponMasteryFlags>();
+  for (const prof of DDBModifiers.filterBaseModifiers(ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })) {
+    const parsed = parseWeaponMastery(prof.friendlySubtypeName);
+    if (!parsed) {
+      logger.warn(`Unable to parse weapon mastery proficiency: ${prof.friendlySubtypeName}`, { proficiency: prof });
+      continue;
+    }
+    const { weapon, mastery, dnd5eName } = parsed;
+    masteries.set(dnd5eName, { weapon, mastery, dnd5eName });
+  }
+  return [...masteries.values()];
 };
 
 DDBCharacter.prototype._generateLanguages = function _generateLanguages(this: DDBCharacter) {

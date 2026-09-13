@@ -1,3 +1,4 @@
+import { parseWeaponMastery } from "../lib/WeaponMastery";
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
@@ -998,41 +999,18 @@ export default class AdvancementHelper {
 
   getWeaponMasteryAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "weapon-mastery");
-    const weaponMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.actor.proficiencies
-          .some((prof) => {
-            const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-            const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-            if (!masteryDetails) return false;
-            return prof.type === "Weapon" && prof.name === masteryDetails[2];
-          }),
-      );
-
+    const parsedMasteries = proficiencyMods.map((mod) => parseWeaponMastery(mod.friendlySubtypeName))
+      .filter((mastery) => mastery !== null);
+    const weaponsFromMods = [...new Set(parsedMasteries.map((mastery) => mastery.advancement))];
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
-
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
     const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
-
-    const weaponsFromMods = weaponMods.map((mod) => {
-      const weapon = DICTIONARY.actor.proficiencies
-        .find((prof) => {
-          const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-          const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-          if (!masteryDetails) return false;
-          return prof.type === "Weapon" && prof.name === masteryDetails[2];
-        });
-      if (!weapon) return null;
-      return weapon.advancement === ""
-        ? weapon.foundryValue
-        : `${weapon.advancement}:${weapon.foundryValue}`;
-    }).filter((w) => w !== null);
 
     const count = parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.number > 0
         ? parsedWeapons.number
         : 1
-      : weaponMods.length;
+      : weaponsFromMods.length;
 
     // console.warn(`Weapon Mastery`, {
     //   level,
