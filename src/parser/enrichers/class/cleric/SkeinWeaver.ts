@@ -39,9 +39,9 @@ export default class SkeinWeaver extends DDBEnricherData {
           durationSeconds: 60,
           description: "Disadvantage on attack rolls and saving throws for 1 minute. Repeat the saving throw at the end of each turn, ending the effect on a success.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.save.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("save"),
         ],
       },
     ];

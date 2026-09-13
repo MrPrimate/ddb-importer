@@ -42,8 +42,8 @@ export default class AugmentationCompoundsMaddeningFumes extends DDBEnricherData
       {
         name: "Maddening Fumes: Aggression",
         // "until the start of its next turn" on the affected creature
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
         options: {
           expiry: "targetStart",

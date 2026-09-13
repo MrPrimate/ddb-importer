@@ -188,9 +188,11 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
       key: "flags.automated-conditions-5e.damage.bonus",
       value: "bonus=1d8[necrotic]; oncePerTurn",
     });
-    expect(effects[2].ac5eChanges.map((c: any) => c.key)).toEqual([
-      "flags.automated-conditions-5e.attack.disadvantage",
-      "flags.automated-conditions-5e.check.disadvantage",
+    // Wickedness is native rule changes now, nothing AC5e-specific left on it
+    expect(effects[2].ac5eChanges).toBeUndefined();
+    expect(effects[2].changes.map((c: any) => [c.key, c.type, c.value])).toEqual([
+      ["attack", "dnd5e.advantage", "-1"],
+      ["check", "dnd5e.advantage", "-1"],
     ]);
 
     // the Dark Heart alias entry builds nothing

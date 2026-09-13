@@ -25,11 +25,8 @@ export default class TrueStrike extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [{
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.attack.all"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
         ],
       }];
     } else {

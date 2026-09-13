@@ -24,11 +24,8 @@ export default class SupremeDisciplinePotence extends DDBEnricherData {
           durationSeconds: 60,
           description: "You have Advantage on attack rolls using Strength; while you have that Advantage you can reroll one of the dice once.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.str"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.attack.advantage"),
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageAbilityAttackChange("str"),
         ],
       },
     ];

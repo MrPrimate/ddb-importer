@@ -34,9 +34,9 @@ export default class PluckingAtThreads extends DDBEnricherData {
           expiry: "sourceEnd",
           description: "Advantage on attack rolls and saving throws until the end of the cleric's next turn.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("save"),
         ],
       },
     ];

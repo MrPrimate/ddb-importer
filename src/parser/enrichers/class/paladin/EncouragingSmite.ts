@@ -28,11 +28,11 @@ export default class EncouragingSmite extends DDBEnricherData {
         expiry: "sourceStart",
         description: "Until the start of the paladin's next turn, this creature has Advantage on attack rolls and saving throws against the target of the Divine Smite, and its attacks against that target deal an extra 1d4 Thunder damage.",
       },
-      changes: DICTIONARY.actor.abilities.map((ability) =>
-        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
-      ),
-      midiChanges: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+      changes: [
+        ...DICTIONARY.actor.abilities.map((ability) =>
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
+        ),
+        DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
       ],
     }];
   }

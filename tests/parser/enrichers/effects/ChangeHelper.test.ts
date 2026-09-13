@@ -326,6 +326,21 @@ describe("ChangeHelper roll mode helpers", () => {
     expect(ChangeHelper.advantageDeathSaveChange().value).toBe("1");
   });
 
+  it("builds per-ability attack roll mode changes", () => {
+    expect(ChangeHelper.advantageAbilityAttackChange("str")).toEqual({
+      key: "system.abilities.str.attack.roll.mode",
+      value: "1",
+      type: "add",
+      priority: 20,
+    });
+    expect(ChangeHelper.disadvantageAbilityAttackChange("str").value).toBe("-1");
+    expect(ChangeHelper.abilityAttackRollModeChange("dex", ChangeHelper.NORMAL, 5)).toMatchObject({
+      key: "system.abilities.dex.attack.roll.mode",
+      value: "0",
+      priority: 5,
+    });
+  });
+
   it("honours a non-default priority", () => {
     expect(ChangeHelper.disadvantageAbilityCheckChange("int", 8).priority).toBe(8);
   });
@@ -435,6 +450,21 @@ describe("ChangeHelper cantrip and class-spell filters", () => {
 describe("ChangeHelper status filters", () => {
   it("reads the roller's own status; the count form covers concentrating and exhaustion", () => {
     expect(ChangeHelper.statusFilter("bloodied")).toEqual({ k: "statuses.bloodied", o: "gte", v: 1 });
+  });
+
+  it("exposes the attack-shape filters the midi mwak/rwak scopes map onto", () => {
+    expect(ChangeHelper.WEAPON_ATTACK_FILTER).toEqual({ k: "roll.attack.classification", o: "exact", v: "weapon" });
+    expect(ChangeHelper.SPELL_ATTACK_FILTER).toEqual({ k: "roll.attack.classification", o: "exact", v: "spell" });
+    expect(ChangeHelper.MELEE_ATTACK_FILTER).toEqual({ k: "roll.attack.type", o: "exact", v: "melee" });
+    expect(ChangeHelper.RANGED_ATTACK_FILTER).toEqual({ k: "roll.attack.type", o: "exact", v: "ranged" });
+    expect(ChangeHelper.MELEE_WEAPON_ATTACK_FILTER).toEqual([
+      { k: "roll.attack.classification", o: "exact", v: "weapon" },
+      { k: "roll.attack.type", o: "exact", v: "melee" },
+    ]);
+    expect(ChangeHelper.RANGED_WEAPON_ATTACK_FILTER).toEqual([
+      { k: "roll.attack.classification", o: "exact", v: "weapon" },
+      { k: "roll.attack.type", o: "exact", v: "ranged" },
+    ]);
   });
 
   it("scopes a monk weapon rule to unarmed, flagged, simple melee or light martial melee weapons", () => {

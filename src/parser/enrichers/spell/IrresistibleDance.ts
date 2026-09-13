@@ -52,9 +52,9 @@ export default class IrresistibleDance extends DDBEnricherData {
         ],
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("dex"),
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         data: {
@@ -86,9 +86,9 @@ export default class IrresistibleDance extends DDBEnricherData {
         ],
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("dex"),
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         data: {

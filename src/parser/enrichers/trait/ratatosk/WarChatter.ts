@@ -17,11 +17,8 @@ export default class WarChatter extends DDBEnricherData {
           expiry: "sourceStart",
           description: "Disadvantage on attack rolls until the start of your next turn.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
       },
     ];

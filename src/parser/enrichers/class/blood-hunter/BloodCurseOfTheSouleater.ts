@@ -53,11 +53,11 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
   }
 
   override get effects(): IDDBEffectHint[] {
-    const changes = DDBEnricherData.allDamageTypes().map((damage) =>
-      DDBEnricherData.ChangeHelper.damageResistanceChange(damage),
-    );
-    const midiChanges = [
-      DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+    const changes = [
+      ...DDBEnricherData.allDamageTypes().map((damage) =>
+        DDBEnricherData.ChangeHelper.damageResistanceChange(damage),
+      ),
+      DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
     ];
 
     return [
@@ -69,7 +69,6 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
           description: "You make attacks with advantage and you have resistance to all damage.",
         },
         changes,
-        midiChanges,
       },
       {
         name: "Souleater (Amplified)",
@@ -79,7 +78,6 @@ export default class BloodCurseOfTheSouleater extends _BloodCurse {
           description: "You make attacks with advantage and you have resistance to all damage. You also regain an expended warlock spell slot.",
         },
         changes,
-        midiChanges,
       },
     ];
   }

@@ -18,16 +18,20 @@ export default class SteadyAim extends DDBEnricherData {
     if (!this.isAction) return [];
     return [
       {
-        midiOnly: true,
         name: "Steady Aim Bonus",
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
         ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
+        ],
+        // DAE and AC5e each end the effect after the one attack; the native expiry is the ceiling
         daeSpecialDurations: ["1Attack"],
         daeStackable: "noneName",
         options: {
           // "Advantage on your next attack roll on the current turn"
           expiry: "turnEnd",
+          description: "Advantage on your next attack roll this turn. Without DAE or AC5e the effect lasts for every attack until the end of the turn.",
         },
       },
       {

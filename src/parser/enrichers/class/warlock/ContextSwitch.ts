@@ -15,8 +15,8 @@ export default class ContextSwitch extends DDBEnricherData {
           expiry: "sourceStart",
           description: "An enemy swapped into the attack has Disadvantage on attack rolls until the start of the warlock's next turn.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
       },
     ];

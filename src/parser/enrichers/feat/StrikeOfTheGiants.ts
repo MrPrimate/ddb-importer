@@ -129,11 +129,8 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
       case "Strike of the Giants: Storm Strike":
         results.push({
           name: "Storm Struck: Disadvantage on attack rolls",
-          midiChanges: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("true", 20, "flags.midi-qol.disadvantage.attack.all"),
-          ],
-          ac5eChanges: [
-            DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          changes: [
+            DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
           ],
           options: {
             expiry: "sourceStart",

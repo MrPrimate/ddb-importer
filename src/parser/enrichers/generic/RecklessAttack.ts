@@ -24,12 +24,14 @@ export default class RecklessAttack extends DDBEnricherData {
         name: "Attacking Recklessly",
         daeStackable: "noneName",
         options: { expiry: "sourceStart" },
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageAbilityAttackChange("str"),
+        ],
+        // the incoming-attack half modifies other creatures' rolls, which only the modules can do
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.str"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.advantage"),
           DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.grants.attack.advantage"),
         ],
       },

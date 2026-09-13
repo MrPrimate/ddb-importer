@@ -64,26 +64,14 @@ const RESTRICTION_RULES: IRestrictionRule[] = [
  * `roll.attack.classification` separates weapon, spell and unarmed attacks.
  */
 const ATTACK_SUBTYPE_CONDITIONS: Record<string, IEffectChangeFilter[]> = {
-  "melee-attacks": [{ k: "roll.attack.type", o: "exact", v: "melee" }],
-  "ranged-attacks": [{ k: "roll.attack.type", o: "exact", v: "ranged" }],
-  "spell-attacks": [{ k: "roll.attack.classification", o: "exact", v: "spell" }],
-  "weapon-attacks": [{ k: "roll.attack.classification", o: "exact", v: "weapon" }],
-  "melee-weapon-attacks": [
-    { k: "roll.attack.classification", o: "exact", v: "weapon" },
-    { k: "roll.attack.type", o: "exact", v: "melee" },
-  ],
-  "ranged-weapon-attacks": [
-    { k: "roll.attack.classification", o: "exact", v: "weapon" },
-    { k: "roll.attack.type", o: "exact", v: "ranged" },
-  ],
-  "melee-spell-attacks": [
-    { k: "roll.attack.classification", o: "exact", v: "spell" },
-    { k: "roll.attack.type", o: "exact", v: "melee" },
-  ],
-  "ranged-spell-attacks": [
-    { k: "roll.attack.classification", o: "exact", v: "spell" },
-    { k: "roll.attack.type", o: "exact", v: "ranged" },
-  ],
+  "melee-attacks": [ChangeHelper.MELEE_ATTACK_FILTER],
+  "ranged-attacks": [ChangeHelper.RANGED_ATTACK_FILTER],
+  "spell-attacks": [ChangeHelper.SPELL_ATTACK_FILTER],
+  "weapon-attacks": [ChangeHelper.WEAPON_ATTACK_FILTER],
+  "melee-weapon-attacks": ChangeHelper.MELEE_WEAPON_ATTACK_FILTER,
+  "ranged-weapon-attacks": ChangeHelper.RANGED_WEAPON_ATTACK_FILTER,
+  "melee-spell-attacks": [ChangeHelper.SPELL_ATTACK_FILTER, ChangeHelper.MELEE_ATTACK_FILTER],
+  "ranged-spell-attacks": [ChangeHelper.SPELL_ATTACK_FILTER, ChangeHelper.RANGED_ATTACK_FILTER],
 };
 
 export default class RestrictionRules {

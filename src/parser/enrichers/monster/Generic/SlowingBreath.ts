@@ -12,12 +12,9 @@ export default class SlowingBreath extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
+          // the 2024 wording adds Disadvantage on Dexterity saving throws
+          ...(this.is2014 ? [] : [DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("dex")]),
         ],
-        midiChanges: this.is2014
-          ? []
-          : [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.save.dex"),
-          ],
       },
     ];
   }

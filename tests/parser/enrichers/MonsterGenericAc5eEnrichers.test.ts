@@ -52,6 +52,12 @@ import ImprovedCritical from "../../../src/parser/enrichers/monster/Generic/Impr
 import BloodFrenzy from "../../../src/parser/enrichers/monster/Generic/BloodFrenzy";
 import Grappler from "../../../src/parser/enrichers/monster/Generic/Grappler";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+
+beforeAll(() => {
+  // the native skill roll modes (Keen Senses, Two Heads, Camouflage) read CONFIG.Dice.D20Roll.ADV_MODE
+  installActivityConfigStubs();
+});
 
 type TEnricher = new (options: any) => any;
 
@@ -80,14 +86,16 @@ describe("Monster generic AC5e trait enrichers", () => {
     });
   });
 
-  it("Keen senses variants grant Perception advantage, unrelated Keen traits do not", () => {
+  it("Keen senses variants grant native Perception advantage, unrelated Keen traits do not", () => {
     for (const name of ["Keen Smell", "Keen Hearing and Smell", "Keen Sight", "Keen Senses"]) {
-      const changes = ac5eChangesFor(KeenSenses, name);
-      expect(changes).toHaveLength(1);
-      expect(changes[0]).toMatchObject({
-        key: "flags.automated-conditions-5e.skill.advantage",
-        value: "skill.prc",
-      });
+      const [effect] = effectsFor(KeenSenses, name);
+      // a plain skill roll mode needs no module
+      expect(effect.ac5eOnly).toBeUndefined();
+      expect(effect.ac5eChanges).toBeUndefined();
+      expect(effect.options.transfer).toBe(true);
+      expect(effect.changes).toEqual([
+        { key: "system.skills.prc.roll.mode", value: "1", type: "add", priority: 20 },
+      ]);
     }
     expect(effectsFor(KeenSenses, "Keen Mind")).toHaveLength(0);
   });
@@ -125,27 +133,37 @@ describe("Monster generic AC5e trait enrichers", () => {
     });
   });
 
-  it("Two Heads adds Perception advantage on top of the condition saves", () => {
-    const changes = ac5eChangesFor(TwoHeads, "Two Heads");
-    expect(changes).toHaveLength(2);
-    expect(changes[0].key).toBe("flags.automated-conditions-5e.save.advantage");
-    expect(changes[0].value).toBe(
+  it("Two Heads keeps the condition saves on AC5e and adds a native Perception effect", () => {
+    const effects = effectsFor(TwoHeads, "Two Heads");
+    expect(effects).toHaveLength(2);
+    const [saves, perception] = effects;
+    expect(saves.ac5eOnly).toBe(true);
+    expect(saves.ac5eChanges).toHaveLength(1);
+    expect(saves.ac5eChanges[0].key).toBe("flags.automated-conditions-5e.save.advantage");
+    expect(saves.ac5eChanges[0].value).toBe(
       "riderStatuses.blinded || riderStatuses.charmed || riderStatuses.deafened"
       + " || riderStatuses.frightened || riderStatuses.stunned || riderStatuses.unconscious",
     );
-    expect(changes[1]).toMatchObject({
-      key: "flags.automated-conditions-5e.skill.advantage",
-      value: "skill.prc",
-    });
+    // the Perception half is a plain skill roll mode, so it must not be gated on the module
+    expect(perception.name).toBe("Two Heads: Perception");
+    expect(perception.ac5eOnly).toBeUndefined();
+    expect(perception.options.transfer).toBe(true);
+    expect(perception.changes).toEqual([
+      { key: "system.skills.prc.roll.mode", value: "1", type: "add", priority: 20 },
+    ]);
   });
 
-  it("Camouflage grants a disabled Stealth advantage toggle", () => {
+  it("Camouflage grants a disabled native Stealth advantage toggle", () => {
     const effects = effectsFor(Camouflage, "Stone Camouflage");
-    expect(effects[0].options.disabled).toBe(true);
-    expect(effects[0].ac5eChanges[0]).toMatchObject({
-      key: "flags.automated-conditions-5e.skill.advantage",
-      value: "skill.ste",
-    });
+    expect(effects).toHaveLength(1);
+    // the terrain restriction is manual: the effect ships disabled, but needs no module
+    expect(effects[0].options).toMatchObject({ transfer: true, disabled: true });
+    expect(effects[0].ac5eOnly).toBeUndefined();
+    expect(effects[0].ac5eChanges).toBeUndefined();
+    expect(effects[0].changes).toEqual([
+      { key: "system.skills.ste.roll.mode", value: "1", type: "add", priority: 20 },
+    ]);
+    expect(effectsFor(Camouflage, "Camouflaged Webs")).toHaveLength(0);
   });
 
   it("Improved Critical uses the core weapon critical threshold flag", () => {

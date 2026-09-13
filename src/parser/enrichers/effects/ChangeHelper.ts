@@ -298,6 +298,37 @@ export default class ChangeHelper {
     return { k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] };
   }
 
+  // Attack-shape filters. `roll.attack.type` is melee/ranged for the attack as rolled (a thrown
+  // melee weapon counts as ranged) and `roll.attack.classification` separates weapon, spell and
+  // unarmed attacks. `RestrictionRules.ATTACK_SUBTYPE_CONDITIONS` composes these for the DDB
+  // subtypes; enrichers use them directly for the midi `attack.mwak` / `attack.rwak` scopes.
+
+  static get MELEE_ATTACK_FILTER(): IEffectChangeFilter {
+    return { k: "roll.attack.type", o: "exact", v: "melee" };
+  }
+
+  static get RANGED_ATTACK_FILTER(): IEffectChangeFilter {
+    return { k: "roll.attack.type", o: "exact", v: "ranged" };
+  }
+
+  static get WEAPON_ATTACK_FILTER(): IEffectChangeFilter {
+    return { k: "roll.attack.classification", o: "exact", v: "weapon" };
+  }
+
+  static get SPELL_ATTACK_FILTER(): IEffectChangeFilter {
+    return { k: "roll.attack.classification", o: "exact", v: "spell" };
+  }
+
+  /** The midi `attack.mwak` scope: a weapon attack rolled as melee. */
+  static get MELEE_WEAPON_ATTACK_FILTER(): IEffectChangeFilter[] {
+    return [ChangeHelper.WEAPON_ATTACK_FILTER, ChangeHelper.MELEE_ATTACK_FILTER];
+  }
+
+  /** The midi `attack.rwak` scope: a weapon attack rolled as ranged. */
+  static get RANGED_WEAPON_ATTACK_FILTER(): IEffectChangeFilter[] {
+    return [ChangeHelper.WEAPON_ATTACK_FILTER, ChangeHelper.RANGED_ATTACK_FILTER];
+  }
+
   static ruleChange({ category, type, value, priority = 20, conditions }: RuleChangeParams): IActiveEffectChangeData {
     const change: IActiveEffectChangeData = {
       key: category,
@@ -398,6 +429,23 @@ export default class ChangeHelper {
 
   static skillRollModeChange(skill: string, mode: number | string, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.rollModeChange(`system.skills.${skill}.roll.mode`, mode, priority);
+  }
+
+  /**
+   * dnd5e 6.0 per-ability attack roll mode: every attack rolled with this ability, the native
+   * home for the midi `attack.<abl>` scope. An unscoped "attack rolls" mode is a rule change
+   * (`ruleAdvantageChange("attack")`); there is no actor-level attack roll mode key.
+   */
+  static abilityAttackRollModeChange(ability: string, mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange(`system.abilities.${ability}.attack.roll.mode`, mode, priority);
+  }
+
+  static advantageAbilityAttackChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilityAttackRollModeChange(ability, ChangeHelper.ADVANTAGE, priority);
+  }
+
+  static disadvantageAbilityAttackChange(ability: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.abilityAttackRollModeChange(ability, ChangeHelper.DISADVANTAGE, priority);
   }
 
   static advantageAbilityCheckChange(ability: string, priority = 20): IActiveEffectChangeData {

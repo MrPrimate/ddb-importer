@@ -10,17 +10,13 @@ export default class Camouflage extends DDBEnricherData {
       {
         options: {
           transfer: true,
+          // the terrain restriction cannot be detected, so this ships as a toggle
           disabled: true,
-          description: "Enable this effect while the creature is in matching terrain. AC5e cannot detect terrain.",
+          description: "Advantage on Dexterity (Stealth) checks. Enable this effect while the creature is in matching terrain; the terrain is not detected automatically.",
         },
         name: this.name,
-        ac5eOnly: true,
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange(
-            "skill.ste",
-            20,
-            "flags.automated-conditions-5e.skill.advantage",
-          ),
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
         ],
       },
     ];

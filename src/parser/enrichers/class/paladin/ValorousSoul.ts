@@ -26,11 +26,11 @@ export default class ValorousSoul extends DDBEnricherData {
         durationSeconds: 60,
         description: "This ally has Advantage on attack rolls and saving throws for 1 minute.",
       },
-      changes: DICTIONARY.actor.abilities.map((ability) =>
-        DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
-      ),
-      midiChanges: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+      changes: [
+        ...DICTIONARY.actor.abilities.map((ability) =>
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange(ability.value),
+        ),
+        DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack"),
       ],
     }];
   }

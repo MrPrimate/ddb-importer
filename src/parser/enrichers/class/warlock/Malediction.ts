@@ -40,13 +40,14 @@ export default class Malediction extends DDBEnricherData {
     return [
       {
         label: "Agony (Attack)",
-        description: "Disadvantage on the next attack roll. Needs midi-qol or automated-conditions-5e; without one of those this effect carries no mechanical change.",
-        changes: [],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
+        description: "Disadvantage on the next attack roll. Without DAE or AC5e the effect lasts for every attack until the end of the target's next turn.",
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
         ],
+        midiChanges: [],
+        // AC5e's once ends the effect after the one attack, as DAE's 1Attack does
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
         expiry: "targetEnd",
         daeSpecialDurations: ["1Attack"],
@@ -283,7 +284,7 @@ export default class Malediction extends DDBEnricherData {
 <p><strong>Implementation Details</strong></p>
 <p>Each curse is a separate activity in both its action and Reaction form; use the one you are spending.</p>
 <p>Agony and Hate are split by the roll they hamper, so pick the activity for the choice you are making: Agony by attack roll or Concentration save, Hate by mental save.</p>
-<p>Agony (Attack) needs midi-qol or automated-conditions-5e; core dnd5e has no attack roll mode to set. Agony (Concentration) applies to every Constitution save, not only Concentration ones.</p>
+<p>Agony (Attack) imposes Disadvantage on attack rolls until the end of the target's next turn; DAE or automated-conditions-5e end it after the first attack. Agony (Concentration) applies to every Constitution save, not only Concentration ones.</p>
 <p>Rot's extra 1d10 Necrotic damage is the Rot Damage activity. The block on regaining Hit Points is not automated.</p>
 <p>At 6th level Spiteful Curse adds the Cast Bestow Curse activity here, which spends that feature's use rather than a Malediction use.</p>
 </section>`,

@@ -35,8 +35,13 @@ export default class RecklessTactics extends DDBEnricherData {
           expiry: "sourceStart",
           description: "Advantage on this attack; attack rolls against you have Advantage until the start of your next turn.",
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack", {
+            conditions: DDBEnricherData.ChangeHelper.MELEE_WEAPON_ATTACK_FILTER,
+          }),
+        ],
+        // the incoming-attack half modifies other creatures' rolls, which only midi can do
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.mwak"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
       },

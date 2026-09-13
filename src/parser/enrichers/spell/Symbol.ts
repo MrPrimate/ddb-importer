@@ -26,11 +26,11 @@ export default class Symbol extends DDBEnricherData {
         name: "Discord",
         save: "con",
         effect: {
-          changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
-            DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
-          ),
-          midiChanges: [
-            DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
+          changes: [
+            ...["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
+              DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
+            ),
+            DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
           ],
         },
       },
@@ -93,11 +93,11 @@ export default class Symbol extends DDBEnricherData {
         name: "Discord",
         save: "wis",
         effect: {
-          changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
-            DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
-          ),
-          midiChanges: [
-            DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
+          changes: [
+            ...["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
+              DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
+            ),
+            DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
           ],
         },
       },

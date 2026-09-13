@@ -10,10 +10,10 @@ export default class WeakeningBreath extends DDBEnricherData {
           durationSeconds: 60,
           description: "Disadvantage on Strength-based attack rolls, checks, and saving throws.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.check.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.save.str"),
+        changes: [
+          DDBEnricherData.ChangeHelper.disadvantageAbilityAttackChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("str"),
         ],
       },
     ];

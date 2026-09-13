@@ -1415,10 +1415,14 @@ describe("warlock Malediction", () => {
       ["system.abilities.cha.save.roll.mode"],
     ]);
     expect(effects[4].activitiesMatch).toEqual(["Hate (Cha) (Action)", "Hate (Cha) (Reaction)"]);
-    // core dnd5e has no attack roll mode, so the attack half is module-only
-    expect(effects[0].changes).toEqual([]);
-    expect(effects[0].midiChanges.map((c: any) => c.key)).toEqual(["flags.midi-qol.disadvantage.attack.all"]);
-    expect(effects[0].ac5eChanges.map((c: any) => c.key)).toEqual(["flags.automated-conditions-5e.attack.disadvantage"]);
+    // the attack half is a native attack rule bounded by the expiry; DAE's 1Attack and AC5e's
+    // once each end the effect after the one attack
+    expect(effects[0].changes).toEqual([{ key: "attack", value: "-1", type: "dnd5e.advantage", priority: 20 }]);
+    expect(effects[0].midiChanges).toEqual([]);
+    expect(effects[0].ac5eChanges).toEqual([
+      expect.objectContaining({ key: "flags.automated-conditions-5e.attack.disadvantage", value: "once; 1" }),
+    ]);
+    expect(effects[0].daeSpecialDurations).toEqual(["1Attack"]);
   });
 });
 

@@ -6,6 +6,7 @@
 - Background equipment improvements for some 2014 backgrounds.
 - Fix Divine Spark's level 7/13/18 dice increases, and Defile Ground's level-10 radius increase.
 - Preserve weapon masteries with ammunition annotations, grant starting Pugilists improvised-weapon proficiency.
+- More effect additions to support the new system filters.
 
 # 7.5.1
 

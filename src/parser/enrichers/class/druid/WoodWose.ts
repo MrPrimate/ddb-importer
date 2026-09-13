@@ -59,10 +59,8 @@ export default class WoodWose extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.acFormulaAddChange("10 + @abilities.dex.mod + @abilities.wis.mod", 15),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.con"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("con"),
         ],
       },
       {

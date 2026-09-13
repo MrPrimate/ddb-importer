@@ -156,13 +156,9 @@ export default class CrownOfHorns extends DDBEnricherData {
           expiry: "sourceStart",
           description: "Disadvantage on attack rolls and ability checks until the start of the origin's next turn.",
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.check.all"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.check.disadvantage"),
+        changes: [
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
+          DDBEnricherData.ChangeHelper.ruleDisadvantageChange("check"),
         ],
       },
       {
