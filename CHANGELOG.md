@@ -1,5 +1,7 @@
 # Next Up
 
+- Great Weapon Master fixes for 2024.
+
 # 7.5.2
 
 - Some class builds could end up granting spells twice during import to spell lists.
