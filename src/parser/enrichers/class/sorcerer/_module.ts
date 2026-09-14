@@ -48,6 +48,7 @@ export { default as StrengthOfTheGrave } from "./StrengthOfTheGrave";
 export { default as TelepathicSpeech } from "./TelepathicSpeech";
 export { default as TerrifyingVisage } from "./TerrifyingVisage";
 export { default as TheEndIsNigh } from "./TheEndIsNigh";
+export { default as TidesOfChaos } from "./TidesOfChaos";
 export { default as TranceOfOrder } from "./TranceOfOrder";
 export { default as Transformation } from "./Transformation";
 export { default as UmbralForm } from "./UmbralForm";

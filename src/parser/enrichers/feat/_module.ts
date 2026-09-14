@@ -82,6 +82,7 @@ export { default as SecondSkin } from "./SecondSkin";
 export { default as SentinelsIntuition } from "./SentinelsIntuition";
 export { default as Shapechanger } from "./Shapechanger";
 export { default as Sharpshooter } from "./Sharpshooter";
+export { default as ShieldMaster } from "./ShieldMaster";
 export { default as Slasher } from "./Slasher";
 export { default as SoulOfTheStormGiant } from "./SoulOfTheStormGiant";
 export { default as SpeedyRecovery } from "./SpeedyRecovery";

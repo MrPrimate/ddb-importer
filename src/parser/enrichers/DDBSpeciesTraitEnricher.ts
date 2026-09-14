@@ -167,6 +167,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Necrotic Shroud": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
     "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
     "Fade Away": SpeciesEnrichers.Generic.FadeAway,
+    "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
     "Burst of Speed": SpeciesEnrichers.Generic.BurstOfSpeed,
   };
 
