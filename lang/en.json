@@ -236,6 +236,26 @@
       "copy": "Copy",
       "cancel": "Cancel"
     },
+    "scene-copy-batch": {
+      "title": "Batch Copy Scene Fields",
+      "hint": "Map source scenes to target scenes, then copy the selected fields across every pair.",
+      "match": "Match by folder",
+      "source-folder": "Source folder",
+      "target-folder": "Target folder",
+      "choose-folder": "Choose a folder…",
+      "subfolders": "Include subfolders",
+      "match-button": "Match scenes by name",
+      "unmatched": "No target found for",
+      "mappings": "Scene mappings",
+      "choose-source": "Choose a source scene…",
+      "choose-target": "Choose a target scene…",
+      "no-mappings": "No mappings yet. Match two folders or add a mapping.",
+      "add": "Add mapping",
+      "clear": "Clear mappings",
+      "remove": "Remove mapping",
+      "copy": "Copy all",
+      "cancel": "Close"
+    },
     "Dialogs": {
       "ResetSettings": {
         "Label": "Reset DDB Importer Settings",

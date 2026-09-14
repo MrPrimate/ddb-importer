@@ -939,6 +939,84 @@
   cursor: crosshair;
 }
 
+/* Scene Copy batch app */
+.ddb-scene-copy-batch-app .ddb-scene-copy-batch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ddb-scene-copy-batch-match-row,
+.ddb-scene-copy-batch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ddb-scene-copy-batch-match-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ddb-scene-copy-batch-match-row label.checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.ddb-scene-copy-batch-mappings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.ddb-scene-copy-batch-row select {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ddb-scene-copy-batch-row.invalid select {
+  outline: 1px solid var(--color-level-error, #c33);
+}
+
+.ddb-scene-copy-batch-row.ok .ddb-scene-copy-batch-status {
+  color: var(--color-level-success, #2a2);
+}
+
+.ddb-scene-copy-batch-row.loose .ddb-scene-copy-batch-status {
+  color: var(--color-level-warning, #c80);
+}
+
+.ddb-scene-copy-batch-row.error .ddb-scene-copy-batch-status,
+.ddb-scene-copy-batch-row.invalid .ddb-scene-copy-batch-status {
+  color: var(--color-level-error, #c33);
+}
+
+.ddb-scene-copy-batch-status {
+  flex: 0 0 1.2em;
+  text-align: center;
+}
+
+.ddb-scene-copy-batch-remove {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.ddb-scene-copy-batch-app .ddb-scene-copy-tree {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.ddb-scene-copy-batch-app .ddb-scene-copy-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* Scene Level Copy app */
 .ddb-scene-level-copy-app .ddb-level-copy {
   display: flex;

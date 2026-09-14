@@ -48,6 +48,9 @@ import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
 import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
+import SceneCopyApp from "./apps/SceneCopyApp";
+import SceneCopyBatchApp from "./apps/SceneCopyBatchApp";
+import { sceneFieldGroups } from "./apps/lib/sceneFieldCopy";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
 function resetSecrets() {
@@ -144,6 +147,18 @@ export const API_BASE = {
     DDBKeyChangeDialog: DDBKeyChangeDialog,
     DDBDebug: lib.DDBDebug,
     DDBPartySync,
+    SceneCopyApp,
+    SceneCopyBatchApp,
+  },
+  scenes: {
+    // single scene Copy Scene Fields dialog
+    openCopyFields: (scene: Scene) => new SceneCopyApp(scene).render({ force: true }),
+    // batch dialog, optionally seeded, e.g. { sourceFolder: "Adventures/Old Adventure", targetFolder: "New Adventure" }
+    openBatchCopyFields: (options: ISceneCopyBatchOptions = {}) => SceneCopyBatchApp.open(options),
+    // the same batch copy without the dialog; resolves to one result per scene pair
+    batchCopyFields: (options: ISceneCopyBatchOptions) => SceneCopyBatchApp.copy(options),
+    // the selectable field and group ids accepted by `fields`
+    copyFieldGroups: (scenes: Scene[] = []) => sceneFieldGroups(scenes),
   },
   lib: {
     CPRHelper: External.ChrisPremadesHelper,

@@ -1,0 +1,127 @@
+<section class="ddb-scene-copy ddb-scene-copy-batch">
+  <header class="ddb-scene-copy-header">
+    <h3><i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy-batch.title"}}</h3>
+    <p class="hint">{{localize "ddb-importer.scene-copy-batch.hint"}}</p>
+  </header>
+
+  <fieldset class="ddb-scene-copy-batch-match">
+    <legend>{{localize "ddb-importer.scene-copy-batch.match"}}</legend>
+    <div class="ddb-scene-copy-batch-match-row">
+      <label>
+        {{localize "ddb-importer.scene-copy-batch.source-folder"}}
+        <select class="ddb-scene-copy-batch-folder" data-side="source" {{disabled running}}>
+          {{selectOptions folderChoices selected=sourceFolderId blank=(localize "ddb-importer.scene-copy-batch.choose-folder")}}
+        </select>
+      </label>
+      <i class="fas fa-arrow-right"></i>
+      <label>
+        {{localize "ddb-importer.scene-copy-batch.target-folder"}}
+        <select class="ddb-scene-copy-batch-folder" data-side="target" {{disabled running}}>
+          {{selectOptions folderChoices selected=targetFolderId blank=(localize "ddb-importer.scene-copy-batch.choose-folder")}}
+        </select>
+      </label>
+    </div>
+    <div class="ddb-scene-copy-batch-match-row">
+      <label class="checkbox">
+        <input type="checkbox" class="ddb-scene-copy-batch-subfolders" {{checked includeSubfolders}} />
+        {{localize "ddb-importer.scene-copy-batch.subfolders"}}
+      </label>
+      <button type="button" class="munch-button" data-action="matchFolders" {{#unless canMatch}}disabled{{/unless}}>
+        <i class="fas fa-wand-magic-sparkles"></i> {{localize "ddb-importer.scene-copy-batch.match-button"}}
+      </button>
+    </div>
+    {{#if unmatched.length}}
+      <p class="hint ddb-scene-copy-batch-unmatched">
+        {{localize "ddb-importer.scene-copy-batch.unmatched"}}:
+        {{#each unmatched}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+      </p>
+    {{/if}}
+  </fieldset>
+
+  <div class="ddb-scene-copy-actions">
+    <button type="button" class="munch-button" data-action="copyScenes" {{#unless canCopy}}disabled{{/unless}}>
+      <i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy-batch.copy"}} ({{completeCount}})
+    </button>
+    <button type="button" class="munch-button" data-action="cancel">
+      {{localize "ddb-importer.scene-copy-batch.cancel"}}
+    </button>
+  </div>
+
+  <h4>{{localize "ddb-importer.scene-copy-batch.mappings"}}</h4>
+  <div class="ddb-scene-copy-batch-mappings">
+    {{#each mappings}}
+      <div class="ddb-scene-copy-batch-row {{this.cssClass}}">
+        <select class="ddb-scene-copy-batch-scene" data-index="{{this.index}}" data-side="source" {{disabled @root.running}}>
+          {{selectOptions @root.sceneChoices selected=this.sourceId blank=(localize "ddb-importer.scene-copy-batch.choose-source")}}
+        </select>
+        <i class="fas fa-arrow-right"></i>
+        <select class="ddb-scene-copy-batch-scene" data-index="{{this.index}}" data-side="target" {{disabled @root.running}}>
+          {{selectOptions @root.sceneChoices selected=this.targetId blank=(localize "ddb-importer.scene-copy-batch.choose-target")}}
+        </select>
+        <span class="ddb-scene-copy-batch-status" {{#if this.statusTooltip}}data-tooltip="{{this.statusTooltip}}"{{/if}}>
+          {{#if this.statusIcon}}<i class="{{this.statusIcon}}"></i>{{/if}}
+        </span>
+        <button type="button" class="ddb-scene-copy-batch-remove" data-action="removeMapping" data-index="{{this.index}}"
+          data-tooltip="{{localize "ddb-importer.scene-copy-batch.remove"}}" {{disabled @root.running}}>
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    {{else}}
+      <p class="hint">{{localize "ddb-importer.scene-copy-batch.no-mappings"}}</p>
+    {{/each}}
+  </div>
+  <div class="ddb-scene-copy-toolbar">
+    <button type="button" class="munch-button" data-action="addMapping" {{disabled running}}>
+      <i class="fas fa-plus"></i> {{localize "ddb-importer.scene-copy-batch.add"}}
+    </button>
+    <button type="button" class="munch-button" data-action="clearMappings" {{disabled running}}>
+      <i class="fas fa-eraser"></i> {{localize "ddb-importer.scene-copy-batch.clear"}}
+    </button>
+  </div>
+
+  <div class="ddb-scene-copy-toolbar">
+    <button type="button" class="munch-button" data-action="selectAll">
+      <i class="fas fa-check-double"></i> {{localize "ddb-importer.scene-copy.select-all"}}
+    </button>
+    <button type="button" class="munch-button" data-action="deselectAll">
+      <i class="fas fa-xmark"></i> {{localize "ddb-importer.scene-copy.deselect-all"}}
+    </button>
+  </div>
+
+  <div class="ddb-scene-copy-tree">
+    {{#each groups}}
+      <section class="ddb-scene-copy-group {{#if this.expanded}}expanded{{/if}}">
+        <div class="ddb-scene-copy-group-header">
+          <button type="button" class="ddb-scene-copy-group-toggle" data-action="toggleGroup" data-group="{{this.id}}">
+            <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+            <span class="ddb-scene-copy-group-label">{{this.label}}</span>
+          </button>
+          <input type="checkbox" class="ddb-scene-copy-group-check" data-action="toggleGroupAll"
+            data-group="{{this.id}}" {{#if this.allSelected}}checked{{/if}} />
+        </div>
+        {{#if this.expanded}}
+          <ul class="ddb-scene-copy-fields">
+            {{#each this.fields}}
+              <li>
+                <label class="ddb-scene-copy-field">
+                  <input type="checkbox" data-action="toggleField" data-field="{{this.id}}"
+                    {{#if this.selected}}checked{{/if}} />
+                  {{this.label}}
+                </label>
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </section>
+    {{/each}}
+  </div>
+
+  <footer class="ddb-scene-copy-footer ddb-scene-copy-actions">
+    <button type="button" class="munch-button" data-action="copyScenes" {{#unless canCopy}}disabled{{/unless}}>
+      <i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy-batch.copy"}} ({{completeCount}})
+    </button>
+    <button type="button" class="munch-button" data-action="cancel">
+      {{localize "ddb-importer.scene-copy-batch.cancel"}}
+    </button>
+  </footer>
+</section>
