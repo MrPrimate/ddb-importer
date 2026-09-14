@@ -37,6 +37,10 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
     "Bigby's Hand": SpellEnrichers.ArcaneHand,
+    "Drawmij's Instant Summons": SpellEnrichers.DrawmijsInstantSummons,
+    "Laeral's Silver Lance": SpellEnrichers.LaeralsSilverLance,
+    "Otiluke's Freezing Sphere": SpellEnrichers.OtilukesFreezingSphere,
+    "Rary's Telepathic Bond": SpellEnrichers.RarysTelepathicBond,
     "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
     "Dragon's Breath": SpellEnrichers.DragonsBreath,
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,

@@ -39,7 +39,12 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINTS_2014: Record<string, string> = {};
 
-  override NAME_HINTS: Record<string, string> = {};
+  override NAME_HINTS: Record<string, string> = {
+    // a barrel export named Actor would shadow the Foundry global
+    "Actor": "ActorFeat",
+    // the enricher file predates the spelling fix
+    "Aberrant Dragonmark": "AbberantDragonmark",
+  };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
     "Ritual Caster (": "Ritual Caster",
@@ -51,6 +56,9 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
+    // NAME_HINTS targets: the default loader pascal-cases the feat NAME, so hinted files need a map entry
+    "ActorFeat": FeatEnrichers.ActorFeat,
+    "AbberantDragonmark": FeatEnrichers.AbberantDragonmark,
     None: GenericEnrichers.None,
     Generic: FeatEnrichers.Generic,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,

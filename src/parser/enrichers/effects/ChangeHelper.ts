@@ -512,6 +512,21 @@ export default class ChangeHelper {
     };
   }
 
+  /**
+   * Grant a token detection mode (`seeInvisibility`, `seeAll`, `blindsight`...) through native token changes.
+   *
+   * Both keys must be overrides. Token changes apply after `TokenDocument#_prepareDetectionModes` has filled
+   * defaults, so a change that creates the entry would otherwise leave `enabled` undefined (and the mode is
+   * skipped), and an upgrade against a missing entry compares `delta > undefined` and changes nothing.
+   * Range must be finite: the field rejects Infinity, so pass a large distance for "unlimited" senses.
+   */
+  static detectionModeChanges(modeId: string, range: number, priority = 20): IActiveEffectChangeData[] {
+    return [
+      ChangeHelper.tokenChange(`token.detectionModes.${modeId}.enabled`, "override", "true", priority),
+      ChangeHelper.tokenChange(`token.detectionModes.${modeId}.range`, "override", range, priority),
+    ];
+  }
+
   static daeStatusEffectChange(statusName: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.StatusEffect",

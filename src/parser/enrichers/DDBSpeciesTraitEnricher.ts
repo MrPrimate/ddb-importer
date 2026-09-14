@@ -168,6 +168,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
     "Fade Away": SpeciesEnrichers.Generic.FadeAway,
     "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
+    "Escaped Death": SpeciesEnrichers.Generic.EscapedDeath,
     "Burst of Speed": SpeciesEnrichers.Generic.BurstOfSpeed,
   };
 

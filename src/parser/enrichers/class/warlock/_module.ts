@@ -26,6 +26,8 @@ export { default as DreadfulWord } from "./DreadfulWord";
 export { default as EldritchHeads } from "./EldritchHeads";
 export { default as EldritchInvocations } from "./EldritchInvocations";
 export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocationsAgonizingBlast";
+export { default as EldritchInvocationsGiftOfTheProtectors } from "./EldritchInvocationsGiftOfTheProtectors";
+export { default as EldritchInvocationsRebukeOfTheTalisman } from "./EldritchInvocationsRebukeOfTheTalisman";
 export { default as EldritchMaster } from "./EldritchMaster";
 export { default as EldritchSight } from "./EldritchSight";
 export { default as EldritchSmite } from "./EldritchSmite";
@@ -69,6 +71,7 @@ export { default as PactBoonPactOfTheTalisman } from "./PactBoonPactOfTheTalisma
 export { default as PactOfTheChain } from "./PactOfTheChain";
 export { default as PainfulUnreality } from "./PainfulUnreality";
 export { default as RadiantSoul } from "./RadiantSoul";
+export { default as SanctuaryVessel } from "./SanctuaryVessel";
 export { default as SculptorOfFlesh } from "./SculptorOfFlesh";
 export { default as SearingVengeance } from "./SearingVengeance";
 export { default as SemblanceOfLife } from "./SemblanceOfLife";

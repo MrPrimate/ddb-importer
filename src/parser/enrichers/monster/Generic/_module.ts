@@ -26,6 +26,7 @@ export { default as PackTactics } from "./PackTactics";
 export { default as PetrifyingGaze } from "./PetrifyingGaze";
 export { default as ReversalOfFortune } from "./ReversalOfFortune";
 export { default as SlowingBreath } from "./SlowingBreath";
+export { default as StatusRider } from "./StatusRider";
 export { default as SuaveDefense } from "./SuaveDefense";
 export { default as SunlightSensitivity } from "./SunlightSensitivity";
 export { default as TurnStartAuraSave } from "./TurnStartAuraSave";
