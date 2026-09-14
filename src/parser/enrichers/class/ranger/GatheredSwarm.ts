@@ -11,6 +11,11 @@ export default class GatheredSwarm extends DDBEnricherData {
       name: "Extra Damage",
       activationType: "special",
       targetType: "creature",
+      func: ({ activity }: { activity: IActivityData }) => {
+        for (const part of activity.damage?.parts ?? []) {
+          part.types = ["piercing"];
+        }
+      },
     };
   }
 

@@ -136,6 +136,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   override _prepare() {
     // override this feature
+    this._generateLevelScale();
     this._generateActionTypes();
     this._generateFlagHints();
 

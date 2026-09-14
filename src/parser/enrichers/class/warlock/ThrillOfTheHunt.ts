@@ -12,6 +12,7 @@ export default class ThrillOfTheHunt extends DDBEnricherData {
       noeffect: true,
       activationType: "special",
       activationCondition: "1/turn. Damage someone with your bite attack",
+      removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({
           bonus: "@scale.the-predator.thrill-of-the-hunt",

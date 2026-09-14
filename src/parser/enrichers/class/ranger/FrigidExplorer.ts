@@ -11,6 +11,11 @@ export default class FrigidExplorer extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       activationCondition: "Once per turn",
+      func: ({ activity }: { activity: IActivityData }) => {
+        for (const part of activity.damage?.parts ?? []) {
+          part.types = ["cold"];
+        }
+      },
       data: {
         range: {
           units: "spec",

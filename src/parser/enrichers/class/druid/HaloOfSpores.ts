@@ -11,6 +11,11 @@ export default class HaloOfSpores extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Halo of Spores",
+      func: ({ activity }: { activity: IActivityData }) => {
+        for (const part of activity.damage?.parts ?? []) {
+          part.types = ["necrotic"];
+        }
+      },
     };
   }
 

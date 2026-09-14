@@ -13,6 +13,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
       useActivitySnippet: true,
       activationType: "bonus",
       addItemConsume: true,
+      removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({
           customFormula: "@scale.hive.symbiotic-biosphere",
