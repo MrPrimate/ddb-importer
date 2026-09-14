@@ -656,10 +656,34 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * Great Weapon Fighting's die modifier for this weapon's damage dice, baked onto the damage
+   * parts because dnd5e 6 has no rule change that alters a die result. The Fighting Style enricher
+   * ships an AC5e effect that applies it at roll time from the attack's actual grip, so this stands
+   * down when AC5e is installed.
+   * @returns {string[]} the dice modifiers to add, empty when none apply
+   */
+  get greatWeaponFightingModifiers(): string[] {
+    if (this.parsingType !== "weapon") return [];
+    if (this.ddbDefinition.attackType !== 1) return [];
+    if (SystemHelpers.effectModules().ac5eInstalled) return [];
+    if (this.flags.classFeatures.includes("greatWeaponFighting2024")) return ["min3"];
+    if (this.flags.classFeatures.includes("greatWeaponFighting")) return ["r<=2"];
+    return [];
+  }
+
+  /**
+   * Adds dice modifiers to a damage part that rolls dice; a flat or custom formula part is left alone.
+   * @param {I5eDamagePart} damage the damage part to modify
+   * @param {string[]} modifiers the dice modifiers to add
+   */
+  static addDamageDieModifiers(damage: I5eDamagePart, modifiers: string[]): void {
+    if (modifiers.length === 0 || !damage.number || !damage.denomination || damage.custom?.enabled) return;
+    damage.modifiers = [...new Set([...(damage.modifiers ?? []), ...modifiers])];
+  }
+
   #generateWeaponDamageParts() {
-    // we can safely make these assumptions about GWF
-    // flags are only added for melee attacks
-    const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
+    const greatWeaponFighting = this.greatWeaponFightingModifiers;
     const twoHanded = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Two-Handed");
 
     const damageType = this.getDamageType();
@@ -667,12 +691,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const versatile = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
       this.versatileDamage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(versatile.notes, "", "", greatWeaponFighting).diceString,
+        damageString: utils.parseDiceString(versatile.notes).diceString,
       });
+      // the versatile part is only rolled when the weapon is held in two hands
+      DDBItem.addDamageDieModifiers(this.versatileDamage, greatWeaponFighting);
     }
 
-    // if we have greatweapon fighting style and this is two handed, add the roll tweak
-    const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : "";
+    // a Versatile weapon's base damage is its one-handed damage, so only Two-Handed weapons qualify
+    const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : [];
 
     // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
     // this martial arts die info is added to the weapon flags before parse weapon is called
@@ -680,7 +706,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
       const damage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(String(this.ddbDefinition.fixedDamage), "", "", fightingStyleDiceMod).diceString,
+        damageString: utils.parseDiceString(String(this.ddbDefinition.fixedDamage)).diceString,
         stripMod: true,
         type: damageType,
       });
@@ -693,10 +719,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         diceString = martialArtsDie.diceString;
       }
       const damage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(diceString, "", "", fightingStyleDiceMod).diceString,
+        damageString: utils.parseDiceString(diceString).diceString,
         stripMod: true,
         type: damageType,
       });
+      DDBItem.addDamageDieModifiers(damage, fightingStyleDiceMod);
       this.damageParts.push(damage);
     }
 
@@ -725,10 +752,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         const damagePart = die ? die.diceString : mod.value;
         if (damagePart) {
           const damage = SystemHelpers.buildDamagePart({
-            damageString: utils.parseDiceString(String(damagePart), "", "", fightingStyleDiceMod).diceString,
+            damageString: utils.parseDiceString(String(damagePart)).diceString,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
           });
+          DDBItem.addDamageDieModifiers(damage, fightingStyleDiceMod);
           unfilteredParts.push(damage);
         }
       });
@@ -1386,8 +1414,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       if (extraDamage.length > 0) {
         this.flags.damage.parts = this.flags.damage.parts.concat(extraDamage);
       }
-      // do we have great weapon fighting?
-      if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
+      // do we have great weapon fighting? 2014 is a class option, 2024 a Fighting Style feat
+      if (DDBDataUtils.hasCharacterFeat(this.ddbData, "Great Weapon Fighting")) {
+        this.flags.classFeatures.push("greatWeaponFighting2024");
+      } else if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
         this.flags.classFeatures.push("greatWeaponFighting");
       }
       // do we have two weapon fighting style?

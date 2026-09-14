@@ -611,6 +611,27 @@ describe("DDBDataUtils.hasChosenCharacterOption", () => {
 });
 
 // =============================================================================
+// hasCharacterFeat
+// =============================================================================
+describe("DDBDataUtils.hasCharacterFeat", () => {
+  // 2024 Fighting Style choices are feats, and DDB leaves character.options empty for them
+  it("finds a 2024 Fighting Style feat that hasChosenCharacterOption misses", () => {
+    const ddb = makeDDB({
+      character: {
+        feats: [{ definition: { name: "Great Weapon Fighting" } }],
+        options: { class: [], race: [], feat: [] },
+      },
+    });
+    expect(DDBDataUtils.hasCharacterFeat(ddb, "Great Weapon Fighting")).toBe(true);
+    expect(DDBDataUtils.hasChosenCharacterOption(ddb, "Great Weapon Fighting")).toBe(false);
+  });
+
+  it("returns false when the feat is not present", () => {
+    expect(DDBDataUtils.hasCharacterFeat(makeDDB(), "Great Weapon Fighting")).toBe(false);
+  });
+});
+
+// =============================================================================
 // getCustomValueFromCharacter
 // =============================================================================
 describe("DDBDataUtils.getCustomValueFromCharacter", () => {

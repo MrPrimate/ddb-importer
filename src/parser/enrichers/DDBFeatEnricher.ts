@@ -61,6 +61,8 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
     "Interception": GenericEnrichers.FightingStyleInterception,
+    "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
+    "Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Lucky": GenericEnrichers.Lucky,
     "Polearm Master - Bonus Attack": FeatEnrichers.PolearmMasterBonusAttack,
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,

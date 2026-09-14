@@ -26,6 +26,7 @@ vi.mock("../../../src/effects/restrictions", () => ({
 }));
 
 import DDBItem from "../../../src/parser/item/DDBItem";
+import SystemHelpers from "../../../src/lib/SystemHelpers";
 import { JEWEL_OF_THREE_PRAYERS, NO_CHARGE_VESTIGE } from "../../_fixtures/ddb/vestiges";
 
 // =============================================================================
@@ -647,5 +648,69 @@ describe("DDBItem.parseSaveFromDescription", () => {
       + " Birdcage. You can force a creature you have Charmed to make a DC 19 Charisma saving throw.",
     );
     expect(save).toEqual({ ability: ["cha"], dc: { formula: "19", calculation: "" } });
+  });
+});
+
+// =============================================================================
+// greatWeaponFightingModifiers - the no-AC5e fallback for Great Weapon Fighting,
+// baked onto the damage part because no dnd5e rule change can alter a die result
+// =============================================================================
+describe("DDBItem.prototype.greatWeaponFightingModifiers", () => {
+  // DDB attackType: 1 melee, 2 ranged
+  function makeWeaponMock({
+    classFeatures = ["greatWeaponFighting2024"] as string[],
+    attackType = 1 as number | null,
+    parsingType = "weapon" as string | null,
+  } = {}) {
+    const mock = Object.create(DDBItem.prototype);
+    mock.ddbDefinition = { properties: [], attackType };
+    mock.flags = { classFeatures };
+    mock.parsingType = parsingType;
+    return mock;
+  }
+
+  let ac5eInstalled = false;
+  beforeEach(() => {
+    ac5eInstalled = false;
+    vi.spyOn(SystemHelpers, "effectModules").mockImplementation(() => ({ ac5eInstalled }) as any);
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("treats 1s and 2s as 3s for the 2024 feat", () => {
+    expect(makeWeaponMock().greatWeaponFightingModifiers).toEqual(["min3"]);
+  });
+
+  it("rerolls 1s and 2s for the 2014 option", () => {
+    expect(makeWeaponMock({ classFeatures: ["greatWeaponFighting"] }).greatWeaponFightingModifiers).toEqual(["r<=2"]);
+  });
+
+  it("stands down when AC5e applies the modifier at roll time", () => {
+    ac5eInstalled = true;
+    expect(makeWeaponMock().greatWeaponFightingModifiers).toEqual([]);
+  });
+
+  it("does not apply without the feature, to a ranged weapon, or to a non weapon", () => {
+    expect(makeWeaponMock({ classFeatures: [] }).greatWeaponFightingModifiers).toEqual([]);
+    expect(makeWeaponMock({ attackType: 2 }).greatWeaponFightingModifiers).toEqual([]);
+    expect(makeWeaponMock({ parsingType: "staff" }).greatWeaponFightingModifiers).toEqual([]);
+  });
+});
+
+describe("DDBItem.addDamageDieModifiers", () => {
+  it("adds modifiers to a dice part without duplicating them", () => {
+    const damage: I5eDamagePart = { number: 2, denomination: 6, bonus: "", modifiers: ["min3"] };
+    DDBItem.addDamageDieModifiers(damage, ["min3"]);
+    expect(damage.modifiers).toEqual(["min3"]);
+  });
+
+  it("leaves flat and custom formula parts alone", () => {
+    const flat: I5eDamagePart = { number: null, denomination: 0, bonus: "5" };
+    const custom: I5eDamagePart = { number: 1, denomination: 8, custom: { enabled: true, formula: "1d8 + 2" } };
+    DDBItem.addDamageDieModifiers(flat, ["min3"]);
+    DDBItem.addDamageDieModifiers(custom, ["min3"]);
+    expect(flat.modifiers).toBeUndefined();
+    expect(custom.modifiers).toBeUndefined();
   });
 });

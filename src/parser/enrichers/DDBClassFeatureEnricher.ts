@@ -145,6 +145,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font of Magic: Convert Spell Slots": "Font of Magic",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
+    "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
     "Preserve Life": "Channel Divinity: Preserve Life",
     // Cleric Astral Domain / Community Domain features share their action's enricher
     "Create Void": "Channel Divinity: Create Void",
@@ -378,6 +379,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Undying Servitude": ClassEnrichers.Warlock.UndyingServitude,
     "Elemental Affinity": ClassEnrichers.Sorcerer.ElementalAffinity,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
+    "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Topple": ClassEnrichers.Monk.FlurryOfBlowsAdditional,

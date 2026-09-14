@@ -211,6 +211,17 @@ export default class DDBDataUtils {
     return hasClassOptions;
   }
 
+  /**
+   * Whether the character has taken a feat by name. 2024 Fighting Style choices land here as feats,
+   * not in `character.options`, so `hasChosenCharacterOption` does not see them.
+   * @param {IDDBData} ddb the DDB character data
+   * @param {string} featName the feat definition name
+   * @returns {boolean} true if a feat with that name is present
+   */
+  static hasCharacterFeat(ddb: IDDBData, featName: string): boolean {
+    return (ddb.character.feats ?? []).some((feat) => feat.definition?.name === featName);
+  }
+
   static getClassFromOptionID(ddb: IDDBData, optionId: number): IDDBClass | undefined {
     // Use case class spell - which class?
     // componentId on spells.class[0].componentId = options.class[0].definition.id
