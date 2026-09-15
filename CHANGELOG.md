@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.5.3
+
 - Great Weapon Master fixes for 2024.
 - A few hundred further improvements to a variety of parsed spells, items, features.
 - Monster feature parser improvements, targeting parsing features like the Goblin Warrior where 2 activities should have been generated, but only one was, and more general utility activities. Teleport activities are also now parsed out.
