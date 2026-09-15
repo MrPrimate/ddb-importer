@@ -47,3 +47,22 @@ describe("DDBMonsterFeatureActivity._generateTarget", () => {
     expect(activity.data.target).not.toBe(override);
   });
 });
+
+describe("monster mode activation", () => {
+  it("isolates mode conditions and honors the complete activation override", () => {
+    const shared: I5eActivityActivation = { type: "action", value: 1, condition: "" };
+    const normal = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    const variant = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    Object.assign(normal, { data: {}, actionData: { activation: shared } });
+    Object.assign(variant, { data: {}, actionData: { activation: shared } });
+    normal._generateActivation();
+    variant._generateActivation({ activationCondition: "The attack had Advantage" });
+    expect(normal.data.activation?.condition).toBe("");
+    expect(shared.condition).toBe("");
+    expect(variant.data.activation?.condition).toBe("The attack had Advantage");
+    const override: I5eActivityActivation = { type: "bonus", value: 1, condition: "Original" };
+    variant._generateActivation({ activationOverride: override, activationCondition: "New condition" });
+    expect(variant.data.activation).toEqual({ type: "bonus", value: 1, condition: "New condition" });
+    expect(override.condition).toBe("Original");
+  });
+});

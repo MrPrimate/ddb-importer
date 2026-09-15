@@ -52,8 +52,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.actionData = ddbParent?.actionData as IDDBMonsterActionData;
   }
 
-  override _generateActivation() {
-    this.data.activation = this.actionData.activation;
+  override _generateActivation({ activationOverride = null, activationCondition }: {
+    activationOverride?: I5eActivityActivation | null;
+    activationCondition?: string;
+  } = {}) {
+    this.data.activation = foundry.utils.deepClone(activationOverride ?? this.actionData.activation);
+    if (activationCondition !== undefined) this.data.activation.condition = activationCondition;
   }
 
   override _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
@@ -226,6 +230,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   override build({
     activationOverride,
+    activationCondition,
     allowCritical,
     additionalTargets,
     attackData,
@@ -302,7 +307,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       this: this,
     });
 
-    if (generateActivation) this._generateActivation();
+    if (generateActivation) this._generateActivation({ activationOverride, activationCondition });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();

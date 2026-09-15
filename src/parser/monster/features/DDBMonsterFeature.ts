@@ -4,6 +4,7 @@ import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
+import { monsterDamageAppliedStatuses } from "./MonsterDamageModes";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
@@ -89,6 +90,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   useCastActivity: boolean;
   // assigned at the start of generateDamageInfo() before any read
   ddbMonsterDamage!: DDBMonsterDamage;
+  #damageModeQueued = false;
   // assigned by #generateSpellcastingData() before spell activity generation reads it
   spellCastingData!: IMonsterSpellcastingData;
 
@@ -413,6 +415,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     this._generateEscapeCheck(hit);
 
+    if (this.ddbMonsterDamage.damageModeWarnings.length) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.monsterDamageWarnings", this.ddbMonsterDamage.damageModeWarnings);
+    }
+
+    // A renamed feat alternative occupies its original slot so later save/check IDs survive.
+    if (this.templateType !== "weapon" && this.ddbMonsterDamage.replacesVersatile) this.#queueDamageModes();
+
     if (this.actionData.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionData.damage.base = this.actionData.damageParts[0].part;
     } else if (this.templateType !== "weapon" && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
@@ -423,6 +432,30 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           generateDamage: true,
           damageParts: this.actionData.versatileParts,
           includeBaseDamage: false,
+        },
+      });
+    }
+  }
+
+  /** New modes append after existing outlines; replacements are queued in the old versatile slot. */
+  #queueDamageModes() {
+    if (this.#damageModeQueued || !this.enricher.addAutoAdditionalActivities || this.enricher.noVersatile) return;
+    this.#damageModeQueued = true;
+    for (const mode of this.ddbMonsterDamage.damageModes) {
+      this.additionalActivities.push({
+        name: mode.name,
+        type: "attack",
+        options: {
+          generateDamage: true,
+          includeBaseDamage: false,
+          activationCondition: mode.condition,
+          // Reuse the former versatile ID as well as its slot to preserve document links.
+          ...(this.templateType !== "weapon" && this.ddbMonsterDamage.replacesVersatile ? {
+            data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
+          } : {}),
+          damageParts: mode.damageParts.map((part) => SystemHelpers.buildDamagePart({
+            damageString: part.damageString, types: part.damageTypes,
+          })),
         },
       });
     }
@@ -1266,8 +1299,13 @@ ${this.data.system.description.value}
       }
     } else {
       for (const id of Object.keys(this.data.system.activities)) {
-        this.data.system.activities[id].activation = this.actionData.activation;
-        const consumption = this.data.system.activities[id].consumption;
+        const activity = this.data.system.activities[id];
+        // A copied attack keeps its eligibility condition when it becomes legendary.
+        activity.activation = {
+          ...foundry.utils.deepClone(this.actionData.activation),
+          condition: activity.activation?.condition || this.actionData.activation.condition,
+        };
+        const consumption = activity.consumption;
         if (consumption) consumption.targets = this.actionData.consumptionTargets;
       }
     }
@@ -1611,10 +1649,50 @@ ${this.data.system.description.value}
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 
+    // Named effect hints can still refer to the former parser-generated versatile activity.
+    if (this.ddbMonsterDamage.replacesVersatile && this.ddbMonsterDamage.damageModes.length) {
+      const name = this.ddbMonsterDamage.damageModes[0].name;
+      for (const effect of this.data.effects) {
+        if (foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch") === "Versatile") {
+          foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", name);
+        }
+        const matches = foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch") as string[] | undefined;
+        if (matches?.includes("Versatile")) {
+          foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", matches.map((match) => match === "Versatile" ? name : match));
+        }
+      }
+    }
     this._activityEffectLinking();
+    this.#scopeDamageModeEffects();
     this._activityBehaviorNaming();
 
     Effects.AutoEffects.forceDocumentEffect(this.data);
+  }
+
+  /** Filter only attack links; saves and independent follow-up activities keep their own riders. */
+  #scopeDamageModeEffects() {
+    const damage = this.ddbMonsterDamage;
+    if (!damage.damageModes.length) return;
+    const normalStatuses = monsterDamageAppliedStatuses(damage.normalHit);
+    const primary = Object.values(this.data.system.activities).find((activity) => activity.type === "attack");
+    const removeStatuses = (activity: I5eActivity, statuses: Set<string>) => {
+      activity.effects = activity.effects?.filter((link) => {
+        const effect = this.data.effects?.find((candidate) => candidate._id === link._id);
+        return !Array.from(effect?.statuses ?? []).some((status) => statuses.has(status.toLowerCase()));
+      });
+    };
+    for (const mode of damage.damageModes) {
+      const conditionalStatuses = monsterDamageAppliedStatuses(mode.text);
+      const onlyConditional = new Set([...conditionalStatuses].filter((status) => !normalStatuses.has(status)));
+      if (primary) removeStatuses(primary, onlyConditional);
+      const variant = Object.values(this.data.system.activities).find((activity) => activity.type === "attack" && activity.name === mode.name);
+      if (!variant) continue;
+      // Already-affected targets receive the extra damage instead of reapplying the condition.
+      if ((/\balready\b/i).test(mode.condition)) {
+        const existing = new Set([...normalStatuses].filter((status) => new RegExp(`\\b${status}\\b`, "i").test(mode.condition)));
+        removeStatuses(variant, existing);
+      }
+    }
   }
 
   #getSpellcastingData(): IMonsterSpellcastingData {
@@ -2011,11 +2089,20 @@ ${this.data.system.description.value}
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
 
+    // Conditional weapon attacks spend the same limited item resource in either mode.
+    // At-will weapons must not acquire a consumption target.
+    if (this.templateType === "weapon" && this.ddbMonsterDamage.damageModes.length > 0
+      && this.data.system.uses.max && !this.actionData.consumptionValue
+      && this.actionData.consumptionTargets.length === 0) {
+      this.actionData.consumptionValue = "1";
+    }
+
     if (!this.actionCopy) {
       await this.#handleSpellCasting();
       this.#generateMultiSaveActivities();
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
       this.#addHealAdditionalActivities();
+      this.#queueDamageModes();
       if (this.enricher.addAutoAdditionalActivities)
         await this._generateAdditionalActivities();
       await this.enricher.addAdditionalActivities(this);

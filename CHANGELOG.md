@@ -1,6 +1,8 @@
 # Next Up
 
 - Great Weapon Master fixes for 2024.
+- A few hundred further improvements to a variety of parsed spells, items, features.
+- Monster feature parser improvements, targeting parsing features like the Goblin Warrior where 2 activities should have been generated, but only one was. 198 monsters impacted (228 features across 242 monsters).
 
 # 7.5.2
 

@@ -490,6 +490,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return null;
   }
 
+  /** Disables parser-generated versatile activities and conditional attack modes. */
   get noVersatile(): boolean {
     return false;
   }
