@@ -157,8 +157,8 @@ export default class SceneCopyBatchApp extends DDBAppV2 {
   }
 
   /**
-   * Name-match the chosen folders. Rows for sources that matched are replaced,
-   * rows for other sources are kept, and empty rows are dropped.
+   * Name-match the chosen folders. Rows whose target was matched are replaced,
+   * other rows are kept, and empty rows are dropped.
    */
   _matchFolders(notify = true): void {
     if (!this.sourceFolderId || !this.targetFolderId) {
@@ -170,9 +170,12 @@ export default class SceneCopyBatchApp extends DDBAppV2 {
       return;
     }
     const { matches, unmatched } = matchFolderScenes(this.sourceFolderId, this.targetFolderId, this.includeSubfolders);
-    const matchedSources = new Set(matches.map((m) => m.sourceId));
+    // A target can only be mapped once, so a match replaces any row already
+    // using its target. Other rows for the same source are kept, since one
+    // source may feed several targets.
+    const matchedTargets = new Set(matches.map((m) => m.targetId));
     this.mappings = [
-      ...this.mappings.filter((m) => m.sourceId && !matchedSources.has(m.sourceId)),
+      ...this.mappings.filter((m) => (m.sourceId || m.targetId) && !(m.targetId && matchedTargets.has(m.targetId))),
       ...matches,
     ];
     this.unmatched = unmatched.map((u) => (u.relPath ? `${u.relPath} / ${u.name}` : u.name));
@@ -187,11 +190,12 @@ export default class SceneCopyBatchApp extends DDBAppV2 {
   override async _prepareContext(_options: any): Promise<any> {
     const context = await super._prepareContext({ ..._options, noCacheLoad: true });
 
-    const sceneChoices = Object.fromEntries(
-      game.scenes.contents
-        .map((s) => [s.id as string, sceneFolderPath(s) + (s.name ?? "")])
-        .sort((a, b) => a[1].localeCompare(b[1])),
-    );
+    const sceneEntries = game.scenes.contents
+      .map((s) => [s.id as string, sceneFolderPath(s) + (s.name ?? "")] as [string, string])
+      .sort((a, b) => a[1].localeCompare(b[1]));
+    const sceneChoices = Object.fromEntries(sceneEntries);
+    // a scene can be the target of one row only; sources may feed several targets
+    const usedTargets = new Set(this.mappings.map((m) => m.targetId).filter(Boolean));
     const folderChoices = Object.fromEntries(
       game.folders.contents
         .filter((f) => f.type === "Scene")
@@ -211,6 +215,8 @@ export default class SceneCopyBatchApp extends DDBAppV2 {
         index,
         sourceId: m.sourceId ?? "",
         targetId: m.targetId ?? "",
+        targetChoices: Object.fromEntries(sceneEntries.filter(([id]) =>
+          id === m.targetId || (!usedTargets.has(id) && id !== m.sourceId))),
         cssClass: [problem ? "invalid" : "", loose ? "loose" : "", m.status ?? ""].filter(Boolean).join(" "),
         statusIcon,
         statusTooltip: m.error ?? problem ?? (loose ? "Matched by a similar name, check this pair." : ""),

@@ -56,7 +56,7 @@
         </select>
         <i class="fas fa-arrow-right"></i>
         <select class="ddb-scene-copy-batch-scene" data-index="{{this.index}}" data-side="target" {{disabled @root.running}}>
-          {{selectOptions @root.sceneChoices selected=this.targetId blank=(localize "ddb-importer.scene-copy-batch.choose-target")}}
+          {{selectOptions this.targetChoices selected=this.targetId blank=(localize "ddb-importer.scene-copy-batch.choose-target")}}
         </select>
         <span class="ddb-scene-copy-batch-status" {{#if this.statusTooltip}}data-tooltip="{{this.statusTooltip}}"{{/if}}>
           {{#if this.statusIcon}}<i class="{{this.statusIcon}}"></i>{{/if}}
