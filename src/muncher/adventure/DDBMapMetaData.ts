@@ -1280,7 +1280,7 @@ export default class DDBMapMetaData {
       const stub: Record<string, any> = {
         x: Number.isFinite(t.x) ? t.x : 0,
         y: Number.isFinite(t.y) ? t.y : 0,
-        hidden: !!t.hidden,
+        hidden: true,
         name: swapped?.name2024 ?? (typeof t.name === "string" ? t.name : worldActor.name),
         flags: foundry.utils.mergeObject({}, t.flags ?? {}, { inplace: false }),
       };
