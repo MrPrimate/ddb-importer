@@ -1273,6 +1273,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         label: "Allow Warding Bond Automation?",
       },
       {
+        name: "allow-divine-power-recovery-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-divine-power-recovery-enhancer"),
+        enabled: true,
+        hint: "Resets Divine Power uses on summoned Vestige Companions when a Vestige Patron warlock finishes a Short or Long Rest",
+        label: "Allow Vestige Divine Power Recovery?",
+      },
+      {
         name: "enable-ddb-macro-region-behaviors",
         isChecked: utils.getSetting<boolean>("enable-ddb-macro-region-behaviors"),
         enabled: true,

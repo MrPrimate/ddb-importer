@@ -108,7 +108,7 @@ declare module "fvtt-types/configuration" {
       "dnd5e.endConcentration": (actor: Actor.Implementation, effect: ActiveEffect.Implementation) => void;
       "dnd5e.preSummonToken": (activity: Activity, profile: unknown, config: object, options: unknown) => boolean | void;
       "dnd5e.preUseActivity": (activity: Activity, usageConfig: AnyMutableObject, dialogConfig: AnyMutableObject, messageConfig: AnyMutableObject) => boolean | void;
-      "dnd5e.restCompleted": (actor: Actor.Implementation, result: { longRest: boolean; newDay: boolean }, config: unknown) => void;
+      "dnd5e.restCompleted": (actor: Actor.Implementation, result: dnd5e.types.documents.RestResult, config: dnd5e.types.documents.RestConfiguration) => void;
       "dnd5e.rollAttack": (rolls: Roll[], data: { subject: Activity | null; ammoUpdate: { id: string; destroy: boolean; quantity: number } | null }) => void;
       "dnd5e.rollConcentration": (rolls: Roll[], data: { subject?: Actor.Implementation }) => void;
       "dnd5e.rollDamage": (rolls: Roll[], data?: { subject?: Activity }) => void;

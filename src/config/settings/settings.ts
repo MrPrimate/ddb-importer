@@ -529,6 +529,13 @@ const SETTINGS = {
             config: false,
             requiresReload: true,
           },
+          "allow-divine-power-recovery-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
         },
         IMPORT: {
           "character-update-policy-use-hp-max-for-rolled-hp": {

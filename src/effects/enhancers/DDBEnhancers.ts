@@ -3,6 +3,7 @@ import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
+import Vestige from "./ClassFeatures/Warlock/Vestige";
 import { logger, utils } from "../../lib/_module";
 
 
@@ -76,6 +77,15 @@ export default class DDBEnhancers {
       Hooks.on<"dnd5e.preSummonToken">("dnd5e.preSummonToken", (activity, profile, tokenUpdateData, options) => {
         MightySummoner.dnd5ePreSummonTokenHook(activity, profile, tokenUpdateData, options);
         return true;
+      });
+    }
+  }
+
+  static _restHooks() {
+    if (utils.getSetting<boolean>("allow-divine-power-recovery-enhancer")) {
+      Hooks.on<"dnd5e.restCompleted">("dnd5e.restCompleted", (actor, _result, config) => {
+        if (config.type !== "short" && config.type !== "long") return;
+        void Vestige.recoverDivinePower(actor);
       });
     }
   }
