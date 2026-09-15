@@ -360,6 +360,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Cloak of Flies": ClassEnrichers.Warlock.CloakOfFlies,
     "Eldritch Invocations: Beast Speech": ClassEnrichers.Warlock.BeastSpeech,
     "Eldritch Invocations: Eldritch Sight": ClassEnrichers.Warlock.EldritchSight,
+    "Eldritch Invocations: Eldritch Spear": ClassEnrichers.Warlock.EldritchInvocationsEldritchSpear,
+    "Eldritch Invocations: Repelling Blast": ClassEnrichers.Warlock.EldritchInvocationsRepellingBlast,
     "Eldritch Invocations: Dreadful Word": ClassEnrichers.Warlock.DreadfulWord,
     "Eldritch Invocations: Far Scribe": ClassEnrichers.Warlock.FarScribe,
     "Eldritch Invocations: Feral Transformation": ClassEnrichers.Warlock.FeralTransformation,

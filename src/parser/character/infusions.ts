@@ -20,11 +20,20 @@ async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect
   });
 }
 
-function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantmentTargetItemMatches[]): boolean {
+/**
+ * Does every `targetItemMatches` clause hold for the item? An array-valued field (the weapon's
+ * scraped `classFeatures`, used to find the DDB-marked pact weapon) matches when it contains the
+ * value; anything else must equal it.
+ */
+export function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantmentTargetItemMatches[]): boolean {
   for (const flag of flags) {
     const itemValue = foundry.utils.getProperty(item, flag.field);
     if (itemValue === undefined) return false;
-    if (itemValue !== flag.value) return false;
+    if (Array.isArray(itemValue)) {
+      if (!itemValue.includes(flag.value)) return false;
+    } else if (itemValue !== flag.value) {
+      return false;
+    }
   }
   return true;
 }

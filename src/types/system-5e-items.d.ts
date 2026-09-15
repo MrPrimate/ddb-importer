@@ -687,7 +687,8 @@ global {
 
   interface IDDBImporterTransferEnchantmentTargetItemMatches {
     field: string;
-    value: string;
+    /** Compared with strict equality, or with `includes` when the item field is an array. */
+    value: string | number | boolean;
   }
 
   interface IDDBImporterTransferEnchantmentFlags {

@@ -329,6 +329,14 @@ export default class ChangeHelper {
     return [ChangeHelper.WEAPON_ATTACK_FILTER, ChangeHelper.RANGED_ATTACK_FILTER];
   }
 
+  /**
+   * Matches a weapon attack made with a magic weapon: the importer stamps `mgc` on magic and
+   * infused weapons, and dnd5e exposes the rolled item's property set as `roll.item.properties`.
+   */
+  static get MAGIC_WEAPON_ATTACK_FILTER(): IEffectChangeFilter[] {
+    return [ChangeHelper.WEAPON_ATTACK_FILTER, { k: "roll.item.properties", o: "has", v: "mgc" }];
+  }
+
   static ruleChange({ category, type, value, priority = 20, conditions }: RuleChangeParams): IActiveEffectChangeData {
     const change: IActiveEffectChangeData = {
       key: category,
