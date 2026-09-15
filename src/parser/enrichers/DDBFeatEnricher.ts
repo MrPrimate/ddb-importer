@@ -53,6 +53,9 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Greater Mark of ": "Greater Mark of",
     "Arcane Infiltrator (": "Arcane Infiltrator",
     "Familiar Friend (": "Familiar Friend",
+    // DM play-along reprints of Arcana Unleashed feats carry a "(DMAU)" suffix
+    "Arcane Overload (": "Arcane Overload",
+    "Transmutation Adept (": "Transmutation Adept",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -65,6 +68,8 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Greater Mark of": FeatEnrichers._GreaterMarkOf,
     "Arcane Infiltrator": FeatEnrichers.ArcaneInfiltrator,
     "Familiar Friend": FeatEnrichers.FamiliarFriend,
+    "Arcane Overload": FeatEnrichers.ArcaneOverload,
+    "Transmutation Adept": FeatEnrichers.TransmutationAdept,
     "Greater Aberrant Mark": FeatEnrichers._GreaterMarkOf,
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,

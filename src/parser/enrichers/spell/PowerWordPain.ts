@@ -34,6 +34,31 @@ export default class PowerWordPain extends DDBEnricherData {
     };
   }
 
+  /** The Constitution save the Charmed target makes to cast a spell and at the end of each turn. */
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: { name: "Constitution Save (Cast a Spell / End of Turn)", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
+        build: {
+          generateSave: true,
+          generateActivation: true,
+          generateTarget: true,
+          generateDamage: false,
+          noSpellslot: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
+          activationOverride: { type: "special", value: null, condition: "When the affected target tries to cast a spell, or at the end of its turn (a success ends the spell)" },
+        },
+        overrides: {
+          targetType: "creature",
+          removeSpellSlotConsume: true,
+          noTemplate: true,
+          // the repeat save ends the pain rider; it must not re-apply it
+          noeffect: true,
+        },
+      },
+    ];
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

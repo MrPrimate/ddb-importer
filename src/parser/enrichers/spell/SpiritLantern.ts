@@ -1,6 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-/** The lantern holds spellcasting-modifier soul fragments; each bonus action spends one. */
+/**
+ * The lantern holds up to spellcasting-modifier soul fragments. It starts empty: the cast sets
+ * spent to max, Capture Soul adds a fragment when an enemy dies in the dim light, and each bonus
+ * action option spends one. The lantern's dim light is a token change on the caster while the
+ * spell lasts; Ward Ally's "attacks against" disadvantage has no native dnd5e key, so it is a
+ * midi/AC5e grant.
+ */
 export default class SpiritLantern extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -14,7 +20,7 @@ export default class SpiritLantern extends DDBEnricherData {
       targetType: "self",
       noTemplate: true,
       addItemConsume: true,
-      itemConsumeValue: "-@item.uses.spent",
+      itemConsumeValue: "@item.uses.max - @item.uses.spent",
       data: { damage: { parts: [] } },
     };
   }
@@ -63,6 +69,71 @@ export default class SpiritLantern extends DDBEnricherData {
           removeSpellSlotConsume: true,
           noTemplate: true,
         },
+      },
+      {
+        init: { name: "Ward Ally", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
+        build: {
+          generateActivation: true,
+          generateConsumption: true,
+          generateRange: true,
+          generateTarget: true,
+          noSpellslot: true,
+          rangeOverride: { value: "60", units: "ft", special: "" },
+        },
+        overrides: {
+          targetType: "creature",
+          activationType: "bonus",
+          addItemConsume: true,
+          removeSpellSlotConsume: true,
+          noTemplate: true,
+        },
+      },
+      {
+        init: { name: "Capture Soul", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
+        build: {
+          generateActivation: true,
+          generateConsumption: true,
+          generateTarget: true,
+          noSpellslot: true,
+          activationOverride: { type: "special", value: null, condition: "When an enemy dies within the lantern's dim light" },
+        },
+        overrides: {
+          targetType: "self",
+          addItemConsume: true,
+          itemConsumeValue: "-1",
+          removeSpellSlotConsume: true,
+          noTemplate: true,
+        },
+      },
+    ];
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Spirit Lantern",
+        activityMatch: "Cast",
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.dim", "upgrade", 60),
+        ],
+        options: {
+          description: "A ghostly black lantern hovers above you and sheds Dim Light in a 60-foot radius.",
+        },
+      },
+      {
+        name: "Warded by Spirit Lantern",
+        activityMatch: "Ward Ally",
+        options: {
+          durationSeconds: null,
+          expiry: "sourceStart",
+          description: "Other creatures have Disadvantage on attack rolls against this creature until the start of the caster's next turn.",
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.grants.attack.disadvantage"),
+        ],
       },
     ];
   }

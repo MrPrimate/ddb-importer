@@ -73,12 +73,17 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Breastplate of the Tyrant": "Evolved Item",
     "Rod of the Honed Mind": "Evolved Item",
     "Wand of Celestial Prowess": "Evolved Item",
+    // DM play-along reprints of Arcana Unleashed items carry a "(DMAU)" suffix
+    "Ring of Dedicated Focus": "Ring of Dedicated Focus",
+    "Workshop Wrecker": "Workshop Wrecker",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Staff of Skulls": ItemEnrichers.StaffOfSkulls,
     "Tramontane Armor": ItemEnrichers.TramontaneArmor,
+    "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
+    "Workshop Wrecker": ItemEnrichers.WorkshopWrecker,
     "Goading Ammunition": ItemEnrichers.GoadingAmmunition,
     "Evolved Item": ItemEnrichers.EvolvedItem,
     "Banjo of Ol' Jericho Sticks": ItemEnrichers.BanjoOfOlJerichoSticks,

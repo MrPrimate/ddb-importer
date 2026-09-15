@@ -41,8 +41,11 @@ export default class MagicalAmmunition extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      // explicit ids: a duplicate without one derives the same "clo" id, so the second copy
+      // overwrites the first
       {
         duplicate: true,
+        id: "ddbMagAmmoUnlk01",
         overrides: {
           name: "Unlocking Ammunition",
           data: { duration: { value: "", units: "inst" } },
@@ -50,6 +53,7 @@ export default class MagicalAmmunition extends DDBEnricherData {
       },
       {
         duplicate: true,
+        id: "ddbMagAmmoVine01",
         overrides: {
           name: "Vine Ammunition",
           noTemplate: true,
