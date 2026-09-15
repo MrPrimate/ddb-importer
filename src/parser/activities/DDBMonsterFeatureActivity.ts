@@ -117,8 +117,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  override _generateRange() {
-    this.data.range = this.actionData.range as unknown as I5eActivityRange;
+  override _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
+    // cloned: actionData.range is shared by every activity of the feature, and an enricher
+    // `data.range` override merges in place, which would rewrite the sibling activities' range
+    this.data.range = rangeOverride
+      ? foundry.utils.deepClone(rangeOverride)
+      : foundry.utils.deepClone(this.actionData.range as unknown as I5eActivityRange);
   }
 
   override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {
@@ -313,7 +317,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
+    if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride });
 
     if (generateSave) this._generateSave({ saveOverride });

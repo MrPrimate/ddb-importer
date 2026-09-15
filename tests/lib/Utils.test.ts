@@ -158,6 +158,11 @@ describe("Utils.namedIDStub", () => {
     const result = Utils.namedIDStub("Eldritch Blast Extra");
     expect(result.length).toBe(16);
   });
+
+  it("clamps when prefix and postfix exceed the length", () => {
+    const result = Utils.namedIDStub("Teleport", { prefix: "teleport", postfix: "legendary" });
+    expect(result).toBe("teleportlegendar");
+  });
 });
 
 describe("Utils.arrayRange", () => {

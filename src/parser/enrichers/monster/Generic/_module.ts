@@ -70,6 +70,7 @@ export { default as StickyNet } from "./StickyNet";
 export { default as StickyShield } from "./StickyShield";
 export { default as SuaveDefense } from "./SuaveDefense";
 export { default as SunlightSensitivity } from "./SunlightSensitivity";
+export { default as Teleport } from "./Teleport";
 export { default as TurnStartAuraSave } from "./TurnStartAuraSave";
 export { default as TwoHeads } from "./TwoHeads";
 export { default as UndeadRestoration } from "./UndeadRestoration";
