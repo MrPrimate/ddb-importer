@@ -56,11 +56,12 @@ export default class WaveSweptWeapon extends DDBEnricherData {
       {
         noCreate: true,
         func: ({ effect }) => {
-          // Null DDB speed bonuses generate NaN, and the weapon bonus must not affect unrelated attacks.
+          // The speeds only apply while holding the weapon (the holding effect below), and the weapon
+          // bonus must not affect unrelated attacks.
           const replaced = [
             "system.rolls.attack.mwak.bonus",
-            "system.attributes.movement.swim",
-            "system.attributes.movement.fly",
+            "system.attributes.movement.speeds.swim",
+            "system.attributes.movement.speeds.fly",
           ];
           if (effect.system?.changes) {
             effect.system.changes = effect.system.changes.filter(

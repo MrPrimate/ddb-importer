@@ -797,13 +797,60 @@ export default class EffectGenerator {
         }
         speedType = speedEntry.type;
       }
-      const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
-      if (speedType === "all") {
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
-      } else {
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+      const hasValue = (mod: IDDBModifier) => Number.isFinite(Number.parseInt(String(mod.value)));
+      const valued = bonuses.filter(hasValue);
+      if (valued.length > 0) {
+        const bonusValue = valued.reduce((speed, mod) => speed + Number.parseInt(String(mod.value)), 0);
+        if (speedType === "all") {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
+        } else {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+        }
+      }
+      for (const bonus of bonuses.filter((mod) => !hasValue(mod))) {
+        this._addUnvaluedSpeedBonus(bonus, speedType);
       }
     }
+  }
+
+  /**
+   * DDB sends some speed bonuses with a null value and puts the speed in the restriction text
+   * instead: "Equal to your walking speed", "30ft. swim speed", or "Speed Doubled" (Haste).
+   * A modifier with a duration belongs to an activated property (Boots of Speed, Vanisher Hat),
+   * so it is left to the item's enricher rather than becoming an always-on transfer effect.
+   * Anything the text does not describe is skipped; parsing the null would emit NaN.
+   */
+  _addUnvaluedSpeedBonus(modifier: IDDBModifier, speedType: string) {
+    if (modifier.duration) {
+      logger.debug(`Skipping timed ${modifier.subType} speed bonus for ${this.document.name}`, { modifier });
+      return;
+    }
+    const restriction = String(modifier.restriction ?? "");
+    const multiplier = restriction.match(/speed (doubled|halved)/i);
+    if (multiplier) {
+      const key = "system.attributes.movement.multiplier";
+      // DDB repeats the multiplier on every speed subType, but it applies to movement once
+      if (this.effect.system.changes.some((change) => change.key === key)) return;
+      const value = multiplier[1].toLowerCase() === "doubled" ? "2" : "0.5";
+      this.effect.system.changes.push(ChangeHelper.movementMultiplierChange(value, 20));
+      return;
+    }
+    if (speedType === "all") {
+      logger.debug(`Skipping ${modifier.subType} speed bonus with no value for ${this.document.name}`, { modifier });
+      return;
+    }
+    const key = `system.attributes.movement.speeds.${speedType}`;
+    if ((/equal to your (walking )?speed/i).test(restriction)) {
+      if (speedType === "walk") return;
+      this.effect.system.changes.push(ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 5, key));
+      return;
+    }
+    const distance = restriction.match(/(\d+)\s*(?:ft|feet|foot)\b/i);
+    if (distance) {
+      this.effect.system.changes.push(ChangeHelper.upgradeChange(Number.parseInt(distance[1]), 5, key));
+      return;
+    }
+    logger.debug(`Skipping ${modifier.subType} speed bonus with no value for ${this.document.name}`, { modifier });
   }
 
   _addBonusSpeeds() {
