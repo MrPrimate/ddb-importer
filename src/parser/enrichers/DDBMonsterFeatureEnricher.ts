@@ -271,6 +271,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Spiteful Escape": "Status Rider",
     "Stake to the Heart": "Status Rider",
     "Steal Body": "Status Rider",
+    "Silver Needle": "Status Rider",
     "Stench Spray": "Status Rider",
     "Tendril": "Status Rider",
     "Tentacle Slam": "Status Rider",

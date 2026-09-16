@@ -917,21 +917,31 @@ export default class DDBDescriptions {
   }
 
   /**
-   * A grapple that also restrains, in the 2024 ("has the Restrained condition until the grapple
-   * ends", "Until the grapple ends, the target has the Restrained condition") and 2014 ("Until this
-   * grapple ends, the target is restrained") phrasings.
+   * A condition a grapple carries with it, in the 2024 ("has the Restrained condition until the
+   * grapple ends", "Until the grapple ends, the target has the Restrained condition") and 2014
+   * ("Until this grapple ends, the target is restrained") phrasings; "is suffocating" reads the
+   * same way. DDB's own condition markup arrives as "id;label" ("suffocation;suffocating").
    */
-  static GRAPPLE_RESTRAINS = /(?:has the Restrained condition|is restrained)(?: and [^.]*)? until (?:the|this) grapple ends|Until (?:the|this) grapple ends, the (?:target|creature) (?:has the Restrained condition|is restrained)/i;
+  static GRAPPLE_RIDERS = [
+    /(?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
+    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))/i,
+  ];
 
   static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
-    const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
+    // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
+    const checkReg = new RegExp(`While ${condition}, the target (?:has the (?<a>\\w+) condition|is (?:\\w+;)?(?<b>\\w+))`, "i");
     const match = checkReg.exec(text);
-    if (match) {
-      const processedCondition = DDBDescriptions.getConditionInfo(match[1]);
+    if (match?.groups) {
+      const processedCondition = DDBDescriptions.getConditionInfo(match.groups.a ?? match.groups.b);
       return processedCondition.condition ? [processedCondition.condition] : [];
     }
-    if (condition.toLowerCase() === "grappled" && DDBDescriptions.GRAPPLE_RESTRAINS.test(text)) {
-      return ["restrained"];
+    if (condition.toLowerCase() === "grappled") {
+      for (const regex of DDBDescriptions.GRAPPLE_RIDERS) {
+        const rider = regex.exec(text);
+        if (!rider?.groups) continue;
+        const processedCondition = DDBDescriptions.getConditionInfo(rider.groups.a ?? rider.groups.b);
+        return processedCondition.condition ? [processedCondition.condition] : [];
+      }
     }
     return [];
   }
@@ -1143,6 +1153,7 @@ export default class DDBDescriptions {
   // "possessed", which is mechanically the Incapacitated condition.
   static CONDITION_ALIASES: Record<string, string> = {
     possessed: "incapacitated",
+    suffocating: "suffocation",
   };
 
   static getConditionInfo(condition: string, hint?: string): {

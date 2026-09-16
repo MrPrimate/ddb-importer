@@ -313,6 +313,15 @@ describe("DDBDescriptions.parseStatusCondition", () => {
       expect(result.riderStatuses).toEqual(["restrained"]);
     });
 
+    it("a grapple that suffocates carries Suffocation, through DDB's id;label markup too", () => {
+      const grapple = DDBDescriptions.parseStatusCondition({ text: "Hit: 10 (1d10 + 5) Bludgeoning damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 15). Until the grapple ends, the target is suffocating." });
+      expect(grapple.condition).toBe("grappled");
+      expect(grapple.riderStatuses).toEqual(["suffocation"]);
+      const restrained = DDBDescriptions.parseStatusCondition({ text: "Failure: 13 (2d6 + 6) Bludgeoning damage, and the target has the Restrained condition. While Restrained, the target is suffocation;suffocating." });
+      expect(restrained.condition).toBe("restrained");
+      expect(restrained.riderStatuses).toEqual(["suffocation"]);
+    });
+
     it("a plain grapple has no rider", () => {
       const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 8 (1d8 + 4) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 14)." });
       expect(result.condition).toBe("grappled");

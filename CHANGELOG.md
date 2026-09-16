@@ -1,6 +1,11 @@
 # Next Up
 
 - Item parsing improvements.
+- A small number of icon improvements.
+- Some rider effect parsing improvements for monsters.
+- Monster Leg. Res. now generates a usage action.
+- Cleanup of activity description generation, as some DDB tags were not converted properly.
+- Hive Druid parsing fixes.
 - Minimum 5e version 6.0.2
 - Adjustments to some effect conditions that were broken by 6.0.2.
 

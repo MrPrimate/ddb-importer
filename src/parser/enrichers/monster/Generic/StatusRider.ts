@@ -92,6 +92,7 @@ export default class StatusRider extends DDBEnricherData {
       "Spiteful Escape": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null, description: "Disadvantage on ability checks and saving throws until the curse ends." }],
       "Stake to the Heart": [{ name: "Paralyzed", statuses: ["Paralyzed"], durationSeconds: null }],
       "Steal Body": [{ name: "Total Cover", statuses: ["coverTotal"], durationSeconds: null }],
+      "Silver Needle": [{ name: "Cursed", statuses: ["Cursed", "Poisoned"], durationSeconds: 60 }],
       "Stench Spray": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 }],
       "Tendril": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 }],
       "Tentacle Slam": [{ name: "Stunned", statuses: ["Stunned"], durationSeconds: 6 }],

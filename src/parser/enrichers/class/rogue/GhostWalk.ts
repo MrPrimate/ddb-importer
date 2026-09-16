@@ -13,6 +13,7 @@ export default class GhostWalk extends DDBEnricherData {
       {
         name: "Spectral Form",
         activityMatch: "Activate",
+        statuses: ["Transformed"],
         options: {
           durationSeconds: 600,
         },

@@ -6,6 +6,7 @@ export default class GuidingBolt extends DDBEnricherData {
     return [
       {
         name: `Glittering`,
+        statuses: ["Marked"],
         options: {
           expiry: "sourceEnd",
         },

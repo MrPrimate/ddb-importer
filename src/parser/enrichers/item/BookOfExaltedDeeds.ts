@@ -68,6 +68,7 @@ export default class BookOfExaltedDeeds extends DDBEnricherData {
       {
         name: "Exalted Halo",
         activityMatch: "Activate Halo",
+        statuses: ["Marked"],
         options: { durationSeconds: null, transfer: false },
         tokenChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange(10, 20, "token.light.bright"),
