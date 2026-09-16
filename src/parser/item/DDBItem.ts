@@ -483,6 +483,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (save) this.actionData.save = save;
   }
 
+  /**
+   * The activation a wondrous item's own text states, earliest mention first. 2014 items say
+   * "as an action" or "use an action"; 2024 items "take a Magic action", "as a Utilize action" or
+   * "requires a Magic action". A spell cast from the item with no wording keeps the default: the
+   * cast activity carries the spell's own casting time.
+   */
+  static ACTIVATION_WORDING = /(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:as|take|takes|taking) (?:a|an|the) (?:magic |utilize |study |search |influence )?action|(?:use|uses|using|spend|spends|requires) (?:a|an|your|its) (?:magic |utilize )?action)/i;
+
+
   #generateActivityActivation() {
     // default
     this.actionData.activation = ["armor"].includes(this.parsingType ?? "")
@@ -499,13 +508,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     if (["wondrous", "armor"].includes(this.parsingType ?? "")) {
       let action: TActivationCost = ["wondrous"].includes(this.parsingType ?? "") ? "special" : "none";
-      const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
-
-      const match = (this.ddbDefinition.description ?? "").match(actionRegex);
-      if (match) {
-        if (match[1]) action = "bonus";
-        else if (match[2]) action = "reaction";
-        else if (match[3]) action = "action";
+      const match = (this.ddbDefinition.description ?? "").match(DDBItem.ACTIVATION_WORDING);
+      if (match?.groups) {
+        if (match.groups.bonus) action = "bonus";
+        else if (match.groups.reaction) action = "reaction";
+        else if (match.groups.action) action = "action";
       }
 
       this.actionData.activation = { type: action ?? "none", value: action ? 1 : undefined, condition: "" };

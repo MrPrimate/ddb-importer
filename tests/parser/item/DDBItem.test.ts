@@ -731,3 +731,26 @@ describe("DDBItem.addDamageDieModifiers", () => {
     expect(custom.modifiers).toBeUndefined();
   });
 });
+
+describe("DDBItem.ACTIVATION_WORDING", () => {
+  const kind = (text: string) => {
+    const groups = text.match(DDBItem.ACTIVATION_WORDING)?.groups;
+    return groups?.bonus ? "bonus" : groups?.reaction ? "reaction" : groups?.action ? "action" : null;
+  };
+
+  it.each([
+    ["2014 as an action", "You can use it to cast the dimension door spell as an action.", "action"],
+    ["2014 use an action", "You can use an action to press one of the cube's faces.", "action"],
+    ["2024 Magic action", "While wearing this pendant, you can take a Magic action to regain 2d4 + 2 Hit Points.", "action"],
+    ["2024 requires a Magic action", "The candle's magic is activated when the candle is lit, which requires a Magic action.", "action"],
+    ["2024 Utilize action", "When blown as a Utilize action, a Signal Whistle produces a sound.", "action"],
+    ["bonus action first", "You can take a Bonus Action to speak the command word; as an action you can stop it.", "bonus"],
+    ["reaction", "When you are hit by an attack, you can use your reaction to gain a +2 bonus to AC.", "reaction"],
+  ])("%s", (_label, text, expected) => {
+    expect(kind(text)).toBe(expected);
+  });
+
+  it("a spell cast from the item with no wording states nothing", () => {
+    expect(kind("While you wear these boots, you can cast Levitate on yourself.")).toBeNull();
+  });
+});
