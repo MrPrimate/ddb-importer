@@ -37,6 +37,7 @@ export default class EclipseOfIllOmen extends DDBEnricherData {
       },
       {
         name: "Cursed by Ill Omen",
+        statuses: ["Cursed"],
         options: {
           durationSeconds: 60,
           description: "Speed halved and can't regain hit points until the eclipse ends.",

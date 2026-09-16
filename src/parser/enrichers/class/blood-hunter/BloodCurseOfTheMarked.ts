@@ -41,6 +41,7 @@ export default class BloodCurseOfTheMarked extends _BloodCurse {
       {
         // "Until the end of your turn" - the turn the mark is placed on
         name: "Marked",
+        statuses: ["Marked"],
         activityMatch: this.curseName,
         options: {
           expiry: "turnEnd",
@@ -49,6 +50,7 @@ export default class BloodCurseOfTheMarked extends _BloodCurse {
       },
       {
         name: "Marked (Amplified)",
+        statuses: ["Marked"],
         activityMatch: this.amplifiedName,
         options: {
           expiry: "turnEnd",

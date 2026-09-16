@@ -255,6 +255,7 @@ export default class Malediction extends DDBEnricherData {
     return this.curses.map((curse) => {
       return {
         name: `Malediction: ${curse.label}`,
+        statuses: ["Cursed"],
         activitiesMatch: [
           Malediction.activityName(curse.label, "Action"),
           Malediction.activityName(curse.label, "Reaction"),

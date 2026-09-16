@@ -19,6 +19,7 @@ export default class CursedInvocation extends DDBEnricherData {
     return [
       {
         name: "Cursed by Vestige",
+        statuses: ["Cursed"],
         activityMatch: "Divine Power: Cursed Invocation",
         changes: [
           // the rule cannot single out the warlock and the vestige as targets

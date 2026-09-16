@@ -18,6 +18,7 @@ export default class MisfortunesCurseOfThePlagued extends Misfortune {
     return [
       {
         name: "Curse of the Plagued",
+        statuses: ["Cursed"],
         options: {
           expiry: "sourceStart",
           description: "Healing halved, then this creature cannot regain Hit Points until the start of the rogue's next turn.",

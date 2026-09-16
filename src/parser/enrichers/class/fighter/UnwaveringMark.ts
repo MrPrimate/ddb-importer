@@ -47,6 +47,7 @@ export default class UnwaveringMark extends DDBEnricherData {
     return [
       {
         name: "Unwavering Mark",
+        statuses: ["Marked"],
         options: {
           expiry: "sourceEnd",
           description: `Disadvantage on attack rolls against targets other than you until the end of your next turn`,

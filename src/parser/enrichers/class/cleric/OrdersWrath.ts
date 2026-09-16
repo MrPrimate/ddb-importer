@@ -48,6 +48,7 @@ export default class OrdersWrath extends DDBEnricherData {
     return [
       {
         name: "Cursed by Order's Wrath",
+        statuses: ["Cursed"],
       },
     ];
   }

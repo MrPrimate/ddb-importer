@@ -222,6 +222,7 @@ export default class HybridTransformation extends DDBEnricherData {
   _hybridFormEffect(damageBonus: number, id: string): IDDBEffectHint {
     return {
       name: `Hybrid Form (+${damageBonus})`,
+      statuses: ["Transformed"],
       // rider effects are pulled in by the enchantment, they must never attach to an activity
       activitiesMatch: ["Not real"],
       options: {
@@ -255,6 +256,7 @@ export default class HybridTransformation extends DDBEnricherData {
   }): IDDBEffectHint {
     return {
       name: "Hybrid Form",
+      statuses: ["Transformed"],
       type: "enchant",
       activityMatch: "Hybrid Transformation",
       options: {

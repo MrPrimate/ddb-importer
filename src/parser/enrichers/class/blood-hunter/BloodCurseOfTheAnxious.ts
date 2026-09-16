@@ -42,6 +42,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
     return [
       {
         name: "Cursed: Anxious",
+        statuses: ["Cursed"],
         activityMatch: this.curseName,
         options: {
           expiry: "sourceEnd",
@@ -50,6 +51,7 @@ export default class BloodCurseOfTheAnxious extends _BloodCurse {
       },
       {
         name: "Cursed: Anxious (Amplified)",
+        statuses: ["Cursed"],
         activityMatch: this.amplifiedName,
         options: {
           expiry: "sourceEnd",
