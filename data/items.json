@@ -12238,5 +12238,733 @@
   {
     "name": "Yester Hill Axe",
     "path": "icons/weapons/axes/axe-battle-green.webp"
+  },
+  {
+    "name": "Book (anatomy)",
+    "path": "icons/sundries/books/book-symbol-link-brown.webp"
+  },
+  {
+    "name": "Tramontane Armor",
+    "path": "icons/equipment/chest/robe-layered-white.webp"
+  },
+  {
+    "name": "Dispelling Ammunition (Arrow)",
+    "path": "icons/weapons/ammunition/arrow-broadhead-glowing-orange.webp"
+  },
+  {
+    "name": "Dispelling Ammunition (Bolt)",
+    "path": "icons/weapons/ammunition/arrow-broadhead-white.webp"
+  },
+  {
+    "name": "Dispelling Ammunition (Bullet, Firearm)",
+    "path": "icons/weapons/ammunition/ammunition-brass-silver.webp"
+  },
+  {
+    "name": "Dispelling Ammunition (Bullet, Sling)",
+    "path": "icons/weapons/ammunition/bullet-ice-blue.webp"
+  },
+  {
+    "name": "Dispelling Ammunition (Needle)",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Goading Ammunition (Arrow)",
+    "path": "icons/weapons/ammunition/arrow-broadhead-glowing-orange.webp"
+  },
+  {
+    "name": "Goading Ammunition (Bolt)",
+    "path": "icons/weapons/ammunition/arrow-broadhead-white.webp"
+  },
+  {
+    "name": "Goading Ammunition (Bullet, Firearm)",
+    "path": "icons/weapons/ammunition/ammunition-brass-silver.webp"
+  },
+  {
+    "name": "Goading Ammunition (Bullet, Sling)",
+    "path": "icons/weapons/ammunition/bullet-ice-blue.webp"
+  },
+  {
+    "name": "Goading Ammunition (Needle)",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Goodberry Charm",
+    "path": "icons/consumables/fruit/berries-hanging-red.webp"
+  },
+  {
+    "name": "Potion of Dragon's Breath (Black)",
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
+  },
+  {
+    "name": "Potion of Dragon's Breath (Blue)",
+    "path": "icons/consumables/potions/bottle-corked-blue.webp"
+  },
+  {
+    "name": "Potion of Dragon's Breath (Green)",
+    "path": "icons/consumables/potions/bottle-corked-green.webp"
+  },
+  {
+    "name": "Potion of Dragon's Breath (Red)",
+    "path": "icons/consumables/potions/bottle-corked-red.webp"
+  },
+  {
+    "name": "Potion of Dragon's Breath (White)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Potion of Tirelessness",
+    "path": "icons/consumables/potions/bottle-round-corked-orante-red.webp"
+  },
+  {
+    "name": "Ring of Dedicated Focus",
+    "path": "icons/equipment/finger/ring-bone-horned.webp"
+  },
+  {
+    "name": "Spell Component Ring",
+    "path": "icons/equipment/finger/ring-band-engraved-scrolls-silver.webp"
+  },
+  {
+    "name": "Wand of Slumber",
+    "path": "icons/weapons/wands/wand-carved-fire.webp"
+  },
+  {
+    "name": "Wand of Teeth",
+    "path": "icons/weapons/wands/wand-carved-stone-shard.webp"
+  },
+  {
+    "name": "Idol of Good Fortunes",
+    "path": "icons/commodities/treasure/figurine-rabbit.webp"
+  },
+  {
+    "name": "Keyholes Dagger",
+    "path": "icons/weapons/daggers/dagger-simple-black.webp"
+  },
+  {
+    "name": "Diamond Staff",
+    "path": "icons/weapons/staves/staff-ornate-teal.webp"
+  },
+  {
+    "name": "Dissuader",
+    "path": "icons/weapons/staves/staff-ornate.webp"
+  },
+  {
+    "name": "Grave Reaper",
+    "path": "icons/tools/hand/sickle-worn-steel-grey.webp"
+  },
+  {
+    "name": "Mage Breaker",
+    "path": "icons/weapons/daggers/dagger-curved-red.webp"
+  },
+  {
+    "name": "Martialist's Quarterstaff",
+    "path": "icons/weapons/staves/staff-simple-knotted.webp"
+  },
+  {
+    "name": "Namer's Needle",
+    "path": "icons/weapons/daggers/dagger-straight-thin-black.webp"
+  },
+  {
+    "name": "Staff of the Lost",
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
+  },
+  {
+    "name": "Queen Ehlissa's Marvelous Nightingale",
+    "path": "icons/weapons/staves/staff-ornate-bird.webp"
+  },
+  {
+    "name": "Dictation Quill",
+    "path": "icons/tools/scribal/ink-quill-pink.webp"
+  },
+  {
+    "name": "Elocutionist's Lexicon",
+    "path": "icons/sundries/books/book-open-brown.webp"
+  },
+  {
+    "name": "Ensorcelled Missive",
+    "path": "icons/sundries/scrolls/scroll-bound-sealed-red-green.webp"
+  },
+  {
+    "name": "Evergreen Fertilizer",
+    "path": "icons/magic/nature/plant-seed-hands-glow-yellow.webp"
+  },
+  {
+    "name": "Homeward Compass",
+    "path": "icons/tools/navigation/compass-worn-copper.webp"
+  },
+  {
+    "name": "Lucky Foot",
+    "path": "icons/magic/control/buff-luck-fortune-clover-green.webp"
+  },
+  {
+    "name": "Sweeping Broom",
+    "path": "icons/tools/hand/broom-straw-brown.webp"
+  },
+  {
+    "name": "Traveler's Pearl",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "Arcane Chatelaine",
+    "path": "icons/sundries/misc/key-ring-long-gold.webp"
+  },
+  {
+    "name": "Arcanist's Bestiary",
+    "path": "icons/sundries/books/book-open-brown-black.webp"
+  },
+  {
+    "name": "Bellows of Strangulation",
+    "path": "icons/commodities/cloth/ribbon-red.webp"
+  },
+  {
+    "name": "Dream Weaver",
+    "path": "icons/magic/control/debuff-chains-ropes-net-red-orange.webp"
+  },
+  {
+    "name": "Mage's Manacle",
+    "path": "icons/sundries/survival/cuffs-shackles-steel.webp"
+  },
+  {
+    "name": "Prismatic Rune",
+    "path": "icons/magic/symbols/runes-carved-stone-purple.webp"
+  },
+  {
+    "name": "Scholar's Anchoring Bangle",
+    "path": "icons/equipment/finger/ring-band-engraved-spirals-wood.webp"
+  },
+  {
+    "name": "Spell Duelist's Trophy",
+    "path": "icons/commodities/biological/hand-clawed-tan.webp"
+  },
+  {
+    "name": "Boon Companions' Bands",
+    "path": "icons/equipment/finger/ring-band-engraved-spirals-gold.webp"
+  },
+  {
+    "name": "Magewright's Gloves",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-brown-gold.webp"
+  },
+  {
+    "name": "Orb of Divination Detection",
+    "path": "icons/commodities/materials/glass-orb-marble-green.webp"
+  },
+  {
+    "name": "Orb of Sorcery",
+    "path": "icons/commodities/materials/glass-orb-blue-gold.webp"
+  },
+  {
+    "name": "Spell-Slinger's Puppet",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
+    "name": "Thespian's Playbill",
+    "path": "icons/sundries/documents/document-official-capital.webp"
+  },
+  {
+    "name": "Thief's Thimble",
+    "path": "icons/equipment/finger/ring-stone-spiked-pink.webp"
+  },
+  {
+    "name": "Workshop Wrecker",
+    "path": "icons/weapons/ammunition/bullet-ice-blue.webp"
+  },
+  {
+    "name": "Transmuter Stone",
+    "path": "icons/commodities/stone/engraved-symbol-water-grey.webp"
+  },
+  {
+    "name": "Enspelled Armor",
+    "path": "icons/equipment/chest/vest-cloth-tattered-orange.webp"
+  },
+  {
+    "name": "Shield, +1, +2, or +3",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Fruit of Restoration",
+    "path": "icons/consumables/fruit/nectarine-ripe-orange.webp"
+  },
+  {
+    "name": "Beer (Pint)",
+    "path": "icons/consumables/drinks/alcohol-beer-stein-wooden-metal-brown.webp"
+  },
+  {
+    "name": "Honey (Pint)",
+    "path": "icons/consumables/food/honey-beehive-brown.webp"
+  },
+  {
+    "name": "Mayonnaise (Pint)",
+    "path": "icons/consumables/food/soup-broth-bowl-wooden-yellow.webp"
+  },
+  {
+    "name": "Vinegar (Pint)",
+    "path": "icons/consumables/drinks/alcohol-spirits-bottle-green.webp"
+  },
+  {
+    "name": "Water, fresh (Pint)",
+    "path": "icons/magic/water/water-drop-swirl-blue.webp"
+  },
+  {
+    "name": "Water, salt (Pint)",
+    "path": "icons/sundries/survival/waterskin-leather-brown.webp"
+  },
+  {
+    "name": "Wine (Pint)",
+    "path": "icons/consumables/drinks/wine-amphora-clay-gray.webp"
+  },
+  {
+    "name": "Adamantine Ammunition",
+    "path": "icons/weapons/ammunition/arrow-simple-grey.webp"
+  },
+  {
+    "name": "Ammunition, +1, +2, or +3",
+    "path": "icons/weapons/ammunition/arrow-head-war-flight.webp"
+  },
+  {
+    "name": "Dynamite Stick",
+    "path": "icons/weapons/thrown/dynamite-black.webp"
+  },
+  {
+    "name": "Assassin's Blood",
+    "path": "icons/consumables/potions/bottle-bulb-corked-glowing-red.webp"
+  },
+  {
+    "name": "Burnt Othur Fumes",
+    "path": "icons/magic/air/fog-gas-smoke-dense-green.webp"
+  },
+  {
+    "name": "Carrion Crawler Mucus",
+    "path": "icons/consumables/potions/vial-cork-green.webp"
+  },
+  {
+    "name": "Essence of Ether",
+    "path": "icons/magic/air/fog-gas-smoke-brown.webp"
+  },
+  {
+    "name": "Lolth's Sting",
+    "path": "icons/skills/wounds/injury-pain-impaled-hand-blood.webp"
+  },
+  {
+    "name": "Malice",
+    "path": "icons/magic/air/fog-gas-smoke-orange.webp"
+  },
+  {
+    "name": "Midnight Tears",
+    "path": "icons/consumables/potions/flask-ornate-skull-green.webp"
+  },
+  {
+    "name": "Oil of Taggit",
+    "path": "icons/consumables/potions/potion-bottle-labeled-medicine-capped-red-black.webp"
+  },
+  {
+    "name": "Pale Tincture",
+    "path": "icons/consumables/potions/potion-bottle-corked-white.webp"
+  },
+  {
+    "name": "Purple Worm Poison",
+    "path": "icons/consumables/potions/bottle-conical-corked-purple.webp"
+  },
+  {
+    "name": "Serpent Venom",
+    "path": "icons/consumables/potions/round-decorated-snake-green.webp"
+  },
+  {
+    "name": "Torpor",
+    "path": "icons/consumables/potions/potion-jar-corked-labeled-poison-skull-green.webp"
+  },
+  {
+    "name": "Truth Serum",
+    "path": "icons/consumables/potions/bottle-pear-corked-labeled-ornamental-purple.webp"
+  },
+  {
+    "name": "Wyvern Poison",
+    "path": "icons/consumables/potions/potion-jug-corked-skull-poison-brown-green.webp"
+  },
+  {
+    "name": "Potion of Giant Strength (Fire)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Potion of Giant Strength (Frost)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Potion of Giant Strength (Hill)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Potion of Giant Strength (Stone)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Potion of Giant Strength (Storm)",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Long Compartment",
+    "path": "icons/containers/bags/case-leather-tan.webp"
+  },
+  {
+    "name": "Midsize Compartment",
+    "path": "icons/containers/bags/case-simple-brown.webp"
+  },
+  {
+    "name": "Short Compartment",
+    "path": "icons/containers/bags/pouch-leather-gold-tan.webp"
+  },
+  {
+    "name": "Belt of Giant Strength (cloud)",
+    "path": "icons/equipment/waist/belt-buckle-spiral-blue.webp"
+  },
+  {
+    "name": "Belt of Giant Strength (frost)",
+    "path": "icons/equipment/waist/belt-buckle-gold-blue.webp"
+  },
+  {
+    "name": "Belt of Giant Strength (hill)",
+    "path": "icons/equipment/waist/belt-buckle-arrow-brown.webp"
+  },
+  {
+    "name": "Belt of Giant Strength (storm)",
+    "path": "icons/equipment/waist/belt-thick-gemmed-gold-blue.webp"
+  },
+  {
+    "name": "Bronze Griffon",
+    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
+  },
+  {
+    "name": "Silver Raven",
+    "path": "icons/commodities/treasure/figurine-owl.webp"
+  },
+  {
+    "name": "Wraps of Unarmed Power",
+    "path": "icons/equipment/wrist/wrap-wide-cloth-green.webp"
+  },
+  {
+    "name": "Ballista",
+    "path": "icons/weapons/artillery/ballista-wood-green.webp"
+  },
+  {
+    "name": "Cannon",
+    "path": "icons/weapons/artillery/cannon-engraved.webp"
+  },
+  {
+    "name": "Flamethrower Coach",
+    "path": "icons/weapons/artillery/catapult-white.webp"
+  },
+  {
+    "name": "Lightning Cannon",
+    "path": "icons/weapons/artillery/cannon-banded.webp"
+  },
+  {
+    "name": "Siege Tower",
+    "path": "icons/weapons/artillery/catapult-white.webp"
+  },
+  {
+    "name": "Suspended Cauldron",
+    "path": "icons/tools/cooking/cauldron-empty.webp"
+  },
+  {
+    "name": "Trebuchet",
+    "path": "icons/weapons/artillery/trebuchet-simple.webp"
+  },
+  {
+    "name": "Clawed Gauntlet",
+    "path": "icons/weapons/fist/claw-gauntlet-gray.webp"
+  },
+  {
+    "name": "Art Object (250 GP)",
+    "path": "icons/commodities/treasure/token-gold-gem-purple.webp"
+  },
+  {
+    "name": "Art Object (25 GP)",
+    "path": "icons/commodities/treasure/token-gold-cross.webp"
+  },
+  {
+    "name": "Art Object (2,000 GP)",
+    "path": "icons/equipment/finger/ring-band-gold-purple.webp"
+  },
+  {
+    "name": "Art Object (2,500 GP)",
+    "path": "icons/commodities/treasure/goblet-coins-gold.webp"
+  },
+  {
+    "name": "Art Object (750 GP)",
+    "path": "icons/commodities/treasure/brooch-gold-ruby.webp"
+  },
+  {
+    "name": "Art Object (7,500 GP)",
+    "path": "icons/commodities/treasure/mask-jeweled-gold.webp"
+  },
+  {
+    "name": "Gemstone (100 GP)",
+    "path": "icons/commodities/gems/gem-faceted-teardrop-blue.webp"
+  },
+  {
+    "name": "Gemstone (10 GP)",
+    "path": "icons/commodities/gems/gem-teardrop-blue.webp"
+  },
+  {
+    "name": "Gemstone (1,000 GP)",
+    "path": "icons/commodities/gems/gem-faceted-radiant-blue.webp"
+  },
+  {
+    "name": "Gemstone (500 GP)",
+    "path": "icons/commodities/gems/gem-faceted-trillion-blue.webp"
+  },
+  {
+    "name": "Gemstone (50 GP)",
+    "path": "icons/commodities/gems/gem-faceted-diamond-blue.webp"
+  },
+  {
+    "name": "Gemstone (5,000 GP)",
+    "path": "icons/commodities/gems/gem-faceted-asscher-blue.webp"
+  },
+  {
+    "name": "Adamantine Weapon",
+    "path": "icons/weapons/swords/swords-sharp-worn.webp"
+  },
+  {
+    "name": "Enspelled Weapon",
+    "path": "icons/weapons/swords/scimitar-guard-gold.webp"
+  },
+  {
+    "name": "Executioner's Axe",
+    "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
+  },
+  {
+    "name": "Automatic Rifle",
+    "path": "icons/weapons/guns/gun-worn-steel.webp"
+  },
+  {
+    "name": "Semiautomatic Pistol",
+    "path": "icons/weapons/guns/gun-pistol-flintlock.webp"
+  },
+  {
+    "name": "Silvered Weapon",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
+  },
+  {
+    "name": "Enspelled Staff",
+    "path": "icons/weapons/staves/staff-ornate-blue.webp"
+  },
+  {
+    "name": "Trash Lob",
+    "path": "icons/commodities/materials/material-cotton-white.webp"
+  },
+  {
+    "name": "Tusk",
+    "path": "icons/commodities/bones/horn-simple-grey.webp"
+  },
+  {
+    "name": "Jug",
+    "path": "icons/containers/kitchenware/jug-terracotta-orange.webp"
+  },
+  {
+    "name": "Map or Scroll Case",
+    "path": "icons/containers/bags/case-scroll-leather-tan.webp"
+  },
+  {
+    "name": "Arcane Propulsion Gauntlets",
+    "path": "icons/equipment/hand/gauntlet-armored-grey.webp"
+  },
+  {
+    "name": "Radiant Weapon Reaction",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Transformation Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-blue.webp"
+  },
+  {
+    "name": "Guardian: Thunder Gauntlets",
+    "path": "icons/equipment/hand/gauntlet-armored-leather-teal-orange.webp"
+  },
+  {
+    "name": "Infiltrator: Lightning Launcher Perfected",
+    "path": "icons/magic/lightning/bolt-strike-beam-yellow.webp"
+  },
+  {
+    "name": "Spectral Unarmed Strike",
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-green.webp"
+  },
+  {
+    "name": "Soul Trinket",
+    "path": "icons/magic/death/skull-energy-light-white.webp"
+  },
+  {
+    "name": "Bullets",
+    "path": "icons/weapons/ammunition/shot-round-lead.webp"
+  },
+  {
+    "name": "All-Purpose Tool +1",
+    "path": "icons/tools/hand/awl-steel-tan.webp"
+  },
+  {
+    "name": "All-Purpose Tool +2",
+    "path": "icons/tools/hand/chisel-steel-brown.webp"
+  },
+  {
+    "name": "All-Purpose Tool +3",
+    "path": "icons/tools/hand/screwdriver-flat-steel-black.webp"
+  },
+  {
+    "name": "Amulet of the Devout +1",
+    "path": "icons/equipment/neck/amulet-carved-runed-othila-fehu-grey.webp"
+  },
+  {
+    "name": "Amulet of the Devout +2",
+    "path": "icons/equipment/neck/amulet-geometric-stone.webp"
+  },
+  {
+    "name": "Amulet of the Devout +3",
+    "path": "icons/equipment/neck/amulet-geometric-stone-red.webp"
+  },
+  {
+    "name": "Arcane Grimoire +1",
+    "path": "icons/sundries/books/book-symbol-triangle-silver-brown.webp"
+  },
+  {
+    "name": "Arcane Grimoire +2",
+    "path": "icons/sundries/books/book-symbol-triangle-blue.webp"
+  },
+  {
+    "name": "Arcane Grimoire +3",
+    "path": "icons/sundries/books/book-symbol-triangle-silver-blue.webp"
+  },
+  {
+    "name": "Bloodwell Vial +1",
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
+  },
+  {
+    "name": "Bloodwell Vial +2",
+    "path": "icons/consumables/potions/potion-tube-corked-red.webp"
+  },
+  {
+    "name": "Bloodwell Vial +3",
+    "path": "icons/consumables/potions/potion-tube-corked-bat-gold-red.webp"
+  },
+  {
+    "name": "Air Essence Shard",
+    "path": "icons/commodities/gems/gem-rough-oval-teal.webp"
+  },
+  {
+    "name": "Earth Essence Shard",
+    "path": "icons/commodities/gems/gem-rough-cushion-orange-red.webp"
+  },
+  {
+    "name": "Fire Essence Shard",
+    "path": "icons/commodities/gems/gem-rough-navette-red.webp"
+  },
+  {
+    "name": "Water Essence Shard",
+    "path": "icons/commodities/gems/gem-rough-drop-blue.webp"
+  },
+  {
+    "name": "Moon Sickle +1",
+    "path": "icons/weapons/sickles/sickle-simple-bone.webp"
+  },
+  {
+    "name": "Moon Sickle +2",
+    "path": "icons/weapons/sickles/sickle-hooked-purple.webp"
+  },
+  {
+    "name": "Moon Sickle +3",
+    "path": "icons/weapons/sickles/sickle-hooked-silver.webp"
+  },
+  {
+    "name": "Chaotic Essence Shard",
+    "path": "icons/commodities/gems/gem-faceted-rough-red.webp"
+  },
+  {
+    "name": "Evil Essence Shard",
+    "path": "icons/commodities/gems/gem-faceted-rough-purple.webp"
+  },
+  {
+    "name": "Good Essence Shard",
+    "path": "icons/commodities/gems/gem-faceted-rough-green.webp"
+  },
+  {
+    "name": "Lawful Essence Shard",
+    "path": "icons/commodities/gems/gem-faceted-rough-yellow.webp"
+  },
+  {
+    "name": "Primal Fruit",
+    "path": "icons/consumables/fruit/jackfruit-pit-green-yellow.webp"
+  },
+  {
+    "name": "Rhythm-Maker's Drum +1",
+    "path": "icons/tools/instruments/drum-hand-tan.webp"
+  },
+  {
+    "name": "Rhythm-Maker's Drum +2",
+    "path": "icons/tools/instruments/drum-brown-red.webp"
+  },
+  {
+    "name": "Rhythm-Maker's Drum +3",
+    "path": "icons/tools/instruments/drum-standing-glowing-green.webp"
+  },
+  {
+    "name": "Black Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-teal-purple.webp"
+  },
+  {
+    "name": "Blue Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-blue.webp"
+  },
+  {
+    "name": "Gold Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-purple-orange.webp"
+  },
+  {
+    "name": "Green Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-green.webp"
+  },
+  {
+    "name": "Orange Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-orange.webp"
+  },
+  {
+    "name": "Red Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-red.webp"
+  },
+  {
+    "name": "Silver Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-glowing-triangle-blue-yellow.webp"
+  },
+  {
+    "name": "Violet Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-magenta.webp"
+  },
+  {
+    "name": "White Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-blue-yellow.webp"
+  },
+  {
+    "name": "Yellow Absorbing Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-orange.webp"
+  },
+  {
+    "name": "Heavy Barrier Tattoo",
+    "path": "icons/magic/symbols/runes-star-pentagon-magenta.webp"
+  },
+  {
+    "name": "Light Barrier Tattoo",
+    "path": "icons/magic/symbols/runes-triangle-magenta.webp"
+  },
+  {
+    "name": "Medium Barrier Tattoo",
+    "path": "icons/magic/symbols/runes-star-magenta.webp"
+  },
+  {
+    "name": "Iron Pot",
+    "path": "icons/tools/laboratory/cauldron-filled-gold.webp"
+  },
+  {
+    "name": "Book of Prayers",
+    "path": "icons/sundries/books/book-worn-brown.webp"
+  },
+  {
+    "name": "Book of Occult Lore",
+    "path": "icons/sundries/books/book-worn-brown.webp"
   }
 ]

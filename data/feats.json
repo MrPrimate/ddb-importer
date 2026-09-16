@@ -890,5 +890,281 @@
   {
     "name": "Brutal Grip",
     "path": "icons/skills/melee/hand-grip-staff-yellow-brown.webp"
+  },
+  {
+    "name": "Boon of Erupting Spellpower",
+    "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp"
+  },
+  {
+    "name": "Boon of Magic School Mastery",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Boon of the Iron Mind",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Arcane Warrior",
+    "path": "icons/skills/melee/strike-sword-slashing-red.webp"
+  },
+  {
+    "name": "Abjuration Adept",
+    "path": "icons/magic/defensive/shield-hex-blue.webp"
+  },
+  {
+    "name": "Conjuration Adept",
+    "path": "icons/magic/symbols/star-rising-purple.webp"
+  },
+  {
+    "name": "Divination Adept",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
+  },
+  {
+    "name": "Elemental Familiar",
+    "path": "icons/creatures/abilities/cougar-roar-rush-orange.webp"
+  },
+  {
+    "name": "Enchantment Adept",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Evocation Adept",
+    "path": "icons/magic/fire/flame-burning-hand-orange.webp"
+  },
+  {
+    "name": "Illusion Adept",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Magic Connoisseur",
+    "path": "icons/magic/unholy/silhouette-light-fire-blue.webp"
+  },
+  {
+    "name": "Necromancy Adept",
+    "path": "icons/magic/death/undead-skeleton-lich-armor.webp"
+  },
+  {
+    "name": "Otherworldly Familiar",
+    "path": "icons/creatures/magical/humanoid-silhouette-dashing-blue.webp"
+  },
+  {
+    "name": "Soothing Familiar",
+    "path": "icons/creatures/abilities/wolf-heads-swirl-purple.webp"
+  },
+  {
+    "name": "Spell Resistant",
+    "path": "icons/magic/defensive/shield-barrier-deflect-teal.webp"
+  },
+  {
+    "name": "Spell Subterfuge",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Warlike Familiar",
+    "path": "icons/creatures/abilities/bear-roar-bite-brown-green.webp"
+  },
+  {
+    "name": "Arcane Artist",
+    "path": "icons/sundries/gaming/card-game-pink.webp"
+  },
+  {
+    "name": "Arcane Eloquence",
+    "path": "icons/equipment/head/mask-clown.webp"
+  },
+  {
+    "name": "Arcane Infiltrator",
+    "path": "icons/skills/social/diplomacy-handshake-gray.webp"
+  },
+  {
+    "name": "Arcane Omens",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
+  },
+  {
+    "name": "Arcane Overload",
+    "path": "icons/magic/fire/explosion-flame-blue.webp"
+  },
+  {
+    "name": "Arcane Safeguard",
+    "path": "icons/magic/defensive/shield-hex-purple.webp"
+  },
+  {
+    "name": "Arcane Undertaker",
+    "path": "icons/magic/death/weapon-sword-skull-purple.webp"
+  },
+  {
+    "name": "Familiar Friend",
+    "path": "icons/creatures/mammals/dog-husky-white-blue.webp"
+  },
+  {
+    "name": "Portal Jumper",
+    "path": "icons/skills/movement/portal-silhouette-pink.webp"
+  },
+  {
+    "name": "Transmuted Anatomy",
+    "path": "icons/creatures/unholy/demon-winged-cyclops-drooling.webp"
+  },
+  {
+    "name": "Blessing of Health",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Blessing of Magic Resistance",
+    "path": "icons/magic/defensive/shield-barrier-blue.webp"
+  },
+  {
+    "name": "Blessing of Protection",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Blessing of Understanding",
+    "path": "icons/magic/holy/meditation-chi-focus-blue.webp"
+  },
+  {
+    "name": "Blessing of Valhalla",
+    "path": "icons/creatures/magical/humanoid-horned-rider.webp"
+  },
+  {
+    "name": "Blessing of Weapon Enhancement",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Blessing of Wound Closure",
+    "path": "icons/magic/life/heart-broken-red.webp"
+  },
+  {
+    "name": "Charm of Animal Conjuring",
+    "path": "icons/commodities/treasure/figurine-owl.webp"
+  },
+  {
+    "name": "Charm of Darkvision",
+    "path": "icons/magic/perception/eye-ringed-green.webp"
+  },
+  {
+    "name": "Charm of Feather Falling",
+    "path": "icons/commodities/materials/feather-damaged-brown.webp"
+  },
+  {
+    "name": "Charm of Heroism",
+    "path": "icons/commodities/materials/orb-tassle-blue-yellow.webp"
+  },
+  {
+    "name": "Charm of Restoration",
+    "path": "icons/magic/life/heart-hand-gold-green.webp"
+  },
+  {
+    "name": "Charm of Vitality",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Charm of the Boreal Ball",
+    "path": "icons/equipment/neck/amulet-triangle-blue.webp"
+  },
+  {
+    "name": "Charm of the Slayer",
+    "path": "icons/skills/melee/strike-sword-blood-red.webp"
+  },
+  {
+    "name": "Arcane Study Charm",
+    "path": "icons/magic/symbols/runes-carved-stone-red.webp"
+  },
+  {
+    "name": "Observatory Charm",
+    "path": "icons/magic/symbols/runes-carved-stone-green.webp"
+  },
+  {
+    "name": "Reliquary Charm",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Sanctuary Charm",
+    "path": "icons/magic/symbols/runes-carved-stone-purple.webp"
+  },
+  {
+    "name": "Sanctum Charm",
+    "path": "icons/magic/symbols/rune-sigil-green.webp"
+  },
+  {
+    "name": "Charm of Argonnessen",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Charm of Ashtakala",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Charm of Dhakaan",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Charm of Khyber",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Charm of Xen’drik",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Daanvi, the Perfect Order",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Dolurrh, the Realm of the Dead",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Fernia, the Sea of Fire",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Irian, the Eternal Dawn",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Lamannia, the Twilight Forest",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Mabar, the Endless Night.",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Risia, the Plain of Ice",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Shavarath, the Battleground",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Syrania, the Azure Sky",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Thelanis, the Faerie Court",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Xoriat, the Realm of Delirium",
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Mark of Beasts",
+    "path": "icons/magic/symbols/mask-yellow-orange.webp"
+  },
+  {
+    "name": "Mark of Obsession",
+    "path": "icons/magic/symbols/rune-sigil-green-purple.webp"
+  },
+  {
+    "name": "Mark of Sacrifice",
+    "path": "icons/magic/symbols/rune-sigil-white-pink.webp"
+  },
+  {
+    "name": "Mark of the Dread Lord",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Charm of the Black Rose",
+    "path": "icons/equipment/neck/pendant-rough-purple.webp"
   }
 ]
