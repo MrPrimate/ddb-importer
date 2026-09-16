@@ -300,6 +300,31 @@ describe("DDBDescriptions.parseStatusCondition", () => {
     expect(result.duration.value).toBe(1);
     expect(result.duration.units).toBe("minutes");
   });
+
+  describe("a grapple that also restrains carries Restrained as a rider", () => {
+    it.each([
+      ["2024 hit rider", "Hit: 23 (4d6 + 9) Slashing damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 19) from both talons, and it has the Restrained condition until the grapple ends."],
+      ["2024 save failure", "Strength Saving Throw: DC 15, one Medium or smaller creature. Failure: 8 (1d6 + 5) Bludgeoning damage. The target has the Grappled condition (escape DC 13), and it has the Restrained condition until the grapple ends."],
+      ["2024 leading clause", "Hit: 36 (4d12 + 10) Piercing damage, and the target has the Grappled condition (escape DC 20). Until the grapple ends, the target has the Restrained condition and can\u2019t teleport."],
+    ])("%s", (_label, text) => {
+      const result = DDBDescriptions.parseStatusCondition({ text });
+      expect(result.success).toBe(true);
+      expect(result.condition).toBe("grappled");
+      expect(result.riderStatuses).toEqual(["restrained"]);
+    });
+
+    it("a plain grapple has no rider", () => {
+      const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 8 (1d8 + 4) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 14)." });
+      expect(result.condition).toBe("grappled");
+      expect(result.riderStatuses).toEqual([]);
+    });
+  });
+
+  it("reads a condition applied by a hit rider without a subject", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 4 (1d6 + 1) Piercing damage. If the target is a Medium or smaller creature and the boar moved 20+ feet straight toward it immediately before the hit, the target takes an extra 3 (1d6) Piercing damage and has the Prone condition." });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("prone");
+  });
 });
 
 // =============================================================================

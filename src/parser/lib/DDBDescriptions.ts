@@ -916,12 +916,22 @@ export default class DDBDescriptions {
     return effect;
   }
 
+  /**
+   * A grapple that also restrains, in the 2024 ("has the Restrained condition until the grapple
+   * ends", "Until the grapple ends, the target has the Restrained condition") and 2014 ("Until this
+   * grapple ends, the target is restrained") phrasings.
+   */
+  static GRAPPLE_RESTRAINS = /(?:has the Restrained condition|is restrained)(?: and [^.]*)? until (?:the|this) grapple ends|Until (?:the|this) grapple ends, the (?:target|creature) (?:has the Restrained condition|is restrained)/i;
+
   static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
     const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
     const match = checkReg.exec(text);
     if (match) {
       const processedCondition = DDBDescriptions.getConditionInfo(match[1]);
       return processedCondition.condition ? [processedCondition.condition] : [];
+    }
+    if (condition.toLowerCase() === "grappled" && DDBDescriptions.GRAPPLE_RESTRAINS.test(text)) {
+      return ["restrained"];
     }
     return [];
   }
@@ -1017,7 +1027,8 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const monsterAndCondition = /(the target has the|subject that creature to the|it has the) (?<condition>\w+) condition/ig;
+      // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition")
+      const monsterAndCondition = /(the target has the|subject that creature to the|it has the|and has the) (?<condition>\w+) condition/ig;
       match = monsterAndCondition.exec(parserText);
     }
 
