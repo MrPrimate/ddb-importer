@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.5.4
+
 - Item parsing improvements.
 - A small number of icon improvements.
 - Some rider effect parsing improvements for monsters.
