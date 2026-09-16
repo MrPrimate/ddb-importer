@@ -1,3 +1,4 @@
+import { TYPE_MAP, FILE_MAP, resolveIconMatch, annotateIconEntries } from "./IconizerMatcher.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import logger from "./Logger";
 import utils from "./Utils";
@@ -8,68 +9,7 @@ import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
-const TYPE_MAP: Record<string, string> = {
-  items: "items",
-  weapons: "items",
-  weapon: "items",
-  item: "items",
-  equipment: "items",
-  consumable: "items",
-  tool: "items",
-  loot: "items",
-  container: "items",
-  inventory: "items",
-  spells: "spells",
-  spell: "spells",
-  feats: "feats",
-  feat: "feats",
-  classes: "classes",
-  class: "classes",
-  subclass: "classes",
-  monster: "monster",
-  summons: "monster",
-  summon: "monster",
-  backgrounds: "backgrounds",
-  background: "backgrounds",
-  traits: "traits",
-  races: "races",
-  race: "races",
-  tattoo: "items",
-  "dnd-tashas-cauldron.tattoo": "items",
-  vehicle: "vehicle",
-  character: "character",
-  npc: "npc",
-  table: "table",
-  rolltable: "table",
-  journal: "journal",
-  macro: "macro",
-  undefined: "null",
-  null: "null",
-};
-
-const FILE_MAP: Record<string, string[]> = {
-  null: [],
-  character: [],
-  npc: [],
-  vehicle: [],
-  table: [],
-  macro: [],
-  journal: [],
-  items: ["items.json", "class-features.json", "races.json"],
-  traits: ["class-features.json", "races.json", "general.json", "items.json"],
-  spells: ["spells.json"],
-  races: ["races.json"],
-  feats: ["feats.json", "class-features.json", "races.json", "general.json"],
-  classes: ["classes.json"],
-  monster: ["named-monster-features.json", "generic-monster-features.json", "spells.json", "items.json", "general.json"],
-  backgrounds: ["backgrounds.json", "feats.json", "class-features.json", "races.json", "general.json"],
-};
-
 const ICON_MAP_INDICIES = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
-
-function sanitiseName(name: string): string {
-  return utils.nameString(name).toLowerCase();
-}
 
 async function loadDataFile(fileName: string): Promise<IIconizerMapEntry[]> {
   logger.debug(`Getting icon mapping for ${fileName}`);
@@ -92,87 +32,16 @@ async function loadIconMap(type: string) {
   let data: IIconizerMapEntry[] = [];
   for (const fileName of FILE_MAP[type]) {
     const dataLoad: IIconizerMapEntry[] = await loadDataFile(fileName);
-    data = data.concat(dataLoad);
+    data = data.concat(annotateIconEntries(dataLoad, fileName));
   }
 
   CONFIG.DDBI.ICONS[type] = data;
   // console.warn(iconMap);
 }
 
-function looseMatch(item: TDDBItemImporterDocument, typeValue: string) {
-  const originalName = foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string | undefined;
-  if (originalName) {
-    const originalMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
-    if (originalMatch) return originalMatch.path;
-  }
-
-  if (!item.name) return null;
-  const sanitisedName = sanitiseName(item.name);
-  if (item.name.includes(":")) {
-    const nameArray = sanitisedName.split(":");
-    const postMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[1].trim());
-    if (postMatch) return postMatch.path;
-    const subMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[0].trim());
-    if (subMatch) return subMatch.path;
-  }
-
-  const startsMatchEntry = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitisedName.split(":")[0].trim().startsWith(sanitiseName(entry.name).split(":")[0].trim()));
-  if (startsMatchEntry) return startsMatchEntry.path;
-  const startsMatchItem = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
-  if (startsMatchItem) return startsMatchItem.path;
-
-  if (item.type === "subclass" && "system" in item && "classIdentifier" in item.system && item.system.classIdentifier) {
-    const sanitisedClassName = sanitiseName(item.system.classIdentifier);
-    const subClassMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
-    if (subClassMatch) return subClassMatch.path;
-  }
-
-  return null;
-}
-
 function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName = ""): string | null {
-  // check to see if we are able to load a dic for that type
-  const typeValue = TYPE_MAP[type];
-  if (!typeValue || !CONFIG.DDBI.ICONS[typeValue]) return null;
-
-  const itemName = item.name;
-  if (!itemName) return null;
-
-  const iconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
-    const sanitisedName = sanitiseName(entry.name);
-    const sanitisedItemName = sanitiseName(itemName);
-    if (type === "monster") {
-      return sanitisedName === sanitisedItemName.split("(")[0].trim()
-        && entry.monster && sanitiseName(entry.monster) == sanitiseName(monsterName);
-    }
-    return sanitisedName === sanitisedItemName;
-  });
-
-  if (!iconMatch && type === "monster") {
-    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue]
-      .filter((entry) => !entry.monster)
-      .find((entry) => {
-        const sanitisedName = sanitiseName(entry.name);
-        const sanitisedItemName = sanitiseName(itemName);
-        return sanitisedName === sanitisedItemName;
-      });
-    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
-
-    const anyMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
-      const sanitisedName = sanitiseName(entry.name);
-      const sanitisedItemName = sanitiseName(itemName);
-      return sanitisedName === sanitisedItemName;
-    });
-    if (anyMonsterIconMatch) return anyMonsterIconMatch.path;
-  }
-
-  if (iconMatch) {
-    return iconMatch.path;
-  } else {
-    return looseMatch(item, typeValue);
-  }
+  return resolveIconMatch(item, type, CONFIG.DDBI.ICONS, monsterName)?.path ?? null;
 }
-
 
 async function loadIconMaps(types: string[]) {
   const promises: Promise<any>[] = [];

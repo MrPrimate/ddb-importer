@@ -1,3 +1,4 @@
+import { nameString } from "./NameNormalizer.mjs";
 import { SETTINGS } from "../config/_module";
 
 interface DiceParserDice { sign: string; count: number; die: number };
@@ -143,19 +144,7 @@ export default class Utils {
   }
 
   static nameString(str: string): string {
-    return str
-      .replaceAll("&amp;", "&")
-      .replaceAll("&nbsp;", " ")
-      .replaceAll("&eacute;", "é")
-      .replaceAll("&ucirc;", "û")
-      .replaceAll("&iacute;", "í")
-      .replaceAll("&shy;", "")
-      .replaceAll("&hellip;", "...")
-      .replaceAll(/&mdash;|&ndash;/g, "-")
-      .replaceAll(/&ldquo;|&rdquo;/g, "\"")
-      .replaceAll("&rsquo;", "'")
-      .replaceAll("’", "'")
-      .replaceAll("  ", " ").trim();
+    return nameString(str);
   }
 
   // Escape a string for literal use inside a `new RegExp(...)`.
