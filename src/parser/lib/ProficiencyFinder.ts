@@ -158,13 +158,13 @@ export default class ProficiencyFinder {
         const key = utils.getToolKey(profMatch);
         const ability = (profMatch.ability ?? "dex") as T5eAbility;
 
-        if (!profMatch.baseTool) {
+        if (!profMatch.baseTool || (includeCustomTools && profMatch.toolKey)) {
           if (!includeCustomTools) return;
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
         }
 
         results[key] = {
-          value: proficient,
+          value: Math.max(results[key]?.value ?? 0, proficient),
           ability,
           roll: {
             bonus: "",

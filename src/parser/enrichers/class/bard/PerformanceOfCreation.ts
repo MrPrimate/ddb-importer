@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Performance of Creation (College of Creation, 2014): one free use per long rest from the DDB
- * action, plus the official second activity that spends a level 2+ spell slot for another use.
+ * action, plus the second activity that spends a level 2+ spell slot for another use.
  */
 export default class PerformanceOfCreation extends DDBEnricherData {
 

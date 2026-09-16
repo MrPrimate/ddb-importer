@@ -11,7 +11,7 @@ export default class AuraOfLife extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    // the official effect covers the automatable part (necrotic resistance); the max-HP floor and
+    // the effect covers the automatable part (necrotic resistance); the max-HP floor and
     // the 1 HP regain for downed allies stay on the description
     return {
       name: "Cast",

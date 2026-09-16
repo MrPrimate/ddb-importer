@@ -7,7 +7,7 @@ export default class Silence extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    // the official Silenced effect carries the silenced + deafened statuses and thunder immunity
+    // the Silenced effect carries the silenced + deafened statuses and thunder immunity
     return {
       name: "Cast",
       data: {

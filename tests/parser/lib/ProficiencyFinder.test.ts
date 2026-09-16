@@ -1,3 +1,4 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
 import ProficiencyFinder from "../../../src/parser/lib/ProficiencyFinder";
 
 const globals: any = globalThis;
@@ -145,6 +146,32 @@ describe("getWeaponProficiencies", () => {
 // =============================================================================
 
 describe("getToolProficiencies", () => {
+  it.each(["proficiency", "expertise"])("keeps specific tool %s separate from playing cards", (modifierType) => {
+    const names = ["Dice", "Three-Dragon Ante", "Brewer's Supplies", "Bagpipes"];
+    const ddb = makeDdb({ raceMods: names.map((name) => ({
+      type: modifierType, subType: name.toLowerCase(), friendlySubtypeName: name, restriction: "",
+    })) });
+    const finder = new ProficiencyFinder({ ddb });
+    const result = finder.getToolProficiencies(names.map((name) => ({ name })));
+    for (const key of ["dice", "threedragonante", "brewer", "bagpipes"]) {
+      expect(result[key].value).toBe(modifierType === "expertise" ? 2 : 1);
+    }
+    expect(result.card).toBeUndefined();
+    expect(finder.customTools).toEqual([{ key: "threedragonante", name: "Three-Dragon Ante", ability: "wis", toolType: "game" }]);
+  });
+
+  it.each(["proficiency", "expertise"])("retains Three-Dragon Ante %s with custom tools disabled", (type) => {
+    setMockSettings({ "add-ddb-tools": false });
+    for (const name of ["Three-Dragon Ante", "Three-Dragon Ante Set"]) {
+      const ddb = makeDdb({ raceMods: [{ type, friendlySubtypeName: name, restriction: "" }] });
+      const finder = new ProficiencyFinder({ ddb });
+      const result = finder.getToolProficiencies([{ name }, { name: "Playing Cards" }]);
+      expect(result.card.value).toBe(type === "expertise" ? 2 : 1);
+      expect(result.threedragonante).toBeUndefined();
+      expect(finder.customTools).toEqual([]);
+    }
+  });
+
   it("returns tools keyed by baseTool with value 0 when no ddb modifiers exist", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getToolProficiencies([{ name: "Alchemist's Supplies" }]);

@@ -1620,9 +1620,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
     if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
+    if (baseItem && this.data.type === "tool") this.actionData.associatedToolsOrAbilities.push(baseItem);
     if (toolType) {
       foundry.utils.setProperty(this.data, "system.type.value", toolType);
-      this.actionData.associatedToolsOrAbilities.push(toolType);
     }
 
   }

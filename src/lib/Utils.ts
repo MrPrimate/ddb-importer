@@ -81,7 +81,14 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  static getToolKey({ baseTool = null, name }: { baseTool?: string | null; name: string }): string {
+  static getToolKey({ baseTool = null, toolKey, name }: {
+    baseTool?: string | null;
+    toolKey?: string;
+    name: string;
+  }): string {
+    if (toolKey && Utils.getSetting<boolean>("add-ddb-tools")) {
+      return toolKey;
+    }
     return baseTool ?? Utils.idString(name.toLowerCase());
   }
 

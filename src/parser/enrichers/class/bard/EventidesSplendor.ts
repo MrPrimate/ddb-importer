@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Eventide's Splendor (College of the Moon, 2024). DDB ships the Vibrance of the Full Moon heal;
- * the official compendium adds Shadow of the New Moon (the bard and the inspired creature turn
+ * the SRD adds Shadow of the New Moon (the bard and the inspired creature turn
  * Invisible until the start of the bard's next turn) and Lunar Vitality (spend a Bardic
  * Inspiration die to heal that much extra and grant +10 feet of speed).
  */

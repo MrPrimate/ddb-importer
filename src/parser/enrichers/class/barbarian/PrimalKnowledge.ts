@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Primal Knowledge (2024): while raging, Acrobatics, Intimidation, Perception, Stealth and
- * Survival checks can use Strength instead of their usual ability. The official compendium
+ * Survival checks can use Strength instead of their usual ability. The SRD
  * expresses that as a bonus of max(0, Str mod - skill mod) on each check for the rage's
  * duration; the DDB action supplies the toggle activity the effect hangs off.
  */

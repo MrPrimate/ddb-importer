@@ -273,7 +273,7 @@ export default class EvolvedItemProperties {
   /** The "Effect Items" sub-folder the host feats file under. */
   static EFFECT_ITEM_FOLDER = "Evolved Magic Item Properties";
 
-  /** The printed property text when the official proxy has served it, else the module's paraphrase. */
+  /** The printed property text when the proxy has served it, else the module's paraphrase. */
   static text(property: IEvolvedProperty): string {
     const served = typeof CONFIG !== "undefined" ? CONFIG.DDB?.EVOLVED_PROPERTIES?.[property.name] : undefined;
     return served && served.trim() !== "" ? served : property.text;

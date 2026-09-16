@@ -2,8 +2,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Arcana Unleashed general feat. Fueled Evocation rolls up to two unexpended Hit Dice and adds
- * them to one damage roll of an Evocation spell. One activity per hit die size, the way the
- * official data does it: the scaling prompt (1 or 2) is both the dice count and the number of
+ * them to one damage roll of an Evocation spell. One activity per hit die size:
+ * the scaling prompt (1 or 2) is both the dice count and the number of
  * hit dice spent, and the damage type is picked from the full list when rolled.
  */
 export default class EvocationAdept extends DDBEnricherData {

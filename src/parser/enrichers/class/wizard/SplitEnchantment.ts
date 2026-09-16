@@ -2,8 +2,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Enchanter (AU 2024) level 6: an Enchantment spell that gains targets at higher levels can be
- * cast one level higher, Intelligence-modifier times per long rest. Modelled as the official data
- * does, as slot bookkeeping: the activity spends the slot the spell is cast with and refunds one
+ * cast one level higher, Intelligence-modifier times per long rest.
+ * Modelled as slot bookkeeping: the activity spends the slot the spell is cast with and refunds one
  * of the level above, which the player then casts the spell with. One activity with level
  * scaling covers the eight slot pairs (level 1 into 2 up to level 8 into 9). The 2014 School of
  * Enchantment feature (a second target) keeps its DDB shape.

@@ -2,8 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Know Your Enemy. The 2024 printing is a bonus action with one use per long rest that can be
- * recharged by expending a Superiority Die, which the official compendium splits into two
- * activities. The 2014 printing is a one-minute study with no uses, so the DDB action (if any)
+ * recharged by expending a Superiority Die. The 2014 printing is a one-minute study with no uses, so the DDB action (if any)
  * is left as the default activity there.
  */
 export default class KnowYourEnemy extends DDBEnricherData {

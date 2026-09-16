@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Telepathic: 60-foot telepathy. DDB carries it as prose, not a language modifier, so the
- * official transfer effect is the only way it reaches the sheet. The 2014 Detect Thoughts cast
+ * transfer effect is the only way it reaches the sheet. The 2014 Detect Thoughts cast
  * is a spell grant handled by the spell parser.
  */
 export default class Telepathic extends DDBEnricherData {

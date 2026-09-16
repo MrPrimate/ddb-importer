@@ -1,3 +1,4 @@
+import { setMockSettings } from "../_setup/foundryMocks";
 import DDBToolProficiencies from "../../src/lib/DDBToolProficiencies";
 
 const config: any = (globalThis as any).CONFIG;
@@ -25,6 +26,27 @@ describe("DDBToolProficiencies.getToolKey", () => {
   it("uses the dnd5e id when the system has one", () => {
     expect(DDBToolProficiencies.getToolKey({ baseTool: "alchemist", name: "Alchemist's Supplies" }))
       .toBe("alchemist");
+  });
+
+  it("uses one distinct key for both Three-Dragon Ante printings", () => {
+    expect(DDBToolProficiencies.getToolKey({ name: "Three-Dragon Ante Set" })).toBe("threedragonante");
+    expect(DDBToolProficiencies.getToolKey({ name: "Three-Dragon Ante" })).toBe("threedragonante");
+  });
+
+  it("falls back to Playing Cards for both aliases when custom tools are disabled", () => {
+    setMockSettings({ "add-ddb-tools": false });
+    for (const name of ["Three-Dragon Ante", "Three-Dragon Ante Set"]) {
+      expect(DDBToolProficiencies.getToolKey({ name })).toBe("card");
+    }
+    DDBToolProficiencies.registerDictionaryTools();
+    expect(config.DND5E.tools.threedragonante).toBeUndefined();
+  });
+
+  it("registers both dictionary aliases as one tool when enabled", () => {
+    setMockSettings({ "add-ddb-tools": true });
+    DDBToolProficiencies.registerDictionaryTools();
+    expect(DDBToolProficiencies.registered.has("threedragonante")).toBe(true);
+    expect(DDBToolProficiencies.registered.has("threedragonanteset")).toBe(false);
   });
 
   it("generates a key from the name when dnd5e has no id", () => {
