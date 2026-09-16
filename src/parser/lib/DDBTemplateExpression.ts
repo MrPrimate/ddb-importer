@@ -65,11 +65,19 @@ export function compileTemplateExpression(source: string, resolve: (token: strin
     while (["+", "-"].includes(peek())) value = `${value} ${take()} ${term()}`;
     return value;
   };
+  // "#" constraints apply to everything before them, so "a+b#rounddown" is floor(a + b); "@" rounding binds
+  // to its operand in primary()
   const expression = (): string => {
     let value = additive();
     while (true) {
-      if (peek() === "," && ["min", "max"].includes(tokens[position + 1])) take();
-      if (!["@min", "@max", "#min", "#max", "min", "max"].includes(peek())) break;
+      if (peek() === "," && ["min", "max", "rounddown", "roundown", "roundup"].includes(tokens[position + 1])) take();
+      const next = peek();
+      if (["#rounddown", "#roundown", "#roundup", "rounddown", "roundown", "roundup"].includes(next)) {
+        take();
+        value = `${next.endsWith("up") ? "ceil" : "floor"}(${value})`;
+        continue;
+      }
+      if (!["@min", "@max", "#min", "#max", "min", "max"].includes(next)) break;
       const constraint = take().replace(/^[@#]/, "");
       expect(":");
       value = `${constraint === "min" ? "max" : "min"}(${value}, ${additive()})`;

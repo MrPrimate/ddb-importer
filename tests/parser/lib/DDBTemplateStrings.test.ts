@@ -4,7 +4,7 @@ vi.mock("../../../src/parser/lib/DDBReferenceLinker", () => ({
   parseTags: (t: string) => t,
 }));
 
-import { parse } from "../../../src/parser/lib/DDBTemplateStrings";
+import { parse, parseSnippet } from "../../../src/parser/lib/DDBTemplateStrings";
 import logger from "../../../src/lib/Logger";
 
 // =============================================================================
@@ -56,7 +56,7 @@ const character = makeCharacter();
 
 describe("compound template constraints", () => {
   function evaluate(text: string, level: number, cha = 4): number {
-    const formula = text.replace(/^\[\[/, "").replace(/\]\]$/, "")
+    const formula = text.replace(/^(?:\+ )?\[\[/, "").replace(/\]\]$/, "")
       .replaceAll("@classes.wizard.levels", String(level)).replaceAll("@classes.cleric.levels", String(level))
       .replaceAll("@abilities.cha.mod", String(cha));
     return Function("floor", "ceil", "min", "max", `return (${formula});`)(Math.floor, Math.ceil, Math.min, Math.max);
@@ -521,6 +521,63 @@ describe("real DDB snippets", () => {
     );
   });
 
+  it("applies a min constraint list ending in an unsigned marker to a modifier token", () => {
+    const result = parse(ddb, character, "You can use this feature {{modifier:wis#min:1,unsigned}} times per Long Rest", makeFeature());
+    expect(result?.text).toBe("You can use this feature [[max(@abilities.wis.mod, 1)]] times per Long Rest");
+  });
+
+  it("applies a min constraint list ending in an unsigned marker to a multiplied modifier", () => {
+    const result = parse(ddb, character, "You regain {{2*modifier:int#min:2,unsigned}} charges", makeFeature());
+    expect(result?.text).toBe("You regain [[max(2 * @abilities.int.mod, 2)]] charges");
+  });
+
+  it("does not read an unsigned marker as a second ability", () => {
+    const result = parse(ddb, character, "The bonus equals {{modifier:str,unsigned}} points", makeFeature());
+    expect(result?.text).toBe("The bonus equals [[@abilities.str.mod]] points");
+  });
+
+  it("rounds the whole expression for a # rounding constraint followed by an unsigned marker", () => {
+    const result = parse(
+      ddbWithWizard,
+      character,
+      "You gain {{modifier:wis+(classlevel/2)#rounddown,unsigned}} points",
+      makeFeature({ classId: 42 }),
+    );
+    expect(result?.text).toBe("You gain [[floor(@abilities.wis.mod + (@classes.wizard.levels / 2))]] points");
+  });
+
+  it("keeps the sign outside the roll for a constraint list ending in a signed marker", () => {
+    const result = parse(
+      ddbWithWizard,
+      character,
+      "Add {{(((classlevel-4)/7)@rounddown+1)#max:3,min:1,signed}} to the roll",
+      makeFeature({ classId: 42 }),
+    );
+    expect(result?.text).toBe(
+      "Add + [[max(min((floor(((@classes.wizard.levels - 4) / 7)) + 1), 3), 1)]] to the roll",
+    );
+  });
+
+  it("rounds before applying min in a signed rounddown constraint list", () => {
+    const result = parse(
+      ddbWithWizard,
+      character,
+      "Add {{(12+classlevel)/7#rounddown,min:2,signed}} to the roll",
+      makeFeature({ classId: 42 }),
+    );
+    expect(result?.text).toBe("Add + [[max(floor((12 + @classes.wizard.levels) / 7), 2)]] to the roll");
+  });
+
+  it("leaves a signed constraint list unsigned when it is a dice count", () => {
+    const result = parse(
+      ddbWithWizard,
+      character,
+      "Gain <strong>{{(12+classlevel)/7#rounddown,min:2,signed}}d6</strong> Temporary HP",
+      makeFeature({ classId: 42 }),
+    );
+    expect(result?.text).toBe("Gain <strong>[[max(floor((12 + @classes.wizard.levels) / 7), 2)]]d6</strong> Temporary HP");
+  });
+
   it("resolves a bare proficiency token", () => {
     const result = parse(ddb, character, "You have {{proficiency}} Luck Points that you can spend on the benefits below", makeFeature());
     expect(result?.text).toBe("You have + [[@prof]] Luck Points that you can spend on the benefits below");
@@ -600,5 +657,21 @@ describe("display string linktext (friendly labels lost)", () => {
     expect(displayStrings[1].parsed).toBe(" + @abilities.str.mod");
     expect(displayStrings[2].parsed).toBe(" + @prof");
     expect(displayStrings[3].parsed).toBe(" + @details.level");
+  });
+});
+
+describe("parseSnippet", () => {
+  const source = "Use the widget as a Bonus Action {{modifier:wis#min:1,unsigned}} times.\r\n\r\n<em>Turn on Widget by clicking on this feature and selecting the drop down called Widget. Deselect it to stop this effect.</em>";
+
+  it("removes DDB character-sheet instructions from an activity snippet", () => {
+    expect(parseSnippet({ ddbData: ddb, rawCharacter: null, text: source, feature: makeFeature() })).toBe(
+      "<p>Use the widget as a Bonus Action [[max(@abilities.wis.mod, 1)]] times.</p>\n",
+    );
+  });
+
+  it("removes DDB character-sheet instructions when there is no DDB data to parse templates with", () => {
+    expect(parseSnippet({ ddbData: null, text: source, feature: makeFeature() })).toBe(
+      "<p>Use the widget as a Bonus Action {{modifier:wis#min:1,unsigned}} times.</p>\n",
+    );
   });
 });

@@ -2,7 +2,7 @@ import { compileTemplateExpression } from "./DDBTemplateExpression";
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
-import { TEMPLATE_CORRECTIONS } from "../../config/dictionary/parsing/features";
+import { PARSING_FEATURES, TEMPLATE_CORRECTIONS } from "../../config/dictionary/parsing/features";
 import DDBDescriptions from "./DDBDescriptions";
 import { parseTags } from "./DDBReferenceLinker";
 
@@ -508,15 +508,25 @@ export function parse(
       result.definitions.push(entry);
       return;
     }
+    // DDB also writes the sign marker as the last entry of a constraint list ("#min:1,unsigned"); the legacy
+    // splitter cannot read that form, so it goes through the expression compiler with the marker stripped
     const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
-      || (/#(?:min|max):/).test(match) || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
+      || (/#(?:min|max):/).test(match) || (/,(?:signed|unsigned)\b/).test(match)
+      || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
     if (compound) {
       try {
-        const signed = match.match(/#(signed|unsigned)\b/)?.[1]
-          ?? (match.includes("modifier") ? "signed" : null);
-        const expression = match.replace(/#(?:signed|unsigned)\b/g, "");
+        // a template used as a dice count ("{{...}}d6") never takes a sign, whatever the marker says
+        const diceCount = new RegExp(`{{${escapeRegExp(match)}}}\\s*d\\d`).test(result.text);
+        const signed = diceCount
+          ? "unsigned"
+          : match.match(/[#,](signed|unsigned)\b/)?.[1] ?? (match.includes("modifier") ? "signed" : null);
+        const expression = match.replace(/[#,](?:signed|unsigned)\b/g, "");
         const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
-        entry.parsed = `[[${getNumber(formula, signed)}]]`;
+        const number = getNumber(formula, signed);
+        // keep the sign outside the inline roll, matching the legacy path, unless a dice term precedes it
+        entry.parsed = !entry.rollMatchTest && (/^\+\s/).test(number)
+          ? `+ [[${number.replace(/^\+\s/, "")}]]`
+          : `[[${number}]]`;
         entry.evalConstraint = formula;
         result.text = result.text.replace(entry.replacePattern, entry.parsed);
         result.resultStrings.push(entry.parsed);
@@ -671,7 +681,8 @@ export function parse(
  * template tokens are resolved whenever DDB data is available:
  * - A character when one exists
  * - otherwise a stub so muncher-side imports still parse
- * TThe text passes through unparsed when parsing is impossible or fails.
+ * The text passes through unparsed when parsing is impossible or fails.
+ * DDB character-sheet instruction paragraphs are removed, as they are from item descriptions.
  *
  * @param {object} args The arguments object.
  * @param {IDDBData | null} [args.ddbData] The DDB data object, if available.
@@ -691,7 +702,7 @@ export function parseSnippet({
   text: string;
   feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll | IDDBCommonDefinition;
 }): string {
-  const html = DDBDescriptions.snippetToHtml(text);
+  const html = utils.stripNoteBlocks(DDBDescriptions.snippetToHtml(text), PARSING_FEATURES.DDB_SHEET_NOTE_MARKERS);
   if (!ddbData) return html;
   const character = (rawCharacter?.type === "character" ? rawCharacter : { flags: {} }) as I5ePCData;
   try {
