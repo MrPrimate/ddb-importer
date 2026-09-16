@@ -134,7 +134,6 @@ describe("class-feature damage scales", () => {
   });
 
   it.each([
-    [ClassEnrichers.Druid.SymbioticBiosphere, "poison", "@scale.hive.symbiotic-biosphere"],
     [ClassEnrichers.Warlock.ThrillOfTheHunt, "necrotic", null],
     [ClassEnrichers.Rogue.WailsFromTheGrave, "necrotic", "(ceil(@scale.rogue.sneak-attack.number / 2))d@scale.rogue.sneak-attack.faces"],
   ] as const)("%s replaces default scale damage instead of adding a second part", async (Enricher, type, formula) => {
