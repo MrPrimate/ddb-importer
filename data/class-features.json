@@ -8535,5 +8535,47 @@
     "class": "Gunslinger",
     "subclass": "Deadeye",
     "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Double or Nothing",
+    "class_feature": "Double or Nothing",
+    "class": "Gunslinger",
+    "subclass": "High Roller",
+    "path": "icons/sundries/gaming/dice-pair-white-green.webp"
+  },
+  {
+    "name": "Dire Gambit",
+    "class_feature": "Dire Gambit",
+    "class": "Gunslinger",
+    "subclass": "Deadeye",
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
+  },
+  {
+    "name": "Exit Strategy",
+    "class_feature": "Exit Strategy",
+    "class": "Gunslinger",
+    "subclass": "Secret Agent",
+    "path": "icons/sundries/gaming/chess-rook-gray.webp"
+  },
+  {
+    "name": "Fan the Hammer",
+    "class_feature": "Fan the Hammer",
+    "class": "Gunslinger",
+    "subclass": "Pistolero",
+    "path": "icons/skills/melee/hand-grip-hammer-spiked-blue.webp"
+  },
+  {
+    "name": "Fancy Gunplay",
+    "class_feature": "Fancy Gunplay",
+    "class": "Gunslinger",
+    "subclass": "Trick Shot",
+    "path": "icons/weapons/guns/pistol-fire-orange.webp"
+  },
+  {
+    "name": "Fieldcraft",
+    "class_feature": "Fieldcraft",
+    "class": "Gunslinger",
+    "subclass": "Secret Agent",
+    "path": "icons/equipment/head/mask-carved-wood-pink.webp"
   }
 ]
