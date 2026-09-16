@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import path from "path";
+import path from "node:path";
 
 export default defineConfig({
   test: {
@@ -16,8 +16,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@client": path.resolve(__dirname, "foundry/client"),
-      "@common": path.resolve(__dirname, "foundry/common"),
+      "@client": path.resolve(import.meta.dirname, "foundry/client"),
+      "@common": path.resolve(import.meta.dirname, "foundry/common"),
     },
   },
 });
