@@ -71,7 +71,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "@prof", {
               conditions: [
                 { k: "roll.attack.classification", o: "exact", v: "weapon" },
-                { k: "roll.item.properties", o: "has", v: "hvy" },
+                { k: "item.properties", o: "has", v: "hvy" },
               ],
             }),
           ],

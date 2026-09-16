@@ -23,9 +23,9 @@ export default class CrossbowExpert extends DDBEnricherData {
           priority: 22,
           conditions: [
             { k: "roll.attack.mode", o: "in", v: ["offhand"] },
-            // roll.item is the crossbow being fired; plain item would be this feat (ChangeHelper.SPELL_FILTER)
-            { k: "roll.item.type.baseItem", o: "in", v: ["handcrossbow", "heavycrossbow", "lightcrossbow"] },
-            { k: "roll.item.properties", o: "has", v: "lgt" },
+            // item is the crossbow being fired, not this feat (dnd5e 6.0.2, see ChangeHelper.SPELL_FILTER)
+            { k: "item.type.baseItem", o: "in", v: ["handcrossbow", "heavycrossbow", "lightcrossbow"] },
+            { k: "item.properties", o: "has", v: "lgt" },
             { k: "abilities.dex.mod", o: "gte", v: 1 },
           ],
         }),

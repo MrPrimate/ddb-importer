@@ -2015,7 +2015,7 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
 });
 
 /**
- * Spell-scoped damage rules. dnd5e mirrors the rolled spell under `roll.item`, so a transfer
+ * Spell-scoped damage rules. dnd5e exposes the rolled spell under `item` (6.0.2, #7450), so a transfer
  * effect on the feature can gate on the spell's level, class and school; each keeps its damage
  * activity as the manual fallback. The rule effects ship DISABLED by default (Jack 2026-09-10) so
  * a table opts in per character rather than discovering a doubled bonus.
@@ -2030,9 +2030,9 @@ describe("wizard EmpoweredEvocation", () => {
     const [change] = e.effects[0].changes;
     expect(change).toMatchObject({ key: "damage", value: "@abilities.int.mod", type: "dnd5e.bonus" });
     expect(JSON.parse(change.conditions)).toEqual([
-      { k: "roll.item.level", o: "gte", v: 0 },
-      { k: "roll.item.classIdentifier", o: "exact", v: "wizard" },
-      { k: "roll.item.school", o: "exact", v: "evo" },
+      { k: "item.level", o: "gte", v: 0 },
+      { k: "item.classIdentifier", o: "exact", v: "wizard" },
+      { k: "item.school", o: "exact", v: "evo" },
     ]);
   });
 });
@@ -2046,8 +2046,8 @@ describe("artificer ArcaneFirearm", () => {
     const [change] = e.effects[0].changes;
     expect(change).toMatchObject({ key: "damage", value: "1d8", type: "dnd5e.bonus" });
     expect(JSON.parse(change.conditions)).toEqual([
-      { k: "roll.item.level", o: "gte", v: 0 },
-      { k: "roll.item.classIdentifier", o: "exact", v: "artificer" },
+      { k: "item.level", o: "gte", v: 0 },
+      { k: "item.classIdentifier", o: "exact", v: "artificer" },
     ]);
   });
 });
@@ -2061,7 +2061,7 @@ describe("sorcerer ElementalAffinity damage bonus", () => {
     expect(fire.options).toMatchObject({ transfer: true, disabled: true });
     expect(rule(fire)).toMatchObject({ value: "@abilities.cha.mod", type: "dnd5e.bonus" });
     expect(JSON.parse(rule(fire).conditions)).toEqual([
-      { k: "roll.item.level", o: "gte", v: 0 },
+      { k: "item.level", o: "gte", v: 0 },
       { k: "roll.damage.type", o: "exact", v: "fire" },
     ]);
     // the siblings carry their own type so flipping one on is enough
@@ -2079,7 +2079,7 @@ describe("sorcerer InnateSorcery effect", () => {
     expect(effect.changes[1]).toMatchObject({ type: "dnd5e.advantage", value: "1" });
     expect(JSON.parse(effect.changes[1].conditions)).toEqual([
       { k: "roll.attack.classification", o: "exact", v: "spell" },
-      { k: "roll.item.classIdentifier", o: "exact", v: "sorcerer" },
+      { k: "item.classIdentifier", o: "exact", v: "sorcerer" },
     ]);
   });
 });

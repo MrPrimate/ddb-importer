@@ -20,7 +20,7 @@ export default class InnateSorcery extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.bonuses.spell.dc"),
           // DDB restricts the advantage to "Sorcerer Spell Attacks": the rolled spell's class comes
-          // through roll.item, so a multiclass wizard cantrip is left alone
+          // through item.classIdentifier, so a multiclass wizard cantrip is left alone
           DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack", {
             conditions: [
               { k: "roll.attack.classification", o: "exact", v: "spell" },

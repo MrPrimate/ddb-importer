@@ -425,7 +425,7 @@ export default class EvolvedItemProperties {
         return [{
           label: "Spellguarding Ward",
           description: "<p>Advantage on saving throws against spells and other magical effects. Needs Midi-QOL or Automated Conditions 5e: the dnd5e rules engine cannot tell what a saving throw is against.</p>",
-          // No core rule change: a target's save roll data carries no roll.item, so no filter can
+          // No core rule change: a target's save roll data carries no item, so no filter can
           // single out saves against spells and an unconditional advantage rule would be wrong.
           changes: [],
           midiChanges: [ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all")],

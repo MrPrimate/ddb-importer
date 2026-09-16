@@ -177,8 +177,8 @@ describe("EffectGenerator weapon-specific damage bonuses", () => {
     const changes = generator.effect.system.changes;
     expect(changes.map((c: any) => c.key)).toEqual(["damage", "damage"]);
     expect(changes.map((c: any) => JSON.parse(c.conditions))).toEqual([
-      { k: "roll.item.type.baseItem", o: "exact", v: "longbow" },
-      { k: "roll.item.type.baseItem", o: "exact", v: "shortbow" },
+      { k: "item.type.baseItem", o: "exact", v: "longbow" },
+      { k: "item.type.baseItem", o: "exact", v: "shortbow" },
     ]);
     expect(changes.map((c: any) => c.value)).toEqual(["2", "2"]);
   });

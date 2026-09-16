@@ -535,8 +535,8 @@ export default class EffectGenerator {
     // (recursive formula replacement, dnd5e #7354), so @item.level reads the CAST level (base
     // plus upcast, SpellData#getRollData). The levelled-spell gate is RAW ("a spell of 1st level
     // or higher") and also keeps @item.level off potions and features, whose roll data has no
-    // item.level to substitute. The gate reads roll.item.level (the rolled spell); plain item is
-    // this feature since dnd5e 14e7a9db0.
+    // item.level to substitute. In conditions item is the rolled spell, not this feature (dnd5e
+    // 6.0.2, #7450), and the value formula resolves against the roll's own data.
     const healingBonus = DDBModifiers
       .filterModifiersOld(this.grantedModifiers, "bonus", "spell-group-healing")
       .reduce((a, b) => a + parseInt(String(b.value)), 0);
@@ -955,7 +955,7 @@ export default class EffectGenerator {
   /**
    * DDB names a weapon-specific damage bonus (Bracers of Archery: +2 with a longbow or shortbow)
    * by putting the weapon's slug in the modifier subtype. Resolve that slug to the dnd5e base item
-   * id through the proficiency table so the rule can test `roll.item.type.baseItem`; null for any
+   * id through the proficiency table so the rule can test `item.type.baseItem`; null for any
    * subtype that is not a weapon we know.
    */
   static weaponBaseItemForSubType(subType: string | null | undefined): string | null {
@@ -990,7 +990,7 @@ export default class EffectGenerator {
     for (const subType of weaponSubTypes) {
       const baseItem = EffectGenerator.weaponBaseItemForSubType(subType) as string;
       const subTypeMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", subType);
-      this._conditionedDamageBonus(subTypeMods, { k: "roll.item.type.baseItem", o: "exact", v: baseItem }, subType);
+      this._conditionedDamageBonus(subTypeMods, { k: "item.type.baseItem", o: "exact", v: baseItem }, subType);
     }
 
     const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)

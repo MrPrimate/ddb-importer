@@ -110,8 +110,8 @@ describe("Crossbow Expert Light crossbow extra attack", () => {
     ]);
     expect(JSON.parse(String(changes[0].conditions))).toEqual([
       { k: "roll.attack.mode", o: "in", v: ["offhand"] },
-      { k: "roll.item.type.baseItem", o: "in", v: ["handcrossbow", "heavycrossbow", "lightcrossbow"] },
-      { k: "roll.item.properties", o: "has", v: "lgt" },
+      { k: "item.type.baseItem", o: "in", v: ["handcrossbow", "heavycrossbow", "lightcrossbow"] },
+      { k: "item.properties", o: "has", v: "lgt" },
       { k: "abilities.dex.mod", o: "gte", v: 1 },
     ]);
   });
@@ -125,7 +125,7 @@ describe("Crossbow Expert Light crossbow extra attack", () => {
 
 /**
  * 2024 Great Weapon Master adds the proficiency bonus to Heavy weapon hits. The rolled weapon's
- * properties are visible to the rule under `roll.item`, so the feat's transfer effect carries a
+ * properties are visible to the rule under `item`, so the feat's transfer effect carries a
  * damage rule; the Damage activity stays as the manual fallback.
  */
 describe("Great Weapon Master heavy weapon mastery", () => {
@@ -139,7 +139,7 @@ describe("Great Weapon Master heavy weapon mastery", () => {
     ]);
     expect(JSON.parse(String(changes[0].conditions))).toEqual([
       { k: "roll.attack.classification", o: "exact", v: "weapon" },
-      { k: "roll.item.properties", o: "has", v: "hvy" },
+      { k: "item.properties", o: "has", v: "hvy" },
     ]);
   });
 

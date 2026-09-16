@@ -1,5 +1,9 @@
 # Next Up
 
+- Item parsing improvements.
+- Minimum 5e version 6.0.2
+- Adjustments to some effect conditions that were broken by 6.0.2.
+
 # 7.5.3
 
 - Great Weapon Master fixes for 2024.

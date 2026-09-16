@@ -33,7 +33,7 @@ export default class EmpoweredEvocation extends DDBEnricherData {
             conditions: [
               DDBEnricherData.ChangeHelper.SPELL_FILTER,
               DDBEnricherData.ChangeHelper.classSpellFilter("wizard"),
-              { k: "roll.item.school", o: "exact", v: "evo" },
+              { k: "item.school", o: "exact", v: "evo" },
             ],
           }),
         ],

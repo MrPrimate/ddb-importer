@@ -239,13 +239,13 @@ export default class ChangeHelper {
       o: "OR",
       v: [
         ChangeHelper.UNARMED_FILTER,
-        { k: "roll.item.flags.ddbimporter.dndbeyond.isMonkWeapon", o: "exact", v: true },
-        { k: "roll.item.type.value", o: "exact", v: "simpleM" },
+        { k: "item.flags.ddbimporter.dndbeyond.isMonkWeapon", o: "exact", v: true },
+        { k: "item.type.value", o: "exact", v: "simpleM" },
         {
           o: "AND",
           v: [
-            { k: "roll.item.type.value", o: "exact", v: "martialM" },
-            { k: "roll.item.properties", o: "has", v: "lgt" },
+            { k: "item.type.value", o: "exact", v: "martialM" },
+            { k: "item.properties", o: "has", v: "lgt" },
           ],
         },
       ],
@@ -258,35 +258,34 @@ export default class ChangeHelper {
    * carrying a `dnd5e.spellLevel` flag (a scroll) reports one, which is correct. Facility items
    * also carry a level, but no facility rolls healing or damage.
    *
-   * The key is `roll.item`, not `item`: since dnd5e 14e7a9db0 rule conditions are checked against
-   * `ActiveEffect5e#getReplacementData`, which overwrites `item` with the effect's HOST item, so on
-   * a transfer effect `item.level` is the class feature's (absent). `roll.item` (91fb97d50) is the
-   * rolled item and is only populated on rolls made with roll options: attack, damage and heal
-   * rolls plus the actor's d20 rolls. A save rolled by a target carries the target's roll data with
-   * no item at all, so these filters cannot gate save rules on the incoming spell.
+   * `item` is the ROLLED item, not the effect's host: dnd5e 6.0.2 (#7450) checks rule conditions
+   * against `ActiveEffect5e#getRuleConditionData`, which leaves the roll's `item` alone and exposes
+   * the host under `sourceItem`. On 6.0.0 and 6.0.1 a transfer effect saw its host feature under
+   * `item` instead, which is why the module minimum is 6.0.2. `item` is only present on rolls made
+   * through an item (attack, damage and heal rolls). A save rolled by a target carries the target's
+   * roll data with no item at all, so these filters cannot gate save rules on the incoming spell.
    */
   static get SPELL_FILTER(): IEffectChangeFilter {
-    return { k: "roll.item.level", o: "gte", v: 0 };
+    return { k: "item.level", o: "gte", v: 0 };
   }
 
   /** Matches a spell cast at 1st level or higher; a cantrip reports level 0. */
   static get LEVELLED_SPELL_FILTER(): IEffectChangeFilter {
-    return { k: "roll.item.level", o: "gte", v: 1 };
+    return { k: "item.level", o: "gte", v: 1 };
   }
 
-  /** Matches a cantrip: only spells carry `roll.item.level`, and a cantrip reports exactly 0. */
+  /** Matches a cantrip: only spells carry `item.level`, and a cantrip reports exactly 0. */
   static get CANTRIP_FILTER(): IEffectChangeFilter {
-    return { k: "roll.item.level", o: "exact", v: 0 };
+    return { k: "item.level", o: "exact", v: 0 };
   }
 
   /**
    * Matches a spell granted by the class with this dnd5e identifier. dnd5e derives
    * `classIdentifier` in the spell's roll data from `system.sourceItem` (`class:cleric`), so a wizard
-   * cantrip on a cleric/wizard does not match a cleric-only bonus. Read through `roll.item` for the
-   * reason given on `SPELL_FILTER`.
+   * cantrip on a cleric/wizard does not match a cleric-only bonus.
    */
   static classSpellFilter(identifier: string): IEffectChangeFilter {
-    return { k: "roll.item.classIdentifier", o: "exact", v: identifier };
+    return { k: "item.classIdentifier", o: "exact", v: identifier };
   }
 
   /**
@@ -331,10 +330,10 @@ export default class ChangeHelper {
 
   /**
    * Matches a weapon attack made with a magic weapon: the importer stamps `mgc` on magic and
-   * infused weapons, and dnd5e exposes the rolled item's property set as `roll.item.properties`.
+   * infused weapons, and dnd5e exposes the rolled item's property set as `item.properties`.
    */
   static get MAGIC_WEAPON_ATTACK_FILTER(): IEffectChangeFilter[] {
-    return [ChangeHelper.WEAPON_ATTACK_FILTER, { k: "roll.item.properties", o: "has", v: "mgc" }];
+    return [ChangeHelper.WEAPON_ATTACK_FILTER, { k: "item.properties", o: "has", v: "mgc" }];
   }
 
   static ruleChange({ category, type, value, priority = 20, conditions }: RuleChangeParams): IActiveEffectChangeData {

@@ -59,7 +59,7 @@ describe("RestrictionRules table", () => {
 
   it("maps a class spell attack restriction to the class filter and rejects unknown classes", () => {
     expect(RestrictionRules.match("Advantage on Sorcerer Spell Attacks")?.conditions).toEqual([
-      { k: "roll.item.classIdentifier", o: "exact", v: "sorcerer" },
+      { k: "item.classIdentifier", o: "exact", v: "sorcerer" },
     ]);
     expect(RestrictionRules.match("Advantage on Fighter Spell Attacks")).toBeNull();
   });
@@ -119,7 +119,7 @@ describe("EffectGenerator attack roll mode rules", () => {
     generator._addAttackRollModeRules();
     expect(JSON.parse(generator.effect.system.changes[0].conditions)).toEqual([
       { k: "roll.attack.classification", o: "exact", v: "spell" },
-      { k: "roll.item.classIdentifier", o: "exact", v: "sorcerer" },
+      { k: "item.classIdentifier", o: "exact", v: "sorcerer" },
     ]);
   });
 
