@@ -20,6 +20,7 @@ foundry
 dnd5e
 
 .fallow/
+.vitest/
 coverage/
 
 # Secrets

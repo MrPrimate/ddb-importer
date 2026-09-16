@@ -31,7 +31,7 @@
     "@stylistic/eslint-plugin": "^5.9.0",
     "@types/jsdom": "^28.0.3",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.1",
     "dnd5e": "github:adriangaro/dnd5e-types#6.0.x",
     "esbuild": "^0.27.3",
     "eslint": "^10.0.1",
@@ -51,7 +51,7 @@
     "ts-loader": "^9.5.4",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.69.0",
-    "vitest": "^4.1.2",
+    "vitest": "^5.0.1",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.7.2"
   }

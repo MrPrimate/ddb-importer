@@ -54,6 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
+    - name: Use Node.js 24
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24.x
     - name: Get Version              # Run the script that returns the version from `module.json`
       shell: bash
       id: get-version
