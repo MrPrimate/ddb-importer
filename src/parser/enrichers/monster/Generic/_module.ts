@@ -61,6 +61,7 @@ export { default as ReflectiveCarapace } from "./ReflectiveCarapace";
 export { default as ReversalOfFortune } from "./ReversalOfFortune";
 export { default as Riposte } from "./Riposte";
 export { default as ShadowEscape } from "./ShadowEscape";
+export { default as ShapeShift } from "./ShapeShift";
 export { default as SharpenedBeak } from "./SharpenedBeak";
 export { default as SlowingBreath } from "./SlowingBreath";
 export { default as SpiritJar } from "./SpiritJar";

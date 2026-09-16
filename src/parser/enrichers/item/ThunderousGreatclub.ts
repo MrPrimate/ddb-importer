@@ -50,6 +50,27 @@ export default class ThunderousGreatclub extends DDBEnricherData {
           addItemConsume: true,
         },
       },
+      {
+        init: {
+          name: "Earthquake: Concentration Save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateSave: true,
+          generateActivation: true,
+          generateTarget: true,
+          generateRange: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "", formula: "20" } },
+          activationOverride: { type: "special", value: null, condition: "A creature in the Earthquake area that is concentrating" },
+          targetOverride: {
+            template: { type: "", size: "", width: "", units: "", count: "" },
+            affects: { count: "1", type: "creature", choice: false, special: "" },
+          },
+        },
+        overrides: {
+          rangeSelf: true,
+        },
+      },
     ];
   }
 

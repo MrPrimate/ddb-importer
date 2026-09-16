@@ -221,6 +221,22 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.template.size).toBe("90");
   });
 
+  it("parses the 2024 '90-foot-long, 5-foot-wide Line' wording with its width", () => {
+    const mock = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 19, each creature in a 90-foot-long, 5-foot-wide Line. Failure: 60 (11d10) Lightning damage." });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("line");
+    expect(target.template.size).toBe("90");
+    expect(target.template.width).toBe("5");
+  });
+
+  it("tolerates DDB's broken '5-foot- wide' hyphenation", () => {
+    const mock = makeFeatureMock({ strippedHtml: "each creature in a 90-foot-long, 5-foot- wide Line. Failure: 66 (12d10) Lightning damage." });
+    const target = mock.getTarget();
+    expect(target.template.type).toBe("line");
+    expect(target.template.size).toBe("90");
+    expect(target.template.width).toBe("5");
+  });
+
   it("parses '10-foot cube'", () => {
     const mock = makeFeatureMock({ strippedHtml: "A 10-foot cube of acid fills the area." });
     const target = mock.getTarget();

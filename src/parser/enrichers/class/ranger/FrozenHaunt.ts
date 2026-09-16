@@ -121,4 +121,11 @@ export default class FrozenHaunt extends DDBEnricherData {
     return true;
   }
 
+  // DDB ships no action (and so no limited use) for this feature; the activities consume item uses, which need a max
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: null, max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] },
+    };
+  }
+
 }

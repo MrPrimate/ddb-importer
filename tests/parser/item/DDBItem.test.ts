@@ -281,6 +281,23 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
     });
   });
 
+  it("gives a once-per-reset property one use when the text names no charges", () => {
+    const description = "<p>While this pearl is on your person, you can take a Magic action to regain one expended spell slot of level 3 or lower. Once you use the pearl, it can’t be used again until the next dawn.</p>";
+    const mock = makeUsesMock("Pearl of Power", description);
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "1",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
+    });
+    expect(mock.actionData.consumptionValue).toBe(1);
+  });
+
+  it("does not turn a running-total limit into a single use", () => {
+    const description = "<p>When you’ve used the boots’ property for a total of 10 minutes, the magic ceases to function for you until you finish a Long Rest.</p>";
+    const mock = makeUsesMock("Boots of Speed", description);
+    expect(mock._getCompendiumUses()).toEqual({ spent: null, max: null, recovery: [] });
+  });
+
   it("falls back to the default max for a staged item with no charges", () => {
     const mock = makeUsesMock("Blade of Broken Mirrors (Exalted)", NO_CHARGE_VESTIGE);
     expect(mock._getCompendiumUses("1")).toEqual({ spent: null, max: "1", recovery: [] });

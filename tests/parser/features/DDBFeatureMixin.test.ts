@@ -202,3 +202,25 @@ describe("DDBFeatureMixin.getFeatureSubtype", () => {
     });
   });
 });
+
+describe("DDBFeatureMixin.prototype._generateSaveFromDescription", () => {
+  function makeMixinMock(description: string) {
+    const mock = Object.create(DDBFeatureMixin.prototype);
+    mock.ddbDefinition = { description };
+    mock._descriptionSave = null;
+    return mock;
+  }
+
+  it("keeps a save that names its ability", () => {
+    const mock = makeMixinMock("The target must succeed on a DC 15 Wisdom saving throw or be frightened for 1 minute.");
+    mock._generateSaveFromDescription();
+    expect(mock._descriptionSave?.ability).toEqual(["wis"]);
+  });
+
+  it("ignores condition-only wording that names no saving throw", () => {
+    // Semblance of Life's Deathly Touch: an attack whose hit applies a condition, no save involved
+    const mock = makeMixinMock("Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d8 + 3 Necrotic damage, and the target has the Frightened condition until the end of its next turn.");
+    mock._generateSaveFromDescription();
+    expect(mock._descriptionSave).toBeNull();
+  });
+});

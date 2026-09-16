@@ -881,7 +881,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // in a 90-foot cone
     const matchText = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
     // console.warn(matchText);
-    const lineSearch = /(\d+)-foot line|line that is (\d+) feet/i;
+    // 2024 stat blocks: "each creature in a 90-foot-long, 5-foot-wide Line" (DDB sometimes breaks
+    // the hyphenation as "5-foot- wide")
+    const lineSearch = /(\d+)-foot-long,? (\d+)-foot-? ?wide line|(\d+)-foot line|line that is (\d+) feet/i;
     const coneSearch = /(\d+)-foot cone/i;
     // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
     const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
@@ -901,7 +903,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = "cone";
     } else if (lineMatch) {
-      target.template.size = lineMatch[1] ?? lineMatch[2];
+      target.template.size = lineMatch[1] ?? lineMatch[3] ?? lineMatch[4];
+      if (lineMatch[2]) target.template.width = lineMatch[2];
       target.template.units = "ft";
       target.template.type = "line";
     } else if (cubeMatch) {

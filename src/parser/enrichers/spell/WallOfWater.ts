@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class WallOfWater extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {

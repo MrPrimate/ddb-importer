@@ -75,7 +75,7 @@ export default class CacophonicShield extends DDBEnricherData {
         options: {
           expiry: "sourceStart",
         },
-        statuses: ["Deafness"],
+        statuses: ["Deafened"],
       },
       {
         name: "Shielded",

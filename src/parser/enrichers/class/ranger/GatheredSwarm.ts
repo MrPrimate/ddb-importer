@@ -28,6 +28,8 @@ export default class GatheredSwarm extends DDBEnricherData {
         },
         build: {
           generateDamage: false,
+          generateSave: true,
+          saveOverride: { ability: ["str"], dc: { calculation: "spellcasting", formula: "" } },
         },
         overrides: {
           activationType: "special",

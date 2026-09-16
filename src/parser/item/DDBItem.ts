@@ -489,6 +489,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? { type: "none", value: 1, condition: "" }
       : { type: "action", value: 1, condition: "" };
 
+    // 2024 rules: drinking or administering a potion is a Bonus Action (the DDB text never says
+    // so, it only describes the effect), and that is how the SRD 2024 potions ship. DDB
+    // tags only a few potions "Potion"; the rest carry it as the item type.
+    const potionType = [this.ddbDefinition.filterType, this.ddbDefinition.subType, this.overrides.ddbType].includes("Potion");
+    if (this.is2024 && (this.isPotion || potionType)) {
+      this.actionData.activation = { type: "bonus", value: 1, condition: "" };
+    }
+
     if (["wondrous", "armor"].includes(this.parsingType ?? "")) {
       let action: TActivationCost = ["wondrous"].includes(this.parsingType ?? "") ? "special" : "none";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
@@ -1826,6 +1834,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * "can't be used again until", "cannot use this property again until": a single property that
+   * comes back with the reset, as opposed to charged items (matched separately) and wording like
+   * "the magic ceases to function until you finish a Long Rest" that describes a running total.
+   */
+  static SINGLE_USE_PROPERTY = /(?:can't|cannot) (?:be used|use (?:it|this property|this feature|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
     const normalizedDescription = description.replaceAll("’", "'");
@@ -1874,10 +1889,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
+    const resetType = DDBItem.getMagicItemResetType(this.ddbItem.definition.description);
+    // Items with one property per reset ("Once you use the pearl, it can't be used again until
+    // the next dawn") name no charges; the character path gets that from DDB's limitedUse, the
+    // compendium path has only the text. One use per reset matches the official compendia.
+    const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
+      && DDBItem.SINGLE_USE_PROPERTY.test(this.ddbItem.definition.description.replaceAll("’", "'"));
     const limitedUse = {
-      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : null,
+      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null),
       numberUsed: 0,
-      resetType: DDBItem.getMagicItemResetType(this.ddbItem.definition.description),
+      resetType,
       resetTypeDescription: this.ddbItem.definition.description,
     };
 
@@ -1897,7 +1918,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       return {
         max: `${limitedUse.maxUses}`,
-        spent: 0,
+        // party-inventory imports carry the expended count; item enrichers read it back through
+        // the document's spent (_ItemActivities.itemUses), so it must not be flattened to 0 here
+        spent: this.ddbItem.chargesUsed ?? 0,
         recovery,
       };
     } else {
@@ -3076,7 +3099,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
     if (!this.ddbDefinition.magic) return;
 
-    if (this.perSpell.isPerSpell && "uses" in this.data.system) {
+    const itemSpells = (this.raw.itemSpells ?? []).filter((spell) =>
+      spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
+        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id,
+    );
+
+    // Per-spell charges live on the cast activities, so the item-level uses go. Only when the
+    // item grants spells, though: the same "can't be used again until the next dawn" wording
+    // marks a Pearl of Power or Cape of the Mountebank as per-spell and wiped their one use.
+    if (this.perSpell.isPerSpell && itemSpells.length > 0 && "uses" in this.data.system) {
       this.data.system.uses = {
         spent: null,
         recovery: [
@@ -3085,18 +3116,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       };
     }
 
-
-    if (!this.raw.itemSpells) return;
     // every item spell becomes a cast activity linked to the spells compendium; the character
     // parse has already made sure the compendium holds them (ensureItemSpellsInCompendium)
-    for (const spell of this.raw.itemSpells) {
-      const isItemSpell = spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
-        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id;
-      if (isItemSpell) {
-        logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        await this.#addSpellAsCastActivity(spell);
-      }
+    for (const spell of itemSpells) {
+      logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
+      await this.#addSpellAsCastActivity(spell);
     }
+
+    if (!this.raw.itemSpells) return;
 
     if (this.isMuncher) return;
 

@@ -43,6 +43,7 @@ export default class HellsLash extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateSave: true,
           generateDamage: false,
           generateConsumption: false,
           noSpellslot: true,

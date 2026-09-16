@@ -9,6 +9,7 @@ export default class ChannelDivinityRadianceOfTheDawn extends DDBEnricherData {
     return {
       targetType: "enemy",
       data: {
+        save: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
         damage: {
           onSave: "half",
           parts: [

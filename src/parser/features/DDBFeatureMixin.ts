@@ -275,7 +275,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _generateSaveFromDescription() {
     const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
     const textMatch = DDBDescriptions.dcParser({ text: description });
-    if (textMatch.match) {
+    // dcParser also matches condition-only wording ("the target has the Frightened condition"),
+    // which names no saving throw; treating that as a save built save activities with no
+    // ability on plain attack actions (Semblance of Life's Deathly Touch, third-party features).
+    if (textMatch.match && textMatch.save.ability.length > 0) {
       this._descriptionSave = textMatch.save;
     } else {
       this._descriptionSave = null;
