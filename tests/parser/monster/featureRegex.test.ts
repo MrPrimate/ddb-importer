@@ -495,3 +495,40 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(mock.getOtherCastSpells()).toEqual([]);
   });
 });
+
+// =============================================================================
+// _getActivitiesType - Legendary Resistance always spends the actor resource
+// =============================================================================
+describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistance", () => {
+  function makeTrait(name: string) {
+    // the trait's own shape after #generateActionData: special activation, no uses, no damage
+    return makeFeatureMock({
+      name,
+      type: "special",
+      isAttack: false,
+      isSave: false,
+      actionData: {
+        properties: {},
+        damageParts: [],
+        healingParts: [],
+        activation: { type: "special", value: null, condition: "" },
+        uses: { spent: null, max: null, recovery: [] },
+      },
+    });
+  }
+
+  it("2014 name with the per-day suffix gets a utility", () => {
+    expect(makeTrait("Legendary Resistance (3/Day)")._getActivitiesType()).toBe("utility");
+  });
+
+  it("2024 lair and form spellings get a utility", () => {
+    expect(makeTrait("Legendary Resistance (3/Day, or 4/Day in Lair)")._getActivitiesType()).toBe("utility");
+    expect(makeTrait("Legendary Resistance (2/Day in This Form)")._getActivitiesType()).toBe("utility");
+    expect(makeTrait("Legendary Resistance")._getActivitiesType()).toBe("utility");
+    expect(makeTrait("Legendary Resistances")._getActivitiesType()).toBe("utility");
+  });
+
+  it("the Legendary Actions block itself still gets no activity", () => {
+    expect(makeTrait("Legendary Actions")._getActivitiesType()).toBeNull();
+  });
+});

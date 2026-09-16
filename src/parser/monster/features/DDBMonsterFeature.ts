@@ -1330,10 +1330,10 @@ ${this.data.system.description.value}
     }
 
     // legendary resistance check
-    const resistanceMatch = this.name.match(/Legendary Resistance \((\d+)\/Day/i);
-    if (resistanceMatch) {
+    if (this.isLegendaryResistance) {
       this.actionData.activation.type = "special";
       this.actionData.activation.value = null;
+      this.actionData.activation.condition = "Fails a saving throw";
       this.actionData.consumptionTargets.push({
         type: "attribute",
         target: "resources.legres.value",
@@ -1488,6 +1488,7 @@ ${this.data.system.description.value}
    * Only set where the primary IS the first section - an attack describes something else.
    */
   get #primaryActivityName(): string | null {
+    if (this.isLegendaryResistance) return "Expend Use";
     if (!(this.isSave && !this.isAttack)) return null;
     const first = this.multiSaveSections[0];
     if (!first) return null;
@@ -1584,9 +1585,21 @@ ${this.data.system.description.value}
     return null;
   }
 
+  /**
+   * Every printing of the trait, with or without a "(3/Day, or 4/Day in Lair)" style suffix
+   * (one third-party block pluralises it). The per-day count itself is read by the factory into
+   * the legres resource.
+   */
+  get isLegendaryResistance(): boolean {
+    return (/^Legendary Resistances?\b/i).test(this.name);
+  }
+
   override _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.name === "Legendary Actions") return null;
+    // The trait has no uses of its own (the count lives on the actor resource), which would
+    // otherwise drop it through the special-with-no-uses gate below with no activity to spend one.
+    if (this.isLegendaryResistance) return "utility";
     if (this.healingAction) {
       if (!this.isAttack && !this.isSave && this.actionData.damageParts.length === 0) {
         // we generate heal activities as additionals;
