@@ -12966,5 +12966,45 @@
   {
     "name": "Book of Occult Lore",
     "path": "icons/sundries/books/book-worn-brown.webp"
+  },
+  {
+    "name": "Basic Poison",
+    "path": "icons/consumables/potions/potion-tube-corked-bubbling-green.webp"
+  },
+  {
+    "name": "Crossbow Bolt Case",
+    "path": "icons/containers/ammunition/quiver-simple-brown.webp"
+  },
+  {
+    "name": "Exotic Saddle",
+    "path": "icons/environment/people/cavalry-heavy.webp"
+  },
+  {
+    "name": "Feed per day",
+    "path": "icons/containers/bags/sack-open-grain-tan.webp"
+  },
+  {
+    "name": "Firearm Bullets",
+    "path": "icons/weapons/ammunition/ammunition-brass-silver.webp"
+  },
+  {
+    "name": "Glass Bottle",
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
+  },
+  {
+    "name": "Military Saddle",
+    "path": "icons/environment/people/cavalry-heavy.webp"
+  },
+  {
+    "name": "Mule",
+    "path": "icons/environment/creatures/horse-tan.webp"
+  },
+  {
+    "name": "Portable Ram",
+    "path": "icons/commodities/wood/log-cut-cherry-brown.webp"
+  },
+  {
+    "name": "Riding Saddle",
+    "path": "icons/environment/people/cavalry-heavy.webp"
   }
 ]
