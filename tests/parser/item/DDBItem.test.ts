@@ -203,6 +203,49 @@ describe("DDBItem.getRechargeFormula", () => {
 });
 
 // =============================================================================
+// spellIgnoresConcentration - item text freeing a granted spell from concentration
+// =============================================================================
+describe("DDBItem.spellIgnoresConcentration", () => {
+  it("matches a parenthetical naming the spell", () => {
+    const description = "<p>When you use the widget, you gain the effect of the <em>Glow</em> spell (no Concentration required).</p>";
+    expect(DDBItem.spellIgnoresConcentration(description, "Glow")).toBe(true);
+  });
+
+  it("matches a curly apostrophe with no spell named", () => {
+    const description = "<p>You can cast Glow from the widget.</p><p>The spell doesn’t require concentration.</p>";
+    expect(DDBItem.spellIgnoresConcentration(description, "Glow")).toBe(true);
+  });
+
+  it.each([
+    "You can cast Glow from it without requiring concentration.",
+    "You can cast Glow on yourself, requiring no Concentration.",
+    "The Glow spell no longer requires Concentration.",
+    "These spells do not require your concentration.",
+    "Glow cast this way (save DC 15, no concentration required) lasts 1 minute.",
+  ])("matches %s", (description) => {
+    expect(DDBItem.spellIgnoresConcentration(description, "Glow")).toBe(true);
+  });
+
+  it.each([
+    "When Glow is cast using the widget, it lasts 1 hour, provided you maintain concentration on the spell.",
+    "You deal extra damage to creatures under a spell you cast that requires Concentration.",
+    "You can cast Glow from the widget.",
+  ])("does not match %s", (description) => {
+    expect(DDBItem.spellIgnoresConcentration(description, "Glow")).toBe(false);
+  });
+
+  it("only frees the spell a sentence names when the item grants several", () => {
+    const description = "You can cast Glow from the widget. You can also cast Shimmer (no Concentration required).";
+    expect(DDBItem.spellIgnoresConcentration(description, "Glow", ["Shimmer"])).toBe(false);
+    expect(DDBItem.spellIgnoresConcentration(description, "Shimmer", ["Glow"])).toBe(true);
+  });
+
+  it("ignores a legacy postfix on the spell name", () => {
+    expect(DDBItem.spellIgnoresConcentration("You gain the effect of Glow (no Concentration required).", "Glow (Legacy)", ["Shimmer"])).toBe(true);
+  });
+});
+
+// =============================================================================
 // getMagicItemResetType - static method for determining reset period
 // =============================================================================
 describe("DDBItem.getMagicItemResetType", () => {

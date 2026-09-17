@@ -1850,6 +1850,45 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    */
   static SINGLE_USE_PROPERTY = /(?:can't|cannot) (?:be used|use (?:it|this property|this feature|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
 
+  /**
+   * "(no Concentration required)", "doesn't require your Concentration", "without requiring
+   * concentration" and similar. Wording that only mentions concentration ("provided you maintain
+   * concentration", "a spell you cast that requires Concentration") must not match.
+   */
+  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration/;
+
+  /**
+   * Does the item description say a spell it grants is cast without concentration?
+   *
+   * The check is per sentence so an item granting several spells only frees the one it names. A
+   * matching sentence that names none of the item's other spells ("The spell is cast at level 5 and
+   * doesn't require Concentration", "These spells do not require concentration") applies to every
+   * spell the item grants.
+   *
+   * Tags are stripped by regex rather than utils.stripHtml so this runs without a DOM; block-level
+   * closers become line breaks so separate paragraphs never read as one sentence.
+   */
+  static spellIgnoresConcentration(description: string, spellName: string, otherSpellNames: string[] = []): boolean {
+    const text = description
+      .replace(/<\/(?:p|li|div|tr|td|th|h\d)>|<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&rsquo;|&#8217;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .replaceAll("’", "'")
+      .toLowerCase();
+
+    // DDB and the importer can suffix names, e.g. "Bless (Legacy)"
+    const normalizeName = (name: string) => name.replace(/\s*\(.*\)\s*$/, "").trim().toLowerCase();
+    const name = normalizeName(spellName);
+    const others = otherSpellNames.map(normalizeName).filter((other) => other !== "" && other !== name);
+
+    return text
+      .split(/[.!?\n]/)
+      .filter((sentence) => DDBItem.NO_CONCENTRATION.test(sentence))
+      .some((sentence) => (name !== "" && sentence.includes(name))
+        || !others.some((other) => sentence.includes(other)));
+  }
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
     const normalizedDescription = description.replaceAll("’", "'");
@@ -2966,7 +3005,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
-  async #addSpellAsCastActivity(spell: I5eSpellItem) {
+  async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2988,9 +3027,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       save: undefined,
       override: false,
     };
+    const ignoredProperties: I5eActivityCastSpellProperties[] = ["vocal", "somatic", "material"];
+    // ignoring concentration on a spell that never needed it is harmless, so a loose match is fine
+    if (DDBItem.spellIgnoresConcentration(this.ddbDefinition.description ?? "", spell.name, otherSpellNames)) {
+      ignoredProperties.push("concentration");
+    }
     const spellOverride: I5eActivitySpell = {
       uuid: compendiumSpell.uuid,
-      properties: ["vocal", "somatic", "material"],
+      properties: ignoredProperties,
       level: null,
       challenge,
       spellbook: true,
@@ -3134,7 +3178,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // parse has already made sure the compendium holds them (ensureItemSpellsInCompendium)
     for (const spell of itemSpells) {
       logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-      await this.#addSpellAsCastActivity(spell);
+      const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
+      await this.#addSpellAsCastActivity(spell, otherSpellNames);
     }
 
     if (!this.raw.itemSpells) return;
