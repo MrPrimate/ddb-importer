@@ -250,3 +250,16 @@ describe("DefensiveDuelist expiry by ruleset (dnd5e #7434)", () => {
     expect(effect.daeSpecialDurations).toEqual([]);
   });
 });
+
+describe("Squire of Solamnia Precise Strike", () => {
+  it("carries the weapon attack advantage on the core mode keys under the midi 1Attack duration", () => {
+    const [effect] = makeEnricherData(FeatEnrichers.SquireOfSolamniaPreciseStrike).effects;
+    expect(effect.midiOnly).toBe(true);
+    expect(effect.daeSpecialDurations).toEqual(["1Attack"]);
+    expect(effect.changes).toEqual([
+      { key: "system.rolls.attack.mwak.mode", value: "1", type: "add", priority: 20 },
+      { key: "system.rolls.attack.rwak.mode", value: "1", type: "add", priority: 20 },
+    ]);
+    expect(effect.midiChanges).toBeUndefined();
+  });
+});

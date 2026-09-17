@@ -85,9 +85,7 @@ export default class CacophonicShield extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("thunder"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.rwak"),
+          DDBEnricherData.ChangeHelper.disadvantageAttackChange("rwak"),
         ],
       },
       {

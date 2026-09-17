@@ -341,6 +341,41 @@ describe("ChangeHelper roll mode helpers", () => {
     });
   });
 
+  it("builds actor-level attack roll mode changes", () => {
+    expect(ChangeHelper.disadvantageAttackChange()).toEqual({
+      key: "system.rolls.attack.mode",
+      value: "-1",
+      type: "add",
+      priority: 20,
+    });
+    expect(ChangeHelper.advantageAttackChange("rwak")).toEqual({
+      key: "system.rolls.attack.rwak.mode",
+      value: "1",
+      type: "add",
+      priority: 20,
+    });
+    expect(ChangeHelper.attackRollModeChange(ChangeHelper.NORMAL, "msak", 5)).toMatchObject({
+      key: "system.rolls.attack.msak.mode",
+      value: "0",
+      priority: 5,
+    });
+  });
+
+  it("builds actor-level check and save roll mode changes", () => {
+    expect(ChangeHelper.allChecksRollModeChange(ChangeHelper.DISADVANTAGE)).toEqual({
+      key: "system.rolls.ability.check.mode",
+      value: "-1",
+      type: "add",
+      priority: 20,
+    });
+    expect(ChangeHelper.allSavesRollModeChange(ChangeHelper.ADVANTAGE, 8)).toEqual({
+      key: "system.rolls.ability.save.mode",
+      value: "1",
+      type: "add",
+      priority: 8,
+    });
+  });
+
   it("honours a non-default priority", () => {
     expect(ChangeHelper.disadvantageAbilityCheckChange("int", 8).priority).toBe(8);
   });

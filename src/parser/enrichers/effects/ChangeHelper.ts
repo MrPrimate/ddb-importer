@@ -440,8 +440,7 @@ export default class ChangeHelper {
 
   /**
    * dnd5e 6.0 per-ability attack roll mode: every attack rolled with this ability, the native
-   * home for the midi `attack.<abl>` scope. An unscoped "attack rolls" mode is a rule change
-   * (`ruleAdvantageChange("attack")`); there is no actor-level attack roll mode key.
+   * home for the midi `attack.<abl>` scope.
    */
   static abilityAttackRollModeChange(ability: string, mode: number | string, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.rollModeChange(`system.abilities.${ability}.attack.roll.mode`, mode, priority);
@@ -453,6 +452,42 @@ export default class ChangeHelper {
 
   static disadvantageAbilityAttackChange(ability: string, priority = 20): IActiveEffectChangeData {
     return ChangeHelper.abilityAttackRollModeChange(ability, ChangeHelper.DISADVANTAGE, priority);
+  }
+
+  /**
+   * dnd5e 6.0 actor-level attack roll mode: `system.rolls.attack.mode` for every attack, or the
+   * `system.rolls.attack.<mwak|rwak|msak|rsak>.mode` child for one action type. dnd5e combines
+   * these with the per-ability key and any `attack` rule at roll time, so this is the plain form
+   * for an effect that gives advantage or disadvantage on attacks for its whole life. Anything
+   * gated on the target or the situation still needs an `attack` rule with conditions, or a midi
+   * or AC5e flag when the attack roll data cannot see the condition at all (it carries only the
+   * single target's AC, never the target's statuses).
+   */
+  static attackRollModeChange(mode: number | string, attackType?: "mwak" | "rwak" | "msak" | "rsak", priority = 20): IActiveEffectChangeData {
+    const key = attackType ? `system.rolls.attack.${attackType}.mode` : "system.rolls.attack.mode";
+    return ChangeHelper.rollModeChange(key, mode, priority);
+  }
+
+  static advantageAttackChange(attackType?: "mwak" | "rwak" | "msak" | "rsak", priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.attackRollModeChange(ChangeHelper.ADVANTAGE, attackType, priority);
+  }
+
+  static disadvantageAttackChange(attackType?: "mwak" | "rwak" | "msak" | "rsak", priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.attackRollModeChange(ChangeHelper.DISADVANTAGE, attackType, priority);
+  }
+
+  /**
+   * dnd5e 6.0 actor-level check roll mode (`system.rolls.ability.check.mode`). The actor folds
+   * this key into every ability check, skill check, tool check and initiative roll, so it is the
+   * native form of the AC5e `check` scope. Concentration and death saves have their own keys.
+   */
+  static allChecksRollModeChange(mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.rolls.ability.check.mode", mode, priority);
+  }
+
+  /** dnd5e 6.0 actor-level saving throw mode (`system.rolls.ability.save.mode`), every ability save. */
+  static allSavesRollModeChange(mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.rolls.ability.save.mode", mode, priority);
   }
 
   static advantageAbilityCheckChange(ability: string, priority = 20): IActiveEffectChangeData {

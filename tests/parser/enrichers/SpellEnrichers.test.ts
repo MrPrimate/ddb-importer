@@ -591,6 +591,35 @@ describe("aura marker regions", () => {
     expect(e.effects.find((h: any) => h.name === "Shielded").activityMatch).toBe("Cast");
   });
 
+  it("Cacophonic Shield gives the shielded caster core ranged weapon attack disadvantage", () => {
+    const e = build(SpellEnrichers.CacophonicShield);
+    const shielded = e.effects.find((h: any) => h.name === "Shielded");
+    expect(shielded.changes.map((c: any) => c.key)).toEqual([
+      "system.traits.dr.value",
+      "system.rolls.attack.rwak.mode",
+    ]);
+    expect(shielded.midiChanges).toBeUndefined();
+  });
+});
+
+describe("unconditional attack disadvantage on the core actor-level mode key", () => {
+  it("Feline Chaos pairs the check disadvantage with core attack disadvantage", () => {
+    const e = build(SpellEnrichers.FelineChaos);
+    const chaos = e.effects.find((h: any) => h.name === "Feline Chaos");
+    expect(chaos.changes.map((c: any) => c.key)).toContain("system.rolls.attack.mode");
+    expect(chaos.changes.find((c: any) => c.key === "system.rolls.attack.mode").value).toBe("-1");
+    expect(chaos.ac5eChanges).toBeUndefined();
+  });
+
+  it("Freyja's Allure works without AC5e", () => {
+    const e = build(SpellEnrichers.FreyjasAllure);
+    const [allure] = e.effects;
+    expect(allure.ac5eOnly).toBeUndefined();
+    expect(allure.changes).toEqual([
+      { key: "system.rolls.attack.mode", value: "-1", type: "add", priority: 20 },
+    ]);
+  });
+
   it("Death Armor marks enemies within 5 feet via its Cast emanation", () => {
     const e = build(SpellEnrichers.DeathArmor);
     const cast = e.additionalActivities.find((a: any) => a.init.name === "Cast");

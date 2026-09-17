@@ -37,9 +37,11 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
         onUseMacroChanges: [
           { macroPass: "postAttackRoll", macroType: "feat", macroName: "squireOfSolamnia.js", document: this.data },
         ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.mwak"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.rwak"),
+        // the mode is core; the hint stays midi-only because the 1Attack DAE duration is what
+        // limits it to a single weapon attack
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageAttackChange("mwak"),
+          DDBEnricherData.ChangeHelper.advantageAttackChange("rwak"),
         ],
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "squireOfSolamnia.js", document: this.data },

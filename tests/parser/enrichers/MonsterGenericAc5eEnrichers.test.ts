@@ -100,20 +100,22 @@ describe("Monster generic AC5e trait enrichers", () => {
     expect(effectsFor(KeenSenses, "Keen Mind")).toHaveLength(0);
   });
 
-  it("Sunlight Sensitivity family emits disabled toggles with the right scope", () => {
+  it("Sunlight Sensitivity family emits disabled toggles on the core actor-level mode keys", () => {
     for (const name of ["Sunlight Sensitivity", "Light Sensitivity", "Sunlight Hypersensitivity"]) {
       const effects = effectsFor(SunlightSensitivity, name);
       expect(effects[0].options.disabled).toBe(true);
-      const keys = effects[0].ac5eChanges.map((c: any) => c.key);
-      expect(keys).toEqual([
-        "flags.automated-conditions-5e.attack.disadvantage",
-        "flags.automated-conditions-5e.check.disadvantage",
+      expect(effects[0].ac5eOnly).toBeUndefined();
+      expect(effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+        ["system.rolls.attack.mode", "-1"],
+        ["system.rolls.ability.check.mode", "-1"],
       ]);
     }
-    // Sunlight Weakness covers saves too, via the d20 action type
+    // Sunlight Weakness covers saves too
     const weakness = effectsFor(SunlightSensitivity, "Sunlight Weakness");
-    expect(weakness[0].ac5eChanges.map((c: any) => c.key)).toEqual([
-      "flags.automated-conditions-5e.d20.disadvantage",
+    expect(weakness[0].changes.map((c: any) => c.key)).toEqual([
+      "system.rolls.attack.mode",
+      "system.rolls.ability.check.mode",
+      "system.rolls.ability.save.mode",
     ]);
   });
 

@@ -4,26 +4,24 @@ export default class SunlightSensitivity extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     // Sunlight Weakness applies to all D20 Tests (attacks, checks and saves), the
-    // sensitivity variants only to attack rolls and ability checks
+    // sensitivity variants only to attack rolls and ability checks. The actor-level
+    // check key also covers skills, tools and initiative, the same rolls AC5e's check
+    // scope reached.
     const allD20 = this.name === "Sunlight Weakness";
-    const ac5eChanges = allD20
-      ? [
-        DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.d20.disadvantage"),
-      ]
-      : [
-        DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
-        DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.check.disadvantage"),
-      ];
+    const changes = [
+      DDBEnricherData.ChangeHelper.disadvantageAttackChange(),
+      DDBEnricherData.ChangeHelper.allChecksRollModeChange(DDBEnricherData.ChangeHelper.DISADVANTAGE),
+    ];
+    if (allD20) changes.push(DDBEnricherData.ChangeHelper.allSavesRollModeChange(DDBEnricherData.ChangeHelper.DISADVANTAGE));
     return [
       {
         options: {
           transfer: true,
           disabled: true,
-          description: "Enable this effect while the creature is in sunlight. AC5e cannot detect sunlight, only ambient light level.",
+          description: "Enable this effect while the creature is in sunlight. No module can detect sunlight, only ambient light level.",
         },
         name: this.name,
-        ac5eOnly: true,
-        ac5eChanges,
+        changes,
       },
     ];
   }

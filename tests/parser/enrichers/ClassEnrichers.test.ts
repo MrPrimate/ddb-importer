@@ -427,6 +427,13 @@ describe("fighter native bonus checks", () => {
     expect(e.effects).toEqual([]);
   });
 
+  it("Distracting Strike makes the struck target grant advantage rather than gain it", () => {
+    const e = build(ClassEnrichers.Fighter.ManeuverDistractingStrike, battleMasterOptions);
+    const [effect] = e.effects;
+    expect(effect.daeSpecialDurations).toEqual(["isAttacked"]);
+    expect(effect.midiChanges.map((c: any) => c.key)).toEqual(["flags.midi-qol.grants.advantage.attack.all"]);
+  });
+
   it("uses each Tactical Assessment skill's normal ability", () => {
     const e = build(ClassEnrichers.Fighter.ManeuverTacticalAssessment, battleMasterOptions);
     expect(e.type).toBe("check");
