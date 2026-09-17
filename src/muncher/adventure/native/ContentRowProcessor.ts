@@ -80,14 +80,33 @@ export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint
 }
 
 /**
+ * Port of the muncher's Row._removeMapContainers: drops the book's map figures
+ * (`figure.<bookCode>-map-figure` / `figure.<bookCode>--map-figure`), which DDB
+ * renders as a floating map sidebar alongside the chapter text, plus the
+ * book-independent `div.map-nav-container` floating map navigation.
+ */
+export function removeMapContainers(doc: Document, bookCode: string | undefined): void {
+  const selectors = ["div.map-nav-container"];
+  if (bookCode) selectors.push(`figure.${bookCode}-map-figure`, `figure.${bookCode}--map-figure`);
+  doc.body
+    .querySelectorAll(selectors.join(", "))
+    .forEach((node) => node.remove());
+}
+
+/**
  * Port of the journals-relevant parts of the muncher's Row.js +
  * Journal._generateJournalEntryWithPages.
  *
- * Pipeline: parse -> addClasses -> ddb:// link replacement -> strip the leading
- * title heading -> collapse whitespace. JSDOM is replaced by `utils.htmlToDoc`
- * (DOMParser). Dice replacement and cross-page dynamic links are deferred.
+ * Pipeline: parse -> addClasses -> ddb:// link replacement -> remove map figures
+ * -> strip the leading title heading -> collapse whitespace. JSDOM is replaced by
+ * `utils.htmlToDoc` (DOMParser). Dice replacement and cross-page dynamic links are deferred.
  */
-export function processRow(row: ContentRow, adventureConfig: any, images?: ImageOpts): ProcessedRow {
+export function processRow(
+  row: ContentRow,
+  adventureConfig: any,
+  images?: ImageOpts,
+  bookCode: string | undefined = images?.bookCode,
+): ProcessedRow {
   const rawHtml = row.html ?? "";
 
   // 1. styling classes, then ddb:// link replacement
@@ -98,6 +117,9 @@ export function processRow(row: ContentRow, adventureConfig: any, images?: Image
   const doc = utils.htmlToDoc(linked);
   // resolved before the heading strip below so a missing Title can borrow the page heading
   const title = deriveTitle(doc, row.title);
+
+  // removed before sourceHtml is captured so table and scene parsing never see them, matching Row.js
+  removeMapContainers(doc, bookCode);
 
   // 2. image links -> uploaded stored paths (only when assets were imported)
   if (images) replaceImageLinks(doc, images.bookCode, images.assetMap);

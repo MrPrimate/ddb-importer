@@ -64,6 +64,49 @@ describe("processRow with a missing Title", () => {
   });
 });
 
+describe("processRow map figure removal", () => {
+  const html = [
+    "<h1>Chapter</h1>",
+    "<figure class=\"abc-map-figure\"><p>single</p></figure>",
+    "<figure class=\"abc--map-figure\"><p>double</p></figure>",
+    "<figure class=\"xyz-map-figure\"><p>other book</p></figure>",
+    "<figure class=\"compendium-art\"><p>art</p></figure>",
+    "<div class=\"map-nav-container\"><p>nav</p></div>",
+    "<section class=\"map-nav-container\"><p>not a div</p></section>",
+    "<p>Body.</p>",
+  ].join("");
+  const row: ContentRow = { id: 1, cobaltId: 1, parentId: null, slug: "chapter", title: "Chapter", html };
+
+  it("removes both map figure variants for the book", () => {
+    const processed = processRow(row, {}, undefined, "abc");
+    for (const out of [processed.content, processed.sourceHtml]) {
+      expect(out).not.toContain("abc-map-figure");
+      expect(out).not.toContain("abc--map-figure");
+      expect(out).toContain("xyz-map-figure");
+      expect(out).toContain("compendium-art");
+    }
+  });
+
+  it("falls back to the image options book code", () => {
+    const processed = processRow(row, {}, { bookCode: "abc", assetMap: new Map() });
+    expect(processed.content).not.toContain("abc-map-figure");
+  });
+
+  it("removes map nav div containers", () => {
+    const processed = processRow(row, {}, undefined, "abc");
+    expect(processed.sourceHtml).not.toContain("<p>nav</p>");
+    expect(processed.sourceHtml).toContain("<p>not a div</p>");
+  });
+
+  it("keeps book map figures without a book code but still removes map nav containers", () => {
+    // sourceHtml, because the dice pass on content collapses "--" in class names
+    const processed = processRow(row, {});
+    expect(processed.sourceHtml).toContain("abc-map-figure");
+    expect(processed.sourceHtml).toContain("abc--map-figure");
+    expect(processed.sourceHtml).not.toContain("<p>nav</p>");
+  });
+});
+
 describe("buildJournals with blank titles", () => {
   it("names the journal and its first page from the page heading", () => {
     const rows = [

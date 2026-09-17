@@ -179,7 +179,7 @@ export default class NativeAdventureMunch {
       themeCss = await buildBookThemeCss({ zip, bookCode, assetMap: imageOpts.assetMap });
     }
 
-    const processed = rows.map((row) => processRow(row, adventureConfig, imageOpts));
+    const processed = rows.map((row) => processRow(row, adventureConfig, imageOpts, bookCode));
     adjustParentRows(processed, getJournalHints(bookCode));
 
     // RollTables: parse <table> elements -> world tables in nested per-chapter
