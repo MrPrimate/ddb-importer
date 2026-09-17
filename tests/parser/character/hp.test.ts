@@ -238,6 +238,67 @@ describe("DDBCharacter._generateHitPoints", () => {
     expect(mock.raw.character.system.attributes.hp.value).toBe(123);
   });
 
+  it("ignores a healing rider whose die carries a fixed part (Keoghtom's Ointment 2d8 + 2)", () => {
+    const mock = makeMockCharacter({
+      ddbCharacter: {
+        baseHitPoints: 10,
+        modifiers: {
+          class: [],
+          race: [],
+          background: [],
+          item: [],
+          feat: [
+            {
+              type: "bonus",
+              subType: "hit-points-per-level",
+              value: 2,
+              componentId: 1789206,
+              componentTypeId: 1088085227,
+              restriction: "",
+              isGranted: true,
+            },
+          ],
+          condition: [],
+        },
+        inventory: [
+          {
+            id: 749042808,
+            equipped: true,
+            isAttuned: false,
+            definition: {
+              id: 9228809,
+              name: "Keoghtom's Ointment",
+              canEquip: true,
+              canAttune: false,
+              isConsumable: false,
+              grantedModifiers: [
+                {
+                  type: "bonus",
+                  subType: "hit-points",
+                  value: null,
+                  fixedValue: 2,
+                  dice: { diceCount: 2, diceValue: 8, diceMultiplier: null, fixedValue: 2, diceString: "2d8 + 2" },
+                  componentId: 9228809,
+                  componentTypeId: 112130694,
+                  restriction: "",
+                  isGranted: true,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    mock.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.value = 14;
+
+    generateHP.call(mock);
+
+    // 10 base + 2 con + 2 Tough; the ointment's fixed healing part does not raise the maximum
+    expect(mock.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects).toBe(0);
+    expect(mock.raw.character.flags.ddbimporter.totalHP).toBe(14);
+    expect(mock.raw.character.system.attributes.hp.value).toBe(14);
+  });
+
   it("stores metadata flags", () => {
     const mock = makeMockCharacter({
       ddbCharacter: { baseHitPoints: 25, removedHitPoints: 3 },

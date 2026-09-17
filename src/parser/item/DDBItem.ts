@@ -607,8 +607,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateGrantedModifiersDamageParts() {
+    // DDB files both healing amounts and maximum hit point increases as bonus/hit-points; the
+    // dice block tells them apart (EffectGenerator turns the dice-less ones into hp.bonuses.overall)
     const healingModifiers = this.ddbDefinition.grantedModifiers.filter(
-      (mod) => mod.type === "bonus" && mod.subType === "hit-points",
+      (mod) => mod.type === "bonus" && mod.subType === "hit-points" && (mod.dice ?? mod.die),
     );
     if (healingModifiers) {
       const healingDamageParts = DDBItem.getDamageParts(healingModifiers, "healing");
@@ -2072,7 +2074,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const regainMatch = description.match(regainExpression);
     logger.debug(`${this.name} Description Healing matches`, { description, regainMatch });
 
-    if (regainMatch) {
+    // DDB ships the healing amount as a hit-points bonus modifier on the same items whose text
+    // says "regain 2d4 + 2 Hit Points" (Periapt of Health, the Potions of Healing); the modifier
+    // part is already the primary heal, so the prose must not become a second "Healing" activity
+    if (regainMatch && this.healingParts.length > 0) {
+      logger.debug(`${this.name}: skipping description healing, granted modifiers already supply it`);
+    } else if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, "").diceString,
@@ -3476,10 +3483,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.documentType === "container") return null;
     if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
+    // a healing-only item (Potion of Healing, Periapt of Health) leads with its first healing
+    // part; #addHealAdditionalActivities only builds the extras, so returning null here would
+    // leave the item with no heal at all
     if (this.healingParts.length > 0) {
       if (!this.actionData.save && !["weapon", "staff"].includes(this.parsingType ?? "") && this.damageParts.length === 0) {
-        // we damage healing parts elsewhere
-        return null;
+        return "heal";
       }
     }
     if (["weapon", "staff"].includes(this.parsingType ?? "")) {
