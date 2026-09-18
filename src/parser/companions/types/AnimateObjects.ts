@@ -3,6 +3,8 @@ import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
 interface IAnimatedObject2014 {
+  /** English size name for the summons key; the actor's own name uses the localised label */
+  key: string;
   size: TActorSizes;
   img: string;
   hp: number;
@@ -18,11 +20,11 @@ interface IAnimatedObject2014 {
  * single Animated Object stat block instead and is built by the companion parser.
  */
 const ANIMATED_OBJECTS_2014: IAnimatedObject2014[] = [
-  { size: "tiny", img: "icons/sundries/misc/key-short-glowing.webp", hp: 20, ac: 18, str: 4, dex: 18, toHit: 8, dice: { number: 1, faces: 4, bonus: 4 } },
-  { size: "sm", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 25, ac: 16, str: 6, dex: 14, toHit: 6, dice: { number: 1, faces: 8, bonus: 2 } },
-  { size: "med", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 40, ac: 13, str: 10, dex: 12, toHit: 5, dice: { number: 2, faces: 6, bonus: 1 } },
-  { size: "lg", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 50, ac: 10, str: 14, dex: 10, toHit: 6, dice: { number: 2, faces: 10, bonus: 2 } },
-  { size: "huge", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 80, ac: 10, str: 18, dex: 6, toHit: 8, dice: { number: 2, faces: 12, bonus: 4 } },
+  { key: "Tiny", size: "tiny", img: "icons/sundries/misc/key-short-glowing.webp", hp: 20, ac: 18, str: 4, dex: 18, toHit: 8, dice: { number: 1, faces: 4, bonus: 4 } },
+  { key: "Small", size: "sm", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 25, ac: 16, str: 6, dex: 14, toHit: 6, dice: { number: 1, faces: 8, bonus: 2 } },
+  { key: "Medium", size: "med", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 40, ac: 13, str: 10, dex: 12, toHit: 5, dice: { number: 2, faces: 6, bonus: 1 } },
+  { key: "Large", size: "lg", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 50, ac: 10, str: 14, dex: 10, toHit: 6, dice: { number: 2, faces: 10, bonus: 2 } },
+  { key: "Huge", size: "huge", img: "icons/sundries/books/book-clasp-spiral-green.webp", hp: 80, ac: 10, str: 18, dex: 6, toHit: 8, dice: { number: 2, faces: 12, bonus: 4 } },
 ];
 
 export async function getAnimateObjects2014({
@@ -108,13 +110,23 @@ export async function getAnimateObjects2014({
     const manager = new DDBCompanionMixin(action, { forceRulesVersion: "2014" }, { addMonsterEffects: true });
     manager.npc = stub;
     const features = await manager.getFeature(action, "action");
+    // The table gives a finished attack bonus. The feature parser works with proficiency 0 and so
+    // records the attack as proficient with the remainder as a bonus; the placed NPC then adds
+    // its own proficiency on top (+10 for a Tiny object, not +8). State the total as flat.
+    for (const feature of features) {
+      for (const activity of Object.values(feature.system?.activities ?? {}) as I5eActivity[]) {
+        if (activity.type !== "attack") continue;
+        foundry.utils.setProperty(activity, "attack.flat", true);
+        foundry.utils.setProperty(activity, "attack.bonus", `${data.toHit}`);
+      }
+    }
     stub.items = features;
     stub = await DDBCompanionMixin.addEnrichedImageData(stub);
     const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-    result[`AnimateObject${size.label}2014`] = {
+    result[`AnimateObject${data.key}2014`] = {
       name: `Animated Object (${size.label})`,
-      version: enriched ? "3" : "2",
+      version: enriched ? "5" : "4",
       required: null,
       isJB2A: false,
       needsJB2A: false,

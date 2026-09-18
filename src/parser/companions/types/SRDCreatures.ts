@@ -3,81 +3,6 @@ import DDBMonsterFactory from "../../DDBMonsterFactory";
 import { getSRDObjects } from "./SRDObjects";
 import { findSRDItemSummon, srdCreatureKey } from "./SRDItemSummonTable";
 
-interface ISRDCreature {
-  name: string;
-  ddbId: string;
-  source: "2014" | "2024";
-}
-
-/**
- * Build summon actors from published DDB monsters, for spells that call ordinary creatures
- * rather than carrying their own stat block. The key each actor is stored under is
- * `<keyPrefix><Name without spaces><source>`, which is what an enricher's `profileKeys` names.
- */
-async function getCreatureSummons({ creatures, keyPrefix, folderName }: {
-  creatures: ISRDCreature[];
-  keyPrefix: string;
-  folderName: string;
-}): Promise<ICompanionResult> {
-  const result: ICompanionResult = {};
-  if (creatures.length === 0) return result;
-
-  const monsterFactory = new DDBMonsterFactory();
-  await monsterFactory.fetchDDBMonsterSourceData({ ids: creatures.map((creature) => parseInt(creature.ddbId)) });
-  const monsterResults = await monsterFactory.parse();
-
-  for (const creature of creatures) {
-    const stub = monsterResults.actors.find((actor) =>
-      actor.name === creature.name
-      && actor.system.source?.rules === creature.source,
-    );
-    if (!stub) continue;
-
-    result[`${keyPrefix}${creature.name.replaceAll(" ", "")}${creature.source}`] = {
-      name: creature.name,
-      version: "1",
-      required: null,
-      isJB2A: false,
-      needsJB2A: false,
-      needsJB2APatreon: false,
-      folderName,
-      data: stub,
-    };
-  }
-
-  logger.verbose(`${folderName} summons result`, result);
-  return result;
-}
-
-/** The five steeds the 2014 spell names; the 2024 spell has its own Otherworldly Steed block. */
-export async function getFindSteed2014(_data: ICompanionData): Promise<ICompanionResult> {
-  return getCreatureSummons({
-    keyPrefix: "FindSteed",
-    folderName: "Find Steed",
-    creatures: [
-      { name: "Warhorse", ddbId: "17049", source: "2014" },
-      { name: "Pony", ddbId: "16984", source: "2014" },
-      { name: "Camel", ddbId: "16819", source: "2014" },
-      { name: "Elk", ddbId: "16857", source: "2014" },
-      { name: "Mastiff", ddbId: "16953", source: "2014" },
-    ],
-  });
-}
-
-/** The giant forms the 2014 spell transforms vermin into; the 2024 spell has its own block. */
-export async function getGiantInsect2014(_data: ICompanionData): Promise<ICompanionResult> {
-  return getCreatureSummons({
-    keyPrefix: "GiantInsect",
-    folderName: "Giant Insect",
-    creatures: [
-      { name: "Giant Centipede", ddbId: "16877", source: "2014" },
-      { name: "Giant Spider", ddbId: "16895", source: "2014" },
-      { name: "Giant Wasp", ddbId: "16898", source: "2014" },
-      { name: "Giant Scorpion", ddbId: "16892", source: "2014" },
-    ],
-  });
-}
-
 /**
  * DDB monster ids for the ordinary creatures SRD magic items and spells call, per ruleset. Giant Fly and
  * Avatar of Death are Dungeon Master's Guide monsters DDB publishes once for both rulesets.
@@ -97,13 +22,16 @@ const CREATURE_IDS: Record<string, { "2014": string; "2024": string }> = {
   "Clay Golem": { "2014": "16825", "2024": "5194945" },
   "Dire Wolf": { "2014": "16841", "2024": "4775812" },
   "Djinni": { "2014": "16842", "2024": "5194971" },
+  "Camel": { "2014": "16819", "2024": "4775807" },
   "Earth Elemental": { "2014": "16853", "2024": "5194980" },
   "Efreeti": { "2014": "16854", "2024": "5194981" },
   "Elephant": { "2014": "16855", "2024": "4775814" },
+  "Elk": { "2014": "16857", "2024": "4775815" },
   "Fire Elemental": { "2014": "16861", "2024": "4904758" },
   "Flesh Golem": { "2014": "16863", "2024": "5194997" },
   "Giant Badger": { "2014": "16874", "2024": "4775817" },
   "Giant Boar": { "2014": "16876", "2024": "5195013" },
+  "Giant Centipede": { "2014": "16877", "2024": "5195014" },
   "Giant Constrictor Snake": { "2014": "16878", "2024": "5195015" },
   "Giant Elk": { "2014": "16882", "2024": "5195018" },
   "Giant Fly": { "2014": "27750", "2024": "27750" },
@@ -111,6 +39,9 @@ const CREATURE_IDS: Record<string, { "2014": string; "2024": string }> = {
   "Giant Hyena": { "2014": "16886", "2024": "5195021" },
   "Giant Owl": { "2014": "16889", "2024": "5195024" },
   "Giant Rat": { "2014": "16891", "2024": "5195025" },
+  "Giant Scorpion": { "2014": "16892", "2024": "5195026" },
+  "Giant Spider": { "2014": "16895", "2024": "4775821" },
+  "Giant Wasp": { "2014": "16898", "2024": "5195032" },
   "Giant Weasel": { "2014": "16899", "2024": "4775822" },
   "Goat": { "2014": "16906", "2024": "4775823" },
   "Griffon": { "2014": "16913", "2024": "5195062" },
@@ -121,6 +52,7 @@ const CREATURE_IDS: Record<string, { "2014": string; "2024": string }> = {
   "Nightmare": { "2014": "16964", "2024": "5195143" },
   "Owl": { "2014": "16974", "2024": "4775831" },
   "Panther": { "2014": "16976", "2024": "4775832" },
+  "Pony": { "2014": "16984", "2024": "4775833" },
   "Rat": { "2014": "16991", "2024": "4775836" },
   "Raven": { "2014": "16992", "2024": "4775837" },
   "Riding Horse": { "2014": "16997", "2024": "4775839" },
@@ -128,28 +60,32 @@ const CREATURE_IDS: Record<string, { "2014": string; "2024": string }> = {
   "Stone Golem": { "2014": "17025", "2024": "4904850" },
   "Swarm of Rats": { "2014": "17032", "2024": "5195228" },
   "Tiger": { "2014": "17036", "2024": "4775846" },
+  "Warhorse": { "2014": "17049", "2024": "4775848" },
   "Water Elemental": { "2014": "17051", "2024": "5195261" },
   "Weasel": { "2014": "17052", "2024": "4775849" },
 };
 
 /**
- * Build the named creatures for the importing ruleset. Every item shares one folder and one key
- * per creature, so the Mastiff behind a Bag of Tricks and an Onyx Dog is a single actor.
+ * Build the named creatures for the importing ruleset. Every caller shares one folder and one key
+ * per creature, so the Mastiff behind Find Steed, a Bag of Tricks and an Onyx Dog is a single
+ * actor. That matters beyond tidiness: the summons compendium derives an actor's id from its
+ * name and ruleset, so two keys for the same creature would fight over one document.
+ *
+ * Parsed monsters are matched by DDB id, never by name: with the legacy postfix setting on, a
+ * 2014 monster is named "Mastiff (Legacy)".
  */
 export async function getSRDCreatures(names: string[], is2014: boolean): Promise<ICompanionResult> {
   const source = is2014 ? "2014" : "2024";
-  const creatures = names.filter((name) => CREATURE_IDS[name]).map((name) => ({ name, ddbId: CREATURE_IDS[name][source] }));
+  const creatures = names.filter((name) => CREATURE_IDS[name]).map((name) => ({ name, ddbId: parseInt(CREATURE_IDS[name][source]) }));
   const result: ICompanionResult = {};
   if (creatures.length === 0) return result;
 
   const monsterFactory = new DDBMonsterFactory();
-  await monsterFactory.fetchDDBMonsterSourceData({ ids: [...new Set(creatures.map((creature) => parseInt(creature.ddbId)))] });
+  await monsterFactory.fetchDDBMonsterSourceData({ ids: [...new Set(creatures.map((creature) => creature.ddbId))] });
   const monsterResults = await monsterFactory.parse();
 
   for (const creature of creatures) {
-    // a monster DDB publishes once carries one ruleset tag, so fall back to the name alone
-    const stub = monsterResults.actors.find((actor) => actor.name === creature.name && actor.system.source?.rules === source)
-      ?? monsterResults.actors.find((actor) => actor.name === creature.name);
+    const stub = monsterResults.actors.find((actor) => Number(actor.flags?.ddbimporter?.id) === creature.ddbId);
     if (!stub) continue;
     result[srdCreatureKey(creature.name, is2014)] = {
       name: creature.name,
@@ -164,6 +100,16 @@ export async function getSRDCreatures(names: string[], is2014: boolean): Promise
   }
   logger.verbose("SRD creature summons result", result);
   return result;
+}
+
+/** The five steeds the 2014 spell names; the 2024 spell has its own Otherworldly Steed block. */
+export async function getFindSteed2014(_data: ICompanionData): Promise<ICompanionResult> {
+  return getSRDCreatures(["Warhorse", "Pony", "Camel", "Elk", "Mastiff"], true);
+}
+
+/** The giant forms the 2014 spell transforms vermin into; the 2024 spell has its own block. */
+export async function getGiantInsect2014(_data: ICompanionData): Promise<ICompanionResult> {
+  return getSRDCreatures(["Giant Centipede", "Giant Spider", "Giant Wasp", "Giant Scorpion"], true);
 }
 
 /** Every actor an SRD summoning item places: its published creatures and its object tokens. */

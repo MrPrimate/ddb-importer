@@ -2330,10 +2330,6 @@ describe("feature effect durations match the feature text", () => {
 
 describe("warlock FormOfTheBeast", () => {
   const Enricher = ClassEnrichers.Warlock.FormOfTheBeast;
-  const withLevel = (level: number) => build(Enricher, {
-    ddbParser: { ddbData: { character: { classes: [{ definition: { name: "Warlock" }, level }] } } },
-  });
-
   it("drives the activity duration from a feature scale value", () => {
     const e = build(Enricher);
     expect(e.activity.data.duration).toEqual({ value: "@scale.form-of-the-beast.duration", units: "minute" });
@@ -2351,14 +2347,12 @@ describe("warlock FormOfTheBeast", () => {
     expect(e.override.data.flags).toEqual({ dnd5e: { advancementRoot: "warlock00000000a" } });
   });
 
-  it("leaves the native effect to inherit and gives DAE the span for the import level", () => {
-    const [native, dae] = withLevel(5).effects;
-    expect(native).toMatchObject({ daeNever: true, options: { durationSeconds: null, expiry: null } });
-    expect(dae).toMatchObject({ daeOnly: true, options: { durationSeconds: 600 } });
-    expect(withLevel(6).effects[1].options.durationSeconds).toBe(3600);
-    // munching has no character: the base span
-    expect(build(Enricher).effects[1].options.durationSeconds).toBe(600);
-    expect(native.changes).toEqual(dae.changes);
+  it("leaves one effect to inherit the scaled activity duration", () => {
+    const effects = build(Enricher).effects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0]).toMatchObject({ name: "Form of the Beast", activityMatch: "Transform", options: { durationSeconds: null, expiry: null } });
+    expect(effects[0].daeOnly).toBeUndefined();
+    expect(effects[0].daeNever).toBeUndefined();
   });
 });
 
@@ -2372,6 +2366,14 @@ describe("familiar summons from class features", () => {
     expect(slot.init).toEqual({ name: "Summon with Spell Slot", type: "summon" });
     expect(slot.build.consumptionOverride.targets[0]).toMatchObject({ type: "spellSlots", value: "1" });
     expect(typeof slot.overrides.func).toBe("function");
+  });
+
+  it("Wild Companion spends only Wild Shape under 2014 rules", () => {
+    const e = build(ClassEnrichers.Druid.WildCompanion, { is2014: true });
+    expect(e.type).toBe("summon");
+    expect(e.activity.itemConsumeTargetName).toBe("Wild Shape");
+    expect(e.activity.data.creatureTypes).toEqual(["fey"]);
+    expect(e.additionalActivities).toEqual([]);
   });
 
   it("Investment of the Chain Master offers flying and swimming familiars with their speed", () => {

@@ -1015,8 +1015,10 @@ describe("legacy SRD summon spells", () => {
   const legacy = { is2014: true };
 
   it.each([
-    ["FindSteed", "Summon Steed", ["FindSteedWarhorse2014", "FindSteedPony2014", "FindSteedCamel2014", "FindSteedElk2014", "FindSteedMastiff2014"], ["1", "1", "1", "1", "1"]],
-    ["GiantInsect", "Transform Insects", ["GiantInsectGiantCentipede2014", "GiantInsectGiantSpider2014", "GiantInsectGiantWasp2014", "GiantInsectGiantScorpion2014"], ["10", "3", "5", "1"]],
+    // shared SRDCreature keys: the summons compendium ids an actor by name and ruleset, so the
+    // Mastiff here must be the same document an Onyx Dog or a Rust Bag of Tricks asks for
+    ["FindSteed", "Summon Steed", ["SRDCreatureWarhorse2014", "SRDCreaturePony2014", "SRDCreatureCamel2014", "SRDCreatureElk2014", "SRDCreatureMastiff2014"], ["1", "1", "1", "1", "1"]],
+    ["GiantInsect", "Transform Insects", ["SRDCreatureGiantCentipede2014", "SRDCreatureGiantSpider2014", "SRDCreatureGiantWasp2014", "SRDCreatureGiantScorpion2014"], ["10", "3", "5", "1"]],
   ])("%s summons published creatures in 2014 and stands down in 2024", (name, activityName, keys, counts) => {
     const Enricher = (SpellEnrichers as Record<string, any>)[name];
     const e = build(Enricher, legacy);

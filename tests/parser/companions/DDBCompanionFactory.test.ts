@@ -21,3 +21,28 @@ describe("DDBCompanionFactory.subTypesInBlock", () => {
     expect(DDBCompanionFactory.subTypesInBlock("Not A Multi Companion", "anything")).toEqual([]);
   });
 });
+
+/**
+ * addCRSummoning merges table data onto the activity, and mergeObject replaces arrays: a creature
+ * type restriction the enricher already stated (Wild Companion's fey-only familiar) has to win
+ * over the table's generic options.
+ */
+describe("DDBCompanionFactory.addCRSummoning creature types", () => {
+  const run = async (activity: Record<string, any>) => {
+    const factory = { originName: "Conjure Woodland Beings", originDocument: { system: { activities: {} as Record<string, any> } }, options: {} };
+    await (DDBCompanionFactory.prototype as any).addCRSummoning.call(factory, activity);
+    return factory.originDocument.system.activities[activity._id];
+  };
+
+  it("keeps the creature types the activity already carries", async () => {
+    const result = await run({ _id: "act0000000000001", type: "summon", creatureTypes: ["plant"] });
+    expect(result.creatureTypes).toEqual(["plant"]);
+    expect(result.summon.mode).toBe("cr");
+    expect(result.profiles).toHaveLength(4);
+  });
+
+  it("takes the table's creature types when the activity states none", async () => {
+    expect((await run({ _id: "act0000000000002", type: "summon", creatureTypes: [] })).creatureTypes).toEqual(["fey"]);
+    expect((await run({ _id: "act0000000000003", type: "summon" })).creatureTypes).toEqual(["fey"]);
+  });
+});

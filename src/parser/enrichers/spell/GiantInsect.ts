@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { srdCreatureKey } from "../../companions/types/SRDItemSummonTable";
 
 /**
  * The 2014 spell turns up to ten centipedes, three spiders, five wasps or one scorpion into their
@@ -26,10 +27,10 @@ export default class GiantInsect extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
-        { count: "10", name: "GiantInsectGiantCentipede2014" },
-        { count: "3", name: "GiantInsectGiantSpider2014" },
-        { count: "5", name: "GiantInsectGiantWasp2014" },
-        { count: "1", name: "GiantInsectGiantScorpion2014" },
+        { count: "10", name: srdCreatureKey("Giant Centipede", true) },
+        { count: "3", name: srdCreatureKey("Giant Spider", true) },
+        { count: "5", name: srdCreatureKey("Giant Wasp", true) },
+        { count: "1", name: srdCreatureKey("Giant Scorpion", true) },
       ],
       summons: {
         match: {

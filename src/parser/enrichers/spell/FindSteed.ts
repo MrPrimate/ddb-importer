@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { srdCreatureKey } from "../../companions/types/SRDItemSummonTable";
 
 /**
  * The 2014 spell calls one of five ordinary mounts as a celestial, fey or fiend, the shape the
@@ -26,11 +27,11 @@ export default class FindSteed extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
-        { count: "1", name: "FindSteedWarhorse2014" },
-        { count: "1", name: "FindSteedPony2014" },
-        { count: "1", name: "FindSteedCamel2014" },
-        { count: "1", name: "FindSteedElk2014" },
-        { count: "1", name: "FindSteedMastiff2014" },
+        { count: "1", name: srdCreatureKey("Warhorse", true) },
+        { count: "1", name: srdCreatureKey("Pony", true) },
+        { count: "1", name: srdCreatureKey("Camel", true) },
+        { count: "1", name: srdCreatureKey("Elk", true) },
+        { count: "1", name: srdCreatureKey("Mastiff", true) },
       ],
       summons: {
         match: {

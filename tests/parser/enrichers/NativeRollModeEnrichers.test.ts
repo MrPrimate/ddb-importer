@@ -296,3 +296,22 @@ describe("one-use attack modes keep their consumption tokens beside the native r
     expect(build(SpellEnrichers.ViciousMockery).effects).toHaveLength(1);
   });
 });
+
+/**
+ * The "Animated Object (" name routes both rulesets' objects to this Slam. The scaling force
+ * damage is the 2024 stat block's; a 2014 object's Slam is a fixed row of the spell's table.
+ */
+describe("SummonAnimatedObject Slam", () => {
+  const Slam = MonsterEnrichers.SummonAnimatedObject.Slam;
+  const named = (name: string, options: Record<string, any> = {}) => build(Slam, { ddbParser: { ddbMonster: { npc: { name } } }, ...options });
+
+  it("gives the 2024 object its scaling force damage", () => {
+    const part = named("Animated Object (Huge)").activity.data.damage.parts[0];
+    expect(part.custom.formula).toContain("@flags.dnd5e.summon.level");
+    expect(part.types).toEqual(["force"]);
+  });
+
+  it("leaves the 2014 table object's parsed damage alone", () => {
+    expect(named("Animated Object (Huge)", { is2014: true }).activity).toBeNull();
+  });
+});

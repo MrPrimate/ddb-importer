@@ -740,6 +740,13 @@ describe("SRDSummonItem", () => {
     expect(item("Figurine of Wondrous Power (Onyx Dog)", { is2014: true }).activity.profileKeys[0].name).toBe("SRDCreatureMastiff2014");
   });
 
+  it("gives a creature DDB publishes once a single key for both rulesets", () => {
+    const modern = item("Figurine of Wondrous Power (Ebony Fly)").activity.profileKeys[0].name;
+    const legacyKey = item("Figurine of Wondrous Power (Ebony Fly)", { is2014: true }).activity.profileKeys[0].name;
+    expect(modern).toBe("SRDCreatureGiantFly");
+    expect(legacyKey).toBe(modern);
+  });
+
   it("offers the whole Bag of Tricks table", () => {
     const keys = item("Gray Bag of Tricks").activity.profileKeys.map((k: any) => k.name);
     expect(keys).toHaveLength(8);

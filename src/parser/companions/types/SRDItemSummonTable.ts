@@ -86,7 +86,39 @@ export function findSRDItemSummon(name: string | null | undefined): ISRDItemSumm
   return SRD_ITEM_SUMMONS.find((entry) => name.includes(entry.match)) ?? null;
 }
 
-/** The key a summoned SRD creature is stored under, shared by every item that calls it. */
+/**
+ * Creatures DDB publishes once for both rulesets. They parse to a single actor, so they take a
+ * single key: a key per ruleset would give two keys fighting over one compendium document.
+ */
+const SINGLE_PRINTING = ["Giant Fly"];
+
+/** The key a summoned SRD creature is stored under, shared by every spell and item that calls it. */
 export function srdCreatureKey(name: string, is2014: boolean): string {
-  return `SRDCreature${name.replaceAll(" ", "")}${is2014 ? "2014" : "2024"}`;
+  const rules = SINGLE_PRINTING.includes(name) ? "" : (is2014 ? "2014" : "2024");
+  return `SRDCreature${name.replaceAll(" ", "")}${rules}`;
+}
+
+/**
+ * Keys these creatures were stored under before they moved to the shared `SRDCreature` keys. The
+ * summons compendium ids an actor by name and ruleset, so a world that munched under an old key
+ * already holds the document the new key wants; with "update existing" off it is never rewritten
+ * and keeps its old key. The summons manager reads this to re-key such a document and to resolve
+ * a profile against it meanwhile.
+ */
+const LEGACY_SUMMON_KEYS: Record<string, string[]> = {
+  SRDCreatureWarhorse2014: ["FindSteedWarhorse2014"],
+  SRDCreaturePony2014: ["FindSteedPony2014"],
+  SRDCreatureCamel2014: ["FindSteedCamel2014"],
+  SRDCreatureElk2014: ["FindSteedElk2014"],
+  SRDCreatureMastiff2014: ["FindSteedMastiff2014"],
+  SRDCreatureGiantCentipede2014: ["GiantInsectGiantCentipede2014"],
+  SRDCreatureGiantSpider2014: ["GiantInsectGiantSpider2014"],
+  SRDCreatureGiantWasp2014: ["GiantInsectGiantWasp2014"],
+  SRDCreatureGiantScorpion2014: ["GiantInsectGiantScorpion2014"],
+  SRDCreatureGiantFly: ["SRDCreatureGiantFly2014", "SRDCreatureGiantFly2024"],
+};
+
+/** Older keys the same summoned actor may still be stored under; empty for most keys. */
+export function legacySummonKeys(key: string): string[] {
+  return LEGACY_SUMMON_KEYS[key] ?? [];
 }
