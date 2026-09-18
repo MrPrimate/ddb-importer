@@ -5,6 +5,8 @@
 - Some spells on items would not exclude/remove concentration when cast.
 - Native Adventure Muncher would not remove the map sidebar from journals that is present in some DDB adventures.
 - CSS Updates for AUD.
+- Some infusions/enchantments would not auto link up on character import.
+- Some effect duration parsing improvements.
 
 # 7.5.4
 

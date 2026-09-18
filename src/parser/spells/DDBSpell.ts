@@ -481,13 +481,24 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
   }
 
+  /**
+   * DDB duration types that carry no unit, keyed to the dnd5e time period they mean. The
+   * remaining unit-less types (Instantaneous, Special) happen to match dnd5e's key through their
+   * first four letters, which is what the fallback below relies on.
+   */
+  static DURATION_TYPE_UNITS: Record<string, TDurationUnit> = {
+    "until dispelled": "disp",
+    "until dispelled or triggered": "dstr",
+  };
+
   _generateDuration() {
     if (this.ddbDefinition.duration) {
       let units: string;
       if (this.ddbDefinition.duration.durationUnit !== null) {
         units = this.ddbDefinition.duration.durationUnit.toLowerCase();
       } else {
-        units = this.ddbDefinition.duration.durationType.toLowerCase().substring(0, 4);
+        const durationType = this.ddbDefinition.duration.durationType.toLowerCase();
+        units = DDBSpell.DURATION_TYPE_UNITS[durationType] ?? durationType.substring(0, 4);
       }
       this.data.system.duration = {
         concentration: this.ddbDefinition.concentration,

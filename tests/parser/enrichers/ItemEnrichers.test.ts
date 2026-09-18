@@ -711,3 +711,11 @@ describe("seconds-canonical effect durations (dnd5e #7434)", () => {
     expect(build(ItemEnrichers.BeadOfForce).effects[0].options.durationSeconds).toBe(60);
   });
 });
+
+/** The applied +3 lasts an hour under 2014 rules and is permanent under 2024 (dnd5e 6.0 stamps it). */
+describe("OilOfSharpness", () => {
+  it("states the coating's duration, not the application time", () => {
+    expect(build(ItemEnrichers.OilOfSharpness, { is2014: true }).activity.data.duration).toEqual({ value: "1", units: "hour" });
+    expect(build(ItemEnrichers.OilOfSharpness, { is2014: false }).activity.data.duration).toEqual({ value: "", units: "perm" });
+  });
+});

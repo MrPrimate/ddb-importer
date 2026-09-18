@@ -1,14 +1,40 @@
 import { logger } from "../../lib/_module";
 
-async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
+/**
+ * Create the applied copy of an enchantment profile on an item at import time, shaped the way
+ * dnd5e 6.0's `EnchantActivity#applyEnchantment` shapes a runtime application. The copy must be
+ * `transfer: true`: since dnd5e #7319 `EnchantmentData#isApplied` is `transfer && item`, so a
+ * clone that keeps the profile's `transfer: false` is inert on the item (never yielded by
+ * `Item5e#allApplicableEffects`, untracked by the enchantment registry, never expired). The
+ * activity's duration is inherited the way the chat tray does it and change formulas are
+ * resolved against the origin, while the rider collection still keys off the create options.
+ */
+export async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
   const effectData = effect.toObject() as unknown as I5eEffectData;
+  const profileId = effectData._id;
   effectData.origin = activity.uuid;
+  effectData.transfer = true;
+  effectData.disabled = false;
+  foundry.utils.setProperty(effectData, "flags.dae.transfer", true);
+  foundry.utils.setProperty(effectData, "flags.dnd5e.enchantmentProfile", profileId);
+  foundry.utils.setProperty(effectData, "system.origin.activity", activity.uuid);
+  foundry.utils.setProperty(effectData, "system.origin.profile", profileId);
+
+  const inherited = activity.getAppliedEffectChanges?.(effect, { target: item }) ?? {};
+  if (!foundry.utils.isEmpty(inherited)) foundry.utils.mergeObject(effectData, inherited);
+
+  const forApplication = (ActiveEffect.implementation as unknown as {
+    forApplication?: (changes: unknown[], origin: unknown, target: unknown) => Promise<unknown[]>;
+  }).forApplication;
+  if (forApplication && effectData.system?.changes) {
+    effectData.system.changes = await forApplication(effectData.system.changes, activity, item) as typeof effectData.system.changes;
+  }
 
   const createOperation = {
     parent: item,
     keepOrigin: true,
     dnd5e: {
-      enchantmentProfile: effectData._id,
+      enchantmentProfile: profileId,
       activityId: activity._id,
     },
   } as unknown as any;

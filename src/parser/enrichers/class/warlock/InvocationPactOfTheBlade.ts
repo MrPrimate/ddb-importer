@@ -34,6 +34,14 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
           categories: ["simpleM", "martialM"],
           allowMagical: true,
         },
+        // the description parser reads "more than 5 feet away from you for 1 minute" as a
+        // 1-minute duration, which dnd5e 6.0 would stamp onto the applied enchantment; the bond
+        // lasts until it is replaced, the weapon is lost or the warlock dies
+        duration: {
+          value: "",
+          units: "spec",
+          special: "Until the bond ends",
+        },
       },
     };
   }

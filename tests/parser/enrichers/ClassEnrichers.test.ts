@@ -2275,3 +2275,25 @@ describe("seconds-canonical effect durations (dnd5e #7434)", () => {
     }
   });
 });
+
+/**
+ * dnd5e 6.0 stamps an enchant activity's duration onto the applied enchantment (#7267), so an
+ * open-ended enchantment must state an open-ended activity duration rather than letting the
+ * description parser's incidental "1 minute" through.
+ */
+describe("open-ended enchant activity durations", () => {
+  it("Pact of the Blade bonds until the bond ends", () => {
+    const e = build(ClassEnrichers.Warlock.InvocationPactOfTheBlade);
+    expect(e.activity.data.duration).toEqual({ value: "", units: "spec", special: "Until the bond ends" });
+    expect(e.effects[0].options).toMatchObject({ durationSeconds: null, expiry: null });
+  });
+
+  it("Armor Model keeps each model until it is changed", () => {
+    const e = build(ClassEnrichers.Artificer.ArmorModel);
+    const models = e.additionalActivities.filter((a: any) => a.init.type === "enchant");
+    expect(models.map((a: any) => a.init.name)).toEqual(["Guardian", "Infiltrator", "Dreadnaught"]);
+    for (const model of models) {
+      expect(model.build.durationOverride, model.init.name).toEqual({ value: "", units: "spec", special: "Until the model is changed" });
+    }
+  });
+});

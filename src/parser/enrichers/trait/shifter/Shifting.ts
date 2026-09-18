@@ -26,7 +26,7 @@ export default class Shifting extends DDBEnricherData {
         enchant: {
           self: true,
         },
-        duration: { units: "perm" },
+        duration: { value: "", units: "perm" },
       },
     };
   }
@@ -151,6 +151,7 @@ export default class Shifting extends DDBEnricherData {
           duration: {
             value: null,
             units: undefined,
+            expiry: null,
           },
           flags: {
             ddbimporter: {

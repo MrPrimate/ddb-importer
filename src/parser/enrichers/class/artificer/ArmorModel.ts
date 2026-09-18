@@ -25,6 +25,13 @@ export default class ArmorModel extends DDBEnricherData {
           activationOverride: {
             type: "special",
           },
+          // the model lasts until it is swapped at a rest; without this the description parser's
+          // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
+          },
           targetOverride: {
             affects: {
               type: "object",
@@ -186,6 +193,13 @@ export default class ArmorModel extends DDBEnricherData {
           generateActivation: true,
           activationOverride: {
             type: "special",
+          },
+          // the model lasts until it is swapped at a rest; without this the description parser's
+          // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
           },
           targetOverride: {
             affects: {
@@ -359,6 +373,13 @@ export default class ArmorModel extends DDBEnricherData {
           generateActivation: true,
           activationOverride: {
             type: "special",
+          },
+          // the model lasts until it is swapped at a rest; without this the description parser's
+          // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
           },
           targetOverride: {
             affects: {

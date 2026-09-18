@@ -324,6 +324,19 @@ describe("DDBSpell.prototype._generateDuration", () => {
     expect(mock.data.system.duration.value).toBe("");
   });
 
+  it("maps the unit-less permanent duration types to dnd5e's keys", () => {
+    for (const [durationType, units] of [["Until Dispelled", "disp"], ["Until Dispelled or Triggered", "dstr"], ["Special", "spec"]]) {
+      const mock = makeSpellMock({
+        ddbDefinition: {
+          duration: { durationUnit: null, durationInterval: null, durationType },
+          concentration: false,
+        },
+      });
+      mock._generateDuration();
+      expect(mock.data.system.duration.units, durationType).toBe(units);
+    }
+  });
+
   it("maps Hour duration", () => {
     const mock = makeSpellMock({
       ddbDefinition: {
