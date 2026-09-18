@@ -176,6 +176,7 @@ export { default as SpellguardShield } from "./SpellguardShield";
 export { default as SpellRefuelingRingReaction } from "./SpellRefuelingRingReaction";
 export { default as SpellSlingersPuppet } from "./SpellSlingersPuppet";
 export { default as SphereOfAnnihilation } from "./SphereOfAnnihilation";
+export { default as SRDSummonItem } from "./SRDSummonItem";
 export { default as Staff } from "./Staff";
 export { default as StaffOfBirdcalls } from "./StaffOfBirdcalls";
 export { default as StaffOfCharming } from "./StaffOfCharming";

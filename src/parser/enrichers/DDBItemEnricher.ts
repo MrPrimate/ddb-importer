@@ -3,6 +3,7 @@ import * as GenericEnrichers from "./generic/_module";
 import * as ItemEnrichers from "./item/_module";
 import { utils } from "../../lib/_module";
 import type DDBEnricherData from "./data/DDBEnricherData";
+import { SRD_ITEM_SUMMONS } from "../companions/types/SRDItemSummonTable";
 
 export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   constructor({
@@ -46,6 +47,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
+    // every summoning item in the table routes to the one table-driven enricher
+    ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
@@ -119,6 +122,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dulcimer": ItemEnrichers.MusicalInstrumentChecks,
     "Everlasting Sugarbomb": ItemEnrichers.EverlastingSugarbomb,
     "Evolved Item": ItemEnrichers.EvolvedItem,
+    "SRD Summon Item": ItemEnrichers.SRDSummonItem,
     "Flame Tongue": ItemEnrichers.FlameTongue,
     "Flute": ItemEnrichers.MusicalInstrumentChecks,
     "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,

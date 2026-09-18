@@ -86,6 +86,11 @@ export default class DraconicPresence extends DDBEnricherData {
           generateConsumption: false,
           generateTarget: true,
           generateSave: true,
+          // the description parser would otherwise take "immune to the aura for 24 hours"
+          durationOverride: {
+            value: "1",
+            units: "minute",
+          },
           saveOverride: {
             ability: ["wis"],
             dc: {

@@ -512,4 +512,23 @@ describe("DDBEnricherFactoryMixin._addDefaultActionMatchedActivities", () => {
     expect(added).toEqual(["abcdefghijklNe10"]);
     expect(added[0]).toHaveLength(16);
   });
+
+  it("carries the replaceActivityUses flag over from the absorbed action document", () => {
+    // the consumption link pass only resolves named itemUses targets on flagged documents
+    const e = makeActivityEnricher();
+    const action = makeFeature("Nature's Sanctuary", "abcdefghijklm001");
+    action.flags.ddbimporter.replaceActivityUses = true;
+    e.defaultActionFeatures = { "Nature's Sanctuary": [action] };
+    e._addDefaultActionMatchedActivities();
+    expect(e.data.flags.ddbimporter.replaceActivityUses).toBe(true);
+  });
+
+  it("leaves replaceActivityUses unset when the absorbed action does not carry it", () => {
+    const e = makeActivityEnricher();
+    e.defaultActionFeatures = {
+      "Predatory Strike": [makeFeature("Predatory Strike (STR)", "abcdefghijklm001")],
+    };
+    e._addDefaultActionMatchedActivities();
+    expect(e.data.flags.ddbimporter.replaceActivityUses).toBeUndefined();
+  });
 });

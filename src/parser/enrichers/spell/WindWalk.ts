@@ -19,6 +19,9 @@ export default class WindWalk extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
         ],
         options: {
+          // the first duration in the text is the 1 minute it takes to revert, which the
+          // description parser would otherwise stamp over the spell's 8 hours
+          durationSeconds: 28800,
           description: "Cloud form: the only actions available are Dash and reverting (which takes 1 minute, during which the creature is Incapacitated).",
         },
       },

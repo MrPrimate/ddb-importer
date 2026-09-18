@@ -28,6 +28,7 @@ export { default as EldritchInvocations } from "./EldritchInvocations";
 export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocationsAgonizingBlast";
 export { default as EldritchInvocationsEldritchSpear } from "./EldritchInvocationsEldritchSpear";
 export { default as EldritchInvocationsGiftOfTheProtectors } from "./EldritchInvocationsGiftOfTheProtectors";
+export { default as EldritchInvocationsInvestmentOfTheChainMaster } from "./EldritchInvocationsInvestmentOfTheChainMaster";
 export { default as EldritchInvocationsRebukeOfTheTalisman } from "./EldritchInvocationsRebukeOfTheTalisman";
 export { default as EldritchInvocationsRepellingBlast } from "./EldritchInvocationsRepellingBlast";
 export { default as EldritchMaster } from "./EldritchMaster";

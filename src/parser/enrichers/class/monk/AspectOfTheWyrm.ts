@@ -86,7 +86,8 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.damageResistanceChange(damageType),
       ],
       options: {
-        durationSeconds: 600,
+        // the aura, and the resistance it grants, lasts 1 minute
+        durationSeconds: 60,
       },
     }));
 

@@ -6,6 +6,7 @@ import HungryJaws from "../../../src/parser/enrichers/trait/lizardfolk/HungryJaw
 import EerieToken from "../../../src/parser/enrichers/trait/hexblood/EerieToken";
 import FelineAgility from "../../../src/parser/enrichers/trait/tabaxi/FelineAgility";
 import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpeed";
+import HoldBreath from "../../../src/parser/enrichers/trait/generic/HoldBreath";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -126,5 +127,26 @@ describe("seconds-canonical effect durations (dnd5e #7434)", () => {
       expect(effect.options.expiry).toBe("turnEnd");
       expect(effect.options.durationSeconds).toBeUndefined();
     }
+  });
+});
+
+/** Hold Breath is shared by species with different limits, so the span comes from the trait text. */
+describe("HoldBreath", () => {
+  const withText = (description: string): any => makeEnricherData(HoldBreath, { ddbParser: { ddbDefinition: { description } } } as any);
+
+  it("reads a 15 minute limit", () => {
+    const e = withText("<p>You can hold your breath for up to 15 minutes at a time.</p>");
+    expect(e.activity.data.duration).toEqual({ value: "15", units: "minute" });
+    expect(e.effects[0].options.durationSeconds).toBe(900);
+  });
+
+  it("reads a 1 hour limit", () => {
+    const e = withText("<p>You can hold your breath for up to 1 hour.</p>");
+    expect(e.activity.data.duration).toEqual({ value: "1", units: "hour" });
+    expect(e.effects[0].options.durationSeconds).toBe(3600);
+  });
+
+  it("falls back to 15 minutes when the text names no span", () => {
+    expect(withText("").effects[0].options.durationSeconds).toBe(900);
   });
 });

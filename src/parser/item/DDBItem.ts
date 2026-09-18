@@ -9,6 +9,7 @@ import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
+import DDBSummonsManager from "../companions/DDBSummonsManager";
 
 interface IDDBItemMartialArtsDie {
   diceCount: number | null;
@@ -3233,6 +3234,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
+  /** Build the actors an item's summon activity places, when its enricher provides them. */
+  async _generateSummons() {
+    if (!this.enricher.generateSummons || !this.enricher.summonsFunction) return;
+    const summons = await this.enricher.summonsFunction({
+      ddbParser: this,
+      document: this.data,
+      raw: this.ddbDefinition.description ?? "",
+      text: this.data.system.description ?? { value: "", chat: "" },
+    });
+    await DDBSummonsManager.addGeneratedSummons(summons);
+  }
+
   async build() {
     try {
       await this.#prepare();
@@ -3269,6 +3282,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       }
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];
+
+      // before the activities: a summon activity resolves its profiles against the summons
+      // compendium, so the actors have to be in it first
+      await this._generateSummons();
 
       if (this.documentType !== "container") {
         // containers can't have activities.

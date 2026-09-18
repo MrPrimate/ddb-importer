@@ -1390,6 +1390,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
         DDBEffectImporter.mergeStandaloneEffects(this.data, feature);
 
+        // the cloned activities can carry named itemUses targets; the consumption
+        // link pass only visits documents with this flag, and the action document
+        // that owned it is discarded once its activities are absorbed here
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.replaceActivityUses")) {
+          foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+        }
+
         if (feature.system.advancement) {
           activityData.advancements.push(...(foundry.utils.deepClone(Object.values(feature.system.advancement)) as I5eAdvancement[]));
         }

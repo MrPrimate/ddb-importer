@@ -75,7 +75,9 @@ export default class DragonWings extends DDBEnricherData {
     return [{
       name: "Dragon Wings",
       options: {
-        durationSeconds: 600,
+        // 2024: "The wings last for 1 hour or until you dismiss them"; the 2014 wings have no
+        // time limit at all
+        durationSeconds: this.is2014 ? null : 3600,
       },
       changes: [
         DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.speeds.fly"),

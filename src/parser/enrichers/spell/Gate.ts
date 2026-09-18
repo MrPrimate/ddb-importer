@@ -5,6 +5,33 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class Gate extends DDBEnricherData {
 
+  /**
+   * Speaking a creature's name pulls it through the portal. The dnd5e SRD pack offers that on the
+   * 2014 spell as an open summon with one blank challenge-rating profile; the 2024 pack has none.
+   */
+  static SUMMON_CREATURE: IDDBAdditionalActivity = {
+    init: {
+      name: "Summon Creature",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
+    },
+    build: {
+      generateSummon: true,
+      noSpellslot: true,
+    },
+    overrides: {
+      noTemplate: true,
+      data: {
+        summon: {
+          mode: "cr",
+          prompt: true,
+        },
+        profiles: [
+          { name: "", count: "1" },
+        ],
+      },
+    },
+  };
+
   override get activity(): IDDBActivityData {
     return {
       name: "Small Vertical Portal",
@@ -54,6 +81,7 @@ export default class Gate extends DDBEnricherData {
           },
         },
       },
+      Gate.SUMMON_CREATURE,
     ];
   }
 

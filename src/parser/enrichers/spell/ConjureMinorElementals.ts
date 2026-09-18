@@ -1,12 +1,18 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * The 2024 spell is a 15-foot emanation of difficult terrain that adds elemental damage to the
+ * caster's attacks for 10 minutes. The 2014 spell of the same name summons elementals for an
+ * hour, so under 2014 rules every getter stands down and the default summon activity is built.
+ */
 export default class ConjureMinorElementals extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  override get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
+    if (this.is2014) return null;
     return {
       name: "Cast",
       data: {
@@ -17,7 +23,8 @@ export default class ConjureMinorElementals extends DDBEnricherData {
     };
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
+    if (this.is2014) return null;
     return [
       {
         init: {
@@ -65,6 +72,7 @@ export default class ConjureMinorElementals extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    if (this.is2014) return [];
     return [{
       name: "Conjured Minor Elementals",
       activityMatch: "Cast",
@@ -74,7 +82,8 @@ export default class ConjureMinorElementals extends DDBEnricherData {
     }];
   }
 
-  override get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData | null {
+    if (this.is2014) return null;
     return {
       data: {
         system: {

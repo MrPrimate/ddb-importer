@@ -7,6 +7,7 @@
 - CSS Updates for AUD.
 - Some infusions/enchantments would not auto link up on character import.
 - Some effect duration parsing improvements.
+- A multitude of summon fixes and enhancements.
 
 # 7.5.4
 

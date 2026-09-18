@@ -2297,3 +2297,100 @@ describe("open-ended enchant activity durations", () => {
     }
   });
 });
+
+/** Durations checked against the DDB feature text (2026-09-18 duration review). */
+describe("feature effect durations match the feature text", () => {
+  it("Dragon Wings lasts an hour in 2024 and has no limit in 2014", () => {
+    expect(build(ClassEnrichers.Sorcerer.DragonWings).effects[0].options.durationSeconds).toBe(3600);
+    expect(build(ClassEnrichers.Sorcerer.DragonWings, { is2014: true }).effects[0].options.durationSeconds).toBeNull();
+  });
+
+  it("Visage of the Astral Self lasts 10 minutes on both the activity and the effect", () => {
+    const e = build(ClassEnrichers.Monk.VisageOfTheAstralSelf);
+    expect(e.activity.data.duration).toEqual({ units: "minute", value: "10" });
+    expect(e.effects[0].options.durationSeconds).toBe(600);
+  });
+
+  it("Aspect of the Wyrm resistances last the aura's minute", () => {
+    const resistances = build(ClassEnrichers.Monk.AspectOfTheWyrm).effects.filter((effect: any) => effect.name.includes("Resistance"));
+    expect(resistances).toHaveLength(5);
+    for (const effect of resistances) expect(effect.options.durationSeconds).toBe(60);
+  });
+
+  it("Spreading Spores swirls for 1 minute", () => {
+    expect(build(ClassEnrichers.Druid.SpreadingSpores).activity.data.duration).toEqual({ value: "1", units: "minute" });
+  });
+
+  it("Draconic Presence saves carry the aura's minute, not the 24 hour immunity", () => {
+    const saves = build(ClassEnrichers.Sorcerer.DraconicPresence).additionalActivities.filter((a: any) => a.init?.type === "save");
+    expect(saves.length).toBeGreaterThan(0);
+    for (const save of saves) expect(save.build.durationOverride).toEqual({ value: "1", units: "minute" });
+  });
+});
+
+describe("warlock FormOfTheBeast", () => {
+  const Enricher = ClassEnrichers.Warlock.FormOfTheBeast;
+  const withLevel = (level: number) => build(Enricher, {
+    ddbParser: { ddbData: { character: { classes: [{ definition: { name: "Warlock" }, level }] } } },
+  });
+
+  it("drives the activity duration from a feature scale value", () => {
+    const e = build(Enricher);
+    expect(e.activity.data.duration).toEqual({ value: "@scale.form-of-the-beast.duration", units: "minute" });
+    expect(e.additionalAdvancements).toHaveLength(1);
+    expect(e.additionalAdvancements[0]).toMatchObject({
+      type: "ScaleValue",
+      configuration: { identifier: "duration", type: "number", scale: { 1: { value: 10 }, 6: { value: 60 } } },
+    });
+    expect(e.override.data.system.identifier).toBe("form-of-the-beast");
+    expect(e.override.data.flags).toBeUndefined();
+  });
+
+  it("roots the scale on the warlock class so a multiclass reads warlock level", () => {
+    const e = build(Enricher, { ddbParser: { ddbCharacter: { raw: { classes: [{ name: "Fighter", _id: "fighter00000000a" }, { name: "Warlock", _id: "warlock00000000a" }] } } } });
+    expect(e.override.data.flags).toEqual({ dnd5e: { advancementRoot: "warlock00000000a" } });
+  });
+
+  it("leaves the native effect to inherit and gives DAE the span for the import level", () => {
+    const [native, dae] = withLevel(5).effects;
+    expect(native).toMatchObject({ daeNever: true, options: { durationSeconds: null, expiry: null } });
+    expect(dae).toMatchObject({ daeOnly: true, options: { durationSeconds: 600 } });
+    expect(withLevel(6).effects[1].options.durationSeconds).toBe(3600);
+    // munching has no character: the base span
+    expect(build(Enricher).effects[1].options.durationSeconds).toBe(600);
+    expect(native.changes).toEqual(dae.changes);
+  });
+});
+
+describe("familiar summons from class features", () => {
+  it("Wild Companion summons for a Wild Shape use or a spell slot", () => {
+    const e = build(ClassEnrichers.Druid.WildCompanion);
+    expect(e.type).toBe("summon");
+    expect(e.activity).toMatchObject({ name: "Summon with Wild Shape", addItemConsume: true, itemConsumeTargetName: "Wild Shape" });
+    expect(e.activity.data.creatureTypes).toEqual(["fey"]);
+    const [slot] = e.additionalActivities;
+    expect(slot.init).toEqual({ name: "Summon with Spell Slot", type: "summon" });
+    expect(slot.build.consumptionOverride.targets[0]).toMatchObject({ type: "spellSlots", value: "1" });
+    expect(typeof slot.overrides.func).toBe("function");
+  });
+
+  it("Investment of the Chain Master offers flying and swimming familiars with their speed", () => {
+    const e = build(ClassEnrichers.Warlock.EldritchInvocationsInvestmentOfTheChainMaster);
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+    expect(e.addToDefaultAdditionalActivities).toBe(true);
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Find Familiar with Flight", "Find Familiar with Swimming"]);
+    expect(e.additionalActivities[0].overrides.data).toMatchObject({
+      summon: { mode: "cr" }, match: { saves: true }, profiles: [{ cr: "0", types: ["beast"] }],
+    });
+    expect(e.effects.map((effect: any) => [effect.name, effect.activityMatch, effect.changes[0].key])).toEqual([
+      ["Investment of Flight", "Find Familiar with Flight", "system.attributes.movement.speeds.fly"],
+      ["Investment of Swimming", "Find Familiar with Swimming", "system.attributes.movement.speeds.swim"],
+    ]);
+  });
+
+  it("Investment of the Chain Master does not repeat its summons on the DDB actions", () => {
+    const e = build(ClassEnrichers.Warlock.EldritchInvocationsInvestmentOfTheChainMaster, { isAction: true });
+    expect(e.additionalActivities).toEqual([]);
+    expect(e.effects).toEqual([]);
+  });
+});

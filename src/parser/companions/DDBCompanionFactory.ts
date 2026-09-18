@@ -534,6 +534,7 @@ export default class DDBCompanionFactory {
         },
         profiles: CR_DATA[this.originName].profiles,
         creatureTypes: CR_DATA[this.originName].creatureTypes,
+        ...(CR_DATA[this.originName].match ? { match: CR_DATA[this.originName].match } : {}),
       }
       : DICTIONARY.companions.FIND_FAMILIAR_MATCHES.includes(this.originName)
         ? await getFindFamiliarActivityData(activity, this.options)

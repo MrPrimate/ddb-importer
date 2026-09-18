@@ -978,3 +978,161 @@ describe("seconds-canonical effect durations (dnd5e #7434)", () => {
     expect(effect.options).toEqual({ expiry: "turnEnd", durationSeconds: null });
   });
 });
+
+describe("WindWalk", () => {
+  it("keeps Cloud Form for the spell's 8 hours, not the 1 minute it takes to revert", () => {
+    expect(build(SpellEnrichers.WindWalk).effects[0].options.durationSeconds).toBe(28800);
+  });
+});
+
+/** The 2014 spell of the same name summons elementals; only the 2024 emanation is automated here. */
+describe("ConjureMinorElementals", () => {
+  it("builds the emanation, extra damage and 10 minute effect for 2024", () => {
+    const e = build(SpellEnrichers.ConjureMinorElementals);
+    expect(e.type).toBe("utility");
+    expect(e.activity.data.behaviors).toHaveLength(1);
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Extra Damage"]);
+    expect(e.effects[0].options.durationSeconds).toBe(600);
+    expect(e.override.data.system.target.affects.type).toBe("enemy");
+  });
+
+  it("stands down for the 2014 summoning spell", () => {
+    const e = build(SpellEnrichers.ConjureMinorElementals, { is2014: true });
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
+    expect(e.additionalActivities).toBeNull();
+    expect(e.effects).toEqual([]);
+    expect(e.override).toBeNull();
+  });
+});
+
+/**
+ * Legacy spells the dnd5e 2014 SRD pack ships with a summon activity. `summonsFunction` reads the
+ * DDBImporter global, which these unit tests do not install, so only the declarative shape is
+ * pinned here; building the actors needs a live import.
+ */
+describe("legacy SRD summon spells", () => {
+  const legacy = { is2014: true };
+
+  it.each([
+    ["FindSteed", "Summon Steed", ["FindSteedWarhorse2014", "FindSteedPony2014", "FindSteedCamel2014", "FindSteedElk2014", "FindSteedMastiff2014"], ["1", "1", "1", "1", "1"]],
+    ["GiantInsect", "Transform Insects", ["GiantInsectGiantCentipede2014", "GiantInsectGiantSpider2014", "GiantInsectGiantWasp2014", "GiantInsectGiantScorpion2014"], ["10", "3", "5", "1"]],
+  ])("%s summons published creatures in 2014 and stands down in 2024", (name, activityName, keys, counts) => {
+    const Enricher = (SpellEnrichers as Record<string, any>)[name];
+    const e = build(Enricher, legacy);
+    expect(e.type).toBe("summon");
+    expect(e.generateSummons).toBe(true);
+    expect(e.activity.name).toBe(activityName);
+    expect(e.activity.profileKeys.map((k: any) => k.name)).toEqual(keys);
+    expect(e.activity.profileKeys.map((k: any) => k.count)).toEqual(counts);
+    expect(e.activity.summons.match.disposition).toBe(true);
+
+    const modern = build(Enricher);
+    expect(modern.type).toBeNull();
+    expect(modern.activity).toBeNull();
+    expect(modern.generateSummons).toBe(false);
+    expect(modern.summonsFunction).toBeNull();
+  });
+
+  it("Awaken places the shrub or tree of the ruleset being imported", () => {
+    for (const [options, rules] of [[legacy, "2014"], [{}, "2024"]] as const) {
+      const e = build(SpellEnrichers.Awaken, options);
+      expect(e.type).toBe("summon");
+      expect(e.generateSummons).toBe(true);
+      expect(e.activity.name).toBe("Awaken Plant");
+      expect(e.activity.profileKeys).toEqual([
+        { count: "1", name: `SRDCreatureAwakenedShrub${rules}` },
+        { count: "1", name: `SRDCreatureAwakenedTree${rules}` },
+      ]);
+      expect(e.activity.summons.match.disposition).toBe(true);
+    }
+  });
+
+  it("Find Steed arrives as a celestial, fey or fiend", () => {
+    expect(build(SpellEnrichers.FindSteed, legacy).activity.data.creatureTypes).toEqual(["celestial", "fey", "fiend"]);
+  });
+
+  it("Planar Ally is an open challenge-rating summon", () => {
+    const e = build(SpellEnrichers.PlanarAlly, legacy);
+    expect(e.type).toBe("summon");
+    expect(e.activity.data.summon).toEqual({ mode: "cr", prompt: true });
+    expect(e.activity.data.profiles).toEqual([{ name: "Planar Ally", count: "", cr: "30", types: ["celestial", "elemental", "fiend"] }]);
+    expect(build(SpellEnrichers.PlanarAlly).type).toBeNull();
+  });
+
+  it("Simulacrum halves the copy's hit points and makes it a friendly construct under both rulesets", () => {
+    for (const options of [legacy, {}]) {
+      const e = build(SpellEnrichers.Simulacrum, options);
+      expect(e.type).toBe("summon");
+      expect(e.activity.name).toBe("Create Simulacrum");
+      expect(e.activity.data.profiles).toEqual([{ name: "", count: "1" }]);
+      expect(e.activity.data.bonuses.hp).toBe("-ceil(@summon.attributes.hp.max / 2)");
+      expect(e.activity.data.creatureTypes).toEqual(["construct"]);
+      expect(e.activity.data.match.disposition).toBe(true);
+    }
+  });
+
+  it("Gate summons under both rulesets and True Polymorph only in 2014", () => {
+    const names = (Enricher: any, options = {}) => build(Enricher, options).additionalActivities
+      .filter((a: any) => a.init?.type === "summon").map((a: any) => a.init.name);
+    expect(names(SpellEnrichers.Gate, legacy)).toEqual(["Summon Creature"]);
+    expect(names(SpellEnrichers.Gate)).toEqual(["Summon Creature"]);
+    expect(names(SpellEnrichers.TruePolymorph, legacy)).toEqual(["Object into Creature"]);
+    expect(names(SpellEnrichers.TruePolymorph)).toEqual([]);
+    const creature = build(SpellEnrichers.TruePolymorph, legacy).additionalActivities.find((a: any) => a.init?.type === "summon");
+    expect(creature.overrides.data.profiles[0].cr).toBe("9");
+    expect(creature.overrides.data.summon.mode).toBe("cr");
+  });
+
+  it("Animate Objects scales the 2014 object budget by size", () => {
+    const e = build(SpellEnrichers.AnimateObjects, legacy);
+    expect(e.type).toBe("summon");
+    expect(e.generateSummons).toBe(true);
+    expect(e.activity.profileKeys).toEqual([
+      { count: "(10 + (@item.level - 5) * 2)", name: "AnimateObjectTiny2014" },
+      { count: "(10 + (@item.level - 5) * 2)", name: "AnimateObjectSmall2014" },
+      { count: "floor((10 + (@item.level - 5) * 2) / 2)", name: "AnimateObjectMedium2014" },
+      { count: "floor((10 + (@item.level - 5) * 2) / 4)", name: "AnimateObjectLarge2014" },
+      { count: "floor((10 + (@item.level - 5) * 2) / 8)", name: "AnimateObjectHuge2014" },
+    ]);
+    expect(e.activity.summons.match.attacks).toBe(false);
+    const modern = build(SpellEnrichers.AnimateObjects);
+    expect(modern.generateSummons).toBe(false);
+    expect(modern.activity.profileKeys[0].name).toBe("companion-animatedobjecttiny-2024");
+    expect(modern.activity.summons.match.attacks).toBe(true);
+  });
+
+  it("Spiritual Weapon is a summon under both rulesets", () => {
+    for (const options of [legacy, {}]) {
+      const e = build(SpellEnrichers.SpiritualWeapon, options);
+      expect(e.type).toBe("summon");
+      expect(e.generateSummons).toBe(true);
+      expect(e.activity.profileKeys.map((k: any) => k.name)).toEqual(["SpiritualWeaponShortSword", "ArcaneSwordAstralBlue"]);
+    }
+  });
+});
+
+describe("object spells placed as summons", () => {
+  it.each([
+    ["FloatingDisk", "Create Disk", "SRDObjectFloatingDisk"],
+    ["SecretChest", "Recall Chest", "SRDObjectSecretChest"],
+  ])("%s places a bare token under both rulesets", (name, activityName, key) => {
+    for (const options of [{}, { is2014: true }]) {
+      const e = build((SpellEnrichers as Record<string, any>)[name], options);
+      expect(e.type).toBe("summon");
+      expect(e.generateSummons).toBe(true);
+      expect(e.activity).toMatchObject({ name: activityName, profileKeys: [{ count: 1, name: key }] });
+    }
+  });
+
+  it("Scrying keeps its save and adds a slot-free sensor summon", () => {
+    const e = build(SpellEnrichers.Scrying);
+    expect(e.type).toBeNull();
+    expect(e.additionalActivities).toHaveLength(1);
+    expect(e.additionalActivities[0]).toMatchObject({
+      init: { name: "Create Sensor", type: "summon" },
+      build: { generateSummon: true, noSpellslot: true },
+      overrides: { profileKeys: [{ count: 1, name: "Clairvoyance" }] },
+    });
+  });
+});

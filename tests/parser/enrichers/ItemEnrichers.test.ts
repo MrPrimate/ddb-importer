@@ -719,3 +719,74 @@ describe("OilOfSharpness", () => {
     expect(build(ItemEnrichers.OilOfSharpness, { is2014: false }).activity.data.duration).toEqual({ value: "", units: "perm" });
   });
 });
+
+/**
+ * Items the dnd5e SRD packs ship with a summon. One table-driven enricher serves them; building
+ * the actors needs a live munch, so the declarative shape is what is pinned.
+ */
+describe("SRDSummonItem", () => {
+  const item = (name: string, options: Record<string, any> = {}) => build(ItemEnrichers.SRDSummonItem, { name, ddbParser: { originalName: name }, ...options });
+
+  it("replaces the primary activity of a pure summoning item", () => {
+    const e = item("Figurine of Wondrous Power (Onyx Dog)");
+    expect(e.type).toBe("summon");
+    expect(e.generateSummons).toBe(true);
+    expect(e.activity).toMatchObject({ name: "Become Mastiff", profileKeys: [{ count: "1", name: "SRDCreatureMastiff2024" }] });
+    expect(e.activity.summons.match.disposition).toBe(true);
+    expect(e.additionalActivities).toBeNull();
+  });
+
+  it("keys creatures by ruleset so a legacy item calls the legacy stat block", () => {
+    expect(item("Figurine of Wondrous Power (Onyx Dog)", { is2014: true }).activity.profileKeys[0].name).toBe("SRDCreatureMastiff2014");
+  });
+
+  it("offers the whole Bag of Tricks table", () => {
+    const keys = item("Gray Bag of Tricks").activity.profileKeys.map((k: any) => k.name);
+    expect(keys).toHaveLength(8);
+    expect(keys).toContain("SRDCreatureDireWolf2024");
+  });
+
+  it("rolls the Horn of Valhalla's berserkers", () => {
+    expect(item("Horn of Valhalla (Bronze)").activity.profileKeys).toEqual([{ count: "4d4 + 4", name: "SRDCreatureBerserker2024" }]);
+  });
+
+  it("matches a specific gem before the generic one", () => {
+    expect(item("Elemental Gem (Emerald)").activity.profileKeys.map((k: any) => k.name)).toEqual(["SRDCreatureWaterElemental2024"]);
+    expect(item("Elemental Gem").activity.profileKeys).toHaveLength(4);
+  });
+
+  it("sits beside the primary activity when the item does something else too", () => {
+    const e = item("Staff of the Python");
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
+    expect(e.additionalActivities).toHaveLength(1);
+    expect(e.additionalActivities[0]).toMatchObject({
+      init: { name: "Transform into Snake", type: "summon" },
+      build: { generateSummon: true },
+      overrides: { profileKeys: [{ count: "1", name: "SRDCreatureGiantConstrictorSnake2024" }] },
+    });
+    expect(item("Pipes of the Sewers").additionalActivities[0].build.activationOverride.type).toBe("bonus");
+  });
+
+  it("places bare object tokens for carpets, boats and the dancing sword", () => {
+    expect(item("Carpet of Flying").activity.profileKeys.map((k: any) => k.name)).toEqual([
+      "SRDObjectCarpetOfFlying3x5", "SRDObjectCarpetOfFlying4x6", "SRDObjectCarpetOfFlying5x7", "SRDObjectCarpetOfFlying6x9",
+    ]);
+    expect(item("Dancing Sword, Longsword").additionalActivities[0].overrides.profileKeys).toEqual([{ count: "1", name: "SRDObjectDancingSword" }]);
+  });
+
+  it("leaves the Iron Flask one blank profile and builds no actors", () => {
+    const e = item("Iron Flask");
+    expect(e.generateSummons).toBe(false);
+    expect(e.summonsFunction).toBeNull();
+    expect(e.additionalActivities[0].overrides.data.profiles).toEqual([{ name: "", count: "1" }]);
+  });
+
+  it("stands down for an item with no table entry", () => {
+    const e = item("Figurine of Wondrous Power, Byeshk Worg Pack");
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
+    expect(e.additionalActivities).toBeNull();
+    expect(e.generateSummons).toBe(false);
+  });
+});
