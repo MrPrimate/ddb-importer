@@ -92,7 +92,7 @@ An effect is provided that can be toggled to enable or disable the Melee Weapon 
       : `
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
-<p>DDB Importer can add the Proficiency Bonus damage on Heavy weapon hits through the feat's effect (any weapon attack with a Heavy weapon; the Attack-action-on-your-turn clause is not checked). The Damage action is a manual fallback for tables that disable that effect; using both applies the bonus twice.</p>
+<p>DDB Importer can add the Proficiency Bonus damage on Heavy weapon hits through toggling the feat's effect (any weapon attack with a Heavy weapon; the Attack-action-on-your-turn clause is not checked). The Damage action is a manual fallback for tables that disable that effect; using both applies the bonus twice.</p>
 </section>`;
     return {
       descriptionSuffix: description,
