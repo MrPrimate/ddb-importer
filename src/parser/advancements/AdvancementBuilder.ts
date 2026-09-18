@@ -73,4 +73,47 @@ export default class AdvancementBuilder {
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
+  /**
+   * An ItemChoice advancement picking spells by spell list and level rather than from a fixed
+   * pool, the shape the system uses for Mystic Arcanum and Magic Initiate. `choices` is keyed by
+   * the character or class level the pick happens at.
+   */
+  static buildSpellChoice({ name, hint, choices, level, lists = [], spell }: {
+    name: string;
+    hint?: string;
+    choices: TI5eAdvItemChoiceConfigChoices;
+    level: number | string;
+    lists?: string[];
+    spell: {
+      ability?: string[];
+      method: string;
+      prepared?: number;
+      uses?: { max: string; per: string; requireSlot: boolean };
+    };
+  }): I5eAdvancement {
+    const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
+    const update = {
+      name,
+      ...(hint ? { hint } : {}),
+      configuration: {
+        allowDrops: true,
+        pool: [],
+        choices,
+        restriction: {
+          level: String(level),
+          list: lists,
+        },
+        type: "spell",
+        spell: {
+          ability: spell.ability ?? [],
+          method: spell.method,
+          prepared: spell.prepared ?? 0,
+          uses: spell.uses ?? { max: "", per: "", requireSlot: false },
+        },
+      },
+    };
+    adv.updateSource(update as any);
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
 }

@@ -130,11 +130,120 @@ describe("Warlock MysticArcanum", () => {
     expectFreeCast(e, "Foresight", { period: "lr", spent: 0 });
   });
 
-  it("keeps only the once per Long Rest use when no arcanum spell is chosen", () => {
-    const e = build(ClassEnrichers.Warlock.MysticArcanum, "Mystic Arcanum (Level 7 Spell)", [], { klass: "Warlock" });
+  /** An unchosen arcanum: DDB's type 4 "Choose a Spell" choice, options keyed by spell definition id. */
+  function buildUnchosen(featureName: string, requiredLevel: number, { is2014 = false, isMuncher = false } = {}): any {
+    const featureId = 5001;
+    return makeEnricherData(ClassEnrichers.Warlock.MysticArcanum, {
+      name: featureName,
+      is2014,
+      klass: "Warlock",
+      ddbParser: { originalName: featureName, isMuncher, ddbDefinition: { id: featureId, requiredLevel } },
+      character: {
+        spells: { class: [] },
+        choices: {
+          class: [
+            { componentId: featureId, componentTypeId: 12168134, type: 4, optionValue: null, optionIds: [101, 102] },
+            { componentId: 9999, componentTypeId: 12168134, type: 4, optionValue: null, optionIds: [103] },
+          ],
+          choiceDefinitions: [{
+            id: "12168134-4",
+            options: [
+              { id: 101, label: "Etherealness", description: null, sourceId: 145 },
+              { id: 102, label: "Forcecage", description: null, sourceId: 1 },
+              { id: 103, label: "Foresight", description: null, sourceId: 145 },
+            ],
+          }],
+        },
+      },
+    });
+  }
+
+  it("offers a Warlock list spell choice, not a bare use, when no 2024 arcanum is chosen", () => {
+    const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13);
     expect(e.type).toBeNull();
     expect(e.activity).toBeNull();
-    expect(e.override.uses).toMatchObject({ max: "1", recovery: [{ period: "lr", type: "recoverAll" }] });
+    expect(e.override.uses).toBeUndefined();
+
+    expect(e.additionalAdvancements).toHaveLength(1);
+    const advancement = e.additionalAdvancements[0];
+    expect(advancement).toMatchObject({
+      type: "ItemChoice",
+      name: "Mystic Arcanum (Level 7 Spell)",
+      configuration: {
+        type: "spell",
+        pool: [],
+        restriction: { level: "7", list: ["class:warlock"] },
+        spell: { method: "atwill", uses: { max: "1", per: "lr", requireSlot: false } },
+      },
+    });
+    const choices = advancement.configuration.choices;
+    expect(choices["13"]).toEqual({ count: 1, replacement: false });
+    expect(Object.keys(choices)).toEqual(["13", "14", "15", "16", "17", "18", "19", "20"]);
+    expect(choices["20"]).toEqual({ count: null, replacement: true });
+    // repeated reads must not mint a second advancement id
+    expect(e.additionalAdvancements[0]._id).toBe(advancement._id);
+  });
+
+  it("gives the 2014 arcanum a single choice level with no replacement", () => {
+    const e = buildUnchosen("Mystic Arcanum (9th level)", 17, { is2014: true });
+    const advancement = e.additionalAdvancements[0];
+    expect(advancement.configuration.restriction).toMatchObject({ level: "9", list: ["class:warlock"] });
+    expect(advancement.configuration.choices).toEqual({ 17: { count: 1, replacement: false } });
+  });
+
+  it("adds no choice advancement once a spell is chosen", () => {
+    const e = build(ClassEnrichers.Warlock.MysticArcanum, "Mystic Arcanum (Level 6 Spell)", [
+      grantedSpell(0, "Circle of Death", oncePerLongRest, false),
+    ], { klass: "Warlock" });
+    expect(e.additionalAdvancements).toEqual([]);
+  });
+
+  it("resolves only this feature's spell options", () => {
+    const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13);
+    expect(e.arcanumOptions.map((o: any) => o.id)).toEqual([101, 102]);
+  });
+
+  describe("Warlock spell list top up", () => {
+    const addSpellsByDefinitionId = vi.fn();
+
+    beforeEach(() => {
+      addSpellsByDefinitionId.mockReset();
+      ClassEnrichers.Warlock.MysticArcanum._listedSpellIds.clear();
+      (globalThis as any).DDBImporter = {
+        lib: { SpellLists: { SpellListFactory: class {
+          addSpellsByDefinitionId = addSpellsByDefinitionId;
+        } } },
+      };
+      (globalThis as any).game.user = { isGM: true };
+    });
+
+    afterEach(() => {
+      delete (globalThis as any).DDBImporter;
+    });
+
+    it("sends the options to the Warlock list once during a munch", async () => {
+      addSpellsByDefinitionId.mockResolvedValue(2);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await e.customFunction({});
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(1);
+      expect(addSpellsByDefinitionId.mock.calls[0][0]).toBe("Warlock");
+      expect(addSpellsByDefinitionId.mock.calls[0][1].map((o: any) => [o.id, o.sourceId])).toEqual([[101, 145], [102, 1]]);
+    });
+
+    it("retries on a later pass when no spell resolved", async () => {
+      addSpellsByDefinitionId.mockResolvedValue(0);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await e.customFunction({});
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
+    });
+
+    it("leaves the spell lists alone on a character import", async () => {
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13);
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).not.toHaveBeenCalled();
+    });
   });
 });
 

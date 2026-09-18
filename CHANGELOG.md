@@ -8,6 +8,7 @@
 - Some infusions/enchantments would not auto link up on character import.
 - Some effect duration parsing improvements.
 - A multitude of summon fixes and enhancements.
+- Mule Munching a Warlock will now add Mystic Arcanum Spells to their spell list, and allow selection on advancement. @motomoto0295
 
 # 7.5.4
 

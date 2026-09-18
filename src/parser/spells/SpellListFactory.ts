@@ -52,6 +52,9 @@ export default class SpellListFactory {
   type = "class";
   ALL_SPELL_LISTS: string[] = [];
 
+  /** Basic Rules (2014) and Free Rules (2024) source ids mapped to their Player's Handbook. */
+  static BASIC_RULES_FALLBACK: Record<number, number> = { 1: 2, 148: 145 };
+
   #buildSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[] | undefined;
     if (!ddbSources) return;
@@ -272,6 +275,53 @@ export default class SpellListFactory {
     }
     const journal = await this._getSpellListJournal(source);
     await this._generateJournalSpellListPage(journal, spellListName, source);
+  }
+
+  /**
+   * Adds compendium spells, matched by DDB definition id, to a named list, one page per source
+   * book. Existing pages are extended rather than replaced, so this can top up a list the spell
+   * munch built (DDB's class spell endpoint stops at the class's highest slot level, which
+   * leaves the Warlock list without its Mystic Arcanum levels).
+   * @returns the number of spells resolved to a compendium uuid
+   */
+  async addSpellsByDefinitionId(spellListName: string, spells: { id: number; sourceId?: number | null }[]): Promise<number> {
+    if (!this.available || !this.sources || !this.spellCompendium) return 0;
+    await this.init();
+
+    const homebrew = this.sources.find((s) => s.id === 9999999);
+    const touchedSources = new Set<ISpellListSource>();
+    let resolved = 0;
+
+    for (const spell of spells) {
+      // basic rules books get no journal unless the setting asks for them, their spells sit on
+      // the matching Player's Handbook page instead
+      const sourceId = spell.sourceId && !this.filteredSources.some((s) => s.id === spell.sourceId)
+        ? SpellListFactory.BASIC_RULES_FALLBACK[spell.sourceId] ?? spell.sourceId
+        : spell.sourceId;
+      const source = this.filteredSources.find((s) => s.id === sourceId) ?? homebrew;
+      if (!source) continue;
+      const match = this.spellCompendium.index.find((s) =>
+        foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id,
+      );
+      if (!match) {
+        logger.debug(`Spell definition ${spell.id} not found in spell compendium for spell list ${spellListName}`);
+        continue;
+      }
+      if (!touchedSources.has(source)) {
+        this._addSpellListOutline(spellListName, source.acronym);
+        touchedSources.add(source);
+      }
+      this.uuidsBySourceAndSpellListName[source.acronym][spellListName].push(match.uuid);
+      resolved++;
+    }
+
+    if (resolved === 0) return 0;
+
+    for (const source of touchedSources) {
+      await this.buildSpellList(source, spellListName);
+    }
+    await this.registerSpellLists();
+    return resolved;
   }
 
   async registerSpellLists() {
