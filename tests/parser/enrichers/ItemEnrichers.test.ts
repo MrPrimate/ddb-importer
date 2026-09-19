@@ -360,6 +360,65 @@ describe("granted fly speeds go to whoever uses the item, not whoever carries it
   });
 });
 
+describe("FlameTongue", () => {
+  const Enricher = ItemEnrichers.FlameTongue;
+  const fireMod = (restriction: string, diceString = "2d6") => ({
+    ddbParser: {
+      ddbDefinition: { grantedModifiers: [{ type: "damage", subType: "fire", dice: { diceString }, restriction }] },
+    },
+  });
+
+  it("sets the blade ablaze with a self enchantment in place of the parser's restricted attack", () => {
+    const e = build(Enricher, fireMod("While Flaming"));
+    expect(e.addAutoAdditionalActivities).toBe(false);
+    expect(e.additionalActivities).toHaveLength(1);
+    const engulf = e.additionalActivities[0];
+    expect(engulf.init).toMatchObject({ name: "Engulf in Flames", type: "enchant" });
+    expect(engulf.overrides).toMatchObject({ noeffect: false, activationType: "bonus" });
+    expect(engulf.overrides.data.enchant).toEqual({ self: true });
+    // a counted duration would be stamped onto the open-ended enchantment
+    expect(engulf.overrides.data.duration.units).toBe("spec");
+  });
+
+  it("adds DDB's fire dice through the enchantment and carries the light as a transferring rider", () => {
+    const [ablaze, light] = build(Enricher, fireMod("While the sword is ablaze", "3d6")).effects;
+    expect(ablaze).toMatchObject({ type: "enchant", activityMatch: "Engulf in Flames" });
+    expect(ablaze.changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["name", "{} (Ablaze)"],
+      ["system.damage.parts", "[[\"3d6\", \"fire\"]]"],
+      // the toggle's next use removes the enchantment, so it reads as the way to put the flames out
+      ["activities[enchant].name", "Extinguish Flames"],
+    ]);
+    expect(ablaze.data.flags.ddbimporter.effectRiders).toEqual([light.data._id]);
+
+    expect(light.options.transfer).toBe(true);
+    expect(light.activityMatch).toBeUndefined();
+    expect(light.tokenChanges.slice(0, 2).map((c: any) => [c.key, c.type, c.value])).toEqual([
+      ["token.light.bright", "upgrade", "40"],
+      ["token.light.dim", "upgrade", "80"],
+    ]);
+  });
+
+  it("strips the fire dice the parser bakes into the attack only when DDB leaves them unrestricted", () => {
+    const parts = () => [
+      { number: 1, denomination: 8, types: ["radiant"] },
+      { number: 2, denomination: 6, types: ["fire"] },
+    ];
+
+    const baked = { damage: { parts: parts() } };
+    build(Enricher, fireMod("")).activity.func({ activity: baked });
+    expect(baked.damage.parts).toEqual([{ number: 1, denomination: 8, types: ["radiant"] }]);
+
+    const restricted = { damage: { parts: parts() } };
+    build(Enricher, fireMod("While Flaming")).activity.func({ activity: restricted });
+    expect(restricted.damage.parts).toHaveLength(2);
+  });
+
+  it("falls back to 2d6 when the payload has no fire modifier", () => {
+    expect(build(Enricher).flameDice).toBe("2d6");
+  });
+});
+
 describe("hazard gear regions", () => {
   it("Caltrops place a region that fires a save carrying the speed rider", () => {
     const e = build(ItemEnrichers.Caltrops);
