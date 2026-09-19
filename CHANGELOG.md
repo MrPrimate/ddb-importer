@@ -9,6 +9,7 @@
 - Some effect duration parsing improvements.
 - A multitude of summon fixes and enhancements.
 - Mule Munching a Warlock will now add Mystic Arcanum Spells to their spell list, and allow selection on advancement. @motomoto0295
+- About 40 items had gained transfer effects when they should be attached to activities. These have been fixed.
 
 # 7.5.4
 
