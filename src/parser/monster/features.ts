@@ -1,6 +1,7 @@
 import { logger, utils } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import { DDBReferenceLinker } from "../lib/_module";
+import { applyShapeShiftFormItems } from "./features/ShapeShiftForms";
 
 // extracts various attacks and features (not spells)
 // generates and extra descriptions found in these fields
@@ -53,6 +54,8 @@ DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
     ...this.featureFactory.mythic,
     ...this.featureFactory.villain,
   );
+
+  applyShapeShiftFormItems(this.items);
 
   this.items.forEach((item, i) => {
     if (!item.sort) item.sort = i;

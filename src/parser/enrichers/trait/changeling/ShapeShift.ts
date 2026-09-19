@@ -2,13 +2,20 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ShapeShift extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
+  }
+
   override get activity(): IDDBActivityData {
     return {
+      name: "Change Form",
       targetType: "self",
+      activationType: "action",
       data: {
         duration: {
-          units: "perm",
+          units: "inst",
         },
+        ...DDBEnricherData.formTransformData({ formless: true }),
       },
     };
   }
@@ -17,6 +24,12 @@ export default class ShapeShift extends DDBEnricherData {
     return [
       {
         name: "Shape Shifted",
+        activityMatch: "Change Form",
+        // the shape lasts until the changeling reverts, which is the transform's "No Form" choice
+        options: {
+          transfer: false,
+          durationSeconds: null,
+        },
         changes: [
           DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("cha"),
         ],

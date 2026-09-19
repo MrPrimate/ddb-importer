@@ -7,6 +7,7 @@ import EerieToken from "../../../src/parser/enrichers/trait/hexblood/EerieToken"
 import FelineAgility from "../../../src/parser/enrichers/trait/tabaxi/FelineAgility";
 import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpeed";
 import HoldBreath from "../../../src/parser/enrichers/trait/generic/HoldBreath";
+import ChangelingShapeShift from "../../../src/parser/enrichers/trait/changeling/ShapeShift";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -148,5 +149,29 @@ describe("HoldBreath", () => {
 
   it("falls back to 15 minutes when the text names no span", () => {
     expect(withText("").effects[0].options.durationSeconds).toBe(900);
+  });
+});
+
+describe("changeling Shape-Shift", () => {
+  it("is a single-form transform whose No Form choice reverts the changeling", () => {
+    const e = build(ChangelingShapeShift);
+    expect(e.type).toBe("transform");
+    expect(e.activity).toMatchObject({
+      name: "Change Form",
+      targetType: "self",
+      activationType: "action",
+      data: {
+        duration: { units: "inst" },
+        profiles: [],
+        settings: null,
+        transform: { mode: "form", formless: true, customize: false, preset: "" },
+      },
+    });
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({
+      name: "Shape Shifted",
+      activityMatch: "Change Form",
+      options: { transfer: false, durationSeconds: null },
+    });
   });
 });

@@ -347,6 +347,21 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     };
   }
 
+  /**
+   * Activity data for a form-mode transform ("Select Form"): the actor keeps its own stats and the
+   * forms are the effects linked to the activity by `activityMatch`, in hint order, the first being
+   * the default. `formless` adds a "No Form" choice that removes every applied form. Profiles and
+   * settings are written out empty because form mode never reads them. Duration is left to the
+   * caller: a form effect is cloned straight onto the actor, so it carries its own duration.
+   */
+  static formTransformData({ formless = true }: { formless?: boolean } = {}): Partial<I5eTransformActivity> {
+    return {
+      profiles: [],
+      settings: null,
+      transform: { mode: "form", formless, customize: false, preset: "" },
+    };
+  }
+
   // DDB sheet instructions are now stripped centrally in DDBFeatureMixin.getDescription,
   // so this is only needed for notes whose phrasing is not in DDB_SHEET_NOTE_MARKERS.
   static stripBuilderNote(html: string, builderNote = "Character Builder"): string {

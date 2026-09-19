@@ -1138,3 +1138,80 @@ describe("object spells placed as summons", () => {
     });
   });
 });
+
+describe("Alter Self and Disguise Self", () => {
+  const FORM_BLOCK = { mode: "form", formless: true, customize: false, preset: "" };
+
+  it("Alter Self is a self-enchantment whose three options are exclusive profiles", () => {
+    const e = build(SpellEnrichers.AlterSelf);
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Alter Self", data: { enchant: { self: true } } });
+    expect(e.activity.id).toHaveLength(16);
+    // concentration is read from the spell's own duration
+    expect(e.activity.data.duration).toBeUndefined();
+
+    const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+    expect(profiles.map((f: IDDBEffectHint) => f.name)).toEqual(["Aquatic Adaptation", "Change Appearance", "Natural Weapons"]);
+    for (const profile of profiles) {
+      expect(profile.activityMatch).toBe("Alter Self");
+      expect(profile.data._id).toHaveLength(16);
+      // while an option is applied the cast is the free Magic action that swaps option
+      expect(profile.changes).toEqual([
+        expect.objectContaining({ key: `system.activities.${e.activity.id}.name`, value: "Change Option" }),
+        expect.objectContaining({ key: `system.activities.${e.activity.id}.consumption.spellSlot`, value: "false" }),
+      ]);
+    }
+    expect(new Set(profiles.map((f: IDDBEffectHint) => f.data?._id)).size).toBe(3);
+  });
+
+  it("Alter Self carries the caster's effects and the natural weapon attack as riders", () => {
+    const e = build(SpellEnrichers.AlterSelf);
+    const riders = e.effects.filter((f: IDDBEffectHint) => f.type !== "enchant");
+    expect(riders.map((f: IDDBEffectHint) => f.name)).toEqual(["Alter Self: Aquatic Adaptation", "Alter Self: Change Appearance"]);
+    for (const rider of riders) {
+      expect(rider.options).toEqual({ transfer: true, durationSeconds: 3600 });
+    }
+    expect(riders[0].changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.speeds.swim", value: "@attributes.movement.speeds.walk" }),
+    ]);
+
+    const flagsOf = (name: string) => e.effects.find((f: IDDBEffectHint) => f.name === name).data.flags.ddbimporter;
+    expect(flagsOf("Aquatic Adaptation")).toEqual({ effectRiders: [riders[0].data._id], activityRiders: [] });
+    expect(flagsOf("Change Appearance")).toEqual({ effectRiders: [riders[1].data._id], activityRiders: [] });
+
+    expect(e.additionalActivities).toHaveLength(1);
+    const attack = e.additionalActivities[0];
+    expect(attack.init).toEqual({ name: "Natural Weapons", type: "attack" });
+    expect(attack.build).toMatchObject({ noSpellslot: true, generateConsumption: false, noeffect: true });
+    // the attack must not inherit the spell's concentration, or using it would restart the spell
+    expect(attack.build.generateDuration).toBe(true);
+    expect(attack.build.durationOverride).toEqual({ units: "inst", concentration: false });
+    expect(flagsOf("Natural Weapons")).toEqual({ effectRiders: [], activityRiders: [attack.overrides.id] });
+  });
+
+  it("Alter Self's natural weapon follows the ruleset", () => {
+    const modern = build(SpellEnrichers.AlterSelf).additionalActivities[0];
+    expect(modern.overrides.data.attack).toMatchObject({ ability: "spellcasting", bonus: "", type: { value: "melee", classification: "unarmed" } });
+    expect(modern.build.damageParts[0]).toMatchObject({
+      custom: { enabled: true, formula: "1d6 + @mod" },
+      types: ["bludgeoning", "piercing", "slashing"],
+    });
+
+    const legacy = build(SpellEnrichers.AlterSelf, { is2014: true }).additionalActivities[0];
+    expect(legacy.overrides.data.attack).toMatchObject({ ability: "str", bonus: "1" });
+    expect(legacy.build.damageParts[0].custom.formula).toBe("1d6 + @mod + 1");
+  });
+
+  it("Disguise Self is a single form that carries the spell's hour and no token art", () => {
+    const e = build(SpellEnrichers.DisguiseSelf);
+    expect(e.type).toBe("transform");
+    expect(e.activity.name).toBe("Disguise");
+    expect(e.activity.data).toMatchObject({ profiles: [], settings: null, transform: FORM_BLOCK });
+    expect(e.activity.data.duration).toBeUndefined();
+    expect(e.effects).toEqual([{
+      activityMatch: "Disguise",
+      options: { transfer: false, durationSeconds: 3600 },
+      statuses: ["Disguised"],
+    }]);
+  });
+});

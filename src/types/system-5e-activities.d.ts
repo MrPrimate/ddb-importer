@@ -404,11 +404,12 @@ global {
 
   interface I5eActivityTransform {
     customize?: boolean;
-    /** dnd5e 6.0 - with mode "form", keep no original-form traces (Disguise Self-likes). */
+    /** dnd5e 6.0 - with mode "form", offers a "No Form" choice that removes every applied form. */
     formless?: boolean;
     /** Moved to `visibility.identifier` in dnd5e 6.0 (auto-migrated). */
     identifier?: string;
-    preset?: "wildshape" | "polymorph";
+    /** A `DND5E.transformation.presets` key; blank for mode "form", which ignores the settings. */
+    preset?: "wildshape" | "polymorph" | "polymorphSelf" | "";
     /** dnd5e 6.0 adds "form": forms live in the activity's `effects[]`; `profiles[]` are ignored. */
     mode?: "cr" | "form" | "";
   }
@@ -428,7 +429,8 @@ global {
   interface I5eTransformActivity extends I5eActivityBase {
     type: "transform";
     transform?: I5eActivityTransform;
-    settings?: I5eActivitySettings;
+    /** Null for mode "form", which never reads the transformation settings. */
+    settings?: I5eActivitySettings | null;
     profiles?: I5eSummonProfile[];
   };
 
@@ -471,7 +473,7 @@ global {
   interface IActivityData extends I5eActivityBase {
     spell?: I5eActivitySpell;
     restrictions?: I5eActivityRestrictions;
-    settings?: I5eActivitySettings;
+    settings?: I5eActivitySettings | null;
     activity?: I5eActivityActivity;
     attack?: I5eActivityAttack;
     damage?: I5eActivityDamage;

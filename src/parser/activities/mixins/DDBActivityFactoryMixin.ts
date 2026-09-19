@@ -569,6 +569,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       const activity = this.data.system.activities[activityId];
       if (!activity.effects || activity.effects.length !== 0) continue;
       if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+      // A form-mode transform offers every linked effect as a selectable form, the first being the
+      // default, so it only takes effects that name it and never the document's unmatched ones.
+      const formMode = activity.type === "transform" && activity.transform?.mode === "form";
       for (const effect of documentEffects) {
         const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
         if (effect.transfer && !ignoreTransfer) continue;
@@ -578,6 +581,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
           : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
             ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")] as string[]
             : [] as string[];
+        if (formMode && activityNamesRequired.length === 0) continue;
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
         const onSave = foundry.utils.getProperty(effect, "flags.ddbimporter.effectOnSave") === true;

@@ -29,6 +29,12 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
   monster: T;
   data: Actor.Implementation | null = null;
 
+  /**
+   * The single token files the last getNPCImage produced. The prototype token cannot stand in for
+   * them: with wildcard tokens it points at the folder pattern, not at a file.
+   */
+  tokenFiles: { downloaded: string | null; tokenized: string | null } = { downloaded: null, tokenized: null };
+
   constructor({ monster, type, updateExisting, notifier, fullWipe = false }: {
     monster?: T;
     type?: TMonsterImporterTypes;
@@ -241,6 +247,51 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
   }
 
 
+  /**
+   * Where a monster's DDB token image is stored: the file name and folder follow the rules and
+   * book, and with deep paths (or wildcard tokens, which imply them) the creature type folder.
+   * Shared with lookups that download another monster's token (shape-shift form art), so the
+   * file lands where that monster's own munch would put it.
+   */
+  static tokenDownloadOptions({ tokenUrl, monsterName, npcType, subType, rules, book, isStock = false, useTokenizer = false, force = false }: {
+    tokenUrl: string;
+    monsterName: string;
+    npcType: string;
+    subType: string;
+    rules: string;
+    book: string;
+    isStock?: boolean;
+    useTokenizer?: boolean;
+    force?: boolean;
+  }) {
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useWildcard = utils.getSetting<boolean>("munching-policy-monster-wildcard");
+    const useDeepPaths = useWildcard || utils.getSetting<boolean>("use-deep-file-paths");
+    const bookRuleStub = [rules, book].join("-");
+
+    const tokenExt = tokenUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
+    const genericNpc = tokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
+    const name = genericNpc ? utils.referenceNameString(npcType) : utils.referenceNameString(monsterName);
+    const nameType = genericNpc ? "npc-generic-token" : "npc-token";
+    const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
+    const pathPostfix = useDeepPaths
+      ? useWildcard && !useTokenizer
+        ? `/monster/token/${subType}/${name}`
+        : `/monster/token/${subType}`
+      : "";
+    // Token images always have to be downloaded.
+    return {
+      type: nameType,
+      name,
+      download: true,
+      remoteImages: false,
+      force,
+      imageNamePrefix,
+      pathPostfix,
+      targetDirectory,
+    };
+  }
+
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
     forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
@@ -350,29 +401,20 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         protoTexture.src = monsterTokenImgPath;
         if (useWildcard && protoTexture.src?.includes("*")) protoToken.randomImg = true;
       } else {
-        const tokenExt = ddbTokenUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
-        const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
-        const name = genericNpc ? genericNPCName : npcName;
-        tokenName = name;
-        const nameType = genericNpc ? "npc-generic-token" : "npc-token";
-        const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
-        const pathPostfix = useDeepPaths
-          ? useWildcard && !useTokenizer
-            ? `/monster/token/${subType}/${name}`
-            : `/monster/token/${subType}`
-          : "";
-        // Token images always have to be downloaded.
-        const downloadOptions = {
-          type: nameType,
-          name,
-          download: true,
-          remoteImages: false,
+        const downloadOptions = DDBMonsterImporter.tokenDownloadOptions({
+          tokenUrl: ddbTokenUrl,
+          monsterName: this.monster.name,
+          npcType,
+          subType,
+          rules,
+          book,
+          isStock,
+          useTokenizer,
           force: forceUpdate || updateImages,
-          imageNamePrefix,
-          pathPostfix,
-          targetDirectory,
-        };
+        });
+        tokenName = downloadOptions.name;
         monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        this.tokenFiles.downloaded = monsterTokenImgPath;
         protoTexture.src = monsterTokenImgPath;
         if (monsterTokenImgPath && useWildcard && !useTokenizer) {
           const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
@@ -464,6 +506,9 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         protoTexture.src = tokenizerResult;
       }
 
+      if (protoTexture.src && protoTexture.src !== monsterTokenImgPath && !protoTexture.src.includes("*")) {
+        this.tokenFiles.tokenized = protoTexture.src;
+      }
       if (useWildcard) {
         protoTexture.src = `${wildcardPath}*`;
         protoToken.randomImg = true;
