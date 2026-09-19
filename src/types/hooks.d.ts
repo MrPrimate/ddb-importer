@@ -106,6 +106,8 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preRollSkill": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollTool": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.endConcentration": (actor: Actor.Implementation, effect: ActiveEffect.Implementation) => void;
+      // `enchantmentData` is the mutable effect data dnd5e then creates; returning false cancels it
+      "dnd5e.preApplyEnchantment": (item: Item.Implementation, enchantmentData: I5eEffectData, options: { activity: Activity; chatMessage?: ChatMessage.Implementation }) => boolean | void;
       "dnd5e.preSummonToken": (activity: Activity, profile: unknown, config: object, options: unknown) => boolean | void;
       "dnd5e.preUseActivity": (activity: Activity, usageConfig: AnyMutableObject, dialogConfig: AnyMutableObject, messageConfig: AnyMutableObject) => boolean | void;
       "dnd5e.restCompleted": (actor: Actor.Implementation, result: dnd5e.types.documents.RestResult, config: dnd5e.types.documents.RestConfiguration) => void;

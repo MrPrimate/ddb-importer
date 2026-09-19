@@ -1280,6 +1280,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         label: "Allow Vestige Divine Power Recovery?",
       },
       {
+        name: "allow-rider-enchantment-link-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-rider-enchantment-link-enhancer"),
+        enabled: true,
+        hint: "When an activity granted by an enchantment enchants another item (Alter Self's Natural Weapons on an Unarmed Strike), removes that enchantment when the granting one ends. Needs an active GM.",
+        label: "Remove Enchantments Applied by Enchantment-Granted Activities?",
+      },
+      {
         name: "enable-ddb-macro-region-behaviors",
         isChecked: utils.getSetting<boolean>("enable-ddb-macro-region-behaviors"),
         enabled: true,

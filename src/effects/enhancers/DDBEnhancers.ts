@@ -4,6 +4,7 @@ import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
 import Vestige from "./ClassFeatures/Warlock/Vestige";
+import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
 import { logger, utils } from "../../lib/_module";
 
 
@@ -90,6 +91,14 @@ export default class DDBEnhancers {
     }
   }
 
+  static _enchantmentHooks() {
+    if (utils.getSetting<boolean>("allow-rider-enchantment-link-enhancer")) {
+      Hooks.on<"dnd5e.preApplyEnchantment">("dnd5e.preApplyEnchantment", (item, enchantmentData, options) => {
+        RiderEnchantmentLink.preApplyEnchantmentHook(item, enchantmentData, options);
+      });
+    }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -97,6 +106,7 @@ export default class DDBEnhancers {
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
+    DDBEnhancers._enchantmentHooks();
     RegionExpiryCleanup.registerHooks();
   }
 
