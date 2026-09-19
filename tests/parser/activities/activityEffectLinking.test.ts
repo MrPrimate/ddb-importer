@@ -66,3 +66,30 @@ describe("DDBActivityFactoryMixin._activityEffectLinking form-mode transforms", 
     expect(ids(data.system.activities.form)).toEqual(["formEffectAlpha0"]);
   });
 });
+
+describe("DDBActivityFactoryMixin._activityEffectLinking with two enchant activities", () => {
+  it("keeps each activity's named profiles apart and rolls up the riders", () => {
+    const profile = (_id: string, activityMatch: string, activityRiders: string[] = []) => ({
+      ...effect(_id, { activityMatch }),
+      type: "enchantment",
+      flags: { ddbimporter: { activityMatch, activityRiders } },
+    });
+    const data = link({
+      activities: {
+        self: { name: "Alter", type: "enchant", enchant: { self: true }, effects: [] },
+        strike: { name: "Grown Weapon", type: "enchant", effects: [] },
+      },
+      effects: [
+        profile("optionProfileOne", "Alter"),
+        profile("optionProfileTwo", "Alter", ["strike"]),
+        profile("strikeEnchantmnt", "Grown Weapon"),
+      ],
+    });
+
+    expect(ids(data.system.activities.self)).toEqual(["optionProfileOne", "optionProfileTwo"]);
+    expect(ids(data.system.activities.strike)).toEqual(["strikeEnchantmnt"]);
+    expect(data.system.activities.self.effects[1].riders.activity).toEqual(["strike"]);
+    expect(data.flags.dnd5e.riders.activity).toEqual(["strike"]);
+  });
+});
+

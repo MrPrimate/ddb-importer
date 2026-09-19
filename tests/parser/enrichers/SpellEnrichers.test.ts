@@ -1142,6 +1142,9 @@ describe("object spells placed as summons", () => {
 describe("Alter Self and Disguise Self", () => {
   const FORM_BLOCK = { mode: "form", formless: true, customize: false, preset: "" };
 
+  const alterSelfProfiles = (e: any) => e.effects.filter((f: IDDBEffectHint) => f.type === "enchant" && f.activityMatch === "Alter Self");
+  const naturalWeaponsEnchantment = (e: any) => e.effects.find((f: IDDBEffectHint) => f.type === "enchant" && f.activityMatch === "Natural Weapons");
+
   it("Alter Self is a self-enchantment whose three options are exclusive profiles", () => {
     const e = build(SpellEnrichers.AlterSelf);
     expect(e.type).toBe("enchant");
@@ -1150,10 +1153,9 @@ describe("Alter Self and Disguise Self", () => {
     // concentration is read from the spell's own duration
     expect(e.activity.data.duration).toBeUndefined();
 
-    const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+    const profiles = alterSelfProfiles(e);
     expect(profiles.map((f: IDDBEffectHint) => f.name)).toEqual(["Aquatic Adaptation", "Change Appearance", "Natural Weapons"]);
     for (const profile of profiles) {
-      expect(profile.activityMatch).toBe("Alter Self");
       expect(profile.data._id).toHaveLength(16);
       // while an option is applied the cast is the free Magic action that swaps option
       expect(profile.changes).toEqual([
@@ -1161,10 +1163,12 @@ describe("Alter Self and Disguise Self", () => {
         expect.objectContaining({ key: `system.activities.${e.activity.id}.consumption.spellSlot`, value: "false" }),
       ]);
     }
-    expect(new Set(profiles.map((f: IDDBEffectHint) => f.data?._id)).size).toBe(3);
+    // the three profiles and the Unarmed Strike enchantment all need their own id
+    const enchantmentIds = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant").map((f: IDDBEffectHint) => f.data?._id);
+    expect(new Set(enchantmentIds).size).toBe(4);
   });
 
-  it("Alter Self carries the caster's effects and the natural weapon attack as riders", () => {
+  it("Alter Self carries the caster's effects and the Natural Weapons enchant activity as riders", () => {
     const e = build(SpellEnrichers.AlterSelf);
     const riders = e.effects.filter((f: IDDBEffectHint) => f.type !== "enchant");
     expect(riders.map((f: IDDBEffectHint) => f.name)).toEqual(["Alter Self: Aquatic Adaptation", "Alter Self: Change Appearance"]);
@@ -1175,31 +1179,49 @@ describe("Alter Self and Disguise Self", () => {
       expect.objectContaining({ key: "system.attributes.movement.speeds.swim", value: "@attributes.movement.speeds.walk" }),
     ]);
 
-    const flagsOf = (name: string) => e.effects.find((f: IDDBEffectHint) => f.name === name).data.flags.ddbimporter;
-    expect(flagsOf("Aquatic Adaptation")).toEqual({ effectRiders: [riders[0].data._id], activityRiders: [] });
-    expect(flagsOf("Change Appearance")).toEqual({ effectRiders: [riders[1].data._id], activityRiders: [] });
+    const [aquatic, appearance, weapons] = alterSelfProfiles(e).map((f: IDDBEffectHint) => f.data?.flags?.ddbimporter);
+    expect(aquatic).toEqual({ effectRiders: [riders[0].data._id], activityRiders: [] });
+    expect(appearance).toEqual({ effectRiders: [riders[1].data._id], activityRiders: [] });
 
     expect(e.additionalActivities).toHaveLength(1);
-    const attack = e.additionalActivities[0];
-    expect(attack.init).toEqual({ name: "Natural Weapons", type: "attack" });
-    expect(attack.build).toMatchObject({ noSpellslot: true, generateConsumption: false, noeffect: true });
-    // the attack must not inherit the spell's concentration, or using it would restart the spell
-    expect(attack.build.generateDuration).toBe(true);
-    expect(attack.build.durationOverride).toEqual({ units: "inst", concentration: false });
-    expect(flagsOf("Natural Weapons")).toEqual({ effectRiders: [], activityRiders: [attack.overrides.id] });
+    const enchant = e.additionalActivities[0];
+    expect(enchant.init).toEqual({ name: "Natural Weapons", type: "enchant" });
+    expect(weapons).toEqual({ effectRiders: [], activityRiders: [enchant.overrides.id] });
+    expect(enchant.build).toMatchObject({
+      noSpellslot: true,
+      generateConsumption: false,
+      data: { restrictions: { type: "weapon", categories: ["natural"], allowMagical: true } },
+    });
+    // an activity flagged noeffect is never linked to its enchantment
+    expect(enchant.build.noeffect).toBeUndefined();
+    // dnd5e's copy of a rider activity is not a rider to it: without its own duration the copy
+    // inherits the spell's concentration and using it ends the spell
+    expect(enchant.build.generateDuration).toBe(true);
+    expect(enchant.build.durationOverride).toEqual({ units: "inst", concentration: false });
   });
 
-  it("Alter Self's natural weapon follows the ruleset", () => {
-    const modern = build(SpellEnrichers.AlterSelf).additionalActivities[0];
-    expect(modern.overrides.data.attack).toMatchObject({ ability: "spellcasting", bonus: "", type: { value: "melee", classification: "unarmed" } });
-    expect(modern.build.damageParts[0]).toMatchObject({
-      custom: { enabled: true, formula: "1d6 + @mod" },
-      types: ["bludgeoning", "piercing", "slashing"],
-    });
+  it("Alter Self's Natural Weapons enchantment reshapes the Unarmed Strike by ruleset", () => {
+    const modern = naturalWeaponsEnchantment(build(SpellEnrichers.AlterSelf));
+    expect(modern.name).toBe("Alter Self: Natural Weapons");
+    expect(modern.options).toEqual({ durationSeconds: 3600 });
+    expect(modern.data._id).toHaveLength(16);
+    expect(modern.changes.map((c: IActiveEffectChangeData) => [c.key, c.value])).toEqual([
+      ["name", "{} [Natural Weapons]"],
+      ["system.damage.base.number", "1"],
+      ["system.damage.base.denomination", "6"],
+      // the strike's damage is a custom formula, which would otherwise win over the die
+      ["system.damage.base.custom.enabled", "false"],
+      ["system.damage.base.types", "piercing"],
+      ["system.damage.base.types", "slashing"],
+      ["system.damage.base.types", "bludgeoning"],
+      // dnd5e 6 resolves "spellcasting" only on the attack activity, not through the legacy system.ability key
+      ["activities[attack].attack.ability", "spellcasting"],
+    ]);
+    expect(modern.magicalBonus).toBeUndefined();
 
-    const legacy = build(SpellEnrichers.AlterSelf, { is2014: true }).additionalActivities[0];
-    expect(legacy.overrides.data.attack).toMatchObject({ ability: "str", bonus: "1" });
-    expect(legacy.build.damageParts[0].custom.formula).toBe("1d6 + @mod + 1");
+    const legacy = naturalWeaponsEnchantment(build(SpellEnrichers.AlterSelf, { is2014: true }));
+    expect(legacy.magicalBonus).toEqual({ makeMagical: true, bonus: "1" });
+    expect(legacy.changes.map((c: IActiveEffectChangeData) => c.key)).not.toContain("activities[attack].attack.ability");
   });
 
   it("Disguise Self is a single form that carries the spell's hour and no token art", () => {
