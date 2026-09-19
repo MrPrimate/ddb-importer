@@ -135,6 +135,7 @@ export { default as PerfumeOfBewitching } from "./PerfumeOfBewitching";
 export { default as PeriaptOfHealth } from "./PeriaptOfHealth";
 export { default as PhilterOfLove } from "./PhilterOfLove";
 export { default as PhoenixRocketSword } from "./PhoenixRocketSword";
+export { default as PixieDust } from "./PixieDust";
 export { default as PlanecallersCodex } from "./PlanecallersCodex";
 export { default as PotionOfDragonsBreath } from "./PotionOfDragonsBreath";
 export { default as PotionOfFireBreath } from "./PotionOfFireBreath";

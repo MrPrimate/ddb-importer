@@ -322,6 +322,44 @@ describe("ArrowCatchingShield", () => {
   });
 });
 
+describe("granted fly speeds go to whoever uses the item, not whoever carries it", () => {
+  it("Broom of Flying applies Riding Broom from Mount Broom and leaves it open-ended", () => {
+    const e = build(ItemEnrichers.BroomOfFlying);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Mount Broom", targetType: "self", activationType: "action" });
+    // an applied effect with no expiry would otherwise inherit a counted activity duration
+    expect(e.activity.data.duration.units).toBe("spec");
+    expect(build(ItemEnrichers.BroomOfFlying, { is2014: true }).activity.activationType).toBe("special");
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Send Alone or Recall"]);
+    // DDB's unconditional "set flying speed" modifier must not survive as a passive effect
+    expect(e.clearAutoEffects).toBe(true);
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({
+      activityMatch: "Mount Broom",
+      statuses: ["Flying"],
+      options: { transfer: false, durationSeconds: null, expiry: null },
+    });
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["system.attributes.movement.speeds.fly", "50"],
+      ["system.attributes.movement.hover", "true"],
+    ]);
+  });
+
+  it("Pixie Dust spends the packet to give one creature fly 30 and hover for a minute", () => {
+    const e = build(ItemEnrichers.PixieDust);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Sprinkle Dust", targetType: "creature", addItemConsume: true });
+    expect(e.activity.data.range).toMatchObject({ value: "5", units: "ft" });
+    expect(e.activity.data.duration).toMatchObject({ value: "1", units: "minute" });
+    expect(e.clearAutoEffects).toBe(true);
+    expect(e.effects[0].options).toMatchObject({ transfer: false, durationSeconds: 60 });
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["system.attributes.movement.speeds.fly", "30"],
+      ["system.attributes.movement.hover", "true"],
+    ]);
+  });
+});
+
 describe("hazard gear regions", () => {
   it("Caltrops place a region that fires a save carrying the speed rider", () => {
     const e = build(ItemEnrichers.Caltrops);
@@ -837,10 +875,8 @@ describe("SRDSummonItem", () => {
  * default it would instead sit passively on whoever carries the item and never reach the activity.
  */
 describe("item effects applied by an activity do not transfer", () => {
-  /** Conditions the wearer genuinely holds while the item is equipped. */
-  const PASSIVE_STATUS_HINTS: Record<string, string> = {
-    "BroomOfFlying|Riding Broom": "rider toggle, no activity applies it yet",
-  };
+  /** Conditions the wearer genuinely holds while the item is equipped: `<barrel key>|<hint name>: reason`. */
+  const PASSIVE_STATUS_HINTS: Record<string, string> = {};
 
   const offenders: string[] = [];
   let evaluated = 0;
