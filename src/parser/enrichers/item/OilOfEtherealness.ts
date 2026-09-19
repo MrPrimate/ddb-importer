@@ -10,6 +10,7 @@ export default class OilOfEtherealness extends DDBEnricherData {
         name: "Etherealness",
         statuses: ["Ethereal"],
         options: {
+          transfer: false,
           durationSeconds: 3600,
         },
       },

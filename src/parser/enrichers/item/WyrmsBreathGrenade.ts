@@ -91,6 +91,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
           name: "Prone (Bronze Wyrm's Breath)",
           statuses: ["Prone"],
           options: {
+            transfer: false,
             description: "Flung up to 60 feet from the centre of the sphere and knocked prone; collision damage is manual.",
           },
         },
@@ -106,6 +107,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
             statuses: ["Unconscious"],
             daeSpecialDurations: ["isDamaged"],
             options: {
+              transfer: false,
               expiry: "targetStart",
               description: "Unconscious until the start of its next turn. A creature with 80 or more hit points is immune; ends if the creature takes damage or another creature uses an action to wake it.",
             },
@@ -121,6 +123,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
               DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
             ],
             options: {
+              transfer: false,
               expiry: "targetStart",
               description: "As the slow spell until the start of its next turn: -2 AC and Dexterity saves, half speed, no reactions, one action or bonus action only (action economy is manual).",
             },
@@ -134,6 +137,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
               DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.all"),
             ],
             options: {
+              transfer: false,
               expiry: "targetEnd",
               description: "Disadvantage on ability checks, attack rolls, and saving throws; deals half damage with Strength-based attacks (halving is manual) until the end of its next turn.",
             },
@@ -144,7 +148,7 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
           {
             name: metal.effectName,
             statuses: ["Paralyzed"],
-            options: { expiry: "targetStart" },
+            options: { transfer: false, expiry: "targetStart" },
           },
         ];
       default:

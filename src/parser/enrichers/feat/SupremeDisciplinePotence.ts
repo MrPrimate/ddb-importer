@@ -1,5 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Supreme Discipline Acquisition (Potence): spend 2 Blood Points for Advantage on Strength attack
+ * rolls for a minute, and reroll one of the d20s once whenever such an attack has Advantage.
+ *
+ * The reroll is a d20 reroll, not a damage die, so `DamageData.modifiers` does not apply. It reads
+ * like Elven Accuracy, but dnd5e only honours `flags.dnd5e.elvenAccuracy` for the abilities listed
+ * in `CONFIG.DND5E.characterFlags.elvenAccuracy.abilities`, which excludes Strength, and an active
+ * effect cannot widen that list. The reroll stays manual and is described on the effect.
+ */
 export default class SupremeDisciplinePotence extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {

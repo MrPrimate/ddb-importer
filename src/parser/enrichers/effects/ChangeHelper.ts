@@ -198,6 +198,35 @@ export default class ChangeHelper {
     return ChangeHelper.multiplyChange(value, priority, "system.attributes.movement.multiplier");
   }
 
+  /**
+   * An `add` to a number field that stops at a ceiling, e.g. "2<=20" adds 2 but never takes the
+   * value past 20. dnd5e 6 resolves both halves as deterministic formulas and never lowers a value
+   * that is already over the limit. A data reference in the limit must resolve when effects apply,
+   * which rules out derived values such as a defaulted `@abilities.str.max`.
+   */
+  static clampedAddChange(value: string | number, limit: string | number, priority: number, key: string): IActiveEffectChangeData {
+    return ChangeHelper.addChange(`${String(value).trim().replace(/^\+\s*/, "")}<=${limit}`, priority, key);
+  }
+
+  /** The `subtract` twin of `clampedAddChange`: "2>=0" removes 2 but never takes the value below 0. */
+  static clampedSubtractChange(value: string | number, limit: string | number, priority: number, key: string): IActiveEffectChangeData {
+    return ChangeHelper.subtractChange(`${String(value).trim().replace(/^-\s*/, "")}>=${limit}`, priority, key);
+  }
+
+  /**
+   * Hide an item on the actor while the effect is active: it drops off the sheet, cannot be used
+   * and recovers no uses. `item` is an embedded item id or a dnd5e identifier, and an identifier
+   * hides every item that shares it.
+   */
+  static hiddenItemChange(item: string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(item, priority, "items.hidden");
+  }
+
+  /** Reveal an item that a lower priority `hiddenItemChange` hid. */
+  static revealedItemChange(item: string, priority = 30): IActiveEffectChangeData {
+    return ChangeHelper.subtractChange(item, priority, "items.hidden");
+  }
+
   // dnd5e 6.0 rule changes. The `key` is a rule category rather than a data path, and the system
   // collects them at roll time instead of writing them into actor data. Their `conditions` are
   // skipped at application time (all four rule types are registered `skipConditions: true`) and

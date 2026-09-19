@@ -38,6 +38,40 @@ export default class _CrimsonRite extends _BloodHunter {
     return _CrimsonRite.RITE_DIE;
   }
 
+  /**
+   * Rite Focus: The Fiend (Order of the Profane Soul) rerolls a 1 or 2 on the Rite of the Flame's
+   * extra damage die. DDB records the patron as a class option on the Rite Focus feature.
+   */
+  get hasFiendRiteFocus(): boolean {
+    const ddbData = this.ddbParser?.ddbData;
+    return ddbData ? DDBDataUtils.hasChosenCharacterOption(ddbData, "The Fiend") : false;
+  }
+
+  /**
+   * The `system.damage.parts` enchantment value for one rite's extra die. dnd5e reads either the
+   * legacy `[[formula, type]]` pair or a whole DamageData object, and only the object can carry
+   * `modifiers`.
+   *
+   * dnd5e adds modifiers to the first literal die term of a custom formula before roll data is
+   * resolved, and a bare `@scale` reference has none, so the modified die is spelled out from the
+   * scale's `faces`.
+   *
+   * The Fiend lets the player choose between the two rolls; `r<=2` always takes the reroll, which
+   * only differs when a 2 is rerolled into a 1.
+   */
+  riteDamagePartValue(riteName: string | null, damageType: string): string {
+    if (riteName === "Rite of the Flame" && this.hasFiendRiteFocus) {
+      return JSON.stringify({
+        custom: { enabled: true, formula: `1d(${this.riteDie.replace(/\.die$/, ".faces")})` },
+        types: [damageType],
+        modifiers: ["r<=2"],
+      });
+    }
+    return damageType
+      ? `[["${this.riteDie}[${damageType}]", "${damageType}"]]`
+      : `[["${this.riteDie}", ""]]`;
+  }
+
   /** Self hemocraft-die necrotic damage, paid to activate a rite. */
   get invokeRiteActivity(): IDDBActivityData {
     return {
@@ -94,9 +128,7 @@ export default class _CrimsonRite extends _BloodHunter {
   riteEnchantEffect(riteName: string | null = null, { effectRiders = [] }: { effectRiders?: string[] } = {}): IDDBEffectHint {
     const damageType = riteName ? _CrimsonRite.RITE_TYPES[riteName] ?? "" : "";
     const label = riteName ?? "Crimson Rite";
-    const formula = damageType
-      ? `[["${this.riteDie}[${damageType}]", "${damageType}"]]`
-      : `[["${this.riteDie}", ""]]`;
+    const formula = this.riteDamagePartValue(riteName, damageType);
 
     const hint: IDDBEffectHint = {
       name: label,

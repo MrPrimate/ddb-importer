@@ -815,6 +815,8 @@ global {
     // Custom enrichers
     /** 2024 Healer feat: this spell's healing dice carry a parser-applied reroll modifier. */
     healingReroll?: boolean;
+    /** Elemental Adept: the damage types whose dice on this spell carry a parser-applied `min2`. */
+    elementalAdept?: string[];
     arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
     isSpellItem?: boolean;
     /** Generated to carry automation other documents grant or reference; filed under "Effect Items". */

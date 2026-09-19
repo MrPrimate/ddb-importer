@@ -53,8 +53,10 @@ export default class WallOfFire extends DDBEnricherData {
             template: {
               count: "1",
               contiguous: false,
-              type: "cylinder",
+              // "a ringed wall up to 20 feet in diameter, 20 feet high, and 1 foot thick"
+              type: "ring",
               size: "10",
+              width: "1",
               height: "20",
               units: "ft",
             },

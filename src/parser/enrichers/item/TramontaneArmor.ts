@@ -39,7 +39,7 @@ export default class TramontaneArmor extends DDBEnricherData {
         name: "Grappled by Tendrils",
         activityMatch: "Grasping Tendrils",
         statuses: ["Grappled"],
-        options: { description: "Escape DC 15; pulled up to 20 feet toward the wearer." },
+        options: { transfer: false, description: "Escape DC 15; pulled up to 20 feet toward the wearer." },
       },
     ];
   }

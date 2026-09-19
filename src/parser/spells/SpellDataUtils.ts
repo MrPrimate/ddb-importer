@@ -274,6 +274,56 @@ export default class SpellDataUtils {
   }
 
   /**
+   * The dice-rolling damage parts of a spell that deal only the given damage types. A part that
+   * offers a choice including some other type (Chromatic Orb) is skipped: the type is picked at
+   * roll time, and a persisted modifier would follow the part whichever type was picked.
+   */
+  static #typedDamageParts(spellData: I5eSpellItem, types: string[]): Partial<I5eDamagePart>[] {
+    const parts: Partial<I5eDamagePart>[] = [];
+    for (const activity of Object.values(spellData.system?.activities ?? {})) {
+      const activityParts = foundry.utils.getProperty(activity, "damage.parts") as Partial<I5eDamagePart>[] ?? [];
+      for (const part of activityParts) {
+        const partTypes = part?.types ?? [];
+        if (partTypes.length === 0 || !partTypes.every((type) => types.includes(type))) continue;
+        if (!SpellDataUtils.#partRollsDice(part)) continue;
+        parts.push(part);
+      }
+    }
+    return parts;
+  }
+
+  static #updatePartModifiers(parts: Partial<I5eDamagePart>[], modifiers: string[], remove: boolean): boolean {
+    let changed = false;
+    for (const part of parts) {
+      const current = part.modifiers ?? [];
+      const updated = remove
+        ? current.filter((modifier) => !modifiers.includes(modifier))
+        : current.concat(modifiers.filter((modifier) => !current.includes(modifier)));
+      if (updated.length === current.length) continue;
+      part.modifiers = updated;
+      changed = true;
+    }
+    return changed;
+  }
+
+  /**
+   * Add (or remove) dnd5e die modifiers on the damage parts of a spell that deal only the given
+   * damage types, e.g. ["min2"] with ["fire"] turns Fireball's "8d6" into "8d6min2". Used for
+   * Elemental Adept, which treats a 1 on those damage dice as a 2; dnd5e 6 has no rule-change type
+   * that can do this at roll time.
+   *
+   * @returns true if any part was changed.
+   */
+  static applyDamageDieModifiers(
+    spellData: I5eSpellItem,
+    modifiers: string[],
+    types: string[],
+    { remove = false }: { remove?: boolean } = {},
+  ): boolean {
+    return SpellDataUtils.#updatePartModifiers(SpellDataUtils.#typedDamageParts(spellData, types), modifiers, remove);
+  }
+
+  /**
    * Add (or remove) dnd5e die modifiers on every healing part of a spell, e.g. ["r1"] turns
    * "1d8 + @mod" into "1d8r1 + @mod". Used for the 2024 Healer feat, which rerolls 1s on healing
    * dice; dnd5e 6 has no rule-change type that can do this at roll time.
@@ -285,17 +335,7 @@ export default class SpellDataUtils {
     modifiers: string[] = ["r1"],
     { remove = false }: { remove?: boolean } = {},
   ): boolean {
-    let changed = false;
-    for (const part of SpellDataUtils.#healingParts(spellData)) {
-      const current = part.modifiers ?? [];
-      const updated = remove
-        ? current.filter((modifier) => !modifiers.includes(modifier))
-        : current.concat(modifiers.filter((modifier) => !current.includes(modifier)));
-      if (updated.length === current.length) continue;
-      part.modifiers = updated;
-      changed = true;
-    }
-    return changed;
+    return SpellDataUtils.#updatePartModifiers(SpellDataUtils.#healingParts(spellData), modifiers, remove);
   }
 
 }

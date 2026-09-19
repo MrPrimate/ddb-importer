@@ -43,8 +43,11 @@ export default class WallOfWater extends DDBEnricherData {
             template: {
               count: "1",
               contiguous: false,
-              type: "sphere",
+              // the ringed wall: 20 ft diameter, 20 ft high, 1 ft thick
+              type: "ring",
               size: "10",
+              width: "1",
+              height: "20",
               units: "ft",
             },
             affects: {},

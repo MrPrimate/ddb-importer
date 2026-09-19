@@ -30,6 +30,7 @@ export default class PotionOfHeroism extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.rsak.attack"),
         ],
         options: {
+          transfer: false,
           durationSeconds: 3600,
         },
       },

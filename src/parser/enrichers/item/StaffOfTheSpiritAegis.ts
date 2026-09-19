@@ -65,6 +65,7 @@ export default class StaffOfTheSpiritAegis extends DDBEnricherData {
         activityMatch: AURA_NAME,
         auraeffectsOnly: true,
         daeStackable: "none",
+        options: { transfer: false },
         auraeffects: {
           applyToSelf: true,
           bestFormula: "",

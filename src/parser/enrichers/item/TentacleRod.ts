@@ -41,6 +41,7 @@ export default class TentacleRod extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.multiplyChange("0.5", 20, "system.attributes.movement.walk"),
         ],
         options: {
+          transfer: false,
           description: "Speed halved and Restrained; repeat the save at the end of each turn.",
         },
       },

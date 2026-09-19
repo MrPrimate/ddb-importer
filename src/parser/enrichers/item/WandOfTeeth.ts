@@ -37,7 +37,7 @@ export default class WandOfTeeth extends DDBEnricherData {
       {
         name: "Poisoned by Teeth",
         statuses: ["Poisoned"],
-        options: { expiry: "sourceStart" },
+        options: { transfer: false, expiry: "sourceStart" },
       },
     ];
   }

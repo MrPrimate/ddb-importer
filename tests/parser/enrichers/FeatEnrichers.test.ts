@@ -143,13 +143,13 @@ describe("Great Weapon Master heavy weapon mastery", () => {
     ]);
   });
 
-  it("keeps the 2014 toggle effect unchanged", () => {
+  it("keeps the 2014 trade as a disabled toggle, as attack and damage rules", () => {
     const effects = makeEnricherData(FeatEnrichers.GreatWeaponMaster, { is2014: true }).effects;
     expect(effects).toHaveLength(1);
     expect(effects[0].options).toMatchObject({ transfer: true, disabled: true });
-    expect((effects[0].changes ?? []).map((c) => c.key)).toEqual([
-      "system.rolls.attack.mwak.bonus",
-      "system.rolls.damage.mwak.bonus",
+    expect((effects[0].changes ?? []).map((c) => [c.key, c.type, c.value])).toEqual([
+      ["attack", "dnd5e.bonus", "-5"],
+      ["damage", "dnd5e.bonus", "10"],
     ]);
   });
 });

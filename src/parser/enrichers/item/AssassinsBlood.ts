@@ -10,6 +10,7 @@ export default class AssassinsBlood extends DDBEnricherData {
         name: "Poisoned",
         statuses: ["Poisoned"],
         options: {
+          transfer: false,
           durationSeconds: 86400,
         },
       },

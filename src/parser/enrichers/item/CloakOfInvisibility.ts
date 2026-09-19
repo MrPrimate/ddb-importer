@@ -23,6 +23,7 @@ export default class CloakOfInvisibility extends DDBEnricherData {
         name: "Hood Up: Invisible",
         statuses: ["Invisible"],
         options: {
+          transfer: false,
           durationSeconds: 3600,
         },
       },

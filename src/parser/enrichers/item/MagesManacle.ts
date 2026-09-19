@@ -27,7 +27,7 @@ export default class MagesManacle extends DDBEnricherData {
       {
         name: "Bound by Manacle",
         statuses: ["Restrained"],
-        options: { durationSeconds: 28800 },
+        options: { transfer: false, durationSeconds: 28800 },
       },
     ];
   }

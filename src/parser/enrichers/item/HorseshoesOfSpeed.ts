@@ -12,6 +12,7 @@ export default class HorseshoesOfSpeed extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("30", 20, "system.attributes.movement.walk"),
         ],
         options: {
+          transfer: false,
           description: "Attached to a creature with four hooves.",
         },
       },

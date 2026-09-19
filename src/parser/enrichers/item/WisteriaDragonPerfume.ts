@@ -43,6 +43,7 @@ export default class WisteriaDragonPerfume extends DDBEnricherData {
         statuses: ["Unconscious"],
         daeSpecialDurations: ["isDamaged"],
         options: {
+          transfer: false,
           durationSeconds: 60,
           description: "Unconscious for 1 minute. The effect ends early if the creature takes any damage. Floral dragons other than wisteria dragons have Disadvantage on the save.",
         },

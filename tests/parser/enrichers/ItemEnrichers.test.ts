@@ -301,20 +301,52 @@ describe("EldritchClawTattoo", () => {
   });
 });
 
+describe("ArrowCatchingShield", () => {
+  it("keeps the ranged AC bonus as a standing transfer effect the reaction does not apply", () => {
+    const hints = build(ItemEnrichers.ArrowCatchingShield).effects;
+    for (const hint of hints) {
+      expect(hint.activityMatch).toBeUndefined();
+      expect(hint.options).toMatchObject({ transfer: true, durationSeconds: null, expiry: null });
+    }
+    const [ac5e, manual] = hints;
+    expect(ac5e.ac5eOnly).toBe(true);
+    expect(ac5e.changes).toBeUndefined();
+    expect(ac5e.ac5eChanges[0]).toMatchObject({
+      key: "flags.automated-conditions-5e.modifyAC",
+      value: "bonus=2; actionType.rwak || actionType.rsak",
+    });
+    // a live flat bonus would also count against melee attacks
+    expect(manual.ac5eNever).toBe(true);
+    expect(manual.options.disabled).toBe(true);
+    expect(manual.changes[0]).toMatchObject({ key: "system.attributes.ac.bonus", value: "2" });
+  });
+});
+
 describe("hazard gear regions", () => {
-  it("Caltrops save on entry with the speed rider", () => {
+  it("Caltrops place a region that fires a save carrying the speed rider", () => {
     const e = build(ItemEnrichers.Caltrops);
-    expect(e.activity.data.save.dc.formula).toBe("15");
+    expect(e.type).toBe("utility");
     expect(e.activity.data.behaviors[0].config.events).toEqual(["tokenEnter"]);
-    expect(build(ItemEnrichers.Caltrops).effects[0].changes[0].key).toBe("system.attributes.movement.multiplier");
+    expect(e.activity.data.behaviors[0].config.args.activityName).toBe("Caltrops Save");
+    const save = e.additionalActivities[0];
+    expect(save.init).toEqual({ name: "Caltrops Save", type: "save" });
+    expect(save.build.saveOverride.dc.formula).toBe("15");
+    expect(save.build.generateConsumption).toBe(false);
+    expect(save.overrides.data.damage.onSave).toBe("none");
+    // applied by the save the region fires, never passively to whoever carries the bag
+    expect(e.effects[0]).toMatchObject({ activityMatch: "Caltrops Save", options: { transfer: false } });
+    expect(e.effects[0].changes[0].key).toBe("system.attributes.movement.multiplier");
     expect(build(ItemEnrichers.Caltrops, { is2014: true }).effects[0].changes[0].key).toBe("system.attributes.movement.bonus");
   });
 
-  it("Ball Bearings prone save on entry", () => {
+  it("Ball Bearings place a region that fires a prone save", () => {
     const e = build(ItemEnrichers.BallBearings);
-    expect(e.activity.data.save.dc.formula).toBe("10");
+    expect(e.type).toBe("utility");
     expect(e.activity.data.behaviors[0].config.events).toEqual(["tokenEnter"]);
-    expect(e.effects[0].statuses).toEqual(["Prone"]);
+    expect(e.activity.data.behaviors[0].config.args.activityName).toBe("Ball Bearings Save");
+    expect(e.additionalActivities[0].init).toEqual({ name: "Ball Bearings Save", type: "save" });
+    expect(e.additionalActivities[0].build.saveOverride.dc.formula).toBe("10");
+    expect(e.effects[0]).toMatchObject({ activityMatch: "Ball Bearings Save", statuses: ["Prone"], options: { transfer: false } });
   });
 
   it("Oil douses a space that burns on entry or turn end when lit", () => {
@@ -795,5 +827,49 @@ describe("SRDSummonItem", () => {
     expect(e.activity).toBeNull();
     expect(e.additionalActivities).toBeNull();
     expect(e.generateSummons).toBe(false);
+  });
+});
+
+/**
+ * Item effect hints build through `AutoEffects.ItemEffect`, which defaults to `transfer: true`, and
+ * the activity linker skips transfer effects. A hint that names the activity applying it, or that
+ * carries a condition, describes something done TO a creature by using the item, so left at the
+ * default it would instead sit passively on whoever carries the item and never reach the activity.
+ */
+describe("item effects applied by an activity do not transfer", () => {
+  /** Conditions the wearer genuinely holds while the item is equipped. */
+  const PASSIVE_STATUS_HINTS: Record<string, string> = {
+    "BroomOfFlying|Riding Broom": "rider toggle, no activity applies it yet",
+  };
+
+  const offenders: string[] = [];
+  let evaluated = 0;
+  for (const [key, Enricher] of Object.entries(ItemEnrichers)) {
+    if (key.startsWith("_") || typeof Enricher !== "function") continue;
+    for (const is2014 of [false, true]) {
+      let hints: any[];
+      try {
+        hints = build(Enricher as TEnricher, { name: key, is2014 }).effects ?? [];
+      } catch {
+        // abstract bases and getters reading parser state the stub lacks; the audit suite covers those
+        continue;
+      }
+      evaluated++;
+      for (const hint of hints) {
+        if (!hint || hint.noCreate || hint.standalone || hint.ignoreTransfer || hint.type === "enchant") continue;
+        const applied = Boolean(hint.activityMatch) || (hint.activitiesMatch?.length ?? 0) > 0 || (hint.statuses?.length ?? 0) > 0;
+        if (!applied || hint.options?.transfer === false) continue;
+        const id = `${key}|${hint.name ?? ""}`;
+        if (!(id in PASSIVE_STATUS_HINTS) && !offenders.includes(id)) offenders.push(id);
+      }
+    }
+  }
+
+  it("evaluates most of the item barrel", () => {
+    expect(evaluated).toBeGreaterThan(300);
+  });
+
+  it("has no activity-matched or condition hint left at the transfer default", () => {
+    expect(offenders, `set options.transfer false on: ${offenders.join(", ")}`).toEqual([]);
   });
 });

@@ -10,6 +10,7 @@ export default class PhilterOfLove extends DDBEnricherData {
         name: "In Love",
         statuses: ["Charmed"],
         options: {
+          transfer: false,
           durationSeconds: 600,
         },
       },

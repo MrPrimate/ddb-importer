@@ -42,6 +42,9 @@ export default class MaceOfDisruption extends DDBEnricherData {
             expired: null,
           },
         },
+        options: {
+          transfer: false,
+        },
       },
     ];
   }

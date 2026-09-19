@@ -13,6 +13,7 @@ export default class PerfumeOfBewitching extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.skills.dec.roll.mode"),
         ],
         options: {
+          transfer: false,
           durationSeconds: 3600,
         },
       },

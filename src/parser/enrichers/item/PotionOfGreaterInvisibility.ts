@@ -10,6 +10,7 @@ export default class PotionOfGreaterInvisibility extends DDBEnricherData {
         name: "Invisible",
         statuses: ["Invisible"],
         options: {
+          transfer: false,
           durationSeconds: 3600,
         },
       },

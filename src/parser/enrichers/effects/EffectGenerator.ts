@@ -366,6 +366,39 @@ export default class EffectGenerator {
     }
   }
 
+  // CONFIG.DND5E.maxAbilityScore, read as a constant so compendium munches do not depend on world config
+  static STANDARD_ABILITY_MAXIMUM = 20;
+
+  /** Total this document adds to one ability's score maximum (Manuals and Tomes raise it with the score). */
+  _statMaximumBonus(statId: number): number {
+    return this.grantedModifiers
+      .filter((modifier) =>
+        modifier.type === "bonus"
+        && modifier.subType === "ability-score-maximum"
+        && modifier.statId === statId,
+      )
+      .reduce((total, modifier) => total + (Number(modifier.value) || 0), 0);
+  }
+
+  /**
+   * The ceiling for one ability score bonus. DDB has no field for it: the item's own limit is
+   * written in the modifier's restriction text ("to a maximum of 24", "Can exceed 20, but not 30").
+   * Without one, it is the standard maximum plus whatever this document adds to the score maximum.
+   * `@abilities.x.max` is not usable as the limit, it is null until derived data unless the actor sets it.
+   */
+  _statBonusCeiling(bonus: IDDBBaseModifier, statId: number): number {
+    const restriction = bonus.restriction ?? "";
+    const written = restriction.match(/maximum of\s*(\d+)/i) ?? restriction.match(/\bnot\s*(\d+)/i);
+    if (written) return Number(written[1]);
+    return EffectGenerator.STANDARD_ABILITY_MAXIMUM + this._statMaximumBonus(statId);
+  }
+
+  /** The floor a score penalty stops at, from restriction text such as "Curse. (minimum of 7)"; null when unstated. */
+  static statBonusFloor(bonus: IDDBBaseModifier): number | null {
+    const written = (bonus.restriction ?? "").match(/minimum of\s*(\d+)/i);
+    return written ? Number(written[1]) : null;
+  }
+
   _addStatMaximumEffect(subType: string) {
     const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType);
     if (!ability) {
@@ -419,12 +452,16 @@ export default class EffectGenerator {
           return;
         }
 
-        if (game.modules.get("dae")?.active) {
-          const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
-          // min(20, @abilities.con.value + 2)
-          this.effect.system.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
+        if (Number(bonus.value) > 0) {
+          // dnd5e 6 clamps the add natively
+          const limit = this._statBonusCeiling(bonus, ability.id);
+          this.effect.system.changes.push(ChangeHelper.clampedAddChange(String(bonus.value), limit, 5, `system.abilities.${ability.value}.value`));
         } else {
-          this.effect.system.changes.push(ChangeHelper.signedAddChange(String(bonus.value), 5, `system.abilities.${ability.value}.value`));
+          const floor = EffectGenerator.statBonusFloor(bonus);
+          const change = floor === null
+            ? ChangeHelper.signedAddChange(String(bonus.value), 5, `system.abilities.${ability.value}.value`)
+            : ChangeHelper.clampedSubtractChange(String(bonus.value), floor, 5, `system.abilities.${ability.value}.value`);
+          this.effect.system.changes.push(change);
         }
       });
     }

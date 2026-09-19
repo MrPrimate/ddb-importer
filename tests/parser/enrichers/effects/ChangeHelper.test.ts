@@ -515,4 +515,22 @@ describe("ChangeHelper status filters", () => {
       ] },
     ]);
   });
+
+  it("writes clamped adds and subtracts in the dnd5e 6 delta/limit form", () => {
+    expect(ChangeHelper.clampedAddChange("+2", 20, 5, "system.abilities.str.value")).toEqual({
+      key: "system.abilities.str.value", type: "add", value: "2<=20", priority: 5,
+    });
+    expect(ChangeHelper.clampedSubtractChange("-10", 0, 20, "system.attributes.movement.walk")).toEqual({
+      key: "system.attributes.movement.walk", type: "subtract", value: "10>=0", priority: 20,
+    });
+  });
+
+  it("hides and reveals items through the items.hidden key", () => {
+    expect(ChangeHelper.hiddenItemChange("wild-shape")).toEqual({
+      key: "items.hidden", type: "add", value: "wild-shape", priority: 20,
+    });
+    expect(ChangeHelper.revealedItemChange("wild-shape")).toEqual({
+      key: "items.hidden", type: "subtract", value: "wild-shape", priority: 30,
+    });
+  });
 });

@@ -4,9 +4,10 @@ export default class BladeBarrier extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Place Wall",
       data: {
         // DDB provides no template for the wall shapes; give the straight wall so the
-        // region has an area to attach to (the 60 ft diameter ring is a manual resize)
+        // region has an area to attach to (the ringed wall is the Place Ring activity)
         target: {
           override: true,
           template: {
@@ -34,6 +35,28 @@ export default class BladeBarrier extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      {
+        // "a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick"
+        duplicate: true,
+        id: "ddbBlaBarRingPl1",
+        overrides: {
+          name: "Place Ring",
+          data: {
+            target: {
+              override: true,
+              template: {
+                count: "1",
+                contiguous: false,
+                type: "ring",
+                size: "30",
+                width: "5",
+                height: "20",
+                units: "ft",
+              },
+            },
+          },
+        },
+      },
       {
         duplicate: true,
         id: "ddbBlaBarZoneSa1",

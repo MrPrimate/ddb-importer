@@ -52,6 +52,7 @@ export default class StaffOfSkulls extends DDBEnricherData {
             name: "Chattering Skulls",
             activityMatch: "Chatter (Impose Disadvantage)",
             options: {
+              transfer: false,
               expiry: "targetEnd",
               description: "Disadvantage on the triggering attack roll. Without AC5e the effect lasts for every attack until the end of the target's next turn.",
             },
@@ -70,6 +71,9 @@ export default class StaffOfSkulls extends DDBEnricherData {
             name: "Pulverized",
             activityMatch: "Pulverize",
             statuses: ["Prone"],
+            options: {
+              transfer: false,
+            },
           },
         ];
       default:

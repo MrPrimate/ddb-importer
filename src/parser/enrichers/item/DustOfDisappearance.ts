@@ -21,6 +21,7 @@ export default class DustOfDisappearance extends DDBEnricherData {
         name: "Invisible",
         statuses: ["Invisible"],
         options: {
+          transfer: false,
           durationSeconds: 300,
           description: "Invisible for 2d4 minutes, or until the creature attacks or casts a spell.",
         },

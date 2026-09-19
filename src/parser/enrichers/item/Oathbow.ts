@@ -37,6 +37,7 @@ export default class Oathbow extends DDBEnricherData {
         activityMatch: "Swear Oath",
         statuses: ["Marked"],
         options: {
+          transfer: false,
           description: "The marked creature is your sworn enemy until it dies or the next dawn seven days later.",
         },
       },

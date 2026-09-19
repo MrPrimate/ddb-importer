@@ -8,9 +8,11 @@ export default class DaggerOfVenom extends DDBEnricherData {
     return [
       {
         name: "Poisoned",
-        activityMatch: "Restricted Attack: DC 15 Constitution Save Negates",
+        // the 2014 payload names the coated attack, the 2024 one builds a plain "Save"
+        activitiesMatch: ["Restricted Attack: DC 15 Constitution Save Negates", "Save"],
         statuses: ["Poisoned"],
         options: {
+          transfer: false,
           durationSeconds: 60,
         },
       },

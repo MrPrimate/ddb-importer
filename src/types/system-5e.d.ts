@@ -56,6 +56,7 @@ global {
     | "cylinder"
     | "radius"
     | "line"
+    | "ring"
     | "sphere"
     | "square"
     | "wall";

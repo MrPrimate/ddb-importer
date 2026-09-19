@@ -25,7 +25,6 @@ export default class ShieldOfTheCavalier extends DDBEnricherData {
         overrides: {
           rangeType: "ft",
           rangeValue: 5,
-          noeffect: true,
           data: { attack: {  }, damage: { includeBase: false, parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, types: ["force"] })] } },
         },
       },
@@ -61,6 +60,9 @@ export default class ShieldOfTheCavalier extends DDBEnricherData {
         name: "Knocked Down",
         activityMatch: "Forceful Bash",
         statuses: ["Prone"],
+        options: {
+          transfer: false,
+        },
       },
     ];
   }

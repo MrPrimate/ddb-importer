@@ -1,7 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BloodAmulet extends DDBEnricherData {
-
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
@@ -16,7 +15,9 @@ export default class BloodAmulet extends DDBEnricherData {
       noTemplate: true,
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 10, type: "necrotic", scalingMode: "none" })],
+          parts: [
+            DDBEnricherData.basicDamagePart({ number: 2, denomination: 10, type: "necrotic", scalingMode: "none" }),
+          ],
         },
         range: { units: "spec" },
       },
@@ -50,9 +51,8 @@ export default class BloodAmulet extends DDBEnricherData {
         name: "Exhaustion (Blood Amulet)",
         activityMatch: "Exhaustion Save",
         statuses: ["Exhaustion"],
-        options: { description: "The target gains 1 Exhaustion level." },
+        options: { transfer: false, description: "The target gains 1 Exhaustion level." },
       },
     ];
   }
-
 }

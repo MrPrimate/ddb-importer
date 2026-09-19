@@ -127,6 +127,7 @@ export default class StaffOfThunderAndLightning extends DDBEnricherData {
         activityMatch: "Thunderclap",
         statuses: ["Deafened"],
         options: {
+          transfer: false,
           durationSeconds: 60,
         },
       },

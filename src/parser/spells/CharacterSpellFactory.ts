@@ -55,6 +55,9 @@ export default class CharacterSpellFactory {
   // dnd5e die-modifier suffix: "1d8" -> "1d8r1", rerolling a 1 once
   static HEALING_REROLL_MODIFIERS = ["r1"];
 
+  // Elemental Adept treats a 1 on a damage die as a 2: "8d6" -> "8d6min2"
+  static ELEMENTAL_ADEPT_MODIFIERS = ["min2"];
+
   processed: I5eSpellItem[] = [];
 
   spellCounts: Record<string, number> = {};
@@ -79,6 +82,7 @@ export default class CharacterSpellFactory {
   ddbCharacter: DDBCharacter;
   proficiencyModifier: number;
   healingReroll: boolean;
+  elementalAdeptTypes: string[];
   levelSlots: boolean;
   pactSlots: boolean;
   hasSlots: boolean;
@@ -99,6 +103,10 @@ export default class CharacterSpellFactory {
     // AC5e applies the Healer reroll at roll time, so only one of the two channels should activate
     // (the Healer enricher's ac5eOnly effect covers the AC5e case).
     this.healingReroll = hasHealingReroll(this.ddb) && !SystemHelpers.effectModules().ac5eInstalled;
+    // likewise the Elemental Adept enricher's ac5eOnly effect covers the AC5e case
+    this.elementalAdeptTypes = SystemHelpers.effectModules().ac5eInstalled
+      ? []
+      : DDBDataUtils.getElementalAdeptTypes(this.ddb);
     this.slots = foundry.utils.getProperty(this.character, "system.spells") as I5eSpellSlots;
     this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       const slot = this.slots[`spell${i}` as keyof I5eSpellSlots];
@@ -932,6 +940,29 @@ export default class CharacterSpellFactory {
     }
   }
 
+  /**
+   * Bake Elemental Adept's "treat a 1 as a 2" onto the damage parts of the character's spells that
+   * deal the chosen damage type. The flag records the types we stamped, so a later import can strip
+   * them if the feat goes away, the type changes, or AC5e turns up.
+   */
+  _applyElementalAdept() {
+    const modifiers = CharacterSpellFactory.ELEMENTAL_ADEPT_MODIFIERS;
+    for (const spell of this.processed) {
+      const flagged = spell.flags.ddbimporter?.elementalAdept ?? [];
+      const stale = flagged.filter((type) => !this.elementalAdeptTypes.includes(type));
+      if (stale.length > 0) SpellDataUtils.applyDamageDieModifiers(spell, modifiers, stale, { remove: true });
+      if (flagged.length > 0) delete spell.flags.ddbimporter?.elementalAdept;
+
+      // a part is only stamped when every damage type it offers is a chosen one
+      const applied = this.elementalAdeptTypes.length > 0
+        && SpellDataUtils.applyDamageDieModifiers(spell, modifiers, this.elementalAdeptTypes);
+      const kept = flagged.filter((type) => this.elementalAdeptTypes.includes(type));
+      if (applied || kept.length > 0) {
+        foundry.utils.setProperty(spell, "flags.ddbimporter.elementalAdept", [...this.elementalAdeptTypes]);
+      }
+    }
+  }
+
   async generateCharacterSpells() {
     // each class has an entry here, each entry has spells
     // we loop through each class and process
@@ -957,6 +988,7 @@ export default class CharacterSpellFactory {
     this.processed = Object.values(this._generated).flat();
 
     this._applyHealingRerolls();
+    this._applyElementalAdept();
 
     return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }

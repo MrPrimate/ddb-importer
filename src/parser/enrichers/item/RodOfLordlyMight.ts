@@ -126,6 +126,7 @@ export default class RodOfLordlyMight extends DDBEnricherData {
         activityMatch: "Paralyze",
         statuses: ["Paralyzed"],
         options: {
+          transfer: false,
           durationSeconds: 60,
         },
       },
@@ -134,6 +135,7 @@ export default class RodOfLordlyMight extends DDBEnricherData {
         activityMatch: "Terrify",
         statuses: ["Frightened"],
         options: {
+          transfer: false,
           durationSeconds: 60,
         },
       },

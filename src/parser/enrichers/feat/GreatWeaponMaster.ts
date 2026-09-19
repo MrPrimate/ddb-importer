@@ -1,6 +1,21 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Great Weapon Master. Neither ruleset changes a die result, so nothing here belongs on
+ * `DamageData.modifiers`; both rulesets are flat numbers and ride on conditioned dnd5e rule changes
+ * scoped to Heavy weapons. 2014 is an opt-in trade (-5 to hit, +10 damage), 2024 adds proficiency
+ * bonus damage, and both effects ship disabled because the rule cannot see the player's choice or
+ * whose turn it is.
+ */
 export default class GreatWeaponMaster extends DDBEnricherData {
+
+  /** 2014 wording: "a melee attack with a heavy weapon". */
+  static get HEAVY_MELEE_WEAPON_FILTER(): IEffectChangeFilter[] {
+    return [
+      ...DDBEnricherData.ChangeHelper.MELEE_WEAPON_ATTACK_FILTER,
+      { k: "item.properties", o: "has", v: "hvy" },
+    ];
+  }
 
   override get type(): IDDBActivityType | null {
     if (this.is2014) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -53,8 +68,12 @@ export default class GreatWeaponMaster extends DDBEnricherData {
             showIcon: 2,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 20, "system.rolls.attack.mwak.bonus"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 20, "system.rolls.damage.mwak.bonus"),
+            DDBEnricherData.ChangeHelper.ruleBonusChange("attack", "-5", {
+              conditions: GreatWeaponMaster.HEAVY_MELEE_WEAPON_FILTER,
+            }),
+            DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "10", {
+              conditions: GreatWeaponMaster.HEAVY_MELEE_WEAPON_FILTER,
+            }),
           ],
         },
       ];
@@ -86,7 +105,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
 
-An effect is provided that can be toggled to enable or disable the Melee Weapon attack penalty and damage bonus.
+<p>An effect is provided that can be toggled to enable or disable the attack penalty and damage bonus. While enabled it applies to melee attacks made with a Heavy weapon only.</p>
 
 </section>`
       : `
