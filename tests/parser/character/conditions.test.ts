@@ -3,8 +3,9 @@ import { DICTIONARY } from "../../../src/config/_module";
 
 // minimal Foundry-ish actor: DDBEffectHelper.getConditionEffectAppliedAndActive
 // only walks actor.allApplicableEffects() looking at { name, disabled }
-function fakeActor(effects: { name: string; disabled?: boolean }[] = []): any {
+function fakeActor(effects: { name: string; disabled?: boolean; system?: any }[] = [], exhaustion = 0): any {
   return {
+    system: { attributes: { exhaustion } },
     allApplicableEffects: () => effects.map((e) => ({ disabled: false, ...e })),
   };
 }
@@ -114,7 +115,19 @@ describe("getActorConditionStates", () => {
     expect(held.needsAdd).toBe(true);
     expect(dictionaryProne.needsAdd).toBeUndefined();
   });
-});
 
-// setConditions is not covered here: it creates/deletes embedded ActiveEffect
-// documents and needs a real (or heavily stubbed) Foundry document layer
+  // dnd5e 6 names the single levelled effect "Exhaustion (3)", so the level is read off the actor
+  it("matches an Exhaustion level on the actor's level, not the effect name", () => {
+    const effect = { name: "Exhaustion (3)", system: { type: "exhaustion", level: 3 } };
+    const states = getActorConditionStates(fakeActor([effect], 3), fakeDdb([{ id: 4, level: 3 }]));
+    expect(state(states, "Exhaustion 3")).toMatchObject({ ddbCondition: true, applied: true, needsAdd: false });
+    expect(state(states, "Exhaustion 2")).toMatchObject({ ddbCondition: false, applied: false, needsRemove: false });
+  });
+
+  it("flags a changed Exhaustion level as an add for the new level", () => {
+    const effect = { name: "Exhaustion (1)", system: { type: "exhaustion", level: 1 } };
+    const states = getActorConditionStates(fakeActor([effect], 1), fakeDdb([{ id: 4, level: 2 }]));
+    expect(state(states, "Exhaustion 2")).toMatchObject({ needsAdd: true });
+    expect(state(states, "Exhaustion 1")).toMatchObject({ needsRemove: true });
+  });
+});
