@@ -392,6 +392,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Stalker's Prowess",
     "Transmutation Savant",
     "Signature Spells",
+    "Rage of the Wilds",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -726,4 +727,34 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
 
 export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
+];
+
+/** DDB choices that configure their parent rather than creating another item. */
+export const NON_ITEM_CHOICE_LABELS: string[] = [
+  "Strength",
+  "Dexterity",
+  "Constitution",
+  "Intelligence",
+  "Wisdom",
+  "Charisma",
+  "Strength Score",
+  "Dexterity Score",
+  "Constitution Score",
+  "Intelligence Score",
+  "Wisdom Score",
+  "Charisma Score",
+  "Fighting Style feat",
+];
+
+/**
+ * DDB template expressions that are wrong at source. Matched on the exact template body and a
+ * feature-name fragment; the formula replaces the whole template as an inline roll value.
+ */
+export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string }[] = [
+  {
+    // the 2024 Divine Spark die count, held as a ScaleValue on the feature by its enricher
+    featureNameIncludes: "Divine Spark",
+    template: "1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown",
+    formula: "@scale.channel-divinity.spark",
+  },
 ];

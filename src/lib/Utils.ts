@@ -119,7 +119,9 @@ export default class Utils {
     //   });
     // }
 
-    return result;
+    // prefix and postfix alone can exceed the length (teleport + legendary is 17), and Foundry
+    // rejects any activity or effect id that is not exactly 16 characters
+    return result.substring(0, length);
   }
 
   static errorMessage(err: unknown): string {

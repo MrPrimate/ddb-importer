@@ -146,6 +146,7 @@ const FIND_FAMILIAR_MATCHES = [
   "Invocation: Pact of the Chain",
   "Eldritch Invocations: Pact of the Chain",
   "Necromancy Spellbook",
+  "Wild Companion",
 ];
 
 const FAMILIAR_COUNTS: Record<string, string> = {

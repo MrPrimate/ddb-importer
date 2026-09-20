@@ -287,6 +287,23 @@ export default class EffectGenerator {
     });
   }
 
+  /**
+   * The ceiling for one ability score bonus when the item states its own. DDB has no field for
+   * it: the limit is written in the modifier's restriction text ("to a maximum of 24", "Can exceed
+   * 20, but not 30"). null when unstated, and the actor's score maximum applies.
+   */
+  static statBonusCeiling(bonus: IDDBModifier): number | null {
+    const restriction = bonus.restriction ?? "";
+    const written = restriction.match(/maximum of\s*(\d+)/i) ?? restriction.match(/\bnot\s*(\d+)/i);
+    return written ? Number(written[1]) : null;
+  }
+
+  /** The floor a score penalty stops at, from restriction text such as "Curse. (minimum of 7)"; null when unstated. */
+  static statBonusFloor(bonus: IDDBModifier): number | null {
+    const written = (bonus.restriction ?? "").match(/minimum of\s*(\d+)/i);
+    return written ? Number(written[1]) : null;
+  }
+
   _addStatBonusEffect(subType) {
     const bonuses = this.grantedModifiers.filter((modifier) =>
       (modifier.type === "bonus" || modifier.type === "stacking-bonus")
@@ -297,8 +314,15 @@ export default class EffectGenerator {
         logger.debug(`Generating ${subType} stat bonus for ${this.document.name}`);
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]);
 
-        if (game.modules.get("dae")?.active) {
-          const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
+        const floor = EffectGenerator.statBonusFloor(bonus);
+        if (game.modules.get("dae")?.active && Number(bonus.value) < 0 && floor !== null) {
+          // "Curse. (minimum of 7)": the penalty stops at the floor DDB writes in the restriction
+          const penaltyString = `max(${floor}, @abilities.${ability.value}.value + ${bonus.value})`;
+          this.effect.changes.push(ChangeHelper.overrideChange(penaltyString, 5, `system.abilities.${ability.value}.value`));
+        } else if (game.modules.get("dae")?.active && Number(bonus.value) > 0) {
+          // the item's own limit ("to a maximum of 24") wins over the actor's score maximum
+          const ceiling = EffectGenerator.statBonusCeiling(bonus) ?? `@abilities.${ability.value}.max`;
+          const bonusString = `min(${ceiling}, @abilities.${ability.value}.value + ${bonus.value})`;
           // min(20, @abilities.con.value + 2)
           this.effect.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
         } else {
@@ -595,6 +619,34 @@ export default class EffectGenerator {
     }
   }
 
+  /**
+   * DDB sends some speed bonuses with a null value and puts the speed in the restriction text
+   * instead: "Equal to your walking speed" or "30ft. swim speed". A modifier with a duration
+   * belongs to an activated property (Boots of Speed, Vanisher Hat), so it is left to the item's
+   * enricher rather than becoming an always-on transfer effect. "Speed Doubled" has no dnd5e 5.x
+   * change to land on. Anything the text does not describe is skipped; parsing the null would
+   * emit NaN.
+   */
+  _addUnvaluedSpeedBonus(modifier: IDDBModifier, speedType: string) {
+    if (modifier.duration) {
+      logger.debug(`Skipping timed ${modifier.subType} speed bonus for ${this.document.name}`, { modifier });
+      return;
+    }
+    const restriction = String(modifier.restriction ?? "");
+    const key = `system.attributes.movement.${speedType}`;
+    if (speedType !== "all" && (/equal to your (walking )?speed/i).test(restriction)) {
+      if (speedType === "walk") return;
+      this.effect.changes.push(ChangeHelper.upgradeChange("@attributes.movement.walk", 5, key));
+      return;
+    }
+    const distance = restriction.match(/(\d+)\s*(?:ft|feet|foot)\b/i);
+    if (speedType !== "all" && distance) {
+      this.effect.changes.push(ChangeHelper.upgradeChange(Number.parseInt(distance[1]), 5, key));
+      return;
+    }
+    logger.debug(`Skipping ${modifier.subType} speed bonus with no value for ${this.document.name}`, { modifier });
+  }
+
   _addBonusSpeedChanges(subType, speedType = null) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
     // "Equal to Walking Speed"
@@ -605,11 +657,18 @@ export default class EffectGenerator {
         const innate = subType.split("-").slice(-1)[0];
         speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
       }
-      const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
-      if (speedType === "all") {
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
-      } else {
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+      const hasValue = (mod: IDDBModifier) => Number.isFinite(Number.parseInt(String(mod.value)));
+      const valued = bonuses.filter(hasValue);
+      if (valued.length > 0) {
+        const bonusValue = valued.reduce((speed, mod) => speed + Number.parseInt(String(mod.value)), 0);
+        if (speedType === "all") {
+          this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
+        } else {
+          this.effect.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+        }
+      }
+      for (const bonus of bonuses.filter((mod) => !hasValue(mod))) {
+        this._addUnvaluedSpeedBonus(bonus, speedType);
       }
     }
   }

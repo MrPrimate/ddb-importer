@@ -1350,7 +1350,7 @@ export default class CharacterFeatureFactory {
 
     this.data.features = this.processed.features
       .filter((feature) => {
-        const originalName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const originalName = (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name) as string;
 
         if (DDBAction.KEEP_ACTIONS.includes(originalName)) return true;
         const is2024 = foundry.utils.getProperty(feature, "flags.ddbimporter.is2024");
@@ -1419,8 +1419,10 @@ export default class CharacterFeatureFactory {
     //   this: this,
     //   grantedSpells: this.spellsGranted[type],
     // });
-    for (const spell of this.ddbCharacter._spellParser._granted[type]) {
+    for (const spell of this.ddbCharacter._spellParser._granted[type] ?? []) {
       const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name;
+      // a second pass over the same type must not put the spell on the sheet again
+      if (this.ddbCharacter.raw.spells.includes(spell)) continue;
 
       if (this.spellsGranted[type].some((sg) =>
         featuresToCheck.some((f) => {
@@ -1458,16 +1460,24 @@ export default class CharacterFeatureFactory {
       await this._addSpellAdvancementTypeWithFilter(type);
     }
 
+    // `forceSpellAdvancement` dates from when only some granted-spell types were processed
+    // above; every type is now, so a forced pass over a type already handled would build the
+    // feature's spell advancements a second time and push its granted spells onto the sheet
+    // twice (the Celestial warlock's Bonus Cantrips arrived as two Light and two Sacred Flame)
+    const forcedTypes = new Set<string>();
+
     for (const feature of this.processed.features) {
       const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
       const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement");
-      if (featureType && forceSpellAdvancement) {
+      if (featureType && forceSpellAdvancement && !types.includes(featureType)) {
         if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
         this.spellAdvancementsForce[featureType].push(feature.name);
+        forcedTypes.add(featureType);
       }
     }
 
-    for (const [type, filters] of Object.entries(this.spellAdvancementsForce)) {
+    for (const type of forcedTypes) {
+      const filters = this.spellAdvancementsForce[type] ?? [];
       if (filters.length > 0) {
         await this._addSpellAdvancementTypeWithFilter(type, filters);
       }

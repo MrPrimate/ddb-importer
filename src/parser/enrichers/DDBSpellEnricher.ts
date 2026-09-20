@@ -50,6 +50,12 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
     // Frontiers of Eberron reprint; same mechanics as the 2014 spell
     "Absorb Elements (Frontiers of Eberron)": SpellEnrichers.AbsorbElements,
+    "Tenser's Floating Disk": SpellEnrichers.FloatingDisk,
+    "Leomund's Secret Chest": SpellEnrichers.SecretChest,
+    "Rary's Telepathic Bond": SpellEnrichers.RarysTelepathicBond,
+    "Otiluke's Freezing Sphere": SpellEnrichers.OtilukesFreezingSphere,
+    "Laeral's Silver Lance": SpellEnrichers.LaeralsSilverLance,
+    "Drawmij's Instant Summons": SpellEnrichers.DrawmijsInstantSummons,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

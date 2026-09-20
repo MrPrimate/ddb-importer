@@ -4,6 +4,27 @@ export {};
 
 global {
 
+  interface ISRDItemSummonProfile {
+    /** a published creature (see CREATURE_IDS in SRDCreatures.ts) */
+    creature?: string;
+    /** a bare object token (a key of SRD_OBJECTS in SRDObjects.ts) */
+    object?: string;
+    /** dnd5e rolls this, so dice are fine */
+    count?: string;
+  }
+
+  interface ISRDItemSummon {
+    /** matched against the item's DDB name with `includes`; the first entry to match wins */
+    match: string;
+    activityName: string;
+    /** whether the summon replaces the item's primary activity or sits beside it */
+    placement: "primary" | "additional";
+    profiles: ISRDItemSummonProfile[];
+    activationType?: TActivationCost;
+    /** no actor of ours: one empty profile for the table to point at the creature involved */
+    blankProfile?: boolean;
+  }
+
   interface ICompanionData {
     ddbParser: mixins.DDBEnricherFactoryMixin;
     document: any; // this.data,

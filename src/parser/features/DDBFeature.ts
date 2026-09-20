@@ -128,6 +128,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   _prepare() {
     // override this feature
+    this._generateLevelScale();
     this._generateActionTypes();
     this._generateFlagHints();
 
@@ -841,6 +842,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
+      await this.enricher.addDocumentAdvancements();
       await this.enricher.addDocumentOverride();
       this._final();
       await this.enricher.cleanup();
@@ -992,6 +994,7 @@ ${description}`;
     // this._generateResourceFlags();
     // this._addCustomValues();
 
+    await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     this._final();
   }

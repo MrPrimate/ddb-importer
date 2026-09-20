@@ -82,10 +82,13 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
         const maxLevel = levelSpellSlots.indexOf(Math.max(...levelSpellSlots)) + 1;
         const maxSlots = Math.max(...levelSpellSlots);
         const currentSlots = this.source.ddb.character.pactMagic.find((pact) => pact.level === maxLevel).used;
+        // DDB can report more slots used than the class grants (a stale `used` after a level
+        // or class change); a negative remainder is never a valid slot count
+        const remainingSlots = Math.max(0, maxSlots - currentSlots);
         if (["Blood Hunter"].includes(name)) {
-          this.spellSlots.pact = { value: maxSlots - currentSlots, max: String(maxSlots), override: maxSlots };
+          this.spellSlots.pact = { value: remainingSlots, max: String(maxSlots), override: maxSlots };
         } else {
-          this.spellSlots.pact = { value: maxSlots - currentSlots, max: String(maxSlots) };
+          this.spellSlots.pact = { value: remainingSlots, max: String(maxSlots) };
         }
         return {
           name,
@@ -143,7 +146,8 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
   for (let i = 1; i < result.length; i++) {
     const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used).reduce((a, b) => a + b, 0) ?? 0;
     this.spellSlots["spell" + i] = {
-      value: result[i] ? (result[i] - currentSlots) : 0,
+      // clamp: DDB can carry a stale `used` above the level's maximum
+      value: result[i] ? Math.max(0, result[i] - currentSlots) : 0,
       max: result[i] ?? 0,
     };
   }

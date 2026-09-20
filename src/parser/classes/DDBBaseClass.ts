@@ -963,6 +963,9 @@ export default abstract class DDBBaseClass {
 
 
   async _generateFeatureAdvancement(feature, choices) {
+    // DDB includes empty subclass/feature placeholders even when no item choice exists.
+    choices = choices.filter((choice) => (choice.optionIds ?? []).length > 0);
+    if (choices.length === 0) return;
     logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
     // console.warn({
     //   this: this,

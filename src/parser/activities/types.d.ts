@@ -16,6 +16,8 @@ global {
   interface IDDBActivityBuild {
     // --- Activation / attack ---
     activationOverride?: I5eActivityActivation;
+    /** Eligibility text for a parser-generated monster activity. */
+    activationCondition?: string;
     attackData?: any;
     noManualActivation?: boolean;
 

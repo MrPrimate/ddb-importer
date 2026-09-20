@@ -870,7 +870,8 @@ export default class DDBRace {
       .filter(
         (option) =>
           trait.entityTypeId == option.componentTypeId
-          && trait.id == option.componentId,
+          && trait.id == option.componentId
+          && !DICTIONARY.parsing.nonItemChoiceLabels.includes(option.definition.name),
       );
     if (optionMatches.length === 0) return;
     await this.#generateTraitOptionAdvancement(trait, optionMatches);

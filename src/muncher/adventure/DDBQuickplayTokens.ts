@@ -418,7 +418,7 @@ export default class DDBQuickplayTokens {
       const stub: ITokenStub = {
         x: stubX,
         y: stubY,
-        hidden: !!t.hidden,
+        hidden: true,
         locked: !!t.locked,
         name: baseName,
         sort: Math.round((t.zPosition ?? 0) * 1000),

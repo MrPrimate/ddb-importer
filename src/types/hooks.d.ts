@@ -47,6 +47,8 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preRollSavingThrow": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollSkill": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollTool": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
+      // `enchantmentData` is the mutable effect data dnd5e then creates; returning false cancels it
+      "dnd5e.preApplyEnchantment": (item: Item.Implementation, enchantmentData: any, options: { activity: any }) => boolean | void;
       "dnd5e.preUseActivity": (activity: Activity, usageConfig: AnyMutableObject, dialogConfig: AnyMutableObject, messageConfig: AnyMutableObject) => boolean | void;
       "dnd5e.restCompleted": (actor: Actor.Implementation, result: { longRest: boolean; newDay: boolean }, config: unknown) => void;
       "dnd5e.rollAttack": (rolls: Roll[], data: { subject: Activity | null; ammoUpdate: { id: string; destroy: boolean; quantity: number } | null }) => void;

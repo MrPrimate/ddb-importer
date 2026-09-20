@@ -1,6 +1,7 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { GenericEnrichers, ItemEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
+import { SRD_ITEM_SUMMONS } from "../companions/types/SRDItemSummonTable";
 
 export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null }: { activityGenerator: any; notifier?: any } = {} as any) {
@@ -31,6 +32,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   };
 
   NAME_HINT_INCLUDES: Record<string, string> = {
+    // every summoning item in the table routes to the one table-driven enricher
+    ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
@@ -114,6 +117,42 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Demon Splint Armor": ItemEnrichers.DemonArmor,
     "Demon Scale Mail": ItemEnrichers.DemonArmor,
     "Hypnovulfen Figure": ItemEnrichers.HypnovulfenFigure,
+    "Workshop Wrecker": ItemEnrichers.WorkshopWrecker,
+    "Weapon of Grass": ItemEnrichers.WeaponOfGrass,
+    "Wave-Swept Weapon": ItemEnrichers.WaveSweptWeapon,
+    "Visage of the Old Ways": ItemEnrichers.VisageOfTheOldWays,
+    "Viol": ItemEnrichers.MusicalInstrumentChecks,
+    "Three-Dragon Ante Set": ItemEnrichers.GamingSetChecks,
+    "Three-Dragon Ante": ItemEnrichers.GamingSetChecks,
+    "Three-dragon ante": ItemEnrichers.GamingSetChecks,
+    "Shovel of Yorgrim": ItemEnrichers.ShovelOfYorgrim,
+    "Shawm": ItemEnrichers.MusicalInstrumentChecks,
+    "Rod of the Pact Keeper": ItemEnrichers.RodOfThePactKeeper,
+    "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
+    "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
+    "Rifle, Hunting": ItemEnrichers.HuntingRifle,
+    "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
+    "Rhythm-Maker's Drum": ItemEnrichers.RhythmMakersDrum,
+    "Playing Cards": ItemEnrichers.GamingSetChecks,
+    "Playing Card Set": ItemEnrichers.GamingSetChecks,
+    "Pistol, Automatic": ItemEnrichers.SemiautomaticPistol,
+    "Pan Flute": ItemEnrichers.MusicalInstrumentChecks,
+    "Lyre": ItemEnrichers.MusicalInstrumentChecks,
+    "Lute": ItemEnrichers.MusicalInstrumentChecks,
+    "Keyholes Dagger": ItemEnrichers.KeyholesDagger,
+    "Horn": ItemEnrichers.MusicalInstrumentChecks,
+    "Haemscale": ItemEnrichers.Haemscale,
+    "Frost Brand": ItemEnrichers.FrostBrand,
+    "Flute": ItemEnrichers.MusicalInstrumentChecks,
+    "SRD Summon Item": ItemEnrichers.SRDSummonItem,
+    "Dulcimer": ItemEnrichers.MusicalInstrumentChecks,
+    "Drum": ItemEnrichers.MusicalInstrumentChecks,
+    "Dragonchess Set": ItemEnrichers.GamingSetChecks,
+    "Dragonchess": ItemEnrichers.GamingSetChecks,
+    "Dice Set": ItemEnrichers.GamingSetChecks,
+    "Dice": ItemEnrichers.GamingSetChecks,
+    "Delerium": ItemEnrichers.Delerium,
+    "Bagpipes": ItemEnrichers.MusicalInstrumentChecks,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

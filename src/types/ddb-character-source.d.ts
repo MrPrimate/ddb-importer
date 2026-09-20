@@ -777,7 +777,7 @@ global {
     componentTypeId: number;
     type: number;
     subType: number | null;
-    optionValue: number;
+    optionValue: number | null;
     optionIds: number[];
     options: any[];
     label: string | null;

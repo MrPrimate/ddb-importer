@@ -1265,6 +1265,20 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         hint: "Automates Warding Bond damage sharing and tracking",
         label: "Allow Warding Bond Automation?",
       },
+      {
+        name: "allow-divine-power-recovery-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-divine-power-recovery-enhancer"),
+        enabled: true,
+        hint: "Resets Divine Power uses on summoned Vestige Companions when a Vestige Patron warlock finishes a Short or Long Rest",
+        label: "Allow Vestige Divine Power Recovery?",
+      },
+      {
+        name: "allow-rider-enchantment-link-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-rider-enchantment-link-enhancer"),
+        enabled: true,
+        hint: "When an activity granted by an enchantment enchants another item (Alter Self's Natural Weapons on an Unarmed Strike), removes that enchantment when the granting one ends. Needs an active GM.",
+        label: "Remove Enchantments Applied by Enchantment-Granted Activities?",
+      },
     ];
 
     return enhancementConfig;
