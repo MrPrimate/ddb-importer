@@ -108,8 +108,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  override _generateDuration() {
-    this.data.duration = this.actionData.duration;
+  override _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
+    // cloned for the reason `_generateRange` gives: actionData.duration is shared by every
+    // activity of the feature, and an enricher's own duration must not rewrite its siblings'
+    if (durationOverride) {
+      this.data.duration = { ...foundry.utils.deepClone(durationOverride), override: true };
+      return;
+    }
+    this.data.duration = foundry.utils.deepClone(this.actionData.duration);
   }
 
   override _generateEffects() {
@@ -315,7 +321,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
+    if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride });

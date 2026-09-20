@@ -10,18 +10,19 @@ import DDBActivityFactoryMixin from "../../../src/parser/activities/mixins/DDBAc
 interface IGeneratorStub {
   name: string;
   additionalActivities: any[];
-  enricher: { addAutoAdditionalActivities: boolean; additionalActivities: any[] };
+  enricher: { addAutoAdditionalActivities: boolean; additionalActivities: any[]; keepParsedActivities?: boolean };
   _checkGenerated: boolean;
 }
 
 function stubFor({
   enricherActivities = [] as any[],
   addAutoAdditionalActivities = true,
+  keepParsedActivities = false,
 }: Record<string, any> = {}): IGeneratorStub {
   return {
     name: "Test Item",
     additionalActivities: [],
-    enricher: { addAutoAdditionalActivities, additionalActivities: enricherActivities },
+    enricher: { addAutoAdditionalActivities, additionalActivities: enricherActivities, keepParsedActivities },
     _checkGenerated: false,
   };
 }
@@ -141,6 +142,10 @@ describe("_checkActivityGeneration - guards", () => {
 
   it("emits nothing when the enricher authors its own additional activities", () => {
     expect(generate(NET_2024, { enricherActivities: [{ name: "Escape" }] })).toEqual([]);
+  });
+
+  it("still emits when the enricher says its activities sit beside the parsed ones", () => {
+    expect(generate(NET_2024, { enricherActivities: [{ name: "Escape" }], keepParsedActivities: true })).toHaveLength(1);
   });
 
   it("emits nothing when the enricher turns auto activities off", () => {

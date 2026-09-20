@@ -36,6 +36,7 @@ const DELEGATED_GETTERS = {
   documentStub: { default: () => null },
   clearAutoEffects: { default: () => false },
   addAutoAdditionalActivities: { default: () => true },
+  keepParsedActivities: { default: () => false },
   addToDefaultAdditionalActivities: { default: () => false },
   builtFeaturesFromActionFilters: { default: () => [] },
   itemMacro: { default: () => null },
@@ -1777,6 +1778,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly documentStub: IDDBDocumentStub | null;
   readonly clearAutoEffects: boolean;
   readonly addAutoAdditionalActivities: boolean;
+  readonly keepParsedActivities: boolean;
   readonly addToDefaultAdditionalActivities: boolean;
   readonly builtFeaturesFromActionFilters: any[];
   readonly itemMacro: IDDBItemMacro | null;

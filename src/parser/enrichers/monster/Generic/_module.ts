@@ -42,6 +42,7 @@ export { default as InfernalWound } from "./InfernalWound";
 export { default as Invisibility } from "./Invisibility";
 export { default as IronScent } from "./IronScent";
 export { default as KeenSenses } from "./KeenSenses";
+export { default as LairActions } from "./LairActions";
 export { default as LegendaryResistance } from "./LegendaryResistance";
 export { default as LifeSuppression } from "./LifeSuppression";
 export { default as LivingShadow } from "./LivingShadow";
@@ -79,4 +80,5 @@ export { default as VampireWeakness } from "./VampireWeakness";
 export { default as WarCry } from "./WarCry";
 export { default as WeakeningBreath } from "./WeakeningBreath";
 export { default as WeightOfAges } from "./WeightOfAges";
+export { default as WeightOfWings } from "./WeightOfWings";
 

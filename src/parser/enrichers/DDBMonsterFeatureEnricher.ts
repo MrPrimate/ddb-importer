@@ -206,6 +206,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Grappler": "Grappler",
     "Improved Critical": "Improved Critical",
     "Invisibility": "Invisibility",
+    // a lair's options arrive as one feature: "Lair Actions" for legacy stat blocks, and the
+    // lair's own heading where a partner book folds the actions into it
+    "An Apple Tree Dragon's Lair": "Lair Actions",
+    "Lair Actions": "Lair Actions",
     "Light Sensitivity": "Sunlight Sensitivity",
     "Magic Resistance": "Magic Resistance",
     "Mask of the Wild": "Mask of the Wild",
@@ -223,7 +227,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Sunlight Sensitivity": "Sunlight Sensitivity",
     "Sunlight Weakness": "Sunlight Sensitivity",
     "Weakening Breath": "Weakening Breath",
+    "Weight of Wings": "Weight of Wings",
     "Superior Invisibility": "Invisibility",
+    "The Pleurossa's Lair": "Lair Actions",
     "Two Heads": "Two Heads",
     "Uncanny Dodge": "Uncanny Dodge",
     "Illumination": "Illumination",
@@ -488,6 +494,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Improved Critical": MonsterEnrichers.Generic.ImprovedCritical,
     "Invisibility": MonsterEnrichers.Generic.Invisibility,
     "Keen Senses": MonsterEnrichers.Generic.KeenSenses,
+    "Lair Actions": MonsterEnrichers.Generic.LairActions,
     "Legendary Resistance": MonsterEnrichers.Generic.LegendaryResistance,
     "Shape-Shift": MonsterEnrichers.Generic.ShapeShift,
     "Magic Resistance": MonsterEnrichers.Generic.MagicResistance,
@@ -553,6 +560,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Status Rider": MonsterEnrichers.Generic.StatusRider,
     "Foul": MonsterEnrichers.Generic.Foul,
     "Weight of Ages": MonsterEnrichers.Generic.WeightOfAges,
+    "Weight of Wings": MonsterEnrichers.Generic.WeightOfWings,
     "Ally Buff Aura": MonsterEnrichers.Generic.AllyBuffAura,
     "Teleport": MonsterEnrichers.Generic.Teleport,
   };

@@ -779,8 +779,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if (this._multiSaveGenerated) return;
     this._multiSaveGenerated = true;
     if (!this.enricher.addAutoAdditionalActivities) return;
-    // an enricher that authors its own extras
-    if ((this.enricher.additionalActivities ?? []).length > 0) return;
+    // an enricher that authors its own extras, unless it says they sit beside the parsed ones
+    if ((this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
     if (!text?.trim()) return;
 
     const outlines: IAdditionalActivityOutline[] = [];
@@ -930,8 +930,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if (this._checkGenerated) return;
     this._checkGenerated = true;
     if (!this.enricher.addAutoAdditionalActivities) return;
-    // an enricher that authors its own extras
-    if ((this.enricher.additionalActivities ?? []).length > 0) return;
+    // an enricher that authors its own extras, unless it says they sit beside the parsed ones
+    if ((this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
     if (!text?.trim()) return;
 
     const seen = new Set<string>();

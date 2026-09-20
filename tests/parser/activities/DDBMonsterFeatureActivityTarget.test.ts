@@ -66,3 +66,36 @@ describe("monster mode activation", () => {
     expect(override.condition).toBe("Original");
   });
 });
+
+describe("monster activity duration", () => {
+  // A spellcasting list whose one variant reads "(24-hour duration)" used to stamp 24 hours on
+  // every cast beside it: the feature's duration was assigned by reference, so writing one
+  // activity's duration wrote them all, and an enricher's own duration was ignored outright.
+  it("copies the feature duration rather than sharing it", () => {
+    const shared: I5eActivityDuration = { value: "", units: "inst" };
+    const first = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    const second = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    Object.assign(first, { data: {}, actionData: { duration: shared } });
+    Object.assign(second, { data: {}, actionData: { duration: shared } });
+    first._generateDuration();
+    second._generateDuration();
+
+    expect(first.data.duration).toEqual(shared);
+    expect(first.data.duration).not.toBe(shared);
+    first.data.duration!.units = "hour";
+    expect(second.data.duration?.units).toBe("inst");
+    expect(shared.units).toBe("inst");
+  });
+
+  it("honors a duration override without touching the feature or the override", () => {
+    const shared: I5eActivityDuration = { value: "", units: "inst" };
+    const override: I5eActivityDuration = { value: "1", units: "round" };
+    const activity = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    Object.assign(activity, { data: {}, actionData: { duration: shared } });
+    activity._generateDuration({ durationOverride: override });
+
+    expect(activity.data.duration).toEqual({ value: "1", units: "round", override: true });
+    expect(override).toEqual({ value: "1", units: "round" });
+    expect(shared.units).toBe("inst");
+  });
+});

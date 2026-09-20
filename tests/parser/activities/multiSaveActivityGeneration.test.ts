@@ -10,7 +10,7 @@ import DDBActivityFactoryMixin from "../../../src/parser/activities/mixins/DDBAc
 interface IGeneratorStub {
   name: string;
   additionalActivities: any[];
-  enricher: { addAutoAdditionalActivities: boolean; additionalActivities: any[] };
+  enricher: { addAutoAdditionalActivities: boolean; additionalActivities: any[]; keepParsedActivities?: boolean };
   _saveBearingSections: (text: string) => any[];
 }
 
@@ -19,12 +19,13 @@ function generate(text: string, {
   skipFirstSection = true,
   enricherActivities = [] as any[],
   addAutoAdditionalActivities = true,
+  keepParsedActivities = false,
   ...rest
 }: Record<string, any> = {}): any[] {
   const stub: IGeneratorStub = {
     name: "Test Item",
     additionalActivities: [],
-    enricher: { addAutoAdditionalActivities, additionalActivities: enricherActivities },
+    enricher: { addAutoAdditionalActivities, additionalActivities: enricherActivities, keepParsedActivities },
     _saveBearingSections: (DDBActivityFactoryMixin.prototype as any)._saveBearingSections,
   };
   (DDBActivityFactoryMixin.prototype as any)._multiSaveActivityGeneration.call(stub, {
@@ -174,6 +175,11 @@ describe("_multiSaveActivityGeneration - flat text", () => {
 describe("_multiSaveActivityGeneration - guards", () => {
   it("emits nothing when the enricher authors its own additional activities", () => {
     expect(generate(ARCANE_CANNON, { enricherActivities: [{ init: { name: "Hand built" } }] })).toEqual([]);
+  });
+
+  it("still emits when the enricher says its activities sit beside the parsed ones", () => {
+    const extras = generate(ARCANE_CANNON, { enricherActivities: [{ init: { name: "Hand built" } }], keepParsedActivities: true });
+    expect(extras.map((outline: any) => outline.name)).toEqual(["Frost Shot", "Poison Spray"]);
   });
 
   it("emits nothing when the enricher turns auto activities off", () => {

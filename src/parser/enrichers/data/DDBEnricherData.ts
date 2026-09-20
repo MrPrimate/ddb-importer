@@ -437,6 +437,16 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return true;
   }
 
+  /**
+   * An enricher that authors `additionalActivities` normally replaces the save and check
+   * activities the parser builds from the description. Return true when the enricher's activities
+   * sit beside those, not instead of them: a lair-action list gaining a terrain placer still
+   * needs each of its parsed saves.
+   */
+  get keepParsedActivities(): boolean {
+    return false;
+  }
+
   get builtFeaturesFromActionFilters(): any[] {
     return [];
   }
