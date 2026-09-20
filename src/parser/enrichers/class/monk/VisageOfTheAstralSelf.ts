@@ -27,7 +27,7 @@ export default class VisageOfTheAstralSelf extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
         ],
         options: {
-          durationSeconds: 360,
+          durationSeconds: 600,
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.truesight"),

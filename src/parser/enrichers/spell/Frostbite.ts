@@ -15,6 +15,10 @@ export default class Frostbite extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.mwak"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.rwak"),
         ],
+        // DAE and AC5e each end the effect after the one weapon attack; the expiry is the ceiling
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("once; actionType.mwak || actionType.rwak", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+        ],
         daeSpecialDurations: ["1Attack:rwak", "1Attack:mwak"],
       },
     ];

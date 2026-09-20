@@ -17,8 +17,8 @@ export default class Resurrection extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    // dnd5e folds rolls.ability.check into the initiative roll, so a separate
-    // attributes.init.roll.bonus entry would penalise initiative twice.
+    // dnd5e folds bonuses.abilities.check into the initiative roll, so a separate
+    // attributes.init.bonus entry would penalise initiative twice.
     const keys = [
       "system.bonuses.abilities.check",
       "system.bonuses.abilities.save",

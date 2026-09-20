@@ -62,6 +62,7 @@ export default class Hex extends DDBEnricherData {
     return DICTIONARY.actor.abilities.map((ability) => {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,
+        statuses: ["Cursed"],
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
         ],

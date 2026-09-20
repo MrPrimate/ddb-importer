@@ -51,7 +51,12 @@ export default class StaffOfSkulls extends DDBEnricherData {
           {
             name: "Chattering Skulls",
             activityMatch: "Chatter (Impose Disadvantage)",
-            options: { expiry: "targetEnd", description: "Disadvantage on the triggering attack roll." },
+            options: {
+              transfer: false,
+              expiry: "targetEnd",
+              description: "Disadvantage on the triggering attack roll. Without AC5e the effect lasts for every attack until the end of the target's next turn.",
+            },
+            // AC5e's once ends the effect after the one attack; the expiry is the ceiling
             ac5eChanges: [
               DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
             ],
@@ -66,6 +71,9 @@ export default class StaffOfSkulls extends DDBEnricherData {
             name: "Pulverized",
             activityMatch: "Pulverize",
             statuses: ["Prone"],
+            options: {
+              transfer: false,
+            },
           },
         ];
       default:

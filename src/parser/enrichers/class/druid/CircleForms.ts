@@ -19,6 +19,7 @@ export default class CircleForms extends DDBEnricherData {
           units: "hour",
         },
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
+        // the wildshape preset supplies the Moon druid's 13 + Wisdom minimum AC and temp HP
         transform: {
           customize: false,
           identifier: "druid",
@@ -65,20 +66,6 @@ export default class CircleForms extends DDBEnricherData {
         ],
       },
     };
-  }
-
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Circle Form AC",
-        options: {
-          description: "You gain a minimum AC of 13 + your Wisdom modifier.",
-        },
-        changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
-        ],
-      },
-    ];
   }
 
 }

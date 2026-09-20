@@ -46,6 +46,7 @@ export { default as Indomitable } from "./Indomitable";
 export { default as InfamyDexterity } from "./InfamyDexterity";
 export { default as InfamyStrength } from "./InfamyStrength";
 export { default as IronPunisher } from "./IronPunisher";
+export { default as KnowYourEnemy } from "./KnowYourEnemy";
 export { default as Launch } from "./Launch";
 export { default as MagicalAmmunition } from "./MagicalAmmunition";
 export { default as MagicArrow } from "./MagicArrow";

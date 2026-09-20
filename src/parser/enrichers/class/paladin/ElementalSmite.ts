@@ -125,7 +125,7 @@ export default class ElementalSmite extends DDBEnricherData {
             "associated": [
               "ath",
             ],
-            "ability": ["str"],
+            "ability": "str",
             "dc": {
               "calculation": "int",
               "formula": "",

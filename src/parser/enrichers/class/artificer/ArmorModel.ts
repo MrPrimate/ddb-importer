@@ -25,6 +25,13 @@ export default class ArmorModel extends DDBEnricherData {
           activationOverride: {
             type: "special",
           },
+          // the model lasts until it is swapped at a rest, not the description parser's
+          // 1-minute reading
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
+          },
           targetOverride: {
             affects: {
               type: "object",
@@ -186,6 +193,13 @@ export default class ArmorModel extends DDBEnricherData {
           generateActivation: true,
           activationOverride: {
             type: "special",
+          },
+          // the model lasts until it is swapped at a rest, not the description parser's
+          // 1-minute reading
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
           },
           targetOverride: {
             affects: {
@@ -359,6 +373,13 @@ export default class ArmorModel extends DDBEnricherData {
           generateActivation: true,
           activationOverride: {
             type: "special",
+          },
+          // the model lasts until it is swapped at a rest, not the description parser's
+          // 1-minute reading
+          durationOverride: {
+            value: "",
+            units: "spec",
+            special: "Until the model is changed",
           },
           targetOverride: {
             affects: {
@@ -657,7 +678,9 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Infiltrator: Flight",
         activityMatch: "Infiltrator: Fly",
         options: {
+          // "until the end of your turn"; the feature text also parses a one-minute clause
           durationSeconds: 6,
+          expiry: "turnEnd",
           description: `You gain flight equal to twice your speed until the end of your turn`,
         },
         changes: [

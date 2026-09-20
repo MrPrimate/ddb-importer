@@ -18,6 +18,9 @@ export default class ViciousMockery extends DDBEnricherData {
     return [
       {
         name: "Vicious Mockery",
+        options: {
+          description: "Disadvantage on the next attack roll made before the end of the target's next turn.",
+        },
         daeSpecialDurations: ["1Attack" as const, "turnEnd" as const],
       },
       {

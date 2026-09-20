@@ -1,6 +1,23 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Form of the Beast: a 10-minute transformation that lasts 1 hour from warlock level 6. The span
+ * lives on a feature scale value so the activity duration follows the character's level without
+ * a reimport. dnd5e resolves a feature-held scale against the feature's advancement root, so
+ * the override points that at the Warlock item. DDB also ships the same numbers as a level scale
+ * on the subclass, but its key depends on that subclass's identifier.
+ */
 export default class FormOfTheBeast extends DDBEnricherData {
+
+  static SCALE = "@scale.form-of-the-beast.duration";
+
+  static MINUTES = { 1: 10, 6: 60 };
+
+  /** Warlock level on the character being imported, or null when munching without one. */
+  get warlockLevel(): number | null {
+    const classes = this.ddbParser?.ddbData?.character?.classes ?? [];
+    return classes.find((klass) => klass.definition?.name === "Warlock")?.level ?? null;
+  }
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
@@ -17,23 +34,44 @@ export default class FormOfTheBeast extends DDBEnricherData {
           bonus: "min(20, @classes.warlock.levels*2)",
           types: ["temphp"],
         }),
+        duration: {
+          value: FormOfTheBeast.SCALE,
+          units: "minute",
+        },
       },
     };
   }
 
+  override get additionalAdvancements(): I5eAdvancement[] {
+    return [
+      DDBEnricherData.AdvancementBuilder.buildNumberScale({
+        name: "Form of the Beast Duration",
+        identifier: "duration",
+        hint: "How long the transformation lasts, in minutes.",
+        scale: FormOfTheBeast.MINUTES,
+      }),
+    ];
+  }
+
   override get effects(): IDDBEffectHint[] {
-    return [{
-      name: "Form of the Beast",
-      activityMatch: "Transform",
-      options: {
-        durationSeconds: 600,
+    const changes = [
+      DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
+      DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
+      DDBEnricherData.ChangeHelper.advantageSkillChange("sur"),
+    ];
+    return [
+      {
+        // no counted duration and no expiry: dnd5e stamps the scaled activity duration on
+        // application, so the effect tracks the level without a reimport
+        name: "Form of the Beast",
+        activityMatch: "Transform",
+        options: {
+          durationSeconds: null,
+          expiry: null,
+        },
+        changes,
       },
-      changes: [
-        DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
-        DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
-        DDBEnricherData.ChangeHelper.advantageSkillChange("sur"),
-      ],
-    }];
+    ];
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -136,7 +174,17 @@ export default class FormOfTheBeast extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
+    // without an advancement root dnd5e reads a feature-held scale against character level,
+    // which overshoots on a multiclass
+    const warlock = this.ddbParser?.ddbCharacter?.raw?.classes?.find((klass) => klass.name === "Warlock");
     return {
+      data: {
+        ...(warlock ? { flags: { dnd5e: { advancementRoot: warlock._id } } } : {}),
+        // pins the key the duration scale is read under
+        system: {
+          identifier: "form-of-the-beast",
+        },
+      },
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Form of the Beast",

@@ -24,6 +24,7 @@ export default class PathToTheGrave extends DDBEnricherData {
       {
         activityMatch: "Activate Path to the Grave",
         name: "Cursed",
+        statuses: ["Cursed"],
         options: {
           expiry: "sourceStart",
         },

@@ -48,7 +48,8 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Otherworldly Weapon]`, 20, "name"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
-          DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "system.ability"),
+          // the legacy "system.ability" key cannot carry "spellcasting" in dnd5e 6, see AlterSelf
+          DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "activities[attack].attack.ability"),
         ],
         activityMatch: "Otherworldly Weapon",
       },

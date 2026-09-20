@@ -70,7 +70,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
 
-An effect is provided that can be toggled to enable or disable the Melee Weapon attack penalty and damage bonus.
+<p>An effect is provided that can be toggled to enable or disable the Melee Weapon attack penalty and damage bonus.</p>
 
 </section>`
       : `

@@ -17,7 +17,7 @@ export default class CunningStrike extends DDBEnricherData {
           ability: ["con"],
           dc: { calculation: "dex", formula: "" },
         },
-        duration: { units: "inst" },
+        duration: { value: "", units: "inst" },
       },
     };
   }

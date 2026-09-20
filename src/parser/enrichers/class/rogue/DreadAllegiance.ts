@@ -138,6 +138,8 @@ export default class DreadAllegiance extends DDBEnricherData {
 
   get override(): IDDBOverrideData {
     return {
+      // the daily choice activities consume an item use; DDB ships no action carrying one
+      uses: { spent: null, max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbDreadAllegiance">
 <p><strong>Implementation Details</strong></p>

@@ -9,7 +9,7 @@ export default class Acid extends DDBEnricherData {
       targetType: "creature",
       data: {
         save: {
-          ability: ["con"],
+          ability: ["dex"],
           dc: {
             calculation: "dex",
             formula: "",

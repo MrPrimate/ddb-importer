@@ -49,6 +49,7 @@ export default class VampireLilyDragonArmor extends DDBEnricherData {
         activityMatch: "Poison Spines",
         statuses: ["Poisoned"],
         options: {
+          transfer: false,
           expiry: "targetEnd",
           description: "Poisoned until the end of its next turn.",
         },

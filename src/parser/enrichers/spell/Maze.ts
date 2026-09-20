@@ -22,7 +22,7 @@ export default class Maze extends DDBEnricherData {
         overrides: {
           data: {
             check: {
-              ability: ["int"],
+              ability: "int",
               dc: {
                 formula: "20",
                 calculation: "",

@@ -83,6 +83,7 @@ export default class _Mutagen extends _BloodHunter {
           identifier: _Mutagen.CLASS_IDENTIFIER,
         },
         duration: {
+          value: "",
           units: "inst",
         },
       },

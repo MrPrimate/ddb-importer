@@ -1,7 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BellowsOfStrangulation extends DDBEnricherData {
-
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
@@ -47,9 +46,12 @@ export default class BellowsOfStrangulation extends DDBEnricherData {
       {
         name: "Strangled",
         statuses: ["Incapacitated"],
-        options: { durationSeconds: 60, description: "Repeat the save at the end of each turn to end the effect." },
+        options: {
+          transfer: false,
+          durationSeconds: 60,
+          description: "Repeat the save at the end of each turn to end the effect.",
+        },
       },
     ];
   }
-
 }

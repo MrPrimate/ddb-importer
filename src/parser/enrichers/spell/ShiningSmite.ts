@@ -21,6 +21,7 @@ export default class ShiningSmite extends DDBEnricherData {
           durationSeconds: 60,
         },
         name: "Shedding Light",
+        statuses: ["Marked"],
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "ATL.light.bright"),
           DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),

@@ -1,46 +1,38 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * The floating weapon is a summoned token under both rulesets (the dnd5e SRD pack ships the 2014
+ * spell that way too); the weapon actors are ruleset-neutral. The caster rolls the attack from
+ * the spell's own Attack activity, whose damage scaling is what differs between the rulesets.
+ */
 export default class SpiritualWeapon extends DDBEnricherData {
-  get type() {
-    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SUMMON;
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
   get summonsFunction() {
     return DDBImporter.lib.DDBSummonsInterface.getSpiritualWeapons;
   }
 
-  get generateSummons() {
-    return !this.is2014;
+  override get generateSummons(): boolean {
+    return true;
   }
 
-  get activity(): IDDBActivityData {
-    return this.is2014
-      ? {
-        data: {
-          name: "Summon",
-          target: {
-            override: true,
-            template: {
-              size: "2.5",
-              type: "radius",
-            },
-          },
+  override get activity(): IDDBActivityData {
+    return {
+      noTemplate: true,
+      profileKeys: [
+        { count: 1, name: "SpiritualWeaponShortSword" },
+        { count: 1, name: "ArcaneSwordAstralBlue" },
+      ],
+      summons: {
+        "match": {
+          "proficiency": false,
+          "attacks": true,
+          "saves": false,
         },
-      }
-      : {
-        noTemplate: true,
-        profileKeys: [
-          { count: 1, name: "SpiritualWeaponShortSword" },
-          { count: 1, name: "ArcaneSwordAstralBlue" },
-        ],
-        summons: {
-          "match": {
-            "proficiency": false,
-            "attacks": true,
-            "saves": false,
-          },
-        },
-      };
+      },
+    };
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {

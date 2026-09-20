@@ -70,6 +70,7 @@ export default class MuscleGraft extends DDBEnricherData {
         name: "Muscle Graft: Constitution Loss",
         activityMatch: "Attunement Save",
         options: {
+          transfer: false,
           // the "to a minimum of 1" floor cannot be expressed as a plain add
           description: "Your Constitution decreases by 2, to a minimum of 1. Remove this effect by hand if it would take you below 1.",
         },

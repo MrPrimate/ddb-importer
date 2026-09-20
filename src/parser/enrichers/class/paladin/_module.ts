@@ -1,8 +1,10 @@
 export { default as AbjureFoes } from "./AbjureFoes";
 export { default as ActivatePerfectHunter } from "./ActivatePerfectHunter";
+export { default as ApocalypticRevelation } from "./ApocalypticRevelation";
 export { default as AuraOfAlacrity } from "./AuraOfAlacrity";
 export { default as AuraOfClarity } from "./AuraOfClarity";
 export { default as AuraOfConquest } from "./AuraOfConquest";
+export { default as AuraOfDisruption } from "./AuraOfDisruption";
 export { default as AuraOfElementalShielding } from "./AuraOfElementalShielding";
 export { default as AuraOfHate } from "./AuraOfHate";
 export { default as AuraOfTheGuardian } from "./AuraOfTheGuardian";
@@ -55,6 +57,7 @@ export { default as SacredWeapon } from "./SacredWeapon";
 export { default as ScornfulRebuke } from "./ScornfulRebuke";
 export { default as SmiteOfProtection } from "./SmiteOfProtection";
 export { default as SoulOfVengeance } from "./SoulOfVengeance";
+export { default as SpiritOfTheValkyrie } from "./SpiritOfTheValkyrie";
 export { default as ThunderousAura } from "./ThunderousAura";
 export { default as UndyingSentinel } from "./UndyingSentinel";
 export { default as ValorousSoul } from "./ValorousSoul";

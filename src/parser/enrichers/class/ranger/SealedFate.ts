@@ -20,6 +20,7 @@ export default class SealedFate extends DDBEnricherData {
     return [
       {
         name: "Marked for Death",
+        statuses: ["Marked"],
         options: {
           durationSeconds: 60,
           description: "Vulnerable to damage dealt by the grim and to the extra damage you deal with Omen of Doom.",

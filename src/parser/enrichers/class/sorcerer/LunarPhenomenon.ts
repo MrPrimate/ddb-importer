@@ -228,6 +228,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
         activityMatch: "Full Moon: Save",
         options: {
           durationRounds: 1,
+          expiry: "targetEnd",
         },
       },
       {
@@ -238,6 +239,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
         ],
         options: {
           durationRounds: 1,
+          expiry: "targetEnd",
         },
       },
       {
@@ -246,6 +248,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
         activityMatch: "New Moon: Invisibility",
         options: {
           durationRounds: 1,
+          expiry: "sourceEnd",
         },
       },
       {

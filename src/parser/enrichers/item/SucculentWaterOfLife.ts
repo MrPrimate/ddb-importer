@@ -7,6 +7,7 @@ export default class SucculentWaterOfLife extends DDBEnricherData {
       {
         name: "Succulent Water of Life",
         options: {
+          transfer: false,
           durationSeconds: 60,
           description: "You regain 1d10 Hit Points at the start of each of your turns for 1 minute, provided you have at least 1 Hit Point.",
         },

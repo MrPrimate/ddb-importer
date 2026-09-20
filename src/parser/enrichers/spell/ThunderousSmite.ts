@@ -36,7 +36,9 @@ export default class ThunderousSmite extends DDBEnricherData {
         build: {
           generateConsumption: false,
           noSpellslot: true,
-          generateSave: false,
+          generateSave: true,
+          // the spell data carries no save (the smite rides on the attack), so the push save is spelled out
+          saveOverride: { ability: ["str"], dc: { calculation: "spellcasting", formula: "" } },
           generateDamage: false,
           generateRange: true,
         },

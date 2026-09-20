@@ -60,6 +60,7 @@ export { default as PerfectForm } from "./PerfectForm";
 export { default as PhysiciansTouch } from "./PhysiciansTouch";
 export { default as PsychicCrush } from "./PsychicCrush";
 export { default as QuickenedHealing } from "./QuickenedHealing";
+export { default as QuiveringPalm } from "./QuiveringPalm";
 export { default as RadiantSunBolt } from "./RadiantSunBolt";
 export { default as RighteousStrike } from "./RighteousStrike";
 export { default as SearingArcStrike } from "./SearingArcStrike";

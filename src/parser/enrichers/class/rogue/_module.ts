@@ -61,6 +61,7 @@ export { default as StealBlood } from "./StealBlood";
 export { default as StealBloodHeal } from "./StealBloodHeal";
 export { default as StealLuck } from "./StealLuck";
 export { default as StolenPower } from "./StolenPower";
+export { default as StrikeFear } from "./StrikeFear";
 export { default as SupremeSneak } from "./SupremeSneak";
 export { default as TokensOfTheDeparted } from "./TokensOfTheDeparted";
 export { default as UseMagicDevice } from "./UseMagicDevice";
@@ -68,4 +69,5 @@ export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll";
 export { default as VoiceOfDeath } from "./VoiceOfDeath";
 export { default as WailsFromTheGrave } from "./WailsFromTheGrave";
+export { default as WhispersOfTheDead } from "./WhispersOfTheDead";
 

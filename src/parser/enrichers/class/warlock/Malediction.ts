@@ -45,8 +45,9 @@ export default class Malediction extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
+        // AC5e's once ends the effect after the one attack, as DAE's 1Attack does
         ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
         ],
         expiry: "targetEnd",
         daeSpecialDurations: ["1Attack"],
@@ -254,6 +255,7 @@ export default class Malediction extends DDBEnricherData {
     return this.curses.map((curse) => {
       return {
         name: `Malediction: ${curse.label}`,
+        statuses: ["Cursed"],
         activitiesMatch: [
           Malediction.activityName(curse.label, "Action"),
           Malediction.activityName(curse.label, "Reaction"),

@@ -90,6 +90,7 @@ export default class TakeGhastlyForm extends DDBEnricherData {
       },
       {
         name: "Ghastly Form",
+        statuses: ["Transformed"],
         activityMatch: "Take Ghastly Form",
         options: {
           // the transformation runs "for 1 minute or until you have the Incapacitated

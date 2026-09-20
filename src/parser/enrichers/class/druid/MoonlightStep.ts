@@ -26,10 +26,15 @@ export default class MoonlightStep extends DDBEnricherData {
         options: {
           description: "You have Advantage on the next attack roll you make before the end of this turn.",
           durationTurns: 1,
+          expiry: "turnEnd",
         },
+        // DAE and AC5e each end the effect after the one attack; the turn end is the ceiling
         daeSpecialDurations: ["1Attack"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.advantage"),
         ],
       },
     ];

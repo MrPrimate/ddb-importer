@@ -11,7 +11,8 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      { action: { name: "Energy Redirection", type: "class" } },
+      // DDB files the boon's reaction under the feat actions, not the class ones
+      { action: { name: "Energy Redirection", type: "feat" } },
     ];
   }
 
