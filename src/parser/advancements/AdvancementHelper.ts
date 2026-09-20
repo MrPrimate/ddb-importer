@@ -3,6 +3,7 @@ import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
+import { parseWeaponMastery } from "../lib/WeaponMastery";
 import TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
 
 function htmlToText(html) {
@@ -812,7 +813,7 @@ export default class AdvancementHelper {
     //   feature,
     //   mods,
     //   proficiencyMods,
-    //   weaponMods,
+    //   parsedMasteries,
     //   parsedWeapons,
     //   chosenWeapons,
     //   weaponsFromMods,
@@ -898,47 +899,29 @@ export default class AdvancementHelper {
 
   getWeaponMasteryAdvancement(mods, feature, level) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "weapon-mastery");
-    const weaponMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.actor.proficiencies
-          .some((prof) => {
-            const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-            const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-            if (!masteryDetails) return false;
-            return prof.type === "Weapon" && prof.name === masteryDetails[2];
-          }),
-      );
+    // DDB labels a mastery "Topple (Quarterstaff)"; ammunition variants and catalogue weapons
+    // missing from the dictionary are resolved by the shared parser
+    const parsedMasteries = proficiencyMods.map((mod) => parseWeaponMastery(mod.friendlySubtypeName))
+      .filter((mastery) => mastery !== null);
+    const weaponsFromMods = [...new Set(parsedMasteries.map((mastery) => mastery.advancement))];
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
     const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
 
-    const weaponsFromMods = weaponMods.map((mod) => {
-      const weapon = DICTIONARY.actor.proficiencies
-        .find((prof) => {
-          const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-          const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-          if (!masteryDetails) return false;
-          return prof.type === "Weapon" && prof.name === masteryDetails[2];
-        });
-      return weapon.advancement === ""
-        ? weapon.foundryValue
-        : `${weapon.advancement}:${weapon.foundryValue}`;
-    });
-
     const count = parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.number > 0
         ? parsedWeapons.number
         : 1
-      : weaponMods.length;
+      : weaponsFromMods.length;
 
     // console.warn(`Weapon Mastery`, {
     //   level,
     //   feature,
     //   mods,
     //   proficiencyMods,
-    //   weaponMods,
+    //   parsedMasteries,
     //   parsedWeapons,
     //   chosenWeapons,
     //   weaponsFromMods,

@@ -4,6 +4,8 @@ import GreatWeaponMaster from "./Feats/GreatWeaponMaster";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
+import Vestige from "./ClassFeatures/Warlock/Vestige";
+import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
 import { logger } from "../../lib/_module";
 
 // DDB Enhancers adds built in light touch automation effects
@@ -18,6 +20,16 @@ export default class DDBEnhancers {
       });
       delta.effects.push(...feature.toObject().effects);
     }
+  }
+
+  /**
+   * An enhancer toggle. A setting this world has not registered reads as the fallback rather than
+   * throwing, so a missing registration can never stop the other enhancers loading.
+   */
+  static _enhancerEnabled(key: string, fallback: boolean): boolean {
+    const registered = game.settings.settings as unknown as Map<string, unknown>;
+    if (!registered.has(`${SETTINGS.MODULE_ID}.${key}`)) return fallback;
+    return (game.settings.get(SETTINGS.MODULE_ID, key as any) as unknown) === true;
   }
 
   static _loadTransformHooks() {
@@ -77,6 +89,24 @@ export default class DDBEnhancers {
     }
   }
 
+  static _restHooks() {
+    if (DDBEnhancers._enhancerEnabled("allow-divine-power-recovery-enhancer", false)) {
+      Hooks.on("dnd5e.restCompleted", (actor, _result, config) => {
+        const restType = (config as { type?: string } | undefined)?.type;
+        if (restType !== "short" && restType !== "long") return;
+        Vestige.recoverDivinePower(actor);
+      });
+    }
+  }
+
+  static _enchantmentHooks() {
+    if (DDBEnhancers._enhancerEnabled("allow-rider-enchantment-link-enhancer", true)) {
+      Hooks.on("dnd5e.preApplyEnchantment", (item, enchantmentData, options) => {
+        RiderEnchantmentLink.preApplyEnchantmentHook(item, enchantmentData, options);
+      });
+    }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -84,6 +114,8 @@ export default class DDBEnhancers {
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
+    DDBEnhancers._restHooks();
+    DDBEnhancers._enchantmentHooks();
   }
 
 }

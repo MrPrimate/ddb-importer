@@ -155,6 +155,8 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Necrotic Shroud": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
     "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
     "Halfling Lucky": SpeciesEnrichers.Halfling.Luck,
+    "Escaped Death": SpeciesEnrichers.Generic.EscapedDeath,
+    "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

@@ -1,4 +1,5 @@
 export { default as AuraOf } from "./AuraOf";
+export { default as FightingStyleGreatWeaponFighting } from "./FightingStyleGreatWeaponFighting";
 export { default as FightingStyleInterception } from "./FightingStyleInterception";
 export { default as Grapple } from "./Grapple";
 export { default as Lucky } from "./Lucky";

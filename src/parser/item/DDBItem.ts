@@ -10,6 +10,7 @@ import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptio
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
+import DDBSummonsManager from "../companions/DDBSummonsManager";
 
 interface IDDBItemMartialArtsDie {
   diceCount: number | null;
@@ -81,6 +82,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static CONSUMABLE_TRINKETS = DICTIONARY.equipment.CONSUMABLE_TRINKETS;
   static POTIONS = DICTIONARY.equipment.POTIONS;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
+
+  /** The rolled item's own magical bonus; activity formulas resolve it live, enchantments included. */
+  static MAGICAL_BONUS_REF = "@item.magicalBonus";
 
   /** Alternation of the six ability long names, for the save-parsing regexes. */
   static SAVE_ABILITY_NAMES = DDBDescriptions.SAVE_ABILITY_NAMES;
@@ -476,21 +480,36 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (save) this.actionData.save = save;
   }
 
+  /**
+   * The activation a wondrous item's own text states, earliest mention first. 2014 items say
+   * "as an action" or "use an action"; 2024 items "take a Magic action", "as a Utilize action" or
+   * "requires a Magic action". A spell cast from the item with no wording keeps the default: the
+   * cast activity carries the spell's own casting time.
+   */
+  static ACTIVATION_WORDING = /(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:as|take|takes|taking) (?:a|an|the) (?:magic |utilize |study |search |influence )?action|(?:use|uses|using|spend|spends|requires) (?:a|an|your|its) (?:magic |utilize )?action)/i;
+
+
   #generateActivityActivation() {
     // default
     this.actionData.activation = ["armor"].includes(this.parsingType)
       ? { type: "none", value: 1, condition: "" }
       : { type: "action", value: 1, condition: "" };
 
+    // 2024 rules: drinking or administering a potion is a Bonus Action (the DDB text never says
+    // so, it only describes the effect), and that is how the SRD 2024 potions ship. DDB
+    // tags only a few potions "Potion"; the rest carry it as the item type.
+    const potionType = [this.ddbDefinition.filterType, this.ddbDefinition.subType, this.overrides.ddbType].includes("Potion");
+    if (this.is2024 && (this.isPotion || potionType)) {
+      this.actionData.activation = { type: "bonus", value: 1, condition: "" };
+    }
+
     if (["wondrous", "armor"].includes(this.parsingType)) {
       let action: TActivationCost = ["wondrous"].includes(this.parsingType) ? "special" : "none";
-      const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
-
-      const match = (this.ddbDefinition.description ?? "").match(actionRegex);
-      if (match) {
-        if (match[1]) action = "bonus";
-        else if (match[2]) action = "reaction";
-        else if (match[3]) action = "action";
+      const match = (this.ddbDefinition.description ?? "").match(DDBItem.ACTIVATION_WORDING);
+      if (match?.groups) {
+        if (match.groups.bonus) action = "bonus";
+        else if (match.groups.reaction) action = "reaction";
+        else if (match.groups.action) action = "action";
       }
 
       this.actionData.activation = { type: action ?? "none", value: action ? 1 : null, condition: "" };
@@ -584,8 +603,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateGrantedModifiersDamageParts() {
+    // DDB files both healing amounts and maximum hit point increases as bonus/hit-points; the
+    // dice block tells them apart (EffectGenerator turns the dice-less ones into hp.bonuses.overall)
     const healingModifiers = this.ddbDefinition.grantedModifiers.filter(
-      (mod) => mod.type === "bonus" && mod.subType === "hit-points",
+      (mod) => mod.type === "bonus" && mod.subType === "hit-points" && (mod.dice ?? (mod as any).die),
     );
     if (healingModifiers) {
       const healingDamageParts = DDBItem.getDamageParts(healingModifiers, "healing");
@@ -648,10 +669,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * Great Weapon Fighting's die modifier for this weapon's damage dice, baked into the damage
+   * formula. The Fighting Style enricher ships an AC5e effect that applies it at roll time from
+   * the attack's actual grip, so this stands down when AC5e is installed.
+   * 2014 rerolls a 1 or 2 once; 2024 treats a 1 or 2 as a 3.
+   * @returns {string} the dice modifier to add, empty when none applies
+   */
+  get greatWeaponFightingModifier(): string {
+    if (this.parsingType !== "weapon") return "";
+    if (this.ddbDefinition.attackType !== 1) return "";
+    if (SystemHelpers.effectModules().ac5eInstalled) return "";
+    if (this.flags.classFeatures.includes("greatWeaponFighting2024")) return "min3";
+    if (this.flags.classFeatures.includes("greatWeaponFighting")) return "r<=2";
+    return "";
+  }
+
   #generateWeaponDamageParts() {
-    // we can safely make these assumptions about GWF
-    // flags are only added for melee attacks
-    const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
+    const greatWeaponFighting = this.greatWeaponFightingModifier;
     const twoHanded = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Two-Handed");
 
     const damageType = this.getDamageType();
@@ -1374,8 +1409,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       if (extraDamage.length > 0) {
         this.flags.damage.parts = this.flags.damage.parts.concat(extraDamage);
       }
-      // do we have great weapon fighting?
-      if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
+      // do we have great weapon fighting? 2014 is a class option, 2024 a Fighting Style feat
+      if (DDBDataUtils.hasCharacterFeat(this.ddbData, "Great Weapon Fighting")) {
+        this.flags.classFeatures.push("greatWeaponFighting2024");
+      } else if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
         this.flags.classFeatures.push("greatWeaponFighting");
       }
       // do we have two weapon fighting style?
@@ -1571,9 +1608,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
     if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
+    if (baseItem && this.data.type === "tool") this.actionData.associatedToolsOrAbilities.push(baseItem);
     if (toolType) {
       foundry.utils.setProperty(this.data, "system.type.value", toolType);
-      this.actionData.associatedToolsOrAbilities.push(toolType);
     }
 
   }
@@ -1645,18 +1682,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           this.addMagical = true;
           // dnd5e only applies system.magicalBonus to a weapon's *base* damage
           // part, and a firearm deliberately has none, so fold it into the
-          // part the activity actually rolls. Known limitation: unlike
-          // dnd5e's own handling this isn't gated on `magicAvailable`, so an
-          // unattuned magical firearm still adds it to damage. Attack rolls are
-          // unaffected, they read system.magicalBonus directly.
+          // part the activity actually rolls. It is a reference rather than
+          // the number so an enchantment raising the bonus (Magic Weapon) is
+          // rolled too. Known limitation: unlike dnd5e's own handling this
+          // isn't gated on `magicAvailable`, so an unattuned magical firearm
+          // still adds it to damage. Attack rolls are unaffected, they read
+          // system.magicalBonus directly.
           if (this.isFirearm && this.damageParts.length > 0) {
             const damagePart = this.damageParts[0];
             if (damagePart.custom?.enabled) {
-              damagePart.custom.formula = `${damagePart.custom.formula} + ${magicalBonus}`;
+              damagePart.custom.formula = `${damagePart.custom.formula} + ${DDBItem.MAGICAL_BONUS_REF}`;
             } else {
               damagePart.bonus = damagePart.bonus
-                ? `${damagePart.bonus} + ${magicalBonus}`
-                : `${magicalBonus}`;
+                ? `${damagePart.bonus} + ${DDBItem.MAGICAL_BONUS_REF}`
+                : DDBItem.MAGICAL_BONUS_REF;
             }
           }
         }
@@ -1777,6 +1816,52 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * "can't be used again until", "cannot use this property again until": a single property that
+   * comes back with the reset, as opposed to charged items (matched separately) and wording like
+   * "the magic ceases to function until you finish a Long Rest" that describes a running total.
+   */
+  static SINGLE_USE_PROPERTY = /(?:can't|cannot) (?:be used|use (?:it|this property|this feature|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
+
+  /**
+   * "(no Concentration required)", "doesn't require your Concentration", "without requiring
+   * concentration" and similar. Wording that only mentions concentration ("provided you maintain
+   * concentration", "a spell you cast that requires Concentration") must not match.
+   */
+  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration/;
+
+  /**
+   * Does the item description say a spell it grants is cast without concentration?
+   *
+   * The check is per sentence so an item granting several spells only frees the one it names. A
+   * matching sentence that names none of the item's other spells ("The spell is cast at level 5 and
+   * doesn't require Concentration", "These spells do not require concentration") applies to every
+   * spell the item grants.
+   *
+   * Tags are stripped by regex rather than utils.stripHtml so this runs without a DOM; block-level
+   * closers become line breaks so separate paragraphs never read as one sentence.
+   */
+  static spellIgnoresConcentration(description: string, spellName: string, otherSpellNames: string[] = []): boolean {
+    const text = description
+      .replace(/<\/(?:p|li|div|tr|td|th|h\d)>|<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&rsquo;|&#8217;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .replaceAll("’", "'")
+      .toLowerCase();
+
+    // DDB and the importer can suffix names, e.g. "Bless (Legacy)"
+    const normalizeName = (name: string) => name.replace(/\s*\(.*\)\s*$/, "").trim().toLowerCase();
+    const name = normalizeName(spellName);
+    const others = otherSpellNames.map(normalizeName).filter((other) => other !== "" && other !== name);
+
+    return text
+      .split(/[.!?\n]/)
+      .filter((sentence) => DDBItem.NO_CONCENTRATION.test(sentence))
+      .some((sentence) => (name !== "" && sentence.includes(name))
+        || !others.some((other) => sentence.includes(other)));
+  }
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
     const normalizedDescription = description.replaceAll("’", "'");
@@ -1824,10 +1909,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
+    const resetType = DDBItem.getMagicItemResetType(this.ddbItem.definition.description);
+    // Items with one property per reset ("Once you use the pearl, it can't be used again until
+    // the next dawn") name no charges; the character path gets that from DDB's limitedUse, the
+    // compendium path has only the text. One use per reset matches the official compendia.
+    const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
+      && DDBItem.SINGLE_USE_PROPERTY.test(this.ddbItem.definition.description.replaceAll("’", "'"));
     const limitedUse = {
-      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : null,
+      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null),
       numberUsed: 0,
-      resetType: DDBItem.getMagicItemResetType(this.ddbItem.definition.description),
+      resetType,
       resetTypeDescription: this.ddbItem.definition.description,
     };
 
@@ -1847,7 +1938,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       return {
         max: `${limitedUse.maxUses}`,
-        spent: 0,
+        // party-inventory imports carry the expended count; item enrichers read it back through
+        // the document's spent (_ItemActivities.itemUses), so it must not be flattened to 0 here
+        spent: this.ddbItem.chargesUsed ?? 0,
         recovery,
       };
     } else {
@@ -1983,7 +2076,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const regainMatch = description.match(regainExpression);
     logger.debug(`${this.name} Description Healing matches`, { description, regainMatch });
 
-    if (regainMatch) {
+    // DDB ships the healing amount as a hit-points bonus modifier on the same items whose text
+    // says "regain 2d4 + 2 Hit Points" (Periapt of Health, the Potions of Healing); the modifier
+    // part is already the primary heal, so the prose must not become a second "Healing" activity
+    if (regainMatch && this.healingParts.length > 0) {
+      logger.debug(`${this.name}: skipping description healing, granted modifiers already supply it`);
+    } else if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, "").diceString,
@@ -2863,7 +2961,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     };
   }
 
-  async #addSpellAsCastActivity(spell) {
+  async #addSpellAsCastActivity(spell, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2880,9 +2978,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return false;
     }
 
+    const ignoredProperties = ["vocal", "somatic", "material"];
+    // ignoring concentration on a spell that never needed it is harmless, so a loose match is fine
+    if (DDBItem.spellIgnoresConcentration(this.ddbDefinition.description ?? "", spell.name, otherSpellNames)) {
+      ignoredProperties.push("concentration");
+    }
     const spellOverride = {
       uuid: compendiumSpell.uuid,
-      properties: ["vocal", "somatic", "material"],
+      properties: ignoredProperties,
       level: null,
       challenge: {
         attack: null,
@@ -3214,7 +3317,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
     if (!this.ddbDefinition.magic) return;
 
-    if (this.perSpell.isPerSpell && "uses" in this.data.system) {
+    const itemSpells = (this.raw.itemSpells ?? []).filter((spell) =>
+      spell.flags.ddbimporter?.dndbeyond?.lookup === "item"
+        && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id,
+    );
+
+    // Per-spell charges live on the cast activities, so the item-level uses go. Only when the
+    // item grants spells, though: the same "can't be used again until the next dawn" wording
+    // marks a Pearl of Power or Cape of the Mountebank as per-spell and wiped their one use.
+    if (this.perSpell.isPerSpell && itemSpells.length > 0 && "uses" in this.data.system) {
       this.data.system.uses = {
         spent: null,
         recovery: [
@@ -3223,16 +3334,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       };
     }
 
+    // item spells become cast activities linked to the spells compendium; the character parse
+    // tries to make sure the compendium holds them first (ensureItemSpellsInCompendium)
+    for (const spell of itemSpells) {
+      logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
+      const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
+      await this.#addSpellAsCastActivity(spell, otherSpellNames);
+    }
 
     if (!this.raw.itemSpells) return;
-    for (const spell of this.raw.itemSpells) {
-      const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
-        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
-      if (isItemSpell) {
-        logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        await this.#addSpellAsCastActivity(spell);
-      }
-    }
 
     if (this.isCompendiumItem) return;
 
@@ -3288,6 +3398,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
+  /** Build the actors an item's summon activity places, when its enricher provides them. */
+  async _generateSummons() {
+    if (!this.enricher.generateSummons || !this.enricher.summonsFunction) return;
+    const summons = await this.enricher.summonsFunction({
+      ddbParser: this,
+      document: this.data,
+      raw: this.ddbDefinition.description ?? "",
+      text: this.data.system.description ?? { value: "", chat: "" },
+    });
+    await DDBSummonsManager.addGeneratedSummons(summons);
+  }
+
   async build() {
     try {
       await this.#prepare();
@@ -3321,6 +3443,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       if (statusEffect) this.data.effects.push(statusEffect);
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];
+
+      // before the activities: a summon activity resolves its profiles against the summons
+      // compendium, so the actors have to be in it first
+      await this._generateSummons();
 
       if (this.documentType !== "container") {
         // containers can't have activities.
@@ -3571,10 +3697,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.documentType === "container") return null;
     if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
+    // a healing-only item (Potion of Healing, Periapt of Health) leads with its first healing
+    // part; #addHealAdditionalActivities only builds the extras, so returning null here would
+    // leave the item with no heal at all
     if (this.healingParts.length > 0) {
       if (!this.actionData.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
-        // we damage healing parts elsewhere
-        return null;
+        return "heal";
       }
     }
     if (["weapon", "staff"].includes(this.parsingType)) {

@@ -22,8 +22,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.actionData = ddbParent.actionData;
   }
 
-  _generateActivation() {
-    this.data.activation = this.actionData.activation;
+  _generateActivation({ activationOverride = null, activationCondition }: {
+    activationOverride?: I5eActivityActivation | null;
+    activationCondition?: string;
+  } = {}) {
+    this.data.activation = foundry.utils.deepClone(activationOverride ?? this.actionData.activation);
+    if (activationCondition !== undefined) this.data.activation.condition = activationCondition;
   }
 
   _generateConsumption({ consumptionOverride = null } = {}) {
@@ -74,8 +78,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  _generateDuration() {
-    this.data.duration = this.actionData.duration;
+  _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
+    // cloned for the reason `_generateRange` gives: actionData.duration is shared by every
+    // activity of the feature, and an enricher's own duration must not rewrite its siblings'
+    if (durationOverride) {
+      this.data.duration = { ...foundry.utils.deepClone(durationOverride), override: true };
+      return;
+    }
+    this.data.duration = foundry.utils.deepClone(this.actionData.duration);
   }
 
   _generateEffects() {
@@ -83,8 +93,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  _generateRange() {
-    this.data.range = this.actionData.range;
+  _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
+    // cloned: actionData.range is shared by every activity of the feature, and an enricher
+    // `data.range` override merges in place, which would rewrite the sibling activities' range
+    this.data.range = rangeOverride
+      ? foundry.utils.deepClone(rangeOverride)
+      : foundry.utils.deepClone(this.actionData.range as unknown as I5eActivityRange);
   }
 
   override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {
@@ -182,13 +196,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   _generateCheck({ checkOverride = null }) {
     this.data.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
-      ability: this.actionData.ability,
+      ability: this.actionData.ability ?? "",
       dc: {},
     };
   }
 
   build({
     activationOverride,
+    activationCondition,
     allowCritical,
     additionalTargets,
     attackData,
@@ -265,14 +280,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       this: this,
     });
 
-    if (generateActivation) this._generateActivation();
+    if (generateActivation) this._generateActivation({ activationOverride, activationCondition });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
+    if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
+    if (generateRange) this._generateRange({ rangeOverride });
+    if (generateTarget) this._generateTarget({ targetOverride });
 
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, allowCritical, onSave });

@@ -818,7 +818,7 @@ export default class DDBDescriptions {
       dae: [],
       expiry: null,
     };
-    const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
+    const re = /for (\d+) (minute|hour|round|turn|day|month|year)/;
     const match = text.match(re);
     if (match) {
       let seconds = parseInt(match[1]);
@@ -842,6 +842,8 @@ export default class DDBDescriptions {
           break;
         }
         case "turn": {
+          // a turn ends no later than its round, so it counts as six seconds of elapsed time
+          seconds *= 6;
           result.turns = parseInt(match[1]);
           break;
         }
@@ -914,12 +916,32 @@ export default class DDBDescriptions {
     return effect;
   }
 
+  /**
+   * A condition a grapple carries with it, in the 2024 ("has the Restrained condition until the
+   * grapple ends", "Until the grapple ends, the target has the Restrained condition") and 2014
+   * ("Until this grapple ends, the target is restrained") phrasings; "is suffocating" reads the
+   * same way. DDB's own condition markup arrives as "id;label" ("suffocation;suffocating").
+   */
+  static GRAPPLE_RIDERS = [
+    /(?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
+    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))/i,
+  ];
+
   static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
-    const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
+    // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
+    const checkReg = new RegExp(`While ${condition}, the target (?:has the (?<a>\\w+) condition|is (?:\\w+;)?(?<b>\\w+))`, "i");
     const match = checkReg.exec(text);
-    if (match) {
-      const processedCondition = DDBDescriptions.getConditionInfo(match[1]);
+    if (match?.groups) {
+      const processedCondition = DDBDescriptions.getConditionInfo(match.groups.a ?? match.groups.b);
       return processedCondition.condition ? [processedCondition.condition] : [];
+    }
+    if (condition.toLowerCase() === "grappled") {
+      for (const regex of DDBDescriptions.GRAPPLE_RIDERS) {
+        const rider = regex.exec(text);
+        if (!rider?.groups) continue;
+        const processedCondition = DDBDescriptions.getConditionInfo(rider.groups.a ?? rider.groups.b);
+        return processedCondition.condition ? [processedCondition.condition] : [];
+      }
     }
     return [];
   }
@@ -1015,7 +1037,8 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const monsterAndCondition = /(the target has the|subject that creature to the|it has the) (?<condition>\w+) condition/ig;
+      // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition")
+      const monsterAndCondition = /(the target has the|subject that creature to the|it has the|and has the) (?<condition>\w+) condition/ig;
       match = monsterAndCondition.exec(parserText);
     }
 
@@ -1130,6 +1153,7 @@ export default class DDBDescriptions {
   // "possessed", which is mechanically the Incapacitated condition.
   static CONDITION_ALIASES: Record<string, string> = {
     possessed: "incapacitated",
+    suffocating: "suffocation",
   };
 
   static getConditionInfo(condition: string, hint?: string): {

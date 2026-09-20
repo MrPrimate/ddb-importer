@@ -4,6 +4,7 @@ import utils from "../../../lib/Utils";
 import DDBDataUtils from "../../lib/DDBDataUtils";
 import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
 import SpellDataUtils from "../../spells/SpellDataUtils";
+import AdvancementBuilder from "../../advancements/AdvancementBuilder";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 
@@ -25,6 +26,11 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   static AutoEffects = AutoEffects;
   static ChangeHelper = ChangeHelper;
+
+  static get AdvancementBuilder(): typeof AdvancementBuilder {
+    return AdvancementBuilder;
+  }
+
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
@@ -43,8 +49,8 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   constructor({ ddbEnricher }: { ddbEnricher: T }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
-    this.is2014 = ddbEnricher.is2014;
-    this.is2024 = ddbEnricher.is2024;
+    this.is2014 = ddbEnricher.is2014 ?? false;
+    this.is2024 = ddbEnricher.is2024 ?? !this.is2014;
     this.useLookupName = ddbEnricher.useLookupName;
     this.activityGenerator = ddbEnricher.activityGenerator;
     this.effectType = ddbEnricher.effectType;
@@ -389,6 +395,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return true;
   }
 
+  /**
+   * An enricher that authors `additionalActivities` normally replaces the save and check
+   * activities the parser builds from the description. Return true when the enricher's activities
+   * sit beside those, not instead of them: a lair-action list still needs each of its parsed saves.
+   */
+  get keepParsedActivities(): boolean {
+    return false;
+  }
+
   get builtFeaturesFromActionFilters(): any[] {
     return [];
   }
@@ -457,6 +472,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return null;
   }
 
+  /** Disables parser-generated versatile activities and conditional attack modes. */
   get noVersatile(): boolean {
     return false;
   }

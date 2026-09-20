@@ -1,6 +1,6 @@
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export function getBubblingCauldrons(): ICompanionResult {
+export async function getBubblingCauldrons(): Promise<ICompanionResult> {
   return {
     TashasBubblingCauldron: {
       name: "Tasha's Bubbling Cauldron",

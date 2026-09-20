@@ -11,7 +11,7 @@ import { MAGIC_ITEMS } from "./items/magicItems";
 import { SENSES } from "./actor/senses";
 import { SPELL } from "./spell/spell";
 import { PARSING_ACTIONS, PARSING_ATTACK_ACTIONS } from "./parsing/actions";
-import { FEATURE_SPELLS_IGNORE, IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES, IGNORE_SPELLS_GRANTED_BY_FEATS, LEVEL_SCALE, NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES, PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features";
+import { FEATURE_SPELLS_IGNORE, IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES, IGNORE_SPELLS_GRANTED_BY_FEATS, LEVEL_SCALE, NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES, NON_ITEM_CHOICE_LABELS, PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features";
 import { EXCLUDED_EFFECT_MODIFIERS } from "./effects/excluded";
 import { VISION_5E_EFFECTS } from "./effects/vision5e";
 import { RESETS } from "./actor/resets";
@@ -65,6 +65,7 @@ const DICTIONARY = {
       "2014": NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES,
     },
     levelScale: LEVEL_SCALE,
+    nonItemChoiceLabels: NON_ITEM_CHOICE_LABELS,
   },
   identifierAdjustments: IDENTIFIER_ADJUSTMENTS,
   effects: {

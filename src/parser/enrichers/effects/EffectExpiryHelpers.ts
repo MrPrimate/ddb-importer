@@ -48,7 +48,26 @@ export function resolveDaeSpecialDurations({ daeSpecialDurations, expiry, hasExp
   return Array.from(merged);
 }
 
+/**
+ * The counted duration that stands in for a timed expiry. Enrichers shared with the Foundry v14
+ * branch declare "until the end of the turn" as `expiry: "turnEnd"` alone; here that has no DAE
+ * token, so without a counted duration the effect would never end. Only used when the hint and
+ * the host document supply no counted duration of their own.
+ */
+const EXPIRY_TO_COUNTED: Partial<Record<TDDBEffectExpiry, { rounds?: number; turns?: number }>> = {
+  turnStart: { turns: 1 },
+  turnEnd: { turns: 1 },
+  roundStart: { rounds: 1 },
+  roundEnd: { rounds: 1 },
+};
+
+export function expiryFallbackDuration(expiry: TDDBEffectExpiry | null | undefined): { rounds?: number; turns?: number } | null {
+  if (!expiry) return null;
+  return EXPIRY_TO_COUNTED[expiry] ?? null;
+}
+
 export default {
   expiryToDaeSpecialDurations,
   resolveDaeSpecialDurations,
+  expiryFallbackDuration,
 };

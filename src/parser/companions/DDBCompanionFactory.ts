@@ -500,13 +500,22 @@ export default class DDBCompanionFactory {
         },
         profiles: CR_DATA[this.originName].profiles,
         creatureTypes: CR_DATA[this.originName].creatureTypes,
+        ...(CR_DATA[this.originName].match ? { match: CR_DATA[this.originName].match } : {}),
       }
       : DICTIONARY.companions.FIND_FAMILIAR_MATCHES.includes(this.originName)
         ? await getFindFamiliarActivityData(activity, this.options)
         : null;
 
     if (!summonsData) return;
+    if (!this.originDocument) {
+      logger.warn(`No origin document for ${this.originName}, unable to add CR summoning`);
+      return;
+    }
+    // mergeObject replaces arrays, so a creature type restriction the enricher already stated
+    // (Wild Companion's familiar is fey only) would be lost to the generic familiar options
+    const ownCreatureTypes = activity.creatureTypes?.length ? [...activity.creatureTypes] : null;
     const activityData = foundry.utils.mergeObject(activity, summonsData);
+    if (ownCreatureTypes) activityData.creatureTypes = ownCreatureTypes;
     // console.warn("Final summons Activity Data", foundry.utils.deepClone(activityData));
     if ("activities" in this.originDocument.system) {
       delete this.originDocument.system.activities[activity._id];

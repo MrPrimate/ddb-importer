@@ -103,6 +103,8 @@ export interface DDBCharacterImportOptions {
   selectResources?: boolean;
   enableCompanions?: boolean;
   isMuncher?: boolean;
+  /** munch missing item spells into the spells compendium before linking them; off only where no compendium can be written (test replays) */
+  ensureItemSpellsInCompendium?: boolean;
   enableSummons?: boolean;
   addToCompendiums?: boolean;
   collectCompendiumDocumentsOnly?: boolean;
@@ -255,6 +257,7 @@ class DDBCharacter {
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;
+  ensureItemSpellsInCompendium: boolean;
   _spellParser: CharacterSpellFactory;
   _infusionFactory: DDBInfusionFactory;
   _characterFeatureFactory: CharacterFeatureFactory;
@@ -275,7 +278,7 @@ class DDBCharacter {
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
     enableSummons = false, addToCompendiums = null, compendiumImportTypes = null, forceCompendiumUpdate = null,
-    collectCompendiumDocumentsOnly = false,
+    collectCompendiumDocumentsOnly = false, ensureItemSpellsInCompendium = true,
   }: DDBCharacterImportOptions = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
@@ -345,6 +348,7 @@ class DDBCharacter {
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
+    this.ensureItemSpellsInCompendium = ensureItemSpellsInCompendium;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
     this.collectCompendiumDocumentsOnly = collectCompendiumDocumentsOnly;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
@@ -424,7 +428,7 @@ class DDBCharacter {
 
       this.#sourceFixes();
 
-      if (game.settings.get("ddb-importer", "debug-json")) {
+      if (game.settings.get("ddb-importer", "debug-json") || CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(this.source), `${this.characterId}-${this.source.ddb.character.name}-raw.json`, "application/json");
       }
     } catch (error) {

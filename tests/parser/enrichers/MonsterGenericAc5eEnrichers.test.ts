@@ -51,6 +51,17 @@ import Camouflage from "../../../src/parser/enrichers/monster/Generic/Camouflage
 import BloodFrenzy from "../../../src/parser/enrichers/monster/Generic/BloodFrenzy";
 import Grappler from "../../../src/parser/enrichers/monster/Generic/Grappler";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+
+beforeAll(() => {
+  // the core skill roll modes (Keen Senses, Two Heads, Camouflage) read CONFIG.Dice.D20Roll.ADV_MODE
+  installActivityConfigStubs();
+});
+
+const skillAdvantage = (skill: string) => ({
+  key: `system.skills.${skill}.roll.mode`,
+  value: "1",
+});
 
 type TEnricher = new (options: any) => any;
 
@@ -79,14 +90,14 @@ describe("Monster generic AC5e trait enrichers", () => {
     });
   });
 
-  it("Keen senses variants grant Perception advantage, unrelated Keen traits do not", () => {
+  it("Keen senses variants grant core Perception advantage, unrelated Keen traits do not", () => {
     for (const name of ["Keen Smell", "Keen Hearing and Smell", "Keen Sight", "Keen Senses"]) {
-      const changes = ac5eChangesFor(KeenSenses, name);
-      expect(changes).toHaveLength(1);
-      expect(changes[0]).toMatchObject({
-        key: "flags.automated-conditions-5e.skill.advantage",
-        value: "skill.prc",
-      });
+      const effects = effectsFor(KeenSenses, name);
+      expect(effects).toHaveLength(1);
+      // a core skill roll mode, so no module gate
+      expect(effects[0].ac5eOnly).toBeUndefined();
+      expect(effects[0].changes).toHaveLength(1);
+      expect(effects[0].changes[0]).toMatchObject(skillAdvantage("prc"));
     }
     expect(effectsFor(KeenSenses, "Keen Mind")).toHaveLength(0);
   });
@@ -124,27 +135,23 @@ describe("Monster generic AC5e trait enrichers", () => {
     });
   });
 
-  it("Two Heads adds Perception advantage on top of the condition saves", () => {
+  it("Two Heads keeps the condition saves on AC5e and adds a core Perception effect", () => {
     const changes = ac5eChangesFor(TwoHeads, "Two Heads");
-    expect(changes).toHaveLength(2);
+    expect(changes).toHaveLength(1);
     expect(changes[0].key).toBe("flags.automated-conditions-5e.save.advantage");
     expect(changes[0].value).toBe(
       "riderStatuses.blinded || riderStatuses.charmed || riderStatuses.deafened"
       + " || riderStatuses.frightened || riderStatuses.stunned || riderStatuses.unconscious",
     );
-    expect(changes[1]).toMatchObject({
-      key: "flags.automated-conditions-5e.skill.advantage",
-      value: "skill.prc",
-    });
+    const perception = effectsFor(TwoHeads, "Two Heads").find((hint: any) => hint.name === "Two Heads: Perception");
+    expect(perception.ac5eOnly).toBeUndefined();
+    expect(perception.changes[0]).toMatchObject(skillAdvantage("prc"));
   });
 
   it("Camouflage grants a disabled Stealth advantage toggle", () => {
     const effects = effectsFor(Camouflage, "Stone Camouflage");
     expect(effects[0].options.disabled).toBe(true);
-    expect(effects[0].ac5eChanges[0]).toMatchObject({
-      key: "flags.automated-conditions-5e.skill.advantage",
-      value: "skill.ste",
-    });
+    expect(effects[0].changes[0]).toMatchObject(skillAdvantage("ste"));
   });
 
   it("Blood Frenzy scopes to melee attacks only when the stat block says melee", () => {

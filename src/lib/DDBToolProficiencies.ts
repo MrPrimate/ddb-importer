@@ -22,8 +22,14 @@ export default class DDBToolProficiencies {
    * anything else gets a generated one. Both the actor proficiency and the tool item's
    * system.type.baseItem run through this, so item and actor proficiencies line up.
    */
-  static getToolKey({ baseTool = null, name }: { baseTool?: string | null; name: string }): string {
-    return baseTool ?? utils.idString(name.toLowerCase());
+  static getToolKey(tool: { baseTool?: string | null; toolKey?: string; name: string }): string {
+    const alias = DICTIONARY.actor.proficiencies.find((prof) =>
+      prof.type === "Tool" && prof.toolKey && prof.name.toLowerCase() === tool.name.toLowerCase(),
+    );
+    const toolKey = tool.toolKey ?? alias?.toolKey;
+    if (toolKey && utils.getSetting<boolean>("add-ddb-tools")) return toolKey;
+    const baseTool = tool.baseTool ?? alias?.baseTool ?? null;
+    return baseTool ?? utils.idString(tool.name.toLowerCase());
   }
 
   static #placeholderId(key: string): string {
@@ -66,7 +72,7 @@ export default class DDBToolProficiencies {
     if (!utils.getSetting<boolean>("add-ddb-tools")) return;
 
     for (const prof of DICTIONARY.actor.proficiencies) {
-      if (prof.type !== "Tool" || prof.baseTool) continue;
+      if (prof.type !== "Tool" || (prof.baseTool && !prof.toolKey)) continue;
       DDBToolProficiencies.register({
         key: DDBToolProficiencies.getToolKey(prof),
         name: prof.name,

@@ -36,6 +36,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const block = Array.from(this.blockDatas).find((el) => {
       const elementName = el.innerText.trim();
       const elementStartsWith = elementName.startsWith(type);
+      if (!elementStartsWith) return false;
       const header = el.getElementsByTagName("strong")[0].innerText.toLowerCase();
       if (header.includes("only") && !header.includes(subType)) return false;
       // An AC line can include a bonus for one form while its base applies to all.

@@ -149,16 +149,18 @@ export default class ProficiencyFinder {
 
         // the same key DDBToolProficiencies.getToolKey derives; inlined so this file stays out
         // of the lib barrel (DDBToolProficiencies pulls the compendium helpers in)
-        const key = profMatch.baseTool ?? utils.idString(profMatch.name.toLowerCase());
+        const key = includeCustomTools && profMatch.toolKey
+          ? profMatch.toolKey
+          : profMatch.baseTool ?? utils.idString(profMatch.name.toLowerCase());
         const ability = (profMatch.ability ?? "dex") as T5eAbility;
 
-        if (!profMatch.baseTool) {
+        if (!profMatch.baseTool || (includeCustomTools && profMatch.toolKey)) {
           if (!includeCustomTools) return;
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
         }
 
         results[key] = {
-          value: proficient,
+          value: Math.max(results[key]?.value ?? 0, proficient),
           ability,
           bonuses: {
             check: "",

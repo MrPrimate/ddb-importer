@@ -51,9 +51,13 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
       if (targetItem) targetItems = [targetItem];
     } else if (enchantmentFlag.targetItemMatches?.length) {
       // Wraps and similar items transfer their enchantment to every matching weapon.
+      // An array-valued field (the weapon's scraped `classFeatures`, used to find the DDB-marked
+      // pact weapon) matches when it contains the value; anything else must equal it.
       targetItems = items.filter((i) => enchantmentFlag.targetItemMatches.every(({ field, value }) => {
         const itemValue = foundry.utils.getProperty(i, field);
-        return itemValue !== undefined && itemValue === value;
+        if (itemValue === undefined) return false;
+        if (Array.isArray(itemValue)) return itemValue.includes(value);
+        return itemValue === value;
       }));
     }
 

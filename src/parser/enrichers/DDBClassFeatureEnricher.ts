@@ -269,6 +269,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       "Expanded Spell List": ClassEnrichers.Warlock.ExtraSpells,
       "Dark Heart": ClassEnrichers.Warlock.CrownOfHorns,
       "Eldritch Invocations: Eldritch Smite": ClassEnrichers.Warlock.EldritchSmite,
+      "Eldritch Invocations: Rebuke of the Talisman": ClassEnrichers.Warlock.EldritchInvocationsRebukeOfTheTalisman,
+      "Eldritch Invocations: Gift of the Protectors": ClassEnrichers.Warlock.EldritchInvocationsGiftOfTheProtectors,
     },
     Fighter: {
       "Monster Kill: Bonus Damage": ClassEnrichers.Fighter.MonsterKill,
@@ -507,6 +509,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Thief of Five Fates": ClassEnrichers.Warlock.ThiefOfFiveFates,
     "Eldritch Invocations: Trickster's Escape": ClassEnrichers.Warlock.TrickstersEscape,
     "Eldritch Invocations: Undying Servitude": ClassEnrichers.Warlock.UndyingServitude,
+    "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
+    "Eldritch Invocations: Repelling Blast": ClassEnrichers.Warlock.EldritchInvocationsRepellingBlast,
+    "Eldritch Invocations: Eldritch Spear": ClassEnrichers.Warlock.EldritchInvocationsEldritchSpear,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

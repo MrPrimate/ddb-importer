@@ -6,6 +6,7 @@ import {
   DDBItemImporter,
 } from "../../lib/_module";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
+import { legacySummonKeys } from "./types/SRDItemSummonTable";
 
 const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A and are licensed by <a href="https://creativecommons.org/licenses/by-nc-sa/4.0">Attribution-NonCommercial-ShareAlike 4.0 International</a>.</p>
 <p>Check them out at <a href="https://jb2a.com">https://jb2a.com</a> they have a free and patreon supported Foundry module providing wonderful animations and assets for a variety of situations.</p>
@@ -86,10 +87,15 @@ export default class DDBSummonsManager {
 
   addProfilesToActivity(activity, summonsKeys = [], data = {}) {
 
-    const keys = summonsKeys.map((s) => s.name);
+    // an actor may still carry a key it was stored under before a rename, so each requested key
+    // also answers to its legacy keys
+    const requested = new Map<string, IDDBSummonProfileKey>();
+    for (const summonsKey of summonsKeys) {
+      for (const key of [summonsKey.name, ...legacySummonKeys(summonsKey.name)]) requested.set(key, summonsKey);
+    }
 
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
-      keys.includes(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
+      requested.has(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
     );
     const profiles = summonActors
       .map((actor) => {
@@ -98,8 +104,8 @@ export default class DDBSummonsManager {
           _id: actor._id,
           name: actor.name,
           uuid: actor.uuid,
-          count: summonsKeys.find((s) => flag === s.name)?.count ?? "",
-          level: summonsKeys.find((s) => flag === s.name)?.level ?? { min: null, max: null },
+          count: requested.get(flag)?.count ?? "",
+          level: requested.get(flag)?.level ?? { min: null, max: null },
         };
       });
 
@@ -123,9 +129,29 @@ export default class DDBSummonsManager {
         && !game.modules.get("JB2A_DnD5e")?.active
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get("jb2a_patreon")?.active) continue;
-      const existingSummons = manager.itemHandler.compendium.index.find((i) =>
-        i.flags?.ddbimporter?.summons?.summonsKey === key,
-      );
+      const storedKey = (i) => foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string;
+      let existingSummons = manager.itemHandler.compendium.index.find((i) => storedKey(i) === key);
+
+      if (!existingSummons) {
+        // The same actor under a key it had before a rename. It shares the new key's document id,
+        // so with "update existing" off the write below would be skipped and it would keep the
+        // old key for good: re-key it here, whatever that setting says.
+        const legacyKeys = legacySummonKeys(key);
+        const renamed = legacyKeys.length > 0
+          ? manager.itemHandler.compendium.index.find((i) => legacyKeys.includes(storedKey(i)))
+          : undefined;
+        if (renamed) {
+          try {
+            const document = await manager.itemHandler.compendium.getDocument(renamed._id) as any;
+            await document?.update({ "flags.ddbimporter.summons.summonsKey": key });
+            logger.info(`Re-keyed summon ${renamed.name} from ${storedKey(renamed)} to ${key}`);
+          } catch (error) {
+            // addProfilesToActivity still resolves the legacy key, so this is not fatal
+            logger.warn(`Unable to re-key summon ${renamed.name} to ${key}`, { error });
+          }
+          existingSummons = renamed;
+        }
+      }
 
       if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= value.version) continue;
 

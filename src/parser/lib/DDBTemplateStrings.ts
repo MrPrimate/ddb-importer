@@ -1,6 +1,8 @@
+import { compileTemplateExpression } from "./DDBTemplateExpression";
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBDataUtils from "./DDBDataUtils";
+import { PARSING_FEATURES, TEMPLATE_CORRECTIONS } from "../../config/dictionary/parsing/features";
 import DDBDescriptions from "./DDBDescriptions";
 import { parseTags } from "./DDBReferenceLinker";
 
@@ -83,6 +85,10 @@ function parseMatch(
         feature: featureDef,
         scaleValue,
       });
+      // hand the template back verbatim; the caller would otherwise box the bare word
+      // as an inline roll ("[[scalevalue]]") on the sheet
+      result = `{{${match}}}`;
+      linktext = result;
     }
   }
 
@@ -379,6 +385,13 @@ const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | s
 };
 
 
+/** Find the replacement formula for a template body DDB ships wrong, if there is one. */
+function correctFeatureTemplate(template: string, featureName: string): string | null {
+  const correction = TEMPLATE_CORRECTIONS.find((entry) =>
+    entry.template === template && featureName.includes(entry.featureNameIncludes));
+  return correction?.formula ?? null;
+}
+
 /**
  * Replaces the matched string with the appropriate value or format, based on the value of p2.
  *
@@ -471,13 +484,58 @@ export function parse(
       parsed: null,
       match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),
-      rollMatch: new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${match}}})(?:$|[., "')+<])`, "g"),
+      rollMatch: new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${escapeRegExp(match)}}})(?:$|[., "')+<])`, "g"),
       rollMatchTest: false,
       type: null,
       subType: null,
     };
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
+
+    const correctedFormula = correctFeatureTemplate(match, featureDefinition.name ?? "");
+    if (correctedFormula) {
+      entry.parsed = `[[${correctedFormula}]]`;
+      entry.evalConstraint = correctedFormula;
+      result.text = result.text.replace(entry.replacePattern, entry.parsed);
+      result.resultStrings.push(entry.parsed);
+      result.definitions.push(entry);
+      return;
+    }
+    const constraints = [...match.matchAll(/[@#]([a-z]+)/gi)].map((m) => m[1]);
+    const unknownConstraint = constraints.find((constraint) => !["roundup", "rounddown", "roundown", "min", "max", "signed", "unsigned"].includes(constraint));
+    if (unknownConstraint) {
+      logger.warn(`ddb-importer does not know about template constraint ${unknownConstraint} in {{${match}}}. Please log a bug.`);
+      result.definitions.push(entry);
+      return;
+    }
+    // DDB also writes the sign marker as the last entry of a constraint list ("#min:1,unsigned"); the legacy
+    // splitter cannot read that form, so it goes through the expression compiler with the marker stripped
+    const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
+      || (/#(?:min|max):/).test(match) || (/,(?:signed|unsigned)\b/).test(match)
+      || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
+    if (compound) {
+      try {
+        // a template used as a dice count ("{{...}}d6") never takes a sign, whatever the marker says
+        const diceCount = new RegExp(`{{${escapeRegExp(match)}}}\\s*d\\d`).test(result.text);
+        const signed = diceCount
+          ? "unsigned"
+          : match.match(/[#,](signed|unsigned)\b/)?.[1] ?? (match.includes("modifier") ? "signed" : null);
+        const expression = match.replace(/[#,](?:signed|unsigned)\b/g, "");
+        const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
+        const number = getNumber(formula, signed);
+        // keep the sign outside the inline roll, matching the legacy path, unless a dice term precedes it
+        entry.parsed = !entry.rollMatchTest && (/^\+\s/).test(number)
+          ? `+ [[${number.replace(/^\+\s/, "")}]]`
+          : `[[${number}]]`;
+        entry.evalConstraint = formula;
+        result.text = result.text.replace(entry.replacePattern, entry.parsed);
+        result.resultStrings.push(entry.parsed);
+      } catch (error) {
+        logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, error);
+      }
+      result.definitions.push(entry);
+      return;
+    }
 
     // console.warn("parseTemplateString", { text: foundry.utils.duplicate(text), feature, entry, match, result });
 
@@ -505,8 +563,12 @@ export function parse(
     entry.type = typeSplit[0];
 
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
-    // do we have a dice string, e.g. sneak attack?
-    if (parsedMatch.match(dicePattern) || parsedMatch.includes("@scale")) {
+    if (parsedMatch === `{{${match}}}`) {
+      // parseMatch could not resolve the template and handed it back verbatim; leave it
+      // readable on the sheet rather than boxing the bare word as an inline roll
+      result.text = result.text.replace(entry.replacePattern, parsedMatch);
+    } else if (parsedMatch.match(dicePattern) || parsedMatch.includes("@scale")) {
+      // do we have a dice string, e.g. sneak attack?
       if (parsedMatch.match(dicePattern)) entry.type = "dice";
       entry.parsed = parsedMatch;
       if (splitMatchAt.length > 1) {
@@ -619,7 +681,8 @@ export function parse(
  * template tokens are resolved whenever DDB data is available:
  * - A character when one exists
  * - otherwise a stub so muncher-side imports still parse
- * TThe text passes through unparsed when parsing is impossible or fails.
+ * The text passes through unparsed when parsing is impossible or fails.
+ * DDB character-sheet instruction paragraphs are removed, as they are from item descriptions.
  *
  * @param {object} args The arguments object.
  * @param {IDDBData | null} [args.ddbData] The DDB data object, if available.
@@ -639,7 +702,7 @@ export function parseSnippet({
   text: string;
   feature: TFeatures | TDefinitions | TDDBActionTypes | TDDBFeatureMixinAll | IDDBCommonDefinition;
 }): string {
-  const html = DDBDescriptions.snippetToHtml(text);
+  const html = utils.stripNoteBlocks(DDBDescriptions.snippetToHtml(text), PARSING_FEATURES.DDB_SHEET_NOTE_MARKERS);
   if (!ddbData) return html;
   const character = (rawCharacter?.type === "character" ? rawCharacter : { flags: {} }) as I5ePCData;
   try {

@@ -5,7 +5,7 @@ import { resolveTransformProfileUuids } from "../../companions/types/TransformPr
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
-import { resolveDaeSpecialDurations } from "../effects/EffectExpiryHelpers";
+import { expiryFallbackDuration, resolveDaeSpecialDurations } from "../effects/EffectExpiryHelpers";
 
 export default abstract class DDBEnricherFactoryMixin {
 
@@ -187,6 +187,14 @@ export default abstract class DDBEnricherFactoryMixin {
       return this.loadedEnricher.addAutoAdditionalActivities;
     } else {
       return true;
+    }
+  }
+
+  get keepParsedActivities(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.keepParsedActivities;
+    } else {
+      return false;
     }
   }
 
@@ -895,6 +903,17 @@ export default abstract class DDBEnricherFactoryMixin {
         }));
       }
 
+      // a timed expiry (turnEnd, roundStart...) has no DAE token, and enrichers shared with the
+      // v14 branch carry no counted duration beside it: give times-up the nearest equivalent
+      const expiryFallback = expiryFallbackDuration(effectOptions.expiry);
+      if (expiryFallback
+        && !effectOptions.durationSeconds && !effectOptions.durationRounds && !effectOptions.durationTurns
+        && !effect.duration?.seconds && !effect.duration?.rounds && !effect.duration?.turns
+      ) {
+        if (expiryFallback.rounds) foundry.utils.setProperty(effect, "duration.rounds", expiryFallback.rounds);
+        if (expiryFallback.turns) foundry.utils.setProperty(effect, "duration.turns", expiryFallback.turns);
+      }
+
       if (effectHint.midiProperties && applyMidiOnlyEffects) {
         foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
@@ -1297,6 +1316,13 @@ export default abstract class DDBEnricherFactoryMixin {
           activityData.nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
+
+        // the cloned activities can carry named itemUses targets; the consumption
+        // link pass only visits documents with this flag, and the action document
+        // that owned it is discarded once its activities are absorbed here
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.replaceActivityUses")) {
+          foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+        }
 
         if (feature.system.advancement) {
           activityData.advancements.push(...foundry.utils.deepClone(Object.values(feature.system.advancement)));

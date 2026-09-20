@@ -84,6 +84,13 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Martial Adept: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Martial Adept: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
+    "Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
+    "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
+    "Elemental Adept": FeatEnrichers.ElementalAdept,
+    "Transmutation Adept": FeatEnrichers.TransmutationAdept,
+    "Arcane Overload": FeatEnrichers.ArcaneOverload,
+    "AbberantDragonmark": FeatEnrichers.AbberantDragonmark,
+    "ActorFeat": FeatEnrichers.ActorFeat,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

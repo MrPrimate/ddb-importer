@@ -464,15 +464,23 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
       packId: this.compendium.metadata.id,
     });
 
-    // @ts-expect-error - results on this item allows for TableResult delete
-    if (existingItem.results) {
-      logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
+    // deleteAll builds its id list from this client's cached copy of the document, and the server
+    // rejects the whole request when any of those ids is already gone ("ActiveEffect X does not
+    // exist!"), which is what happens when two munches write the same document at once. The
+    // other munch has already purged it, so the update below can go ahead.
+    try {
       // @ts-expect-error - results on this item allows for TableResult delete
-      await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-    }
-    if (existingItem.effects?.size && existingItem.effects.size > 0) {
-      logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
-      await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+      if (existingItem.results) {
+        logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
+        // @ts-expect-error - results on this item allows for TableResult delete
+        await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+      }
+      if (existingItem.effects?.size && existingItem.effects.size > 0) {
+        logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
+        await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+      }
+    } catch (error) {
+      logger.warn(`Could not purge embedded documents on ${existingItem.name} before update, continuing`, { error });
     }
 
     const update = await existingItem.update(updateItem as any, {

@@ -235,6 +235,8 @@ declare global {
     "ddb-importer.allow-mighty-summoner-enhancer": boolean;
     "ddb-importer.allow-great-weapon-master-enhancer": boolean;
     "ddb-importer.allow-warding-bond-enhancer": boolean;
+    "ddb-importer.allow-divine-power-recovery-enhancer": boolean;
+    "ddb-importer.allow-rider-enchantment-link-enhancer": boolean;
 
     // READY: CHARACTER IMPORT
     "ddb-importer.character-update-policy-use-hp-max-for-rolled-hp": boolean;

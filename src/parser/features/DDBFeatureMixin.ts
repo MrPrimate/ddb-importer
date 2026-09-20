@@ -203,9 +203,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.levelScaleInfusion
       = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
-    this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value;
+    // Class features carry their scale context on the wrapper; only actions have a componentId.
+    const scaleValue = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature).value;
+    this.scaleValueLink = scaleValue == null ? "" : String(scaleValue);
     this.useScaleValueLink
-      = !this.excludedScale && this.scaleValueLink && this.scaleValueLink !== "{{scalevalue-unknown}}";
+      = !this.excludedScale && Boolean(this.scaleValueLink) && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   _generateFlagHints() {
@@ -260,7 +262,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _generateSaveFromDescription() {
     const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
     const textMatch = DDBDescriptions.dcParser({ text: description });
-    if (textMatch.match) {
+    // dcParser also matches condition-only wording ("the target has the Frightened condition"),
+    // which names no saving throw; treating that as a save built save activities with no
+    // ability on plain attack actions (Semblance of Life's Deathly Touch, third-party features).
+    if (textMatch.match && textMatch.save.ability.length > 0) {
       this._descriptionSave = textMatch.save;
     } else {
       this._descriptionSave = null;

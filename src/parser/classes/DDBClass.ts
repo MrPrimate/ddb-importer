@@ -1,3 +1,5 @@
+import AutoEffects from "../enrichers/effects/AutoEffects";
+import ChangeHelper from "../enrichers/effects/ChangeHelper";
 import {
   logger,
   utils,
@@ -1057,6 +1059,9 @@ export default class DDBClass {
 
 
   async _generateFeatureAdvancement(feature, choices) {
+    // DDB includes empty subclass/feature placeholders even when no item choice exists.
+    choices = choices.filter((choice) => (choice.optionIds ?? []).length > 0);
+    if (choices.length === 0) return;
     logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
     // console.warn({
     //   this: this,
@@ -2305,6 +2310,18 @@ export default class DDBClass {
     };
 
     this._addAdvancement(points);
+    // Core Pugilist Traits grants this only for the starting class in the captured rules.
+    // dnd5e uses the same flag as Tavern Brawler; there is no weapon:improv trait grant.
+    const grantsImprovised = this.is2024 && this.isStartingClass && this.classFeatures.some((feature) =>
+      feature.name === "Core Pugilist Traits" && (/improvised weapons/i).test(feature.description ?? ""));
+    if (grantsImprovised) {
+      const effect = AutoEffects.BaseEffect(this.data, "Improvised Weapon Proficiency", { transfer: true, durationSeconds: null });
+      effect._id = "pugilistImprov00";
+      effect.changes = [ChangeHelper.overrideChange("true", 20, "flags.dnd5e.tavernBrawlerFeat")];
+      this.data.effects ??= [];
+      this.data.effects = this.data.effects.filter((existing) => existing._id !== effect._id);
+      this.data.effects.push(effect);
+    }
   }
 
   async _fixes() {
