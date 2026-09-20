@@ -27,6 +27,7 @@ describe("DDBMacroActivityBehavior.createBehaviorData", () => {
       excludeSelf: false,
       scale: true,
       autoRoll: false,
+      groupTargets: true,
       macroParameters: {},
       args: {},
     } as any);
@@ -107,5 +108,31 @@ describe("DDBMacroActivityBehavior.createBehaviorData", () => {
     } as any);
     missing.createBehaviorData(activity, { token: { disposition: 1 } });
     expect(getDispositions).toHaveBeenLastCalledWith(castTarget, { relativeTo: 1 });
+  });
+
+  it("serializes the target grouping switch, the structured field winning over the arguments JSON", () => {
+    const activity = { target: {}, actor: { token: { disposition: 1 } } };
+    getDispositions.mockReturnValue(new Set());
+
+    const grouped = behavior().createBehaviorData(activity) as any;
+    expect(grouped.system.source).toContain("\"groupTargets\":true");
+
+    const perToken = new DDBMacroActivityBehavior({
+      function: "useActivity", events: new Set(["tokenEnter"]), groupTargets: false, args: { groupTargets: true },
+    } as any);
+    expect((perToken.createBehaviorData(activity) as any).system.source).toContain("\"groupTargets\":false");
+  });
+
+  it("serializes autoRoll from the checkbox or from the arguments JSON", () => {
+    const activity = { target: {}, actor: { token: { disposition: 1 } } };
+    getDispositions.mockReturnValue(new Set());
+    const source = (data: Record<string, unknown>) => (new DDBMacroActivityBehavior({
+      function: "useActivity", events: new Set(["tokenEnter"]), ...data,
+    } as any).createBehaviorData(activity) as any).system.source;
+
+    expect(source({ autoRoll: false, args: {} })).toContain("\"autoRoll\":false");
+    expect(source({ autoRoll: true, args: {} })).toContain("\"autoRoll\":true");
+    // the schema default must not switch off a hand-written argument
+    expect(source({ autoRoll: false, args: { autoRoll: true } })).toContain("\"autoRoll\":true");
   });
 });

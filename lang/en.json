@@ -287,7 +287,7 @@
           },
           "args": {
             "label": "Additional Arguments",
-            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data; {\"autoRoll\": true} rolls damage instead of posting buttons."
+            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data."
           },
           "activity": {
             "label": "Activity",
@@ -304,6 +304,14 @@
           "scale": {
             "label": "Apply Upcast Scaling",
             "hint": "Scale the activity by the level the spell was cast at."
+          },
+          "autoRoll": {
+            "label": "Roll Automatically",
+            "hint": "Roll the activity's attack or damage straight away instead of posting a card with buttons."
+          },
+          "groupTargets": {
+            "label": "Group Targets",
+            "hint": "Tokens triggered at the same moment, such as every token inside a newly placed template, share one chat card. Turn off for one card per token. DDB Macro activities always run once per token."
           },
           "macroParameters": {
             "label": "Macro Parameters",

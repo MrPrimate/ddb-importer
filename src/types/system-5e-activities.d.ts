@@ -92,6 +92,10 @@ global {
     /** Never trigger for the token the region originates from. */
     excludeSelf?: boolean;
     scale?: boolean;
+    /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
+    autoRoll?: boolean;
+    /** Tokens triggered by one burst of region events share a single usage card (default true). */
+    groupTargets?: boolean;
     /** Only trigger for actors of these sizes (CONFIG.DND5E.actorSizes keys); empty = all. */
     sizes?: string[];
     /** Only trigger for these creature types (CONFIG.DND5E.creatureTypes keys); empty = all. */

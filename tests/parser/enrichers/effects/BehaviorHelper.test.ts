@@ -78,6 +78,31 @@ describe("BehaviorHelper", () => {
     });
   });
 
+  it("activity only writes the target grouping opt-out, as a structured config field", () => {
+    // grouping is the behavior schema default, so existing enricher output does not change
+    expect(BehaviorHelper.activity({ events: ["tokenEnter"] }).config).not.toHaveProperty("groupTargets");
+    expect(BehaviorHelper.activity({ events: ["tokenEnter"], groupTargets: true }).config)
+      .not.toHaveProperty("groupTargets");
+
+    // the structured field, not the arguments JSON: createBehaviorData overwrites the
+    // argument of the same name with the schema field's value
+    const perToken = BehaviorHelper.activity({ events: ["tokenEnter"], groupTargets: false })
+      .config as I5eActivityBehaviorMacroConfig;
+    expect(perToken.groupTargets).toBe(false);
+    expect(perToken.args).not.toHaveProperty("groupTargets");
+  });
+
+  it("activity writes autoRoll as a structured config field, and only when it is on", () => {
+    expect(BehaviorHelper.activity({ events: ["tokenEnter"] }).config).not.toHaveProperty("autoRoll");
+    expect(BehaviorHelper.activity({ events: ["tokenEnter"], autoRoll: false }).config).not.toHaveProperty("autoRoll");
+
+    // left in the arguments JSON it would be overwritten by the behavior schema's default
+    const rolled = BehaviorHelper.activity({ events: ["tokenEnter"], autoRoll: true })
+      .config as I5eActivityBehaviorMacroConfig;
+    expect(rolled.autoRoll).toBe(true);
+    expect(rolled.args).not.toHaveProperty("autoRoll");
+  });
+
   it("generates a unique id per behavior", () => {
     expect(BehaviorHelper.difficultTerrain()._id).not.toBe(BehaviorHelper.difficultTerrain()._id);
   });

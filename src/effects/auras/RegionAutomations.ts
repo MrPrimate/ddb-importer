@@ -83,6 +83,20 @@ interface IUseActivityArgs extends ITokenFilterArgs {
   macroParameters?: string | Record<string, unknown>;
   /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
   autoRoll?: boolean;
+  /** Collapse tokens triggered by the same region event burst into one usage card (default true). */
+  groupTargets?: boolean;
+}
+
+/** One region event waiting in a `useActivity` batch: the token, and the event context it arrived with. */
+interface IUseActivityEntry {
+  context: IRegionEventContext;
+  token: TokenDocument;
+}
+
+interface IUseActivityBatch {
+  entries: IUseActivityEntry[];
+  /** Settles when the batch has been flushed; shared by every handler call that joined it. */
+  promise: Promise<void>;
 }
 
 /**
@@ -325,11 +339,11 @@ export default class RegionAutomations {
   }
 
   /**
-   * Chat-card target descriptors for the token a region event fired for, so the
-   * usage message records it rather than whatever the user happens to have
-   * targeted. Falls back to an empty list if the system helper moves.
+   * Chat-card target descriptors for the tokens a region event burst fired for,
+   * so the usage message records them rather than whatever the user happens to
+   * have targeted. Falls back to an empty list if the system helper moves.
    */
-  static targetDescriptors(token: TokenDocument): unknown[] {
+  static targetDescriptors(tokens: TokenDocument[]): unknown[] {
     const field = foundry.utils.getProperty(
       globalThis as unknown as Record<string, unknown>,
       "dnd5e.dataModels.chatMessage.fields.TargetsField",
@@ -338,18 +352,81 @@ export default class RegionAutomations {
       logger.warn("No dnd5e TargetsField available, region card targets fall back to user targeting");
       return [];
     }
-    return field.getDescriptors([token]);
+    return field.getDescriptors(tokens);
   }
 
   /**
+   * How long a `useActivity` batch stays open, in milliseconds. It only has to
+   * outlast the synchronous dispatch loop described on `#useBatches`, so it is
+   * short; a lone trigger (one token walking in, a turn start) is delayed by
+   * this much and otherwise behaves as a batch of one.
+   */
+  static GROUP_WINDOW_MS = 50;
+
+  /**
+   * Open `useActivity` batches, keyed by region, behavior and event name.
+   *
+   * When a behavior becomes active (a template is placed, a region is unhidden
+   * or re-enabled) core raises one `tokenEnter` per token already inside, from
+   * a plain `for` loop that awaits nothing
+   * (`RegionDocument#_onCreateDescendantDocuments`). Region moves and round
+   * events fan out the same way. Each of those events is a separate handler
+   * call, so without collecting them every token gets its own usage card.
+   * A token therefore has to join its batch BEFORE the handler's first await:
+   * the whole loop then lands in the batch ahead of the timer's macrotask, no
+   * matter how slow the socket round trips that follow are.
+   *
+   * The event name is part of the key so a behavior listening to `tokenEnter`
+   * and `tokenMoveIn` keeps raising both when it opts out of once-per-turn.
+   */
+  static #useBatches = new Map<string, IUseActivityBatch>();
+
+  /**
    * Use an activity of the item that placed the region against the triggering
-   * token: posts the usage (attack/save/damage card) with no consumption, no
+   * tokens: posts the usage (attack/save/damage card) with no consumption, no
    * dialog and no new template. Rolls through midi-qol when it is active so the
    * save/damage automation runs; otherwise the GM works the chat card.
+   *
+   * Tokens triggered by the same burst of region events share one usage unless
+   * the behavior sets `groupTargets: false`. The returned promise settles once
+   * the batch the token joined has been used.
    */
   static async useActivityHandler(context: IRegionEventContext): Promise<void> {
     const token = RegionAutomations.getEventToken(context);
-    if (!token?.actor) return;
+    if (!token?.actor) return undefined;
+
+    const entry: IUseActivityEntry = { context, token };
+    const args = (context.args ?? {}) as IUseActivityArgs;
+    if (args.groupTargets === false) return RegionAutomations.#processUseBatch([entry]);
+
+    const key = `${context.region.id}|${context.behavior?.id}|${context.event.name}`;
+    const open = RegionAutomations.#useBatches.get(key);
+    if (open) {
+      open.entries.push(entry);
+      return open.promise;
+    }
+
+    const entries = [entry];
+    const promise = new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        // closed before it is processed, so an event arriving mid-use opens a new batch
+        RegionAutomations.#useBatches.delete(key);
+        RegionAutomations.#processUseBatch(entries).then(resolve, reject);
+      }, RegionAutomations.GROUP_WINDOW_MS);
+    });
+    RegionAutomations.#useBatches.set(key, { entries, promise });
+    return promise;
+  }
+
+  /**
+   * Resolve the activity a batch triggers, drop the tokens the behavior does not
+   * apply to, and use the activity on the rest. Every entry of a batch comes
+   * from one behavior, so they share their arguments; the once-per-turn check
+   * still takes each token's own context, because the movement it keys on
+   * differs per token.
+   */
+  static async #processUseBatch(entries: IUseActivityEntry[]): Promise<void> {
+    const context = entries[0].context;
 
     const placingActivity = await RegionAutomations.getActivity(context.region);
     if (!placingActivity) {
@@ -373,16 +450,46 @@ export default class RegionAutomations {
       return;
     }
 
-    if (!RegionAutomations.matchesTokenFilters(token, args)) {
-      logger.debug(`Region ${context.region.name}: ${token.name} filtered by disposition/size/creature type`, { context });
-      return;
-    }
-    if (args.excludeSelf && RegionAutomations.isOriginToken(context, token)) {
-      logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context });
-      return;
-    }
-    if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(context, token))) return;
+    const triggered: IUseActivityEntry[] = [];
+    const seen = new Set<string>();
+    for (const entry of entries) {
+      const token = entry.token;
+      const tokenKey = token.id ?? token.uuid ?? "";
+      if (seen.has(tokenKey)) continue;
+      seen.add(tokenKey);
 
+      if (!RegionAutomations.matchesTokenFilters(token, args)) {
+        logger.debug(`Region ${context.region.name}: ${token.name} filtered by disposition/size/creature type`, { context: entry.context });
+        continue;
+      }
+      if (args.excludeSelf && RegionAutomations.isOriginToken(entry.context, token)) {
+        logger.debug(`Region ${context.region.name}: skipping its own origin token ${token.name}`, { context: entry.context });
+        continue;
+      }
+      if ((args.oncePerTurn ?? true) && !(await RegionAutomations.checkOncePerTurn(entry.context, token))) continue;
+      triggered.push(entry);
+    }
+    if (triggered.length === 0) return;
+
+    // a ddbmacro activity hands its macro ONE triggering token (`ddbRegionContext.tokenUuid`),
+    // so it is used once per token rather than once for the group
+    if (activity.type === "ddbmacro") {
+      for (const entry of triggered) {
+        await RegionAutomations.#useActivityOnTokens(entry.context, activity, args, [entry.token]);
+      }
+      return;
+    }
+    await RegionAutomations.#useActivityOnTokens(triggered[0].context, activity, args, triggered.map((entry) => entry.token));
+  }
+
+  /** One usage of `activity` against `tokens`, which all passed the behavior's filters. */
+  static async #useActivityOnTokens(
+    context: IRegionEventContext,
+    activity: Record<string, any>,
+    args: IUseActivityArgs,
+    tokens: TokenDocument[],
+  ): Promise<void> {
+    const item = activity.item;
     const spellLevel = context.region.getFlag("dnd5e", "spellLevel") as number | undefined;
     const baseLevel = item?.system?.level as number | undefined;
     const scaling = (args.scale ?? true) && spellLevel !== undefined && baseLevel !== undefined
@@ -392,7 +499,7 @@ export default class RegionAutomations {
     const macroParameters = args.macroParameters === undefined
       ? undefined
       : typeof args.macroParameters === "string" ? args.macroParameters : JSON.stringify(args.macroParameters);
-    const regionContext = RegionAutomations.buildRegionContext(context, token);
+    const regionContext = RegionAutomations.buildRegionContext(context, tokens[0]);
     const autoRoll = args.autoRoll === true;
     const extraActivityConfig: Record<string, unknown> = {
       ddbRegionContext: regionContext,
@@ -421,17 +528,17 @@ export default class RegionAutomations {
     if (!autoRoll && activity.type !== "ddbmacro") extraActivityConfig.subsequentActions = false;
 
     logger.debug(
-      `Region ${context.region.name}: ${context.event.name} using ${activity.name} on ${token.name}`,
+      `Region ${context.region.name}: ${context.event.name} using ${activity.name} on ${tokens.map((t) => t.name).join(", ")}`,
       { context, scaling, macroParameters },
     );
 
     const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
       .map((t) => t.id).filter((id): id is string => id !== null);
-    DDBEffectHelper.setTokenTargets(token.id ? [token.id] : []);
+    DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
     try {
       if (game.modules.get("midi-qol")?.active) {
         await DDBEffectHelper.rollMidiActivityUse(activity, {
-          targets: [token.uuid],
+          targets: tokens.map((t) => t.uuid),
           scaling,
           extraActivityConfig,
           forceAutoRolls: autoRoll,
@@ -445,16 +552,18 @@ export default class RegionAutomations {
             ...extraActivityConfig,
           },
           { configure: false },
-          // Record the triggering token on the card explicitly. dnd5e otherwise
+          // Record the triggering tokens on the card explicitly. dnd5e otherwise
           // fills `system.targets` from `game.user.targets` at use time
           // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
           // depend on canvas targeting state - and fall back to the selected
           // token, usually the caster, whenever that lookup came up empty.
-          // The card's damage/healing button then rolls against the user's live
-          // targets at click time (dnd5e passes no message data from the button), so
-          // the user targets the token from the card's recorded-target pill first;
-          // `autoRoll` is the opt-in for rolling immediately instead.
-          { data: { system: { targets: RegionAutomations.targetDescriptors(token) } } },
+          // A save card's button rolls for these recorded targets, one click for
+          // the whole group. The damage/healing button instead rolls against the
+          // user's live targets at click time (dnd5e passes no message data from
+          // the button), so the user targets the tokens from the card's
+          // recorded-target pills first; `autoRoll` is the opt-in for rolling
+          // immediately instead.
+          { data: { system: { targets: RegionAutomations.targetDescriptors(tokens) } } },
         );
       }
     } finally {

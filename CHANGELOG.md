@@ -11,6 +11,7 @@
 - Mule Munching a Warlock will now add Mystic Arcanum Spells to their spell list, and allow selection on advancement. @motomoto0295
 - About 40 items had gained transfer effects when they should be attached to activities. These have been fixed.
 - Use new Transform features in 6.0.x
+- If the experimental behavioural auras/templates is enabled, more chat cards are grouped for things like aura/region placement saves
 
 # 7.5.4
 

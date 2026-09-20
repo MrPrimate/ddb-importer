@@ -24,6 +24,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       excludeSelf: new BooleanField({ initial: false }),
       scale: new BooleanField({ initial: true }),
       autoRoll: new BooleanField({ initial: false }),
+      groupTargets: new BooleanField({ initial: true }),
       // the same size/creature-type filters the 5e area-of-effect behaviors carry,
       // plus an exclusion set for "any creature other than an ooze" wording
       sizes: new SetField(new StringField()),
@@ -53,7 +54,10 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     args.oncePerTurn = this.oncePerTurn;
     args.excludeSelf = this.excludeSelf;
     args.scale = this.scale;
-    args.autoRoll = this.autoRoll;
+    // the checkbox, or `{"autoRoll": true}` in the arguments JSON, which hand-built
+    // behaviors were told to use before the checkbox had a label
+    args.autoRoll = this.autoRoll || args.autoRoll === true;
+    args.groupTargets = this.groupTargets;
     if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
     if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];
     if ((this.excludeTypes as Set<string> | undefined)?.size) args.excludeTypes = [...(this.excludeTypes as Set<string>)];

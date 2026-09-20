@@ -95,7 +95,16 @@ describe("RegionAutomations.useActivityHandler", () => {
     return { context, placing, sibling };
   }
 
+  const originalWindow = RegionAutomations.GROUP_WINDOW_MS;
+
+  // a zero window still collects everything dispatched in the same tick, which is
+  // all core's activation loop needs, without slowing every single-token test
+  beforeEach(() => {
+    RegionAutomations.GROUP_WINDOW_MS = 0;
+  });
+
   afterEach(() => {
+    RegionAutomations.GROUP_WINDOW_MS = originalWindow;
     (globalThis as any).game.user = originalUser;
     (globalThis as any).game.combat = originalCombat;
     (globalThis as any).game.modules = originalModules;
@@ -411,6 +420,145 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledTimes(1);
 
     delete (globalThis as any).fromUuidSync;
+  });
+
+  // core raises one tokenEnter per token already inside when a behavior becomes
+  // active, from a loop that awaits nothing
+  function burst(context: any, count = 3): any[] {
+    return Array.from({ length: count }, (_unused, index) => {
+      const n = index + 1;
+      return {
+        ...context,
+        event: {
+          ...context.event,
+          data: { token: { id: `tok${n}`, name: `Token ${n}`, uuid: `Scene.s.Token.tok${n}`, actor: {} }, movement: null },
+        },
+      };
+    });
+  }
+
+  it("groups the tokens of one event burst into a single usage", async () => {
+    const { context, placing } = setup();
+
+    await Promise.all(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+    expect(placing.use.mock.calls[0][2]).toEqual({
+      data: {
+        system: {
+          targets: [
+            expect.objectContaining({ token: "Scene.s.Token.tok1" }),
+            expect.objectContaining({ token: "Scene.s.Token.tok2" }),
+            expect.objectContaining({ token: "Scene.s.Token.tok3" }),
+          ],
+        },
+      },
+    });
+    const setTargets = (globalThis as any).canvas.tokens.setTargets;
+    expect(setTargets).toHaveBeenCalledTimes(2);
+    expect(setTargets).toHaveBeenNthCalledWith(1, ["tok1", "tok2", "tok3"], { mode: "replace" });
+    expect(setTargets).toHaveBeenLastCalledWith([], { mode: "replace" });
+  });
+
+  it("drops filtered and origin tokens from a group and still uses the rest once", async () => {
+    const { context, placing } = setup();
+    context.region.getFlag = vi.fn((_scope: string, key: string) => {
+      if (key === "activity") return "Actor.a.Item.b.Activity.actCast000";
+      if (key === "origin") return "Scene.s.Token.tok1";
+      return undefined;
+    });
+    (globalThis as any).fromUuidSync = vi.fn(() => ({ id: "tok1", uuid: "Scene.s.Token.tok1" }));
+    context.args = { excludeSelf: true, excludeTypes: ["ooze"] };
+    const contexts = burst(context, 4);
+    contexts[1].event.data.token.actor = { system: { details: { type: { value: "ooze" } } } };
+
+    await Promise.all(contexts.map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).toHaveBeenCalledTimes(1);
+    expect(placing.use.mock.calls[0][2].data.system.targets.map((t: any) => t.token))
+      .toEqual(["Scene.s.Token.tok3", "Scene.s.Token.tok4"]);
+
+    delete (globalThis as any).fromUuidSync;
+  });
+
+  it("posts nothing when every token of a burst is filtered", async () => {
+    const { context, placing } = setup();
+    context.args = { dispositions: [-1] };
+
+    await Promise.all(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).not.toHaveBeenCalled();
+    expect((globalThis as any).canvas.tokens.setTargets).not.toHaveBeenCalled();
+  });
+
+  it("keeps one usage per token when the behavior opts out of grouping", async () => {
+    const { context, placing } = setup();
+    context.args = { groupTargets: false };
+
+    await Promise.all(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).toHaveBeenCalledTimes(3);
+    expect(placing.use.mock.calls.map((call: any[]) => call[2].data.system.targets.length)).toEqual([1, 1, 1]);
+  });
+
+  it("never groups a ddbmacro activity, whose macro is handed one triggering token", async () => {
+    const { context, placing } = setup();
+    placing.type = "ddbmacro";
+
+    await Promise.all(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).toHaveBeenCalledTimes(3);
+    expect(placing.use.mock.calls.map((call: any[]) => call[0].ddbRegionContext.tokenUuid))
+      .toEqual(["Scene.s.Token.tok1", "Scene.s.Token.tok2", "Scene.s.Token.tok3"]);
+  });
+
+  it("groups per behavior and per region, never across them", async () => {
+    const { context, placing } = setup();
+    const [first, second, third] = burst(context);
+    second.behavior = { uuid: "Scene.s.Region.reg1.RegionBehavior.b2", id: "b2" };
+    third.region = { ...context.region, id: "reg2" };
+
+    await Promise.all([first, second, third].map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).toHaveBeenCalledTimes(3);
+  });
+
+  it("starts a new group for a token that triggers after the burst was used", async () => {
+    const { context, placing } = setup();
+    const [first, second, third] = burst(context);
+
+    await Promise.all([first, second].map((c) => RegionAutomations.useActivityHandler(c)));
+    await RegionAutomations.useActivityHandler(third);
+
+    expect(placing.use).toHaveBeenCalledTimes(2);
+    expect(placing.use.mock.calls.map((call: any[]) => call[2].data.system.targets.length)).toEqual([2, 1]);
+  });
+
+  it("hands midi-qol one workflow with every grouped token as a target", async () => {
+    const { context, placing } = setup();
+    (globalThis as any).game.modules = { get: (id: string) => (id === "midi-qol" ? { active: true } : undefined) };
+    const rollMidi = vi.spyOn(DDBEffectHelper, "rollMidiActivityUse").mockResolvedValue(undefined);
+
+    await Promise.all(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(placing.use).not.toHaveBeenCalled();
+    expect(rollMidi).toHaveBeenCalledTimes(1);
+    expect(rollMidi).toHaveBeenCalledWith(placing, expect.objectContaining({
+      targets: ["Scene.s.Token.tok1", "Scene.s.Token.tok2", "Scene.s.Token.tok3"],
+    }));
+  });
+
+  it("every handler call of a group rejects when the shared usage fails", async () => {
+    const { context, placing } = setup();
+    placing.use = vi.fn().mockRejectedValue(new Error("use failed"));
+
+    const results = await Promise.allSettled(burst(context).map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(results.map((r) => r.status)).toEqual(["rejected", "rejected", "rejected"]);
+    // the batch is closed regardless, so the next trigger is not stuck behind it
+    placing.use = vi.fn().mockResolvedValue({});
+    await RegionAutomations.useActivityHandler(burst(context, 1)[0]);
+    expect(placing.use).toHaveBeenCalledTimes(1);
   });
 
   it("ignores the limit for an event with neither a turn nor a movement", async () => {
