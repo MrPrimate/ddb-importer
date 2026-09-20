@@ -106,6 +106,7 @@ export default class DDBEnhancers {
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
+    DDBEnhancers._restHooks();
     DDBEnhancers._enchantmentHooks();
     RegionExpiryCleanup.registerHooks();
   }
