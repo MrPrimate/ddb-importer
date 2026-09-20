@@ -71,7 +71,59 @@ describe("monster Generic TurnStartAuraSave", () => {
     expect(e.activity).toEqual({});
   });
 
+  it("fires at turn end for an aura worded that way, and at both ends when both are named", () => {
+    const end = trait(TurnStartAuraSave, "Test Aura", "Any creature that ends its turn within 30 feet of the thing takes 5 necrotic damage.");
+    expect(macro(end.activity).config.events).toEqual(["tokenTurnEnd"]);
+    expect(end.activity.data.target.template).toMatchObject({ type: "radius", size: "30" });
+    const both = trait(TurnStartAuraSave, "Test Aura",
+      "A creature that starts its turn within 5 feet of it, or ends its turn within 5 feet of it, takes 3 fire damage.");
+    expect(macro(both.activity).config.events).toEqual(["tokenTurnStart", "tokenTurnEnd"]);
+  });
+
   it.each([
+    ["An enemy that starts its turn within 30 feet of the giant must make a DC 13 Charisma saving throw."],
+    ["Each hostile creature that starts its turn within 10 feet of it must succeed on a DC 15 Wisdom saving throw."],
+    ["Each creature of the noble's choice that starts its turn within 5 feet of it must succeed on a DC 19 Wisdom saving throw."],
+    ["Each creature of the noble\u2019s choice that starts its turn within 5 feet of it must succeed on a DC 19 Wisdom saving throw."],
+  ])("cards enemies only for: %s", (text) => {
+    const e = trait(TurnStartAuraSave, "Test Aura", text);
+    expect(e.activity.targetType).toBe("enemy");
+    expect(e.activity.data.target.affects.type).toBe("enemy");
+  });
+
+  it("keeps the parser's template but still narrows to enemies", () => {
+    const e = trait(TurnStartAuraSave, "Test Aura", "Any enemy that starts its turn within 30 feet of it must save.",
+      { ddbParser: { actionData: { target: { template: { size: "30" } } } } });
+    expect(e.activity.targetType).toBe("enemy");
+    expect(e.activity.data.target).toBeUndefined();
+  });
+
+  it.each([
+    ["The ground in a 20-foot Emanation originating from the tree is difficult terrain. A creature that ends its turn in the Emanation takes 5 necrotic damage.", "20"],
+    ["It is surrounded by a 15-foot-radius wind storm. Each creature that starts its turn in the area must save. The storm's area is difficult terrain for any creature other than it.", "15"],
+    ["It emits an aura of corruption 30 feet in every direction, and the ground in the aura is difficult terrain for other creatures. Any creature that starts its turn in the aura must save.", "30"],
+  ])("reads a size stated before the turn clause and adds terrain: %s", (text, size) => {
+    const e = trait(TurnStartAuraSave, "Test Aura", text);
+    expect(e.activity.data.target.template.size).toBe(size);
+    expect(e.activity.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
+  });
+
+  it("treats the monster's own space as a 1 ft emanation", () => {
+    const e = trait(TurnStartAuraSave, "Test Aura", "Constitution Saving Throw: DC 12, any creature that starts its turn in the swarm's space.");
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "1" });
+    expect(macro(e.activity).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
+  });
+
+  it("reads 'a radius of N feet'", () => {
+    const e = trait(TurnStartAuraSave, "Test Aura",
+      "It radiates an aura to a radius of 20 feet. Each creature that starts its turn in the aura must save.");
+    expect(e.activity.data.target.template.size).toBe("20");
+    expect(e.activity.data.behaviors.map((b: any) => b.type)).toEqual(["ddbMacro"]);
+  });
+
+  it.each([
+    ["Boon of Dread", { excludeTypes: ["undead"] }],
+    ["Aura of Annihilation", { excludeTypes: ["undead", "fiend"] }],
     ["Dread", { excludeTypes: ["fiend"] }],
     ["Aberrant Form", { excludeTypes: ["aberration"] }],
     ["Confounding Ugliness", { types: ["humanoid"] }],
