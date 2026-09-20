@@ -17,6 +17,7 @@ export default class MisfortunesCurseOfTheUnlucky extends Misfortune {
     return [
       {
         name: "Curse of the Unlucky",
+        statuses: ["Cursed"],
         options: {
           description: "Subtract 1d4 from this creature's attack rolls and saving throws while it remains cursed by the rogue's Evil Eye.",
         },

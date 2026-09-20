@@ -10,7 +10,7 @@ export default class DustOfSneezingAndChoking extends DDBEnricherData {
           transfer: false,
           description: "You are &Reference[incapacitated]{incapacitated} and &Reference[suffocating]{suffocating}.",
         },
-        statuses: ["Incapacitated", "Suffocating"], // ?
+        statuses: ["Incapacitated", "Suffocation"],
       },
     ];
   }

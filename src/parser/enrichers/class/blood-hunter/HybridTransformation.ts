@@ -221,6 +221,7 @@ export default class HybridTransformation extends DDBEnricherData {
   _hybridFormEffect(damageBonus: number, id: string): IDDBEffectHint {
     return {
       name: `Hybrid Form (+${damageBonus})`,
+      statuses: ["Transformed"],
       // rider effects are pulled in by the enchantment, they must never attach to an activity
       activitiesMatch: ["Not real"],
       options: {
@@ -241,14 +242,6 @@ export default class HybridTransformation extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.unsignedAddChange("sil", 20, "system.traits.dr.bypasses"),
         DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.attributes.ac.bonus"),
       ],
-      midiChanges: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-      ],
-      ac5eChanges: [
-        DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.check.advantage"),
-        DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.save.advantage"),
-      ],
       data: {
         _id: id,
       },
@@ -262,6 +255,7 @@ export default class HybridTransformation extends DDBEnricherData {
   }): IDDBEffectHint {
     return {
       name: "Hybrid Form",
+      statuses: ["Transformed"],
       type: "enchant",
       activityMatch: "Hybrid Transformation",
       options: {

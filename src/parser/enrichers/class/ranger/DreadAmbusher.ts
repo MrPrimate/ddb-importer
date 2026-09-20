@@ -63,7 +63,7 @@ export default class DreadAmbusher extends DDBEnricherData {
         ],
         options: {
           // "your Speed increases by 10 feet until the end of that turn" - a self buff
-          expiry: "sourceEnd",
+          expiry: "turnEnd",
         },
       },
     ];

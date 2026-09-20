@@ -62,6 +62,9 @@ export default class MartialistsQuarterstaff extends DDBEnricherData {
         name: "Tripped",
         activityMatch: "Trip (1 Charge)",
         statuses: ["Prone"],
+        options: {
+          transfer: false,
+        },
       },
     ];
   }

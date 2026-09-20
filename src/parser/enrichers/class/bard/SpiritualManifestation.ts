@@ -38,7 +38,7 @@ export default class SpiritualManifestation extends DDBEnricherData {
     return [
       {
         name: "Spiritual Manifestation - Cover",
-        statuses: ["HalfCover"],
+        statuses: ["CoverHalf"],
         activityMatch: "Spirit Guardians",
       },
     ];

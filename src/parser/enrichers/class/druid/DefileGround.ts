@@ -2,9 +2,17 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DefileGround extends DDBEnricherData {
 
+  /** Both placement activities follow the level-10 radius increase. */
+  get _target(): I5eActivityTarget {
+    return { template: { size: "10 + 10 * min(1, floor(@classes.druid.levels / 10))" } };
+  }
+
   get activity(): IDDBActivityData {
     return {
       name: "Place Template",
+      data: {
+        target: this._target,
+      },
     };
   }
 
@@ -15,6 +23,7 @@ export default class DefileGround extends DDBEnricherData {
           name: "Defile Ground: Move Corruption",
           type: "class",
         },
+        overrides: { data: { target: this._target } },
       },
       {
         init: {

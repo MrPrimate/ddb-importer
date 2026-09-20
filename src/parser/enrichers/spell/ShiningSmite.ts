@@ -21,6 +21,7 @@ export default class ShiningSmite extends DDBEnricherData {
           durationSeconds: 60,
         },
         name: "Shedding Light",
+        statuses: ["Marked"],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "5"),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),

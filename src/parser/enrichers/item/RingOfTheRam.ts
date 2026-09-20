@@ -21,7 +21,7 @@ export default class RingOfTheRam extends DDBEnricherData {
         },
         overrides: {
           addScalingMode: "amount",
-          addConsumptionScalingMax: "3",
+          addConsumptionScalingMax: "min(3, @item.uses.value)",
         },
       },
     ];

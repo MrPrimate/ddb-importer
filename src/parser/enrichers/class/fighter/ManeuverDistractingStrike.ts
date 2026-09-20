@@ -8,8 +8,10 @@ export default class ManeuverDistractingStrike extends Maneuver {
         name: "Distracting Strike",
         options: { expiry: "sourceStart" },
         daeSpecialDurations: ["isAttacked"],
+        // the effect sits on the struck target, which grants the next attacker advantage; core
+        // has no target-side mode, so this stays a midi grants flag
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
       },
     ];

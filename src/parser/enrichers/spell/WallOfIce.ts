@@ -64,6 +64,7 @@ export default class WallOfIce extends DDBEnricherData {
           generateDamage: true,
           generateConsumption: false,
           generateSave: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
           img: "icons/magic/water/snowflake-ice-blue-white.webp",
           generateTarget: true,
           partialDamageParts: [1],

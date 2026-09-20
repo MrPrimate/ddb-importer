@@ -59,6 +59,7 @@ export default class UmbralForm extends DDBEnricherData {
     return [
       {
         name: "Umbral Form",
+        statuses: ["Transformed"],
         changes: DDBEnricherData.allDamageTypes(["force", "radiant"]).map((t) => {
           return DDBEnricherData.ChangeHelper.damageResistanceChange(t);
         }),

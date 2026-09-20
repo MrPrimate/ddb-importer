@@ -10,6 +10,8 @@ export default class WallOfStone extends DDBEnricherData {
     return {
       name: "Place Square Panels",
       data: {
+        // the spell data carries no save; a creature the wall would enclose saves to escape
+        save: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
         target: {
           override: true,
           template: {
@@ -37,6 +39,7 @@ export default class WallOfStone extends DDBEnricherData {
           generateDamage: false,
           generateConsumption: true,
           generateSave: true,
+          saveOverride: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
           generateTarget: true,
           targetOverride: {
             override: true,

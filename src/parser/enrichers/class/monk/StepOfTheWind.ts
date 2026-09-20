@@ -37,6 +37,8 @@ export default class StepOfTheWind extends DDBEnricherData {
           options: {
             durationRounds: 1,
             durationSeconds: 6,
+            // Disengage and Dash last for the turn they are taken on
+            expiry: "turnEnd",
           },
           statuses: ["disengaged"],
           activitiesMatch: ["Step of the Wind: Disengage & Dash"],

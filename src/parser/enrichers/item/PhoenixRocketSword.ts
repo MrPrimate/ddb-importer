@@ -2,6 +2,10 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class PhoenixRocketSword extends DDBEnricherData {
 
+  // dnd5e's scaling max is the scaling VALUE (charges spent), not the increase: up to 5 charges,
+  // and never more than the sword still holds
+  static CHARGE_CAP = "min(5, @item.uses.value)";
+
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }
@@ -63,7 +67,7 @@ export default class PhoenixRocketSword extends DDBEnricherData {
         },
         overrides: {
           addScalingMode: "amount",
-          addConsumptionScalingMax: "4",
+          addConsumptionScalingMax: PhoenixRocketSword.CHARGE_CAP,
         },
       },
       {
@@ -121,7 +125,7 @@ export default class PhoenixRocketSword extends DDBEnricherData {
         },
         overrides: {
           addScalingMode: "amount",
-          addConsumptionScalingMax: "4",
+          addConsumptionScalingMax: PhoenixRocketSword.CHARGE_CAP,
         },
       },
     ];

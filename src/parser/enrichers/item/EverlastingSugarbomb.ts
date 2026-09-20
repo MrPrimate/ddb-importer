@@ -75,6 +75,7 @@ export default class EverlastingSugarbomb extends DDBEnricherData {
         activityMatch: "Nausea Save",
         statuses: ["Poisoned"],
         options: {
+          transfer: false,
           durationSeconds: 60,
           description: "Poisoned for 1 minute, suffering painful nausea.",
         },

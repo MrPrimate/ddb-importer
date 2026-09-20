@@ -85,6 +85,8 @@ export default class StellarBodies extends DDBEnricherData {
         activityMatch: "Blinding Flash",
         options: {
           durationRounds: 1,
+          // "blinded until the start of your next turn" - the caster's
+          expiry: "sourceStart",
         },
       },
     ];

@@ -28,6 +28,7 @@ export { default as HuntersPrey } from "./HuntersPrey";
 export { default as HuntersRime } from "./HuntersRime";
 export { default as Lycanthrope } from "./Lycanthrope";
 export { default as MentalAgony } from "./MentalAgony";
+export { default as MightySwarm } from "./MightySwarm";
 export { default as MistyWanderer } from "./MistyWanderer";
 export { default as NaturesVeil } from "./NaturesVeil";
 export { default as OmenOfDoom } from "./OmenOfDoom";

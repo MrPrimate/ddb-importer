@@ -38,19 +38,21 @@ export default class BloodCurseOfTheMarked extends _BloodCurse {
 
     return [
       {
-        // until the end of the caster's turn
+        // "Until the end of your turn" - the turn the mark is placed on
         name: "Marked",
+        statuses: ["Marked"],
         activityMatch: this.curseName,
         options: {
-          expiry: "sourceEnd",
+          expiry: "turnEnd",
           description,
         },
       },
       {
         name: "Marked (Amplified)",
+        statuses: ["Marked"],
         activityMatch: this.amplifiedName,
         options: {
-          expiry: "sourceEnd",
+          expiry: "turnEnd",
           description: `${description} Their next attack roll against you before the end of their turn has advantage.`,
         },
         daeSpecialDurations: ["1Attack"],

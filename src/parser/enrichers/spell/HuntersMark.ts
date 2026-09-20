@@ -64,6 +64,7 @@ export default class HuntersMark extends DDBEnricherData {
     return [
       {
         name: "Hunter's Mark: Marked",
+        statuses: ["Marked"],
         daeChanges: [
           // DDBMacros.generateSourceUpdateMacroChange({
           //   macroType: "spell",

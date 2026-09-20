@@ -30,7 +30,7 @@ export default class GoadingAmmunition extends DDBEnricherData {
       {
         name: "Goaded: No Reactions",
         activityMatch: "Goad (Charisma Save)",
-        options: { expiry: "targetStart" },
+        options: { transfer: false, expiry: "targetStart" },
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.noReaction"),
         ],
