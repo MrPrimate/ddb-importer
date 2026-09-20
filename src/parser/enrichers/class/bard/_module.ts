@@ -29,6 +29,8 @@ export { default as EvocationLessons } from "./EvocationLessons";
 export { default as GallowsHumor } from "./GallowsHumor";
 export { default as GrantTemporaryHitPoints } from "./GrantTemporaryHitPoints";
 export { default as GuidingWhispers } from "./GuidingWhispers";
+export { default as HandyHaints } from "./HandyHaints";
+export { default as HandyHaintsGrump } from "./HandyHaintsGrump";
 export { default as HuntingLessons } from "./HuntingLessons";
 export { default as InspirationalDance } from "./InspirationalDance";
 export { default as InspiredEclipse } from "./InspiredEclipse";

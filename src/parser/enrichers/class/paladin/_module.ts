@@ -36,6 +36,7 @@ export { default as EncouragingSmite } from "./EncouragingSmite";
 export { default as EntropicInfection } from "./EntropicInfection";
 export { default as ExaltedChampion } from "./ExaltedChampion";
 export { default as FaithfulSteed } from "./FaithfulSteed";
+export { default as FireAndBrimstone } from "./FireAndBrimstone";
 export { default as FormOfTheRiver } from "./FormOfTheRiver";
 export { default as FrenziedSlaughter } from "./FrenziedSlaughter";
 export { default as GloriousDefense } from "./GloriousDefense";

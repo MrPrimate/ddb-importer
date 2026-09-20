@@ -14,6 +14,14 @@ import BewitchedEffigyWard from "../../../src/parser/enrichers/class/druid/Bewit
 import AuraOfDisruption from "../../../src/parser/enrichers/class/paladin/AuraOfDisruption";
 import AuraOfTheRiver from "../../../src/parser/enrichers/class/paladin/AuraOfTheRiver";
 import GuardianAngel from "../../../src/parser/enrichers/class/paladin/GuardianAngel";
+import PerfectedArmor from "../../../src/parser/enrichers/class/artificer/PerfectedArmor";
+import PoweredByPathos from "../../../src/parser/enrichers/class/barbarian/PoweredByPathos";
+import HandyHaints from "../../../src/parser/enrichers/class/bard/HandyHaints";
+import HandyHaintsGrump from "../../../src/parser/enrichers/class/bard/HandyHaintsGrump";
+import DispatersInterdiction from "../../../src/parser/enrichers/class/illrigger/DispatersInterdiction";
+import FireAndBrimstone from "../../../src/parser/enrichers/class/paladin/FireAndBrimstone";
+import FloodingAbundance from "../../../src/parser/enrichers/class/rogue/FloodingAbundance";
+import SRDEffects from "../../../src/parser/enrichers/effects/SRDEffects";
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
@@ -206,5 +214,96 @@ describe("activated areas", () => {
     expect(e.activity.noConsumeTargets).toBeUndefined();
     expect(e.effects[0]).toMatchObject({ name: "Bewitched Effigy: Ward", standalone: true, options: { expiry: null } });
     expect(e.effects[0].changes[0]).toMatchObject({ key: "system.attributes.ac.bonus", value: "1" });
+  });
+});
+
+describe("the tail: reactions offered by an emanation", () => {
+  it("Perfected Armor offers the Guardian pull at a Huge or smaller creature's turn end, in both printings", () => {
+    for (const is2014 of [true, false]) {
+      const e: any = makeEnricherData(PerfectedArmor, { name: "Perfected Armor", actions: null, data: { name: "Perfected Armor" }, is2014 });
+      const [placer, pull] = e.additionalActivities;
+      expect(placer.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
+      expect(placer.overrides.data.behaviors[0].config).toMatchObject({
+        events: ["tokenTurnEnd"], excludeSelf: true, sizes: ["tiny", "sm", "med", "lg", "huge"], args: { activityName: "Guardian: Pull" },
+      });
+      expect(pull.init).toEqual({ name: "Guardian: Pull", type: "save" });
+      expect(pull.build).toMatchObject({ saveOverride: { ability: ["str"], dc: { calculation: "spellcasting" } }, activationOverride: { type: "reaction" } });
+      // the 2014 pool is spent by the feature's own activity, the 2024 one by the pull
+      expect(Boolean(pull.overrides.addItemConsume)).toBe(!is2014);
+      expect(e.type).toBe(is2014 ? "utility" : null);
+    }
+  });
+
+  it("Powered by Pathos builds Jealousy and Terror, each behind its own aura", () => {
+    const e = build(PoweredByPathos);
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Jealousy: Place Aura", "Jealousy: Spectral Assailants", "Terror: Place Aura", "Terror: Terrify",
+    ]);
+    for (const [placer, trigger] of [["Jealousy: Place Aura", "Jealousy: Spectral Assailants"], ["Terror: Place Aura", "Terror: Terrify"]]) {
+      expect(named(e, placer)).toMatchObject({ affects: "enemy", template: { type: "radius", size: "30" } });
+      expect(macro(named(e, placer)).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true, args: { activityName: trigger } });
+    }
+    const [, jealousy, , terror] = e.additionalActivities;
+    // the creature picks the ability; the DC is built on the barbarian's Constitution
+    expect(jealousy.build.saveOverride).toMatchObject({ ability: ["str", "dex"], dc: { calculation: "con" } });
+    expect(terror.init.type).toBe("utility");
+    expect(e.effects.map((effect: any) => [effect.activityMatch, effect.options.expiry])).toEqual([
+      ["Jealousy: Spectral Assailants", "turnEnd"],
+      ["Terror: Terrify", "targetStart"],
+    ]);
+  });
+
+  it("Dispater's Interdiction keeps DDB's actions and offers Telekinetic Seal on entry", () => {
+    const e = build(DispatersInterdiction);
+    expect(e.type).toBeNull();
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+    expect(e.addToDefaultAdditionalActivities).toBe(true);
+    expect(named(e, "Telekinetic Seal: Place Aura")).toMatchObject({ affects: "enemy", template: { type: "radius", size: "5" } });
+    expect(macro(named(e, "Telekinetic Seal: Place Aura")).config).toMatchObject({ events: ["tokenEnter"], args: { activityName: "Telekinetic Seal" } });
+    // DDB's actions carry their own effect links, so the parsed effects are left alone
+    expect(e.clearAutoEffects).toBe(false);
+  });
+
+  it("Fire and Brimstone activates once a long rest and punishes at reach", () => {
+    const e = build(FireAndBrimstone);
+    expect(e.activity).toMatchObject({ name: "Activate", activationType: "bonus", addItemConsume: true });
+    expect(named(e, "Place Aura")).toMatchObject({ affects: "enemy", template: { type: "radius", size: "15" } });
+    expect(macro(named(e, "Place Aura")).config).toMatchObject({ events: ["tokenTurnEnd"], args: { activityName: "Punish the Wicked" } });
+    const punish = e.additionalActivities[1];
+    expect(punish.build.saveOverride).toMatchObject({ ability: ["cha"], dc: { calculation: "spellcasting" } });
+    expect(e.effects[1]).toMatchObject({ activityMatch: "Punish the Wicked", statuses: ["Prone"], options: { expiry: "targetStart" } });
+    expect(e.effects[1].changes[0]).toMatchObject({ key: "system.attributes.movement.multiplier", value: "0" });
+    expect(e.additionalActivities[2].build.consumptionOverride.targets.map((t: any) => t.type)).toEqual(["itemUses", "spellSlots"]);
+  });
+});
+
+describe("the tail: areas set down away from the owner", () => {
+  it("Handy Haints leaves its activities to the chosen haint", () => {
+    const parent = build(HandyHaints, "Handy Haints");
+    expect(parent.type).toBe("none");
+    expect(parent.useDefaultAdditionalActivities).toBe(false);
+    expect(parent.additionalActivities ?? []).toEqual([]);
+  });
+
+  it("Handy Haints: Grump drops a fixed circle on the inspired creature with stock Advantage effects", () => {
+    const e = build(HandyHaintsGrump, "Handy Haints: Grump");
+    expect(e.builtFeaturesFromActionFilters).toEqual(["Grump: Reaction"]);
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+    const placer = named(e, "Grump: Place Aura");
+    // a circle, not a radius: the aura belongs to the inspired creature, not to the bard
+    expect(placer).toMatchObject({ affects: "ally", template: { type: "circle", size: "15" } });
+    expect(behaviorsOf(placer)[0]).toMatchObject({
+      type: "applyActiveEffect",
+      config: { effects: [SRDEffects.skillAdvantage("itm"), SRDEffects.saveAdvantage("str")] },
+    });
+  });
+
+  it("Flooding Abundance builds both DDB actions, with wax terrain and a free burn", () => {
+    const e = build(FloodingAbundance, "Enchantments: Flooding Abundance");
+    const [candle, burn] = e.additionalActivities;
+    expect(candle.action).toEqual({ name: "Flooding Abundance: Throw Candle", type: "class" });
+    expect(candle.overrides.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain"]);
+    expect(burn.action.name).toBe("Flooding Abundance: Fire Damage");
+    expect(burn.overrides.noConsumeTargets).toBe(true);
   });
 });

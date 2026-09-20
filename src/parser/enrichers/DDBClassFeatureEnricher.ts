@@ -92,6 +92,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINTS: Record<string, string> = {
+    // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
+    "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
@@ -345,6 +347,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,
     "Channel Divinity: Turn the Unholy": ClassEnrichers.Paladin.ChannelDivinityTurnTheUnholy,
     "EnchantmentsExtras": ClassEnrichers.Rogue.EnchantmentsExtras,
+    "FloodingAbundance": ClassEnrichers.Rogue.FloodingAbundance,
     "Eldritch Cannon: Flamethrower": ClassEnrichers.Artificer.EldritchCannonFlamethrower,
     "Eldritch Cannon: Force Ballista": ClassEnrichers.Artificer.EldritchCannonForceBallista,
     "Eldritch Cannon: Protector": ClassEnrichers.Artificer.EldritchCannonProtector,
