@@ -33,6 +33,8 @@ export default class Weird extends DDBEnricherData {
           generateTarget: true,
           generateRange: true,
           generateConsumption: false,
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           noSpellslot: true,
           noeffect: true,
           activationOverride: {

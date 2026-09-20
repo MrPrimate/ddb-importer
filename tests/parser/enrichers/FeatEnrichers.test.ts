@@ -8,6 +8,20 @@ beforeAll(() => {
   installActivityConfigStubs();
 });
 
+describe("Sentinel Halted", () => {
+  it.each([false, true])("halts all movement modes until turn end (2014: %s)", (is2014) => {
+    const enricher = makeEnricherData(FeatEnrichers.Sentinel, { name: "Sentinel", is2014 });
+    expect(enricher.useDefaultAdditionalActivities).toBe(true);
+    expect(enricher.addToDefaultAdditionalActivities).toBe(true);
+    expect(enricher.effects).toEqual([expect.objectContaining({
+      name: "Halted",
+      activityMatch: "Sentinel Attack",
+      changes: [{ key: "system.attributes.movement.multiplier", type: "multiply", value: "0", priority: 20 }],
+      data: { duration: { value: 6, expiry: "turnEnd", expired: null } },
+    })]);
+  });
+});
+
 describe("Chef activity snippets", () => {
   it("points Eat Treat at the section that describes it", () => {
     const enricher = makeEnricherData(Chef);

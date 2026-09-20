@@ -222,7 +222,7 @@ describe("Warlock MysticArcanum", () => {
     });
 
     it("sends the options to the Warlock list once during a munch", async () => {
-      addSpellsByDefinitionId.mockResolvedValue(2);
+      addSpellsByDefinitionId.mockResolvedValue([101, 102]);
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
       await e.customFunction({});
       await e.customFunction({});
@@ -232,7 +232,7 @@ describe("Warlock MysticArcanum", () => {
     });
 
     it("retries on a later pass when no spell resolved", async () => {
-      addSpellsByDefinitionId.mockResolvedValue(0);
+      addSpellsByDefinitionId.mockResolvedValue([]);
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
       await e.customFunction({});
       await e.customFunction({});
@@ -241,6 +241,38 @@ describe("Warlock MysticArcanum", () => {
 
     it("leaves the spell lists alone on a character import", async () => {
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13);
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).not.toHaveBeenCalled();
+    });
+
+    it("retries only missing spells after partial resolution without resetting the session cache", async () => {
+      addSpellsByDefinitionId.mockResolvedValueOnce([101]).mockResolvedValueOnce([102]);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await e.customFunction({});
+      expect([...ClassEnrichers.Warlock.MysticArcanum._listedSpellIds]).toEqual([101]);
+
+      // A later subclass replay creates a new enricher but shares the successful-ID cache.
+      const replay = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await replay.customFunction({});
+      expect(addSpellsByDefinitionId.mock.calls[1][1]).toEqual([expect.objectContaining({ id: 102 })]);
+      expect([...ClassEnrichers.Warlock.MysticArcanum._listedSpellIds]).toEqual([101, 102]);
+      await replay.customFunction({});
+      expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps all requested spells retryable when writing the list fails", async () => {
+      addSpellsByDefinitionId.mockRejectedValueOnce(new Error("List write failed")).mockResolvedValueOnce([101, 102]);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await expect(e.customFunction({})).rejects.toThrow("List write failed");
+      expect(ClassEnrichers.Warlock.MysticArcanum._listedSpellIds.size).toBe(0);
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId.mock.calls[1][1]).toEqual(addSpellsByDefinitionId.mock.calls[0][1]);
+      expect([...ClassEnrichers.Warlock.MysticArcanum._listedSpellIds]).toEqual([101, 102]);
+    });
+
+    it("leaves the spell lists alone for non-GMs", async () => {
+      (globalThis as any).game.user = { isGM: false };
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
       await e.customFunction({});
       expect(addSpellsByDefinitionId).not.toHaveBeenCalled();
     });

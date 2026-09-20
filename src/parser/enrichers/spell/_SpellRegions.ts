@@ -56,6 +56,9 @@ export function ongoingTrigger({
     build: {
       generateActivation: true,
       generateConsumption: false,
+      // Follow-up rolls must not inherit the spell's concentration and replace its dependents.
+      generateDuration: true,
+      durationOverride: { units: "inst", concentration: false },
       generateTarget: true,
       generateSave: !noSave,
       generateDamage: !noDamage,
@@ -86,6 +89,7 @@ export function ongoingClone(id: string, condition: string, name = ONGOING): IDD
       noConsumeTargets: true,
       noTemplate: true,
       data: {
+        duration: { override: true, units: "inst", concentration: false },
         range: { override: true, units: "spec" },
         target: { override: true },
         behaviors: [],
@@ -109,6 +113,8 @@ export function ongoingAttack({ name, condition, affects = "enemy", activation =
     build: {
       generateActivation: true,
       generateConsumption: false,
+      generateDuration: true,
+      durationOverride: { units: "inst", concentration: false },
       generateTarget: true,
       generateAttack: true,
       generateDamage: true,

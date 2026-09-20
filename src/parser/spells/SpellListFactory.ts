@@ -282,15 +282,15 @@ export default class SpellListFactory {
    * book. Existing pages are extended rather than replaced, so this can top up a list the spell
    * munch built (DDB's class spell endpoint stops at the class's highest slot level, which
    * leaves the Warlock list without its Mystic Arcanum levels).
-   * @returns the number of spells resolved to a compendium uuid
+   * @returns definition ids resolved to compendium uuids, after writing and registering the lists
    */
-  async addSpellsByDefinitionId(spellListName: string, spells: { id: number; sourceId?: number | null }[]): Promise<number> {
-    if (!this.available || !this.sources || !this.spellCompendium) return 0;
+  async addSpellsByDefinitionId(spellListName: string, spells: { id: number; sourceId?: number | null }[]): Promise<number[]> {
+    if (!this.available || !this.sources || !this.spellCompendium) return [];
     await this.init();
 
     const homebrew = this.sources.find((s) => s.id === 9999999);
     const touchedSources = new Set<ISpellListSource>();
-    let resolved = 0;
+    const resolved = new Set<number>();
 
     for (const spell of spells) {
       // basic rules books get no journal unless the setting asks for them, their spells sit on
@@ -312,16 +312,16 @@ export default class SpellListFactory {
         touchedSources.add(source);
       }
       this.uuidsBySourceAndSpellListName[source.acronym][spellListName].push(match.uuid);
-      resolved++;
+      resolved.add(spell.id);
     }
 
-    if (resolved === 0) return 0;
+    if (resolved.size === 0) return [];
 
     for (const source of touchedSources) {
       await this.buildSpellList(source, spellListName);
     }
     await this.registerSpellLists();
-    return resolved;
+    return [...resolved];
   }
 
   async registerSpellLists() {

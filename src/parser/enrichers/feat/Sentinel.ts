@@ -20,7 +20,7 @@ export default class Sentinel extends DDBEnricherData {
         name: "Halted",
         activityMatch: "Sentinel Attack",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange(0),
         ],
         data: {
           duration: {
