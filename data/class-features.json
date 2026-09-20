@@ -7625,5 +7625,943 @@
   {
     "name": "Ritual Reskin",
     "path": "icons/skills/wounds/injury-stapled-flesh-tan.webp"
+  },
+  {
+    "name": "Transmutation Adept",
+    "class_feature": "Transmutation Adept",
+    "class": "Wizard",
+    "subclass": "Transmuter",
+    "path": "icons/magic/unholy/hand-marked-pink.webp"
+  },
+  {
+    "name": "Arcana Domain Spells",
+    "class_feature": "Arcana Domain Spells",
+    "class": "Cleric",
+    "subclass": "Arcana Domain",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Dispelling Recovery",
+    "class_feature": "Dispelling Recovery",
+    "class": "Cleric",
+    "subclass": "Arcana Domain",
+    "path": "icons/skills/melee/sword-damaged-broken-purple.webp"
+  },
+  {
+    "name": "Magical Mastery",
+    "class_feature": "Magical Mastery",
+    "class": "Cleric",
+    "subclass": "Arcana Domain",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Modify Magic",
+    "class_feature": "Modify Magic",
+    "class": "Cleric",
+    "subclass": "Arcana Domain",
+    "path": "icons/magic/air/air-smoke-casting.webp"
+  },
+  {
+    "name": "Student of Arcana",
+    "class_feature": "Student of Arcana",
+    "class": "Cleric",
+    "subclass": "Arcana Domain",
+    "path": "icons/sundries/books/book-rounded-teal.webp"
+  },
+  {
+    "name": "Banishing Shot",
+    "class_feature": "Banishing Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/ranged/projectile-spiral-gray.webp"
+  },
+  {
+    "name": "Beguiling Shot",
+    "class_feature": "Beguiling Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Enfeebling Shot",
+    "class_feature": "Enfeebling Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/ranged/arrow-gem-flying-poisoned-green.webp"
+  },
+  {
+    "name": "Grasping Shot",
+    "class_feature": "Grasping Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/magic/nature/root-vine-entangled-hand.webp"
+  },
+  {
+    "name": "Seeking Shot",
+    "class_feature": "Seeking Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/ranged/target-bullseye-arrow-glowing.webp"
+  },
+  {
+    "name": "Shadow Shot",
+    "class_feature": "Shadow Shot",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/ranged/arrow-flying-gray-brown.webp"
+  },
+  {
+    "name": "Indomitable Teleport",
+    "class_feature": "Indomitable Teleport",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/movement/ball-spinning-blue.webp"
+  },
+  {
+    "name": "Magical Ammunition",
+    "class_feature": "Magical Ammunition",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/ranged/arrows-flying-salvo-blue-light.webp"
+  },
+  {
+    "name": "Masterful Shots",
+    "class_feature": "Masterful Shots",
+    "class": "Fighter",
+    "subclass": "Arcane Archer",
+    "path": "icons/skills/movement/arrow-down-pink.webp"
+  },
+  {
+    "name": "Distant Transposition",
+    "class_feature": "Distant Transposition",
+    "class": "Wizard",
+    "subclass": "Conjurer",
+    "path": "icons/magic/movement/chevrons-down-yellow.webp"
+  },
+  {
+    "name": "Splintered Summons",
+    "class_feature": "Splintered Summons",
+    "class": "Wizard",
+    "subclass": "Conjurer",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Enchanting Conversation (Deception)",
+    "class_feature": "Enchanting Conversation (Deception)",
+    "class": "Wizard",
+    "subclass": "Enchanter",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Enchanting Conversation (Intimidation)",
+    "class_feature": "Enchanting Conversation (Intimidation)",
+    "class": "Wizard",
+    "subclass": "Enchanter",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Enchanting Conversation (Persuasion)",
+    "class_feature": "Enchanting Conversation (Persuasion)",
+    "class": "Wizard",
+    "subclass": "Enchanter",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Enchanting Conversation",
+    "class_feature": "Enchanting Conversation",
+    "class": "Wizard",
+    "subclass": "Enchanter",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Hypnotic Presence",
+    "class_feature": "Hypnotic Presence",
+    "class": "Wizard",
+    "subclass": "Enchanter",
+    "path": "icons/magic/control/hypnosis-mesmerism-pendulum.webp"
+  },
+  {
+    "name": "Death's Master",
+    "class_feature": "Death's Master",
+    "class": "Wizard",
+    "subclass": "Necromancer",
+    "path": "icons/magic/death/skull-humanoid-crown-white-blue.webp"
+  },
+  {
+    "name": "Grave Power",
+    "class_feature": "Grave Power",
+    "class": "Wizard",
+    "subclass": "Necromancer",
+    "path": "icons/magic/death/skull-flames-white-blue.webp"
+  },
+  {
+    "name": "Harvest Undead",
+    "class_feature": "Harvest Undead",
+    "class": "Wizard",
+    "subclass": "Necromancer",
+    "path": "icons/magic/death/blood-corruption-vomit-red.webp"
+  },
+  {
+    "name": "Necromancy Spellbook",
+    "class_feature": "Necromancy Spellbook",
+    "class": "Wizard",
+    "subclass": "Necromancer",
+    "path": "icons/sundries/books/book-face-black.webp"
+  },
+  {
+    "name": "Empowered Transmutation",
+    "class_feature": "Empowered Transmutation",
+    "class": "Wizard",
+    "subclass": "Transmuter",
+    "path": "icons/magic/control/buff-flight-wings-runes-red-yellow.webp"
+  },
+  {
+    "name": "Potent Stone",
+    "class_feature": "Potent Stone",
+    "class": "Wizard",
+    "subclass": "Transmuter",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Wondrous Alteration",
+    "class_feature": "Wondrous Alteration",
+    "class": "Wizard",
+    "subclass": "Transmuter",
+    "path": "icons/magic/control/debuff-energy-hold-levitate-blue-yellow.webp"
+  },
+  {
+    "name": "Semblance of Life",
+    "class_feature": "Semblance of Life",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/magic/death/undead-skeleton-fire-green.webp"
+  },
+  {
+    "name": "Vestige Companion",
+    "class_feature": "Vestige Companion",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/magic/symbols/runes-triangle-blue.webp"
+  },
+  {
+    "name": "Vestige Power",
+    "class_feature": "Vestige Power",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/magic/life/cross-area-circle-green-white.webp"
+  },
+  {
+    "name": "Vestige Recovery",
+    "class_feature": "Vestige Recovery",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Vestige Spells (Life)",
+    "class_feature": "Vestige Spells (Life)",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
+  },
+  {
+    "name": "Vestige Spells (Light)",
+    "class_feature": "Vestige Spells (Light)",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Vestige Spells (Trickery)",
+    "class_feature": "Vestige Spells (Trickery)",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/sundries/books/book-embossed-jewel-silver-green.webp"
+  },
+  {
+    "name": "Vestige Spells (War)",
+    "class_feature": "Vestige Spells (War)",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/sundries/books/book-symbol-axe-brown.webp"
+  },
+  {
+    "name": "Vestige Spells",
+    "class_feature": "Vestige Spells",
+    "class": "Warlock",
+    "subclass": "Vestige Patron",
+    "path": "icons/sundries/books/book-clasp-spiral-green.webp"
+  },
+  {
+    "name": "Focused Strike",
+    "class_feature": "Focused Strike",
+    "class": "Monk",
+    "subclass": "Warrior of the Mystic Arts",
+    "path": "icons/skills/melee/unarmed-punch-fist-blue.webp"
+  },
+  {
+    "name": "Improved Fighting Style",
+    "class_feature": "Improved Fighting Style",
+    "class": "Monk",
+    "subclass": "Warrior of the Mystic Arts",
+    "path": "icons/magic/control/buff-strength-muscle-damage.webp"
+  },
+  {
+    "name": "Mystic Fighting Style",
+    "class_feature": "Mystic Fighting Style",
+    "class": "Monk",
+    "subclass": "Warrior of the Mystic Arts",
+    "path": "icons/magic/air/air-smoke-casting.webp"
+  },
+  {
+    "name": "Mystic Focus",
+    "class_feature": "Mystic Focus",
+    "class": "Monk",
+    "subclass": "Warrior of the Mystic Arts",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Arcane Propulsion Armor",
+    "class_feature": "Arcane Propulsion Armor",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/equipment/chest/breastplate-layered-steel-blue-gold.webp"
+  },
+  {
+    "name": "Enhanced Arcane Focus",
+    "class_feature": "Enhanced Arcane Focus",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/weapons/staves/staff-blue-jewel.webp"
+  },
+  {
+    "name": "Enhanced Defense",
+    "class_feature": "Enhanced Defense",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/equipment/shield/heater-steel-crystal-red.webp"
+  },
+  {
+    "name": "Enhanced Weapon",
+    "class_feature": "Enhanced Weapon",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Repeating Shot",
+    "class_feature": "Repeating Shot",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/weapons/ammunition/arrows-barbed-white.webp"
+  },
+  {
+    "name": "Resistant Armor",
+    "class_feature": "Resistant Armor",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Returning Weapon",
+    "class_feature": "Returning Weapon",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Archer",
+    "class_feature": "Archer",
+    "class": "Druid",
+    "subclass": "Circle of Stars",
+    "path": "icons/skills/ranged/target-bullseye-arrow-blue.webp"
+  },
+  {
+    "name": "Chalice",
+    "class_feature": "Chalice",
+    "class": "Druid",
+    "subclass": "Circle of Stars",
+    "path": "icons/magic/holy/chalice-glowing-yellow-blue.webp"
+  },
+  {
+    "name": "Dragon",
+    "class_feature": "Dragon",
+    "class": "Druid",
+    "subclass": "Circle of Stars",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Superior Technique",
+    "class_feature": "Superior Technique",
+    "class": "Fighter",
+    "subclass": "",
+    "path": "icons/skills/melee/maneuver-daggers-paired-orange.webp"
+  },
+  {
+    "name": "Maneuver Options",
+    "class_feature": "Maneuver Options",
+    "class": "Fighter",
+    "subclass": "",
+    "path": "icons/sundries/books/symbol-axe-gold-grey.webp"
+  },
+  {
+    "name": "Brace",
+    "class_feature": "Brace",
+    "class": "Fighter",
+    "subclass": "",
+    "path": "icons/skills/melee/maneuver-sword-katana-yellow.webp"
+  },
+  {
+    "name": "Grappling Strike",
+    "class_feature": "Grappling Strike",
+    "class": "Fighter",
+    "subclass": "",
+    "path": "icons/creatures/claws/pincer-crab-brown.webp"
+  },
+  {
+    "name": "Quick Toss",
+    "class_feature": "Quick Toss",
+    "class": "Fighter",
+    "subclass": "",
+    "path": "icons/skills/ranged/daggers-thrown-salvo-orange.webp"
+  },
+  {
+    "name": "Regain Psionic Energy",
+    "class_feature": "Regain Psionic Energy",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/magic/light/orbs-hand-gray.webp"
+  },
+  {
+    "name": "Protective Field",
+    "class_feature": "Protective Field",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp"
+  },
+  {
+    "name": "Psi-Powered Leap",
+    "class_feature": "Psi-Powered Leap",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/skills/movement/arrow-upward-yellow.webp"
+  },
+  {
+    "name": "Psionic Strike",
+    "class_feature": "Psionic Strike",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/magic/sonic/explosion-shock-wave-teal.webp"
+  },
+  {
+    "name": "Telekinetic Movement",
+    "class_feature": "Telekinetic Movement",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/magic/control/energy-stream-link-spiral-teal.webp"
+  },
+  {
+    "name": "Telekinetic Thrust",
+    "class_feature": "Telekinetic Thrust",
+    "class": "Fighter",
+    "subclass": "Psi Warrior",
+    "path": "icons/magic/sonic/explosion-impact-shock-wave.webp"
+  },
+  {
+    "name": "Canny",
+    "class_feature": "Canny",
+    "class": "Ranger",
+    "subclass": "",
+    "path": "icons/sundries/books/book-open-purple.webp"
+  },
+  {
+    "name": "Homing Strikes",
+    "class_feature": "Homing Strikes",
+    "class": "Rogue",
+    "subclass": "",
+    "path": "icons/skills/targeting/crosshair-triple-strike-orange.webp"
+  },
+  {
+    "name": "Psi-Bolstered Knack",
+    "class_feature": "Psi-Bolstered Knack",
+    "class": "Rogue",
+    "subclass": "Soulknife",
+    "path": "icons/magic/control/buff-luck-fortune-green.webp"
+  },
+  {
+    "name": "Psychic Whispers",
+    "class_feature": "Psychic Whispers",
+    "class": "Rogue",
+    "subclass": "Soulknife",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Coordinated Strike",
+    "class_feature": "Coordinated Strike",
+    "class": "Expert",
+    "subclass": "",
+    "path": "icons/skills/melee/spear-tips-three-purple.webp"
+  },
+  {
+    "name": "Helpful",
+    "class_feature": "Helpful",
+    "class": "Expert",
+    "subclass": "",
+    "path": "icons/skills/social/diplomacy-handshake.webp"
+  },
+  {
+    "name": "Inspiring Help",
+    "class_feature": "Inspiring Help",
+    "class": "Expert",
+    "subclass": "",
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Sharp Mind",
+    "class_feature": "Sharp Mind",
+    "class": "Expert",
+    "subclass": "",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Empowered Spells",
+    "class_feature": "Empowered Spells",
+    "class": "Spellcaster Healer",
+    "subclass": "",
+    "path": "icons/magic/fire/flame-burning-fist-strike.webp"
+  },
+  {
+    "name": "Focused Casting",
+    "class_feature": "Focused Casting",
+    "class": "Spellcaster Healer",
+    "subclass": "",
+    "path": "icons/magic/symbols/cross-circle-blue.webp"
+  },
+  {
+    "name": "Potent Cantrips",
+    "class_feature": "Potent Cantrips",
+    "class": "Spellcaster Healer",
+    "subclass": "",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Attacker",
+    "class_feature": "Attacker",
+    "class": "Warrior",
+    "subclass": "",
+    "path": "icons/weapons/swords/greatsword-guard-jewel-green.webp"
+  },
+  {
+    "name": "Battle Readiness",
+    "class_feature": "Battle Readiness",
+    "class": "Warrior",
+    "subclass": "",
+    "path": "icons/skills/melee/hand-grip-staff-yellow-brown.webp"
+  },
+  {
+    "name": "Defender",
+    "class_feature": "Defender",
+    "class": "Warrior",
+    "subclass": "",
+    "path": "icons/equipment/shield/heater-steel-gold.webp"
+  },
+  {
+    "name": "Improved Defense",
+    "class_feature": "Improved Defense",
+    "class": "Warrior",
+    "subclass": "",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Martial Role",
+    "class_feature": "Martial Role",
+    "class": "Warrior",
+    "subclass": "",
+    "path": "icons/equipment/shield/buckler-boss-iron-wood-brown.webp"
+  },
+  {
+    "name": "Bond of the Talisman",
+    "class_feature": "Bond of the Talisman",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/equipment/neck/amulet-carved-stone-spiral-blue.webp"
+  },
+  {
+    "name": "Far Scribe",
+    "class_feature": "Far Scribe",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/sundries/books/book-open-brown.webp"
+  },
+  {
+    "name": "Protection of the Talisman",
+    "class_feature": "Protection of the Talisman",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/equipment/neck/pendant-faceted-silver-green.webp"
+  },
+  {
+    "name": "Rebuke of the Talisman",
+    "class_feature": "Rebuke of the Talisman",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/equipment/neck/collar-rough-stone-cubes.webp"
+  },
+  {
+    "name": "Undying Servitude",
+    "class_feature": "Undying Servitude",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/magic/death/undead-skeleton-rags-fire-green.webp"
+  },
+  {
+    "name": "Bottled Respite",
+    "class_feature": "Bottled Respite",
+    "class": "Warlock",
+    "subclass": "The Genie",
+    "path": "icons/environment/settlement/blacksmith.webp"
+  },
+  {
+    "name": "Genie's Wrath",
+    "class_feature": "Genie's Wrath",
+    "class": "Warlock",
+    "subclass": "The Genie",
+    "path": "icons/skills/melee/maneuver-sword-katana-yellow.webp"
+  },
+  {
+    "name": "“Cantrips”",
+    "class_feature": "“Cantrips”",
+    "class": "Barbarian",
+    "subclass": "Path of the Muscle Wizard",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "“Spells”",
+    "class_feature": "“Spells”",
+    "class": "Barbarian",
+    "subclass": "Path of the Muscle Wizard",
+    "path": "icons/magic/fire/flame-burning-fist-strike.webp"
+  },
+  {
+    "name": "1st Manifestation",
+    "class_feature": "1st Manifestation",
+    "class": "Ranger",
+    "subclass": "Corrupted Ranger (OTTG)",
+    "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
+  },
+  {
+    "name": "2nd Manifestation",
+    "class_feature": "2nd Manifestation",
+    "class": "Ranger",
+    "subclass": "Corrupted Ranger (OTTG)",
+    "path": "icons/commodities/biological/tentacle-thorned-green.webp"
+  },
+  {
+    "name": "3rd Manifestation",
+    "class_feature": "3rd Manifestation",
+    "class": "Ranger",
+    "subclass": "Corrupted Ranger (OTTG)",
+    "path": "icons/magic/lightning/fist-unarmed-strike-blue.webp"
+  },
+  {
+    "name": "4th Manifestation: Failing Lungs",
+    "class_feature": "4th Manifestation: Failing Lungs",
+    "class": "Ranger",
+    "subclass": "Corrupted Ranger (OTTG)",
+    "path": "icons/commodities/biological/eye-red-pink.webp"
+  },
+  {
+    "name": "5th Manifestation",
+    "class_feature": "5th Manifestation",
+    "class": "Ranger",
+    "subclass": "Corrupted Ranger (OTTG)",
+    "path": "icons/skills/wounds/illness-disease-glowing-green.webp"
+  },
+  {
+    "name": "Abyssal Strength",
+    "class_feature": "Abyssal Strength",
+    "class": "Kindred",
+    "subclass": "Lasombra",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Acolyte of the Occult",
+    "class_feature": "Acolyte of the Occult",
+    "class": "Monster Hunter",
+    "subclass": "Occultist Guild",
+    "path": "icons/sundries/books/book-worn-brown.webp"
+  },
+  {
+    "name": "Adaptive Wild Shape",
+    "class_feature": "Adaptive Wild Shape",
+    "class": "Druid",
+    "subclass": "Circle of Cycles",
+    "path": "icons/commodities/claws/claw-brown-black.webp"
+  },
+  {
+    "name": "Adamantine Hide",
+    "class_feature": "Adamantine Hide",
+    "class": "Druid",
+    "subclass": "Circle of the Forged",
+    "path": "icons/commodities/leather/fur-tan.webp"
+  },
+  {
+    "name": "Acquired Taste",
+    "class_feature": "Acquired Taste",
+    "class": "Monster Hunter",
+    "subclass": "Devourer Guild",
+    "path": "icons/magic/death/mouth-teeth-fangs-vampire.webp"
+  },
+  {
+    "name": "Advanced Enchantments",
+    "class_feature": "Advanced Enchantments",
+    "class": "Rogue",
+    "subclass": "Waxwork Rogue (OTTG)",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Advanced Enchantments: Blooming Light (Advanced)",
+    "class_feature": "Advanced Enchantments: Blooming Light (Advanced)",
+    "class": "Rogue",
+    "subclass": "Waxwork Rogue (OTTG)",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Advanced Enchantments: Bocha Glue Wax (Advanced)",
+    "class_feature": "Advanced Enchantments: Bocha Glue Wax (Advanced)",
+    "class": "Rogue",
+    "subclass": "Waxwork Rogue (OTTG)",
+    "path": "icons/consumables/potions/potion-bottle-corked-stopper-ornate-yellow.webp"
+  },
+  {
+    "name": "Adventurer's Talents",
+    "class_feature": "Adventurer's Talents",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/commodities/tech/metal-blue.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Barbarian",
+    "class_feature": "Adventurer's Talents: Barbarian",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/equipment/head/helm-norman-barbarian.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Cleric",
+    "class_feature": "Adventurer's Talents: Cleric",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-white.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Druid",
+    "class_feature": "Adventurer's Talents: Druid",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Fighter",
+    "class_feature": "Adventurer's Talents: Fighter",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/skills/melee/hand-grip-sword-red.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Monk",
+    "class_feature": "Adventurer's Talents: Monk",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Paladin",
+    "class_feature": "Adventurer's Talents: Paladin",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-green.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Ranger",
+    "class_feature": "Adventurer's Talents: Ranger",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Rogue",
+    "class_feature": "Adventurer's Talents: Rogue",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/skills/melee/strike-sword-stabbed-brown.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Warlock",
+    "class_feature": "Adventurer's Talents: Warlock",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/magic/light/beam-red-orange.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Sorcerer",
+    "class_feature": "Adventurer's Talents: Sorcerer",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/magic/symbols/runes-star-magenta.webp"
+  },
+  {
+    "name": "Adventurer's Talents: Wizard",
+    "class_feature": "Adventurer's Talents: Wizard",
+    "class": "Bard",
+    "subclass": "College of Adventurers",
+    "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
+  },
+  {
+    "name": "Aether Walk",
+    "class_feature": "Aether Walk",
+    "class": "Blood Hunter",
+    "subclass": "Order of the Ghostslayer",
+    "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+  },
+  {
+    "name": "Agent of Mercy",
+    "class_feature": "Agent of Mercy",
+    "class": "Fighter",
+    "subclass": "Couatl Herald",
+    "path": "icons/magic/light/orbs-hand-gray.webp"
+  },
+  {
+    "name": "Agile Response",
+    "class_feature": "Agile Response",
+    "class": "Monster Hunter",
+    "subclass": "Trapper Guild",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Aid Not Given",
+    "class_feature": "Aid Not Given",
+    "class": "Monk",
+    "subclass": "Warrior of Regret",
+    "path": "icons/magic/life/cross-beam-green.webp"
+  },
+  {
+    "name": "Forge Adept Spells",
+    "class_feature": "Forge Adept Spells",
+    "class": "Artificer",
+    "subclass": "Forge Adept",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Reanimated Companion",
+    "class_feature": "Reanimated Companion",
+    "class": "Artificer",
+    "subclass": "Reanimator",
+    "path": "icons/magic/death/hand-dirt-undead-zombie.webp"
+  },
+  {
+    "name": "Reanimator's Skillset",
+    "class_feature": "Reanimator's Skillset",
+    "class": "Artificer",
+    "subclass": "Reanimator",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-pink.webp"
+  },
+  {
+    "name": "Bang, You're Dead!",
+    "class_feature": "Bang, You're Dead!",
+    "class": "Gunslinger",
+    "subclass": "Spellslinger",
+    "path": "icons/magic/death/skull-trio-badge-purple.webp"
+  },
+  {
+    "name": "Bullet Time",
+    "class_feature": "Bullet Time",
+    "class": "Gunslinger",
+    "subclass": "Pistolero",
+    "path": "icons/skills/ranged/bullet-sparks-yellow.webp"
+  },
+  {
+    "name": "Cheat Death",
+    "class_feature": "Cheat Death",
+    "class": "Gunslinger",
+    "subclass": "Deadeye",
+    "path": "icons/skills/toxins/symbol-poison-drop-skull-green.webp"
+  },
+  {
+    "name": "Close-Quarters Shooting",
+    "class_feature": "Close-Quarters Shooting",
+    "class": "Gunslinger",
+    "subclass": "Pistolero",
+    "path": "icons/weapons/guns/gun-double-barrel.webp"
+  },
+  {
+    "name": "Concealed Position",
+    "class_feature": "Concealed Position",
+    "class": "Gunslinger",
+    "subclass": "Deadeye",
+    "path": "icons/magic/nature/stealth-hide-eyes-green.webp"
+  },
+  {
+    "name": "Counter-Mage",
+    "class_feature": "Counter-Mage",
+    "class": "Gunslinger",
+    "subclass": "Spellslinger",
+    "path": "icons/weapons/polearms/halberd-crescent-glowing.webp"
+  },
+  {
+    "name": "Creative Trajectory",
+    "class_feature": "Creative Trajectory",
+    "class": "Gunslinger",
+    "subclass": "Trick Shot",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "Deft Deflection",
+    "class_feature": "Deft Deflection",
+    "class": "Gunslinger",
+    "subclass": "Trick Shot",
+    "path": "icons/skills/melee/strike-spear-red.webp"
+  },
+  {
+    "name": "Deft Maneuver",
+    "class_feature": "Deft Maneuver",
+    "class": "Gunslinger",
+    "subclass": "Deadeye",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Double or Nothing",
+    "class_feature": "Double or Nothing",
+    "class": "Gunslinger",
+    "subclass": "High Roller",
+    "path": "icons/sundries/gaming/dice-pair-white-green.webp"
+  },
+  {
+    "name": "Dire Gambit",
+    "class_feature": "Dire Gambit",
+    "class": "Gunslinger",
+    "subclass": "Deadeye",
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
+  },
+  {
+    "name": "Exit Strategy",
+    "class_feature": "Exit Strategy",
+    "class": "Gunslinger",
+    "subclass": "Secret Agent",
+    "path": "icons/sundries/gaming/chess-rook-gray.webp"
+  },
+  {
+    "name": "Fan the Hammer",
+    "class_feature": "Fan the Hammer",
+    "class": "Gunslinger",
+    "subclass": "Pistolero",
+    "path": "icons/skills/melee/hand-grip-hammer-spiked-blue.webp"
+  },
+  {
+    "name": "Fieldcraft",
+    "class_feature": "Fieldcraft",
+    "class": "Gunslinger",
+    "subclass": "Secret Agent",
+    "path": "icons/equipment/head/mask-carved-wood-pink.webp"
   }
 ]

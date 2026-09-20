@@ -594,5 +594,25 @@
   {
     "name": "Cartographer",
     "path": "icons/sundries/documents/document-bound-white.webp"
+  },
+  {
+    "name": "Expert",
+    "path": "icons/skills/social/theft-pickpocket-bribery-brown.webp"
+  },
+  {
+    "name": "Spellcaster Healer",
+    "path": "icons/magic/life/cross-worn-green.webp"
+  },
+  {
+    "name": "Spellcaster Mage",
+    "path": "icons/magic/symbols/runes-star-blue.webp"
+  },
+  {
+    "name": "Spellcaster Prodigy",
+    "path": "icons/magic/symbols/runes-triangle-orange.webp"
+  },
+  {
+    "name": "Warrior",
+    "path": "icons/skills/melee/hand-grip-sword-white-brown.webp"
   }
 ]

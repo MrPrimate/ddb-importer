@@ -3610,5 +3610,133 @@
   {
     "name": "Song of the Shield Wall",
     "path": "icons/magic/defensive/shield-hex-blue.webp"
+  },
+  {
+    "name": "Battle Familiar",
+    "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "Disruptive Tune",
+    "path": "icons/skills/trades/music-notes-sound-blue.webp"
+  },
+  {
+    "name": "Dueling Ground",
+    "path": "icons/environment/wilderness/terrain-rocks-brown.webp"
+  },
+  {
+    "name": "Uncertain Footing",
+    "path": "icons/equipment/feet/boots-leather-engraved-brown.webp"
+  },
+  {
+    "name": "Inflict Doubt",
+    "path": "icons/creatures/eyes/human-single-blue.webp"
+  },
+  {
+    "name": "Distorted Distance",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Festering Blast",
+    "path": "icons/magic/fire/explosion-flame-blue.webp"
+  },
+  {
+    "name": "Zone of Amicability",
+    "path": "icons/magic/sonic/explosion-shock-sound-wave.webp"
+  },
+  {
+    "name": "Grave Ground",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-pink.webp"
+  },
+  {
+    "name": "Mordenkainen's Lucubration",
+    "path": "icons/magic/lightning/fist-unarmed-strike-blue.webp"
+  },
+  {
+    "name": "Spirit Lantern",
+    "path": "icons/magic/light/light-lantern-lit-white.webp"
+  },
+  {
+    "name": "Waves of Exhaustion",
+    "path": "icons/magic/control/debuff-energy-hold-teal-blue.webp"
+  },
+  {
+    "name": "Summon Dinosaur",
+    "path": "icons/creatures/magical/spirit-fear-energy-pink.webp"
+  },
+  {
+    "name": "Aura of Evasion",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Fractured Awareness",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Reweave Fate",
+    "path": "icons/magic/movement/abstract-ribbons-red-orange.webp"
+  },
+  {
+    "name": "Transfix",
+    "path": "icons/creatures/magical/spirit-undead-masked-blue.webp"
+  },
+  {
+    "name": "Entrancing Mirrors",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Iron Body",
+    "path": "icons/magic/defensive/armor-stone-skin.webp"
+  },
+  {
+    "name": "Lightning Ring",
+    "path": "icons/magic/lightning/orb-ball-spiral-blue.webp"
+  },
+  {
+    "name": "Moment of Prescience",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-teal.webp"
+  },
+  {
+    "name": "Detonate",
+    "path": "icons/magic/fire/explosion-mushroom-nuke-orange.webp"
+  },
+  {
+    "name": "Hindsight",
+    "path": "icons/magic/time/arrows-circling-pink.webp"
+  },
+  {
+    "name": "Vision of Elapsing Eons",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "Wail of the Banshee",
+    "path": "icons/magic/sonic/projectile-shock-wave-blue.webp"
+  },
+  {
+    "name": "Comprehend Languages (Greater Mark)",
+    "path": "icons/sundries/documents/document-writing-pink.webp"
+  },
+  {
+    "name": "Cure Wounds (Greater Mark)",
+    "path": "icons/magic/nature/leaf-drip-light-green.webp"
+  },
+  {
+    "name": "Gust of Wind (Greater Mark)",
+    "path": "icons/magic/air/air-wave-gust-blue.webp"
+  },
+  {
+    "name": "Purify Food and Drink (Greater Mark)",
+    "path": "icons/tools/cooking/pot-camping-iron-black.webp"
+  },
+  {
+    "name": "Hex (Powerful)",
+    "path": "icons/magic/symbols/star-inverted-yellow.webp"
+  },
+  {
+    "name": "Plane Shift (Self Only)",
+    "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp"
+  },
+  {
+    "name": "Invisibility (Self Only)",
+    "path": "icons/magic/air/fog-gas-smoke-dense-gray.webp"
   }
 ]

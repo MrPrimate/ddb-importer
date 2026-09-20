@@ -11482,5 +11482,105 @@
   {
     "name": "Maneuver",
     "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Battle Ready",
+    "path": "icons/skills/melee/hand-grip-staff-yellow-brown.webp"
+  },
+  {
+    "name": "Beast Whisperer",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Death Jinx",
+    "path": "icons/magic/death/skull-horned-worn-fire-blue.webp"
+  },
+  {
+    "name": "Dimensional Disruption",
+    "path": "icons/magic/defensive/barrier-shield-dome-pink.webp"
+  },
+  {
+    "name": "Disciple of the Nine Hells",
+    "path": "icons/magic/fire/elemental-fire-humanoid.webp"
+  },
+  {
+    "name": "Emissary of Juiblex",
+    "path": "icons/creatures/slimes/slime-face-hollow-green.webp"
+  },
+  {
+    "name": "Gloom Shroud",
+    "path": "icons/magic/unholy/barrier-shield-glowing-pink.webp"
+  },
+  {
+    "name": "Poison Tolerant",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-acid.webp"
+  },
+  {
+    "name": "Slaad Host",
+    "path": "icons/creatures/fish/deepsea-creature-glowing-blue.webp"
+  },
+  {
+    "name": "Warrior's Wrath",
+    "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
+  },
+  {
+    "name": "Wild Talent",
+    "path": "icons/magic/symbols/runes-triangle-blue.webp"
+  },
+  {
+    "name": "Awestruck",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Charming",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Fortify",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Frightening",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Marked as Prey",
+    "path": "icons/skills/targeting/crosshair-triple-strike-orange.webp"
+  },
+  {
+    "name": "Pesky Swarm",
+    "path": "icons/creatures/invertebrates/wasp-swarm-tan.webp"
+  },
+  {
+    "name": "Poison",
+    "path": "icons/magic/acid/dissolve-bone-skull.webp"
+  },
+  {
+    "name": "Rally",
+    "path": "icons/environment/people/charge.webp"
+  },
+  {
+    "name": "Sap",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Captivated",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Fearful",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Mired",
+    "path": "icons/magic/control/hypnosis-mesmerism-watch.webp"
+  },
+  {
+    "name": "Running Water",
+    "path": "icons/magic/water/bubbles-air-water-light.webp"
+  },
+  {
+    "name": "Sunlight",
+    "path": "icons/magic/light/explosion-star-glow-orange.webp"
   }
 ]

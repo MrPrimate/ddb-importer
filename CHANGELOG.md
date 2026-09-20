@@ -1,3 +1,7 @@
+# 7.1.38
+
+- Backport of features.
+
 # 7.1.37
 
 Final v13 release for D&D 5.3.x system (@redarchongaming)
