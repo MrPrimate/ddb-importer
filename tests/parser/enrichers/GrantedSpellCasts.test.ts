@@ -218,7 +218,7 @@ describe("Warlock MysticArcanum", () => {
     });
 
     it("sends the options to the Warlock list once during a munch", async () => {
-      addSpellsByDefinitionId.mockResolvedValue(2);
+      addSpellsByDefinitionId.mockResolvedValue([101, 102]);
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
       await e.customFunction({});
       await e.customFunction({});
@@ -228,11 +228,21 @@ describe("Warlock MysticArcanum", () => {
     });
 
     it("retries on a later pass when no spell resolved", async () => {
-      addSpellsByDefinitionId.mockResolvedValue(0);
+      addSpellsByDefinitionId.mockResolvedValue([]);
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
       await e.customFunction({});
       await e.customFunction({});
       expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
+    });
+
+    it("retries only the spells that did not resolve", async () => {
+      addSpellsByDefinitionId.mockResolvedValueOnce([101]).mockResolvedValueOnce([102]);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await e.customFunction({});
+      await e.customFunction({});
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
+      expect(addSpellsByDefinitionId.mock.calls[1][1].map((o: any) => o.id)).toEqual([102]);
     });
 
     it("leaves the spell lists alone on a character import", async () => {

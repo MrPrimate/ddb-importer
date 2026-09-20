@@ -66,8 +66,35 @@ export function expiryFallbackDuration(expiry: TDDBEffectExpiry | null | undefin
   return EXPIRY_TO_COUNTED[expiry] ?? null;
 }
 
+/**
+ * The counted duration a timed-expiry hint should end up with, or null to leave the effect alone.
+ *
+ * An explicit `durationSeconds: null` beside the expiry is the shared enrichers' way of saying
+ * "no counted duration, the expiry is the whole lifetime", so there the stand-in replaces whatever
+ * the host spell or its description stamped (Globe of Twilight's blindness ends that turn, not
+ * after the globe's ten minutes). An undeclared durationSeconds keeps an inherited duration, as it
+ * does on v14 (Evil Eye: one minute, checked at the turn start), and only an effect with no
+ * duration at all takes the stand-in.
+ * @param {object} options
+ * @param {IDDBEffectOptions} options.effectOptions  The hint's options, as declared.
+ * @param {Partial<IEffectDuration>|null} [options.inherited]  The duration already on the effect.
+ */
+export function resolveExpiryFallback({ effectOptions, inherited }: {
+  effectOptions: IDDBEffectOptions;
+  inherited?: Partial<IEffectDuration> | null;
+}): { seconds: null; rounds: number | null; turns: number | null } | null {
+  const fallback = expiryFallbackDuration(effectOptions.expiry);
+  if (!fallback) return null;
+  if (effectOptions.durationSeconds || effectOptions.durationRounds || effectOptions.durationTurns) return null;
+  const expiryOwnsDuration = "durationSeconds" in effectOptions && effectOptions.durationSeconds === null;
+  const inheritedCounted = inherited?.seconds || inherited?.rounds || inherited?.turns;
+  if (inheritedCounted && !expiryOwnsDuration) return null;
+  return { seconds: null, rounds: fallback.rounds ?? null, turns: fallback.turns ?? null };
+}
+
 export default {
   expiryToDaeSpecialDurations,
   resolveDaeSpecialDurations,
   expiryFallbackDuration,
+  resolveExpiryFallback,
 };

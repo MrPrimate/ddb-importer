@@ -7,6 +7,7 @@
 import {
   expiryToDaeSpecialDurations,
   resolveDaeSpecialDurations,
+  resolveExpiryFallback,
 } from "../../../../src/parser/enrichers/effects/EffectExpiryHelpers";
 
 describe("expiryToDaeSpecialDurations", () => {
@@ -67,6 +68,48 @@ describe("resolveDaeSpecialDurations", () => {
 
   it("clears for an explicit null expiry, so the enricher owns expiry", () => {
     expect(resolveDaeSpecialDurations({ expiry: null, hasExpiry: true })).toEqual([]);
+  });
+
+});
+
+// Timed expiries (turnEnd, roundStart...) have no DAE token, so times-up gets a counted stand-in.
+// A spell effect has already inherited the spell's duration by the time the stand-in is decided,
+// and whether that inherited duration survives depends on what the hint declared.
+describe("resolveExpiryFallback", () => {
+
+  const tenMinutes = { seconds: 600, rounds: 100, turns: null };
+
+  it("replaces an inherited duration when the hint declares no counted duration", () => {
+    const result = resolveExpiryFallback({
+      effectOptions: { durationSeconds: null, expiry: "turnEnd" },
+      inherited: tenMinutes,
+    });
+    expect(result).toEqual({ seconds: null, rounds: null, turns: 1 });
+  });
+
+  it("keeps an inherited duration when the hint leaves durationSeconds undeclared", () => {
+    expect(resolveExpiryFallback({ effectOptions: { expiry: "turnStart" }, inherited: { seconds: 60 } })).toBeNull();
+  });
+
+  it("fills an effect that has no duration at all", () => {
+    expect(resolveExpiryFallback({ effectOptions: { expiry: "roundEnd" }, inherited: {} }))
+      .toEqual({ seconds: null, rounds: 1, turns: null });
+    expect(resolveExpiryFallback({ effectOptions: { expiry: "turnEnd" }, inherited: null }))
+      .toEqual({ seconds: null, rounds: null, turns: 1 });
+  });
+
+  it("leaves a hint with its own counted duration alone", () => {
+    expect(resolveExpiryFallback({ effectOptions: { durationRounds: 2, expiry: "turnEnd" }, inherited: {} })).toBeNull();
+    expect(resolveExpiryFallback({ effectOptions: { durationSeconds: 60, expiry: "turnStart" }, inherited: tenMinutes }))
+      .toBeNull();
+  });
+
+  it("ignores expiries that DAE tokens already cover, and hints with none", () => {
+    expect(resolveExpiryFallback({ effectOptions: { durationSeconds: null, expiry: "sourceEnd" }, inherited: tenMinutes }))
+      .toBeNull();
+    expect(resolveExpiryFallback({ effectOptions: { durationSeconds: null, expiry: null }, inherited: tenMinutes }))
+      .toBeNull();
+    expect(resolveExpiryFallback({ effectOptions: {}, inherited: {} })).toBeNull();
   });
 
 });

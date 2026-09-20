@@ -19,6 +19,16 @@ export default class FormOfTheBeast extends DDBEnricherData {
     return classes.find((klass) => klass.definition?.name === "Warlock")?.level ?? null;
   }
 
+  /** Minutes the transformation lasts at the imported warlock level, from the MINUTES breakpoints. */
+  get effectMinutes(): number {
+    const level = this.warlockLevel ?? 1;
+    const reached = Object.keys(FormOfTheBeast.MINUTES)
+      .map(Number)
+      .filter((breakpoint) => breakpoint <= level);
+    const breakpoint = reached.length > 0 ? Math.max(...reached) : 1;
+    return FormOfTheBeast.MINUTES[breakpoint as keyof typeof FormOfTheBeast.MINUTES];
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
@@ -61,12 +71,13 @@ export default class FormOfTheBeast extends DDBEnricherData {
     ];
     return [
       {
-        // no counted duration and no expiry: dnd5e stamps the scaled activity duration on
-        // application, so the effect tracks the level without a reimport
+        // dnd5e 5.x does not copy the activity duration onto an applied effect, and the
+        // description parser's first match is the level 6 "1 hour", so the span is fixed from the
+        // warlock level at import (the munched copy takes the base ten minutes)
         name: "Form of the Beast",
         activityMatch: "Transform",
         options: {
-          durationSeconds: null,
+          durationSeconds: this.effectMinutes * 60,
           expiry: null,
         },
         changes,

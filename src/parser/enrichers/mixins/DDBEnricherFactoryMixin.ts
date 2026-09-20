@@ -5,7 +5,7 @@ import { resolveTransformProfileUuids } from "../../companions/types/TransformPr
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
-import { expiryFallbackDuration, resolveDaeSpecialDurations } from "../effects/EffectExpiryHelpers";
+import { resolveDaeSpecialDurations, resolveExpiryFallback } from "../effects/EffectExpiryHelpers";
 
 export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
@@ -832,7 +832,12 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
           const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
-          if (duration.type) {
+          // an explicit `durationSeconds: null` is the hint saying it has no counted duration.
+          // Description parsing is first-match over the WHOLE text, so without this a grapple held
+          // until escape, a curse or a standing bonus gets timed by an unrelated sentence. A spell
+          // effect still keeps the duration it inherited from its host.
+          const noCountedDuration = "durationSeconds" in effectOptions && effectOptions.durationSeconds === null;
+          if (duration.type && !noCountedDuration) {
             foundry.utils.setProperty(effect, "duration.seconds", duration.seconds);
             foundry.utils.setProperty(effect, "duration.rounds", duration.rounds);
           }
@@ -910,13 +915,11 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
       // a timed expiry (turnEnd, roundStart...) has no DAE token, and enrichers shared with the
       // v14 branch carry no counted duration beside it: give times-up the nearest equivalent
-      const expiryFallback = expiryFallbackDuration(effectOptions.expiry);
-      if (expiryFallback
-        && !effectOptions.durationSeconds && !effectOptions.durationRounds && !effectOptions.durationTurns
-        && !effect.duration?.seconds && !effect.duration?.rounds && !effect.duration?.turns
-      ) {
-        if (expiryFallback.rounds) foundry.utils.setProperty(effect, "duration.rounds", expiryFallback.rounds);
-        if (expiryFallback.turns) foundry.utils.setProperty(effect, "duration.turns", expiryFallback.turns);
+      const expiryFallback = resolveExpiryFallback({ effectOptions, inherited: effect.duration });
+      if (expiryFallback) {
+        foundry.utils.setProperty(effect, "duration.seconds", expiryFallback.seconds);
+        foundry.utils.setProperty(effect, "duration.rounds", expiryFallback.rounds);
+        foundry.utils.setProperty(effect, "duration.turns", expiryFallback.turns);
       }
 
       if (effectHint.midiProperties && applyMidiOnlyEffects) {

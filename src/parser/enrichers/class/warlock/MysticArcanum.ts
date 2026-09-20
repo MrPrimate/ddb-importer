@@ -130,9 +130,9 @@ export default class MysticArcanum extends DDBEnricherData {
     // reached through the api global, as SpellListExtractor does, to keep barrels out of this file
     const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type: "class" }) as SpellListFactory;
     const added = await spellListFactory.addSpellsByDefinitionId("Warlock", options);
-    // nothing resolving means the spells are not munched yet, a later pass should try again
-    if (added === 0) return;
-    options.forEach((option) => MysticArcanum._listedSpellIds.add(option.id));
+    // only the spells that resolved are done: one the compendium lacks is not munched yet, and
+    // a later pass in the same session has to be able to try it again
+    added.forEach((id) => MysticArcanum._listedSpellIds.add(id));
   }
 
 }

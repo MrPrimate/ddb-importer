@@ -38,11 +38,11 @@ describe("SpellListFactory.addSpellsByDefinitionId", () => {
   it("files each resolved spell under its source book", async () => {
     const { factory, built } = makeFactory();
     const phb2024 = factory.sources?.find((s) => s.id === 145);
-    const count = await factory.addSpellsByDefinitionId("Warlock", [
+    const resolved = await factory.addSpellsByDefinitionId("Warlock", [
       { id: 101, sourceId: 145 },
       { id: 102, sourceId: 145 },
     ]);
-    expect(count).toBe(2);
+    expect(resolved).toEqual([101, 102]);
     expect(built).toEqual([{
       acronym: phb2024?.acronym,
       uuids: ["Compendium.world.ddb-spells.Item.circle", "Compendium.world.ddb-spells.Item.eyebite"],
@@ -66,10 +66,19 @@ describe("SpellListFactory.addSpellsByDefinitionId", () => {
     }]);
   });
 
+  it("reports only the ids it resolved, so the caller can retry the rest", async () => {
+    const { factory } = makeFactory();
+    const resolved = await factory.addSpellsByDefinitionId("Warlock", [
+      { id: 101, sourceId: 145 },
+      { id: 999, sourceId: 145 },
+    ]);
+    expect(resolved).toEqual([101]);
+  });
+
   it("writes and registers nothing when no definition id is in the compendium", async () => {
     const { factory } = makeFactory();
-    const count = await factory.addSpellsByDefinitionId("Warlock", [{ id: 999, sourceId: 145 }]);
-    expect(count).toBe(0);
+    const resolved = await factory.addSpellsByDefinitionId("Warlock", [{ id: 999, sourceId: 145 }]);
+    expect(resolved).toEqual([]);
     expect(factory.buildSpellList).not.toHaveBeenCalled();
     expect(factory.registerSpellLists).not.toHaveBeenCalled();
   });
