@@ -63,6 +63,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
     // Frontiers of Eberron reprint; same mechanics as the 2014 spell
     "Absorb Elements (Frontiers of Eberron)": SpellEnrichers.AbsorbElements,
+    "Mold Earth (Frontiers of Eberron)": SpellEnrichers.MoldEarth,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
