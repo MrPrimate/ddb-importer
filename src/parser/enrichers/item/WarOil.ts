@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Spilling the oil rolls nothing: it places a 10-foot-radius patch of difficult terrain whose

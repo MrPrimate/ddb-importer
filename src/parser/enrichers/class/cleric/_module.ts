@@ -38,6 +38,7 @@ export { default as EclipseOfIllOmen } from "./EclipseOfIllOmen";
 export { default as EmboldeningBond } from "./EmboldeningBond";
 export { default as EyesOfNight } from "./EyesOfNight";
 export { default as FadeToBlack } from "./FadeToBlack";
+export { default as GestaltAnchor } from "./GestaltAnchor";
 export { default as GreaterDivineIntervention } from "./GreaterDivineIntervention";
 export { default as GuidedStrike } from "./GuidedStrike";
 export { default as HarnessDivinePower } from "./HarnessDivinePower";

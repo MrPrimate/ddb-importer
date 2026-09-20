@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { escapeCheck, regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { escapeCheck, regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 const DAILY: I5eSystemLimitedUses = { spent: 0, max: "1", recovery: [{ period: "dawn", type: "recoverAll" }] };
 

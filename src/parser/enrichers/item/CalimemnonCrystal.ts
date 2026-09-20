@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer, regionTrigger } from "./_ItemRegions";
+import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * The parser's single save is the once-a-day ray action, reshaped here into the damage ray with

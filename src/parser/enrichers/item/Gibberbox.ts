@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Opening the lid rolls nothing: it places a 20-foot emanation for 1 minute, once per 24 hours,

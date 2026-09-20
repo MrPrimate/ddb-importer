@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * One enricher for every rarity of the shovel. The necrotic resistance aura arrives at Very Rare,

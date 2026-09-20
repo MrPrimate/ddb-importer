@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity } from "./_ItemActivities";
-import { regionPlacerData } from "./_ItemRegions";
+import { regionPlacerData } from "../data/RegionBuilders";
 
 /**
  * Planting the standard costs nothing and makes its own 5-foot space difficult terrain until it

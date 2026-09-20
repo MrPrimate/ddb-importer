@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity, itemUses } from "./_ItemActivities";
-import { escapeCheck, regionPlacer, regionTrigger } from "./_ItemRegions";
+import { escapeCheck, regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Three charge-fed properties; DDB carries no charges for the gloves. The parser's single damage

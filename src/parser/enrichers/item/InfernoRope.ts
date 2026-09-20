@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData } from "./_ItemRegions";
+import { regionPlacerData } from "../data/RegionBuilders";
 
 /**
  * Igniting the rope rolls its save at once, so lighting it is the save, and the wall's region

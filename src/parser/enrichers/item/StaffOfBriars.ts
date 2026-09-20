@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * A charge covers a 20-foot square in briars. They are ordinary plants once grown, so the area is

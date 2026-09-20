@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Throwing the fruit rolls nothing: it places a 10-foot-radius cloud for 1 minute whose region

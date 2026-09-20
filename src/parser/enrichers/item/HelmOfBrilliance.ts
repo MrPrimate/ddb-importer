@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer, regionTrigger } from "./_ItemRegions";
+import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * A multi-property helm. The parser's single save is the closest match for the beams released

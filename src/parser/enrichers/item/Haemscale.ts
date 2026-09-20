@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemText, itemUses } from "./_ItemActivities";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * One enricher for every armour type and rarity. The parser's reaction is Repulse; the Aura is an

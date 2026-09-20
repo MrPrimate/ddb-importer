@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData } from "./_ItemRegions";
+import { regionPlacerData } from "../data/RegionBuilders";
 
 /** A charge releases a 10-foot cube of vortex from the holder that is difficult terrain for 1 hour. */
 export default class HatOfVortexes extends DDBEnricherData {

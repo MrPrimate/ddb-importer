@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Drinking the potion rolls nothing: it fills a 20-foot cube with bubbles for 1 hour, and the

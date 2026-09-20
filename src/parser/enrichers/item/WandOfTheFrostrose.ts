@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * The parser's save is a sculpture exploding, which happens when one is destroyed and costs no

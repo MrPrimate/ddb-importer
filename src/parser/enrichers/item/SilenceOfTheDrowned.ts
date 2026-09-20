@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData } from "./_ItemRegions";
+import { regionPlacerData } from "../data/RegionBuilders";
 
 /**
  * Drinking the potion rolls nothing: it places a 20-foot emanation on the drinker for 10 minutes

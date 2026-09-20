@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * A charge fires a bolt whose vacuum rolls a Strength save at once and makes its 20-foot-radius

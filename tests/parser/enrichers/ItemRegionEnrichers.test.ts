@@ -1,5 +1,5 @@
 /**
- * Region-behavior pins for the item enrichers built on item/_ItemRegions. The items audit shows
+ * Region-behavior pins for the item enrichers built on data/RegionBuilders. The items audit shows
  * what each document ends up with, but two links are invisible to it: a behavior naming a sibling
  * activity by `activityName` (the orphan check covers effects only) and an effect matched to an
  * activity by name. Both are asserted here for every enricher, then each distinct shape once.
@@ -10,7 +10,7 @@
 import * as ItemEnrichers from "../../../src/parser/enrichers/item/_module";
 import DDBItemEnricher from "../../../src/parser/enrichers/DDBItemEnricher";
 import SRDEffects from "../../../src/parser/enrichers/effects/SRDEffects";
-import { escapeCheck, regionPlacer, regionPlacerData, regionTrigger } from "../../../src/parser/enrichers/item/_ItemRegions";
+import { area, emanation, escapeCheck, regionPlacer, regionPlacerData, regionTarget, regionTrigger } from "../../../src/parser/enrichers/data/RegionBuilders";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -158,7 +158,18 @@ describe.each(REGION_ITEMS)("%s region links", (_label, Enricher) => {
   });
 });
 
-describe("_ItemRegions builders", () => {
+describe("RegionBuilders", () => {
+  it("restates who is affected whenever it overrides a target", () => {
+    expect(regionTarget({ type: "cube", size: "5" })).toEqual({
+      override: true,
+      affects: { type: "creature" },
+      template: { contiguous: false, units: "ft", type: "cube", size: "5" },
+    });
+    expect(emanation("30", "enemy")).toMatchObject({ affects: { type: "enemy" }, template: { type: "radius", size: "30", count: "1" } });
+    expect(area("line", "120", { width: "20" }).template).toMatchObject({ type: "line", size: "120", width: "20" });
+    expect(regionTarget({ type: "radius", size: "10", stationary: true }).template).toMatchObject({ stationary: true });
+  });
+
   it("places from the owner by default and from a point when given a range", () => {
     const self = regionPlacer("Aura", { template: { type: "radius", size: "10" }, behaviors: [] });
     expect(self.build?.rangeOverride).toMatchObject({ units: "self" });

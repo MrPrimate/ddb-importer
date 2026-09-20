@@ -12,6 +12,7 @@ export { default as AncientProtector } from "./AncientProtector";
 export { default as ApexPredator } from "./ApexPredator";
 export { default as Archdruid } from "./Archdruid";
 export { default as BalmOfTheSummerCourt } from "./BalmOfTheSummerCourt";
+export { default as BewitchedEffigyWard } from "./BewitchedEffigyWard";
 export { default as BlazingRevival } from "./BlazingRevival";
 export { default as BlightedShape } from "./BlightedShape";
 export { default as BloodBoon } from "./BloodBoon";

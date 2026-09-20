@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemUses } from "./_ItemActivities";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * The parser's bonus action is planting the shield. The metal roots are a charge spent on a

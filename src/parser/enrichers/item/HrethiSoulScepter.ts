@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity, itemUses } from "./_ItemActivities";
-import { regionPlacer, regionTrigger } from "./_ItemRegions";
+import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Four charge-fed properties; DDB carries no charges for the rod. The parser's primary becomes

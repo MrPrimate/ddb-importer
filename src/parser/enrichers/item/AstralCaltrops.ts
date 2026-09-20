@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "./_ItemRegions";
+import { regionPlacerData, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Spreading the caltrops rolls nothing: it places a 5-foot square whose region fires the save

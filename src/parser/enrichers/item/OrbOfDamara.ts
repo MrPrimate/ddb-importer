@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer, regionTrigger } from "./_ItemRegions";
+import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * The parser's primary save is the Dragon's Breath cone, which costs no charges (those pay for the

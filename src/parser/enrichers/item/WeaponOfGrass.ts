@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemUses } from "./_ItemActivities";
-import { regionPlacer } from "./_ItemRegions";
+import { regionPlacer } from "../data/RegionBuilders";
 
 /**
  * Every "of Grass" weapon shares one property: a bonus action and a charge grow a 10-foot-radius

@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { regionPlacer, regionTrigger } from "./_ItemRegions";
+import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Flipping the coin is a d6: even grants the Boon of Empyreus, odd the Boon of Beleth. Each boon is

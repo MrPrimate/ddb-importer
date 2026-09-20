@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { escapeCheck, regionPlacer, regionTrigger } from "./_ItemRegions";
+import { escapeCheck, regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
 /**
  * Release the Kraken opens a 15-foot-radius gate for 1 minute, once per dawn, and the ground in

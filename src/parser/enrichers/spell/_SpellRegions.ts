@@ -11,6 +11,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
  *   scaling are left to the spell parser, which reads them from DDB, so nothing is restated here.
  */
 
+// the target builders are shared with every other enricher kind; spell enrichers take them from here
+export { area, emanation } from "../data/RegionBuilders";
+
 interface IOngoingTrigger {
   name?: string;
   condition: string;
@@ -36,28 +39,6 @@ export function castPlacer(behaviors: I5eActivityBehavior[], data: Partial<I5eAc
     // what the area does to a creature belongs to the roll the region fires, not to the cast
     noeffect: true,
     data: { ...data, behaviors },
-  };
-}
-
-/**
- * An area centred on the caster that moves with them. DDB often records these as a sphere, which
- * dnd5e places as a fixed circle; only a "radius" template becomes an emanation attached to the
- * token. Overriding the target also stops it inheriting who is affected, so that is restated.
- */
-export function emanation(size: string, affects: TTarget = "creature"): I5eActivityTarget {
-  return {
-    override: true,
-    affects: { type: affects },
-    template: { count: "1", contiguous: false, type: "radius", size, units: "ft" },
-  };
-}
-
-/** A fixed area, for a spell DDB gives no template or the wrong one. */
-export function area(type: TTemplate, size: string, extra: Partial<I5eActivityTarget["template"]> = {}, affects: TTarget = "creature"): I5eActivityTarget {
-  return {
-    override: true,
-    affects: { type: affects },
-    template: { count: "1", contiguous: false, type, size, units: "ft", ...extra },
   };
 }
 

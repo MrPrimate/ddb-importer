@@ -1,11 +1,12 @@
-import DDBEnricherData from "../data/DDBEnricherData";
+import DDBEnricherData from "./DDBEnricherData";
 
 /**
- * Builders for items that place a Region: a utility "placer" that carries the template and the
- * region behaviors and rolls nothing, plus the special-activation "trigger" activities a region
- * fires against the token that entered or started its turn inside. Dispositions are derived from
- * an activity's `affects` type when the region is placed, and a behavior that fires a trigger takes
- * the TRIGGER's dispositions, so "enemies only" belongs on the trigger.
+ * Builders for any document that places a Region, whatever kind of enricher it belongs to: a
+ * "placer" that carries the template and the region behaviors, plus the special-activation
+ * "trigger" activities a region fires against the token that entered or started its turn inside.
+ * Dispositions are derived from an activity's `affects` type when the region is placed, and a
+ * behavior that fires a trigger takes the TRIGGER's dispositions, so "enemies only" belongs on
+ * the trigger. Spells add their own slot handling on top of these in spell/_SpellRegions.
  */
 
 interface IRegionTemplate {
@@ -79,7 +80,11 @@ function rollBuild(roll: IRegionRoll): IDDBActivityBuild {
   };
 }
 
-function placerTarget({ template, affects = "creature" }: IRegionPlacer): I5eActivityTarget {
+/**
+ * An activity target that places the given area. Overriding the target also stops it inheriting
+ * who is affected from the document, so that is always restated.
+ */
+export function regionTarget(template: IRegionTemplate, affects: TTarget = "creature"): I5eActivityTarget {
   const { stationary, ...shape } = template;
   return {
     override: true,
@@ -91,6 +96,26 @@ function placerTarget({ template, affects = "creature" }: IRegionPlacer): I5eAct
       ...(stationary ? { stationary: true } : {}),
     },
   };
+}
+
+/**
+ * An area centred on its owner that moves with them. DDB often records these as a sphere, which
+ * dnd5e places as a fixed circle; only a "radius" template becomes an emanation attached to the
+ * token.
+ */
+export function emanation(size: string, affects: TTarget = "creature"): I5eActivityTarget {
+  return regionTarget({ type: "radius", size, count: "1" }, affects);
+}
+
+/** A fixed area, for a document DDB gives no template or the wrong one. */
+export function area(
+  type: TTemplate, size: string, extra: Partial<IRegionTemplate> = {}, affects: TTarget = "creature",
+): I5eActivityTarget {
+  return regionTarget({ type, size, count: "1", ...extra }, affects);
+}
+
+function placerTarget({ template, affects }: IRegionPlacer): I5eActivityTarget {
+  return regionTarget(template, affects);
 }
 
 function placerRange({ range, rangeSpecial }: IRegionPlacer): I5eActivityRange {
