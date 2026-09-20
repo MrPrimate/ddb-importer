@@ -13,6 +13,11 @@ export default class PrismaticSpray extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateSave: true,
           generateDamage: false,
           generateActivation: true,
@@ -42,6 +47,11 @@ export default class PrismaticSpray extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateSave: true,
           generateDamage: false,
           generateActivation: true,

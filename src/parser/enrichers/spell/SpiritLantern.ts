@@ -73,6 +73,11 @@ export default class SpiritLantern extends DDBEnricherData {
       {
         init: { name: "Ward Ally", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: true,
           generateRange: true,
@@ -91,6 +96,11 @@ export default class SpiritLantern extends DDBEnricherData {
       {
         init: { name: "Capture Soul", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: true,
           generateTarget: true,

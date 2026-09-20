@@ -32,6 +32,11 @@ export default class MoteOfHell extends DDBEnricherData {
       {
         init: { name: "Hellfire Damage", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -53,6 +58,11 @@ export default class MoteOfHell extends DDBEnricherData {
       {
         init: { name: "Voices of the Damned Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

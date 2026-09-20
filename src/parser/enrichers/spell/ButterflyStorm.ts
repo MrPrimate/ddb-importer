@@ -25,6 +25,11 @@ export default class ButterflyStorm extends DDBEnricherData {
       {
         init: { name: "Pulled Back Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

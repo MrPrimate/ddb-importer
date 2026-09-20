@@ -45,6 +45,7 @@ export default class VitriolicSphere extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
           generateDamage: true,
           generateConsumption: false,
           noSpellslot: true,

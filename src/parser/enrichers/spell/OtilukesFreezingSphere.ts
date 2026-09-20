@@ -13,6 +13,11 @@ export default class OtilukesFreezingSphere extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateTarget: true,
           generateRange: true,

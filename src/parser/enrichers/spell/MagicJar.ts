@@ -19,6 +19,11 @@ export default class MagicJar extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateTarget: true,
           generateRange: true,
@@ -39,6 +44,11 @@ export default class MagicJar extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateTarget: true,
           generateRange: true,
@@ -62,8 +72,11 @@ export default class MagicJar extends DDBEnricherData {
         name: "Trapped Soul",
         activityMatch: "Possess Humanoid",
         statuses: ["Incapacitated"],
+        // a Speed of 0 covers every movement mode, not only walking
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+          ...["walk", "fly", "swim", "climb", "burrow"].map((mode) =>
+            DDBEnricherData.ChangeHelper.overrideChange("0", 60, `system.attributes.movement.${mode}`)),
         ],
         options: {
           durationSeconds: null,

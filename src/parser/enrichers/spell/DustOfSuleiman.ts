@@ -31,6 +31,11 @@ export default class DustOfSuleiman extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            duration: {
+              units: "inst",
+              concentration: false,
+              override: true,
+            },
             range: { override: true, units: "spec" },
             target: { override: true },
           },

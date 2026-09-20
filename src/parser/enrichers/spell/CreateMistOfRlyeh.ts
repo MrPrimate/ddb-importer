@@ -24,6 +24,11 @@ export default class CreateMistOfRlyeh extends DDBEnricherData {
       {
         init: { name: "Mist Damage", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

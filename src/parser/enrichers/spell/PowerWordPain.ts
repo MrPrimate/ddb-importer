@@ -40,6 +40,11 @@ export default class PowerWordPain extends DDBEnricherData {
       {
         init: { name: "Constitution Save (Cast a Spell / End of Turn)", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateSave: true,
           generateActivation: true,
           generateTarget: true,

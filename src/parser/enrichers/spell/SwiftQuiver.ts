@@ -13,6 +13,11 @@ export default class SwiftQuiver extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateTarget: false,
           generateRange: false,

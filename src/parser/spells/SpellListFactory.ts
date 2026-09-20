@@ -264,6 +264,17 @@ export default class SpellListFactory {
     await this._generateJournalSpellListPage(journal, spellListName, source);
   }
 
+  #findSpellByDefinitionId(definitionId: number) {
+    return this.spellCompendium?.index.find((s) =>
+      foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === definitionId,
+    );
+  }
+
+  /** Whether the spell compendium holds a spell with this DDB definition id. */
+  hasSpellDefinition(definitionId: number): boolean {
+    return Boolean(this.#findSpellByDefinitionId(definitionId));
+  }
+
   /**
    * Adds compendium spells, matched by DDB definition id, to a named list, one page per source
    * book. Existing pages are extended rather than replaced, so this can top up a list the spell
@@ -287,9 +298,7 @@ export default class SpellListFactory {
         : spell.sourceId;
       const source = this.filteredSources.find((s) => s.id === sourceId) ?? homebrew;
       if (!source) continue;
-      const match = this.spellCompendium.index.find((s) =>
-        foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id,
-      );
+      const match = this.#findSpellByDefinitionId(spell.id);
       if (!match) {
         logger.debug(`Spell definition ${spell.id} not found in spell compendium for spell list ${spellListName}`);
         continue;

@@ -23,6 +23,11 @@ export default class HallucinatoryTerrain extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateCheck: true,
           generateActivation: true,
           generateTarget: true,

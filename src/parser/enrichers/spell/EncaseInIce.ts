@@ -27,6 +27,11 @@ export default class EncaseInIce extends DDBEnricherData {
       {
         init: { name: "Slip Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -47,6 +52,11 @@ export default class EncaseInIce extends DDBEnricherData {
       {
         init: { name: "Break Free", type: DDBEnricherData.ACTIVITY_TYPES.CHECK },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateCheck: true,
           generateTarget: false,
           generateRange: false,

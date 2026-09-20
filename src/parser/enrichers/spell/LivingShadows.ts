@@ -25,6 +25,11 @@ export default class LivingShadows extends DDBEnricherData {
       {
         init: { name: "Ongoing Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -45,6 +50,11 @@ export default class LivingShadows extends DDBEnricherData {
       {
         init: { name: "Exhaustion Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

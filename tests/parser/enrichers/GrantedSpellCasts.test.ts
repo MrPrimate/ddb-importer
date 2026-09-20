@@ -235,6 +235,22 @@ describe("Warlock MysticArcanum", () => {
       expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
     });
 
+    it("retries only the spells a partial munch could not resolve", async () => {
+      const munched = new Set([101]);
+      (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory = class {
+        addSpellsByDefinitionId = addSpellsByDefinitionId;
+        hasSpellDefinition = (id: number) => munched.has(id);
+      };
+      addSpellsByDefinitionId.mockResolvedValue(1);
+      const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13, { isMuncher: true });
+      await e.customFunction({});
+      munched.add(102);
+      await e.customFunction({});
+      await e.customFunction({});
+      expect(addSpellsByDefinitionId).toHaveBeenCalledTimes(2);
+      expect(addSpellsByDefinitionId.mock.calls[1][1].map((o: any) => o.id)).toEqual([102]);
+    });
+
     it("leaves the spell lists alone on a character import", async () => {
       const e = buildUnchosen("Mystic Arcanum (Level 7 Spell)", 13);
       await e.customFunction({});

@@ -20,6 +20,11 @@ export default class PhantasmalForce extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateDamage: true,
           generateActivation: true,
           generateTarget: true,
@@ -50,6 +55,11 @@ export default class PhantasmalForce extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
         },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateCheck: true,
           generateActivation: true,
           generateTarget: true,

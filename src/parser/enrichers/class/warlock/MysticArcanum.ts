@@ -132,7 +132,12 @@ export default class MysticArcanum extends DDBEnricherData {
     const added = await spellListFactory.addSpellsByDefinitionId("Warlock", options);
     // nothing resolving means the spells are not munched yet, a later pass should try again
     if (added === 0) return;
-    options.forEach((option) => MysticArcanum._listedSpellIds.add(option.id));
+    // only the spells that made it onto the list are done: one still missing from the compendium
+    // (a partial munch) has to be offered again on a later pass
+    const resolved = added === options.length
+      ? options
+      : options.filter((option) => spellListFactory.hasSpellDefinition(option.id));
+    resolved.forEach((option) => MysticArcanum._listedSpellIds.add(option.id));
   }
 
 }

@@ -31,6 +31,11 @@ export default class CrownOfRadiance extends DDBEnricherData {
       {
         init: { name: "Crown Damage", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
