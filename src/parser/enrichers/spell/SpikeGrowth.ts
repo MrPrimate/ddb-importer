@@ -13,7 +13,8 @@ export default class SpikeGrowth extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenMoveIn", "tokenMoveWithin"],
+            // an entering movement also has a move-within segment, so move-in would card it twice
+            events: ["tokenMoveWithin"],
             activityName: "Movement Damage",
             oncePerTurn: false,
           }),

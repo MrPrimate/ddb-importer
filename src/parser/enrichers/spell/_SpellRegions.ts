@@ -9,6 +9,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * - They do not: `castPlacer` turns the cast into a slot-spending utility that only places the
  *   area, and `ongoingTrigger` builds the roll as a free sibling. Its save, damage and upcast
  *   scaling are left to the spell parser, which reads them from DDB, so nothing is restated here.
+ *   `ongoingAttack` is the same sibling for a spell that attacks instead, and `movementDamage`
+ *   the one for damage per 5 feet moved, which a region can only offer once per movement.
  */
 
 // the target builders are shared with every other enricher kind; spell enrichers take them from here
@@ -90,4 +92,63 @@ export function ongoingClone(id: string, condition: string, name = ONGOING): IDD
       },
     },
   };
+}
+
+interface IOngoingAttack {
+  name: string;
+  condition: string;
+  affects?: TTarget;
+  /** "reaction" where the rules spend one; the region offers the card either way. */
+  activation?: TActivationCost;
+}
+
+/** The free attack a region offers against one token; the dice and upcast scaling are DDB's. */
+export function ongoingAttack({ name, condition, affects = "enemy", activation = "special" }: IOngoingAttack): IDDBAdditionalActivity {
+  return {
+    init: { name, type: DDBEnricherData.ACTIVITY_TYPES.ATTACK },
+    build: {
+      generateActivation: true,
+      generateConsumption: false,
+      generateTarget: true,
+      generateAttack: true,
+      generateDamage: true,
+      noSpellslot: true,
+      activationOverride: { type: activation, value: activation === "special" ? null : 1, condition },
+      targetOverride: { override: true, affects: { count: "1", type: affects }, template: {} },
+    },
+    overrides: {
+      noTemplate: true,
+      data: { range: { override: true, units: "spec" } },
+    },
+  };
+}
+
+export const MOVEMENT_DAMAGE = "Movement Damage";
+
+/** The one event for damage per distance moved; see `movementBehavior`. */
+export const MOVEMENT_EVENTS = ["tokenMoveWithin"];
+
+/**
+ * Damage "for every 5 feet it travels". A region sees a movement, not its length, so this is
+ * offered once per movement into or within the area and rolled once per 5 feet by hand. Core
+ * splits a movement that crosses the boundary into a move-in segment and a move-within one, so
+ * listening for both cards the entering movement twice; move-within alone covers it.
+ */
+export function movementBehavior(excludeSelf = false): I5eActivityBehavior {
+  return DDBEnricherData.BehaviorHelper.activity({
+    events: MOVEMENT_EVENTS,
+    activityName: MOVEMENT_DAMAGE,
+    oncePerTurn: false,
+    ...(excludeSelf ? { excludeSelf: true } : {}),
+  });
+}
+
+/** The roll `movementBehavior` fires; `damageParts` picks the DDB part when the spell has several. */
+export function movementDamage(dice: string, damageParts?: number[]): IDDBAdditionalActivity {
+  return ongoingTrigger({
+    name: MOVEMENT_DAMAGE,
+    condition: `Moves into or within the area (${dice} for every 5 feet moved)`,
+    noSave: true,
+    damageParts,
+  });
 }

@@ -326,7 +326,7 @@ describe("region behavior spells", () => {
     const e = build(SpellEnrichers.SpikeGrowth);
     expect(e.type).toBe("utility");
     const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
-    expect(macro.config.events).toEqual(["tokenMoveIn", "tokenMoveWithin"]);
+    expect(macro.config.events).toEqual(["tokenMoveWithin"]);
     expect(macro.config.args.activityName).toBe("Movement Damage");
     expect(macro.config.oncePerTurn).toBe(false);
     const damage = e.additionalActivities.find((a: any) => a.init.name === "Movement Damage");

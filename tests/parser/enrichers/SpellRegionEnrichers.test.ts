@@ -62,6 +62,16 @@ const REGION_SPELLS: [string, TEnricher][] = [
   ["VenomousAura", SpellEnrichers.VenomousAura],
   ["WallOfDeath", SpellEnrichers.WallOfDeath],
   ["Whiteout", SpellEnrichers.Whiteout],
+  // the tail: attacks offered by a region, and damage per 5 feet moved
+  ["ArcanomagneticRepulsion", SpellEnrichers.ArcanomagneticRepulsion],
+  ["ForestGuard", SpellEnrichers.ForestGuard],
+  ["ForestOfDread", SpellEnrichers.ForestOfDread],
+  ["FreezingFog", SpellEnrichers.FreezingFog],
+  ["GravityRepulsion", SpellEnrichers.GravityRepulsion],
+  ["ShapePlants", SpellEnrichers.ShapePlants],
+  ["SkeletalTail", SpellEnrichers.SkeletalTail],
+  ["ValhallasCohort", SpellEnrichers.ValhallasCohort],
+  ["WallOfGloom", SpellEnrichers.WallOfGloom],
 ];
 
 function build(Enricher: TEnricher, options: Record<string, any> = {}): any {
@@ -377,5 +387,123 @@ describe("effects applied by a trigger", () => {
     expect(effect.changes[0].value).toBe("@attributes.spell.mod");
     expect(effect.changes[0].conditions).toBeTruthy();
     expect(build(SpellEnrichers.OdeToWrath).activity.data.target.affects.type).toBe("ally");
+  });
+});
+
+describe("damage for every 5 feet moved", () => {
+  it.each([
+    ["FreezingFog", SpellEnrichers.FreezingFog, true, undefined],
+    ["ForestOfDread", SpellEnrichers.ForestOfDread, true, [1]],
+    ["ShapePlants", SpellEnrichers.ShapePlants, false, undefined],
+  ] as [string, TEnricher, boolean, number[] | undefined][])("%s offers a free damage roll on every movement in or within the area", (_label, Enricher, casterImmune, parts) => {
+    const e = build(Enricher);
+    const movement = macros(named(e, "Cast")).find((behavior) => behavior.config.args.activityName === "Movement Damage");
+    expect(movement.config.events).toEqual(["tokenMoveWithin"]);
+    // per 5 feet, so not capped at once a turn
+    expect(movement.config.oncePerTurn).toBe(false);
+    expect(Boolean(movement.config.excludeSelf)).toBe(casterImmune);
+    const roll = e.additionalActivities.find((a: any) => a.init?.name === "Movement Damage");
+    expect(roll.init.type).toBe("damage");
+    expect(roll.build).toMatchObject({ generateSave: false, generateDamage: true, noSpellslot: true });
+    expect(roll.build.partialDamageParts).toEqual(parts);
+  });
+
+  it("Freezing Fog supplies the sphere DDB leaves out and slows from the save, not the movement", () => {
+    const e = build(SpellEnrichers.FreezingFog);
+    const cast = named(e, "Cast");
+    expect(cast.data.target.template).toMatchObject({ type: "sphere", size: "20" });
+    expect(behaviorsOf(cast).map((behavior) => behavior.type)).toEqual(["difficultTerrain", "ddbMacro", "ddbMacro"]);
+    expect(macros(cast)[0].config).toMatchObject({ events: ["tokenMoveIn", "tokenTurnStart"], excludeSelf: true });
+    expect(e.additionalActivities[0].build).toMatchObject({ generateSave: true, generateDamage: false });
+    expect(e.effects[0]).toMatchObject({ activityMatch: "Ongoing Save", options: { expiry: "targetEnd" } });
+  });
+
+  it("Forest of Dread keeps the save as the cast, with DDB's first damage part only", () => {
+    const e = build(SpellEnrichers.ForestOfDread);
+    expect(e.type).toBeNull();
+    expect(e.activity.removeDamageParts).toBe(true);
+    expect(e.activity.damageParts).toHaveLength(1);
+    // DDB's cylinder is kept: it is centred on the caster but must not follow them
+    expect(e.activity.data.target).toBeUndefined();
+    expect(e.effects[0]).toMatchObject({ standalone: true, statuses: ["coverHalf"] });
+  });
+
+  it("Shape Plants grows with the slot and lasts the hour DDB omits", () => {
+    const cast = named(build(SpellEnrichers.ShapePlants), "Cast");
+    expect(cast.data.target.template).toMatchObject({ type: "cube", size: "5 * @scaling" });
+    expect(cast.data.duration).toMatchObject({ value: "1", units: "hour" });
+    expect(behaviorsOf(cast)[0]).toMatchObject({ type: "difficultTerrain", config: { types: ["plants"] } });
+  });
+});
+
+describe("attacks offered by a region", () => {
+  it.each([
+    ["ForestGuard", SpellEnrichers.ForestGuard, "Leaf Attack", ["tokenEnter", "tokenTurnStart"], "special", { type: "square", size: "25" }],
+    ["SkeletalTail", SpellEnrichers.SkeletalTail, "Tail Strike", ["tokenMoveWithin"], "reaction", { type: "radius", size: "15" }],
+    ["ValhallasCohort", SpellEnrichers.ValhallasCohort, "Cohort Attack", ["tokenEnter"], "special", { type: "square", size: "25" }],
+  ] as [string, TEnricher, string, string[], string, Record<string, string>][])("%s casts as a utility and offers a free attack", (_label, Enricher, name, events, activation, template) => {
+    const e = build(Enricher);
+    expect(e.type).toBe("utility");
+    const cast = named(e, "Cast");
+    expect(cast.data.target).toMatchObject({ affects: { type: "enemy" }, template });
+    expect(macros(cast)[0].config).toMatchObject({ events, args: { activityName: name } });
+    const [attack] = e.additionalActivities;
+    expect(attack.init).toEqual({ name, type: "attack" });
+    expect(attack.build).toMatchObject({
+      generateAttack: true, generateDamage: true, generateConsumption: false, noSpellslot: true,
+      activationOverride: { type: activation }, targetOverride: { affects: { count: "1", type: "enemy" } },
+    });
+    expect(attack.overrides.noTemplate).toBe(true);
+  });
+
+  it("Skeletal Tail never offers the strike against the caster", () => {
+    expect(macros(named(build(SpellEnrichers.SkeletalTail), "Cast"))[0].config.excludeSelf).toBe(true);
+  });
+});
+
+describe("repulsion emanations", () => {
+  it.each([
+    ["GravityRepulsion", SpellEnrichers.GravityRepulsion, "Gravity Pulse"],
+    ["ArcanomagneticRepulsion", SpellEnrichers.ArcanomagneticRepulsion, "Magnetic Pulse"],
+  ] as [string, TEnricher, string][])("%s is enemy terrain that widens with the slot, with a bonus action pulse", (_label, Enricher, pulse) => {
+    const e = build(Enricher);
+    const cast = named(e, "Cast");
+    expect(cast.data.target).toMatchObject({ affects: { type: "enemy" }, template: { type: "radius", size: "20 + 5 * @scaling.increase" } });
+    expect(behaviorsOf(cast).map((behavior) => behavior.type)).toEqual(["difficultTerrain"]);
+    const [save] = e.additionalActivities;
+    expect(save.init).toEqual({ name: pulse, type: "save" });
+    expect(save.build).toMatchObject({
+      noSpellslot: true, activationOverride: { type: "bonus" },
+      rangeOverride: { value: "20 + 5 * @scaling.increase", units: "ft" },
+    });
+    // no damage on a success
+    expect(save.overrides.data.damage.onSave).toBe("none");
+  });
+
+  it("Gravity Repulsion links Prone to the pulse and keeps its ranged Disadvantage to midi", () => {
+    const e = build(SpellEnrichers.GravityRepulsion);
+    expect(e.clearAutoEffects).toBe(true);
+    expect(e.activity.noeffect).toBe(false);
+    const [prone, self] = e.effects;
+    expect(prone).toMatchObject({ activityMatch: "Gravity Pulse", statuses: ["Prone"] });
+    expect(self).toMatchObject({ activityMatch: "Cast", midiOnly: true });
+    expect(self.changes ?? []).toEqual([]);
+  });
+});
+
+describe("Wall of Gloom", () => {
+  it("fires the wall's own save and leaves the 20-foot band to a save used by hand", () => {
+    const e = build(SpellEnrichers.WallOfGloom);
+    const cast = named(e, "Cast");
+    // DDB's wall template is kept
+    expect(cast.data.target).toBeUndefined();
+    expect(macros(cast)).toHaveLength(1);
+    expect(macros(cast)[0].config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], args: { activityName: "Wall Save" } });
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Wall Save", "Nearby Save"]);
+    for (const extra of e.additionalActivities) expect(extra.build).toMatchObject({ generateSave: true, generateDamage: false });
+    expect(e.effects.map((effect: any) => [effect.name, effect.activityMatch])).toEqual([
+      ["Wall of Gloom: Exhaustion", "Wall Save"],
+      ["Incapacitated", "Nearby Save"],
+    ]);
   });
 });

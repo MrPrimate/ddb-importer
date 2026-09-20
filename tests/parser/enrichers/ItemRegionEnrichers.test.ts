@@ -61,6 +61,9 @@ const REGION_ITEMS: [string, TEnricher][] = [
   ["WandOfTheFrostrose", ItemEnrichers.WandOfTheFrostrose],
   ["WarOil", ItemEnrichers.WarOil],
   ["WeaponOfGrass", ItemEnrichers.WeaponOfGrass],
+  // damage per 5 feet moved
+  ["FesterwoodFungalStave", ItemEnrichers.FesterwoodFungalStave],
+  ["TheRoseBasket", ItemEnrichers.TheRoseBasket],
 ];
 
 /** Every property the text-gated enrichers look for, so each builds its full activity set. */
@@ -424,6 +427,45 @@ describe("difficult terrain only", () => {
     // the body is another creature's, so the area is dropped on it and stays put
     expect(named(e, "Sacrificial Flame").template).toMatchObject({ type: "circle", size: "10" });
     expect(named(e, "Sacrificial Flame Damage").affects).toBe("enemy");
+  });
+});
+
+describe("damage for every 5 feet moved", () => {
+  it.each([
+    ["FesterwoodFungalStave", ItemEnrichers.FesterwoodFungalStave, "Noxious Mushrooms", "Mushroom Damage", "poison", false],
+    ["TheRoseBasket", ItemEnrichers.TheRoseBasket, "Field of Roses", "Rose Thorns", "piercing", true],
+  ] as [string, TEnricher, string, string, string, boolean][])("%s offers a free 2d4 on every movement in or within the area", (_label, Enricher, placer, trigger, type, ownerImmune) => {
+    const e = build(Enricher);
+    const behaviors = behaviorsOf(named(e, placer));
+    expect(behaviors[0]).toMatchObject({ type: "difficultTerrain", config: { types: ["plants"] } });
+    expect(macro(named(e, placer)).config).toMatchObject({
+      events: ["tokenMoveWithin"], oncePerTurn: false, args: { activityName: trigger },
+    });
+    expect(Boolean(macro(named(e, placer)).config.excludeSelf)).toBe(ownerImmune);
+    const roll = e.additionalActivities.find((a: any) => a.init.name === trigger);
+    expect(roll.init.type).toBe("damage");
+    expect(roll.build.damageParts[0]).toMatchObject({ number: 2, denomination: 4, types: [type] });
+  });
+
+  it("Festerwood Fungal Stave covers one square per charge and takes the poison off the weapon attack", () => {
+    const e = build(ItemEnrichers.FesterwoodFungalStave);
+    expect(e.activity.removeDamageParts).toBe(true);
+    const placer = e.additionalActivities[0];
+    expect(placer.build.targetOverride.template).toMatchObject({ type: "square", size: "5", count: "@scaling" });
+    expect(placer.build.rangeOverride).toMatchObject({ value: "60", units: "ft" });
+    expect(placer.overrides).toMatchObject({ addItemConsume: true, addScalingMode: "amount", addConsumptionScalingMax: "@item.uses.value" });
+  });
+
+  it("The Rose Basket drops the parser's thorn attack, rebuilds the radiant rider and spends its daily use on the field only", () => {
+    const e = build(ItemEnrichers.TheRoseBasket);
+    expect(e.addAutoAdditionalActivities).toBe(false);
+    const [rider, field] = e.additionalActivities;
+    expect(rider.init.type).toBe("attack");
+    expect(rider.build).toMatchObject({ generateAttack: true, includeBaseDamage: true });
+    expect(rider.build.damageParts[0]).toMatchObject({ number: 1, denomination: 8, types: ["radiant"] });
+    expect(rider.overrides.noConsumeTargets).toBe(true);
+    expect(field.overrides.addItemConsume).toBe(true);
+    expect(field.build.targetOverride.template).toMatchObject({ type: "square", size: "25" });
   });
 });
 
