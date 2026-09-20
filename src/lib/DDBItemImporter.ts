@@ -227,6 +227,18 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
   }
 
+  static ACTOR_TYPES: readonly string[] = ["character", "npc", "vehicle"];
+
+  /**
+   * The importer also handles actor and roll table data; only item documents
+   * carry activities and the standalone effect stash.
+   */
+  static isItemDocument(document: TDDBItemImporterDocument): document is TAll5eItemDocuments {
+    return "system" in document
+      && typeof document.type === "string"
+      && !DDBItemImporter.ACTOR_TYPES.includes(document.type);
+  }
+
   /**
    * Copy activity level uses.spent over from the previously imported document.
    *
@@ -614,7 +626,9 @@ ${item.system.description.chat}
       return item;
     });
 
-    await DDBEffectImporter.importStandaloneEffects(inputItems);
+    // widened from TType so the guard's predicate can narrow the array
+    const importDocuments: TDDBItemImporterDocument[] = inputItems;
+    await DDBEffectImporter.importStandaloneEffects(importDocuments.filter(DDBItemImporter.isItemDocument));
 
     let results: TImportedDocumentResult[] = [];
     // update existing items

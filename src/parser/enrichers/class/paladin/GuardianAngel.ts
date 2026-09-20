@@ -7,7 +7,8 @@ import { regionPlacer } from "../../data/RegionBuilders";
  * which chosen creatures can use the paladin's AC. The effect adds the paladin's AC as one more
  * AC formula on the ally, resolved against the paladin when the region applies it, and dnd5e
  * takes the highest formula, so an ally with better AC keeps its own. "Creatures of your choice"
- * becomes allies.
+ * becomes allies. An ally whose AC is flat or overridden gains nothing: dnd5e lets those bypass
+ * every formula, which covers most monsters imported as allies but not player characters.
  */
 export default class GuardianAngel extends DDBEnricherData {
 

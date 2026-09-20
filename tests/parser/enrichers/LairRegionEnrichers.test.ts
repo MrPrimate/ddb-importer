@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /**
  * Pins for the two monster-side region enrichers from the 2026-09 backlog: the generic lair
  * actions enricher, which reads difficult-terrain areas out of a lair's option list, and the
@@ -38,6 +39,7 @@ describe("LairActions.parseZones", () => {
       range: "120",
       duration: { value: "1", units: "round" },
       terrain: [],
+      trigger: null,
     });
   });
 
@@ -108,16 +110,55 @@ describe("LairActions.parseZones", () => {
   });
 });
 
+describe("LairActions.parseTrigger", () => {
+  it("reads a save with damage from the trigger's own sentence", () => {
+    const trigger = LairActions.parseTrigger("A storm fills a 30-foot cube within 120 feet. Creatures who enter the storm for the first time on a turn or start their turn there must succeed on a DC 18 Dexterity saving throw or take 10 (3d6) cold damage.");
+    expect(trigger).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], save: { ability: ["dex"], dc: "18" }, onSave: "none", status: null });
+    expect(trigger?.damageParts).toHaveLength(1);
+    expect(trigger?.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["cold"] });
+  });
+
+  // The option rolls a save as the area appears; the later turn costs damage with no save at all.
+  it("does not borrow the appearing save for a trigger that just deals damage", () => {
+    const trigger = LairActions.parseTrigger("A cloud fills a 20-foot-radius sphere within 120 feet. Any creature in the cloud when it appears must make a DC 15 Constitution saving throw, taking 10 (3d6) piercing damage on a failed save, or half as much damage on a successful one. A creature that ends its turn in the cloud takes 10 (3d6) piercing damage.");
+    expect(trigger).toMatchObject({ events: ["tokenTurnEnd"], save: null });
+    expect(trigger?.damageParts).toHaveLength(1);
+  });
+
+  it("borrows the option's save and damage when the trigger only restates it", () => {
+    const trigger = LairActions.parseTrigger("A 30-foot-radius sphere of wasps appears within 300 feet. When the sphere appears, each creature in it must make a DC 20 Constitution saving throw, taking 16 (3d10) piercing damage on a failed save, or half as much damage on a successful one. A creature must also make this saving throw when it enters the sphere for the first time on a turn or starts its turn there.");
+    expect(trigger).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], save: { ability: ["con"], dc: "20" }, onSave: "half" });
+    expect(trigger?.damageParts).toHaveLength(1);
+  });
+
+  it("takes the first condition named, not one that only qualifies it", () => {
+    const trigger = LairActions.parseTrigger("Gases form a cloud in a 20-foot-radius sphere within 120 feet. Each creature that starts its turn in the cloud must succeed on a DC 13 Constitution saving throw or be poisoned until the end of its turn. While poisoned in this way, a creature is incapacitated.");
+    expect(trigger).toMatchObject({ events: ["tokenTurnStart"], status: "Poisoned", save: { ability: ["con"], dc: "13" } });
+    expect(trigger?.damageParts).toEqual([]);
+  });
+
+  it("reads a condition with no save as an effect-only trigger, and spares the monster when told to", () => {
+    const trigger = LairActions.parseTrigger("A 20-foot square within 120 feet turns to quicksand. Creatures other than the monster who start their turn in that area or enter it become restrained.");
+    expect(trigger).toMatchObject({ save: null, status: "Restrained", excludeSelf: true });
+  });
+
+  it("ignores damage that is a cost of moving through, and options that act only once", () => {
+    expect(LairActions.parseTrigger("Spikes grow in a 20-foot-radius area within 60 feet. A creature that moves through the area takes 1d8 piercing damage for every 5 feet it moves there.")).toBeNull();
+    expect(LairActions.parseTrigger("Each creature in a 20-foot radius within 120 feet must succeed on a DC 15 Strength saving throw or be restrained.")).toBeNull();
+  });
+});
+
 describe("LairActions enricher", () => {
   const e = lair(li(
-    "Hailstorm. A storm fills a 30-foot cube centered on a point within 120 feet. It lasts until the end of initiative count 20 on the next round. Its area is difficult terrain, and creatures who enter it must succeed on a DC 18 Dexterity saving throw.",
+    "Hailstorm. A storm fills a 30-foot cube centered on a point within 120 feet. It lasts until the end of initiative count 20 on the next round. Its area is difficult terrain, and creatures who enter it or start their turn there must succeed on a DC 18 Dexterity saving throw or be blinded until the end of its next turn.",
     "The monster casts a spell.",
+    "A 50-foot square area of ground within 120 feet becomes slimy; that area is difficult terrain until initiative count 20 on the next round.",
   ));
+  const [placer, fired, terrainOnly] = e.additionalActivities;
 
-  it("adds one lair-activation placer per shaped option, carrying only difficult terrain", () => {
-    expect(e.additionalActivities).toHaveLength(1);
-    const [placer] = e.additionalActivities;
-    expect(placer.init).toMatchObject({ name: "Lair Terrain: Hailstorm", type: "utility" });
+  it("adds a lair-activation placer per shaped option, and the trigger it fires", () => {
+    expect(e.additionalActivities).toHaveLength(3);
+    expect(placer.init).toMatchObject({ name: "Lair Area: Hailstorm", type: "utility" });
     expect(placer.build).toMatchObject({
       activationOverride: { type: "lair" },
       targetOverride: { affects: { type: "creature" }, template: { type: "cube", size: "30" } },
@@ -125,18 +166,51 @@ describe("LairActions enricher", () => {
       durationOverride: { value: "1", units: "round" },
       generateConsumption: false,
     });
-    expect(placer.overrides.data.behaviors).toHaveLength(1);
-    expect(placer.overrides.data.behaviors[0]).toMatchObject({ type: "difficultTerrain", config: { types: ["ice"] } });
+    const [terrain, trigger] = placer.overrides.data.behaviors;
+    expect(terrain).toMatchObject({ type: "difficultTerrain", config: { types: ["ice"] } });
+    expect(trigger.config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], args: { activityName: "Hailstorm Save" } });
+    expect(trigger.config.args.autoRoll).toBeUndefined();
   });
 
-  it("keeps the saves the parser builds from the same list beside its placers", () => {
+  it("builds the trigger as a free save named after the option", () => {
+    expect(fired.init).toMatchObject({ name: "Hailstorm Save", type: "save" });
+    expect(fired.build).toMatchObject({
+      saveOverride: { ability: ["dex"], dc: { formula: "18" } },
+      activationOverride: { type: "special" },
+      generateConsumption: false,
+    });
+  });
+
+  // An activity with no effect links of its own picks up every unmatched effect the parser made
+  // for the other options of the lair, so each trigger links its own or opts out.
+  it("links the trigger to its own effect only, by a shared id", () => {
+    const [hint] = e.effects;
+    expect(hint).toMatchObject({ name: "Hailstorm: Blinded", activityMatch: "Hailstorm Save", statuses: ["Blinded"], options: { transfer: false, expiry: "targetEnd" } });
+    expect(fired.overrides.data.effects).toEqual([expect.objectContaining({ _id: hint.data._id })]);
+    expect(hint.data._id).toMatch(/^[A-Za-z0-9]{16}$/);
+  });
+
+  it("keeps a terrain-only option as a terrain placer with nothing to fire", () => {
+    expect(terrainOnly.init.name).toBe("Lair Terrain: Slime");
+    expect(terrainOnly.overrides.data.behaviors.map((behavior: any) => behavior.type)).toEqual(["difficultTerrain"]);
+  });
+
+  it("opts a trigger with nothing to apply out of effect links altogether", () => {
+    const plain = lair(li("A cloud fills a 20-foot-radius sphere within 120 feet. A creature that ends its turn in the cloud takes 10 (3d6) piercing damage."));
+    const [, damage] = plain.additionalActivities;
+    expect(damage.init).toMatchObject({ name: "Cloud Damage", type: "damage" });
+    expect(damage.overrides.noeffect).toBe(true);
+    expect(plain.effects).toEqual([]);
+  });
+
+  it("keeps the saves the parser builds from the same list beside its own", () => {
     expect(e.keepParsedActivities).toBe(true);
     // and leaves the parsed primary alone
     expect(e.type).toBeNull();
     expect(e.activity).toBeNull();
   });
 
-  it("adds nothing to a lair with no shaped terrain, so that lair parses exactly as before", () => {
+  it("adds nothing to a lair with no shaped area, so that lair parses exactly as before", () => {
     expect(lair(li("Each creature within 60 feet must succeed on a DC 15 Wisdom saving throw.")).additionalActivities).toEqual([]);
   });
 });
@@ -150,15 +224,23 @@ describe("Weight of Wings", () => {
     expect(e.type).toBeNull();
   });
 
-  it("halves Speed while inside and re-fires its own save at turn start, never at the swarm", () => {
-    const [slow, save] = e.activity.data.behaviors;
-    expect(slow).toMatchObject({ type: "applyActiveEffect", config: { effects: ["Weight of Wings: Speed Halved"] } });
-    expect(save.config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
-    expect(save.config.args.activityName).toBeUndefined();
+  it("re-fires its own save at turn start, never at the swarm", () => {
+    const behaviors = e.activity.data.behaviors;
+    expect(behaviors).toHaveLength(1);
+    expect(behaviors[0].config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
+    expect(behaviors[0].config.args.activityName).toBeUndefined();
+  });
+
+  // The swarm always stands in its own space and the native apply-effect behavior cannot skip the
+  // token a region comes from: seen live, an effect applied while inside halved the swarm's own
+  // Speed. So the effect rides on the save, which the region never fires at the swarm.
+  it("halves Speed from the save, on a success too, and applies nothing while merely inside", () => {
+    expect(e.activity.data.behaviors.some((behavior: any) => behavior.type === "applyActiveEffect")).toBe(false);
     expect(e.effects[0]).toMatchObject({
       name: "Weight of Wings: Speed Halved",
-      standalone: true,
-      options: { expiry: null, durationSeconds: null },
+      onSave: true,
+      options: { transfer: false, expiry: null, durationSeconds: null },
     });
+    expect(e.effects[0].standalone).toBeUndefined();
   });
 });

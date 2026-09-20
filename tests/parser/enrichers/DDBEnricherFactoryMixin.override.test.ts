@@ -1274,3 +1274,34 @@ describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
     expect(copied).not.toBe(source);
   });
 });
+
+// =============================================================================
+// _keepRegionPlacingDocument
+// =============================================================================
+describe("DDBEnricherFactoryMixin._keepRegionPlacingDocument", () => {
+  // Seen live: a potion with one use deleted itself as it was drunk, dnd5e's createRegion hook then
+  // found no activity behind the region's uuid, and the region was placed with no behaviors.
+  const placer = { behaviors: [{ type: "difficultTerrain", config: { types: [] } }] };
+
+  it("stops a consumable that places region behaviors from destroying itself", async () => {
+    const e = makeEnricher({
+      document: makeDocument({ system: { uses: { max: "1", spent: 0, autoDestroy: true }, activities: { a1: placer } } }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses.autoDestroy).toBe(false);
+  });
+
+  it("leaves a consumable with no region behaviors to destroy itself as before", async () => {
+    const e = makeEnricher({
+      document: makeDocument({ system: { uses: { max: "1", spent: 0, autoDestroy: true }, activities: { a1: { behaviors: [] }, a2: {} } } }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses.autoDestroy).toBe(true);
+  });
+
+  it("does not switch auto-destroy on, or add uses, where there were none", async () => {
+    const e = makeEnricher({ document: makeDocument({ system: { activities: { a1: placer } } }) });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses?.autoDestroy).toBeUndefined();
+  });
+});

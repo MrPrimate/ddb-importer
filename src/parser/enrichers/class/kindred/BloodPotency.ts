@@ -4,6 +4,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Blood Potency is the Kindred's resource pool (Blood Points, scaling 1-11).
  * Points are regained by feeding, not by resting, so no recovery is set.
  * The spender actions are pulled on as activities consuming this pool.
+ * Feats that raise the maximum (Boon of Generations, Vitae Concentration) do so
+ * with an effect on the scale value, so the pool stays the bare scale.
  */
 export default class BloodPotency extends DDBEnricherData {
 

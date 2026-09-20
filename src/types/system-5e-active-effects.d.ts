@@ -151,6 +151,8 @@ global {
     transfer?: boolean;
     disabled?: boolean;
     showIcon?: TEffectShowIcon;
+    /** Compendium folder id, only set on standalone effects bound for the effects compendium. */
+    folder?: string | null;
     flags?: {
       auraeffects?: IDDBAuraEffects;
       dae?: {
@@ -196,6 +198,8 @@ global {
         };
         // [key: string]: any;
         spellLevel?: number;
+        /** Profile id of the enchant activity profile that applied this enchantment. */
+        enchantmentProfile?: string;
       };
       "midi-qol"?: {
         forceCEOff?: boolean;

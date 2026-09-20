@@ -233,7 +233,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   override _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null }) {
     this.buildData.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
-      ability: this.actionData.ability,
+      ability: this.actionData.ability ?? "",
       dc: {},
     };
   }

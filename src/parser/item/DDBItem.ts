@@ -83,6 +83,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static POTIONS = DICTIONARY.equipment.POTIONS;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
+  /** The rolled item's own magical bonus; activity formulas resolve it live, enchantments included. */
+  static MAGICAL_BONUS_REF = "@item.magicalBonus";
+
   /** Alternation of the six ability long names, for the save-parsing regexes. */
   static SAVE_ABILITY_NAMES = DDBDescriptions.SAVE_ABILITY_NAMES;
 
@@ -1709,18 +1712,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           this.addMagical = true;
           // dnd5e only applies system.magicalBonus to a weapon's *base* damage
           // part, and a firearm deliberately has none, so fold it into the
-          // part the activity actually rolls. Known limitation: unlike
-          // dnd5e's own handling this isn't gated on `magicAvailable`, so an
-          // unattuned magical firearm still adds it to damage. Attack rolls are
-          // unaffected, they read system.magicalBonus directly.
+          // part the activity actually rolls. It is a reference rather than
+          // the number so an enchantment raising the bonus (Magic Weapon) is
+          // rolled too. Known limitation: unlike dnd5e's own handling this
+          // isn't gated on `magicAvailable`, so an unattuned magical firearm
+          // still adds it to damage. Attack rolls are unaffected, they read
+          // system.magicalBonus directly.
           if (this.isFirearm && this.damageParts.length > 0) {
             const damagePart = this.damageParts[0];
             if (damagePart.custom?.enabled) {
-              damagePart.custom.formula = `${damagePart.custom.formula} + ${magicalBonus}`;
+              damagePart.custom.formula = `${damagePart.custom.formula} + ${DDBItem.MAGICAL_BONUS_REF}`;
             } else {
               damagePart.bonus = damagePart.bonus
-                ? `${damagePart.bonus} + ${magicalBonus}`
-                : `${magicalBonus}`;
+                ? `${damagePart.bonus} + ${DDBItem.MAGICAL_BONUS_REF}`
+                : DDBItem.MAGICAL_BONUS_REF;
             }
           }
         }

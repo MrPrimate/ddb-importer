@@ -8,9 +8,13 @@ import { emanation } from "../../data/RegionBuilders";
  *
  * dnd5e reads a template size of 0 as no size at all, so the space is a 1-foot emanation around
  * the swarm's footprint. A token sharing the swarm's space has its centre inside that; a token in
- * the next square has its centre 2.5 feet out and does not. Both effects end once the creature
- * ends a turn outside the space: the halved Speed is held only while inside, and ending the
- * Blinded condition is left to the table, as is the 24 hours of immunity a success gives.
+ * the next square has its centre 2.5 feet out and does not.
+ *
+ * The halved Speed rides on the save, linked to apply on a success as well as a failure, and not
+ * on an effect the region applies while inside: the swarm always stands in its own space and that
+ * behavior cannot skip the token the region comes from, so the swarm would halve its own Speed.
+ * Both effects end once the creature ends a turn outside the space, which is left to the table,
+ * as is the 24 hours of immunity a success gives.
  */
 export default class WeightOfWings extends DDBEnricherData {
 
@@ -20,7 +24,6 @@ export default class WeightOfWings extends DDBEnricherData {
       data: {
         target: emanation("1"),
         behaviors: [
-          DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Weight of Wings: Speed Halved" }),
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenTurnStart"],
             // the swarm does not save against its own wings
@@ -35,10 +38,15 @@ export default class WeightOfWings extends DDBEnricherData {
     return [
       {
         name: "Weight of Wings: Speed Halved",
-        standalone: true,
+        // the Speed is halved whether or not the creature saves
+        onSave: true,
         changes: [DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 50)],
-        // held only while inside: the region removes it on exit, so it carries no expiry of its own
-        options: { expiry: null, durationSeconds: null, description: "Speed halved while in the swarm's space." },
+        options: {
+          transfer: false,
+          durationSeconds: null,
+          expiry: null,
+          description: "Speed halved. Ends when the creature ends its turn outside the swarm's space.",
+        },
       },
     ];
   }

@@ -1036,7 +1036,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
             "associated": [
               "inv",
             ],
-            "ability": [],
+            "ability": "",
             "dc": {
               "calculation": "spellcasting",
               "formula": "",

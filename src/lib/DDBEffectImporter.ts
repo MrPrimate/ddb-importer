@@ -14,22 +14,20 @@ import utils from "./Utils";
  */
 export default class DDBEffectImporter {
 
-  static FLAG_PATH = "flags.ddbimporter.standaloneEffects";
-
   static standaloneEffectId(documentName: string, effectName: string): string {
     return utils.namedIDStub(`${documentName} ${effectName}`, { prefix: "ddb" });
   }
 
-  static INVENTORY_TYPES = DICTIONARY.types.inventory;
+  static INVENTORY_TYPES: readonly string[] = DICTIONARY.types.inventory;
 
   /** Classify the declaring document for the effects compendium folder tree (see DDBCompendiumFolders.EFFECT_PARENT_TYPE_FOLDERS). */
-  static parentType(document: Record<string, any>): string {
+  static parentType(document: TAll5eItemDocuments): string {
     if (document.type === "spell") return "spell";
     if (document.type === "background") return "background";
-    if (foundry.utils.hasProperty(document, "flags.monsterMunch")) return "monsterFeature";
+    if ("monsterMunch" in (document.flags ?? {})) return "monsterFeature";
     if (DDBEffectImporter.INVENTORY_TYPES.includes(document.type)) return "item";
     if (document.type === "feat") {
-      switch (foundry.utils.getProperty(document, "flags.ddbimporter.type")) {
+      switch (document.flags?.ddbimporter?.type) {
         case "class":
         case "subclass":
           return "classFeature";
@@ -45,12 +43,12 @@ export default class DDBEffectImporter {
     return "other";
   }
 
-  static parentInfo(document: Record<string, any>): IDDBStandaloneEffectParent {
+  static parentInfo(document: TAll5eItemDocuments): IDDBStandaloneEffectParent {
     return {
       name: document.name,
       type: DDBEffectImporter.parentType(document),
-      bookCode: (foundry.utils.getProperty(document, "system.source.book") as string | undefined) ?? null,
-      isLegacy: foundry.utils.getProperty(document, "flags.ddbimporter.legacy") === true,
+      bookCode: document.system?.source?.book ?? null,
+      isLegacy: document.flags?.ddbimporter?.legacy === true,
     };
   }
 
@@ -59,13 +57,15 @@ export default class DDBEffectImporter {
    * replaces or merges documents (choice features into parents, actions over
    * features); ids are deterministic so duplicates are dropped.
    */
-  static mergeStandaloneEffects(target: Record<string, any>, source: Record<string, any>): void {
-    const sourceEffects = (foundry.utils.getProperty(source, DDBEffectImporter.FLAG_PATH) ?? []) as I5eEffectData[];
+  static mergeStandaloneEffects(target: TAll5eItemDocuments, source: TAll5eItemDocuments): void {
+    const sourceEffects = source.flags?.ddbimporter?.standaloneEffects ?? [];
     if (sourceEffects.length === 0) return;
-    const targetEffects = (foundry.utils.getProperty(target, DDBEffectImporter.FLAG_PATH) ?? []) as I5eEffectData[];
+    target.flags ??= {};
+    target.flags.ddbimporter ??= {};
+    const targetEffects = target.flags.ddbimporter.standaloneEffects ?? [];
     const existingIds = new Set(targetEffects.map((effect) => effect._id));
     targetEffects.push(...sourceEffects.filter((effect) => !existingIds.has(effect._id)));
-    foundry.utils.setProperty(target, DDBEffectImporter.FLAG_PATH, targetEffects);
+    target.flags.ddbimporter.standaloneEffects = targetEffects;
   }
 
   static effectUuid(effectId: string): string {
@@ -79,25 +79,30 @@ export default class DDBEffectImporter {
   /**
    * Point the origin at the compendium document now.
    */
-  static resolveStandaloneOrigins(document: Record<string, any>): void {
-    for (const effect of (document.effects ?? []) as I5eEffectData[]) {
-      const standaloneId = effect.flags?.ddbimporter?.standaloneOrigin;
+  static resolveStandaloneOrigins(document: TAll5eItemDocuments): void {
+    for (const effect of document.effects ?? []) {
+      const flags = effect.flags;
+      const ddbFlags = flags?.ddbimporter;
+      if (!flags || !ddbFlags) continue;
+      const standaloneId = ddbFlags.standaloneOrigin;
       if (standaloneId) {
         const uuid = DDBEffectImporter.effectUuid(standaloneId);
         effect.origin = uuid;
-        effect.system ??= {};
-        foundry.utils.setProperty(effect.system, "origin.effect", uuid);
-        delete effect.flags!.ddbimporter!.standaloneOrigin;
+        // only base and enchantment effects are applied from a compendium copy; the condition
+        // model has no origin field
+        const system = (effect.system ??= {}) as I5eEffectSystem;
+        system.origin = { ...system.origin, effect: uuid };
+        delete ddbFlags.standaloneOrigin;
       }
-      const enchantmentOrigin = effect.flags?.ddbimporter?.enchantmentOrigin;
+      const enchantmentOrigin = ddbFlags.enchantmentOrigin;
       if (enchantmentOrigin) {
         const uuid = DDBEffectImporter.enchantActivityUuid(enchantmentOrigin);
         effect.origin = uuid;
-        effect.system ??= {};
-        foundry.utils.setProperty(effect.system, "origin.activity", uuid);
-        foundry.utils.setProperty(effect.system, "origin.profile", enchantmentOrigin.profileId);
-        foundry.utils.setProperty(effect, "flags.dnd5e.enchantmentProfile", enchantmentOrigin.profileId);
-        delete effect.flags!.ddbimporter!.enchantmentOrigin;
+        const system = (effect.system ??= {}) as I5eEnchantmentEffectSystem;
+        system.origin = { ...system.origin, activity: uuid, profile: enchantmentOrigin.profileId };
+        flags.dnd5e ??= {};
+        flags.dnd5e.enchantmentProfile = enchantmentOrigin.profileId;
+        delete ddbFlags.enchantmentOrigin;
       }
     }
   }
@@ -107,25 +112,29 @@ export default class DDBEffectImporter {
    * applyActiveEffect behaviors at the compendium copies. Behaviors may name an
    * effect (resolved here) or already carry a full UUID (left alone).
    */
-  static extractStandaloneEffects(documents: Record<string, any>[]): I5eEffectData[] {
+  static extractStandaloneEffects(documents: TAll5eItemDocuments[]): I5eEffectData[] {
     const extracted = new Map<string, I5eEffectData>();
     for (const document of documents) {
       DDBEffectImporter.resolveStandaloneOrigins(document);
-      const effects = (foundry.utils.getProperty(document, DDBEffectImporter.FLAG_PATH) ?? []) as I5eEffectData[];
-      if (effects.length === 0) continue;
+      const ddbFlags = document.flags?.ddbimporter;
+      const effects = ddbFlags?.standaloneEffects ?? [];
+      if (!ddbFlags || effects.length === 0) continue;
       const byName = new Map(effects.map((effect) => [effect.name, effect]));
       const parent = DDBEffectImporter.parentInfo(document);
       for (const effect of effects) {
         if (!effect._id) continue;
+        effect.flags ??= {};
+        effect.flags.ddbimporter ??= {};
         // an effect shared by several documents names its own folder parent up front
-        if (!foundry.utils.hasProperty(effect, "flags.ddbimporter.parent")) {
-          foundry.utils.setProperty(effect, "flags.ddbimporter.parent", parent);
-        }
+        effect.flags.ddbimporter.parent ??= parent;
         extracted.set(effect._id, effect);
       }
 
-      const activities = document.system?.activities ?? {};
-      for (const activity of Object.values(activities) as I5eActivityBase[]) {
+      // class, subclass, species and background system data carry no activities
+      const activities = document.system && "activities" in document.system
+        ? document.system.activities ?? {}
+        : {};
+      for (const activity of Object.values(activities)) {
         for (const behavior of activity.behaviors ?? []) {
           if (behavior.type !== "applyActiveEffect") continue;
           const config = behavior.config as I5eActivityBehaviorApplyEffectConfig;
@@ -141,12 +150,12 @@ export default class DDBEffectImporter {
         }
       }
 
-      delete document.flags.ddbimporter.standaloneEffects;
+      delete ddbFlags.standaloneEffects;
     }
     return [...extracted.values()];
   }
 
-  static async importStandaloneEffects(documents: Record<string, any>[]): Promise<void> {
+  static async importStandaloneEffects(documents: TAll5eItemDocuments[]): Promise<void> {
     const effects = DDBEffectImporter.extractStandaloneEffects(documents);
     if (effects.length === 0) return;
     const compendium = CompendiumHelper.getCompendiumType("effects", false);
@@ -159,16 +168,16 @@ export default class DDBEffectImporter {
     await folders.loadCompendium("effects");
     for (const effect of effects) {
       const folder = await folders.createEffectFolder(effect);
-      (effect as I5eEffectData & { folder?: string }).folder = folder._id;
+      effect.folder = folder._id;
       // the effects compendium only holds ActiveEffects; narrowing here keeps `.update` from
       // resolving against the full compendium-document union (TS2590 in editor-order checks)
       const existing = effect._id
         ? (await compendium.getDocument(effect._id)) as ActiveEffect.Implementation | null
         : null;
       if (existing) {
-        await existing.update(effect as any);
+        await existing.update(effect as ActiveEffect.UpdateData);
       } else {
-        await ActiveEffect.create(effect as any, { pack, keepId: true });
+        await ActiveEffect.create(effect as ActiveEffect.CreateData, { pack, keepId: true });
       }
     }
     logger.debug(`Imported ${effects.length} standalone effects into ${pack}`);

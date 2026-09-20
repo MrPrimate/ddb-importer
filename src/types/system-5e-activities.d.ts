@@ -334,8 +334,8 @@ global {
   }
 
   interface I5eActivityCheck {
-    // dnd5e stores check.ability as a string, but some build paths supply arrays
-    ability?: string | string[];
+    /** A single StringField in dnd5e; blank lets an associated skill or tool supply the ability. */
+    ability?: string;
     associated?: string[];
     /** dnd5e 6.0 FormulaField - appended to the target's roll, resolved against the OWNING actor's roll data. */
     bonus?: string;

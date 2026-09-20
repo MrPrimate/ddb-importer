@@ -61,7 +61,7 @@ export default class GraspingArrow extends ArcaneShotOption {
               "associated": [
                 "ath",
               ],
-              "ability": ["str"],
+              "ability": "str",
               "dc": {
                 "calculation": "int",
                 "formula": "",

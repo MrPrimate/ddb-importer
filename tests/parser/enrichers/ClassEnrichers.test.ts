@@ -534,6 +534,16 @@ describe("kindred BloodPotency", () => {
       expect(activity.overrides).toEqual({ addItemConsume: true });
     }
   });
+
+  it("keeps the bare scale as the maximum when the character has the Blood Point feats", () => {
+    // the feats raise the scale value with an effect, so adding here would count them twice
+    const e = build(ClassEnrichers.Kindred.BloodPotency, {
+      character: {
+        feats: ["Boon of Generations", "Vitae Concentration"].map((name, id) => ({ definition: { id, name } })),
+      },
+    });
+    expect(e.override.data.system.uses.max).toBe("@scale.kindred.blood-points");
+  });
 });
 
 describe("Kindred class feature consumption targets", () => {

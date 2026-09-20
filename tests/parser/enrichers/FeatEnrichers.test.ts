@@ -263,3 +263,41 @@ describe("Squire of Solamnia Precise Strike", () => {
     expect(effect.midiChanges).toBeUndefined();
   });
 });
+
+/**
+ * The Blood Potency pool maximum is the bare Kindred scale, so these feats raise the scale value
+ * itself. A scale value is a plain number, changed before ability modifiers exist.
+ */
+describe("Kindred Blood Point maximum feats", () => {
+  const SCALE_KEY = "system.scale.kindred.blood-points.value";
+
+  it("adds Boon of Generations' flat 5 to the scale value", () => {
+    const effect = makeEnricherData(FeatEnrichers.BoonOfGenerations).effects[0];
+    expect(effect.options).toEqual({ transfer: true });
+    expect(effect.changes).toEqual([{ key: SCALE_KEY, value: "5", type: "add", priority: 20 }]);
+  });
+
+  it.each([
+    [3, "3"],
+    // minimum 1
+    [0, "1"],
+    [-1, "1"],
+  ])("writes a Constitution modifier of %i into Vitae Concentration as %s", (mod, value) => {
+    const enricher = makeEnricherData(FeatEnrichers.VitaeConcentration, {
+      ddbParser: { ddbCharacter: { abilities: { withEffects: { con: { mod } } } } },
+    });
+    // a literal: "@abilities.con.mod" and max() both cast to 0 on a numeric scale value
+    expect(enricher.effects[0].changes).toEqual([{ key: SCALE_KEY, value, type: "add", priority: 20 }]);
+  });
+
+  it.each([
+    ["BoonOfGenerations", FeatEnrichers.BoonOfGenerations],
+    ["VitaeConcentration", FeatEnrichers.VitaeConcentration],
+  ] as const)("%s clears the limited use DDB hangs the increase on", (_name, Enricher) => {
+    expect(makeEnricherData(Enricher).override.uses).toEqual({ spent: null, max: null, recovery: [] });
+  });
+
+  it("falls back to the minimum of 1 for a compendium build with no character", () => {
+    expect(makeEnricherData(FeatEnrichers.VitaeConcentration).effects[0].changes?.[0].value).toBe("1");
+  });
+});

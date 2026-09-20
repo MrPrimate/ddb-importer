@@ -1044,7 +1044,21 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     return this.data;
   }
 
+  /**
+   * A consumable that destroys itself on its last use is gone before dnd5e's createRegion hook
+   * looks its activity up by uuid: the region it placed gets no behaviors at all, and a save the
+   * region should fire later can never be found. A document that places region behaviors has to
+   * outlive the region, so it keeps itself at zero uses.
+   */
+  _keepRegionPlacingDocument(): void {
+    if (foundry.utils.getProperty(this.data, "system.uses.autoDestroy") !== true) return;
+    const activities = Object.values((foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>);
+    if (!activities.some((activity) => (activity.behaviors ?? []).length > 0)) return;
+    foundry.utils.setProperty(this.data, "system.uses.autoDestroy", false);
+  }
+
   async addDocumentOverride(): Promise<IEnricherItems> {
+    this._keepRegionPlacingDocument();
     const override = this.override;
 
     if (!override) return this.data;

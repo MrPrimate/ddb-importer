@@ -368,30 +368,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return result;
   }
 
+  /** A bare "escape DC N" names no ability, so the shared outline offers Acrobatics or Athletics. */
   _generateEscapeCheck(hit: string) {
     const escape = hit.match(/escape DC ([0-9]+)/);
-    if (escape) {
-      this.additionalActivities.push({
-        type: "check",
-        name: `Escape Check`,
-        options: {
-          generateCheck: true,
-          generateTarget: false,
-          generateRange: false,
-          checkOverride: {
-            "associated": [
-              "acr",
-              "ath",
-            ],
-            "ability": [],
-            "dc": {
-              "calculation": "",
-              "formula": escape[1],
-            },
-          },
-        },
-      });
-    }
+    if (escape) this.additionalActivities.push(DDBActivityFactoryMixin.escapeCheckOutline(escape[1]));
   }
 
   generateDamageInfo() {

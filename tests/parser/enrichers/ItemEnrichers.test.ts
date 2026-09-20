@@ -795,12 +795,83 @@ describe("PhoenixRocketSword", () => {
     expect(jet.init.name).toBe("Flame Jet");
     expect(jet.build.saveOverride.dc.formula).toBe("16");
     expect(jet.build.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["fire"], scaling: { mode: "whole", number: 1 } });
-    expect(jet.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "4" });
+    // the scaling max is the number of charges spent, capped by what the sword still holds
+    expect(jet.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "min(5, @item.uses.value)" });
 
     expect(rocket.init.name).toBe("Rocket");
     expect(rocket.build.saveOverride).toEqual({ ability: ["str"], dc: { calculation: "", formula: "11 + @scaling" } });
     expect(rocket.build.targetOverride.affects.type).toBe("self");
-    expect(rocket.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "4" });
+    expect(rocket.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "min(5, @item.uses.value)" });
+  });
+});
+
+describe("random-table items", () => {
+  const roll = (formula: string, name: string) => ({ formula, prompt: false, visible: true, name });
+
+  it.each([
+    ["CataclysmBolts", "1d6", "Cataclysm"],
+    ["FoolsLamp", "1d10", "Wish Outcome"],
+    ["SlingBulletsOfAlthemone", "1d4", "Bullet Property"],
+    ["SovereignseedSatchel", "1d6", "Seed"],
+    ["TeethOfDahlverNar", "1d20", "Draw Tooth"],
+    ["TheInfernalMachineOfLumTheMad", "1d100", "Machine Effect"],
+  ] as const)("%s rolls the table die instead of a save scraped from one row", (key, formula, name) => {
+    const enricher = build(ItemEnrichers[key]);
+    expect(enricher.type).toBe("utility");
+    expect(enricher.addAutoAdditionalActivities).toBe(false);
+    expect(enricher.clearAutoEffects).toBe(true);
+    expect(enricher.activity).toMatchObject({ name, noeffect: true, noTemplate: true, data: { roll: roll(formula, name) } });
+  });
+
+  it("never spends a use on the table roll itself", () => {
+    expect(build(ItemEnrichers.FoolsLamp).activity).toMatchObject({ noConsumeTargets: true });
+    expect(build(ItemEnrichers.FoolsLamp).override).toBeNull();
+  });
+
+  it("spends a Tossable Kernel on the throw, not on the once-per-bag type roll", () => {
+    const kernels = build(ItemEnrichers.TossableKernels);
+    expect(kernels.activity).toMatchObject({ name: "Throw Kernel", activationType: "action", addItemConsume: true });
+    expect(kernels.activity.data.range).toMatchObject({ value: "20", units: "ft" });
+    const [type] = kernels.additionalActivities;
+    expect(type.overrides).toMatchObject({ noConsumeTargets: true, data: { roll: roll("1d8", "Kernel Type") } });
+  });
+
+  it("drops the pool read from a single tooth's row", () => {
+    const teeth = build(ItemEnrichers.TeethOfDahlverNar);
+    expect(teeth.activity.activationType).toBe("action");
+    expect(teeth.override.data.system.uses).toEqual({ spent: null, max: "", recovery: [] });
+  });
+
+  it("keeps the Marotte's Charisma club attack and rolls the d100 gate apart from the table", () => {
+    const marotte = build(ItemEnrichers.MarotteOfChance);
+    expect(marotte.type).toBe("attack");
+    expect(marotte.activity.data.attack).toEqual({ ability: "cha", type: { value: "melee", classification: "weapon" } });
+    expect(marotte.activity.damageParts[0]).toMatchObject({ number: 1, denomination: 4, bonus: "@mod", types: ["bludgeoning"] });
+    expect(marotte.additionalActivities.map((a: any) => [a.init.name, a.overrides.data.roll.formula]))
+      .toEqual([["Something Odd", "1d100"], ["Chance Table", "1d10"]]);
+  });
+
+  it("throws a Deck of Wild Cards card as a Dexterity ranged spell attack", () => {
+    const deck = build(ItemEnrichers.DeckOfWildCards);
+    expect(deck.type).toBe("attack");
+    expect(deck.activity.data).toMatchObject({
+      attack: { ability: "dex", type: { value: "ranged", classification: "spell" } },
+      range: { value: "30", units: "ft" },
+    });
+    expect(deck.additionalActivities.map((a: any) => a.overrides.data.roll)).toEqual([roll("1d4", "Suit")]);
+  });
+
+  it.each([
+    ["the d20 printing", "<table><thead><tr><th>1d20</th><th>Arcane Anomalies</th></tr></thead></table>", "1d20"],
+    ["the d100 printing", "<table><thead><tr><th>1d100</th><th>Arcane Anomalies</th></tr></thead></table>", "1d100"],
+  ])("Delerium keeps the contamination save and rolls %s", (_label, description, formula) => {
+    const delerium = build(ItemEnrichers.Delerium, { name: "Delerium Geode", ddbParser: { ddbDefinition: { description } } });
+    // no type: the parser's own DC 10 Constitution save stays the primary
+    expect(delerium.type).toBeNull();
+    expect(delerium.addAutoAdditionalActivities).toBe(false);
+    expect(delerium.activity).toMatchObject({ name: "Contamination", data: { damage: { onSave: "none" } } });
+    expect(delerium.activity.damageParts[0]).toMatchObject({ number: 1, denomination: 6, types: ["necrotic"] });
+    expect(delerium.additionalActivities.map((a: any) => a.overrides.data.roll)).toEqual([roll(formula, "Arcane Anomaly")]);
   });
 });
 

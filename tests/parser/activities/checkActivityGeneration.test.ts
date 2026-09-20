@@ -173,3 +173,23 @@ describe("_checkActivityGeneration - guards", () => {
     expect(generate("")).toEqual([]);
   });
 });
+
+describe("_generateEscapeCheck - monster and vehicle parsers", () => {
+  // both read only the bare "escape DC N" wording, so they share the outline rather than a copy of it
+  it.each([
+    ["monster feature", "../../../src/parser/monster/features/DDBMonsterFeature"],
+    ["vehicle component", "../../../src/parser/vehicle/DDBComponentFeature"],
+  ])("%s pushes the shared escape outline", async (_label, path) => {
+    const Parser = (await import(path)).default;
+    const stub = { additionalActivities: [] as any[] };
+    Parser.prototype._generateEscapeCheck.call(stub, "Hit: 7 bludgeoning damage and the target is grappled (escape DC 14).");
+
+    expect(stub.additionalActivities).toEqual([DDBActivityFactoryMixin.escapeCheckOutline("14")]);
+    // a victim's escape roll must never spend the feature's uses
+    expect(stub.additionalActivities[0].options.generateConsumption).toBe(false);
+    expect(stub.additionalActivities[0].options.checkOverride.ability).toBe("");
+
+    Parser.prototype._generateEscapeCheck.call(stub, "Hit: 7 bludgeoning damage.");
+    expect(stub.additionalActivities).toHaveLength(1);
+  });
+});

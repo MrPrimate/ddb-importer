@@ -111,13 +111,11 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   override _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null } = {}) {
     if (!("check" in this.data)) return;
-    // the parser intentionally emits a null check ability, which the dnd5e schema cleans,
-    // but I5eActivityCheck.ability only allows string | string[]
-    this.data.check = checkOverride ?? ({
+    this.data.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
-      ability: this.actionData.ability,
+      ability: this.actionData.ability ?? "",
       dc: {},
-    } as unknown as I5eActivityCheck);
+    };
   }
 
   override build({

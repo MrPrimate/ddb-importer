@@ -25,7 +25,7 @@ export default class StaffOfStriking extends DDBEnricherData {
           rangeSelf: true,
           addItemConsume: true,
           addScalingMode: "amount",
-          addConsumptionScalingMax: "3",
+          addConsumptionScalingMax: "min(3, @item.uses.value)",
         },
       },
     ];

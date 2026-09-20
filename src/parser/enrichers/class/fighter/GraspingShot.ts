@@ -21,7 +21,7 @@ export default class GraspingShot extends _ArcaneShot2024Option {
           generateRange: false,
           checkOverride: {
             associated: ["ath"],
-            ability: ["str"],
+            ability: "str",
             dc: { calculation: "int", formula: "" },
           },
         },

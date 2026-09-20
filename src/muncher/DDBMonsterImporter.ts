@@ -215,7 +215,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         if (!updatedNPC) {
           logger.debug("No changes made to base character", this.monster);
         }
-        await DDBEffectImporter.importStandaloneEffects(items as any);
+        await DDBEffectImporter.importStandaloneEffects(items);
         // update() resolves undefined when nothing changed; the items were
         // wiped above so recreate them on the existing compendium actor
         await (updatedNPC ?? this.compendiumActor).createEmbeddedDocuments("Item", items as any, { keepId: true });
@@ -235,6 +235,9 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
         FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source?.rules ?? ""}.json`, "application/json");
       }
+      // before the actor exists: this rewrites each applyActiveEffect behavior from an effect NAME
+      // to its compendium uuid, and a name does not survive the behavior's uuid field on create
+      await DDBEffectImporter.importStandaloneEffects(this.monster.items);
       this.compendiumActor = await Actor.create(this.monster as any, options) as typeof this.compendiumActor;
       await this.generateCastSpells();
     }

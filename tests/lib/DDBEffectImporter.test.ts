@@ -7,6 +7,11 @@ vi.mock("../../src/lib/CompendiumHelper", () => ({
 
 import DDBEffectImporter from "../../src/lib/DDBEffectImporter";
 
+/** The fixtures are deliberately minimal, so they are narrowed to the item union in one place. */
+function asItem(document: object): TAll5eItemDocuments {
+  return document as unknown as TAll5eItemDocuments;
+}
+
 function makeSpell() {
   return {
     name: "Silence",
@@ -49,7 +54,7 @@ describe("DDBEffectImporter", () => {
 
   it("extracts standalone effects, resolves behavior effect names to uuids and strips the flag", () => {
     const spell = makeSpell();
-    const effects = DDBEffectImporter.extractStandaloneEffects([spell]);
+    const effects = DDBEffectImporter.extractStandaloneEffects([asItem(spell)]);
 
     expect(effects.map((e) => e._id)).toEqual(["ddbSilenceSilencd"]);
     expect(spell.system.activities.act1.behaviors[0].config.effects)
@@ -63,7 +68,7 @@ describe("DDBEffectImporter", () => {
     const a = makeSpell();
     const b = makeSpell();
     (b.system.activities.act1.behaviors[0].config as any).effects = ["Compendium.dnd5e.effects.ActiveEffect.phbeffSilenced00"];
-    const effects = DDBEffectImporter.extractStandaloneEffects([a, b]);
+    const effects = DDBEffectImporter.extractStandaloneEffects([asItem(a), asItem(b)]);
 
     expect(effects).toHaveLength(1);
     expect(b.system.activities.act1.behaviors[0].config.effects).toEqual(["Compendium.dnd5e.effects.ActiveEffect.phbeffSilenced00"]);
@@ -71,7 +76,7 @@ describe("DDBEffectImporter", () => {
 
   it("is a no-op for documents without standalone effects", () => {
     const doc = { name: "Plain", flags: { ddbimporter: {} }, system: { activities: {} } };
-    expect(DDBEffectImporter.extractStandaloneEffects([doc])).toEqual([]);
+    expect(DDBEffectImporter.extractStandaloneEffects([asItem(doc)])).toEqual([]);
   });
 
   it("points an applied copy at its compendium original, even on documents with nothing to extract", () => {
@@ -85,7 +90,7 @@ describe("DDBEffectImporter", () => {
         { _id: "ddbRiderVigilant", flags: { ddbimporter: {} } },
       ],
     };
-    expect(DDBEffectImporter.extractStandaloneEffects([doc])).toEqual([]);
+    expect(DDBEffectImporter.extractStandaloneEffects([asItem(doc)])).toEqual([]);
     const [enchantment, rider] = doc.effects as any[];
     expect(enchantment.origin).toBe("Compendium.world.ddb-effects.ActiveEffect.ddbEvolvedStudio");
     expect(enchantment.system.origin.effect).toBe(enchantment.origin);
@@ -107,7 +112,7 @@ describe("DDBEffectImporter", () => {
         },
       ],
     };
-    DDBEffectImporter.extractStandaloneEffects([doc]);
+    DDBEffectImporter.extractStandaloneEffects([asItem(doc)]);
     const [enchantment] = doc.effects as any[];
     const uuid = "Compendium.world.ddb-items.Item.ddbHostStudious0.Activity.ddbApplyStudious";
     expect(enchantment.origin).toBe(uuid);
@@ -124,7 +129,7 @@ describe("DDBEffectImporter", () => {
       flags: { ddbimporter: { standaloneEffects: [{ _id: "ddbEvolvedStudio", name: "Studious", flags: { ddbimporter: { parent: shared } } }] } },
       system: { activities: {} },
     };
-    const [effect] = DDBEffectImporter.extractStandaloneEffects([doc]);
+    const [effect] = DDBEffectImporter.extractStandaloneEffects([asItem(doc)]);
     expect(effect.flags?.ddbimporter?.parent).toEqual(shared);
   });
 });
@@ -141,13 +146,13 @@ describe("DDBEffectImporter parent classification", () => {
     [{ type: "background" }, "background"],
     [{ type: "feat" }, "other"],
   ])("classifies %j as %s", (doc, expected) => {
-    expect(DDBEffectImporter.parentType({ name: "X", ...doc })).toBe(expected);
+    expect(DDBEffectImporter.parentType(asItem({ name: "X", ...doc }))).toBe(expected);
   });
 
   it("stamps the declaring document on each extracted effect", () => {
     const spell = { ...makeSpell(), system: { ...makeSpell().system, source: { book: "PHB-2024" } } };
     spell.flags.ddbimporter = { ...spell.flags.ddbimporter, legacy: false } as any;
-    const [effect] = DDBEffectImporter.extractStandaloneEffects([spell]);
+    const [effect] = DDBEffectImporter.extractStandaloneEffects([asItem(spell)]);
     expect(effect.flags?.ddbimporter?.parent).toEqual({ name: "Silence", type: "spell", bookCode: "PHB-2024", isLegacy: false });
   });
 });
