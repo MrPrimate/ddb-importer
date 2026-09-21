@@ -12,6 +12,7 @@
 - About 40 items had gained transfer effects when they should be attached to activities. These have been fixed.
 - Use new Transform features in 6.0.x
 - If the experimental behavioural auras/templates is enabled, more chat cards are grouped for things like aura/region placement saves
+- Many monsters now parse summon activities when their activity allows a monster summon.
 
 # 7.5.4
 
