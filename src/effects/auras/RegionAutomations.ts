@@ -146,6 +146,11 @@ export default class RegionAutomations {
    * Stench) has to be filtered here.
    */
   static isOriginToken(context: IRegionEventContext, token: TokenDocument): boolean {
+    // an aura placed from its owner's sheet onto a companion or mount rides that token, which
+    // is as much the area's source as the creature that used the activity
+    const attached = (context.region as { attachment?: { token?: TokenDocument | string | null } }).attachment?.token;
+    const attachedId = typeof attached === "string" ? attached : attached?.id;
+    if (attachedId && attachedId === token.id) return true;
     const origin = RegionAutomations.getOriginToken(context.region);
     if (!origin) return false;
     return (origin.uuid && origin.uuid === token.uuid) || (!!origin.id && origin.id === token.id);

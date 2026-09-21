@@ -962,6 +962,28 @@ describe("SRDSummonItem", () => {
     expect(item("Elemental Gem").activity.profileKeys).toHaveLength(4);
   });
 
+  it("places the Goat of Terror's aura from the figurine, for the rider to put on the goat", () => {
+    const e = item("Figurine of Wondrous Power (Ivory Goats)");
+    expect(e.type).toBe("summon");
+    const [aura, save] = e.additionalActivities;
+    expect(aura.init).toEqual({ name: "Goat of Terror: Aura", type: "utility" });
+    expect(aura.build.targetOverride).toMatchObject({ affects: { type: "enemy" }, template: { type: "radius", size: "30" } });
+    expect(aura.overrides.data.behaviors[0].config).toMatchObject({
+      events: ["tokenTurnStart"],
+      args: { activityName: "Goat of Terror: Save" },
+    });
+    expect(save.init).toEqual({ name: "Goat of Terror: Save", type: "save" });
+    expect(save.build.saveOverride).toEqual({ ability: ["wis"], dc: { calculation: "", formula: "15" } });
+    expect(e.effects[0]).toMatchObject({
+      name: "Goat of Terror",
+      statuses: ["Frightened"],
+      activityMatch: "Goat of Terror: Save",
+      options: { transfer: false },
+    });
+    expect(e.clearAutoEffects).toBe(true);
+    expect(item("Figurine of Wondrous Power (Onyx Dog)").effects).toEqual([]);
+  });
+
   it("sits beside the primary activity when the item does something else too", () => {
     const e = item("Staff of the Python");
     expect(e.type).toBeNull();

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /**
  * Region-behavior pins for the monster-side enrichers: the generic turn-start
  * aura and ally-buff aura (driven by the trait text) and the importer-built
@@ -63,6 +64,29 @@ describe("monster Generic TurnStartAuraSave", () => {
     const e = trait(TurnStartAuraSave, "Arcane Leak",
       "Any creature that starts its turn within 10 feet of the adranach or enters that area for the first time on a turn takes 10 (3d6) radiant damage.");
     expect(macro(e.activity).config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+  });
+
+  it("builds the whole aura when the parser read no roll for it", () => {
+    const e = trait(TurnStartAuraSave, "Chill Aura",
+      "The ogre fills the area within 10 feet of it with bitter cold. At the start of the ogre's turn, flames in the aura go out. Any creature that starts its turn within 10 feet of the ogre takes 7 (2d6) cold damage.");
+    expect(e.type).toBe("utility");
+    expect(e.activity.name).toBe("Chill Aura");
+    expect(e.activity.activationType).toBe("special");
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
+    expect(macro(e.activity).config).toMatchObject({ events: ["tokenTurnStart"], args: { activityName: "Aura Damage" } });
+    const [fired] = e.additionalActivities;
+    expect(fired.init).toEqual({ name: "Aura Damage", type: "damage" });
+    expect(fired.build.damageParts[0]).toMatchObject({ number: 2, denomination: 6, types: ["cold"] });
+    expect(fired.overrides.noeffect).toBe(true);
+  });
+
+  it("builds nothing extra when the parser already has the roll", () => {
+    const e = trait(TurnStartAuraSave, "Chill Aura",
+      "Any creature that starts its turn within 10 feet of the ogre takes 7 (2d6) cold damage.",
+      { ddbParser: { actionData: { damageParts: [{}], target: { template: { size: "10" } } } } });
+    expect(e.type).toBeNull();
+    expect(e.additionalActivities).toEqual([]);
+    expect(e.activity.name).toBeUndefined();
   });
 
   it("emits nothing for an owner-turn variant sharing the name", () => {

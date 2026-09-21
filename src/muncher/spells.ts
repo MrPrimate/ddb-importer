@@ -334,10 +334,11 @@ export async function parseSpells({
   });
   await itemHandler.init();
   await itemHandler.iconAdditions();
-  const filteredSpells = (ids !== null && ids.length > 0)
+  const wantedIds = SourceFilters.ddbIdSet(ids);
+  const filteredSpells = wantedIds.size > 0
     ? (itemHandler.documents).filter((s) => {
       const definitionId = s.flags?.ddbimporter?.definitionId;
-      return definitionId && ids.includes(String(definitionId));
+      return definitionId && wantedIds.has(String(definitionId));
     })
     : itemHandler.documents;
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true }) as I5eSpellItem[];

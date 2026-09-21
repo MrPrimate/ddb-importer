@@ -1,4 +1,16 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { regionPlacerData, regionTrigger } from "../../data/RegionBuilders";
+import { parseTrigger } from "./_ZoneText";
+
+interface IParsedAura {
+  strippedHtml?: string;
+  html?: string;
+  isSave?: boolean;
+  isAttack?: boolean;
+  actionData?: { damageParts?: unknown[]; target?: { template?: { size?: string | number | null } } };
+}
+
+const BUILT_TRIGGER = "Aura Damage";
 
 /**
  * Aura traits whose rules text is "any creature that starts (or ends) its turn
@@ -9,6 +21,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * emanation originates from. Owner-turn auras (Fire Aura
  * and friends, "at the start/end of each of the MONSTER's turns") are NOT
  * registered here as region events cannot express them.
+ *
+ * The parser stops reading damage at the first "At the start of", so an aura that says something
+ * about the monster's own turn before it gets to the creature's (the Ice Troll's Cold Aura puts out
+ * flames first) reaches here with no activity at all. For those the aura is built whole: a utility
+ * that places the emanation, and the roll it fires read from the turn sentence.
  */
 export default class TurnStartAuraSave extends DDBEnricherData {
 
@@ -123,8 +140,68 @@ export default class TurnStartAuraSave extends DDBEnricherData {
     return (/\bis difficult terrain\b/i).test(this.traitText);
   }
 
+  get parsed(): IParsedAura {
+    return (this.ddbParser ?? {}) as IParsedAura;
+  }
+
+  /** The turn sentence's own roll, when the parser found nothing for the aura to fire. */
+  get builtTrigger(): ReturnType<typeof parseTrigger> {
+    const parsed = this.parsed;
+    if (parsed.isSave || parsed.isAttack || (parsed.actionData?.damageParts ?? []).length > 0) return null;
+    if (!this.isTargetTurnAura) return null;
+    // only the wording the parser is blind past; anything else it read, or there is nothing to read
+    if (!(/At the (?:start|end) of\b[^.]*\.\s.*(?:starts?|ends?) (?:its|their|each) turn/is).test(this.traitText)) return null;
+    const trigger = parseTrigger(this.traitText);
+    return trigger && (trigger.save || trigger.damageParts.length > 0) ? trigger : null;
+  }
+
+  get radius(): string | null {
+    const size = this.parsed.actionData?.target?.template?.size;
+    return size ? `${size}` : this.missingTemplateRadius;
+  }
+
+  get events(): string[] {
+    return this.firesOnEntry ? ["tokenEnter", ...this.turnEvents] : this.turnEvents;
+  }
+
+  override get type(): IDDBActivityType | null {
+    return this.builtTrigger && this.radius ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
+  }
+
+  get placer(): IDDBActivityData {
+    return regionPlacerData(this.name, {
+      template: { type: "radius", size: this.radius ?? "", count: "1" },
+      affects: this.enemiesOnly ? "enemy" : "creature",
+      activationType: "special",
+      duration: { units: "perm" },
+      behaviors: [
+        ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
+        DDBEnricherData.BehaviorHelper.activity({
+          events: this.events,
+          excludeSelf: true,
+          activityName: BUILT_TRIGGER,
+          ...this.behaviorFilters,
+        }),
+      ],
+    });
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const trigger = this.builtTrigger;
+    if (!trigger || !this.radius) return [];
+    const when = this.turnEvents.map((event) => (event === "tokenTurnEnd" ? "ends" : "starts")).join(" or ");
+    const fired = regionTrigger(BUILT_TRIGGER, {
+      affects: this.enemiesOnly ? "enemy" : "creature",
+      condition: `A creature ${when} its turn within ${this.radius} feet`,
+      ...(trigger.save ? { save: trigger.save, onSave: trigger.onSave } : {}),
+      damageParts: trigger.damageParts,
+    });
+    return [{ ...fired, overrides: { ...fired.overrides, noeffect: true } }];
+  }
+
   override get activity(): IDDBActivityData {
     if (!this.isTargetTurnAura) return {};
+    if (this.builtTrigger && this.radius) return this.placer;
     const radius = this.missingTemplateRadius;
     const affects = this.enemiesOnly ? "enemy" : "creature";
     return {
@@ -150,7 +227,7 @@ export default class TurnStartAuraSave extends DDBEnricherData {
         behaviors: [
           ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
           DDBEnricherData.BehaviorHelper.activity({
-            events: this.firesOnEntry ? ["tokenEnter", ...this.turnEvents] : this.turnEvents,
+            events: this.events,
             // the emanation originates from the monster, which does not save
             // against its own stench/presence/thing
             excludeSelf: true,

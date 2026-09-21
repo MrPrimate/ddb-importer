@@ -35,6 +35,7 @@ const REGION_ITEMS: [string, TEnricher][] = [
   ["Haemscale", ItemEnrichers.Haemscale],
   ["HatOfVortexes", ItemEnrichers.HatOfVortexes],
   ["HelmOfBrilliance", ItemEnrichers.HelmOfBrilliance],
+  ["HolyAvenger", ItemEnrichers.HolyAvenger],
   ["HrethiSoulScepter", ItemEnrichers.HrethiSoulScepter],
   ["IndigoStraysConviction", ItemEnrichers.IndigoStraysConviction],
   ["InfernoRope", ItemEnrichers.InfernoRope],
@@ -153,7 +154,8 @@ describe.each(REGION_ITEMS)("%s region links", (_label, Enricher) => {
   });
 
   it("matches every effect to an activity that exists and keeps it off the owner", () => {
-    for (const effect of e.effects ?? []) {
+    // a standalone effect lives in the Effects compendium and a behavior applies it by name
+    for (const effect of (e.effects ?? []).filter((hint: any) => !hint.standalone)) {
       expect(effect.activityMatch, effect.name).toBeTruthy();
       expect(names, effect.name).toContain(effect.activityMatch);
       expect(effect.options?.transfer, effect.name).toBe(false);
@@ -280,6 +282,30 @@ describe("effect while inside (applyActiveEffect)", () => {
 
     expect(build(ItemEnrichers.ShovelOfYorgrim, "Test Shovel, +1").additionalActivities).toEqual([]);
     expect(build(ItemEnrichers.ShovelOfYorgrim, "Test Shovel").additionalActivities).toHaveLength(1);
+  });
+});
+
+describe("Holy Avenger", () => {
+  it("covers the holder and allies, 30 feet for a paladin of 17th level", () => {
+    const e = build(ItemEnrichers.HolyAvenger, "Holy Avenger Test Blade");
+    const aura = named(e, "Holy Avenger Aura");
+    expect(aura.affects).toBe("ally");
+    expect(aura.template).toMatchObject({ type: "radius", size: "10 + 20 * min(1, floor(@classes.paladin.levels / 17))" });
+    expect(behaviorsOf(aura)[0].config.effects).toEqual(["Holy Avenger Aura"]);
+  });
+
+  it("says against spells through the two modules that can, on a standalone effect", () => {
+    const [effect] = build(ItemEnrichers.HolyAvenger).effects;
+    expect(effect).toMatchObject({ name: "Holy Avenger Aura", standalone: true });
+    expect(effect.midiChanges[0].key).toBe("flags.midi-qol.magicResistance.all");
+    expect(effect.ac5eChanges[0]).toMatchObject({ key: "flags.automated-conditions-5e.save.advantage" });
+    expect(effect.changes ?? []).toEqual([]);
+  });
+
+  it("is reached by every weapon of the family", () => {
+    const enricher = new DDBItemEnricher({ activityGenerator: null as any }) as any;
+    expect(enricher.NAME_HINT_INCLUDES["Holy Avenger"]).toBe("Holy Avenger");
+    expect(enricher.ENRICHERS["Holy Avenger"]).toBe(ItemEnrichers.HolyAvenger);
   });
 });
 

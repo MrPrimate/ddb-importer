@@ -372,6 +372,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Drone": "Turn Start Aura Save",
     "Putrid Aura (Acid and Poison Forms Only)": "Turn Start Aura Save",
     "Putrid Stench": "Turn Start Aura Save",
+    // Summon Undead's Putrid spirit; the companion parser trims "(Putrid Only)" after enrichment
+    "Festering Aura (Putrid Only)": "Turn Start Aura Save",
+    "Festering Aura": "Turn Start Aura Save",
     "Toxic Aura": "Turn Start Aura Save",
     "Foul": "Foul",
     "Weight of Ages": "Weight of Ages",

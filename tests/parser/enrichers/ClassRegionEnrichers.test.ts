@@ -15,6 +15,7 @@ import AuraOfDisruption from "../../../src/parser/enrichers/class/paladin/AuraOf
 import AuraOfTheRiver from "../../../src/parser/enrichers/class/paladin/AuraOfTheRiver";
 import GuardianAngel from "../../../src/parser/enrichers/class/paladin/GuardianAngel";
 import PerfectedArmor from "../../../src/parser/enrichers/class/artificer/PerfectedArmor";
+import MacabreModifications from "../../../src/parser/enrichers/class/artificer/MacabreModifications";
 import PoweredByPathos from "../../../src/parser/enrichers/class/barbarian/PoweredByPathos";
 import HandyHaints from "../../../src/parser/enrichers/class/bard/HandyHaints";
 import HandyHaintsGrump from "../../../src/parser/enrichers/class/bard/HandyHaintsGrump";
@@ -305,5 +306,23 @@ describe("the tail: areas set down away from the owner", () => {
     expect(candle.overrides.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain"]);
     expect(burn.action.name).toBe("Flooding Abundance: Fire Damage");
     expect(burn.overrides.noConsumeTargets).toBe(true);
+  });
+});
+
+describe("the tail: an aura placed onto a companion", () => {
+  it("Macabre Modifications places Gaunt's aura for the companion's token and fires its save", () => {
+    const e = build(MacabreModifications);
+    const aura = named(e, "Macabre Modification: Gaunt Aura");
+    expect(aura.affects).toBe("enemy");
+    expect(aura.template).toMatchObject({ type: "radius", size: "10" });
+    expect(macro(aura).config).toMatchObject({
+      events: ["tokenTurnStart"],
+      excludeSelf: true,
+      args: { activityName: "Macabre Modification: Gaunt Save" },
+    });
+    const save = e.additionalActivities.find((a: any) => a.init.name === "Macabre Modification: Gaunt Save");
+    expect(save.overrides.noTemplate).toBe(true);
+    expect(save.overrides.data.save.dc.calculation).toBe("spellcasting");
+    expect(e.effects.find((effect: any) => effect.activityMatch === "Macabre Modification: Gaunt Save").statuses).toEqual(["Frightened"]);
   });
 });

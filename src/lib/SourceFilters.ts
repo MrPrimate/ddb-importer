@@ -159,7 +159,9 @@ export function applyItemFilters(input: IDDBItemsSource, {
   }
   counts.homebrew = data.items.length;
   if (ids.length > 0) {
-    data = { items: data.items.filter((item) => ids.includes(item.id)), spells: data.spells, extra: data.extra };
+    // the payload's ids are numbers; a caller may hold them as strings
+    const wantedIds = new Set(ids.map(String));
+    data = { items: data.items.filter((item) => wantedIds.has(String(item.id))), spells: data.spells, extra: data.extra };
     counts.ids = data.items.length;
   }
   if (searchFilter && searchFilter !== "") {

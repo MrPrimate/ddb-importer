@@ -101,6 +101,7 @@ export { default as HatOfVortexes } from "./HatOfVortexes";
 export { default as HatOfWizardry } from "./HatOfWizardry";
 export { default as HealersKit } from "./HealersKit";
 export { default as HelmOfBrilliance } from "./HelmOfBrilliance";
+export { default as HolyAvenger } from "./HolyAvenger";
 export { default as HomewardCompass } from "./HomewardCompass";
 export { default as HoodedLantern } from "./HoodedLantern";
 export { default as HornOfBlasting } from "./HornOfBlasting";

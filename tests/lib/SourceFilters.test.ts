@@ -3,6 +3,7 @@ import DDBSources from "../../src/lib/DDBSources";
 import {
   applySpellFilters,
   applyItemFilters,
+  ddbIdSet,
   sumCounts,
   describeActiveFilters,
   preflightSourceSettings,
@@ -93,6 +94,23 @@ describe("applySpellFilters", () => {
     const { data, counts } = applySpellFilters(raw, spellOptions);
     expect(data.map((s) => s.definition.name)).toEqual(["Brew"]);
     expect(counts.category).toBe(1);
+  });
+
+  it("reads an id list the same way whatever form its ids take", () => {
+    expect([...ddbIdSet([7, "8", " 9 "])]).toEqual(["7", "8", "9"]);
+    expect(ddbIdSet(null).size).toBe(0);
+    expect(ddbIdSet([""]).size).toBe(0);
+    // the two id stages of one import: the payload's number, then the document flag's string
+    const wanted = ddbIdSet([4910]);
+    expect(wanted.has(String(4910))).toBe(true);
+    expect(wanted.has(String("4910"))).toBe(true);
+  });
+
+  it("matches explicit ids whether the caller holds them as numbers or strings", () => {
+    settings({ "munching-policy-muncher-included-source-categories": [] });
+    const raw = itemSource([item("Longsword", [2], { id: 7 }), item("Dagger", [2], { id: 8 })]);
+    const { data } = applyItemFilters(raw, { ...itemOptions, ids: ["8"] });
+    expect(data.items.map((i) => i.name)).toEqual(["Dagger"]);
   });
 
   it("honours the homebrew toggles when no book filter is active", () => {

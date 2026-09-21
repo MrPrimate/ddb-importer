@@ -398,6 +398,26 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledTimes(1);
   });
 
+  it("skips the token the region is attached to, whoever placed it", async () => {
+    trackFlags();
+    const { context, placing } = setup();
+    // placed from the owner's sheet (origin tokOwner) onto a companion (the event token)
+    context.region.getFlag = vi.fn((_scope: string, key: string) => {
+      if (key === "activity") return "Actor.a.Item.b.Activity.actCast000";
+      if (key === "origin") return "Scene.s.Token.tokOwner";
+      return undefined;
+    });
+    (globalThis as any).fromUuidSync = vi.fn(() => ({ id: "tokOwner", uuid: "Scene.s.Token.tokOwner" }));
+    const eventToken = context.event.data.token as { id: string };
+    (context.region as any).attachment = { token: { id: eventToken.id } };
+    context.args = { excludeSelf: true };
+
+    await RegionAutomations.useActivityHandler(context);
+    expect(placing.use).not.toHaveBeenCalled();
+
+    delete (globalThis as any).fromUuidSync;
+  });
+
   it("skips the token the region originates from when excludeSelf is set", async () => {
     trackFlags();
     const { context, placing } = setup();
