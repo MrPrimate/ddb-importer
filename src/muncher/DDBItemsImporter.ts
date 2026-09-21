@@ -484,8 +484,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     await itemHandler.init();
     this.notifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
     await itemHandler.iconAdditions();
-    // a scripted caller passes DDB's numeric ids as readily as strings
-    const wantedIds = new Set((this.ids ?? []).map(String));
+    const wantedIds = SourceFilters.ddbIdSet(this.ids);
     this.data = wantedIds.size > 0
       // definitionId only exists on item-flavoured ddbimporter flags, not the full union
       ? itemHandler.documents.filter((s: any) =>

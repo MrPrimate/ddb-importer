@@ -105,6 +105,15 @@ export function applySpellFilters(
 }
 
 /**
+ * An explicit id list as a lookup set. DDB's payload carries ids as numbers, the importer's flags
+ * and a script in the console carry them as strings, and the two id stages of an import once
+ * compared them each way, so no list passed both and an import by id brought in nothing.
+ */
+export function ddbIdSet(ids: (number | string)[] | null | undefined): Set<string> {
+  return new Set((ids ?? []).map((id) => String(id).trim()).filter((id) => id !== ""));
+}
+
+/**
  * Filter the raw item payload down to what the muncher settings ask for. Mirrors applySpellFilters;
  * the `ids` stage is the explicit-id path used by adventure imports, which skips the category stage.
  */
@@ -159,8 +168,7 @@ export function applyItemFilters(input: IDDBItemsSource, {
   }
   counts.homebrew = data.items.length;
   if (ids.length > 0) {
-    // the payload's ids are numbers; a caller may hold them as strings
-    const wantedIds = new Set(ids.map(String));
+    const wantedIds = ddbIdSet(ids);
     data = { items: data.items.filter((item) => wantedIds.has(String(item.id))), spells: data.spells, extra: data.extra };
     counts.ids = data.items.length;
   }
