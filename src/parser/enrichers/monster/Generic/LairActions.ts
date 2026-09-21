@@ -2,6 +2,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import { regionPlacer, regionTrigger } from "../../data/RegionBuilders";
 import utils from "../../../../lib/Utils";
 import { STATUSES, TERRAIN_WORDS, parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
+import { linkMonsterSummons, monsterSummon } from "../_MonsterSummons";
+import { monsterLinksToResidue, parseSummon } from "./_SummonText";
 
 type TLairTrigger = NonNullable<ReturnType<typeof parseTrigger>>;
 
@@ -16,6 +18,13 @@ interface ILairZone {
   trigger: TLairTrigger | null;
 }
 
+interface ILairSummon {
+  label: string;
+  creatures: { name: string; count: string; label?: string; ddbId?: number }[];
+  range: string | null;
+  duration: { value: string; units: TDurationUnit } | null;
+}
+
 /**
  * A monster's lair actions arrive as one feature holding a list of options, and the parser turns
  * the saves in that list into activities. What it cannot express is the map: an option that makes
@@ -27,6 +36,10 @@ interface ILairZone {
  * save cannot be picked out by name for a region to fire. The trigger is built from the option's
  * text instead, with the shared description parsers; the parsed save stays as the roll made when
  * the area appears.
+ *
+ * An option that calls creatures ("causes four gas spores ... to appear") gets a summon beside
+ * them, linked to the monster compendium afterwards. Only names that carry D&D Beyond's tag
+ * residue or name their stat block count here: a lair's prose is full of things that "appear".
  *
  * Options with no shape are left alone on purpose. "The ceiling, floor, and walls of the lair"
  * and the regional effects ("within 1 mile of the lair") describe no area a template could be.
@@ -101,6 +114,32 @@ export default class LairActions extends DDBEnricherData {
     return zones;
   }
 
+  static parseSummons(html: string): ILairSummon[] {
+    const summons: ILairSummon[] = [];
+    const linked = monsterLinksToResidue(html);
+    const blocks = linked.html.split(/<\/li>|<\/p>/i).map((block) => LairActions.stripBlock(block));
+    for (const text of blocks) {
+      const summon = parseSummon(text);
+      if (!summon?.tagged || summon.creatures.length === 0) continue;
+      // "Sound the Horn (1/Day). ...": an option that names itself, with or without a limit after it
+      const lead = (/^([A-Z][A-Za-z' -]{2,40})(?: \([^)]*\))?\.\s/).exec(text);
+      const label = lead && lead[1].trim().split(/\s+/).length <= 5 ? lead[1].trim() : summon.creatures[0].name;
+      if (summons.some((other) => other.label === label)) continue;
+      summons.push({
+        label,
+        creatures: summon.creatures.map((creature) => ({
+          name: creature.name,
+          count: creature.count,
+          ...(linked.ids.has(creature.name.toLowerCase()) ? { ddbId: linked.ids.get(creature.name.toLowerCase()) } : {}),
+          ...(creature.upTo ? { label: `${creature.name} (up to ${creature.count})` } : {}),
+        })),
+        range: summon.range,
+        duration: summon.duration,
+      });
+    }
+    return summons;
+  }
+
   static triggerName(zone: ILairZone): string {
     if (zone.trigger?.save) return `${zone.label} Save`;
     return (zone.trigger?.damageParts.length ?? 0) > 0 ? `${zone.label} Damage` : `${zone.label} Effect`;
@@ -124,7 +163,25 @@ export default class LairActions extends DDBEnricherData {
     return LairActions.parseZones(parser?.html ?? "");
   }
 
+  get summons(): ILairSummon[] {
+    const parser = this.ddbParser as { html?: string } | undefined;
+    return LairActions.parseSummons(parser?.html ?? "");
+  }
+
+  get summonActivities(): IDDBAdditionalActivity[] {
+    return this.summons.map((summon) => monsterSummon(`Lair Summon: ${summon.label}`, {
+      creatures: summon.creatures,
+      activationType: "lair",
+      ...(summon.range ? { range: summon.range } : {}),
+      ...(summon.duration ? { duration: summon.duration } : {}),
+    }));
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [...this.zoneActivities, ...this.summonActivities];
+  }
+
+  get zoneActivities(): IDDBAdditionalActivity[] {
     return this.zones.flatMap((zone) => {
       const { trigger } = zone;
       const placer = regionPlacer(`${trigger ? "Lair Area" : "Lair Terrain"}: ${zone.label}`, {
@@ -182,6 +239,10 @@ export default class LairActions extends DDBEnricherData {
   // the placers sit beside the saves the parser builds from the same list, not instead of them
   override get keepParsedActivities(): boolean {
     return true;
+  }
+
+  override async cleanup(): Promise<void> {
+    await linkMonsterSummons(this.data, this.summons.flatMap((summon) => summon.creatures), this.is2024);
   }
 
 }

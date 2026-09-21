@@ -16,6 +16,7 @@ import {
   DDBProxyCache,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
+import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBMonsterSocket, { DDBMonsterEvent } from "../lib/streaming/DDBMonsterSocket";
@@ -697,6 +698,8 @@ export default class DDBMonsterFactory {
     const failedMonsterNames: string[] = [];
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
+    // parse() is called a slice at a time; the whole munch is what a summoner may need to find
+    setMonsterBatch([...this.source, ...monsters]);
 
     const totalMonsters = this.source.length;
     let i = this.currentDocument;
