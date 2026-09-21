@@ -120,7 +120,8 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledWith(
       expect.objectContaining({
         create: false,
-        consume: { action: false, resource: false, spellSlot: false },
+        // `resources`, plural, is the key dnd5e reads; unset, it defaults to every consumption target
+        consume: { action: false, resources: false, spellSlot: false },
         scaling: 0,
         // the spell is already up: a region tick must not re-begin concentration,
         // which would drop and recreate the caster's effect

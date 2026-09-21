@@ -547,7 +547,11 @@ export default class RegionAutomations {
         await activity.use(
           {
             create: false,
-            consume: { action: false, resource: false, spellSlot: false },
+            // dnd5e's key is `resources`, plural: anything else leaves it unset, and it then
+            // defaults to every consumption target, so an action whose Recharge or daily use is
+            // already spent could not be re-fired by its own area, and an item that re-fires
+            // itself spent a charge on every trigger
+            consume: { action: false, resources: false, spellSlot: false },
             scaling,
             ...extraActivityConfig,
           },

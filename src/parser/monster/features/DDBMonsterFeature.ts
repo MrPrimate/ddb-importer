@@ -1539,11 +1539,16 @@ ${this.data.system.description.value}
         generateDamage: this.actionData.saveParts.length > 0,
         damageParts: this.actionData.saveParts ?? parts,
         includeBaseDamage: false,
+        // the save follows a hit with the attack, which has already spent the use
+        generateConsumption: false,
       },
     });
   }
 
   #addHealAdditionalActivities() {
+    // Healing that rides on a save or attack is part of that use, which the primary activity has
+    // already spent. Where the feature only heals there is no primary, and the heal spends it.
+    const ridesOnPrimary = Object.keys(this.data.system.activities ?? {}).length > 0;
     for (const part of this.actionData.healingParts) {
       const data = {
         name: "Heal",
@@ -1553,6 +1558,7 @@ ${this.data.system.description.value}
           includeBaseDamage: false,
           generateHealing: true,
           healingPart: part.part,
+          ...(ridesOnPrimary ? { generateConsumption: false } : {}),
         },
       } as IAdditionalActivityOutline;
       this.additionalActivities.push(data);
@@ -2085,10 +2091,13 @@ ${this.data.system.description.value}
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
 
-    // Conditional weapon attacks spend the same limited item resource in either mode.
-    // At-will weapons must not acquire a consumption target.
-    if (this.templateType === "weapon" && this.ddbMonsterDamage.damageModes.length > 0
-      && this.data.system.uses.max && !this.actionData.consumptionValue
+    // A feature with limited uses of its own spends one when used. Recharge sets this where its
+    // uses are read; "(1/Day)" and "Recharges after a Short or Long Rest" gave the item uses but
+    // no consumption, so the use was never spent. Every activity of the feature spends from the
+    // same pool, which is also what a conditional weapon attack wants in either mode. An at-will
+    // feature has no uses and must not acquire a target; Legendary Resistance and a legendary
+    // action's cost already carry their own.
+    if (this.data.system.uses?.max && !this.actionData.consumptionValue
       && this.actionData.consumptionTargets.length === 0) {
       this.actionData.consumptionValue = "1";
     }

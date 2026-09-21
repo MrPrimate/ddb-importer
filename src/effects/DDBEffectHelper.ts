@@ -1267,7 +1267,8 @@ export default class DDBEffectHelper {
         createWorkflow: true,
         consume: {
           action: false,
-          resource: consumeResource,
+          // dnd5e reads `resources`, plural; left unset it defaults to every consumption target
+          resources: consumeResource,
           spellSlot: consumeSpellSlot,
         },
         midiOptions: {

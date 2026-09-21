@@ -9,6 +9,13 @@ import DDBEnricherData from "./DDBEnricherData";
  * the trigger. Spells add their own slot handling on top of these in spell/_SpellRegions.
  */
 
+/**
+ * The one event for damage per distance moved. Core splits a movement that crosses a region's
+ * boundary into a move-in segment and a move-within one, so listening for both cards the
+ * entering movement twice; move-within alone covers entering, moving inside and leaving.
+ */
+export const MOVEMENT_EVENTS = ["tokenMoveWithin"];
+
 interface IRegionTemplate {
   type: TTemplate;
   size: string;

@@ -55,6 +55,7 @@ export { default as ObserverCheck } from "./ObserverCheck";
 export { default as OngoingDamage } from "./OngoingDamage";
 export { default as PackTactics } from "./PackTactics";
 export { default as PetrifyingGaze } from "./PetrifyingGaze";
+export { default as PlacedZone } from "./PlacedZone";
 export { default as ProneDeficiency } from "./ProneDeficiency";
 export { default as Protection } from "./Protection";
 export { default as Rally } from "./Rally";

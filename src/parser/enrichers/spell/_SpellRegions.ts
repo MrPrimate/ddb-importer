@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { MOVEMENT_EVENTS } from "../data/RegionBuilders";
 
 /**
  * Builders for spells whose area keeps rolling after the cast. Two shapes, chosen by whether the
@@ -14,7 +15,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 
 // the target builders are shared with every other enricher kind; spell enrichers take them from here
-export { area, emanation } from "../data/RegionBuilders";
+export { MOVEMENT_EVENTS, area, emanation } from "../data/RegionBuilders";
 
 interface IOngoingTrigger {
   name?: string;
@@ -131,8 +132,6 @@ export function ongoingAttack({ name, condition, affects = "enemy", activation =
 
 export const MOVEMENT_DAMAGE = "Movement Damage";
 
-/** The one event for damage per distance moved; see `movementBehavior`. */
-export const MOVEMENT_EVENTS = ["tokenMoveWithin"];
 
 /**
  * Damage "for every 5 feet it travels". A region sees a movement, not its length, so this is

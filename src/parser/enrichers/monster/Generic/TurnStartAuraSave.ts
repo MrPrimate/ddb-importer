@@ -86,7 +86,7 @@ export default class TurnStartAuraSave extends DDBEnricherData {
    * also fires on entry, which the once-per-turn default keeps to one trigger.
    */
   get firesOnEntry(): boolean {
-    return (/enters (?:that|the) (?:area|emanation)/i).test(this.traitText);
+    return (/enters (?:that|the) (?:area|emanation|[\w'’ ]{1,30} space)/i).test(this.traitText);
   }
 
   /**
