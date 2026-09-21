@@ -2727,13 +2727,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * Ranged weapon which is not a firearm. DDB's attackType 2 marks the ranged
    * weapon table, so thrown melee weapons (Dagger, Handaxe, Javelin) are
    * excluded while the Dart, a Simple Ranged Weapon, is not.
-   * @returns {boolean} true if this weapon gains Overkill's extra 1d8
+   * @returns {boolean} true if the importer must supply Overkill's extra 1d8 on this weapon
    */
   get hasOverkillRangedDamage(): boolean {
     if (this.parsingType !== "weapon") return false;
     if (!this.flags.classFeatures.includes("overkill")) return false;
     if (this.isFirearm) return false;
-    return this.ddbDefinition.attackType === 2;
+    if (this.ddbDefinition.attackType !== 2) return false;
+    // MHP adds the die to ranged weapons' base damage at roll time. Firearms use
+    // non-base parts, so their separate ability modifier remains importer-owned.
+    const registeredSettings: ReadonlyMap<string, unknown> = game.settings.settings;
+    if (game.modules.get("mage-hand-press-core")?.active
+      && registeredSettings.has("mage-hand-press-core.gunslinger")
+      && utils.getSetting<{ mankillerOverkill?: boolean }>("gunslinger", "mage-hand-press-core")?.mankillerOverkill) {
+      return false;
+    }
+    return true;
   }
 
   #generateWeaponSpecifics() {

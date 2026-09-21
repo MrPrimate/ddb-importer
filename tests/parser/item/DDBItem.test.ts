@@ -13,7 +13,14 @@ vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => (
   },
 }));
 vi.mock("../../../src/parser/enrichers/DDBItemEnricher", () => ({
-  default: class { init() {} load() {} },
+  default: class {
+    init() {
+      // Item unit tests do not initialise enrichment.
+    }
+    load() {
+      // Item unit tests do not load document enrichers.
+    }
+  },
 }));
 vi.mock("../../../src/parser/activities/_module", () => ({
   DDBItemActivity: class {},
@@ -28,6 +35,7 @@ vi.mock("../../../src/effects/restrictions", () => ({
 import DDBItem from "../../../src/parser/item/DDBItem";
 import SystemHelpers from "../../../src/lib/SystemHelpers";
 import { JEWEL_OF_THREE_PRAYERS, NO_CHARGE_VESTIGE } from "../../_fixtures/ddb/vestiges";
+import { setMockModules, setMockSettings } from "../../_setup/foundryMocks";
 
 // =============================================================================
 // getPublisherAmmunitionType* - Mage Hand Press ammunition, gated on the DDB
@@ -389,6 +397,16 @@ describe("DDBItem.prototype.isFirearm", () => {
 // weapon that already adds the ability modifier
 // =============================================================================
 describe("DDBItem.prototype.hasOverkillRangedDamage", () => {
+  const originalSettings = game.settings.settings;
+
+  beforeEach(() => {
+    foundry.utils.setProperty(game, "settings.settings", new Map([["mage-hand-press-core.gunslinger", {}]]));
+  });
+
+  afterEach(() => {
+    foundry.utils.setProperty(game, "settings.settings", originalSettings);
+  });
+
   // DDB attackType: 1 melee, 2 ranged
   function makeWeaponMock({
     properties = [] as { name: string }[],
@@ -408,6 +426,25 @@ describe("DDBItem.prototype.hasOverkillRangedDamage", () => {
   // Longbow, Shortbow, Sling and the Dart, which DDB types as ranged despite
   // being thrown, because it is a Simple Ranged Weapon
   it("applies to a ranged weapon", () => {
+    expect(makeWeaponMock().hasOverkillRangedDamage).toBe(true);
+  });
+
+  it.each([
+    [true, true, false],
+    [true, false, true],
+    [false, true, true],
+    [false, false, true],
+  ])("handles MHP active=%s and automation=%s without duplicating its die", (active, mankillerOverkill, expected) => {
+    setMockModules({ "mage-hand-press-core": { active } });
+    setMockSettings({ gunslinger: { mankillerOverkill } }, "mage-hand-press-core");
+    expect(makeWeaponMock().hasOverkillRangedDamage).toBe(expected);
+    expect(makeWeaponMock({ properties: FIREARM }).hasOverkillRangedDamage).toBe(false);
+    expect(makeWeaponMock({ attackType: 1 }).hasOverkillRangedDamage).toBe(false);
+  });
+
+  it("keeps importer automation when MHP has no registered Gunslinger settings", () => {
+    setMockModules({ "mage-hand-press-core": { active: true } });
+    foundry.utils.setProperty(game, "settings.settings", new Map());
     expect(makeWeaponMock().hasOverkillRangedDamage).toBe(true);
   });
 

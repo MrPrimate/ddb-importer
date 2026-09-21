@@ -497,9 +497,8 @@ describe("fighter native bonus checks", () => {
 describe("gunslinger Overkill", () => {
   const Enricher = ClassEnrichers.Gunslinger.Overkill;
 
-  // Both halves of Overkill are applied to the inventory weapons themselves at
-  // parse time (DDBItem.isFirearm / hasOverkillRangedDamage). This activity is
-  // the manual fallback for a ranged weapon that was not imported from DDB.
+  // Inventory weapons handle Overkill through the importer or MHP's damage hook.
+  // This activity is the fallback for a weapon without either form of automation.
   it("rolls 1d8 of the weapon's own damage type on a ranged weapon that already adds the modifier", () => {
     const e = build(Enricher);
     expect(e.type).toBe("damage");
@@ -508,7 +507,7 @@ describe("gunslinger Overkill", () => {
     expect(e.activity.data.damage.parts[0]).toMatchObject({
       number: 1,
       denomination: 8,
-      types: ["bludgeoning", "piercing", "slashing"],
+      types: expect.arrayContaining(["bludgeoning", "piercing", "slashing", "fire", "force", "radiant", "necrotic"]),
     });
   });
 

@@ -13,6 +13,7 @@
 - Use new Transform features in 6.0.x
 - If the experimental behavioural auras/templates is enabled, more chat cards are grouped for things like aura/region placement saves
 - Many monsters now parse summon activities when their activity allows a monster summon.
+- Improve Gunslinger support if the Mage Hand core classes module is installed.
 
 # 7.5.4
 

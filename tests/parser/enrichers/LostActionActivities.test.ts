@@ -83,13 +83,13 @@ describe("wizard EnchantingConversationalist", () => {
 });
 
 describe("gunslinger CriticalShot", () => {
-  it("points both module thresholds at the Deadeye scale and limits them to ranged weapon attacks", () => {
+  it("points both module thresholds at the Gunslinger scale and limits them to ranged weapon attacks", () => {
     const e = build(ClassEnrichers.Gunslinger.CriticalShot);
     const [ac5e, midi] = e.effects;
     expect(ac5e.ac5eOnly).toBe(true);
-    expect(ac5e.ac5eChanges[0].value).toBe("set=@scale.deadeye.critical-shot; actionType.rwak");
+    expect(ac5e.ac5eChanges[0].value).toBe("set=@scale.gunslinger.critical-shot; actionType.rwak");
     expect(midi.midiOnly).toBe(true);
-    expect(midi.midiChanges[0]).toMatchObject({ key: "flags.midi-qol.critical.rwak", value: "@scale.deadeye.critical-shot" });
+    expect(midi.midiChanges[0]).toMatchObject({ key: "flags.midi-qol.critical.rwak", value: "@scale.gunslinger.critical-shot" });
     expect(e.effects.every((h: any) => h.options.transfer)).toBe(true);
   });
 });

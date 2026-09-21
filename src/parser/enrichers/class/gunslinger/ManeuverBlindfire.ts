@@ -8,6 +8,7 @@ export default class ManeuverBlindfire extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Blindfire",
       targetType: "self",
       activationType: "bonus",
     };
@@ -17,6 +18,7 @@ export default class ManeuverBlindfire extends DDBEnricherData {
     return [
       {
         name: "Blindfire",
+        activityMatch: "Blindfire",
         options: {
           // "gain Blindsight with a range of 30 feet until the end of your turn" - a self buff
           expiry: "turnEnd",
