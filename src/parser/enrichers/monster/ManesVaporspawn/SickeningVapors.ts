@@ -41,7 +41,7 @@ export default class SickeningVapors extends DDBEnricherData {
         name: "Sickening Vapors",
         activityMatch: "Sickening Vapors Save",
         statuses: ["Incapacitated"],
-        options: { transfer: false, durationSeconds: null, expiry: "turnEnd" },
+        options: { transfer: false, durationSeconds: null, expiry: "targetEnd" },
       },
     ];
   }

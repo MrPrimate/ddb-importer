@@ -104,7 +104,10 @@ describe("options that left no activity get a placer beside the parsed one", () 
     expect(chill.init.type).toBe("damage");
     expect(chill.build.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["cold"] });
     expect(e.effects[0]).toMatchObject({ activityMatch: "Frost Squall: Chill", options: { transfer: false, expiry: "turnEnd" } });
-    expect(e.effects[0].changes[0]).toMatchObject({ key: "system.attributes.movement.walk", value: "15" });
+    // every mode is capped at 15 ft; a downgrade leaves a slower speed alone
+    expect(e.effects[0].changes.map((c: { key: string; value: string }) => [c.key, c.value])).toEqual(
+      ["walk", "fly", "swim", "climb", "burrow"].map((mode) => [`system.attributes.movement.speeds.${mode}`, "15"]),
+    );
   });
 
   it("Vortex Terrain is enemy terrain that follows the Elemental and spends the daily use", () => {

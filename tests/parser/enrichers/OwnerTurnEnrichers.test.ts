@@ -42,7 +42,7 @@ describe("owner-turn region enrichers", () => {
     expect(e.type).toBe("utility");
     expect(e.activity.data?.behaviors?.[0]).toMatchObject({ config: { ownerTurn: true, events: ["tokenTurnEnd"] } });
     expect(e.additionalActivities[0].build?.saveOverride).toEqual({ ability: ["con"], dc: { calculation: "", formula: "12" } });
-    expect(e.effects[0]).toMatchObject({ activityMatch: "Sickening Vapors Save", options: { expiry: "turnEnd", durationSeconds: null } });
+    expect(e.effects[0]).toMatchObject({ activityMatch: "Sickening Vapors Save", options: { expiry: "targetEnd", durationSeconds: null } });
     expect(e.additionalActivities[0].build?.activationOverride?.condition).toContain("immunity");
   });
 
