@@ -166,6 +166,45 @@ describe("linkMonsterSummons fills in the actors by name", () => {
     expect(item.system.activities.summon1.profiles[0].uuid).toBe(modern.uuid);
   });
 
+  it("matches a creature imported with the legacy postfix and keeps the plain name on the profile", async () => {
+    useMonsterPack([entry("Test Hound (Legacy)", "2014")]);
+    const item = builtItem(summon);
+    await linkMonsterSummons(item, creatures, false);
+    expect(item.system.activities.summon1.profiles[0]).toMatchObject({
+      uuid: "Compendium.world.monsters.Actor.TestHound(Legacy)2014",
+      name: "Test Hound",
+    });
+  });
+
+  it("prefers the summoner's printing in the munch over the legacy creature a link points at", async () => {
+    useMonsterPack([]);
+    setMonsterBatch([
+      { id: 7, name: "Test Hound", isLegacy: true },
+      { id: 8, name: "Test Hound", isLegacy: false },
+    ]);
+    const linked = [{ name: "Test Hound", ddbId: 7 }];
+    const item = builtItem(monsterSummon("Call Pets", { creatures: linked }));
+    await linkMonsterSummons(item, linked, true);
+    expect(item.system.activities.summon1.profiles[0].uuid)
+      .toBe(`Compendium.world.monsters.Actor.${utils.namedIDStub("Test Hound", { postfix: 8 })}`);
+    // the legacy summoner still gets the creature its link named
+    const legacy = builtItem(monsterSummon("Call Pets", { creatures: linked }));
+    await linkMonsterSummons(legacy, linked, false);
+    expect(legacy.system.activities.summon1.profiles[0].uuid)
+      .toBe(`Compendium.world.monsters.Actor.${utils.namedIDStub("Test Hound", { postfix: 7 })}`);
+  });
+
+  it("prefers the summoner's printing in the munch over the other printing already in the compendium", async () => {
+    const legacy = { ...entry("Test Hound (Legacy)", "2014"), flags: { ddbimporter: { id: 7 } } };
+    useMonsterPack([legacy]);
+    setMonsterBatch([{ id: 8, name: "Test Hound", isLegacy: false }]);
+    const linked = [{ name: "Test Hound", ddbId: 7 }];
+    const item = builtItem(monsterSummon("Call Pets", { creatures: linked }));
+    await linkMonsterSummons(item, linked, true);
+    expect(item.system.activities.summon1.profiles[0].uuid)
+      .toBe(`Compendium.world.monsters.Actor.${utils.namedIDStub("Test Hound", { postfix: 8 })}`);
+  });
+
   it("does nothing without a monster compendium", async () => {
     useMonsterPack(null);
     const item = builtItem(summon);

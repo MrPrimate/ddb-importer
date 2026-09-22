@@ -115,6 +115,10 @@ export function monsterSummon(name: string, summon: IMonsterSummon): IDDBAdditio
  * missing actor when the summon is used. Any other keeps its actor-less profile, and
  * re-importing the summoner once the creature is munched completes the link.
  * With no monster compendium configured (the audit harness) nothing is linked.
+ *
+ * Preference, whether the creature is in the compendium already or in the munch now running:
+ * the summoner's own printing by name, then the D&D Beyond id the text gave, then the other
+ * printing. D&D Beyond's links on a 2024 monster often still point at the legacy creature.
  */
 export async function linkMonsterSummons(
   data: { name?: string; system?: { activities?: Record<string, I5eActivity> } } | null | undefined,
@@ -137,21 +141,32 @@ export async function linkMonsterSummons(
   const ownRules = is2024 ? "2024" : "2014";
 
   for (const creature of creatures) {
-    const wanted = creature.name.toLowerCase();
-    const named = index.filter((entry) => entry.name?.toLowerCase() === wanted);
-    // D&D Beyond's links on a 2024 monster often still point at the legacy creature, so a
-    // same-named creature of the summoner's own rules wins over the id the text gave
-    const found = named.find((entry) => entry.system?.source?.rules === ownRules)
-      ?? (creature.ddbId ? index.find((entry) => Number(entry.flags?.ddbimporter?.id) === creature.ddbId) : undefined)
-      ?? named[0];
-    if (!found) {
-      logger.info(`${data?.name}: ${creature.name} is not in the monster compendium; munch it to complete the summon`);
-    }
-    // not munched yet: a creature that gives its id, or one in the munch now running, will land
+    const wanted = printedName(creature.name).toLowerCase();
+    const named = index.filter((entry) => printedName(entry.name).toLowerCase() === wanted);
+    const byId = creature.ddbId
+      ? index.find((entry) => Number(entry.flags?.ddbimporter?.id) === creature.ddbId)
+      : undefined;
+    // not munched yet: a creature in the munch now running, or one that gives its id, will land
     // on an id that can be worked out from its name. The munch knows the name as D&D Beyond
     // spells it, which a name read from a link's slug may not match.
-    const inBatch = (creature.ddbId ? findInMonsterBatchById(creature.ddbId) : null) ?? findInMonsterBatch(creature.name, is2024);
-    const pending = inBatch ?? (creature.ddbId ? { id: creature.ddbId, name: creature.name } : null);
+    const ownBatch = findInMonsterBatch(creature.name, is2024, { ownRulesOnly: true });
+    const idBatch = creature.ddbId ? findInMonsterBatchById(creature.ddbId) : null;
+    const anyBatch = findInMonsterBatch(creature.name, is2024);
+    const givenId = creature.ddbId ? { id: creature.ddbId, name: creature.name } : null;
+
+    let found: (typeof index)[number] | undefined;
+    let pending: { id: number; name: string } | null = null;
+    const ownNamed = named.find((entry) => entry.system?.source?.rules === ownRules);
+    if (ownNamed) found = ownNamed;
+    else if (ownBatch) pending = ownBatch;
+    else if (byId) found = byId;
+    else if (idBatch) pending = idBatch;
+    else if (named[0]) found = named[0];
+    else pending = anyBatch ?? givenId;
+
+    if (!found && !anyBatch) {
+      logger.info(`${data?.name}: ${creature.name} is not in the monster compendium; munch it to complete the summon`);
+    }
     const uuid = found?.uuid ?? (pending
       ? `Compendium.${pack.metadata.id}.Actor.${utils.namedIDStub(pending.name, { postfix: pending.id })}`
       : null);
@@ -161,7 +176,12 @@ export async function linkMonsterSummons(
       if (!profile) continue;
       profile.uuid = uuid;
       // a name read from a link's slug loses its punctuation; the compendium has it as printed
-      if (found?.name && !creature.label) profile.name = found.name;
+      if (found?.name && !creature.label) profile.name = printedName(found.name);
     }
   }
+}
+
+/** The legacy postfix setting imports a superseded 2014 creature as "Wolf (Legacy)". */
+function printedName(name: string | undefined): string {
+  return (name ?? "").replace(/\s*\(Legacy\)\s*$/i, "");
 }

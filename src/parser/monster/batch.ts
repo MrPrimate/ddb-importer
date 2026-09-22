@@ -27,10 +27,14 @@ export function setMonsterBatch(monsters: { id: number; name: string; isLegacy?:
   }
 }
 
-/** The batch's monster of this name, preferring the printing that matches the summoner's rules. */
-export function findInMonsterBatch(name: string, is2024: boolean): IBatchMonster | null {
+/**
+ * The batch's monster of this name, preferring the printing that matches the summoner's rules;
+ * `ownRulesOnly` refuses the other printing instead of falling back to it.
+ */
+export function findInMonsterBatch(name: string, is2024: boolean, { ownRulesOnly = false } = {}): IBatchMonster | null {
   const entries = batch.get(name.toLowerCase()) ?? [];
-  return entries.find((entry) => entry.isLegacy !== is2024) ?? entries[0] ?? null;
+  const own = entries.find((entry) => entry.isLegacy !== is2024) ?? null;
+  return own ?? (ownRulesOnly ? null : entries[0] ?? null);
 }
 
 /** The batch's monster with this D&D Beyond id, for a creature the text links to directly. */
