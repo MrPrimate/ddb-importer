@@ -1,9 +1,15 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { areaPlacer, areaTrigger } from "../../data/AreaBuilders";
+
+const GUARDIAN_PULL = "Guardian: Pull";
 
 /**
- * Perfected Armor (Armorer, 2014): the Guardian reaction pull and the Infiltrator lightning
- * launcher rider both key off the same proficiency-bonus pool per long rest. DDB ships no
- * action, so the feature imported with nothing usable. The 2024 printing is passive.
+ * Perfected Armor (Armorer): DDB ships no action, so the feature imported with nothing usable.
+ * The 2014 printing keys the Guardian pull and the Infiltrator rider off one proficiency-bonus
+ * pool; the 2024 printing gives each model its own Intelligence-modifier pool, and a character
+ * wears one model, so one pool serves. The Guardian pull answers a Huge or smaller creature
+ * ending its turn within 30 feet, so a 30-foot emanation marks the area and the Strength save is
+ * used then; taking the Reaction, the pull and the follow-up attack are the artificer's call.
  */
 export default class PerfectedArmor extends DDBEnricherData {
 
@@ -25,13 +31,32 @@ export default class PerfectedArmor extends DDBEnricherData {
     };
   }
 
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const pull = areaTrigger(GUARDIAN_PULL, {
+      condition: "Guardian model: a Huge or smaller creature you can see ends its turn within 30 feet; pulled up to 25 feet toward you on a failure",
+      save: { ability: ["str"], calculation: "spellcasting" },
+    });
+    return [
+      areaPlacer("Guardian: Place Gravitational Aura", {
+        template: { type: "radius", size: "30" },
+        activationType: "special",
+        activationCondition: "Guardian model only",
+      }),
+      {
+        ...pull,
+        build: { ...pull.build, activationOverride: { type: "reaction", value: 1, condition: pull.build?.activationOverride?.condition ?? "" } },
+        // the 2014 pool is spent by the feature's own activity; 2024 spends it on the pull
+        overrides: { ...pull.overrides, ...(this.is2014 ? {} : { noConsumeTargets: false, addItemConsume: true }) },
+      },
+    ];
+  }
+
   override get override(): IDDBOverrideData | null {
-    if (!this.is2014) return null;
     return {
       uses: this._getUsesWithSpent({
         type: "class",
         name: this.ddbParser.originalName,
-        max: "@prof",
+        max: this.is2014 ? "@prof" : "max(1, @abilities.int.mod)",
         period: "lr",
       }),
     };

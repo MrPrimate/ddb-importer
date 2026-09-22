@@ -1,6 +1,6 @@
 import _MonsterFeatureSupport from "./_MonsterFeatureSupport";
 
-/** Owner-turn auras are rolled by the GM; token turn events refer to the affected token. */
+/** Owner-turn auras are rolled by the GM; touching the owner is a separate damage trigger. */
 export default class DamageAura extends _MonsterFeatureSupport {
   get aura(): { radius: string; edge: string; parts: I5eDamagePart[] } | null {
     const sentence = this.text.split(/[.!]/).find((s) => (/At the (start|end) of each of .+?'s turns/i).test(s));
@@ -22,6 +22,7 @@ export default class DamageAura extends _MonsterFeatureSupport {
           generateDamage: true,
           damageParts: parts,
           activationOverride: { type: "special", value: null, condition: contact.trim() },
+          rangeOverride: { units: "ft", value: contact.match(/within (\d+) feet/i)?.[1] ?? "5" },
         }),
       ]
       : [];
@@ -34,6 +35,7 @@ export default class DamageAura extends _MonsterFeatureSupport {
   override get activity(): IDDBActivityData | null {
     const aura = this.aura;
     if (!aura) return null;
+    const choice = (/of (?:the \w+|'?its)[^.!]*choice/i).test(this.text);
     return {
       name: "Aura Damage",
       removeDamageParts: true,
@@ -42,10 +44,14 @@ export default class DamageAura extends _MonsterFeatureSupport {
       noConsumeTargets: true,
       activationCondition: `At the ${aura.edge} of the source monster's turn. Select eligible creatures in the emanation; apply manually.`,
       targetType: "creature",
-      targetChoice: (/of (?:the \w+|'?its)[^.!]*choice/i).test(this.text),
+      targetChoice: choice,
       data: {
         damage: { includeBase: false },
-        target: { template: { type: "radius", size: aura.radius, units: "ft" } },
+        target: {
+          override: true,
+          affects: { type: "creature", count: "", choice },
+          template: { type: "radius", size: aura.radius, units: "ft" },
+        },
       },
     };
   }

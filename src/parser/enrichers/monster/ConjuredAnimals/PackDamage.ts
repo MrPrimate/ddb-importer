@@ -117,7 +117,7 @@ export default class PackDamage extends DDBEnricherData {
         },
         auraeffects: {
           applyToSelf: true,
-          bestFormula: "",
+          bestFormula: "@flags.dnd5e.summon.level",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -125,7 +125,7 @@ export default class PackDamage extends DDBEnricherData {
           distanceFormula: `10`,
           disposition: -1,
           evaluatePreApply: true,
-          overrideName: "",
+          overrideName: "Conjured Animals: Pack Damage",
           script: "",
         },
       },

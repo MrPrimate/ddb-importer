@@ -68,7 +68,7 @@ export default class FlameDamage extends DDBEnricherData {
         },
         auraeffects: {
           applyToSelf: false,
-          bestFormula: "",
+          bestFormula: "@flags.dnd5e.summon.level",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -76,7 +76,7 @@ export default class FlameDamage extends DDBEnricherData {
           distanceFormula: `5`,
           disposition: 0,
           evaluatePreApply: true,
-          overrideName: "",
+          overrideName: "Flaming Sphere: Heat",
           script: "",
         },
       },

@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { areaTrigger, emanation } from "../../data/AreaBuilders";
 
 export default class CrownOfHorns extends DDBEnricherData {
-
   // DDB lists the Horned King form under both "Crown of Horns" and its
   // "Dark Heart" benefit with identical text; only the primary name builds
   // anything so a character carrying both entries gets one set of activities
@@ -22,6 +22,7 @@ export default class CrownOfHorns extends DDBEnricherData {
       activationType: "bonus",
       addItemConsume: true,
       data: {
+        target: emanation("20", "self"),
         duration: {
           value: "1",
           units: "minute",
@@ -33,35 +34,24 @@ export default class CrownOfHorns extends DDBEnricherData {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (!this.isPrimary) return [];
     return [
-      {
-        init: {
-          name: "King of All: Aura Save",
-          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
-        },
-        build: {
-          generateActivation: true,
-          generateTarget: true,
-          generateConsumption: false,
-        },
-        overrides: {
-          activationType: "special",
-          activationCondition: "On activation, and at the start of each of your turns, choose a creature you can see in the 20 foot aura",
-          targetType: "creature",
-          data: {
-            save: {
-              ability: ["cha"],
-              dc: {
-                calculation: "spellcasting",
-                formula: "",
-              },
-            },
-            range: {
-              value: 20,
-              units: "ft",
+      ...["Enticement", "Wickedness", "Terror"].map((choice) => {
+        const trigger = areaTrigger(`King of All: ${choice}`, {
+          condition:
+            "On activation, and at the start of each of your turns, choose a creature you can see in the 20 foot aura",
+          save: { ability: ["cha"], calculation: "spellcasting" },
+        });
+        return {
+          ...trigger,
+          build: {
+            ...trigger.build,
+            targetOverride: {
+              override: true,
+              affects: { type: "creature" as const, count: "1", choice: true },
+              template: {},
             },
           },
-        },
-      },
+        };
+      }),
       {
         init: {
           name: "Spend Pact Slot to Restore Use",
@@ -105,19 +95,19 @@ export default class CrownOfHorns extends DDBEnricherData {
     if (!this.isPrimary) return null;
     return {
       uses: {
-        "spent": 0,
-        "recovery": [
+        spent: 0,
+        recovery: [
           {
-            "period": "lr",
-            "type": "recoverAll",
+            period: "lr",
+            type: "recoverAll",
           },
         ],
-        "max": "1",
+        max: "1",
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbCrownOfHorns">
 <p><strong>Implementation Details</strong></p>
-<p>The King of All save offers three effects; apply the one chosen.</p>
+<p>Choose a creature and one King of All save. Each save applies only its named effect.</p>
 </section>`,
     };
   }
@@ -142,7 +132,7 @@ export default class CrownOfHorns extends DDBEnricherData {
       },
       {
         name: "King of All: Enticement",
-        activityMatch: "King of All: Aura Save",
+        activityMatch: "King of All: Enticement",
         statuses: ["Charmed"],
         options: {
           expiry: "sourceStart",
@@ -151,7 +141,7 @@ export default class CrownOfHorns extends DDBEnricherData {
       },
       {
         name: "King of All: Wickedness",
-        activityMatch: "King of All: Aura Save",
+        activityMatch: "King of All: Wickedness",
         options: {
           expiry: "sourceStart",
           description: "Disadvantage on attack rolls and ability checks until the start of the origin's next turn.",
@@ -167,14 +157,14 @@ export default class CrownOfHorns extends DDBEnricherData {
       },
       {
         name: "King of All: Terror",
-        activityMatch: "King of All: Aura Save",
+        activityMatch: "King of All: Terror",
         statuses: ["Frightened"],
         options: {
           expiry: "sourceStart",
-          description: "Frightened until the start of the origin's next turn; it must move away from the origin by the safest route on its turn.",
+          description:
+            "Frightened until the start of the origin's next turn; it must move away from the origin by the safest route on its turn.",
         },
       },
     ];
   }
-
 }

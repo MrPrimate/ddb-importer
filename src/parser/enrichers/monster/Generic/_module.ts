@@ -65,6 +65,7 @@ export { default as StatusRider } from "./StatusRider";
 export { default as StickyNet } from "./StickyNet";
 export { default as StickyShield } from "./StickyShield";
 export { default as SuaveDefense } from "./SuaveDefense";
+export { default as SummonCreatures } from "./SummonCreatures";
 export { default as SunlightSensitivity } from "./SunlightSensitivity";
 export { default as Teleport } from "./Teleport";
 export { default as TwoHeads } from "./TwoHeads";

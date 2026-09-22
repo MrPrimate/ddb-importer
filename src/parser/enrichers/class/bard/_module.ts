@@ -26,6 +26,7 @@ export { default as EventidesSplendor } from "./EventidesSplendor";
 export { default as EvocationLessons } from "./EvocationLessons";
 export { default as GrantTemporaryHitPoints } from "./GrantTemporaryHitPoints";
 export { default as GuidingWhispers } from "./GuidingWhispers";
+export { default as HandyHaints } from "./HandyHaints";
 export { default as HuntingLessons } from "./HuntingLessons";
 export { default as InspirationalDance } from "./InspirationalDance";
 export { default as InspiredEclipse } from "./InspiredEclipse";
