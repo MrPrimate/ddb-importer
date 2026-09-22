@@ -967,3 +967,40 @@ header > a.header-button.control.ddb-open-url {
   line-height: 1;
   white-space: nowrap;
 }
+.ddb-region-recipients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.ddb-region-recipient {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ddb-region-recipient:has(input:checked) {
+  border-color: #66dd99;
+}
+
+.ddb-region-recipient:is(:hover, :focus-within) {
+  border-color: #ffd166;
+}
+
+.ddb-region-recipient img {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border: 0;
+}
+
+.ddb-region-recipient span {
+  overflow-wrap: anywhere;
+}

@@ -1,6 +1,7 @@
 import logger from "../../lib/Logger";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import type { DDBSocket } from "../../hooks/socket/sockets";
+import RegionTargetPreview from "./RegionTargetPreview";
 
 interface IRemotePrompt {
   sender: string;
@@ -48,6 +49,13 @@ export default class RegionTargetPrompt {
     });
   }
 
+  /** Video token art uses a still actor portrait; no thumbnail work delays a pending choice. */
+  static tokenImage(token: TokenDocument.Implementation): string {
+    return [token.texture.src, token.actor?.img].find(
+      (src) => src && !foundry.helpers.media.VideoHelper.hasVideoExtension(src),
+    ) ?? "icons/svg/mystery-man.svg";
+  }
+
   static async show(request: IRegionTargetRequest, signal: AbortSignal, waiting = false): Promise<unknown> {
     if (signal.aborted) return null;
     const escape = foundry.utils.escapeHTML;
@@ -55,15 +63,24 @@ export default class RegionTargetPrompt {
     const content = waiting
       ? `<p>${escape(game.i18n.localize("ddb-importer.behaviors.macro.choice.waiting"))}</p>`
       : `<p>${escape(request.instruction)}</p><p>${escape(game.i18n.format("ddb-importer.behaviors.macro.choice.limit", { max: request.max }))}</p>` +
-        tokens
-          .map(
-            (token) =>
-              `<label><input type="checkbox" name="recipient" value="${escape(token.uuid ?? "")}"> ${escape(token.name ?? "")}</label>`,
-          )
-          .join("") +
+        `<div class="ddb-region-recipients">` + tokens
+        .map(
+          (token) =>
+            `<label class="ddb-region-recipient"><input type="checkbox" name="recipient" value="${escape(token.uuid ?? "")}">` +
+              `<img src="${escape(RegionTargetPrompt.tokenImage(token))}" alt="" width="36" height="36" loading="lazy">` +
+              `<span>${escape(token.name ?? "")}</span></label>`,
+        )
+        .join("") + `</div>` +
         `<select name="activity">${request.activities.map((a) => `<option value="${escape(a.id)}">${escape(a.name)}</option>`).join("")}</select>`;
     let dialog: { close: () => Promise<unknown> } | undefined;
+    let preview: RegionTargetPreview | undefined;
+    let listeners: AbortController | undefined;
+    const cleanup = () => {
+      preview?.destroy();
+      listeners?.abort();
+    };
     const abort = () => {
+      cleanup();
       void dialog?.close();
     };
     signal.addEventListener("abort", abort, { once: true });
@@ -94,9 +111,20 @@ export default class RegionTargetPrompt {
           { action: "skip", label: "ddb-importer.behaviors.macro.choice.skip" },
         ],
         render: (_event: Event, app: { close: () => Promise<unknown>; element?: HTMLElement }) => {
+          cleanup();
           dialog = app;
-          if (signal.aborted) abort();
+          if (signal.aborted) {
+            abort();
+            return;
+          }
           const form = app.element?.querySelector("form");
+          listeners = new AbortController();
+          for (const img of form?.querySelectorAll<HTMLImageElement>(".ddb-region-recipient img") ?? []) {
+            img.addEventListener("error", () => {
+              img.src = "icons/svg/mystery-man.svg";
+            }, { once: true, signal: listeners.signal });
+          }
+          if (form && tokens.length) preview = new RegionTargetPreview(form, tokens);
           const constrain = () => {
             if (!form) return;
             const activity = request.activities.find(
@@ -109,12 +137,16 @@ export default class RegionTargetPrompt {
             const submit = form.querySelector<HTMLButtonElement>("button[data-action=\"choose\"]");
             if (submit) submit.disabled = count > limit;
           };
-          form?.addEventListener("change", constrain);
+          form?.addEventListener("change", constrain, { signal: listeners.signal });
           constrain();
         },
-        close: () => null,
+        close: () => {
+          cleanup();
+          return null;
+        },
       });
     } finally {
+      cleanup();
       signal.removeEventListener("abort", abort);
     }
   }
