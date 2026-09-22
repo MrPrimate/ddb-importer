@@ -39,7 +39,24 @@
         "verified": "6.0.3",
         "maximum": "6.0.99"
       }
-    }]
+    }],
+    "recommends": [
+      {
+        "id": "auraeffects",
+        "type": "module",
+        "reason": "Automates DDB Importer aura features (e.g. Paladin auras) as Aura Effects."
+      },
+      {
+        "id": "tokenizer-2",
+        "type": "module",
+        "reason": "Allows the creation of Pog style tokens from the DDB art."
+      },
+      {
+        "id": "vision-5e",
+        "type": "module",
+        "reason": "Adds advanced Vision/Detection modes to the 5e system."
+      }
+    ]
   },
   "scripts": [
     "./vendor/zipjs/zip-fs.js"
