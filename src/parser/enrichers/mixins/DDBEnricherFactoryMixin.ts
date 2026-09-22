@@ -785,7 +785,6 @@ export default abstract class DDBEnricherFactoryMixin {
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
         useExistingEffect = true;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
@@ -793,7 +792,6 @@ export default abstract class DDBEnricherFactoryMixin {
       } else if (effectHint.raw) {
         effect = foundry.utils.deepClone(effectHint.raw);
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":
@@ -843,6 +841,9 @@ export default abstract class DDBEnricherFactoryMixin {
         }
 
       }
+
+      // Presentation options also apply to reused and raw effects, not just newly built ones.
+      if (effectOptions.description) effect.description = effectOptions.description;
 
       if (effectHint.statuses) {
         for (const status of effectHint.statuses) {

@@ -28,6 +28,16 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
     placement: "primary",
     // the Goat of Traveling uses Riding Horse statistics; Travail and Terror are Giant Goats
     profiles: [{ creature: "Riding Horse" }, { creature: "Giant Goat" }],
+    aura: {
+      name: "Goat of Terror",
+      size: "30",
+      affects: "enemy",
+      events: ["tokenTurnStart"],
+      save: { ability: ["wis"], dc: "15" },
+      status: "Frightened",
+      durationSeconds: 60,
+      condition: "While riding the Goat of Terror; place the aura on the goat's token",
+    },
   },
   ONE("(Marble Elephant)", "Become Elephant", "Elephant"),
   ONE("(Obsidian Steed)", "Become Nightmare", "Nightmare"),

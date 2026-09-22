@@ -14,6 +14,7 @@ import {
   utils,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
+import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
@@ -264,6 +265,8 @@ export default class DDBMonsterFactory {
     const failedMonsterNames = [];
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
+    // parse() is called a slice at a time; the whole munch is what a summoner may need to find
+    setMonsterBatch([...this.source, ...monsters]);
 
     const totalMonsters = this.source.length;
     let i = this.currentDocument;

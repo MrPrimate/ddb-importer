@@ -307,6 +307,7 @@ global {
     groupName?: string;
     isLineage?: boolean;
     entityRaceId?: number;
+    entityRaceTypeId?: number;
 
     // Image handling
     ddbImg?: string;

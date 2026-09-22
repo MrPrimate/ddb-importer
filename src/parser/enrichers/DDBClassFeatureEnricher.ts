@@ -72,6 +72,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   NAME_HINTS: Record<string, string> = {
+    // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
+    "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
@@ -512,6 +514,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Eldritch Invocations: Repelling Blast": ClassEnrichers.Warlock.EldritchInvocationsRepellingBlast,
     "Eldritch Invocations: Eldritch Spear": ClassEnrichers.Warlock.EldritchInvocationsEldritchSpear,
+    "FloodingAbundance": ClassEnrichers.Rogue.FloodingAbundance,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

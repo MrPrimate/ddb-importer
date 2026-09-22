@@ -1,5 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+const PROTECTION_AURA = { bestFormula: "max(1, @abilities.cha.mod)", overrideName: "Aura of Protection" };
+
 export default class AuraOf extends DDBEnricherData {
 
   get ignoreSelf() {
@@ -8,28 +10,18 @@ export default class AuraOf extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     if (!this.isClass("Paladin")) return [];
-    // const className = !this.ddbParser.subKlass
-    //   ? "paladin"
-    //   : this.hasClassFeature({
-    //     featureName: this.ddbParser.originalName,
-    //     className: "Paladin",
-    //     subClassName: this.ddbParser.subKlass,
-    //   })
-    //     ? this.getClassIdentifier(this.ddbParser.subKlass)
-    //     : "paladin";
-
-    // console.warn(`Aura of: ${this.ddbParser.originalName} - ${className}`, {
-    //   this: this,
-    //   className: this.hasClassFeature({
-    //     featureName: this.ddbParser.originalName,
-    //     className: "Paladin",
-    //     subClassName: this.ddbParser.subKlass,
-    //   }),
-    // });
+    const isAuraOfProtection = this.ddbParser.originalName.toLowerCase() === "aura of protection";
+    const protectionChanges = [
+      DDBEnricherData.ChangeHelper.unsignedAddChange(
+        `+${PROTECTION_AURA.bestFormula}`, 20, "system.bonuses.abilities.save",
+      ),
+    ];
 
     return [
       {
         noCreate: true,
+        ...(isAuraOfProtection ? { changesOverwrite: true, changes: protectionChanges } : {}),
+        options: { description: this.data.system.description?.value },
         daeStackable: "noneNameOnly",
         data: {
           flags: {
@@ -46,7 +38,7 @@ export default class AuraOf extends DDBEnricherData {
         },
         auraeffects: {
           applyToSelf: !this.ignoreSelf,
-          bestFormula: "",
+          bestFormula: isAuraOfProtection ? PROTECTION_AURA.bestFormula : "",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -54,8 +46,10 @@ export default class AuraOf extends DDBEnricherData {
           distanceFormula: `@scale.paladin.aura-of-protection`,
           disposition: 1,
           evaluatePreApply: true,
-          overrideName: "",
-          script: "",
+          overrideName: isAuraOfProtection ? PROTECTION_AURA.overrideName : "",
+          script: isAuraOfProtection
+            ? `!sourceToken.actor.statuses.has("${this.is2014 ? "unconscious" : "incapacitated"}")`
+            : "",
         },
       },
     ];
