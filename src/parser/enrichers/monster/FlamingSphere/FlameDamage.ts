@@ -6,7 +6,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * its turn inside gets the Dex save; the sphere itself never saves. Ramming the
  * sphere into a creature is the mover's own trigger and stays on Move and
  * Attack. The auraeffects + midi OverTime effect below is the module arm of the
- * same automation, so the region arm only emits without Aura Effects.
+ * same automation, so the region arm remains unless both modules can automate it.
  */
 export default class FlameDamage extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
@@ -36,7 +36,7 @@ export default class FlameDamage extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenTurnEnd"],
             excludeSelf: true,
-            auraeffectsNever: true,
+            auraeffectsNever: this.useMidiAutomations,
           }),
         ],
         save: {
@@ -76,7 +76,7 @@ export default class FlameDamage extends DDBEnricherData {
         ],
         auraeffects: {
           applyToSelf: false,
-          bestFormula: "",
+          bestFormula: "@flags.dnd5e.summon.level",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -84,7 +84,7 @@ export default class FlameDamage extends DDBEnricherData {
           distanceFormula: `5`,
           disposition: 0,
           evaluatePreApply: true,
-          overrideName: "",
+          overrideName: "Flaming Sphere: Heat",
           script: "",
         },
       },

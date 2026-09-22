@@ -50,6 +50,13 @@ export default class SteelyEyedAura extends DDBEnricherData {
       {
         name: "Steely-Eyed Aura",
         auraeffectsOnly: true,
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "riderStatuses.frightened",
+            20,
+            "flags.automated-conditions-5e.save.advantage",
+          ),
+        ],
         options: {
           transfer: true,
           description: "You and allies within the Emanation have Advantage on saving throws made to avoid or end the Frightened condition. Inactive while you are Incapacitated.",

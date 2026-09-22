@@ -4,10 +4,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * The importer-built 2024 Conjure Animals pack.
  * Using Pack Damage from the pack token places a 10-foot emanation attached to it;
- * the region fires the savevwhen a creature enters or ends its turn inside (once per turn).
+ * the region fires the save when a creature enters or ends its turn inside (once per turn).
  * The pack moving within 10 feet of a creature is mover-inverted and stays manual. The
  * "(Aura Automation)" activity below is the Aura Effects + midi arm of the same
- * automation, so the region arm only emits without Aura Effects.
+ * automation, so the region arm remains unless both modules can automate it.
  */
 export default class PackDamage extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
@@ -39,7 +39,7 @@ export default class PackDamage extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
             excludeSelf: true,
-            auraeffectsNever: true,
+            auraeffectsNever: this.useMidiAutomations,
           }),
         ],
         save: {
@@ -54,7 +54,7 @@ export default class PackDamage extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (!this.useMidiAutomations) return [];
+    if (!this.useMidiAutomations || !DDBEnricherData.AutoEffects.effectModules().auraeffectsInstalled) return [];
     return [
       {
         init: {
@@ -101,6 +101,7 @@ export default class PackDamage extends DDBEnricherData {
       {
         activityMatch: "Pack Damage (Aura Automation)",
         auraeffectsOnly: true,
+        midiOnly: true,
         options: {
           transfer: true,
         },
@@ -128,7 +129,7 @@ export default class PackDamage extends DDBEnricherData {
         },
         auraeffects: {
           applyToSelf: true,
-          bestFormula: "",
+          bestFormula: "@flags.dnd5e.summon.level",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -136,7 +137,7 @@ export default class PackDamage extends DDBEnricherData {
           distanceFormula: `10`,
           disposition: -1,
           evaluatePreApply: true,
-          overrideName: "",
+          overrideName: "Conjured Animals: Pack Damage",
           script: "",
         },
       },

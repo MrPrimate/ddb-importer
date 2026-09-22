@@ -68,6 +68,34 @@ export default abstract class _StormAura extends DDBEnricherData {
           durationSeconds: this.is2014 ? 60 : 600,
         },
       },
+      {
+        name: `Shielding Storm: ${this.tundra}`,
+        activityMatch: "Activate Aura",
+        auraeffectsOnly: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.damageResistanceChange(this.element),
+        ],
+        options: {
+          transfer: false,
+          durationSeconds: this.is2014 ? 60 : 600,
+        },
+        data: {
+          flags: { ddbimporter: { effectIdLevel: { min: 10, max: null } } },
+        },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "10",
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: `Shielding Storm: ${this.tundra}`,
+          script: "",
+        },
+      },
     ];
   }
 

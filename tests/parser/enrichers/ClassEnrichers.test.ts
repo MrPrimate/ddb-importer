@@ -1585,8 +1585,10 @@ describe("Storm Herald aura emanations", () => {
   });
 
   it("Shielding Storm's embedded aura effects are auraeffects-only", () => {
-    const e = build((ClassEnrichers.Barbarian as any).ShieldingStorm);
-    for (const effect of e.effects) expect(effect.auraeffectsOnly).toBe(true);
+    const e = build(ClassEnrichers.Barbarian.StormAuraDesert);
+    const embedded = e.effects.filter((effect: IDDBEffectHint) => !effect.standalone);
+    expect(embedded).toHaveLength(1);
+    expect(embedded[0]).toMatchObject({ auraeffectsOnly: true, activityMatch: "Activate Aura" });
   });
 });
 

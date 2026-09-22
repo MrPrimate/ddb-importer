@@ -1,5 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+const AURA = { bestFormula: "max(1, @abilities.cha.mod)", overrideName: "Aura of Hate" };
+
 export default class AuraOfHate extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -35,11 +37,12 @@ export default class AuraOfHate extends DDBEnricherData {
     return [
       {
         name: "Aura of Hate (Self)",
+        auraeffectsNever: true,
         daeStackable: "none",
         data: {
           system: {
             changes: [
-              DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
+              DDBEnricherData.ChangeHelper.unsignedAddChange(`+${AURA.bestFormula}`, 20, "system.rolls.damage.mwak.bonus"),
             ],
           },
         },
@@ -53,8 +56,9 @@ export default class AuraOfHate extends DDBEnricherData {
         standalone: true,
         originReplacement: true,
         auraeffectsNever: true,
+        data: { flags: { ddbimporter: { aura: { ...AURA } } } },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`+${AURA.bestFormula}`, 20, "system.rolls.damage.mwak.bonus"),
         ],
       },
       {
@@ -62,8 +66,8 @@ export default class AuraOfHate extends DDBEnricherData {
         auraeffectsOnly: true,
         daeStackable: "none",
         auraeffects: {
-          applyToSelf: false,
-          bestFormula: "",
+          ...AURA,
+          applyToSelf: true,
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -71,12 +75,11 @@ export default class AuraOfHate extends DDBEnricherData {
           distanceFormula: "@scale.oathbreaker.aura-of-hate",
           disposition: 0,
           evaluatePreApply: true,
-          overrideName: "",
-          script: `(Object.values(actor.system.details.type).concat(actor.system.details.race?.name).some(type => "undead; fiend".split(";").filter(t => t).includes(type?.toLowerCase())))`,
+          script: `actor.uuid === sourceToken.actor.uuid || ["fiend", "undead"].includes(actor.system.details.type?.value?.toLowerCase())`,
         },
         statuses: ["Aura of Hate (Fiends and Undead)"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`+${AURA.bestFormula}`, 20, "system.rolls.damage.mwak.bonus"),
         ],
         options: {
           transfer: true,

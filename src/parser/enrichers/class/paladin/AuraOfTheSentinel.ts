@@ -1,5 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+const AURA = { bestFormula: "@prof", overrideName: "Aura of the Sentinel" };
+
 export default class AuraOfTheSentinel extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -38,6 +40,7 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
         originReplacement: true,
         auraeffectsNever: true,
         name: this.data.name,
+        data: { flags: { ddbimporter: { aura: { ...AURA } } } },
       },
       {
         options: {
@@ -47,8 +50,8 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
         auraeffectsOnly: true,
         daeStackable: "noneNameOnly",
         auraeffects: {
+          ...AURA,
           applyToSelf: true,
-          bestFormula: "",
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -56,8 +59,7 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
           distanceFormula: `@scale.watchers.aura-of-the-sentinel`,
           disposition: 1,
           evaluatePreApply: true,
-          overrideName: "",
-          script: "",
+          script: `!sourceToken.actor.statuses.has("incapacitated")`,
         },
       },
     ];

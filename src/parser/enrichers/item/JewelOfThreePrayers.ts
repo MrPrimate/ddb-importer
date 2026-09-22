@@ -190,11 +190,16 @@ export default class JewelOfThreePrayers extends DDBEnricherData {
           disableOnHidden: true,
           distanceFormula: "30",
           disposition: 1,
-          evaluatePreApply: true,
+          evaluatePreApply: false,
           overrideName: "",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.swim"),
+          // DAE resolves @ on the source even when evaluatePreApply is disabled.
+          DDBEnricherData.ChangeHelper.upgradeChange(
+            `${DDBEnricherData.AutoEffects.effectModules().daeInstalled ? "##" : "@"}attributes.movement.speeds.walk`,
+            20,
+            "system.attributes.movement.speeds.swim",
+          ),
         ],
         options: {
           transfer: true,

@@ -208,7 +208,7 @@ describe("summon-side auras", () => {
     expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "5" });
     const behavior = macro(e.activity);
     expect(behavior.config).toMatchObject({ events: ["tokenTurnEnd"], excludeSelf: true, activity: "" });
-    expect(behavior.ddbimporter.auraeffectsNever).toBe(true);
+    expect(behavior.ddbimporter?.auraeffectsNever).toBeUndefined();
     expect(e.effects[0]).toMatchObject({ auraeffectsOnly: true, midiOnly: true });
   });
 
@@ -229,7 +229,7 @@ describe("summon-side auras", () => {
     expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
     const behavior = macro(e.activity);
     expect(behavior.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], excludeSelf: true });
-    expect(behavior.ddbimporter.auraeffectsNever).toBe(true);
+    expect(behavior.ddbimporter?.auraeffectsNever).toBeUndefined();
   });
 
   it("Conjured Elemental: the element's damage type and an enter/turn-start trigger", () => {
