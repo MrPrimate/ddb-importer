@@ -3,6 +3,7 @@ import { IDBFactory } from "fake-indexeddb";
 import DDBMuleHandler from "../../src/muncher/DDBMuleHandler";
 import DDBMuleSocket from "../../src/lib/streaming/DDBMuleSocket";
 import DDBProxyCache from "../../src/lib/DDBProxyCache";
+import { DDBReferenceLinker } from "../../src/parser/lib/_module";
 import { resetMockSettings, setMockSettings } from "../_setup/foundryMocks";
 
 const aarakocra = { data: { race: { fullName: "Aarakocra", entityRaceId: 4, entityRaceTypeId: 1743923279 } } };
@@ -94,6 +95,38 @@ describe("species mule response identity and cache isolation", () => {
     await DDBProxyCache.set({ domain: "mule-stream", params: oldParams }, { speciesOptions: [dwarf] });
     await handler([])._fetchMuleData();
     expect(start).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports failed stream parsing instead of treating it as an empty successful import", async () => {
+    socketWith([aarakocra]);
+    vi.spyOn(DDBReferenceLinker, "importCacheLoad").mockResolvedValue();
+    vi.mocked(DDBMuleHandler.prototype._speciesProcess).mockRejectedValue(new Error("parser failed"));
+    await expect(handler([keys[0]]).process()).rejects.toThrow("Some entries could not be imported");
+  });
+
+  it("flushes successfully parsed documents before rejecting a partial import", async () => {
+    socketWith();
+    vi.spyOn(DDBReferenceLinker, "importCacheLoad").mockResolvedValue();
+    vi.mocked(DDBMuleHandler.prototype._speciesProcess).mockImplementation(async function (this: DDBMuleHandler, { speciesData }) {
+      if (speciesData.data.race.fullName === "Mountain Dwarf") throw new Error("parser failed");
+      this.pendingDocs.species.set(keys[0], { name: "Aarakocra" });
+    });
+    const mule = handler();
+    const flush = vi.spyOn(mule, "_flushCompendiumDocuments").mockImplementation(async () => {
+      expect(Array.from(mule.pendingDocs.species.values())).toEqual([{ name: "Aarakocra" }]);
+    });
+    await expect(mule.process()).rejects.toThrow("Some entries could not be imported");
+    expect(flush).toHaveBeenCalledTimes(1);
+    expect(mule.hasImportableDocuments).toBe(true);
+  });
+
+  it("does not count folder metadata as importable documents", () => {
+    const mule = handler();
+    mule.pendingDocs.classMeta.set("test", { name: "Fighter", version: "2014", subclassName: null });
+    mule.pendingDocs.raceFolderSources.set("test", { name: "Aarakocra" });
+    expect(mule.hasImportableDocuments).toBe(false);
+    mule.pendingDocs.species.set("test", { name: "Aarakocra" });
+    expect(mule.hasImportableDocuments).toBe(true);
   });
 
   it("keeps typed selections in labels and diagnostic filenames", () => {
