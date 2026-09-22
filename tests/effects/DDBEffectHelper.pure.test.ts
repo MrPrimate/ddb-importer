@@ -273,3 +273,17 @@ describe("DDBEffectHelper.getConcentrationNames", () => {
     expect(new Set(names).size).toBe(names.length);
   });
 });
+
+describe("DDBEffectHelper.syntheticItemWorkflowOptions", () => {
+  it("asks dnd5e to spend nothing, under the key dnd5e reads", () => {
+    const [config] = DDBEffectHelper.syntheticItemWorkflowOptions({}) as [Record<string, any>, unknown];
+    // `resources`, plural: a key dnd5e does not know leaves it unset, and it then defaults to
+    // every consumption target of the activity
+    expect(config.consume).toEqual({ action: false, resources: false, spellSlot: false });
+  });
+
+  it("spends resources only when told to", () => {
+    const [config] = DDBEffectHelper.syntheticItemWorkflowOptions({ consumeResource: true, consumeSpellSlot: true }) as [Record<string, any>, unknown];
+    expect(config.consume).toEqual({ action: false, resources: true, spellSlot: true });
+  });
+});

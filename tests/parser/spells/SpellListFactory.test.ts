@@ -38,11 +38,11 @@ describe("SpellListFactory.addSpellsByDefinitionId", () => {
   it("files each resolved spell under its source book", async () => {
     const { factory, built } = makeFactory();
     const phb2024 = factory.sources?.find((s) => s.id === 145);
-    const count = await factory.addSpellsByDefinitionId("Warlock", [
+    const resolvedIds = await factory.addSpellsByDefinitionId("Warlock", [
       { id: 101, sourceId: 145 },
       { id: 102, sourceId: 145 },
     ]);
-    expect(count).toBe(2);
+    expect(resolvedIds).toEqual([101, 102]);
     expect(built).toEqual([{
       acronym: phb2024?.acronym,
       uuids: ["Compendium.world.ddb-spells.Item.circle", "Compendium.world.ddb-spells.Item.eyebite"],
@@ -68,9 +68,41 @@ describe("SpellListFactory.addSpellsByDefinitionId", () => {
 
   it("writes and registers nothing when no definition id is in the compendium", async () => {
     const { factory } = makeFactory();
-    const count = await factory.addSpellsByDefinitionId("Warlock", [{ id: 999, sourceId: 145 }]);
-    expect(count).toBe(0);
+    const resolvedIds = await factory.addSpellsByDefinitionId("Warlock", [{ id: 999, sourceId: 145 }]);
+    expect(resolvedIds).toEqual([]);
     expect(factory.buildSpellList).not.toHaveBeenCalled();
     expect(factory.registerSpellLists).not.toHaveBeenCalled();
+  });
+
+  it("returns only resolved definition IDs from a partially available list", async () => {
+    const { factory, built } = makeFactory();
+    const resolvedIds = await factory.addSpellsByDefinitionId("Warlock", [
+      { id: 999, sourceId: 145 },
+      { id: 102, sourceId: 145 },
+      { id: 101, sourceId: 145 },
+      { id: 102, sourceId: 145 },
+    ]);
+    expect(resolvedIds).toEqual([102, 101]);
+    expect(new Set(built[0].uuids)).toEqual(new Set([
+      "Compendium.world.ddb-spells.Item.eyebite", "Compendium.world.ddb-spells.Item.circle",
+    ]));
+    expect(factory.registerSpellLists).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["available", "sources", "spellCompendium"] as const)("returns no IDs without %s", async (key) => {
+    const { factory } = makeFactory();
+    if (key === "available") factory.available = false;
+    else factory[key] = null;
+    expect(await factory.addSpellsByDefinitionId("Warlock", [{ id: 101, sourceId: 145 }])).toEqual([]);
+    expect(factory.buildSpellList).not.toHaveBeenCalled();
+    expect(factory.registerSpellLists).not.toHaveBeenCalled();
+  });
+
+  it.each(["buildSpellList", "registerSpellLists"] as const)("does not report success when %s rejects", async (method) => {
+    const { factory } = makeFactory();
+    vi.mocked(factory[method]).mockRejectedValueOnce(new Error("List unavailable"));
+    await expect(factory.addSpellsByDefinitionId("Warlock", [{ id: 101, sourceId: 145 }]))
+      .rejects.toThrow("List unavailable");
+    expect(await factory.addSpellsByDefinitionId("Warlock", [{ id: 101, sourceId: 145 }])).toEqual([101]);
   });
 });
