@@ -34,6 +34,7 @@ import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
 import DDBSourceBookBrowser from "./DDBSourceBookBrowser";
 import SourceSelectionPreview from "./lib/SourceSelectionPreview";
+import { isSpeciesKey, speciesKey } from "../lib/SpeciesIdentity";
 
 
 interface IDDBMuncherContext extends
@@ -529,7 +530,7 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#muncher-species-source-select")?.addEventListener("change", (event) => {
-      const newSpeciesIds = DDBMuncher.getMultiSelectValues(event).map((id) => parseInt(id));
+      const newSpeciesIds = DDBMuncher.getMultiSelectValues(event);
       this.queueSettingUpdate(async () => {
         await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-species", newSpeciesIds);
       }, { key: "munching-policy-character-species" });
@@ -1399,7 +1400,6 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async _parseWithMule(type: "feat" | "background" | "species") {
-    this.autoRotateMessage(type);
     const homebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     const baseOptions: IDDBMuleHandlerOptions = {
@@ -1411,25 +1411,26 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
-    // species supports per-item filtering: pass explicit entityRaceIds as filterIds (empty = all)
+    // Keep unavailable selections in the filter: no matches must never become an all-species request.
     const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
-    const selectedSpeciesIds = type === "species"
-      ? utils.getSetting<number[]>("munching-policy-character-species").map((id) => parseInt(String(id)))
+    const savedSpecies = type === "species"
+      ? utils.getSetting<string[]>("munching-policy-character-species")
       : [];
-    // active when the user picked a subset, or "don't grab existing" is on and we must build an explicit list
-    const speciesFilterActive = type === "species" && (selectedSpeciesIds.length > 0 || dontGrabExisting);
-    // full race list (the /proxy/races endpoint ignores sources) + existing ids, fetched once when filtering
+    const speciesFilterActive = type === "species" && (savedSpecies.length > 0 || dontGrabExisting);
     let speciesList: IDDBMuleSpeciesDefinition[] = [];
-    let existingSpeciesIds = new Set<number>();
+    const selectedSpeciesKeys = savedSpecies;
+    let existingSpeciesKeys = new Set<string>();
+    if (type === "species") baseOptions.speciesKeys = [];
     if (speciesFilterActive) {
-      try {
-        speciesList = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
-      } catch (error) {
-        logger.warn("Failed to fetch species list for filtering", error);
+      speciesList = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
+      if (!savedSpecies.every(isSpeciesKey)) {
+        throw new Error("Invalid species selection. Clear the saved selections and select species again.");
+      }
+      if (savedSpecies.length > 0 && !speciesList.some((sp) => savedSpecies.includes(speciesKey(sp) ?? ""))) {
+        return "No selected species are available in the catalogue. Please reselect species.";
       }
       if (dontGrabExisting) {
-        // version-agnostic: species munch grabs both rules versions, so exclude any existing entityRaceId
-        existingSpeciesIds = await DDBMuleHandler.getExistingSpeciesIds(null);
+        existingSpeciesKeys = await DDBMuleHandler.getExistingSpeciesKeys(null, speciesList);
       }
     }
 
@@ -1471,6 +1472,7 @@ export default class DDBMuncher extends DDBAppV2 {
     );
 
     try {
+      this.autoRotateMessage(type);
       for (const sourceIdArray of sourceIdArrays) {
         if (onlyHomebrew) continue;
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
@@ -1483,29 +1485,17 @@ export default class DDBMuncher extends DDBAppV2 {
           const sourceName = CONFIG.DDB.sources.find((s) => s.id === sourceId)?.description ?? `source ${sourceId}`;
 
           if (speciesFilterActive) {
-            // base id list: explicit selection if any, otherwise every species in this source
-            let sourceSpeciesIds: number[];
-            if (selectedSpeciesIds.length > 0) {
-              sourceSpeciesIds = speciesList.length === 0
-                ? selectedSpeciesIds
-                : selectedSpeciesIds.filter((raceId) => {
-                  const sp = speciesList.find((s) => s.entityRaceId === raceId);
-                  return sp ? sp.sources.some((s) => s.sourceId === sourceId) : true;
-                });
-            } else {
-              // no explicit selection: dontGrabExisting is on (speciesFilterActive guarantees it)
-              sourceSpeciesIds = speciesList
-                .filter((sp) => sp.sources.some((s) => s.sourceId === sourceId))
-                .map((sp) => sp.entityRaceId);
-            }
-            if (dontGrabExisting) {
-              sourceSpeciesIds = sourceSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
-            }
-            if (sourceSpeciesIds.length === 0) {
+            const sourceSpeciesKeys = speciesList
+              .filter((sp) => sp.sources.some((source) => source.sourceId === sourceId))
+              .map(speciesKey)
+              .filter((key): key is string => key !== null)
+              .filter((key) => selectedSpeciesKeys.length === 0 || selectedSpeciesKeys.includes(key))
+              .filter((key) => !dontGrabExisting || !existingSpeciesKeys.has(key));
+            if (sourceSpeciesKeys.length === 0) {
               this.#advanceMuleOverallProgress(`${sourceName} (skipped)`);
               continue;
             }
-            options.filterIds = sourceSpeciesIds;
+            options.speciesKeys = [...new Set(sourceSpeciesKeys)];
           }
 
           if (featBgActive) {
@@ -1559,17 +1549,15 @@ export default class DDBMuncher extends DDBAppV2 {
       }
 
       let runHomebrew = homebrew || onlyHomebrew;
-      let homebrewSpeciesIds: number[] = [];
+      let homebrewSpeciesKeys: string[] = [];
       if (runHomebrew && speciesFilterActive) {
-        // explicit selection, else all homebrew species; then drop existing when the flag is on
-        homebrewSpeciesIds = selectedSpeciesIds.length > 0
-          ? selectedSpeciesIds
-          : speciesList.filter((sp) => sp.isHomebrew).map((sp) => sp.entityRaceId);
-        if (dontGrabExisting) {
-          homebrewSpeciesIds = homebrewSpeciesIds.filter((raceId) => !existingSpeciesIds.has(raceId));
-        }
-        // empty explicit list would mean "all" to the proxy; skip the homebrew pass instead
-        if (homebrewSpeciesIds.length === 0) {
+        homebrewSpeciesKeys = speciesList.filter((sp) => sp.isHomebrew)
+          .map(speciesKey)
+          .filter((key): key is string => key !== null)
+          .filter((key) => selectedSpeciesKeys.length === 0 || selectedSpeciesKeys.includes(key))
+          .filter((key) => !dontGrabExisting || !existingSpeciesKeys.has(key));
+        // The proxy treats an empty list as all eligible species.
+        if (homebrewSpeciesKeys.length === 0) {
           logger.debug("Skipping homebrew species pass: nothing new to munch");
           runHomebrew = false;
         }
@@ -1594,8 +1582,8 @@ export default class DDBMuncher extends DDBAppV2 {
         const options: IDDBMuleHandlerOptions = foundry.utils.deepClone(baseOptions);
         options.homebrew = true;
         options.onlyHomebrew = onlyHomebrew;
-        if (speciesFilterActive && homebrewSpeciesIds.length > 0) {
-          options.filterIds = homebrewSpeciesIds;
+        if (speciesFilterActive && homebrewSpeciesKeys.length > 0) {
+          options.speciesKeys = [...new Set(homebrewSpeciesKeys)];
         }
         if (featBgActive && homebrewFeatBgIds.length > 0) {
           options.filterIds = homebrewFeatBgIds;
@@ -1727,8 +1715,9 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       // a category or class change a moment ago may still be writing; read settings after it lands
       await this.awaitSettingUpdates();
-      await this._parseWithMule("species");
-      this.notifier(`Finished importing species!`, { nameField: true });
+      const notice = await this._parseWithMule("species");
+      if (notice) ui.notifications.info(notice);
+      this.notifier(notice ?? "Finished importing species!", { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);

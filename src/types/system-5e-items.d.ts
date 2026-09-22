@@ -790,6 +790,7 @@ global {
     lineageName?: string;
     isHomebrew?: boolean;
     entityRaceId?: number;
+    entityRaceTypeId?: number;
     species?: string;
     trait?: string;
     moreDetailsUrl?: string;

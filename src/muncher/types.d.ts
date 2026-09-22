@@ -296,6 +296,7 @@ global {
     onlyHomebrew?: boolean;
     type?: string | null;
     filterIds?: number[];
+    speciesKeys?: string[];
     cleanup?: boolean;
     backgroundId?: string | null;
     ddbMuncher?: DDBMuncher | null;

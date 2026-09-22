@@ -1,5 +1,6 @@
 # Next Up
 
+- Fix Mule Muncher species selections importing a different species when species and subraces share an ID. Saved species selections are reset, please reselect before munching. @couchcomfy
 - It was possible for a character on DDB to have consumed more slots than it has, and when these characters were imported, would set a negative consumption value for spell slots.
 - Some items such as Periapt of Health would gain double healing activities. (~15 items).
 - Some spells on items would not exclude/remove concentration when cast.

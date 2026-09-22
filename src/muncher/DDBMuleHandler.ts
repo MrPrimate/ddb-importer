@@ -58,6 +58,7 @@
  */
 import DDBMuncher from "../apps/DDBMuncher";
 import DDBProxyCacheSettings from "../lib/DDBProxyCacheSettings";
+import { existingSpeciesKey, isSpeciesKey, speciesKey } from "../lib/SpeciesIdentity";
 import { DICTIONARY } from "../config/_module";
 import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBProxyCache, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
@@ -72,7 +73,7 @@ interface IDDBMuleHandlerQuickBase {
   characterId: string;
   sources: number[];
   homebrew: boolean;
-  filterIds: number[];
+  filterIds?: number[];
 }
 
 interface IDDBMuleHandlerQuickClass extends IDDBMuleHandlerQuickBase {
@@ -103,6 +104,7 @@ interface IDDBMuleRequestBody {
   includeHomebrew: boolean;
   onlyHomebrew: boolean;
   filterIds: number[];
+  speciesKeys?: string[];
   cleanup: boolean;
   backgroundId: string | null;
   systemRules: string;
@@ -125,6 +127,7 @@ export default class DDBMuleHandler {
   optionSourceIds: number[] = [];
   type: string | null = null;
   filterIds: number[] = [];
+  speciesKeys?: string[];
   cleanup = true;
   backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
@@ -179,6 +182,7 @@ export default class DDBMuleHandler {
     onlyHomebrew,
     type = null,
     filterIds = [],
+    speciesKeys,
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
@@ -198,6 +202,10 @@ export default class DDBMuleHandler {
     this.onlyHomebrew = onlyHomebrew ?? this.allowedHomebrew;
     this.type = type;
     this.filterIds = filterIds;
+    if (speciesKeys !== undefined && (!Array.isArray(speciesKeys) || !speciesKeys.every(isSpeciesKey))) {
+      throw new Error("Invalid species selection: expected entityRaceTypeId:entityRaceId keys.");
+    }
+    this.speciesKeys = speciesKeys === undefined ? undefined : [...new Set(speciesKeys)];
     this.cleanup = cleanup;
     this.backgroundId = backgroundId;
     this.includeOptionalClassFeatures = optionalClassFeatures
@@ -460,8 +468,8 @@ export default class DDBMuleHandler {
    * Short, stable hash of an id list, so a filename can carry "which ids" without
    * carrying every id. Sorted first, so ordering differences do not change the hash.
    */
-  static #hashIds(ids: number[]): string {
-    const input = [...ids].sort((a, b) => a - b).join("_");
+  static #hashIds(ids: (number | string)[]): string {
+    const input = [...ids].map(String).sort().join("_");
     let hash = 5381;
     for (let i = 0; i < input.length; i++) {
       hash = ((hash * 33) ^ input.charCodeAt(i)) >>> 0;
@@ -474,7 +482,7 @@ export default class DDBMuleHandler {
    * truncated by the browser, which is one of the ways two different payloads end up
    * fighting over one file. Keep short lists readable and hash the long ones.
    */
-  static #idSegment(ids: number[]): string {
+  static #idSegment(ids: (number | string)[]): string {
     if (ids.length === 0) return "all";
     if (ids.length <= 6) return ids.join("_");
     return `${ids.length}x${DDBMuleHandler.#hashIds(ids)}`;
@@ -510,8 +518,8 @@ export default class DDBMuleHandler {
    */
   _cacheLabel(): string {
     const source = this.source as Partial<IDDBMuleClassSource> | undefined;
-    const selection = (noun: string) => (this.filterIds.length > 0
-      ? `${noun}: ${this.filterIds.length} selected`
+    const selection = (noun: string, ids: (number | string)[] = this.filterIds) => (ids.length > 0
+      ? `${noun}: ${ids.length} selected`
       : `${noun}: all`);
     switch (this.type) {
       case "class": {
@@ -531,7 +539,7 @@ export default class DDBMuleHandler {
         return selection("Backgrounds");
       case "race":
       case "species":
-        return selection("Species");
+        return selection("Species", this.speciesKeys ?? this.filterIds);
       default:
         return this.type ?? "mule";
     }
@@ -547,7 +555,7 @@ export default class DDBMuleHandler {
       this.type,
       this.classId !== null ? `c${this.classId}` : null,
       homebrewSegment,
-      `f${DDBMuleHandler.#idSegment(this.filterIds)}`,
+      `f${DDBMuleHandler.#idSegment(this.speciesKeys ?? this.filterIds)}`,
       `s${DDBMuleHandler.#idSegment(this.allowedSourceIds)}`,
     ].filter((segment) => segment !== null && segment !== "");
 
@@ -574,6 +582,7 @@ export default class DDBMuleHandler {
       includeHomebrew: this.allowedHomebrew,
       onlyHomebrew: this.onlyHomebrew,
       filterIds: this.filterIds,
+      ...(this.speciesKeys === undefined ? {} : { speciesKeys: this.speciesKeys }),
       cleanup: this.cleanup,
       backgroundId: this.backgroundId,
       systemRules: isModern ? "2024" : "2014",
@@ -597,6 +606,7 @@ export default class DDBMuleHandler {
       onlyHomebrew: this.onlyHomebrew,
       cleanup: this.cleanup,
       filterIds: this.filterIds,
+      ...(this.speciesKeys === undefined ? {} : { speciesKeys: this.speciesKeys }),
       systemRules: body.systemRules,
       include2014Adjusted: body.include2014Adjusted,
       useCache: true,
@@ -609,7 +619,11 @@ export default class DDBMuleHandler {
 
     // A local hit takes exactly the path a proxy-side cacheHit event does: the whole buffered
     // payload becomes this.source and is replayed through the per-item processors.
-    const params = { element: streamElement, ...startParams };
+    const params = {
+      element: streamElement,
+      ...startParams,
+      ...(streamElement === "species" ? { speciesIdentityVersion: 1 } : {}),
+    };
     const cacheRequest: IProxyCacheRequest = {
       domain: "mule-stream",
       params,
@@ -641,6 +655,16 @@ export default class DDBMuleHandler {
         let settled = false;
         socket.connect({
           onEvent: (event: DDBMuleEvent) => {
+            if (settled) return;
+            if (event.kind === "speciesOptions") {
+              try {
+                this._validateSpeciesPayload(event.payload);
+              } catch (error) {
+                settled = true;
+                reject(error);
+                return;
+              }
+            }
             if (event.kind === "cacheHit") {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
@@ -718,6 +742,7 @@ export default class DDBMuleHandler {
       // this.notifier({ message: `Stream complete in ${(totalMs / 1000).toFixed(1)}s (${eventCount} events)` });
     } finally {
       socket.close();
+      await this._drainStreamProcessing();
     }
   }
 
@@ -752,7 +777,7 @@ export default class DDBMuleHandler {
         const payload = event.payload;
         if (event.raceTotal) this._streamSecondaryTotal = event.raceTotal;
         const name = payload?.data?.race?.fullName ?? payload?.data?.race?.baseName ?? "species";
-        const id = payload?.data?.race?.entityRaceId ?? name;
+        const id = speciesKey(payload?.data?.race) ?? name;
         const desc = `${name} pass ${event.pass ?? "?"}`;
         this._scheduleStreamTask("speciesOptions", desc, id, () => this._processStreamSpecies(payload));
         break;
@@ -1183,7 +1208,16 @@ export default class DDBMuleHandler {
     await this._loadCharacterIntoFoundryWorld(ddbCharacter);
   }
 
+  /** Reject a mismatched proxy/cache response before it can reach the character parser. */
+  _validateSpeciesPayload(payload: { data?: { race?: Partial<IDDBRace> } }) {
+    const key = speciesKey(payload?.data?.race);
+    if (!key || (this.speciesKeys?.length && !this.speciesKeys.includes(key))) {
+      throw new Error("The proxy returned an unexpected species. Please raise an issue! 🤪");
+    }
+  }
+
   async _processStreamSpecies(speciesData: any) {
+    this._validateSpeciesPayload(speciesData);
     const mockCharacter = this._getStreamMockActor("species", "Species Muncher");
     const ddbStub = await this._buildDDBStub();
     await this._speciesProcess({
@@ -1227,16 +1261,17 @@ export default class DDBMuleHandler {
       }
       case "species": {
         const species = (src.speciesOptions ?? []) as any[];
-        // Unique race ids in cached data so total represents unique races, not passes
+        for (const sp of species) this._validateSpeciesPayload(sp);
+        // Unique identities in cached data so total represents species, not choice passes.
         const raceIds = new Set<string | number>();
         for (const sp of species) {
-          const id = sp?.data?.race?.entityRaceId ?? sp?.data?.race?.fullName ?? sp?.data?.race?.baseName;
+          const id = speciesKey(sp?.data?.race);
           if (id != null) raceIds.add(id);
         }
         this._streamSecondaryTotal = raceIds.size > 0 ? raceIds.size : species.length;
         for (const sp of species) {
           const name = sp?.data?.race?.fullName ?? sp?.data?.race?.baseName ?? "species";
-          const id = sp?.data?.race?.entityRaceId ?? name;
+          const id = speciesKey(sp?.data?.race) ?? name;
           this._scheduleStreamTask("speciesOptions (cacheHit)", `${name} (cached)`, id, () => this._processStreamSpecies(sp));
         }
         break;
@@ -1296,13 +1331,14 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchSpecies({ characterId, sources, homebrew, filterIds }: IDDBMuleHandlerQuickBase) {
+  static async munchSpecies({ characterId, sources, homebrew, filterIds = [], speciesKeys }: IDDBMuleHandlerQuickBase & { speciesKeys?: string[] }) {
     const muleHandler = new DDBMuleHandler({
       characterId,
       sources,
       homebrew,
       type: "species",
       filterIds,
+      speciesKeys,
       cleanup: false,
     });
 
@@ -1447,8 +1483,27 @@ export default class DDBMuleHandler {
     return result;
   }
 
-  static async getExistingSpeciesIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
-    return DDBMuleHandler.#getExistingCompendiumIds("species", "entityRaceId", rulesVersion);
+  /** Read typed identities, recovering pre-type imports only from an unambiguous catalogue match. */
+  static async getExistingSpeciesKeys(
+    rulesVersion: T5eRulesVersion | null,
+    catalog: IDDBMuleSpeciesDefinition[],
+  ): Promise<Set<string>> {
+    const keys = new Set<string>();
+    try {
+      const fields = ["name", ...["entityRaceId", "entityRaceTypeId", "baseRaceId", "fullRaceName", "fullName", "is2014"]
+        .map((flag) => `flags.ddbimporter.${flag}`)];
+      const index = await CompendiumHelper.loadCompendiumIndex("species", { fields });
+      for (const entry of index?.contents ?? []) {
+        const flags = foundry.utils.getProperty(entry, "flags.ddbimporter") as Partial<IDDBImporterItemFlags> | undefined;
+        if (!flags) continue;
+        if (rulesVersion !== null && typeof flags.is2014 === "boolean" && flags.is2014 !== (rulesVersion === "2014")) continue;
+        const key = existingSpeciesKey(flags, catalog);
+        if (key) keys.add(key);
+      }
+    } catch (error) {
+      logger.warn("Failed to load existing species identities for dedupe", error);
+    }
+    return keys;
   }
 
   static async getExistingSubclassIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {

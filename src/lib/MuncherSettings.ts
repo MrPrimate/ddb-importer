@@ -8,6 +8,7 @@ import DDBProxy from "./DDBProxy";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import SystemHelpers from "./SystemHelpers";
 import DDBMuleHandler from "../muncher/DDBMuleHandler";
+import { speciesKey } from "./SpeciesIdentity";
 
 function getActivitySnippetSetting(): ISettingsPolicyExpandedItem {
   return {
@@ -1325,7 +1326,7 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
     const result: {
       selectedClasses: any[];
       subclassSelection: any[];
-      selectedSpecies: any[];
+      selectedSpecies: { id: string; label: string; selected: string }[];
       rulesVersion: T5eRulesVersion;
       otherRulesVersion: T5eRulesVersion;
       classFilterEnabled: boolean;
@@ -1360,9 +1361,6 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
     const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
     const existingSubclassIds = dontGrabExisting
       ? await DDBMuleHandler.getExistingSubclassIds(rulesVersion)
-      : new Set<number>();
-    const existingSpeciesIds = dontGrabExisting
-      ? await DDBMuleHandler.getExistingSpeciesIds(rulesVersion)
       : new Set<number>();
 
     const isKlass2014 = (klass: IDDBMuleClassDefinition) => klass.sources.every((s) => DDBSources.is2014Source(s));
@@ -1439,9 +1437,11 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
     result.classMunchEnabled = relevantClasses.length > 0;
 
     // Species selection (no sub-entities; empty selection = munch all)
-    const species = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", Array.from(chosenSourceIds));
-    const selectedSpeciesIds = utils.getSetting<number[]>("munching-policy-character-species")
-      .map((id) => parseInt(String(id)));
+    const species = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
+    const selectedSpeciesKeys = utils.getSetting<string[]>("munching-policy-character-species");
+    const existingSpeciesKeys = dontGrabExisting
+      ? await DDBMuleHandler.getExistingSpeciesKeys(rulesVersion, species)
+      : new Set<string>();
     const isSpecies2014 = (sp: IDDBMuleSpeciesDefinition) => sp.sources.every((s) => DDBSources.is2014Source(s));
 
     result.selectedSpecies = species
@@ -1451,7 +1451,8 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         if (sp.isHomebrew) return allowHomebrew;
         return sp.sources.some((s) => chosenSourceIds.has(s.sourceId));
       })
-      .filter((sp) => !(dontGrabExisting && existingSpeciesIds.has(sp.entityRaceId)))
+      .filter((sp) => speciesKey(sp) !== null)
+      .filter((sp) => !(dontGrabExisting && existingSpeciesKeys.has(speciesKey(sp)!)))
       .map((sp) => {
         const sourceId = sp.sources.find((s) => s.sourceType === 1)?.sourceId;
         const source = CONFIG.DDB.sources.find((s: any) => s.id === sourceId);
@@ -1459,12 +1460,17 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
           ? `${sp.fullName} (Homebrew)`
           : `${sp.fullName} (${source ? source.name : "Unknown Source"})`;
         return {
-          id: sp.entityRaceId,
+          id: speciesKey(sp)!,
           label,
-          selected: selectedSpeciesIds.includes(sp.entityRaceId) ? "selected" : "",
+          selected: selectedSpeciesKeys.includes(speciesKey(sp)!) ? "selected" : "",
         };
       })
       .sort((a: any, b: any) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
+
+    const catalogKeys = new Set(species.map(speciesKey));
+    result.selectedSpecies.push(...selectedSpeciesKeys.filter((id) => !catalogKeys.has(id)).map((id) => ({
+      id, label: `Unavailable species (${id})`, selected: "selected",
+    })));
 
     return result;
   },

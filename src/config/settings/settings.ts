@@ -1241,8 +1241,8 @@ const SETTINGS = {
           },
           "munching-policy-character-species": {
             type: Array,
-            // selected entityRaceIds; empty = munch all
-            default: [] as number[],
+            // Selected entityRaceTypeId:entityRaceId keys.
+            default: [] as string[],
           },
           "munching-policy-character-dont-grab-existing": {
             type: Boolean,

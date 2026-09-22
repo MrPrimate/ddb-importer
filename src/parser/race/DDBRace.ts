@@ -291,6 +291,7 @@ export default class DDBRace {
     const importerFlags: IDDBImporterItemFlags = {
       type: "race",
       entityRaceId: this.race.entityRaceId,
+      entityRaceTypeId: this.race.entityRaceTypeId,
       version: CONFIG.DDBI.version,
       sourceId: this.race.sources.length > 0 ? this.race.sources[0].sourceId : -1, // is homebrew
       baseName: this.race.baseName,

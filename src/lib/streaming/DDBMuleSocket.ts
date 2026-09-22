@@ -20,6 +20,7 @@ export interface DDBMuleStartParams {
   onlyHomebrew?: boolean;
   cleanup?: boolean;
   filterIds?: number[];
+  speciesKeys?: string[];
   systemRules?: string;
   include2014Adjusted?: boolean;
   useCache?: boolean;
