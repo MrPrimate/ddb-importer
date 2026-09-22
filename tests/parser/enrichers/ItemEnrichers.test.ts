@@ -390,6 +390,8 @@ describe("FlameTongue", () => {
       ["activities[enchant].name", "Extinguish Flames"],
     ]);
     expect(ablaze.data.flags.ddbimporter.effectRiders).toEqual([light.data._id]);
+    expect(ablaze.options.showIcon).toBe(2);
+    expect(light.options.showIcon).toBeUndefined();
 
     expect(light.options.transfer).toBe(true);
     expect(light.activityMatch).toBeUndefined();

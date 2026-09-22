@@ -62,7 +62,7 @@ export default class HolyNimbus extends DDBEnricherData {
         build: {
           noeffect: true,
           generateConsumption: false,
-          generateTarget: false,
+          generateTarget: true,
           generateRange: false,
           generateActivation: true,
           generateDamage: true,
@@ -70,6 +70,9 @@ export default class HolyNimbus extends DDBEnricherData {
             type: "special",
             value: 1,
             condition: "",
+          },
+          targetOverride: {
+            affects: { type: "enemy" },
           },
           damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
         },

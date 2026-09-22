@@ -2,6 +2,16 @@ import BehaviorHelper from "../../../../src/parser/enrichers/effects/BehaviorHel
 import SRDEffects from "../../../../src/parser/enrichers/effects/SRDEffects";
 
 describe("BehaviorHelper", () => {
+  it("preserves owner-turn settings as structured fields and alternative activities as arguments", () => {
+    expect(BehaviorHelper.activity({
+      ownerTurn: true, ownerTurnTargets: "none", fireOnPlacement: true, deleteAfterUse: true,
+      events: ["tokenTurnStart"], activityChoices: ["One", "Two"],
+    }).config).toMatchObject({
+      ownerTurn: true, ownerTurnTargets: "none", fireOnPlacement: true, deleteAfterUse: true,
+      args: { activityChoices: ["One", "Two"] },
+    });
+    expect(BehaviorHelper.activity({ events: ["tokenTurnStart"] }).config).not.toHaveProperty("ownerTurn");
+  });
   it("applyEffect builds the native applyActiveEffect behavior keyed by effect names", () => {
     const behavior = BehaviorHelper.applyEffect({ effects: "Silenced", name: "Silence", level: { min: 3 } });
     expect(typeof behavior._id).toBe("string");

@@ -50,6 +50,8 @@ import { resolveTransformProfileUuids } from "../../../src/parser/companions/typ
 import DDBEnricherFactoryMixin from "../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin";
 import { setMockSettings } from "../../_setup/foundryMocks";
 
+beforeEach(() => setMockSettings({ "enable-ddb-macro-region-behaviors": true }));
+
 afterEach(() => {
   effectModulesState.midiQolInstalled = false;
   effectModulesState.auraeffectsInstalled = false;
@@ -124,7 +126,10 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
     expect(result).toEqual(before);
   });
 
-  it("strips ddbMacro behaviors from merged data unless the hidden setting enables them", async () => {
+  it.each([
+    [true, true, true], [true, false, false], [false, true, false], [false, false, false],
+  ])("filters DDB imports with master=%s and add=%s, leaving native behaviors (emit=%s)", async (master, add, emit) => {
+    setMockSettings({ "enable-ddb-macro-region-behaviors": master, "add-ddb-macro-region-behaviors": add });
     const e = makeEnricher();
     const behaviors = [
       { _id: "a", type: "difficultTerrain", config: { types: [] } },
@@ -133,12 +138,7 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
 
     const activity = makeActivity();
     await e._applyActivityDataOverride(activity, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
-    expect(activity.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain"]);
-
-    setMockSettings({ "enable-ddb-macro-region-behaviors": true });
-    const enabled = makeActivity();
-    await e._applyActivityDataOverride(enabled, { data: { behaviors: foundry.utils.deepClone(behaviors) } });
-    expect(enabled.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
+    expect(activity.behaviors.map((b: any) => b.type)).toEqual(emit ? ["difficultTerrain", "ddbMacro"] : ["difficultTerrain"]);
   });
 
   it("evaluates and strips auraeffects gates on behaviors", async () => {

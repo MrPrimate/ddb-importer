@@ -1,4 +1,6 @@
 import RegionAutomations from "../../effects/auras/RegionAutomations";
+import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
+import { resolveRegionActivity } from "../../effects/auras/regionBehaviorUtils";
 import BaseActivityBehavior from "./baseActivityBehavior";
 import { buildMacroBehaviorData, REGION_EVENTS } from "./behaviorData";
 
@@ -25,6 +27,10 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       scale: new BooleanField({ initial: true }),
       autoRoll: new BooleanField({ initial: false }),
       groupTargets: new BooleanField({ initial: true }),
+      ownerTurn: new BooleanField({ initial: false }),
+      ownerTurnTargets: new StringField({ initial: "region", choices: ["region", "none"] }),
+      fireOnPlacement: new BooleanField({ initial: false }),
+      deleteAfterUse: new BooleanField({ initial: false }),
       // the same size/creature-type filters the 5e area-of-effect behaviors carry,
       // plus an exclusion set for "any creature other than an ooze" wording
       sizes: new SetField(new StringField()),
@@ -37,16 +43,17 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
   }
 
   override createBehaviorData(activity: any, { token }: { token?: any } = {}) {
+    if (!RegionBehaviorSettings.enabled) return false;
     const args: Record<string, unknown> = { ...((this.args as Record<string, unknown> | undefined) ?? {}) };
     // Match the native activity behaviors: ally/enemy targets are relative to
     // the token that placed the region, falling back to the actor's token data.
     const { disposition } = token ?? activity.actor?.token ?? activity.actor?.prototypeToken ?? {};
-    // A behavior that fires a siblinb activity takes that activity's targeting, so one
+    // A behavior that fires a sibling activity takes that activity's targeting, so one
     // Cast can carry an ally arm and an enemy arm (Conjure Celestial's Healing Light
     // and Searing Light); the placing activity's target is the fallback.
-    const triggered = DDBMacroActivityBehavior.siblingActivity(activity, {
-      id: this.activity,
-      name: (args.activityName as string | undefined) ?? "",
+    const triggered = resolveRegionActivity(activity, {
+      activityId: this.activity,
+      activityName: (args.activityName as string | undefined) ?? "",
     });
     args.dispositions = [...this.getDispositions(triggered?.target ?? activity.target, { relativeTo: disposition })];
     if (this.activity) args.activityId = this.activity;
@@ -58,6 +65,26 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     // behaviors were told to use before the checkbox had a label
     args.autoRoll = this.autoRoll || args.autoRoll === true;
     args.groupTargets = this.groupTargets;
+    if (this.ownerTurn) {
+      args.ownerTurn = true;
+      args.ownerTurnTargets = this.ownerTurnTargets;
+      args.fireOnPlacement = this.fireOnPlacement;
+      args.deleteAfterUse = this.deleteAfterUse;
+      if (this.deleteAfterUse && typeof args.fallbackDuration === "number" && args.fallbackDuration > 0) {
+        args.fallbackExpiresAt = game.time.worldTime + args.fallbackDuration;
+        const origin = token ?? activity.actor?.token;
+        const combat = origin?.uuid && game.combats.find((entry) => entry.started
+          && entry.combatants.some((combatant) => combatant.token?.uuid === origin.uuid));
+        if (combat) args.placementCombatId = combat.id;
+      }
+      // Owner-turn lifetimes also work with the optional expiry-cleanup enhancer off.
+      const duration = activity.duration;
+      const seconds: Record<string, number> = { second: 1, minute: 60, hour: 3600, day: 86400 };
+      const value = Number(duration?.value);
+      if (Number.isFinite(value) && value > 0 && seconds[duration?.units]) {
+        args.expiresAt = game.time.worldTime + value * seconds[duration.units];
+      }
+    }
     if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
     if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];
     if ((this.excludeTypes as Set<string> | undefined)?.size) args.excludeTypes = [...(this.excludeTypes as Set<string>)];
@@ -72,28 +99,6 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     });
   }
 
-  /**
-   * The sibling activity a behavior fires, on the placing activity's item:
-   * by id when the behavior names one, else by `activityName` in its arguments with the
-   * same exact-then-prefix match `useActivityHandler` applies at trigger time.
-   * Enrichers reference additional activities by Name (their ids are generated at
-   * parse and never copied into the behavior), so the id alone is rarely set.
-   */
-  static siblingActivity(activity: any, { id, name }: { id?: string; name?: string }): { target?: unknown } | null {
-    const activities = activity?.item?.system?.activities;
-    if (!activities) return null;
-    if (id && typeof activities.get === "function") {
-      const byId = activities.get(id);
-      if (byId) return byId;
-    }
-    if (name && typeof activities.find === "function") {
-      return activities.find((a: { name?: string }) => a.name === name)
-        ?? activities.find((a: { name?: string }) => a.name?.startsWith(name))
-        ?? null;
-    }
-    return null;
-  }
-
   override customizeField(field: any, data: any) {
     if (field.name === "function") {
       data.options = Object.keys(RegionAutomations.handlers).map((value) => ({ value, label: RegionAutomations.handlerLabel(value) }));
@@ -101,6 +106,10 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       data.options = REGION_EVENTS.map((value) => ({
         value,
         label: game.i18n.localize(`ddb-importer.behaviors.macro.events.${value}`),
+      }));
+    } else if (field.name === "ownerTurnTargets") {
+      data.options = ["region", "none"].map((value) => ({
+        value, label: game.i18n.localize(`ddb-importer.behaviors.macro.ownerTurnTargets.${value}`),
       }));
     } else if (field.name === "sizes") {
       data.options = Object.entries(CONFIG.DND5E.actorSizes as Record<string, { label: string }>)

@@ -5,6 +5,8 @@ import { DDBDataUtils, DDBDescriptions, DDBTemplateStrings } from "../../lib/_mo
 import { AutoEffects, EnchantmentEffects, ChangeHelper, EffectGenerator } from "../effects/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import type DDBEnricherData from "../data/DDBEnricherData";
+import RegionBehaviorSettings from "../../../lib/RegionBehaviorSettings";
+import EffectPresentation from "../effects/EffectPresentation";
 
 interface IActivityDataStructure {
   activities: Record<string, I5eActivity>;
@@ -655,8 +657,8 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         : overrideData.data;
       activity = foundry.utils.mergeObject(activity, data);
       if (Array.isArray(activity.behaviors)) {
-        // ddbMacro region automation is opt-in via the hidden world setting
-        const allowMacros = utils.getSetting<boolean>("enable-ddb-macro-region-behaviors") === true;
+        // Import emission needs both the import preference and the runtime master switch.
+        const allowMacros = RegionBehaviorSettings.add;
         const auraeffectsInstalled = AutoEffects.effectModules().auraeffectsInstalled;
         const ac5eInstalled = AutoEffects.effectModules().ac5eInstalled;
         activity.behaviors = activity.behaviors.filter((behavior: I5eActivityBehavior) => {
@@ -781,7 +783,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (effectHint.noCreate && dataEffects.length > 0) {
         effect = dataEffects[0];
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
         useExistingEffect = true;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
@@ -789,7 +790,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       } else if (effectHint.raw) {
         effect = foundry.utils.deepClone(effectHint.raw);
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":
@@ -848,6 +848,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         }
 
       }
+
+      // Presentation options also apply to reused and raw effects, not just newly built ones.
+      if (effectOptions.description) effect.description = effectOptions.description;
+      if (effectOptions.showIcon !== undefined) effect.showIcon = effectOptions.showIcon;
 
       if (effectHint.statuses) {
         for (const status of effectHint.statuses) {
@@ -1753,6 +1757,8 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
   async cleanup(options: any = {}): Promise<void> {
     await this.loadedEnricher?.cleanup(options);
+    const paladinAura = this.ddbParser?.klass === "Paladin" && (/^Aura of /i).test(this.ddbParser.originalName);
+    if (this.data) EffectPresentation.applyIconVisibility(this.data, { paladinAura });
   }
 
 }

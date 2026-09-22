@@ -1287,10 +1287,10 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         label: "Remove Enchantments Applied by Enchantment-Granted Activities?",
       },
       {
-        name: "enable-ddb-macro-region-behaviors",
-        isChecked: utils.getSetting<boolean>("enable-ddb-macro-region-behaviors"),
+        name: "add-ddb-macro-region-behaviors",
+        isChecked: utils.getSetting<boolean>("add-ddb-macro-region-behaviors"),
         enabled: true,
-        hint: "Imported spells and features with areas (Moonbeam, Spike Growth, Stench...) gain DDB Importer Trigger region behaviors that prompt saves/damage in chat when tokens enter the area or start/end their turn there. Applies to newly imported documents; re-import to add or remove the behaviors.",
+        hint: "Add DDB Importer region triggers to spells and features (Moonbeam, Spike Growth, Stench...). Re-import to add or remove them. Existing regions keep running when this option is off. Requires Enable DDB Importer Region Automation in Configure Settings; disable that setting to stop all DDB region triggers.",
         label: "Add Region Triggers for Damage/Saves on Entry or per Turn?",
       },
       {

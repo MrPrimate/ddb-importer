@@ -41,6 +41,7 @@ export default class AuraOfDevotion extends DDBEnricherData {
         name: "Aura of Devotion",
         standalone: true,
         auraeffectsNever: true,
+        options: { description: this.data.system.description?.value },
         changes: [
           DDBEnricherData.ChangeHelper.conditionImmunityChange("charmed"),
         ],
@@ -50,6 +51,7 @@ export default class AuraOfDevotion extends DDBEnricherData {
         auraeffectsOnly: true,
         options: {
           transfer: true,
+          description: this.data.system.description?.value,
         },
         daeStackable: "noneNameOnly",
         auraeffects: {

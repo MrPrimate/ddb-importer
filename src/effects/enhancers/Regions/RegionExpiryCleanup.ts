@@ -1,3 +1,4 @@
+import { ownerTurnExpired } from "../../auras/regionBehaviorUtils";
 import { logger, utils } from "../../../lib/_module";
 import type { IRegionExpiryEntry } from "./RegionExpiryDialog";
 import { REGION_EXPIRY_REASONS as REASONS } from "./RegionExpiryReasons";
@@ -522,6 +523,14 @@ export default class RegionExpiryCleanup {
     const effect = RegionExpiryCleanup.governingEffect(region);
     if (effect) {
       return { expired: RegionExpiryCleanup.#isExpired(effect), reason: REASONS.expired, remaining };
+    }
+    // An owner-turn region can govern itself indefinitely (a passive aura or vortex),
+    // or until its one-shot follow-up completes. Lack of a caster effect is not an orphan.
+    const ownerBehaviors = [...region.behaviors].filter((behavior) => foundry.utils.getProperty(
+      behavior, "flags.ddbimporter.ownerTurn.args.ownerTurn",
+    ));
+    if (ownerBehaviors.length) {
+      return { expired: ownerBehaviors.every(ownerTurnExpired), reason: REASONS.duration, remaining: null };
     }
     if (remaining !== null) return { expired: false, reason: REASONS.duration, remaining };
     return { expired: true, reason: REASONS.scene, remaining };

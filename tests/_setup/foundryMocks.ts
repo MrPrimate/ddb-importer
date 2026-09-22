@@ -365,6 +365,9 @@ function makeFakeAdvancement(type: string) {
 
 (globalThis as any).game = {
   settings: {
+    storage: new Map([["world", {
+      getItem: (key: string) => mockSettings.has(key) ? JSON.stringify(mockSettings.get(key)) : null,
+    }]]),
     get: (moduleId: string, key: string) => {
       const namespaced = `${moduleId}.${key}`;
       return mockSettings.has(namespaced) ? mockSettings.get(namespaced) : "OFF";

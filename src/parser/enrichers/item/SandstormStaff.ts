@@ -21,6 +21,12 @@ export default class SandstormStaff extends DDBEnricherData {
             events: ["tokenTurnStart"],
             activityName: "Dust Vortex Save",
           }),
+          DDBEnricherData.BehaviorHelper.activity({
+            ownerTurn: true,
+            ownerTurnTargets: "none",
+            events: ["tokenTurnStart"],
+            activityName: "Dust Vortex Drift",
+          }),
         ],
       }),
       regionTrigger("Dust Vortex Save", {

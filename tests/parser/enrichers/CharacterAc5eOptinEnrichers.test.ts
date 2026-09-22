@@ -37,6 +37,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
   AutoEffects: { effectModules: () => effectModulesMock },
   EnchantmentEffects: {},
   ChangeHelper: (await vi.importActual<any>("../../../src/parser/enrichers/effects/ChangeHelper")).default,
+  BehaviorHelper: (await vi.importActual<typeof import("../../../src/parser/enrichers/effects/BehaviorHelper")>("../../../src/parser/enrichers/effects/BehaviorHelper")).default,
   EffectGenerator: {},
 }));
 
@@ -165,11 +166,13 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const enricher = makeEnricherData(CrownOfHorns as TEnricher, { name: "Crown of Horns", actions: null });
     expect(enricher.activity.name).toBe("Manifest Crown of Horns");
     expect(enricher.additionalActivities.map((a: any) => a.init.name)).toEqual([
-      "King of All: Aura Save",
+      "King of All: Enticement",
+      "King of All: Wickedness",
+      "King of All: Terror",
       "Spend Pact Slot to Restore Use",
     ]);
     // the restore activity refunds an item use while consuming a pact slot
-    const restore = enricher.additionalActivities[1].build.consumptionOverride.targets;
+    const restore = enricher.additionalActivities[3].build.consumptionOverride.targets;
     expect(restore).toEqual([
       { type: "itemUses", target: "", value: -1, scaling: { mode: "", formula: "" } },
       { type: "attribute", value: "1", target: "spells.pact.value" },
@@ -180,9 +183,9 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const effects = enricher.effects as any[];
     expect(effects.map((e) => [e.name, e.activityMatch])).toEqual([
       ["Crown of Horns: Dark Heart", "Manifest Crown of Horns"],
-      ["King of All: Enticement", "King of All: Aura Save"],
-      ["King of All: Wickedness", "King of All: Aura Save"],
-      ["King of All: Terror", "King of All: Aura Save"],
+      ["King of All: Enticement", "King of All: Enticement"],
+      ["King of All: Wickedness", "King of All: Wickedness"],
+      ["King of All: Terror", "King of All: Terror"],
     ]);
     expect(effects[0].ac5eChanges[0]).toMatchObject({
       key: "flags.automated-conditions-5e.damage.bonus",

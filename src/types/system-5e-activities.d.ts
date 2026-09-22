@@ -84,6 +84,18 @@ global {
 
   /** ddb-importer's `ddbMacro` activity behavior: run a RegionAutomations handler on core region events. */
   interface I5eActivityBehaviorMacroConfig {
+    /** Fire on the origin token's turn, even outside the region. */
+    ownerTurn?: boolean;
+    ownerTurnTargets?: "region" | "none";
+    fireOnPlacement?: boolean;
+    /** A one-shot region ends after its follow-up card has been created. */
+    deleteAfterUse?: boolean;
+    /** Alternative sibling names offered alongside the recipient choice. */
+    activityChoices?: string[];
+    /** Source conditions which suppress this owner-turn trigger. */
+    skipOriginStatuses?: string[];
+    /** One-shot fallback outside combat, in seconds; combat end also removes the region. */
+    fallbackDuration?: number;
     function?: string;
     events?: string[];
     /** Sibling activity id to use instead of the placing activity. */

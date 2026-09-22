@@ -165,6 +165,15 @@ const SETTINGS = {
         requiresReload: true,
       },
       "enable-ddb-macro-region-behaviors": {
+        name: "ddb-importer.settings.enable-ddb-macro-region-behaviors.name",
+        hint: "ddb-importer.settings.enable-ddb-macro-region-behaviors.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+        requiresReload: true,
+      },
+      "add-ddb-macro-region-behaviors": {
         scope: "world",
         config: false,
         type: Boolean,

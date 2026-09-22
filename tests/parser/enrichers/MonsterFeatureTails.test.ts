@@ -1,3 +1,4 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
 import Maneuver from "../../../src/parser/enrichers/monster/Generic/Maneuver";
 import DeflectMissile from "../../../src/parser/enrichers/monster/Generic/DeflectMissile";
 import Counterattack from "../../../src/parser/enrichers/monster/Generic/Counterattack";
@@ -13,6 +14,8 @@ import FeyMelody from "../../../src/parser/enrichers/monster/Generic/FeyMelody";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 import type _MonsterFeatureSupport from "../../../src/parser/enrichers/monster/Generic/_MonsterFeatureSupport";
+
+beforeEach(() => setMockSettings({ "enable-ddb-macro-region-behaviors": true, "add-ddb-macro-region-behaviors": true }));
 
 beforeAll(() => installActivityConfigStubs());
 
@@ -45,9 +48,11 @@ describe("monster aura variants", () => {
       activationType: activation,
       noConsumeTargets: true,
       damageParts: [{ number: dice, denomination: 6, types: ["fire"] }],
-      data: { target: { template: { size: radius } } },
+      noTemplate: true,
+      data: { target: { template: {} } },
     });
     expect(e.activity?.data?.behaviors).toBeUndefined();
+    expect(e.additionalActivities.find((a) => a.init?.name === "Place Aura")?.build?.targetOverride?.template?.size).toBe(radius);
     expect(e.effects).toEqual([]);
   });
   it("does not apply owner-turn behavior to a target-turn variant", () => {
@@ -64,13 +69,14 @@ describe("monster aura variants", () => {
     expect(e.activity).toMatchObject({
       activationType: "turnStart",
       damageParts: [{ number: 2, denomination: 8 }],
-      data: { target: { template: { size: "20" } } },
+      noTemplate: true,
     });
     expect(e.activity?.damageParts).toHaveLength(1);
     expect(e.additionalActivities[0]).toMatchObject({
       init: { id: "ddbAuraContact01", type: "damage" },
       build: {
         damageParts: [{ number: 1, denomination: 8 }],
+        rangeOverride: { units: "ft", value: "5" },
         activationOverride: { type: "special" },
         targetOverride: { template: { type: "" } },
       },

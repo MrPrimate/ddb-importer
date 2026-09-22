@@ -69,6 +69,7 @@ export default class AuraOf extends DDBEnricherData {
         ? [{
           noCreate: true,
           ac5eOnly: true,
+          options: { description: this.data.system.description?.value },
           ac5eChanges: [
             DDBEnricherData.ChangeHelper.ac5eChange(
               "bonus=auraActor.abilities.cha.mod; radius=(auraActor.details.level < 18 ? 10 : 30); allies; singleAura; includeSelf",
@@ -85,10 +86,12 @@ export default class AuraOf extends DDBEnricherData {
         auraeffectsNever: true,
         ...(isAuraOfProtection ? { ac5eNever: true } : {}),
         name: this.data.name,
+        options: { description: this.data.system.description?.value },
       },
       {
         noCreate: true,
         auraeffectsOnly: true,
+        options: { description: this.data.system.description?.value },
         daeStackable: "noneNameOnly",
         auraeffects: {
           applyToSelf: !this.ignoreSelf,

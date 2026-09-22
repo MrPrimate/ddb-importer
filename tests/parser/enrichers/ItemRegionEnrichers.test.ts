@@ -1,3 +1,4 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
 /**
  * Region-behavior pins for the item enrichers built on data/RegionBuilders. The items audit shows
  * what each document ends up with, but two links are invisible to it: a behavior naming a sibling
@@ -13,6 +14,8 @@ import SRDEffects from "../../../src/parser/enrichers/effects/SRDEffects";
 import { area, emanation, escapeCheck, regionPlacer, regionPlacerData, regionTarget, regionTrigger } from "../../../src/parser/enrichers/data/RegionBuilders";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+
+beforeEach(() => setMockSettings({ "enable-ddb-macro-region-behaviors": true, "add-ddb-macro-region-behaviors": true }));
 
 beforeAll(() => {
   installActivityConfigStubs();

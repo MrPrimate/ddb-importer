@@ -141,6 +141,18 @@ describe("RegionExpiryCleanup.findTemplatesForEffect", () => {
 });
 
 describe("RegionExpiryCleanup.sweepScene", () => {
+  it("keeps an owner-turn region until its own lifetime ends, including one-shot regions awaiting recovery", () => {
+    const behavior = { flags: { ddbimporter: { ownerTurn: { args: { ownerTurn: true, deleteAfterUse: true, expiresAt: undefined as number | undefined } } } } };
+    const region = makeRegion({ activity: "missing", behaviors: [behavior] }) as unknown as RegionDocument;
+    vi.stubGlobal("game", { ...game, time: { worldTime: 100 } });
+    vi.stubGlobal("fromUuidSync", () => null);
+    const now = game.time.worldTime;
+    expect(RegionExpiryCleanup.regionExpiry(region).expired).toBe(false);
+    behavior.flags.ddbimporter.ownerTurn.args.expiresAt = now + 60;
+    expect(RegionExpiryCleanup.regionExpiry(region).expired).toBe(false);
+    behavior.flags.ddbimporter.ownerTurn.args.expiresAt = now - 1;
+    expect(RegionExpiryCleanup.regionExpiry(region).expired).toBe(true);
+  });
   afterEach(() => {
     vi.unstubAllGlobals();
   });

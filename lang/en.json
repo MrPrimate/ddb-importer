@@ -42,6 +42,8 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "enable-ddb-macro-region-behaviors.name": "Enable DDB Importer Region Automation",
+      "enable-ddb-macro-region-behaviors.hint": "Enable DDB Importer region triggers and their supporting hooks. Disabling prevents new DDB triggers and stops existing ones. Native 5e region effects and terrain are unaffected. All connected clients must reload.",
       "stickers-upload-path.name": "DDB Stickers upload directory",
       "stickers-upload-path.hint": "Specifies the image upload location on the server for stickers, this is not for adventures, but DDB Maps stickers.",
       "maps-upload-path.name": "DDB Map image upload directory",
@@ -313,6 +315,19 @@
             "label": "Group Targets",
             "hint": "Tokens triggered at the same moment, such as every token inside a newly placed template, share one chat card. Turn off for one card per token. DDB Macro activities always run once per token."
           },
+          "ownerTurn": {
+            "label": "Owner's Turn",
+            "hint": "Use Activity fires on the origin token's turn, including when it is outside this region. Select Turn Start or Turn End below."
+          },
+          "ownerTurnTargets": {
+            "label": "Owner-Turn Recipients",
+            "hint": "Affect the region's occupants, or use no recipients for a region's own roll."
+          },
+          "fireOnPlacement": { "label": "Also Fire on Placement" },
+          "deleteAfterUse": {
+            "label": "End Region after Use",
+            "hint": "Fire once on the next owner turn, then remove this region, even when it has no occupants."
+          },
           "macroParameters": {
             "label": "Macro Parameters",
             "hint": "JSON passed to the macro: for DDB Macro activities it replaces the stored parameters; for the Execute Macro handler it is the macro's parameters."
@@ -346,6 +361,15 @@
           "tokenRoundEnd": "Token Round End"
         },
         "placingActivity": "(The activity that placed this region)",
+        "ownerTurnFailure": "{region}: the owner-turn activity could not complete. The region remains; use its follow-up manually.",
+        "ownerTurnTargets": { "region": "Region occupants", "none": "No recipients" },
+        "choice": {
+          "waiting": "Waiting for the owning player. You can take over or skip this trigger; advancing combat does not answer it.",
+          "limit": "Choose up to {max} creatures. Select no creatures or Skip to pass.",
+          "takeover": "Take over",
+          "choose": "Use activity",
+          "skip": "Skip"
+        },
         "notifyMessage": "{token} triggered {region} ({event}).",
         "handlers": {
           "useActivity": "Use Activity",

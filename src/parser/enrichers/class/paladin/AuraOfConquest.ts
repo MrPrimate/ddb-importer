@@ -10,7 +10,7 @@ export default class AuraOfConquest extends DDBEnricherData {
     return {
       name: "Damage",
       noeffect: true,
-      targetType: "creature",
+      targetType: "enemy",
       data: {
         sort: 2,
         range: {

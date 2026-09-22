@@ -17,6 +17,19 @@ type AnyMutableObject = fvttUtils.AnyMutableObject;
 type Workflow = Record<string, any>;
 type UndoData = Record<string, any>;
 
+/** Mutable pre-creation data, before dnd5e converts activation UUIDs into its chat model's Set. */
+interface ICombatMessageConfig {
+  create: boolean;
+  data: Record<string, unknown> & {
+    rolls?: unknown[];
+    system: Record<string, unknown> & {
+      activations?: string[];
+      periods?: string[];
+      deltas?: Record<string, unknown>;
+    };
+  };
+}
+
 // Bridge custom hooks into the configuration HookConfig.
 // fvtt-types resolves HookName = keyof HookConfig.HookConfig where HookConfig
 // is `import { Hooks as HookConfig } from "#configuration"`. The Hooks namespace
@@ -91,6 +104,7 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preCalculateDamage": (actor: Actor.Implementation, damages: DamageDescription[], options: DamageApplicationOptions) => boolean | void;
       "dnd5e.preConfigureInitiative": (actor: Actor.Implementation, rollConfig: { data: AnyMutableObject; parts: string[]; options: D20RollOptions }) => void;
       "dnd5e.preCreateActivityTemplate": (activity: Activity, templateData: MeasuredTemplateDocument.CreateData) => boolean | void;
+      "dnd5e.preCreateCombatMessage": (combatant: Combatant.Implementation, messageConfig: ICombatMessageConfig) => void;
       // dnd5e 6.0: activity templates are Regions; these hooks keep their names but carry region data
       "dnd5e.preCreateMeasuredTemplate": (activity: Activity, config: Record<string, unknown>) => boolean | void;
       "dnd5e.createMeasuredTemplate": (activity: Activity, regionData: RegionDocument.CreateData[]) => boolean | void;

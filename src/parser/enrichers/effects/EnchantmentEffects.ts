@@ -5,7 +5,7 @@ export default class EnchantmentEffects {
 
   static EnchantmentEffect(document: TAll5eItemDocuments, label: string,
     { transfer = false, disabled = false, origin = null as string | null, id = null as string | null, description = null as string | null,
-      durationSeconds = undefined as number | null | undefined } = {},
+      durationSeconds = undefined as number | null | undefined, showIcon = undefined as TEffectShowIcon | undefined } = {},
   ) {
     // durationSeconds passes through untouched: null clears an inherited duration, undefined inherits
     const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, {
@@ -13,6 +13,7 @@ export default class EnchantmentEffects {
       disabled,
       description: description ?? undefined,
       durationSeconds,
+      showIcon,
     });
     effect.type = "enchantment";
     effect._id = id ?? foundry.utils.randomID();

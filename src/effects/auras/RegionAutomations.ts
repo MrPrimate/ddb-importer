@@ -1,5 +1,7 @@
 import { DDBSimpleMacro, logger } from "../../lib/_module";
 import DDBEffectHelper from "../DDBEffectHelper";
+import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
+import { regionLabel, resolveRegionActivity } from "./regionBehaviorUtils";
 
 export interface IRegionEventContext {
   scene: Scene;
@@ -67,24 +69,6 @@ interface INotifyArgs extends ITokenFilterArgs {
   message?: string;
   oncePerTurn?: boolean;
   excludeSelf?: boolean;
-}
-
-interface IUseActivityArgs extends ITokenFilterArgs {
-  /** Use this sibling activity of the placing activity instead of the placing activity itself. */
-  activityName?: string;
-  activityId?: string;
-  /** Skip a token that already triggered this behavior during the current combat turn (default true). */
-  oncePerTurn?: boolean;
-  /** Skip the token the region originates from, for an emanation that does not affect its own caster. */
-  excludeSelf?: boolean;
-  /** Also apply the region's cast spell level so upcast damage scales (default true). */
-  scale?: boolean;
-  /** For ddbmacro activities: use these macro parameters instead of the ones stored on the activity. */
-  macroParameters?: string | Record<string, unknown>;
-  /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
-  autoRoll?: boolean;
-  /** Collapse tokens triggered by the same region event burst into one usage card (default true). */
-  groupTargets?: boolean;
 }
 
 /** One region event waiting in a `useActivity` batch: the token, and the event context it arrived with. */
@@ -178,14 +162,14 @@ export default class RegionAutomations {
     return true;
   }
 
-  static buildRegionContext(context: IRegionEventContext, token: TokenDocument): IDDBRegionContext {
+  static buildRegionContext(context: IRegionEventContext, token?: TokenDocument): IDDBRegionContext {
     return {
       regionUuid: context.region.uuid ?? "",
       regionName: context.region.name ?? null,
       sceneUuid: (context.scene as { uuid?: string } | null)?.uuid ?? null,
       behaviorUuid: (context.behavior as { uuid?: string } | null)?.uuid ?? null,
       eventName: context.event.name,
-      tokenUuid: token.uuid ?? null,
+      tokenUuid: token?.uuid ?? null,
       args: context.args ?? {},
     };
   }
@@ -431,6 +415,7 @@ export default class RegionAutomations {
    * differs per token.
    */
   static async #processUseBatch(entries: IUseActivityEntry[]): Promise<void> {
+    if (!RegionBehaviorSettings.enabled) return;
     const context = entries[0].context;
 
     const placingActivity = await RegionAutomations.getActivity(context.region);
@@ -441,15 +426,7 @@ export default class RegionAutomations {
 
     const args = (context.args ?? {}) as IUseActivityArgs;
     const item = placingActivity.item;
-    const activity = args.activityId
-      ? item?.system?.activities?.get(args.activityId)
-      : args.activityName
-        // exact match first; the prefix fallback lets one behavior target a family of
-        // variant activities ("Aura Save (Strength DC)"...) where the user deletes the
-        // ones that do not apply and whichever remains still resolves
-        ? item?.system?.activities?.find((a: { name: string }) => a.name === args.activityName)
-          ?? item?.system?.activities?.find((a: { name: string }) => a.name.startsWith(args.activityName as string))
-        : placingActivity;
+    const activity = resolveRegionActivity(placingActivity, args);
     if (!activity) {
       logger.warn(`No activity matching ${args.activityId ?? args.activityName} on ${item?.name} for region ${context.region.name}`, { context });
       return;
@@ -480,20 +457,21 @@ export default class RegionAutomations {
     // so it is used once per token rather than once for the group
     if (activity.type === "ddbmacro") {
       for (const entry of triggered) {
-        await RegionAutomations.#useActivityOnTokens(entry.context, activity, args, [entry.token]);
+        await RegionAutomations.useActivityOnTokens(entry.context, activity, args, [entry.token]);
       }
       return;
     }
-    await RegionAutomations.#useActivityOnTokens(triggered[0].context, activity, args, triggered.map((entry) => entry.token));
+    await RegionAutomations.useActivityOnTokens(triggered[0].context, activity, args, triggered.map((entry) => entry.token));
   }
 
   /** One usage of `activity` against `tokens`, which all passed the behavior's filters. */
-  static async #useActivityOnTokens(
+  static async useActivityOnTokens(
     context: IRegionEventContext,
     activity: Record<string, any>,
     args: IUseActivityArgs,
     tokens: TokenDocument[],
-  ): Promise<void> {
+  ): Promise<unknown> {
+    if (!RegionBehaviorSettings.enabled) return;
     const item = activity.item;
     const spellLevel = context.region.getFlag("dnd5e", "spellLevel") as number | undefined;
     const baseLevel = item?.system?.level as number | undefined;
@@ -539,17 +517,28 @@ export default class RegionAutomations {
 
     const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
       .map((t) => t.id).filter((id): id is string => id !== null);
-    DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
+    // Owner-turn uses can belong to a different scene, and concurrent prompts must not
+    // overwrite the GM's targeting. Both execution paths accept explicit recipients.
+    const origin = args.ownerTurn ? RegionAutomations.getOriginToken(context.region) : null;
+    const messageData = {
+      ...(args.ownerTurn ? { flavor: foundry.utils.escapeHTML(regionLabel(context.region)) } : {}),
+      ...(origin ? { speaker: { scene: context.scene.id, token: origin.id, actor: origin.actor?.id, alias: origin.name } } : {}),
+      system: { targets: RegionAutomations.targetDescriptors(tokens) },
+    };
+    if (!args.ownerTurn) DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
     try {
       if (game.modules.get("midi-qol")?.active) {
-        await DDBEffectHelper.rollMidiActivityUse(activity, {
+        const workflowOptions = {
           targets: tokens.map((t) => t.uuid),
           scaling,
           extraActivityConfig,
           forceAutoRolls: autoRoll,
-        });
+        };
+        return args.ownerTurn
+          ? await DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions, { message: { data: messageData } })
+          : await DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions);
       } else {
-        await activity.use(
+        return await activity.use(
           {
             create: false,
             // dnd5e's key is `resources`, plural: anything else leaves it unset, and it then
@@ -566,17 +555,15 @@ export default class RegionAutomations {
           // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
           // depend on canvas targeting state - and fall back to the selected
           // token, usually the caster, whenever that lookup came up empty.
-          // A save card's button rolls for these recorded targets, one click for
-          // the whole group. The damage/healing button instead rolls against the
-          // user's live targets at click time (dnd5e passes no message data from
-          // the button), so the user targets the tokens from the card's
-          // recorded-target pills first; `autoRoll` is the opt-in for rolling
-          // immediately instead.
-          { data: { system: { targets: RegionAutomations.targetDescriptors(tokens) } } },
+          // The save button uses these recorded targets, and dnd5e's damage/healing
+          // buttons forward them to the roll card. Its Apply tray defaults to this
+          // captured group even if the user's scene selection or targets change
+          // before rolling. `autoRoll` opts into rolling immediately instead.
+          { data: messageData },
         );
       }
     } finally {
-      DDBEffectHelper.setTokenTargets(previousTargets);
+      if (!args.ownerTurn) DDBEffectHelper.setTokenTargets(previousTargets);
     }
   }
 
@@ -718,7 +705,8 @@ export default class RegionAutomations {
   };
 
   static async handleRegionEvent(context: IRegionEventContext): Promise<void> {
-    if (!game.user?.isActiveGM) return;
+    // Already-placed executeScript behaviors still call this entry point when the master is off.
+    if (!RegionBehaviorSettings.enabled || !game.user?.isActiveGM) return;
     const handler = RegionAutomations.handlers[context.handler];
     if (!handler) {
       logger.warn(`No region automation handler registered for "${context.handler}"`, context);

@@ -1576,8 +1576,8 @@ export default class DDBEffectHelper {
   }
 
   static async rollMidiActivityUse(activity: any, workflowBuilderOptions = {}, {
-    targetIds = [] as string[], applyFailureConditions = [] as string[],
-  } = {}) {
+    targetIds = [], applyFailureConditions = [], message,
+  }: { targetIds?: string[]; applyFailureConditions?: string[]; message?: Record<string, unknown> } = {}) {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
@@ -1588,7 +1588,9 @@ export default class DDBEffectHelper {
     logger.debug("Rolling activity use", { activity, config, options });
 
     // config/dialogue/message
-    const result = await MidiQOL.completeActivityUse(activity, config, options);
+    const result = message
+      ? await MidiQOL.completeActivityUse(activity, config, options, message)
+      : await MidiQOL.completeActivityUse(activity, config, options);
 
     if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(saveTargets);
 
@@ -1605,7 +1607,7 @@ export default class DDBEffectHelper {
       }
     }
     await Promise.all(conditionResults);
-
+    return result;
   }
 
 

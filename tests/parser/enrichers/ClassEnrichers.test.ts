@@ -1716,6 +1716,18 @@ describe("passive aura native fallback", () => {
     expect(move.ac5eNever).toBe(true);
   });
 
+  it.each([
+    [GenericEnrichers.AuraOf, "Aura of Courage"],
+    [ClassEnrichers.Paladin.AuraOfDevotion, "Aura of Devotion"],
+  ])("%s preserves the feature description on both %s effect arms", (Enricher, name) => {
+    const description = "<p>Allies in this aura gain the feature's protection.</p>";
+    const e = named(Enricher, name, {
+      klass: "Paladin", data: { name, flags: {}, system: { description: { value: description } } },
+    });
+    expect(e.effects).toHaveLength(2);
+    expect(e.effects.every((hint: IDDBEffectHint) => hint.options?.description === description)).toBe(true);
+  });
+
   it("Aura of Hate filters the region to fiends and undead natively", () => {
     const e = build(ClassEnrichers.Paladin.AuraOfHate);
     const [behavior] = e.activity.data.behaviors;
@@ -1767,6 +1779,17 @@ describe("C/D region candidates: class features", () => {
 });
 
 describe("paladin capstone aura regions", () => {
+  it("Holy Nimbus restricts its free damage activity to enemies, which supplies the region filter", () => {
+    const e = makeEnricherData(ClassEnrichers.Paladin.HolyNimbus);
+    const damage = e.additionalActivities.find((activity) => activity.init?.name === "Aura Damage");
+    expect(damage?.build).toMatchObject({
+      generateConsumption: false,
+      generateTarget: true,
+      targetOverride: { affects: { type: "enemy" } },
+    });
+    expect(damage?.build?.targetOverride?.template?.type).toBeUndefined();
+  });
+
   it.each([
     ["HolyNimbus", "Aura Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
     ["AvengingAngel", "Avenging Angel", ["tokenEnter"], "30"],
@@ -1787,6 +1810,7 @@ describe("paladin capstone aura regions", () => {
 describe("paladin aura marker regions", () => {
   it("Aura of Conquest marks enemies and fires its damage at their turn start", () => {
     const e = build(ClassEnrichers.Paladin.AuraOfConquest);
+    expect(e.activity.targetType).toBe("enemy");
     const aura = e.additionalActivities.find((a: any) => a.init?.name === "Place Aura");
     expect(aura.build.targetOverride.template.size).toBe("@scale.conquest.aura-of-conquest");
     const [apply, macro] = aura.overrides.data.behaviors;

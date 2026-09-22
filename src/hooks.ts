@@ -42,6 +42,7 @@ import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 import { DDBToolProficiencies } from "./lib/_module";
+import RegionBehaviorSettings from "./lib/RegionBehaviorSettings";
 // import { createStorage } from "./hooks/ready/storage";
 
 // foundry is initializing
@@ -69,6 +70,9 @@ export function setup() {
 
 // foundry is ready
 export async function onceReady() {
+  await RegionBehaviorSettings.migrate().catch((error: unknown) => {
+    logger.warn("Unable to copy the region import setting; it will be retried on the next load", { error });
+  });
   // register the game settings
   await registerGameSettings();
 
@@ -158,4 +162,3 @@ export const renderJournalEntryPageSheet: Hooks.Function<"renderJournalEntryPage
     adventureFlags(sheet, html, data);
   }
 };
-

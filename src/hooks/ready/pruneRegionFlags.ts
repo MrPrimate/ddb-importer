@@ -1,5 +1,6 @@
 import RegionAutomations from "../../effects/auras/RegionAutomations";
 import logger from "../../lib/Logger";
+import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 
 /**
  * Sweep the once-per-turn flags the ddbMacro region behaviors write onto actors.
@@ -9,7 +10,7 @@ import logger from "../../lib/Logger";
  * an unlinked token's flags live in its actor delta and go with the token.
  */
 export async function pruneRegionTurnFlags(): Promise<void> {
-  if (!game.user?.isActiveGM) return;
+  if (!RegionBehaviorSettings.enabled || !game.user?.isActiveGM) return;
   try {
     const pruned = await RegionAutomations.pruneTurnFlags();
     if (pruned > 0) logger.info(`Pruned ${pruned} stale region once-per-turn flags`);

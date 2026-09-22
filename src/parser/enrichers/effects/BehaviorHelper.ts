@@ -37,7 +37,6 @@ interface IBehaviorCommon {
 }
 
 export default class BehaviorHelper {
-
   /**
    * A behavior naming an effect by compendium uuid gets the stock effect's name;
    * standalone effects are already referenced by name.
@@ -68,7 +67,12 @@ export default class BehaviorHelper {
    * stock dnd5e ones via `SRDEffects` (e.g. `SRDEffects.condition("deafened")`).
    * Disposition filtering comes from the activity's target type (ally/enemy).
    */
-  static applyEffect({ effects, sizes = [], types = [], ...common }: IBehaviorCommon & {
+  static applyEffect({
+    effects,
+    sizes = [],
+    types = [],
+    ...common
+  }: IBehaviorCommon & {
     effects: string | string[];
     sizes?: TActorSizes[];
     types?: TCreatureTypes[];
@@ -101,7 +105,15 @@ export default class BehaviorHelper {
    * `useActivity`, which uses the placing item's activity against the
    * triggering token) on the given core region events.
    */
-  static macro({ handler = "useActivity", events, args = {}, sizes = [], types = [], excludeTypes = [], ...common }: IBehaviorCommon & {
+  static macro({
+    handler = "useActivity",
+    events,
+    args = {},
+    sizes = [],
+    types = [],
+    excludeTypes = [],
+    ...common
+  }: IBehaviorCommon & {
     handler?: string;
     events: string[];
     args?: Record<string, unknown>;
@@ -112,13 +124,31 @@ export default class BehaviorHelper {
     /** Never trigger for these creature types - "any creature other than an ooze" wording. */
     excludeTypes?: string[];
   }): I5eActivityBehavior {
-    const { activityId, oncePerTurn, excludeSelf, scale, autoRoll, groupTargets, macroParameters, macroFunction, ...rest } = args as {
+    const {
+      activityId,
+      oncePerTurn,
+      excludeSelf,
+      scale,
+      autoRoll,
+      groupTargets,
+      ownerTurn,
+      ownerTurnTargets,
+      fireOnPlacement,
+      deleteAfterUse,
+      macroParameters,
+      macroFunction,
+      ...rest
+    } = args as {
       activityId?: string;
       oncePerTurn?: boolean;
       excludeSelf?: boolean;
       scale?: boolean;
       autoRoll?: boolean;
       groupTargets?: boolean;
+      ownerTurn?: boolean;
+      ownerTurnTargets?: "region" | "none";
+      fireOnPlacement?: boolean;
+      deleteAfterUse?: boolean;
       macroParameters?: string;
       macroFunction?: string;
       [key: string]: unknown;
@@ -142,6 +172,14 @@ export default class BehaviorHelper {
         // same-named argument. Only the non-default value is written.
         ...(autoRoll === true ? { autoRoll } : {}),
         ...(groupTargets === false ? { groupTargets } : {}),
+        ...(ownerTurn
+          ? {
+            ownerTurn,
+            ownerTurnTargets: ownerTurnTargets ?? "region",
+            fireOnPlacement: fireOnPlacement ?? false,
+            deleteAfterUse: deleteAfterUse ?? false,
+          }
+          : {}),
         sizes,
         types,
         excludeTypes,
@@ -158,7 +196,28 @@ export default class BehaviorHelper {
    * behavior, but if the 5e system grows an equivalent native behavior the
    * emission can be re-pointed here without touching any enricher.
    */
-  static activity({ activityId, activityName, events, oncePerTurn, excludeSelf, scale, autoRoll, groupTargets, macroParameters, sizes, types, excludeTypes, ...common }: IBehaviorCommon & {
+  static activity({
+    activityId,
+    activityName,
+    events,
+    oncePerTurn,
+    excludeSelf,
+    scale,
+    autoRoll,
+    groupTargets,
+    ownerTurn,
+    ownerTurnTargets,
+    fireOnPlacement,
+    deleteAfterUse,
+    activityChoices,
+    skipOriginStatuses,
+    fallbackDuration,
+    macroParameters,
+    sizes,
+    types,
+    excludeTypes,
+    ...common
+  }: IBehaviorCommon & {
     /** Sibling activity id to use; omit both to use the placing activity itself. */
     activityId?: string;
     /** Sibling activity name, for additional activities whose ids are generated at parse. */
@@ -182,7 +241,16 @@ export default class BehaviorHelper {
     types?: string[];
     /** Never trigger for these creature types - "any creature other than an ooze" wording. */
     excludeTypes?: string[];
-  }): I5eActivityBehavior {
+  } & Pick<
+    I5eActivityBehaviorMacroConfig,
+      | "ownerTurn"
+      | "ownerTurnTargets"
+      | "fireOnPlacement"
+      | "deleteAfterUse"
+      | "activityChoices"
+      | "skipOriginStatuses"
+      | "fallbackDuration"
+  >): I5eActivityBehavior {
     return BehaviorHelper.macro({
       ...common,
       name: common.name || activityName || "",
@@ -194,6 +262,10 @@ export default class BehaviorHelper {
       args: {
         ...(activityId !== undefined ? { activityId } : {}),
         ...(activityName !== undefined ? { activityName } : {}),
+        ...(ownerTurn ? { ownerTurn, ownerTurnTargets, fireOnPlacement, deleteAfterUse } : {}),
+        ...(activityChoices ? { activityChoices } : {}),
+        ...(fallbackDuration !== undefined ? { fallbackDuration } : {}),
+        ...(skipOriginStatuses?.length ? { skipOriginStatuses } : {}),
         ...(oncePerTurn !== undefined ? { oncePerTurn } : {}),
         ...(excludeSelf !== undefined ? { excludeSelf } : {}),
         ...(scale !== undefined ? { scale } : {}),
@@ -203,5 +275,4 @@ export default class BehaviorHelper {
       },
     });
   }
-
 }

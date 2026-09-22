@@ -1,3 +1,7 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
+
+beforeEach(() => setMockSettings({ "enable-ddb-macro-region-behaviors": true }));
+
 const getDispositions = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../src/hooks/regionBehaviors/baseActivityBehavior", () => ({
@@ -17,6 +21,53 @@ import DDBMacroActivityBehavior from "../../../src/hooks/regionBehaviors/DDBMacr
 describe("DDBMacroActivityBehavior.createBehaviorData", () => {
   beforeEach(() => {
     getDispositions.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("creates no behavior from an existing activity when the master is off", () => {
+    setMockSettings({ "enable-ddb-macro-region-behaviors": false, "add-ddb-macro-region-behaviors": true });
+    expect(behavior().createBehaviorData({ target: {} })).toBe(false);
+    expect(getDispositions).not.toHaveBeenCalled();
+  });
+
+  it("still creates a behavior from an existing activity when only imports are off", () => {
+    setMockSettings({ "add-ddb-macro-region-behaviors": false });
+    getDispositions.mockReturnValue(new Set());
+    expect(behavior().createBehaviorData({ target: {} })).toMatchObject({ type: "executeScript" });
+  });
+
+  it("serializes owner dispatch metadata without native events and preserves its finite lifetime", () => {
+    vi.stubGlobal("game", { ...game, time: { worldTime: 100 } });
+    getDispositions.mockReturnValue(new Set());
+    const owner = new DDBMacroActivityBehavior({
+      function: "useActivity", events: new Set(["tokenTurnStart"]), ownerTurn: true,
+      ownerTurnTargets: "none", fireOnPlacement: true, deleteAfterUse: true, args: {},
+    } as any);
+    expect(owner.createBehaviorData({ target: {}, duration: { units: "minute", value: "1" } })).toMatchObject({
+      system: { events: [], source: "" },
+      flags: { ddbimporter: { ownerTurn: {
+        events: ["tokenTurnStart"],
+        args: { ownerTurn: true, ownerTurnTargets: "none", fireOnPlacement: true, deleteAfterUse: true, expiresAt: 160 },
+      } } },
+    });
+  });
+
+  it.each([false, true])("gives a one-shot its fallback clock and originating combat (started=%s)", (started) => {
+    const token = { uuid: "Scene.origin.Token.owner" };
+    const combat = { id: "originCombat", started, combatants: [{ token }] };
+    vi.stubGlobal("game", { ...game, time: { worldTime: 100 }, combats: [combat], combat: { id: "viewedElsewhere" } });
+    getDispositions.mockReturnValue(new Set());
+    const owner = new DDBMacroActivityBehavior({
+      function: "useActivity", events: new Set(["tokenTurnStart"]), ownerTurn: true,
+      deleteAfterUse: true, args: { fallbackDuration: 6 },
+    } as any);
+    const data = owner.createBehaviorData({ target: {}, duration: { units: "spec" } }, { token });
+    expect(data).toMatchObject({ flags: { ddbimporter: { ownerTurn: { args: { fallbackExpiresAt: 106 } } } } });
+    if (!data) throw new Error("Missing owner-turn behavior");
+    expect(foundry.utils.getProperty(data, "flags.ddbimporter.ownerTurn.args.placementCombatId")).toBe(started ? combat.id : undefined);
   });
 
   function behavior() {

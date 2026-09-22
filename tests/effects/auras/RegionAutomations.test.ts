@@ -1,3 +1,7 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
+
+beforeEach(() => setMockSettings({ "enable-ddb-macro-region-behaviors": true }));
+
 import RegionAutomations from "../../../src/effects/auras/RegionAutomations";
 import DDBEffectHelper from "../../../src/effects/DDBEffectHelper";
 import { DDBSimpleMacro } from "../../../src/lib/_module";
@@ -40,6 +44,25 @@ describe("RegionAutomations.handleRegionEvent", () => {
     await RegionAutomations.handleRegionEvent(makeContext("testHandler"));
 
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it.each([true, false])("master off blocks already-placed script handlers (add=%s)", async (add) => {
+    setMockSettings({ "enable-ddb-macro-region-behaviors": false, "add-ddb-macro-region-behaviors": add });
+    Object.assign(game, { user: { isActiveGM: true } });
+    const handler = vi.fn();
+    RegionAutomations.register("testHandler", handler);
+    await RegionAutomations.handleRegionEvent(makeContext("testHandler"));
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("keeps already-placed scripts running when only imports are off", async () => {
+    setMockSettings({ "add-ddb-macro-region-behaviors": false });
+    Object.assign(game, { user: { isActiveGM: true } });
+    const handler = vi.fn();
+    RegionAutomations.register("testHandler", handler);
+    const context = makeContext("testHandler");
+    await RegionAutomations.handleRegionEvent(context);
+    expect(handler).toHaveBeenCalledWith(context, RegionAutomations);
   });
 
   it("tolerates an unknown handler and a throwing handler", async () => {
@@ -97,6 +120,15 @@ describe("RegionAutomations.useActivityHandler", () => {
 
   const originalWindow = RegionAutomations.GROUP_WINDOW_MS;
 
+  it("drops a waiting native batch if the master is switched off before it flushes", async () => {
+    const { context, sibling } = setup();
+    context.args = { activityName: "Damage", oncePerTurn: false };
+    const use = RegionAutomations.useActivityHandler(context);
+    setMockSettings({ "enable-ddb-macro-region-behaviors": false });
+    await use;
+    expect(sibling.use).not.toHaveBeenCalled();
+  });
+
   // a zero window still collects everything dispatched in the same tick, which is
   // all core's activation loop needs, without slowing every single-token test
   beforeEach(() => {
@@ -148,6 +180,44 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(setTargets).toHaveBeenLastCalledWith([], { mode: "replace" });
     // no spellLevel flag on the region -> no cast-level slot key is forced
     expect(placing.use.mock.calls[0][0].spell).toBeUndefined();
+  });
+
+  it("supports a recipient-free owner-turn card without changing canvas targets", async () => {
+    const { context, placing } = setup();
+    vi.stubGlobal("foundry", { ...foundry, utils: { ...foundry.utils, escapeHTML: (text: string) => text } });
+    context.scene.id = "originScene";
+    vi.spyOn(RegionAutomations, "getOriginToken").mockReturnValue({
+      id: "origin", name: "Owner", actor: { id: "sourceActor" },
+    } as unknown as TokenDocument);
+    try {
+      const result = await RegionAutomations.useActivityOnTokens(context, placing, { ownerTurn: true }, []);
+      expect(result).toEqual({});
+      expect(placing.use).toHaveBeenCalledWith(expect.objectContaining({
+        create: false, consume: { action: false, resources: false, spellSlot: false },
+        concentration: { begin: false }, subsequentActions: false,
+        ddbRegionContext: expect.objectContaining({ tokenUuid: null }),
+      }), { configure: false }, { data: { flavor: "Test Region", system: { targets: [] },
+        speaker: { scene: "originScene", token: "origin", actor: "sourceActor", alias: "Owner" },
+      } });
+      expect(canvas.tokens.setTargets).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("passes explicit owner-turn recipients to Midi and returns its workflow result", async () => {
+    const { context, placing } = setup();
+    vi.stubGlobal("foundry", { ...foundry, utils: { ...foundry.utils, escapeHTML: (text: string) => text } });
+    (globalThis as any).game.modules = { get: () => ({ active: true }) };
+    const workflow = { id: "workflow" };
+    const useMidi = vi.spyOn(DDBEffectHelper, "rollMidiActivityUse").mockResolvedValue(workflow);
+    expect(await RegionAutomations.useActivityOnTokens(context, placing, { ownerTurn: true }, [context.event.data.token])).toBe(workflow);
+    expect(useMidi).toHaveBeenCalledWith(placing, expect.objectContaining({
+      targets: ["Scene.s.Token.tok1"], forceAutoRolls: false,
+      extraActivityConfig: expect.objectContaining({ concentration: { begin: false } }),
+    }), { message: { data: expect.objectContaining({ flavor: "Test Region" }) } });
+    vi.unstubAllGlobals();
+    expect(canvas.tokens.setTargets).not.toHaveBeenCalled();
   });
 
   it("resolves a sibling activity by name and applies upcast scaling from the region flag", async () => {

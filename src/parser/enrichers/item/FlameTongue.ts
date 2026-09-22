@@ -89,6 +89,7 @@ export default class FlameTongue extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange(FlameTongue.EXTINGUISH_NAME, 20, "activities[enchant].name"),
         ],
         options: {
+          showIcon: 2,
           description: `The weapon deals an extra ${this.flameDice} Fire damage on a hit and sheds light.`,
         },
         data: {
