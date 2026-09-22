@@ -118,13 +118,17 @@ describe("wizard HypnoticGaze", () => {
 
 describe("paladin AuraOfDevotion", () => {
   it("places the Aura of Protection template and applies a standalone charmed immunity", () => {
-    const e = build(ClassEnrichers.Paladin.AuraOfDevotion);
+    const e = build(ClassEnrichers.Paladin.AuraOfDevotion, {
+      data: { system: { description: { value: "<p>Aura text</p>" } } },
+    });
     expect(e.activity.data.target.template.size).toBe("@scale.paladin.aura-of-protection");
     expect(e.activity.data.behaviors[0].config.effects).toEqual(["Aura of Devotion"]);
     const [standalone, aura] = e.effects;
     expect(standalone.standalone).toBe(true);
+    expect(standalone.options.description).toBe("<p>Aura text</p>");
     expect(standalone.changes[0]).toMatchObject({ key: "system.traits.ci.value", value: "charmed" });
     expect(aura.auraeffectsOnly).toBe(true);
+    expect(aura.options.description).toBe("<p>Aura text</p>");
     expect(aura.auraeffects.distanceFormula).toBe("@scale.paladin.aura-of-protection");
   });
 });
