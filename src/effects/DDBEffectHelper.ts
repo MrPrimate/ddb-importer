@@ -1157,7 +1157,8 @@ export default class DDBEffectHelper {
         createWorkflow: true,
         consume: {
           action: false,
-          resource: consumeResource,
+          // dnd5e reads `resources`, plural; left unset it defaults to every consumption target
+          resources: consumeResource,
           spellSlot: consumeSpellSlot,
         },
         midiOptions: {
@@ -1421,8 +1422,8 @@ export default class DDBEffectHelper {
   }
 
   static async rollMidiActivityUse(activity, workflowBuilderOptions = {}, {
-    targetIds = [], applyFailureConditions = [],
-  } = {}) {
+    targetIds = [], applyFailureConditions = [], message,
+  }: { targetIds?: string[]; applyFailureConditions?: string[]; message?: Record<string, unknown> } = {}) {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id)
       : [];
@@ -1433,7 +1434,9 @@ export default class DDBEffectHelper {
     logger.debug("Rolling activity use", { activity, config, options });
 
     // config/dialogue/message
-    const result = await MidiQOL.completeActivityUse(activity, config, options);
+    const result = message
+      ? await MidiQOL.completeActivityUse(activity, config, options, message)
+      : await MidiQOL.completeActivityUse(activity, config, options);
 
     if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);
 
@@ -1450,7 +1453,7 @@ export default class DDBEffectHelper {
       }
     }
     await Promise.all(conditionResults);
-
+    return result;
   }
 
 

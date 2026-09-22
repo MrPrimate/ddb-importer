@@ -13,6 +13,20 @@ global {
     count?: string;
   }
 
+  /** An aura the summoned creature gives off, placed from the item onto the creature's token. */
+  interface ISRDItemSummonAura {
+    name: string;
+    size: string;
+    /** "enemy" is relative to whoever used the item, which is what "Hostile to you" means */
+    affects: "creature" | "ally" | "enemy";
+    events: string[];
+    save: { ability: string[]; dc: string };
+    /** a dnd5e status id, capitalised as effect hints expect it */
+    status: string;
+    durationSeconds: number;
+    condition: string;
+  }
+
   interface ISRDItemSummon {
     /** matched against the item's DDB name with `includes`; the first entry to match wins */
     match: string;
@@ -23,6 +37,7 @@ global {
     activationType?: TActivationCost;
     /** no actor of ours: one empty profile for the table to point at the creature involved */
     blankProfile?: boolean;
+    aura?: ISRDItemSummonAura;
   }
 
   interface ICompanionData {

@@ -45,6 +45,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Moon Sickle": "Moon Sickle",
     "Dragon Wing": "Dragon Wing",
     "Hammer of Thunderbolts": "Hammer of Thunderbolts",
+    "Holy Avenger": "Holy Avenger",
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
     "of the Vampire Lily Dragon": "Vampire Lily Dragon Armor",
@@ -153,6 +154,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dice": ItemEnrichers.GamingSetChecks,
     "Delerium": ItemEnrichers.Delerium,
     "Bagpipes": ItemEnrichers.MusicalInstrumentChecks,
+    "Holy Avenger": ItemEnrichers.HolyAvenger,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

@@ -121,6 +121,7 @@ export default class DDBMuncher extends DDBAppV2 {
   // DDBMuleHandler invocations. The handler drives the primary and secondary
   // bars per invocation; this tracks the whole run across all sources.
   #muleOverall = { label: "", current: 0, total: 0 };
+  #muleHasDocuments = false;
 
   homebrewClasses = new Set();
   encounterId = null;
@@ -899,6 +900,21 @@ export default class DDBMuncher extends DDBAppV2 {
     if (progressElement) progressElement.classList.add("munching-invalid");
   }
 
+  static #emptyImportMessage(type: string, dontGrabExisting = false): string {
+    if (dontGrabExisting) {
+      return `No new ${type} were available to import. "Don't grab existing things" skips entries already imported. Check your selections and import settings.`;
+    }
+    return `No ${type} were available to import. Check your selections and import settings.`;
+  }
+
+  /** Keep notices and existing error details from being overwritten by completion text. */
+  #notifyImportResult(message: string, notice?: string | null) {
+    if (notice === null) return;
+    if (notice) ui.notifications.info(notice);
+    this.notifier(notice ?? message, { nameField: true });
+    this.notifier("");
+  }
+
   static async parseMonsters(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching monsters!");
@@ -909,8 +925,9 @@ export default class DDBMuncher extends DDBAppV2 {
         notifierV2: this.notifierV2.bind(this),
       });
       const result = await monsterFactory.processIntoCompendium(null, this.searchTermMonster);
-      this.notifier(`Finished importing ${result} monsters!`, { nameField: true });
-      this.notifier("");
+      const count = Array.isArray(result) ? result.length : result;
+      this.#notifyImportResult(`Finished importing ${count} monsters!`,
+        count === 0 ? DDBMuncher.#emptyImportMessage("monsters") : undefined);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -932,8 +949,9 @@ export default class DDBMuncher extends DDBAppV2 {
         notifierV2: this.notifierV2.bind(this),
       });
       const result = await vehicleFactory.processIntoCompendium(null, this.searchTermMonster);
-      this.notifier(`Finished importing ${result} vehicles!`, { nameField: true });
-      this.notifier("");
+      const count = Array.isArray(result) ? result.length : result;
+      this.#notifyImportResult(`Finished importing ${count} vehicles!`,
+        count === 0 ? DDBMuncher.#emptyImportMessage("vehicles") : undefined);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -950,13 +968,13 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching spells!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await parseSpells({
+      const result = await parseSpells({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
         searchFilter: this.searchTermSpell,
       });
-      this.notifier(`Finished importing spells!`, { nameField: true });
-      this.notifier("");
+      this.#notifyImportResult("Finished importing spells!",
+        (result?.length ?? 0) === 0 ? DDBMuncher.#emptyImportMessage("spells") : undefined);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -974,13 +992,13 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching items!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await DDBItemsImporter.fetchAndImportItems({
+      const result = await DDBItemsImporter.fetchAndImportItems({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),
         searchFilter: this.searchTermItem,
       });
-      this.notifier(`Finished importing items!`, { nameField: true });
-      this.notifier("");
+      this.#notifyImportResult("Finished importing items!",
+        (result?.length ?? 0) === 0 ? DDBMuncher.#emptyImportMessage("items") : undefined);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -999,9 +1017,11 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       await this.awaitSettingUpdates();
       const result = await DDBFrameImporter.parseFrames(this.notifierV2.bind(this));
+      const notice = result === 0 ? DDBMuncher.#emptyImportMessage("frames") : undefined;
+      if (notice) ui.notifications.info(notice);
       this.notifierV2({
         section: "name",
-        message: `Finished importing ${result} frames!`,
+        message: notice ?? `Finished importing ${result} frames!`,
         progress: { current: result, total: result },
         clear: true,
       });
@@ -1047,22 +1067,13 @@ export default class DDBMuncher extends DDBAppV2 {
   async #processClassMunching(options) {
     const muleHandler = new DDBMuleHandler(options);
 
-    try {
-      await muleHandler.process();
+    await muleHandler.process();
+    this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
 
-      logger.debug(`Mule processed`, {
-        muleHandler,
-        options: foundry.utils.deepClone(options),
-      });
-    } catch (error) {
-      this.processErrors.push({
-        error: error.message,
-        isHomebrew: options.homebrew,
-        classId: options.classId,
-        message: `Class Mule failure see error messages for details`,
-      });
-      throw error;
-    }
+    logger.debug(`Mule processed`, {
+      muleHandler,
+      options: foundry.utils.deepClone(options),
+    });
   }
 
   async #parseHomebrewClassesWithMule({ baseOptions, classList } = {}) {
@@ -1202,7 +1213,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   async _parseClassesWithMule() {
-    this.autoRotateMessage("class");
+    this.#muleHasDocuments = false;
     // prepare sources to munch from
     const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
@@ -1219,9 +1230,7 @@ export default class DDBMuncher extends DDBAppV2 {
       .map((id) => parseInt(id));
 
     if (allowedClassIds.length === 0) {
-      this.notifier("Select at least one class to munch.", { nameField: true });
-      this.stopAutoRotateMessage();
-      return;
+      return "Select at least one class to munch.";
     }
 
     const subclassSelections = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
@@ -1236,6 +1245,7 @@ export default class DDBMuncher extends DDBAppV2 {
     // determine classes to parse
     const classList = (await DDBMuleHandler.getList("class", Array.from(allSourceIds)))
       .filter((c) => allowedClassIds.includes(parseInt(c.id)));
+    if (classList.length === 0) return DDBMuncher.#emptyImportMessage("classes");
 
     logger.info(`Found ${classList.length} classes to munch`, {
       classList,
@@ -1254,6 +1264,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     try {
       // determine campaign id for the character to fetch appropriate subclass list
+      this.autoRotateMessage("class");
       const slimData = await DDBMuleHandler.getSlimCharacters([this.characterId]);
       const campaignId = slimData && slimData.length > 0 ? slimData[0]?.campaign?.id : null;
 
@@ -1283,24 +1294,24 @@ export default class DDBMuncher extends DDBAppV2 {
       if (allowHomebrew && this.homebrewClasses.size > 0) {
         await this.#parseHomebrewClassesWithMule({ baseOptions, classList });
       }
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
       if (this.processErrors.length > 0) {
         this.notifier(`Errors during munching: ${this.processErrors.length}`, { nameField: true });
-        this.notifier(this.processErrors.map((e) => e.message).join(" & "), { message: true });
+        this.notifier(this.processErrors.map((e) => `${e.message}: ${e.error}`).join(" & "), { message: true });
         logger.error("Process Errors:", {
           processErrors: this.processErrors,
           this: this,
         });
       }
     }
+    if (this.processErrors.length > 0) return null;
+    if (!this.#muleHasDocuments) return DDBMuncher.#emptyImportMessage("classes");
+    return undefined;
   }
 
   async _parseWithMule(type) {
+    this.#muleHasDocuments = false;
     this.autoRotateMessage(type);
     const homebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
@@ -1341,6 +1352,7 @@ export default class DDBMuncher extends DDBAppV2 {
           });
           try {
             await muleHandler.process();
+            this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
 
             logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
               muleHandler,
@@ -1379,6 +1391,7 @@ export default class DDBMuncher extends DDBAppV2 {
         });
         try {
           await muleHandler.process();
+          this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
 
           logger.debug(`Munch Complete for ${type} in Homebrew`, {
             muleHandler,
@@ -1398,18 +1411,19 @@ export default class DDBMuncher extends DDBAppV2 {
         }
         this.#advanceMuleOverallProgress("Homebrew");
       }
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
       if (processErrors.length > 0) {
         this.notifier(`Errors during munching: ${processErrors.length}`, { nameField: true });
-        this.notifier(processErrors.map((e) => e.message).join(" & "), { message: true });
+        this.notifier(processErrors.map((e) => `${e.message}: ${e.error}`).join(" & "), { message: true });
         logger.error("Process Errors:", processErrors);
       }
     }
+    if (processErrors.length > 0) return null;
+    if (!this.#muleHasDocuments) {
+      return DDBMuncher.#emptyImportMessage(type === "species" ? "species" : `${type}s`);
+    }
+    return undefined;
   }
 
   static async parseFeats(this: DDBMuncher, _event, _target) {
@@ -1421,12 +1435,15 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching feats!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await this._parseWithMule("feat");
-      this.notifier(`Finished importing feats!`, { nameField: true });
-      this.notifier("");
+      const notice = await this._parseWithMule("feat");
+      this.#notifyImportResult("Finished importing feats!", notice);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Feat import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1441,12 +1458,15 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching backgrounds!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await this._parseWithMule("background");
-      this.notifier(`Finished importing backgrounds!`, { nameField: true });
-      this.notifier("");
+      const notice = await this._parseWithMule("background");
+      this.#notifyImportResult("Finished importing backgrounds!", notice);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Background import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1461,12 +1481,15 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching classes!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await this._parseClassesWithMule();
-      this.notifier(`Finished importing classes!`, { nameField: true });
-      this.notifier("");
+      const notice = await this._parseClassesWithMule();
+      this.#notifyImportResult("Finished importing classes!", notice);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Class import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }
@@ -1481,12 +1504,15 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching species!");
       this._disableButtons();
       await this.awaitSettingUpdates();
-      await this._parseWithMule("species");
-      this.notifier(`Finished importing species!`, { nameField: true });
-      this.notifier("");
+      const notice = await this._parseWithMule("species");
+      this.#notifyImportResult("Finished importing species!", notice);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+      // without this a failed download looks exactly like an import that matched nothing
+      const message = `Species import failed: ${utils.errorMessage(error)}`;
+      ui.notifications.error(message);
+      this.notifier(message, { nameField: true });
     } finally {
       this._enableButtons();
     }

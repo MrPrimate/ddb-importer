@@ -74,10 +74,11 @@ export class DDBSocket {
   }
 
    
-  _receiveResponse(message, _senderId) {
+  _receiveResponse(message, senderId) {
     const { id, result, type } = message;
     const request = this.requests.get(id);
     if (!request) return;
+    if (Array.isArray(request.recipient) && !request.recipient.includes(senderId)) return;
     switch (type) {
       case "RESULT":
         request.resolve(result);

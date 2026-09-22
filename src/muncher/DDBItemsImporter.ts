@@ -292,10 +292,11 @@ export default class DDBItemsImporter {
     await this.itemHandler.init();
     this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
     await this.itemHandler.iconAdditions();
-    this.data = (this.ids !== null && this.ids.length > 0)
+    const wantedIds = SourceFilters.ddbIdSet(this.ids);
+    this.data = wantedIds.size > 0
       ? this.itemHandler.documents.filter((s) =>
         s.flags?.ddbimporter?.definitionId
-        && this.ids.includes(String(s.flags.ddbimporter.definitionId)),
+        && wantedIds.has(String(s.flags.ddbimporter.definitionId)),
       )
       : this.itemHandler.documents;
     this.itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({

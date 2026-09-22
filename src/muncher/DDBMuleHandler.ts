@@ -106,6 +106,7 @@ export default class DDBMuleHandler {
   // Streaming progressive-import state. When true, all per-item work is
   // done and process() just runs the flush / finalize phases.
   _streamProcessedAll = false;
+  _streamProcessingErrors = 0;
   // Per-subclass actor cache so each subclass's choice variants share
   // one mockCharacter (one actor per subclass id across event arrivals).
   _streamMockActors = new Map<string | number, any>();
@@ -359,6 +360,12 @@ export default class DDBMuleHandler {
       const key = `${flags.baseRaceId ?? ""}|${flags.fullRaceName ?? speciesDoc.name}|${flags.groupName ?? ""}|${flags.isLineage ?? false}|${flags.is2014 ?? true}|${flags.isLegacy ?? false}`;
       this.pendingDocs.species.set(key, speciesDoc);
     }
+  }
+
+  /** Whether parsing produced documents, excluding folder and class metadata. */
+  get hasImportableDocuments(): boolean {
+    return (["features", "traits", "feats", "backgrounds", "species", "classes", "subclasses"] as const)
+      .some((type) => this.pendingDocs[type].size > 0);
   }
 
   async _flushCompendiumDocuments() {
@@ -721,6 +728,7 @@ export default class DDBMuleHandler {
       try {
         await task();
       } catch (err) {
+        this._streamProcessingErrors++;
         logger.error(`[stream-process] ${label} failed: ${(err as Error).message}`, err);
       } finally {
         if (unitId != null) this._streamSecondaryUnits.add(unitId);
@@ -1003,6 +1011,7 @@ export default class DDBMuleHandler {
   }
 
   async process() {
+    this._streamProcessingErrors = 0;
     this._resetSecondaryProgress();
     await this._init();
     if (!this._streamProcessedAll) {
@@ -1012,6 +1021,9 @@ export default class DDBMuleHandler {
     if (this.type === "class") {
       await this._finalizeClassCompendiumLinks();
       await this._flushClassCompendiumDocuments();
+    }
+    if (this._streamProcessingErrors > 0) {
+      throw new Error("Some entries could not be imported. See the console for details.");
     }
   }
 

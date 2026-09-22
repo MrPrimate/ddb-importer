@@ -264,6 +264,12 @@ export default class SpellListFactory {
     await this._generateJournalSpellListPage(journal, spellListName, source);
   }
 
+  #findSpellByDefinitionId(definitionId: number) {
+    return this.spellCompendium?.index.find((s) =>
+      foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === definitionId,
+    );
+  }
+
   /**
    * Adds compendium spells, matched by DDB definition id, to a named list, one page per source
    * book. Existing pages are extended rather than replaced, so this can top up a list the spell
@@ -277,9 +283,11 @@ export default class SpellListFactory {
 
     const homebrew = this.sources.find((s) => s.id === 9999999);
     const touchedSources = new Set<any>();
-    const resolved: number[] = [];
+    // a definition listed twice (two granting features) must reach the page once
+    const resolved = new Set<number>();
 
     for (const spell of spells) {
+      if (resolved.has(spell.id)) continue;
       // basic rules books get no journal unless the setting asks for them, their spells sit on
       // the matching Player's Handbook page instead
       const sourceId = spell.sourceId && !this.filteredSources.some((s) => s.id === spell.sourceId)
@@ -287,9 +295,7 @@ export default class SpellListFactory {
         : spell.sourceId;
       const source = this.filteredSources.find((s) => s.id === sourceId) ?? homebrew;
       if (!source) continue;
-      const match = this.spellCompendium.index.find((s) =>
-        foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id,
-      );
+      const match = this.#findSpellByDefinitionId(spell.id);
       if (!match) {
         logger.debug(`Spell definition ${spell.id} not found in spell compendium for spell list ${spellListName}`);
         continue;
@@ -299,16 +305,16 @@ export default class SpellListFactory {
         touchedSources.add(source);
       }
       this.uuidsBySourceAndSpellListName[source.acronym][spellListName].push(match.uuid);
-      resolved.push(spell.id);
+      resolved.add(spell.id);
     }
 
-    if (resolved.length === 0) return resolved;
+    if (resolved.size === 0) return [];
 
     for (const source of touchedSources) {
       await this.buildSpellList(source, spellListName);
     }
     await this.registerSpellLists();
-    return resolved;
+    return [...resolved];
   }
 
   async registerSpellLists() {

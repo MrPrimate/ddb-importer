@@ -110,6 +110,11 @@ global {
         armorEffect?: boolean;
       };
       ddbimporter?: {
+        /** Native aura stacking identity; bestFormula uses the originating actor's roll data. */
+        aura?: {
+          bestFormula: string;
+          overrideName: string;
+        };
         infusion?: boolean;
         disabled?: boolean;
         characterEffect?: boolean;
