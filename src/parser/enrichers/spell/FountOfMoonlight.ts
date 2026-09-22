@@ -34,6 +34,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: false,
           generateSave: true,
           noSpellslot: true,

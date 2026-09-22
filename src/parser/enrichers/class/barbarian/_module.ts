@@ -51,6 +51,7 @@ export { default as MartialManeuvers } from "./MartialManeuvers";
 export { default as MindlessRage } from "./MindlessRage";
 export { default as Permafrost } from "./Permafrost";
 export { default as PersistentRage } from "./PersistentRage";
+export { default as PoweredByPathos } from "./PoweredByPathos";
 export { default as PowerOfTheWilds } from "./PowerOfTheWilds";
 export { default as PrimalKnowledge } from "./PrimalKnowledge";
 export { default as Rage } from "./Rage";

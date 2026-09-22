@@ -11,6 +11,7 @@ export default class Headshot extends DDBEnricherData {
       name: "Headshot Damage",
       targetType: "creature",
       targetCount: 1,
+      rangeType: "any",
       activationType: "special",
       activationCondition: "You score a Critical Hit with a Ranged weapon (target with less than 100 HP dies instead)",
       addItemConsume: true,
@@ -20,7 +21,7 @@ export default class Headshot extends DDBEnricherData {
             DDBEnricherData.basicDamagePart({
               number: 10,
               denomination: 10,
-              types: ["bludgeoning", "piercing", "slashing"],
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },

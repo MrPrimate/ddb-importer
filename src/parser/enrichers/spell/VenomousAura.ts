@@ -32,6 +32,11 @@ export default class VenomousAura extends DDBEnricherData {
       {
         init: { name: "Venomous Aura: Poison", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

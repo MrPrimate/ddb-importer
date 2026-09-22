@@ -65,6 +65,11 @@ export default class BladeBarrier extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            duration: {
+              units: "inst",
+              concentration: false,
+              override: true,
+            },
             range: {
               override: true,
               units: "spec",

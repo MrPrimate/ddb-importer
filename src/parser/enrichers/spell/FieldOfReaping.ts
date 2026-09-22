@@ -27,6 +27,11 @@ export default class FieldOfReaping extends DDBEnricherData {
       {
         init: { name: "Reaping Curse", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -47,6 +52,11 @@ export default class FieldOfReaping extends DDBEnricherData {
       {
         init: { name: "Reaped Life Force", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

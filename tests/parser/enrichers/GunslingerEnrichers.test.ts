@@ -1,5 +1,5 @@
 /**
- * Behavioural tests for the Gunslinger (The Griffon's Saddlebag) enrichers.
+ * Behavioural tests for the Mage Hand Press Gunslinger enrichers.
  *
  * These do not duplicate the audit harness: every audit suite is wrapped in
  * `describe.skipIf(suites.length === 0)` and its fixtures live in a private
@@ -13,43 +13,15 @@
  *     the decisions manifest can pin;
  *   - every capture has all six maneuvers and both Risk Taker actions present,
  *     so the absent-action branches below are dead to the fixtures entirely.
- *
- * The vi.mock preamble is required and is copied from DDBEnricherData.uses.test.ts:
- * loading the real lib barrel while DDBEnricherData is still mid-evaluation pulls
- * the apps/muncher tree and crashes SpellListExtractorMixin's `extends
- * DDBEnricherData`. vi.mock is hoisted per file, so it cannot be shared from
- * tests/_fixtures. Everything these enrichers touch in lib is just `logger`.
  */
-const loggerMock = vi.hoisted(() => ({
-  warn: vi.fn(),
-  debug: vi.fn(),
-  info: vi.fn(),
-  error: vi.fn(),
-  verbose: vi.fn(),
-}));
-
-vi.mock("../../../src/lib/_module", () => ({ logger: loggerMock }));
-vi.mock("../../../src/parser/spells/CharacterSpellFactory", () => ({ default: class {} }));
-vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
-vi.mock("../../../src/parser/lib/_module", () => ({
-  DDBDataUtils: {
-    findSubClassByFeatureId: vi.fn(),
-    classIdentifierName: (name: string) => name,
-    getLimitedUses: vi.fn(),
-  },
-  DDBTemplateStrings: {
-    parse: vi.fn((_ddb: any, _raw: any, text: string) => ({ text })),
-  },
-}));
-vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
-  AutoEffects: {},
-  EnchantmentEffects: {},
-  ChangeHelper: {},
-  EffectGenerator: {},
-}));
-
 import * as Gunslinger from "../../../src/parser/enrichers/class/gunslinger/_module";
+import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+
+beforeAll(() => {
+  installActivityConfigStubs();
+});
 
 type TEnricher = new (options: any) => any;
 
@@ -71,6 +43,54 @@ const RISK_TAKER_ACTIONS = [
 function build(Enricher: TEnricher, { name = "Test", actions = [] as any[] } = {}): any {
   return makeEnricherData(Enricher, { name, actions: { class: actions } });
 }
+
+describe("Gunslinger damage and effects", () => {
+  it.each([
+    Gunslinger.ManeuverGrazingShot, Gunslinger.Headshot, Gunslinger.Overkill, Gunslinger.LicenseToKill,
+  ])("allows every weapon damage type at the triggering attack's range for %s", (Enricher) => {
+    const activity = makeEnricherData(Enricher).activity;
+    expect(activity.rangeType).toBe("any");
+    expect(activity.data).toMatchObject({ damage: { parts: [{ types: DDBEnricherData.allDamageTypes() }] } });
+  });
+
+  it("applies both Gut Shot penalties for one minute and explains early removal", () => {
+    const enricher = makeEnricherData(Gunslinger.GutShot);
+    expect(enricher.activity.rangeType).toBe("any");
+    expect(enricher.effects[0].options).toMatchObject({
+      durationSeconds: 60,
+      description: expect.stringContaining("dislodging the projectile"),
+    });
+    expect(enricher.effects[0].changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.all", mode: 0, value: "/2" }),
+    ]);
+    expect(enricher.effects[0].midiChanges.map((c: any) => c.key)).toEqual(["flags.midi-qol.disadvantage.attack.all"]);
+    expect(enricher.effects[0].ac5eChanges.map((c: any) => c.key)).toEqual(["flags.automated-conditions-5e.attack.disadvantage"]);
+  });
+
+  it("limits Blindfire to its named activity", () => {
+    const enricher = makeEnricherData(Gunslinger.ManeuverBlindfire);
+    expect(enricher.activity.name).toBe("Blindfire");
+    expect(enricher.effects[0]).toMatchObject({ activityMatch: "Blindfire", options: { expiry: "turnEnd" } });
+  });
+
+  it("heals Cheat Death from zero in one step", () => {
+    const activity = makeEnricherData(Gunslinger.CheatDeath).activity;
+    expect(activity).toMatchObject({
+      rangeType: "self",
+      activationCondition: expect.stringContaining("apply this healing from 0 HP"),
+      data: { healing: { custom: { formula: "1 + @classes.gunslinger.levels" } } },
+    });
+  });
+
+  it("clamps Grazing Shot's Dexterity contribution without allowing critical damage", () => {
+    expect(makeEnricherData(Gunslinger.ManeuverGrazingShot).activity.data).toMatchObject({
+      damage: {
+        critical: { allow: false },
+        parts: [{ custom: { formula: "1@scale.gunslinger.risk.die + max(1, @abilities.dex.mod)" } }],
+      },
+    });
+  });
+});
 
 describe("Gunslinger roll formulas", () => {
   // A Risk Die spender that hardcodes a die, or a free d6 variant that copy-pastes

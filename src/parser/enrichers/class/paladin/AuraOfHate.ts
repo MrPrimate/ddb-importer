@@ -1,15 +1,19 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+const AURA = { bestFormula: "max(1, @abilities.cha.mod)", overrideName: "Aura of Hate" };
+
 export default class AuraOfHate extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Aura of Hate (Self)",
+        // with Aura Effects the aura below applies to the paladin as well
+        auraeffectsNever: true,
         daeStackable: "none",
         data: {
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`+${AURA.bestFormula}`, 20, "system.bonuses.mwak.damage"),
           ],
         },
         statuses: ["Aura of Hate (Self)"],
@@ -36,8 +40,8 @@ export default class AuraOfHate extends DDBEnricherData {
           },
         },
         auraeffects: {
-          applyToSelf: false,
-          bestFormula: "",
+          ...AURA,
+          applyToSelf: true,
           canStack: false,
           collisionTypes: ["move"],
           combatOnly: false,
@@ -45,12 +49,11 @@ export default class AuraOfHate extends DDBEnricherData {
           distanceFormula: "@scale.oathbreaker.aura-of-hate",
           disposition: 0,
           evaluatePreApply: true,
-          overrideName: "",
-          script: `(Object.values(actor.system.details.type).concat(actor.system.details.race?.name).some(type => "undead; fiend".split(";").filter(t => t).includes(type?.toLowerCase())))`,
+          script: `actor.uuid === sourceToken.actor.uuid || ["fiend", "undead"].includes(actor.system.details.type?.value?.toLowerCase())`,
         },
         statuses: ["Aura of Hate (Fiends and Undead)"],
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`+${AURA.bestFormula}`, 20, "system.bonuses.mwak.damage"),
         ],
         options: {
           transfer: true,

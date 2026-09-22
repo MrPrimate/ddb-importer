@@ -9,6 +9,7 @@ export { default as ExitStrategy } from "./ExitStrategy";
 export { default as FancyGunplayGunSpinning } from "./FancyGunplayGunSpinning";
 export { default as FanTheHammer } from "./FanTheHammer";
 export { default as FocusedShot } from "./FocusedShot";
+export { default as GutShot } from "./GutShot";
 export { default as Headshot } from "./Headshot";
 export { default as LayDownTheLaw } from "./LayDownTheLaw";
 export { default as LiarsDice } from "./LiarsDice";
@@ -32,4 +33,5 @@ export { default as Ricochet } from "./Ricochet";
 export { default as Risk } from "./Risk";
 export { default as RiskTaker } from "./RiskTaker";
 export { default as RiskyBusiness } from "./RiskyBusiness";
+export { default as SteelyEyedAura } from "./SteelyEyedAura";
 

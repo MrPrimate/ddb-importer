@@ -54,6 +54,7 @@ export default class PrismaticWall extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: false,
           generateConsumption: false,
           generateSave: true,
@@ -74,6 +75,7 @@ export default class PrismaticWall extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: true,
           generateConsumption: false,
           generateSave: true,

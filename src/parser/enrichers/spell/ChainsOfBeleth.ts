@@ -26,6 +26,11 @@ export default class ChainsOfBeleth extends DDBEnricherData {
       {
         init: { name: "Ongoing Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -46,6 +51,11 @@ export default class ChainsOfBeleth extends DDBEnricherData {
       {
         init: { name: "Crushing Chains", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
@@ -67,6 +77,11 @@ export default class ChainsOfBeleth extends DDBEnricherData {
       {
         init: { name: "Break Free", type: DDBEnricherData.ACTIVITY_TYPES.CHECK },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateCheck: true,
           generateTarget: false,
           generateRange: false,

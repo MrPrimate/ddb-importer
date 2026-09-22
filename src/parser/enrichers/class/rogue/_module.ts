@@ -21,6 +21,7 @@ export { default as EvilEye } from "./EvilEye";
 export { default as EyeForDetail } from "./EyeForDetail";
 export { default as EyeForWeakness } from "./EyeForWeakness";
 export { default as FastHands } from "./FastHands";
+export { default as FloodingAbundance } from "./FloodingAbundance";
 export { default as GhostWalk } from "./GhostWalk";
 export { default as HorseLord } from "./HorseLord";
 export { default as InsightfulFighting } from "./InsightfulFighting";

@@ -21,6 +21,7 @@ export default class Heroism extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
+          generateDuration: true,
           generateHealing: true,
           generateConsumption: false,
           noSpellslot: true,

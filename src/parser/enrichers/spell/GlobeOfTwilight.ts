@@ -26,6 +26,11 @@ export default class GlobeOfTwilight extends DDBEnricherData {
       {
         init: { name: "Ongoing Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

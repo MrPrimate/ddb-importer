@@ -71,6 +71,7 @@ describe("monster aura variants", () => {
       init: { id: "ddbAuraContact01", type: "damage" },
       build: {
         damageParts: [{ number: 1, denomination: 8 }],
+        rangeOverride: { units: "ft", value: "5" },
         activationOverride: { type: "special" },
         targetOverride: { template: { type: "" } },
       },

@@ -1,15 +1,15 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Deadeye ranged critical range: 19 at level 2, 18 at 9, 17 at 17. DDB ships the thresholds as a
- * level scale on the feature, so the Deadeye scale advancement carries them as
- * `@scale.deadeye.critical-shot`. Core dnd5e only has an unconditional actor-wide threshold, so
+ * Gunslinger ranged critical range: 19 at level 2, 18 at 9, 17 at 17. DDB ships the thresholds as a
+ * level scale on the feature, so the Gunslinger scale advancement carries them as
+ * `@scale.gunslinger.critical-shot`. Core dnd5e only has an unconditional actor-wide threshold, so
  * the ranged-weapon restriction needs a module: AC5e's threshold flag with an `actionType.rwak`
  * condition, or midi's per-action-type critical flag.
  */
 export default class CriticalShot extends DDBEnricherData {
 
-  static SCALE = "@scale.deadeye.critical-shot";
+  static SCALE = "@scale.gunslinger.critical-shot";
 
   override get effects(): IDDBEffectHint[] {
     return [

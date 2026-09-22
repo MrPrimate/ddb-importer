@@ -43,6 +43,11 @@ export default class WallOfDeath extends DDBEnricherData {
       {
         init: { name: "Wall Damage", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
         build: {
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,
