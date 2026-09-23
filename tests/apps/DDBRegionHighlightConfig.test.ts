@@ -1,4 +1,5 @@
-import DDBRegionHighlightConfig, { describeHighlightFlag } from "../../src/apps/DDBRegionHighlightConfig";
+import DDBRegionHighlightConfig, { activityBehaviorHighlightTarget, regionHighlightTarget } from "../../src/apps/DDBRegionHighlightConfig";
+import { behaviorConfigFromFlag, describeHighlightFlag, flagFromBehaviorConfig } from "../../src/hooks/canvas/regionHighlightSummary";
 import { setMockSettings } from "../_setup/foundryMocks";
 
 describe("DDBRegionHighlightConfig.flagFromForm", () => {
@@ -63,5 +64,50 @@ describe("describeHighlightFlag", () => {
     expect(describeHighlightFlag({ profile: "aura" })).toBe("Aura");
     expect(describeHighlightFlag({ profile: "status", pattern: "hollowDots", border: "border", borderOpacity: "0.4", spacing: 9 }))
       .toBe("Status Effect, hollow dots, border, border opacity 0.4, spacing 4");
+  });
+});
+
+describe("highlight targets", () => {
+  it("reads and writes a region's flag through the document", async () => {
+    const update = vi.fn().mockResolvedValue(undefined);
+    const region = { uuid: "Scene.a.Region.b", name: "Fire", color: "#00ff00", flags: { ddbimporter: { highlight: { profile: "aura", opacity: 0.8 } } }, update };
+    const target = regionHighlightTarget(region);
+    expect(target.key).toBe("Scene.a.Region.b");
+    expect(target.title).toBe("Region Texture: Fire");
+    expect(target.color).toBe("#00ff00");
+    expect(target.read()).toEqual({ profile: "aura", opacity: 0.8 });
+    await target.write({ profile: "damage" });
+    expect(update).toHaveBeenCalledWith({ "flags.ddbimporter.highlight.profile": "damage", "flags.ddbimporter.highlight.-=opacity": null });
+  });
+
+  it("reads and writes an activity behavior by id, rebuilding the behaviors array", async () => {
+    const behaviors = [
+      { _id: "aaa", type: "applyActiveEffect", config: { effects: [] } },
+      { _id: "bbb", type: "ddbHighlight", config: { profile: "aura", pattern: "", opacity: null, spacing: 0.5, dashed: "dashed", border: "", color: null } },
+    ];
+    const update = vi.fn().mockResolvedValue(undefined);
+    const activity = { uuid: "Item.x.Activity.y", name: "Aura", item: { name: "Aura of Protection" }, toObject: () => ({ behaviors: foundry.utils.deepClone(behaviors) }), update };
+    const target = activityBehaviorHighlightTarget(activity, "bbb");
+    expect(target.key).toBe("Item.x.Activity.y.behavior.bbb");
+    expect(target.title).toBe("Region Texture: Aura of Protection: Aura");
+    expect(target.read()).toEqual({ profile: "aura", spacing: 0.5, dashed: "dashed" });
+    await target.write({ profile: "status", pattern: "diamonds", opacity: 0, color: "#123456" });
+    const written = update.mock.calls[0][0].behaviors;
+    expect(written[0]).toEqual(behaviors[0]);
+    expect(written[1]).toEqual({ _id: "bbb", type: "ddbHighlight", config: {
+      profile: "status", pattern: "diamonds", color: "#123456", dashed: "", border: "",
+      opacity: 0, gapOpacity: null, borderOpacity: null, spacing: null, thickness: null, edgeWidth: null, dashLength: null, angle: null, borderWidth: null,
+    } });
+    await expect(activityBehaviorHighlightTarget(activity, "zzz").write({ profile: "aura" })).rejects.toThrow("zzz");
+  });
+
+  it("round-trips a flag through the behavior config, dropping blanks", () => {
+    const flag = { profile: "damage", pattern: "dots" as const, dashed: "continuous" as const, border: "border" as const, angle: 30, color: "#abcdef" };
+    const config = behaviorConfigFromFlag(flag);
+    expect(config).toMatchObject({ profile: "damage", pattern: "dots", dashed: "continuous", border: "border", angle: 30, color: "#abcdef", opacity: null });
+    expect(flagFromBehaviorConfig(config)).toEqual(flag);
+    expect(flagFromBehaviorConfig({ profile: "aura", dashed: true, border: false, opacity: "0.5", pattern: "nope" })).toEqual({ profile: "aura", dashed: true, border: false, opacity: "0.5" });
+    expect(behaviorConfigFromFlag({ profile: "aura", dashed: true, border: false })).toMatchObject({ dashed: "dashed", border: "none" });
+    expect(flagFromBehaviorConfig(undefined)).toEqual({ profile: "" });
   });
 });

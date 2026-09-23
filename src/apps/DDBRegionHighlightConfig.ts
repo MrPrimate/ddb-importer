@@ -7,43 +7,23 @@ import {
 import { highlightFlag } from "../hooks/canvas/regionHighlight";
 import { profileOptions } from "../hooks/canvas/regionHighlightPicker";
 import { previewCss } from "../hooks/canvas/regionHighlightPreview";
+import {
+  behaviorConfigFromFlag,
+  describeHighlightFlag,
+  flagFromBehaviorConfig,
+  REGION_HIGHLIGHT_FALLBACK_COLOR,
+  REGION_HIGHLIGHT_FLAG_KEYS,
+  REGION_HIGHLIGHT_NUMERIC_OVERRIDES,
+} from "../hooks/canvas/regionHighlightSummary";
 import logger from "../lib/Logger";
 import RegionHighlightProfiles from "../lib/RegionHighlightProfiles";
 
 /** Where a region's highlight choice lives on its document. */
 export const REGION_HIGHLIGHT_FLAG_PATH = "flags.ddbimporter.highlight";
 
-/** The colour the previews use when neither the flag nor the profile names one. */
-const FALLBACK_COLOR = "#ff6400";
-
 /** Pixel size of one grid square in the two previews: the strip and the single enlarged square. */
 const PREVIEW_GRID = 50;
 const PREVIEW_GRID_LARGE = 150;
-
-type TNumericKey = keyof typeof REGION_HIGHLIGHT_LIMITS;
-
-/** The numeric overrides in the order the form shows them; blank means "the profile's value". */
-export const REGION_HIGHLIGHT_NUMERIC_OVERRIDES: { key: TNumericKey; label: string; hint: string }[] = [
-  { key: "opacity", label: "Fill Opacity", hint: "0 to 1." },
-  { key: "gapOpacity", label: "Gap Opacity", hint: "Relative to fill opacity; zero makes pattern gaps transparent." },
-  { key: "borderOpacity", label: "Border Opacity", hint: "Independent of fill opacity." },
-  { key: "spacing", label: "Spacing", hint: "Distance between lines or symbols, in grid squares." },
-  { key: "thickness", label: "Thickness", hint: "Line width or symbol diameter as a share of the spacing, 0 to 1." },
-  { key: "edgeWidth", label: "Edge Width", hint: "Band width of the Edge Band pattern, in grid squares." },
-  { key: "dashLength", label: "Dash Length", hint: "Length of each dash and of the gap after it, in grid squares." },
-  { key: "angle", label: "Line Angle", hint: "Direction the lines face, in degrees." },
-  { key: "borderWidth", label: "Border Width", hint: "Band width inside the edge, in grid squares." },
-];
-
-/** Every key a highlight flag can carry, used to diff an edit against the stored flag. */
-const FLAG_KEYS: (keyof IRegionHighlightFlag)[] = [
-  "profile",
-  "pattern",
-  "dashed",
-  "border",
-  "color",
-  ...REGION_HIGHLIGHT_NUMERIC_OVERRIDES.map((field) => field.key),
-];
 
 interface IRegionHighlightConfigFormValues {
   profile?: string;
@@ -72,46 +52,87 @@ interface IRegionLike {
   update?: (data: Record<string, unknown>) => Promise<unknown>;
 }
 
-/**
- * The words the Region config's summary box uses for a flag: the profile name and each
- * override that departs from it, or the Foundry default when there is no profile.
- */
-export function describeHighlightFlag(flag: IRegionHighlightFlag | null | undefined): string {
-  const profile = RegionHighlightProfiles.get(flag?.profile);
-  if (!flag?.profile) return "None (Foundry default)";
-  if (!profile) return `Unknown profile "${flag.profile}" (Foundry default)`;
-  const parts: string[] = [];
-  if (RegionHighlightProfiles.isPattern(flag.pattern))
-    parts.push(REGION_HIGHLIGHT_PATTERN_LABELS[flag.pattern].toLowerCase());
-  const dashed = RegionHighlightProfiles.dashedValue(flag.dashed);
-  if (dashed !== null) parts.push(dashed ? "dashed" : "continuous");
-  const border = RegionHighlightProfiles.borderValue(flag.border);
-  if (border !== null) parts.push(border ? "border" : "no border");
-  for (const { key, label } of REGION_HIGHLIGHT_NUMERIC_OVERRIDES) {
-    const value = RegionHighlightProfiles.clamp(key, flag[key], NaN);
-    if (Number.isFinite(value)) parts.push(`${label.toLowerCase()} ${value}${key === "angle" ? "°" : ""}`);
-  }
-  if (typeof flag.color === "string" && flag.color.trim()) parts.push(`colour ${flag.color.trim()}`);
-  return parts.length ? `${profile.name}, ${parts.join(", ")}` : profile.name;
+interface IActivityLike {
+  uuid?: string | null;
+  name?: string;
+  item?: { name?: string } | null;
+  toObject?: () => { behaviors?: { _id?: string; type?: string; config?: Record<string, unknown> }[] };
+  update?: (data: Record<string, unknown>) => Promise<unknown>;
 }
 
 /**
- * Edit one region's highlight: the profile it uses and any overrides. Opened from the
- * "Configure" button in the Region config's appearance tab. Saving writes the document's
- * `flags.ddbimporter.highlight` directly, as Foundry's own region behavior sheets do, so the
- * Region config re-renders its summary while it stays open.
+ * What the editor edits. A region keeps its flag on the document; an activity's appearance
+ * behavior keeps the same choice in its config, so the editor speaks in flags and each
+ * target translates on the way in and out.
+ */
+export interface IHighlightTarget {
+  /** Instance key, so one window serves one target. */
+  key: string;
+  title: string;
+  /** The colour a profile without its own takes in the previews. */
+  color: string;
+  read(): IRegionHighlightFlag;
+  write(flag: IRegionHighlightFlag): Promise<unknown>;
+}
+
+/** A region document: the flag is read and written in place. */
+export function regionHighlightTarget(region: IRegionLike): IHighlightTarget {
+  return {
+    key: region.uuid ?? String(region.id),
+    title: `Region Texture${region.name ? `: ${region.name}` : ""}`,
+    color: typeof region.color === "string" && region.color ? region.color : REGION_HIGHLIGHT_FALLBACK_COLOR,
+    read: () => ({ ...(highlightFlag(region as RegionDocument.Implementation) ?? {}) }),
+    write: async (flag) => {
+      const previous = highlightFlag(region as RegionDocument.Implementation);
+      return region.update?.(DDBRegionHighlightConfig.updateData(previous, flag));
+    },
+  };
+}
+
+/**
+ * One `ddbHighlight` behavior on an activity, found by its id so an open editor survives
+ * the list being reordered. dnd5e replaces the whole behaviors array on update, so the
+ * write rebuilds the array from the activity's source with just this config changed.
+ */
+export function activityBehaviorHighlightTarget(activity: IActivityLike, behaviorId: string): IHighlightTarget {
+  const find = () => (activity.toObject?.().behaviors ?? []).find((behavior) => behavior._id === behaviorId);
+  const item = activity.item?.name ? `${activity.item.name}: ` : "";
+  return {
+    key: `${activity.uuid ?? "activity"}.behavior.${behaviorId}`,
+    title: `Region Texture: ${item}${activity.name ?? "Activity"}`,
+    color:
+      typeof game.user?.color === "string" && game.user.color
+        ? String(game.user.color)
+        : REGION_HIGHLIGHT_FALLBACK_COLOR,
+    read: () => flagFromBehaviorConfig(find()?.config),
+    write: async (flag) => {
+      const behaviors = activity.toObject?.().behaviors ?? [];
+      const entry = behaviors.find((behavior) => behavior._id === behaviorId);
+      if (!entry) throw new Error(`Behavior ${behaviorId} no longer exists on ${activity.uuid}`);
+      entry.config = { ...(entry.config ?? {}), ...behaviorConfigFromFlag(flag) };
+      return activity.update?.({ behaviors });
+    },
+  };
+}
+
+/**
+ * Edit one region's highlight, or one activity's appearance behavior: the profile it uses
+ * and any overrides. Opened from the "Configure" button in the Region config's appearance
+ * tab or beside the behavior on the activity sheet. Saving writes the document directly, as
+ * Foundry's own region behavior sheets do, so the host sheet re-renders its summary while
+ * it stays open.
  */
 export default class DDBRegionHighlightConfig extends DDBAppV2 {
-  /** One window per region, keyed by document uuid. */
+  /** One window per target. */
   static #instances = new Map<string, DDBRegionHighlightConfig>();
 
-  region: IRegionLike;
+  target: IHighlightTarget;
 
   /** The flag as the form currently describes it. */
   draft: IRegionHighlightFlag;
 
   /** The last custom colour seen, so unticking "use the profile's colour" brings it back. */
-  lastCustomColor: string = FALLBACK_COLOR;
+  lastCustomColor: string = REGION_HIGHLIGHT_FALLBACK_COLOR;
 
   static override DEFAULT_OPTIONS = {
     id: "ddb-region-highlight-config-{id}",
@@ -136,28 +157,36 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
     },
   };
 
-  constructor(region: IRegionLike) {
+  constructor(target: IHighlightTarget) {
     super();
-    this.region = region;
-    this.draft = { ...(highlightFlag(region as RegionDocument.Implementation) ?? {}) };
+    this.target = target;
+    this.draft = target.read();
     if (typeof this.draft.color === "string" && this.draft.color) this.lastCustomColor = this.draft.color;
   }
 
-  /** Show the editor for a region, reusing its open window. */
-  static open(region: IRegionLike): DDBRegionHighlightConfig {
-    const key = region.uuid ?? String(region.id);
-    let app = DDBRegionHighlightConfig.#instances.get(key);
+  /** Show the editor for a target, reusing its open window. */
+  static openTarget(target: IHighlightTarget): DDBRegionHighlightConfig {
+    let app = DDBRegionHighlightConfig.#instances.get(target.key);
     if (!app) {
-      app = new DDBRegionHighlightConfig(region);
-      DDBRegionHighlightConfig.#instances.set(key, app);
+      app = new DDBRegionHighlightConfig(target);
+      DDBRegionHighlightConfig.#instances.set(target.key, app);
     }
     app.render({ force: true });
     return app;
   }
 
+  /** Show the editor for a region document. */
+  static open(region: IRegionLike): DDBRegionHighlightConfig {
+    return DDBRegionHighlightConfig.openTarget(regionHighlightTarget(region));
+  }
+
+  /** Show the editor for an activity's `ddbHighlight` behavior. */
+  static openForBehavior(activity: IActivityLike, behaviorId: string): DDBRegionHighlightConfig {
+    return DDBRegionHighlightConfig.openTarget(activityBehaviorHighlightTarget(activity, behaviorId));
+  }
+
   override get title(): string {
-    const name = this.region.name ? `: ${this.region.name}` : "";
-    return `Region Texture${name}`;
+    return this.target.title;
   }
 
   _getTabs(): IDDBTabs {
@@ -199,9 +228,9 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
   }
 
   /**
-   * The document update that turns the stored flag into the edited one: each key it now
-   * carries is set and each it dropped is deleted, so a cleared override does not linger in
-   * the merge. Without a profile the whole flag goes.
+   * The region document update that turns the stored flag into the edited one: each key it
+   * now carries is set and each it dropped is deleted, so a cleared override does not linger
+   * in the merge. Without a profile the whole flag goes.
    */
   static updateData(
     previous: IRegionHighlightFlag | null | undefined,
@@ -209,7 +238,7 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
   ): Record<string, unknown> {
     if (!next.profile) return { "flags.ddbimporter.-=highlight": null };
     const update: Record<string, unknown> = {};
-    for (const key of FLAG_KEYS) {
+    for (const key of REGION_HIGHLIGHT_FLAG_KEYS) {
       const value = next[key];
       if (value !== undefined && value !== "" && value !== null) {
         update[`${REGION_HIGHLIGHT_FLAG_PATH}.${key}`] = value;
@@ -223,10 +252,8 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
   override async _prepareContext(options: any) {
     const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
     const draft = this.draft;
-    const regionColor = typeof this.region.color === "string" && this.region.color ? this.region.color : FALLBACK_COLOR;
     const style = RegionHighlightProfiles.resolve(draft);
-    const previewColor = String(this.region.color ?? FALLBACK_COLOR);
-    context.regionName = this.region.name ?? "";
+    const previewColor = this.target.color;
     context.profileOptions = profileOptions("None (Foundry default)").map((option) => ({
       ...option,
       selected: option.value === (draft.profile ?? ""),
@@ -266,7 +293,7 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
     });
     const customColor = typeof draft.color === "string" && draft.color.trim() ? draft.color.trim() : null;
     context.useProfileColor = customColor === null;
-    context.colorValue = customColor ?? this.lastCustomColor ?? regionColor;
+    context.colorValue = customColor ?? this.lastCustomColor ?? previewColor;
     context.summary = describeHighlightFlag(draft);
     context.previewGrid = PREVIEW_GRID;
     context.previewGridLarge = PREVIEW_GRID_LARGE;
@@ -313,11 +340,10 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
     const element = this.element as HTMLElement | null;
     if (!element) return;
     const style = RegionHighlightProfiles.resolve(this.draft);
-    const previewColor = String(this.region.color ?? FALLBACK_COLOR);
     for (const preview of element.querySelectorAll<HTMLElement>(".ddbi-highlight-preview")) {
       preview.setAttribute(
         "style",
-        style ? previewCss(style, previewColor, Number(preview.dataset.grid) || PREVIEW_GRID) : "",
+        style ? previewCss(style, this.target.color, Number(preview.dataset.grid) || PREVIEW_GRID) : "",
       );
     }
     const summary = element.querySelector<HTMLElement>(".ddbi-highlight-summary-text");
@@ -339,19 +365,17 @@ export default class DDBRegionHighlightConfig extends DDBAppV2 {
   }
 
   async #write(flag: IRegionHighlightFlag): Promise<void> {
-    const previous = highlightFlag(this.region as RegionDocument.Implementation);
-    const update = DDBRegionHighlightConfig.updateData(previous, flag);
     try {
-      await this.region.update?.(update);
+      await this.target.write(flag);
       await this.close();
     } catch (error) {
-      logger.error("Unable to update the region highlight", { error, update });
-      ui.notifications.error("Unable to update the region highlight; see the console.");
+      logger.error("Unable to update the region texture", { error, flag, target: this.target.key });
+      ui.notifications.error("Unable to update the region texture; see the console.");
     }
   }
 
   override async close(options?: any) {
-    DDBRegionHighlightConfig.#instances.delete(this.region.uuid ?? String(this.region.id));
+    DDBRegionHighlightConfig.#instances.delete(this.target.key);
     return super.close(options);
   }
 }

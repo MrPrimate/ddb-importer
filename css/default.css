@@ -1207,6 +1207,11 @@ header > a.header-button.control.ddb-open-url {
   white-space: nowrap;
 }
 
+.ddbi-highlight-behavior {
+  flex: 1;
+  min-width: 0;
+}
+
 .ddbi-highlight-configure {
   flex: 0 0 auto;
   width: auto;

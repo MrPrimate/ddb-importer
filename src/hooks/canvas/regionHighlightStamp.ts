@@ -1,4 +1,5 @@
 import logger from "../../lib/Logger";
+import { flagFromBehaviorConfig } from "./regionHighlightSummary";
 
 /**
  * Copy an activity's highlight choice onto the regions it is about to place.
@@ -22,13 +23,6 @@ interface IActivityLike {
   behaviors?: Iterable<IActivityBehaviorLike> | null;
 }
 
-function overrideValue(value: unknown): number | string | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (typeof value === "string") return value.trim() ? value.trim() : null;
-  return null;
-}
-
 /**
  * The flag an activity's behaviors ask for: a `ddbHighlight` behavior wins, otherwise the
  * first `ddbMacro` trigger naming a profile. Null when the activity makes no choice.
@@ -38,35 +32,8 @@ export function activityHighlightChoice(activity: IActivityLike | null | undefin
   const behaviors = [...(activity.applicableBehaviors ?? activity.behaviors ?? [])];
   const appearance = behaviors.find((behavior) => behavior.type === "ddbHighlight");
   if (appearance) {
-    const config = appearance.config ?? {};
-    const profile = typeof config.profile === "string" ? config.profile : "";
-    if (!profile) return null;
-    const flag: IRegionHighlightFlag = { profile };
-    const pattern = overrideValue(config.pattern);
-    if (pattern) flag.pattern = pattern as TRegionHighlightPattern;
-    for (const key of [
-      "opacity",
-      "gapOpacity",
-      "borderOpacity",
-      "spacing",
-      "thickness",
-      "edgeWidth",
-      "dashLength",
-      "angle",
-      "borderWidth",
-    ] as const) {
-      const value = overrideValue(config[key]);
-      if (value !== null) flag[key] = value;
-    }
-    if (typeof config.dashed === "boolean" || config.dashed === "dashed" || config.dashed === "continuous") {
-      flag.dashed = config.dashed;
-    }
-    if (typeof config.border === "boolean" || config.border === "border" || config.border === "none") {
-      flag.border = config.border;
-    }
-    const color = overrideValue(config.color);
-    if (typeof color === "string") flag.color = color;
-    return flag;
+    const flag = flagFromBehaviorConfig(appearance.config);
+    return flag.profile ? flag : null;
   }
   const trigger = behaviors.find(
     (behavior) =>

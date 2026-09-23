@@ -292,8 +292,8 @@
         "noBorder": "No border",
         "FIELDS": {
           "profile": {
-            "label": "Highlight Profile",
-            "hint": "How the region this activity places is drawn: opacity, spacing and fill pattern. Use the gear to build or tune profiles."
+            "label": "Region Texture",
+            "hint": "How the regions this activity places are drawn. Configure opens the editor for the profile and its overrides."
           },
           "pattern": {
             "label": "Pattern Override"

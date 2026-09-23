@@ -24,6 +24,7 @@ import { previewCss, rgba } from "../../src/hooks/canvas/regionHighlightPreview"
 import { createProfilePicker, installProfilePickerDelegate, refreshProfilePickers } from "../../src/hooks/canvas/regionHighlightPicker";
 import { buildHighlightSummary, onRenderRegionConfig } from "../../src/hooks/canvas/regionConfigHighlight";
 import DDBRegionHighlightConfig from "../../src/apps/DDBRegionHighlightConfig";
+import { installBehaviorConfigureDelegate } from "../../src/hooks/canvas/regionHighlightBehaviorConfigure";
 import { setupRegionHighlightProfiles } from "../../src/hooks/canvas/regionHighlightSetup";
 import RegionHighlightProfiles from "../../src/lib/RegionHighlightProfiles";
 import BehaviorHelper from "../../src/parser/enrichers/effects/BehaviorHelper";
@@ -601,6 +602,21 @@ describe("region config summary box", () => {
     const box = buildHighlightSummary(doc as any);
     box.querySelector<HTMLButtonElement>("button.ddbi-highlight-configure")!.click();
     expect(open).toHaveBeenCalledWith(doc);
+    open.mockRestore();
+  });
+
+  it("routes a behavior row's Configure button to the editor through the sheet it sits in", () => {
+    const open = vi.spyOn(DDBRegionHighlightConfig, "openForBehavior").mockImplementation(() => ({}) as any);
+    const sheet = document.createElement("div");
+    sheet.innerHTML = "<li data-behavior-id=\"bbb\"><div class=\"ddbi-highlight-behavior\"><button type=\"button\" class=\"ddbi-highlight-configure ddbi-highlight-behavior-configure\">Configure</button></div></li>";
+    document.body.append(sheet);
+    const activity = { uuid: "Item.x.Activity.y" };
+    foundry.applications.instances.set("sheet", { element: sheet, activity } as any);
+    installBehaviorConfigureDelegate();
+    sheet.querySelector("button")!.click();
+    expect(open).toHaveBeenCalledWith(activity, "bbb");
+    foundry.applications.instances.delete("sheet");
+    sheet.remove();
     open.mockRestore();
   });
 

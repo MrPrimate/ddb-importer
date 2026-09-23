@@ -16,20 +16,29 @@ describe("DDBHighlightActivityBehavior", () => {
     expect(behavior.createBehaviorData({ target: {} })).toBe(false);
   });
 
-  it("renders the profile as a picker and the pattern with a profile-default choice", () => {
-    const behavior = new DDBHighlightActivityBehavior({} as any);
+  it("renders the whole config as one summary row with hidden inputs, hiding every other field", () => {
+    const behavior = new DDBHighlightActivityBehavior({ profile: "status", pattern: "hollowDots", opacity: 0.4, dashed: "", color: null } as any);
     const profile: Record<string, any> = {};
-    behavior.customizeField({ name: "profile" }, profile);
-    const input = profile.input({}, { name: "behaviors.0.config.profile", value: "damage" }) as HTMLElement;
-    expect(input.querySelector("select")!.name).toBe("behaviors.0.config.profile");
-    expect(input.querySelector<HTMLSelectElement>("select")!.value).toBe("damage");
-    expect(input.querySelector("button")).not.toBeNull();
-    const pattern: Record<string, any> = {};
-    behavior.customizeField({ name: "pattern" }, pattern);
-    expect(pattern.options.map((option: any) => option.value)).toEqual(["", "hatch", "solid", "crosshatch", "dots", "edge", "hollowDots", "diamonds"]);
-    const other: Record<string, any> = {};
-    behavior.customizeField({ name: "opacity" }, other);
-    expect(other).toEqual({});
+    expect(behavior.customizeField({ name: "profile" }, profile)).toBeUndefined();
+    const input = profile.input({}, { name: "behaviors.0.config.profile", value: "status" }) as HTMLElement;
+    expect(input.querySelector(".ddbi-highlight-summary-text")!.textContent).toBe("Status Effect, hollow dots, fill opacity 0.4");
+    expect(input.querySelector("button.ddbi-highlight-behavior-configure")).not.toBeNull();
+    expect(input.querySelector(".ddbi-highlight-swatch")).not.toBeNull();
+    // the sheet rebuilds the behaviors array from its form, so every config key must be in it
+    const hidden = [...input.querySelectorAll<HTMLInputElement>("input[type=hidden]")];
+    const byName = Object.fromEntries(hidden.map((h) => [h.name, { value: h.getAttribute("value"), dtype: h.dataset.dtype }]));
+    expect(byName["behaviors.0.config.profile"]).toEqual({ value: "status", dtype: undefined });
+    expect(byName["behaviors.0.config.pattern"]).toEqual({ value: "hollowDots", dtype: undefined });
+    expect(byName["behaviors.0.config.opacity"]).toEqual({ value: "0.4", dtype: "Number" });
+    expect(byName["behaviors.0.config.spacing"]).toEqual({ value: "", dtype: "Number" });
+    expect(byName["behaviors.0.config.dashed"]).toEqual({ value: "", dtype: undefined });
+    expect(byName["behaviors.0.config.color"]).toEqual({ value: "", dtype: undefined });
+    expect(hidden).toHaveLength(14);
+    // the sheet serialises the element, so nothing may live only on properties or listeners
+    expect(input.outerHTML).toContain('name="behaviors.0.config.opacity" value="0.4" data-dtype="Number"');
+    for (const name of ["pattern", "opacity", "dashed", "border", "color"]) {
+      expect(behavior.customizeField({ name }, {})).toBe(false);
+    }
   });
 
   it("gives the trigger behavior the same picker for its profile field", () => {
