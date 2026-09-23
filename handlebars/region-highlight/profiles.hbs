@@ -9,7 +9,7 @@
     <ul class="unlist">
       {{#each profiles}}
       <li class="ddbi-highlight-entry {{#if selected}}active{{/if}}" data-action="selectProfile" data-profile-id="{{id}}">
-        <span class="ddbi-highlight-swatch" style="{{swatchStyle}}"></span>
+        <span class="ddbi-highlight-swatch" style="{{swatchStyle}}"><span class="ddbi-highlight-fill"></span></span>
         <span class="ddbi-highlight-name">{{name}}</span>
         {{#if builtin}}<span class="ddbi-highlight-badge">{{#if overridden}}modified{{else}}built-in{{/if}}</span>{{/if}}
       </li>
@@ -21,10 +21,10 @@
     {{#if draft}}
     <div class="ddbi-highlight-preview-row">
       <div class="ddbi-highlight-preview-frame large" data-tooltip="One grid square, enlarged">
-        <div class="ddbi-highlight-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}"></div>
+        <div class="ddbi-highlight-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}"><span class="ddbi-highlight-fill"></span></div>
       </div>
       <div class="ddbi-highlight-preview-frame" data-tooltip="Several grid squares at a smaller scale">
-        <div class="ddbi-highlight-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}"></div>
+        <div class="ddbi-highlight-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}"><span class="ddbi-highlight-fill"></span></div>
       </div>
     </div>
     <p class="hint">The previews approximate the canvas: the square on the left is one grid square enlarged, the strip shows several at a smaller scale. Selected and hovered regions always render solid, as Foundry does.</p>
@@ -49,12 +49,22 @@
     </div>
 
     <div class="form-group">
-      <label>Opacity</label>
+      <label>Fill Opacity</label>
       <div class="form-fields">
         <range-picker name="opacity" value="{{draft.opacity}}" min="{{limits.opacity.min}}" max="{{limits.opacity.max}}" step="{{limits.opacity.step}}"></range-picker>
       </div>
       <p class="hint">Foundry draws every region at 0.5.</p>
     </div>
+
+    {{#if isPatterned}}
+    <div class="form-group">
+      <label>Gap Opacity</label>
+      <div class="form-fields">
+        <range-picker name="gapOpacity" value="{{draft.gapOpacity}}" min="{{limits.gapOpacity.min}}" max="{{limits.gapOpacity.max}}" step="{{limits.gapOpacity.step}}"></range-picker>
+      </div>
+      <p class="hint">Relative to fill opacity. Zero makes the gaps fully transparent; one fills them at the same opacity as the pattern.</p>
+    </div>
+    {{/if}}
 
     {{#unless isEdge}}
     <div class="form-group">
@@ -62,7 +72,7 @@
       <div class="form-fields">
         <range-picker name="spacing" value="{{draft.spacing}}" min="{{limits.spacing.min}}" max="{{limits.spacing.max}}" step="{{limits.spacing.step}}"></range-picker>
       </div>
-      <p class="hint">Distance between lines or dots, in grid squares.</p>
+      <p class="hint">Distance between lines or symbols, in grid squares.</p>
     </div>
 
     <div class="form-group">
@@ -70,7 +80,7 @@
       <div class="form-fields">
         <range-picker name="thickness" value="{{draft.thickness}}" min="{{limits.thickness.min}}" max="{{limits.thickness.max}}" step="{{limits.thickness.step}}"></range-picker>
       </div>
-      <p class="hint">Share of the spacing that is ink: 0.5 is even lines and gaps.</p>
+      <p class="hint">Line width or symbol diameter as a share of spacing. Hollow dots have an inner radius 60% of their outer radius.</p>
     </div>
     {{/unless}}
 
@@ -128,6 +138,24 @@
       </div>
       <p class="hint">Band width inside the region's edge, in grid squares.</p>
     </div>
+    {{/if}}
+
+    {{#if hasBorder}}
+    <div class="form-group">
+      <label>Border Opacity</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="matchFillOpacity" {{#if matchFillOpacity}}checked{{/if}} /> Match fill opacity</label>
+      </div>
+    </div>
+    {{#unless matchFillOpacity}}
+    <div class="form-group">
+      <label>Border Opacity</label>
+      <div class="form-fields">
+        <range-picker name="borderOpacity" value="{{borderOpacityValue}}" min="{{limits.borderOpacity.min}}" max="{{limits.borderOpacity.max}}" step="{{limits.borderOpacity.step}}"></range-picker>
+      </div>
+      <p class="hint">Independent of fill opacity, so the border can remain visible when the fill is transparent.</p>
+    </div>
+    {{/unless}}
     {{/if}}
 
     <div class="form-group">

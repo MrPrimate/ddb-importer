@@ -1118,17 +1118,17 @@ header > a.header-button.control.ddb-open-url {
   height: 100%;
 }
 
-/* dashed line previews: the element carries the continuous gap fill, the pseudo-elements the
-   ink, each masked along its own stripe direction (see hooks/canvas/regionHighlightPreview.ts) */
+/* Fill opacity applies after compositing the pattern; the border has its own alpha. */
 .ddbi-highlight-preview,
 .ddbi-highlight-swatch {
   position: relative;
   overflow: hidden;
 }
 
-.ddbi-highlight-preview::before,
+.ddbi-highlight-fill,
+.ddbi-highlight-fill::before,
+.ddbi-highlight-fill::after,
 .ddbi-highlight-preview::after,
-.ddbi-highlight-swatch::before,
 .ddbi-highlight-swatch::after {
   content: "";
   position: absolute;
@@ -1136,18 +1136,27 @@ header > a.header-button.control.ddb-open-url {
   pointer-events: none;
 }
 
-.ddbi-highlight-preview::after,
-.ddbi-highlight-swatch::after {
+.ddbi-highlight-fill {
+  opacity: var(--ddbi-fill-opacity, 1);
+  background: var(--ddbi-background, none);
+  background-size: var(--ddbi-background-size, auto);
+}
+
+.ddbi-highlight-fill::after {
   background: var(--ddbi-ink, none);
   -webkit-mask-image: var(--ddbi-mask, none);
   mask-image: var(--ddbi-mask, none);
 }
 
-.ddbi-highlight-preview::before,
-.ddbi-highlight-swatch::before {
+.ddbi-highlight-fill::before {
   background: var(--ddbi-ink2, none);
   -webkit-mask-image: var(--ddbi-mask2, none);
   mask-image: var(--ddbi-mask2, none);
+}
+
+.ddbi-highlight-preview::after,
+.ddbi-highlight-swatch::after {
+  box-shadow: inset 0 0 0 var(--ddbi-border-width, 0px) var(--ddbi-border-color, transparent);
 }
 
 .ddbi-highlight-actions {
@@ -1176,7 +1185,42 @@ header > a.header-button.control.ddb-open-url {
   line-height: 1;
 }
 
-.ddbi-highlight-fieldset .ddbi-highlight-swatch {
-  width: 100%;
-  height: 40px;
+/* the Region config box: swatch, one-line summary and the configure button on one row, so
+   the sheet keeps its height (the editor itself lives in apps/DDBRegionHighlightConfig) */
+/* a fieldset's default min-inline-size is min-content, which the nowrap summary would widen
+   past the sheet; zero lets the summary shrink and ellipsize instead */
+.ddbi-highlight-fieldset {
+  min-inline-size: 0;
+}
+
+.ddbi-highlight-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ddbi-highlight-summary .ddbi-highlight-summary-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddbi-highlight-configure {
+  flex: 0 0 auto;
+  width: auto;
+  line-height: 1.5;
+}
+
+.ddbi-highlight-config-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ddbi-highlight-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 0.75rem;
 }

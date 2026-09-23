@@ -1,5 +1,9 @@
 import DDBAppV2 from "./DDBAppV2";
-import { REGION_HIGHLIGHT_LIMITS, REGION_HIGHLIGHT_PATTERN_LABELS, REGION_HIGHLIGHT_PATTERNS } from "../config/regionHighlightProfiles";
+import {
+  REGION_HIGHLIGHT_LIMITS,
+  REGION_HIGHLIGHT_PATTERN_LABELS,
+  REGION_HIGHLIGHT_PATTERNS,
+} from "../config/regionHighlightProfiles";
 import { previewCss } from "../hooks/canvas/regionHighlightPreview";
 import { refreshProfilePickers } from "../hooks/canvas/regionHighlightPicker";
 import logger from "../lib/Logger";
@@ -16,6 +20,9 @@ interface IProfileFormValues {
   name?: string;
   pattern?: string;
   opacity?: number | string;
+  gapOpacity?: number | string;
+  borderOpacity?: number | string;
+  matchFillOpacity?: boolean;
   spacing?: number | string;
   thickness?: number | string;
   edgeWidth?: number | string;
@@ -33,7 +40,6 @@ interface IProfileFormValues {
  * from module settings, or `DDBImporter.apps.DDBRegionHighlightProfiles.open()`.
  */
 export default class DDBRegionHighlightProfiles extends DDBAppV2 {
-
   static #instance: DDBRegionHighlightProfiles | null = null;
 
   /** The profile being edited; null until one is chosen or created. */
@@ -111,26 +117,36 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
     const picked = typeof values.color === "string" && values.color.trim() ? values.color.trim() : null;
     const remembered = picked ?? lastCustomColor;
     const color = values.useRegionColor === true ? null : remembered;
-    const next = RegionHighlightProfiles.normalize({
-      ...draft,
-      name: values.name ?? draft.name,
-      pattern: (values.pattern as TRegionHighlightPattern | undefined) ?? draft.pattern,
-      opacity: number(values.opacity, draft.opacity),
-      spacing: number(values.spacing, draft.spacing),
-      thickness: number(values.thickness, draft.thickness),
-      edgeWidth: number(values.edgeWidth, draft.edgeWidth),
-      dashed: typeof values.dashed === "boolean" ? values.dashed : draft.dashed,
-      dashLength: number(values.dashLength, draft.dashLength),
-      angle: number(values.angle, draft.angle),
-      border: typeof values.border === "boolean" ? values.border : draft.border,
-      borderWidth: number(values.borderWidth, draft.borderWidth),
-      color,
-    }, draft);
+    const next = RegionHighlightProfiles.normalize(
+      {
+        ...draft,
+        name: values.name ?? draft.name,
+        pattern: (values.pattern as TRegionHighlightPattern | undefined) ?? draft.pattern,
+        opacity: number(values.opacity, draft.opacity),
+        gapOpacity: number(values.gapOpacity, draft.gapOpacity),
+        borderOpacity:
+          values.matchFillOpacity === true
+            ? null
+            : values.matchFillOpacity === false
+              ? number(values.borderOpacity, draft.borderOpacity ?? number(values.opacity, draft.opacity))
+              : draft.borderOpacity,
+        spacing: number(values.spacing, draft.spacing),
+        thickness: number(values.thickness, draft.thickness),
+        edgeWidth: number(values.edgeWidth, draft.edgeWidth),
+        dashed: typeof values.dashed === "boolean" ? values.dashed : draft.dashed,
+        dashLength: number(values.dashLength, draft.dashLength),
+        angle: number(values.angle, draft.angle),
+        border: typeof values.border === "boolean" ? values.border : draft.border,
+        borderWidth: number(values.borderWidth, draft.borderWidth),
+        color,
+      },
+      draft,
+    );
     return { draft: next, lastCustomColor: remembered };
   }
 
   override async _prepareContext(options: any) {
-    const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
+    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
     const draft = this.draft;
     context.profiles = RegionHighlightProfiles.all().map((profile) => ({
       id: profile.id,
@@ -160,6 +176,10 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
       }));
       context.limits = REGION_HIGHLIGHT_LIMITS;
       context.isEdge = draft.pattern === "edge";
+      context.isPatterned = draft.pattern !== "solid" && draft.pattern !== "edge";
+      context.hasBorder = draft.border || draft.pattern === "edge";
+      context.matchFillOpacity = draft.borderOpacity === null;
+      context.borderOpacityValue = draft.borderOpacity ?? draft.opacity;
       context.isLines = draft.pattern === "hatch" || draft.pattern === "crosshatch";
     }
     return context;
@@ -180,13 +200,20 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
     this.#syncDraftFromForm();
     const target = event?.target as HTMLElement | null;
     // the pattern, dash and colour mode change which fields are shown
-    if (["pattern", "useRegionColor", "dashed", "border"].includes(target?.getAttribute("name") ?? "")) this.render();
+    if (
+      ["pattern", "useRegionColor", "dashed", "border", "matchFillOpacity"].includes(target?.getAttribute("name") ?? "")
+    )
+      this.render();
   }
 
   #formValues(): IProfileFormValues {
     const form = this.element as HTMLFormElement | null;
     if (!form) return {};
-    const FormDataExtended = (foundry.applications.ux as unknown as { FormDataExtended: new (form: HTMLFormElement) => { object: IProfileFormValues } }).FormDataExtended;
+    const FormDataExtended = (
+      foundry.applications.ux as unknown as {
+        FormDataExtended: new (form: HTMLFormElement) => { object: IProfileFormValues };
+      }
+    ).FormDataExtended;
     return new FormDataExtended(form).object;
   }
 
@@ -211,7 +238,10 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
   static createProfile(this: DDBRegionHighlightProfiles): void {
     const name = "New Profile";
     const base = RegionHighlightProfiles.get("minimal") ?? RegionHighlightProfiles.all()[0];
-    this.draft = RegionHighlightProfiles.normalize({ ...base, name, id: RegionHighlightProfiles.newId(), builtin: false }, base);
+    this.draft = RegionHighlightProfiles.normalize(
+      { ...base, name, id: RegionHighlightProfiles.newId(), builtin: false },
+      base,
+    );
     this.selectedId = null;
     this.render();
   }
@@ -220,7 +250,10 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
     if (!this.draft) return;
     this.#syncDraftFromForm();
     const name = `${this.draft.name} Copy`;
-    this.draft = RegionHighlightProfiles.normalize({ ...this.draft, name, id: RegionHighlightProfiles.newId() }, this.draft);
+    this.draft = RegionHighlightProfiles.normalize(
+      { ...this.draft, name, id: RegionHighlightProfiles.newId() },
+      this.draft,
+    );
     this.selectedId = null;
     this.render();
   }
@@ -289,5 +322,4 @@ export default class DDBRegionHighlightProfiles extends DDBAppV2 {
       }
     });
   }
-
 }

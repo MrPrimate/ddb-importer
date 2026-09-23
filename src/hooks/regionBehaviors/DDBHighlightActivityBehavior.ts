@@ -24,6 +24,8 @@ export default class DDBHighlightActivityBehavior extends BaseActivityBehavior {
       profile: new StringField({ required: true, blank: true, initial: "" }),
       pattern: new StringField({ required: false, blank: true, initial: "" }),
       opacity: optional("opacity"),
+      gapOpacity: optional("gapOpacity"),
+      borderOpacity: optional("borderOpacity"),
       spacing: optional("spacing"),
       thickness: optional("thickness"),
       edgeWidth: optional("edgeWidth"),

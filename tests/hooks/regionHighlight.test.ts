@@ -22,7 +22,8 @@ import {
 import { activityHighlightChoice, stampRegionHighlight } from "../../src/hooks/canvas/regionHighlightStamp";
 import { previewCss, rgba } from "../../src/hooks/canvas/regionHighlightPreview";
 import { createProfilePicker, installProfilePickerDelegate, refreshProfilePickers } from "../../src/hooks/canvas/regionHighlightPicker";
-import { buildHighlightFieldset, onRenderRegionConfig } from "../../src/hooks/canvas/regionConfigHighlight";
+import { buildHighlightSummary, onRenderRegionConfig } from "../../src/hooks/canvas/regionConfigHighlight";
+import DDBRegionHighlightConfig from "../../src/apps/DDBRegionHighlightConfig";
 import { setupRegionHighlightProfiles } from "../../src/hooks/canvas/regionHighlightSetup";
 import RegionHighlightProfiles from "../../src/lib/RegionHighlightProfiles";
 import BehaviorHelper from "../../src/parser/enrichers/effects/BehaviorHelper";
@@ -130,18 +131,20 @@ describe("DDBHighlightRegionShader", () => {
     const fragment = buildFragmentShader("highp", "CONSTS");
     expect(fragment).toContain("CONSTS");
     expect(fragment).toContain("uniform int pattern;");
-    expect(fragment).toContain("uniform float period;");
+    expect(fragment).toContain("uniform highp float period;");
     expect(fragment).toContain("uniform float thickness;");
     expect(fragment).toContain("uniform bool dashed;");
-    expect(fragment).toContain("uniform float dashPeriod;");
+    expect(fragment).toContain("uniform highp float dashPeriod;");
     expect(fragment).toContain("float dash(float along, float aa)");
     expect(fragment).toContain("if ( !hatchEnabled ) return;");
     expect(fragment).toContain("pattern == 1 || pattern == 4");
     expect(fragment).toContain("pattern == 3");
     expect(fragment).toContain("pattern == 2");
-    expect(fragment).toContain("mix(0.3333, 1.0, ink)");
+    expect(fragment).toContain("pattern == 5");
+    expect(fragment).toContain("pattern == 6");
+    expect(fragment).toContain("mix(gapOpacity, 1.0, ink)");
     // the pattern coordinates come from the vertex stage as varyings already in periods
-    const vertex = buildVertexShader("highp", "CONSTS");
+    const vertex = buildVertexShader("highp", "highp", "CONSTS");
     expect(vertex).toContain("uniform float angle;");
     expect(vertex).toContain("vec2 n = vec2(cos(angle), sin(angle));");
     for (const name of ["vStripe", "vDash", "vCell"]) {
@@ -150,6 +153,24 @@ describe("DDBHighlightRegionShader", () => {
     }
     expect(fragment).not.toContain("vPixelCoord");
     expect(fragment).toContain("stripe(vStripe.x, aa) * dash(vDash.x, dashAa)");
+  });
+
+  it.each(["highp", "mediump"])("matches shared uniform precision with a %s fragment stage", (precision) => {
+    Object.assign(PIXI.Program, { defaultFragmentPrecision: precision });
+    Object.assign(foundry, { canvas: { rendering: { shaders: { HighlightRegionShader: FakeCoreShader } } } });
+    const gl = fakeGl();
+    const Shader = getDDBHighlightShaderClass({ gl })!;
+    const vertex = Shader._createVertexShader();
+    const fragment = Shader._createFragmentShader();
+    expect(vertex).toContain("precision highp float;");
+    expect(fragment).toContain(`precision ${precision} float;`);
+    for (const name of ["period", "dashPeriod"]) {
+      const declaration = `uniform ${precision} float ${name};`;
+      expect(vertex).toContain(declaration);
+      expect(fragment).toContain(declaration);
+    }
+    expect(gl.shaderSource).toHaveBeenCalledWith(expect.anything(), vertex);
+    expect(gl.shaderSource).toHaveBeenCalledWith(expect.anything(), fragment);
   });
 
   it("compiles and links a throwaway program and always releases it", () => {
@@ -200,7 +221,7 @@ describe("DDBHighlightRegionShader", () => {
 
 describe("applyStyle", () => {
   const style: IRegionHighlightStyle = {
-    profile: "damage", pattern: "crosshatch", opacity: 0.7, spacing: 0.25, thickness: 0.2, edgeWidth: 0.25,
+    profile: "damage", pattern: "crosshatch", opacity: 0.7, gapOpacity: 0, borderOpacity: 0.7, spacing: 0.25, thickness: 0.2, edgeWidth: 0.25,
     dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1, color: null,
   };
 
@@ -209,7 +230,7 @@ describe("applyStyle", () => {
     applyStyle(mesh as any, style, 0x00ff00, metrics);
     expect(mesh.alpha).toBe(0.7);
     expect(mesh.tint).toBe(0x00ff00);
-    expect(mesh.shader.uniforms).toMatchObject({ hatchEnabled: true, pattern: 2, period: 25, thickness: 0.2, hatchThickness: 4, dashed: false, dashPeriod: 50 });
+    expect(mesh.shader.uniforms).toMatchObject({ hatchEnabled: true, pattern: 2, period: 25, thickness: 0.2, gapOpacity: 0, hatchThickness: 4, dashed: false, dashPeriod: 50 });
     expect(mesh.shader.uniforms.angle).toBeCloseTo(Math.PI / 4);
   });
 
@@ -276,9 +297,9 @@ describe("region sync", () => {
     onDrawRegion(plain as any);
     const Shader = getDDBHighlightShaderClass();
     expect(flaggedMesh.setShaderClass).toHaveBeenCalledWith(Shader);
-    expect(flaggedMesh.alpha).toBe(0.8);
+    expect(flaggedMesh.alpha).toBe(RegionHighlightProfiles.get("aura")!.opacity);
     expect(flaggedMesh.tint).toBe(0x00ff00);
-    expect(flaggedMesh.shader.uniforms).toMatchObject({ pattern: 0, period: 50, thickness: 0.15, hatchThickness: 4 });
+    expect(flaggedMesh.shader.uniforms).toMatchObject({ pattern: 0, period: RegionHighlightProfiles.get("aura")!.spacing * 100, thickness: 0.15, hatchThickness: 4 });
     expect(plainMesh.setShaderClass).not.toHaveBeenCalled();
     expect(plainMesh.alpha).toBe(0.5);
   });
@@ -337,9 +358,9 @@ describe("region sync", () => {
     const band = highlights.addChild.mock.calls[0][0];
     expect(band.lineStyle).toHaveBeenCalledWith({ width: 50, color: 0x00ff00, alpha: 1, alignment: 0 });
     expect(region.animationState.polygonTree.drawShape).toHaveBeenCalledWith(band);
-    expect(band.alpha).toBe(0.8);
+    expect(band.alpha).toBe(RegionHighlightProfiles.get("aura")!.opacity);
     expect(band.zIndex).toBe(3);
-    region.document.flags = { ddbimporter: { highlight: { profile: "aura" } } };
+    region.document.flags = { ddbimporter: { highlight: { profile: "aura", border: false } } };
     onRefreshRegion(region as any, { refreshState: true });
     expect(band.destroy).toHaveBeenCalled();
   });
@@ -365,9 +386,33 @@ describe("region sync", () => {
     refreshAllRegionHighlights();
     for (const region of regions) expect(region.renderFlags.set).toHaveBeenCalledWith({ refreshState: true, refreshGeometry: true });
   });
+
+  it.each(["dots", "edge"] as const)("keeps a visible %s border with an invisible fill", (pattern) => {
+    const region = fakeRegion({ profile: "status", pattern, opacity: 0, gapOpacity: 0, border: true, borderOpacity: 0.8 });
+    const mesh = fakeMesh(region);
+    const highlights = stubCanvas([region], [mesh]);
+    onDrawRegion(region as any);
+    expect(mesh.alpha).toBe(0);
+    expect(mesh.shader.uniforms.gapOpacity).toBe(0);
+    const band = highlights.addChild.mock.calls[0][0];
+    expect(band.alpha).toBe(0.8);
+    region.document.flags = { ddbimporter: { highlight: { profile: "status", pattern, border: true, borderOpacity: 0 } } };
+    onRefreshRegion(region as any, { refreshState: true });
+    expect(band.alpha).toBe(0);
+  });
 });
 
 describe("placement stamp", () => {
+  it.each(["hollowDots", "diamonds"] as const)("carries %s and explicit opacity zeroes from importer behavior to region flags", (pattern) => {
+    const behavior = BehaviorHelper.highlight({ profile: "status", pattern, opacity: 0, gapOpacity: 0, borderOpacity: 0 });
+    expect(behavior.config).toMatchObject({ opacity: 0, gapOpacity: 0, borderOpacity: 0 });
+    const activity = { applicableBehaviors: [{ type: behavior.type, config: { ...behavior.config } }] };
+    const data = [{ name: "test" }];
+    stampRegionHighlight(activity, data);
+    expect(foundry.utils.getProperty(data[0], "flags.ddbimporter.highlight"))
+      .toEqual({ profile: "status", pattern, opacity: 0, gapOpacity: 0, borderOpacity: 0 });
+  });
+
   it("prefers the appearance behavior, copying only filled overrides", () => {
     const activity = {
       applicableBehaviors: [
@@ -458,22 +503,22 @@ describe("preview css", () => {
   });
 
   it("describes each pattern", () => {
-    const base = { opacity: 0.5, spacing: 0.5, thickness: 0.2, edgeWidth: 0.25, color: null };
+    const base = { opacity: 0.5, gapOpacity: 0.3333, borderOpacity: null, spacing: 0.5, thickness: 0.2, edgeWidth: 0.25, color: null };
     expect(previewCss({ ...base, pattern: "hatch" }, "#ff6400")).toContain("repeating-linear-gradient(135deg, rgba(255, 100, 0, 1) 0 5px, rgba(255, 100, 0, 0.3333) 5px 25px)");
     expect(previewCss({ ...base, pattern: "hatch", angle: 0 }, "#ff6400")).toContain("repeating-linear-gradient(90deg");
     expect(previewCss({ ...base, pattern: "crosshatch" }, "#ff6400")).toContain("repeating-linear-gradient(225deg");
-    expect(previewCss({ ...base, pattern: "dots", border: true, borderWidth: 0.2 }, "#ff6400")).toContain("outline: 10px solid rgba(255, 100, 0, 1); outline-offset: -10px");
+    expect(previewCss({ ...base, pattern: "dots", border: true, borderWidth: 0.2 }, "#ff6400")).toContain("--ddbi-border-width: 10px; --ddbi-border-color: rgba(255, 100, 0, 0.5)");
     expect(previewCss({ ...base, pattern: "edge", border: true }, "#ff6400")).not.toContain("outline");
     expect(previewCss({ ...base, pattern: "dots" }, "#ff6400")).toContain("background-size: 25px 25px");
     expect(previewCss({ ...base, pattern: "solid", color: "#000000" }, "#ff6400")).toContain("background: rgba(0, 0, 0, 1)");
-    expect(previewCss({ ...base, pattern: "edge" }, "#ff6400")).toContain("box-shadow: inset 0 0 0 12.5px rgba(255, 100, 0, 1)");
+    expect(previewCss({ ...base, pattern: "edge" }, "#ff6400")).toContain("--ddbi-border-width: 12.5px; --ddbi-border-color: rgba(255, 100, 0, 0.5)");
     expect(previewCss({ ...base, pattern: "solid" }, "#ff6400")).toContain("opacity: 0.5");
     // the enlarged single-square preview scales every length with its grid size
     expect(previewCss({ ...base, pattern: "hatch" }, "#ff6400", 150)).toContain("0 15px, rgba(255, 100, 0, 0.3333) 15px 75px)");
   });
 
   it("keeps the gap fill continuous and dashes only the ink of line patterns", () => {
-    const base = { opacity: 0.5, spacing: 0.5, thickness: 0.2, edgeWidth: 0.25, color: null, dashed: true, dashLength: 0.5 };
+    const base = { opacity: 0.5, gapOpacity: 0.3333, borderOpacity: null, spacing: 0.5, thickness: 0.2, edgeWidth: 0.25, color: null, dashed: true, dashLength: 0.5 };
     const hatch = previewCss({ ...base, pattern: "hatch" }, "#ff6400");
     expect(hatch).toContain("background: rgba(255, 100, 0, 0.3333)");
     expect(hatch).toContain("--ddbi-ink: repeating-linear-gradient(135deg, rgba(255, 100, 0, 1) 0 5px, transparent 5px 25px)");
@@ -482,8 +527,23 @@ describe("preview css", () => {
     const cross = previewCss({ ...base, pattern: "crosshatch" }, "#ff6400");
     expect(cross).toContain("--ddbi-ink2: repeating-linear-gradient(225deg");
     expect(cross).toContain("--ddbi-mask2: repeating-linear-gradient(135deg");
-    expect(previewCss({ ...base, pattern: "dots" }, "#ff6400")).not.toContain("--ddbi-");
-    expect(previewCss({ ...base, pattern: "hatch", dashed: false }, "#ff6400")).not.toContain("--ddbi-");
+    expect(previewCss({ ...base, pattern: "dots" }, "#ff6400")).not.toContain("--ddbi-mask");
+    expect(previewCss({ ...base, pattern: "hatch", dashed: false }, "#ff6400")).not.toContain("--ddbi-mask");
+  });
+
+  it("previews transparent holes, diamonds and independent borders at both editor scales", () => {
+    const base = { ...RegionHighlightProfiles.get("status")!, opacity: 0, gapOpacity: 0, border: true, borderOpacity: 0.8, thickness: 0.5, spacing: 1 };
+    for (const grid of [50, 150]) {
+      const ring = previewCss({ ...base, pattern: "hollowDots" }, "#00ff00", grid);
+      expect(ring).toContain(`radial-gradient(circle, rgba(0, 255, 0, 0) ${grid * 0.15}px`);
+      expect(ring).toContain("--ddbi-fill-opacity: 0");
+      expect(ring).toContain("--ddbi-border-color: rgba(0, 255, 0, 0.8)");
+      const diamond = decodeURIComponent(previewCss({ ...base, pattern: "diamonds" }, "#00ff00", grid));
+      expect(diamond).toContain("d=\"M50 25 L75 50 L50 75 L25 50Z\"");
+      expect(diamond).toContain(`--ddbi-background-size: ${grid}px ${grid}px`);
+    }
+    expect(previewCss({ ...base, pattern: "edge", gapOpacity: 1 }, "#00ff00"))
+      .toContain("--ddbi-background: rgba(0, 255, 0, 0.15)");
   });
 });
 
@@ -518,33 +578,36 @@ describe("profile picker", () => {
   });
 });
 
-describe("region config fieldset", () => {
-  it("inserts one fieldset after the highlight mode control with the region's flag values", () => {
+describe("region config summary box", () => {
+  it("inserts one compact box after the highlight mode control, with no form inputs", () => {
     const element = document.createElement("form");
     element.innerHTML = "<div class=\"form-group\"><select name=\"highlightMode\"></select></div><div class=\"form-group\" id=\"after\"></div>";
     const doc = { color: "#00ff00", flags: { ddbimporter: { highlight: { profile: "damage", opacity: 0.25, dashed: "dashed", border: "none", angle: 90, color: "#123456" } } } };
-    const setPosition = vi.fn();
-    onRenderRegionConfig({ document: doc as any, setPosition }, element);
-    onRenderRegionConfig({ document: doc as any, setPosition }, element);
-    const fieldsets = element.querySelectorAll(".ddbi-highlight-fieldset");
-    expect(fieldsets).toHaveLength(1);
-    expect(fieldsets[0].nextElementSibling?.id).toBe("after");
-    expect(element.querySelector<HTMLSelectElement>("[name=\"flags.ddbimporter.highlight.profile\"]")!.value).toBe("damage");
-    expect(element.querySelector<HTMLInputElement>("[name=\"flags.ddbimporter.highlight.opacity\"]")!.value).toBe("0.25");
-    expect(element.querySelector<HTMLInputElement>("[name=\"flags.ddbimporter.highlight.spacing\"]")!.value).toBe("");
-    expect(element.querySelector<HTMLSelectElement>("[name=\"flags.ddbimporter.highlight.dashed\"]")!.value).toBe("dashed");
-    expect(element.querySelector<HTMLInputElement>("[name=\"flags.ddbimporter.highlight.dashLength\"]")!.value).toBe("");
-    expect(element.querySelector<HTMLSelectElement>("[name=\"flags.ddbimporter.highlight.border\"]")!.value).toBe("none");
-    expect(element.querySelector<HTMLInputElement>("[name=\"flags.ddbimporter.highlight.angle\"]")!.value).toBe("90");
-    expect(element.querySelector("[name=\"flags.ddbimporter.highlight.color\"]")!.getAttribute("value")).toBe("#123456");
-    expect(element.querySelector(".ddbi-highlight-swatch")).not.toBeNull();
-    expect(setPosition).toHaveBeenCalledWith({ height: "auto" });
+    onRenderRegionConfig({ document: doc as any }, element);
+    onRenderRegionConfig({ document: doc as any }, element);
+    const boxes = element.querySelectorAll(".ddbi-highlight-fieldset");
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0].nextElementSibling?.id).toBe("after");
+    // the sheet's own submission must not carry the flag: the editor writes the document
+    expect(boxes[0].querySelectorAll("input, select, color-picker")).toHaveLength(0);
+    expect(boxes[0].querySelector(".ddbi-highlight-summary-text")!.textContent)
+      .toBe("Ongoing Damage, dashed, no border, fill opacity 0.25, line angle 90°, colour #123456");
+    expect(boxes[0].querySelector(".ddbi-highlight-swatch")).not.toBeNull();
   });
 
-  it("shows no swatch for a region without a profile", () => {
-    const fieldset = buildHighlightFieldset({ color: "#00ff00", flags: {} } as any);
-    expect(fieldset.querySelector(".ddbi-highlight-swatch")).toBeNull();
-    expect(fieldset.querySelector<HTMLSelectElement>("select")!.value).toBe("");
+  it("opens the region editor from the configure button", () => {
+    const open = vi.spyOn(DDBRegionHighlightConfig, "open").mockImplementation(() => ({}) as any);
+    const doc = { color: "#00ff00", flags: { ddbimporter: { highlight: { profile: "aura" } } } };
+    const box = buildHighlightSummary(doc as any);
+    box.querySelector<HTMLButtonElement>("button.ddbi-highlight-configure")!.click();
+    expect(open).toHaveBeenCalledWith(doc);
+    open.mockRestore();
+  });
+
+  it("shows the Foundry default and no swatch for a region without a profile", () => {
+    const box = buildHighlightSummary({ color: "#00ff00", flags: {} } as any);
+    expect(box.querySelector(".ddbi-highlight-swatch")).toBeNull();
+    expect(box.querySelector(".ddbi-highlight-summary-text")!.textContent).toBe("None (Foundry default)");
   });
 });
 

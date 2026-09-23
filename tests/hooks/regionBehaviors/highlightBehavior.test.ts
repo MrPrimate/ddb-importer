@@ -26,7 +26,7 @@ describe("DDBHighlightActivityBehavior", () => {
     expect(input.querySelector("button")).not.toBeNull();
     const pattern: Record<string, any> = {};
     behavior.customizeField({ name: "pattern" }, pattern);
-    expect(pattern.options.map((option: any) => option.value)).toEqual(["", "hatch", "solid", "crosshatch", "dots", "edge"]);
+    expect(pattern.options.map((option: any) => option.value)).toEqual(["", "hatch", "solid", "crosshatch", "dots", "edge", "hollowDots", "diamonds"]);
     const other: Record<string, any> = {};
     behavior.customizeField({ name: "opacity" }, other);
     expect(other).toEqual({});

@@ -1,5 +1,6 @@
 import {
   BUILTIN_REGION_HIGHLIGHT_PROFILES,
+  FOUNDRY_REGION_HIGHLIGHT,
   REGION_HIGHLIGHT_LIMITS,
   REGION_HIGHLIGHT_PATTERNS,
 } from "../config/regionHighlightProfiles";
@@ -47,7 +48,14 @@ export default class RegionHighlightProfiles {
     const result: Record<string, IRegionHighlightProfile> = {};
     for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
       if (!value || typeof value !== "object") continue;
-      result[id] = RegionHighlightProfiles.normalize({ ...(value as Partial<IRegionHighlightProfile>), id });
+      // Compatibility is applied only to saved data: untouched shipped profiles use their
+      // current defaults, while older custom profiles and saved builtin overrides keep their look.
+      result[id] = RegionHighlightProfiles.normalize({
+        gapOpacity: FOUNDRY_REGION_HIGHLIGHT.gapOpacity,
+        borderOpacity: null,
+        ...(value as Partial<IRegionHighlightProfile>),
+        id,
+      });
     }
     return result;
   }
@@ -102,11 +110,15 @@ export default class RegionHighlightProfiles {
     const name = typeof data.name === "string" && data.name.trim() ? data.name.trim() : fallback.name;
     const id = typeof data.id === "string" && data.id.trim() ? data.id.trim() : RegionHighlightProfiles.newId();
     const color = typeof data.color === "string" && data.color.trim() ? data.color.trim() : null;
+    const borderOpacity = RegionHighlightProfiles.clamp("borderOpacity", data.borderOpacity, NaN);
     return {
       id,
       name,
       pattern: RegionHighlightProfiles.isPattern(data.pattern) ? data.pattern : fallback.pattern,
       opacity: RegionHighlightProfiles.clamp("opacity", data.opacity, fallback.opacity),
+      gapOpacity: RegionHighlightProfiles.clamp("gapOpacity", data.gapOpacity, fallback.gapOpacity),
+      borderOpacity: data.borderOpacity === null ? null
+        : Number.isFinite(borderOpacity) ? borderOpacity : fallback.borderOpacity,
       spacing: RegionHighlightProfiles.clamp("spacing", data.spacing, fallback.spacing),
       thickness: RegionHighlightProfiles.clamp("thickness", data.thickness, fallback.thickness),
       edgeWidth: RegionHighlightProfiles.clamp("edgeWidth", data.edgeWidth, fallback.edgeWidth),
@@ -133,10 +145,13 @@ export default class RegionHighlightProfiles {
       return null;
     }
     const color = typeof flag.color === "string" && flag.color.trim() ? flag.color.trim() : profile.color;
+    const opacity = RegionHighlightProfiles.clamp("opacity", flag.opacity, profile.opacity);
     return {
       profile: profile.id,
       pattern: RegionHighlightProfiles.isPattern(flag.pattern) ? flag.pattern : profile.pattern,
-      opacity: RegionHighlightProfiles.clamp("opacity", flag.opacity, profile.opacity),
+      opacity,
+      gapOpacity: RegionHighlightProfiles.clamp("gapOpacity", flag.gapOpacity, profile.gapOpacity),
+      borderOpacity: RegionHighlightProfiles.clamp("borderOpacity", flag.borderOpacity, profile.borderOpacity ?? opacity),
       spacing: RegionHighlightProfiles.clamp("spacing", flag.spacing, profile.spacing),
       thickness: RegionHighlightProfiles.clamp("thickness", flag.thickness, profile.thickness),
       edgeWidth: RegionHighlightProfiles.clamp("edgeWidth", flag.edgeWidth, profile.edgeWidth),

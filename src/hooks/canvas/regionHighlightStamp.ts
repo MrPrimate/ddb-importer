@@ -44,7 +44,17 @@ export function activityHighlightChoice(activity: IActivityLike | null | undefin
     const flag: IRegionHighlightFlag = { profile };
     const pattern = overrideValue(config.pattern);
     if (pattern) flag.pattern = pattern as TRegionHighlightPattern;
-    for (const key of ["opacity", "spacing", "thickness", "edgeWidth", "dashLength", "angle", "borderWidth"] as const) {
+    for (const key of [
+      "opacity",
+      "gapOpacity",
+      "borderOpacity",
+      "spacing",
+      "thickness",
+      "edgeWidth",
+      "dashLength",
+      "angle",
+      "borderWidth",
+    ] as const) {
       const value = overrideValue(config[key]);
       if (value !== null) flag[key] = value;
     }

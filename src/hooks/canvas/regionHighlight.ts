@@ -99,6 +99,7 @@ export function applyStyle(
   uniforms.pattern = REGION_HIGHLIGHT_PATTERN_IDS[style.pattern];
   uniforms.period = Math.max(1, style.spacing * metrics.grid);
   uniforms.thickness = style.thickness;
+  uniforms.gapOpacity = style.gapOpacity;
   uniforms.dashed = style.dashed;
   // one dash plus one equal gap
   uniforms.dashPeriod = Math.max(1, style.dashLength * metrics.grid * 2);
@@ -167,7 +168,7 @@ export function drawEdgeBand(
     alignment: 0,
   });
   region.animationState.polygonTree.drawShape(band);
-  band.alpha = style.opacity;
+  band.alpha = style.borderOpacity;
   band.zIndex = mesh.zIndex;
   band.visible = mesh.visible;
 }

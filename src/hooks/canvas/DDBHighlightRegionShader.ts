@@ -18,6 +18,8 @@ export const DDB_HIGHLIGHT_UNIFORMS = {
   period: 12,
   /** Share of the period that is ink, 0-1. */
   thickness: 0.2,
+  /** Gap alpha relative to the fill alpha. */
+  gapOpacity: 0,
   /** Break stripes into dashes. */
   dashed: false,
   /** Dash-plus-gap length along a stripe, in canvas pixels. */
@@ -45,9 +47,10 @@ export const CORE_FRAGMENT_CONTRACT = ["tintAlpha", "resolution", "hatchEnabled"
  * Vertex shader: the core one plus the pattern coordinates. They are computed here, where
  * precision is always high, and handed on as varyings already scaled into periods, the way
  * core computes its own hatch offset; a fragment stage that defaults to mediump then only
- * ever sees small numbers.
+ * ever sees small numbers. Shared uniforms must use the fragment precision in both stages
+ * or the program fails to link, even though vertex calculations stay high precision.
  */
-export function buildVertexShader(precision: string, constants: string): string {
+export function buildVertexShader(precision: string, fragmentPrecision: string, constants: string): string {
   return `\
     precision ${precision} float;
 
@@ -60,8 +63,8 @@ export function buildVertexShader(precision: string, constants: string): string 
     uniform vec2 canvasDimensions;
     uniform vec4 sceneDimensions;
     uniform vec2 screenDimensions;
-    uniform float period;
-    uniform float dashPeriod;
+    uniform ${fragmentPrecision} float period;
+    uniform ${fragmentPrecision} float dashPeriod;
     uniform float angle;
 
     varying vec2 vCanvasCoord; // normalized canvas coordinates
@@ -94,8 +97,7 @@ export function buildVertexShader(precision: string, constants: string): string 
 /**
  * Fragment shader. `hatchEnabled` is the core uniform Region#_refreshState clears while a
  * region is controlled, hovered or previewed; every pattern renders solid then, exactly as
- * the core shader does, so editing a region looks unchanged. The gaps between ink keep a
- * third of the alpha, matching core's hatch.
+ * the core shader does, so editing a region looks unchanged.
  */
 export function buildFragmentShader(precision: string, constants: string): string {
   return `\
@@ -111,10 +113,11 @@ export function buildFragmentShader(precision: string, constants: string): strin
     uniform float resolution;
     uniform bool hatchEnabled;
     uniform int pattern;
-    uniform float period;
+    uniform ${precision} float period;
     uniform float thickness;
+    uniform float gapOpacity;
     uniform bool dashed;
-    uniform float dashPeriod;
+    uniform ${precision} float dashPeriod;
 
     // 1.0 inside the ink band around each stripe centre, 0.0 in the gap, with a one-pixel
     // anti-aliased edge. coord is measured in periods.
@@ -137,15 +140,18 @@ export function buildFragmentShader(precision: string, constants: string): strin
       float safePeriod = max(period, 1.0);
       float aa = 1.0 / max(safePeriod * resolution, 1.0);
       float ink = 0.0;
-      if ( pattern == 3 ) {
+      if ( pattern == 3 || pattern == 5 || pattern == 6 ) {
         vec2 cell = fract(vCell) - 0.5;
-        ink = 1.0 - smoothstep(thickness * 0.5 - aa, thickness * 0.5 + aa, length(cell));
+        float radius = thickness * 0.5;
+        float dist = pattern == 6 ? abs(cell.x) + abs(cell.y) : length(cell);
+        ink = 1.0 - smoothstep(radius - aa, radius + aa, dist);
+        if ( pattern == 5 ) ink *= smoothstep(radius * 0.6 - aa, radius * 0.6 + aa, dist);
       } else {
         float dashAa = aa * safePeriod / max(dashPeriod, 1.0);
         ink = stripe(vStripe.x, aa) * dash(vDash.x, dashAa);
         if ( pattern == 2 ) ink = max(ink, stripe(vStripe.y, aa) * dash(vDash.y, dashAa));
       }
-      gl_FragColor *= mix(0.3333, 1.0, ink);
+      gl_FragColor *= mix(gapOpacity, 1.0, ink);
     }
   `;
 }
@@ -274,7 +280,7 @@ export function getDDBHighlightShaderClass({
 
   const vertexPrecision = String(PIXI.Program.defaultVertexPrecision);
   const fragmentPrecision = String(PIXI.Program.defaultFragmentPrecision);
-  const vertex = buildVertexShader(vertexPrecision, Base.CONSTANTS);
+  const vertex = buildVertexShader(vertexPrecision, fragmentPrecision, Base.CONSTANTS);
   const fragment = buildFragmentShader(fragmentPrecision, Base.CONSTANTS);
   if (gl) {
     const result = verifyShaderProgram(gl, vertex, fragment);

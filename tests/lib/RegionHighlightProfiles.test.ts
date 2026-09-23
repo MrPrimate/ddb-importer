@@ -21,6 +21,7 @@ describe("RegionHighlightProfiles store", () => {
     const all = RegionHighlightProfiles.all();
     expect(all.map((profile) => profile.id)).toEqual(["aura", "damage", "status", "minimal"]);
     expect(all.every((profile) => profile.builtin)).toBe(true);
+    expect(all.every((profile) => profile.gapOpacity === 0 && profile.borderOpacity === null)).toBe(true);
     expect(RegionHighlightProfiles.get("nope")).toBeNull();
     expect(RegionHighlightProfiles.get("")).toBeNull();
     expect(RegionHighlightProfiles.choices()).toEqual(all.map((profile) => ({ value: profile.id, label: profile.name })));
@@ -49,8 +50,9 @@ describe("RegionHighlightProfiles store", () => {
     } as any);
     expect(profile.id).toMatch(/^[a-zA-Z0-9]{16}$/);
     expect(profile).toEqual({
+      ...BUILTIN_REGION_HIGHLIGHT_PROFILES[0],
       id: profile.id, name: "Wild One", pattern: "hatch", opacity: 1, spacing: 0.3, thickness: 0.02, edgeWidth: 0.25,
-      dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1, color: null, builtin: false,
+      color: null, builtin: false,
     });
     expect(RegionHighlightProfiles.normalize({ name: "Tilted", angle: 400, border: "border", borderWidth: "0.3" } as any))
       .toMatchObject({ angle: 180, border: true, borderWidth: 0.3 });
@@ -65,12 +67,14 @@ describe("RegionHighlightProfiles store", () => {
     const damage = BUILTIN_REGION_HIGHLIGHT_PROFILES[1];
     expect(RegionHighlightProfiles.resolve({ profile: "damage" })).toEqual({
       profile: "damage", pattern: damage.pattern, opacity: damage.opacity, spacing: damage.spacing,
+      gapOpacity: 0, borderOpacity: damage.opacity,
       thickness: damage.thickness, edgeWidth: damage.edgeWidth, dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1, color: null,
     });
     expect(RegionHighlightProfiles.resolve({
       profile: "damage", pattern: "dots", opacity: "0.75", spacing: null, thickness: "", edgeWidth: 9, dashed: "dashed", dashLength: "1", color: "#123456",
     })).toEqual({
       profile: "damage", pattern: "dots", opacity: 0.75, spacing: damage.spacing, thickness: damage.thickness, edgeWidth: 2,
+      gapOpacity: 0, borderOpacity: 0.75,
       dashed: true, dashLength: 1, angle: 45, border: false, borderWidth: 0.1, color: "#123456",
     });
     expect(RegionHighlightProfiles.resolve({ profile: "damage", angle: "90", border: "border", borderWidth: 0.5 })).toMatchObject({ angle: 90, border: true, borderWidth: 0.5 });
@@ -113,5 +117,40 @@ describe("RegionHighlightProfiles store", () => {
     const b = RegionHighlightProfiles.newId();
     expect(a).toMatch(/^[a-zA-Z0-9]{16}$/);
     expect(a).not.toBe(b);
+  });
+
+  it("reads legacy custom profiles and shipped overrides without rewriting their saved data", () => {
+    const raw = { aura: { opacity: 0.6 }, custom: { name: "Old", opacity: 0.8 } };
+    setMockSettings({ "region-highlight-profiles": raw });
+    const set = vi.spyOn(game.settings, "set");
+    for (const profile of ["aura", "custom"]) {
+      expect(RegionHighlightProfiles.get(profile)).toMatchObject({ gapOpacity: 0.3333, borderOpacity: null });
+      expect(RegionHighlightProfiles.resolve({ profile, opacity: 0.2 })).toMatchObject({ gapOpacity: 0.3333, borderOpacity: 0.2 });
+    }
+    expect(RegionHighlightProfiles.get("damage")!.gapOpacity).toBe(0);
+    expect(raw.aura).not.toHaveProperty("gapOpacity");
+    expect(set).not.toHaveBeenCalled();
+  });
+
+  it("inherits independent border opacity and handles blanks, zero and clamping", () => {
+    setMockSettings({ "region-highlight-profiles": { custom: { name: "New", gapOpacity: 0.4, borderOpacity: 0.9 } } });
+    for (const blank of [undefined, null, ""]) {
+      expect(RegionHighlightProfiles.resolve({ profile: "custom", opacity: 0, gapOpacity: blank, borderOpacity: blank }))
+        .toMatchObject({ opacity: 0, gapOpacity: 0.4, borderOpacity: 0.9 });
+    }
+    for (const zero of [0, "0", -5]) {
+      expect(RegionHighlightProfiles.resolve({ profile: "custom", gapOpacity: zero, borderOpacity: zero }))
+        .toMatchObject({ gapOpacity: 0, borderOpacity: 0 });
+    }
+    expect(RegionHighlightProfiles.resolve({ profile: "custom", gapOpacity: 3, borderOpacity: "2" }))
+      .toMatchObject({ gapOpacity: 1, borderOpacity: 1 });
+    const base = RegionHighlightProfiles.get("custom")!;
+    expect(RegionHighlightProfiles.normalize({ gapOpacity: -1, borderOpacity: -1 }, base))
+      .toMatchObject({ gapOpacity: 0, borderOpacity: 0 });
+    expect(RegionHighlightProfiles.normalize({ gapOpacity: 5, borderOpacity: 5 }, base))
+      .toMatchObject({ gapOpacity: 1, borderOpacity: 1 });
+    expect(RegionHighlightProfiles.normalize({ borderOpacity: null }, base).borderOpacity).toBeNull();
+    expect(RegionHighlightProfiles.normalize({}, base).borderOpacity).toBe(0.9);
+    expect(RegionHighlightProfiles.resolve({ profile: "damage", opacity: 0 })).toMatchObject({ borderOpacity: 0 });
   });
 });

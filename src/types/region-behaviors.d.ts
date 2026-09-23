@@ -39,7 +39,7 @@ declare global {
   // ---- Region highlight profiles (the appearance of aura / template Regions) ----
 
   /** Fill patterns the DDB highlight shader can draw; `hatch` is Foundry's own diagonal stripes. */
-  type TRegionHighlightPattern = "hatch" | "solid" | "crosshatch" | "dots" | "edge";
+  type TRegionHighlightPattern = "hatch" | "solid" | "crosshatch" | "dots" | "edge" | "hollowDots" | "diamonds";
 
   /** A named appearance for the Region highlight, shipped or user-built. */
   interface IRegionHighlightProfile {
@@ -49,6 +49,10 @@ declare global {
     pattern: TRegionHighlightPattern;
     /** Mesh alpha, 0-1. Foundry draws every region at 0.5. */
     opacity: number;
+    /** Gap alpha relative to fill opacity; zero is transparent. */
+    gapOpacity: number;
+    /** Independent border alpha; null follows the effective fill opacity. */
+    borderOpacity: number | null;
     /** Pattern period as a fraction of a grid square. */
     spacing: number;
     /** Share of the period that is ink: line width for stripes, dot diameter for dots, 0-1. */
@@ -80,6 +84,8 @@ declare global {
     profile?: string;
     pattern?: TRegionHighlightPattern | "" | null;
     opacity?: number | string | null;
+    gapOpacity?: number | string | null;
+    borderOpacity?: number | string | null;
     spacing?: number | string | null;
     thickness?: number | string | null;
     edgeWidth?: number | string | null;
@@ -98,6 +104,8 @@ declare global {
     profile: string;
     pattern: TRegionHighlightPattern;
     opacity: number;
+    gapOpacity: number;
+    borderOpacity: number;
     spacing: number;
     thickness: number;
     edgeWidth: number;

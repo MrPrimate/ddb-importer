@@ -299,8 +299,16 @@
             "label": "Pattern Override"
           },
           "opacity": {
-            "label": "Opacity Override",
+            "label": "Fill Opacity Override",
             "hint": "0 to 1; blank takes the profile's value."
+          },
+          "gapOpacity": {
+            "label": "Gap Opacity Override",
+            "hint": "Relative to fill opacity, 0 to 1. Zero makes pattern gaps transparent; blank takes the profile's value."
+          },
+          "borderOpacity": {
+            "label": "Border Opacity Override",
+            "hint": "Independent of fill opacity, 0 to 1. Blank inherits the profile's border opacity or follows fill opacity if linked."
           },
           "spacing": {
             "label": "Spacing Override",

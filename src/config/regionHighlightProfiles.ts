@@ -9,6 +9,8 @@ export const REGION_HIGHLIGHT_PATTERNS: readonly TRegionHighlightPattern[] = [
   "crosshatch",
   "dots",
   "edge",
+  "hollowDots",
+  "diamonds",
 ];
 
 /** The `pattern` uniform value for each fill pattern; the shader branches on these. */
@@ -18,6 +20,8 @@ export const REGION_HIGHLIGHT_PATTERN_IDS: Record<TRegionHighlightPattern, numbe
   crosshatch: 2,
   dots: 3,
   edge: 4,
+  hollowDots: 5,
+  diamonds: 6,
 };
 
 export const REGION_HIGHLIGHT_PATTERN_LABELS: Record<TRegionHighlightPattern, string> = {
@@ -26,11 +30,15 @@ export const REGION_HIGHLIGHT_PATTERN_LABELS: Record<TRegionHighlightPattern, st
   crosshatch: "Crosshatch",
   dots: "Dots",
   edge: "Edge Band",
+  hollowDots: "Hollow Dots",
+  diamonds: "Diamonds",
 };
 
 /** Bounds for the numeric profile fields, shared by the store, the builder and the behavior schema. */
 export const REGION_HIGHLIGHT_LIMITS = {
   opacity: { min: 0, max: 1, step: 0.05 },
+  gapOpacity: { min: 0, max: 1, step: 0.05 },
+  borderOpacity: { min: 0, max: 1, step: 0.05 },
   spacing: { min: 0.05, max: 4, step: 0.05 },
   thickness: { min: 0.02, max: 1, step: 0.01 },
   edgeWidth: { min: 0.05, max: 2, step: 0.05 },
@@ -45,6 +53,7 @@ export const REGION_HIGHLIGHT_LIMITS = {
  */
 export const FOUNDRY_REGION_HIGHLIGHT = {
   opacity: 0.5,
+  gapOpacity: 0.3333,
   spacing: 0.11,
   thickness: 0.5,
 } as const;
@@ -54,14 +63,16 @@ export const BUILTIN_REGION_HIGHLIGHT_PROFILES: readonly IRegionHighlightProfile
     id: "aura",
     name: "Aura",
     pattern: "hatch",
-    opacity: 0.8,
-    spacing: 0.5,
+    opacity: 0.3,
+    gapOpacity: 0,
+    borderOpacity: null,
+    spacing: 0.1,
     thickness: 0.15,
     edgeWidth: 0.25,
     dashed: false,
     dashLength: 0.25,
-    angle: 45,
-    border: false,
+    angle: 135,
+    border: true,
     borderWidth: 0.1,
     color: null,
     builtin: true,
@@ -71,6 +82,8 @@ export const BUILTIN_REGION_HIGHLIGHT_PROFILES: readonly IRegionHighlightProfile
     name: "Ongoing Damage",
     pattern: "crosshatch",
     opacity: 0.5,
+    gapOpacity: 0,
+    borderOpacity: null,
     spacing: 0.25,
     thickness: 0.2,
     edgeWidth: 0.25,
@@ -87,6 +100,8 @@ export const BUILTIN_REGION_HIGHLIGHT_PROFILES: readonly IRegionHighlightProfile
     name: "Status Effect",
     pattern: "dots",
     opacity: 0.5,
+    gapOpacity: 0,
+    borderOpacity: null,
     spacing: 0.2,
     thickness: 0.35,
     edgeWidth: 0.25,
@@ -103,6 +118,8 @@ export const BUILTIN_REGION_HIGHLIGHT_PROFILES: readonly IRegionHighlightProfile
     name: "Minimal",
     pattern: "hatch",
     opacity: 0.2,
+    gapOpacity: 0,
+    borderOpacity: null,
     spacing: 0.5,
     thickness: 0.08,
     edgeWidth: 0.25,
