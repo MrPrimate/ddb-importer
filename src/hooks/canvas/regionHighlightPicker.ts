@@ -1,0 +1,110 @@
+import RegionHighlightProfiles from "../../lib/RegionHighlightProfiles";
+
+/**
+ * The profile picker shared by the activity behaviors and the Region config: a select of
+ * the world's profiles beside a gear that opens the profile editor.
+ *
+ * The editor is reached through the module api rather than imported, which keeps this file
+ * (and the behavior data models that use it) free of the application tree.
+ */
+
+interface IProfileEditorApp {
+  open(options?: { profileId?: string | null }): unknown;
+}
+
+function profileEditor(): IProfileEditorApp | null {
+  const api = (
+    game.modules.get("ddb-importer") as
+      | { api?: { apps?: { DDBRegionHighlightProfiles?: IProfileEditorApp } } }
+      | undefined
+  )?.api;
+  return api?.apps?.DDBRegionHighlightProfiles ?? null;
+}
+
+/** Open the profile editor on a profile, when the api has registered it. */
+export function openProfileEditor(profileId: string | null = null): void {
+  profileEditor()?.open({ profileId });
+}
+
+export interface IProfilePickerConfig {
+  name: string;
+  value?: unknown;
+  /** Label for the empty choice; omit for none. */
+  blank?: string;
+  disabled?: boolean;
+}
+
+export function profileOptions(blank: string | undefined): { value: string; label: string }[] {
+  const options = RegionHighlightProfiles.choices();
+  return blank === undefined ? options : [{ value: "", label: blank }, ...options];
+}
+
+const GEAR_CLASS = "ddbi-highlight-picker-edit";
+
+function appendOption(select: HTMLSelectElement, option: { value: string; label: string }, current: string): void {
+  const element = document.createElement("option");
+  element.value = option.value;
+  element.textContent = option.label;
+  if (option.value === current) {
+    // the attribute as well as the property: dnd5e's activity sheet serialises behavior
+    // fields to HTML before rendering, and only the attribute survives that
+    element.selected = true;
+    element.setAttribute("selected", "");
+  }
+  select.append(element);
+}
+
+/**
+ * Build the select + gear pair. Usable as a dnd5e `customizeField` `data.input` or standalone.
+ * The gear has no listener of its own (see the serialisation note above); the document-level
+ * delegate from `installProfilePickerDelegate` handles every gear on the page.
+ */
+export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("ddbi-highlight-picker");
+  const select = document.createElement("select");
+  select.name = config.name;
+  if (config.disabled) select.disabled = true;
+  const current = typeof config.value === "string" ? config.value : "";
+  for (const option of profileOptions(config.blank)) appendOption(select, option, current);
+  const gear = document.createElement("button");
+  gear.type = "button";
+  gear.classList.add(GEAR_CLASS);
+  gear.dataset.tooltip = "Edit region highlight profiles";
+  gear.setAttribute("aria-label", "Edit region highlight profiles");
+  gear.innerHTML = `<i class="fa-solid fa-gears" inert></i>`;
+  wrapper.append(select, gear);
+  return wrapper;
+}
+
+let delegateInstalled = false;
+
+/** Open the editor from any picker gear on the page, on the profile its select shows. */
+export function onProfilePickerClick(event: Event): void {
+  const target = event.target as Element | null;
+  const gear = target?.closest?.(`.${GEAR_CLASS}`);
+  if (!gear) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const select = gear.closest(".ddbi-highlight-picker")?.querySelector<HTMLSelectElement>("select");
+  openProfileEditor(select?.value || null);
+}
+
+/** Register the delegated gear handler once per page. */
+export function installProfilePickerDelegate(root: Document = document): void {
+  if (delegateInstalled) return;
+  delegateInstalled = true;
+  root.addEventListener("click", onProfilePickerClick);
+}
+
+/**
+ * Refresh the options of every picker in a rendered element after the store changed,
+ * keeping the current selection when it still exists.
+ */
+export function refreshProfilePickers(root: ParentNode, blank: string | undefined): void {
+  for (const select of root.querySelectorAll<HTMLSelectElement>(".ddbi-highlight-picker select")) {
+    const current = select.value;
+    select.replaceChildren();
+    for (const option of profileOptions(blank)) appendOption(select, option, current);
+  }
+}

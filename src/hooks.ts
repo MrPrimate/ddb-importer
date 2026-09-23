@@ -19,6 +19,7 @@ import { anchorInjection } from "./hooks/ready/anchorInjection";
 import { pruneRegionTurnFlags } from "./hooks/ready/pruneRegionFlags";
 import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
 import addRegionBehaviorHooks from "./hooks/regionBehaviors/loadBehaviors";
+import { setupRegionHighlightProfiles } from "./hooks/canvas/regionHighlightSetup";
 
 // monster muncher
 import { earlySettings } from "./hooks/init/settings";
@@ -55,6 +56,8 @@ export function init() {
   adventureImporter();
   DDBEffectHooks.loadHooks();
   addRegionBehaviorHooks();
+  // after earlySettings(): the region highlight master switch is an early setting
+  setupRegionHighlightProfiles();
   registerCustomEnrichers();
   addActivitiesHooks();
   addTattooConsumable();

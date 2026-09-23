@@ -1,6 +1,8 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
+import DDBRegionHighlightProfiles from "../../apps/DDBRegionHighlightProfiles";
+import RegionHighlightProfiles from "../../lib/RegionHighlightProfiles";
 // IDDBListCampaign is declared globally in lib/types.d.ts.
 // JournalPageLookup is declared globally in muncher/adventure/native/types.d.ts.
 
@@ -265,6 +267,17 @@ export default async function () {
     type: DDBSetup as any,
     restricted: true,
   });
+
+  if (RegionHighlightProfiles.enabled) {
+    game.settings.registerMenu(SETTINGS.MODULE_ID, "regionHighlightProfiles", {
+      name: `${SETTINGS.MODULE_ID}.settings.region-highlight-profiles.name`,
+      label: `${SETTINGS.MODULE_ID}.settings.region-highlight-profiles.label`,
+      hint: `${SETTINGS.MODULE_ID}.settings.region-highlight-profiles.hint`,
+      icon: "fas fa-draw-polygon",
+      type: DDBRegionHighlightProfiles as any,
+      restricted: true,
+    });
+  }
 
   for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
     game.settings.register(SETTINGS.MODULE_ID, name as any, data as any);

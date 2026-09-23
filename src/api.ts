@@ -50,6 +50,7 @@ import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
 import SceneCopyApp from "./apps/SceneCopyApp";
 import SceneCopyBatchApp from "./apps/SceneCopyBatchApp";
+import DDBRegionHighlightProfiles from "./apps/DDBRegionHighlightProfiles";
 import { sceneFieldGroups } from "./apps/lib/sceneFieldCopy";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
@@ -149,6 +150,7 @@ export const API_BASE = {
     DDBPartySync,
     SceneCopyApp,
     SceneCopyBatchApp,
+    DDBRegionHighlightProfiles,
   },
   scenes: {
     // single scene Copy Scene Fields dialog

@@ -37,6 +37,58 @@ global {
   interface Canvas {
     level: (I5eSceneLevel & { id: string }) | null;
   }
+
+  // ---- Region highlight rendering (client/canvas/placeables/region.mjs, regions/mesh.mjs) ----
+  // fvtt-types carries none of these yet. The shapes below are the members the region
+  // highlight hooks touch, nothing more.
+
+  /** A shader class as `AbstractBaseShader` subclasses expose it: the statics used to build and create one. */
+  interface TCoreShaderClass {
+    new (...args: any[]): any;
+    create(uniforms?: Record<string, unknown>, options?: Record<string, unknown>): TCoreShader;
+    defaultUniforms: Record<string, unknown>;
+    /** GLSL constant block shared by every shader (SQRT2 and friends). */
+    CONSTANTS: string;
+    _createVertexShader(): string;
+    _createFragmentShader(): string;
+  }
+
+  interface TCoreShader {
+    uniforms: Record<string, unknown>;
+  }
+
+  /** `RegionMesh`: the highlight (and preview) mesh of a Region placeable. */
+  interface TCoreRegionMesh extends PIXI.Container {
+    region: TCoreRegionPlaceable;
+    tint: number | string;
+    shader: TCoreShader;
+    setShaderClass(shaderClass: TCoreShaderClass): void;
+  }
+
+  /** The polygon tree of a Region's shapes; `drawShape` issues graphics calls for every polygon. */
+  interface TCoreRegionPolygonTree {
+    drawShape(graphics: PIXI.Graphics): void;
+  }
+
+  /** The Region placeable members the highlight hooks read. */
+  interface TCoreRegionPlaceable {
+    id: string | null;
+    document: RegionDocument.Implementation;
+    controlled: boolean;
+    hover: boolean;
+    isPreview: boolean;
+    visible: boolean;
+    zIndex: number;
+    destroyed: boolean;
+    animationState: { polygonTree: TCoreRegionPolygonTree };
+    renderFlags: { set(flags: Record<string, boolean>): void };
+  }
+
+  /** The Region layer members the highlight hooks read: `_highlights` holds every highlight mesh. */
+  interface TCoreRegionLayer {
+    _highlights?: PIXI.Container;
+    placeables: TCoreRegionPlaceable[];
+  }
 }
 
 // Native Foundry v14 Scene schema fields missing from foundry-vtt-types #main.

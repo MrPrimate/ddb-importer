@@ -233,6 +233,7 @@ const noopClass = class {};
       SetField: noopClass,
       StringField: noopClass,
       NumberField: noopClass,
+      ColorField: noopClass,
     },
   },
   CONST: {

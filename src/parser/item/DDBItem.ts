@@ -3245,6 +3245,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     Effects.AutoEffects.markMagical(this.data);
     this._activityEffectLinking();
     this._activityBehaviorNaming();
+    this._activityHighlightDefaults();
   }
 
 

@@ -3,6 +3,7 @@ import { logger, utils } from "../../../lib/_module";
 import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
 import SystemHelpers from "../../../lib/SystemHelpers";
+import BehaviorHelper from "../../enrichers/effects/BehaviorHelper";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
@@ -499,6 +500,17 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return ids;
   }
 
+  /**
+   * Give every region-placing activity that carries behaviors a highlight profile when its
+   * enricher chose none (BehaviorHelper.assignHighlightDefaults). Runs after every sibling
+   * exists so a trigger's target activity can be inspected for damage.
+   */
+  _activityHighlightDefaults(): void {
+    const activities = foundry.utils.getProperty(this.data, "system.activities") as Record<string, I5eActivity> | undefined;
+    if (!activities) return;
+    const documentTemplateType = foundry.utils.getProperty(this.data, "system.target.template.type") as string | undefined;
+    BehaviorHelper.assignHighlightDefaults(activities, { documentTemplateType: documentTemplateType ?? "" });
+  }
 
   /**
    * Give every region behavior a name, which becomes the name of the RegionBehavior

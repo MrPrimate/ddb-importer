@@ -10,6 +10,8 @@
  */
 
 import utils from "../../../lib/Utils";
+import { BUILTIN_REGION_HIGHLIGHT_PROFILES, DEFAULT_REGION_HIGHLIGHT_PROFILES } from "../../../config/regionHighlightProfiles";
+import RegionHighlightProfiles from "../../../lib/RegionHighlightProfiles";
 import SRDEffects from "./SRDEffects";
 
 interface IBehaviorLevel {
@@ -274,5 +276,99 @@ export default class BehaviorHelper {
         ...(macroParameters !== undefined ? { macroParameters } : {}),
       },
     });
+  }
+
+  /**
+   * Region highlight appearance for the regions this activity places: a profile id from
+   * `RegionHighlightProfiles` (shipped: aura, damage, status, minimal) plus optional
+   * overrides. Creates no RegionBehavior; the placement hook copies it onto the region.
+   * Activities that declare none get a default at build time
+   * (DDBActivityFactoryMixin._activityHighlightDefaults).
+   */
+  static highlight({
+    profile,
+    pattern,
+    opacity,
+    spacing,
+    thickness,
+    edgeWidth,
+    dashed,
+    dashLength,
+    angle,
+    border,
+    borderWidth,
+    color,
+    ...common
+  }: IBehaviorCommon & Omit<IRegionHighlightFlag, "profile"> & { profile: string }): I5eActivityBehavior {
+    // the behavior's dashed and border fields are string choices; a boolean from an enricher maps onto them
+    const dashedChoice = dashed === true ? "dashed" : dashed === false ? "continuous" : (dashed ?? "");
+    const borderChoice = border === true ? "border" : border === false ? "none" : (border ?? "");
+    const shipped = BUILTIN_REGION_HIGHLIGHT_PROFILES.find((entry) => entry.id === profile);
+    return {
+      ...BehaviorHelper.#base(common, `Appearance: ${shipped?.name ?? profile}`),
+      type: "ddbHighlight",
+      config: {
+        profile,
+        pattern: pattern ?? "",
+        opacity: opacity ?? null,
+        spacing: spacing ?? null,
+        thickness: thickness ?? null,
+        edgeWidth: edgeWidth ?? null,
+        dashed: dashedChoice,
+        dashLength: dashLength ?? null,
+        angle: angle ?? null,
+        border: borderChoice,
+        borderWidth: borderWidth ?? null,
+        color: color ?? null,
+      },
+    };
+  }
+
+  /**
+   * Assign a highlight profile to every activity that carries behaviors but no
+   * `ddbHighlight` one: emanations read as auras, triggers whose activity (or the sibling
+   * they fire) deals damage as ongoing damage, effect-applying areas as status effects,
+   * anything else as minimal. Activities with no behaviors keep Foundry's own look.
+   * A spell activity's template usually lives on the spell (dnd5e merges the item target
+   * over activities that do not override theirs), so the document's type is the fallback.
+   * Does nothing while the profiles are switched off.
+   */
+  static assignHighlightDefaults(
+    activities: Record<string, Partial<I5eActivity>>,
+    { documentTemplateType = "" }: {
+      /** The document's own `system.target.template.type`: an activity that does not override its target inherits it. */
+      documentTemplateType?: string;
+    } = {},
+  ): void {
+    if (!RegionHighlightProfiles.enabled) return;
+    const hasDamage = (activity: Partial<I5eActivity> | undefined): boolean => {
+      if (!activity) return false;
+      const parts = foundry.utils.getProperty(activity, "damage.parts") as unknown[] | undefined;
+      return (Array.isArray(parts) && parts.length > 0) || activity.type === "attack";
+    };
+    for (const activity of Object.values(activities)) {
+      const behaviors = activity.behaviors;
+      if (!Array.isArray(behaviors) || behaviors.length === 0) continue;
+      if (behaviors.some((behavior) => behavior.type === "ddbHighlight")) continue;
+      const ownTemplateType = foundry.utils.getProperty(activity, "target.template.type") as string | undefined;
+      const overridesTarget = foundry.utils.getProperty(activity, "target.override") === true;
+      const templateType = ownTemplateType || (overridesTarget ? "" : documentTemplateType);
+      let profile: string;
+      if (templateType === "radius") {
+        profile = DEFAULT_REGION_HIGHLIGHT_PROFILES.aura;
+      } else {
+        const triggers = behaviors.filter((behavior) => behavior.type === "ddbMacro");
+        const applies = behaviors.some((behavior) => behavior.type === "applyActiveEffect");
+        const triggersDamage = triggers.some((behavior) => {
+          const config = (behavior.config ?? {}) as { activity?: string };
+          const target = config.activity ? activities[config.activity] : undefined;
+          return hasDamage(activity) || hasDamage(target);
+        });
+        if (triggersDamage) profile = DEFAULT_REGION_HIGHLIGHT_PROFILES.damage;
+        else if (applies) profile = DEFAULT_REGION_HIGHLIGHT_PROFILES.status;
+        else profile = DEFAULT_REGION_HIGHLIGHT_PROFILES.minimal;
+      }
+      behaviors.push(BehaviorHelper.highlight({ profile }));
+    }
   }
 }

@@ -43,6 +43,13 @@ declare module "fvtt-types/configuration" {
       "activateNote": (note: any, options: Record<string, any>) => boolean | void;
       // client/hooks.mjs
       "applyActiveEffect": (actor: Actor.Implementation, change: any, current: any, delta: any, changes: Record<string, unknown>) => void;
+      // client/canvas/placeables/placeable-object.mjs: draw / refresh / destroy hooks named per document
+      "drawRegion": (region: TCoreRegionPlaceable) => void;
+      "refreshRegion": (region: TCoreRegionPlaceable, flags: Record<string, boolean>) => void;
+      "destroyRegion": (region: TCoreRegionPlaceable) => void;
+      "updateRegion": (document: RegionDocument.Implementation, changed: Record<string, unknown>, options: Record<string, unknown>, userId: string) => void;
+      // lib/RegionHighlightProfiles: the profile store changed
+      "ddb-importer.regionHighlightProfilesChanged": () => void;
 
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet

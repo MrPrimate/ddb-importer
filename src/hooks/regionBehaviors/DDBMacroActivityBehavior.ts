@@ -3,6 +3,8 @@ import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import { resolveRegionActivity } from "../../effects/auras/regionBehaviorUtils";
 import BaseActivityBehavior from "./baseActivityBehavior";
 import { buildMacroBehaviorData, REGION_EVENTS } from "./behaviorData";
+import { createProfilePicker } from "../canvas/regionHighlightPicker";
+import RegionHighlightProfiles from "../../lib/RegionHighlightProfiles";
 
 const { BooleanField, JSONField, SetField, StringField } = foundry.data.fields;
 
@@ -14,7 +16,6 @@ const { BooleanField, JSONField, SetField, StringField } = foundry.data.fields;
  *
  */
 export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
-
   static override LOCALIZATION_PREFIXES = ["ddb-importer.behaviors.macro"];
 
   static override defineSchema() {
@@ -39,6 +40,9 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       macroName: new StringField(),
       macroParameters: new JSONField({ required: false, initial: "{}" }),
       args: new JSONField({ required: false, initial: "{}" }),
+      // the region highlight profile the placed region uses; read by the placement hook,
+      // never by the region behavior (see hooks/canvas/regionHighlightStamp.ts)
+      highlightProfile: new StringField({ required: false, blank: true, initial: "" }),
     };
   }
 
@@ -73,8 +77,11 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       if (this.deleteAfterUse && typeof args.fallbackDuration === "number" && args.fallbackDuration > 0) {
         args.fallbackExpiresAt = game.time.worldTime + args.fallbackDuration;
         const origin = token ?? activity.actor?.token;
-        const combat = origin?.uuid && game.combats.find((entry) => entry.started
-          && entry.combatants.some((combatant) => combatant.token?.uuid === origin.uuid));
+        const combat =
+          origin?.uuid &&
+          game.combats.find(
+            (entry) => entry.started && entry.combatants.some((combatant) => combatant.token?.uuid === origin.uuid),
+          );
         if (combat) args.placementCombatId = combat.id;
       }
       // Owner-turn lifetimes also work with the optional expiry-cleanup enhancer off.
@@ -87,7 +94,8 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     }
     if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
     if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];
-    if ((this.excludeTypes as Set<string> | undefined)?.size) args.excludeTypes = [...(this.excludeTypes as Set<string>)];
+    if ((this.excludeTypes as Set<string> | undefined)?.size)
+      args.excludeTypes = [...(this.excludeTypes as Set<string>)];
     // the default {} means "no override"; only a filled-in value is passed through
     if (!foundry.utils.isEmpty(this.macroParameters)) {
       args.macroParameters = this.macroParameters;
@@ -101,7 +109,10 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
 
   override customizeField(field: any, data: any) {
     if (field.name === "function") {
-      data.options = Object.keys(RegionAutomations.handlers).map((value) => ({ value, label: RegionAutomations.handlerLabel(value) }));
+      data.options = Object.keys(RegionAutomations.handlers).map((value) => ({
+        value,
+        label: RegionAutomations.handlerLabel(value),
+      }));
     } else if (field.name === "events") {
       data.options = REGION_EVENTS.map((value) => ({
         value,
@@ -109,17 +120,32 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       }));
     } else if (field.name === "ownerTurnTargets") {
       data.options = ["region", "none"].map((value) => ({
-        value, label: game.i18n.localize(`ddb-importer.behaviors.macro.ownerTurnTargets.${value}`),
+        value,
+        label: game.i18n.localize(`ddb-importer.behaviors.macro.ownerTurnTargets.${value}`),
       }));
     } else if (field.name === "sizes") {
-      data.options = Object.entries(CONFIG.DND5E.actorSizes as Record<string, { label: string }>)
-        .map(([value, config]) => ({ value, label: game.i18n.localize(config.label) }));
+      data.options = Object.entries(CONFIG.DND5E.actorSizes as Record<string, { label: string }>).map(
+        ([value, config]) => ({ value, label: game.i18n.localize(config.label) }),
+      );
     } else if (field.name === "types" || field.name === "excludeTypes") {
-      data.options = Object.entries(CONFIG.DND5E.creatureTypes as Record<string, { label: string }>)
-        .map(([value, config]) => ({ value, label: game.i18n.localize(config.label) }));
+      data.options = Object.entries(CONFIG.DND5E.creatureTypes as Record<string, { label: string }>).map(
+        ([value, config]) => ({ value, label: game.i18n.localize(config.label) }),
+      );
+    } else if (field.name === "highlightProfile") {
+      // hidden while the profiles are switched off; the stored value is kept for when they return
+      if (!RegionHighlightProfiles.enabled) return false;
+      data.input = (_field: unknown, config: { name: string; value?: unknown }) =>
+        createProfilePicker({
+          name: config.name,
+          value: config.value,
+          blank: game.i18n.localize("ddb-importer.behaviors.highlight.noProfile"),
+        });
     } else if (field.name === "activity") {
-      const activities = (this.parent as { item?: { system?: { activities?: Iterable<{ id?: string; _id?: string; name?: string; type?: string }> } } } | null)
-        ?.item?.system?.activities;
+      const activities = (
+        this.parent as {
+          item?: { system?: { activities?: Iterable<{ id?: string; _id?: string; name?: string; type?: string }> } };
+        } | null
+      )?.item?.system?.activities;
       data.options = [
         { value: "", label: game.i18n.localize("ddb-importer.behaviors.macro.placingActivity") },
         ...[...(activities ?? [])].map((activity) => ({
@@ -129,5 +155,4 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       ];
     }
   }
-
 }

@@ -65,9 +65,14 @@ global {
     types?: string[];
   }
 
+  /** ddb-importer's `ddbHighlight` activity behavior: the region highlight profile the placed region uses. */
+  interface I5eActivityBehaviorHighlightConfig extends Omit<IRegionHighlightFlag, "profile"> {
+    profile: string;
+  }
+
   interface I5eActivityBehavior {
     _id?: string;
-    type: "applyActiveEffect" | "difficultTerrain" | "ddbMacro";
+    type: "applyActiveEffect" | "difficultTerrain" | "ddbMacro" | "ddbHighlight";
     name?: string;
     ddbimporter?: {
       auraeffectsOnly?: boolean;
@@ -79,7 +84,7 @@ global {
       min?: number | null;
       max?: number | null;
     };
-    config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig | I5eActivityBehaviorMacroConfig;
+    config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig | I5eActivityBehaviorMacroConfig | I5eActivityBehaviorHighlightConfig;
   }
 
   /** ddb-importer's `ddbMacro` activity behavior: run a RegionAutomations handler on core region events. */
@@ -120,6 +125,8 @@ global {
     macroParameters?: string;
     /** Extra handler arguments (e.g. activityName, custom handler data), merged under the structured fields. */
     args?: Record<string, unknown>;
+    /** Region highlight profile id for the region this trigger is placed on; blank for the Foundry look. */
+    highlightProfile?: string;
   }
 
   interface IMidiActivityProperties {

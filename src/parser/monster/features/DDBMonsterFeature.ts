@@ -1667,6 +1667,7 @@ ${this.data.system.description.value}
     this._activityEffectLinking();
     this.#scopeDamageModeEffects();
     this._activityBehaviorNaming();
+    this._activityHighlightDefaults();
 
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }

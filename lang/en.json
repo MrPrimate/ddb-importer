@@ -42,6 +42,8 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "enable-region-highlight-profiles.name": "Enable Region Highlight Profiles",
+      "enable-region-highlight-profiles.hint": "Draw aura and area-template regions with DDB Importer's highlight profiles (opacity, pattern, lines, border). Disabling leaves every region to Foundry's own highlight, removes the DDB Importer Appearance behavior and the Region config fieldset, and stops imports adding appearance behaviors. All connected clients must reload.",
       "enable-ddb-macro-region-behaviors.name": "Enable DDB Importer Region Automation",
       "enable-ddb-macro-region-behaviors.hint": "Enable DDB Importer region triggers and their supporting hooks. Disabling prevents new DDB triggers and stops existing ones. Native 5e region effects and terrain are unaffected. All connected clients must reload.",
       "stickers-upload-path.name": "DDB Stickers upload directory",
@@ -116,6 +118,9 @@
       "use-loose-srd-reference-matching.hint": "Attempt to match any references to SRD rules, may result in some false positives",
       "setup.name": "Core setup",
       "setup.hint": "Core setup options",
+      "region-highlight-profiles.name": "Region Highlight Profiles",
+      "region-highlight-profiles.label": "Edit Profiles",
+      "region-highlight-profiles.hint": "Build the appearance profiles (opacity, line spacing, fill pattern) that auras and area templates can use, chosen per activity in its Area of Effect Behaviors or per region in the Region config.",
       "compendium-setup.name": "Compendiums",
       "compendium-setup.hint": "Configure compendiums to use",
       "folder-setup.name": "Directory Locations",
@@ -277,9 +282,71 @@
       }
     },
     "behaviors": {
+      "highlight": {
+        "Label": "DDB Importer Appearance",
+        "noProfile": "None (Foundry default)",
+        "profileDefault": "Profile default",
+        "dashed": "Dashed",
+        "continuous": "Continuous",
+        "border": "Border",
+        "noBorder": "No border",
+        "FIELDS": {
+          "profile": {
+            "label": "Highlight Profile",
+            "hint": "How the region this activity places is drawn: opacity, spacing and fill pattern. Use the gear to build or tune profiles."
+          },
+          "pattern": {
+            "label": "Pattern Override"
+          },
+          "opacity": {
+            "label": "Opacity Override",
+            "hint": "0 to 1; blank takes the profile's value."
+          },
+          "spacing": {
+            "label": "Spacing Override",
+            "hint": "Distance between lines or dots in grid squares; blank takes the profile's value."
+          },
+          "thickness": {
+            "label": "Thickness Override",
+            "hint": "Share of the spacing that is ink, 0 to 1; blank takes the profile's value."
+          },
+          "edgeWidth": {
+            "label": "Edge Width Override",
+            "hint": "Band width for the Edge Band pattern in grid squares; blank takes the profile's value."
+          },
+          "dashed": {
+            "label": "Lines Override",
+            "hint": "Dashed or continuous lines for the line patterns; Profile default takes the profile's value."
+          },
+          "dashLength": {
+            "label": "Dash Length Override",
+            "hint": "Length of each dash (and its gap) in grid squares; blank takes the profile's value."
+          },
+          "angle": {
+            "label": "Line Angle Override",
+            "hint": "Direction the lines face in degrees (45 is Foundry's diagonal); blank takes the profile's value."
+          },
+          "border": {
+            "label": "Border Override",
+            "hint": "A band inside the region's edge on top of the fill; Profile default takes the profile's value."
+          },
+          "borderWidth": {
+            "label": "Border Width Override",
+            "hint": "Width of the border band in grid squares; blank takes the profile's value."
+          },
+          "color": {
+            "label": "Colour Override",
+            "hint": "Blank takes the profile's colour, or the region's own."
+          }
+        }
+      },
       "macro": {
         "Label": "DDB Importer Trigger",
         "FIELDS": {
+          "highlightProfile": {
+            "label": "Highlight Profile",
+            "hint": "How the region this trigger is placed on is drawn. A DDB Importer Appearance behavior on the same activity takes precedence."
+          },
           "function": {
             "label": "Custom Handler",
             "hint": "Handler in DDBImporter.effects.AuraAutomations.handlers. Use Activity uses the activity that placed this region (or one named in Handler Arguments) against each token that triggers the chosen events."

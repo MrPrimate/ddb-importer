@@ -28,7 +28,8 @@ describe("region automation registration", () => {
     OwnerTurnRegions.registerHooks();
     RegionTargetPrompt.registerSocket({ register } as unknown as DDBSocket);
     await pruneRegionTurnFlags();
-    expect(CONFIG.DND5E.activityBehaviorTypes).toEqual(native);
+    // the appearance behavior is not automation and registers regardless of the automation master switch
+    expect(Object.keys(CONFIG.DND5E.activityBehaviorTypes).sort()).toEqual(["applyActiveEffect", "ddbHighlight", "difficultTerrain"]);
     expect(on).not.toHaveBeenCalled();
     expect(register).not.toHaveBeenCalled();
     expect(prune).not.toHaveBeenCalled();
@@ -42,10 +43,18 @@ describe("region automation registration", () => {
     addRegionBehaviorHooks();
     RegionTargetPrompt.registerSocket({ register } as unknown as DDBSocket);
     expect(CONFIG.DND5E.activityBehaviorTypes).toHaveProperty("ddbMacro");
+    expect(CONFIG.DND5E.activityBehaviorTypes).toHaveProperty("ddbHighlight");
     expect(on).toHaveBeenCalledWith("combatTurnChange", expect.any(Function));
     expect(on).toHaveBeenCalledWith("dnd5e.preCreateCombatMessage", expect.any(Function));
     expect(on).toHaveBeenCalledWith("deleteRegion", expect.any(Function));
     expect(register).toHaveBeenCalledWith("regionTargetPrompt", expect.any(Function));
     expect(register).toHaveBeenCalledWith("cancelRegionTargetPrompt", expect.any(Function));
+  });
+
+  it("leaves the appearance behavior out when the highlight profiles are switched off", () => {
+    setMockSettings({ "enable-ddb-macro-region-behaviors": true, "enable-region-highlight-profiles": false });
+    vi.stubGlobal("CONFIG", { ...CONFIG, DND5E: { ...CONFIG.DND5E, activityBehaviorTypes: {} } });
+    addRegionBehaviorHooks();
+    expect(Object.keys(CONFIG.DND5E.activityBehaviorTypes)).toEqual(["ddbMacro"]);
   });
 });
