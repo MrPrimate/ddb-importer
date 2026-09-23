@@ -1059,7 +1059,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
     this._activityBehaviorNaming();
-    this._activityHighlightDefaults();
+    this._activityDisplayDefaults();
   }
 
   _addCustomValues() {

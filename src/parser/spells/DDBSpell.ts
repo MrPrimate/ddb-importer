@@ -959,7 +959,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     AutoEffects.markMagical(this.data);
     this._activityEffectLinking();
     this._activityBehaviorNaming();
-    this._activityHighlightDefaults();
+    this._activityDisplayDefaults();
   }
 
   #addHealAdditionalActivities() {

@@ -166,8 +166,8 @@ declare global {
     "ddb-importer.enable-ddb-macro-region-behaviors": boolean;
     "ddb-importer.add-ddb-macro-region-behaviors": boolean;
     "ddb-importer.enable-region-expiry-cleanup": boolean;
-    "ddb-importer.enable-region-highlight-profiles": boolean;
-    "ddb-importer.region-highlight-profiles": Record<string, Omit<IRegionHighlightProfile, "builtin">>;
+    "ddb-importer.enable-region-display-profiles": boolean;
+    "ddb-importer.region-display-profiles": Record<string, Omit<IRegionDisplayProfile, "builtin">>;
     "ddb-importer.add-ddb-snippets-to-activities": boolean;
     "ddb-importer.developer-mode": boolean;
     "ddb-importer.add-ddb-languages": boolean;

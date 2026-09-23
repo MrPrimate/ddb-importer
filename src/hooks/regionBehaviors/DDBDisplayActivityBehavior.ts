@@ -1,31 +1,32 @@
-import { REGION_HIGHLIGHT_LIMITS } from "../../config/regionHighlightProfiles";
+import { REGION_DISPLAY_FIELDS, REGION_DISPLAY_I18N, REGION_DISPLAY_LIMITS } from "../../config/regionDisplayProfiles";
 import {
+  BEHAVIOR_CONFIGURE_CLASS,
   behaviorConfigFromFlag,
-  buildHighlightSummaryRow,
+  buildDisplaySummaryRow,
   flagFromBehaviorConfig,
-  REGION_HIGHLIGHT_FALLBACK_COLOR,
-  REGION_HIGHLIGHT_FLAG_KEYS,
-  REGION_HIGHLIGHT_NUMERIC_OVERRIDES,
-} from "../canvas/regionHighlightSummary";
+  REGION_DISPLAY_FLAG_KEYS,
+  userPreviewColor,
+} from "../canvas/regionDisplaySummary";
 import BaseActivityBehavior from "./baseActivityBehavior";
-
-/** The class the delegated click handler looks for (hooks/canvas/regionHighlightBehaviorConfigure.ts). */
-const CONFIGURE_CLASS = "ddbi-highlight-behavior-configure";
 
 const { ColorField, NumberField, StringField } = foundry.data.fields;
 
 /**
- * Activity behavior that only carries an appearance: which region highlight profile the
+ * Activity behavior that only carries a region display: which display profile the
  * regions this activity places should use, with optional per-activity overrides. It
  * creates no RegionBehavior; the placement hook copies the choice onto the region flag
- * (see hooks/canvas/regionHighlightStamp.ts) before the region exists.
+ * (see hooks/canvas/regionDisplayStamp.ts) before the region exists.
  */
-export default class DDBHighlightActivityBehavior extends BaseActivityBehavior {
-  static override LOCALIZATION_PREFIXES = ["ddb-importer.behaviors.highlight"];
+export default class DDBDisplayActivityBehavior extends BaseActivityBehavior {
+  static override LOCALIZATION_PREFIXES = [REGION_DISPLAY_I18N];
 
   static override defineSchema() {
-    const optional = (key: keyof typeof REGION_HIGHLIGHT_LIMITS) =>
-      new NumberField({ required: false, nullable: true, initial: null, ...REGION_HIGHLIGHT_LIMITS[key] });
+    // min and max only: a NumberField rounds to its step on clean, which would turn the
+    // spacing for three symbols per square (0.3333) into 0.35
+    const optional = (key: keyof typeof REGION_DISPLAY_LIMITS) => {
+      const { min, max } = REGION_DISPLAY_LIMITS[key];
+      return new NumberField({ required: false, nullable: true, initial: null, min, max });
+    };
     return {
       profile: new StringField({ required: true, blank: true, initial: "" }),
       pattern: new StringField({ required: false, blank: true, initial: "" }),
@@ -38,20 +39,25 @@ export default class DDBHighlightActivityBehavior extends BaseActivityBehavior {
       dashed: new StringField({ required: false, blank: true, initial: "" }),
       dashLength: optional("dashLength"),
       angle: optional("angle"),
+      crossRotation: optional("crossRotation"),
+      crossLength: optional("crossLength"),
+      waveAmplitude: optional("waveAmplitude"),
+      waveLength: optional("waveLength"),
+      offset: optional("offset"),
       border: new StringField({ required: false, blank: true, initial: "" }),
       borderWidth: optional("borderWidth"),
       color: new ColorField({ required: false, nullable: true, initial: null }),
     };
   }
 
-  /** Appearance only: nothing to run on the region. */
+  /** Display only: nothing to run on the region. */
   override createBehaviorData(_activity: unknown, _options: { token?: unknown } = {}): false {
     return false;
   }
 
   /**
    * The whole config renders as one row on the `profile` field: a swatch, the summary and a
-   * Configure button that opens the region texture editor. dnd5e rebuilds the behaviors
+   * Configure button that opens the region display editor. dnd5e rebuilds the behaviors
    * array from the sheet's form on every submit, so every other field rides along as a
    * hidden input (blank numbers read back as null through `data-dtype`), and the editor
    * writes the activity itself.
@@ -64,20 +70,16 @@ export default class DDBHighlightActivityBehavior extends BaseActivityBehavior {
       const stored = behaviorConfigFromFlag(flagFromBehaviorConfig(source));
       stored.profile = typeof config.value === "string" ? config.value : stored.profile;
       const wrapper = document.createElement("div");
-      wrapper.classList.add("ddbi-highlight-behavior");
-      const userColor =
-        typeof game.user?.color === "string" && game.user.color
-          ? String(game.user.color)
-          : REGION_HIGHLIGHT_FALLBACK_COLOR;
+      wrapper.classList.add("ddbi-display-region-behavior");
       wrapper.append(
-        buildHighlightSummaryRow({
+        buildDisplaySummaryRow({
           flag: flagFromBehaviorConfig(stored),
-          color: userColor,
-          buttonClass: CONFIGURE_CLASS,
+          color: userPreviewColor(),
+          buttonClass: BEHAVIOR_CONFIGURE_CLASS,
         }),
       );
-      const numeric = new Set<string>(REGION_HIGHLIGHT_NUMERIC_OVERRIDES.map((entry) => entry.key));
-      for (const key of REGION_HIGHLIGHT_FLAG_KEYS) {
+      const numeric = new Set<string>(REGION_DISPLAY_FIELDS.map((entry) => entry.key));
+      for (const key of REGION_DISPLAY_FLAG_KEYS) {
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = `${prefix}${key}`;

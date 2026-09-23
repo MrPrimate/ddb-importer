@@ -748,7 +748,7 @@ ${this.data.system.description.value}
 
     this._activityEffectLinking();
     this._activityBehaviorNaming();
-    this._activityHighlightDefaults();
+    this._activityDisplayDefaults();
 
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }

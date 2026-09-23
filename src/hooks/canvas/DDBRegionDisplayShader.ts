@@ -1,3 +1,4 @@
+import { REGION_DISPLAY_PATTERN_IDS } from "../../config/regionDisplayProfiles";
 import logger from "../../lib/Logger";
 
 /**
@@ -11,8 +12,8 @@ import logger from "../../lib/Logger";
  */
 
 /** Uniforms the pattern shader adds to the core highlight shader's own. */
-export const DDB_HIGHLIGHT_UNIFORMS = {
-  /** REGION_HIGHLIGHT_PATTERN_IDS value. */
+export const DDB_DISPLAY_UNIFORMS = {
+  /** REGION_DISPLAY_PATTERN_IDS value. */
   pattern: 0,
   /** Pattern period in canvas pixels. */
   period: 12,
@@ -26,6 +27,15 @@ export const DDB_HIGHLIGHT_UNIFORMS = {
   dashPeriod: 50,
   /** Direction the stripes face, in radians; PI / 4 is Foundry's diagonal. */
   angle: Math.PI / 4,
+  /** Clockwise rotation of each cross about its centre, in radians. */
+  crossRotation: 0,
+  /** Cross arm length multiplier, independent of arm width. */
+  crossLength: 1,
+  /** Wave amplitude and wavelength, measured in pattern periods. */
+  waveAmplitude: 0.25,
+  waveLength: 1,
+  /** Shift of the pattern coordinates, in periods; 0.5 moves symbols from cell centres to cell corners. */
+  patternOffset: 0,
 } as const;
 
 /**
@@ -66,6 +76,7 @@ export function buildVertexShader(precision: string, fragmentPrecision: string, 
     uniform ${fragmentPrecision} float period;
     uniform ${fragmentPrecision} float dashPeriod;
     uniform float angle;
+    uniform float patternOffset;
 
     varying vec2 vCanvasCoord; // normalized canvas coordinates
     varying vec2 vSceneCoord; // normalized scene coordinates
@@ -87,11 +98,28 @@ export function buildVertexShader(precision: string, fragmentPrecision: string, 
       vec2 t = vec2(-n.y, n.x);
       float safePeriod = max(period, 1.0);
       float safeDash = max(dashPeriod, 1.0);
-      vStripe = vec2(dot(pixelCoord, n), dot(pixelCoord, t)) / safePeriod;
+      // the offset moves every pattern towards its origin by a share of the period, so 0.5
+      // puts symbol centres and line centres on the grid lines instead of between them
+      vStripe = vec2(dot(pixelCoord, n), dot(pixelCoord, t)) / safePeriod + patternOffset;
       vDash = vec2(dot(pixelCoord, t), dot(pixelCoord, n)) / safeDash;
-      vCell = pixelCoord / safePeriod;
+      vCell = pixelCoord / safePeriod + patternOffset;
     }
   `;
+}
+
+/** The GLSL name of a pattern's id: `hollowDots` is `PATTERN_HOLLOW_DOTS`. */
+export function patternDefineName(pattern: TRegionDisplayPattern): string {
+  return `PATTERN_${pattern.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
+}
+
+/**
+ * One `#define` per fill pattern, generated from REGION_DISPLAY_PATTERN_IDS so the shader
+ * branches on the same numbers `applyStyle` writes into the `pattern` uniform.
+ */
+export function patternDefines(): string {
+  return Object.entries(REGION_DISPLAY_PATTERN_IDS)
+    .map(([pattern, id]) => `#define ${patternDefineName(pattern as TRegionDisplayPattern)} ${id}`)
+    .join("\n");
 }
 
 /**
@@ -105,6 +133,8 @@ export function buildFragmentShader(precision: string, constants: string): strin
 
     ${constants}
 
+${patternDefines()}
+
     varying vec2 vStripe;
     varying vec2 vDash;
     varying vec2 vCell;
@@ -116,6 +146,10 @@ export function buildFragmentShader(precision: string, constants: string): strin
     uniform ${precision} float period;
     uniform float thickness;
     uniform float gapOpacity;
+    uniform float crossRotation;
+    uniform float crossLength;
+    uniform float waveAmplitude;
+    uniform float waveLength;
     uniform bool dashed;
     uniform ${precision} float dashPeriod;
 
@@ -126,30 +160,68 @@ export function buildFragmentShader(precision: string, constants: string): strin
       return 1.0 - smoothstep(thickness * 0.5 - aa, thickness * 0.5 + aa, d);
     }
 
-    // 1.0 for the first half of each dash period along the stripe, 0.0 for the gap
+    // 1.0 for a dash centred on each period boundary along the stripe, 0.0 for the gap
     float dash(float along, float aa) {
       if ( !dashed ) return 1.0;
       float d = abs(fract(along) - 0.5);
       return smoothstep(0.25 - aa, 0.25 + aa, d);
     }
 
+    float crossDistance(vec2 cell, float radius, float arm) {
+      cell = abs(cell);
+      return min(max(cell.x - radius, cell.y - arm), max(cell.x - arm, cell.y - radius));
+    }
+
     void main() {
       gl_FragColor = tintAlpha;
       if ( !hatchEnabled ) return;
-      if ( pattern == 1 || pattern == 4 ) return;
+      if ( pattern == PATTERN_SOLID || pattern == PATTERN_EDGE ) return;
       float safePeriod = max(period, 1.0);
       float aa = 1.0 / max(safePeriod * resolution, 1.0);
       float ink = 0.0;
-      if ( pattern == 3 || pattern == 5 || pattern == 6 ) {
+      if ( pattern == PATTERN_DOTS || pattern == PATTERN_HOLLOW_DOTS || pattern == PATTERN_DIAMONDS ) {
         vec2 cell = fract(vCell) - 0.5;
         float radius = thickness * 0.5;
-        float dist = pattern == 6 ? abs(cell.x) + abs(cell.y) : length(cell);
+        float dist = pattern == PATTERN_DIAMONDS ? abs(cell.x) + abs(cell.y) : length(cell);
         ink = 1.0 - smoothstep(radius - aa, radius + aa, dist);
-        if ( pattern == 5 ) ink *= smoothstep(radius * 0.6 - aa, radius * 0.6 + aa, dist);
+        if ( pattern == PATTERN_HOLLOW_DOTS ) ink *= smoothstep(radius * 0.6 - aa, radius * 0.6 + aa, dist);
+      } else if ( pattern == PATTERN_CROSSES ) {
+        vec2 axisX = vec2(cos(crossRotation), -sin(crossRotation));
+        vec2 axisY = vec2(-axisX.y, axisX.x);
+        vec2 cell = mat2(axisX, axisY) * (fract(vCell) - 0.5);
+        float radius = thickness * 0.5 * crossLength;
+        float arm = thickness / 6.0;
+        float dist = crossDistance(cell, radius, arm);
+        // Long, rotated arms can reach diagonal cells and cells two steps away.
+        // The supported length (at most three periods) fits within this neighbourhood.
+        for ( int x = -2; x <= 2; x++ ) {
+          for ( int y = -2; y <= 2; y++ ) {
+            dist = min(dist, crossDistance(cell + float(x) * axisX + float(y) * axisY, radius, arm));
+          }
+        }
+        ink = 1.0 - smoothstep(-aa, aa, dist);
+      } else if ( pattern == PATTERN_CHECKERBOARD ) {
+        // Each period is one square. Fade parity towards the shared edge to anti-alias
+        // neighbouring squares without seams, including where four squares meet.
+        vec2 cell = fract(vCell);
+        vec2 edge = min(cell, 1.0 - cell);
+        vec2 parity = (1.0 - 2.0 * mod(floor(vCell), 2.0)) * smoothstep(vec2(0.0), vec2(aa), edge);
+        ink = 0.5 + 0.5 * parity.x * parity.y;
       } else {
         float dashAa = aa * safePeriod / max(dashPeriod, 1.0);
-        ink = stripe(vStripe.x, aa) * dash(vDash.x, dashAa);
-        if ( pattern == 2 ) ink = max(ink, stripe(vStripe.y, aa) * dash(vDash.y, dashAa));
+        if ( pattern == PATTERN_WAVES || pattern == PATTERN_CHEVRONS ) {
+          // Wavelength scales only the along-line coordinate, leaving band spacing and
+          // dash length independent. Slope keeps anti-aliasing tied to screen pixels.
+          float wavelength = pattern == PATTERN_WAVES ? max(waveLength, 0.25) : 1.0;
+          float phase = fract(vStripe.y / wavelength);
+          float offset = pattern == PATTERN_WAVES ? waveAmplitude * sin(phase * 6.28318530718) : abs(phase - 0.5) - 0.25;
+          float slope = pattern == PATTERN_WAVES ? waveAmplitude * 6.28318530718 / wavelength * cos(phase * 6.28318530718) : 1.0;
+          ink = thickness >= 1.0 ? 1.0 : stripe(vStripe.x - offset, aa * sqrt(1.0 + slope * slope));
+          ink *= dash(vDash.x, dashAa);
+        } else {
+          ink = stripe(vStripe.x, aa) * dash(vDash.x, dashAa);
+        }
+        if ( pattern == PATTERN_CROSSHATCH ) ink = max(ink, stripe(vStripe.y, aa) * dash(vDash.y, dashAa));
       }
       gl_FragColor *= mix(gapOpacity, 1.0, ink);
     }
@@ -245,7 +317,7 @@ let cached: TCoreShaderClass | null = null;
 let unavailable = false;
 
 /** For tests: forget the cached class and any recorded failure. */
-export function resetDDBHighlightShaderClass(): void {
+export function resetDDBDisplayShaderClass(): void {
   cached = null;
   unavailable = false;
 }
@@ -255,7 +327,7 @@ export function resetDDBHighlightShaderClass(): void {
  * loaded or the class failed its checks: the core sources must still carry the names we
  * depend on, and the program must compile and link on the live context.
  */
-export function getDDBHighlightShaderClass({
+export function getDDBDisplayShaderClass({
   gl = liveContext(),
 }: { gl?: IShaderCompileContext | null } = {}): TCoreShaderClass | null {
   if (cached) return cached;
@@ -272,7 +344,7 @@ export function getDDBHighlightShaderClass({
   if (missing.length > 0) {
     unavailable = true;
     logger.warn(
-      "Region highlight profiles disabled: Foundry's HighlightRegionShader no longer declares " +
+      "Region display profiles disabled: Foundry's HighlightRegionShader no longer declares " +
         `${missing.join(", ")}; regions keep the core highlight until the module is updated`,
     );
     return null;
@@ -287,17 +359,17 @@ export function getDDBHighlightShaderClass({
     if (!result.ok) {
       unavailable = true;
       logger.warn(
-        `Region highlight profiles disabled: the pattern shader did not compile (${result.error}); ` +
+        `Region display profiles disabled: the pattern shader did not compile (${result.error}); ` +
           "regions keep the core highlight",
       );
       return null;
     }
   }
 
-  class DDBHighlightRegionShader extends Base {
+  class DDBRegionDisplayShader extends Base {
     static override defaultUniforms = {
       ...Base.defaultUniforms,
-      ...DDB_HIGHLIGHT_UNIFORMS,
+      ...DDB_DISPLAY_UNIFORMS,
     };
 
     static override _createVertexShader(): string {
@@ -309,6 +381,6 @@ export function getDDBHighlightShaderClass({
     }
   }
 
-  cached = DDBHighlightRegionShader as unknown as TCoreShaderClass;
+  cached = DDBRegionDisplayShader as unknown as TCoreShaderClass;
   return cached;
 }

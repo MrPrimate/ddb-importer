@@ -259,8 +259,8 @@ global {
     /** Regions placed from activities (dnd5e 6.0 templates are Regions). */
     Region: {
       ddbimporter?: {
-        /** The highlight appearance (hooks/canvas/regionHighlight.ts); absent = the Foundry look. */
-        highlight?: IRegionHighlightFlag;
+        /** The region display choice (hooks/canvas/regionDisplay.ts); absent = the Foundry look. */
+        display?: IRegionDisplayFlag;
       };
       dnd5e?: {
         activity?: string;

@@ -1,0 +1,248 @@
+<section class="ddbi-display-profiles-body">
+  <aside class="ddbi-display-region-list">
+    <header>
+      <span>Profiles</span>
+      <button type="button" class="unbutton" data-action="createProfile" data-tooltip="New profile" aria-label="New profile">
+        <i class="fa-solid fa-plus" inert></i>
+      </button>
+    </header>
+    <ul class="unlist">
+      {{#each profiles}}
+      <li class="ddbi-display-region-entry {{#if selected}}active{{/if}}" data-action="selectProfile" data-profile-id="{{id}}">
+        <span class="ddbi-display-region-swatch" style="{{swatchStyle}}"><span class="ddbi-display-region-fill"></span></span>
+        <span class="ddbi-display-region-name">{{name}}</span>
+        {{#if builtin}}<span class="ddbi-display-region-badge">{{#if overridden}}modified{{else}}built-in{{/if}}</span>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </aside>
+
+  <div class="ddbi-display-region-editor">
+    {{#if draft}}
+    <div class="ddbi-display-region-preview-row">
+      <div class="ddbi-display-region-preview-frame large" data-tooltip="One grid square, enlarged">
+        <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}"><span class="ddbi-display-region-fill"></span></div>
+      </div>
+      <div class="ddbi-display-region-preview-frame" data-tooltip="Several grid squares at a smaller scale">
+        <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}"><span class="ddbi-display-region-fill"></span></div>
+      </div>
+    </div>
+    <p class="hint">The previews approximate the canvas: the square on the left is one grid square enlarged, the strip shows several at a smaller scale. Selected and hovered regions always render solid, as Foundry does.</p>
+
+    <div class="form-group">
+      <label>Name</label>
+      <div class="form-fields">
+        <input type="text" name="name" value="{{draft.name}}" {{#if isBuiltin}}readonly{{/if}} />
+      </div>
+      {{#if isBuiltin}}<p class="hint">Shipped profile: its name and id stay fixed so imports keep finding it; every other setting can be changed.</p>{{else}}<p class="hint">Id: <code>{{draft.id}}</code></p>{{/if}}
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.pattern.label"}}</label>
+      <div class="form-fields">
+        <select name="pattern">
+          {{#each patternOptions}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    {{#if fields.opacity.visible}}
+    <div class="form-group">
+      <label>{{fields.opacity.label}}</label>
+      <div class="form-fields">
+        <range-picker name="opacity" value="{{draft.opacity}}" min="{{limits.opacity.min}}" max="{{limits.opacity.max}}" step="{{limits.opacity.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.opacity.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.gapOpacity.visible}}
+    <div class="form-group">
+      <label>{{fields.gapOpacity.label}}</label>
+      <div class="form-fields">
+        <range-picker name="gapOpacity" value="{{draft.gapOpacity}}" min="{{limits.gapOpacity.min}}" max="{{limits.gapOpacity.max}}" step="{{limits.gapOpacity.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.gapOpacity.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.spacing.visible}}
+    <div class="form-group">
+      <label>{{fields.spacing.label}}</label>
+      <div class="form-fields">
+        <range-picker name="spacing" value="{{draft.spacing}}" min="{{limits.spacing.min}}" max="{{limits.spacing.max}}" step="{{spacingStep}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.spacing.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.spacing.visible}}
+    <div class="form-group">
+      <label>Per Square</label>
+      <div class="form-fields">
+        <input type="number" name="perSquare" value="{{perSquare}}" min="1" max="20" step="1" placeholder="any" />
+      </div>
+      <p class="hint">How many lines or symbols fit across one grid square; entering a count sets the spacing so they space evenly. Blank when the spacing is not a whole number per square.</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.thickness.visible}}
+    <div class="form-group">
+      <label>{{fields.thickness.label}}</label>
+      <div class="form-fields">
+        <range-picker name="thickness" value="{{draft.thickness}}" min="{{limits.thickness.min}}" max="{{limits.thickness.max}}" step="{{limits.thickness.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.thickness.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.offset.visible}}
+    <div class="form-group">
+      <label>{{fields.offset.label}}</label>
+      <div class="form-fields">
+        <range-picker name="offset" value="{{draft.offset}}" min="{{limits.offset.min}}" max="{{limits.offset.max}}" step="{{limits.offset.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.offset.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.crossLength.visible}}
+    <div class="form-group">
+      <label>{{fields.crossLength.label}}</label>
+      <div class="form-fields">
+        <range-picker name="crossLength" value="{{draft.crossLength}}" min="{{limits.crossLength.min}}" max="{{limits.crossLength.max}}" step="{{limits.crossLength.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.crossLength.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.crossRotation.visible}}
+    <div class="form-group">
+      <label>{{fields.crossRotation.label}}</label>
+      <div class="form-fields">
+        <range-picker name="crossRotation" value="{{draft.crossRotation}}" min="{{limits.crossRotation.min}}" max="{{limits.crossRotation.max}}" step="{{limits.crossRotation.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.crossRotation.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.waveAmplitude.visible}}
+    <div class="form-group">
+      <label>{{fields.waveAmplitude.label}}</label>
+      <div class="form-fields">
+        <range-picker name="waveAmplitude" value="{{draft.waveAmplitude}}" min="{{limits.waveAmplitude.min}}" max="{{limits.waveAmplitude.max}}" step="{{limits.waveAmplitude.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.waveAmplitude.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.waveLength.visible}}
+    <div class="form-group">
+      <label>{{fields.waveLength.label}}</label>
+      <div class="form-fields">
+        <range-picker name="waveLength" value="{{draft.waveLength}}" min="{{limits.waveLength.min}}" max="{{limits.waveLength.max}}" step="{{limits.waveLength.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.waveLength.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.angle.visible}}
+    <div class="form-group">
+      <label>{{fields.angle.label}}</label>
+      <div class="form-fields">
+        <range-picker name="angle" value="{{draft.angle}}" min="{{limits.angle.min}}" max="{{limits.angle.max}}" step="{{limits.angle.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.angle.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if showDashed}}
+    <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.dashed.label"}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="dashed" {{#if draft.dashed}}checked{{/if}} /> Break the lines into dashes</label>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if fields.dashLength.visible}}
+    <div class="form-group">
+      <label>{{fields.dashLength.label}}</label>
+      <div class="form-fields">
+        <range-picker name="dashLength" value="{{draft.dashLength}}" min="{{limits.dashLength.min}}" max="{{limits.dashLength.max}}" step="{{limits.dashLength.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.dashLength.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if showBorder}}
+    <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.border.label"}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="border" {{#if draft.border}}checked{{/if}} /> Draw a band inside the edge</label>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if fields.borderWidth.visible}}
+    <div class="form-group">
+      <label>{{fields.borderWidth.label}}</label>
+      <div class="form-fields">
+        <range-picker name="borderWidth" value="{{draft.borderWidth}}" min="{{limits.borderWidth.min}}" max="{{limits.borderWidth.max}}" step="{{limits.borderWidth.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.borderWidth.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.edgeWidth.visible}}
+    <div class="form-group">
+      <label>{{fields.edgeWidth.label}}</label>
+      <div class="form-fields">
+        <range-picker name="edgeWidth" value="{{draft.edgeWidth}}" min="{{limits.edgeWidth.min}}" max="{{limits.edgeWidth.max}}" step="{{limits.edgeWidth.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.edgeWidth.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.borderOpacity.visible}}
+    <div class="form-group">
+      <label>{{fields.borderOpacity.label}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="matchFillOpacity" {{#if matchFillOpacity}}checked{{/if}} /> Match fill opacity</label>
+      </div>
+    </div>
+    {{#unless matchFillOpacity}}
+    <div class="form-group">
+      <label>{{fields.borderOpacity.label}}</label>
+      <div class="form-fields">
+        <range-picker name="borderOpacity" value="{{borderOpacityValue}}" min="{{limits.borderOpacity.min}}" max="{{limits.borderOpacity.max}}" step="{{limits.borderOpacity.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.borderOpacity.hint}}</p>
+    </div>
+    {{/unless}}
+    {{/if}}
+
+    <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.color.label"}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="useRegionColor" {{#if useRegionColor}}checked{{/if}} /> Use the region's colour</label>
+        {{#unless useRegionColor}}
+        <color-picker name="color" value="{{colorValue}}"></color-picker>
+        {{/unless}}
+      </div>
+    </div>
+
+    <footer class="ddbi-display-region-actions">
+      <button type="button" class="munch-button" data-action="saveProfile"><i class="fas fa-save"></i> {{#if isNew}}Create{{else}}Save{{/if}}</button>
+      <button type="button" class="munch-button" data-action="duplicateProfile"><i class="fas fa-copy"></i> Duplicate</button>
+      {{#if canReset}}<button type="button" class="munch-button" data-action="resetProfile"><i class="fas fa-rotate-left"></i> Reset to Shipped</button>{{/if}}
+      {{#if canDelete}}<button type="button" class="munch-button" data-action="deleteProfile"><i class="fas fa-trash"></i> Delete</button>{{/if}}
+      <button type="button" class="munch-button" data-action="closeApp"><i class="fas fa-times"></i> Close</button>
+    </footer>
+    {{else}}
+    <p class="hint">Select a profile on the left, or create a new one.</p>
+    {{/if}}
+  </div>
+</section>

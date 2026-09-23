@@ -1,15 +1,15 @@
-import DDBRegionHighlightConfig from "../../apps/DDBRegionHighlightConfig";
+import DDBRegionDisplayConfig from "../../apps/DDBRegionDisplayConfig";
+import { REGION_DISPLAY_LOG } from "../../config/regionDisplayProfiles";
 import logger from "../../lib/Logger";
+import { BEHAVIOR_CONFIGURE_CLASS } from "./regionDisplaySummary";
 
 /**
- * Route the Configure button of a `ddbHighlight` behavior row on an activity sheet to the
- * region texture editor. dnd5e serialises behavior fields to HTML before rendering, so the
+ * Route the Configure button of a `ddbDisplay` behavior row on an activity sheet to the
+ * region display editor. dnd5e serialises behavior fields to HTML before rendering, so the
  * button cannot carry a listener; one document-level delegate serves every sheet. The
  * behavior is found by the `data-behavior-id` dnd5e puts on each row and the activity
  * through the sheet the button sits in.
  */
-
-export const BEHAVIOR_CONFIGURE_CLASS = "ddbi-highlight-behavior-configure";
 
 interface IActivitySheetLike {
   element?: HTMLElement | null;
@@ -32,12 +32,12 @@ export function onBehaviorConfigureClick(event: Event): void {
   event.preventDefault();
   event.stopPropagation();
   const behaviorId = button.closest<HTMLElement>("[data-behavior-id]")?.dataset.behaviorId;
-  const activity = appContaining(button)?.activity as Parameters<typeof DDBRegionHighlightConfig.openForBehavior>[0] | undefined;
+  const activity = appContaining(button)?.activity as Parameters<typeof DDBRegionDisplayConfig.openForBehavior>[0] | undefined;
   if (!behaviorId || !activity) {
-    logger.warn("RegionHighlight | Configure pressed outside an activity sheet behavior row", { behaviorId });
+    logger.warn(`${REGION_DISPLAY_LOG} Configure pressed outside an activity sheet behavior row`, { behaviorId });
     return;
   }
-  DDBRegionHighlightConfig.openForBehavior(activity, behaviorId);
+  DDBRegionDisplayConfig.openForBehavior(activity, behaviorId);
 }
 
 let delegateInstalled = false;

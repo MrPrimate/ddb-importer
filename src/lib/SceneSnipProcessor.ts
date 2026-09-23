@@ -60,7 +60,7 @@ export default class SceneSnipProcessor {
     });
     // Clear only the legacy snips flag once migrated to the new namespace;
     if (scene.flags?.ddbimporter?.snips) {
-      await scene.update({ "flags.ddbimporter.-=snips": null });
+      await scene.update({ "flags.ddbimporter.snips": _del });
     }
   }
 

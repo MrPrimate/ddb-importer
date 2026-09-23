@@ -1,4 +1,4 @@
-import RegionHighlightProfiles from "../../lib/RegionHighlightProfiles";
+import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 
 /**
  * The profile picker shared by the activity behaviors and the Region config: a select of
@@ -15,10 +15,10 @@ interface IProfileEditorApp {
 function profileEditor(): IProfileEditorApp | null {
   const api = (
     game.modules.get("ddb-importer") as
-      | { api?: { apps?: { DDBRegionHighlightProfiles?: IProfileEditorApp } } }
+      | { api?: { apps?: { DDBRegionDisplayProfiles?: IProfileEditorApp } } }
       | undefined
   )?.api;
-  return api?.apps?.DDBRegionHighlightProfiles ?? null;
+  return api?.apps?.DDBRegionDisplayProfiles ?? null;
 }
 
 /** Open the profile editor on a profile, when the api has registered it. */
@@ -35,11 +35,11 @@ export interface IProfilePickerConfig {
 }
 
 export function profileOptions(blank: string | undefined): { value: string; label: string }[] {
-  const options = RegionHighlightProfiles.choices();
+  const options = RegionDisplayProfiles.choices();
   return blank === undefined ? options : [{ value: "", label: blank }, ...options];
 }
 
-const GEAR_CLASS = "ddbi-highlight-picker-edit";
+const GEAR_CLASS = "ddbi-display-region-picker-edit";
 
 function appendOption(select: HTMLSelectElement, option: { value: string; label: string }, current: string): void {
   const element = document.createElement("option");
@@ -61,7 +61,7 @@ function appendOption(select: HTMLSelectElement, option: { value: string; label:
  */
 export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   const wrapper = document.createElement("div");
-  wrapper.classList.add("ddbi-highlight-picker");
+  wrapper.classList.add("ddbi-display-region-picker");
   const select = document.createElement("select");
   select.name = config.name;
   if (config.disabled) select.disabled = true;
@@ -70,8 +70,8 @@ export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   const gear = document.createElement("button");
   gear.type = "button";
   gear.classList.add(GEAR_CLASS);
-  gear.dataset.tooltip = "Edit region highlight profiles";
-  gear.setAttribute("aria-label", "Edit region highlight profiles");
+  gear.dataset.tooltip = "Edit region display profiles";
+  gear.setAttribute("aria-label", "Edit region display profiles");
   gear.innerHTML = `<i class="fa-solid fa-gears" inert></i>`;
   wrapper.append(select, gear);
   return wrapper;
@@ -86,7 +86,7 @@ export function onProfilePickerClick(event: Event): void {
   if (!gear) return;
   event.preventDefault();
   event.stopPropagation();
-  const select = gear.closest(".ddbi-highlight-picker")?.querySelector<HTMLSelectElement>("select");
+  const select = gear.closest(".ddbi-display-region-picker")?.querySelector<HTMLSelectElement>("select");
   openProfileEditor(select?.value || null);
 }
 
@@ -102,7 +102,7 @@ export function installProfilePickerDelegate(root: Document = document): void {
  * keeping the current selection when it still exists.
  */
 export function refreshProfilePickers(root: ParentNode, blank: string | undefined): void {
-  for (const select of root.querySelectorAll<HTMLSelectElement>(".ddbi-highlight-picker select")) {
+  for (const select of root.querySelectorAll<HTMLSelectElement>(".ddbi-display-region-picker select")) {
     const current = select.value;
     select.replaceChildren();
     for (const option of profileOptions(blank)) appendOption(select, option, current);

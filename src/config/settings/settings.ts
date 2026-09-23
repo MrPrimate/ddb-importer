@@ -1,5 +1,6 @@
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
+import { REGION_DISPLAY_PROFILES_CHANGED } from "../regionDisplayProfiles";
 
 const SUPPORTED_FLAG_GROUPS = [
   "advancedspelleffects",
@@ -186,25 +187,25 @@ const SETTINGS = {
         default: false,
         requiresReload: true,
       },
-      // master switch for the region highlight profiles: rendering hooks, the appearance
+      // master switch for the region display profiles: rendering hooks, the appearance
       // behavior, the Region config fieldset, the settings menu and import-time defaults
-      "enable-region-highlight-profiles": {
-        name: "ddb-importer.settings.enable-region-highlight-profiles.name",
-        hint: "ddb-importer.settings.enable-region-highlight-profiles.hint",
+      "enable-region-display-profiles": {
+        name: "ddb-importer.settings.enable-region-display-profiles.name",
+        hint: "ddb-importer.settings.enable-region-display-profiles.hint",
         scope: "world",
         config: true,
         type: Boolean,
         default: true,
         requiresReload: true,
       },
-      // custom / tuned region highlight profiles, keyed by id (see lib/RegionHighlightProfiles)
-      "region-highlight-profiles": {
+      // custom / tuned region display profiles, keyed by id (see lib/RegionDisplayProfiles)
+      "region-display-profiles": {
         scope: "world",
         config: false,
         type: Object,
         default: {},
         // a world setting syncs to every client; the hook lets each canvas and open picker refresh
-        onChange: () => Hooks.callAll("ddb-importer.regionHighlightProfilesChanged"),
+        onChange: () => Hooks.callAll(REGION_DISPLAY_PROFILES_CHANGED),
       },
       "add-ddb-snippets-to-activities": {
         scope: "world",

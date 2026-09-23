@@ -48,8 +48,8 @@ declare module "fvtt-types/configuration" {
       "refreshRegion": (region: TCoreRegionPlaceable, flags: Record<string, boolean>) => void;
       "destroyRegion": (region: TCoreRegionPlaceable) => void;
       "updateRegion": (document: RegionDocument.Implementation, changed: Record<string, unknown>, options: Record<string, unknown>, userId: string) => void;
-      // lib/RegionHighlightProfiles: the profile store changed
-      "ddb-importer.regionHighlightProfilesChanged": () => void;
+      // lib/RegionDisplayProfiles: the profile store changed
+      "ddb-importer.regionDisplayProfilesChanged": () => void;
 
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet

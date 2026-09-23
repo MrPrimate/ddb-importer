@@ -68,6 +68,8 @@ global {
   /** The polygon tree of a Region's shapes; `drawShape` issues graphics calls for every polygon. */
   interface TCoreRegionPolygonTree {
     drawShape(graphics: PIXI.Graphics): void;
+    /** Every outline and hole as a Clipper path, scaled by `CONST.CLIPPER_SCALING_FACTOR`. */
+    clipperPaths: ReadonlyArray<ReadonlyArray<{ X: number; Y: number }>>;
   }
 
   /** The Region placeable members the highlight hooks read. */

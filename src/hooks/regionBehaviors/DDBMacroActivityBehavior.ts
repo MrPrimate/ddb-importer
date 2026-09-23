@@ -3,8 +3,8 @@ import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import { resolveRegionActivity } from "../../effects/auras/regionBehaviorUtils";
 import BaseActivityBehavior from "./baseActivityBehavior";
 import { buildMacroBehaviorData, REGION_EVENTS } from "./behaviorData";
-import { createProfilePicker } from "../canvas/regionHighlightPicker";
-import RegionHighlightProfiles from "../../lib/RegionHighlightProfiles";
+import { createProfilePicker } from "../canvas/regionDisplayPicker";
+import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 
 const { BooleanField, JSONField, SetField, StringField } = foundry.data.fields;
 
@@ -40,9 +40,9 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       macroName: new StringField(),
       macroParameters: new JSONField({ required: false, initial: "{}" }),
       args: new JSONField({ required: false, initial: "{}" }),
-      // the region highlight profile the placed region uses; read by the placement hook,
-      // never by the region behavior (see hooks/canvas/regionHighlightStamp.ts)
-      highlightProfile: new StringField({ required: false, blank: true, initial: "" }),
+      // the region display profile the placed region uses; read by the placement hook,
+      // never by the region behavior (see hooks/canvas/regionDisplayStamp.ts)
+      displayProfile: new StringField({ required: false, blank: true, initial: "" }),
     };
   }
 
@@ -131,14 +131,14 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       data.options = Object.entries(CONFIG.DND5E.creatureTypes as Record<string, { label: string }>).map(
         ([value, config]) => ({ value, label: game.i18n.localize(config.label) }),
       );
-    } else if (field.name === "highlightProfile") {
+    } else if (field.name === "displayProfile") {
       // hidden while the profiles are switched off; the stored value is kept for when they return
-      if (!RegionHighlightProfiles.enabled) return false;
+      if (!RegionDisplayProfiles.enabled) return false;
       data.input = (_field: unknown, config: { name: string; value?: unknown }) =>
         createProfilePicker({
           name: config.name,
           value: config.value,
-          blank: game.i18n.localize("ddb-importer.behaviors.highlight.noProfile"),
+          blank: RegionDisplayProfiles.localize("noProfile"),
         });
     } else if (field.name === "activity") {
       const activities = (

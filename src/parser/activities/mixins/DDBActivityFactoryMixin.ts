@@ -501,15 +501,15 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   }
 
   /**
-   * Give every region-placing activity that carries behaviors a highlight profile when its
-   * enricher chose none (BehaviorHelper.assignHighlightDefaults). Runs after every sibling
+   * Give every region-placing activity that carries behaviors a display profile when its
+   * enricher chose none (BehaviorHelper.assignDisplayDefaults). Runs after every sibling
    * exists so a trigger's target activity can be inspected for damage.
    */
-  _activityHighlightDefaults(): void {
+  _activityDisplayDefaults(): void {
     const activities = foundry.utils.getProperty(this.data, "system.activities") as Record<string, I5eActivity> | undefined;
     if (!activities) return;
     const documentTemplateType = foundry.utils.getProperty(this.data, "system.target.template.type") as string | undefined;
-    BehaviorHelper.assignHighlightDefaults(activities, { documentTemplateType: documentTemplateType ?? "" });
+    BehaviorHelper.assignDisplayDefaults(activities, { documentTemplateType: documentTemplateType ?? "" });
   }
 
   /**

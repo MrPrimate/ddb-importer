@@ -395,7 +395,7 @@ export default class DDBPartySync extends DDBAppV2 {
       try {
         await this.actor.update({
           [`flags.ddbimporter.${FLAG_CAMPAIGN_KEY}`]: value,
-          [`flags.ddbimporter.-=${FLAG_CAMPAIGN_NAME}`]: null,
+          [`flags.ddbimporter.${FLAG_CAMPAIGN_NAME}`]: _del,
         } as unknown as Actor.UpdateData);
       } catch (err) {
         logger.warn("Could not persist party campaign flags", err);
