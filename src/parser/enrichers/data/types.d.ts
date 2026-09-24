@@ -322,7 +322,9 @@ global {
     /**
      * With `standalone`: the string the compendium id is derived from instead of
      * "<document name> <effect name>", for an effect several documents share (the evolved
-     * item property enchantments).
+     * item property enchantments). Unlike the default id, a key is not split by ruleset
+     * (see DDBEffectImporter.standaloneEffectId), so include the ruleset in the key when the
+     * 2014 and 2024 versions of the shared effect differ.
      */
     standaloneKey?: string;
     /**

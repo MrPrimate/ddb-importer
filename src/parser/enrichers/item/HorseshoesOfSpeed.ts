@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Horseshoes of Speed: +30 feet walking speed on the wearer.
+ * Horseshoes of Speed: +30 feet of speed on the wearer (walking speed in 2014, every speed in 2024).
  */
 export default class HorseshoesOfSpeed extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
@@ -9,7 +9,10 @@ export default class HorseshoesOfSpeed extends DDBEnricherData {
       {
         name: "Faster",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("30", 20, "system.attributes.movement.walk"),
+          // 2014 raises the walking speed; the 2024 reprint says "Speed", which targets every speed
+          this.is2014
+            ? DDBEnricherData.ChangeHelper.unsignedAddChange("30", 20, "system.attributes.movement.speeds.walk")
+            : DDBEnricherData.ChangeHelper.movementBonusChange("30"),
         ],
         options: {
           transfer: false,

@@ -63,7 +63,7 @@ export default class MagicJar extends DDBEnricherData {
         activityMatch: "Possess Humanoid",
         statuses: ["Incapacitated"],
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("0", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0"),
         ],
         options: {
           durationSeconds: null,

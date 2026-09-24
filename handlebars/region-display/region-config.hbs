@@ -22,9 +22,11 @@
           {{#if label}}</optgroup>{{/if}}
           {{/each}}
         </select>
+        {{#if canEditProfiles}}
         <button type="button" class="ddbi-display-region-picker-edit" data-tooltip="Edit region display profiles" aria-label="Edit region display profiles">
           <i class="fa-solid fa-gears" inert></i>
         </button>
+        {{/if}}
       </div>
     </div>
     <p class="hint">How this region's display is drawn. Leave the overrides below blank to take the profile's values.</p>

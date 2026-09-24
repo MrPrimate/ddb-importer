@@ -278,6 +278,16 @@ export default class RegionAutomations {
   static #turnQueue = new foundry.utils.Semaphore(1);
 
   /**
+   * Serialises the set-targets / use / restore-targets section of `useActivityOnTokens`.
+   * Batches flush from independent timers, and dnd5e reads `game.user.targets` at the end
+   * of `activity.use` (a ddbmacro activity hands them to its macro, an autoRoll attack
+   * reads them for the target AC), so two interleaved uses would roll against each
+   * other's tokens and the later restore would leave the earlier use's targets on the
+   * GM. The lock releases when the use settles, even if it throws.
+   */
+  static #targetLock = new foundry.utils.Semaphore(1);
+
+  /**
    * Identity of the trigger a once-per-turn limit collapses on.
    * In combat that is the combat turn.
    * Out of combat there is no turn, so it is the movement.
@@ -515,8 +525,6 @@ export default class RegionAutomations {
       { context, scaling, macroParameters },
     );
 
-    const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
-      .map((t) => t.id).filter((id): id is string => id !== null);
     // Owner-turn uses can belong to a different scene, and concurrent prompts must not
     // overwrite the GM's targeting. Both execution paths accept explicit recipients.
     const origin = args.ownerTurn ? RegionAutomations.getOriginToken(context.region) : null;
@@ -525,8 +533,7 @@ export default class RegionAutomations {
       ...(origin ? { speaker: { scene: context.scene.id, token: origin.id, actor: origin.actor?.id, alias: origin.name } } : {}),
       system: { targets: RegionAutomations.targetDescriptors(tokens) },
     };
-    if (!args.ownerTurn) DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
-    try {
+    const perform = async (): Promise<unknown> => {
       if (game.modules.get("midi-qol")?.active) {
         const workflowOptions = {
           targets: tokens.map((t) => t.uuid),
@@ -562,9 +569,21 @@ export default class RegionAutomations {
           { data: messageData },
         );
       }
-    } finally {
-      if (!args.ownerTurn) DDBEffectHelper.setTokenTargets(previousTargets);
-    }
+    };
+    if (args.ownerTurn) return perform();
+
+    // The previous targets are read inside the lock: read outside it, a use that
+    // queued behind another would save that use's temporary targets as the GM's own.
+    return RegionAutomations.#targetLock.add(async () => {
+      const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
+        .map((t) => t.id).filter((id): id is string => id !== null);
+      DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
+      try {
+        return await perform();
+      } finally {
+        DDBEffectHelper.setTokenTargets(previousTargets);
+      }
+    });
   }
 
   /**

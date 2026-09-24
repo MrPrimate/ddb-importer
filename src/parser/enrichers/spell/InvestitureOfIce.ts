@@ -37,6 +37,8 @@ export default class InvestitureOfIce extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateDamage: true,
           generateConsumption: false,
@@ -96,10 +98,9 @@ export default class InvestitureOfIce extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
-        data: {
-          duration: {
-            expiry: "turnStart",
-          },
+        options: {
+          // "speed halved until the start of your next turn": the caster's turn, not the target's
+          expiry: "sourceStart",
         },
       },
     ];

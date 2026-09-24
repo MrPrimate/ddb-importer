@@ -10,7 +10,7 @@ import {
 } from "../config/regionDisplayProfiles";
 import { disposeImagePreviews, imagePreviewData, paintImagePreviews } from "../hooks/canvas/regionDisplayImagePreview";
 import { previewCss } from "../hooks/canvas/regionDisplayPreview";
-import { profileGroup, refreshProfilePickers } from "../hooks/canvas/regionDisplayPicker";
+import { canEditProfiles, profileGroup, refreshProfilePickers } from "../hooks/canvas/regionDisplayPicker";
 import logger from "../lib/Logger";
 import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 import { bindLiveInput, PREVIEW_GRID, PREVIEW_GRID_LARGE, readForm, resolveColor } from "./lib/regionDisplayForm";
@@ -51,7 +51,9 @@ interface IProfileFormValues {
 
 /**
  * Build and tune region display profiles. Opened from the gear beside any profile picker,
- * from module settings, or `DDBImporter.apps.DDBRegionDisplayProfiles.open()`.
+ * from module settings (through DDBRegionDisplayProfilesMenu), or
+ * `DDBImporter.apps.DDBRegionDisplayProfiles.open()`. The profiles are a world setting, so
+ * only a user who may change world settings can open it.
  */
 export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   static #instance: DDBRegionDisplayProfiles | null = null;
@@ -100,14 +102,37 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     },
   };
 
-  /** Show the editor, focused on a profile when one is named. */
-  static open({ profileId = null }: { profileId?: string | null } = {}): DDBRegionDisplayProfiles {
-    const app = DDBRegionDisplayProfiles.#instance ?? new DDBRegionDisplayProfiles();
+  /** A new editor starts on the first profile rather than an empty pane. */
+  constructor(options: Record<string, any> = {}) {
+    super(options);
+    const first = RegionDisplayProfiles.all()[0];
+    if (first) this.load(first);
+  }
+
+  /**
+   * Show the one editor window, focused on a profile when one is named. An already open
+   * window keeps its draft unless another profile is asked for. Null, with a warning, for a
+   * user who could not save.
+   */
+  static open({ profileId = null }: { profileId?: string | null } = {}): DDBRegionDisplayProfiles | null {
+    if (!canEditProfiles()) {
+      ui.notifications.warn(RegionDisplayProfiles.localize("profilesPermission"));
+      return null;
+    }
+    // a window built directly (`new ...().render()`) is adopted rather than duplicated
+    const live = foundry.applications.instances.get(DDBRegionDisplayProfiles.DEFAULT_OPTIONS.id);
+    const app = DDBRegionDisplayProfiles.#instance
+      ?? (live instanceof DDBRegionDisplayProfiles ? live : new DDBRegionDisplayProfiles());
     DDBRegionDisplayProfiles.#instance = app;
     const profile = RegionDisplayProfiles.get(profileId) ?? (app.draft ? null : RegionDisplayProfiles.all()[0]);
     if (profile) app.load(profile);
     app.render({ force: true });
     return app;
+  }
+
+  /** The last gate for every way in, including a directly built window: saving needs the world setting. */
+  protected override _canRender(_options: unknown): boolean | void {
+    if (!canEditProfiles()) throw new Error(RegionDisplayProfiles.localize("profilesPermission"));
   }
 
   _getTabs(): IDDBTabs {
@@ -369,7 +394,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
 
   override async close(options?: any) {
     disposeImagePreviews(this.element);
-    DDBRegionDisplayProfiles.#instance = null;
+    if (DDBRegionDisplayProfiles.#instance === this) DDBRegionDisplayProfiles.#instance = null;
     return super.close(options);
   }
 
@@ -385,5 +410,18 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
         if (element && !(app instanceof DDBRegionDisplayProfiles)) refreshProfilePickers(element, blank);
       }
     });
+  }
+}
+
+/**
+ * The settings menu entry. Foundry builds a new instance of a menu's class, with no options,
+ * on every click and renders it; pointing the menu at the editor itself would open a second,
+ * empty window under the editor's fixed id. This stand-in never renders and hands over to
+ * the one editor instead.
+ */
+export class DDBRegionDisplayProfilesMenu extends foundry.applications.api.ApplicationV2 {
+  override async render(): Promise<this> {
+    DDBRegionDisplayProfiles.open();
+    return this;
   }
 }

@@ -43,6 +43,8 @@ export default class ChainsOfBeleth extends DDBEnricherData {
       {
         init: { name: "Break Free", type: DDBEnricherData.ACTIVITY_TYPES.CHECK },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateCheck: true,
           generateTarget: false,
           generateRange: false,

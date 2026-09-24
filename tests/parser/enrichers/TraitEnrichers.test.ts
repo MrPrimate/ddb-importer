@@ -57,6 +57,24 @@ describe("native teleport trait activities", () => {
     expect(e.effects.map((effect: any) => effect.activityMatch)).toEqual(["Autumn (Save)", "Winter (Save)"]);
   });
 
+  it("deals Summer's fire damage with a floor of 1, or the proficiency bonus for the reprint", () => {
+    const summerFormula = (enricher: any) =>
+      enricher.additionalActivities[3].overrides.data.damage.parts[0].custom.formula;
+
+    // the original eladrin: Charisma modifier (minimum of 1 damage)
+    expect(summerFormula(build(FeyStep))).toBe("max(1, @abilities.cha.mod)");
+
+    const reprint = makeEnricherData(FeyStep, {
+      ddbParser: {
+        ddbDefinition: {
+          name: "Fey Step",
+          description: "<p><strong>Summer.</strong> Each creature takes fire damage equal to your proficiency bonus.</p>",
+        },
+      },
+    });
+    expect(summerFormula(reprint)).toBe("@prof");
+  });
+
   it("uses Blessing of the Raven Queen's 30 ft range and keeps resistance on the teleport", () => {
     const e = build(BlessingOfTheRavenQueen);
     expect(e.type).toBe("teleport");

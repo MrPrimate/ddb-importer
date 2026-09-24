@@ -1,4 +1,4 @@
-import DDBRegionDisplayProfiles from "../../src/apps/DDBRegionDisplayProfiles";
+import DDBRegionDisplayProfiles, { DDBRegionDisplayProfilesMenu } from "../../src/apps/DDBRegionDisplayProfiles";
 import { BUILTIN_REGION_DISPLAY_PROFILES, REGION_DISPLAY_DEFAULTS } from "../../src/config/regionDisplayProfiles";
 import RegionDisplayProfiles from "../../src/lib/RegionDisplayProfiles";
 import { setMockSettings } from "../_setup/foundryMocks";
@@ -100,5 +100,62 @@ describe("DDBRegionDisplayProfiles.createProfile", () => {
     expect(app.draft).toMatchObject({ ...REGION_DISPLAY_DEFAULTS, name: "New Profile", builtin: false });
     expect(app.draft!.id).toMatch(/^[a-zA-Z0-9]{16}$/);
     expect(app.selectedId).toBeNull();
+  });
+});
+
+describe("DDBRegionDisplayProfiles.open", () => {
+  // the ApplicationV2 stub has no render; install one on the prototype for the calls to land on
+  const proto = DDBRegionDisplayProfiles.prototype as unknown as Record<string, unknown>;
+  const user = game.user as unknown as { can?: (permission: string) => boolean };
+
+  beforeEach(() => {
+    proto.render = vi.fn(async function (this: unknown) {
+      return this;
+    });
+  });
+
+  afterEach(() => {
+    delete proto.render;
+    delete user.can;
+    foundry.applications.instances.delete("ddb-region-display-profiles");
+  });
+
+  it("refuses a user who cannot change world settings, whichever way they come in", () => {
+    user.can = vi.fn(() => false);
+    const warn = vi.spyOn(ui.notifications!, "warn");
+    expect(DDBRegionDisplayProfiles.open({ profileId: "aura" })).toBeNull();
+    expect(user.can).toHaveBeenCalledWith("SETTINGS_MODIFY");
+    expect(warn).toHaveBeenCalledWith("ddb-importer.behaviors.display.profilesPermission");
+    expect(proto.render).not.toHaveBeenCalled();
+    // a window built directly is stopped at render with the same message
+    const direct = new DDBRegionDisplayProfiles();
+    expect(() => (direct as unknown as { _canRender(options: unknown): unknown })._canRender({}))
+      .toThrow("ddb-importer.behaviors.display.profilesPermission");
+    warn.mockRestore();
+  });
+
+  it("starts on a profile, adopts a window already open, and keeps one window across opens", () => {
+    user.can = vi.fn(() => true);
+    const direct = new DDBRegionDisplayProfiles();
+    // built with no options, as Foundry builds a settings menu class, it is not empty
+    expect(direct.draft?.id).toBe(RegionDisplayProfiles.all()[0].id);
+    foundry.applications.instances.set("ddb-region-display-profiles", direct);
+    const first = DDBRegionDisplayProfiles.open({ profileId: "status" });
+    expect(first).toBe(direct);
+    expect(first!.selectedId).toBe("status");
+    expect(proto.render).toHaveBeenLastCalledWith({ force: true });
+    // reopening without a profile keeps the draft; naming one moves to it, still in the same window
+    expect(DDBRegionDisplayProfiles.open()).toBe(direct);
+    expect(direct.selectedId).toBe("status");
+    expect(DDBRegionDisplayProfiles.open({ profileId: "aura" })).toBe(direct);
+    expect(direct.selectedId).toBe("aura");
+  });
+
+  it("gives the settings menu a stand-in that hands over to the one editor", async () => {
+    const open = vi.spyOn(DDBRegionDisplayProfiles, "open").mockImplementation(() => null);
+    const menu = new DDBRegionDisplayProfilesMenu();
+    await expect(menu.render()).resolves.toBe(menu);
+    expect(open).toHaveBeenCalledTimes(1);
+    open.mockRestore();
   });
 });

@@ -10,6 +10,23 @@
 - Phoenix Rocket Sword and Requiem save DCs were 1 too high.
 - 2024 magic items that recharge on a "Short or Long Rest" were resetting only on a long rest.
 - Monsters fetched by ID from the cache could fail to import when the socket connection was unavailable.
+- Adventure imports could hang forever if a single document failed to load. The failed document is now skipped and logged.
+- A dropped connection while munching spells or monsters could cache an empty result for a week. Failed fetches are no longer cached.
+- Muncher lists (classes, species, subclasses etc.) could show the previous account's or campaign's results after changing your Cobalt token or campaign.
+- 2014 and 2024 versions of the same spell or feature (e.g. Pass without Trace) could overwrite each other's effects in the effects compendium. Re-import affected spells and features to fix existing links.
+- Cloudkill, Create Bonfire, Grease, Web and other spells imported with older versions of DDB Importer (with midi pre-v6) threw errors when used. They now show a warning asking you to re-import them.
+- Region automation: aura saves/damage firing at the same time could target the wrong tokens or leave the GM's targets changed, and the expired template cleanup prompt could fail to appear.
+- Using the follow-up activity of a concentration spell (e.g. Hex Damage, Heat Metal's Bonus Action Damage, Web's Ongoing Save, Call Lightning's damage, Major Image's Study Check, and over 100 other spells) no longer ends and restarts your concentration.
+- Rod of Lordly Might is now a +3 mace weapon, with its own daily uses for Drain Life, Paralyze and Terrify, fixed button weapon damage and bonuses, and a Strength save for Paralyze in 2014.
+- Staff of Thunder and Lightning: each property now has its own daily use, the on-hit properties trigger on a hit, and Stunned ends at the end of your next turn.
+- Bag of Beans: Count Beans now sets the number of beans correctly, and dumping the bag deals 5d4 regardless of how many beans are dumped (2014 empties the bag).
+- Eventide's Splendor, Twilight Shroud and Investiture of Ice effects now expire on the correct creature's turn.
+- Armor Model, Telepathic Speech and Fey Step (Summer) used a maximum of 1 instead of a minimum of 1.
+- Fey Step (Summer) from Monsters of the Multiverse now uses your proficiency bonus.
+- Power Word Pain now caps all speeds at 10 ft, and Dream and Magic Jar reduce all speeds to 0.
+- Several monster attacks that reduce Speed now affect all speeds in 2024.
+- Speed effects now use the dnd5e 6 speed fields.
+- For 2024 content, a general "Speed" bonus (e.g. Fast Movement, Roving) now applies to all your speeds rather than just walking speed.
 
 # 7.5.5
 

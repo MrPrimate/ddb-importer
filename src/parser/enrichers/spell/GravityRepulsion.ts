@@ -28,6 +28,8 @@ export default class GravityRepulsion extends DDBEnricherData {
       {
         init: { name: "Gravity Pulse", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateActivation: true,
           generateConsumption: false,
           generateTarget: true,

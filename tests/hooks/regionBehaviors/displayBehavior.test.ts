@@ -59,10 +59,15 @@ describe("DDBDisplayActivityBehavior", () => {
   });
 
   it("gives the trigger behavior the same picker for its profile field", () => {
+    // the picker asks whether the user may edit the profiles before offering the editor gear
+    const user = game.user as unknown as { can?: (permission: string) => boolean };
+    user.can = () => true;
     const behavior = new DDBMacroActivityBehavior({} as any);
     const data: Record<string, any> = {};
     behavior.customizeField({ name: "displayProfile" }, data);
     const input = data.input({}, { name: "behaviors.1.config.displayProfile", value: "" }) as HTMLElement;
     expect([...input.querySelector("select")!.options].map((option) => option.value)).toEqual(["", ...RegionDisplayProfiles.builtins.map((profile) => profile.id)]);
+    expect(input.querySelector("button")).not.toBeNull();
+    delete user.can;
   });
 });

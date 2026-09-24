@@ -78,6 +78,7 @@ export default class Earthquake extends DDBEnricherData {
           noSpellslot: true,
           name: "Place Fissure Templates (End of Turn)",
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             img: "icons/magic/earth/lava-stone-fire-eye.webp",
             description: {
               chatFlavor:
@@ -109,6 +110,7 @@ export default class Earthquake extends DDBEnricherData {
           noSpellslot: true,
           name: "Damage from Collapsed Structure",
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             img: "icons/environment/settlement/building-rubble.webp",
             save: {
               ability: ["dex"],
@@ -136,6 +138,7 @@ export default class Earthquake extends DDBEnricherData {
           noSpellslot: true,
           name: "Escape from Collapsed Building",
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             img: "icons/environment/traps/net.webp",
             save: {
               ability: ["ath"],

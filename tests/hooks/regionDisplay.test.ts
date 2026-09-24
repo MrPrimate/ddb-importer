@@ -12,6 +12,7 @@ import {
 import logger from "../../src/lib/Logger";
 import {
   applyStyle,
+  displaySignature,
   findHighlightMesh,
   onDrawRegion,
   onRefreshRegion,
@@ -428,6 +429,73 @@ describe("region sync", () => {
     stubCanvas(regions, []);
     refreshAllRegionDisplays();
     for (const region of regions) expect(region.renderFlags.set).toHaveBeenCalledWith({ refreshState: true, refreshGeometry: true });
+  });
+
+  it("keys the cached style on the choice, the region colour, the grid and the profile store", () => {
+    const flag: IRegionDisplayFlag = { profile: "aura", opacity: 0.4 };
+    const base = displaySignature(flag, "#00ff00", metrics, 1);
+    expect(displaySignature({ ...flag }, "#00ff00", { ...metrics }, 1)).toBe(base);
+    expect(displaySignature({ ...flag, opacity: 0.5 }, "#00ff00", metrics, 1)).not.toBe(base);
+    expect(displaySignature(flag, "#ff0000", metrics, 1)).not.toBe(base);
+    expect(displaySignature(flag, "#00ff00", { grid: 50, uiScale: 1 }, 1)).not.toBe(base);
+    expect(displaySignature(flag, "#00ff00", { grid: 100, uiScale: 2 }, 1)).not.toBe(base);
+    expect(displaySignature(flag, "#00ff00", metrics, 2)).not.toBe(base);
+  });
+
+  it("only redraws the band while a region moves, and restyles once something it depends on changes", () => {
+    const region = fakeRegion({ profile: "status", border: "border", borderWidth: 0.2 });
+    const mesh = fakeMesh(region);
+    const highlights = stubCanvas([region], [mesh]);
+    onDrawRegion(region as any);
+    const band = highlights.addChild.mock.calls[0][0];
+    const resolve = vi.spyOn(RegionDisplayProfiles, "resolve");
+    const setShaderClass = mesh.setShaderClass.mock.calls.length;
+    // a sentinel alpha shows whether the style was written again
+    mesh.alpha = 0.99;
+    // a region following a token gets a geometry-only refresh every animation frame
+    for (let frame = 0; frame < 5; frame++) onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).not.toHaveBeenCalled();
+    expect(mesh.alpha).toBe(0.99);
+    expect(mesh.setShaderClass).toHaveBeenCalledTimes(setShaderClass);
+    // the band follows the shape, so it is redrawn every frame
+    expect(band.lineStyle).toHaveBeenCalledTimes(6);
+    // core's state refresh resets the tint: the cached style is written back without a lookup
+    onRefreshRegion(region as any, { refreshState: true });
+    expect(resolve).not.toHaveBeenCalled();
+    expect(mesh.alpha).toBe(0.5);
+    // a changed choice is picked up even by a geometry-only refresh
+    mesh.alpha = 0.99;
+    region.document.flags = { ddbimporter: { display: { profile: "status", border: "border", borderWidth: 0.2, opacity: 0.3 } } };
+    onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(1);
+    expect(mesh.alpha).toBe(0.3);
+    // so is a new region colour
+    region.document.color = "#0000ff";
+    onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(2);
+    expect(mesh.tint).toBe(0x0000ff);
+    // a profile edit makes every cached style stale
+    refreshAllRegionDisplays();
+    onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(3);
+    onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(3);
+  });
+
+  it("remembers a missing profile while moving, and forgets everything once the region is destroyed or redrawn", () => {
+    const region = fakeRegion({ profile: "gone" });
+    const mesh = fakeMesh(region);
+    stubCanvas([region], [mesh]);
+    const resolve = vi.spyOn(RegionDisplayProfiles, "resolve");
+    onDrawRegion(region as any);
+    for (let frame = 0; frame < 5; frame++) onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(1);
+    expect(mesh.setShaderClass).not.toHaveBeenCalled();
+    onDestroyRegion(region as any);
+    onRefreshRegion(region as any, { refreshGeometry: true });
+    expect(resolve).toHaveBeenCalledTimes(2);
+    onDrawRegion(region as any);
+    expect(resolve).toHaveBeenCalledTimes(3);
   });
 
   it.each(["dots", "edge"] as const)("keeps a visible %s border with an invisible fill", (pattern) => {
@@ -956,6 +1024,22 @@ describe("preview css", () => {
 });
 
 describe("profile picker", () => {
+  const user = game.user as unknown as { can?: (permission: string) => boolean };
+  beforeEach(() => {
+    user.can = vi.fn(() => true);
+  });
+  afterEach(() => {
+    delete user.can;
+  });
+
+  it("offers the editor gear only to a user who may change world settings", () => {
+    user.can = vi.fn(() => false);
+    const picker = createProfilePicker({ name: "p", value: "status", blank: "None" });
+    expect(picker.querySelector("select")!.value).toBe("status");
+    expect(picker.querySelector("button")).toBeNull();
+    expect(user.can).toHaveBeenCalledWith("SETTINGS_MODIFY");
+  });
+
   it("renders the world's profiles with a blank choice and opens the editor from the gear", () => {
     const open = vi.fn();
     setMockModules({ "ddb-importer": { api: { apps: { DDBRegionDisplayProfiles: { open } } } } });
@@ -1037,6 +1121,27 @@ describe("region config summary box", () => {
     const box = buildDisplaySummary({ color: "#00ff00", flags: {} } as any);
     expect(box.querySelector(".ddbi-display-region-swatch")).toBeNull();
     expect(box.querySelector(".ddbi-display-region-summary-text")!.textContent).toBe("None (Foundry default)");
+  });
+
+  it("leaves the configure button out of a sheet the user cannot edit", () => {
+    const sheet = () => {
+      const element = document.createElement("form");
+      element.innerHTML = "<div class=\"form-group\"><select name=\"highlightMode\"></select></div>";
+      return element;
+    };
+    const doc = { color: "#00ff00", isOwner: true, flags: { ddbimporter: { display: { profile: "aura" } } } };
+    const locked = sheet();
+    onRenderRegionConfig({ document: doc as any, isEditable: false }, locked);
+    expect(locked.querySelector(".ddbi-display-region-summary-text")).not.toBeNull();
+    expect(locked.querySelector(".ddbi-display-region-fieldset button")).toBeNull();
+    // without the sheet's verdict, ownership of the region decides
+    const owned = sheet();
+    onRenderRegionConfig({ document: doc as any }, owned);
+    expect(owned.querySelector(".ddbi-display-region-fieldset button")).not.toBeNull();
+    const foreign = sheet();
+    onRenderRegionConfig({ document: { ...doc, isOwner: false } as any }, foreign);
+    expect(foreign.querySelector(".ddbi-display-region-summary-text")).not.toBeNull();
+    expect(foreign.querySelector(".ddbi-display-region-fieldset button")).toBeNull();
   });
 });
 

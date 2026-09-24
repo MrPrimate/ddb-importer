@@ -46,6 +46,8 @@ export default class FlameBlade extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateAttack: true,
           generateDamage: true,
           generateActivation: true,

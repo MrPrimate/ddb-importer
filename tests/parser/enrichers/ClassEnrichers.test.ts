@@ -2513,3 +2513,40 @@ describe("familiar summons from class features", () => {
     expect(e.effects).toEqual([]);
   });
 });
+
+/** Turn-edge expiries and formulas checked against the DDB feature text. */
+describe("feature riders expire on the creature the text names", () => {
+  it("Eventide's Splendor: the inspired creature's invisibility and the healed creature's speed follow their own turns", () => {
+    const e = build(ClassEnrichers.Bard.EventidesSplendor);
+    const invisible = e.effects.find((effect: any) => effect.name === "Shadow of the New Moon: Invisible");
+    const speed = e.effects.find((effect: any) => effect.name === "Lunar Vitality");
+    expect(invisible.options.expiry).toBe("targetStart");
+    expect(invisible.data).toBeUndefined();
+    expect(speed.options.expiry).toBe("targetEnd");
+    expect(speed.data).toBeUndefined();
+
+    // only the creature who received the die turns invisible; the bard's own is Inspired Eclipse
+    const shadow = e.additionalActivities.find((a: any) => a.init.name === "Shadow of the New Moon");
+    expect(shadow.build.targetOverride.affects.count).toBe("1");
+  });
+
+  it("Twilight Shroud's cover lapses at the start of the cleric's turn", () => {
+    const [shrouded] = build(ClassEnrichers.Cleric.TwilightShroud, { is2014: true }).effects;
+    expect(shrouded.options.expiry).toBe("sourceStart");
+    expect(shrouded.data).toBeUndefined();
+  });
+
+  it("Oceanic Gift's Stormborn flight uses the dnd5e 6 speed paths", () => {
+    const [stormborn] = build(ClassEnrichers.Druid.OceanicGift).effects;
+    const fly = stormborn.changes.find((c: any) => c.key.includes("movement"));
+    expect(fly).toMatchObject({
+      key: "system.attributes.movement.speeds.fly",
+      value: "@attributes.movement.speeds.walk",
+    });
+  });
+
+  it("Telepathic Speech reaches at least 1 mile", () => {
+    const e = build(ClassEnrichers.Sorcerer.TelepathicSpeech);
+    expect(e.activity.data.range.value).toBe("max(1, @abilities.cha.mod)");
+  });
+});

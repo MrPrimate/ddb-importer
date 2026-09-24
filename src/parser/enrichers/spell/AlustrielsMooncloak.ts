@@ -29,6 +29,8 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateConsumption: false,
           noSpellslot: true,
           generateAttack: false,
@@ -46,6 +48,8 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateDamage: false,
           generateHealing: true,
           generateRange: true,

@@ -146,7 +146,7 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
       && entries.every((entry) => entry.reason === REGION_EXPIRY_REASONS.combat);
     const hint = combatOnly
       ? "Combat has ended, do you wish to remove any of these templates?"
-      : `The following template${entries.length === 1 ? " is" : "s are"} might have expired. Choose if you want to remove from the scene.`;
+      : `The following template${entries.length === 1 ? "" : "s"} might have expired. Choose if you want to remove from the scene.`;
 
     return `
     <p class="template-expiry-hint">${hint}</p>

@@ -21,6 +21,15 @@ function profileEditor(): IProfileEditorApp | null {
   return api?.apps?.DDBRegionDisplayProfiles ?? null;
 }
 
+/**
+ * Whether this user may change the profiles. They are a world setting, which Foundry lets only
+ * SETTINGS_MODIFY users write (by default the full Game Master, not an assistant), so this is
+ * the same test the settings sheet applies to a restricted menu.
+ */
+export function canEditProfiles(): boolean {
+  return game.user?.can("SETTINGS_MODIFY") === true;
+}
+
 /** Open the profile editor on a profile, when the api has registered it. */
 export function openProfileEditor(profileId: string | null = null): void {
   profileEditor()?.open({ profileId });
@@ -97,7 +106,8 @@ function appendGroups(select: HTMLSelectElement, blank: string | undefined, curr
 /**
  * Build the select + gear pair. Usable as a dnd5e `customizeField` `data.input` or standalone.
  * The gear has no listener of its own (see the serialisation note above); the document-level
- * delegate from `installProfilePickerDelegate` handles every gear on the page.
+ * delegate from `installProfilePickerDelegate` handles every gear on the page. Users who
+ * cannot save profiles get the select alone.
  */
 export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   const wrapper = document.createElement("div");
@@ -107,13 +117,15 @@ export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   if (config.disabled) select.disabled = true;
   const current = typeof config.value === "string" ? config.value : "";
   appendGroups(select, config.blank, current);
+  wrapper.append(select);
+  if (!canEditProfiles()) return wrapper;
   const gear = document.createElement("button");
   gear.type = "button";
   gear.classList.add(GEAR_CLASS);
   gear.dataset.tooltip = "Edit region display profiles";
   gear.setAttribute("aria-label", "Edit region display profiles");
   gear.innerHTML = `<i class="fa-solid fa-gears" inert></i>`;
-  wrapper.append(select, gear);
+  wrapper.append(gear);
   return wrapper;
 }
 

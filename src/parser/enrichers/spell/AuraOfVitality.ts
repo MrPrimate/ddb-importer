@@ -13,6 +13,8 @@ export default class AuraOfVitality extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateActivation: true,
           generateTarget: true,
           generateRange: true,

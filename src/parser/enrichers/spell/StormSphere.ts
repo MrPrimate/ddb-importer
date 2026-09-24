@@ -51,6 +51,7 @@ export default class StormSphere extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             range: {
               override: true,
               units: "spec",
@@ -68,6 +69,8 @@ export default class StormSphere extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateAttack: true,
           generateConsumption: false,
           noSpellslot: true,

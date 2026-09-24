@@ -28,6 +28,7 @@ export default class SpellfireStorm extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             behaviors: [],
             range: {
               override: true,

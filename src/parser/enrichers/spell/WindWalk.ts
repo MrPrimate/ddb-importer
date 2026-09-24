@@ -11,7 +11,7 @@ export default class WindWalk extends DDBEnricherData {
         name: "Cloud Form",
         statuses: ["Transformed"],
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.attributes.movement.hover"),
           DDBEnricherData.ChangeHelper.conditionImmunityChange("prone"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),

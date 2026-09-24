@@ -36,6 +36,8 @@ export default class SpiritShroud extends DDBEnricherData {
         type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       },
       build: {
+        generateDuration: true,
+        durationOverride: { units: "inst", concentration: false },
         generateDamage: true,
         generateConsumption: false,
         noSpellslot: true,

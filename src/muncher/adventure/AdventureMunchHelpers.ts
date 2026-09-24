@@ -76,57 +76,54 @@ export default class AdventureMunchHelpers {
     return matches;
   }
 
-  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 | null = null) {
-    return new Promise((resolve) => {
-      if (docIds && docIds.length > 0) {
-        switch (type) {
-          case "item":
-            logger.debug(`Importing missing ${type}s from DDB`, docIds);
-            notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
-            resolve(DDBItemsImporter.fetchAndImportItems({
-              useSourceFilter: false,
-              ids: docIds,
-              deleteBeforeUpdate: false,
-              notifierV2,
-            }));
-            break;
-          case "monster": {
-            try {
-              const tier = PatreonHelper.getPatreonTier();
-              const tiers = PatreonHelper.calculateAccessMatrix(tier);
-              if (tiers.all) {
-                logger.debug(`Importing missing ${type}s from DDB`, docIds);
-                notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
-                const monsterFactory = new DDBMonsterFactory({
-                  notifierV2: notifierV2 ?? undefined,
-                });
-                resolve(monsterFactory.processIntoCompendium(docIds));
-              } else {
-                logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
-                ui.notifications.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, { permanent: true });
-                resolve([]);
-              }
-            } catch (err) {
-              if (err instanceof SyntaxError) {
-                ui.notifications.error("Error fetching monsters, likely cause outdated ddb-proxy", { permanent: true });
-              } else {
-                throw err;
-              }
-            }
-            break;
-          }
-          case "spell":
-            logger.debug(`Importing missing ${type}s from DDB`);
-            notifierV2?.({ section: "note", message: `Missing spells detected, importing from DDB` });
-            // we actually want all spells, because monsters don't just use spells from a single source
-            resolve(parseSpells({ ids: null, deleteBeforeUpdate: false, notifierV2 }));
-            break;
-          // no default
+  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 | null = null): Promise<unknown> {
+    if (!docIds || docIds.length === 0) return [];
+    const family = AdventureMunchHelpers.documentFamily(type);
+    switch (family) {
+      case "item":
+        logger.debug(`Importing missing ${type}s from DDB`, docIds);
+        notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+        return DDBItemsImporter.fetchAndImportItems({
+          useSourceFilter: false,
+          ids: docIds,
+          deleteBeforeUpdate: false,
+          notifierV2,
+        });
+      case "monster": {
+        const tier = PatreonHelper.getPatreonTier();
+        const tiers = PatreonHelper.calculateAccessMatrix(tier);
+        if (!tiers.all) {
+          logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
+          ui.notifications.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, { permanent: true });
+          return [];
         }
-      } else {
-        resolve([]);
+        logger.debug(`Importing missing ${type}s from DDB`, docIds);
+        notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+        try {
+          const monsterFactory = new DDBMonsterFactory({
+            notifierV2: notifierV2 ?? undefined,
+          });
+          return await monsterFactory.processIntoCompendium(docIds);
+        } catch (err) {
+          // an outdated proxy answers with something that is not JSON; report it and carry on
+          // without the monsters rather than failing the whole import
+          if (err instanceof SyntaxError) {
+            logger.error("Error fetching monsters, likely cause outdated ddb-proxy", err);
+            ui.notifications.error("Error fetching monsters, likely cause outdated ddb-proxy", { permanent: true });
+            return [];
+          }
+          throw err;
+        }
       }
-    });
+      case "spell":
+        logger.debug(`Importing missing ${type}s from DDB`);
+        notifierV2?.({ section: "note", message: `Missing spells detected, importing from DDB` });
+        // we actually want all spells, because monsters don't just use spells from a single source
+        return parseSpells({ ids: null, deleteBeforeUpdate: false, notifierV2 });
+      default:
+        logger.warn(`Unable to import missing documents of type ${type} from DDB`, docIds);
+        return [];
+    }
   }
 
   /**
@@ -181,7 +178,7 @@ export default class AdventureMunchHelpers {
   static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2: INotifierV2 | null = null) {
     const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
     logger.debug(`${type} missing ids`, missingIds);
-    const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
+    const missingDocuments = await AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
     logger.debug(`${type} missing`, missingDocuments);
   }
 
@@ -201,47 +198,54 @@ export default class AdventureMunchHelpers {
       return String(num);
     });
 
-    return new Promise((resolve) => {
-      const documents = index
-        .filter((idx) => {
-          switch (family) {
-            case "monster":
-              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
-            case "spell":
-            case "item":
-              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.definitionId")));
-            default:
-              return false;
-          }
-        })
-        .map(async (i) => {
-          if (temporary) {
-            const source = await compendium?.getDocument(i._id) as
-              { clone: (data: Record<string, unknown>, context: { keepId: boolean }) => unknown } | null | undefined;
-            return source?.clone(overrides, { keepId: true }) ?? null;
-          }
-          switch (family) {
-            case "monster":
-              return game.actors.importFromCompendium(
-                compendium as CompendiumCollection<"Actor">,
-                i._id, overrides, { keepId: true, keepEmbeddedIds: true },
-              );
-            case "spell":
-            case "item":
-              return game.items.importFromCompendium(
-                compendium as CompendiumCollection<"Item">,
-                i._id, overrides, { keepId: true, keepEmbeddedIds: true },
-              );
-            default:
-              return undefined;
-          }
-        });
-      // the map above yields promises; hand back the resolved documents, not the promises
-      Promise.all(documents).then((loaded) => {
-        logger.debug(`${type} documents loaded`, loaded);
-        resolve(loaded);
-      });
+    const matches = index.filter((idx) => {
+      switch (family) {
+        case "monster":
+          return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
+        case "spell":
+        case "item":
+          return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.definitionId")));
+        default:
+          return false;
+      }
     });
+
+    const settled = await Promise.allSettled(matches.map(async (i) => {
+      if (temporary) {
+        const source = await compendium?.getDocument(i._id) as
+          { clone: (data: Record<string, unknown>, context: { keepId: boolean }) => unknown } | null | undefined;
+        return source?.clone(overrides, { keepId: true }) ?? null;
+      }
+      switch (family) {
+        case "monster":
+          return game.actors.importFromCompendium(
+            compendium as CompendiumCollection<"Actor">,
+            i._id, overrides, { keepId: true, keepEmbeddedIds: true },
+          );
+        case "spell":
+        case "item":
+          return game.items.importFromCompendium(
+            compendium as CompendiumCollection<"Item">,
+            i._id, overrides, { keepId: true, keepEmbeddedIds: true },
+          );
+        default:
+          return undefined;
+      }
+    }));
+
+    // One unreadable compendium entry must not sink the whole adventure: it is logged and left
+    // out, and so is an entry that resolved to nothing, since callers call toObject() on every
+    // returned document.
+    const loaded: unknown[] = [];
+    settled.forEach((result, position) => {
+      if (result.status === "rejected") {
+        logger.error(`Unable to load ${type} ${matches[position]._id} from the compendium, skipping it`, result.reason);
+      } else if (result.value !== null && result.value !== undefined) {
+        loaded.push(result.value);
+      }
+    });
+    logger.debug(`${type} documents loaded`, loaded);
+    return loaded;
   }
 
 

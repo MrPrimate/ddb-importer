@@ -139,6 +139,8 @@ export interface IDisplaySummaryRowConfig {
   color: string;
   /** Class the Configure button carries so its click can be routed. */
   buttonClass: string;
+  /** False leaves the Configure button out, for a user who could not save the change. */
+  editable?: boolean;
 }
 
 /**
@@ -147,7 +149,12 @@ export interface IDisplaySummaryRowConfig {
  * caller either listens on it directly (Region config) or through a document delegate
  * (activity sheet).
  */
-export function buildDisplaySummaryRow({ flag, color, buttonClass }: IDisplaySummaryRowConfig): HTMLElement {
+export function buildDisplaySummaryRow({
+  flag,
+  color,
+  buttonClass,
+  editable = true,
+}: IDisplaySummaryRowConfig): HTMLElement {
   const row = document.createElement("div");
   row.classList.add("ddbi-display-region-summary");
 
@@ -167,6 +174,7 @@ export function buildDisplaySummaryRow({ flag, color, buttonClass }: IDisplaySum
   text.classList.add("ddbi-display-region-summary-text");
   text.textContent = describeDisplayFlag(flag);
   row.append(text);
+  if (!editable) return row;
 
   const button = document.createElement("button");
   button.type = "button";

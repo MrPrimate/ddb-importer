@@ -27,12 +27,10 @@ export default class TwilightShroud extends DDBEnricherData {
         name: "Shrouded",
         activityMatch: "Shroud Allies",
         statuses: ["coverHalf"],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnStart",
-            expired: null,
-          },
+        options: {
+          // the cover lasts while the ally stays in the sphere; the cleric renews it on their own
+          // turn, so it lapses at the start of the cleric's next turn rather than the ally's
+          expiry: "sourceStart",
         },
       },
     ];

@@ -32,6 +32,8 @@ export default class Lifesink extends DDBEnricherData {
       {
         init: { name: "Regain Hit Points", type: DDBEnricherData.ACTIVITY_TYPES.HEAL },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateHealing: true,
           generateActivation: true,
           generateConsumption: false,

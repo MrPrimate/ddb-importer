@@ -33,6 +33,8 @@ export default class ConjureCelestial extends DDBEnricherData {
       activationCondition: "Enters the Cylinder or ends its turn there (once per turn); or the Cylinder moves into its space",
       data: {
         sort: 10000,
+        // fired every turn the cylinder lasts, so it must not start (and replace) the spell's concentration
+        duration: { override: true, value: "", units: "inst", concentration: false },
         healing: {
           scaling: {
             mode: "whole",

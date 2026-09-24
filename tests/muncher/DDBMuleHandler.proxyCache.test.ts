@@ -90,4 +90,54 @@ describe("class mule proxy cache", () => {
     expect(process.mock.calls.every(([payload]) => payload.debug.subClassId === 10)).toBe(true);
     expect((await DDBProxyCache.list()).map((cached) => cached.key)).toEqual([entry.key]);
   });
+
+  it("does not cache a stream that finished without delivering any content", async () => {
+    vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
+      this.handlers = handlers;
+    });
+    vi.spyOn(DDBMuleSocket.prototype, "auth").mockResolvedValue({ ok: true });
+    vi.spyOn(DDBMuleSocket.prototype, "start").mockImplementation(async function (this: DDBMuleSocket) {
+      // lifecycle and progress markers only: the data events never arrived
+      this.handlers?.onEvent({ kind: "started" });
+      this.handlers?.onEvent({ kind: "subClassStart", index: 1, total: 1 });
+      this.handlers?.onDone?.({});
+      return { ok: true };
+    });
+    const handler = new DDBMuleHandler({
+      characterId: "123", classId: 12, type: "class", sources: [2], filterIds: [10],
+      optionSourceIds: Array.from(DDBSources.getChosenSourceIdSet()),
+    });
+    await handler._fetchMuleData();
+    expect(await DDBProxyCache.list()).toEqual([]);
+  });
+
+  it("does not cache a proxy cacheHit event that carried no payload", async () => {
+    vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
+      this.handlers = handlers;
+    });
+    vi.spyOn(DDBMuleSocket.prototype, "auth").mockResolvedValue({ ok: true });
+    vi.spyOn(DDBMuleSocket.prototype, "start").mockImplementation(async function (this: DDBMuleSocket) {
+      this.handlers?.onEvent({ kind: "cacheHit", payload: null });
+      this.handlers?.onDone?.({});
+      return { ok: true };
+    });
+    vi.spyOn(DDBMuleHandler.prototype, "_replayBufferedSourceThroughStreamProcessors").mockResolvedValue();
+    const handler = new DDBMuleHandler({
+      characterId: "123", classId: 12, type: "class", sources: [2], filterIds: [10],
+      optionSourceIds: Array.from(DDBSources.getChosenSourceIdSet()),
+    });
+    await handler._fetchMuleData();
+    expect(await DDBProxyCache.list()).toEqual([]);
+  });
+});
+
+describe("DDBMuleHandler.isMulePayloadEvent", () => {
+  it("counts content events and ignores lifecycle and progress markers", () => {
+    for (const kind of ["baseCharacter", "class", "subClasses", "subClassChoices", "featOptions", "speciesOptions"]) {
+      expect(DDBMuleHandler.isMulePayloadEvent(kind)).toBe(true);
+    }
+    for (const kind of ["started", "done", "error", "cacheHit", "subClassStart", "somethingNew"]) {
+      expect(DDBMuleHandler.isMulePayloadEvent(kind)).toBe(false);
+    }
+  });
 });

@@ -80,7 +80,7 @@ export default class OceanicGift extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("lightning"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("thunder"),
-          DDBEnricherData.ChangeHelper.overrideChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
         ],
         options: {
           durationSeconds: 600,

@@ -1238,3 +1238,69 @@ describe("Alter Self and Disguise Self", () => {
     }]);
   });
 });
+
+/**
+ * A spell activity without its own duration inherits the spell's, concentration included, so a
+ * follow-up used by hand on a later turn would start a new concentration and end the spell's.
+ * Spell activity builds ignore `durationOverride` unless `generateDuration` is set.
+ */
+describe("follow-up activities on concentration spells do not require concentration", () => {
+  const INST_NO_CONCENTRATION = { units: "inst", concentration: false };
+
+  it.each([
+    ["CallLightning", "Damage"],
+    ["WallOfFire", "Damage"],
+    ["Haste", "Apply Lethargy"],
+    ["SpiritualWeapon", "Attack"],
+    ["WitchBolt", "Ongoing Damage"],
+    ["InvestitureOfIce", "Freezing Cone"],
+    ["Heroism", "Start of Turn Temp HP"],
+  ])("%s builds %s with its own concentration-free duration", (name, activityName) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const activity = e.additionalActivities.find((a: any) => a.init?.name === activityName);
+    expect(activity.build.generateDuration).toBe(true);
+    expect(activity.build.durationOverride).toMatchObject(INST_NO_CONCENTRATION);
+  });
+
+  it.each([
+    ["Moonbeam", "Ongoing Save"],
+    ["Cloudkill", "Ongoing Save"],
+    ["Web", "Ongoing Save"],
+    ["BlackTentacles", "Ongoing Save"],
+    ["Eyebite", "Concentration Action"],
+    ["Earthquake", "Damage from Collapsed Structure"],
+  ])("%s duplicates %s with a concentration-free duration", (name, activityName) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const activity = e.additionalActivities.find((a: any) => a.duplicate && a.overrides?.name === activityName);
+    expect(activity.overrides.data.duration).toMatchObject({ override: true, ...INST_NO_CONCENTRATION });
+  });
+
+  it("Investiture of Ice's slow lasts until the start of the caster's next turn", () => {
+    const slowed = build(SpellEnrichers.InvestitureOfIce).effects.find((e: any) => e.name === "Investiture of Ice: Slowed");
+    expect(slowed.options.expiry).toBe("sourceStart");
+    expect(slowed.data).toBeUndefined();
+  });
+});
+
+describe("movement changes use the dnd5e 6 paths", () => {
+  const movementKeys = (enricher: any) => enricher.effects
+    .flatMap((effect: any) => effect.changes ?? [])
+    .map((change: any) => change.key)
+    .filter((key: string) => key.includes("movement"));
+
+  it.each(["WindWalk", "GaseousForm", "Dream", "MagicJar"])("%s writes no pre-6.0 speed key", (name) => {
+    const keys = movementKeys(build((SpellEnrichers as any)[name]));
+    expect(keys.length).toBeGreaterThan(0);
+    for (const key of keys) {
+      expect(key).toMatch(/^system\.attributes\.movement\.(speeds\.\w+|multiplier|bonus|hover)$/);
+    }
+  });
+
+  it("Dream's Speed of 0 stops every movement mode", () => {
+    const [trance] = build(SpellEnrichers.Dream).effects;
+    expect(trance.changes).toContainEqual(expect.objectContaining({
+      key: "system.attributes.movement.multiplier",
+      value: "0",
+    }));
+  });
+});

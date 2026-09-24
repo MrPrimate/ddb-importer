@@ -34,6 +34,16 @@ interface IDisplayState {
   mask: PIXI.Graphics | null;
   /** The inset, in pixels, the mask was last drawn at; a different inset or new geometry redraws it. */
   maskInset: number | null;
+  /** The inputs `style` was resolved from (see displaySignature); null until the first resolve. */
+  signature: string | null;
+  /** The style last resolved for the region, or null when its choice names no profile that exists. */
+  style: IRegionDisplayStyle | null;
+  /** The mesh the style was applied to; a redraw builds a new one. */
+  mesh: TCoreRegionMesh | null;
+}
+
+function newState(): IDisplayState {
+  return { styled: false, band: null, mask: null, maskInset: null, signature: null, style: null, mesh: null };
 }
 
 /**
@@ -43,6 +53,12 @@ interface IDisplayState {
 const FILL_UNDER_BAND_PX = 0.5;
 
 const states = new WeakMap<TCoreRegionPlaceable, IDisplayState>();
+
+/**
+ * Bumped whenever the profile store changes, so every cached signature goes stale at once
+ * without walking the regions.
+ */
+let profileGeneration = 0;
 
 /** Canvas facts the style needs, separated so applyStyle can be exercised without a canvas. */
 interface IDisplayCanvasMetrics {
@@ -69,6 +85,22 @@ export function displayFlag(
 ): IRegionDisplayFlag | undefined {
   const flag = foundry.utils.getProperty(doc ?? {}, REGION_DISPLAY_FLAG_PATH) as IRegionDisplayFlag | undefined;
   return flag && typeof flag === "object" ? flag : undefined;
+}
+
+/**
+ * Everything a region's resolved style depends on, as one comparable string: its display
+ * choice, its own colour, the grid metrics folded into the uniforms and the profile store's
+ * generation. A moving region is refreshed every animation frame, and while this string is
+ * unchanged the style resolved last time still holds, so the profile lookup and uniform
+ * writes can be skipped.
+ */
+export function displaySignature(
+  flag: IRegionDisplayFlag | null | undefined,
+  regionColor: unknown,
+  metrics: IDisplayCanvasMetrics,
+  generation = profileGeneration,
+): string {
+  return JSON.stringify([generation, flag ?? null, String(regionColor), metrics.grid, metrics.uiScale]);
 }
 
 /** The style a region document asks for, or null for the Foundry look. */
@@ -320,38 +352,64 @@ function syncImageTexture(
   mesh.shader.uniforms.imageAspect = state.texture ? state.texture.width / Math.max(1, state.texture.height) : 1;
 }
 
-/** Style a drawn region from its document, or restore the core look when it has no choice. */
+/**
+ * Style a drawn region from its document, or restore the core look when it has no choice.
+ *
+ * `restyle` asks for the style to be written onto the mesh again even when nothing it depends
+ * on changed: core's `_refreshState` has just reset the tint and hatch. A geometry-only
+ * refresh, which a region following a token gets every animation frame, passes false and so
+ * only redraws the band and fill mask, which follow the shape.
+ */
 export function syncRegionDisplay(
   region: TCoreRegionPlaceable,
-  { geometry = false }: { geometry?: boolean } = {},
+  { geometry = false, restyle = true }: { geometry?: boolean; restyle?: boolean } = {},
 ): void {
   if (region.destroyed) return;
   const mesh = findHighlightMesh(region);
   if (!mesh) return;
-  const style = resolveDisplayStyle(region.document);
+  const flag = displayFlag(region.document);
   const metrics = canvasMetrics();
   const regionColor = region.document.color as unknown as string | number;
   let state = states.get(region);
+  const signature = flag ? displaySignature(flag, regionColor, metrics) : null;
+  const reusable = state && signature !== null && state.signature === signature && state.mesh === mesh;
+  const cached = reusable ? state : undefined;
+  const style = cached ? cached.style : RegionDisplayProfiles.resolve(flag);
   if (!style) {
     if (state?.styled) {
       restoreCoreStyle(mesh, regionColor, metrics);
       releaseState(state, mesh);
       states.delete(region);
+      state = undefined;
     }
+    if (signature === null) {
+      states.delete(region);
+      return;
+    }
+    // a choice naming a missing profile is remembered too, so a moving region does not look
+    // the profile up again every frame
+    state ??= newState();
+    Object.assign(state, { signature, style: null, mesh });
+    states.set(region, state);
     return;
   }
   if (!state) {
-    state = { styled: false, band: null, mask: null, maskInset: null };
+    state = newState();
     states.set(region, state);
   }
+  let installed = false;
   if (!state.styled) {
     const Shader = getDDBDisplayShaderClass();
     if (!Shader) return;
     setDisplayShaderClass(mesh, Shader);
     state.styled = true;
+    installed = true;
   }
-  applyStyle(mesh, style, regionColor, metrics);
-  syncImageTexture(region, mesh, style, state);
+  if (restyle || installed || !cached) {
+    applyStyle(mesh, style, regionColor, metrics);
+    syncImageTexture(region, mesh, style, state);
+  }
+  Object.assign(state, { signature, style, mesh });
   if (geometry || bandWidth(style) > 0 || state.band) drawEdgeBand(region, mesh, style, state, metrics);
   if (geometry || bandWidth(style) > 0 || state.mask) syncFillMask(region, mesh, style, state, metrics, { geometry });
 }
@@ -365,7 +423,10 @@ export function onDrawRegion(region: TCoreRegionPlaceable): void {
 
 export function onRefreshRegion(region: TCoreRegionPlaceable, flags: Record<string, boolean> = {}): void {
   if (flags.refreshState || flags.refreshGeometry || flags.refreshShapes) {
-    syncRegionDisplay(region, { geometry: Boolean(flags.refreshGeometry || flags.refreshShapes) });
+    syncRegionDisplay(region, {
+      geometry: Boolean(flags.refreshGeometry || flags.refreshShapes),
+      restyle: Boolean(flags.refreshState),
+    });
     return;
   }
   const band = states.get(region)?.band;
@@ -384,6 +445,7 @@ function requestRestyle(region: TCoreRegionPlaceable): void {
 
 /** Re-style every region on the canvas, after a profile edit. */
 export function refreshAllRegionDisplays(): void {
+  profileGeneration += 1;
   const layer = regionLayer();
   if (!layer) return;
   for (const region of layer.placeables) requestRestyle(region);

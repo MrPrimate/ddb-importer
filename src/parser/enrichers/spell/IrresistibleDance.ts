@@ -20,6 +20,8 @@ export default class IrresistibleDance extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateDamage: false,
           generateTarget: true,

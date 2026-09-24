@@ -31,6 +31,8 @@ export default class HuntersMark extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           allowCritical: true,
           generateDamage: true,
           generateSave: false,

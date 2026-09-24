@@ -19,6 +19,8 @@ export default class DistortedDistance extends DDBEnricherData {
       {
         init: { name: "Shortened Space", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateActivation: true,
           generateConsumption: false,
           generateRange: true,

@@ -9,7 +9,7 @@ import {
 } from "../config/regionDisplayProfiles";
 import { displayFlag } from "../hooks/canvas/regionDisplay";
 import { disposeImagePreviews, imagePreviewData, paintImagePreviews } from "../hooks/canvas/regionDisplayImagePreview";
-import { profileOptionGroups } from "../hooks/canvas/regionDisplayPicker";
+import { canEditProfiles, profileOptionGroups } from "../hooks/canvas/regionDisplayPicker";
 import { previewCss } from "../hooks/canvas/regionDisplayPreview";
 import {
   behaviorConfigFromFlag,
@@ -58,13 +58,14 @@ interface IRegionLike {
   name?: string;
   color?: unknown;
   flags?: Record<string, unknown>;
+  isOwner?: boolean;
   update?: (data: Record<string, unknown>) => Promise<unknown>;
 }
 
 interface IActivityLike {
   uuid?: string | null;
   name?: string;
-  item?: { name?: string } | null;
+  item?: { name?: string; isOwner?: boolean; pack?: string | null } | null;
   toObject?: () => { behaviors?: { _id?: string; type?: string; config?: Record<string, unknown> }[] };
   update?: (data: Record<string, unknown>) => Promise<unknown>;
 }
@@ -82,9 +83,14 @@ export interface IDisplayTarget {
   color: string;
   read(): IRegionDisplayFlag;
   write(flag: IRegionDisplayFlag): Promise<unknown>;
+  /** Whether the current user may write the target, so the editor is never opened on one they cannot save. */
+  canEdit(): boolean;
 }
 
-/** A region document: the flag is read and written in place. */
+/**
+ * A region document: the flag is read and written in place. Updating a region takes ownership
+ * of it, which players have over the areas they place, so the gate is ownership, not GM.
+ */
 export function regionDisplayTarget(region: IRegionLike): IDisplayTarget {
   return {
     key: region.uuid ?? String(region.id),
@@ -95,13 +101,16 @@ export function regionDisplayTarget(region: IRegionLike): IDisplayTarget {
       const previous = displayFlag(region as RegionDocument.Implementation);
       return region.update?.(DDBRegionDisplayConfig.updateData(previous, flag));
     },
+    canEdit: () => region.isOwner === true,
   };
 }
 
 /**
  * One `ddbDisplay` behavior on an activity, found by its id so an open editor survives
  * the list being reordered. dnd5e replaces the whole behaviors array on update, so the
- * write rebuilds the array from the activity's source with just this config changed.
+ * write rebuilds the array from the activity's source with just this config changed. It can
+ * be edited by whoever may edit the activity: dnd5e's activity sheet asks for an owner of the
+ * item outside a locked compendium.
  */
 export function activityBehaviorDisplayTarget(activity: IActivityLike, behaviorId: string): IDisplayTarget {
   const find = () => (activity.toObject?.().behaviors ?? []).find((behavior) => behavior._id === behaviorId);
@@ -117,6 +126,11 @@ export function activityBehaviorDisplayTarget(activity: IActivityLike, behaviorI
       if (!entry) throw new Error(`Behavior ${behaviorId} no longer exists on ${activity.uuid}`);
       entry.config = { ...(entry.config ?? {}), ...behaviorConfigFromFlag(flag) };
       return activity.update?.({ behaviors });
+    },
+    canEdit: () => {
+      const item = activity.item;
+      if (item?.isOwner !== true) return false;
+      return !(item.pack && game.packs.get(item.pack)?.locked);
     },
   };
 }
@@ -173,8 +187,12 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     if (typeof this.draft.color === "string" && this.draft.color) this.lastCustomColor = this.draft.color;
   }
 
-  /** Show the editor for a target, reusing its open window. */
-  static openTarget(target: IDisplayTarget): DDBRegionDisplayConfig {
+  /** Show the editor for a target, reusing its open window. Null, with a warning, when the user cannot save it. */
+  static openTarget(target: IDisplayTarget): DDBRegionDisplayConfig | null {
+    if (!target.canEdit()) {
+      ui.notifications.warn(RegionDisplayProfiles.localize("editPermission"));
+      return null;
+    }
     let app = DDBRegionDisplayConfig.#instances.get(target.key);
     if (!app) {
       app = new DDBRegionDisplayConfig(target);
@@ -185,17 +203,22 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
   }
 
   /** Show the editor for a region document. */
-  static open(region: IRegionLike): DDBRegionDisplayConfig {
+  static open(region: IRegionLike): DDBRegionDisplayConfig | null {
     return DDBRegionDisplayConfig.openTarget(regionDisplayTarget(region));
   }
 
   /** Show the editor for an activity's `ddbDisplay` behavior. */
-  static openForBehavior(activity: IActivityLike, behaviorId: string): DDBRegionDisplayConfig {
+  static openForBehavior(activity: IActivityLike, behaviorId: string): DDBRegionDisplayConfig | null {
     return DDBRegionDisplayConfig.openTarget(activityBehaviorDisplayTarget(activity, behaviorId));
   }
 
   override get title(): string {
     return this.target.title;
+  }
+
+  /** The last gate, for a window built directly or one whose target's permission changed while open. */
+  protected override _canRender(_options: unknown): boolean | void {
+    if (!this.target.canEdit()) throw new Error(RegionDisplayProfiles.localize("editPermission"));
   }
 
   _getTabs(): IDDBTabs {
@@ -281,6 +304,8 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       options: group.options.map((option) => ({ ...option, selected: option.value === (draft.profile ?? "") })),
     }));
     context.hasProfile = Boolean(draft.profile);
+    // a player may own the region but not the world's profiles, so the gear is theirs only with that right
+    context.canEditProfiles = canEditProfiles();
     const ownSpacing = RegionDisplayProfiles.clamp("spacing", draft.spacing, NaN);
     context.perSquare = Number.isFinite(ownSpacing) ? (RegionDisplayProfiles.countForSpacing(ownSpacing) ?? "") : "";
     context.perSquarePlaceholder = style ? (RegionDisplayProfiles.countForSpacing(style.spacing) ?? "profile") : "profile";

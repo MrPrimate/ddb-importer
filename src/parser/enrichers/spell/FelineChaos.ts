@@ -69,6 +69,7 @@ export default class FelineChaos extends DDBEnricherData {
           noTemplate: true,
           allowCritical: false,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             damage: {
               parts: [DDBEnricherData.basicDamagePart({
                 number: 4,
@@ -93,6 +94,7 @@ export default class FelineChaos extends DDBEnricherData {
           activationCondition: "A creature moves within the area",
           noTemplate: true,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             save: {
               ability: ["dex"],
               dc: {

@@ -101,7 +101,8 @@ export default class RegionExpiryCleanup {
 
   static #scheduleFlush(): void {
     RegionExpiryCleanup.#flushSoon ??= foundry.utils.debounce(() => {
-      void RegionExpiryCleanup.#flush();
+      // nothing awaits a debounced call, so a rejection here would otherwise go unhandled
+      RegionExpiryCleanup.#flush().catch((err: unknown) => logger.error(`${LOG} flush failed`, err));
     }, RegionExpiryCleanup.DEBOUNCE_MS);
     RegionExpiryCleanup.#flushSoon();
   }
@@ -741,8 +742,14 @@ export default class RegionExpiryCleanup {
           { region: region.uuid });
         continue;
       }
-      RegionExpiryCleanup.#pending.set(region.uuid, RegionExpiryCleanup.#prepareEntry(region, reason));
-      queued++;
+      // one malformed region must not abort the loop, which would also skip the flush below and
+      // leave the templates queued before it waiting for an unrelated later event
+      try {
+        RegionExpiryCleanup.#pending.set(region.uuid, RegionExpiryCleanup.#prepareEntry(region, reason));
+        queued++;
+      } catch (err) {
+        logger.error(`${LOG} could not queue ${region.uuid}`, err);
+      }
     }
     if (RegionExpiryCleanup.#pending.size) {
       logger.debug(`${LOG} ${queued} newly queued, ${RegionExpiryCleanup.#pending.size} pending; `
@@ -755,6 +762,8 @@ export default class RegionExpiryCleanup {
 
   /** Show the prompt for everything currently queued. */
   static async #flush(): Promise<void> {
+    // While a prompt is open (this queue's or a manual scan's) the entries wait;
+    // #promptEntries schedules the next pass when that prompt closes.
     if (RegionExpiryCleanup.#busy || !RegionExpiryCleanup.#pending.size) {
       logger.debug(`${LOG} flush skipped`, {
         busy: RegionExpiryCleanup.#busy,
@@ -762,29 +771,24 @@ export default class RegionExpiryCleanup {
       });
       return;
     }
-    try {
-      // Drop anything deleted while the prompt was queued, and anything the GM kept from a
-      // dialog that was open while this entry re-queued (the expiry update and the later
-      // effect deletion both queue the same region).
-      const entries = Array.from(RegionExpiryCleanup.#pending.values())
-        .filter((entry) => RegionExpiryCleanup.#stillExists(entry.region)
-          && !RegionExpiryCleanup.#kept.has(entry.uuid));
-      const dropped = RegionExpiryCleanup.#pending.size - entries.length;
-      RegionExpiryCleanup.#pending.clear();
-      if (!entries.length) {
-        logger.debug(`${LOG} all ${dropped} pending template(s) were deleted or kept, no prompt`);
-        return;
-      }
-      logger.debug(`${LOG} prompting for ${entries.length} template(s) (${dropped} dropped)`,
-        entries.map((entry) => `${entry.name} [${entry.reason}]`));
-      await RegionExpiryCleanup.#promptEntries(entries);
-    } catch (err) {
-      logger.error(`${LOG} flush failed`, err);
-      throw err;
-    } finally {
-      // Anything queued while the dialog was open gets its own pass.
-      if (RegionExpiryCleanup.#pending.size) RegionExpiryCleanup.#scheduleFlush();
+    // Take the batch before anything can throw: a failure then loses only this batch (a later
+    // sweep re-offers whatever is still expired) rather than leaving it queued to fail again
+    // on every pass.
+    const queued = Array.from(RegionExpiryCleanup.#pending.values());
+    RegionExpiryCleanup.#pending.clear();
+    // Drop anything deleted while the prompt was queued, and anything the GM kept from a
+    // dialog that was open while this entry re-queued (the expiry update and the later
+    // effect deletion both queue the same region).
+    const entries = queued.filter((entry) => RegionExpiryCleanup.#stillExists(entry.region)
+      && !RegionExpiryCleanup.#kept.has(entry.uuid));
+    const dropped = queued.length - entries.length;
+    if (!entries.length) {
+      logger.debug(`${LOG} all ${dropped} pending template(s) were deleted or kept, no prompt`);
+      return;
     }
+    logger.debug(`${LOG} prompting for ${entries.length} template(s) (${dropped} dropped)`,
+      entries.map((entry) => `${entry.name} [${entry.reason}]`));
+    await RegionExpiryCleanup.#promptEntries(entries);
   }
 
   /* -------------------------------------------- */
@@ -810,6 +814,10 @@ export default class RegionExpiryCleanup {
       return removing.length;
     } finally {
       RegionExpiryCleanup.#busy = false;
+      // Anything queued while the dialog was open was skipped by #flush, and nothing else
+      // would pick it up before the next unrelated expiry event; this also covers a manual
+      // scan's prompt, which the debounced queue waits behind the same way.
+      if (RegionExpiryCleanup.#pending.size) RegionExpiryCleanup.#scheduleFlush();
     }
   }
 

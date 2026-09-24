@@ -117,6 +117,12 @@ global {
 
   interface IDDBSpellActivityBuild extends IDDBActivityBuild {
     noSpellslot?: boolean;
+    /**
+     * A follow-up that spends no spell slot keeps the spell's duration without concentration, so
+     * using it does not begin concentration again. Ignored when `generateDuration` is set or `data`
+     * carries a duration.
+     */
+    noConcentration?: boolean;
     modRestrictionFilter?: any;
     modRestrictionFilterExcludes?: any;
   };

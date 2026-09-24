@@ -40,12 +40,61 @@ function makeSpell() {
 
 describe("DDBEffectImporter", () => {
   it("builds deterministic ids from the document and effect names", () => {
-    const a = DDBEffectImporter.standaloneEffectId("Silence", "Silenced");
-    const b = DDBEffectImporter.standaloneEffectId("Silence", "Silenced");
+    const a = DDBEffectImporter.standaloneEffectId({ documentName: "Silence", effectName: "Silenced", rules: "2024" });
+    const b = DDBEffectImporter.standaloneEffectId({ documentName: "Silence", effectName: "Silenced", rules: "2024" });
     expect(a).toBe(b);
     expect(a).toHaveLength(16);
-    expect(a.startsWith("ddb")).toBe(true);
-    expect(DDBEffectImporter.standaloneEffectId("Aura of Life", "Aura of Life")).not.toBe(a);
+    expect(a).toMatch(/^ddb[a-zA-Z0-9]{13}$/);
+    expect(DDBEffectImporter.standaloneEffectId({ documentName: "Aura of Life", effectName: "Aura of Life", rules: "2024" })).not.toBe(a);
+  });
+
+  it("splits the 2014 and 2024 versions of a same-named document into separate compendium ids", () => {
+    const cases = [
+      ["Silence", "Silenced"],
+      ["Spirit Guardians", "Spirit Guardians"],
+      // six short words: the name alone truncates to one or two characters a word
+      ["Aura of Protection", "Aura of Protection"],
+      // one long word: the ruleset must survive the truncation
+      ["Antimagicfieldextendedname", "Antimagicfieldextendedname"],
+    ];
+    for (const [documentName, effectName] of cases) {
+      const legacy = DDBEffectImporter.standaloneEffectId({ documentName, effectName, rules: "2014" });
+      const modern = DDBEffectImporter.standaloneEffectId({ documentName, effectName, rules: "2024" });
+      expect(legacy, documentName).not.toBe(modern);
+      expect(legacy, documentName).toMatch(/^ddb[a-zA-Z0-9]{13}$/);
+      expect(modern, documentName).toMatch(/^ddb[a-zA-Z0-9]{13}$/);
+      expect(DDBEffectImporter.standaloneEffectId({ documentName, effectName, rules: "2014" })).toBe(legacy);
+      expect(DDBEffectImporter.standaloneEffectId({ documentName, effectName, rules: "2024" })).toBe(modern);
+    }
+  });
+
+  it("keeps distinct names distinct once the ruleset takes its share of the id", () => {
+    const protection = DDBEffectImporter.standaloneEffectId({ documentName: "Aura of Protection", effectName: "Aura of Protection", rules: "2024" });
+    const purity = DDBEffectImporter.standaloneEffectId({ documentName: "Aura of Purity", effectName: "Aura of Purity", rules: "2024" });
+    expect(protection).not.toBe(purity);
+  });
+
+  it("leaves an explicit shared key ruleset-free", () => {
+    const key = "Evolved Studious";
+    const legacy = DDBEffectImporter.standaloneEffectId({ key, documentName: "A", effectName: "B", rules: "2014" });
+    const modern = DDBEffectImporter.standaloneEffectId({ key, documentName: "C", effectName: "D", rules: "2024" });
+    expect(legacy).toBe(modern);
+    expect(legacy).toHaveLength(16);
+  });
+
+  it("keys the ruleset on the document source, falling back to the enricher's ruleset", () => {
+    expect(DDBEffectImporter.documentRules({ system: { source: { rules: "2014" } } }, false)).toBe("2014");
+    expect(DDBEffectImporter.documentRules({ system: { source: { rules: "2024" } } }, true)).toBe("2024");
+    expect(DDBEffectImporter.documentRules({ system: { source: { rules: null } } }, true)).toBe("2014");
+    expect(DDBEffectImporter.documentRules({ system: {} }, false)).toBe("2024");
+    expect(DDBEffectImporter.documentRules({}, true)).toBe("2014");
+  });
+
+  it("turns a ruleset into a short id-safe postfix", () => {
+    expect(DDBEffectImporter.rulesetPostfix("2014")).toBe("14");
+    expect(DDBEffectImporter.rulesetPostfix("2024")).toBe("24");
+    expect(DDBEffectImporter.rulesetPostfix(null)).toBeNull();
+    expect(DDBEffectImporter.rulesetPostfix("")).toBeNull();
   });
 
   it("builds compendium uuids for the effects pack", () => {

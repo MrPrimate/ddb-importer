@@ -335,6 +335,32 @@ export default class DDBMuleHandler {
     (this.source as any).baseCharacter = payload;
   }
 
+  // the event kinds _ingestIterationItem stores into the source; everything else is a lifecycle or
+  // progress marker, or a kind it does not know and drops
+  static #PAYLOAD_EVENT_KINDS = new Set([
+    "baseCharacter",
+    "class",
+    "subClasses",
+    "options",
+    "subClassData",
+    "subClassChoices",
+    "optionData",
+    "optionChoicesData",
+    "featOptions",
+    "backgroundOptions",
+    "speciesOptions",
+  ]);
+
+  /**
+   * Whether a streamed mule event carries content for the source, as opposed to a lifecycle or
+   * progress marker. Used to tell a finished stream with data from one that delivered nothing.
+   * @param {string} kind the mule event kind
+   * @returns {boolean} true when the event adds to the buffered source
+   */
+  static isMulePayloadEvent(kind: string): boolean {
+    return DDBMuleHandler.#PAYLOAD_EVENT_KINDS.has(kind);
+  }
+
   _ingestIterationItem({ kind, payload }: { kind: string; payload: any }) {
     this._ensureSource();
     const src = this.source as any;
@@ -656,6 +682,8 @@ export default class DDBMuleHandler {
     let firstItemAt: number | null = null;
     let eventCount = 0;
     let cacheHit = false;
+    // whether any event actually carried content into this.source; progress markers do not
+    let receivedPayload = false;
     const counts: Record<string, number> = {};
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
@@ -675,10 +703,14 @@ export default class DDBMuleHandler {
             if (event.kind === "cacheHit") {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
-              if (cached) (this as any).source = cached;
+              if (cached) {
+                (this as any).source = cached;
+                receivedPayload = true;
+              }
               return;
             }
             if (["started", "done", "error"].includes(event.kind)) return;
+            if (DDBMuleHandler.isMulePayloadEvent(event.kind)) receivedPayload = true;
             eventCount++;
             counts[event.kind] = (counts[event.kind] ?? 0) + 1;
             if (firstItemAt === null) firstItemAt = Date.now();
@@ -736,9 +768,16 @@ export default class DDBMuleHandler {
         await this._drainStreamProcessing();
         this._streamProcessedAll = true;
       }
-      // both branches leave the fully buffered payload in this.source
+      // both branches leave the fully buffered payload in this.source. A stream that finished
+      // without delivering any content leaves only the empty skeleton from _ensureSource, which
+      // is indistinguishable from a dropped stream, so it is not cached: the run proceeds with
+      // what it has and the next run asks the proxy again.
       if (DDBProxyCache.isEnabled()) {
-        await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
+        if (receivedPayload) {
+          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
+        } else {
+          logger.warn(`[DDBMuleSocket] ${streamElement} stream completed without any content; not caching it`);
+        }
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
@@ -1405,11 +1444,24 @@ export default class DDBMuleHandler {
   // Life domain parsing errors
   // Light domain parsing errors
 
-  static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
-    if (cacheHit) {
-      return cacheHit as T[];
+  /**
+   * A session memo bucket on CONFIG.DDBI.KNOWN. Entries are keyed by the proxy cache key of the
+   * request, so they separate on the same proxy, account and campaign identity the persistent
+   * cache does: switching cobalt or campaign misses the memo instead of serving the old list.
+   * The key holds dots (proxy URL, JSON params), so it is indexed directly, never as a property path.
+   * @param {"MULE_LISTS" | "SUBCLASSES"} name the bucket, reset by DDBProxyCache.invalidateSessionCaches
+   * @returns {Record<string, unknown>} the bucket
+   */
+  static #sessionMemo(name: "MULE_LISTS" | "SUBCLASSES"): Record<string, unknown> {
+    let bucket = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, name) as Record<string, unknown> | undefined;
+    if (!bucket) {
+      bucket = {};
+      foundry.utils.setProperty(CONFIG.DDBI.KNOWN, name, bucket);
     }
+    return bucket;
+  }
+
+  static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -1444,6 +1496,9 @@ export default class DDBMuleHandler {
 
     // the list type selects the endpoint, so it has to be part of the cache key
     const request: IProxyCacheRequest = { domain: "mule-list", params: { type, ...body } };
+    const memoKey = DDBProxyCache.buildKey(request);
+    const cacheHit = DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey];
+    if (cacheHit) return cacheHit as T[];
     const stamp = DDBProxyCache.stampFor(request);
     const list = await DDBProxyCache.wrap<T[]>(request, async () => {
       const data = await postJson(`${parsingApi}${urlPostfix}`, body);
@@ -1457,7 +1512,7 @@ export default class DDBMuleHandler {
     // a clear or delete that landed while the download ran already dropped the persistent write;
     // memoising the result here would hand the next lookup that same stale list without a fetch
     if (DDBProxyCache.stampFor(request) === stamp) {
-      await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, list);
+      DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey] = list;
     }
     return list;
   }
@@ -1560,22 +1615,23 @@ export default class DDBMuleHandler {
 
   }
 
+  // classId stays in the signature for the callers, but the memo keys on the request alone: the
+  // proxy answers by class name, so the id adds nothing to what comes back
   static async getSubclassesCached({
     className,
-    classId,
     rulesVersion = "2024",
     includeHomebrew = false,
     campaignId = null,
   }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
-    const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey) as IDDBMuleSubclassDefinition[] | undefined;
-    if (cacheHit) return cacheHit;
     const options = { className, rulesVersion, includeHomebrew, campaignId };
     const { request } = DDBMuleHandler.#subclassRequest(options);
+    const memoKey = DDBProxyCache.buildKey(request);
+    const cacheHit = DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] as IDDBMuleSubclassDefinition[] | undefined;
+    if (cacheHit) return cacheHit;
     const stamp = DDBProxyCache.stampFor(request);
     const data = await DDBMuleHandler.getSubclasses(options);
     // same reasoning as getList: a clear during the fetch must not be undone by the memo
-    if (DDBProxyCache.stampFor(request) === stamp) await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
+    if (DDBProxyCache.stampFor(request) === stamp) DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] = data;
     return data;
   }
 

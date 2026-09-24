@@ -29,6 +29,7 @@ export default class Cloudkill extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             range: {
               override: true,
               units: "spec",

@@ -164,6 +164,27 @@ describe("region display targets", () => {
     await expect(activityBehaviorDisplayTarget(activity, "zzz").write({ profile: "aura" })).rejects.toThrow("zzz");
   });
 
+  it("opens only on a target the user can write: an owned region, or an owned item outside a locked compendium", () => {
+    expect(regionDisplayTarget({ uuid: "Scene.a.Region.b", isOwner: true }).canEdit()).toBe(true);
+    expect(regionDisplayTarget({ uuid: "Scene.a.Region.b", isOwner: false }).canEdit()).toBe(false);
+    const activity = (item: { isOwner?: boolean; pack?: string | null } | null) => ({ uuid: "Item.x.Activity.y", item });
+    expect(activityBehaviorDisplayTarget(activity({ isOwner: true }), "bbb").canEdit()).toBe(true);
+    expect(activityBehaviorDisplayTarget(activity({ isOwner: false }), "bbb").canEdit()).toBe(false);
+    expect(activityBehaviorDisplayTarget(activity(null), "bbb").canEdit()).toBe(false);
+    const packs = vi.spyOn(game.packs!, "get").mockReturnValue({ locked: true } as any);
+    expect(activityBehaviorDisplayTarget(activity({ isOwner: true, pack: "world.items" }), "bbb").canEdit()).toBe(false);
+    packs.mockReturnValue({ locked: false } as any);
+    expect(activityBehaviorDisplayTarget(activity({ isOwner: true, pack: "world.items" }), "bbb").canEdit()).toBe(true);
+    packs.mockRestore();
+
+    const warn = vi.spyOn(ui.notifications!, "warn");
+    expect(DDBRegionDisplayConfig.open({ uuid: "Scene.a.Region.b", isOwner: false })).toBeNull();
+    expect(DDBRegionDisplayConfig.openForBehavior(activity({ isOwner: false }), "bbb")).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenCalledWith("You do not have permission to change this region display.");
+    warn.mockRestore();
+  });
+
   it("round-trips a flag through the behavior config, dropping blanks", () => {
     const flag = { profile: "damage", pattern: "dots" as const, dashed: "continuous" as const, border: "border" as const, angle: 30, color: "#abcdef" };
     const config = behaviorConfigFromFlag(flag);

@@ -2,9 +2,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Eventide's Splendor (College of the Moon, 2024). DDB ships the Vibrance of the Full Moon heal;
- * the SRD adds Shadow of the New Moon (the bard and the inspired creature turn
- * Invisible until the start of the bard's next turn) and Lunar Vitality (spend a Bardic
- * Inspiration die to heal that much extra and grant +10 feet of speed).
+ * the enricher adds Shadow of the New Moon (the inspired creature also turns Invisible and
+ * teleports, staying Invisible until the start of its own next turn) and Lunar Vitality (spend a
+ * Bardic Inspiration die to heal that much extra, and the healed creature's Speed rises by 10 feet
+ * until the end of its next turn).
  */
 export default class EventidesSplendor extends DDBEnricherData {
 
@@ -41,16 +42,16 @@ export default class EventidesSplendor extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              count: "2",
+              count: "1",
               type: "creature",
               choice: false,
-              special: "You and the inspired creature",
+              special: "The creature who received the Bardic Inspiration die",
             },
           },
         },
         overrides: {
           rangeType: "ft",
-          rangeValue: 30,
+          rangeValue: 60,
         },
       },
       {
@@ -98,12 +99,9 @@ export default class EventidesSplendor extends DDBEnricherData {
         name: "Shadow of the New Moon: Invisible",
         activityMatch: "Shadow of the New Moon",
         statuses: ["Invisible"],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnStart",
-            expired: null,
-          },
+        options: {
+          // "remains Invisible until the start of its next turn": the inspired creature's turn
+          expiry: "targetStart",
         },
       },
       {
@@ -112,12 +110,9 @@ export default class EventidesSplendor extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.movementBonusChange("10"),
         ],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnStart",
-            expired: null,
-          },
+        options: {
+          // "Speed also increases by 10 feet until the end of its next turn": the healed creature's turn
+          expiry: "targetEnd",
         },
       },
     ];

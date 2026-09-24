@@ -39,6 +39,7 @@ export default class WallOfLight extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
           generateDamage: true,
           generateConsumption: false,
           generateTarget: true,
@@ -61,6 +62,7 @@ export default class WallOfLight extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
+          generateDuration: true,
           generateAttack: true,
           generateDamage: true,
           generateConsumption: false,

@@ -19,7 +19,7 @@ import DDBMonster from "./DDBMonster";
 import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
-import DDBMonsterSocket, { DDBMonsterEvent } from "../lib/streaming/DDBMonsterSocket";
+import DDBMonsterSocket, { DDBMonsterEvent, DDBMonsterStartParams } from "../lib/streaming/DDBMonsterSocket";
 
 // Custom proxies may not expose the /monsters socket namespace. One failed
 // streaming attempt per page-load latches this and falls back to HTTP.
@@ -231,6 +231,37 @@ export function combineByIdResults(
  */
 export function shouldFallbackAfterByIdStream(fetchedCount: number, rawCount: number): boolean {
   return fetchedCount > 0 && rawCount === 0;
+}
+
+/**
+ * Run one bulk monster job on an authed socket and return the streamed monsters. A job that
+ * finishes without a `monsters` event is a failed stream rather than a search with no results, so
+ * it throws: the proxy cache stores nothing and the caller falls back to HTTP. A `monsters` event
+ * carrying an empty list is a real empty result and is returned as-is, the same as the HTTP
+ * endpoint's empty `data`.
+ * @param {Pick<DDBMonsterSocket, "runJob">} socket a connected, authenticated monster socket
+ * @param {string} element the stream element to start
+ * @param {DDBMonsterStartParams} params the job parameters
+ * @returns {Promise<IDDBMonsterSourceData[]>} the streamed monsters
+ */
+export async function _runBulkMonsterJob(
+  socket: Pick<DDBMonsterSocket, "runJob">,
+  element: string,
+  params: DDBMonsterStartParams,
+): Promise<IDDBMonsterSourceData[]> {
+  // held in an object because the assignment happens inside a closure, which control-flow
+  // narrowing cannot see after the await
+  const received: { monsters: IDDBMonsterSourceData[] | null } = { monsters: null };
+  // Monster bulk fetches can be very long-running for large catalogues
+  // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
+  await socket.runJob(element, params, {
+    timeoutMs: 180000,
+    onEvent: (event: DDBMonsterEvent) => {
+      if (event.kind === "monsters" && Array.isArray(event.payload)) received.monsters = event.payload;
+    },
+  });
+  if (received.monsters === null) throw new Error(`Monster stream ${element} completed without a monsters payload`);
+  return received.monsters;
 }
 
 async function _getSharedMonsterSocket(
@@ -580,19 +611,7 @@ export default class DDBMonsterFactory {
       try {
         const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
         if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-
-        let raw: IDDBMonsterSourceData[] = [];
-        // Monster bulk fetches can be very long-running for large catalogues
-        // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
-        await socket.runJob(streamElement, buildStartParams(), {
-          timeoutMs: 180000,
-          onEvent: (event: DDBMonsterEvent) => {
-            if (event.kind === "monsters" && Array.isArray(event.payload)) {
-              raw = event.payload;
-            }
-          },
-        });
-        return raw;
+        return await _runBulkMonsterJob(socket, streamElement, buildStartParams());
       } finally {
         socket.close();
       }

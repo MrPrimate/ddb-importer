@@ -20,7 +20,7 @@ import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
-import DDBSpellSocket, { DDBSpellEvent } from "../lib/streaming/DDBSpellSocket";
+import DDBSpellSocket, { DDBSpellEvent, DDBSpellStartParams } from "../lib/streaming/DDBSpellSocket";
 
 /**
  * Dev-only capture buffer.
@@ -125,6 +125,34 @@ interface IStreamAllClassSpellsOptions {
   sourcesOverride?: number[] | null;
 }
 
+/**
+ * Run one `class-spells` job on an authed socket and return the streamed spell list. A job that
+ * finishes without a `classSpells` event is a failed stream rather than a class with no spells, so
+ * it throws: the proxy cache stores nothing and the caller falls back to HTTP. A `classSpells`
+ * event carrying an empty list is a real empty result and is returned as-is, the same as the HTTP
+ * endpoint's empty `data`.
+ * @param {Pick<DDBSpellSocket, "runJob">} socket a connected, authenticated spell socket
+ * @param {DDBSpellStartParams} jobParams the job parameters, also the proxy cache params
+ * @returns {Promise<IDDBSpellEntry[]>} the class spell entries
+ */
+export async function runClassSpellsJob(socket: Pick<DDBSpellSocket, "runJob">, jobParams: DDBSpellStartParams): Promise<IDDBSpellEntry[]> {
+  // held in an object because the assignment happens inside a closure, which control-flow
+  // narrowing cannot see after the await
+  const received: { spells: IDDBSpellEntry[] | null } = { spells: null };
+  await socket.runJob("class-spells", jobParams, {
+    timeoutMs: 30000,
+    onEvent: (event: DDBSpellEvent) => {
+      if (event.kind !== "classSpells") return;
+      const payload = event.payload ?? {};
+      if (Array.isArray(payload.spells)) received.spells = payload.spells;
+    },
+  });
+  if (received.spells === null) {
+    throw new Error(`Spell stream for ${jobParams.className} (${jobParams.rulesVersion}) completed without a spells payload`);
+  }
+  return received.spells;
+}
+
 // Stream every class' spells over a SINGLE reused socket connection: connect +
 // auth once, then issue one `class-spells` job per class on the same socket.
 // Replaces the old per-class connect/auth/start/close churn (~24 connections).
@@ -167,24 +195,10 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
         });
 
         const jobParams = { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie };
-        const raw = await DDBProxyCache.wrap<IDDBSpellEntry[]>({ domain: "spells", params: jobParams }, async () => {
-          const live = await ensureSocket();
-          let streamed: IDDBSpellEntry[] = [];
-          await live.runJob(
-            "class-spells",
-            jobParams,
-            {
-              timeoutMs: 30000,
-              onEvent: (event: DDBSpellEvent) => {
-                if (event.kind === "classSpells") {
-                  const payload = event.payload ?? {};
-                  if (Array.isArray(payload.spells)) streamed = payload.spells;
-                }
-              },
-            },
-          );
-          return streamed;
-        });
+        const raw = await DDBProxyCache.wrap<IDDBSpellEntry[]>(
+          { domain: "spells", params: jobParams },
+          async () => runClassSpellsJob(await ensureSocket(), jobParams),
+        );
 
         if (debugJson) debugDump.push(...raw);
         collectRawSpellsBySource(raw, className, rules);

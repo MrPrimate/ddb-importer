@@ -18,6 +18,8 @@ export default class Haste extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateConsumption: false,
           generateTarget: true,
           generateActivation: true,

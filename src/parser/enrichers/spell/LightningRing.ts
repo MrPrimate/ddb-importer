@@ -33,6 +33,8 @@ export default class LightningRing extends DDBEnricherData {
       {
         init: { name: "Ring Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateDamage: true,
           generateActivation: true,
@@ -57,6 +59,8 @@ export default class LightningRing extends DDBEnricherData {
       {
         init: { name: "Lightning Line", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateDamage: true,
           generateActivation: true,

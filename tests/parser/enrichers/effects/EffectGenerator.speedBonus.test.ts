@@ -13,7 +13,7 @@ const ddb: any = {
   },
 };
 
-const buildGenerator = (grantedModifiers: any[]): any => {
+const buildGenerator = (grantedModifiers: any[], rules: "2014" | "2024" | null = null): any => {
   return new (EffectGenerator as any)({
     ddb,
     character: { flags: {}, system: {} },
@@ -26,7 +26,7 @@ const buildGenerator = (grantedModifiers: any[]): any => {
         canAttune: false,
       },
     },
-    document: { name: "Test Item", type: "equipment", effects: [], flags: {} },
+    document: { name: "Test Item", type: "equipment", effects: [], flags: {}, system: { source: { rules } } },
     type: "item",
     isCompendiumItem: true,
     separateACEffects: false,
@@ -51,7 +51,57 @@ describe("EffectGenerator speed bonuses", () => {
     generator._addBonusSpeeds();
 
     expect(generator.effect.system.changes).toEqual([
-      expect.objectContaining({ key: "system.attributes.movement.walk", value: "10", type: "add" }),
+      expect.objectContaining({ key: "system.attributes.movement.speeds.walk", value: "10", type: "add" }),
+    ]);
+  });
+
+  it("raises only the walking speed for a generic 2014 speed bonus", () => {
+    const generator = buildGenerator([speedModifier("speed", 10)], "2014");
+    generator._addBonusSpeeds();
+
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.speeds.walk", value: "10", type: "add" }),
+    ]);
+  });
+
+  it("raises every speed for a generic 2024 speed bonus", () => {
+    const generator = buildGenerator([speedModifier("speed", 10)], "2024");
+    generator._addBonusSpeeds();
+
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.bonus", value: "10", type: "add" }),
+    ]);
+  });
+
+  it("reads the ruleset from the is2024 flag when the source carries no rules", () => {
+    const generator = buildGenerator([speedModifier("speed", 5)]);
+    generator.document.flags = { ddbimporter: { is2024: true } };
+    generator._addBonusSpeeds();
+
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.bonus", value: "5" }),
+    ]);
+  });
+
+  it("keeps unarmored movement on the walking speed in 2024", () => {
+    const generator = buildGenerator([speedModifier("unarmored-movement", 10)], "2024");
+    generator._addBonusSpeeds();
+
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.speeds.walk", value: "10" }),
+    ]);
+  });
+
+  it("sets an innate speed on the speeds mapping, defaulting to the walking speed", () => {
+    const generator = buildGenerator([
+      { ...speedModifier("innate-speed-flying", null), type: "set" },
+      { ...speedModifier("innate-speed-swimming", 30), type: "set" },
+    ]);
+    generator._addSetSpeeds();
+
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.speeds.swim", value: "30", type: "upgrade" }),
+      expect.objectContaining({ key: "system.attributes.movement.speeds.fly", value: "@attributes.movement.speeds.walk", type: "upgrade" }),
     ]);
   });
 

@@ -288,6 +288,8 @@
         "Label": "DDB Importer Region Display",
         "noProfile": "None (Foundry default)",
         "unknownProfile": "Unknown profile \"{profile}\" (Foundry default)",
+        "profilesPermission": "Region display profiles are a world setting: only a Game Master who may change world settings can edit them.",
+        "editPermission": "You do not have permission to change this region display.",
         "profileDefault": "Profile default",
         "dashed": "Dashed",
         "continuous": "Continuous",
@@ -528,6 +530,7 @@
         },
         "placingActivity": "(The activity that placed this region)",
         "ownerTurnFailure": "{region}: the owner-turn activity could not complete. The region remains; use its follow-up manually.",
+        "legacyAura": "{name} was imported with the retired Active Auras automation, which no longer runs. Re-import it to use DDB Importer region automation.",
         "ownerTurnTargets": { "region": "Region occupants", "none": "No recipients" },
         "choice": {
           "waiting": "Waiting for the owning player. You can take over or skip this trigger; advancing combat does not answer it.",

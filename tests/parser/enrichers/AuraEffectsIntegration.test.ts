@@ -123,6 +123,26 @@ describe("generated class auras", () => {
     expect(auraSystem(effects[0])).toMatchObject(metadata);
   });
 
+  it("keys the standalone compendium id on the ruleset so 2014 and 2024 imports do not overwrite each other", async () => {
+    const standaloneFor = async (is2014: boolean) => {
+      const { standalone } = await generate(GenericEnrichers.AuraOf, "Aura of Protection", { parsed: true, is2014 });
+      expect(standalone).toHaveLength(1);
+      return standalone[0];
+    };
+    const legacy = (await standaloneFor(true))._id as string;
+    const modernEffect = await standaloneFor(false);
+    const modern = modernEffect._id as string;
+    expect(legacy).not.toBe(modern);
+    expect(legacy).toMatch(/^ddb[a-zA-Z0-9]{13}$/);
+    expect(modern).toMatch(/^ddb[a-zA-Z0-9]{13}$/);
+    expect((await standaloneFor(true))._id).toBe(legacy);
+    expect((await standaloneFor(false))._id).toBe(modern);
+    // the enricher and the importer share one id helper
+    expect(modern).toBe(DDBEffectImporter.standaloneEffectId({
+      documentName: "Aura of Protection", effectName: modernEffect.name, rules: "2024",
+    }));
+  });
+
   it("Hate includes its owner and Fiends/Undead in one ranked aura", async () => {
     modules({ aura: true });
     const { effects, standalone } = await generate(ClassEnrichers.Paladin.AuraOfHate, "Aura of Hate");

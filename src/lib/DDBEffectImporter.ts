@@ -14,8 +14,46 @@ import utils from "./Utils";
  */
 export default class DDBEffectImporter {
 
-  static standaloneEffectId(documentName: string, effectName: string): string {
-    return utils.namedIDStub(`${documentName} ${effectName}`, { prefix: "ddb" });
+  /**
+   * The compendium id of a standalone effect, the single source for every producer so
+   * re-imports upsert in place. Derived from "<document name> <effect name>" plus the
+   * declaring document's ruleset, because the 2014 and 2024 printings of a spell or feature
+   * share a name but not their effect text or changes; with a shared id each import would
+   * overwrite the other ruleset's copy. Compendium entries written under the older
+   * ruleset-free ids are left in place so links on previously imported items keep resolving.
+   *
+   * The ruleset goes in the `postfix` rather than the name so namedIDStub's per-word
+   * truncation can never drop it. An explicit `key` names an effect several documents share
+   * (the evolved item property enchantments) and is ruleset-free: the key owns the identity,
+   * so fold a ruleset into the key if the shared effect differs between rulesets.
+   */
+  static standaloneEffectId({ documentName = "", effectName = "", rules = null, key = null }: {
+    documentName?: string;
+    effectName?: string;
+    rules?: string | null;
+    key?: string | null;
+  }): string {
+    if (key) return utils.namedIDStub(key, { prefix: "ddb" });
+    const postfix = DDBEffectImporter.rulesetPostfix(rules);
+    return utils.namedIDStub(`${documentName} ${effectName}`, { prefix: "ddb", postfix });
+  }
+
+  /** "2014" -> "14", "2024" -> "24"; any other non-empty ruleset keeps its last two id-safe characters. */
+  static rulesetPostfix(rules: string | null | undefined): string | null {
+    const cleaned = utils.idString(`${rules ?? ""}`);
+    if (cleaned === "") return null;
+    return cleaned.slice(-2);
+  }
+
+  /**
+   * The ruleset a standalone effect's id is keyed on: the document's `system.source.rules`,
+   * else `fallbackIs2014` (the enricher's own ruleset, always known after load) for documents
+   * whose source carries no rules yet, such as monster features mid-parse and homebrew.
+   */
+  static documentRules(document: { system?: { source?: I5eSourceInfo | null } | null }, fallbackIs2014: boolean): T5eRulesVersion {
+    const rules = document.system?.source?.rules;
+    if (rules === "2014" || rules === "2024") return rules;
+    return fallbackIs2014 ? "2014" : "2024";
   }
 
   static INVENTORY_TYPES: readonly string[] = DICTIONARY.types.inventory;

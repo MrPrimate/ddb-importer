@@ -21,6 +21,8 @@ export default class WavesOfExhaustion extends DDBEnricherData {
       {
         init: { name: "Wave of Gray Light", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateActivation: true,
           generateConsumption: false,

@@ -9,7 +9,10 @@ import {
   _writePersistedIds,
   _idCacheGet,
   _idCacheSet,
+  _runBulkMonsterJob,
 } from "../../src/parser/DDBMonsterFactory";
+import type DDBMonsterSocket from "../../src/lib/streaming/DDBMonsterSocket";
+import type { DDBMonsterEvent } from "../../src/lib/streaming/DDBMonsterSocket";
 import { setMockSettings, resetMockSettings } from "../_setup/foundryMocks";
 
 const COBALT = "cobalt-token";
@@ -140,4 +143,32 @@ describe("DDBMonsterFactory by-id persistence", () => {
     });
   });
 
+});
+
+// A bulk job that finishes without its data event is a failed stream: it must throw, so the proxy
+// cache stores nothing and the fetch falls back to HTTP instead of caching an empty catalogue.
+describe("_runBulkMonsterJob", () => {
+  function socketEmitting(events: DDBMonsterEvent[]): Pick<DDBMonsterSocket, "runJob"> {
+    return {
+      runJob: async (_element, _params, options = {}) => {
+        for (const event of events) options.onEvent?.(event);
+        return {};
+      },
+    };
+  }
+
+  it("returns the streamed monsters", async () => {
+    const socket = socketEmitting([{ kind: "monsters", payload: [monster(1), monster(2)] }, { kind: "done" }]);
+    await expect(_runBulkMonsterJob(socket, "all-monsters", {})).resolves.toEqual([monster(1), monster(2)]);
+  });
+
+  it("returns an empty result the stream actually delivered", async () => {
+    const socket = socketEmitting([{ kind: "monsters", payload: [] }, { kind: "done" }]);
+    await expect(_runBulkMonsterJob(socket, "all-monsters", {})).resolves.toEqual([]);
+  });
+
+  it("throws when the job finished without a monsters payload", async () => {
+    const socket = socketEmitting([{ kind: "started" }, { kind: "done" }]);
+    await expect(_runBulkMonsterJob(socket, "all-monsters", {})).rejects.toThrow("without a monsters payload");
+  });
 });

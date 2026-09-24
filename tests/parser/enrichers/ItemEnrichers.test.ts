@@ -643,7 +643,8 @@ describe("items with more than one roll", () => {
     // a negative consumption ADDS uses: rolling Count Beans sets the bean count
     expect(enricher.additionalActivities[0].overrides.data.consumption.targets[0])
       .toMatchObject({ type: "itemUses", value: "-3d4" });
-    expect(enricher.override.uses).toMatchObject({ max: "12" });
+    // the bag starts empty so Count Beans' negative consumption can set the count
+    expect(enricher.override.uses).toMatchObject({ spent: 12, max: "12" });
 
     // the table-derived "Damage" activity the parser would otherwise add
     expect(enricher.addAutoAdditionalActivities).toBe(false);
@@ -655,6 +656,127 @@ describe("items with more than one roll", () => {
 
     expect(legacy.activity.damageParts[0].types).toEqual(["fire"]);
     expect(modern.activity.damageParts[0].types).toEqual(["force"]);
+  });
+
+  it("explodes for 5d4 however many beans are dumped", () => {
+    const legacy = build(ItemEnrichers.BagOfBeans, { name: "Bag of Beans", is2014: true });
+    const modern = build(ItemEnrichers.BagOfBeans, { name: "Bag of Beans", is2014: false });
+
+    for (const enricher of [legacy, modern]) {
+      expect(enricher.activity.damageParts[0]).toMatchObject({ number: 5, denomination: 4, scaling: { mode: "none" } });
+    }
+    // 2014 dumps the whole bag; the 2024 reprint picks how many beans to dump
+    expect(legacy.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "@item.uses.value" });
+    expect(legacy.activity.addScalingMode).toBeUndefined();
+    expect(modern.activity).toMatchObject({
+      addItemConsume: true,
+      itemConsumeValue: 1,
+      addScalingMode: "amount",
+      addConsumptionScalingMax: "@item.uses.value",
+    });
+  });
+
+  it("makes the Rod of Lordly Might a +3 mace with separately recovering properties", () => {
+    const legacy = build(ItemEnrichers.RodOfLordlyMight, { name: "Rod of Lordly Might", is2014: true });
+    const modern = build(ItemEnrichers.RodOfLordlyMight, { name: "Rod of Lordly Might", is2014: false });
+
+    for (const enricher of [legacy, modern]) {
+      expect(enricher.documentStub).toMatchObject({
+        documentType: "weapon",
+        parsingType: "weapon",
+        replaceDefaultActivity: true,
+        systemType: { value: "simpleM", baseItem: "mace" },
+      });
+      // the 2014 item has no magic bonus modifier, only the text
+      expect(enricher.override.data["system.magicalBonus"]).toBe(3);
+      // the shared item use the parser reads from the text is cleared
+      expect(enricher.override.uses).toMatchObject({ max: "", recovery: [] });
+    }
+    expect(modern.type).toBe("attack");
+    expect(modern.activity).toMatchObject({ name: "Mace", noConsumeTargets: true });
+
+    const byName = (enricher: any) => Object.fromEntries(
+      enricher.additionalActivities.map((a: any) => [a.init.name, a]),
+    );
+    const legacyActivities = byName(legacy);
+    const modernActivities = byName(modern);
+
+    expect(modernActivities["Drain Life"].build).toMatchObject({
+      includeBaseDamage: false,
+      onSave: "none",
+      saveOverride: { ability: ["con"], dc: { formula: "17" } },
+      usesOverride: { max: "1", recovery: [{ period: "dawn", type: "recoverAll" }] },
+      activationOverride: { type: "special" },
+    });
+    expect(modernActivities["Drain Life"].build.damageParts[0]).toMatchObject({ number: 4, denomination: 6, types: ["necrotic"] });
+    expect(modernActivities["Drain Life"].overrides.addActivityConsume).toBe(true);
+
+    // the button forms are attacks, not limited properties
+    for (const name of ["Button 1: Flame Tongue", "Button 2: Battleaxe", "Button 3: Spear"]) {
+      expect(modernActivities[name].init.type, name).toBe("attack");
+      expect(modernActivities[name].overrides.noConsumeTargets, name).toBe(true);
+      expect(modernActivities[name].overrides.addActivityConsume, name).toBeUndefined();
+    }
+    // dnd5e adds the rod's +3 to every attack roll; the flame tongue blade is not a +3 weapon,
+    // so it rolls flat with the rod's proficiency written back in
+    const flameTongue = modernActivities["Button 1: Flame Tongue"].overrides.data;
+    expect(flameTongue.attack).toMatchObject({ flat: true, bonus: "@mod + @item.prof" });
+    expect(flameTongue.damage.parts.map((p: any) => p.types[0])).toEqual(["slashing", "fire"]);
+    expect(flameTongue.damage.parts[0].bonus).toBe("@mod");
+    const battleaxe = modernActivities["Button 2: Battleaxe"].overrides.data;
+    expect(battleaxe.attack.flat).toBeUndefined();
+    expect(battleaxe.attack.bonus).toBeUndefined();
+    expect(modernActivities["Button 3: Spear"].overrides.data.damage.parts[0])
+      .toMatchObject({ number: 1, denomination: 6, bonus: "@mod + @item.magicalBonus", types: ["piercing"] });
+
+    // Paralyze is a Strength save in 2014 and a Constitution save in 2024
+    expect(legacyActivities.Paralyze.build.saveOverride.ability).toEqual(["str"]);
+    expect(modernActivities.Paralyze.build.saveOverride.ability).toEqual(["con"]);
+    for (const name of ["Paralyze", "Terrify"]) {
+      expect(modernActivities[name].build.usesOverride, name).toMatchObject({ max: "1" });
+      expect(modernActivities[name].overrides.addActivityConsume, name).toBe(true);
+    }
+    expect(modernActivities.Paralyze.build.activationOverride.type).toBe("special");
+  });
+
+  it("splits the Staff of Thunder and Lightning into separately recovering properties", () => {
+    const legacy = build(ItemEnrichers.StaffOfThunderAndLightning, { name: "Staff of Thunder and Lightning", is2014: true });
+    const modern = build(ItemEnrichers.StaffOfThunderAndLightning, { name: "Staff of Thunder and Lightning", is2014: false });
+
+    expect(modern.clearAutoEffects).toBe(true);
+    expect(modern.override.uses).toMatchObject({ max: "", recovery: [] });
+
+    expect(legacy.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Thunder",
+      "Lightning",
+      "Thunder and Lightning (Lightning Strike)",
+      "Thunder and Lightning (Thunderclap)",
+      "Lightning Strike",
+      "Thunderclap",
+    ]);
+    expect(modern.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Thunder",
+      "Lightning",
+      "Thunder and Lightning",
+      "Lightning Strike",
+      "Thunderclap",
+    ]);
+
+    // Thunder rides on a hit and needs no action of its own
+    expect(modern.additionalActivities[0].build.activationOverride.type).toBe("special");
+    // 2024 Thunder and Lightning is a Bonus Action after a hit
+    expect(modern.additionalActivities[2].build.activationOverride.type).toBe("bonus");
+
+    // the 2014 Thunderclap half is paid for by the Lightning Strike half
+    const legacyThunderclap = legacy.additionalActivities[3];
+    expect(legacyThunderclap.build.generateUses).toBeUndefined();
+    expect(legacyThunderclap.overrides.addActivityConsume).toBeUndefined();
+
+    const stunned = modern.effects.find((e: any) => e.name === "Stunned");
+    expect(stunned.options.expiry).toBe("sourceEnd");
+    expect(stunned.activitiesMatch).toEqual(["Thunder", "Thunder and Lightning"]);
+    expect(legacy.effects.find((e: any) => e.name === "Deafened").activitiesMatch)
+      .toEqual(["Thunderclap", "Thunder and Lightning (Thunderclap)"]);
   });
 
   it("names every mode of the Quiver of Elemental Chaos", () => {

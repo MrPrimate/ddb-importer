@@ -11,7 +11,7 @@ export default class GaseousForm extends DDBEnricherData {
         name: "Gaseous Form",
         statuses: ["Transformed"],
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("10", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.overrideChange("10", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.attributes.movement.hover"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),

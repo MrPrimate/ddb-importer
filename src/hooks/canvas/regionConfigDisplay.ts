@@ -11,8 +11,11 @@ import { buildDisplaySummaryRow } from "./regionDisplaySummary";
  * never touches the flag; the editor writes the document and the sheet re-renders the summary.
  */
 
-/** The box for a region: swatch (when styled), summary text and the configure button. */
-export function buildDisplaySummary(doc: RegionDocument.Implementation): HTMLElement {
+/**
+ * The box for a region: swatch (when styled), summary text and, when the user may change
+ * the region, the configure button.
+ */
+export function buildDisplaySummary(doc: RegionDocument.Implementation, editable = true): HTMLElement {
   const fieldset = document.createElement("fieldset");
   fieldset.classList.add("ddbi-display-region-fieldset");
   const legend = document.createElement("legend");
@@ -23,6 +26,7 @@ export function buildDisplaySummary(doc: RegionDocument.Implementation): HTMLEle
     flag: displayFlag(doc),
     color: String(doc.color ?? REGION_DISPLAY_FALLBACK_COLOR),
     buttonClass: "ddbi-display-region-configure-region",
+    editable,
   });
   row.querySelector("button")?.addEventListener("click", (event) => {
     event.preventDefault();
@@ -32,19 +36,26 @@ export function buildDisplaySummary(doc: RegionDocument.Implementation): HTMLEle
   return fieldset;
 }
 
+interface IRegionConfigLike {
+  document?: RegionDocument.Implementation;
+  /** The sheet's own verdict: an owner, outside a locked compendium. */
+  isEditable?: boolean;
+}
+
 /** Insert the box after the highlight mode control, once per render. */
-export function onRenderRegionConfig(app: { document?: RegionDocument.Implementation }, element: HTMLElement): void {
+export function onRenderRegionConfig(app: IRegionConfigLike, element: HTMLElement): void {
   const doc = app.document;
   if (!doc || !(element instanceof HTMLElement)) return;
   if (element.querySelector(".ddbi-display-region-fieldset")) return;
   const anchor = element.querySelector<HTMLElement>(`[name="highlightMode"]`)?.closest<HTMLElement>(".form-group");
   if (!anchor) return;
-  anchor.insertAdjacentElement("afterend", buildDisplaySummary(doc));
+  const editable = app.isEditable ?? doc.isOwner;
+  anchor.insertAdjacentElement("afterend", buildDisplaySummary(doc, editable));
   paintSheetImagePreviews(app, element);
 }
 
 export function registerRegionConfigDisplay(): void {
   Hooks.on<"renderRegionConfig">("renderRegionConfig", (app: unknown, element: unknown) => {
-    onRenderRegionConfig(app as { document?: RegionDocument.Implementation }, element as HTMLElement);
+    onRenderRegionConfig(app as IRegionConfigLike, element as HTMLElement);
   });
 }

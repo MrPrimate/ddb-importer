@@ -38,7 +38,7 @@ export default class TentacleRod extends DDBEnricherData {
         name: "Held by Tentacles",
         statuses: ["Restrained"],
         changes: [
-          DDBEnricherData.ChangeHelper.multiplyChange("0.5", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5"),
         ],
         options: {
           transfer: false,

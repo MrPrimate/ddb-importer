@@ -652,6 +652,68 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledTimes(1);
   });
 
+  // canvas.tokens.setTargets really replaces game.user.targets, which is what the next
+  // use reads back as the "previous" targets to restore
+  function liveTargets(initial: string[]) {
+    const user = (globalThis as any).game.user;
+    user.targets = initial.map((id) => ({ id }));
+    (globalThis as any).canvas.tokens.setTargets = vi.fn((ids: string[]) => {
+      user.targets = ids.map((id) => ({ id }));
+    });
+    return () => [...user.targets].map((t: { id: string }) => t.id);
+  }
+
+  it("serialises concurrent batches so each rolls against its own tokens and the GM's targets survive", async () => {
+    const { context, placing } = setup();
+    const currentTargets = liveTargets(["gmPick"]);
+    context.args = { oncePerTurn: false };
+    // two regions firing together flush as two independent batches
+    const [first, second] = burst(context, 2);
+    second.region = { ...context.region, id: "reg2" };
+
+    const seen: string[][] = [];
+    let releaseFirst!: () => void;
+    placing.use = vi.fn(async () => {
+      seen.push(currentTargets());
+      if (seen.length === 1) await new Promise<void>((resolve) => (releaseFirst = resolve));
+      return {};
+    });
+
+    const uses = [first, second].map((c) => RegionAutomations.useActivityHandler(c));
+    await vi.waitFor(() => expect(placing.use).toHaveBeenCalledTimes(1));
+    // let the second batch's timer fire: it must wait rather than retarget mid-use
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(placing.use).toHaveBeenCalledTimes(1);
+    expect(currentTargets()).toEqual(["tok1"]);
+
+    releaseFirst();
+    await Promise.all(uses);
+
+    expect(seen).toEqual([["tok1"], ["tok2"]]);
+    expect(currentTargets()).toEqual(["gmPick"]);
+  });
+
+  it("releases the target lock and restores targets when a queued use throws", async () => {
+    const { context, placing } = setup();
+    const currentTargets = liveTargets(["gmPick"]);
+    context.args = { oncePerTurn: false };
+    const [first, second] = burst(context, 2);
+    second.region = { ...context.region, id: "reg2" };
+
+    const seen: string[][] = [];
+    placing.use = vi.fn(async () => {
+      seen.push(currentTargets());
+      if (seen.length === 1) throw new Error("use failed");
+      return {};
+    });
+
+    const results = await Promise.allSettled([first, second].map((c) => RegionAutomations.useActivityHandler(c)));
+
+    expect(results.map((r) => r.status)).toEqual(["rejected", "fulfilled"]);
+    expect(seen).toEqual([["tok1"], ["tok2"]]);
+    expect(currentTargets()).toEqual(["gmPick"]);
+  });
+
   it("ignores the limit for an event with neither a turn nor a movement", async () => {
     trackFlags();
     const { context, placing } = setup();

@@ -44,6 +44,8 @@ export default class InvestitureOfFlame extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateDamage: true,
           generateActivation: true,
           generateConsumption: false,
@@ -76,6 +78,8 @@ export default class InvestitureOfFlame extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateDamage: true,
           generateActivation: true,

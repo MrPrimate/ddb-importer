@@ -10,6 +10,8 @@ export default class SongalsElementalSuffusion extends DDBEnricherData {
       noConsumeTargets: true,
       data: {
         sort: 2,
+        // used on later turns while concentrating, so it must not start (and replace) the concentration
+        duration: { override: true, units: "inst", concentration: false },
         target: {
           override: true,
           template: {

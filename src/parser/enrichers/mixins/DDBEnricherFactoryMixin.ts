@@ -997,7 +997,12 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
 
       if (effectHint.standalone) {
-        effect._id = utils.namedIDStub(effectHint.standaloneKey ?? `${this.data.name} ${effect.name}`, { prefix: "ddb" });
+        effect._id = DDBEffectImporter.standaloneEffectId({
+          documentName: this.data.name,
+          effectName: effect.name,
+          rules: DDBEffectImporter.documentRules(this.data, this.is2014 ?? false),
+          key: effectHint.standaloneKey,
+        });
         effect.transfer = false;
         if (effectHint.originReplacement) {
           for (const change of effect.system?.changes ?? []) {

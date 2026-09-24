@@ -102,3 +102,70 @@ describe("AdventureMunchHelpers.getDocuments", () => {
     expect(await AdventureMunchHelpers.getDocuments("items", [999], {}, true)).toEqual([]);
   });
 });
+
+describe("AdventureMunchHelpers.getDocuments failures", () => {
+  it("skips an entry whose compendium read fails instead of hanging the import", async () => {
+    vi.spyOn(CompendiumHelper, "getCompendiumType").mockImplementation((() => ({
+      getIndex: async () => index,
+      getDocument: async (id: string) => {
+        if (id === "docA") throw new Error("unreadable entry");
+        const entry = index.find((i) => i._id === id);
+        return entry ? { clone: () => ({ ...entry }) } : null;
+      },
+    })) as unknown as typeof CompendiumHelper.getCompendiumType);
+
+    const docs = await AdventureMunchHelpers.getDocuments("item", [100, 200], {}, true) as { _id: string }[];
+    expect(docs.map((d) => d._id)).toEqual(["docB"]);
+  });
+
+  it("leaves out an entry that resolved to no document", async () => {
+    vi.spyOn(CompendiumHelper, "getCompendiumType").mockImplementation((() => ({
+      getIndex: async () => index,
+      getDocument: async (id: string) => {
+        const entry = index.find((i) => i._id === id);
+        return id === "docA" ? null : { clone: () => ({ ...entry }) };
+      },
+    })) as unknown as typeof CompendiumHelper.getCompendiumType);
+
+    const docs = await AdventureMunchHelpers.getDocuments("item", [100, 200], {}, true) as { _id: string }[];
+    expect(docs.map((d) => d._id)).toEqual(["docB"]);
+  });
+});
+
+describe("AdventureMunchHelpers.loadMissingDocuments", () => {
+  it("settles with nothing to load", async () => {
+    await expect(AdventureMunchHelpers.loadMissingDocuments("item", [])).resolves.toEqual([]);
+  });
+
+  it("settles for a type it cannot import rather than never resolving", async () => {
+    await expect(AdventureMunchHelpers.loadMissingDocuments("journal", [1, 2])).resolves.toEqual([]);
+  });
+});
+
+describe("AdventureMunchHelpers.checkForMissingDocuments", () => {
+  it("waits for the missing documents to finish importing", async () => {
+    let finish!: () => void;
+    const importing = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    const load = vi.spyOn(AdventureMunchHelpers, "loadMissingDocuments").mockImplementation(async () => {
+      await importing;
+      return [];
+    });
+
+    let done = false;
+    const pending = AdventureMunchHelpers.checkForMissingDocuments("item", [100, 999]).then(() => {
+      done = true;
+    });
+    await vi.waitFor(() => expect(load).toHaveBeenCalledWith("item", [999], null));
+    expect(done).toBe(false);
+    finish();
+    await pending;
+    expect(done).toBe(true);
+  });
+
+  it("surfaces a failed import to the caller", async () => {
+    vi.spyOn(AdventureMunchHelpers, "loadMissingDocuments").mockRejectedValue(new Error("proxy down"));
+    await expect(AdventureMunchHelpers.checkForMissingDocuments("item", [999])).rejects.toThrow("proxy down");
+  });
+});
