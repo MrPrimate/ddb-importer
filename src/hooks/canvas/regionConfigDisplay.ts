@@ -1,6 +1,7 @@
 import DDBRegionDisplayConfig from "../../apps/DDBRegionDisplayConfig";
 import { REGION_DISPLAY_FALLBACK_COLOR } from "../../config/regionDisplayProfiles";
 import { displayFlag } from "./regionDisplay";
+import { paintSheetImagePreviews } from "./regionDisplayImagePreview";
 import { buildDisplaySummaryRow } from "./regionDisplaySummary";
 
 /**
@@ -39,6 +40,7 @@ export function onRenderRegionConfig(app: { document?: RegionDocument.Implementa
   const anchor = element.querySelector<HTMLElement>(`[name="highlightMode"]`)?.closest<HTMLElement>(".form-group");
   if (!anchor) return;
   anchor.insertAdjacentElement("afterend", buildDisplaySummary(doc));
+  paintSheetImagePreviews(app, element);
 }
 
 export function registerRegionConfigDisplay(): void {

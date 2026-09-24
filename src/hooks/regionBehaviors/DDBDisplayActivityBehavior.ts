@@ -1,4 +1,9 @@
-import { REGION_DISPLAY_FIELDS, REGION_DISPLAY_I18N, REGION_DISPLAY_LIMITS } from "../../config/regionDisplayProfiles";
+import {
+  REGION_DISPLAY_TEXTURE_CHOICES,
+  REGION_DISPLAY_FIELDS,
+  REGION_DISPLAY_I18N,
+  REGION_DISPLAY_LIMITS,
+} from "../../config/regionDisplayProfiles";
 import {
   BEHAVIOR_CONFIGURE_CLASS,
   behaviorConfigFromFlag,
@@ -29,6 +34,25 @@ export default class DDBDisplayActivityBehavior extends BaseActivityBehavior {
     };
     return {
       profile: new StringField({ required: true, blank: true, initial: "" }),
+      textureSrc: new StringField({ required: false, blank: true, initial: "" }),
+      textureColorMode: new StringField({
+        required: false,
+        blank: true,
+        initial: "",
+        choices: ["", ...REGION_DISPLAY_TEXTURE_CHOICES.textureColorMode],
+      }),
+      textureAnchor: new StringField({
+        required: false,
+        blank: true,
+        initial: "",
+        choices: ["", ...REGION_DISPLAY_TEXTURE_CHOICES.textureAnchor],
+      }),
+      textureFit: new StringField({
+        required: false,
+        blank: true,
+        initial: "",
+        choices: ["", ...REGION_DISPLAY_TEXTURE_CHOICES.textureFit],
+      }),
       pattern: new StringField({ required: false, blank: true, initial: "" }),
       opacity: optional("opacity"),
       gapOpacity: optional("gapOpacity"),

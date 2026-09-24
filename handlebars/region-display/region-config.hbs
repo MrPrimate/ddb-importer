@@ -1,10 +1,10 @@
 <section class="ddbi-display-region-config-body">
   <div class="ddbi-display-region-preview-row">
     <div class="ddbi-display-region-preview-frame large" data-tooltip="One grid square, enlarged">
-      <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}"><span class="ddbi-display-region-fill"></span></div>
+      <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}" data-image-preview="{{previewImageLarge}}"><span class="ddbi-display-region-fill"></span></div>
     </div>
     <div class="ddbi-display-region-preview-frame" data-tooltip="Several grid squares at a smaller scale">
-      <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}"><span class="ddbi-display-region-fill"></span></div>
+      <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}" data-image-preview="{{previewImage}}"><span class="ddbi-display-region-fill"></span></div>
     </div>
   </div>
   <p class="hint ddbi-display-region-summary-text">{{summary}}</p>
@@ -14,8 +14,12 @@
     <div class="form-fields">
       <div class="ddbi-display-region-picker">
         <select name="profile">
-          {{#each profileOptions}}
+          {{#each profileGroups}}
+          {{#if label}}<optgroup label="{{label}}">{{/if}}
+          {{#each options}}
           <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+          {{#if label}}</optgroup>{{/if}}
           {{/each}}
         </select>
         <button type="button" class="ddbi-display-region-picker-edit" data-tooltip="Edit region display profiles" aria-label="Edit region display profiles">
@@ -38,6 +42,8 @@
     </div>
     <p class="hint">{{localize "ddb-importer.behaviors.display.FIELDS.pattern.hint"}}</p>
   </div>
+
+  {{> "modules/ddb-importer/handlebars/region-display/image-fields.hbs"}}
 
   {{#if showDashed}}
   <div class="form-group">

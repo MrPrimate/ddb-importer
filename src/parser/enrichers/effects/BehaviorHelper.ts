@@ -11,7 +11,6 @@
 
 import utils from "../../../lib/Utils";
 import {
-  BUILTIN_REGION_DISPLAY_PROFILES,
   DEFAULT_REGION_DISPLAY_PROFILES,
   REGION_DISPLAY_BEHAVIOR_TYPE,
 } from "../../../config/regionDisplayProfiles";
@@ -284,13 +283,17 @@ export default class BehaviorHelper {
 
   /**
    * Region display for the regions this activity places: a profile id from
-   * `RegionDisplayProfiles` (shipped: aura, damage, status, minimal) plus optional
+   * `RegionDisplayProfiles` (including system damage and status icons) plus optional
    * overrides. Creates no RegionBehavior; the placement hook copies it onto the region.
    * Activities that declare none get a default at build time
    * (DDBActivityFactoryMixin._activityDisplayDefaults).
    */
   static display({
     profile,
+    textureSrc,
+    textureColorMode,
+    textureAnchor,
+    textureFit,
     pattern,
     opacity,
     gapOpacity,
@@ -314,13 +317,17 @@ export default class BehaviorHelper {
     // the behavior's dashed and border fields are string choices; a boolean from an enricher maps onto them
     const dashedChoice = dashed === true ? "dashed" : dashed === false ? "continuous" : (dashed ?? "");
     const borderChoice = border === true ? "border" : border === false ? "none" : (border ?? "");
-    const shipped = BUILTIN_REGION_DISPLAY_PROFILES.find((entry) => entry.id === profile);
+    const shipped = RegionDisplayProfiles.builtin(profile);
     return {
       ...BehaviorHelper.#base(common, `Region Display: ${shipped?.name ?? profile}`),
       type: REGION_DISPLAY_BEHAVIOR_TYPE,
       config: {
         profile,
         pattern: pattern ?? "",
+        textureSrc: textureSrc ?? "",
+        textureColorMode: textureColorMode ?? "",
+        textureAnchor: textureAnchor ?? "",
+        textureFit: textureFit ?? "",
         opacity: opacity ?? null,
         gapOpacity: gapOpacity ?? null,
         borderOpacity: borderOpacity ?? null,

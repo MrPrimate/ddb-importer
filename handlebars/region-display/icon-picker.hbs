@@ -1,0 +1,23 @@
+<section class="ddbi-icon-browser">
+  <div class="form-fields">
+    <input type="search" data-icon-query value="{{searchTerm}}" aria-label="{{localize 'ddb-importer.behaviors.display.texture.search'}}" placeholder="{{localize 'ddb-importer.behaviors.display.texture.search'}}" />
+    <select data-icon-filter aria-label="{{localize 'ddb-importer.behaviors.display.texture.filter'}}">
+      {{#each filterOptions}}
+      <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <p aria-live="polite">{{countLabel}}</p>
+  <div class="ddbi-icon-results">
+    {{#each icons}}
+    <button type="button" data-action="selectIcon" data-path="{{path}}" title="{{name}}&#10;{{path}}">
+      <img src="{{path}}" alt="" loading="lazy" />
+      <span>{{name}}</span>
+    </button>
+    {{/each}}
+  </div>
+  <footer class="form-fields">
+    <button type="button" data-action="previousPage" {{#unless hasPrevious}}disabled{{/unless}}>{{localize "ddb-importer.behaviors.display.texture.previous"}}</button>
+    <button type="button" data-action="nextPage" {{#unless hasNext}}disabled{{/unless}}>{{localize "ddb-importer.behaviors.display.texture.next"}}</button>
+  </footer>
+</section>

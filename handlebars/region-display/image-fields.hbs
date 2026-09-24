@@ -1,0 +1,35 @@
+  {{#if showTexture}}
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.texture.image"}}</label>
+    <div class="form-fields">
+      <input type="text" name="textureSrc" value="{{textureSrc}}" placeholder="{{texturePlaceholder}}" />
+      <button type="button" data-image-search aria-label="{{localize 'ddb-importer.behaviors.display.texture.search'}}"><i class="fas fa-search" inert></i></button>
+      <button type="button" data-image-browse aria-label="{{localize 'ddb-importer.behaviors.display.texture.browse'}}"><i class="fas fa-file-image" inert></i></button>
+    </div>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.texture.hint"}}</p>
+    <p class="hint ddbi-display-image-error" hidden>{{localize "ddb-importer.behaviors.display.texture.loadError"}}</p>
+  </div>
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.texture.colour"}}</label>
+    <div class="form-fields"><select name="textureColorMode">
+      {{#each textureColorOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select></div>
+  </div>
+  {{#if showTextureFit}}
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.texture.sizing"}}</label>
+    <div class="form-fields"><select name="textureFit">
+      {{#each textureFitOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select></div>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.texture.fitHint"}}</p>
+  </div>
+  {{/if}}
+  {{#if showTextureAnchor}}
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.texture.anchoring"}}</label>
+    <div class="form-fields"><select name="textureAnchor">
+      {{#each textureAnchorOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select></div>
+  </div>
+  {{/if}}
+  {{/if}}

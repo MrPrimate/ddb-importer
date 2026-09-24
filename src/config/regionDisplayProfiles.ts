@@ -1,7 +1,11 @@
+import { stableSystemIcons } from "./systemIcons";
+
 /**
  * Shipped region display profiles, the pattern table the display shader understands and
- * the field rules both editors follow. Pure data: `src/config` is a leaf package, which is
- * why the enricher tree, the settings and the behavior data model can all import it.
+ * the field rules both editors follow. Data and pure builders only, with no module state:
+ * `src/config` is a leaf package, which is why the enricher tree, the settings and the
+ * behavior data model can all import it. The system icon presets read dnd5e's configuration
+ * when built; the store (lib/RegionDisplayProfiles) caches them once the game is ready.
  */
 
 /** Fired on every client after the profile store changes (raised by the setting's onChange). */
@@ -34,6 +38,9 @@ export const REGION_DISPLAY_PATTERNS: readonly TRegionDisplayPattern[] = [
   "checkerboard",
   "waves",
   "chevrons",
+  "imagePoints",
+  "imageTile",
+  "imageStretch",
 ];
 
 /** The `pattern` uniform value for each fill pattern; the shader branches on these. */
@@ -49,7 +56,26 @@ export const REGION_DISPLAY_PATTERN_IDS: Record<TRegionDisplayPattern, number> =
   checkerboard: 8,
   waves: 9,
   chevrons: 10,
+  imagePoints: 11,
+  imageTile: 12,
+  imageStretch: 13,
 };
+
+/** Persisted image choices, shared by schemas, forms, validation and global types. */
+export const REGION_DISPLAY_TEXTURE_CHOICES = {
+  textureColorMode: ["original", "region"],
+  textureAnchor: ["scene", "region"],
+  textureFit: ["stretch", "contain"],
+} as const;
+
+export function isTextureChoice<K extends TRegionDisplayTextureKey>(
+  key: K,
+  value: unknown,
+): value is TRegionDisplayTextureChoice<K> {
+  return typeof value === "string" && (REGION_DISPLAY_TEXTURE_CHOICES[key] as readonly string[]).includes(value);
+}
+
+const IMAGE_PATTERNS = new Set<TRegionDisplayPattern>(["imagePoints", "imageTile", "imageStretch"]);
 
 /** Bounds for the numeric profile fields, shared by the store, the builder and the behavior schema. */
 export const REGION_DISPLAY_LIMITS = {
@@ -94,6 +120,10 @@ export const REGION_DISPLAY_DEFAULTS: Readonly<Omit<IRegionDisplayProfile, "id" 
   offset: 0,
   border: false,
   borderWidth: 0.1,
+  textureSrc: "",
+  textureColorMode: "original",
+  textureAnchor: "scene",
+  textureFit: "stretch",
   color: null,
 };
 
@@ -116,8 +146,16 @@ export const REGION_DISPLAY_FIELDS: readonly IRegionDisplayField[] = [
   { key: "opacity" },
   { key: "gapOpacity", patterns: patternsExcept("solid", "edge") },
   { key: "borderOpacity", requires: "band" },
-  { key: "spacing", patterns: patternsExcept("solid", "edge"), patternHints: ["checkerboard", "waves", "chevrons"] },
-  { key: "thickness", patterns: patternsExcept("solid", "edge", "checkerboard"), patternHints: ["crosses"] },
+  {
+    key: "spacing",
+    patterns: patternsExcept("solid", "edge", "imageStretch"),
+    patternHints: ["checkerboard", "waves", "chevrons", "imageTile"],
+  },
+  {
+    key: "thickness",
+    patterns: patternsExcept("solid", "edge", "checkerboard", "imageTile", "imageStretch"),
+    patternHints: ["crosses", "imagePoints"],
+  },
   { key: "edgeWidth", patterns: ["edge"] },
   { key: "dashLength", patterns: LINE_PATTERNS, requires: "dashed" },
   { key: "angle", patterns: LINE_PATTERNS },
@@ -125,7 +163,7 @@ export const REGION_DISPLAY_FIELDS: readonly IRegionDisplayField[] = [
   { key: "crossLength", patterns: ["crosses"] },
   { key: "waveAmplitude", patterns: ["waves"] },
   { key: "waveLength", patterns: ["waves"] },
-  { key: "offset", patterns: patternsExcept("solid", "edge") },
+  { key: "offset", patterns: patternsExcept("solid", "edge", "imageStretch") },
   { key: "borderWidth", patterns: patternsExcept("edge"), requires: "border" },
 ];
 
@@ -156,6 +194,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: true,
     borderWidth: 0.1,
+    textureSrc: "",
+    textureColorMode: "original",
+    textureAnchor: "scene",
+    textureFit: "stretch",
     color: null,
     builtin: true,
   },
@@ -179,6 +221,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    textureSrc: "",
+    textureColorMode: "original",
+    textureAnchor: "scene",
+    textureFit: "stretch",
     color: null,
     builtin: true,
   },
@@ -202,6 +248,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    textureSrc: "",
+    textureColorMode: "original",
+    textureAnchor: "scene",
+    textureFit: "stretch",
     color: null,
     builtin: true,
   },
@@ -225,6 +275,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    textureSrc: "",
+    textureColorMode: "original",
+    textureAnchor: "scene",
+    textureFit: "stretch",
     color: null,
     builtin: true,
   },
@@ -237,3 +291,41 @@ export const DEFAULT_REGION_DISPLAY_PROFILES = {
   status: "status",
   minimal: "minimal",
 } as const;
+
+/** System-backed presets share the picker's icons and retain stable ids across languages. */
+export function builtinRegionDisplayProfiles(
+  localize: (name: string) => string = (name) => name,
+  icons: ISystemIcon[] = stableSystemIcons(),
+): readonly IRegionDisplayProfile[] {
+  return [
+    ...BUILTIN_REGION_DISPLAY_PROFILES,
+    ...icons.map((icon): IRegionDisplayProfile => {
+      // an unlocalized key comes back unchanged, so fall back to the English name
+      const localized = localize(icon.name);
+      const name = localized === icon.name ? (icon.fallbackName ?? icon.name) : localized;
+      const category = localize(`${REGION_DISPLAY_I18N}.texture.${icon.category}Profile`);
+      return {
+        ...REGION_DISPLAY_DEFAULTS,
+        id: `${icon.category}-${icon.id}`,
+        name: `${category}: ${name}`,
+        pattern: "imagePoints",
+        textureSrc: icon.path,
+        textureColorMode: "region",
+        textureAnchor: "region",
+        textureFit: "contain",
+        color: icon.color,
+        spacing: 0.3333,
+        thickness: 0.5,
+        gapOpacity: 0,
+        border: true,
+        borderWidth: 0.08,
+        builtin: true,
+      };
+    }),
+  ];
+}
+
+/** Image fills share source and colour controls; only repeats take an anchor. */
+export function isImagePattern(pattern: unknown): boolean {
+  return IMAGE_PATTERNS.has(pattern as TRegionDisplayPattern);
+}

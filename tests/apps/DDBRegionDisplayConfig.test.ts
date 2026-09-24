@@ -158,6 +158,7 @@ describe("region display targets", () => {
     expect(written[0]).toEqual(behaviors[0]);
     expect(written[1]).toEqual({ _id: "bbb", type: "ddbDisplay", config: {
       profile: "status", pattern: "diamonds", color: "#123456", dashed: "", border: "",
+      textureSrc: "", textureColorMode: "", textureAnchor: "", textureFit: "",
       opacity: 0, gapOpacity: null, borderOpacity: null, spacing: null, thickness: null, edgeWidth: null, dashLength: null, angle: null, crossRotation: null, crossLength: null, waveAmplitude: null, waveLength: null, offset: null, borderWidth: null,
     } });
     await expect(activityBehaviorDisplayTarget(activity, "zzz").write({ profile: "aura" })).rejects.toThrow("zzz");
@@ -172,4 +173,22 @@ describe("region display targets", () => {
     expect(behaviorConfigFromFlag({ profile: "aura", dashed: true, border: false })).toMatchObject({ dashed: "dashed", border: "none" });
     expect(flagFromBehaviorConfig(undefined)).toEqual({ profile: "" });
   });
+});
+
+
+it("inherits cleared image overrides and retains them while controls are hidden", () => {
+  const draft: IRegionDisplayFlag = { profile: "status", pattern: "imagePoints", textureSrc: "icons/svg/acid.svg", textureColorMode: "region", textureAnchor: "region" };
+  const hidden = DDBRegionDisplayConfig.flagFromForm({ pattern: "dots" }, draft, "#ff0000").flag;
+  expect(hidden).toMatchObject({ textureSrc: draft.textureSrc, textureColorMode: "region", textureAnchor: "region" });
+  const cleared = DDBRegionDisplayConfig.flagFromForm({ textureSrc: "", textureColorMode: "", textureAnchor: "" }, draft, "#ff0000").flag;
+  expect(cleared).not.toHaveProperty("textureSrc");
+  expect(cleared).not.toHaveProperty("textureColorMode");
+  expect(cleared).not.toHaveProperty("textureAnchor");
+});
+
+it("clears sizing overrides to inherit and retains the choice across hidden controls", () => {
+  const draft: IRegionDisplayFlag = { profile: "status", pattern: "imageStretch", textureFit: "contain" };
+  expect(DDBRegionDisplayConfig.flagFromForm({}, draft, "#ff0000").flag.textureFit).toBe("contain");
+  expect(DDBRegionDisplayConfig.flagFromForm({ textureFit: "stretch" }, draft, "#ff0000").flag.textureFit).toBe("stretch");
+  expect(DDBRegionDisplayConfig.flagFromForm({ textureFit: "" }, draft, "#ff0000").flag).not.toHaveProperty("textureFit");
 });

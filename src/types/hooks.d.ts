@@ -60,6 +60,7 @@ declare module "fvtt-types/configuration" {
       [key: `render${string}`]: (...args: any[]) => unknown;
 
       // ---- Explicit close hooks we register ----
+      "closeApplicationV2": (app: object) => void;
       "closeDocumentSheetV2": (sheet: foundry.applications.api.DocumentSheetV2) => void;
 
       // ---- Explicit get hooks we register ----

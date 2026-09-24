@@ -7,6 +7,7 @@ vi.mock("../../../src/hooks/regionBehaviors/baseActivityBehavior", () => ({
   },
 }));
 
+import RegionDisplayProfiles from "../../../src/lib/RegionDisplayProfiles";
 import DDBDisplayActivityBehavior from "../../../src/hooks/regionBehaviors/DDBDisplayActivityBehavior";
 import DDBMacroActivityBehavior from "../../../src/hooks/regionBehaviors/DDBMacroActivityBehavior";
 import { BEHAVIOR_CONFIGURE_CLASS } from "../../../src/hooks/canvas/regionDisplaySummary";
@@ -46,7 +47,10 @@ describe("DDBDisplayActivityBehavior", () => {
     for (const key of ["crossLength", "waveAmplitude", "waveLength"]) {
       expect(byName[`behaviors.0.config.${key}`]).toEqual({ value: "", dtype: "Number" });
     }
-    expect(hidden).toHaveLength(19);
+    for (const key of ["textureSrc", "textureColorMode", "textureAnchor", "textureFit"]) {
+      expect(byName[`behaviors.0.config.${key}`]).toEqual({ value: "", dtype: undefined });
+    }
+    expect(hidden).toHaveLength(23);
     // the sheet serialises the element, so nothing may live only on properties or listeners
     expect(input.outerHTML).toContain("name=\"behaviors.0.config.opacity\" value=\"0.4\" data-dtype=\"Number\"");
     for (const name of ["pattern", "opacity", "dashed", "border", "color"]) {
@@ -59,6 +63,6 @@ describe("DDBDisplayActivityBehavior", () => {
     const data: Record<string, any> = {};
     behavior.customizeField({ name: "displayProfile" }, data);
     const input = data.input({}, { name: "behaviors.1.config.displayProfile", value: "" }) as HTMLElement;
-    expect([...input.querySelector("select")!.options].map((option) => option.value)).toEqual(["", "aura", "damage", "status", "minimal"]);
+    expect([...input.querySelector("select")!.options].map((option) => option.value)).toEqual(["", ...RegionDisplayProfiles.builtins.map((profile) => profile.id)]);
   });
 });

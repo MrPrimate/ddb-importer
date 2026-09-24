@@ -193,6 +193,16 @@ describe("DDBRegionDisplayShader", () => {
     expect(gl.shaderSource).toHaveBeenCalledWith(expect.anything(), fragment);
   });
 
+  it.each([false, true])("keeps extension directives ahead of declarations through PIXI's version handling (WebGL2=%s)", (webgl2) => {
+    const version = webgl2 ? "#version 300 es" : "#version 100";
+    const vertex = buildVertexShader("highp", "mediump", "", webgl2).trim();
+    const fragment = buildFragmentShader("mediump", "", webgl2).trim();
+    // PIXI skips its SHADER_NAME/precision preamble only when the vertex has a version directive.
+    expect(vertex.startsWith(version + "\n")).toBe(true);
+    expect(fragment.startsWith(version + "\n")).toBe(true);
+    if (!webgl2) expect(fragment.lastIndexOf("#extension")).toBeLessThan(fragment.indexOf("precision mediump float;"));
+  });
+
   it("compiles and links a throwaway program and always releases it", () => {
     const good = fakeGl();
     expect(verifyShaderProgram(good, "v", "f")).toEqual({ ok: true });
@@ -241,6 +251,7 @@ describe("DDBRegionDisplayShader", () => {
 
 describe("applyStyle", () => {
   const style: IRegionDisplayStyle = {
+    textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
     profile: "damage", pattern: "crosshatch", opacity: 0.7, gapOpacity: 0, borderOpacity: 0.7, spacing: 0.25, thickness: 0.2, edgeWidth: 0.25,
     dashed: false, dashLength: 0.25, angle: 45, crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0, border: false, borderWidth: 0.1, color: null,
   };
@@ -555,6 +566,14 @@ describe("region sync", () => {
 });
 
 describe("placement stamp", () => {
+  it.each(["stretch", "contain"] as const)("stamps Fill Image sizing %s from the importer helper", (textureFit) => {
+    const behavior = BehaviorHelper.display({ profile: "status", pattern: "imageStretch", textureFit });
+    const data = [{}];
+    stampRegionDisplay({ applicableBehaviors: [{ type: behavior.type, config: { ...behavior.config } }] }, data);
+    expect(foundry.utils.getProperty(data[0], "flags.ddbimporter.display"))
+      .toEqual({ profile: "status", pattern: "imageStretch", textureFit });
+  });
+
   it("stamps independent cross length and wave controls, including zero wave height", () => {
     const behavior = BehaviorHelper.display({ profile: "status", pattern: "waves", crossLength: 2.5, waveAmplitude: 0, waveLength: 0.5 });
     const data = [{}];
@@ -830,7 +849,7 @@ describe("profile picker", () => {
     const picker = createProfilePicker({ name: "flags.ddbimporter.display.profile", value: "status", blank: "None" });
     const select = picker.querySelector("select")!;
     expect(select.name).toBe("flags.ddbimporter.display.profile");
-    expect([...select.options].map((option) => option.value)).toEqual(["", "aura", "damage", "status", "minimal"]);
+    expect([...select.options].map((option) => option.value)).toEqual(["", ...RegionDisplayProfiles.builtins.map((profile) => profile.id)]);
     expect(select.value).toBe("status");
     // the selection must survive a round trip through HTML, which dnd5e's sheet does to behavior fields
     const holder = document.createElement("div");
@@ -849,7 +868,7 @@ describe("profile picker", () => {
     setMockSettings({ "region-display-profiles": { fog: { name: "Fog", pattern: "dots", opacity: 0.4, spacing: 0.2, thickness: 0.3, edgeWidth: 0.25, color: null } } });
     refreshProfilePickers(root, "None");
     const select = root.querySelector("select")!;
-    expect([...select.options].map((option) => option.value)).toEqual(["", "aura", "damage", "status", "minimal", "fog"]);
+    expect([...select.options].map((option) => option.value)).toEqual(["", ...RegionDisplayProfiles.builtins.map((profile) => profile.id), "fog"]);
     expect(select.value).toBe("minimal");
   });
 });
@@ -919,7 +938,7 @@ describe("master switch", () => {
 
   it("registers nothing when switched off and everything when on", () => {
     const on = vi.fn();
-    vi.stubGlobal("Hooks", { on, callAll: vi.fn() });
+    vi.stubGlobal("Hooks", { on, once: vi.fn(), callAll: vi.fn() });
     setMockSettings({ "enable-region-display-profiles": false });
     expect(setupRegionDisplayProfiles()).toBe(false);
     expect(on).not.toHaveBeenCalled();

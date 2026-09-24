@@ -5,6 +5,19 @@ export {};
 
 global {
 
+  interface IIconCatalogEntry {
+    id: string;
+    path: string;
+    name: string;
+    hash: string;
+    tags: string[];
+    inferred: string[];
+    manual: string[];
+    status?: boolean;
+    damage?: boolean;
+    dnd5eStatus?: boolean;
+  }
+
   type TCompendiumTypes = typeof COMPENDIUM_LOOKUP[number]["type"];
 
   type TDDBCompendiumSetting = typeof COMPENDIUMS[number];

@@ -1,5 +1,6 @@
 import DDBAppV2 from "./DDBAppV2";
 import {
+  isTextureChoice,
   REGION_DISPLAY_FALLBACK_COLOR,
   REGION_DISPLAY_FIELDS,
   REGION_DISPLAY_FLAG_PATH,
@@ -7,7 +8,8 @@ import {
   REGION_DISPLAY_PATTERNS,
 } from "../config/regionDisplayProfiles";
 import { displayFlag } from "../hooks/canvas/regionDisplay";
-import { profileOptions } from "../hooks/canvas/regionDisplayPicker";
+import { disposeImagePreviews, imagePreviewData, paintImagePreviews } from "../hooks/canvas/regionDisplayImagePreview";
+import { profileOptionGroups } from "../hooks/canvas/regionDisplayPicker";
 import { previewCss } from "../hooks/canvas/regionDisplayPreview";
 import {
   behaviorConfigFromFlag,
@@ -19,10 +21,15 @@ import {
 import logger from "../lib/Logger";
 import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 import { bindLiveInput, PREVIEW_GRID, PREVIEW_GRID_LARGE, readForm, resolveColor } from "./lib/regionDisplayForm";
+import { bindImagePicker, imageFormContext, loadImageFormTemplate } from "./lib/regionDisplayImageForm";
 
 interface IRegionDisplayConfigFormValues {
   profile?: string;
   pattern?: string;
+  textureSrc?: string;
+  textureColorMode?: IRegionDisplayProfile["textureColorMode"] | "";
+  textureAnchor?: IRegionDisplayProfile["textureAnchor"] | "";
+  textureFit?: IRegionDisplayProfile["textureFit"] | "";
   dashed?: string;
   border?: string;
   opacity?: number | string;
@@ -142,10 +149,13 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       resizable: true,
     },
     tag: "form",
+    // `this`, not the class name: with `#private` members present, tsc compiles a class-name
+    // reference in a static initializer to an alias that is still undefined here. Only the
+    // release (webpack/tsc) build breaks; the esbuild dev build hides it.
     actions: {
-      saveDisplay: DDBRegionDisplayConfig.saveDisplay,
-      clearDisplay: DDBRegionDisplayConfig.clearDisplay,
-      closeApp: DDBRegionDisplayConfig.closeApp,
+      saveDisplay: this.saveDisplay,
+      clearDisplay: this.clearDisplay,
+      closeApp: this.closeApp,
     },
     position: { width: 560, height: "auto" as const },
   };
@@ -206,6 +216,14 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     const flag: IRegionDisplayFlag = { profile: values.profile ?? draft.profile ?? "" };
     const pattern = values.pattern ?? draft.pattern;
     if (RegionDisplayProfiles.isPattern(pattern)) flag.pattern = pattern;
+    const textureSrc = (values.textureSrc ?? draft.textureSrc)?.trim();
+    if (textureSrc) flag.textureSrc = textureSrc;
+    const colorMode = values.textureColorMode ?? draft.textureColorMode;
+    if (isTextureChoice("textureColorMode", colorMode)) flag.textureColorMode = colorMode;
+    const anchor = values.textureAnchor ?? draft.textureAnchor;
+    if (isTextureChoice("textureAnchor", anchor)) flag.textureAnchor = anchor;
+    const fit = values.textureFit ?? draft.textureFit;
+    if (isTextureChoice("textureFit", fit)) flag.textureFit = fit;
     const dashed = values.dashed ?? draft.dashed;
     if (dashed === "dashed" || dashed === "continuous") flag.dashed = dashed;
     const border = values.border ?? draft.border;
@@ -251,14 +269,16 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
   }
 
   override async _prepareContext(options: any) {
+    await loadImageFormTemplate();
     const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
     const draft = this.draft;
     const style = RegionDisplayProfiles.resolve(draft);
+    Object.assign(context, imageFormContext(style, draft, true));
     const previewColor = this.target.color;
     const profileDefault = RegionDisplayProfiles.localize("profileDefault");
-    context.profileOptions = profileOptions(RegionDisplayProfiles.localize("noProfile")).map((option) => ({
-      ...option,
-      selected: option.value === (draft.profile ?? ""),
+    context.profileGroups = profileOptionGroups(RegionDisplayProfiles.localize("noProfile")).map((group) => ({
+      ...group,
+      options: group.options.map((option) => ({ ...option, selected: option.value === (draft.profile ?? "") })),
     }));
     context.hasProfile = Boolean(draft.profile);
     const ownSpacing = RegionDisplayProfiles.clamp("spacing", draft.spacing, NaN);
@@ -310,6 +330,8 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     context.previewGridLarge = PREVIEW_GRID_LARGE;
     if (style) {
       context.previewStyle = previewCss(style, previewColor, PREVIEW_GRID);
+      context.previewImage = imagePreviewData(style, previewColor, PREVIEW_GRID);
+      context.previewImageLarge = imagePreviewData(style, previewColor, PREVIEW_GRID_LARGE);
       context.previewStyleLarge = previewCss(style, previewColor, PREVIEW_GRID_LARGE);
     }
     return context;
@@ -318,6 +340,8 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
   override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
     bindLiveInput(this.element as HTMLElement | null, () => this.#syncDraftFromForm());
+    bindImagePicker(this.element);
+    paintImagePreviews(this.element);
   }
 
   override _onChangeForm(formConfig: any, event: any) {
@@ -349,11 +373,11 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     if (!element) return;
     const style = RegionDisplayProfiles.resolve(this.draft);
     for (const preview of element.querySelectorAll<HTMLElement>(".ddbi-display-region-preview")) {
-      preview.setAttribute(
-        "style",
-        style ? previewCss(style, this.target.color, Number(preview.dataset.grid) || PREVIEW_GRID) : "",
-      );
+      const grid = Number(preview.dataset.grid) || PREVIEW_GRID;
+      preview.setAttribute("style", style ? previewCss(style, this.target.color, grid) : "");
+      preview.dataset.imagePreview = style ? imagePreviewData(style, this.target.color, grid) : "";
     }
+    paintImagePreviews(element);
     const summary = element.querySelector<HTMLElement>(".ddbi-display-region-summary-text");
     if (summary) summary.textContent = describeDisplayFlag(this.draft);
   }
@@ -384,6 +408,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
   }
 
   override async close(options?: any) {
+    disposeImagePreviews(this.element);
     DDBRegionDisplayConfig.#instances.delete(this.target.key);
     return super.close(options);
   }

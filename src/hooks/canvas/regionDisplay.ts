@@ -1,4 +1,5 @@
 import {
+  isImagePattern,
   REGION_DISPLAY_DEFAULTS,
   REGION_DISPLAY_FLAG_PATH,
   REGION_DISPLAY_LOG,
@@ -8,6 +9,7 @@ import {
 import logger from "../../lib/Logger";
 import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 import { getCoreHighlightShaderClass, getDDBDisplayShaderClass } from "./DDBRegionDisplayShader";
+import { loadDisplayTexture } from "./regionDisplayTexture";
 
 /**
  * Region display rendering for regions that carry a `flags.ddbimporter.display` choice.
@@ -24,6 +26,8 @@ import { getCoreHighlightShaderClass, getDDBDisplayShaderClass } from "./DDBRegi
 interface IDisplayState {
   /** The DDB shader is installed on the mesh. */
   styled: boolean;
+  textureSrc?: string;
+  texture?: PIXI.Texture | null;
   /** The edge band graphic, when the style uses the edge pattern. */
   band: PIXI.Graphics | null;
   /** The stencil mask that keeps the fill inside the band, when there is a band. */
@@ -111,6 +115,10 @@ export function applyStyle(
   mesh.tint = tintFor(style.color, regionColor);
   const uniforms = mesh.shader.uniforms;
   uniforms.pattern = REGION_DISPLAY_PATTERN_IDS[style.pattern];
+  uniforms.imageContain = style.textureFit === "contain";
+  uniforms.imageRecolor = style.textureColorMode === "region";
+  uniforms.imageRegion = style.textureAnchor === "region";
+  uniforms.imageTiled = style.pattern === "imageTile";
   uniforms.period = Math.max(1, style.spacing * metrics.grid);
   uniforms.thickness = style.thickness;
   uniforms.gapOpacity = style.gapOpacity;
@@ -273,11 +281,43 @@ export function syncFillMask(
 /** Destroy everything the display added for a region: the band and the fill mask. */
 function releaseState(state: IDisplayState | undefined, mesh: TCoreRegionMesh | null): void {
   if (!state) return;
+  state.texture = null;
+  state.textureSrc = undefined;
   if (state.band) {
     state.band.destroy();
     state.band = null;
   }
   clearFillMask(state, mesh);
+}
+
+/**
+ * Bind the style's image to the mesh sampler, loading it on first use. The shader draws the
+ * hatch fallback until the texture arrives; the load then asks for one more refresh. By then
+ * the region may be gone, redrawn onto a new mesh, unflagged or pointed at another image, and
+ * any of those makes the completion stale.
+ */
+function syncImageTexture(
+  region: TCoreRegionPlaceable,
+  mesh: TCoreRegionMesh,
+  style: IRegionDisplayStyle,
+  state: IDisplayState,
+): void {
+  const src = isImagePattern(style.pattern) ? style.textureSrc : "";
+  if (state.textureSrc !== src) {
+    state.textureSrc = src;
+    state.texture = null;
+    if (src) {
+      void loadDisplayTexture(src).then((texture) => {
+        const stale = region.destroyed || states.get(region) !== state || state.textureSrc !== src;
+        if (stale || findHighlightMesh(region) !== mesh) return;
+        state.texture = texture;
+        region.renderFlags.set({ refreshState: true });
+      });
+    }
+  }
+  mesh.shader.uniforms.imageReady = Boolean(state.texture?.valid);
+  mesh.shader.uniforms.imageSampler = state.texture ?? PIXI.Texture?.WHITE ?? null;
+  mesh.shader.uniforms.imageAspect = state.texture ? state.texture.width / Math.max(1, state.texture.height) : 1;
 }
 
 /** Style a drawn region from its document, or restore the core look when it has no choice. */
@@ -311,6 +351,7 @@ export function syncRegionDisplay(
     state.styled = true;
   }
   applyStyle(mesh, style, regionColor, metrics);
+  syncImageTexture(region, mesh, style, state);
   if (geometry || bandWidth(style) > 0 || state.band) drawEdgeBand(region, mesh, style, state, metrics);
   if (geometry || bandWidth(style) > 0 || state.mask) syncFillMask(region, mesh, style, state, metrics, { geometry });
 }

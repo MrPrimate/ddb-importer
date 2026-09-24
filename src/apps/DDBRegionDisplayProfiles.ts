@@ -8,11 +8,13 @@ import {
   REGION_DISPLAY_PATTERNS,
   REGION_DISPLAY_PROFILES_CHANGED,
 } from "../config/regionDisplayProfiles";
+import { disposeImagePreviews, imagePreviewData, paintImagePreviews } from "../hooks/canvas/regionDisplayImagePreview";
 import { previewCss } from "../hooks/canvas/regionDisplayPreview";
-import { refreshProfilePickers } from "../hooks/canvas/regionDisplayPicker";
+import { profileGroup, refreshProfilePickers } from "../hooks/canvas/regionDisplayPicker";
 import logger from "../lib/Logger";
 import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 import { bindLiveInput, PREVIEW_GRID, PREVIEW_GRID_LARGE, readForm, resolveColor } from "./lib/regionDisplayForm";
+import { bindImagePicker, imageFormContext, loadImageFormTemplate } from "./lib/regionDisplayImageForm";
 
 /** The colour the swatches use when a profile takes the region's own colour. */
 const SWATCH_COLOR = REGION_DISPLAY_FALLBACK_COLOR;
@@ -20,6 +22,10 @@ const SWATCH_COLOR = REGION_DISPLAY_FALLBACK_COLOR;
 interface IProfileFormValues {
   name?: string;
   pattern?: string;
+  textureSrc?: string;
+  textureColorMode?: IRegionDisplayProfile["textureColorMode"] | "";
+  textureAnchor?: IRegionDisplayProfile["textureAnchor"] | "";
+  textureFit?: IRegionDisplayProfile["textureFit"] | "";
   opacity?: number | string;
   gapOpacity?: number | string;
   borderOpacity?: number | string;
@@ -72,14 +78,17 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
       resizable: true,
     },
     tag: "form",
+    // `this`, not the class name: with `#private` members present, tsc compiles a class-name
+    // reference in a static initializer to an alias that is still undefined here. Only the
+    // release (webpack/tsc) build breaks; the esbuild dev build hides it.
     actions: {
-      selectProfile: DDBRegionDisplayProfiles.selectProfile,
-      createProfile: DDBRegionDisplayProfiles.createProfile,
-      duplicateProfile: DDBRegionDisplayProfiles.duplicateProfile,
-      deleteProfile: DDBRegionDisplayProfiles.deleteProfile,
-      resetProfile: DDBRegionDisplayProfiles.resetProfile,
-      saveProfile: DDBRegionDisplayProfiles.saveProfile,
-      closeApp: DDBRegionDisplayProfiles.closeApp,
+      selectProfile: this.selectProfile,
+      createProfile: this.createProfile,
+      duplicateProfile: this.duplicateProfile,
+      deleteProfile: this.deleteProfile,
+      resetProfile: this.resetProfile,
+      saveProfile: this.saveProfile,
+      closeApp: this.closeApp,
     },
     position: { width: 760, height: "auto" as const },
   };
@@ -87,6 +96,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   static override PARTS = {
     content: {
       template: "modules/ddb-importer/handlebars/region-display/profiles.hbs",
+      scrollable: [".ddbi-display-region-list ul", ".ddbi-display-region-editor"],
     },
   };
 
@@ -143,6 +153,10 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
       {
         ...draft,
         name: values.name ?? draft.name,
+        textureSrc: values.textureSrc ?? draft.textureSrc,
+        textureColorMode: values.textureColorMode || draft.textureColorMode,
+        textureAnchor: values.textureAnchor || draft.textureAnchor,
+        textureFit: values.textureFit || draft.textureFit,
         pattern: (values.pattern as TRegionDisplayPattern | undefined) ?? draft.pattern,
         opacity: number(values.opacity, draft.opacity),
         gapOpacity: number(values.gapOpacity, draft.gapOpacity),
@@ -173,18 +187,25 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   }
 
   override async _prepareContext(options: any) {
+    await loadImageFormTemplate();
     const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
     const draft = this.draft;
-    context.profiles = RegionDisplayProfiles.all().map((profile) => ({
+    // all() keeps each group together, so a heading goes above the first profile of each group
+    const profiles = RegionDisplayProfiles.all();
+    const groups = profiles.map((profile) => profileGroup(profile.id));
+    context.profiles = profiles.map((profile, index) => ({
+      groupHeading: groups[index] === groups[index - 1] ? "" : groups[index],
       id: profile.id,
       name: profile.name,
       builtin: profile.builtin === true,
       overridden: RegionDisplayProfiles.isOverriddenBuiltin(profile.id),
       selected: profile.id === this.selectedId,
       swatchStyle: previewCss(profile, SWATCH_COLOR, 16),
+      swatchImage: imagePreviewData(profile, SWATCH_COLOR, 16),
     }));
     if (draft) {
       const stored = this.selectedId ? RegionDisplayProfiles.get(this.selectedId) : null;
+      Object.assign(context, imageFormContext(draft, draft, false));
       context.draft = draft;
       context.isNew = !stored;
       context.isBuiltin = RegionDisplayProfiles.isBuiltinId(draft.id);
@@ -195,6 +216,8 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
       context.previewGrid = PREVIEW_GRID;
       context.previewGridLarge = PREVIEW_GRID_LARGE;
       context.previewStyle = previewCss(draft, SWATCH_COLOR, PREVIEW_GRID);
+      context.previewImage = imagePreviewData(draft, SWATCH_COLOR, PREVIEW_GRID);
+      context.previewImageLarge = imagePreviewData(draft, SWATCH_COLOR, PREVIEW_GRID_LARGE);
       context.previewStyleLarge = previewCss(draft, SWATCH_COLOR, PREVIEW_GRID_LARGE);
       context.patternOptions = REGION_DISPLAY_PATTERNS.map((value) => ({
         value,
@@ -226,6 +249,9 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   override async _onRender(context: any, options: any) {
     await super._onRender(context, options);
     bindLiveInput(this.element as HTMLElement | null, () => this.#syncDraftFromForm());
+    bindImagePicker(this.element);
+    paintImagePreviews(this.element);
+    this.element.querySelector<HTMLElement>(".ddbi-display-region-entry.active")?.scrollIntoView({ block: "nearest" });
   }
 
   override _onChangeForm(formConfig: any, event: any) {
@@ -255,7 +281,13 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     this.lastCustomColor = result.lastCustomColor;
     for (const preview of this.element?.querySelectorAll<HTMLElement>(".ddbi-display-region-preview") ?? []) {
       preview.setAttribute("style", previewCss(this.draft, SWATCH_COLOR, Number(preview.dataset.grid) || PREVIEW_GRID));
+      preview.dataset.imagePreview = imagePreviewData(
+        this.draft,
+        SWATCH_COLOR,
+        Number(preview.dataset.grid) || PREVIEW_GRID,
+      );
     }
+    paintImagePreviews(this.element);
   }
 
   static selectProfile(this: DDBRegionDisplayProfiles, _event: Event, target: HTMLElement): void {
@@ -336,6 +368,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   }
 
   override async close(options?: any) {
+    disposeImagePreviews(this.element);
     DDBRegionDisplayProfiles.#instance = null;
     return super.close(options);
   }

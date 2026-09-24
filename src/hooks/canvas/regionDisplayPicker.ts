@@ -39,9 +39,38 @@ export function profileOptions(blank: string | undefined): { value: string; labe
   return blank === undefined ? options : [{ value: "", label: blank }, ...options];
 }
 
+/**
+ * The localized heading a profile lists under, or "" for the blank choice. The system icon
+ * presets carry their category in the id (`damage-fire`, `status-prone`); the shipped `damage`
+ * and `status` profiles have no suffix, so they stay under general.
+ */
+export function profileGroup(id: string): string {
+  if (!id) return "";
+  let group = "general";
+  if (!RegionDisplayProfiles.isBuiltinId(id)) group = "custom";
+  else if (id.startsWith("damage-")) group = "damage";
+  else if (id.startsWith("status-")) group = "status";
+  return RegionDisplayProfiles.localize(`profileGroups.${group}`);
+}
+
+/** Profile options under a heading per group (general, damage, status, custom), in `all()` order. */
+export function profileOptionGroups(blank: string | undefined) {
+  const groups = new Map<string, { value: string; label: string }[]>();
+  for (const option of profileOptions(blank)) {
+    const group = profileGroup(option.value);
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group)!.push(option);
+  }
+  return [...groups].map(([label, options]) => ({ label, options }));
+}
+
 const GEAR_CLASS = "ddbi-display-region-picker-edit";
 
-function appendOption(select: HTMLSelectElement, option: { value: string; label: string }, current: string): void {
+function appendOption(
+  select: HTMLSelectElement | HTMLOptGroupElement,
+  option: { value: string; label: string },
+  current: string,
+): void {
   const element = document.createElement("option");
   element.value = option.value;
   element.textContent = option.label;
@@ -52,6 +81,17 @@ function appendOption(select: HTMLSelectElement, option: { value: string; label:
     element.setAttribute("selected", "");
   }
   select.append(element);
+}
+
+function appendGroups(select: HTMLSelectElement, blank: string | undefined, current: string): void {
+  for (const group of profileOptionGroups(blank)) {
+    const parent = group.label ? document.createElement("optgroup") : select;
+    if (parent instanceof HTMLOptGroupElement) {
+      parent.label = group.label;
+      select.append(parent);
+    }
+    for (const option of group.options) appendOption(parent, option, current);
+  }
 }
 
 /**
@@ -66,7 +106,7 @@ export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   select.name = config.name;
   if (config.disabled) select.disabled = true;
   const current = typeof config.value === "string" ? config.value : "";
-  for (const option of profileOptions(config.blank)) appendOption(select, option, current);
+  appendGroups(select, config.blank, current);
   const gear = document.createElement("button");
   gear.type = "button";
   gear.classList.add(GEAR_CLASS);
@@ -105,6 +145,6 @@ export function refreshProfilePickers(root: ParentNode, blank: string | undefine
   for (const select of root.querySelectorAll<HTMLSelectElement>(".ddbi-display-region-picker select")) {
     const current = select.value;
     select.replaceChildren();
-    for (const option of profileOptions(blank)) appendOption(select, option, current);
+    appendGroups(select, blank, current);
   }
 }

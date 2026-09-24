@@ -407,6 +407,36 @@ See `src/parser/enrichers/item/Yarting.ts` (parsed as a tool) and `src/parser/en
 Features that summon creatures override `generateSummons` to return `true` and provide a `summonsFunction`.
 There are around 40 of these, so if you are working on a summoning feature, copy the closest existing one rather than starting from scratch.
 
+## Icon catalogue
+
+The icon picker in the region display editors searches `data/icon-catalog.json`, a checked-in list of Foundry's core artwork.
+Each entry holds the image's relative path, a display name, a SHA-256 of the artwork, and three kinds of tag:
+
+- `tags`: derived from the path and from the importer's own icon mapping tables in `data/`.
+- `inferred`: reviewed visual tags, describing what the artwork shows. They are only kept while the artwork hash still matches.
+- `manual`: curated tags, safe to edit by hand in the JSON.
+
+It holds no artwork, fixture data or machine paths.
+
+After a Foundry update, refresh it from the installed icons and review the diff before committing, especially removed icons and dropped visual tags:
+
+```sh
+node tools/icon-catalog.mjs index --icons /path/to/foundry/app/public/icons
+```
+
+Missing paths are removed, new images start without visual tags, and manual tags survive for every path that still exists.
+Indexing never generates visual tags; those come from the review workshop in the private `tests/audit` submodule (`npm run audit:icons -- --help`).
+
+The browser does not download the source file.
+`npm run catalog` writes a minified copy to `dist/icon-catalog.json` without the `id` and `hash` fields, and `build`, `dev` and `dev:build` run it for you, so rebuild after editing tags.
+The release zip excludes the source file.
+
+Search normalization, synonyms and ranking live in `src/lib/IconCatalogSearch.mjs`, which the workshop shares.
+
+The damage and status presets in the profile editor are pinned in `src/config/systemIconPresets.ts`, so saved profiles keep working if a later dnd5e drops a status.
+dnd5e's live configuration still supplies localized names and replacement artwork.
+When updating that list, keep the existing entries.
+
 ## Submitting a PR
 
 Keep one feature or fix per PR so review stays easy. Run `npm run lint` and `npm run test` first.

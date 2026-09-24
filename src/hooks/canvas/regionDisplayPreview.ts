@@ -1,3 +1,5 @@
+import { isImagePattern } from "../../config/regionDisplayProfiles";
+
 /**
  * A CSS approximation of a display style, for swatches in the profile editor and the
  * Region config. The canvas shader is the truth; this only has to read the same way.
@@ -24,7 +26,25 @@ type TPreviewStyle = Pick<
   IRegionDisplayProfile,
   "pattern" | "opacity" | "gapOpacity" | "borderOpacity" | "spacing" | "thickness" | "edgeWidth" | "color"
 > &
-  Partial<Pick<IRegionDisplayStyle, "dashed" | "dashLength" | "angle" | "crossRotation" | "crossLength" | "waveAmplitude" | "waveLength" | "offset" | "border" | "borderWidth">>;
+  Partial<
+    Pick<
+      IRegionDisplayStyle,
+      | "textureFit"
+      | "textureSrc"
+      | "textureColorMode"
+      | "textureAnchor"
+      | "dashed"
+      | "dashLength"
+      | "angle"
+      | "crossRotation"
+      | "crossLength"
+      | "waveAmplitude"
+      | "waveLength"
+      | "offset"
+      | "border"
+      | "borderWidth"
+    >
+  >;
 
 /** Escape colours before embedding them in an SVG attribute. */
 function escapeAttribute(value: string): string {
@@ -71,6 +91,9 @@ function curvedLinesSvg(style: TPreviewStyle, ink: string, gap: string, period: 
  */
 export function previewCss(style: TPreviewStyle, regionColor: string, grid = 50): string {
   const color = style.color || regionColor;
+  if (isImagePattern(style.pattern)) {
+    return previewCss({ ...style, pattern: "hatch", dashed: false }, regionColor, grid);
+  }
   const ink = rgba(color, 1);
   const gap = rgba(color, style.gapOpacity);
   const period = Math.max(1, style.spacing * grid);

@@ -6,6 +6,18 @@ import { setMockSettings } from "../_setup/foundryMocks";
 const aura = { ...BUILTIN_REGION_DISPLAY_PROFILES[0] };
 
 describe("DDBRegionDisplayProfiles.draftFromForm", () => {
+  it.each(["stretch", "contain"] as const)("saves and reopens Fill Image sizing %s", async (textureFit) => {
+    const { draft } = DDBRegionDisplayProfiles.draftFromForm({
+      pattern: "imageStretch", textureFit, textureSrc: "systems/dnd5e/icons/svg/damage/fire.svg", textureColorMode: "region",
+    }, { ...aura, id: "image" }, "#ff4500");
+    const write = vi.spyOn(game.settings, "set");
+    await RegionDisplayProfiles.save(draft);
+    setMockSettings({ "region-display-profiles": write.mock.calls.at(-1)![2] });
+    expect(RegionDisplayProfiles.get("image")).toMatchObject({ pattern: "imageStretch", textureFit, textureSrc: draft.textureSrc });
+    expect(DDBRegionDisplayProfiles.draftFromForm({ pattern: "dots" }, draft, "#ff4500").draft.textureFit).toBe(textureFit);
+    write.mockRestore();
+  });
+
   it("unticking the region-colour box gives the draft the remembered custom colour", () => {
     // the colour picker is not in the form yet: it only renders once the box is unticked
     const { draft, lastCustomColor } = DDBRegionDisplayProfiles.draftFromForm({ useRegionColor: false }, aura, "#123456");

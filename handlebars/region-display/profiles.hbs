@@ -8,8 +8,9 @@
     </header>
     <ul class="unlist">
       {{#each profiles}}
+      {{#if groupHeading}}<li class="ddbi-display-region-group">{{groupHeading}}</li>{{/if}}
       <li class="ddbi-display-region-entry {{#if selected}}active{{/if}}" data-action="selectProfile" data-profile-id="{{id}}">
-        <span class="ddbi-display-region-swatch" style="{{swatchStyle}}"><span class="ddbi-display-region-fill"></span></span>
+        <span class="ddbi-display-region-swatch" style="{{swatchStyle}}" data-image-preview="{{swatchImage}}"><span class="ddbi-display-region-fill"></span></span>
         <span class="ddbi-display-region-name">{{name}}</span>
         {{#if builtin}}<span class="ddbi-display-region-badge">{{#if overridden}}modified{{else}}built-in{{/if}}</span>{{/if}}
       </li>
@@ -21,10 +22,10 @@
     {{#if draft}}
     <div class="ddbi-display-region-preview-row">
       <div class="ddbi-display-region-preview-frame large" data-tooltip="One grid square, enlarged">
-        <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}"><span class="ddbi-display-region-fill"></span></div>
+        <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}" data-image-preview="{{previewImageLarge}}"><span class="ddbi-display-region-fill"></span></div>
       </div>
       <div class="ddbi-display-region-preview-frame" data-tooltip="Several grid squares at a smaller scale">
-        <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}"><span class="ddbi-display-region-fill"></span></div>
+        <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}" data-image-preview="{{previewImage}}"><span class="ddbi-display-region-fill"></span></div>
       </div>
     </div>
     <p class="hint">The previews approximate the canvas: the square on the left is one grid square enlarged, the strip shows several at a smaller scale. Selected and hovered regions always render solid, as Foundry does.</p>
@@ -47,6 +48,8 @@
         </select>
       </div>
     </div>
+
+  {{> "modules/ddb-importer/handlebars/region-display/image-fields.hbs"}}
 
     {{#if fields.opacity.visible}}
     <div class="form-group">

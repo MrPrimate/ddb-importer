@@ -44,7 +44,7 @@ global {
 
   /** A shader class as `AbstractBaseShader` subclasses expose it: the statics used to build and create one. */
   interface TCoreShaderClass {
-    new (...args: any[]): any;
+    new (...args: unknown[]): TCoreShader;
     create(uniforms?: Record<string, unknown>, options?: Record<string, unknown>): TCoreShader;
     defaultUniforms: Record<string, unknown>;
     /** GLSL constant block shared by every shader (SQRT2 and friends). */
@@ -54,6 +54,7 @@ global {
   }
 
   interface TCoreShader {
+    _preRender(mesh: TCoreRegionMesh, renderer: PIXI.Renderer): void;
     uniforms: Record<string, unknown>;
   }
 
@@ -69,7 +70,7 @@ global {
   interface TCoreRegionPolygonTree {
     drawShape(graphics: PIXI.Graphics): void;
     /** Every outline and hole as a Clipper path, scaled by `CONST.CLIPPER_SCALING_FACTOR`. */
-    clipperPaths: ReadonlyArray<ReadonlyArray<{ X: number; Y: number }>>;
+    clipperPaths: readonly (readonly { X: number; Y: number }[])[];
   }
 
   /** The Region placeable members the highlight hooks read. */
@@ -82,7 +83,10 @@ global {
     visible: boolean;
     zIndex: number;
     destroyed: boolean;
-    animationState: { polygonTree: TCoreRegionPolygonTree };
+    animationState: {
+      polygonTree: TCoreRegionPolygonTree;
+      bounds?: { x: number; y: number; width: number; height: number };
+    };
     renderFlags: { set(flags: Record<string, boolean>): void };
   }
 

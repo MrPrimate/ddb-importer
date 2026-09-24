@@ -1,3 +1,4 @@
+import type { REGION_DISPLAY_TEXTURE_CHOICES } from "../config/regionDisplayProfiles";
 export {};
 
 declare global {
@@ -39,7 +40,27 @@ declare global {
   // ---- Region display profiles (the appearance of aura / template Regions) ----
 
   /** Fill patterns the DDB display shader can draw; `hatch` is Foundry's own diagonal stripes. */
-  type TRegionDisplayPattern = "hatch" | "solid" | "crosshatch" | "dots" | "edge" | "hollowDots" | "diamonds" | "crosses" | "checkerboard" | "waves" | "chevrons";
+  type TRegionDisplayPattern =
+    | "hatch"
+    | "solid"
+    | "crosshatch"
+    | "dots"
+    | "edge"
+    | "hollowDots"
+    | "diamonds"
+    | "crosses"
+    | "checkerboard"
+    | "waves"
+    | "chevrons"
+    | "imagePoints"
+    | "imageTile"
+    | "imageStretch";
+
+  /** The image options a profile or override can set: colour mode, anchoring and fit. */
+  type TRegionDisplayTextureKey = keyof typeof REGION_DISPLAY_TEXTURE_CHOICES;
+
+  type TRegionDisplayTextureChoice<K extends TRegionDisplayTextureKey> =
+    (typeof REGION_DISPLAY_TEXTURE_CHOICES)[K][number];
 
   /** A named region display, shipped or user-built. */
   interface IRegionDisplayProfile {
@@ -47,6 +68,10 @@ declare global {
     id: string;
     name: string;
     pattern: TRegionDisplayPattern;
+    textureSrc: string;
+    textureColorMode: TRegionDisplayTextureChoice<"textureColorMode">;
+    textureAnchor: TRegionDisplayTextureChoice<"textureAnchor">;
+    textureFit: TRegionDisplayTextureChoice<"textureFit">;
     /** Mesh alpha, 0-1. Foundry draws every region at 0.5. */
     opacity: number;
     /** Gap alpha relative to fill opacity; zero is transparent. */
@@ -93,6 +118,10 @@ declare global {
   interface IRegionDisplayFlag {
     profile?: string;
     pattern?: TRegionDisplayPattern | "" | null;
+    textureSrc?: string | null;
+    textureColorMode?: TRegionDisplayTextureChoice<"textureColorMode"> | "" | null;
+    textureAnchor?: TRegionDisplayTextureChoice<"textureAnchor"> | "" | null;
+    textureFit?: TRegionDisplayTextureChoice<"textureFit"> | "" | null;
     opacity?: number | string | null;
     gapOpacity?: number | string | null;
     borderOpacity?: number | string | null;
@@ -118,6 +147,10 @@ declare global {
   interface IRegionDisplayStyle {
     profile: string;
     pattern: TRegionDisplayPattern;
+    textureSrc: string;
+    textureColorMode: TRegionDisplayTextureChoice<"textureColorMode">;
+    textureAnchor: TRegionDisplayTextureChoice<"textureAnchor">;
+    textureFit: TRegionDisplayTextureChoice<"textureFit">;
     opacity: number;
     gapOpacity: number;
     borderOpacity: number;

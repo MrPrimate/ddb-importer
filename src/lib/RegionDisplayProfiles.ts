@@ -1,5 +1,7 @@
 import {
-  BUILTIN_REGION_DISPLAY_PROFILES,
+  builtinRegionDisplayProfiles,
+  isImagePattern,
+  isTextureChoice,
   REGION_DISPLAY_DEFAULT_NAME,
   REGION_DISPLAY_DEFAULTS,
   REGION_DISPLAY_FIELDS,
@@ -21,6 +23,27 @@ export { REGION_DISPLAY_PROFILES_CHANGED } from "../config/regionDisplayProfiles
 const SETTING = "region-display-profiles";
 const ENABLED_SETTING = "enable-region-display-profiles";
 
+interface IBuiltinProfileCache {
+  language: string;
+  profiles: readonly IRegionDisplayProfile[];
+  byId: Map<string, IRegionDisplayProfile>;
+}
+
+let builtinCache: IBuiltinProfileCache | undefined;
+
+/**
+ * The shipped profiles and an id index. The system icon presets localize their names and read
+ * dnd5e's configuration, so they are rebuilt until the game is ready and then kept per
+ * language: `resolve()` runs on every animation frame of a moving region.
+ */
+function shippedProfiles(): IBuiltinProfileCache {
+  if (builtinCache && game.ready && builtinCache.language === game.i18n.lang) return builtinCache;
+  const profiles = builtinRegionDisplayProfiles((name) => game.i18n.localize(name));
+  const cache = { language: game.i18n.lang, profiles, byId: new Map(profiles.map((profile) => [profile.id, profile])) };
+  if (game.ready) builtinCache = cache;
+  return cache;
+}
+
 /**
  * The world's region display profiles: the shipped set plus whatever the GM built or
  * tuned in the profile editor. A stored profile with a shipped id replaces the shipped
@@ -36,11 +59,21 @@ export default class RegionDisplayProfiles {
   }
 
   static get builtins(): readonly IRegionDisplayProfile[] {
-    return BUILTIN_REGION_DISPLAY_PROFILES;
+    return shippedProfiles().profiles;
   }
 
   static isBuiltinId(id: string): boolean {
-    return BUILTIN_REGION_DISPLAY_PROFILES.some((profile) => profile.id === id);
+    return shippedProfiles().byId.has(id);
+  }
+
+  /** The shipped profile with this id as it ships, ignoring any stored replacement. */
+  static builtin(id: string): IRegionDisplayProfile | null {
+    return shippedProfiles().byId.get(id) ?? null;
+  }
+
+  /** Drop the cached shipped profiles, for tests that switch language or system configuration. */
+  static resetBuiltinCache(): void {
+    builtinCache = undefined;
   }
 
   /**
@@ -66,7 +99,7 @@ export default class RegionDisplayProfiles {
   /** Shipped profiles first (with any stored replacement applied), then custom ones by name. */
   static all(): IRegionDisplayProfile[] {
     const stored = RegionDisplayProfiles.stored();
-    const builtins = BUILTIN_REGION_DISPLAY_PROFILES.map((profile) =>
+    const builtins = RegionDisplayProfiles.builtins.map((profile) =>
       stored[profile.id] ? { ...stored[profile.id], builtin: true } : { ...profile },
     );
     const custom = Object.values(stored)
@@ -78,7 +111,9 @@ export default class RegionDisplayProfiles {
 
   static get(id: string | null | undefined): IRegionDisplayProfile | null {
     if (!id) return null;
-    return RegionDisplayProfiles.all().find((profile) => profile.id === id) ?? null;
+    const shipped = RegionDisplayProfiles.builtin(id);
+    const stored = utils.getSetting<Record<string, Partial<IRegionDisplayProfile>> | null>(SETTING)?.[id];
+    return stored && typeof stored === "object" ? RegionDisplayProfiles.normalize({ ...stored, id }) : shipped ?? null;
   }
 
   /** Select options for the pickers. */
@@ -96,6 +131,20 @@ export default class RegionDisplayProfiles {
     if (typeof number !== "number" || !Number.isFinite(number)) return fallback;
     const { min, max } = REGION_DISPLAY_LIMITS[key];
     return Math.min(max, Math.max(min, number));
+  }
+
+  /** An image option from stored or flag data, or the fallback when it is not a valid choice. */
+  static textureChoice<K extends TRegionDisplayTextureKey>(
+    key: K,
+    value: unknown,
+    fallback: TRegionDisplayTextureChoice<K>,
+  ): TRegionDisplayTextureChoice<K> {
+    return isTextureChoice(key, value) ? value : fallback;
+  }
+
+  /** A trimmed image path, or the fallback when the value is not a non-blank string. */
+  static textureSrc(value: unknown, fallback: string): string {
+    return typeof value === "string" && value.trim() ? value.trim() : fallback;
   }
 
   /**
@@ -136,6 +185,14 @@ export default class RegionDisplayProfiles {
       id,
       name,
       pattern: RegionDisplayProfiles.isPattern(data.pattern) ? data.pattern : fallback.pattern,
+      textureSrc: typeof data.textureSrc === "string" ? data.textureSrc.trim() : fallback.textureSrc,
+      textureColorMode: RegionDisplayProfiles.textureChoice(
+        "textureColorMode",
+        data.textureColorMode,
+        fallback.textureColorMode,
+      ),
+      textureAnchor: RegionDisplayProfiles.textureChoice("textureAnchor", data.textureAnchor, fallback.textureAnchor),
+      textureFit: RegionDisplayProfiles.textureChoice("textureFit", data.textureFit, fallback.textureFit),
       opacity: RegionDisplayProfiles.clamp("opacity", data.opacity, fallback.opacity),
       gapOpacity: RegionDisplayProfiles.clamp("gapOpacity", data.gapOpacity, fallback.gapOpacity),
       borderOpacity: data.borderOpacity === null ? null
@@ -175,6 +232,14 @@ export default class RegionDisplayProfiles {
     return {
       profile: profile.id,
       pattern: RegionDisplayProfiles.isPattern(flag.pattern) ? flag.pattern : profile.pattern,
+      textureSrc: RegionDisplayProfiles.textureSrc(flag.textureSrc, profile.textureSrc),
+      textureColorMode: RegionDisplayProfiles.textureChoice(
+        "textureColorMode",
+        flag.textureColorMode,
+        profile.textureColorMode,
+      ),
+      textureAnchor: RegionDisplayProfiles.textureChoice("textureAnchor", flag.textureAnchor, profile.textureAnchor),
+      textureFit: RegionDisplayProfiles.textureChoice("textureFit", flag.textureFit, profile.textureFit),
       opacity,
       gapOpacity: RegionDisplayProfiles.clamp("gapOpacity", flag.gapOpacity, profile.gapOpacity),
       borderOpacity: RegionDisplayProfiles.clamp("borderOpacity", flag.borderOpacity, profile.borderOpacity ?? opacity),
@@ -248,6 +313,12 @@ export default class RegionDisplayProfiles {
     }
     if ("dashed" in result && !RegionDisplayProfiles.toggleApplies("dashed", style.pattern)) delete result.dashed;
     if ("border" in result && !RegionDisplayProfiles.toggleApplies("border", style.pattern)) delete result.border;
+    if (!isImagePattern(style.pattern)) {
+      delete result.textureSrc;
+      delete result.textureColorMode;
+    }
+    if (!isImagePattern(style.pattern) || style.pattern === "imageStretch") delete result.textureAnchor;
+    if (style.pattern !== "imageStretch") delete result.textureFit;
     return result;
   }
 

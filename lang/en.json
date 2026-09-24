@@ -303,7 +303,10 @@
           "crosses": "Crosses",
           "checkerboard": "Checkerboard",
           "waves": "Waves",
-          "chevrons": "Chevrons"
+          "chevrons": "Chevrons",
+          "imagePoints": "Image Points",
+          "imageTile": "Tiled Image",
+          "imageStretch": "Fill Image"
         },
         "FIELDS": {
           "profile": {
@@ -332,14 +335,16 @@
             "hints": {
               "checkerboard": "Side length of each checkerboard square, in grid squares.",
               "waves": "Distance between bands, in grid squares. Wave Length scales the repeat length.",
-              "chevrons": "Distance between bands and length of each zigzag repeat, in grid squares."
+              "chevrons": "Distance between bands and length of each zigzag repeat, in grid squares.",
+              "imageTile": "Tile width in grid squares. Height follows the image proportions."
             }
           },
           "thickness": {
             "label": "Thickness",
             "hint": "Line width or symbol diameter as a share of spacing. Hollow dots have an inner radius 60% of their outer radius.",
             "hints": {
-              "crosses": "Base cross size as a share of spacing. Arm width is one third of this size; Cross Length extends the arms independently."
+              "crosses": "Base cross size as a share of spacing. Arm width is one third of this size; Cross Length extends the arms independently.",
+              "imagePoints": "Image size as a share of the spacing. Images keep their proportions."
             }
           },
           "edgeWidth": {
@@ -389,6 +394,45 @@
           "color": {
             "label": "Colour",
             "hint": "The profile's colour is the region's own unless the profile sets one."
+          }
+        },
+        "profileGroups": {
+          "general": "General",
+          "damage": "Damage types",
+          "status": "Conditions and statuses",
+          "custom": "Custom profiles"
+        },
+        "texture": {
+          "image": "Image",
+          "search": "Search Icons",
+          "browse": "Browse Images",
+          "filter": "Image category",
+          "all": "All",
+          "svg": "SVG Symbols",
+          "damage": "D&D5e Damage Icons",
+          "dnd5eStatus": "D&D5e Status Icons",
+          "damageProfile": "Damage",
+          "statusProfile": "Status",
+          "status": "Status Icons",
+          "previous": "Previous",
+          "next": "Next",
+          "results": "{count} matching icons",
+          "catalogError": "Unable to load the icon catalogue. You can still browse for an image.",
+          "loadError": "The image could not be loaded. A hatch is shown instead.",
+          "hint": "Search the icon catalogue or browse for a static image. Blank overrides inherit the profile image.",
+          "colour": "Image Colour",
+          "original": "Original colours",
+          "region": "Region colour",
+          "sizing": "Image Sizing",
+          "fitHint": "Stretch to fill the region bounds, or centre the whole image while keeping its proportions. Space around the image uses the gap background.",
+          "fit": {
+            "stretch": "Stretch to fit",
+            "contain": "Keep proportions"
+          },
+          "anchoring": "Image Anchoring",
+          "anchor": {
+            "scene": "Scene (aligned like dots)",
+            "region": "Region (moves with the area)"
           }
         }
       },

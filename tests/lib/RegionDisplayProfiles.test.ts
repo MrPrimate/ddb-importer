@@ -14,6 +14,7 @@ const callAll = vi.hoisted(() => vi.fn());
 beforeEach(() => {
   vi.stubGlobal("Hooks", { callAll, on: vi.fn() });
   callAll.mockReset();
+  RegionDisplayProfiles.resetBuiltinCache();
   // the unset mock setting is the truthy "OFF" string, which the store must tolerate
 });
 
@@ -23,6 +24,39 @@ afterEach(() => {
 });
 
 describe("RegionDisplayProfiles store", () => {
+  it("provides editable and resettable coloured presets for every configured damage and status icon", async () => {
+    const restore = useEnLocalization();
+    vi.stubGlobal("CONFIG", { DND5E: {
+      damageTypes: {
+        fire: { label: "Fire", icon: "systems/dnd5e/icons/svg/damage/fire.svg" },
+        acid: { label: "Acid", icon: "systems/dnd5e/icons/svg/damage/acid.svg" },
+      },
+      conditionTypes: { prone: { name: "Prone", img: "systems/dnd5e/icons/svg/statuses/prone.svg" } },
+      statusEffects: { sleeping: { name: "Sleeping", img: "systems/dnd5e/icons/svg/statuses/sleeping.svg" } },
+    } });
+    try {
+      expect(RegionDisplayProfiles.all().map((profile) => profile.id)).toEqual(expect.arrayContaining([
+        "aura", "damage", "status", "minimal", "damage-acid", "damage-fire", "status-prone", "status-sleeping",
+      ]));
+      expect(RegionDisplayProfiles.get("damage-fire")).toMatchObject({
+        name: "Damage: Fire", pattern: "imagePoints", color: "#ff4500", textureColorMode: "region",
+        textureSrc: "systems/dnd5e/icons/svg/damage/fire.svg", builtin: true,
+      });
+      expect(RegionDisplayProfiles.get("damage-acid")?.color).toBe("#80ff00");
+      expect(RegionDisplayProfiles.get("status-prone")?.textureSrc).toBe("systems/dnd5e/icons/svg/statuses/prone.svg");
+      const write = vi.spyOn(game.settings, "set");
+      await RegionDisplayProfiles.save({ ...RegionDisplayProfiles.get("damage-fire")!, color: "#ff0000" });
+      setMockSettings({ "region-display-profiles": write.mock.calls.at(-1)![2] });
+      expect(RegionDisplayProfiles.get("damage-fire")?.color).toBe("#ff0000");
+      expect(RegionDisplayProfiles.isOverriddenBuiltin("damage-fire")).toBe(true);
+      await RegionDisplayProfiles.remove("damage-fire");
+      setMockSettings({ "region-display-profiles": write.mock.calls.at(-1)![2] });
+      expect(RegionDisplayProfiles.get("damage-fire")?.color).toBe("#ff4500");
+    } finally {
+      restore();
+    }
+  });
+
   it("fills missing cross and wave controls from the defaults without rewriting settings", () => {
     const raw = { old: { name: "Legacy", pattern: "waves", thickness: 0.4 } };
     setMockSettings({ "region-display-profiles": raw });
@@ -68,9 +102,9 @@ describe("RegionDisplayProfiles store", () => {
     expect(set).not.toHaveBeenCalled();
   });
 
-  it("ships four built-ins in order and tolerates an unset setting", () => {
+  it("keeps the original built-ins first and tolerates an unset setting", () => {
     const all = RegionDisplayProfiles.all();
-    expect(all.map((profile) => profile.id)).toEqual(["aura", "damage", "status", "minimal"]);
+    expect(all.slice(0, 4).map((profile) => profile.id)).toEqual(["aura", "damage", "status", "minimal"]);
     expect(all.every((profile) => profile.builtin)).toBe(true);
     expect(all.every((profile) => profile.gapOpacity === 0 && profile.borderOpacity === null)).toBe(true);
     expect(RegionDisplayProfiles.get("nope")).toBeNull();
@@ -88,7 +122,7 @@ describe("RegionDisplayProfiles store", () => {
       },
     });
     const all = RegionDisplayProfiles.all();
-    expect(all.map((profile) => profile.id)).toEqual(["aura", "damage", "status", "minimal", "alpha", "zeta"]);
+    expect(all.map((profile) => profile.id)).toEqual([...RegionDisplayProfiles.builtins.map((profile) => profile.id), "alpha", "zeta"]);
     expect(RegionDisplayProfiles.get("aura")).toMatchObject({ pattern: "solid", opacity: 0.9, builtin: true });
     expect(RegionDisplayProfiles.isOverriddenBuiltin("aura")).toBe(true);
     expect(RegionDisplayProfiles.isOverriddenBuiltin("damage")).toBe(false);
@@ -118,6 +152,7 @@ describe("RegionDisplayProfiles store", () => {
     const damage = BUILTIN_REGION_DISPLAY_PROFILES[1];
     expect(RegionDisplayProfiles.resolve({ profile: "damage" })).toEqual({
       profile: "damage", pattern: damage.pattern, opacity: damage.opacity, spacing: damage.spacing,
+      textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
       gapOpacity: 0, borderOpacity: damage.opacity,
       crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0,
       thickness: damage.thickness, edgeWidth: damage.edgeWidth, dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1, color: null,
@@ -126,6 +161,7 @@ describe("RegionDisplayProfiles store", () => {
       profile: "damage", pattern: "dots", opacity: "0.75", spacing: null, thickness: "", edgeWidth: 9, dashed: "dashed", dashLength: "1", color: "#123456",
     })).toEqual({
       profile: "damage", pattern: "dots", opacity: 0.75, spacing: damage.spacing, thickness: damage.thickness, edgeWidth: 2,
+      textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
       gapOpacity: 0, borderOpacity: 0.75,
       crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0,
       dashed: true, dashLength: 1, angle: 45, border: false, borderWidth: 0.1, color: "#123456",
@@ -328,4 +364,24 @@ describe("RegionDisplayProfiles field rules", () => {
       expect(enString(`${root}.${key}`), key).toBeTypeOf("string");
     }
   });
+});
+
+it("retains shipped preset ids if the system removes a status, and caches ready-time lookups", () => {
+  vi.stubGlobal("CONFIG", { DND5E: {} });
+  const restore = useEnLocalization();
+  const localize = vi.spyOn(game.i18n, "localize");
+  vi.stubGlobal("game", { ...game, ready: true });
+  RegionDisplayProfiles.resetBuiltinCache();
+  const preset = RegionDisplayProfiles.get("status-prone")!;
+  expect(preset).toMatchObject({ builtin: true, name: "Status: Prone", textureSrc: "systems/dnd5e/icons/svg/statuses/prone.svg" });
+  const calls = localize.mock.calls.length;
+  for (let i = 0; i < 20; i++) {
+    expect(RegionDisplayProfiles.isBuiltinId("status-prone")).toBe(true);
+    expect(RegionDisplayProfiles.resolve({ profile: "status-prone" })).not.toBeNull();
+  }
+  expect(localize.mock.calls.length).toBe(calls);
+  setMockSettings({ "region-display-profiles": { "status-prone": { ...preset, color: "#112233" } } });
+  expect(RegionDisplayProfiles.get("status-prone")).toMatchObject({ color: "#112233", builtin: true });
+  restore();
+  RegionDisplayProfiles.resetBuiltinCache();
 });

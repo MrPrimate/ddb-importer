@@ -1,5 +1,11 @@
-import { REGION_DISPLAY_FALLBACK_COLOR, REGION_DISPLAY_FIELDS, REGION_DISPLAY_I18N } from "../../config/regionDisplayProfiles";
+import {
+  isTextureChoice,
+  REGION_DISPLAY_FALLBACK_COLOR,
+  REGION_DISPLAY_FIELDS,
+  REGION_DISPLAY_I18N,
+} from "../../config/regionDisplayProfiles";
 import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
+import { imagePreviewData } from "./regionDisplayImagePreview";
 import { previewCss } from "./regionDisplayPreview";
 
 /**
@@ -21,6 +27,10 @@ export const REGION_DISPLAY_FLAG_KEYS: (keyof IRegionDisplayFlag)[] = [
   "dashed",
   "border",
   "color",
+  "textureSrc",
+  "textureColorMode",
+  "textureAnchor",
+  "textureFit",
   ...REGION_DISPLAY_FIELDS.map((field) => field.key),
 ];
 
@@ -57,6 +67,10 @@ export function describeDisplayFlag(stored: IRegionDisplayFlag | null | undefine
   if (typeof flag.color === "string" && flag.color.trim()) {
     parts.push(game.i18n.format(`${REGION_DISPLAY_I18N}.summaryColor`, { color: flag.color.trim() }));
   }
+  if (flag.textureSrc) parts.push(flag.textureSrc.split("/").pop() ?? flag.textureSrc);
+  if (flag.textureColorMode) parts.push(RegionDisplayProfiles.localize(`texture.${flag.textureColorMode}`));
+  if (flag.textureFit) parts.push(RegionDisplayProfiles.localize(`texture.fit.${flag.textureFit}`));
+  if (flag.textureAnchor) parts.push(RegionDisplayProfiles.localize(`texture.anchor.${flag.textureAnchor}`));
   return parts.length ? `${profile.name}, ${parts.join(", ")}` : profile.name;
 }
 
@@ -87,6 +101,10 @@ export function flagFromBehaviorConfig(config: Record<string, unknown> | null | 
   if (typeof source.border === "boolean" || source.border === "border" || source.border === "none") {
     flag.border = source.border;
   }
+  if (typeof source.textureSrc === "string" && source.textureSrc.trim()) flag.textureSrc = source.textureSrc.trim();
+  if (isTextureChoice("textureColorMode", source.textureColorMode)) flag.textureColorMode = source.textureColorMode;
+  if (isTextureChoice("textureAnchor", source.textureAnchor)) flag.textureAnchor = source.textureAnchor;
+  if (isTextureChoice("textureFit", source.textureFit)) flag.textureFit = source.textureFit;
   const color = overrideValue(source.color);
   if (typeof color === "string") flag.color = color;
   return flag;
@@ -97,6 +115,10 @@ export function behaviorConfigFromFlag(flag: IRegionDisplayFlag | null | undefin
   const source = flag ?? {};
   const config: Record<string, unknown> = {
     profile: source.profile ?? "",
+    textureSrc: source.textureSrc?.trim() ?? "",
+    textureColorMode: source.textureColorMode ?? "",
+    textureAnchor: source.textureAnchor ?? "",
+    textureFit: source.textureFit ?? "",
     pattern: RegionDisplayProfiles.isPattern(source.pattern) ? source.pattern : "",
     color: typeof source.color === "string" && source.color.trim() ? source.color.trim() : null,
   };
@@ -137,6 +159,7 @@ export function buildDisplaySummaryRow({ flag, color, buttonClass }: IDisplaySum
     fill.classList.add("ddbi-display-region-fill");
     swatch.append(fill);
     swatch.setAttribute("style", previewCss(style, color, 24));
+    swatch.dataset.imagePreview = imagePreviewData(style, color, 24);
     row.append(swatch);
   }
 

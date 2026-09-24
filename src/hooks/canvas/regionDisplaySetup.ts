@@ -4,6 +4,7 @@ import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 import { registerRegionConfigDisplay } from "./regionConfigDisplay";
 import { installBehaviorConfigureDelegate } from "./regionDisplayBehaviorConfigure";
 import { registerRegionDisplayHooks } from "./regionDisplay";
+import { registerImagePreviewHooks } from "./regionDisplayImagePreview";
 import { installProfilePickerDelegate } from "./regionDisplayPicker";
 import { registerRegionDisplayStamp } from "./regionDisplayStamp";
 
@@ -17,6 +18,7 @@ export function setupRegionDisplayProfiles(): boolean {
     logger.info("Region display profiles are disabled; regions keep Foundry's own highlight");
     return false;
   }
+  registerImagePreviewHooks();
   registerRegionDisplayHooks();
   registerRegionDisplayStamp();
   registerRegionConfigDisplay();

@@ -15,6 +15,14 @@ import logger from "../../lib/Logger";
 export const DDB_DISPLAY_UNIFORMS = {
   /** REGION_DISPLAY_PATTERN_IDS value. */
   pattern: 0,
+  imageReady: false,
+  imageRecolor: false,
+  imageRegion: false,
+  imageTiled: false,
+  imageContain: false,
+  imageAspect: 1,
+  imageBounds: [0, 0, 1, 1],
+  imageSampler: null,
   /** Pattern period in canvas pixels. */
   period: 12,
   /** Share of the period that is ink, 0-1. */
@@ -60,8 +68,13 @@ export const CORE_FRAGMENT_CONTRACT = ["tintAlpha", "resolution", "hatchEnabled"
  * ever sees small numbers. Shared uniforms must use the fragment precision in both stages
  * or the program fails to link, even though vertex calculations stay high precision.
  */
-export function buildVertexShader(precision: string, fragmentPrecision: string, constants: string): string {
-  return `\
+export function buildVertexShader(
+  precision: string,
+  fragmentPrecision: string,
+  constants: string,
+  webgl2 = false,
+): string {
+  const source = `\
     precision ${precision} float;
 
     ${constants}
@@ -77,6 +90,13 @@ export function buildVertexShader(precision: string, fragmentPrecision: string, 
     uniform ${fragmentPrecision} float dashPeriod;
     uniform float angle;
     uniform float patternOffset;
+    uniform bool imageRegion;
+    uniform bool imageTiled;
+    uniform bool imageContain;
+    uniform vec4 imageBounds;
+    uniform ${fragmentPrecision} float imageAspect;
+    varying vec2 vImageCell;
+    varying vec2 vImageUV;
 
     varying vec2 vCanvasCoord; // normalized canvas coordinates
     varying vec2 vSceneCoord; // normalized scene coordinates
@@ -103,8 +123,22 @@ export function buildVertexShader(precision: string, fragmentPrecision: string, 
       vStripe = vec2(dot(pixelCoord, n), dot(pixelCoord, t)) / safePeriod + patternOffset;
       vDash = vec2(dot(pixelCoord, t), dot(pixelCoord, n)) / safeDash;
       vCell = pixelCoord / safePeriod + patternOffset;
+      vec2 origin = imageRegion ? imageBounds.xy : vec2(0.0);
+      vec2 repeatSize = vec2(safePeriod, safePeriod / (imageTiled ? max(imageAspect, 0.0001) : 1.0));
+      vImageCell = (pixelCoord - origin) / repeatSize + patternOffset;
+      vec2 boundsSize = max(imageBounds.zw, vec2(1.0));
+      vec2 imageSize = boundsSize;
+      if ( imageContain ) {
+        float aspect = max(imageAspect, 0.0001);
+        imageSize = vec2(min(boundsSize.x, boundsSize.y * aspect), min(boundsSize.y, boundsSize.x / aspect));
+      }
+      vImageUV = (pixelCoord - imageBounds.xy - boundsSize * 0.5) / imageSize + 0.5;
     }
   `;
+  // An explicit version keeps PIXI from inserting declarations ahead of fragment extensions.
+  return webgl2
+    ? "#version 300 es\n" + source.replace(/\battribute\b/g, "in").replace(/\bvarying\b/g, "out")
+    : "#version 100\n" + source;
 }
 
 /** The GLSL name of a pattern's id: `hollowDots` is `PATTERN_HOLLOW_DOTS`. */
@@ -127,9 +161,21 @@ export function patternDefines(): string {
  * region is controlled, hovered or previewed; every pattern renders solid then, exactly as
  * the core shader does, so editing a region looks unchanged.
  */
-export function buildFragmentShader(precision: string, constants: string): string {
-  return `\
+export function buildFragmentShader(precision: string, constants: string, webgl2 = false): string {
+  const source = `\
+    ${
+      webgl2
+        ? "#version 300 es"
+        : `#version 100
+    #ifdef GL_OES_standard_derivatives
+      #extension GL_OES_standard_derivatives : enable
+    #endif
+    #ifdef GL_EXT_shader_texture_lod
+      #extension GL_EXT_shader_texture_lod : enable
+    #endif`
+    }
     precision ${precision} float;
+    ${webgl2 ? "out vec4 fragColor;" : ""}
 
     ${constants}
 
@@ -139,6 +185,12 @@ ${patternDefines()}
     varying vec2 vDash;
     varying vec2 vCell;
 
+    varying vec2 vImageCell;
+    varying vec2 vImageUV;
+    uniform sampler2D imageSampler;
+    uniform bool imageReady;
+    uniform bool imageRecolor;
+    uniform ${precision} float imageAspect;
     uniform vec4 tintAlpha;
     uniform float resolution;
     uniform bool hatchEnabled;
@@ -172,12 +224,47 @@ ${patternDefines()}
       return min(max(cell.x - radius, cell.y - arm), max(cell.x - arm, cell.y - radius));
     }
 
+    // Mip selection must see continuous coordinates, not the discontinuities of fract().
+    vec4 sampleImage(vec2 uv, vec2 continuousUV) {
+      ${
+        webgl2
+          ? "return textureGrad(imageSampler, uv, dFdx(continuousUV), dFdy(continuousUV));"
+          : `
+      #if defined(GL_EXT_shader_texture_lod) && defined(GL_OES_standard_derivatives)
+        return texture2DGradEXT(imageSampler, uv, dFdx(continuousUV), dFdy(continuousUV));
+      #else
+        // WebGL1 without explicit gradients keeps level zero, avoiding spurious edge mips.
+        return texture2D(imageSampler, uv, -16.0);
+      #endif`
+      }
+    }
+
     void main() {
       gl_FragColor = tintAlpha;
       if ( !hatchEnabled ) return;
       if ( pattern == PATTERN_SOLID || pattern == PATTERN_EDGE ) return;
       float safePeriod = max(period, 1.0);
       float aa = 1.0 / max(safePeriod * resolution, 1.0);
+      if ( pattern == PATTERN_IMAGE_POINTS || pattern == PATTERN_IMAGE_TILE || pattern == PATTERN_IMAGE_STRETCH ) {
+        if ( !imageReady ) {
+          gl_FragColor *= mix(gapOpacity, 1.0, stripe(vStripe.x, aa));
+          return;
+        }
+        vec2 continuousUV = pattern == PATTERN_IMAGE_STRETCH ? vImageUV : vImageCell;
+        vec2 uv = pattern == PATTERN_IMAGE_STRETCH ? vImageUV : fract(vImageCell);
+        float inside = 1.0;
+        if ( pattern == PATTERN_IMAGE_POINTS ) {
+          vec2 size = thickness * vec2(min(1.0, imageAspect), 1.0 / max(1.0, imageAspect));
+          uv = (uv - 0.5) / max(size, vec2(0.0001)) + 0.5;
+          continuousUV /= max(size, vec2(0.0001));
+        }
+        inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+        // Foundry uploads premultiplied textures. Preserve that convention when adding the gap underneath.
+        vec4 texel = sampleImage(clamp(uv, 0.0, 1.0), continuousUV) * inside;
+        vec4 image = imageRecolor ? tintAlpha * texel.a : vec4(texel.rgb, texel.a) * tintAlpha.a;
+        gl_FragColor = image + tintAlpha * gapOpacity * (1.0 - texel.a);
+        return;
+      }
       float ink = 0.0;
       if ( pattern == PATTERN_DOTS || pattern == PATTERN_HOLLOW_DOTS || pattern == PATTERN_DIAMONDS ) {
         vec2 cell = fract(vCell) - 0.5;
@@ -226,10 +313,12 @@ ${patternDefines()}
       gl_FragColor *= mix(gapOpacity, 1.0, ink);
     }
   `;
+  return webgl2 ? source.replace(/\bvarying\b/g, "in").replace(/\bgl_FragColor\b/g, "fragColor") : source;
 }
 
 /** The subset of WebGLRenderingContext the compile check uses, so tests can fake it. */
 export interface IShaderCompileContext {
+  getExtension?(name: string): unknown;
   VERTEX_SHADER: number;
   FRAGMENT_SHADER: number;
   COMPILE_STATUS: number;
@@ -352,8 +441,11 @@ export function getDDBDisplayShaderClass({
 
   const vertexPrecision = String(PIXI.Program.defaultVertexPrecision);
   const fragmentPrecision = String(PIXI.Program.defaultFragmentPrecision);
-  const vertex = buildVertexShader(vertexPrecision, fragmentPrecision, Base.CONSTANTS);
-  const fragment = buildFragmentShader(fragmentPrecision, Base.CONSTANTS);
+  const webgl2 = Boolean(gl && "texStorage2D" in gl);
+  gl?.getExtension?.("OES_standard_derivatives");
+  gl?.getExtension?.("EXT_shader_texture_lod");
+  const vertex = buildVertexShader(vertexPrecision, fragmentPrecision, Base.CONSTANTS, webgl2);
+  const fragment = buildFragmentShader(fragmentPrecision, Base.CONSTANTS, webgl2);
   if (gl) {
     const result = verifyShaderProgram(gl, vertex, fragment);
     if (!result.ok) {
@@ -370,7 +462,20 @@ export function getDDBDisplayShaderClass({
     static override defaultUniforms = {
       ...Base.defaultUniforms,
       ...DDB_DISPLAY_UNIFORMS,
+      imageSampler: PIXI.Texture?.WHITE ?? null,
     };
+
+    override _preRender(mesh: TCoreRegionMesh, renderer: PIXI.Renderer): void {
+      super._preRender(mesh, renderer);
+      const bounds = mesh.region.animationState.bounds;
+      if (bounds) {
+        const values = this.uniforms.imageBounds as number[];
+        values[0] = bounds.x;
+        values[1] = bounds.y;
+        values[2] = bounds.width;
+        values[3] = bounds.height;
+      }
+    }
 
     static override _createVertexShader(): string {
       return vertex;
