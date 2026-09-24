@@ -1,6 +1,8 @@
 # Next Up
 
 - Way of the Street parsing updates @oregonpinkrose
+- [New Feature] New region behaviour - Region Display - this allows you to customise the region/template placed by activities and effects. There are a number of new patterns with lots of dials, you can use status and damage icons, or even images. This is not intended to replace modules like Automated Animations or be used with things like JB2A assets. It is to help make templates that have ongoing effects or saves more distinctive on the scene. It has a negligible performance footprint with 40 regions using a variety of textures it adds about 0.2ms per frame in the worst case.
+- [New Feature] Icon browser. You can shift click and use an icon browser to try and find a match for features/effects/activities with missing icons. It uses a curated list of icon hits to try and find good matches for you.
 
 # 7.5.5
 

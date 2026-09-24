@@ -42,6 +42,7 @@ import { registerTokenizer2FrameLoader } from "./hooks/init/tokenizer2Frames";
 import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
+import { registerIconBrowserShiftClick } from "./hooks/ready/iconBrowserShiftClick";
 import { DDBToolProficiencies } from "./lib/_module";
 import RegionBehaviorSettings from "./lib/RegionBehaviorSettings";
 // import { createStorage } from "./hooks/ready/storage";
@@ -85,6 +86,7 @@ export async function onceReady() {
   await checkCompendiums();
   DDBEnhancers.loadEnhancers();
   multiSelectHover();
+  registerIconBrowserShiftClick();
 
   // notifications
   Notifications.registerNotifications();

@@ -198,6 +198,15 @@ const SETTINGS = {
         default: true,
         requiresReload: true,
       },
+      // read on every click, so toggling it needs no reload
+      "icon-browser-shift-click": {
+        name: "ddb-importer.settings.icon-browser-shift-click.name",
+        hint: "ddb-importer.settings.icon-browser-shift-click.hint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+      },
       // custom / tuned region display profiles, keyed by id (see lib/RegionDisplayProfiles)
       "region-display-profiles": {
         scope: "world",

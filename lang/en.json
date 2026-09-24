@@ -44,6 +44,8 @@
     "settings": {
       "enable-region-display-profiles.name": "Enable Region Display Profiles",
       "enable-region-display-profiles.hint": "Draw aura and area-template regions with DDB Importer's display profiles (opacity, pattern, lines, border). Disabling leaves every region to Foundry's own highlight, removes the DDB Importer Region Display behavior and the Region config box, and stops imports adding region display behaviors. All connected clients must reload.",
+      "icon-browser-shift-click.name": "Shift-Click Opens the Icon Browser",
+      "icon-browser-shift-click.hint": "Shift-click an item, activity or effect image while the sheet is unlocked to search DDB Importer's icon browser instead of opening the file picker. Actor portraits and token images are not affected.",
       "enable-ddb-macro-region-behaviors.name": "Enable DDB Importer Region Automation",
       "enable-ddb-macro-region-behaviors.hint": "Enable DDB Importer region triggers and their supporting hooks. Disabling prevents new DDB triggers and stops existing ones. Native 5e region effects and terrain are unaffected. All connected clients must reload.",
       "stickers-upload-path.name": "DDB Stickers upload directory",

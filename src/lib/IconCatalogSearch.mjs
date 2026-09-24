@@ -41,6 +41,17 @@ export function tokens(value) {
   return [...new Set(words.map(stem))];
 }
 
+/**
+ * A document name as a starting search: the words `tokens` would keep, unstemmed so the query
+ * reads as the name did ("Cloak of the Bat" -> "cloak bat").
+ */
+export function searchWords(value) {
+  const words = fold(value)
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 2 && !STOP.has(word) && !(/^\d+$/).test(word));
+  return [...new Set(words)].join(" ");
+}
+
 /** Literal user vocabulary, including short prefixes and words excluded from prose analysis. */
 export function queryTokens(value) {
   const words = fold(value)

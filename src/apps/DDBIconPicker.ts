@@ -20,9 +20,12 @@ export default class DDBIconPicker extends DDBAppV2 {
 
   static readonly PAGE_SIZE = 24;
 
-  constructor(select: (path: string) => void) {
+  /** `search` prefills the query; it starts selected so typing replaces it. */
+  constructor(select: (path: string) => void, { search = "" }: { search?: string } = {}) {
     super();
     this.selectImage = select;
+    this.searchTerm = search;
+    if (search) this._searchCaret = { start: 0, end: search.length };
   }
 
   static override DEFAULT_OPTIONS = {
