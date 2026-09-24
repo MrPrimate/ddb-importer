@@ -15,6 +15,7 @@ export { default as BlessedChosen } from "./BlessedChosen";
 export { default as BodyOfTheAstralSelf } from "./BodyOfTheAstralSelf";
 export { default as BreathOfTheDragon } from "./BreathOfTheDragon";
 export { default as BruisedEgo } from "./BruisedEgo";
+export { default as Combo } from "./Combo";
 export { default as CrushingGuilt } from "./CrushingGuilt";
 export { default as DeflectAttack } from "./DeflectAttack";
 export { default as DeflectAttackRedirectAttack } from "./DeflectAttackRedirectAttack";

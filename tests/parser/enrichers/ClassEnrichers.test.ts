@@ -579,6 +579,36 @@ describe("monk ElementalAttunement", () => {
   });
 });
 
+describe("monk Combo", () => {
+  const Enricher = ClassEnrichers.Monk.Combo;
+
+  it("spends Focus only to begin the combo", () => {
+    const e = build(Enricher);
+    expect(e.activity).toMatchObject({ name: "Begin Combo", addItemConsume: true, itemConsumeTargetName: "Monk's Focus" });
+    expect(e.additionalActivities.map((a: any) => [a.id, a.overrides.name, a.overrides.noConsumeTargets])).toEqual([
+      ["ddbComboSecondHt", "Combo: Second Hit", true],
+      ["ddbComboThirdHit", "Combo: Third Hit", true],
+    ]);
+  });
+
+  it("stacks one Unarmed Strike attack rule per stage until the end of the turn", () => {
+    const effects = build(Enricher).effects;
+    expect(effects.map((hint: any) => hint.activityMatch)).toEqual(["Begin Combo", "Combo: Second Hit", "Combo: Third Hit"]);
+    for (const hint of effects) {
+      expect(hint.options.expiry).toBe("turnEnd");
+      expect(hint.ac5eChanges).toBeUndefined();
+      expect(hint.changes).toEqual([
+        expect.objectContaining({
+          key: "attack",
+          type: "dnd5e.bonus",
+          value: "2",
+          conditions: JSON.stringify({ k: "roll.attack.classification", o: "in", v: ["unarmed", "natural"] }),
+        }),
+      ]);
+    }
+  });
+});
+
 describe("monster-hunter CloseQuarters", () => {
   it("doubles the dice at level 11 through the formula, not a branch", () => {
     const e = build(ClassEnrichers.MonsterHunter.CloseQuarters);
