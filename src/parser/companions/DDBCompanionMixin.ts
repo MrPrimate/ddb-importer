@@ -112,7 +112,13 @@ export default class DDBCompanionMixin {
     if (data.monsterIDs && data.monsterIDs.length > 0) {
       const monsterFactory = new DDBMonsterFactory({ type: "summons" });
 
-      await monsterFactory.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(data.monsterIDs));
+      // the proxy refuses by-id fetches outside its no-auth list for users without a Patreon key,
+      // so a failed lookup falls back to the static actor/token urls rather than failing the import
+      try {
+        await monsterFactory.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(data.monsterIDs));
+      } catch (error) {
+        logger.warn(`Unable to fetch enriched summon images for ${document.name}, using fallback images`, error);
+      }
 
       for (const monsterSource of monsterFactory.source) {
         const img = monsterSource.basicAvatarUrl ?? monsterSource.largeAvatarUrl ?? monsterSource.avatarUrl;
