@@ -207,6 +207,14 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      // extra icon list JSON files merged into the icon browser (see "Icon catalogue" in
+      // CONTRIBUTING.md); no UI, set from the console. Read on each load, so no reload is needed
+      "icon-catalog-custom-paths": {
+        scope: "world",
+        config: false,
+        type: Array,
+        default: [] as string[],
+      },
       // custom / tuned region display profiles, keyed by id (see lib/RegionDisplayProfiles)
       "region-display-profiles": {
         scope: "world",

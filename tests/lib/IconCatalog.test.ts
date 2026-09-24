@@ -1,5 +1,14 @@
 import fs from "node:fs";
-import { iconSearch, withStatusIcons, withSystemIcons } from "../../src/lib/IconCatalog";
+import {
+  customCatalogIcons,
+  customCatalogPaths,
+  iconSearch,
+  loadIconCatalog,
+  mergeIconLists,
+  withStatusIcons,
+  withSystemIcons,
+} from "../../src/lib/IconCatalog";
+import { setMockSettings } from "../_setup/foundryMocks";
 import { systemIcons } from "../../src/config/systemIcons";
 import { allTags, createRanker } from "../../src/lib/IconCatalogSearch.mjs";
 
@@ -106,4 +115,56 @@ it("prefers named categories and context over incidental rare visual tags in the
   expect(search("fire sw")[0].path).not.toMatch(/potions/);
   expect(search("fire sw")[0].matched).toContain("fire");
   expect(search("fire sw").slice(0, 24).some((icon) => icon.path.startsWith("icons/weapons/swords/"))).toBe(true);
+});
+
+describe("custom icon lists", () => {
+  it("reads bare arrays and the catalogue shape, deriving missing names and skipping bad entries", () => {
+    expect(customCatalogIcons(["worlds/w/icons/frost-giant_axe.webp", "", 4, { name: "no path" }])).toEqual([
+      { id: "worlds/w/icons/frost-giant_axe.webp", path: "worlds/w/icons/frost-giant_axe.webp", name: "frost giant axe", hash: "", tags: [], inferred: [], manual: [] },
+    ]);
+    const [entry] = customCatalogIcons({ version: 1, icons: [{ path: "a/b.png", name: "Moon Blade", tags: ["moon", 3], manual: ["silver"] }] });
+    expect(entry).toMatchObject({ path: "a/b.png", name: "Moon Blade", tags: ["moon"], manual: ["silver"] });
+    expect(() => customCatalogIcons({ icons: "nope" })).toThrow();
+  });
+
+  it("adds new paths and folds extra names and tags into shipped ones", () => {
+    const result = mergeIconLists(icons, [
+      customCatalogIcons([{ path: icons[0].path, name: "Dragon Breath", manual: ["dragon"] }, "worlds/w/moon.webp"]),
+    ]);
+    expect(result).toHaveLength(3);
+    const fire = result.find((icon) => icon.path === icons[0].path)!;
+    expect(fire.name).toBe("fire");
+    expect(fire.tags).toEqual(expect.arrayContaining(["fire", "dragon", "breath"]));
+    expect(fire.manual).toEqual(["warm", "dragon"]);
+    expect(iconSearch(result, "all")("dragon")[0].path).toBe(icons[0].path);
+    expect(iconSearch(result, "all")("moon")[0].path).toBe("worlds/w/moon.webp");
+  });
+
+  it("ignores non-string and duplicate setting values", () => {
+    expect(customCatalogPaths([" a.json ", "a.json", 3, ""])).toEqual(["a.json"]);
+    expect(customCatalogPaths(null)).toEqual([]);
+  });
+
+  it("merges the lists from the setting, skips a broken one and reloads when the setting changes", async () => {
+    const files: Record<string, unknown> = {
+      "modules/ddb-importer/dist/icon-catalog.json": { version: 1, icons: [{ path: "icons/svg/fire.svg", name: "fire", tags: ["fire"], inferred: [], manual: [] }] },
+      "worlds/w/one.json": ["worlds/w/one.webp"],
+      "worlds/w/two.json": [{ path: "worlds/w/two.webp", name: "Two" }],
+    };
+    const fetchMock = vi.fn(async (path: string) => files[path]
+      ? { ok: true, status: 200, json: async () => files[path] }
+      : { ok: false, status: 404, json: async () => null });
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      setMockSettings({ "icon-catalog-custom-paths": ["worlds/w/one.json", "worlds/w/missing.json"] });
+      const first = await loadIconCatalog();
+      expect(first.map((icon) => icon.path)).toEqual(["icons/svg/fire.svg", "worlds/w/one.webp"]);
+      expect(await loadIconCatalog()).toBe(first);
+      setMockSettings({ "icon-catalog-custom-paths": ["worlds/w/two.json"] });
+      expect((await loadIconCatalog()).map((icon) => icon.name)).toEqual(["fire", "Two"]);
+    } finally {
+      vi.unstubAllGlobals();
+      setMockSettings({ "icon-catalog-custom-paths": [] });
+    }
+  });
 });

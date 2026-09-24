@@ -406,6 +406,7 @@
         },
         "texture": {
           "image": "Image",
+          "customCatalogError": "Unable to load the custom icon list {path}: {error}",
           "search": "Search Icons",
           "browse": "Browse Images",
           "filter": "Image category",
