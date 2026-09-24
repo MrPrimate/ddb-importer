@@ -1,5 +1,7 @@
 # Next Up
 
+- Way of the Street parsing updates @oregonpinkrose
+
 # 7.5.5
 
 - Fix Mule Muncher species selections importing a different species when species and subraces share an ID. Saved species selections are reset, please reselect before munching. @couchcomfy

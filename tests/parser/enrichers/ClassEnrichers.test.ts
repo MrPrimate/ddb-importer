@@ -609,6 +609,46 @@ describe("monk Combo", () => {
   });
 });
 
+describe("monk Warrior of the Street features", () => {
+  it("K.O. spends its own use and restores it with 5 Focus", () => {
+    const e = build(ClassEnrichers.Monk.KO);
+    expect(e.activity).toMatchObject({ name: "K.O.", addItemConsume: true });
+    expect(e.activity.itemConsumeTargetName).toBeUndefined();
+    const [restore] = e.additionalActivities;
+    expect(restore.id).toBe("ddbKORestoreUse1");
+    expect(restore.overrides).toMatchObject({ itemConsumeTargetName: "Monk's Focus", itemConsumeValue: "5" });
+    expect(restore.overrides.additionalConsumptionTargets).toEqual([expect.objectContaining({ type: "itemUses", target: "", value: "-1" })]);
+    expect(e.effects).toEqual([expect.objectContaining({ activityMatch: "K.O.", statuses: ["Unconscious"] })]);
+  });
+
+  it("Air Dash takes no action and grants flight plus a native melee attack advantage", () => {
+    const e = build(ClassEnrichers.Monk.AirDash);
+    expect(e.activity.activationType).toBe("special");
+    const [flight, advantage] = e.effects;
+    expect(flight.changes[0]).toMatchObject({ key: "system.attributes.movement.speeds.fly", value: "@attributes.movement.speeds.walk" });
+    expect(advantage.options.expiry).toBe("turnEnd");
+    expect(advantage.changes[0]).toMatchObject({
+      key: "attack",
+      type: "dnd5e.advantage",
+      conditions: JSON.stringify({ k: "roll.attack.type", o: "exact", v: "melee" }),
+    });
+  });
+
+  it("Iron Fist builds no activity", () => {
+    const e = build(ClassEnrichers.Monk.IronFist);
+    expect(e.stopDefaultActivity).toBe(true);
+    expect(e.useDefaultAdditionalActivities).toBe(false);
+  });
+
+  it("the Special Moves actions fix their activities and scope Prone to Uppercut", () => {
+    expect(build(ClassEnrichers.Monk.SpecialMoveGuardBreaker).activity.data.damage.parts[0].custom.formula).toBe("@abilities.dex.mod");
+    expect(build(ClassEnrichers.Monk.SpecialMoveEnergyBlast).activity).toMatchObject({ activationType: "special", data: { damage: { onSave: "half" } } });
+    expect(build(ClassEnrichers.Monk.SpecialMoveUppercut).effects).toEqual([
+      expect.objectContaining({ activityMatch: "Uppercut", statuses: ["Prone"] }),
+    ]);
+  });
+});
+
 describe("monster-hunter CloseQuarters", () => {
   it("doubles the dice at level 11 through the formula, not a branch", () => {
     const e = build(ClassEnrichers.MonsterHunter.CloseQuarters);
