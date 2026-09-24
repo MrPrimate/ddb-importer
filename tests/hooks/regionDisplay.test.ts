@@ -731,6 +731,58 @@ describe("BehaviorHelper.display and defaults", () => {
     expect(profile("auraDamage")).toBe("aura");
   });
 
+  it("finds a trigger's sibling by name, as the placed region does", () => {
+    const cube = { target: { template: { type: "cube" } } };
+    const named = (args: Record<string, unknown>, extra: Record<string, unknown> = {}) => ({
+      type: "ddbMacro",
+      config: { function: "useActivity", activity: "", args, ...extra },
+    });
+    const effects: any[] = [{ _id: "proneFx", name: "Knocked Down", statuses: ["prone"] }];
+    const activities: Record<string, any> = {
+      // Spike Growth: the Cast places the area and names its damage sibling
+      cast: { ...cube, name: "Cast", type: "utility", behaviors: [{ type: "difficultTerrain" }, named({ activityName: "Movement Damage" })] },
+      movement: { name: "Movement Damage", type: "damage", damage: { parts: [{ types: ["piercing"] }] } },
+      prefix: { ...cube, name: "Place", behaviors: [named({ activityName: "Frost" })] },
+      frost: { name: "Frost Burst (Upcast)", type: "save", damage: { parts: [{ types: ["cold"] }] } },
+      choice: { ...cube, name: "Aura", behaviors: [named({ activityChoices: ["Movement Damage", "Frost Burst"] })] },
+      byArgsId: { ...cube, name: "Topple Zone", behaviors: [named({ activityId: "topple" })] },
+      topple: { name: "Topple", type: "save", effects: [{ _id: "proneFx" }] },
+      macro: { ...cube, name: "Macro", behaviors: [named({ activityName: "Movement Damage" }, { function: "someMacro" })] },
+      byUuid: { ...cube, name: "Uuid", behaviors: [{ type: "applyActiveEffect", config: { effects: ["Item.x.ActiveEffect.proneFx"] } }] },
+    };
+    BehaviorHelper.assignDisplayDefaults(activities, { effects });
+    const profile = (key: string) => activities[key].behaviors?.find((b: any) => b.type === "ddbDisplay")?.config.profile;
+    expect(profile("cast")).toBe("damage-piercing");
+    expect(profile("prefix")).toBe("damage-cold");
+    expect(profile("choice")).toBe("damage");
+    expect(profile("byArgsId")).toBe("status-prone");
+    expect(profile("macro")).toBe("minimal");
+    expect(profile("byUuid")).toBe("status-prone");
+  });
+
+  it("styles an area with no behaviors by its damage or status, and otherwise leaves it alone", () => {
+    const effects: any[] = [{ _id: "proneFx", statuses: ["prone"] }];
+    const activities: Record<string, any> = {
+      fireball: { type: "save", target: { template: { type: "sphere" } }, damage: { parts: [{ types: ["fire"] }] } },
+      thunderclap: { type: "save", target: { template: { type: "radius" } }, damage: { parts: [{ types: ["thunder"] }] } },
+      inherits: { type: "save", target: { template: { type: "" } }, damage: { parts: [{ types: ["cold"] }] } },
+      topple: { type: "save", target: { template: { type: "cone" } }, effects: [{ _id: "proneFx" }], behaviors: [] },
+      fog: { type: "utility", target: { template: { type: "sphere" } } },
+      heal: { type: "heal", target: { template: { type: "sphere" } }, healing: { types: ["healing"] } },
+      single: { type: "damage", target: { override: true, template: { type: "" } }, damage: { parts: [{ types: ["fire"] }] } },
+    };
+    BehaviorHelper.assignDisplayDefaults(activities, { effects, documentTemplateType: "cone" });
+    const profile = (key: string) => activities[key].behaviors?.find((b: any) => b.type === "ddbDisplay")?.config.profile;
+    expect(profile("fireball")).toBe("damage-fire");
+    // a one-shot emanation is a burst, not an aura
+    expect(profile("thunderclap")).toBe("damage-thunder");
+    expect(profile("inherits")).toBe("damage-cold");
+    expect(profile("topple")).toBe("status-prone");
+    expect(activities.fog.behaviors).toBeUndefined();
+    expect(activities.heal.behaviors).toBeUndefined();
+    expect(activities.single.behaviors).toBeUndefined();
+  });
+
   it("counts the placing activity's own damage without a trigger", () => {
     const activities: Record<string, any> = {
       burn: {

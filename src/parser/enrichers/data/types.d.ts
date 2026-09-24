@@ -115,6 +115,14 @@ global {
     overrideTarget?: boolean;
     overrideRange?: boolean;
 
+    // Region display
+    /**
+     * The Region Display for the regions this activity places, replacing the default picked from
+     * its damage and statuses: a profile id such as "status-restrained", or a profile plus field
+     * overrides for a look of its own.
+     */
+    display?: string | (IRegionDisplayFlag & { profile: string });
+
     // Activation
     activationType?: TActivationCost;
     activationValue?: number;

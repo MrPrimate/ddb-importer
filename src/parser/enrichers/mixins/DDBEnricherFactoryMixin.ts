@@ -6,7 +6,10 @@ import { AutoEffects, EnchantmentEffects, ChangeHelper, EffectGenerator } from "
 import type DDBCharacter from "../../DDBCharacter";
 import type DDBEnricherData from "../data/DDBEnricherData";
 import RegionBehaviorSettings from "../../../lib/RegionBehaviorSettings";
+import RegionDisplayProfiles from "../../../lib/RegionDisplayProfiles";
+import { REGION_DISPLAY_BEHAVIOR_TYPE } from "../../../config/regionDisplayProfiles";
 import EffectPresentation from "../effects/EffectPresentation";
+import BehaviorHelper from "../effects/BehaviorHelper";
 
 interface IActivityDataStructure {
   activities: Record<string, I5eActivity>;
@@ -673,6 +676,14 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
     }
 
+    // replaces any display the data merge carried; BehaviorHelper.assignDisplayDefaults later
+    // leaves activities that already have one alone
+    if (overrideData.display && RegionDisplayProfiles.enabled) {
+      const display = typeof overrideData.display === "string" ? { profile: overrideData.display } : overrideData.display;
+      const behaviors = (activity.behaviors ?? []).filter((behavior) => behavior.type !== REGION_DISPLAY_BEHAVIOR_TYPE);
+      activity.behaviors = [...behaviors, BehaviorHelper.display(display)];
+    }
+
     if (
       activity.type === "transform"
       && activity.transform?.mode === ""
@@ -1052,12 +1063,15 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
    * A consumable that destroys itself on its last use is gone before dnd5e's createRegion hook
    * looks its activity up by uuid: the region it placed gets no behaviors at all, and a save the
    * region should fire later can never be found. A document that places region behaviors has to
-   * outlive the region, so it keeps itself at zero uses.
+   * outlive the region, so it keeps itself at zero uses. A region display is read before the
+   * region exists and creates no behavior, so it alone does not count.
    */
   _keepRegionPlacingDocument(): void {
     if (foundry.utils.getProperty(this.data, "system.uses.autoDestroy") !== true) return;
     const activities = Object.values((foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>);
-    if (!activities.some((activity) => (activity.behaviors ?? []).length > 0)) return;
+    const placesBehaviors = activities.some((activity) =>
+      (activity.behaviors ?? []).some((behavior) => behavior.type !== REGION_DISPLAY_BEHAVIOR_TYPE));
+    if (!placesBehaviors) return;
     foundry.utils.setProperty(this.data, "system.uses.autoDestroy", false);
   }
 

@@ -160,6 +160,30 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
     expect(withModule.behaviors.map((b: any) => b._id)).toEqual(["b"]);
   });
 
+  it("sets the region display from a profile id or a profile with overrides, replacing any merged one", async () => {
+    const e = makeEnricher();
+    const terrain = { _id: "a", type: "difficultTerrain", config: { types: [] } };
+    const merged = { _id: "b", type: "ddbDisplay", config: { profile: "minimal" } };
+
+    const byId = makeActivity();
+    await e._applyActivityDataOverride(byId, {
+      display: "status-restrained",
+      data: { behaviors: foundry.utils.deepClone([terrain, merged]) },
+    });
+    expect(byId.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbDisplay"]);
+    expect(byId.behaviors[1].config).toMatchObject({ profile: "status-restrained", color: null });
+
+    const tuned = makeActivity();
+    await e._applyActivityDataOverride(tuned, { display: { profile: "damage-fire", color: "#ff0000", border: false } });
+    expect(tuned.behaviors).toHaveLength(1);
+    expect(tuned.behaviors[0].config).toMatchObject({ profile: "damage-fire", color: "#ff0000", border: "none" });
+
+    setMockSettings({ "enable-region-display-profiles": false });
+    const off = makeActivity();
+    await e._applyActivityDataOverride(off, { display: "status-restrained" });
+    expect(off.behaviors).toBeUndefined();
+  });
+
   it("applies name and id overrides", async () => {
     const e = makeEnricher();
     const activity = makeActivity();
@@ -1294,6 +1318,15 @@ describe("DDBEnricherFactoryMixin._keepRegionPlacingDocument", () => {
   it("leaves a consumable with no region behaviors to destroy itself as before", async () => {
     const e = makeEnricher({
       document: makeDocument({ system: { uses: { max: "1", spent: 0, autoDestroy: true }, activities: { a1: { behaviors: [] }, a2: {} } } }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses.autoDestroy).toBe(true);
+  });
+
+  it("does not count a region display, which is read before the region exists", async () => {
+    const display = { behaviors: [{ type: "ddbDisplay", config: { profile: "damage-fire" } }] };
+    const e = makeEnricher({
+      document: makeDocument({ system: { uses: { max: "1", spent: 0, autoDestroy: true }, activities: { a1: display } } }),
     });
     await e.addDocumentOverride();
     expect(e.document.system.uses.autoDestroy).toBe(true);

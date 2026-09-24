@@ -5,6 +5,8 @@ export default class Web extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       id: "ddbWebSpellSave1",
+      // the restrained icon is a web
+      display: "status-restrained",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["web"] }),

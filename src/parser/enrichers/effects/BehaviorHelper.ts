@@ -373,15 +373,49 @@ export default class BehaviorHelper {
   }
 
   /**
-   * Status ids an `applyActiveEffect` behavior applies. Its effects are SRD condition uuids or
-   * the names of standalone effects, which are still on the document at this point.
+   * Status ids an `applyActiveEffect` behavior applies. It names SRD condition uuids, or the
+   * document's own and standalone effects by name, id or uuid.
    */
-  static #behaviorStatuses(behavior: I5eActivityBehavior, standaloneEffects: I5eEffectData[]): string[] {
+  static #behaviorStatuses(behavior: I5eActivityBehavior, effects: I5eEffectData[]): string[] {
     const config = (behavior.config ?? {}) as { effects?: string[] };
-    return (config.effects ?? []).flatMap((effect) => {
-      const status = SRDEffects.conditionStatus(effect);
+    return (config.effects ?? []).flatMap((reference) => {
+      const status = SRDEffects.conditionStatus(reference);
       if (status) return [status];
-      return BehaviorHelper.#effectStatuses(standaloneEffects.find((standalone) => standalone.name === effect));
+      const effect = effects.find(
+        (candidate) =>
+          candidate.name === reference ||
+          candidate._id === reference ||
+          (candidate._id !== undefined && reference.endsWith(`.ActiveEffect.${candidate._id}`)),
+      );
+      return BehaviorHelper.#effectStatuses(effect);
+    });
+  }
+
+  /**
+   * The activities a `ddbMacro` trigger fires, found as the placed region finds them
+   * (resolveRegionActivity): by id, else by name (exact, then prefix), else the placing
+   * activity itself. An owner-turn trigger offering a choice fires each named activity, and a
+   * macro function fires none.
+   */
+  static #triggeredActivities(
+    behavior: I5eActivityBehavior,
+    placing: Partial<I5eActivity>,
+    activities: Record<string, Partial<I5eActivity>>,
+  ): Partial<I5eActivity>[] {
+    const config = (behavior.config ?? {}) as I5eActivityBehaviorMacroConfig;
+    if (config.function && config.function !== "useActivity") return [];
+    const args = (config.args ?? {}) as { activityId?: string; activityName?: string; activityChoices?: string[] };
+    const id = config.activity || args.activityId;
+    if (id) return activities[id] ? [activities[id]] : [];
+    const choices = args.activityChoices ?? config.activityChoices ?? [];
+    const names = choices.length > 0 ? choices : [args.activityName ?? ""];
+    const siblings = Object.values(activities);
+    return names.flatMap((name) => {
+      if (!name) return [placing];
+      const match =
+        siblings.find((sibling) => sibling.name === name) ??
+        siblings.find((sibling) => sibling.name?.startsWith(name) ?? false);
+      return match ? [match] : [];
     });
   }
 
@@ -397,12 +431,14 @@ export default class BehaviorHelper {
   }
 
   /**
-   * Assign a display profile to every activity that carries behaviors but no `ddbDisplay`
-   * one. Emanations read as auras. Otherwise the activity and the siblings its triggers fire
-   * decide: any damage reads as damage, else any applied status (or `applyActiveEffect`
-   * behavior) as a status effect, else minimal. A single damage type or status takes its
-   * system icon preset, so a spell dealing acid damage and knocking prone shows acid.
-   * Activities with no behaviors keep Foundry's own look.
+   * Assign a display profile to every activity that places an area or carries behaviors, and
+   * has no `ddbDisplay` one yet. Emanations with behaviors read as auras. Otherwise the activity
+   * and the siblings its triggers fire decide: any damage reads as damage, else any applied
+   * status (or `applyActiveEffect` behavior) as a status effect, else minimal. A single damage
+   * type or status takes its system icon preset, so a spell dealing acid damage and knocking
+   * prone shows acid.
+   * An area with no behaviors (Fireball, a one-shot emanation) gets the damage or status
+   * profile only; with neither it keeps Foundry's own look rather than minimal.
    * A spell activity's template usually lives on the spell (dnd5e merges the item target
    * over activities that do not override theirs), so the document's type is the fallback.
    * Does nothing while the profiles are switched off.
@@ -418,7 +454,7 @@ export default class BehaviorHelper {
       documentTemplateType?: string;
       /** The document's effects, which activities link by id. */
       effects?: I5eEffectData[];
-      /** Standalone effects, which `applyActiveEffect` behaviors name. */
+      /** Standalone effects, which `applyActiveEffect` behaviors can name. */
       standaloneEffects?: I5eEffectData[];
     } = {},
   ): void {
@@ -427,27 +463,28 @@ export default class BehaviorHelper {
       const parts = foundry.utils.getProperty(activity, "damage.parts") as unknown[] | undefined;
       return (Array.isArray(parts) && parts.length > 0) || activity.type === "attack";
     };
+    const allEffects = [...effects, ...standaloneEffects];
     for (const activity of Object.values(activities)) {
-      const behaviors = activity.behaviors;
-      if (!Array.isArray(behaviors) || behaviors.length === 0) continue;
+      const behaviors = Array.isArray(activity.behaviors) ? activity.behaviors : [];
       if (behaviors.some((behavior) => behavior.type === REGION_DISPLAY_BEHAVIOR_TYPE)) continue;
       const ownTemplateType = foundry.utils.getProperty(activity, "target.template.type") as string | undefined;
       const overridesTarget = foundry.utils.getProperty(activity, "target.override") === true;
       const templateType = ownTemplateType || (overridesTarget ? "" : documentTemplateType);
-      let profile: string;
-      if (templateType === "radius") {
+      const hasBehaviors = behaviors.length > 0;
+      if (!hasBehaviors && !templateType) continue;
+      let profile: string | null;
+      if (templateType === "radius" && hasBehaviors) {
         profile = DEFAULT_REGION_DISPLAY_PROFILES.aura;
       } else {
         const triggered = behaviors
           .filter((behavior) => behavior.type === "ddbMacro")
-          .map((behavior) => activities[((behavior.config ?? {}) as { activity?: string }).activity ?? ""])
-          .filter((target) => target !== undefined);
-        const sources = [activity, ...triggered];
+          .flatMap((behavior) => BehaviorHelper.#triggeredActivities(behavior, activity, activities));
+        const sources = [...new Set([activity, ...triggered])];
         const appliers = behaviors.filter((behavior) => behavior.type === "applyActiveEffect");
         const damaging = sources.filter(hasDamage);
         const statuses = [
           ...sources.flatMap((source) => BehaviorHelper.#activityStatuses(source, effects)),
-          ...appliers.flatMap((behavior) => BehaviorHelper.#behaviorStatuses(behavior, standaloneEffects)),
+          ...appliers.flatMap((behavior) => BehaviorHelper.#behaviorStatuses(behavior, allEffects)),
         ];
         if (damaging.length > 0) {
           const damageTypes = damaging.flatMap((source) => BehaviorHelper.#damageTypes(source));
@@ -455,10 +492,11 @@ export default class BehaviorHelper {
         } else if (statuses.length > 0 || appliers.length > 0) {
           profile = BehaviorHelper.#typedProfile("status", statuses);
         } else {
-          profile = DEFAULT_REGION_DISPLAY_PROFILES.minimal;
+          profile = hasBehaviors ? DEFAULT_REGION_DISPLAY_PROFILES.minimal : null;
         }
       }
-      behaviors.push(BehaviorHelper.display({ profile }));
+      if (!profile) continue;
+      activity.behaviors = [...behaviors, BehaviorHelper.display({ profile })];
     }
   }
 }
