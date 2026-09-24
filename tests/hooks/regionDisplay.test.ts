@@ -31,6 +31,7 @@ import { installBehaviorConfigureDelegate } from "../../src/hooks/canvas/regionD
 import { setupRegionDisplayProfiles } from "../../src/hooks/canvas/regionDisplaySetup";
 import RegionDisplayProfiles from "../../src/lib/RegionDisplayProfiles";
 import BehaviorHelper from "../../src/parser/enrichers/effects/BehaviorHelper";
+import SRDEffects from "../../src/parser/enrichers/effects/SRDEffects";
 import { REGION_DISPLAY_PATTERN_IDS } from "../../src/config/regionDisplayProfiles";
 import { BEHAVIOR_CONFIGURE_CLASS } from "../../src/hooks/canvas/regionDisplaySummary";
 import { useEnLocalization } from "../_fixtures/enLocalize";
@@ -680,6 +681,66 @@ describe("BehaviorHelper.display and defaults", () => {
     BehaviorHelper.assignDisplayDefaults(activities, { documentTemplateType: "radius" });
     expect(activities.inherits.behaviors.at(-1).config.profile).toBe("aura");
     expect(activities.owns.behaviors.at(-1).config.profile).toBe("status");
+  });
+
+  it("picks the system preset for a lone damage type or status", () => {
+    const cube = { target: { template: { type: "cube" } } };
+    const trigger = (activity: string) => ({ type: "ddbMacro", config: { activity } });
+    const effects: any[] = [
+      { _id: "proneFx", statuses: ["prone"] },
+      { _id: "macroFx", system: { changes: [{ key: "macro.StatusEffect", value: "restrained" }] } },
+      { _id: "twoFx", statuses: ["charmed", "incapacitated"] },
+    ];
+    const standaloneEffects: any[] = [{ name: "Webbed", statuses: ["restrained"] }];
+    const activities: Record<string, any> = {
+      acid: { ...cube, type: "save", damage: { parts: [{ types: ["acid"] }, { types: ["acid"] }] }, behaviors: [trigger("")] },
+      mixed: { ...cube, behaviors: [trigger("acidHit"), trigger("fireHit")] },
+      acidHit: { type: "damage", damage: { parts: [{ types: ["acid"] }] } },
+      fireHit: { type: "damage", damage: { parts: [{ types: ["fire"] }] } },
+      choice: { ...cube, damage: { parts: [{ types: ["cold", "fire"] }] }, behaviors: [trigger("")] },
+      untyped: { ...cube, type: "attack", behaviors: [trigger("")] },
+      homebrew: { ...cube, damage: { parts: [{ types: ["sonic"] }] }, behaviors: [trigger("")] },
+      damageAndProne: { ...cube, behaviors: [trigger("knockdown")] },
+      knockdown: { type: "save", damage: { parts: [{ types: ["thunder"] }] }, effects: [{ _id: "proneFx" }] },
+      prone: { ...cube, behaviors: [trigger("topple")] },
+      topple: { type: "save", effects: [{ _id: "proneFx" }] },
+      srd: { ...cube, behaviors: [{ type: "applyActiveEffect", config: { effects: [SRDEffects.condition("blinded")] } }] },
+      standalone: { ...cube, behaviors: [{ type: "applyActiveEffect", config: { effects: ["Webbed"] } }] },
+      macroStatus: { ...cube, effects: [{ _id: "macroFx" }], behaviors: [{ type: "difficultTerrain" }] },
+      twoStatuses: { ...cube, behaviors: [trigger("charm")] },
+      charm: { type: "save", effects: [{ _id: "twoFx" }] },
+      sameStatusTwice: { ...cube, effects: [{ _id: "proneFx" }], behaviors: [trigger("topple")] },
+      unnamed: { ...cube, behaviors: [{ type: "applyActiveEffect", config: { effects: ["Compendium.world.fx.ActiveEffect.x"] } }] },
+      auraDamage: { target: { template: { type: "radius" } }, damage: { parts: [{ types: ["acid"] }] }, behaviors: [trigger("")] },
+    };
+    BehaviorHelper.assignDisplayDefaults(activities, { effects, standaloneEffects });
+    const profile = (key: string) => activities[key].behaviors?.find((b: any) => b.type === "ddbDisplay")?.config.profile;
+    expect(profile("acid")).toBe("damage-acid");
+    expect(profile("mixed")).toBe("damage");
+    expect(profile("choice")).toBe("damage");
+    expect(profile("untyped")).toBe("damage");
+    expect(profile("homebrew")).toBe("damage");
+    expect(profile("damageAndProne")).toBe("damage-thunder");
+    expect(profile("prone")).toBe("status-prone");
+    expect(profile("srd")).toBe("status-blinded");
+    expect(profile("standalone")).toBe("status-restrained");
+    expect(profile("macroStatus")).toBe("status-restrained");
+    expect(profile("twoStatuses")).toBe("status");
+    expect(profile("sameStatusTwice")).toBe("status-prone");
+    expect(profile("unnamed")).toBe("status");
+    expect(profile("auraDamage")).toBe("aura");
+  });
+
+  it("counts the placing activity's own damage without a trigger", () => {
+    const activities: Record<string, any> = {
+      burn: {
+        target: { template: { type: "line" } },
+        damage: { parts: [{ types: ["fire"] }] },
+        behaviors: [{ type: "applyActiveEffect", config: { effects: [SRDEffects.condition("prone")] } }],
+      },
+    };
+    BehaviorHelper.assignDisplayDefaults(activities);
+    expect(activities.burn.behaviors.at(-1).config.profile).toBe("damage-fire");
   });
 });
 

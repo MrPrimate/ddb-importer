@@ -503,13 +503,19 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   /**
    * Give every region-placing activity that carries behaviors a display profile when its
    * enricher chose none (BehaviorHelper.assignDisplayDefaults). Runs after every sibling
-   * exists so a trigger's target activity can be inspected for damage.
+   * exists and the effects are linked, so a trigger's target activity can be inspected for
+   * damage types and applied statuses.
    */
   _activityDisplayDefaults(): void {
     const activities = foundry.utils.getProperty(this.data, "system.activities") as Record<string, I5eActivity> | undefined;
     if (!activities) return;
     const documentTemplateType = foundry.utils.getProperty(this.data, "system.target.template.type") as string | undefined;
-    BehaviorHelper.assignDisplayDefaults(activities, { documentTemplateType: documentTemplateType ?? "" });
+    const standaloneEffects = foundry.utils.getProperty(this.data, "flags.ddbimporter.standaloneEffects") as I5eEffectData[] | undefined;
+    BehaviorHelper.assignDisplayDefaults(activities, {
+      documentTemplateType: documentTemplateType ?? "",
+      effects: this.data.effects ?? [],
+      standaloneEffects: standaloneEffects ?? [],
+    });
   }
 
   /**

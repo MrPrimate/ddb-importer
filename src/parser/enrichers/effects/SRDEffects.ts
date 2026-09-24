@@ -96,6 +96,14 @@ export default class SRDEffects {
     return null;
   }
 
+  /** The status id an SRD condition uuid applies, e.g. "prone"; null for anything else. */
+  static conditionStatus(uuid: string): string | null {
+    if (!SRDEffects.isSRDUuid(uuid)) return null;
+    const id = uuid.split(".").pop();
+    const match = Object.entries(SRD_EFFECTS.conditions).find(([, entry]) => entry.id === id);
+    return match?.[0] ?? null;
+  }
+
   /** Human readable label for an SRD effect uuid, e.g. "SRD:Silenced"; unknown uuids come back unchanged. */
   static describe(uuid: string): string {
     const name = SRDEffects.name(uuid);

@@ -349,25 +349,81 @@ export default class BehaviorHelper {
     };
   }
 
+  /** Damage types named by an activity's damage parts. */
+  static #damageTypes(activity: Partial<I5eActivity>): string[] {
+    const parts = foundry.utils.getProperty(activity, "damage.parts") as { types?: string[] }[] | undefined;
+    return (parts ?? []).flatMap((part) => part.types ?? []);
+  }
+
+  /** Status ids an effect applies: its `statuses`, or the DAE `macro.StatusEffect` changes that stand in for them. */
+  static #effectStatuses(effect: I5eEffectData | undefined): string[] {
+    if (!effect) return [];
+    const changes = (foundry.utils.getProperty(effect, "system.changes") ?? []) as IActiveEffectChangeData[];
+    const macroStatuses = changes
+      .filter((change) => change.key === "macro.StatusEffect")
+      .map((change) => String(change.value));
+    return [...(effect.statuses ?? []), ...macroStatuses];
+  }
+
+  /** Status ids of the document effects an activity applies when used. */
+  static #activityStatuses(activity: Partial<I5eActivity>, effects: I5eEffectData[]): string[] {
+    const links = (foundry.utils.getProperty(activity, "effects") ?? []) as { _id?: string }[];
+    const ids = new Set(links.map((link) => link._id));
+    return effects.filter((effect) => ids.has(effect._id)).flatMap((effect) => BehaviorHelper.#effectStatuses(effect));
+  }
+
   /**
-   * Assign a display profile to every activity that carries behaviors but no
-   * `ddbDisplay` one: emanations read as auras, triggers whose activity (or the sibling
-   * they fire) deals damage as ongoing damage, effect-applying areas as status effects,
-   * anything else as minimal. Activities with no behaviors keep Foundry's own look.
+   * Status ids an `applyActiveEffect` behavior applies. Its effects are SRD condition uuids or
+   * the names of standalone effects, which are still on the document at this point.
+   */
+  static #behaviorStatuses(behavior: I5eActivityBehavior, standaloneEffects: I5eEffectData[]): string[] {
+    const config = (behavior.config ?? {}) as { effects?: string[] };
+    return (config.effects ?? []).flatMap((effect) => {
+      const status = SRDEffects.conditionStatus(effect);
+      if (status) return [status];
+      return BehaviorHelper.#effectStatuses(standaloneEffects.find((standalone) => standalone.name === effect));
+    });
+  }
+
+  /**
+   * The system icon preset for a lone damage type or status (`damage-acid`, `status-prone`).
+   * None, several, or one without a preset takes the generic profile for the category.
+   */
+  static #typedProfile(category: "damage" | "status", ids: string[]): string {
+    const distinct = [...new Set(ids)];
+    const preset = `${category}-${distinct[0]}`;
+    if (distinct.length === 1 && RegionDisplayProfiles.builtin(preset)) return preset;
+    return DEFAULT_REGION_DISPLAY_PROFILES[category];
+  }
+
+  /**
+   * Assign a display profile to every activity that carries behaviors but no `ddbDisplay`
+   * one. Emanations read as auras. Otherwise the activity and the siblings its triggers fire
+   * decide: any damage reads as damage, else any applied status (or `applyActiveEffect`
+   * behavior) as a status effect, else minimal. A single damage type or status takes its
+   * system icon preset, so a spell dealing acid damage and knocking prone shows acid.
+   * Activities with no behaviors keep Foundry's own look.
    * A spell activity's template usually lives on the spell (dnd5e merges the item target
    * over activities that do not override theirs), so the document's type is the fallback.
    * Does nothing while the profiles are switched off.
    */
   static assignDisplayDefaults(
     activities: Record<string, Partial<I5eActivity>>,
-    { documentTemplateType = "" }: {
+    {
+      documentTemplateType = "",
+      effects = [],
+      standaloneEffects = [],
+    }: {
       /** The document's own `system.target.template.type`: an activity that does not override its target inherits it. */
       documentTemplateType?: string;
+      /** The document's effects, which activities link by id. */
+      effects?: I5eEffectData[];
+      /** Standalone effects, which `applyActiveEffect` behaviors name. */
+      standaloneEffects?: I5eEffectData[];
     } = {},
   ): void {
     if (!RegionDisplayProfiles.enabled) return;
-    const hasDamage = (activity: Partial<I5eActivity> | undefined): boolean => {
-      if (!activity) return false;
+    const hasDamage = (activity: Partial<I5eActivity>): boolean => {
       const parts = foundry.utils.getProperty(activity, "damage.parts") as unknown[] | undefined;
       return (Array.isArray(parts) && parts.length > 0) || activity.type === "attack";
     };
@@ -382,16 +438,25 @@ export default class BehaviorHelper {
       if (templateType === "radius") {
         profile = DEFAULT_REGION_DISPLAY_PROFILES.aura;
       } else {
-        const triggers = behaviors.filter((behavior) => behavior.type === "ddbMacro");
-        const applies = behaviors.some((behavior) => behavior.type === "applyActiveEffect");
-        const triggersDamage = triggers.some((behavior) => {
-          const config = (behavior.config ?? {}) as { activity?: string };
-          const target = config.activity ? activities[config.activity] : undefined;
-          return hasDamage(activity) || hasDamage(target);
-        });
-        if (triggersDamage) profile = DEFAULT_REGION_DISPLAY_PROFILES.damage;
-        else if (applies) profile = DEFAULT_REGION_DISPLAY_PROFILES.status;
-        else profile = DEFAULT_REGION_DISPLAY_PROFILES.minimal;
+        const triggered = behaviors
+          .filter((behavior) => behavior.type === "ddbMacro")
+          .map((behavior) => activities[((behavior.config ?? {}) as { activity?: string }).activity ?? ""])
+          .filter((target) => target !== undefined);
+        const sources = [activity, ...triggered];
+        const appliers = behaviors.filter((behavior) => behavior.type === "applyActiveEffect");
+        const damaging = sources.filter(hasDamage);
+        const statuses = [
+          ...sources.flatMap((source) => BehaviorHelper.#activityStatuses(source, effects)),
+          ...appliers.flatMap((behavior) => BehaviorHelper.#behaviorStatuses(behavior, standaloneEffects)),
+        ];
+        if (damaging.length > 0) {
+          const damageTypes = damaging.flatMap((source) => BehaviorHelper.#damageTypes(source));
+          profile = BehaviorHelper.#typedProfile("damage", damageTypes);
+        } else if (statuses.length > 0 || appliers.length > 0) {
+          profile = BehaviorHelper.#typedProfile("status", statuses);
+        } else {
+          profile = DEFAULT_REGION_DISPLAY_PROFILES.minimal;
+        }
       }
       behaviors.push(BehaviorHelper.display({ profile }));
     }
