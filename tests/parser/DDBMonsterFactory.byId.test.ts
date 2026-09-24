@@ -3,6 +3,7 @@ import { IDBFactory } from "fake-indexeddb";
 import DDBProxyCache from "../../src/lib/DDBProxyCache";
 import DDBRunContext from "../../src/lib/DDBRunContext";
 import {
+  combineByIdResults,
   shouldFallbackAfterByIdStream,
   _readPersistedIds,
   _writePersistedIds,
@@ -46,6 +47,17 @@ describe("DDBMonsterFactory by-id persistence", () => {
       expect(shouldFallbackAfterByIdStream(3, 2)).toBe(false);
       // every id served from the caches: no fetch happened, so an empty raw count means nothing
       expect(shouldFallbackAfterByIdStream(0, 0)).toBe(false);
+    });
+  });
+
+  describe("combineByIdResults", () => {
+    it("unwraps persisted hits, drops remembered misses and prefers a fresh fetch", async () => {
+      await _writePersistedIds([1, 2, 3], [monster(1), { ...monster(3), name: "Stale" } as IDDBMonsterSourceData], { cobalt: COBALT });
+      const persisted = await _readPersistedIds([1, 2, 3], { cobalt: COBALT });
+      const fetched = new Map([[3, monster(3)], [5, monster(5)]]);
+
+      const combined = combineByIdResults([1, 2, 3, 4, 5], fetched, persisted);
+      expect(combined).toEqual([monster(1), monster(3), monster(5)]);
     });
   });
 

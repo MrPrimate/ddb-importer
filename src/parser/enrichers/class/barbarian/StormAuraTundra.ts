@@ -33,7 +33,7 @@ export default class StormAuraTundra extends _StormAura {
           },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.path-of-the-storm-herald.storm-aura-tundra",
+          customFormula: "@scale.storm-herald.storm-aura-tundra",
           types: ["temphp"],
         }),
       },

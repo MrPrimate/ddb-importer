@@ -93,7 +93,8 @@ export default class PhoenixRocketSword extends DDBEnricherData {
             ability: ["str"],
             dc: {
               calculation: "",
-              formula: "11 + @scaling",
+              // @scaling is the scaling value, i.e. the charges spent, not the increase over one
+              formula: "10 + @scaling",
             },
           },
           damageParts: [

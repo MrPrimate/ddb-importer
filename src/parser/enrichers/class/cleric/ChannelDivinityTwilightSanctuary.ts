@@ -76,6 +76,15 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
             bonus: "@classes.cleric.levels",
             type: "tempHP",
           }),
+          // the region takes its dispositions from this activity; "you or any creature of your choice"
+          targetOverride: {
+            override: true,
+            affects: {
+              count: "1",
+              type: "ally",
+            },
+            template: {},
+          },
         },
         overrides: {
           noConsumeTargets: true,

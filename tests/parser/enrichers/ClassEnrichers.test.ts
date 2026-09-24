@@ -1660,6 +1660,15 @@ describe("Storm Herald aura emanations", () => {
     expect(embedded).toHaveLength(1);
     expect(embedded[0]).toMatchObject({ auraeffectsOnly: true, activityMatch: "Activate Aura" });
   });
+
+  it.each([
+    ["desert", ClassEnrichers.Barbarian.StormAuraDesert],
+    ["sea", ClassEnrichers.Barbarian.StormAuraSea],
+    ["tundra", ClassEnrichers.Barbarian.StormAuraTundra],
+  ] as const)("Storm Aura (%s) reads the storm-herald subclass scale", (element, Enricher) => {
+    const activity = JSON.stringify(build(Enricher).activity);
+    expect(activity).toContain(`@scale.storm-herald.storm-aura-${element}`);
+  });
 });
 
 describe("Aura of War", () => {
@@ -1883,6 +1892,9 @@ describe("paladin aura marker regions", () => {
   it("Aura of Conquest marks enemies and fires its damage at their turn start", () => {
     const e = build(ClassEnrichers.Paladin.AuraOfConquest);
     expect(e.activity.targetType).toBe("enemy");
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("floor(@classes.paladin.levels / 2)");
+    // the same-named scale is the aura radius, which the character import would swap into the damage
+    expect(e.override.data.flags.ddbimporter.skipScale).toBe(true);
     const aura = e.additionalActivities.find((a: any) => a.init?.name === "Place Aura");
     expect(aura.build.targetOverride.template.size).toBe("@scale.conquest.aura-of-conquest");
     const [apply, macro] = aura.overrides.data.behaviors;

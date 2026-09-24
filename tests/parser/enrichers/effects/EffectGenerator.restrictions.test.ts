@@ -78,8 +78,26 @@ describe("EffectGenerator concentration restrictions", () => {
     const generator = buildGenerator([modifier("advantage", "constitution-saving-throws", "to maintain Concentration.")]);
     generator.generateGenericEffects();
     expect(generator.effect.system.changes).toEqual([
-      { key: "system.attributes.concentration.roll.mode", type: "upgrade", value: "1", priority: 20 },
+      { key: "system.attributes.concentration.roll.mode", type: "add", value: "1", priority: 20 },
     ]);
+  });
+
+  it("adds concentration disadvantage as a counted source rather than an upgrade", () => {
+    // dnd5e ignores an upgrade change asking for disadvantage
+    const generator = buildGenerator([modifier("disadvantage", "constitution-saving-throws", "to maintain Concentration.")]);
+    generator.generateGenericEffects();
+    expect(generator.effect.system.changes).toEqual([
+      { key: "system.attributes.concentration.roll.mode", type: "add", value: "-1", priority: 20 },
+    ]);
+  });
+
+  it("emits both concentration sources so dnd5e can cancel them out", () => {
+    const generator = buildGenerator([
+      modifier("advantage", "constitution-saving-throws", "to maintain Concentration."),
+      modifier("disadvantage", "constitution-saving-throws", "to maintain Concentration."),
+    ]);
+    generator.generateGenericEffects();
+    expect(generator.effect.system.changes.map((c: any) => [c.type, c.value])).toEqual([["add", "1"], ["add", "-1"]]);
   });
 
   it("routes a concentration bonus to the concentration roll bonus, not the Con save bonus", () => {

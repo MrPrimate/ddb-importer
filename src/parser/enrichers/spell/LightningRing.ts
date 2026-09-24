@@ -21,6 +21,7 @@ export default class LightningRing extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityName: "Ring Save",
+            excludeSelf: true,
           }),
         ],
       },
@@ -45,7 +46,8 @@ export default class LightningRing extends DDBEnricherData {
           ],
         },
         overrides: {
-          targetType: "creature",
+          // "you can force that creature" - the region fires at hostile creatures only
+          targetType: "enemy",
           activationType: "special",
           activationCondition: "Enters the Emanation or ends its turn there",
           noTemplate: true,

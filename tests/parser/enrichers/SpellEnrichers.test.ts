@@ -252,8 +252,7 @@ describe("SpiritGuardians", () => {
       // 2014 "starts its turn there" vs 2024 "ends its turn there"
       expect(macro.config.events).toEqual(["tokenEnter", is2014 ? "tokenTurnStart" : "tokenTurnEnd"]);
       expect(macro.config.args).toEqual({ activityName: "Save vs Damage" });
-      expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true });
-      // allies are designated unaffected: region dispositions derive from enemy affects
+      expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true, excludeSelf: true });
       expect(e.override.data.system.target.affects.type).toBe("enemy");
       expect(e.effects).toEqual([]);
       expect(e.itemMacro).toBeNull();
@@ -273,6 +272,8 @@ describe("SpiritGuardians", () => {
         }),
       ]);
       expect(save.build.targetOverride.override).toBe(true);
+      // allies are designated unaffected: the region takes its dispositions from the save it fires
+      expect(save.build.targetOverride.affects.type).toBe("enemy");
     }
   });
 });

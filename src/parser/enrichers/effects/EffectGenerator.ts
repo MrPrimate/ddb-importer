@@ -745,7 +745,7 @@ export default class EffectGenerator {
       if (mods.length === 0) continue;
       logger.debug(`Generating concentration ${mode} for ${this.document.name}`);
       const value = mode === "advantage" ? ChangeHelper.ADVANTAGE : ChangeHelper.DISADVANTAGE;
-      this.effect.system.changes.push(ChangeHelper.upgradeChange(value, 20, `${key}.mode`));
+      this.effect.system.changes.push(ChangeHelper.concentrationRollModeChange(value, 20));
     }
     const bonus = this.concentrationModifiers
       .filter((mod) => mod.type === "bonus")

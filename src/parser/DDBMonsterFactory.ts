@@ -211,6 +211,21 @@ export async function _writePersistedIds(
 }
 
 /**
+ * The monsters for a by-id request, in request order: a fresh fetch wins over the persisted record,
+ * and a persisted record is a cache hit wrapper whose `data` is the monster, or null for an id the
+ * proxy is remembered to have nothing for. Ids with neither are dropped.
+ */
+export function combineByIdResults(
+  requestedIds: number[],
+  fetched: Map<number, IDDBMonsterSourceData>,
+  persisted: Map<number, IProxyCacheHit<IDDBMonsterSourceData | null>>,
+): IDDBMonsterSourceData[] {
+  return requestedIds
+    .map((id) => fetched.get(id) ?? persisted.get(id)?.data ?? null)
+    .filter((monster): monster is IDDBMonsterSourceData => monster !== null);
+}
+
+/**
  * A by-id stream that fetched ids but got nothing back is treated as a failure. Ids served from the
  * caches are not fetches, so a request made entirely of remembered ids must not trigger the fallback.
  */
@@ -554,9 +569,7 @@ export default class DDBMonsterFactory {
         for (const monster of raw) fetched.set(Number(monster?.id), monster);
         await _writePersistedIds(missing, raw, { ...idScope, generation });
       }
-      const combined = requestedIds
-        .map((id) => fetched.get(id) ?? persisted.get(id) ?? null)
-        .filter((monster): monster is IDDBMonsterSourceData => monster !== null);
+      const combined = combineByIdResults(requestedIds, fetched, persisted);
       logger.debug(`[monsters] by-id HTTP: ${requestedIds.length} requested, ${missing.length} fetched, ${combined.length} returned`);
       return finishBulk(combined);
     };

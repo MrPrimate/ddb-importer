@@ -559,6 +559,11 @@ export default class ChangeHelper {
     return ChangeHelper.rollModeChange("system.attributes.death.roll.mode", ChangeHelper.DISADVANTAGE, priority);
   }
 
+  /** Saves to maintain concentration, which dnd5e rolls apart from the Constitution save. */
+  static concentrationRollModeChange(mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.concentration.roll.mode", mode, priority);
+  }
+
   /**
    * Build a change targeting the token document (`token.light.dim`, `token.sight.range`,
    * `token.detectionModes.<id>.range`, `token.texture.src`...), which Foundry applies

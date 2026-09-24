@@ -65,7 +65,7 @@ export default class VascularCorruptionAura extends DDBEnricherData {
             override: true,
             affects: {
               count: "1",
-              type: "creature",
+              type: "enemy",
             },
             template: {},
           },

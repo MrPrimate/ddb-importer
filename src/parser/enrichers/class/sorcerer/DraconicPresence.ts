@@ -106,7 +106,7 @@ export default class DraconicPresence extends DDBEnricherData {
             override: true,
             affects: {
               count: "1",
-              type: "creature",
+              type: "enemy",
             },
             template: {},
           },

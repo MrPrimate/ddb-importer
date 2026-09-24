@@ -801,7 +801,7 @@ describe("PhoenixRocketSword", () => {
     expect(jet.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "min(5, @item.uses.value)" });
 
     expect(rocket.init.name).toBe("Rocket");
-    expect(rocket.build.saveOverride).toEqual({ ability: ["str"], dc: { calculation: "", formula: "11 + @scaling" } });
+    expect(rocket.build.saveOverride).toEqual({ ability: ["str"], dc: { calculation: "", formula: "10 + @scaling" } });
     expect(rocket.build.targetOverride.affects.type).toBe("self");
     expect(rocket.overrides).toEqual({ addScalingMode: "amount", addConsumptionScalingMax: "min(5, @item.uses.value)" });
   });
@@ -882,13 +882,14 @@ describe("Requiem", () => {
 
   it("keys the addiction DC and the question pool on the drug", () => {
     const bliss = build(Enricher, { name: "Requiem Bliss" });
-    expect(bliss.activity.data.save.dc.formula).toBe("13 + @scaling");
+    // @scaling is the question count (increase + 1), so it carries the "+ 1 per question" itself
+    expect(bliss.activity.data.save.dc.formula).toBe("12 + @scaling");
     expect(bliss.activity.data.uses.max).toBe("10");
     expect(bliss.activity.addConsumptionScalingMax).toBe("9");
     expect(bliss.additionalActivities[0].build.saveOverride.dc.formula).toBe("15");
 
     const clay = build(Enricher, { name: "Requiem Clay" });
-    expect(clay.activity.data.save.dc.formula).toBe("11 + @scaling");
+    expect(clay.activity.data.save.dc.formula).toBe("10 + @scaling");
     expect(clay.activity.data.uses.max).toBe("5");
     expect(clay.additionalActivities[0].build.saveOverride.dc.formula).toBe("13");
   });

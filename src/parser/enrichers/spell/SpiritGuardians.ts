@@ -15,6 +15,7 @@ export default class SpiritGuardians extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
             activityName: "Save vs Damage",
+            excludeSelf: true,
           }),
         ],
       },
@@ -75,11 +76,13 @@ export default class SpiritGuardians extends DDBEnricherData {
               ? "Enters the area for the first time on a turn or starts its turn there"
               : "Enters the Emanation for the first time on a turn or ends its turn there",
           },
+          // the region takes its dispositions from this save rather than from Cast, so this is
+          // what keeps the caster's designated allies out of it
           targetOverride: {
             override: true,
             affects: {
               count: "1",
-              type: "creature",
+              type: "enemy",
             },
             template: {},
           },

@@ -285,6 +285,12 @@ describe("DDBItem.getMagicItemResetType", () => {
     expect(DDBItem.getMagicItemResetType("You can't use it again until you finish a short or long rest.")).toBe("sr");
   });
 
+  it("reads the capitalised 2024 rest wording", () => {
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Short or Long Rest.")).toBe("sr");
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Short Rest.")).toBe("sr");
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Long Rest.")).toBe("lr");
+  });
+
   it("returns null when no reset pattern found", () => {
     expect(DDBItem.getMagicItemResetType("A simple magical trinket.")).toBeNull();
   });

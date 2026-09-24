@@ -17,6 +17,7 @@ export default class EventHorizon extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenTurnStart"],
             activityName: "Ongoing Save",
+            excludeSelf: true,
           }),
         ],
         range: {
@@ -69,7 +70,7 @@ export default class EventHorizon extends DDBEnricherData {
             override: true,
             affects: {
               count: "1",
-              type: "creature",
+              type: "enemy",
             },
             template: {},
           },

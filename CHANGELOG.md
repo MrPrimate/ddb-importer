@@ -3,6 +3,13 @@
 - Way of the Street parsing updates @oregonpinkrose
 - [New Feature] New region behaviour - Region Display - this allows you to customise the region/template placed by activities and effects. There are a number of new patterns with lots of dials, you can use status and damage icons, or even images. This is not intended to replace modules like Automated Animations or be used with things like JB2A assets. It is to help make templates that have ongoing effects or saves more distinctive on the scene. It has a negligible performance footprint with 40 regions using a variety of textures it adds about 0.2ms per frame in the worst case.
 - [New Feature] Icon browser. You can shift click and use an icon browser to try and find a match for features/effects/activities with missing icons. It uses a curated list of icon hits to try and find good matches for you.
+- Auras such as Spirit Guardians, Lightning Ring, Draconic Presence, Event Horizon, Spell Blind, Dread Lord, Vascular Corruption Aura and Bond of Shelter would trigger their saves/damage on the caster and allies as well as enemies. Twilight Sanctuary's Temp HP could also reach enemies.
+- Aura of Conquest dealt damage equal to the aura size instead of half your paladin level.
+- Advantage or disadvantage on concentration saves (e.g. War Caster) now combine correctly with other sources of advantage and disadvantage.
+- Storm Aura (Tundra) temp HP now uses the correct Storm Herald scale.
+- Phoenix Rocket Sword and Requiem save DCs were 1 too high.
+- 2024 magic items that recharge on a "Short or Long Rest" were resetting only on a long rest.
+- Monsters fetched by ID from the cache could fail to import when the socket connection was unavailable.
 
 # 7.5.5
 

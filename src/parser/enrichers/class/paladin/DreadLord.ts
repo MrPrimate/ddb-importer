@@ -59,7 +59,7 @@ export default class DreadLord extends DDBEnricherData {
             override: true,
             affects: {
               count: "1",
-              type: "creature",
+              type: "enemy",
             },
             template: {},
           },
