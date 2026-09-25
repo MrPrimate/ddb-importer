@@ -4,10 +4,13 @@ export const CONSUMPTION_LINKS = {
     "Banishing Arrow", "Beguiling Arrow", "Bursting Arrow",
     "Enfeebling Arrow", "Grasping Arrow", "Piercing Arrow", "Seeking Arrow",
     "Shadow Arrow",
+    // AU 2024 printing: prefix-stripped option names and the initiative regain
+    "Banishing Shot", "Beguiling Shot", "Bursting Shot", "Enfeebling Shot", "Grasping Shot",
+    "Piercing Shot", "Seeking Shot", "Shadow Shot", "Ever-Ready Shot",
   ],
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
-    "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
+    "War God's Blessing", "Guided Strike", "Inspiring Smite", "Peerless Athlete",
     "Nature's Wrath", "Vow of Enmity", "Preserve Life",
     // "Sear Undead",
   ],
@@ -142,10 +145,6 @@ export const CONSUMPTION_SPELL_LINKS = {
   ],
   "Divine Intervention": [
     { name: "Wish", cost: 1, lookupName: "Greater Divine Intervention", nameUpdate: "Wish (Divine Intervention)" },
-  ],
-  "War God's Blessing": [
-    { name: "Shield of Faith", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Shield of Faith (War God's Blessing)" },
-    { name: "Spiritual Weapon", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Spiritual Weapon (War God's Blessing)" },
   ],
   "Telekinetic Master": [
     { name: "Telekinesis", cost: 1, lookupName: "Telekinetic Master", nameUpdate: "Telekinesis (Telekinetic Master)" },

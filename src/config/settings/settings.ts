@@ -116,7 +116,7 @@ const SETTINGS = {
   DISABLE_FOUNDRY_UPGRADE,
   MUNCH_DEFAULTS,
   DEFAULT_SETTINGS: {
-    // these settigs are loaded during renderSidebarTab
+    // these settings are loaded during renderSidebarTab
     EARLY: {
       "log-level": {
         name: "ddb-importer.settings.log-level.name",
@@ -422,13 +422,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "spells-on-items-as-activities": {
-          name: "ddb-importer.settings.spells-on-items-as-activities.name",
-          hint: "ddb-importer.settings.spells-on-items-as-activities.hint",
-          config: false,
-          type: Boolean,
-          default: false,
-        },
         "separate-ac-effects": {
           name: "ddb-importer.settings.separate-ac-effects.name",
           hint: "ddb-importer.settings.separate-ac-effects.hint",
@@ -518,6 +511,13 @@ const SETTINGS = {
             requiresReload: true,
           },
           "allow-warding-bond-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
+          "allow-divine-power-recovery-enhancer": {
             type: Boolean,
             scope: "world",
             default: true,
@@ -1069,6 +1069,11 @@ const SETTINGS = {
             // 2014 core/expanded and 2024 core/expanded only enabled by default
             default: [1, 24, 26, 38],
           },
+          "muncher-show-source-book-covers": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-muncher-monster-types": {
             type: Array,
             default: [] as number[],
@@ -1208,8 +1213,8 @@ const SETTINGS = {
           },
           "munching-policy-character-species": {
             type: Array,
-            // selected entityRaceIds; empty = munch all
-            default: [] as number[],
+            // Selected entityRaceTypeId:entityRaceId keys.
+            default: [] as string[],
           },
           "munching-policy-character-dont-grab-existing": {
             type: Boolean,
@@ -1359,6 +1364,18 @@ const SETTINGS = {
           type: String,
           default: "",
         },
+        // IndexedDB is per browser, so these are client scoped. Neither has UI yet: the Sources and
+        // Cache window exposes a Clear button, and the TTL only applies to entries written after a change.
+        "proxy-cache-enabled": {
+          scope: "client",
+          type: Boolean,
+          default: true,
+        },
+        "proxy-cache-ttl-hours": {
+          scope: "client",
+          type: Number,
+          default: 168,
+        },
       },
       // dev settings
       DEV: {
@@ -1383,6 +1400,11 @@ const SETTINGS = {
           default: false,
         },
         "debug-json": {
+          scope: "player",
+          type: Boolean,
+          default: false,
+        },
+        "debug-import-capture": {
           scope: "player",
           type: Boolean,
           default: false,

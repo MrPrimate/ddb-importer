@@ -184,11 +184,13 @@ export const PARSING_FEATURES = {
     "Protean Rewards",
     "Adaptive Wild Shape",
     "Critical Shot",
+    "Travel along the Tree",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
     "Trance of Order",
     "Divine Foreknowledge",
+    "Vestige Companion",
   ],
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",
@@ -199,6 +201,11 @@ export const PARSING_FEATURES = {
   FORCE_DERIVED_FEATURES: {
     "Gunslinger": [
       "Maneuvers",
+    ],
+    // AU 2024 Arcane Archer: the options container is in klass.classFeatures but in neither
+    // definition list, and it owns the Banishing Shot... choices
+    "Fighter": [
+      "Arcane Shot Options",
     ],
   } as Record<string, string[]>,
   IGNORED_PARENT_CHOICE_FEATURES: [
@@ -247,6 +254,8 @@ export const PARSING_CHOICE_FEATURES = {
     // "Draconic Ancestry",
     "Elegant Courtier",
     "Draconic Disciple",
+    // the option child must stay a companion feature by name (companions.ts)
+    "Vestige Companion",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -267,6 +276,8 @@ export const PARSING_CHOICE_FEATURES = {
   } as Record<string, string>,
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
+    // AU 2024 Arcane Archer hangs its shot options off the pool feature itself
+    "Arcane Shot",
     "Primal Companion",
     "Giant Ancestry",
     "Arcane Shot Options",
@@ -378,6 +389,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Reanimator's Skillset",
     "Spirits from Beyond",
     "Stalker's Prowess",
+    "Transmutation Savant",
+    "Signature Spells",
+    "Rage of the Wilds",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -412,6 +426,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Variant Tiefling",
     "Genie's Vessel",
     "Reanimator's Skillset",
+    "Storm Aura",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -423,16 +438,17 @@ export const PARSING_CHOICE_FEATURES = {
     // "Variant Tiefling",
     // "Totem Spirit",
     // "Totemic Attunement",
-  ],
+    "Storm Aura",
+  ] as string[],
   // Parent features whose DDB description is a dump of every option (e.g. Blood
   // Curses ships all curses). Replace it with the chosen options' own descriptions.
   REPLACE_DESCRIPTION_WITH_CHOICES: [
     "Blood Curses",
-  ],
+  ] as string[],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
     // "Arcane Shot Options",
-  ],
+  ] as string[],
   NO_CHOICE_DESCRIPTION_ADDITION: [
     // the parent's own <ul> already enumerates the options, and each option is
     // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
@@ -551,6 +567,15 @@ export const PARSING_CHOICE_FEATURES = {
     "Brand of Castigation",
     "Stalker's Prowess",
     "Aether Walk",
+    "Floral Form",
+    "Floral Legacy",
+    "Floral Breath Weapon",
+    "Floral Fortitude",
+    "Student of Arcana",
+    "Transmuter's Stone",
+    "Transmutation Savant",
+    "Signature Spells",
+    "Spell Mastery",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -573,6 +598,15 @@ export const PARSING_CHOICE_FEATURES = {
 };
 
 export const FEATURE_SPELLS_IGNORE = [
+  // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
+  "Mystic Arcanum (6th level)",
+  "Mystic Arcanum (7th level)",
+  "Mystic Arcanum (8th level)",
+  "Mystic Arcanum (9th level)",
+  "Mystic Arcanum (Level 6 Spell)",
+  "Mystic Arcanum (Level 7 Spell)",
+  "Mystic Arcanum (Level 8 Spell)",
+  "Mystic Arcanum (Level 9 Spell)",
   // "Mantle of Majesty",
   "Activate Mantle of Majesty",
   "Gaseous Form",
@@ -610,6 +644,27 @@ export const FEATURE_SPELLS_IGNORE = [
   "Tokens of the Departed",
   "Beasts of Ill Omen",
   "Spiteful Curse",
+  "Shape-Shifter",
+  "Wondrous Alteration",
+  "Undead Thralls",
+  "Phantasmal Creatures",
+  "Shapechanger",
+  "Faithful Steed",
+  "Paladin's Smite",
+  "Contact Patron",
+  "Steps of the Fey",
+  "Fey Reinforcements",
+  "Misty Wanderer",
+  "Ethereal Step",
+  "Dragon Companion",
+  "Star Map",
+  "Consult the Spirits",
+  "Restorative Reagents",
+  "Chemical Mastery",
+  "Mapping Magic",
+  "Superior Atlas",
+  "War God's Blessing",
+  "Curse Caster",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
@@ -671,4 +726,34 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
 
 export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
+];
+
+/** DDB choices that configure their parent rather than creating another item. */
+export const NON_ITEM_CHOICE_LABELS: string[] = [
+  "Strength",
+  "Dexterity",
+  "Constitution",
+  "Intelligence",
+  "Wisdom",
+  "Charisma",
+  "Strength Score",
+  "Dexterity Score",
+  "Constitution Score",
+  "Intelligence Score",
+  "Wisdom Score",
+  "Charisma Score",
+  "Fighting Style feat",
+];
+
+/**
+ * DDB template expressions that are wrong at source. Matched on the exact template body and a
+ * feature-name fragment; the formula replaces the whole template as an inline roll value.
+ */
+export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string }[] = [
+  {
+    // the 2024 Divine Spark die count, held as a ScaleValue on the feature by its enricher
+    featureNameIncludes: "Divine Spark",
+    template: "1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown",
+    formula: "@scale.channel-divinity.spark",
+  },
 ];

@@ -8,6 +8,7 @@ export const PARSING_ACTIONS = {
     "Form of the Beast: Claws",
     "Form of the Beast: Tail",
     // "Cat's Claws",
+    "Jinx Points",
   ],
   KEEP_ACTIONS_2024: [
     "Psychic Blades",

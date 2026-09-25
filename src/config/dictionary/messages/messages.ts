@@ -4,6 +4,7 @@ export const LOADING_MESSAGES: {
   background: string[];
   species: string[];
   default: string[];
+  muncher: string[];
 } = {
   class: {
     "bard": [
@@ -369,5 +370,38 @@ export const LOADING_MESSAGES: {
     "If you can read this, you're too close to the screen.",
     "Loading... please don't turn it off and on again.",
     "Have you thought about our lord and saviour Pathfinder 2e?",
+  ],
+  muncher: [
+    "Rolling initiative for a hungry, hungry monkey...",
+    "The muncher is hungry. Please wait while it sharpens its teeth...",
+    "Casting Detect Compendium...",
+    "Persuading the API (rolling with disadvantage)...",
+    "The DM is checking the rulebook. Again.",
+    "Asking the mimic to please stop pretending to be a progress bar...",
+    "Investigating the proxy. Passive Perception 10 it is.",
+    "Sneaking past the rate limiter...",
+    "Waiting for the wizard to finish his eight hours of rest...",
+    "Counting the party's gold...",
+    "The bard is flirting with the database. Please hold.",
+    "Loading with advantage. It did not help.",
+    "The rogue is picking the lock on your compendiums...",
+    "Consulting the Deck of Many Things...",
+    "Feeding the Owlbear so it does not eat your spells...",
+    "Rolling a d20 to see if the server likes us today...",
+    "Nat 1 on the fetch check. Rerolling with Lucky.",
+    "The ranger swears the campaign list is just over the next hill...",
+    "Polishing the beholder's eye stalks. All ten of them.",
+    "Preparing spell slots. The warlock only has two, be patient.",
+    "Attuning to your compendium indexes...",
+    "Do not split the party. Or the tab.",
+    "The paladin insists on checking every cookie for evil...",
+    "Somewhere, a goblin is rolling a stealth check against this dialog...",
+    "The tavern keeper is fetching your encounters from the back room...",
+    "This would be quicker if the druid stopped turning into a snail.",
+    "Applying difficult terrain to the network...",
+    "Gelatinous cube is digesting the previous request...",
+    "Concentration check to keep this window open...",
+    "Reading the fine print on the warlock's pact...",
+    "Reticulating dragons...",
   ],
 };
