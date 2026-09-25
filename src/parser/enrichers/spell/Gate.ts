@@ -15,6 +15,8 @@ export default class Gate extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
     },
     build: {
+      generateDuration: true,
+      durationOverride: { units: "inst", concentration: false },
       generateSummon: true,
       noSpellslot: true,
     },

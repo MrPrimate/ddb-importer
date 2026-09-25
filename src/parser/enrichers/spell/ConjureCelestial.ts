@@ -20,6 +20,8 @@ export default class ConjureCelestial extends DDBEnricherData {
       overrideTemplate: true,
       data: {
         sort: 10000,
+        // fired every turn the cylinder lasts, so it must not start (and replace) the spell's concentration
+        duration: { override: true, value: "", units: "inst", concentration: false },
         healing: {
           scaling: {
             mode: "whole",

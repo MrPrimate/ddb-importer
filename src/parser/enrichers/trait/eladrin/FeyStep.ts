@@ -2,6 +2,17 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FeyStep extends DDBEnricherData {
 
+  /**
+   * Summer's fire damage: the Mordenkainen's Tome of Foes eladrin deal their Charisma modifier
+   * (minimum of 1), the Monsters of the Multiverse reprint deals the proficiency bonus instead.
+   */
+  get summerDamageFormula(): string {
+    const description = this.ddbParser?.ddbDefinition?.description ?? this.ddbParser?.ddbDefinition?.snippet ?? "";
+    return (/fire damage equal to your proficiency bonus/i).test(description)
+      ? "@prof"
+      : "max(1, @abilities.cha.mod)";
+  }
+
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
@@ -82,7 +93,7 @@ export default class FeyStep extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "min(1, @abilities.cha.mod)",
+                  customFormula: this.summerDamageFormula,
                   type: "fire",
                 }),
               ],

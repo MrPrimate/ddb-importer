@@ -11,9 +11,10 @@ interface IRequiemVariant {
  * Requiem Bliss and Requiem Clay: smoking the drug answers up to N questions at 1d6 poison
  * damage each, then "a Constitution saving throw (DC 12 + 1 per question asked)" against
  * addiction. The questions are the scaling step: the activity carries a pool of N uses, one
- * question consumes one, and amount scaling adds the rest - so the DC is `<base + 1> + @scaling`
- * and the poison rolls 1d6 per question. The weekly save to break the addiction is its own
- * activity at the printed DC.
+ * question consumes one, and amount scaling adds the rest. dnd5e's `@scaling` is the scaling
+ * value (steps above baseline + 1), which here is the number of questions asked, so the DC is
+ * `<base> + @scaling` and the poison rolls 1d6 per question. The weekly save to break the
+ * addiction is its own activity at the printed DC.
  */
 export default class Requiem extends DDBEnricherData {
 
@@ -53,7 +54,7 @@ export default class Requiem extends DDBEnricherData {
           ability: ["con"],
           dc: {
             calculation: "",
-            formula: `${variant.dcBase + 1} + @scaling`,
+            formula: `${variant.dcBase} + @scaling`,
           },
         },
         uses: {

@@ -23,6 +23,8 @@ export default class CacophonicShield extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateActivation: true,
           generateDamage: true,

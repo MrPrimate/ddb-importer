@@ -41,16 +41,16 @@ export default class EventidesSplendor extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              count: "2",
+              count: "1",
               type: "creature",
               choice: false,
-              special: "You and the inspired creature",
+              special: "The creature who received the Bardic Inspiration die",
             },
           },
         },
         overrides: {
           rangeType: "ft",
-          rangeValue: 30,
+          rangeValue: 60,
         },
       },
       {

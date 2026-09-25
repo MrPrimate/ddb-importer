@@ -38,6 +38,7 @@ export default class Eyebite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Concentration Action",
+          data: { duration: { override: true, units: "inst", concentration: false } },
           noSpellslot: true,
         },
       },

@@ -31,6 +31,8 @@ export default class Enervation extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateDamage: true,
           generateActivation: true,
           generateConsumption: false,

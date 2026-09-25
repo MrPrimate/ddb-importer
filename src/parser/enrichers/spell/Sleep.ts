@@ -35,6 +35,7 @@ export default class Sleep extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Save vs Unconscious",
+          data: { duration: { override: true, units: "inst", concentration: false } },
           activationType: "special",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
