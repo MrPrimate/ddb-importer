@@ -1883,7 +1883,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     } else if (chargeMatch && chargeMatch[1]) {
       resetType = "day";
     } else if (untilMatch && untilMatch[1]) {
-      resetType = untilMatch[1].startsWith("short") ? "sr" : "lr";
+      resetType = untilMatch[1].toLowerCase().startsWith("short") ? "sr" : "lr";
     }
 
     // console.warn("reset type", {

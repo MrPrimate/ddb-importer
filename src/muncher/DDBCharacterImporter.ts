@@ -187,16 +187,53 @@ export default class DDBCharacterImporter {
             if (!item.effects) item.effects = [];
             if (originalItem.effects) {
               logger.info(`Copying Effects for ${originalItem.name}`);
-              item.effects = originalItem.effects.map((m) => {
-                delete m._id;
-                return m;
-              });
+              item.effects = DDBCharacterImporter.mergeRetainedItemEffects(item.effects, originalItem.effects);
             }
           }
           return item;
         }),
       );
     });
+  }
+
+  /**
+   * Merge the effects of an item's previous import into its freshly generated effects.
+   *
+   * The new item's activities, enchantment riders and region behaviors reference the generated
+   * effect ids, so a retained effect takes over the id of the generated effect it replaces
+   * (matched by name, in order) and those links keep resolving. Generated effects with no
+   * retained counterpart are kept, as something may link to them.
+   * @param {I5eEffectData[]} generated effects built by this import
+   * @param {I5eEffectData[]} retained effects on the item before this import
+   * @returns {I5eEffectData[]} the effects to create the item with
+   */
+  static mergeRetainedItemEffects(generated: I5eEffectData[], retained: I5eEffectData[]): I5eEffectData[] {
+    const unmatchedGenerated = [...generated];
+    const unmatchedRetained: I5eEffectData[] = [];
+    const merged: I5eEffectData[] = [];
+
+    for (const original of retained) {
+      const effect = foundry.utils.deepClone(original);
+      const index = unmatchedGenerated.findIndex((e) => e.name === effect.name);
+      if (index === -1) {
+        unmatchedRetained.push(effect);
+        continue;
+      }
+      const [replaced] = unmatchedGenerated.splice(index, 1);
+      if (replaced._id) effect._id = replaced._id;
+      else delete effect._id;
+      merged.push(effect);
+    }
+
+    merged.push(...unmatchedGenerated);
+    const usedIds = new Set(merged.map((e) => e._id).filter((id) => id));
+    for (const effect of unmatchedRetained) {
+      // an id taken by a generated effect gets a fresh one on create
+      if (effect._id && usedIds.has(effect._id)) delete effect._id;
+      else if (effect._id) usedIds.add(effect._id);
+      merged.push(effect);
+    }
+    return merged;
   }
 
   static async removeItems(itemList: TAll5eItemDocuments[], itemsToRemove: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
