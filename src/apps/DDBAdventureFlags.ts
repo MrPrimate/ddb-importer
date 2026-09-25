@@ -131,7 +131,7 @@ export class DDBAdventureFlags extends FormApplication {
   }
 
   /** @override - this application updates via checkbox listeners, not form submission */
-  async _updateObject(_event: Event, _formData: object): Promise<void> {
+  async _updateObject(_event: Event, _formData?: object): Promise<void> {
     // no-op
   }
 }

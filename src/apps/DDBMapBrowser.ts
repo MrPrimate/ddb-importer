@@ -399,7 +399,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     return null;
   }
 
-  // Build the Type → Source → Chapter folder chain for a map. Returns the
+  // Build the Type -> Source -> Chapter folder chain for a map. Returns the
   // names from outermost to innermost; chapter is omitted when there's no
   // matching chapter info (essentials, subscription leaves, sources without
   // chapters). DDBMap walks this list via FolderHelper.getOrCreateFolder.

@@ -64,7 +64,7 @@ export default class DDBCookie extends FormApplication {
     if (!cobaltStatus.success) {
       new DDBCookie({ actor: this.actor, localCobalt: this.localCobalt, callMuncher: this.callMuncher }).render(true);
     } else if (this.callMuncher) {
-      new DDBMuncher().render({ force: true });
+      DDBMuncher.open();
     } else if (this.callback) {
       this.callback();
     }
