@@ -3,6 +3,33 @@ import type DDBCharacter from "../parser/DDBCharacter";
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export {};
 
+type Activity = dnd5e.types.Activity.Instance;
+type ActivityUseConfiguration = dnd5e.types.documents.activity.ActivityUseConfiguration;
+type RollProcessConfig = dnd5e.types.Dice.BasicRollProcessConfiguration;
+type RollDialogConfig = dnd5e.types.Dice.BasicRollDialogConfiguration;
+type RollMessageConfig = dnd5e.types.Dice.BasicRollMessageConfiguration;
+type BasicRollConfig = dnd5e.types.Dice.BasicRollConfiguration;
+type D20RollOptions = dnd5e.types.Dice.D20RollOptions;
+type DamageDescription = dnd5e.types.documents.DamageDescription;
+type DamageApplicationOptions = dnd5e.types.documents.DamageApplicationOptions;
+type AnyMutableObject = fvttUtils.AnyMutableObject;
+// midi-qol publishes no types; its payloads stay loose
+type Workflow = Record<string, any>;
+type UndoData = Record<string, any>;
+
+/** Mutable pre-creation data, before dnd5e converts activation UUIDs into its chat model's Set. */
+interface ICombatMessageConfig {
+  create: boolean;
+  data: Record<string, unknown> & {
+    rolls?: unknown[];
+    system: Record<string, unknown> & {
+      activations?: string[];
+      periods?: string[];
+      deltas?: Record<string, unknown>;
+    };
+  };
+}
+
 // Bridge custom hooks into the configuration HookConfig.
 // fvtt-types resolves HookName = keyof HookConfig.HookConfig where HookConfig
 // is `import { Hooks as HookConfig } from "#configuration"`. The Hooks namespace
@@ -18,6 +45,7 @@ declare module "fvtt-types/configuration" {
       "applyActiveEffect": (actor: Actor.Implementation, change: any, current: any, delta: any, changes: Record<string, unknown>) => void;
 
       "dropCanvasData": (canvas: Canvas, data: Record<string, unknown>, event: Event) => boolean | void;
+
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet
       // class. registerSheets.ts registers `render${sheetName}` where sheetName
@@ -27,6 +55,7 @@ declare module "fvtt-types/configuration" {
       [key: `render${string}`]: (...args: any[]) => unknown;
 
       // ---- Explicit close hooks we register ----
+      "closeApplicationV2": (app: object) => void;
       "closeDocumentSheetV2": (sheet: foundry.applications.api.DocumentSheetV2) => void;
 
       // ---- Explicit get hooks we register ----
@@ -78,6 +107,7 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preCalculateDamage": (actor: Actor.Implementation, damages: DamageDescription[], options: DamageApplicationOptions) => boolean | void;
       "dnd5e.preConfigureInitiative": (actor: Actor.Implementation, rollConfig: { data: AnyMutableObject; parts: string[]; options: D20RollOptions }) => void;
       "dnd5e.preCreateActivityTemplate": (activity: Activity, templateData: MeasuredTemplateDocument.CreateData) => boolean | void;
+      "dnd5e.preCreateCombatMessage": (combatant: Combatant.Implementation, messageConfig: ICombatMessageConfig) => void;
       "dnd5e.preRollAbilityCheck": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollAttack": (rollConfig: RollProcessConfig & { attackMode: string }, dialogConfig: RollDialogConfig, messageConfig: RollMessageConfig) => boolean | void;
       "dnd5e.preRollAttackV2": (rollConfig: RollProcessConfig & { attackMode: string }, dialogConfig: RollDialogConfig, messageConfig: RollMessageConfig) => boolean | void;
@@ -88,9 +118,10 @@ declare module "fvtt-types/configuration" {
       "dnd5e.preRollSavingThrow": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollSkill": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollTool": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
+      "dnd5e.endConcentration": (actor: Actor.Implementation, effect: ActiveEffect.Implementation) => void;
       "dnd5e.preSummonToken": (activity: Activity, profile: unknown, config: object, options: unknown) => boolean | void;
       "dnd5e.preUseActivity": (activity: Activity, usageConfig: AnyMutableObject, dialogConfig: AnyMutableObject, messageConfig: AnyMutableObject) => boolean | void;
-      "dnd5e.restCompleted": (actor: Actor.Implementation, result: { longRest: boolean; newDay: boolean }, config: unknown) => void;
+      "dnd5e.restCompleted": (actor: Actor.Implementation, result: dnd5e.types.documents.RestResult, config: dnd5e.types.documents.RestConfiguration) => void;
       "dnd5e.rollAttack": (rolls: Roll[], data: { subject: Activity | null; ammoUpdate: { id: string; destroy: boolean; quantity: number } | null }) => void;
       "dnd5e.rollConcentration": (rolls: Roll[], data: { subject?: Actor.Implementation }) => void;
       "dnd5e.rollDamage": (rolls: Roll[], data?: { subject?: Activity }) => void;

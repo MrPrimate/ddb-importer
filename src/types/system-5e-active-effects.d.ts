@@ -1,21 +1,36 @@
 import { STATUSES } from "../config/dictionary/effects/data";
-import { DAE_EFFECT_EXPIRY_TYPES, DAE_SPECIAL_DURATIONS } from "../parser/enrichers/effects/EffectGenerator";
+import { DAE_SPECIAL_DURATIONS } from "../parser/enrichers/effects/EffectGenerator";
 
 export {};
 
 global {
 
+  /** Foundry v14 core change types. dnd5e 5.3 has no rule (`dnd5e.*`) change types. */
   type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override" | "ac5e";
   type TActiveEffectChangePhase = "initial" | "final";
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
-  type TEffectDurationExpiry = typeof EFFECT_EXPIRY_TYPES[number];
-  type TDAEEffectExpiryTypes = typeof DAE_EFFECT_EXPIRY_TYPES[number];
+  /** Core combat-edge expiries. */
+  type TEffectDurationExpiry = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";
+  /**
+   * Rest expiries. dnd5e 5.3 fires no rest expiry event, so these are written as DAE special-duration
+   * tokens rather than onto `duration.expiry`.
+   */
+  type TEffectDurationlessExpiry = "shortRest" | "longRest";
+  /**
+   * Source/target turn-edge expiries. dnd5e 5.3 does not provide them; DAE registers them as expiry events
+   * on dnd5e < 6.0, and without DAE they fall back to the core turn edges.
+   */
+  type TEffectPseudoExpiry = "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
+  /** Every expiry an enricher hint may declare; see EffectExpiryHelpers for how each is written. */
+  type T5eEffectExpiry = TEffectDurationExpiry | TEffectDurationlessExpiry | TEffectPseudoExpiry;
+  type TDAEEffectExpiryTypes = T5eEffectExpiry;
   type TEffectShowIcon = 0 | 1 | 2; // NEVER | CONDITIONAL | ALWAYS
 
   interface IActiveEffectChangeData {
+    _id?: string;
     key: string;
     type: TActiveEffectChangeType;
-    value: string | null;
+    value: string | number | null;
     phase?: TActiveEffectChangePhase;
     priority?: number;
   }
@@ -25,17 +40,28 @@ global {
     type: "ac5e";
   }
 
-  type TDAESpecialDuration =
-    // for pre v6 only
-    | TDAEEffectExpiryTypes
-    // Turn/Combat timing
-    | typeof DAE_SPECIAL_DURATIONS[number];
+  /**
+   * Tokens only DAE can express - usage counts and triggers. This is the ONLY
+   * union enricher hints may use: turn-edge tokens are natively covered by
+   * `duration.expiry` and are banned from `flags.dae.specialDuration`.
+   */
+  type TDAEOnlySpecialDuration = typeof DAE_SPECIAL_DURATIONS[number];
 
-  type TEffectType = "base" | "enchant";
+  type TDAESpecialDuration =
+    // for pre v6 data only (legacy flags read back from old imports)
+    | TDAEEffectExpiryTypes
+    | "turnStartSource"
+    | "turnEndSource"
+    // Turn/Combat timing
+    | TDAEOnlySpecialDuration;
+
+  type TEffectType = "base" | "enchantment";
 
   interface I5eEffectSystem {
     changes?: IActiveEffectChangeData[];
   }
+
+  type T5eEffectSystem = I5eEffectSystem;
 
   export interface I5eEffectData {
     _id?: string;
@@ -44,7 +70,7 @@ global {
     img?: string;
     name?: string;
     statuses?: typeof STATUSES;
-    system?: I5eEffectSystem;
+    system?: T5eEffectSystem;
     duration?: IEffectDuration;
     start?: IEffectStartData | null;
     tint?: string;
@@ -80,11 +106,17 @@ global {
         armorEffect?: boolean;
       };
       ddbimporter?: {
+        /** Native aura stacking identity; bestFormula uses the originating actor's roll data. */
+        aura?: {
+          bestFormula: string;
+          overrideName: string;
+        };
         infusion?: boolean;
         disabled?: boolean;
         characterEffect?: boolean;
         entityTypeId?: string | null;
         itemId?: string | null;
+        effectOnSave?: boolean;
         activityRiders?: string[];
         effectRiders?: string[];
         itemRiders?: string[];
@@ -92,6 +124,16 @@ global {
           min?: number | null;
           max?: number | null;
         };
+      };
+      dnd5e?: {
+        type?: string;
+        riders?: {
+          statuses?: string[];
+        };
+        // [key: string]: any;
+        spellLevel?: number;
+        /** Profile id of the enchant activity profile that applied this enchantment. */
+        enchantmentProfile?: string;
       };
       "midi-qol"?: {
         forceCEOff?: boolean;
@@ -120,7 +162,7 @@ global {
   interface IEffectDuration {
     value?: number | null;
     units?: TEffectDurationUnit | null;
-    expiry?: TDAEEffectExpiryTypes | null;
+    expiry?: T5eEffectExpiry | null;
     expired?: boolean | null;
   }
 

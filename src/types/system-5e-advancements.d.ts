@@ -129,13 +129,14 @@ global {
     configuration: I5eAdvItemChoiceConfig;
     value?: {
       added?: I5eAdvancementItemChoiceValueAdded;
-      replaced?: Record<string, string>;
+      /** keyed by level: the replaced item id and its replacement */
+      replaced?: Record<string, { level: number; original: string | null; replacement?: string | null }>;
     };
   }
 
   interface I5eAdvancementSubclass extends I5eAdvancementBase {
     type: "Subclass";
-    configuration: Record<string, never>;
+    configuration: Record<string, unknown>;
     value: { document?: any; uuid?: string | null };
   }
 

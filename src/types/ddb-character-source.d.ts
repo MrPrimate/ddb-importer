@@ -17,6 +17,40 @@ global {
     ddb: IDDBData;
   }
 
+  /**
+   * The file the `debug-import-capture` setting downloads after a character import: the
+   * proxy response the parser consumed and the actor as it stands once the import has
+   * finished, kept in one document so the pair can never drift apart on disk.
+   */
+  export interface IDDBImportCapture {
+    format: number;
+    capturedAt: string;
+    characterId: number | null;
+    versions: { game: string; system: string; ddbimporter: string };
+    modules: string[];
+    importSettings: Record<string, unknown>;
+    importError: string | null;
+    /** the response before the parser touched it (format 2); format 1 captured it post-parse */
+    source: IDDBCharacterResponse | null;
+    actor: I5ePCData;
+    /** sheet totals from the prepared actor, which toObject() does not carry (format 2) */
+    derived?: IDDBImportCaptureDerived;
+    /** every module setting in force, secrets redacted, so a replay can use the same policies (format 2) */
+    settings?: Record<string, unknown>;
+  }
+
+  export interface IDDBImportCaptureDerived {
+    ac: number | null;
+    hpMax: number | null;
+    prof: number | null;
+    abilities: Record<string, { value: number | null; mod: number | null; save: number | null }>;
+    skills: Record<string, number | null>;
+    spells: Record<string, number | null>;
+    movement: Record<string, number | null>;
+    senses: Record<string, number | null>;
+    init: number | null;
+  }
+
   export interface IDDBData {
     name: string;
     character: IDDBCharacterData;
@@ -811,7 +845,7 @@ global {
     componentTypeId: number;
     type: number;
     subType: number | null;
-    optionValue: number;
+    optionValue: number | null;
     optionIds: number[];
     options: any[];
     label: string | null;

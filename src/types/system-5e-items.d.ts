@@ -313,7 +313,8 @@ global {
     source: I5eSourceInfo;
     target: I5eSystemTargetData;
     uses: I5eSystemLimitedUses;
-    sourceClass?: string;
+    /** dnd5e 6.0 `class:<identifier>` of the class that granted the spell; drives `item.classIdentifier` in roll data. */
+    sourceItem?: string;
   }
 
   interface I5eSpellItem extends I5eSystemBaseDocumentData {
@@ -625,6 +626,7 @@ global {
     largeAvatarUrl?: string;
     pictureUrl?: string;
     filterType?: string;
+    rarity?: string;
     ability2?: string;
     damage?: { parts?: string[][] };
     classFeatures?: number[];
@@ -688,7 +690,8 @@ global {
 
   interface IDDBImporterTransferEnchantmentTargetItemMatches {
     field: string;
-    value: string;
+    /** Compared with strict equality, or with `includes` when the item field is an array. */
+    value: string | number | boolean;
   }
 
   interface IDDBImporterTransferEnchantmentFlags {
@@ -715,18 +718,20 @@ global {
     applyImmediate?: boolean;
     everyEntry?: boolean;
     allowVsRemoveCondition?: boolean;
-    removalCheck?: string | boolean;
-    removalSave?: string | boolean;
     saveRemoves?: boolean;
     saveOnEntry?: boolean;
+    removeOnOff?: boolean;
     condition?: string;
     save?: string;
     sequencerFile?: string;
     sequencerScale?: number;
+    /** Activity ids a runtime automation should use from the source document. */
     activityIds?: string[];
     isCantrip?: boolean;
     nameSuffix?: string;
-    removeOnOff?: boolean;
+    /** Ability used when a condition can be removed with a check (see DDBEffectHelper.adjustCondition). */
+    removalCheck?: string | boolean;
+    removalSave?: string | boolean;
     enchantmentEffects?: string[];
 
     // magicStone-style effect data
@@ -797,6 +802,7 @@ global {
     lineageName?: string;
     isHomebrew?: boolean;
     entityRaceId?: number;
+    entityRaceTypeId?: number;
     species?: string;
     trait?: string;
     moreDetailsUrl?: string;
@@ -822,6 +828,12 @@ global {
     // Custom enrichers
     arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
     isSpellItem?: boolean;
+    /** Generated to carry automation other documents grant or reference; filed under "Effect Items". */
+    isEffectItem?: boolean;
+    /** "Effect Items" sub-folder name of a generated effect item. */
+    effectName?: string;
+    /** The evolving-item property an effect item hosts. */
+    evolvedProperty?: string;
     spellName?: string;
     shadowBlade?: boolean;
     shadowBladeTier?: string;
@@ -847,6 +859,7 @@ global {
     activitiesMatch?: string[];
     ignoreTransfer?: boolean;
     effectIdLevel?: { min?: number | null; max?: number | null };
+    effectOnSave?: boolean;
     activityRiders?: string[];
     effectRiders?: string[];
     itemRiders?: string[];
@@ -871,6 +884,12 @@ global {
     ignoreItemForChrisPremades?: boolean;
     ignoreIcon?: boolean;
     retainResourceConsumption?: boolean;
+    retainOriginalConsumption?: boolean;
+    retainChildUses?: boolean;
+    retainUseSpent?: boolean;
+    retainActivityUseSpent?: boolean | string[];
+    ignoredConsumptionActivities?: string[];
+    consumptionValue?: string;
     parentId?: string;
 
     // Monster feature flags (stamped on monster feature items)

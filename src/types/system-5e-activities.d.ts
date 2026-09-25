@@ -99,7 +99,12 @@ global {
     activation?: I5eActivityActivation;
     consumption?: I5eActivityConsumption;
     description?: {
-      chatFlavor: string;
+      chatFlavor?: string;
+      /**
+       * dnd5e 6.0 activity chat description. The shared parsers still build it; dnd5e 5.3's
+       * activity schema has no such field and drops it when the document is created.
+       */
+      value?: string;
     };
     duration?: I5eActivityDuration;
     effects?: I5eActivityEffect[];
@@ -107,6 +112,10 @@ global {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
         activityRiders?: string[];
+      };
+      dnd5e?: {
+        /** Id of the applied enchantment (same item) this rider activity was created for; removed with it. */
+        dependentOn?: string;
       };
       // some enrichers write midi properties via activity flags overrides
       midiProperties?: IMidiActivityProperties;
@@ -258,8 +267,8 @@ global {
   }
 
   interface I5eActivityCheck {
-    // dnd5e stores check.ability as a string, but some build paths supply arrays
-    ability?: string | string[];
+    /** A single StringField in dnd5e; blank lets an associated skill or tool supply the ability. */
+    ability?: string;
     associated?: string[];
     dc?: {
       calculation?: string;
@@ -325,7 +334,7 @@ global {
   interface I5eActivityTransform {
     customize?: boolean;
     identifier?: string;
-    preset?: "wildshape" | "polymorph";
+    preset?: "wildshape" | "polymorph" | "";
     mode?: "cr" | "";
   }
 
@@ -345,6 +354,7 @@ global {
     type: "transform";
     transform?: I5eActivityTransform;
     settings?: I5eActivitySettings;
+    profiles?: I5eSummonProfile[];
   };
 
   type I5eActivity =
@@ -388,4 +398,3 @@ global {
     check?: I5eActivityCheck;
   }
 }
-

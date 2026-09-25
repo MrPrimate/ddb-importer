@@ -76,7 +76,7 @@ global {
    * A species (race) returned by /proxy/races. The proxy returns the same
    * race payload DDB nests on a character (IDDBRace: entityRaceId, fullName,
    * baseName, sources, isHomebrew, etc.), with racial traits pruned. Selection
-   * is keyed on entityRaceId, which is what speciesMule filters on.
+   * uses entityRaceTypeId:entityRaceId because species and subraces reuse numeric IDs.
    */
   export type IDDBMuleSpeciesDefinition = IDDBRace;
 

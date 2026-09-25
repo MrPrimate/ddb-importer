@@ -46,6 +46,29 @@ declare global {
     label: string;
   }
 
+  interface IMuncherSourceBook {
+    id: number;
+    code: string;
+    name: string;
+    avatarURL: string | null;
+  }
+
+  interface IMuncherSourceCategoryBooks {
+    id: number;
+    name: string;
+    books: IMuncherSourceBook[];
+  }
+
+  /** The source selection an import will actually run with, as previewed next to a munch button. */
+  interface IMuncherEffectiveSources {
+    categories: { id: number; name: string; books: { id: number; code: string; name: string }[] }[];
+    bookCount: number;
+    /** The deprecated per-book filter is on and names at least one book inside the categories. */
+    bookFilterActive: boolean;
+    /** Books named by that filter which sit outside the included categories, so DDB never sees them. */
+    ignoredBooks: string[];
+  }
+
   interface IMuncherSettings {
     characterMunch: boolean;
     adventureOptions: ISettingsPolicyExpandedItem[];
@@ -77,7 +100,8 @@ declare global {
     version: string;
     campaignId: string;
     isCampaign: string | boolean;
-    categoryBooks: { categoryName: string; books: { name: string; description: string }[] }[];
+    includedCategoryBooks: IMuncherSourceCategoryBooks[];
+    showSourceBookCovers: boolean;
   }
 
   interface IEncounterSettings {
@@ -115,7 +139,7 @@ declare global {
     onChange?: (value: any) => void;
     requiresReload?: boolean;
     filePicker?: string;
-    [key: string]: any;
+    // [key: string]: any;
   }
 
   interface CompleteSettingConfig extends IPartialSettingConfig {
@@ -196,7 +220,6 @@ declare global {
     "ddb-importer.add-description-to-chat": boolean;
     "ddb-importer.use-loose-srd-reference-matching": boolean;
     "ddb-importer.use-super-loose-srd-reference-matching": boolean;
-    "ddb-importer.spells-on-items-as-activities": boolean;
     "ddb-importer.separate-ac-effects": boolean;
     "ddb-importer.effects-uses-macro-status-effects": boolean;
 
@@ -213,6 +236,7 @@ declare global {
     "ddb-importer.allow-mighty-summoner-enhancer": boolean;
     "ddb-importer.allow-great-weapon-master-enhancer": boolean;
     "ddb-importer.allow-warding-bond-enhancer": boolean;
+    "ddb-importer.allow-divine-power-recovery-enhancer": boolean;
 
     // READY: CHARACTER IMPORT
     "ddb-importer.character-update-policy-use-hp-max-for-rolled-hp": boolean;
@@ -325,6 +349,7 @@ declare global {
     "ddb-importer.munching-policy-use-source-filter": boolean;
     "ddb-importer.munching-policy-muncher-sources": any[];
     "ddb-importer.munching-policy-muncher-included-source-categories": any[];
+    "ddb-importer.muncher-show-source-book-covers": boolean;
     "ddb-importer.munching-policy-muncher-monster-types": any[];
     "ddb-importer.munching-policy-maps-included-types": string[];
     "ddb-importer.munching-policy-maps-exclude-dm": boolean;
@@ -361,7 +386,7 @@ declare global {
     "ddb-importer.munching-policy-character-classes": number[];
     "ddb-importer.munching-policy-character-subclasses": Record<string, number[]>;
     "ddb-importer.munching-policy-character-class-rules-version": T5eRulesVersion;
-    "ddb-importer.munching-policy-character-species": number[];
+    "ddb-importer.munching-policy-character-species": string[];
     "ddb-importer.munching-policy-character-dont-grab-existing": boolean;
     "ddb-importer.munching-policy-disable-monster-art": boolean;
 
@@ -401,6 +426,8 @@ declare global {
     "ddb-importer.cobalt-cookie": string;
     "ddb-importer.cobalt-cookie-local": boolean;
     "ddb-importer.campaign-id": string;
+    "ddb-importer.proxy-cache-enabled": boolean;
+    "ddb-importer.proxy-cache-ttl-hours": number;
 
     // READY: DEV
     "ddb-importer.allow-scene-download": boolean;
@@ -409,6 +436,7 @@ declare global {
     "ddb-importer.third-party-scenes-notes-merged": boolean;
     "ddb-importer.allow-dev-generation": boolean;
     "ddb-importer.debug-json": boolean;
+    "ddb-importer.debug-import-capture": boolean;
 
     // OTHER MODULES
     "dnd5e.disableConcentration": boolean;

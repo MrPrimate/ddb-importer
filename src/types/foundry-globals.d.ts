@@ -86,14 +86,16 @@ declare global {
       autoToken: (actor: Actor | I5eActor, options?: object) => Promise<string>;
     };
     Tokenizer2: ITokenizer2API;
-    DDBImporter: {
-      lib: Record<string, any>;
-      [key: string]: any;
-    };
+    DDBImporter: typeof import("../api").API_BASE;
     dnd5eCustomSkills: any;
     PIXI: any;
   }
   var DDBImporter: Window["DDBImporter"];
+
+  // Foundry v14 forced-deletion operator: a shared `foundry.data.operators.ForcedDeletion`
+  // instance, used as an update VALUE to remove a DataModel field. It replaces the legacy
+  // `{"-=key": null}` syntax, which now logs a compatibility warning. Not in fvtt-types yet.
+  const _del: { readonly __brand: "ForcedDeletion" };
 
   // Third-party Foundry module globals
   const MidiQOL: any;
@@ -134,7 +136,7 @@ declare global {
     children?: Record<string, I5eLanguageGroup | string>;
   }
 
-  interface CONFIG extends CONFIG {
+  interface CONFIG {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
