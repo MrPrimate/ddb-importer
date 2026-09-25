@@ -14,6 +14,15 @@
     </select>
   </div>
 
+  <div class="ddb-scene-copy-actions ddb-scene-copy-actions-top">
+    <button type="button" class="munch-button" data-action="copyScene" {{#unless canCopy}}disabled{{/unless}}>
+      <i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy.copy"}}
+    </button>
+    <button type="button" class="munch-button" data-action="cancel">
+      {{localize "ddb-importer.scene-copy.cancel"}}
+    </button>
+  </div>
+
   <div class="ddb-scene-copy-toolbar">
     <button type="button" class="munch-button" data-action="selectAll">
       <i class="fas fa-check-double"></i> {{localize "ddb-importer.scene-copy.select-all"}}

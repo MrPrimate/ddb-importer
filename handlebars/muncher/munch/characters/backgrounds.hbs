@@ -13,7 +13,10 @@
       </div>
     </div>
     {{/if}}
-    <button data-action="parseBackgrounds" type="button" id="munch-backgrounds-start" class="munch-button"
-      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Background Munch</button>
+    <div class="munch-button-row">
+      <button data-action="parseBackgrounds" type="button" id="munch-backgrounds-start" class="munch-button"
+        {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Background Munch</button>
+      {{> "modules/ddb-importer/handlebars/muncher/munch/source-selection.hbs"}}
+    </div>
   </fieldset>
 </section>

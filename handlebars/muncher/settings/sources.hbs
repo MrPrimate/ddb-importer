@@ -18,22 +18,64 @@ Legacy/non-core are books that were replaced in the 2014 ruleset lifecycle like 
     </div>
     </fieldset>
 
-    {{#if categoryBooks.length}}
-    <details class="ddb-category-books-details">
-      <summary>Source Books by Category</summary>
-      <div class="ddb-category-books-content">
-        {{#each categoryBooks}}
-        <div class="ddb-category-group">
-          <h4>{{this.categoryName}}</h4>
-          <ul>
-            {{#each this.books}}
-            <li><strong>{{this.name}}</strong> - {{this.description}}</li>
-            {{/each}}
-          </ul>
+    <fieldset class="ddb-included-source-summary">
+      <legend>Currently Included Categories and Books</legend>
+      <div class="ddb-included-source-toolbar">
+        <p class="hint">Every released book in the selected categories is included.</p>
+        <div class="ddb-included-source-actions">
+          <button type="button" data-action="toggleSourceBookView">
+            {{#if showSourceBookCovers}}
+              <i class="fas fa-list"></i> Show names
+            {{else}}
+              <i class="fas fa-images"></i> Show covers
+            {{/if}}
+          </button>
+          <button type="button" data-action="openSourceBookBrowser">
+            <i class="fas fa-book-open"></i> What book is in what category?
+          </button>
         </div>
-        {{/each}}
       </div>
-    </details>
-    {{/if}}
+
+      {{#if includedCategoryBooks.length}}
+        <div class="ddb-included-source-grid {{#if showSourceBookCovers}}show-covers{{else}}show-names{{/if}}">
+          {{#each includedCategoryBooks}}
+            <section class="ddb-included-source-category">
+              <header class="ddb-included-source-category-header">
+                <h4>{{this.name}}</h4>
+                <span>{{this.books.length}}</span>
+              </header>
+              <div class="ddb-included-source-books">
+                {{#unless this.books.length}}
+                  <p class="ddb-included-source-empty">No released books in this category yet.</p>
+                {{else if @root.showSourceBookCovers}}
+                  <ul class="ddb-included-source-cover-list">
+                    {{#each this.books}}
+                      <li class="ddb-included-source-cover-card" title="{{this.name}} ({{this.code}})">
+                        <div class="ddb-included-source-cover">
+                          {{#if this.avatarURL}}
+                            <img src="{{this.avatarURL}}" alt="Cover of {{this.name}}" loading="lazy" />
+                          {{else}}
+                            <i class="fas fa-book"></i>
+                          {{/if}}
+                        </div>
+                        <span>{{this.name}}</span>
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{else}}
+                  <ul class="ddb-included-source-name-list">
+                    {{#each this.books}}
+                      <li title="{{this.code}}">{{this.name}}</li>
+                    {{/each}}
+                  </ul>
+                {{/unless}}
+              </div>
+            </section>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="ddb-included-source-empty">No source categories are currently included.</p>
+      {{/if}}
+    </fieldset>
 
 </section>

@@ -3,19 +3,6 @@
 <div class="scrollable">
 
   <fieldset>
-    <legend>Weapon Property and Mastery Enhancements</legend>
-    <p>DDB Importer will attempt to add properties and masteries to weapons, as well as create base weapons for sources here. When you munch items sources will be automatically added here. Some features, such as base weapons do require weapons to be imported.</p>
-
-    <div id="weapon-properties-enhancements-source-div">
-      <multi-select id="allowed-weapon-property-sources" name="allowed-weapon-property-sources">
-        {{#each selectedWeaponPropertiesEnhancementsSources}}
-        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
-        {{/each}}
-      </multi-select>
-    </div>
-  </fieldset>
-
-  <fieldset>
     <legend>Enhancement Options</legend>
     <p>These are enhancements to the 5e system that provide new functionality or mild automation. Please reload your session for these to take effect.</p>
     {{#each enhancementConfig}}
@@ -28,6 +15,19 @@
       <p class="hint">{{{this.hint}}}</p>
     </div>
     {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <legend>Weapon Property and Mastery Enhancements</legend>
+    <p>DDB Importer will attempt to add properties and masteries to weapons, as well as create base weapons for sources here. When you munch items sources will be automatically added here. Some features, such as base weapons do require weapons to be imported.</p>
+
+    <div id="weapon-properties-enhancements-source-div">
+      <multi-select id="allowed-weapon-property-sources" name="allowed-weapon-property-sources">
+        {{#each selectedWeaponPropertiesEnhancementsSources}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
   </fieldset>
 
 </div>
