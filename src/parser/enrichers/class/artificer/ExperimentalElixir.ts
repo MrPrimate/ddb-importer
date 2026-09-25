@@ -706,8 +706,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
       for (const row of rows) {
         const cells = row.querySelectorAll("td");
-        if (cells.length < 2)
+        if (cells.length < 2) {
           continue;
+        }
 
         const effectCell = cells[1];
         const strongTag = effectCell.querySelector("strong");

@@ -73,7 +73,7 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
       const clauseStart = this.text.indexOf("If ");
       const clause = clauseStart < 0 ? "" : this.text.slice(clauseStart);
       const save = clauseStart < 0 ? null : this.save(clause);
-      if (save && save.ability?.[0] === "con")
+      if (save && save.ability?.[0] === "con") {
         activities.push(
           this.extra("Regurgitate Save", "ddbRegurgitate01", "save", {
             generateSave: true,
@@ -83,10 +83,11 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
             activationOverride: { type: "turnEnd", value: null, condition: clause },
           }),
         );
+      }
     }
     if (this.key === "Whelm") {
       const check = this.check();
-      if (check)
+      if (check) {
         activities.push(
           this.extra("Pull Free", "ddbPullFree00001", "check", {
             generateCheck: true,
@@ -99,6 +100,7 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
             },
           }),
         );
+      }
     }
     return activities;
   }

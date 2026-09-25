@@ -1248,10 +1248,12 @@ export default class AdventureMunch {
 
   // this should be the drawing data type but we would need to model old fields for migration
   static _drawingFixes(drawing: any) {
-    if (!foundry.utils.hasProperty(drawing, "interface"))
+    if (!foundry.utils.hasProperty(drawing, "interface")) {
       drawing.interface = true;
-    if (!foundry.utils.hasProperty(drawing, "levels"))
+    }
+    if (!foundry.utils.hasProperty(drawing, "levels")) {
       drawing.levels = [DEFAULT_LEVEL_ID];
+    }
     if (!drawing.shape) {
       // Map legacy (v10/v11) drawing types to v14 ShapeData types. v14 only
       // knows r/c/e/p; the old freehand ("f") and text ("t") types must be

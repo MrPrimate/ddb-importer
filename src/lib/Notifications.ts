@@ -19,14 +19,15 @@ export const NOTIFICATION_API = {
     $("#ddbimporter-notifications").append(note);
     $(note).fadeIn(200);
 
-    if (timeout)
+    if (timeout) {
       setTimeout(() => {
         $(note).fadeOut(200, () => {
           $(note).remove();
         });
       }, timeout);
-    else
+    } else {
       $(note).append("<p style=\"text-align: center; color: #7e7e7e; margin: 0px;\"><small>Click to close</small>");
+    }
 
     $(note).on("click", () => {
       $(note).fadeOut(200, () => {

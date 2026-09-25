@@ -859,8 +859,9 @@ ${item.system.description.chat}
         ) {
           monsterToken.texture.src = tokenSrcTexture;
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
-          if (foundry.utils.hasProperty(moduleArt, "token.texture.scaleY"))
+          if (foundry.utils.hasProperty(moduleArt, "token.texture.scaleY")) {
             monsterToken.texture.scaleY = moduleArt.token.texture.scaleY as number;
+          }
           const moduleArtScaleX = foundry.utils.getProperty(moduleArt, "token.texture.scaleX") as number | undefined;
           if (moduleArtScaleX) monsterToken.texture.scaleX = moduleArtScaleX;
           const moduleArtRing = foundry.utils.getProperty(moduleArt, "token.ring");

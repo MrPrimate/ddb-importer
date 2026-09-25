@@ -372,11 +372,13 @@ export default class CharacterSpellFactory {
 
       const removeIds = [];
 
-      if (utils.getSetting<boolean>("character-update-policy-remove-2024"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-2024")) {
         removeIds.push(24);
+      }
 
-      if (utils.getSetting<boolean>("character-update-policy-remove-legacy"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-legacy")) {
         removeIds.push(23, 26);
+      }
 
       const targetSpells: IDDBSpellEntry[] = removeIds.length > 0
         ? this.removeSpellsBySourceCategoryIds(rawSpells, removeIds)
@@ -431,11 +433,13 @@ export default class CharacterSpellFactory {
 
       const removeIds = [];
 
-      if (utils.getSetting<boolean>("character-update-policy-remove-2024"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-2024")) {
         removeIds.push(24);
+      }
 
-      if (utils.getSetting<boolean>("character-update-policy-remove-legacy"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-legacy")) {
         removeIds.push(23, 26);
+      }
 
       const targetSpells = removeIds.length > 0
         ? this.removeSpellsBySourceCategoryIds(filteredCantrips, removeIds)
@@ -587,8 +591,9 @@ export default class CharacterSpellFactory {
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
         });
-        if (flagData.ddbimporter.dndbeyond.class)
+        if (flagData.ddbimporter.dndbeyond.class) {
           foundry.utils.setProperty(parsedSpell, "system.sourceItem", `class:${DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class)}`);
+        }
         this._generated.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging

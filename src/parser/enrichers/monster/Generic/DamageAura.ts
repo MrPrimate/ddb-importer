@@ -29,7 +29,7 @@ export default class DamageAura extends _MonsterFeatureSupport {
           }),
         ]
         : [];
-    if (RegionBehaviorSettings.add)
+    if (RegionBehaviorSettings.add) {
       activities.push(
         regionPlacer("Place Aura", {
           template: { type: "radius", size: this.aura.radius },
@@ -46,6 +46,7 @@ export default class DamageAura extends _MonsterFeatureSupport {
           ],
         }),
       );
+    }
     return activities;
   }
 

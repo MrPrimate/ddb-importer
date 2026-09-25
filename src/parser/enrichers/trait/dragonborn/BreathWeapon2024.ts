@@ -12,9 +12,11 @@ export default class BreathWeapon2024 extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    if (this.is2014) return {
-      rangeSelf: true,
-    };
+    if (this.is2014) {
+      return {
+        rangeSelf: true,
+      };
+    }
     return {
       name: "Cone",
       rangeSelf: true,

@@ -137,8 +137,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       },
     };
     // these templates not good
-    if ("requirements" in this.data.system)
+    if ("requirements" in this.data.system) {
       this.data.system.requirements = "";
+    }
     this.data.sort = this.sort ?? undefined;
     this.levelBonus = false;
     this.profBonus = false;
@@ -340,8 +341,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     // copy source details from parent
     const oldSource = foundry.utils.getProperty(this, "ddbMonster.npc.system.details.source");
-    if (oldSource)
+    if (oldSource) {
       foundry.utils.setProperty(this, "data.system.source", oldSource);
+    }
 
     const source = foundry.utils.getProperty(this, "data.system.source");
     if (source) foundry.utils.setProperty(this.data, "system.source", source);
@@ -1778,8 +1780,9 @@ ${this.data.system.description.value}
     let generateActivityUses = false;
     let generateConsumption = false;
 
-    if (!this.spellCastingData.concentration || spellData.noConcentration)
+    if (!this.spellCastingData.concentration || spellData.noConcentration) {
       spellOverride.properties.push("concentration");
+    }
     if (!this.spellCastingData.material) spellOverride.properties.push("material");
     if (spellData.level) spellOverride.level = parseInt(spellData.level);
 
@@ -2109,8 +2112,9 @@ ${this.data.system.description.value}
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
       this.#addHealAdditionalActivities();
       this.#queueDamageModes();
-      if (this.enricher.addAutoAdditionalActivities)
+      if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();
+      }
       await this.enricher.addAdditionalActivities(this);
       this._generateEffects();
     }
@@ -2122,10 +2126,12 @@ ${this.data.system.description.value}
     foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.proficient", this.actionData.proficient);
     foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.extraAttackBonus", this.actionData.extraAttackBonus);
 
-    if (this.levelBonus)
+    if (this.levelBonus) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
-    if (this.profBonus)
+    }
+    if (this.profBonus) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.profBonus", true);
+    }
     await this.#generateDescription();
 
     await this.enricher.addDocumentAdvancements();

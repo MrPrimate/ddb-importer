@@ -371,10 +371,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const chooseRegex = /creature of your choice|choose (?<num>\w+) creatures within/ig;
     const chooseMatch = chooseRegex.exec(description);
     if (chooseMatch) {
-      if ((this.buildData.damage?.parts?.length ?? 0) > 0 || ["save", "attack", "damage"].includes(this.type))
+      if ((this.buildData.damage?.parts?.length ?? 0) > 0 || ["save", "attack", "damage"].includes(this.type)) {
         target.affects.type = "enemy";
-      else if (["heal"].includes(this.type))
+      } else if (["heal"].includes(this.type)) {
         target.affects.type = "ally";
+      }
       target.affects.choice = true;
       const chooseNum = chooseMatch.groups?.num;
       if (chooseNum) {

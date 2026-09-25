@@ -527,22 +527,25 @@ class DDBCharacter {
   }
 
   async _generateFeatures() {
-    if (!this._characterFeatureFactory)
+    if (!this._characterFeatureFactory) {
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    }
     await this._characterFeatureFactory.processFeatures();
     logger.debug("Feature parse complete");
   }
 
   async _generateActions() {
-    if (!this._characterFeatureFactory)
+    if (!this._characterFeatureFactory) {
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    }
     await this._characterFeatureFactory.processActions();
     logger.debug("Action parse complete");
   }
 
   async _generateFeatureSpellAdvancements() {
-    if (!this._characterFeatureFactory)
+    if (!this._characterFeatureFactory) {
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    }
     await this._characterFeatureFactory.addSpellAdvancements();
     logger.debug("Feature Spell Advancement parse complete");
   }

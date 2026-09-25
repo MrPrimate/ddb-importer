@@ -19,7 +19,7 @@ export default class Adhesive extends _MonsterFeatureSupport {
   }
 
   override get effects(): IDDBEffectHint[] {
-    if (this.activity)
+    if (this.activity) {
       return [
         {
           name: "Adhered",
@@ -28,6 +28,7 @@ export default class Adhesive extends _MonsterFeatureSupport {
           options: { expiry: null, durationSeconds: null, description: this.text },
         },
       ];
+    }
     return [];
   }
 }

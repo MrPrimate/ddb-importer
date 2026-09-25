@@ -201,10 +201,12 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   for (const familiar of mapInUse) {
     const i = ddbCompendium?.index.find((i) => i.name === familiar.name
       && foundry.utils.getProperty(i, "system.source.rules") === rules);
-    if (i) profiles.push({
-      name: familiar.name,
-      uuid: i.uuid,
-    });
+    if (i) {
+      profiles.push({
+        name: familiar.name,
+        uuid: i.uuid,
+      });
+    }
   }
 
   const profilesChoice = is2014 || isPactActivity

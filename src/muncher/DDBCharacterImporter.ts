@@ -101,8 +101,9 @@ export default class DDBCharacterImporter {
       }
       if (!utils.getSetting<boolean>("character-update-policy-feat")) itemTypes.push("feat");
       if (!utils.getSetting<boolean>("character-update-policy-weapon")) itemTypes.push("weapon");
-      if (!utils.getSetting<boolean>("character-update-policy-equipment"))
+      if (!utils.getSetting<boolean>("character-update-policy-equipment")) {
         itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
+      }
       if (!utils.getSetting<boolean>("character-update-policy-spell")) itemTypes.push("spell");
     } else {
       if (utils.getSetting<boolean>("character-update-policy-class")) {
@@ -111,8 +112,9 @@ export default class DDBCharacterImporter {
       }
       if (utils.getSetting<boolean>("character-update-policy-feat")) itemTypes.push("feat");
       if (utils.getSetting<boolean>("character-update-policy-weapon")) itemTypes.push("weapon");
-      if (utils.getSetting<boolean>("character-update-policy-equipment"))
+      if (utils.getSetting<boolean>("character-update-policy-equipment")) {
         itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
+      }
       if (utils.getSetting<boolean>("character-update-policy-spell")) itemTypes.push("spell");
     }
     return itemTypes;

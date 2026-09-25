@@ -240,8 +240,9 @@ export default class RegionDisplayProfiles {
     if (!flag || typeof flag !== "object") return null;
     const profile = RegionDisplayProfiles.get(flag.profile);
     if (!profile) {
-      if (flag.profile)
+      if (flag.profile) {
         logger.debug(`Region display profile "${flag.profile}" is not defined; using the Foundry look`);
+      }
       return null;
     }
     const color = typeof flag.color === "string" && flag.color.trim() ? flag.color.trim() : profile.color;

@@ -48,10 +48,12 @@ export default class AdventureMunchHelpers {
     const result: Record<string, any> = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
-      if (Array.isArray(obj2[key]) && Array.isArray(obj1[key]))
+      if (Array.isArray(obj2[key]) && Array.isArray(obj1[key])) {
         result[key] = this.diff(obj1[key], obj2[key]);
-      if (typeof obj2[key] == "object" && typeof obj1[key] == "object")
+      }
+      if (typeof obj2[key] == "object" && typeof obj1[key] == "object") {
         result[key] = this.diff(obj1[key], obj2[key]);
+      }
     }
     return result;
   }

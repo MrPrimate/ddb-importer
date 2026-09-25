@@ -123,8 +123,9 @@ export default class OwnerTurnRegions {
       if (region.getFlag("dnd5e", "origin") !== origin.uuid) continue;
       for (const behavior of region.behaviors) {
         const metadata = OwnerTurnRegions.metadata(behavior);
-        if (!behavior.active || !metadata?.events.some((event) => events.has(event)) || ownerTurnExpired(behavior))
+        if (!behavior.active || !metadata?.events.some((event) => events.has(event)) || ownerTurnExpired(behavior)) {
           continue;
+        }
         // Failed one-shot uses retain their region for manual recovery. An in-flight attempt is
         // still automated, but after it settles the native reminder must remain available.
         if (foundry.utils.getProperty(behavior, "flags.ddbimporter.ownerTurnState.oneShotClaimed")
@@ -137,8 +138,9 @@ export default class OwnerTurnRegions {
           const period = activity.activation?.type;
           if (period !== "turnStart" && period !== "turnEnd") continue;
           const edge = period === "turnStart" ? "tokenTurnStart" : "tokenTurnEnd";
-          if (events.has(edge) && metadata.events.includes(edge) && typeof activity.uuid === "string")
+          if (events.has(edge) && metadata.events.includes(edge) && typeof activity.uuid === "string") {
             covered.add(activity.uuid);
+          }
         }
       }
     }
@@ -165,10 +167,12 @@ export default class OwnerTurnRegions {
    */
   static edges(prior: IHistory, current: IHistory): { name: string; state: IHistory }[] {
     if (!current.round || current.turn === null) return [];
-    if (current.round < (prior.round ?? 0) || (current.round === prior.round && current.turn < (prior.turn ?? 0)))
+    if (current.round < (prior.round ?? 0) || (current.round === prior.round && current.turn < (prior.turn ?? 0))) {
       return [];
-    if (current.round === prior.round && current.turn === prior.turn && current.combatantId === prior.combatantId)
+    }
+    if (current.round === prior.round && current.turn === prior.turn && current.combatantId === prior.combatantId) {
       return [];
+    }
     return [
       ...(prior.round && prior.turn !== null && prior.combatantId ? [{ name: "tokenTurnEnd", state: prior }] : []),
       ...(current.combatantId ? [{ name: "tokenTurnStart", state: current }] : []),
@@ -355,8 +359,9 @@ export default class OwnerTurnRegions {
       !originId ||
       !actorUuid ||
       !regionUuid
-    )
+    ) {
       return;
+    }
     const args = metadata.args;
     const suppressed = args.skipOriginStatuses?.some((status) => actor.statuses.has(status));
     const context: IRegionEventContext = {
@@ -486,8 +491,9 @@ export default class OwnerTurnRegions {
             (behavior) =>
               OwnerTurnRegions.metadata(behavior)?.args.fallbackExpiresAt !== undefined && ownerTurnExpired(behavior),
           )
-        )
+        ) {
           continue;
+        }
         try {
           await OwnerTurnRegions.#deleteRegion(region);
         } catch (error) {

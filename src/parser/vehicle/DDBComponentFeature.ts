@@ -193,8 +193,9 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbVehicle.data.system?.source)
+    if (this.ddbVehicle.data.system?.source) {
       this.data.system.source = this.ddbVehicle.data.system.source;
+    }
 
     this.#generateActionDataStub();
 
@@ -866,8 +867,9 @@ ${this.data.system.description.value}
 
     await this._generateActivity();
 
-    if (this.enricher.addAutoAdditionalActivities)
+    if (this.enricher.addAutoAdditionalActivities) {
       await this._generateAdditionalActivities();
+    }
     await this.enricher.addAdditionalActivities(this);
 
     await this._generateEffects();

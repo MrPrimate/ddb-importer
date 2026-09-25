@@ -7,7 +7,7 @@ export default class DeflectMissile extends _MonsterFeatureSupport {
     const reduction = this.text.match(
       /reduces the damage it takes from the attack by \d+\s*\((\d+d\d+(?:\s*[+-]\s*\d+)?)\)|damage .{0,60}reduced by (\d+d\d+(?:\s*[+-]\s*\d+)?)/i,
     );
-    if (reduction)
+    if (reduction) {
       activities.push(
         this.extra("Reduce Damage", "ddbDeflectRoll01", "utility", {
           generateRoll: true,
@@ -25,6 +25,7 @@ export default class DeflectMissile extends _MonsterFeatureSupport {
           },
         }),
       );
+    }
     return activities;
   }
 

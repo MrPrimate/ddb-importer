@@ -918,8 +918,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _filterModForChoice(mod: IModifiersMod, choice: IDDBChoiceResult | undefined, type: IActionTypes): boolean {
-    if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
+    if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId) {
       return true;
+    }
     const typeOptions = this.ddbData.character.options[type];
     if (choice && typeOptions && typeOptions.length > 0) {
       // if it is a choice option, try and see if the mod matches

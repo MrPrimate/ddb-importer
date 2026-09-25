@@ -78,10 +78,12 @@ export default class DDBAdventures {
         "/proxy/adventure/available-user-content",
         DDBAdventures.buildBody({}, resolved),
       );
-      if (data) return {
-        bookIds: data.bookIds ?? [],
-        enhancementBookIds: data.enhancementBookIds ?? [],
-      };
+      if (data) {
+        return {
+          bookIds: data.bookIds ?? [],
+          enhancementBookIds: data.enhancementBookIds ?? [],
+        };
+      }
     } catch (error) {
       logger.warn(`DDBAdventures.fetchOwnedBookIds primary lookup failed, trying library fallback: ${error}`);
     }

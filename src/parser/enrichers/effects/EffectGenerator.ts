@@ -558,12 +558,15 @@ export default class EffectGenerator {
     this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.rolls.attack.rsak.bonus");
     this._addAddBonusChanges(this.grantedModifiers, "ranged-spell-attacks", "system.rolls.attack.rsak.bonus");
     for (const type of ["wizard", "sorcerer", "warlock", "druid", "cleric", "artificer", "ranger"] as TDDBClassModifierNames[]) {
-      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.msak.bonus"])
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.msak.bonus"]) {
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.rolls.attack.msak.bonus");
-      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.rsak.bonus"])
+      }
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.rolls.attack.rsak.bonus"]) {
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.rolls.attack.rsak.bonus");
-      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.spell.dc"])
+      }
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.spell.dc"]) {
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-save-dc`, "system.bonuses.spell.dc");
+      }
     }
 
     this._addAddBonusChanges(this.grantedModifiers, "spell-save-dc", "system.bonuses.spell.dc");
@@ -1158,10 +1161,12 @@ export default class EffectGenerator {
       foundry.utils.setProperty(this.document, "flags.dae.alwaysActive", false);
     }
 
-    if ("id" in this.ddbItem)
+    if ("id" in this.ddbItem) {
       foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", this.ddbItem.id);
-    if ("entityTypeId" in this.ddbItem)
+    }
+    if ("entityTypeId" in this.ddbItem) {
       foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", this.ddbItem.entityTypeId);
+    }
     // set dae flag for active equipped
     if (canEquip || canAttune) {
       foundry.utils.setProperty(this.document, "flags.dae.activeEquipped", true);

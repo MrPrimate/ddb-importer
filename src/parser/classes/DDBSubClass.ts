@@ -767,8 +767,9 @@ export default class DDBSubClass extends DDBBaseClass {
       if (grantAdvancement) {
         if (foundry.utils.hasProperty(grantAdvancement.configuration, "identifier")
         && ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(grantAdvancement.configuration.identifier as string))
-        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(grantAdvancement.configuration.identifier as string))))
+        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(grantAdvancement.configuration.identifier as string)))) {
           continue;
+        }
         advancements.push(grantAdvancement.toObject() as I5eAdvancement);
       }
     }

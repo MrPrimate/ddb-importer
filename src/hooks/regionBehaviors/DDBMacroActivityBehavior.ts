@@ -93,8 +93,9 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     }
     if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
     if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];
-    if ((this.excludeTypes as Set<string> | undefined)?.size)
+    if ((this.excludeTypes as Set<string> | undefined)?.size) {
       args.excludeTypes = [...(this.excludeTypes as Set<string>)];
+    }
     // the default {} means "no override"; only a filled-in value is passed through
     if (!foundry.utils.isEmpty(this.macroParameters)) {
       args.macroParameters = this.macroParameters;

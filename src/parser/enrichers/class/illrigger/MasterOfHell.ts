@@ -10,7 +10,8 @@ interface IHellstorm {
   effectName: string | null;
   statuses: string[];
   description: string;
-  behaviors: I5eActivityBehavior[];
+  /** The storm's region blinds enemies while they stand in it. */
+  blindsWhileInside: boolean;
 }
 
 /**
@@ -37,7 +38,7 @@ export default class MasterOfHell extends _Illrigger {
       effectName: "Burning",
       statuses: [],
       description: "At the end of each of its turns, the burning creature makes a Dexterity saving throw, taking 1d10 fire damage plus 1d10 necrotic damage on a failure, or ending the effect on a success. This hellfire can't be extinguished by nonmagical means.",
-      behaviors: [],
+      blindsWhileInside: false,
     },
     {
       label: "Pestilence",
@@ -49,7 +50,7 @@ export default class MasterOfHell extends _Illrigger {
       effectName: "Pestilence: Poisoned",
       statuses: ["Poisoned"],
       description: "",
-      behaviors: [],
+      blindsWhileInside: false,
     },
     {
       label: "Darkness",
@@ -60,9 +61,7 @@ export default class MasterOfHell extends _Illrigger {
       effectName: null,
       statuses: [],
       description: "",
-      behaviors: [
-        DDBEnricherData.BehaviorHelper.applyEffect({ effects: DDBEnricherData.SRDEffects.condition("blinded") }),
-      ],
+      blindsWhileInside: true,
     },
   ];
 
@@ -94,7 +93,15 @@ export default class MasterOfHell extends _Illrigger {
           onSave: "half",
           parts: storm.parts,
         },
-        ...(storm.behaviors.length > 0 ? { behaviors: storm.behaviors } : {}),
+        // built here rather than in the static table, which is evaluated while the enricher
+        // modules load
+        ...(storm.blindsWhileInside
+          ? {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.applyEffect({ effects: DDBEnricherData.SRDEffects.condition("blinded") }),
+            ],
+          }
+          : {}),
       },
     };
   }

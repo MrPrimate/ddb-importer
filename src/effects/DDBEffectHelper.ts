@@ -1436,10 +1436,12 @@ export default class DDBEffectHelper {
     if (clearId) delete newDocumentData._id;
     if (newId) newDocumentData._id = foundry.utils.randomID();
     if ("activities" in newDocumentData.system) {
-      if (activityIds.length > 0)
+      if (activityIds.length > 0) {
         newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
-      if (activityTypes.length > 0)
+      }
+      if (activityTypes.length > 0) {
         newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
+      }
     }
 
     if (retainEnchantments) {
@@ -1708,8 +1710,9 @@ export default class DDBEffectHelper {
     const targetActor = targetToken.actor;
     if (!targetActor) return;
     if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetActor)
-      && checkConditionExists)
+      && checkConditionExists) {
       return;
+    }
 
     if (ask) {
       foundry.applications.api.DialogV2.wait({
@@ -1764,11 +1767,12 @@ export default class DDBEffectHelper {
     for (const effectUuid of effectsToDelete) {
       const effect = await fromUuid(effectUuid);
       if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
-        if ((effect as ActiveEffect.Implementation).transfer)
+        if ((effect as ActiveEffect.Implementation).transfer) {
           // fvtt-types UpdateInput for ActiveEffect does not accept a plain partial under strictNullChecks
           await (effect as ActiveEffect.Implementation).update({ disabled: true } as unknown as Parameters<ActiveEffect.Implementation["update"]>[0]);
-        else
+        } else {
           await effect.delete();
+        }
       }
     }
   }

@@ -101,8 +101,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
 
       if (!child) continue;
 
-      if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption"))
+      if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) {
         continue;
+      }
 
       logger.debug(`Resource Spells: ${featureName} child:`, child);
       const update: Record<string, any> = {
@@ -237,8 +238,9 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent }: {
     if (children) {
       logger.debug(`Found children`, children);
       for (const child of children) {
-        if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption"))
+        if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) {
           continue;
+        }
         logger.debug("child", child);
         const update = _generateChildUpdate({ child, parent });
         toUpdate.push(update);

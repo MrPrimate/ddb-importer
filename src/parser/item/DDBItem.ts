@@ -1734,10 +1734,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       default: {
         if (this.actionData.magicBonus.zero > 0) {
           this.addMagical = true;
-          if (!this.enricher.effects || this.enricher.effects.length === 0)
+          if (!this.enricher.effects || this.enricher.effects.length === 0) {
             logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
               this: this,
             });
+          }
         }
       }
     }
@@ -2596,8 +2597,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (!armorData) return;
     armorData.value = this.ddbDefinition.armorClass;
     foundry.utils.setProperty(this.data, "system.strength", this.ddbDefinition.strengthRequirement ?? 0);
-    if (this.ddbDefinition.stealthCheck === 2)
+    if (this.ddbDefinition.stealthCheck === 2) {
       foundry.utils.setProperty(this.data, "system.properties", utils.addToProperties(this.data.system.properties as string[], "stealthDisadvantage"));
+    }
     this.#generateArmorMaxDex();
     this.#generateProficient();
     this._generateUses();
@@ -2661,13 +2663,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #generateStaffSpecifics() {
     this.activityOptions.generateAttack = true;
     this.#generateStaffProperties();
-    if ("proficient" in this.data.system)
+    if ("proficient" in this.data.system) {
       this.data.system.proficient = this.#getWeaponProficient();
-    if ("range" in this.data.system)
+    }
+    if ("range" in this.data.system) {
       this.data.system.range = this.#getWeaponBehaviourRange();
+    }
     this.actionData.ability = this.#getAbility();
-    if ("range" in this.data.system)
+    if ("range" in this.data.system) {
       this.actionData.meleeAttack = this.data.system.range.long === 5;
+    }
     if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
       this._generateUses();
     }
@@ -2686,10 +2691,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.activityOptions.generateCheck = true;
     const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
     this.actionData.ability = defaultAbility?.ability as T5eAbility ?? "dex";
-    if ("proficient" in this.data.system)
+    if ("proficient" in this.data.system) {
       this.data.system.proficient = this.ddbData
         ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability)
         : 0;
+    }
     this._generateUses();
   }
 
@@ -2753,10 +2759,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();
     const proficientFeatures = ["pactWeapon", "kenseiWeapon"];
-    if ("proficient" in this.data.system)
+    if ("proficient" in this.data.system) {
       this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
         ? true
         : this.#getWeaponProficient();
+    }
 
     if (this.flags.classFeatures.includes("OffHand") && this.actionData.activation) this.actionData.activation.type = "bonus";
     // a copySRD stub has already supplied a real range; DDB leaves both range
@@ -2765,8 +2772,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const keepSRDRange = Boolean(this.enricher.documentStub?.copySRD)
       && !this.ddbDefinition.range
       && !this.ddbDefinition.longRange;
-    if ("range" in this.data.system && !keepSRDRange)
+    if ("range" in this.data.system && !keepSRDRange) {
       this.data.system.range = this.#getWeaponRange();
+    }
     this._generateUses();
     this.actionData.ability = this.#getWeaponAbility();
     if (this.ddbDefinition.attackType === 1) {
@@ -3282,11 +3290,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.#generateMagicalBonus();
       this.#generateExtraProperties();
 
-      if (this.overrides.ddbType)
+      if (this.overrides.ddbType) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
+      }
 
-      if (this.addMagical)
+      if (this.addMagical) {
         this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+      }
 
       this.ddbCharacter.updateItemId(this.data);
 
@@ -3306,23 +3316,26 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // containers can't have activities.
         this.#generateMultiSaveActivities();
         this.#generateCheckActivities();
-        if (!this.enricher.stopDefaultActivity)
-          // an item's primary activity is normally unnamed; on a multi-mode item it describes the
-          // first section, so it takes that section's label to tell it from its siblings
+        // an item's primary activity is normally unnamed; on a multi-mode item it describes the
+        // first section, so it takes that section's label to tell it from its siblings
+        if (!this.enricher.stopDefaultActivity) {
           await this._generateActivity(
             { name: this.#primaryActivityName },
             foundry.utils.mergeObject(foundry.utils.deepClone(this.activityOptions), this.#primaryActivityOptions),
           );
+        }
         this.#addHealAdditionalActivities();
-        if (this.enricher.addAutoAdditionalActivities)
+        if (this.enricher.addAutoAdditionalActivities) {
           await this._generateAdditionalActivities();
+        }
         await this.enricher.addAdditionalActivities(this);
       }
 
       this.#generatePrice();
 
-      if ("attuned" in this.data.system)
+      if ("attuned" in this.data.system) {
         this.data.system.attuned = this.ddbItem.isAttuned;
+      }
       this.#generateAttunement();
 
       // should be one of the last things to do
@@ -3373,20 +3386,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "flags.ddbimporter.id", this.ddbItem.id);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.entityTypeId", this.ddbItem.entityTypeId);
 
-    if (this.ddbDefinition.avatarUrl)
+    if (this.ddbDefinition.avatarUrl) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.avatarUrl", this.ddbDefinition.avatarUrl.split("?")[0]);
-    if (this.ddbDefinition.largeAvatarUrl)
+    }
+    if (this.ddbDefinition.largeAvatarUrl) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.largeAvatarUrl", this.ddbDefinition.largeAvatarUrl.split("?")[0]);
+    }
     if (this.ddbDefinition.filterType) {
       const filter = DICTIONARY.items.find((i) => i.filterType === this.ddbDefinition.filterType);
       if (filter) foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.filterType", filter.filterType);
     }
 
     // container info
-    if (this.ddbItem.containerEntityId)
+    if (this.ddbItem.containerEntityId) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.containerEntityId", this.ddbItem.containerEntityId);
-    if (this.ddbItem.containerEntityTypeId)
+    }
+    if (this.ddbItem.containerEntityTypeId) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.containerEntityTypeId", this.ddbItem.containerEntityTypeId);
+    }
 
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isConsumable", this.ddbDefinition.isConsumable);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isContainer", this.ddbDefinition.isContainer);
@@ -3449,20 +3466,27 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #enrichFlags() {
     const flags = this.data.flags.ddbimporter ?? { dndbeyond: {} };
-    if (this.ddbDefinition?.entityTypeId)
+    if (this.ddbDefinition?.entityTypeId) {
       flags.definitionEntityTypeId = this.ddbDefinition.entityTypeId;
-    if (this.ddbDefinition?.id)
+    }
+    if (this.ddbDefinition?.id) {
       flags.definitionId = this.ddbDefinition.id;
-    if (this.ddbItem.entityTypeId)
+    }
+    if (this.ddbItem.entityTypeId) {
       flags.entityTypeId = this.ddbItem.entityTypeId;
-    if (this.ddbItem.id)
+    }
+    if (this.ddbItem.id) {
       flags.id = this.ddbItem.id;
-    if (this.ddbDefinition?.tags)
+    }
+    if (this.ddbDefinition?.tags) {
       flags.dndbeyond!.tags = this.ddbDefinition.tags;
-    if (this.ddbDefinition?.sources)
+    }
+    if (this.ddbDefinition?.sources) {
       flags.dndbeyond!.sources = this.ddbDefinition.sources;
-    if (this.ddbDefinition?.stackable)
+    }
+    if (this.ddbDefinition?.stackable) {
       flags.dndbeyond!.stackable = this.ddbDefinition.stackable;
+    }
   }
 
 

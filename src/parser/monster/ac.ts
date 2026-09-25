@@ -92,26 +92,28 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
           const match = lowerItem.match(quantityRegex);
           const name = match ? match[1] : lowerItem;
           const quantity = match ? parseInt(match[2]) : 1;
-          if (name && name != "") itemsToCheck.push({
-            name: (match ? name.replace(` (${quantity})`, "") : name)
-              .split(" ")
-              .map((word) => utils.capitalize(word))
-              .join(" "),
-            type: "equipment",
-            flags: {
-              ddbimporter: {
-                is2014: this.is2014,
-                is2024: this.is2024,
+          if (name && name != "") {
+            itemsToCheck.push({
+              name: (match ? name.replace(` (${quantity})`, "") : name)
+                .split(" ")
+                .map((word) => utils.capitalize(word))
+                .join(" "),
+              type: "equipment",
+              flags: {
+                ddbimporter: {
+                  is2014: this.is2014,
+                  is2024: this.is2024,
+                },
               },
-            },
-            system: {
-              quantity,
-              equipped: true,
-              source: {
-                rules: this.is2014 ? "2014" : "2024",
+              system: {
+                quantity,
+                equipped: true,
+                source: {
+                  rules: this.is2014 ? "2014" : "2024",
+                },
               },
-            },
-          });
+            });
+          }
         }
       }
     });

@@ -32,12 +32,15 @@ export default class DDBAttackAction extends DDBAction {
         this.data.system.proficient = this.ddbDefinition.isProficient as boolean;
       }
       this._generateDescription();
-      if ("equipped" in this.data.system)
+      if ("equipped" in this.data.system) {
         this.data.system.equipped = true;
-      if ("rarities" in this.data.system)
+      }
+      if ("rarities" in this.data.system) {
         this.data.system.rarities = [];
-      if ("identified" in this.data.system)
+      }
+      if ("identified" in this.data.system) {
         this.data.system.identified = true;
+      }
       this._generateRange();
       this._generateLimitedUse();
       this._generateProperties();
@@ -48,8 +51,9 @@ export default class DDBAttackAction extends DDBAction {
       }
       await this._generateSummons();
       await this._generateCompanions();
-      if (!this.enricher.stopDefaultActivity)
+      if (!this.enricher.stopDefaultActivity) {
         await this._generateActivity();
+      }
       await this.enricher.addAdditionalActivities(this);
 
       this._generateResourceFlags();

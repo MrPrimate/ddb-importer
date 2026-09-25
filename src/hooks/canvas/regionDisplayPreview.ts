@@ -132,8 +132,9 @@ export function previewCss(style: TPreviewStyle, regionColor: string, grid = 50)
       `--ddbi-ink: ${stripes(across, "transparent")}`,
       `--ddbi-mask: ${dashes(along)}`,
     );
-    if (style.pattern === "crosshatch")
+    if (style.pattern === "crosshatch") {
       declarations.push(`--ddbi-ink2: ${stripes(across + 90, "transparent")}`, `--ddbi-mask2: ${dashes(along + 90)}`);
+    }
     return declarations.join("; ");
   }
   switch (style.pattern) {

@@ -922,10 +922,11 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`) as I5eActivity;
 
     if (activityData.type !== "summon") return activity;
-    if (this.isCompanionSpell2014 || this.isCompanionSpell2024)
+    if (this.isCompanionSpell2014 || this.isCompanionSpell2024) {
       await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity ?? undefined);
-    else if (this.isCRSummonSpell2024 || this.isCRSummonSpell2014)
+    } else if (this.isCRSummonSpell2024 || this.isCRSummonSpell2014) {
       await this.ddbCompanionFactory.addCRSummoning(activityData);
+    }
     return activity;
   }
 
@@ -1098,13 +1099,16 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this._studyCheckGeneration();
     this.#generateMultiSaveActivities();
 
-    if (!this.enricher.stopDefaultActivity)
+    if (!this.enricher.stopDefaultActivity) {
       await this._generateActivity();
+    }
 
-    if (!this.enricher.activity?.stopHealSpellActivity)
+    if (!this.enricher.activity?.stopHealSpellActivity) {
       this.#addHealAdditionalActivities();
-    if (this.enricher.addAutoAdditionalActivities)
+    }
+    if (this.enricher.addAutoAdditionalActivities) {
       await this._generateAdditionalActivities();
+    }
     await this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities

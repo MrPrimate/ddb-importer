@@ -11,8 +11,9 @@ export function speciesKey(
     typeof type !== "number" ||
     !Number.isSafeInteger(type) ||
     type <= 0
-  )
+  ) {
     return null;
+  }
   return `${type}:${id}`;
 }
 

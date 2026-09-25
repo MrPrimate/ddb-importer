@@ -40,8 +40,9 @@ export default class RegionTargetPrompt {
     if (
       !Array.isArray(choice.tokens) ||
       !choice.tokens.every((uuid) => typeof uuid === "string" && request.tokenUuids.includes(uuid))
-    )
+    ) {
       return null;
+    }
     const tokens = [...new Set(choice.tokens)];
     const activity = request.activities.find((candidate) => candidate.id === choice.activity);
     if (!activity || !tokens.length || tokens.length > (activity.max ?? request.max)) return null;

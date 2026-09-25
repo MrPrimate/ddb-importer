@@ -1808,10 +1808,12 @@ export class DDBCompendiumFolders {
               ? monster.system?.details?.type?.value
               : "Unknown";
             const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
-            if (ddbType) data = {
-              name: ddbType.name,
-              flagTag: "",
-            };
+            if (ddbType) {
+              data = {
+                name: ddbType.name,
+                flagTag: "",
+              };
+            }
             break;
           }
           case "SOURCE_CATEGORY_TYPE": {

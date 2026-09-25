@@ -32,10 +32,11 @@ export default class EyeRays extends DDBEnricherData {
       .replaceAll("<em></em>", "")
       .replaceAll("<em> </em>", "")
       .replaceAll("<em><strong></strong></em>", "");
-    if (this.is2014)
+    if (this.is2014) {
       return text;
-    else
+    } else {
       return text.replaceAll("<br> <strong>", "</p><p><strong>");
+    }
   }
 
   get rayChoices(): { number: number; title: string; content: string; full: string }[] {
@@ -56,10 +57,11 @@ export default class EyeRays extends DDBEnricherData {
   }
 
   static rayName(ray: { number: number; title: string }) {
-    if (ray.title.startsWith(`${ray.number}`))
+    if (ray.title.startsWith(`${ray.number}`)) {
       return ray.title;
-    else
+    } else {
       return `${ray.number}: ${ray.title}`;
+    }
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

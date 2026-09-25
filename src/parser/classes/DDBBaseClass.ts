@@ -1780,9 +1780,9 @@ export default abstract class DDBBaseClass {
       const description = feature?.description ?? feature?.snippet ?? "";
       const advancementTitle = advancement.name ?? "";
 
-      if (feature?.name === "Fighting Style")
+      if (feature?.name === "Fighting Style") {
         this.configChoices[advancementTitle] ??= { 1: { count: 1, replacement: true } };
-      else if (feature?.name === "Additional Fighting Style") {
+      } else if (feature?.name === "Additional Fighting Style") {
         lowestLevel = 7;
         this.configChoices[advancementTitle] ??= { 7: { count: 1, replacement: true } };
       }

@@ -571,21 +571,25 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     modRestrictionFilterExcludes = null,
   }: IDDBSpellActivityBuild = {}) {
 
-    if (generateConsumption) this._generateConsumption({
-      consumptionOverride,
-      additionalTargets,
-      consumeActivity,
-      consumeItem,
-    });
+    if (generateConsumption) {
+      this._generateConsumption({
+        consumptionOverride,
+        additionalTargets,
+        consumeActivity,
+        consumeItem,
+      });
+    }
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({
-      damageParts,
-      onSave,
-      partialDamageParts,
-      modRestrictionFilter,
-      modRestrictionFilterExcludes,
-      allowCritical,
-    });
+    if (generateDamage) {
+      this._generateDamage({
+        damageParts,
+        onSave,
+        partialDamageParts,
+        modRestrictionFilter,
+        modRestrictionFilterExcludes,
+        allowCritical,
+      });
+    }
 
     if (noSpellslot) {
       foundry.utils.setProperty(this.data, "consumption.spellSlot", false);

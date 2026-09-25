@@ -7,6 +7,10 @@ import prettierConfig from "eslint-config-prettier";
 import stylistic from "@stylistic/eslint-plugin";
 
 export default defineConfig(
+  {
+    // the private audit submodule holds gigabytes of captured DDB payloads
+    ignores: ["tests/audit/fixtures/**"],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,
@@ -14,6 +18,8 @@ export default defineConfig(
   prettierConfig,
   {
     rules: {
+      // prettier's config switches curly off; a body on its own line needs braces
+      "curly": ["error", "multi-line"],
       "no-console": ["error"],
       "no-restricted-syntax": [
         "error",

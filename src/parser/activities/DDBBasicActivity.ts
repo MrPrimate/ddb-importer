@@ -593,24 +593,28 @@ export default class DDBBasicActivity {
 
     if (generateActivation) this._generateActivation({ activationOverride, noManual: noManualActivation });
     if (generateAttack) this._generateAttack(attackData);
-    if (generateConsumption) this._generateConsumption({
-      targetOverrides: consumptionTargetOverrides,
-      consumptionOverride,
-      additionalTargets,
-      consumeActivity,
-      consumeItem,
-    });
+    if (generateConsumption) {
+      this._generateConsumption({
+        targetOverrides: consumptionTargetOverrides,
+        consumptionOverride,
+        additionalTargets,
+        consumeActivity,
+        consumeItem,
+      });
+    }
     if (generateDescription) this._generateDescription({ overRide: chatFlavor });
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({
-      damageParts,
-      onSave,
-      includeBase: includeBaseDamage,
-      scalingOverride: damageScalingOverride,
-      criticalDamage,
-      allowCritical,
-    });
+    if (generateDamage) {
+      this._generateDamage({
+        damageParts,
+        onSave,
+        includeBase: includeBaseDamage,
+        scalingOverride: damageScalingOverride,
+        criticalDamage,
+        allowCritical,
+      });
+    }
     if (generateEnchant) this._generateEnchant();
     if (generateSummon) {
       this._generateSummon();

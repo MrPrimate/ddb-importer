@@ -4,7 +4,7 @@ import _MonsterFeatureSupport from "./_MonsterFeatureSupport";
 export default class LifeSuppression extends _MonsterFeatureSupport {
   override get activity(): IDDBActivityData | null {
     const radius = this.text.match(/within (\d+) feet/i)?.[1];
-    if (radius)
+    if (radius) {
       return {
         name: "Life Suppression",
         activationType: "special",
@@ -14,6 +14,7 @@ export default class LifeSuppression extends _MonsterFeatureSupport {
           description: { value: `<p>${this.text}</p>` },
         },
       };
+    }
     return null;
   }
 

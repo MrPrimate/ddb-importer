@@ -586,11 +586,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       foundry.utils.setProperty(activity, "target.override", true);
     }
 
-    if (overrideData.overrideTemplate || overrideData.overrideTarget)
+    if (overrideData.overrideTemplate || overrideData.overrideTarget) {
       foundry.utils.setProperty(activity, "target.override", true);
+    }
 
-    if (overrideData.overrideRange)
+    if (overrideData.overrideRange) {
       foundry.utils.setProperty(activity, "range.override", true);
+    }
 
     if (overrideData.activationType) {
       activity.activation = {
@@ -605,23 +607,29 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       foundry.utils.setProperty(activity, "activation.condition", overrideData.activationCondition);
     }
 
-    if (overrideData.overrideActivation)
+    if (overrideData.overrideActivation) {
       foundry.utils.setProperty(activity, "activation.override", true);
+    }
 
-    if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
+    if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled) {
       activity.useConditionText = "false";
+    }
 
-    if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled)
+    if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled) {
       activity.useConditionText = `reaction == 'isDamaged'`;
+    }
 
-    if (overrideData.midiHealingReaction && AutoEffects.effectModules().midiQolInstalled)
+    if (overrideData.midiHealingReaction && AutoEffects.effectModules().midiQolInstalled) {
       activity.useConditionText = `reaction == 'isHealed'`;
+    }
 
-    if (overrideData.midiSaveReaction && AutoEffects.effectModules().midiQolInstalled)
+    if (overrideData.midiSaveReaction && AutoEffects.effectModules().midiQolInstalled) {
       activity.useConditionText = `reaction == 'isSaveFail'`;
+    }
 
-    if (overrideData.midiUseCondition && AutoEffects.effectModules().midiQolInstalled)
+    if (overrideData.midiUseCondition && AutoEffects.effectModules().midiQolInstalled) {
       activity.useConditionText = overrideData.midiUseCondition;
+    }
 
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
@@ -729,8 +737,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
   createDefaultEffects(): void {
     this.data = AutoEffects.forceDocumentEffect(this.data);
-    if ((game as any).modules.get("vision-5e")?.active ?? false)
+    if ((game as any).modules.get("vision-5e")?.active ?? false) {
       this.data = AutoEffects.addVision5eStub(this.data);
+    }
   }
 
   get _canApplyMidiEffects(): boolean {

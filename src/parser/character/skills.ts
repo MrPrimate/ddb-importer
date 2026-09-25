@@ -68,8 +68,9 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(th
     );
     if (customAbility) {
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.id == customAbility.value);
-      if (ability)
+      if (ability) {
         mod = ability.value;
+      }
     }
   }
   return mod;
