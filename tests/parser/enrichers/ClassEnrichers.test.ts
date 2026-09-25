@@ -1817,8 +1817,31 @@ describe("passive aura native fallback", () => {
     expect(standalone).toMatchObject({ originReplacement: true, auraeffectsNever: true });
   });
 
+  it("Aura of Alacrity resolves its own enricher, not the generic paladin aura", async () => {
+    const { default: DDBClassFeatureEnricher } = await import("../../../src/parser/enrichers/DDBClassFeatureEnricher");
+    const factory = new DDBClassFeatureEnricher({ activityGenerator: null as any });
+    expect(factory.ENRICHERS["Aura of Alacrity"]).toBe(ClassEnrichers.Paladin.AuraOfAlacrity);
+  });
+
+  it("Aura of Alacrity reaches allies in the Aura of Protection in 2024, and 5 then 10 feet in 2014", () => {
+    const alacrity = (is2014: boolean) => named(ClassEnrichers.Paladin.AuraOfAlacrity as any, "Aura of Alacrity", {
+      is2014, klass: "Paladin", data: { name: "Aura of Alacrity", flags: {}, system: { description: { value: "" } } },
+    });
+    const modern = alacrity(false);
+    expect(modern.activity.data.target.template.size).toBe("@scale.paladin.aura-of-protection");
+    const legacy = alacrity(true);
+    expect(legacy.activity.data.target.template.size).toBe("min(10, 5 + (5 * floor(@classes.paladin.levels / 18)))");
+    // the paladin's own +10 comes from DDB's speed modifier, so the aura skips them
+    const decorate = legacy.effects.find((hint: any) => hint.auraeffectsOnly);
+    expect(decorate.auraeffects).toMatchObject({ applyToSelf: false, distanceFormula: legacy.activity.data.target.template.size });
+  });
+
+  it("Aura of Protection's AC5e radius grows with paladin levels, not the character's", () => {
+    const [hint] = makePaladinAura("Aura of Protection").effects.filter((h: any) => h.ac5eOnly);
+    expect(hint.ac5eChanges[0].value).toContain("radius=(auraActor.classes.paladin.levels < 18 ? 10 : 30)");
+  });
+
   it.each([
-    ["AuraOfAlacrity", "@scale.glory.aura-of-alacrity"],
     ["AuraOfTheSentinel", "@scale.watchers.aura-of-the-sentinel"],
   ])("%s places its emanation with the class scale radius", (name, scale) => {
     const e = build((ClassEnrichers.Paladin as any)[name]);
@@ -2226,15 +2249,12 @@ describe("bloodied status rules", () => {
     expect(weapon.o).toBe("OR");
   });
 
-  it("Redoubled Efforts adds a Martial Arts die on a critical hit while Bloodied", () => {
+  it("Redoubled Efforts adds one melee critical die while Bloodied, which a critical does not double", () => {
     const e = build(ClassEnrichers.Monk.RedoubledEfforts);
     expect(e.useDefaultAdditionalActivities).toBe(true);
     const [change] = e.effects[0].changes;
-    expect(change).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "@scale.monk.die.die" });
-    expect(JSON.parse(change.conditions)).toEqual([
-      { k: "statuses.bloodied", o: "gte", v: 1 },
-      { k: "roll.isCritical", o: "exact", v: true },
-    ]);
+    expect(change).toMatchObject({ key: "flags.dnd5e.meleeCriticalDamageDice", type: "add", value: "1" });
+    expect(JSON.parse(change.conditions)).toEqual({ k: "statuses.bloodied", o: "gte", v: 1 });
   });
 
   it("Ruin Incarnate gains its advantage against Bloodied targets through AC5e", () => {
@@ -2405,6 +2425,12 @@ describe("open-ended enchant activity durations", () => {
     expect(e.effects[0].options).toMatchObject({ durationSeconds: null, expiry: null });
   });
 
+  it("Pact of the Blade leaves the weapon's attack ability alone; Charisma is the rider's option", () => {
+    const [pactWeapon] = build(ClassEnrichers.Warlock.InvocationPactOfTheBlade).effects;
+    expect(pactWeapon.changes.some((change: any) => change.key.includes("ability"))).toBe(false);
+    expect(pactWeapon.data.flags.ddbimporter.activityRiders).toEqual([ClassEnrichers.Warlock.InvocationPactOfTheBlade.ATTACK_ID]);
+  });
+
   it("Armor Model keeps each model until it is changed", () => {
     const e = build(ClassEnrichers.Artificer.ArmorModel);
     const models = e.additionalActivities.filter((a: any) => a.init.type === "enchant");
@@ -2456,7 +2482,20 @@ describe("warlock FormOfTheBeast", () => {
       configuration: { identifier: "duration", type: "number", scale: { 1: { value: 10 }, 6: { value: 60 } } },
     });
     expect(e.override.data.system.identifier).toBe("form-of-the-beast");
-    expect(e.override.data.flags).toBeUndefined();
+    // no warlock on a muncher import, so no root
+    expect(e.override.data.flags).toEqual({});
+  });
+
+  it("makes Bite and Claw melee Unarmed Strikes that add the better of Strength and Charisma once", () => {
+    const attacks = build(Enricher).additionalActivities.filter((a: any) => ["Bite", "Claw"].includes(a.init?.name));
+    expect(attacks).toHaveLength(2);
+    for (const attack of attacks) {
+      expect(attack.overrides.data.attack).toMatchObject({
+        ability: "none",
+        bonus: "max(@abilities.str.mod, @abilities.cha.mod)",
+        type: { value: "melee", classification: "unarmed" },
+      });
+    }
   });
 
   it("roots the scale on the warlock class so a multiclass reads warlock level", () => {
@@ -2548,5 +2587,36 @@ describe("feature riders expire on the creature the text names", () => {
   it("Telepathic Speech reaches at least 1 mile", () => {
     const e = build(ClassEnrichers.Sorcerer.TelepathicSpeech);
     expect(e.activity.data.range.value).toBe("max(1, @abilities.cha.mod)");
+  });
+});
+
+describe("feature-held scales rooted on their class", () => {
+  const RANGER = { ddbCharacter: { raw: { classes: [{ name: "Rogue", _id: "rogue000000000aa" }, { name: "Ranger", _id: "ranger00000000aa" }] } } };
+
+  it("Favored Foe reads its die scale against the ranger's level", () => {
+    expect(build(ClassEnrichers.Ranger.FavoredFoe, { ddbParser: RANGER }).override.data.flags)
+      .toEqual({ dnd5e: { advancementRoot: "ranger00000000aa" } });
+    // the muncher has no character, so no root
+    expect(build(ClassEnrichers.Ranger.FavoredFoe).override.data.flags).toEqual({});
+  });
+});
+
+describe("single save definitions", () => {
+  it.each([
+    ["TakeGhastlyForm"],
+    ["WrathOfTheWild"],
+  ])("%s builds its Unnerving Aura as one Wisdom save against the spell save DC", (name) => {
+    const aura = build((ClassEnrichers.Ranger as any)[name]).additionalActivities.find((a: any) => a.init?.name === "Unnerving Aura");
+    expect(aura.build.saveOverride).toEqual({ ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } });
+    expect(aura.overrides.data.save).toBeUndefined();
+  });
+});
+
+describe("recovery periods", () => {
+  it("Symbiotic Biosphere's Retaliate recharges at the start of the druid's own turn", () => {
+    // "can't do so again until the start of your next turn": `turn` would refill on every
+    // combatant's turn, which is once per turn rather than once per round
+    const { uses } = build(ClassEnrichers.Druid.SymbioticBiosphere).retaliateActivity.overrides.data;
+    expect(uses).toMatchObject({ max: "1", recovery: [{ period: "turnStart", type: "recoverAll" }] });
   });
 });

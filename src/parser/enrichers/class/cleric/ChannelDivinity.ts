@@ -159,8 +159,6 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
-    const cleric = this.ddbParser.ddbCharacter?.raw.classes.find((klass) => klass.name === "Cleric");
-
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Channel Divinity",
@@ -179,7 +177,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       data: {
         flags: {
           ddbimporter: { skipScale: true },
-          ...(cleric ? { dnd5e: { advancementRoot: cleric._id } } : {}),
+          ...this.classAdvancementRootFlags("Cleric"),
         },
         system: {
           identifier: "channel-divinity",
