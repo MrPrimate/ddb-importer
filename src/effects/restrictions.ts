@@ -8,9 +8,13 @@ async function woundingWeaponEffect(document: I5eInventoryItem) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   effect.flags.dae.stackable = "count";
   effect.flags.dae.transfer = false;
+  // the wound persists until magical healing closes it; the startEveryTurn macro repeat drives
+  // the per-turn damage, so the effect carries no counted duration
   effect.duration = {
-    value: 400,
-    units: "rounds",
+    value: null,
+    units: "seconds",
+    expiry: null,
+    expired: false,
   };
 
   await DDBMacros.setItemMacroFlag(document, "item", "wounding.js");

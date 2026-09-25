@@ -33,7 +33,7 @@ function getSafeName(name: string) {
 }
 
 export async function setBasicCombatFlag(actor: Actor | Actor.Implementation, flagName: string, origin?: string) {
-  await DDBEffectHelper.setFlag(actor, flagName, {
+  await DDBEffectHelper.setFlag(actor as Actor.Implementation, flagName, {
     id: game.combat?.id ?? null,
     round: game.combat?.round ?? null,
     turn: game.combat?.turn ?? null,
@@ -109,8 +109,8 @@ async function generateDataTracker({
     return dataTracker;
   }
 
-  await DDBEffectHelper.unsetFlag(actor, `${safeName}Tracker`);
-  await DDBEffectHelper.setFlag(actor, `${safeName}Tracker`, dataTracker);
+  await DDBEffectHelper.unsetFlag(actor as Actor.Implementation, `${safeName}Tracker`);
+  await DDBEffectHelper.setFlag(actor as Actor.Implementation, `${safeName}Tracker`, dataTracker);
 
   return dataTracker;
 }
@@ -274,7 +274,7 @@ export async function checkAuraAndUseActivity({
       nameSuffix,
     });
   }
-  await DDBEffectHelper.setFlag(target.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor as unknown as Actor.Implementation, `${safeName}Tracker`, targetTokenTracker);
 }
 
 export async function checkAuraAndApplyCondition({
@@ -357,7 +357,7 @@ export async function checkAuraAndApplyCondition({
       nameSuffix,
     });
   }
-  await DDBEffectHelper.setFlag(target.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor as unknown as Actor.Implementation, `${safeName}Tracker`, targetTokenTracker);
   const effectApplied = targetTokenTracker.condition
     ? DDBEffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, target.actor)
     : false;
@@ -413,7 +413,7 @@ export async function removeAuraFromToken({
   targetTokenTracker.hasLeft = true;
   targetTokenTracker.turn = game.combat?.turn ?? 0;
   targetTokenTracker.round = game.combat?.round ?? 0;
-  await DDBEffectHelper.setFlag(targetToken.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(targetToken.actor as unknown as Actor.Implementation, `${safeName}Tracker`, targetTokenTracker);
 }
 
 

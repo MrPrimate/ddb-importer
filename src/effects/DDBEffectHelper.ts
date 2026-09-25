@@ -42,7 +42,7 @@ interface IAAWorkflowData {
 }
 
 interface ITokenTargetUser {
-  updateTokenTargets(targetIds?: string[]): void;
+  updateTokenTargets?(targetIds?: string[]): void;
   broadcastActivity(activityData?: Record<string, unknown>): void;
 }
 
@@ -74,7 +74,7 @@ interface IAttackStubActivity {
 
 interface IRemovalActivity {
   type?: string;
-  save?: { dc?: { value?: number }; ability?: { first(): string } };
+  save?: { dc?: { value?: number }; ability?: { first(): string | undefined } };
 }
 
 export default class DDBEffectHelper {
@@ -174,7 +174,7 @@ export default class DDBEffectHelper {
    * @param {string} [icon=null] An icon to use for the effect.
    * @returns {Promise<void>}
    */
-  static async addSaveAdvantageToTarget(targetActor: Actor.Known, originItem: Item.Known, ability: T5eAbility, additionLabel = "", icon: string | null = null) {
+  static async addSaveAdvantageToTarget(targetActor: Actor.Implementation, originItem: Item.Implementation, ability: T5eAbility, additionLabel = "", icon: string | null = null) {
 
     const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
@@ -192,7 +192,9 @@ export default class DDBEffectHelper {
       disabled: false,
       transfer: false,
       img: icon ?? undefined,
-      duration: { value: 1, units: "turns" },
+      // DAE ends the effect on the next save of that ability; the counted minute is the ceiling
+      // for worlds where that trigger never fires
+      duration: { value: 60, units: "seconds", expiry: "turnStart" },
       flags: {
         dae: {
           specialDuration: [`isSave.${ability}` as any],
@@ -376,6 +378,7 @@ export default class DDBEffectHelper {
    */
   static async displayItemCard(item: Item.Known) {
     const msg = await item.displayCard({ create: false });
+    if (!msg) return;
     const DIV = document.createElement("DIV");
     DIV.innerHTML = msg.content;
     DIV.querySelector("div.card-buttons")?.remove();
@@ -384,15 +387,19 @@ export default class DDBEffectHelper {
 
   /**
    * Identifies and returns the IDs of tokens that are contained within a given template.
+   * dnd5e 6.0 places activity templates as Regions, which track their contained
+   * tokens themselves; legacy MeasuredTemplate documents are tested by shape.
    *
-   * @param {MeasuredTemplateDocument} templateDoc The template document used to determine token containment.
+   * @param {RegionDocument|MeasuredTemplateDocument} templateDoc The region or template document.
    * @returns {Array} An array of token IDs that are contained within the specified template.
    */
-  static findContainedTokensInTemplate(templateDoc: MeasuredTemplateDocument) {
-    // TODO: this needs refactoring for v14
-    const contained = new Set();
+  static findContainedTokensInTemplate(templateDoc: RegionDocument | MeasuredTemplateDocument): string[] {
+    if (templateDoc.documentName === "Region") {
+      return [...(templateDoc as RegionDocument).tokens].map((token) => token.id).filter((id): id is string => !!id);
+    }
+    const contained = new Set<string>();
     const scene = templateDoc.parent;
-    const shape = templateDoc.object?.shape;
+    const shape = (templateDoc as MeasuredTemplateDocument).object?.shape;
     if (!scene || !shape) {
       logger.warn("findContainedTokensInTemplate: template has no scene or rendered shape", { templateDoc });
       return [];
@@ -477,7 +484,7 @@ export default class DDBEffectHelper {
    * @param {string} uuid The UUID of the actor.
    * @returns {Actor|null} Returns the actor document or null if not found.
    */
-  static fromActorUuid(uuid: string): Actor.Known | Actor | Actor.Implementation | null {
+  static fromActorUuid(uuid: string): Actor.Implementation | null {
     const doc = fromUuidSync(uuid);
     if (doc instanceof CONFIG.Token.documentClass) return doc.actor;
     if (doc instanceof CONFIG.Actor.documentClass) return doc;
@@ -490,7 +497,7 @@ export default class DDBEffectHelper {
    * @param {any} actorRef The actor reference to retrieve the actor from.
    * @returns {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
    */
-  static getActor(actorRef: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): Actor | Actor.Implementation | null {
+  static getActor(actorRef: string | Actor.Known | foundry.canvas.placeables.Token | TokenDocument): Actor.Implementation | null {
     if (actorRef instanceof Actor) return actorRef;
     if (actorRef instanceof foundry.canvas.placeables.Token) return actorRef.actor;
     if (actorRef instanceof TokenDocument) return actorRef.actor;
@@ -760,8 +767,8 @@ export default class DDBEffectHelper {
    */
   static async getTokenImage(token: Token) {
     const midiConfigSettings = utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol");
-    let img = token.document?.texture?.src ?? token.actor.img ?? "";
-    if (midiConfigSettings.usePlayerPortrait && token.actor.type === "character") {
+    let img = token.document?.texture?.src ?? token.actor?.img ?? "";
+    if (midiConfigSettings.usePlayerPortrait && token.actor?.type === "character") {
       img = token.actor?.img ?? token.document?.texture?.src ?? "";
     }
     if (VideoHelper.hasVideoExtension(img)) {
@@ -916,7 +923,12 @@ export default class DDBEffectHelper {
    * @returns {Promise} A promise that resolves with the save result
    */
   static async rollSaveForItem(item: Item.Implementation, targetToken: Token, workflow: any = null) {
-    const { ability, dc } = foundry.utils.duplicate(item.system.save);
+    if (!("save" in item.system)) return undefined;
+    // pre-activities save shape kept by midi-qol workflows; not on every item subtype
+    const { ability, dc } = foundry.utils.duplicate(
+      (item.system as unknown as { save: { ability: string; dc: number } }).save,
+    );
+    // const { ability, dc } = foundry.utils.duplicate(item.system.save);
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
       : game.users.activeGM?.id;
@@ -953,14 +965,14 @@ export default class DDBEffectHelper {
     if (includeSource) {
       aoeTargets.unshift(sourceToken);
     }
-    const aoeTargetIds = aoeTargets.map((t) => t.document.id);
-    (game.user as unknown as ITokenTargetUser)?.updateTokenTargets(aoeTargetIds);
+    const aoeTargetIds = aoeTargets.map((t) => t.document.id).filter((id): id is string => id !== null);
+    DDBEffectHelper.setTokenTargets(aoeTargetIds);
     (game.user as unknown as ITokenTargetUser)?.broadcastActivity({ aoeTargetIds });
     return aoeTargets;
   }
 
   static updateUserTargets(targets: string[]) {
-    (game.user as unknown as ITokenTargetUser).updateTokenTargets(targets);
+    DDBEffectHelper.setTokenTargets(targets);
   }
 
   static isConditionEffectAppliedAndActive(condition: string, actor: Actor.Known | Actor.Implementation | TImporterActor) {
@@ -1203,10 +1215,22 @@ export default class DDBEffectHelper {
     if (roll) (Hooks as unknown as IDynamicHooks).callAll("dnd5e.rollDamage", undefined, roll);
   }
 
+  /**
+   * Replace the current user's token targets. Foundry v14 removed
+   * User#updateTokenTargets; the public API is canvas.tokens.setTargets.
+   */
+  static setTokenTargets(targetIds: string[] = []): void {
+    const layer = canvas?.tokens as unknown as { setTargets?: (ids: string[], options?: { mode?: string }) => void } | undefined;
+    if (layer?.setTargets) layer.setTargets(targetIds, { mode: "replace" });
+    else (game.user as unknown as ITokenTargetUser)?.updateTokenTargets?.(targetIds);
+  }
+
   static syntheticItemWorkflowOptions({
     targets = undefined, showFullCard = false, scaling = false,
     configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
     createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
+    extraActivityConfig = {},
+    forceAutoRolls = true,
   }: {
     targets?: Token[] | undefined;
     showFullCard?: boolean;
@@ -1217,13 +1241,17 @@ export default class DDBEffectHelper {
     createMeasuredTemplate?: boolean | undefined;
     consumeResource?: boolean;
     consumeSpellSlot?: boolean;
+    /** merged into the activity usage config, e.g. ddbMacroParameters for MacroActivity overrides */
+    extraActivityConfig?: Record<string, unknown>;
+    /** false leaves attack/damage rolling to the user's midi settings instead of forcing auto rolls */
+    forceAutoRolls?: boolean;
   } = {}) {
     return [
       // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
       {
         create: createMeasuredTemplate
           ? {
-            createMeasuredTemplate: true,
+            measuredTemplate: true,
           }
           : false,
         // concentration: {
@@ -1234,7 +1262,8 @@ export default class DDBEffectHelper {
         createWorkflow: true,
         consume: {
           action: false,
-          resource: consumeResource,
+          // dnd5e reads `resources`, plural; left unset it defaults to every consumption target
+          resources: consumeResource,
           spellSlot: consumeSpellSlot,
         },
         midiOptions: {
@@ -1244,6 +1273,7 @@ export default class DDBEffectHelper {
           slot: slotLevel,
         },
         scaling,
+        ...extraActivityConfig,
       },
       {
         targetUuids: targets,
@@ -1251,9 +1281,13 @@ export default class DDBEffectHelper {
         configure: configureDialog,
         options: {},
         workflowOptions: {
-          autoRollDamage: "always",
-          autoFastDamage: true,
-          autoRollAttack: true,
+          ...(forceAutoRolls
+            ? {
+              autoRollDamage: "always",
+              autoFastDamage: true,
+              autoRollAttack: true,
+            }
+            : {}),
           targetConfirmation,
         },
       },
@@ -1517,7 +1551,7 @@ export default class DDBEffectHelper {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
@@ -1525,7 +1559,7 @@ export default class DDBEffectHelper {
 
     const result = await MidiQOL.completeItemUse(document, config, options);
 
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {
@@ -1544,21 +1578,23 @@ export default class DDBEffectHelper {
   }
 
   static async rollMidiActivityUse(activity: any, workflowBuilderOptions = {}, {
-    targetIds = [] as string[], applyFailureConditions = [] as string[],
-  } = {}) {
+    targetIds = [], applyFailureConditions = [], message,
+  }: { targetIds?: string[]; applyFailureConditions?: string[]; message?: Record<string, unknown> } = {}) {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id).filter((id): id is string => id !== null)
       : [];
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
     logger.debug("Rolling activity use", { activity, config, options });
 
     // config/dialogue/message
-    const result = await MidiQOL.completeActivityUse(activity, config, options);
+    const result = message
+      ? await MidiQOL.completeActivityUse(activity, config, options, message)
+      : await MidiQOL.completeActivityUse(activity, config, options);
 
-    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) DDBEffectHelper.setTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {
@@ -1573,7 +1609,7 @@ export default class DDBEffectHelper {
       }
     }
     await Promise.all(conditionResults);
-
+    return result;
   }
 
 
@@ -1592,36 +1628,53 @@ export default class DDBEffectHelper {
   } = {}) {
     const name = document?.name ?? "";
     const caster = document?.parent;
+    const activities = foundry.utils.getProperty(document ?? {}, "system.activities") as
+      | Record<string, IRemovalActivity>
+      | undefined;
     const derivedActivity = activity
-      ?? Object.values(foundry.utils.getProperty(document ?? {}, "system.activities") ?? {}).find((a) => a.type === "save");
+      ?? Object.values(activities ?? {}).find((candidate) => candidate.type === "save");
     const casterSystem = caster?.system as unknown as { attributes?: { spell?: { dc?: number } } } | undefined;
     const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? casterSystem?.attributes?.spell?.dc;
     if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
-    const removalCheck = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalCheck");
-    const removalSave = foundry.utils.getProperty(document ?? {}, "flags.ddbimporter.effect.removalSave");
-    const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? derivedActivity?.save?.ability.first();
+    const removalCheckValue = foundry.utils.getProperty(
+      document ?? {},
+      "flags.ddbimporter.effect.removalCheck",
+    );
+    const removalSaveValue = foundry.utils.getProperty(
+      document ?? {},
+      "flags.ddbimporter.effect.removalSave",
+    );
+    const removalCheck = typeof removalCheckValue === "string" ? removalCheckValue : undefined;
+    const removalSave = typeof removalSaveValue === "string" ? removalSaveValue : undefined;
+    const derivedAbility = ability
+      ?? (removalCheck ? removalCheck : removalSave)
+      ?? derivedActivity?.save?.ability?.first();
     if (!derivedAbility) throw new Error("No ability specified, and no default removal ability found in document flags!");
     const derivedType = type ?? (removalCheck ? "check" : removalSave ? "save" : null);
     if (!derivedType) throw new Error("No type specified, and no default removal type found in document flags!");
     const viaNameStub = name ? ` (via ${name})` : "";
     const flavor = `${condition}${viaNameStub} : ${CONFIG.DND5E.abilities[derivedAbility].label} ${derivedType} vs DC${derivedSaveDc}`;
+    const targetActor = targetToken.actor;
+    if (!targetActor) throw new Error("Condition removal roll requested for a token with no actor!");
     const speaker = ChatMessage.getSpeaker({
-      targetActor: targetToken.actor,
+      targetActor,
       scene: canvas.scene,
       token: targetToken?.document ?? targetToken,
     } as unknown as Parameters<typeof ChatMessage.getSpeaker>[0]);
 
     const rollResult = derivedType === "check"
-      ? (await targetToken.actor.rollAbilityCheck({
+      // dnd5e-types marks `rolls` required on the process configuration; the system fills it in
+      ? ((await targetActor.rollAbilityCheck({
         ability: derivedAbility,
-      }, {}, { data: { speaker, flavor } }))[0].total
-      : (await targetToken.actor.rollSavingThrow({
+      } as Parameters<typeof targetActor.rollAbilityCheck>[0], {}, { data: { speaker, flavor } }) ?? [])[0])?.total
+      : ((await targetActor.rollSavingThrow({
         ability: derivedAbility,
         target: derivedSaveDc,
-      }, {}, { data: { speaker, flavor } }))[0].total;
+      } as Parameters<typeof targetActor.rollSavingThrow>[0], {}, { data: { speaker, flavor } }) ?? [])[0])?.total;
 
+    if (rollResult === undefined) return rollResult;
     if (rollResult >= derivedSaveDc) {
-      await DDBEffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetToken.actor });
+      await DDBEffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetActor });
     } else if (rollResult < derivedSaveDc) {
       const nameStub = name ? ` for ${name}` : "";
       ChatMessage.create({
@@ -1648,7 +1701,9 @@ export default class DDBEffectHelper {
     ask?: boolean;
     checkConditionExists?: boolean;
   } = {}) {
-    if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)
+    const targetActor = targetToken.actor;
+    if (!targetActor) return;
+    if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetActor)
       && checkConditionExists)
       return;
 
@@ -1815,13 +1870,12 @@ export default class DDBEffectHelper {
     if (!actorUuid || !flagId) return logger.error(`_unsetFlag: actorUuid and flagId are required`);
     const actor = await DDBEffectHelper.fromActorUuid(actorUuid);
     if (!actor) return logger.error(`_unsetFlag: actor not defined`);
-    const head = flagId.split(".");
-    const tail = `-=${head.pop()}`;
-    const key = ["flags", DDBEffectHelper.FLAG_NAME, ...head, tail].join(".");
-    return actor.update({ [key]: null });
+    // v14 replaced the legacy "-=key" deletion syntax with the ForcedDeletion operator
+    const key = ["flags", DDBEffectHelper.FLAG_NAME, flagId].join(".");
+    return (actor as unknown as { update(data: object): Promise<unknown> }).update({ [key]: _del });
   }
 
-  static async setFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {
+  static async setFlag(targetActor: Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string, value: any) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorUuid: targetActor, flagId, value });
     } else if (typeof targetActor === "string") {
@@ -1839,7 +1893,7 @@ export default class DDBEffectHelper {
     });
   }
 
-  static async unsetFlag(targetActor: Actor | Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string) {
+  static async unsetFlag(targetActor: Actor.Implementation | foundry.canvas.placeables.Token | string, flagId: string) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorUuid: targetActor, flagId });
     } else if (typeof targetActor === "string") {

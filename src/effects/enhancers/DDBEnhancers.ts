@@ -3,14 +3,15 @@ import GreatWeaponMaster from "./Feats/GreatWeaponMaster";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
+import Vestige from "./ClassFeatures/Warlock/Vestige";
 import { logger, utils } from "../../lib/_module";
 
-// DDB Enhancers adds built in light touch automation effects
 
+// DDB Enhancers adds built in light touch automation effects
 export default class DDBEnhancers {
 
   static addFeatureToEffects(subject: Actor, delta: any, featureName: string) {
-    const feature = subject.items.find((i: any) => i.name === featureName);
+    const feature = subject.items?.find((i: any) => i.name === featureName);
     if (feature && feature.effects) {
       logger.debug(`Adding effects from ${featureName} to delta`, {
         subject, delta, feature, featureName,
@@ -21,7 +22,7 @@ export default class DDBEnhancers {
 
   static _loadTransformHooks() {
     if (utils.getSetting<boolean>("allow-moon-druid-wildshape-enhancer"))
-      Hooks.on("dnd5e.transformActorV2", (subject, target, delta, options) => {
+      Hooks.on<"dnd5e.transformActorV2">("dnd5e.transformActorV2", (subject, target, delta, options) => {
         WildShape.dnd5eTransformHook(subject, target, delta, options);
       });
   }
@@ -37,7 +38,7 @@ export default class DDBEnhancers {
     const arcaneWardHook = utils.getSetting<boolean>("allow-arcane-ward-enhancer");
     const wardingBondHook = utils.getSetting<boolean>("allow-warding-bond-enhancer");
     if (arcaneWardHook)
-      Hooks.on("preUpdateActor", (subject, update, options, user) => {
+      Hooks.on<"preUpdateActor">("preUpdateActor", (subject, update, options, user) => {
         void (async () => {
           if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
           if (wardingBondHook) await WardingBond.preUpdateActorHook(subject, update, options, user);
@@ -47,11 +48,14 @@ export default class DDBEnhancers {
 
   static _activityConsumptionHooks() {
     if (utils.getSetting<boolean>("allow-arcane-ward-enhancer"))
-      Hooks.on("dnd5e.activityConsumption", (activity, usageConfig, messageConfig, updates) => {
-        void (async () => {
-          await ArcaneWard.dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, updates);
-        })();
-      });
+      Hooks.on<"dnd5e.activityConsumption">(
+        "dnd5e.activityConsumption",
+        (activity, usageConfig, messageConfig, updates) => {
+          void (async () => {
+            await ArcaneWard.dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, updates);
+          })();
+        },
+      );
   }
 
   static _dispositionMatch(activity: any, tokenData: any) {
@@ -66,16 +70,25 @@ export default class DDBEnhancers {
   }
 
   static _summonHooks() {
-    Hooks.on("dnd5e.summonToken", (activity, _profile, tokenData, _options) => {
+    Hooks.on<"dnd5e.summonToken">("dnd5e.summonToken", (activity, _profile, tokenData, _options) => {
       DDBEnhancers._dispositionMatch(activity, tokenData);
 
       return true;
     });
 
     if (utils.getSetting<boolean>("allow-mighty-summoner-enhancer")) {
-      Hooks.on("dnd5e.preSummonToken", (activity, profile, tokenUpdateData, options) => {
+      Hooks.on<"dnd5e.preSummonToken">("dnd5e.preSummonToken", (activity, profile, tokenUpdateData, options) => {
         MightySummoner.dnd5ePreSummonTokenHook(activity, profile, tokenUpdateData, options);
         return true;
+      });
+    }
+  }
+
+  static _restHooks() {
+    if (utils.getSetting<boolean>("allow-divine-power-recovery-enhancer")) {
+      Hooks.on<"dnd5e.restCompleted">("dnd5e.restCompleted", (actor, _result, config) => {
+        if (config.type !== "short" && config.type !== "long") return;
+        void Vestige.recoverDivinePower(actor);
       });
     }
   }
@@ -87,6 +100,7 @@ export default class DDBEnhancers {
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
+    DDBEnhancers._restHooks();
   }
 
 }
