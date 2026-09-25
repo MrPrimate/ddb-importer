@@ -393,7 +393,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
     if (!noCacheLoad) {
       // Keep the large parser/import graph out of lightweight browser applications that explicitly
       // skip cache loading. Loading it eagerly creates an apps -> parser -> apps module cycle.
-      const DDBReferenceLinker = await import("../parser/lib/DDBReferenceLinker");
+      const DDBReferenceLinker = await import(/* webpackMode: "eager" */ "../parser/lib/DDBReferenceLinker");
       await DDBReferenceLinker.importCacheLoad();
     }
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false }) as DDBAppV2Context;

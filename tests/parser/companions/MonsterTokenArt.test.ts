@@ -63,8 +63,12 @@ const requestTokenImages = vi.fn();
 
 /** A fresh module per test: the resolver remembers each lookup for the page load. */
 async function resolver() {
+  return (await freshModule()).resolveMonsterTokenArt;
+}
+
+async function freshModule() {
   vi.resetModules();
-  return (await import("../../../src/parser/companions/types/MonsterTokenArt")).resolveMonsterTokenArt;
+  return import("../../../src/parser/companions/types/MonsterTokenArt");
 }
 
 function compendiumOf(entries: { name: string; rules: string; src: string }[]) {
@@ -191,5 +195,58 @@ describe("resolveMonsterTokenArt", () => {
     resolve = await resolver();
     expect(await resolve({ name: "Wolf", is2014: false })).toBeNull();
     expect(factory.fetch).not.toHaveBeenCalled();
+  });
+
+  it("retries a lookup that failed instead of remembering it as a miss", async () => {
+    lib.compendium = compendiumOf([]);
+    factory.fetch.mockRejectedValueOnce(new Error("proxy down"));
+    const resolve = await resolver();
+    expect(await resolve({ name: "Wolf", is2014: false })).toBeNull();
+
+    factory.source = [{ id: 2, name: "Wolf", sourceId: 146, typeId: 2, avatarUrl: "https://ddb.example/wolf.png" }];
+    importer.getNPCImage.mockImplementation(async (monster: any) => {
+      monster.prototypeToken.texture.src = "tokens/wolf.webp";
+    });
+    expect(await resolve({ name: "Wolf", is2014: false })).toBe("tokens/wolf.webp");
+    expect(factory.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("remembers a genuine miss only until it expires or the cache is cleared", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      lib.compendium = compendiumOf([]);
+      const { resolveMonsterTokenArt: resolve, clearMonsterTokenArtCache } = await freshModule();
+      expect(await resolve({ name: "Unicorn Cat", is2014: false })).toBeNull();
+      await resolve({ name: "Unicorn Cat", is2014: false });
+      expect(factory.fetch).toHaveBeenCalledTimes(1);
+
+      vi.setSystemTime(Date.now() + 6 * 60_000);
+      await resolve({ name: "Unicorn Cat", is2014: false });
+      expect(factory.fetch).toHaveBeenCalledTimes(2);
+
+      clearMonsterTokenArtCache();
+      await resolve({ name: "Unicorn Cat", is2014: false });
+      expect(factory.fetch).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not remember a lookup a player without a key could not run", async () => {
+    lib.compendium = compendiumOf([]);
+    (globalThis as any).game.user.isGM = false;
+    const resolve = await resolver();
+    expect(await resolve({ name: "Wolf", is2014: false })).toBeNull();
+
+    (globalThis as any).game.user.isGM = true;
+    await resolve({ name: "Wolf", is2014: false });
+    expect(factory.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares one lookup between concurrent requests for the same creature", async () => {
+    lib.compendium = compendiumOf([]);
+    const resolve = await resolver();
+    await Promise.all([resolve({ name: "Wolf", is2014: false }), resolve({ name: "Wolf", is2014: false })]);
+    expect(factory.fetch).toHaveBeenCalledTimes(1);
   });
 });

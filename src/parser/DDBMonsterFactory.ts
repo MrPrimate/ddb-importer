@@ -20,9 +20,10 @@ import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBMonsterSocket, { DDBMonsterEvent, DDBMonsterStartParams } from "../lib/streaming/DDBMonsterSocket";
+import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 
-// Custom proxies may not expose the /monsters socket namespace. One failed
-// streaming attempt per page-load latches this and falls back to HTTP.
+// Custom proxies may not expose the /monsters socket namespace. A connect/auth/start failure
+// latches this for the page-load and every later fetch goes over HTTP.
 let _monsterSocketDisabled = false;
 
 /**
@@ -285,7 +286,7 @@ async function _getSharedMonsterSocket(
     const socket = new DDBMonsterSocket(parsingApi);
     socket.connect();
     const authRes = await socket.auth(authBody);
-    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+    if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
     _sharedSocket = socket;
     _sharedOpening = null;
     return socket;
@@ -605,20 +606,25 @@ export default class DDBMonsterFactory {
       return finishBulk(combined);
     };
 
+    const bulkJob = { degraded: false };
     const streamBulk = async (): Promise<IDDBMonsterSourceData[]> => {
       const socket = new DDBMonsterSocket(parsingApi);
       socket.connect();
       try {
         const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
-        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-        return await _runBulkMonsterJob(socket, streamElement, buildStartParams());
+        if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
+        const monsters = await _runBulkMonsterJob(socket, streamElement, buildStartParams());
+        bulkJob.degraded = socket.nonFatalErrors > 0;
+        return monsters;
       } finally {
         socket.close();
       }
     };
 
     const fetchOverStream = async () => {
-      const raw = await DDBProxyCache.wrap<IDDBMonsterSourceData[]>(bulkCacheRequest(), streamBulk);
+      const raw = await DDBProxyCache.wrap<IDDBMonsterSourceData[]>(bulkCacheRequest(), streamBulk, {
+        shouldCache: () => !bulkJob.degraded,
+      });
       return finishBulk(raw);
     };
 
@@ -661,21 +667,30 @@ export default class DDBMonsterFactory {
             },
           });
           _lastByIdRawCount = raw.length;
+          const returnedIds = new Set<number>();
           for (const monster of raw) {
             // Coerce the key: tokens request numeric ids but the server may
             // return string ids; a strict Map key mismatch would drop everything.
-            // A freshly streamed monster is kept for the socket session, as before.
+            // A freshly streamed monster is kept for the socket session.
             const key = Number(monster?.id);
-            if (Number.isFinite(key)) _idCacheSet(key, monster, Number.POSITIVE_INFINITY);
+            if (!Number.isFinite(key)) continue;
+            returnedIds.add(key);
+            _idCacheSet(key, monster, Number.POSITIVE_INFINITY);
           }
-          // requested ids the server returned nothing for: cache as null so we
-          // don't keep re-querying them, but only for as long as the persisted miss lasts.
-          const missUntil = Date.now() + NULL_ID_TTL_MS;
-          for (const id of missing) {
-            if (_idCacheGet(Number(id)) === undefined) _idCacheSet(Number(id), null, missUntil);
+          // A stream that reported errors may have dropped monsters it holds, so its gaps are
+          // not remembered as misses; only the monsters it did return are recorded.
+          const degraded = socket.nonFatalErrors > 0;
+          if (!degraded) {
+            // requested ids the server returned nothing for: cache as null so we
+            // don't keep re-querying them, but only for as long as the persisted miss lasts.
+            const missUntil = Date.now() + NULL_ID_TTL_MS;
+            for (const id of missing) {
+              if (_idCacheGet(Number(id)) === undefined) _idCacheSet(Number(id), null, missUntil);
+            }
           }
           _bumpSharedIdle();
-          await _writePersistedIds(missing, raw, { ...idScope, generation });
+          const recorded = degraded ? missing.filter((id) => returnedIds.has(Number(id))) : missing;
+          await _writePersistedIds(recorded, raw, { ...idScope, generation });
         });
       }
       byIdRawCount = _lastByIdRawCount;
@@ -708,7 +723,8 @@ export default class DDBMonsterFactory {
     } catch (err) {
       const msg = (err as Error)?.message ?? String(err);
       logger.warn(`[monsters] streaming failed, falling back to HTTP: ${msg}`);
-      _monsterSocketDisabled = true;
+      // only an unusable endpoint latches streaming off; a stream that ended badly retries next time
+      if (err instanceof StreamUnavailableError) _monsterSocketDisabled = true;
       if (isIdLookup) _closeSharedMonsterSocket();
       return fetchOverHttp();
     }

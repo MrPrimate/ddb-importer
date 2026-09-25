@@ -20,6 +20,7 @@ import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
 import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
+import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 
 
 // Parsed documents generated from the raw DDB item data by _processDDBItemData.
@@ -53,8 +54,8 @@ export interface IDDBItemsImporter {
   process(): Promise<void>;
 }
 
-// Custom proxies may not expose the /items socket namespace. After one failed
-// streaming attempt for the session we latch this and stick to HTTP.
+// Custom proxies may not expose the /items socket namespace. A connect/auth/start failure latches
+// this for the session and every later fetch goes over HTTP.
 let _itemSocketDisabled = false;
 
 type TDDBItemsPayload = IDDBItemsResponseData | IDDBItemDefinition[];
@@ -291,12 +292,13 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     // The same params drive the cache key for both transports, so an HTTP-fetched catalogue serves
     // a later streaming request and vice versa.
     const jobParams = { campaignId, addSpells: true, cobalt: cobaltCookie };
+    const job = { degraded: false };
     const streamViaSocket = async (): Promise<TDDBItemsPayload> => {
       const socket = new DDBItemSocket(parsingApi);
       socket.connect();
       try {
         const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
-        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+        if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
 
         let raw: TDDBItemsPayload | null = null;
         await socket.runJob("all-items", jobParams, {
@@ -309,6 +311,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
           },
         });
         if (raw == null) throw new Error("Stream completed without items payload");
+        job.degraded = socket.nonFatalErrors > 0;
         return raw;
       } finally {
         socket.close();
@@ -316,7 +319,9 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     };
 
     return (async () => {
-      const raw = await DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: jobParams }, streamViaSocket);
+      const raw = await DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: jobParams }, streamViaSocket, {
+        shouldCache: () => !job.degraded,
+      });
       if (debugJson) {
         FileHelper.download(
           JSON.stringify({ success: true, data: raw }),
@@ -342,7 +347,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       } catch (err) {
         const msg = (err as Error)?.message ?? String(err);
         logger.warn(`[items] streaming failed, falling back to HTTP: ${msg}`);
-        _itemSocketDisabled = true;
+        // only an unusable endpoint latches streaming off; a stream that ended badly retries next time
+        if (err instanceof StreamUnavailableError) _itemSocketDisabled = true;
       }
     }
     return DDBItemsImporter._getItemDataHttp(args);

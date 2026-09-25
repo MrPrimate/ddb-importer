@@ -62,6 +62,7 @@ import { existingSpeciesKey, isSpeciesKey, speciesKey } from "../lib/SpeciesIden
 import { DICTIONARY } from "../config/_module";
 import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBProxyCache, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
+import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
 import DDBClass from "../parser/classes/DDBClass";
@@ -684,6 +685,8 @@ export default class DDBMuleHandler {
     let cacheHit = false;
     // whether any event actually carried content into this.source; progress markers do not
     let receivedPayload = false;
+    // a non-fatal error means the stream may have skipped content, so its result is not cached
+    let nonFatalErrors = 0;
     const counts: Record<string, number> = {};
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
@@ -724,6 +727,7 @@ export default class DDBMuleHandler {
               settled = true;
               reject(new Error(message));
             } else {
+              nonFatalErrors++;
               logger.warn(`[DDBMuleSocket] non-fatal error: ${message}`);
             }
           },
@@ -748,9 +752,9 @@ export default class DDBMuleHandler {
               campaignId: body.campaignId,
             };
             const authRes = await socket.auth(authBody);
-            if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+            if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
             const startRes = await socket.start(streamElement, startParams);
-            if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
+            if (!startRes.ok) throw new StreamUnavailableError(`Start failed: ${startRes.message}`);
             logger.debug(`[DDBMuleSocket] jobId=${startRes.jobId} replayed=${startRes.replayed}`);
             // this.notifier({ message: `Streaming ${streamElement} (jobId=${startRes.jobId?.slice(0, 8)})` });
           } catch (err) {
@@ -770,13 +774,16 @@ export default class DDBMuleHandler {
       }
       // both branches leave the fully buffered payload in this.source. A stream that finished
       // without delivering any content leaves only the empty skeleton from _ensureSource, which
-      // is indistinguishable from a dropped stream, so it is not cached: the run proceeds with
-      // what it has and the next run asks the proxy again.
+      // is indistinguishable from a dropped stream, and one that reported non-fatal errors may be
+      // missing entries. Neither is cached: the run proceeds with what it has and the next run
+      // asks the proxy again.
       if (DDBProxyCache.isEnabled()) {
-        if (receivedPayload) {
-          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
-        } else {
+        if (!receivedPayload) {
           logger.warn(`[DDBMuleSocket] ${streamElement} stream completed without any content; not caching it`);
+        } else if (nonFatalErrors > 0) {
+          logger.warn(`[DDBMuleSocket] ${streamElement} stream completed with ${nonFatalErrors} non-fatal error(s); not caching it`);
+        } else {
+          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
         }
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {

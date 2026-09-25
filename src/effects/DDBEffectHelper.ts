@@ -920,20 +920,26 @@ export default class DDBEffectHelper {
   }
 
   /**
-   * Asynchronously rolls a saving throw for an item.
+   * Roll, through midi-qol, the saving throw an item's save activity calls for, as the target's
+   * owner (or the GM). The save comes from the passed activity, then the workflow's activity when
+   * that is a save, then the item's first save activity.
    *
-   * @param {object} item The item for which the saving throw is rolled
+   * @param {object} item The item whose save is rolled
    * @param {object} targetToken The token representing the target of the saving throw
-   * @param {object} [workflow=null] The workflow for which the saving throw is rolled
-   * @returns {Promise} A promise that resolves with the save result
+   * @param {object} [workflow=null] The midi workflow the result is added to
+   * @param {object} [activity=null] The save activity to roll against
+   * @returns {Promise} The save roll, or undefined when the item has no save activity
    */
-  static async rollSaveForItem(item: Item.Implementation, targetToken: Token, workflow: any = null) {
-    if (!("save" in item.system)) return undefined;
-    // pre-activities save shape kept by midi-qol workflows; not on every item subtype
-    const { ability, dc } = foundry.utils.duplicate(
-      (item.system as unknown as { save: { ability: string; dc: number } }).save,
-    );
-    // const { ability, dc } = foundry.utils.duplicate(item.system.save);
+  static async rollSaveForItem(item: Item.Implementation, targetToken: Token, workflow: any = null, activity: any = null) {
+    const saveActivity = [activity, workflow?.activity].find((candidate) => candidate?.type === "save")
+      ?? (item.system as { activities?: { getByType?: (type: string) => any[] } }).activities?.getByType?.("save")?.[0];
+    if (!saveActivity) {
+      logger.warn("rollSaveForItem: the item has no save activity", { item });
+      return undefined;
+    }
+    // save.ability is the ability saved with; the activity's own `ability` is the one setting the DC
+    const ability = saveActivity.save.ability.first();
+    const dc = saveActivity.save.dc.value;
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
       : game.users.activeGM?.id;

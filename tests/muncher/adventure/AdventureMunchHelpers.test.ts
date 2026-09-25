@@ -169,3 +169,19 @@ describe("AdventureMunchHelpers.checkForMissingDocuments", () => {
     await expect(AdventureMunchHelpers.checkForMissingDocuments("item", [999])).rejects.toThrow("proxy down");
   });
 });
+
+describe("AdventureMunchHelpers.tryCheckForMissingDocuments", () => {
+  it("reports a failed family and resolves so the adventure import carries on", async () => {
+    vi.spyOn(AdventureMunchHelpers, "loadMissingDocuments").mockRejectedValue(new Error("proxy down"));
+    const warn = vi.spyOn(ui.notifications, "warn");
+    const notifier = vi.fn();
+    await expect(AdventureMunchHelpers.tryCheckForMissingDocuments("spells", [999], notifier)).resolves.toBe(false);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("missing spells"), { permanent: true });
+    expect(notifier).toHaveBeenCalledWith(expect.objectContaining({ section: "note" }));
+  });
+
+  it("resolves true when the missing documents import", async () => {
+    vi.spyOn(AdventureMunchHelpers, "loadMissingDocuments").mockResolvedValue([]);
+    await expect(AdventureMunchHelpers.tryCheckForMissingDocuments("item", [999])).resolves.toBe(true);
+  });
+});

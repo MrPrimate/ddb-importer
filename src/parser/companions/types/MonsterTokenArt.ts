@@ -8,8 +8,19 @@ import DDBMonsterFactory from "../../DDBMonsterFactory";
 import { resolveMonsterSource } from "../../monster/source";
 import { newNPC } from "../../monster/templates/monster";
 
-// one lookup per creature and ruleset for the page load; a miss is remembered too
-const RESOLVED = new Map<string, string | null>();
+// Found art is kept for the page load. A creature neither the compendium nor DDB has art for is
+// remembered only briefly, and a lookup that failed or could not run is not remembered at all, so
+// munching the monster (or fixing the setting or connection) is picked up on the next lookup.
+const RESOLVED = new Map<string, string>();
+const MISSES = new Map<string, number>();
+const PENDING = new Map<string, Promise<string | null>>();
+const MISS_TTL_MS = 5 * 60_000;
+
+/** Forget every remembered lookup, e.g. when a monster munch may have added the missing art. */
+export function clearMonsterTokenArtCache(): void {
+  RESOLVED.clear();
+  MISSES.clear();
+}
 
 /** A token image an effect can point `token.texture.src` at: a real, single file. */
 function usableTokenPath(path: string | null | undefined): path is string {
@@ -46,16 +57,17 @@ function creatureType(source: IDDBMonsterSourceData): string {
 }
 
 /**
- * The DDB token art of a monster that is not in the compendium. The source data is fetched by
+ * The DDB token art of a monster that is not in the compendium. Undefined when the lookup is not
+ * allowed to run (a player without a key, or monster art switched off). The source data is fetched by
  * exact name, as the companion images are, and a bare stand-in for that monster goes through the
  * monster importer's own image step. That is what makes the art match the table: the file lands
  * where the monster's own munch would put it (rules, book, deep-path and wildcard folders), it
  * is auto-tokenized when that setting and a tokenizer are on, and the importer's lookup cache is
  * filled, so a later munch of the monster reuses the result instead of repeating the work.
  */
-async function ddbTokenArt(name: string, normalizedName: string, is2014: boolean): Promise<string | null> {
-  if (!game.user.isGM && !DDBRunContext.keyPostfix) return null;
-  if (utils.getSetting<boolean>("munching-policy-disable-monster-art")) return null;
+async function ddbTokenArt(name: string, normalizedName: string, is2014: boolean): Promise<string | null | undefined> {
+  if (!game.user.isGM && !DDBRunContext.keyPostfix) return undefined;
+  if (utils.getSetting<boolean>("munching-policy-disable-monster-art")) return undefined;
 
   const monsterFactory = new DDBMonsterFactory({ type: "summons" });
   // not defaultFetchOptions: the muncher's book and type filters must not hide a common beast
@@ -115,17 +127,34 @@ export async function resolveMonsterTokenArt({ name, is2014 }: { name: string; i
   const normalizedName = utils.normalizeString(name);
   const rules = is2014 ? "2014" : "2024";
   const key = `${rules}:${normalizedName}`;
-  if (RESOLVED.has(key)) return RESOLVED.get(key) ?? null;
+  const found = RESOLVED.get(key);
+  if (found) return found;
+  if ((MISSES.get(key) ?? 0) > Date.now()) return null;
+  const pending = PENDING.get(key);
+  if (pending) return pending;
 
-  let art: string | null = null;
-  try {
-    if (CompendiumHelper.getCompendiumType("monster", false)) {
-      art = await compendiumTokenArt(normalizedName, rules)
-        ?? await ddbTokenArt(name, normalizedName, is2014);
+  const lookup = (async (): Promise<string | null> => {
+    if (!CompendiumHelper.getCompendiumType("monster", false)) return null;
+    try {
+      const compendiumArt = await compendiumTokenArt(normalizedName, rules);
+      if (compendiumArt) {
+        RESOLVED.set(key, compendiumArt);
+        return compendiumArt;
+      }
+      const ddbArt = await ddbTokenArt(name, normalizedName, is2014);
+      if (ddbArt) RESOLVED.set(key, ddbArt);
+      // null is a real "no art anywhere"; undefined means DDB was not asked
+      else if (ddbArt === null) MISSES.set(key, Date.now() + MISS_TTL_MS);
+      return ddbArt ?? null;
+    } catch (error) {
+      logger.warn(`Could not resolve token art for ${name}`, { error });
+      return null;
     }
-  } catch (error) {
-    logger.warn(`Could not resolve token art for ${name}`, { error });
+  })();
+  PENDING.set(key, lookup);
+  try {
+    return await lookup;
+  } finally {
+    PENDING.delete(key);
   }
-  RESOLVED.set(key, art);
-  return art;
 }

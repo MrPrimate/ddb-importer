@@ -606,8 +606,16 @@ const DDBProxyCache = {
    * Serve `request` from the cache, or run `fetcher` and store its result. Concurrent identical
    * requests share one fetch. The store is awaited before returning so the stored clone is taken
    * before the caller mutates the payload in place.
+   * @param request the cache request
+   * @param fetcher produces the payload on a miss
+   * @param options.shouldCache checked after a fetch; returning false returns the payload without
+   * storing it (a stream that reported errors may be incomplete)
    */
-  async wrap<T>(request: IProxyCacheRequest, fetcher: () => Promise<T>): Promise<T> {
+  async wrap<T>(
+    request: IProxyCacheRequest,
+    fetcher: () => Promise<T>,
+    { shouldCache }: { shouldCache?: (data: T) => boolean } = {},
+  ): Promise<T> {
     if (!DDBProxyCache.isEnabled()) return fetcher();
     const key = buildKey(request);
     if (!DDBProxyCache.isRefreshing()) {
@@ -624,6 +632,10 @@ const DDBProxyCache = {
     const stamp = invalidationStamp(key);
     const work = (async () => {
       const data = await fetcher();
+      if (shouldCache && !shouldCache(data)) {
+        logger.debug(`[proxy-cache] not storing ${request.domain}: fetch reported it incomplete`);
+        return data;
+      }
       await DDBProxyCache.set(request, data, { stamp });
       return data;
     })();

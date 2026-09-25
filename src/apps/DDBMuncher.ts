@@ -16,6 +16,7 @@ import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools";
 import DDBSelectiveMonsterUpdate from "./DDBSelectiveMonsterUpdate";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
+import { clearMonsterTokenArtCache } from "../parser/companions/types/MonsterTokenArt";
 import { updateItemPrices } from "../muncher/prices";
 import DDBAppV2 from "./DDBAppV2";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory";
@@ -958,6 +959,8 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       // a category or class change a moment ago may still be writing; read settings after it lands
       await this.awaitSettingUpdates();
+      // shape-shift forms look up other monsters' art; an earlier miss may be munched by now
+      clearMonsterTokenArtCache();
       const monsterFactory = new DDBMonsterFactory({
         notifier: this.notifier.bind(this),
         notifierV2: this.notifierV2.bind(this),

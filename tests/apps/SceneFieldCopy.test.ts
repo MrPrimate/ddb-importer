@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  copySceneFields,
   looseSceneNameKey,
   matchScenesByName,
   resolveFolderRef,
@@ -186,5 +187,106 @@ describe("looseSceneNameKey", () => {
     ["(Map)", "map"],
   ])("%s -> %s", (name, key) => {
     expect(looseSceneNameKey(name)).toBe(key);
+  });
+});
+
+describe("copySceneFields", () => {
+  const originalDocuments = (globalThis as any).foundry.documents;
+
+  beforeEach(() => {
+    // the scene field group reads the Scene schema; an empty one leaves only the collections and levels
+    (globalThis as any).foundry.documents = { ...(originalDocuments ?? {}), Scene: { schema: { fields: {} } } };
+  });
+
+  afterEach(() => {
+    (globalThis as any).foundry.documents = originalDocuments;
+  });
+
+  /** An embedded document as a scene collection holds it. */
+  const doc = (data: Record<string, any>) => ({ ...data, toObject: () => structuredClone(data) });
+
+  /** A collection with the bits copySceneFields reads: iteration, filter, documentName, sorted. */
+  function collection(documentName: string, docs: any[]) {
+    const list: any = [...docs];
+    list.documentName = documentName;
+    list.sorted = docs;
+    return list;
+  }
+
+  function targetScene({ levels, tokens = [], walls = [] }: { levels: any[]; tokens?: any[]; walls?: any[] }) {
+    const scene: any = {
+      _source: {},
+      levels: collection("Level", levels),
+      tokens: collection("Token", tokens),
+      walls: collection("Wall", walls),
+      created: {} as Record<string, any[]>,
+      deleted: {} as Record<string, string[]>,
+      update: vi.fn(),
+      updateEmbeddedDocuments: vi.fn(),
+      createEmbeddedDocuments: vi.fn(async (name: string, data: any[]) => {
+        scene.created[name] = [...(scene.created[name] ?? []), ...data];
+        return data.map((d, i) => ({ ...d, id: `new${name}${i}` }));
+      }),
+      deleteEmbeddedDocuments: vi.fn(async (name: string, ids: string[]) => {
+        scene.deleted[name] = ids;
+      }),
+    };
+    return scene;
+  }
+
+  it("keeps the target's linked tokens and replaces only its unlinked ones", async () => {
+    const source: any = {
+      _source: {},
+      levels: collection("Level", [doc({ id: "srcL0" })]),
+      tokens: collection("Token", [
+        doc({ id: "s1", actorLink: false, level: "srcL0" }),
+        doc({ id: "s2", actorLink: true, level: "srcL0" }),
+      ]),
+    };
+    const target = targetScene({
+      levels: [doc({ id: "tgtL0" })],
+      tokens: [doc({ id: "hero", actorLink: true }), doc({ id: "goblin", actorLink: false })],
+    });
+    await copySceneFields(source, target, ["tokens"]);
+    expect(target.created.Token).toHaveLength(1);
+    expect(target.deleted.Token).toEqual(["goblin"]);
+  });
+
+  it("points copied documents at the paired target levels", async () => {
+    const source: any = {
+      _source: {},
+      levels: collection("Level", [doc({ id: "srcL0" }), doc({ id: "srcL1" })]),
+      tokens: collection("Token", [doc({ id: "s1", actorLink: false, level: "srcL1" })]),
+      walls: collection("Wall", [doc({ id: "w1", levels: ["srcL0", "srcL1"] }), doc({ id: "w2", levels: [] })]),
+    };
+    const target = targetScene({ levels: [doc({ id: "tgtL0" }), doc({ id: "tgtL1" })] });
+    await copySceneFields(source, target, ["tokens", "walls"]);
+    expect(target.created.Token[0].level).toBe("tgtL1");
+    expect(target.created.Wall[0].levels).toEqual(["tgtL0", "tgtL1"]);
+    // an empty set means every level and stays empty
+    expect(target.created.Wall[1].levels).toEqual([]);
+  });
+
+  it("sends documents on an unpaired source level to the target's first level", async () => {
+    const source: any = {
+      _source: {},
+      levels: collection("Level", [doc({ id: "srcL0" }), doc({ id: "srcL1" })]),
+      tokens: collection("Token", [doc({ id: "s1", actorLink: false, level: "srcL1" })]),
+    };
+    const target = targetScene({ levels: [doc({ id: "tgtL0" })] });
+    await copySceneFields(source, target, ["tokens"]);
+    expect(target.created.Token[0].level).toBe("tgtL0");
+  });
+
+  it("puts documents on a level the level-field copy created", async () => {
+    const source: any = {
+      _source: {},
+      levels: collection("Level", [doc({ id: "srcL0", name: "Ground" }), doc({ id: "srcL1", name: "Upper" })]),
+      tokens: collection("Token", [doc({ id: "s1", actorLink: false, level: "srcL1" })]),
+    };
+    const target = targetScene({ levels: [doc({ id: "tgtL0" })] });
+    await copySceneFields(source, target, ["tokens", "lvl-name"]);
+    expect(target.created.Level).toEqual([{ name: "Upper" }]);
+    expect(target.created.Token[0].level).toBe("newLevel0");
   });
 });

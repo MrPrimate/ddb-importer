@@ -217,8 +217,18 @@ export async function copySceneFields(source: any, target: any, fieldIds: Iterab
   }
   if (Object.keys(update).length) await target.update(update);
 
-  // 2. Embedded collections -> replace. Create the source docs first, THEN
-  // delete the target's originals, avoiding any transient empty state.
+  // 2. Level fields -> copy only the selected paths onto the target's levels. This runs before the
+  // embedded copy so levels it creates can receive the documents placed on them.
+  const levelFields = chosen.filter((f) => f.kind === "level");
+  const alignedTargetLevels = levelFields.length
+    ? await copyLevelFields(source, target, levelFields)
+    : orderedLevels(target).map((level) => level.id as string);
+  const levelMap = mapLevels(source, alignedTargetLevels);
+  const fallbackLevel = orderedLevels(target)[0]?.id as string | undefined;
+
+  // 3. Embedded collections -> replace. Create the source docs first, THEN
+  // delete the target's originals, avoiding any transient empty state. Only unlinked tokens are
+  // copied, so only unlinked tokens are replaced: the target's linked tokens stay.
   for (const f of chosen.filter((f) => f.kind === "embedded")) {
     const coll = f.coll!;
     const srcColl = source[coll];
@@ -227,23 +237,62 @@ export async function copySceneFields(source: any, target: any, fieldIds: Iterab
       continue;
     }
     const docName = srcColl.documentName;
-    const existingIds = (target[coll] ?? []).map((d: any) => d.id);
+    const replaced = coll === "tokens"
+      ? Array.from(target[coll] ?? []).filter((t: any) => !t.actorLink)
+      : Array.from(target[coll] ?? []);
+    const existingIds = replaced.map((d: any) => d.id);
     const srcDocs = coll === "tokens"
       ? srcColl.filter((t: any) => !t.actorLink)
       : Array.from(srcColl);
     const docs = srcDocs.map((d: any) => {
       const o = d.toObject();
       delete o._id;
+      remapDocumentLevels(o, levelMap, fallbackLevel);
       return o;
     });
 
     if (docs.length) await target.createEmbeddedDocuments(docName, docs);
     if (existingIds.length) await target.deleteEmbeddedDocuments(docName, existingIds);
   }
+}
 
-  // 3. Level fields -> copy only the selected paths onto the target's levels.
-  const levelFields = chosen.filter((f) => f.kind === "level");
-  if (levelFields.length) await copyLevelFields(source, target, levelFields);
+/** A scene's levels in the order Foundry sorts them (`levels.sorted`). */
+function orderedLevels(scene: any): any[] {
+  const levels = scene?.levels;
+  if (!levels) return [];
+  return Array.isArray(levels.sorted) ? [...levels.sorted] : Array.from(levels);
+}
+
+/**
+ * Source level id -> target level id. Levels are matched by position in their scenes' order, the
+ * same pairing the level-field copy uses; `alignedTargetIds[i]` is the target level paired with
+ * the i-th source level.
+ */
+function mapLevels(source: any, alignedTargetIds: string[]): Map<string, string> {
+  const map = new Map<string, string>();
+  orderedLevels(source).forEach((level, i) => {
+    const targetId = alignedTargetIds[i];
+    if (level?.id && targetId) map.set(level.id, targetId);
+  });
+  return map;
+}
+
+/**
+ * Point a copied document at the target scene's levels. Level ids are per scene, so a source id is
+ * swapped for its paired target level; one with no pair (more source levels than target levels
+ * and the level fields not copied) goes to the target's first level. A token has a single
+ * `level`; walls, tiles, regions and the rest carry a `levels` set, where empty means every level.
+ */
+function remapDocumentLevels(data: any, levelMap: Map<string, string>, fallback: string | undefined): void {
+  if (typeof data.level === "string") {
+    data.level = levelMap.get(data.level) ?? fallback ?? data.level;
+  }
+  if (Array.isArray(data.levels) && data.levels.length) {
+    const mapped = data.levels
+      .map((id: string) => levelMap.get(id) ?? fallback)
+      .filter((id: string | undefined): id is string => !!id);
+    data.levels = [...new Set(mapped)];
+  }
 }
 
 // Copy the selected per-level field paths from the source levels onto the
@@ -251,15 +300,16 @@ export async function copySceneFields(source: any, target: any, fieldIds: Iterab
 // Foundry requires a scene keep at least one level). Extra source levels are
 // created. Only the chosen paths are written, so unselected fields (e.g. the
 // image sources, off by default) are left untouched on the target.
-async function copyLevelFields(source: any, target: any, levelFields: ISceneCopyFieldDef[]): Promise<void> {
+// Returns the target level id paired with each source level, in source order.
+async function copyLevelFields(source: any, target: any, levelFields: ISceneCopyFieldDef[]): Promise<string[]> {
   const srcColl = source.levels;
+  const targetLevels = orderedLevels(target);
   if (!srcColl) {
     logger.warn("SceneCopy: source scene has no levels, skipping level fields.");
-    return;
+    return targetLevels.map((level) => level.id);
   }
   const docName = srcColl.documentName;
-  const srcLevels = Array.from(srcColl).map((l: any) => l.toObject());
-  const targetLevels = Array.from(target.levels ?? []) as any[];
+  const srcLevels = orderedLevels(source).map((l: any) => l.toObject());
   const paths = levelFields.flatMap((f) => f.paths ?? []);
 
   const updates: any[] = [];
@@ -280,7 +330,11 @@ async function copyLevelFields(source: any, target: any, levelFields: ISceneCopy
   });
 
   if (updates.length) await target.updateEmbeddedDocuments(docName, updates);
-  if (creates.length) await target.createEmbeddedDocuments(docName, creates);
+  const created = creates.length ? await target.createEmbeddedDocuments(docName, creates) : [];
+  return [
+    ...targetLevels.slice(0, srcLevels.length).map((level) => level.id as string),
+    ...(created ?? []).map((level: any) => level.id as string),
+  ];
 }
 
 /**
