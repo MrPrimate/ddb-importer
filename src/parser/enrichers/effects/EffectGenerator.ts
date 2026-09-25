@@ -647,6 +647,22 @@ export default class EffectGenerator {
     logger.debug(`Skipping ${modifier.subType} speed bonus with no value for ${this.document.name}`, { modifier });
   }
 
+  /**
+   * The document's ruleset. Items and features stamp `system.source.rules` and the is2024 flag
+   * before their effects are generated.
+   */
+  get #is2024(): boolean {
+    const rules = foundry.utils.getProperty(this.document, "system.source.rules");
+    if (rules === "2024") return true;
+    if (rules === "2014") return false;
+    return foundry.utils.getProperty(this.document, "flags.ddbimporter.is2024") === true;
+  }
+
+  /**
+   * `speedType` "all" raises every speed through the custom `movement.all` change; DDB's generic
+   * "speed" modifier asks for it on 2024 documents, where "Speed" means every speed, while in 2014
+   * it is the walking speed.
+   */
   _addBonusSpeedChanges(subType, speedType = null) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
     // "Equal to Walking Speed"
@@ -662,7 +678,9 @@ export default class EffectGenerator {
       if (valued.length > 0) {
         const bonusValue = valued.reduce((speed, mod) => speed + Number.parseInt(String(mod.value)), 0);
         if (speedType === "all") {
-          this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
+          // a custom change: Foundry only hands CUSTOM mode to the applyActiveEffect hooks that
+          // spread movement.all across the speeds (DAE, or DDBEffectHooks without it)
+          this.effect.changes.push(ChangeHelper.customChange(`+${bonusValue}`, 9, "system.attributes.movement.all"));
         } else {
           this.effect.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
         }
@@ -680,7 +698,7 @@ export default class EffectGenerator {
     });
 
     this._addBonusSpeedChanges("unarmored-movement", "walk");
-    this._addBonusSpeedChanges("speed", "walk");
+    this._addBonusSpeedChanges("speed", this.#is2024 ? "all" : "walk");
     // probably all, but doesn't handle cases of where no base speed set, so say fly gets set to 10.
   }
 

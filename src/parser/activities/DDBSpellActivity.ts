@@ -499,6 +499,19 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
+  /**
+   * Give a follow-up activity the spell's own duration without concentration. Left on the spell's
+   * duration, dnd5e begins concentration on every use of an activity whose duration concentrates,
+   * which ends the concentration the cast started. Only a slotless activity qualifies: one that
+   * spends a slot is a cast.
+   */
+  #dropConcentration(): void {
+    if (this.data.consumption?.spellSlot !== false) return;
+    const duration = (this.foundryFeature.system as { duration?: I5eSystemDurationData } | undefined)?.duration;
+    if (!duration?.concentration) return;
+    this.data.duration = { ...foundry.utils.deepClone(duration), concentration: false, override: true };
+  }
+
   build({
     activationOverride = null,
     additionalTargets = [],
@@ -540,6 +553,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     includeBaseDamage = false,
     noeffect = false,
     noSpellslot = false,
+    noConcentration = false,
     onSave = null,
     partialDamageParts = null,
     rangeOverride = null,
@@ -570,6 +584,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     if (noSpellslot) {
       foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
     }
+    // an explicit duration, generated or passed in `data`, is the caller's choice
+    if (noConcentration && !generateDuration && !data?.duration) this.#dropConcentration();
 
     super.build({
       generateActivation: generateActivation || activationOverride !== null,

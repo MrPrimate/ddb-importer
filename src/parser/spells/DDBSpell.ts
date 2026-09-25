@@ -997,12 +997,14 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const ids = [];
     for (const activityData of this.additionalActivities) {
       i++;
+      // the parser's extras are follow-ups to the cast (study checks, extra healing, a save beside
+      // an attack), so using one must not begin the spell's concentration again
       const id = await this._generateActivity({
         hintsOnly: false,
         name: activityData.name,
         nameIdPostfix: i,
         typeOverride: activityData.type,
-      }, activityData.options);
+      }, { noConcentration: true, ...activityData.options } as IDDBSpellActivityBuild);
       logger.debug(`Generated additional Activity with id ${id}`, {
         this: this,
         activityData,

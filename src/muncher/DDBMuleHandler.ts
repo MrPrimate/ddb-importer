@@ -1123,11 +1123,36 @@ export default class DDBMuleHandler {
   // Life domain parsing errors
   // Light domain parsing errors
 
-  static async getList(type: string, sources: number[] | null = null) {
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
-    if (cacheHit) {
-      return cacheHit;
+  /**
+   * A session memo bucket on CONFIG.DDBI.KNOWN for the mule lists. Its keys hold dots (the proxy
+   * URL), so the bucket is indexed directly, never through a property path.
+   * @param {"MULE_LISTS" | "SUBCLASSES"} name the bucket
+   * @returns {Record<string, unknown>} the bucket
+   */
+  static _sessionMemo(name: "MULE_LISTS" | "SUBCLASSES"): Record<string, unknown> {
+    const known = CONFIG.DDBI.KNOWN as unknown as Record<string, Record<string, unknown> | undefined>;
+    known[name] ??= {};
+    return known[name];
+  }
+
+  /**
+   * The memo key for a mule request: the proxy, the account and everything else the request sends,
+   * so switching cobalt token or campaign misses the memo instead of serving the previous list.
+   * The cobalt cookie is folded into an FNV-1a hash rather than kept in CONFIG.
+   * @param {Record<string, unknown>} request the request body
+   * @returns {string} the memo key
+   */
+  static _sessionMemoKey(request: Record<string, unknown>): string {
+    const { cobalt, ...rest } = request;
+    let hash = 0x811c9dc5;
+    for (const char of String(cobalt ?? "")) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 0x01000193) >>> 0;
     }
+    return `${DDBProxy.getProxy()}|${hash.toString(16)}|${JSON.stringify(rest)}`;
+  }
+
+  static async getList(type: string, sources: number[] | null = null) {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -1138,6 +1163,11 @@ export default class DDBMuleHandler {
       sources: sources ?? [1, 2, 148, 145],
       includeEquipment: false,
     };
+    const memoKey = DDBMuleHandler._sessionMemoKey({ type, ...body });
+    const cacheHit = DDBMuleHandler._sessionMemo("MULE_LISTS")[memoKey];
+    if (cacheHit) {
+      return cacheHit;
+    }
 
     let urlPostfix;
     switch (type) {
@@ -1174,7 +1204,7 @@ export default class DDBMuleHandler {
       throw new Error(data.message);
     }
 
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
+    DDBMuleHandler._sessionMemo("MULE_LISTS")[memoKey] = data.data;
     return data.data;
   }
 
@@ -1209,12 +1239,20 @@ export default class DDBMuleHandler {
 
   }
 
-  static async getSubclassesCached({ className, classId, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses & { classId: number | string }) {
-    const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey);
+  // classId stays in the signature for the callers, but the memo keys on the request alone: the
+  // proxy answers by class name, so the id adds nothing to what comes back
+  static async getSubclassesCached({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses & { classId: number | string }) {
+    const memoKey = DDBMuleHandler._sessionMemoKey({
+      cobalt: Secrets.getCobalt(),
+      campaignId: campaignId ?? DDBCampaigns.getCampaignId(),
+      className,
+      rulesVersion,
+      includeHomebrew,
+    });
+    const cacheHit = DDBMuleHandler._sessionMemo("SUBCLASSES")[memoKey];
     if (cacheHit) return cacheHit;
     const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
+    DDBMuleHandler._sessionMemo("SUBCLASSES")[memoKey] = data;
     return data;
   }
 
