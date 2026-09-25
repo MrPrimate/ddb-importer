@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.24
+
+- Backport of features.
+
 # 7.0.23
 
 - Backport of features.
