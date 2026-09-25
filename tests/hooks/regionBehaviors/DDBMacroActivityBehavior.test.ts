@@ -39,8 +39,42 @@ describe("DDBMacroActivityBehavior.createBehaviorData", () => {
     expect(behavior().createBehaviorData({ target: {} })).toMatchObject({ type: "executeScript" });
   });
 
+  /** A plain 365-day, 12-month calendar with dnd5e's 6-second rounds and no turn clock. */
+  function stubClock() {
+    const calendar = {
+      days: { daysPerYear: 365 },
+      months: { values: new Array(12).fill({}) },
+      componentsToTime: ({ year = 0, day = 0, hour = 0, minute = 0, second = 0 }: Record<string, number>) =>
+        ((((year * 365) + day) * 24 + hour) * 60 + minute) * 60 + second,
+    };
+    vi.stubGlobal("game", { ...game, time: { worldTime: 100, calendar } });
+    vi.stubGlobal("CONFIG", { ...CONFIG, time: { roundTime: 6, turnTime: 0 } });
+  }
+
+  function ownerExpiry(duration: Record<string, unknown>) {
+    getDispositions.mockReturnValue(new Set());
+    const owner = new DDBMacroActivityBehavior({
+      function: "useActivity", events: new Set(["tokenTurnStart"]), ownerTurn: true, args: {},
+    } as any);
+    const data = owner.createBehaviorData({ target: {}, duration });
+    return foundry.utils.getProperty(data as object, "flags.ddbimporter.ownerTurn.args.expiresAt");
+  }
+
+  it.each([
+    [{ units: "round", value: "10" }, 160],
+    [{ units: "hour", value: "1" }, 3700],
+    // a month is the calendar's average month, rounded up to whole days
+    [{ units: "month", value: "1" }, 100 + 31 * 86400],
+    // turns have no length on the world clock under dnd5e
+    [{ units: "turn", value: "1" }, undefined],
+    [{ units: "inst" }, undefined],
+  ])("gives an owner-turn region an expiry from its %o duration", (duration, expected) => {
+    stubClock();
+    expect(ownerExpiry(duration)).toBe(expected);
+  });
+
   it("serializes owner dispatch metadata without native events and preserves its finite lifetime", () => {
-    vi.stubGlobal("game", { ...game, time: { worldTime: 100 } });
+    stubClock();
     getDispositions.mockReturnValue(new Set());
     const owner = new DDBMacroActivityBehavior({
       function: "useActivity", events: new Set(["tokenTurnStart"]), ownerTurn: true,

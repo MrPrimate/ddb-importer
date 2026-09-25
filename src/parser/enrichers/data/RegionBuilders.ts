@@ -6,7 +6,9 @@ import DDBEnricherData from "./DDBEnricherData";
  * "trigger" activities a region fires against the token that entered or started its turn inside.
  * Dispositions are derived from an activity's `affects` type when the region is placed, and a
  * behavior that fires a trigger takes the TRIGGER's dispositions, so "enemies only" belongs on
- * the trigger. Spells add their own slot handling on top of these in spell/_SpellRegions.
+ * the trigger. dnd5e maps "enemy" to hostile tokens only and "ally" to friendly ones, so a neutral
+ * token is affected only by a "creature" trigger. Spells add their own slot handling on top of
+ * these in spell/_SpellRegions.
  */
 
 /**

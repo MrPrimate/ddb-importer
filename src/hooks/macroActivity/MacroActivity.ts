@@ -140,16 +140,27 @@ export default class MacroActivity extends BaseMacroActivity {
   override async _triggerSubsequentActions(config: unknown, _results: unknown) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
-    const targets = Array.from(game.user.targets);
     // callers such as RegionAutomations.useActivity can override the stored macro
     // parameters and provide the triggering region's details via the usage config
-    const usageConfig = config as { ddbMacroParameters?: string; ddbRegionContext?: unknown } | null;
+    const usageConfig = config as { ddbMacroParameters?: string; ddbRegionContext?: unknown; ddbTargetUuids?: string[] } | null;
     const parametersOverride = usageConfig?.ddbMacroParameters;
     const regionContext = usageConfig?.ddbRegionContext;
+    // A caller that names its recipients wins over the user's canvas targets: region automation
+    // runs on the GM, often for a scene the GM is not viewing, where canvas targeting cannot reach.
+    const explicitUuids = usageConfig?.ddbTargetUuids;
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid), parametersOverride, regionContext);
+      const uuids = explicitUuids
+        ?? Array.from(game.user.targets).map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid);
+      this._executeDDBMacro(uuids, parametersOverride, regionContext);
     } else {
+      // a token on a scene that is not drawn has no placeable, so the document stands in for it
+      const targets = explicitUuids
+        ? explicitUuids
+          .map((uuid) => fromUuidSync(uuid) as (TokenDocument.Implementation & { object?: unknown }) | null)
+          .filter((token) => !!token)
+          .map((token) => token!.object ?? token)
+        : Array.from(game.user.targets);
       this._executeFoundryMacro(targets, parametersOverride, regionContext);
     }
   }

@@ -424,11 +424,12 @@ describe("region sync", () => {
     expect(band.destroy).toHaveBeenCalled();
   });
 
-  it("asks every region to refresh", () => {
+  it("asks only the styled regions to re-style, without a geometry refresh", () => {
     const regions = [fakeRegion({ profile: "aura" }), fakeRegion(undefined)];
     stubCanvas(regions, []);
     refreshAllRegionDisplays();
-    for (const region of regions) expect(region.renderFlags.set).toHaveBeenCalledWith({ refreshState: true, refreshGeometry: true });
+    expect(regions[0].renderFlags.set).toHaveBeenCalledWith({ refreshState: true });
+    expect(regions[1].renderFlags.set).not.toHaveBeenCalled();
   });
 
   it("keys the cached style on the choice, the region colour, the grid and the profile store", () => {

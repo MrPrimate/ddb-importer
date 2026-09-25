@@ -334,6 +334,8 @@ describe("RegionExpiryCleanup region timers", () => {
     (globalThis as any).game.time = {
       worldTime,
       calendar: {
+        days: { daysPerYear: 365 },
+        months: { values: new Array(12).fill({}) },
         // seconds per unit, enough for the units the system emits
         componentsToTime: (components: Record<string, number>) => {
           const perUnit: Record<string, number> = { second: 1, minute: 60, hour: 3600, day: 86400 };
@@ -363,6 +365,19 @@ describe("RegionExpiryCleanup region timers", () => {
     expect(regionData[0].flags.ddbimporter.regionExpiry).toMatchObject({
       value: 10, units: "minutes", startTime: 1000, activity: activity.uuid,
     });
+  });
+
+  it("stamps the combat round and turn a region was placed on", () => {
+    setMockSettings({ "enable-region-expiry-cleanup": true });
+    stubTime(1000, [{ id: "c1", round: 3, turn: 2 }]);
+    const regionData = [{}] as any[];
+
+    RegionExpiryCleanup.stampTemplateDurations(
+      { duration: { value: 3, units: "turn", getEffectData: () => ({ value: 3, units: "turns" }) } },
+      regionData,
+    );
+
+    expect(regionData[0].flags.ddbimporter.regionExpiry).toMatchObject({ combat: "c1", startRound: 3, startTurn: 2 });
   });
 
   it("stamps nothing for an instantaneous or permanent activity", () => {
@@ -416,6 +431,35 @@ describe("RegionExpiryCleanup region timers", () => {
 
     combat.round = 5;
     expect(RegionExpiryCleanup.regionExpiry(region as any).expired).toBe(false);
+  });
+
+  it("counts a turns duration across round boundaries", () => {
+    const combat = { id: "c1", round: 1, turn: 2, turns: new Array(4).fill({}) };
+    stubTime(1000, [combat]);
+    const timer = { value: 3, units: "turns", startTime: 1000, combat: "c1", startRound: 1, startTurn: 2, activity: "A.x" };
+    const region = makeRegion({ id: "r", activity: "A.x", origin: "Scene.s1.Token.t1", timer });
+    makeScene({ regions: [region] });
+    vi.stubGlobal("fromUuidSync", () => null);
+
+    // two turns later (round 1 turn 3, round 2 turn 0) it still runs
+    combat.round = 2;
+    combat.turn = 0;
+    expect(RegionExpiryCleanup.regionExpiry(region as any).expired).toBe(false);
+    // the third turn after placement ends it
+    combat.turn = 1;
+    expect(RegionExpiryCleanup.regionExpiry(region as any).expired).toBe(true);
+  });
+
+  it("runs a months duration for the calendar's average month", () => {
+    stubTime(1000 + 30 * 86400);
+    const timer = { value: 1, units: "months", startTime: 1000, combat: null, startRound: null, activity: "A.x" };
+    const region = makeRegion({ id: "r", activity: "A.x", origin: "Scene.s1.Token.t1", timer });
+    makeScene({ regions: [region] });
+    vi.stubGlobal("fromUuidSync", () => null);
+
+    expect(RegionExpiryCleanup.regionExpiry(region as any).expired).toBe(false);
+    (globalThis as any).game.time.worldTime = 1000 + 31 * 86400;
+    expect(RegionExpiryCleanup.regionExpiry(region as any).expired).toBe(true);
   });
 
   it("still sweeps a timerless region with no governing effect", () => {

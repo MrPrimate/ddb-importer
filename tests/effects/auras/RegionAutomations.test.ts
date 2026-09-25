@@ -175,9 +175,8 @@ describe("RegionAutomations.useActivityHandler", () => {
       // to whatever is selected (usually the caster)
       { data: { system: { targets: [expect.objectContaining({ token: "Scene.s.Token.tok1" })] } } },
     );
-    const setTargets = (globalThis as any).canvas.tokens.setTargets;
-    expect(setTargets).toHaveBeenNthCalledWith(1, ["tok1"], { mode: "replace" });
-    expect(setTargets).toHaveBeenLastCalledWith([], { mode: "replace" });
+    // the recipients travel explicitly, so the GM's canvas targeting is never touched
+    expect((globalThis as any).canvas.tokens.setTargets).not.toHaveBeenCalled();
     // no spellLevel flag on the region -> no cast-level slot key is forced
     expect(placing.use.mock.calls[0][0].spell).toBeUndefined();
   });
@@ -334,6 +333,40 @@ describe("RegionAutomations.useActivityHandler", () => {
 
     const config = placing.use.mock.calls[0][0];
     expect(config.subsequentActions).toBeUndefined();
+    // the macro is handed the region's token, not whatever the GM has targeted
+    expect(config.ddbTargetUuids).toEqual(["Scene.s.Token.tok1"]);
+  });
+
+  it("auto-rolls an attack against the region's token rather than the GM's targets", async () => {
+    const { context, placing } = setup();
+    placing.type = "attack";
+    placing.use = vi.fn().mockResolvedValue({ message: { id: "msg1" } });
+    placing.rollAttack = vi.fn().mockResolvedValue([]);
+    context.args = { autoRoll: true };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    // core's own roll would read game.user.targets, so it is suppressed and made explicitly
+    expect(placing.use.mock.calls[0][0].subsequentActions).toBe(false);
+    const [config, , message] = placing.rollAttack.mock.calls[0];
+    expect(message.data.system.origin).toBe("msg1");
+    expect(message.data.system.targets).toEqual([expect.objectContaining({ token: "Scene.s.Token.tok1" })]);
+    expect(config).toHaveProperty("target");
+    expect((globalThis as any).canvas.tokens.setTargets).not.toHaveBeenCalled();
+  });
+
+  it("auto-rolls damage against the region's token", async () => {
+    const { context, placing } = setup();
+    placing.type = "damage";
+    placing.use = vi.fn().mockResolvedValue({ message: { id: "msg1" } });
+    placing.rollDamage = vi.fn().mockResolvedValue([]);
+    context.args = { autoRoll: true };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(placing.rollDamage).toHaveBeenCalledWith({}, {}, {
+      data: { system: { origin: "msg1", targets: [expect.objectContaining({ token: "Scene.s.Token.tok1" })] } },
+    });
   });
 
   it("passes a macro parameters override through the usage config", async () => {
@@ -545,10 +578,7 @@ describe("RegionAutomations.useActivityHandler", () => {
         },
       },
     });
-    const setTargets = (globalThis as any).canvas.tokens.setTargets;
-    expect(setTargets).toHaveBeenCalledTimes(2);
-    expect(setTargets).toHaveBeenNthCalledWith(1, ["tok1", "tok2", "tok3"], { mode: "replace" });
-    expect(setTargets).toHaveBeenLastCalledWith([], { mode: "replace" });
+    expect((globalThis as any).canvas.tokens.setTargets).not.toHaveBeenCalled();
   });
 
   it("drops filtered and origin tokens from a group and still uses the rest once", async () => {
@@ -652,66 +682,30 @@ describe("RegionAutomations.useActivityHandler", () => {
     expect(placing.use).toHaveBeenCalledTimes(1);
   });
 
-  // canvas.tokens.setTargets really replaces game.user.targets, which is what the next
-  // use reads back as the "previous" targets to restore
-  function liveTargets(initial: string[]) {
-    const user = (globalThis as any).game.user;
-    user.targets = initial.map((id) => ({ id }));
-    (globalThis as any).canvas.tokens.setTargets = vi.fn((ids: string[]) => {
-      user.targets = ids.map((id) => ({ id }));
-    });
-    return () => [...user.targets].map((t: { id: string }) => t.id);
-  }
-
-  it("serialises concurrent batches so each rolls against its own tokens and the GM's targets survive", async () => {
+  it("runs concurrent batches independently without touching the GM's targets", async () => {
     const { context, placing } = setup();
-    const currentTargets = liveTargets(["gmPick"]);
+    (globalThis as any).game.user.targets = [{ id: "gmPick" }];
     context.args = { oncePerTurn: false };
     // two regions firing together flush as two independent batches
     const [first, second] = burst(context, 2);
     second.region = { ...context.region, id: "reg2" };
 
-    const seen: string[][] = [];
     let releaseFirst!: () => void;
     placing.use = vi.fn(async () => {
-      seen.push(currentTargets());
-      if (seen.length === 1) await new Promise<void>((resolve) => (releaseFirst = resolve));
+      if (placing.use.mock.calls.length === 1) await new Promise<void>((resolve) => (releaseFirst = resolve));
       return {};
     });
 
     const uses = [first, second].map((c) => RegionAutomations.useActivityHandler(c));
-    await vi.waitFor(() => expect(placing.use).toHaveBeenCalledTimes(1));
-    // let the second batch's timer fire: it must wait rather than retarget mid-use
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(placing.use).toHaveBeenCalledTimes(1);
-    expect(currentTargets()).toEqual(["tok1"]);
-
+    // the second batch does not queue behind a first use still waiting on its rolls
+    await vi.waitFor(() => expect(placing.use).toHaveBeenCalledTimes(2));
     releaseFirst();
     await Promise.all(uses);
 
-    expect(seen).toEqual([["tok1"], ["tok2"]]);
-    expect(currentTargets()).toEqual(["gmPick"]);
-  });
-
-  it("releases the target lock and restores targets when a queued use throws", async () => {
-    const { context, placing } = setup();
-    const currentTargets = liveTargets(["gmPick"]);
-    context.args = { oncePerTurn: false };
-    const [first, second] = burst(context, 2);
-    second.region = { ...context.region, id: "reg2" };
-
-    const seen: string[][] = [];
-    placing.use = vi.fn(async () => {
-      seen.push(currentTargets());
-      if (seen.length === 1) throw new Error("use failed");
-      return {};
-    });
-
-    const results = await Promise.allSettled([first, second].map((c) => RegionAutomations.useActivityHandler(c)));
-
-    expect(results.map((r) => r.status)).toEqual(["rejected", "fulfilled"]);
-    expect(seen).toEqual([["tok1"], ["tok2"]]);
-    expect(currentTargets()).toEqual(["gmPick"]);
+    expect(placing.use.mock.calls.map((call: any[]) => call[2].data.system.targets.map((t: any) => t.token)))
+      .toEqual([["Scene.s.Token.tok1"], ["Scene.s.Token.tok2"]]);
+    expect((globalThis as any).canvas.tokens.setTargets).not.toHaveBeenCalled();
+    expect((globalThis as any).game.user.targets).toEqual([{ id: "gmPick" }]);
   });
 
   it("ignores the limit for an event with neither a turn nor a movement", async () => {

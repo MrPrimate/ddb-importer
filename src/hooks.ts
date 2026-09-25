@@ -43,7 +43,7 @@ import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 import { registerIconBrowserShiftClick } from "./hooks/ready/iconBrowserShiftClick";
-import { DDBToolProficiencies } from "./lib/_module";
+import { DDBToolProficiencies, RegionDisplayProfiles } from "./lib/_module";
 import RegionBehaviorSettings from "./lib/RegionBehaviorSettings";
 // import { createStorage } from "./hooks/ready/storage";
 
@@ -69,6 +69,7 @@ export function init() {
 // foundry has localized the system config, but nothing has rendered yet
 export function setup() {
   DDBToolProficiencies.registerDictionaryTools();
+  RegionDisplayProfiles.markSettled();
   logger.info("Setup complete");
 }
 

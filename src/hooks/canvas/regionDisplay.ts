@@ -438,17 +438,26 @@ export function onDestroyRegion(region: TCoreRegionPlaceable): void {
   states.delete(region);
 }
 
-/** Ask a drawn region to re-style itself on its next render. */
+/**
+ * Ask a drawn region to re-style itself on its next render. A style change never moves the region,
+ * so no geometry refresh is needed: the band and fill mask follow the new style from the state pass
+ * (the mask is rebuilt when its inset changes).
+ */
 function requestRestyle(region: TCoreRegionPlaceable): void {
-  region.renderFlags.set({ refreshState: true, refreshGeometry: true });
+  region.renderFlags.set({ refreshState: true });
 }
 
-/** Re-style every region on the canvas, after a profile edit. */
+/**
+ * Re-style the regions a profile edit can affect: those with a display choice, and those still
+ * carrying a style from one that was just removed. Unstyled regions are left alone.
+ */
 export function refreshAllRegionDisplays(): void {
   profileGeneration += 1;
   const layer = regionLayer();
   if (!layer) return;
-  for (const region of layer.placeables) requestRestyle(region);
+  for (const region of layer.placeables) {
+    if (displayFlag(region.document) || states.has(region)) requestRestyle(region);
+  }
 }
 
 /** Re-style only the region whose display choice changed. */

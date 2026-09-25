@@ -8,13 +8,22 @@ interface IRemotePrompt {
   controller: AbortController;
 }
 
+/** A player's reply when none of the offered tokens is visible to them, so the GM chooses instead. */
+const UNAVAILABLE = "unavailable";
+
 /** Owner selection stays on the player's client; only the GM uses the chosen activity. */
 export default class RegionTargetPrompt {
   static #remote = new Map<string, IRemotePrompt>();
 
-  static owner(actor: Actor.Implementation): User.Implementation | null {
+  /**
+   * The player who chooses for `actor`: an active, non-GM owner, preferring one whose character it
+   * is. With `sceneId`, only an owner viewing that scene qualifies: a player elsewhere cannot see
+   * the tokens on offer, so the GM chooses instead.
+   */
+  static owner(actor: Actor.Implementation, sceneId: string | null = null): User.Implementation | null {
     const owners = [...game.users].filter(
-      (user) => user.active && !user.isGM && actor.testUserPermission(user, "OWNER"),
+      (user) => user.active && !user.isGM && actor.testUserPermission(user, "OWNER")
+        && (!sceneId || user.viewedScene === sceneId),
     );
     owners.sort((a, b) => a.id.localeCompare(b.id));
     return (
@@ -163,6 +172,8 @@ export default class RegionTargetPrompt {
         if (!RegionBehaviorSettings.enabled || !game.users.get(sender)?.isActiveGM) return null;
         const actor = fromUuidSync(request.actorUuid) as Actor.Implementation | null;
         if (!actor?.testUserPermission(game.user, "OWNER") || !fromUuidSync(request.regionUuid)) return null;
+        // nothing to choose from here (the tokens are hidden or not drawn for this player)
+        if (request.tokenUuids.length && !RegionTargetPrompt.visibleTokens(request).length) return UNAVAILABLE;
         const controller = new AbortController();
         RegionTargetPrompt.#remote.set(request.id, { sender, controller });
         try {
@@ -192,7 +203,8 @@ export default class RegionTargetPrompt {
     signal: AbortSignal,
   ): Promise<IRegionTargetChoice | null> {
     if (!RegionBehaviorSettings.enabled) return null;
-    const owner = RegionTargetPrompt.owner(actor);
+    const region = fromUuidSync(request.regionUuid) as RegionDocument.Implementation | null;
+    const owner = RegionTargetPrompt.owner(actor, region?.parent?.id ?? null);
     const ownerId = owner?.id;
     if (!ownerId) return RegionTargetPrompt.validate(await RegionTargetPrompt.show(request, signal), request);
     const socket = DDBImporter.socket;
@@ -220,7 +232,8 @@ export default class RegionTargetPrompt {
       const result = await Promise.race([player, gm]);
       abort();
       if (signal.aborted) return null;
-      if (result.source === "gm" && result.value === "takeover") {
+      if ((result.source === "gm" && result.value === "takeover")
+        || (result.source === "player" && result.value === UNAVAILABLE)) {
         return RegionTargetPrompt.validate(await RegionTargetPrompt.show(request, signal), request);
       }
       return RegionTargetPrompt.validate(result.value, request);

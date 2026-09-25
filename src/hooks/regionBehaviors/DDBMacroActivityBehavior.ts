@@ -1,6 +1,7 @@
 import RegionAutomations from "../../effects/auras/RegionAutomations";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import { resolveRegionActivity } from "../../effects/auras/regionBehaviorUtils";
+import { activityEffectDuration, durationSeconds } from "../../effects/enhancers/Regions/regionDuration";
 import BaseActivityBehavior from "./baseActivityBehavior";
 import { buildMacroBehaviorData, REGION_EVENTS } from "./behaviorData";
 import { createProfilePicker } from "../canvas/regionDisplayPicker";
@@ -84,13 +85,11 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
           );
         if (combat) args.placementCombatId = combat.id;
       }
-      // Owner-turn lifetimes also work with the optional expiry-cleanup enhancer off.
-      const duration = activity.duration;
-      const seconds: Record<string, number> = { second: 1, minute: 60, hour: 3600, day: 86400 };
-      const value = Number(duration?.value);
-      if (Number.isFinite(value) && value > 0 && seconds[duration?.units]) {
-        args.expiresAt = game.time.worldTime + value * seconds[duration.units];
-      }
+      // Owner-turn lifetimes also work with the optional expiry-cleanup enhancer off. A duration
+      // with no length on the world clock (turns, under dnd5e) gets no timed expiry.
+      const duration = activityEffectDuration(activity);
+      const seconds = duration ? durationSeconds(duration) : null;
+      if (seconds !== null) args.expiresAt = game.time.worldTime + seconds;
     }
     if ((this.sizes as Set<string> | undefined)?.size) args.sizes = [...(this.sizes as Set<string>)];
     if ((this.types as Set<string> | undefined)?.size) args.types = [...(this.types as Set<string>)];

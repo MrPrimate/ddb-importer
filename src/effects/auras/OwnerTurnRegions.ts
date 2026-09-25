@@ -324,10 +324,11 @@ export default class OwnerTurnRegions {
    * ownership can change while a dialog is open. Surviving snapshot recipients remain eligible
    * after movement; newly arrived tokens are never added to an already offered choice.
    *
-   * A skipped, empty or suppressed one-shot completes by deleting its region. Cancellation before
-   * use consumes only the edge claim and releases the temporary guard. An attempted use that
-   * fails retains both the region and its persisted marker for manual recovery, avoiding an
-   * automatic retry that could duplicate a partially completed activity.
+   * A suppressed one-shot, or one whose chosen recipients were all removed, completes by deleting
+   * its region. A skipped choice, like a cancellation before use, consumes only this turn's claim:
+   * the region stays and is offered again on the owner's next turn. An attempted use that fails
+   * retains both the region and its persisted marker for manual recovery, avoiding an automatic
+   * retry that could duplicate a partially completed activity.
    */
   static async run(
     region: RegionDocument.Implementation,
@@ -410,11 +411,8 @@ export default class OwnerTurnRegions {
         args.ownerTurnTargets === "none" ? [] : occupants,
         controller.signal,
       );
-      if (!selected) {
-        if (!controller.signal.aborted && pending.alive() && args.deleteAfterUse)
-          await OwnerTurnRegions.#deleteRegion(region);
-        return;
-      }
+      // skipped: only this turn's claim is spent
+      if (!selected) return;
       const { activity } = selected;
       let { tokens } = selected;
       if (controller.signal.aborted || !pending.alive()) return;

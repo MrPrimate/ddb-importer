@@ -2,26 +2,12 @@ import { ownerTurnExpired } from "../../auras/regionBehaviorUtils";
 import { logger, utils } from "../../../lib/_module";
 import type { IRegionExpiryEntry } from "./RegionExpiryDialog";
 import { REGION_EXPIRY_REASONS as REASONS } from "./RegionExpiryReasons";
+import { activityEffectDuration, durationSeconds } from "./regionDuration";
 
 const FLAG = "dnd5e";
 const LOG = "RegionExpiryCleanup |";
 const DDB_FLAG = "ddbimporter";
 const TIMER_FLAG = "regionExpiry";
-
-/**
- * Activity duration units (singular, CONFIG.DND5E.timeUnits) mapped to ActiveEffect duration units (plural).
- * Only used when a prepared activity does not expose `duration.getEffectData`
- */
-const ACTIVITY_TO_EFFECT_UNITS: Record<string, string> = {
-  turn: "turns",
-  round: "rounds",
-  second: "seconds",
-  minute: "minutes",
-  hour: "hours",
-  day: "days",
-  month: "months",
-  year: "years",
-};
 
 const COMBAT_UNITS = new Set(["rounds", "turns"]);
 
@@ -48,6 +34,8 @@ export interface IRegionExpiryTimer {
   /** Combat the region was placed during, for rounds/turns durations. */
   combat: string | null;
   startRound: number | null;
+  /** Combat turn index when placed; absent on timers stamped before turns were tracked. */
+  startTurn?: number | null;
   activity: string | null;
 }
 
@@ -198,24 +186,6 @@ export default class RegionExpiryCleanup {
   /* -------------------------------------------- */
 
   /**
-   * Read the placing activity's duration in ActiveEffect duration terms
-   */
-  static #activityEffectDuration(activity: unknown): { value: number; units: string } | null {
-    const duration = (activity as { duration?: Record<string, unknown> } | null)?.duration;
-    if (!duration) return null;
-    const getEffectData = duration["getEffectData"];
-    const data = (typeof getEffectData === "function"
-      ? (getEffectData as () => { value?: unknown; units?: string }).call(duration)
-      : null) ?? {};
-    const value = Number(data.value ?? duration["value"]);
-    const units = data.units ?? ACTIVITY_TO_EFFECT_UNITS[String(duration["units"])];
-    // "inst", "perm", "spec" and formula-valued durations yield nothing: those regions have no
-    // intrinsic lifetime and keep the pre-existing governing-effect behaviour.
-    if (!units || !Number.isFinite(value) || (value <= 0)) return null;
-    return { value, units };
-  }
-
-  /**
    * Snapshot the placing activity's duration onto the regions it is about to create.
    *
    * Hooked on `dnd5e.createMeasuredTemplate`, which fires with the creation data before the
@@ -223,7 +193,7 @@ export default class RegionExpiryCleanup {
    */
   static stampTemplateDurations(activity: unknown, regionData: Record<string, unknown>[]): void {
     if (!RegionExpiryCleanup.#enabled) return;
-    const duration = RegionExpiryCleanup.#activityEffectDuration(activity);
+    const duration = activityEffectDuration(activity);
     if (!duration) {
       logger.debug(`${LOG} activity declares no scalar duration, region gets no timer`, {
         activity: (activity as { uuid?: string } | null)?.uuid,
@@ -236,6 +206,7 @@ export default class RegionExpiryCleanup {
       startTime: game.time?.worldTime ?? 0,
       combat: combat?.id ?? null,
       startRound: combat?.round ?? null,
+      startTurn: combat?.turn ?? null,
       activity: (activity as { uuid?: string } | null)?.uuid ?? null,
     };
     for (const data of regionData ?? []) {
@@ -257,7 +228,8 @@ export default class RegionExpiryCleanup {
    * Time-based durations go through the calendar, matching core's own `ActiveEffect#_prepareTimeBasedDuration`.
    *
    * Rounds/turns are measured against the combat the region was placed in; if that combat is gone the elapsed
-   * world time is used instead.
+   * world time is used instead. Turns count every combatant's turn since placement, using the current turn
+   * order length, so combatants joining or leaving mid-duration skew it (core has the same limitation).
    */
   static #timerRemaining(timer: IRegionExpiryTimer): number | null {
     const worldTime = game.time?.worldTime ?? 0;
@@ -267,17 +239,18 @@ export default class RegionExpiryCleanup {
       ] ?? 0);
       const combat = timer.combat ? game.combats?.get(timer.combat) : null;
       if (combat && (timer.startRound !== null)) {
-        const elapsed = (combat.round ?? 0) - timer.startRound;
+        const rounds = (combat.round ?? 0) - timer.startRound;
+        const elapsed = timer.units === "turns"
+          ? (rounds * (combat.turns?.length ?? 0)) + ((combat.turn ?? 0) - (timer.startTurn ?? 0))
+          : rounds;
         return (timer.value - elapsed) * (perUnit || 1);
       }
       // A turn-based duration with no turn clock cannot be judged; never expire on it.
       if (!perUnit) return null;
       return timer.startTime + (timer.value * perUnit) - worldTime;
     }
-    const calendar = game.time?.calendar;
-    if (!calendar) return null;
-    const seconds = calendar.componentsToTime({ [timer.units.replace(/s$/, "")]: timer.value });
-    if (!Number.isFinite(seconds)) return null;
+    const seconds = durationSeconds(timer);
+    if (seconds === null) return null;
     return timer.startTime + seconds - worldTime;
   }
 

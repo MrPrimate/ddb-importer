@@ -278,16 +278,6 @@ export default class RegionAutomations {
   static #turnQueue = new foundry.utils.Semaphore(1);
 
   /**
-   * Serialises the set-targets / use / restore-targets section of `useActivityOnTokens`.
-   * Batches flush from independent timers, and dnd5e reads `game.user.targets` at the end
-   * of `activity.use` (a ddbmacro activity hands them to its macro, an autoRoll attack
-   * reads them for the target AC), so two interleaved uses would roll against each
-   * other's tokens and the later restore would leave the earlier use's targets on the
-   * GM. The lock releases when the use settles, even if it throws.
-   */
-  static #targetLock = new foundry.utils.Semaphore(1);
-
-  /**
    * Identity of the trigger a once-per-turn limit collapses on.
    * In combat that is the combat turn.
    * Out of combat there is no turn, so it is the movement.
@@ -342,11 +332,11 @@ export default class RegionAutomations {
    * so the usage message records them rather than whatever the user happens to
    * have targeted. Falls back to an empty list if the system helper moves.
    */
-  static targetDescriptors(tokens: TokenDocument[]): unknown[] {
+  static targetDescriptors(tokens: TokenDocument[]): IRegionTargetDescriptor[] {
     const field = foundry.utils.getProperty(
       globalThis as unknown as Record<string, unknown>,
       "dnd5e.dataModels.chatMessage.fields.TargetsField",
-    ) as { getDescriptors?: (tokens: unknown[]) => unknown[] } | undefined;
+    ) as { getDescriptors?: (tokens: unknown[]) => IRegionTargetDescriptor[] } | undefined;
     if (!field?.getDescriptors) {
       logger.warn("No dnd5e TargetsField available, region card targets fall back to user targeting");
       return [];
@@ -515,75 +505,88 @@ export default class RegionAutomations {
       && baseLevel !== undefined && baseLevel > 0) {
       extraActivityConfig.spell = { slot: `spell${spellLevel}` };
     }
-    // core rolls a damage activity's damage via _triggerSubsequentActions; suppress it so the
-    // card keeps its damage button unless autoRoll opts in. ddbmacro activities execute their
-    // macro through the same hook, so they are never suppressed.
-    if (!autoRoll && activity.type !== "ddbmacro") extraActivityConfig.subsequentActions = false;
+    // A ddbmacro activity runs its macro from dnd5e's subsequent actions, which read the user's
+    // canvas targets; naming the recipients keeps the GM's targeting out of it and reaches tokens
+    // on a scene the GM is not viewing.
+    if (activity.type === "ddbmacro") extraActivityConfig.ddbTargetUuids = tokens.map((t) => t.uuid);
+    // Core rolls an attack, damage or healing activity from _triggerSubsequentActions, reading the
+    // user's canvas targets for the target AC and the damage card. Those are suppressed here: the
+    // card keeps its roll buttons, and autoRoll rolls them below against these tokens instead.
+    // ddbmacro activities execute their macro through the same hook, so they are never suppressed.
+    const midi = game.modules.get("midi-qol")?.active === true;
+    // midi rolls these itself from forceAutoRolls
+    const autoRolled = !midi && autoRoll && RegionAutomations.#AUTO_ROLLED_TYPES.has(activity.type);
+    if (activity.type !== "ddbmacro" && (!autoRoll || autoRolled)) extraActivityConfig.subsequentActions = false;
 
     logger.debug(
       `Region ${context.region.name}: ${context.event.name} using ${activity.name} on ${tokens.map((t) => t.name).join(", ")}`,
       { context, scaling, macroParameters },
     );
 
-    // Owner-turn uses can belong to a different scene, and concurrent prompts must not
-    // overwrite the GM's targeting. Both execution paths accept explicit recipients.
+    // Uses can belong to a scene the GM is not viewing, and batches for different regions run
+    // concurrently, so neither execution path touches the GM's canvas targets: both are handed the
+    // recipients explicitly.
     const origin = args.ownerTurn ? RegionAutomations.getOriginToken(context.region) : null;
+    const targets = RegionAutomations.targetDescriptors(tokens);
     const messageData = {
       ...(args.ownerTurn ? { flavor: foundry.utils.escapeHTML(regionLabel(context.region)) } : {}),
       ...(origin ? { speaker: { scene: context.scene.id, token: origin.id, actor: origin.actor?.id, alias: origin.name } } : {}),
-      system: { targets: RegionAutomations.targetDescriptors(tokens) },
+      system: { targets },
     };
-    const perform = async (): Promise<unknown> => {
-      if (game.modules.get("midi-qol")?.active) {
-        const workflowOptions = {
-          targets: tokens.map((t) => t.uuid),
-          scaling,
-          extraActivityConfig,
-          forceAutoRolls: autoRoll,
-        };
-        return args.ownerTurn
-          ? await DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions, { message: { data: messageData } })
-          : await DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions);
-      } else {
-        return await activity.use(
-          {
-            create: false,
-            // dnd5e's key is `resources`, plural: anything else leaves it unset, and it then
-            // defaults to every consumption target, so an action whose Recharge or daily use is
-            // already spent could not be re-fired by its own area, and an item that re-fires
-            // itself spent a charge on every trigger
-            consume: { action: false, resources: false, spellSlot: false },
-            scaling,
-            ...extraActivityConfig,
-          },
-          { configure: false },
-          // Record the triggering tokens on the card explicitly. dnd5e otherwise
-          // fills `system.targets` from `game.user.targets` at use time
-          // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
-          // depend on canvas targeting state - and fall back to the selected
-          // token, usually the caster, whenever that lookup came up empty.
-          // The save button uses these recorded targets, and dnd5e's damage/healing
-          // buttons forward them to the roll card. Its Apply tray defaults to this
-          // captured group even if the user's scene selection or targets change
-          // before rolling. `autoRoll` opts into rolling immediately instead.
-          { data: messageData },
-        );
-      }
-    };
-    if (args.ownerTurn) return perform();
+    if (midi) {
+      const workflowOptions = {
+        targets: tokens.map((t) => t.uuid),
+        scaling,
+        extraActivityConfig,
+        forceAutoRolls: autoRoll,
+      };
+      return args.ownerTurn
+        ? DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions, { message: { data: messageData } })
+        : DDBEffectHelper.rollMidiActivityUse(activity, workflowOptions);
+    }
+    const results = await activity.use(
+      {
+        create: false,
+        // dnd5e's key is `resources`, plural: anything else leaves it unset, and it then
+        // defaults to every consumption target, so an action whose Recharge or daily use is
+        // already spent could not be re-fired by its own area, and an item that re-fires
+        // itself spent a charge on every trigger
+        consume: { action: false, resources: false, spellSlot: false },
+        scaling,
+        ...extraActivityConfig,
+      },
+      { configure: false },
+      // Record the triggering tokens on the card explicitly. dnd5e otherwise
+      // fills `system.targets` from `game.user.targets` at use time
+      // (`TargetsField.getDescriptors()`), so the card's Apply buttons would
+      // depend on canvas targeting state - and fall back to the selected
+      // token, usually the caster, whenever that lookup came up empty.
+      // The save button uses these recorded targets, and dnd5e's damage/healing
+      // buttons forward them to the roll card. Its Apply tray defaults to this
+      // captured group even if the user's scene selection or targets change
+      // before rolling. `autoRoll` opts into rolling immediately instead.
+      { data: messageData },
+    );
+    if (autoRolled && results) await RegionAutomations.#autoRoll(activity, targets, results);
+    return results;
+  }
 
-    // The previous targets are read inside the lock: read outside it, a use that
-    // queued behind another would save that use's temporary targets as the GM's own.
-    return RegionAutomations.#targetLock.add(async () => {
-      const previousTargets = [...((game.user as { targets?: Iterable<{ id: string | null }> }).targets ?? [])]
-        .map((t) => t.id).filter((id): id is string => id !== null);
-      DDBEffectHelper.setTokenTargets(tokens.map((t) => t.id).filter((id): id is string => !!id));
-      try {
-        return await perform();
-      } finally {
-        DDBEffectHelper.setTokenTargets(previousTargets);
-      }
-    });
+  /** Activity types whose subsequent actions roll against the user's targets, auto-rolled explicitly. */
+  static #AUTO_ROLLED_TYPES = new Set(["attack", "damage", "heal"]);
+
+  /**
+   * The roll dnd5e's subsequent actions would make after an auto-rolled use, made against the
+   * region's tokens rather than the GM's canvas targets: an attack takes a single target's AC, and
+   * the roll card records the tokens for its Apply tray.
+   */
+  static async #autoRoll(activity: Record<string, any>, targets: IRegionTargetDescriptor[], results: { message?: { id?: string } | null }) {
+    const message = { data: { system: { origin: results.message?.id, targets } } };
+    if (activity.type === "attack") {
+      const target = targets.length === 1 ? (targets[0].ac ?? undefined) : undefined;
+      await activity.rollAttack({ target }, {}, message);
+    } else {
+      await activity.rollDamage({}, {}, message);
+    }
   }
 
   /**

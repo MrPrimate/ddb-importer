@@ -31,16 +31,20 @@ interface IBuiltinProfileCache {
 
 let builtinCache: IBuiltinProfileCache | undefined;
 
+/** Set from the `setup` hook, once translations and dnd5e's configuration are final. */
+let settled = false;
+
 /**
  * The shipped profiles and an id index. The system icon presets localize their names and read
- * dnd5e's configuration, so they are rebuilt until the game is ready and then kept per
- * language: `resolve()` runs on every animation frame of a moving region.
+ * dnd5e's configuration, so they are rebuilt until setup has run and then kept per language:
+ * `resolve()` runs on every animation frame of a moving region, and the first canvas draws
+ * regions before the game is ready.
  */
 function shippedProfiles(): IBuiltinProfileCache {
-  if (builtinCache && game.ready && builtinCache.language === game.i18n.lang) return builtinCache;
+  if (builtinCache && settled && builtinCache.language === game.i18n.lang) return builtinCache;
   const profiles = builtinRegionDisplayProfiles((name) => game.i18n.localize(name));
   const cache = { language: game.i18n.lang, profiles, byId: new Map(profiles.map((profile) => [profile.id, profile])) };
-  if (game.ready) builtinCache = cache;
+  if (settled) builtinCache = cache;
   return cache;
 }
 
@@ -58,6 +62,15 @@ export default class RegionDisplayProfiles {
     return utils.getSetting<boolean>(ENABLED_SETTING) !== false;
   }
 
+  /**
+   * Mark translations and dnd5e's configuration as final, from the `setup` hook, so the shipped
+   * profiles are cached from then on rather than only once the game is ready.
+   */
+  static markSettled(): void {
+    settled = true;
+    builtinCache = undefined;
+  }
+
   static get builtins(): readonly IRegionDisplayProfile[] {
     return shippedProfiles().profiles;
   }
@@ -71,9 +84,13 @@ export default class RegionDisplayProfiles {
     return shippedProfiles().byId.get(id) ?? null;
   }
 
-  /** Drop the cached shipped profiles, for tests that switch language or system configuration. */
+  /**
+   * Drop the cached shipped profiles and return to the pre-setup state, for tests that switch
+   * language or system configuration.
+   */
   static resetBuiltinCache(): void {
     builtinCache = undefined;
+    settled = false;
   }
 
   /**

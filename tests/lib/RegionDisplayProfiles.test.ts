@@ -366,12 +366,18 @@ describe("RegionDisplayProfiles field rules", () => {
   });
 });
 
-it("retains shipped preset ids if the system removes a status, and caches ready-time lookups", () => {
+it("retains shipped preset ids if the system removes a status, and caches lookups once setup has run", () => {
   vi.stubGlobal("CONFIG", { DND5E: {} });
   const restore = useEnLocalization();
   const localize = vi.spyOn(game.i18n, "localize");
-  vi.stubGlobal("game", { ...game, ready: true });
   RegionDisplayProfiles.resetBuiltinCache();
+  // before setup the shipped set is rebuilt on each lookup, since translations may still change
+  RegionDisplayProfiles.isBuiltinId("status-prone");
+  const beforeSetup = localize.mock.calls.length;
+  RegionDisplayProfiles.isBuiltinId("status-prone");
+  expect(localize.mock.calls.length).toBeGreaterThan(beforeSetup);
+  // the first canvas draws regions before the game is ready; setup is enough to cache
+  RegionDisplayProfiles.markSettled();
   const preset = RegionDisplayProfiles.get("status-prone")!;
   expect(preset).toMatchObject({ builtin: true, name: "Status: Prone", textureSrc: "systems/dnd5e/icons/svg/statuses/prone.svg" });
   const calls = localize.mock.calls.length;

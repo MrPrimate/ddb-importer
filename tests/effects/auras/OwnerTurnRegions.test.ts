@@ -457,15 +457,24 @@ describe("owner-turn region dispatch", () => {
     } });
   });
 
-  it.each(["suppressed", "skip", "emptyChoice"])("completes a %s one-shot without stranding the region", async (reason) => {
+  it.each(["suppressed", "emptyChoice"])("completes a %s one-shot without stranding the region", async (reason) => {
     const s = setup({ deleteAfterUse: true, skipOriginStatuses: ["incapacitated"] });
     if (reason === "suppressed") s.owner.actor.statuses!.add("incapacitated");
     else {
       s.activity.target.affects.choice = true;
-      vi.spyOn(RegionTargetPrompt, "choose").mockResolvedValue(reason === "skip" ? null : { activity: "tick", tokens: [] });
+      vi.spyOn(RegionTargetPrompt, "choose").mockResolvedValue({ activity: "tick", tokens: [] });
     }
     await s.turn();
     expect(s.region.delete).toHaveBeenCalledOnce();
+    expect(s.use).not.toHaveBeenCalled();
+  });
+
+  it("keeps a skipped one-shot for the owner's next turn", async () => {
+    const s = setup({ deleteAfterUse: true });
+    s.activity.target.affects.choice = true;
+    vi.spyOn(RegionTargetPrompt, "choose").mockResolvedValue(null);
+    await s.turn();
+    expect(s.region.delete).not.toHaveBeenCalled();
     expect(s.use).not.toHaveBeenCalled();
   });
 

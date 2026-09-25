@@ -63,6 +63,20 @@ describe("region recipient choice", () => {
     expect(RegionTargetPrompt.visibleTokens(request)).toEqual(tokens);
   });
 
+  it("only picks an owner who is viewing the region's scene", () => {
+    const actor = { uuid: "Actor.source", testUserPermission: () => true };
+    const users = [
+      { id: "a", active: true, isGM: false, viewedScene: "elsewhere", character: actor },
+      { id: "b", active: true, isGM: false, viewedScene: "s" },
+    ];
+    vi.stubGlobal("game", { ...game, users });
+    expect(RegionTargetPrompt.owner(actor as unknown as Actor.Implementation, "s")?.id).toBe("b");
+    users[1].viewedScene = "elsewhere";
+    expect(RegionTargetPrompt.owner(actor as unknown as Actor.Implementation, "s")).toBeNull();
+    // without a scene the assigned character's owner still wins
+    expect(RegionTargetPrompt.owner(actor as unknown as Actor.Implementation)?.id).toBe("a");
+  });
+
   it("recognizes the assigned character behind an unlinked source token", () => {
     const actor = { id: "source", uuid: "Scene.s.Token.t.Actor.source", testUserPermission: () => true };
     const users = [{ id: "a", active: true, isGM: false },
@@ -73,6 +87,7 @@ describe("region recipient choice", () => {
 
   function routing() {
     const actor = {} as Actor.Implementation;
+    vi.stubGlobal("fromUuidSync", () => ({ parent: { id: "s" } }));
     vi.spyOn(RegionTargetPrompt, "owner").mockReturnValue({ id: "player" } as User.Implementation);
     let answerPlayer!: (value: unknown) => void;
     let remoteSignal: AbortSignal;
@@ -109,6 +124,39 @@ describe("region recipient choice", () => {
     expect(s.aborted()).toBe(true);
   });
 
+  it("routes the owner by the region's scene", async () => {
+    const s = routing();
+    s.answerPlayer(selected);
+    await s.promise;
+    expect(RegionTargetPrompt.owner).toHaveBeenCalledWith(expect.anything(), "s");
+  });
+
+  it("answers unavailable, without a dialog, when a player can see none of the offered tokens", async () => {
+    vi.stubGlobal("Hooks", { on: vi.fn() });
+    vi.stubGlobal("game", { ...game, user: { id: "player", isGM: false },
+      users: { get: () => ({ isActiveGM: true }) },
+      socket: { on: vi.fn(), emit: vi.fn() },
+    });
+    // on another scene: the tokens resolve but have no rendered object
+    vi.stubGlobal("fromUuidSync", (uuid: string) => ({
+      uuid, testUserPermission: () => true, actor: {}, hidden: false, object: null,
+    }));
+    const show = vi.spyOn(RegionTargetPrompt, "show");
+    const socket = new DDBSocket();
+    RegionTargetPrompt.registerSocket(socket);
+    expect(await socket.functions.get("regionTargetPrompt")!.call({ socketData: { userId: "gm" } }, request)).toBe("unavailable");
+    expect(show).not.toHaveBeenCalled();
+  });
+
+  it("hands the choice to the GM when the player can see none of the tokens", async () => {
+    const s = routing();
+    s.answerPlayer("unavailable");
+    expect(await s.promise).toEqual(selected);
+    // the waiting controls, then the GM's own full prompt
+    expect(s.show).toHaveBeenCalledTimes(2);
+    expect(s.show.mock.calls[1][2]).toBeFalsy();
+  });
+
   it("lets the GM take over and ignores a late player reply", async () => {
     const s = routing();
     s.answerGM("takeover");
@@ -142,7 +190,10 @@ describe("region recipient choice", () => {
       users: { get: () => activeGM === undefined ? undefined : { isActiveGM: activeGM } },
       socket: { on: vi.fn(), emit: vi.fn() },
     });
-    vi.stubGlobal("fromUuidSync", () => ({ testUserPermission: () => true }));
+    // the actor and region resolve, and the offered tokens are visible to this player
+    vi.stubGlobal("fromUuidSync", (uuid: string) => ({
+      uuid, testUserPermission: () => true, actor: {}, hidden: false, object: { isVisible: true },
+    }));
     let signal!: AbortSignal;
     vi.spyOn(RegionTargetPrompt, "show").mockImplementation((_request, abortSignal) => {
       signal = abortSignal;

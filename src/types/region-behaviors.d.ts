@@ -13,6 +13,15 @@ declare global {
     placementCombatId?: string;
   }
 
+  /** A dnd5e chat card target, as `TargetsField.getDescriptors` records it. */
+  interface IRegionTargetDescriptor {
+    actor: string;
+    ac: number | null;
+    img?: string;
+    name: string;
+    token: string;
+  }
+
   /** Stored on the placed behavior; dispatch never interprets its script. */
   interface IOwnerTurnBehavior {
     events: string[];
