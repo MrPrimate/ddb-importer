@@ -27,8 +27,16 @@ function stub() {
 describe("class choice placeholders", () => {
   const warnings: unknown[][] = [];
   let original: typeof logger.warn;
-  beforeEach(() => { original = logger.warn; warnings.length = 0; logger.warn = (...args) => { warnings.push(args); }; });
-  afterEach(() => { logger.warn = original; });
+  beforeEach(() => {
+    original = logger.warn;
+    warnings.length = 0;
+    logger.warn = (...args) => {
+      warnings.push(args);
+    };
+  });
+  afterEach(() => {
+    logger.warn = original;
+  });
 
   it("ignores an empty placeholder without resolving its definition", async () => {
     const { parser, advancements } = stub();

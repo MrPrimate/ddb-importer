@@ -787,6 +787,22 @@ describe("RegionAutomations.executeMacroHandler", () => {
     }));
   });
 
+  it("runs a compendium macro by uuid without importing it", async () => {
+    const context = setup();
+    const uuid = "Compendium.world.macros.Macro.pack1";
+    context.args = { macroFunction: uuid };
+    const macro = { documentName: "Macro", name: "Pack Macro", execute: vi.fn() };
+    (globalThis as any).fromUuid = vi.fn(async (value: string) => (value === uuid ? macro : null));
+    (globalThis as any).game.macros = { find: () => undefined };
+
+    await RegionAutomations.executeMacroHandler(context);
+
+    expect(macro.execute).toHaveBeenCalledWith(expect.objectContaining({
+      macroLabel: uuid,
+      token: "Scene.s.Token.tok1",
+    }));
+  });
+
   it("warns and does nothing without a macroFunction or matching macro", async () => {
     const context = setup();
     context.args = {};

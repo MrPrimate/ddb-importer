@@ -56,9 +56,9 @@ const COMBAT_UNIT_LITERAL = /units:\s*["'`](?:rounds|turns)["'`]/;
 // the shapes the legacy builders and macros used to write: a units assignment, the pre-v14
 // `duration.rounds = n` / `{ rounds: n }` keys (core only tolerates those through a shim)
 const LEGACY_COMBAT_UNIT = new RegExp([
-  /duration\.units\s*=\s*["'`](?:rounds|turns)["'`]/.source,
-  /duration\.(?:rounds|turns)\s*=/.source,
-  /duration:\s*\{[^}]*\b(?:rounds|turns)\s*:/.source,
+  (/duration\.units\s*=\s*["'`](?:rounds|turns)["'`]/).source,
+  (/duration\.(?:rounds|turns)\s*=/).source,
+  (/duration:\s*\{[^}]*\b(?:rounds|turns)\s*:/).source,
 ].join("|"));
 
 describe("enricher effect expiry hygiene", () => {

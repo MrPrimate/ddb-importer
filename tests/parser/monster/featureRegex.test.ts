@@ -16,7 +16,10 @@ vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => (
   },
 }));
 vi.mock("../../../src/parser/enrichers/DDBMonsterFeatureEnricher", () => ({
-  default: class { init() {} load() {} },
+  default: class {
+    init() {}
+    load() {}
+  },
 }));
 vi.mock("../../../src/parser/lib/_module", async (importOriginal) => {
   const actual = await importOriginal<Record<string, any>>();

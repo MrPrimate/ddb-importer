@@ -5,8 +5,8 @@
   "description": "Foundry VTT module for integrating D&D Beyond content.",
   "private": true,
   "scripts": {
-    "lint": "npx eslint src/ tools/",
-    "lint-fix": "npx eslint src/ tools/ --fix",
+    "lint": "npx eslint src/ tools/ tests/",
+    "lint-fix": "npx eslint src/ tools/ tests/ --fix",
     "typecheck": "tsc --noEmit --checkers 2",
     "typecheck:ts6": "tsc6 --noEmit --stableTypeOrdering",
     "typecheck:editor": "node tools/typecheck-editor-order.mjs --all --no-enrichers",

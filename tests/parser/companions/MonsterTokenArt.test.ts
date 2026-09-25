@@ -6,7 +6,11 @@ const factory = vi.hoisted(() => ({ source: [] as any[], fetch: vi.fn() }));
 
 vi.mock("../../../src/lib/_module", () => ({
   CompendiumHelper: { getCompendiumType: () => lib.compendium },
-  DDBRunContext: { get keyPostfix() { return lib.keyPostfix; } },
+  DDBRunContext: {
+    get keyPostfix() {
+      return lib.keyPostfix;
+    },
+  },
 }));
 vi.mock("../../../src/lib/Logger", () => ({ default: { warn: vi.fn(), debug: vi.fn() } }));
 vi.mock("../../../src/lib/Utils", () => ({

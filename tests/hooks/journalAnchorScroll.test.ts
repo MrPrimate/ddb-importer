@@ -10,7 +10,7 @@ function fakeRoot(imgs: any[]): any {
 }
 
 function fakeEventImg(): any {
-  const listeners: Record<string, Array<() => void>> = {};
+  const listeners: Record<string, (() => void)[]> = {};
   return {
     addEventListener(type: string, cb: () => void) {
       (listeners[type] ??= []).push(cb);

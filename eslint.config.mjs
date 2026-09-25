@@ -218,6 +218,14 @@ export default defineConfig(
     },
   },
   {
+    // Test doubles are deliberately no-op: `set: () => {}` stands in for a Foundry
+    // method whose side effect the test does not care about.
+    files: ["tests/**/*.{ts,mjs,js}"],
+    rules: {
+      "@typescript-eslint/no-empty-function": "off",
+    },
+  },
+  {
     // One-off scripts that predate tools/ being linted. New tooling under
     // tools/ is linted by `npm run lint`; drop entries here as they are cleaned
     // up rather than adding to the list.

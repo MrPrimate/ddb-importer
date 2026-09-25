@@ -150,7 +150,7 @@ const noopClass = class {};
     Semaphore: class Semaphore {
       max: number;
       _active = 0;
-      _queue: Array<() => void> = [];
+      _queue: (() => void)[] = [];
       constructor(max = 1) {
         this.max = max;
       }
@@ -606,7 +606,9 @@ export function pristineDDBI(): Record<string, any> {
 // -- Dialog --
 (globalThis as any).Dialog = class Dialog {
   constructor() {}
-  render() { return this; }
+  render() {
+    return this;
+  }
 };
 
 // -- Document classes --

@@ -168,11 +168,11 @@ describe("proposal and transaction helpers", () => {
 
   it("derives the DDBEnricherData import from the target's depth", () => {
     expect(renderStarter("feat/Alert.ts", [finding()]))
-      .toContain('import DDBEnricherData from "../data/DDBEnricherData";');
+      .toContain("import DDBEnricherData from \"../data/DDBEnricherData\";");
     expect(renderStarter("class/artificer/ArcaneJolt.ts", [finding()]))
-      .toContain('import DDBEnricherData from "../../data/DDBEnricherData";');
+      .toContain("import DDBEnricherData from \"../../data/DDBEnricherData\";");
     expect(renderStarter("trait/dragonborn/BreathWeapon.ts", [finding()]))
-      .toContain('import DDBEnricherData from "../../data/DDBEnricherData";');
+      .toContain("import DDBEnricherData from \"../../data/DDBEnricherData\";");
   });
 
   it("scaffolds effects for effect rules and activities for the rest", () => {

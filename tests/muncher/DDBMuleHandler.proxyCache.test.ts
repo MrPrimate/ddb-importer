@@ -37,7 +37,9 @@ describe("class mule proxy cache", () => {
     }));
     await DDBProxyCache._resetForTests();
     globalThis.indexedDB = new IDBFactory();
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("Unexpected HTTP request"); }));
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      throw new Error("Unexpected HTTP request");
+    }));
 
   });
 
