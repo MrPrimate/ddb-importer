@@ -4,20 +4,23 @@ import AutoEffects from "./AutoEffects";
 export default class EnchantmentEffects {
 
   static EnchantmentEffect(document: TAll5eItemDocuments, label: string,
-    { transfer = false, disabled = false, origin = null as string | null, id = null as string | null, description = null as string | null, durationSeconds = null as number | null,
-      durationRounds = null as number | null, durationTurns = null as number | null } = {},
+    { transfer = false, disabled = false, origin = null as string | null, id = null as string | null, description = null as string | null,
+      durationSeconds = undefined as number | null | undefined, durationRounds = undefined as number | null | undefined,
+      durationTurns = undefined as number | null | undefined, showIcon = undefined as TEffectShowIcon | undefined } = {},
   ) {
+    // durationSeconds passes through untouched: null clears an inherited duration, undefined inherits
     const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, {
       transfer,
       disabled,
       description: description ?? undefined,
-      durationSeconds: durationSeconds ?? undefined,
-      durationRounds: durationRounds ?? undefined,
+      durationSeconds,
+      durationRounds,
       durationTurns,
+      showIcon,
     });
-    foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
+    effect.type = "enchantment";
     effect._id = id ?? foundry.utils.randomID();
-    effect.origin = origin ?? undefined;
+    if (origin) AutoEffects.setEffectOrigin(effect, origin, "item");
     return effect;
   }
 

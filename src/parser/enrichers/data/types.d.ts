@@ -218,12 +218,18 @@ global {
   // -- Effect Options ---------------------------------------------------------
   interface IDDBEffectOptions {
     description?: string;
+    /**
+     * Counted duration in seconds. A positive number replaces the host document's own duration;
+     * null or 0 clears it so the effect has no counted duration; undefined inherits the host duration.
+     */
     durationSeconds?: number | null;
+    /** Counted duration in rounds, used when no seconds are given. */
     durationRounds?: number | null;
+    /** Counted duration in turns, used when no seconds or rounds are given. */
     durationTurns?: number | null;
     transfer?: boolean;
     disabled?: boolean;
-    expiry?: TDAEEffectExpiryTypes;
+    expiry?: T5eEffectExpiry | null;
     showIcon?: TEffectShowIcon;
   }
 
@@ -248,7 +254,10 @@ global {
     // Changes
     changes?: IActiveEffectChangeData[];
     changesOverwrite?: boolean;
+    /** Active Token Effects changes (`ATL.*` keys): token vision, detection modes and size, which dnd5e 5.3 does not sync from the actor. */
     atlChanges?: IActiveEffectChangeData[];
+    /** Changes on `token.*` keys (light, sight, detectionModes, texture...), applied natively by Foundry. */
+    tokenChanges?: IActiveEffectChangeData[];
     tokenMagicChanges?: IActiveEffectChangeData[];
     midiChanges?: IActiveEffectChangeData[];
     daeChanges?: IActiveEffectChangeData[];
@@ -257,6 +266,10 @@ global {
 
     // DAE
     daeStackable?: string;
+    /**
+     * DAE trigger tokens (1Attack, isSave...). Turn-edge expiry is better declared with `options.expiry`;
+     * turn-edge tokens given here are moved onto `duration.expiry` (EffectGenerator.applyDaeSpecialDurations).
+     */
     daeSpecialDurations?: TDAESpecialDuration[];
 
     // Status effects
@@ -266,6 +279,8 @@ global {
     // Activity matching
     activityMatch?: string;
     activitiesMatch?: string[];
+    /** Link the effect to its activity with `onSave: true` so it applies even when the target saves. */
+    onSave?: boolean;
     ignoreTransfer?: boolean;
 
     // MIDI
@@ -314,12 +329,22 @@ global {
     forceSpellAdvancement?: boolean;
     descriptionSuffix?: string;
     ddbMacroDescription?: boolean;
+    // keep the consumption targets and uses recovery already on the document in the
+    // world, and skip resource linking for it entirely
     retainResourceConsumption?: boolean;
     ignoredConsumptionActivities?: string[];
     noConsumeTargetActivities?: string[];
+    // when resource linking attaches this document to a parent pool, push the parent
+    // link ALONGSIDE the activity's own consumption targets instead of replacing them.
+    // this does not retain uses; see retainUseSpent / retainActivityUseSpent
     retainOriginalConsumption?: boolean;
+    // stop resource linking blanking system.uses (both spent and max) on this document
     retainChildUses?: boolean;
+    // carry system.uses.spent over from the previously imported document
     retainUseSpent?: boolean;
+    // carry activity level uses.spent over from the previously imported document.
+    // true covers every activity with its own uses, an array selects them by name
+    retainActivityUseSpent?: boolean | string[];
     uses?: I5eSystemLimitedUses | I5eConsumableUses;
     // To Do add a data object here with flags
     data?: Record<string, any>;

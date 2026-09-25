@@ -2,6 +2,7 @@ import {
   CompendiumHelper,
 } from "../../lib/_module";
 
+
 export class SRDExtractor {
 
   static MONSTER_MAP: Record<string, Record<string, string>> = {
@@ -43,7 +44,7 @@ export class SRDExtractor {
       if (doc) return doc;
     }
     if (name) {
-      const indexMatch = compendium.index.find((a) => a.name === name);
+      const indexMatch = compendium.index.find((a) => (a as unknown as INameMatchIndexEntry).name === name);
       if (indexMatch) {
         const doc = await fromUuid(indexMatch.uuid);
         return doc;

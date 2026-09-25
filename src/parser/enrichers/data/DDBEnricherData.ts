@@ -5,6 +5,7 @@ import DDBDataUtils from "../../lib/DDBDataUtils";
 import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
 import SpellDataUtils from "../../spells/SpellDataUtils";
 import type DDBSummonsManager from "../../companions/DDBSummonsManager";
+import AdvancementBuilder from "../../advancements/AdvancementBuilder";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 export interface IDDBBasicDamage {
@@ -28,6 +29,10 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   static get ChangeHelper(): typeof ChangeHelper {
     return ChangeHelper;
+  }
+
+  static get AdvancementBuilder(): typeof AdvancementBuilder {
+    return AdvancementBuilder;
   }
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
@@ -250,32 +255,34 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: IActionTypes; name: string; onlyLimitedUse?: boolean }): any[] {
     const ddbData = this.ddbParser?.ddbData;
     if (!ddbData) return [];
-    const spells = (ddbData.character.spells[type] ?? []).filter((s) => {
+    const spells = (ddbData.character.spells?.[type] ?? []).filter((s) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
         ? DDBDataUtils.determineActualFeatureId(ddbData, s.componentId)
         : s.componentId;
       const lookupType = type === "class" ? "classFeature" : type;
       const lookup = SpellDataUtils.getDDBSpellLookup(ddbData, lookupType, id);
-      if (lookup?.name === name) return true;
-      return false;
+      // DDB feature names carry curly apostrophes ("Paladin’s Smite"); enrichers use straight ones
+      return lookup?.name !== undefined && utils.nameString(lookup.name) === utils.nameString(name);
     });
     return spells;
   }
 
   _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: boolean | null }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
+    const system = this.ddbParser?.data?.system;
+
+    const uses: I5eSystemLimitedUses = spells.length > 0
+      ? SpellDataUtils.getUses(spells[0].limitedUse)
+      : foundry.utils.deepClone(system && "uses" in system ? system.uses ?? {} : {});
 
     if (spells.length === 0) {
-      logger.error(`No spells found for feature ${name} of type ${type}`);
-      return {
-        spent: defaultSpent,
-        max,
-        recovery: [],
-      };
+      logger.warn(`No spells found for feature ${name} of type ${type}`);
+      // Preserve the feature's existing uses when DDB supplies no charge pool.
+      // Explicit defaults still apply, including the recovery configured below.
+      if (defaultSpent !== null) uses.spent = defaultSpent;
+      if (max !== null) uses.max = max;
     }
-
-    const uses: I5eSystemLimitedUses = SpellDataUtils.getUses(spells[0].limitedUse);
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
@@ -403,6 +410,16 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return true;
   }
 
+  /**
+   * An enricher that authors `additionalActivities` normally replaces the save and check
+   * activities the parser builds from the description. Return true when the enricher's activities
+   * sit beside those, not instead of them: a lair-action list gaining a terrain placer still
+   * needs each of its parsed saves.
+   */
+  get keepParsedActivities(): boolean {
+    return false;
+  }
+
   get builtFeaturesFromActionFilters(): any[] {
     return [];
   }
@@ -421,6 +438,25 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
    * classes and so cannot be listed there (e.g. Gunslinger vs Fighter "Maneuvers").
    */
   get noChoiceBuild(): boolean {
+    return false;
+  }
+
+  /**
+   * When a lone chosen option merges into a parent that already has activities, append the
+   * option's activities instead of dropping them, skipping any whose name the parent already
+   * carries. For parents whose enricher builds the primary activity itself but still wants
+   * DDB's per-option actions beside it (Semblance of Life's spirit-form attacks).
+   */
+  get mergeChoiceActivities(): boolean {
+    return false;
+  }
+
+  /**
+   * Refuse the option modifiers that DDBFeatureMixin._suppressedChoiceModifiers would otherwise
+   * carry onto this feature, for a parent whose enricher automates those options itself. Order of
+   * the Lycan: Improved Predatory Strikes/Stalker's Prowess.
+   */
+  get noSuppressedChoiceModifiers(): boolean {
     return false;
   }
 
@@ -452,6 +488,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return null;
   }
 
+  /** Disables parser-generated versatile activities and conditional attack modes. */
   get noVersatile(): boolean {
     return false;
   }

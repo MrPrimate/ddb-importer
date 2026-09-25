@@ -45,17 +45,16 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const block = Array.from(this.blockDatas).find((el) => {
       const elementName = el.innerText.trim();
       const elementStartsWith = elementName.startsWith(type);
-      const isOnly = elementName.toLowerCase().includes("only")
+      if (!elementStartsWith) return false;
+      const header = el.getElementsByTagName("strong")[0].innerText.toLowerCase();
+      if (header.includes("only") && !header.includes(subType)) return false;
+      // An AC line can include a bonus for one form while its base applies to all.
+      const isOnly = type !== "Armor Class" && elementName.toLowerCase().includes("only")
         ? elementName.toLowerCase().includes(subType)
         : true;
       return elementStartsWith && isOnly;
     });
     if (!block) return undefined;
-
-    const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
-    if (header.includes("only") && !header.includes(subType)) {
-      return undefined;
-    }
 
     const clone = block.cloneNode(true) as HTMLElement;
     clone.getElementsByTagName("strong")[0].innerHTML = "";

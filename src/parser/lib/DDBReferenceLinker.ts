@@ -829,3 +829,19 @@ export async function replaceMonsterNameBadLinks(str: string, actor: I5eActorDat
   return str;
 
 }
+
+export async function parseMonsterDescription({
+  text,
+  document,
+  actor,
+}: {
+  text: string;
+  document: TReferenceDocumentTypes;
+  actor: I5eActorData;
+}): Promise<string> {
+  let description = replaceMonsterALinks(text, actor);
+  description = parseDamageRolls({ text: description, document, actor }) ?? description;
+  description = parseToHitRoll({ text: description, document });
+  description = parseTags(description);
+  return replaceMonsterNameBadLinks(description, actor);
+}

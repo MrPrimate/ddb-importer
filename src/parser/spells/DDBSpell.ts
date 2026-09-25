@@ -415,7 +415,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       }
     } else if (
-      // Warlock Mystic Arcanum are passed in as Features
+      // Warlock Mystic Arcanum are passed in as Features. The standard features drop their
+      // spell copy via FEATURE_SPELLS_IGNORE in favour of a cast activity on the feature, so
+      // this only catches renamed or homebrew arcanum features.
       this.lookupName?.startsWith("Mystic Arcanum")
     ) {
       // these have limited uses (set with getUses())
@@ -486,13 +488,24 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
   }
 
+  /**
+   * DDB duration types that carry no unit, keyed to the dnd5e time period they mean. The
+   * remaining unit-less types (Instantaneous, Special) happen to match dnd5e's key through their
+   * first four letters, which is what the fallback below relies on.
+   */
+  static DURATION_TYPE_UNITS: Record<string, TDurationUnit> = {
+    "until dispelled": "disp",
+    "until dispelled or triggered": "dstr",
+  };
+
   _generateDuration() {
     if (this.ddbDefinition.duration) {
       let units: string;
       if (this.ddbDefinition.duration.durationUnit !== null) {
         units = this.ddbDefinition.duration.durationUnit.toLowerCase();
       } else {
-        units = this.ddbDefinition.duration.durationType.toLowerCase().substring(0, 4);
+        const durationType = this.ddbDefinition.duration.durationType.toLowerCase();
+        units = DDBSpell.DURATION_TYPE_UNITS[durationType] ?? durationType.substring(0, 4);
       }
       this.data.system.duration = {
         concentration: this.ddbDefinition.concentration,
@@ -855,7 +868,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     } else if ((this.ddbDefinition.tags.includes("Damage") && this.ddbDefinition.requiresAttackRoll)
       || this.ddbDefinition.attackType !== null
     ) {
-      if (this.ddbDefinition.requiresSavingThrow) {
+      // a multi-mode spell already has one named save activity per section
+      if (this.ddbDefinition.requiresSavingThrow && this._saveBearingSections(this.ddbDefinition.description ?? "").length === 0) {
         this.additionalActivities.push({
           name: "Save",
           type: "save",
@@ -966,10 +980,47 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
           generateHealing: true,
           healingPart: part.part,
           healingChatFlavor: part.chatFlavor,
-          noSpellslot: this.activityType !== "heal",
+          noSpellslot: true,
         },
       });
     }
+  }
+
+  /**
+   * The save the spell describes, used to keep the primary out of the generated set.
+   * Unlike an item, a spell's save comes from DDB rather than its prose, so it usually carries a
+   * spellcasting calculation rather than a printed DC.
+   */
+  get #primarySpellSave(): I5eActivitySave | null {
+    if (!this.ddbDefinition.requiresSavingThrow || !this.ddbDefinition.saveDcAbilityId) return null;
+    const ability = DICTIONARY.actor.abilities
+      .find((entry) => entry.id === this.ddbDefinition.saveDcAbilityId)?.value;
+    if (!ability) return null;
+    return {
+      ability: [ability],
+      dc: this.spellData.overrideSaveDc
+        ? { formula: String(this.spellData.overrideSaveDc), calculation: "" }
+        : { formula: "", calculation: "spellcasting" },
+    };
+  }
+
+  /**
+   * Build one save activity per mode of a spell whose text describes several saving throws.
+   *
+   * Rarely fires: spell text names an ability without a DC ("make a Dexterity saving throw"),
+   * which the save parser deliberately will not read. The extras consume no slot - two
+   * slot-consuming activities on one spell is an audit failure.
+   */
+  #generateMultiSaveActivities(): void {
+    // A summoning spell embeds the summoned creature's stat block in its own description, so its
+    // traits' saving throws read as extra modes of the spell. Those belong to the summon.
+    if (this.isSummons) return;
+    this._multiSaveActivityGeneration({
+      text: this.ddbDefinition.description ?? "",
+      primarySave: this.#primarySpellSave,
+      skipFirstSection: Boolean(this.ddbDefinition.requiresSavingThrow && !this.ddbDefinition.requiresAttackRoll),
+      noSpellslot: true,
+    });
   }
 
   override async _generateAdditionalActivities() {
@@ -979,12 +1030,14 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     const ids = [];
     for (const activityData of this.additionalActivities) {
       i++;
+      // the parser's extras are follow-ups to the cast (study checks, extra healing, a save beside
+      // an attack), so using one must not begin the spell's concentration again
       const id = await this._generateActivity({
         hintsOnly: false,
         name: activityData.name,
         nameIdPostfix: i,
         typeOverride: activityData.type,
-      }, activityData.options);
+      }, { noConcentration: true, ...activityData.options } as IDDBSpellActivityBuild);
       logger.debug(`Generated additional Activity with id ${id}`, {
         this: this,
         activityData,
@@ -1030,7 +1083,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
-      this.data.system.sourceClass = DDBDataUtils.classIdentifierName(this.spellClass);
+      this.data.system.sourceItem = `class:${DDBDataUtils.classIdentifierName(this.spellClass)}`;
     }
     this._generateProperties();
     this._generateMaterials();
@@ -1047,6 +1100,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     await this._generateCompanions();
 
     this._studyCheckGeneration();
+    this.#generateMultiSaveActivities();
 
     if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();

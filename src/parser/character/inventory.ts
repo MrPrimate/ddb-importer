@@ -4,6 +4,7 @@ import { logger, utils, CompendiumHelper } from "../../lib/_module";
 import GenericSpellFactory from "../spells/GenericSpellFactory";
 import { DICTIONARY } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
+import { ensureItemSpellsInCompendium } from "./itemSpells";
 
 
 type SupportedOverrideKey = "name" | "weight" | "price";
@@ -66,7 +67,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   for (const ddbItem of ddb.character.inventory) {
     if (discardMissingContainerItems && ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
     ) {
-      logger.error(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have`, {
+      logger.warn(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have. This is, in most cases, harmless.`, {
         ddbItem,
         container: ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
       });
@@ -108,6 +109,12 @@ DDBCharacter.prototype._generateInventory = async function _generateInventory(th
     generateSummons: this.generateSummons,
   });
   logger.debug("Item Spells parse complete");
+  // compendium (mule) characters never link item spells, see DDBItem #basicMagicItem
+  const isCompendiumCharacter = this.isMuncher
+    || (foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") as boolean ?? false);
+  if (!isCompendiumCharacter && this.ensureItemSpellsInCompendium) {
+    await ensureItemSpellsInCompendium(ddb, this.raw.itemSpells, { generateSummons: this.generateSummons });
+  }
   this.raw.inventory = await this.getInventory();
   logger.debug("Inventory parse complete");
 };

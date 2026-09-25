@@ -27,10 +27,10 @@ global {
   /**
    * An entry pushed into a parser's spellLinks array by AdvancementHelper.
    *
-   * - getCantripChoiceAdvancement  → type "choice", choices: string[],          uuids present
-   * - getSpellChoiceAdvancement    → type "choice", choices: ISpellLinkChoice,  uuids absent
-   * - getCantripGrantAdvancement   → type "grant",  choices: string[],          uuids present
-   * - getSpellGrantAdvancement     → type "grant",  choices: ISpellLinkGrant[], uuids present
+   * - getCantripChoiceAdvancement  -> type "choice", choices: string[],          uuids present
+   * - getSpellChoiceAdvancement    -> type "choice", choices: ISpellLinkChoice,  uuids absent
+   * - getCantripGrantAdvancement   -> type "grant",  choices: string[],          uuids present
+   * - getSpellGrantAdvancement     -> type "grant",  choices: ISpellLinkGrant[], uuids present
    */
   interface IDDBSpellLink {
     type: "choice" | "grant";

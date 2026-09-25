@@ -6,6 +6,29 @@ import type { IExcludedEffectModifier } from "../../config/dictionary/effects/ex
 
 export default class DDBModifiers {
 
+  /**
+   * DDB entity type ids carried by modifiers that were granted by a CHOSEN OPTION
+   * (e.g. a species sense choice such as the 2024 Faerie, or a class feature option).
+   * Option ids live in their own small id space, so a bare componentId match against
+   * choiceDefinitions option ids collides with unrelated racial traits / feats
+   * (Hill Dwarf darkvision componentId 6 vs Fighting Style option id 6).
+   */
+  static CHOICE_OPTION_ENTITY_TYPE_IDS = [
+    258900837, // class feature / feat option
+    306912077, // species trait option
+  ];
+
+  /**
+   * Is this modifier granted by a chosen option? Requires BOTH the option id match
+   * and an option entity type on the modifier, so trait/feat ids cannot collide.
+   */
+  static isChoiceOptionModifier(ddb: IDDBData, mod: IModifiersMod | IDDBModifier): boolean {
+    if (!DDBModifiers.CHOICE_OPTION_ENTITY_TYPE_IDS.includes(Number(mod.componentTypeId))) return false;
+    return (ddb.character.choices?.choiceDefinitions ?? []).some((def) =>
+      def.options.some((opt) => opt.id === mod.componentId),
+    );
+  }
+
   static getEffectExcludedModifiers(type: ICoreSourceTypes, features: boolean, ac: boolean) {
     const EXCLUDED = DICTIONARY.effects.excludedModifiers;
     let modifiers: IExcludedEffectModifier[] = [];

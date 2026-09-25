@@ -8,17 +8,19 @@ import ProficiencyFinder from "../../lib/ProficiencyFinder";
 import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
+import {
+  applyDaeSpecialDurations,
+  applyNativeExpiry,
+  DURATIONLESS_EXPIRIES,
+  expirySupportsDuration,
+  PSEUDO_EXPIRIES,
+} from "./EffectExpiryHelpers";
 
 
-const EFFECT_EXPIRY_TYPES = [
-  "turnStart", "turnEnd", "roundStart", "roundEnd", "combatStart", "combatEnd",
-] as const;
-export const DAE_EFFECT_EXPIRY_TYPES = [
-  ...EFFECT_EXPIRY_TYPES,
-  "sourceStart", "sourceEnd", "targetStart", "targetEnd",
-] as const;
+export { EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
 
 export const DAE_SPECIAL_DURATIONS = [
+  // legacy turn-edge tokens: accepted as input and moved onto duration.expiry
   "turnStart",
   "turnEnd",
   "turnStartSource",
@@ -55,7 +57,7 @@ export const DAE_SPECIAL_DURATIONS = [
   "1Hit:rwak",
   "1Hit:msak",
   "1Hit:rsak",
-];
+] as const;
 
 const BASE_RESTRICTIONS = [
   "",
@@ -97,6 +99,8 @@ export default class EffectGenerator {
   isCompendiumItem: boolean;
   type: TEffectGeneratorType;
   grantedModifiers: IDDBModifier[];
+  /** Save modifiers restricted to concentration, routed to `attributes.concentration`. */
+  concentrationModifiers: IDDBModifier[];
   noGenerate: boolean;
   separateACEffects: boolean | undefined;
 
@@ -146,12 +150,25 @@ export default class EffectGenerator {
       );
     }
 
-    this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
+    // Concentration-restricted save modifiers have a native home (attributes.concentration)
+    // and must stay out of the plain save paths, which would flatten them onto every Con save.
+    this.concentrationModifiers = (this.grantedModifiers ?? []).filter((modifier) =>
+      EffectGenerator.CONCENTRATION_RESTRICTION.test(modifier.restriction ?? "")
+      && ["saving-throws", "constitution-saving-throws"].includes(modifier.subType ?? ""),
+    );
+    if (this.concentrationModifiers.length > 0) {
+      this.grantedModifiers = this.grantedModifiers.filter((modifier) => !this.concentrationModifiers.includes(modifier));
+    }
+
+    this.noGenerate = (!this.grantedModifiers || this.grantedModifiers.length === 0) && this.concentrationModifiers.length === 0;
 
     this.separateACEffects = separateACEffects ?? utils.getSetting<boolean>("separate-ac-effects");
 
     this._generateDataStub();
   }
+
+  /** DDB restriction text for a modifier that only applies to saves made to keep concentration. */
+  static CONCENTRATION_RESTRICTION = /maintain(?:ing)?\s+(?:your\s+)?concentration/i;
 
   changeAdded = {
     bonus: {},
@@ -384,6 +401,23 @@ export default class EffectGenerator {
     });
   }
 
+  /**
+   * The ceiling for one ability score bonus when the item states its own. DDB has no field for
+   * it: the limit is written in the modifier's restriction text ("to a maximum of 24", "Can exceed
+   * 20, but not 30"). null when unstated, and the actor's score maximum applies.
+   */
+  static statBonusCeiling(bonus: IDDBModifier): number | null {
+    const restriction = bonus.restriction ?? "";
+    const written = restriction.match(/maximum of\s*(\d+)/i) ?? restriction.match(/\bnot\s*(\d+)/i);
+    return written ? Number(written[1]) : null;
+  }
+
+  /** The floor a score penalty stops at, from restriction text such as "Curse. (minimum of 7)"; null when unstated. */
+  static statBonusFloor(bonus: IDDBModifier): number | null {
+    const written = (bonus.restriction ?? "").match(/minimum of\s*(\d+)/i);
+    return written ? Number(written[1]) : null;
+  }
+
   _addStatBonusEffect(subType: string) {
     const bonuses = this.grantedModifiers.filter((modifier) =>
       (modifier.type === "bonus" || modifier.type === "stacking-bonus")
@@ -398,8 +432,15 @@ export default class EffectGenerator {
           return;
         }
 
-        if (game.modules.get("dae")?.active) {
-          const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
+        const floor = EffectGenerator.statBonusFloor(bonus);
+        if (game.modules.get("dae")?.active && Number(bonus.value) < 0 && floor !== null) {
+          // "Curse. (minimum of 7)": the penalty stops at the floor DDB writes in the restriction
+          const penaltyString = `max(${floor}, @abilities.${ability.value}.value + ${bonus.value})`;
+          this.effect.system.changes.push(ChangeHelper.overrideChange(penaltyString, 5, `system.abilities.${ability.value}.value`));
+        } else if (game.modules.get("dae")?.active && Number(bonus.value) > 0) {
+          // the item's own limit ("to a maximum of 24") wins over the actor's score maximum
+          const ceiling = EffectGenerator.statBonusCeiling(bonus) ?? `@abilities.${ability.value}.max`;
+          const bonusString = `min(${ceiling}, @abilities.${ability.value}.value + ${bonus.value})`;
           // min(20, @abilities.con.value + 2)
           this.effect.system.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
         } else {
@@ -701,6 +742,75 @@ export default class EffectGenerator {
     }
   }
 
+  /**
+   * "Advantage on Constitution saving throws to maintain concentration" and its bonus cousins.
+   * dnd5e rolls concentration apart from the Constitution save, so the mode lands on
+   * `attributes.concentration.roll` and the bonus on `attributes.concentration.bonuses.save`
+   * rather than on the ability save, which would also catch poison and petrification.
+   */
+  _addConcentrationChanges() {
+    for (const mode of ["advantage", "disadvantage"] as const) {
+      const mods = this.concentrationModifiers.filter((mod) => mod.type === mode);
+      if (mods.length === 0) continue;
+      logger.debug(`Generating concentration ${mode} for ${this.document.name}`);
+      const value = mode === "advantage" ? ChangeHelper.ADVANTAGE : ChangeHelper.DISADVANTAGE;
+      this.effect.system.changes.push(ChangeHelper.concentrationRollModeChange(value, 20));
+    }
+    const bonus = this.concentrationModifiers
+      .filter((mod) => mod.type === "bonus")
+      .map((mod) => DDBModifiers.extractModifierValue(mod))
+      .filter((value) => value !== "")
+      .join(" + ");
+    if (bonus) {
+      logger.debug(`Generating concentration bonus for ${this.document.name}`, bonus);
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "system.attributes.concentration.bonuses.save"));
+    }
+  }
+
+  /**
+   * DDB sends some speed bonuses with a null value and puts the speed in the restriction text
+   * instead: "Equal to your walking speed" or "30ft. swim speed". A modifier with a duration
+   * belongs to an activated property (Boots of Speed, Vanisher Hat), so it is left to the item's
+   * enricher rather than becoming an always-on transfer effect. "Speed Doubled" has no dnd5e 5.3
+   * change to land on (6.0 has a movement multiplier). Anything the text does not describe is
+   * skipped; parsing the null would emit NaN.
+   */
+  _addUnvaluedSpeedBonus(modifier: IDDBModifier, speedType: string) {
+    if (modifier.duration) {
+      logger.debug(`Skipping timed ${modifier.subType} speed bonus for ${this.document.name}`, { modifier });
+      return;
+    }
+    const restriction = String(modifier.restriction ?? "");
+    const key = `system.attributes.movement.${speedType}`;
+    if (speedType !== "all" && (/equal to your (walking )?speed/i).test(restriction)) {
+      if (speedType === "walk") return;
+      this.effect.system.changes.push(ChangeHelper.upgradeChange("@attributes.movement.walk", 5, key));
+      return;
+    }
+    const distance = restriction.match(/(\d+)\s*(?:ft|feet|foot)\b/i);
+    if (speedType !== "all" && distance) {
+      this.effect.system.changes.push(ChangeHelper.upgradeChange(Number.parseInt(distance[1]), 5, key));
+      return;
+    }
+    logger.debug(`Skipping ${modifier.subType} speed bonus with no value for ${this.document.name}`, { modifier });
+  }
+
+  /**
+   * The document's ruleset. Items and features stamp `system.source.rules` and the is2024 flag
+   * before their effects are generated.
+   */
+  get #is2024(): boolean {
+    const rules = foundry.utils.getProperty(this.document, "system.source.rules");
+    if (rules === "2024") return true;
+    if (rules === "2014") return false;
+    return foundry.utils.getProperty(this.document, "flags.ddbimporter.is2024") === true;
+  }
+
+  /**
+   * `speedType` "all" raises every speed through `movement.bonus`; DDB's generic
+   * "speed" modifier asks for it on 2024 documents, where "Speed" means every speed, while in 2014
+   * it is the walking speed.
+   */
   _addBonusSpeedChanges(subType: string, speedType: string | null = null) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
     // "Equal to Walking Speed"
@@ -716,11 +826,18 @@ export default class EffectGenerator {
         }
         speedType = speedEntry.type;
       }
-      const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
-      if (speedType === "all") {
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
-      } else {
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+      const hasValue = (mod: IDDBModifier) => Number.isFinite(Number.parseInt(String(mod.value)));
+      const valued = bonuses.filter(hasValue);
+      if (valued.length > 0) {
+        const bonusValue = valued.reduce((speed, mod) => speed + Number.parseInt(String(mod.value)), 0);
+        if (speedType === "all") {
+          this.effect.system.changes.push(ChangeHelper.movementBonusChange(bonusValue, 9));
+        } else {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+        }
+      }
+      for (const bonus of bonuses.filter((mod) => !hasValue(mod))) {
+        this._addUnvaluedSpeedBonus(bonus, speedType);
       }
     }
   }
@@ -732,7 +849,7 @@ export default class EffectGenerator {
     });
 
     this._addBonusSpeedChanges("unarmored-movement", "walk");
-    this._addBonusSpeedChanges("speed", "walk");
+    this._addBonusSpeedChanges("speed", this.#is2024 ? "all" : "walk");
     // probably all, but doesn't handle cases of where no base speed set, so say fly gets set to 10.
   }
 
@@ -776,9 +893,9 @@ export default class EffectGenerator {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         // parseDiceString joins mods with "", so undefined behaves identically to the previous null
         if (die) {
-          return utils.parseDiceString(die.diceString, undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
+          return utils.parseDiceString(die.diceString, undefined, mod.subType ? `[${mod.subType}]` : undefined, undefined, true).diceString;
         } else {
-          return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined).diceString;
+          return utils.parseDiceString(String(mod.value), undefined, mod.subType ? `[${mod.subType}]` : undefined, undefined, true).diceString;
         }
       });
     if (bonus && bonus.length > 0) {
@@ -917,6 +1034,7 @@ export default class EffectGenerator {
     this._addHPEffect();
     this._addSkillBonuses();
     this._addInitiativeBonuses();
+    this._addConcentrationChanges();
     this._addAttackRollDisadvantage();
     this._addMagicalAdvantage();
     this._addBonusSpeeds();
@@ -1181,63 +1299,18 @@ export default class EffectGenerator {
 
   }
 
-  static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
-    const daeActive: boolean = game.modules.get("dae")?.active ?? false;
-    const daeManagesTurnExpiry: boolean = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
-    const deprecatedSpecialDurMap: Record<string, TDAEEffectExpiryTypes> = daeManagesTurnExpiry ? {
-      "turnStart": "targetStart",
-      "turnEnd": "targetEnd",
-      "turnStartSource": "sourceStart",
-      "turnEndSource": "sourceEnd",
-      "combatEnd": "combatEnd",
-      "sourceStart": "sourceStart",
-      "sourceEnd": "sourceEnd",
-      "targetStart": "targetStart",
-      "targetEnd": "targetEnd",
-    } : {
-      "turnStart": "turnStart",
-      "turnEnd": "turnEnd",
-      "turnStartSource": "turnStart",
-      "turnEndSource": "turnEnd",
-      "combatEnd": "combatEnd",
-      "sourceStart": "turnStart",
-      "sourceEnd": "turnEnd",
-      "targetStart": "turnStart",
-      "targetEnd": "turnEnd",
-    };
+  // expiry translation lives in the EffectExpiryHelpers leaf so AutoEffects can
+  // use it without importing EffectGenerator (which imports AutoEffects); these
+  // statics stay as the established call surface
+  static PSEUDO_EXPIRIES = PSEUDO_EXPIRIES;
 
-    effect.duration ??= {};
+  static DURATIONLESS_EXPIRIES = DURATIONLESS_EXPIRIES;
 
-    if (durations.includes("turnStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnStart"];
-    } else if (durations.includes("turnEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnEnd"];
-    } else if (durations.includes("combatEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["combatEnd"];
-    } else if (durations.includes("turnStartSource")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnStartSource"];
-    } else if (durations.includes("turnEndSource")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["turnEndSource"];
-    }
+  static expirySupportsDuration = expirySupportsDuration;
 
-    // these are new for v14 so more likely to be correct
-    if (durations.includes("sourceStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["sourceStart"];
-    } else if (durations.includes("sourceEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["sourceEnd"];
-    } else if (durations.includes("targetStart")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["targetStart"];
-    } else if (durations.includes("targetEnd")) {
-      effect.duration.expiry = deprecatedSpecialDurMap["targetEnd"];
-    }
+  static applyNativeExpiry = applyNativeExpiry;
 
-    const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>
-      !(DAE_EFFECT_EXPIRY_TYPES as readonly string[]).includes(d),
-    );
+  static applyDaeSpecialDurations = applyDaeSpecialDurations;
 
-    if (durationsToFlag.length > 0)
-      foundry.utils.setProperty(effect, "flags.dae.specialDuration", durationsToFlag);
-    return effect;
-  }
 
 }

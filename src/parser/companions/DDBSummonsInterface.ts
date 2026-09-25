@@ -23,16 +23,30 @@ import { getGraspingVines } from "./types/GraspingVine";
 import { getGuardianOfFaith } from "./types/GuardianOfFaith";
 import { getHoundOfIllOmen } from "./types/HoundOfIllOmen";
 import { getIllusions } from "./types/Illusions";
+import { getIllusoryDragon } from "./types/IllusoryDragon";
 import { getMageHands } from "./types/MageHand";
 import { getPhantomSteed } from "./types/PhantomSteed";
 import { getSpiritualWeapons } from "./types/SpiritualWeapon";
 import { getUnseenServant } from "./types/UnseenServant";
 import { getAccursedSpecter } from "./types/AccursedSpecter";
 import { getTentacleOfTheDeeps } from "./types/TentacleOfTheDeeps";
+import { getAwaken, getFindSteed2014, getFloatingDisk, getGiantInsect2014, getSecretChest, getSRDItemSummons } from "./types/SRDCreatures";
 
 export default class DDBSummonsInterface {
 
   static getAccursedSpecter = getAccursedSpecter;
+
+  static getAwaken = getAwaken;
+
+  static getFindSteed2014 = getFindSteed2014;
+
+  static getGiantInsect2014 = getGiantInsect2014;
+
+  static getFloatingDisk = getFloatingDisk;
+
+  static getSecretChest = getSecretChest;
+
+  static getSRDItemSummons = getSRDItemSummons;
 
   static getAnimateDead = getAnimateDead;
 
@@ -83,6 +97,8 @@ export default class DDBSummonsInterface {
   static getHoundOfIllOmen = getHoundOfIllOmen;
 
   static getIllusions = getIllusions;
+
+  static getIllusoryDragon = getIllusoryDragon;
 
   static getMageHands = getMageHands;
 

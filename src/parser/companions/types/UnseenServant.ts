@@ -8,7 +8,10 @@ const UNSEEN_SERVANT_INSTANCES = [
   { name: "SRD", token: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp", actor: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp" },
 ];
 
-export async function getUnseenServant(name = "Unseen Servant", postfix = ""): Promise<ICompanionResult> {
+export async function getUnseenServant({
+  name = "Unseen Servant",
+  postfix = "",
+}: Partial<IArcaneHandData> = {}): Promise<ICompanionResult> {
 
   const results: ICompanionResult = {};
   const pack = game.packs.get("dnd5e.monsters");

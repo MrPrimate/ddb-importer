@@ -935,24 +935,48 @@ export default class CharacterFeatureFactory {
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     this._ddbClassFeatures.data.forEach((doc) => {
-      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
-      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
-      const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
-      const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
-        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
-      if (existingFeature && !duplicateFeature) {
-        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
-          if (existingFeature.system.description) {
-            existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
-          }
-        } else {
-          const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
-          if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
-        }
-      } else if (!existingFeature) {
-        this.parsed.features.push(doc);
-      }
+      CharacterFeatureFactory.mergeClassFeature(this.parsed.features, doc);
     });
+  }
+
+  /**
+   * A FORCE_DUPLICATE_OVERWRITE copy replaces the surviving feature's text and hands over its
+   * summon link: DDB's sheet-hidden Vestige Companion copy is the one carrying the stat block, so
+   * the actors it parsed would otherwise be dropped with it. Shared by every duplicate pass
+   * (DDBClassFeatures' class and subclass passes run before the factory's).
+   */
+  static overwriteDuplicateFeature(existingFeature: T5eFeatureMixinDataTypes, doc: T5eFeatureMixinDataTypes): void {
+    if (existingFeature.system.description) {
+      existingFeature.system.description.value = `${doc.system.description?.value ?? ""}`;
+    }
+    if ("activities" in existingFeature.system && "activities" in doc.system) {
+      DDBChoiceFeature.foldChoiceSummons(existingFeature.system.activities, doc.system.activities);
+    }
+  }
+
+  /**
+   * Adds a built class feature to the list, or folds it into a same-named feature already there:
+   * a second class contributing the feature appends its text under a class heading, a
+   * FORCE_DUPLICATE_OVERWRITE name replaces the text outright, and an exact duplicate is dropped.
+   * An overwriting copy also hands over its summon link: DDB's sheet-hidden Vestige Companion copy
+   * is the one carrying the stat block, so its parsed actors would otherwise be lost with it.
+   */
+  static mergeClassFeature(features: T5eFeatureMixinDataTypes[], doc: T5eFeatureMixinDataTypes): void {
+    const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter?.originalName ?? doc.name);
+    const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(features, doc, { matchClass: forceFeatureClassMatch });
+    const duplicateCheckName = CharacterFeatureFactory.duplicateCheckName(doc);
+    const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(features, doc)
+      || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(duplicateCheckName);
+    if (existingFeature && !duplicateFeature) {
+      if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(duplicateCheckName)) {
+        CharacterFeatureFactory.overwriteDuplicateFeature(existingFeature, doc);
+      } else {
+        const klassAdjustment = `<h3>${doc.flags.ddbimporter?.dndbeyond?.class}</h3>${doc.system.description?.value ?? ""}`;
+        if (existingFeature.system.description) existingFeature.system.description.value += klassAdjustment;
+      }
+    } else if (!existingFeature) {
+      features.push(doc);
+    }
   }
 
 
@@ -1455,8 +1479,10 @@ export default class CharacterFeatureFactory {
     //   this: this,
     //   grantedSpells: this.spellsGranted[type],
     // });
-    for (const spell of this.ddbCharacter._spellParser._granted[type]) {
+    for (const spell of this.ddbCharacter._spellParser._granted[type] ?? []) {
       const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") as string ?? spell.name;
+      // a second pass over the same type must not put the spell on the sheet again
+      if (this.ddbCharacter.raw.spells.includes(spell)) continue;
 
       if (this.spellsGranted[type].some((sg) =>
         featuresToCheck.some((f) => {
@@ -1494,16 +1520,24 @@ export default class CharacterFeatureFactory {
       await this._addSpellAdvancementTypeWithFilter(type);
     }
 
+    // `forceSpellAdvancement` dates from when only some granted-spell types were processed
+    // above; every type is now, so a forced pass over a type already handled would build the
+    // feature's spell advancements a second time and push its granted spells onto the sheet
+    // twice (the Celestial warlock's Bonus Cantrips arrived as two Light and two Sacred Flame)
+    const forcedTypes = new Set<string>();
+
     for (const feature of this.processed.features) {
       const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as TGrantedSpellTypeOrigins;
       const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement") as boolean;
-      if (featureType && forceSpellAdvancement) {
+      if (featureType && forceSpellAdvancement && !types.includes(featureType)) {
         if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
         this.spellAdvancementsForce[featureType].push(feature.name);
+        forcedTypes.add(featureType);
       }
     }
 
-    for (const [type, filters] of Object.entries(this.spellAdvancementsForce)) {
+    for (const type of forcedTypes) {
+      const filters = this.spellAdvancementsForce[type as TGrantedSpellTypeOrigins] ?? [];
       if (filters.length > 0) {
         await this._addSpellAdvancementTypeWithFilter(type as TGrantedSpellTypeOrigins, filters);
       }

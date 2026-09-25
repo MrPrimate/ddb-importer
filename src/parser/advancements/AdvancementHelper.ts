@@ -1,11 +1,14 @@
+import { parseWeaponMastery } from "../lib/WeaponMastery";
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
-import type TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
 import AdvancementWrapper from "./AdvancementWrapper";
+import AdvancementBuilder from "./AdvancementBuilder";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
+
+type TraitAdvancement = dnd5e.types.Advancement.OfType<"Trait">;
 
 function htmlToText(html: string) {
   // keep html brakes and tabs
@@ -378,13 +381,21 @@ export default class AdvancementHelper {
   }
 
   getSaveAdvancement({feature, mods, availableToMulticlass, level}: IAdvancementGetterOptions): TraitAdvancement | null {
+    // Diamond Soul ships one "saving-throws" modifier for proficiency in every save
+    const allSaves = DDBModifiers.filterModifiers(mods, "proficiency", { subType: "saving-throws" }).length > 0;
     const updates = DICTIONARY.actor.abilities
       .filter((ability) => {
-        return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
+        return allSaves || DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
       })
       .map((ability) => `saves:${ability.value}`);
 
-    if (updates.length === 0) return null;
+    // Unfettered Mind, Elegant Courtier, Iron Mind: "choose-a-saving-throw" style modifiers are
+    // a pick of any save rather than a grant
+    const chooseCount = mods.filter((mod) =>
+      mod.type === "proficiency" && (mod.subType ?? "").startsWith("choose-") && (mod.subType ?? "").includes("saving-throw"),
+    ).length;
+
+    if (updates.length === 0 && chooseCount === 0) return null;
 
     const allowReplacements = [
       "you instead gain saving throw proficiency with one ability in which",
@@ -400,6 +411,7 @@ export default class AdvancementHelper {
       configuration: {
         grants: updates,
         allowReplacements,
+        ...(chooseCount > 0 ? { choices: [{ count: chooseCount, pool: ["saves:*"] }] } : {}),
       },
       level: level,
     };
@@ -421,6 +433,46 @@ export default class AdvancementHelper {
 
   static isBaseProficiency(feature: any) {
     return feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
+  }
+
+  /** Words in a "choose" proficiency subtype that mark it as something other than a skill choice. */
+  static SKILL_CHOICE_EXCLUDES = ["saving-throw", "tool", "weapon", "armor", "armour", "language", "gaming-set", "artisan", "instrument", "expertise"];
+
+  /**
+   * A DDB proficiency modifier whose subtype is a skill choice rather than a named skill:
+   * "choose-a-barbarian-skill-proficiency", "choose-nature-or-survival", "magical-knowledge-skill",
+   * "enchanter-proficiency", "choose-a-skill-or-tool". Saves, tools, weapons, armor, languages,
+   * gaming sets and instruments carry their own words and are excluded.
+   */
+  static isSkillChoiceSubType(subType: string | null | undefined): boolean {
+    const slug = (subType ?? "").toLowerCase();
+    if (slug === "") return false;
+    const shape = slug.startsWith("choose-") || slug.endsWith("-skill") || slug.endsWith("-skill-proficiency") || slug.endsWith("-proficiency");
+    if (!shape) return false;
+    return !AdvancementHelper.SKILL_CHOICE_EXCLUDES.some((word) => slug.includes(word));
+  }
+
+  /**
+   * The skills a choice subtype names, e.g. "choose-deception-insight-or-perception" ->
+   * ["dec", "ins", "prc"]. Multi-word skills are matched greedily on their slug tokens;
+   * "slight-of-hand" is a DDB typo for Sleight of Hand. An open choice names nothing.
+   */
+  static skillsFromChooseSubType(subType: string | null | undefined): string[] {
+    const noise = new Set(["choose", "a", "an", "or", "and", "the", "proficiency", "skill", "skills"]);
+    const tokens = (subType ?? "").toLowerCase().replace("slight-of-hand", "sleight-of-hand").split("-").filter((token) => token !== "" && !noise.has(token));
+    const skills: string[] = [];
+    for (let i = 0; i < tokens.length; i++) {
+      for (const width of [3, 2, 1]) {
+        const slug = tokens.slice(i, i + width).join("-");
+        const skill = DICTIONARY.actor.skills.find((s) => s.subType === slug);
+        if (skill) {
+          if (!skills.includes(skill.name)) skills.push(skill.name);
+          i += width - 1;
+          break;
+        }
+      }
+    }
+    return skills;
   }
 
 
@@ -464,12 +516,12 @@ export default class AdvancementHelper {
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const title = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+    const advancementName = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
       ? feature.name
       : "Skill Proficiencies";
 
     const update: I5eAdvancementTrait = {
-      title,
+      title: advancementName,
       classRestriction,
       configuration: {
         allowReplacements: true,
@@ -478,9 +530,18 @@ export default class AdvancementHelper {
     };
     advancement.updateSource(update as any);
 
+    // a choice the description parser could not read still carries its options in the DDB
+    // subtype ("choose-nature-or-survival"); an open choice ("choose-a-skill") is any skill
+    const chooseMods = mods.filter((mod) => mod.type === "proficiency" && AdvancementHelper.isSkillChoiceSubType(mod.subType));
+    const subTypeSkills = chooseMods.flatMap((mod) => AdvancementHelper.skillsFromChooseSubType(mod.subType));
+    const openChoice = chooseMods.some((mod) => AdvancementHelper.skillsFromChooseSubType(mod.subType).length === 0);
+    const modPool = openChoice
+      ? ["*"]
+      : [...new Set([...skillsFromMods, ...subTypeSkills])];
+
     const pool = parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.choices.map((skill) => `skills:${skill}`)
-      : skillsFromMods.map((choice) => `skills:${choice}`);
+      : modPool.map((choice) => `skills:${choice}`);
 
     const chosen = this.isMuncher || chosenSkills.chosen.length > 0
       ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
@@ -939,41 +1000,18 @@ export default class AdvancementHelper {
 
   getWeaponMasteryAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "weapon-mastery");
-    const weaponMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.actor.proficiencies
-          .some((prof) => {
-            const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-            const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-            if (!masteryDetails) return false;
-            return prof.type === "Weapon" && prof.name === masteryDetails[2];
-          }),
-      );
-
+    const parsedMasteries = proficiencyMods.map((mod) => parseWeaponMastery(mod.friendlySubtypeName))
+      .filter((mastery) => mastery !== null);
+    const weaponsFromMods = [...new Set(parsedMasteries.map((mastery) => mastery.advancement))];
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
-
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
     const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
-
-    const weaponsFromMods = weaponMods.map((mod) => {
-      const weapon = DICTIONARY.actor.proficiencies
-        .find((prof) => {
-          const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-          const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
-          if (!masteryDetails) return false;
-          return prof.type === "Weapon" && prof.name === masteryDetails[2];
-        });
-      if (!weapon) return null;
-      return weapon.advancement === ""
-        ? weapon.foundryValue
-        : `${weapon.advancement}:${weapon.foundryValue}`;
-    }).filter((w) => w !== null);
 
     const count = parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.number > 0
         ? parsedWeapons.number
         : 1
-      : weaponMods.length;
+      : weaponsFromMods.length;
 
     // console.warn(`Weapon Mastery`, {
     //   level,
@@ -1028,21 +1066,46 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getExpertiseAdvancement(feature: TAdvancementFeatureDefinitions, level: number) {
+  /** "Expertise" and the 2024 level-prefixed repeats ("6: Expertise", "9: Expertise") are the class's own pick-two feature. */
+  static isExpertiseFeature(name: string): boolean {
+    return (/^(\d+: )?Expertise$/).test(name);
+  }
+
+  /**
+   * Expertise from a feature. With `mods` (the feature's DDB expertise modifiers) the
+   * advancement is driven by them: named skills and tools are grants, "choose" modifiers
+   * set the count, and a feature with no expertise modifier yields nothing, which is what
+   * lets subclass features share a name with a feature that grants none. Without `mods`
+   * the classic pick-two shape is kept.
+   */
+  getExpertiseAdvancement(feature: TAdvancementFeatureDefinitions, level: number, mods: IModifiersMod[] | null = null) {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
     const expertiseOptions = this.getExpertiseChoicesFromOptions(feature, level);
+    const isExpertise = AdvancementHelper.isExpertiseFeature(feature.name);
+    const fixedShape = isExpertise || ["Survivalist", "Scholar"].includes(feature.name);
 
-    // add HTML Parsing to improve this at a later date
+    const expertiseMods = (mods ?? []).filter((mod) => mod.type === "expertise");
+    if (mods && expertiseMods.length === 0 && !fixedShape) return null;
 
-    const pool = feature.name === "Survivalist"
+    const modGrants: string[] = [];
+    let chooseCount = 0;
+    for (const mod of expertiseMods) {
+      const skill = DICTIONARY.actor.skills.find((s) => s.label === mod.friendlySubtypeName || s.subType === mod.subType);
+      const tool = DICTIONARY.actor.proficiencies.find((p) => p.type === "Tool" && p.name === mod.friendlySubtypeName && p.baseTool);
+      if (skill) modGrants.push(`skills:${skill.name}`);
+      else if (tool) modGrants.push(`tool:${tool.baseTool}`);
+      else chooseCount++;
+    }
+
+    const basePool = feature.name === "Survivalist"
       ? ["skills:prc", "skills:nat"]
-      : feature.name === "Expertise"
+      : isExpertise
         ? ["skills:*", "tool:thief"]
         : ["skills:*"];
 
     const grants = feature.name === "Survivalist"
-      ? pool
-      : [];
+      ? basePool
+      : [...new Set(modGrants)];
 
     const expertiseOptionCount = expertiseOptions.skills.chosen.length + expertiseOptions.tools.chosen.length;
     let count = 2;
@@ -1050,9 +1113,15 @@ export default class AdvancementHelper {
     if (feature.name === "Survivalist") count = 0;
     else if (feature.name === "Scholar") count = 1;
     else if (expertiseOptionCount > 0) count = expertiseOptionCount;
+    else if (mods && !isExpertise) count = chooseCount;
+
+    // a feature whose expertise is fully granted offers no pick
+    const pool = count === 0 && grants.length > 0 && feature.name !== "Survivalist" ? [] : basePool;
 
     const update: I5eAdvancementTrait = {
-      title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
+      title: feature.name === "Survivalist"
+        ? `${feature.name} (Expertise)`
+        : isExpertise ? "Expertise" : `${feature.name}`,
       configuration: {
         allowReplacements: false,
         mode: "expertise",
@@ -1063,7 +1132,7 @@ export default class AdvancementHelper {
 
     const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
     const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
-    const chosen = [...chosenSkills, ...chosenTools, ...grants];
+    const chosen = [...new Set([...chosenSkills, ...chosenTools, ...grants])];
 
     AdvancementHelper.advancementUpdate(advancement, {
       chosen,
@@ -1071,8 +1140,6 @@ export default class AdvancementHelper {
       count,
       grants,
     });
-
-    // console.warn("Generated expertise advancement", advancement)
 
     return advancement;
 
@@ -1158,10 +1225,10 @@ export default class AdvancementHelper {
     if (!("configuration" in advancement) || !advancement.configuration) return advancement;
     const configuration = advancement.configuration;
     if (!("scale" in configuration) || !configuration.scale) return advancement;
-    const scale = configuration.scale;
+    const scale = configuration.scale as Record<string, I5eAdvScaleValueDiceEntry>;
     advancement.title += ` (Die)`;
     for (const key of Object.keys(scale)) {
-      (scale[key] as I5eAdvScaleValueDiceEntry).number = 1;
+      scale[key].number = 1;
     }
     return advancement;
   }
@@ -1202,6 +1269,40 @@ export default class AdvancementHelper {
     adv.updateSource(update as any);
 
     return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /** See AdvancementBuilder.buildNumberScale. */
+  static buildNumberScale(options: Parameters<typeof AdvancementBuilder.buildNumberScale>[0]): I5eAdvancement {
+    return AdvancementBuilder.buildNumberScale(options);
+  }
+
+  /** See AdvancementBuilder.buildDiceScale. */
+  static buildDiceScale(options: Parameters<typeof AdvancementBuilder.buildDiceScale>[0]): I5eAdvancement {
+    return AdvancementBuilder.buildDiceScale(options);
+  }
+
+  /**
+   * buildNumberScale as an additional-advancement function for the SPECIAL_ADVANCEMENTS tables,
+   * where the generated source advancement is ignored.
+   */
+  static fixedNumberScale(options: Parameters<typeof AdvancementHelper.buildNumberScale>[0]): TDDBScaleValueFixFunction {
+    return (_advancement: I5eAdvancementScaleValue): I5eAdvancement => AdvancementHelper.buildNumberScale(options);
+  }
+
+  /**
+   * Adds level entries missing from a generated scale, for DDB levelScales that only record the
+   * value at the level it changes (a scale with no entry at or below the current level resolves
+   * to nothing in dnd5e). Existing entries win.
+   */
+  static addScaleEntries(advancement: I5eAdvancement, { scale = undefined }: IDDBFixFunctionArgs = {}): I5eAdvancement {
+    if (!scale) return advancement;
+    if (!("configuration" in advancement) || !advancement.configuration) return advancement;
+    const configuration = advancement.configuration as I5eAdvScaleValueConfig;
+    configuration.scale ??= {};
+    for (const [level, entry] of Object.entries(scale)) {
+      configuration.scale[level] ??= foundry.utils.deepClone(entry);
+    }
+    return advancement;
   }
 
   static addSingularDie(advancement: I5eAdvancement): I5eAdvancement {
@@ -2101,6 +2202,9 @@ export default class AdvancementHelper {
           for (const weapon of weapons) {
             proficiencies.add(weapon);
           }
+        } else if (name.toLowerCase() === "improvised weapons") {
+          // This proficiency is a dnd5e special flag, emitted by its granting class or feat.
+          logger.debug("Improvised weapon proficiency uses the system's special proficiency flag");
         } else {
           logger.warn(`unknown weapon group choices ${name}`);
         }

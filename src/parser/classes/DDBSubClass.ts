@@ -43,6 +43,28 @@ export default class DDBSubClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
+    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand
+    "Misfortunist": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Misfortunes Known", identifier: "misfortunes-known" },
+      additionalAdvancements: true,
+      additionalFunctions: [
+        // deferred so this static table only reads the helper while modules load (tests stub it empty)
+        (advancement) => AdvancementHelper.fixedNumberScale({
+          name: "Jinx Points",
+          identifier: "jinx-points",
+          scale: { 3: 4, 13: 6 },
+        })(advancement),
+      ],
+    },
+    // DDB only records the level 17 value; a scale with no entry at or below the current level
+    // resolves to nothing, so the level 9 single use is added
+    "Steal Luck": {
+      fix: true,
+      fixFunctions: [{ fn: AdvancementHelper.addScaleEntries, args: { scale: { 9: { value: 1 } } } }],
+    },
     // "Arcane Shot Options": {
     //   fix: true,
     //   fixFunction: AdvancementHelper.rename,
@@ -140,40 +162,24 @@ export default class DDBSubClass extends DDBBaseClass {
   _bloodHunterFixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
-      const slotsScaleValue: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `pact-slots`,
-          type: "number",
-          scale: {
-            3: { value: 1 },
-            6: { value: 2 },
-          },
+      const slotsScaleValue = AdvancementHelper.buildNumberScale({
+        name: "Pact Slots",
+        identifier: "pact-slots",
+        scale: {
+          3: 1,
+          6: 2,
         },
-        value: {},
-        title: `Pact Slots`,
-        icon: null,
-      };
+      });
 
-      const levelScaleValue: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `pact-level`,
-          type: "number",
-          scale: {
-            3: { value: 1 },
-            7: { value: 2 },
-            13: { value: 3 },
-          },
+      const levelScaleValue = AdvancementHelper.buildNumberScale({
+        name: "Pact Level",
+        identifier: "pact-level",
+        scale: {
+          3: 1,
+          7: 2,
+          13: 3,
         },
-        value: {},
-        title: `Pact Level`,
-        icon: null,
-      };
+      });
 
       this._addAdvancements([slotsScaleValue, levelScaleValue]);
     }
@@ -181,64 +187,40 @@ export default class DDBSubClass extends DDBBaseClass {
 
   _barbarianFixes() {
     if (this.data.name.startsWith("Path of the Storm Herald")) {
-      const desert: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `storm-aura-desert`,
-          type: "number",
-          scale: {
-            3: { value: 2 },
-            5: { value: 3 },
-            10: { value: 4 },
-            15: { value: 5 },
-            20: { value: 6 },
-          },
+      const desert = AdvancementHelper.buildNumberScale({
+        name: "Storm Aura Desert",
+        identifier: "storm-aura-desert",
+        scale: {
+          3: 2,
+          5: 3,
+          10: 4,
+          15: 5,
+          20: 6,
         },
-        value: {},
-        title: `Storm Aura Desert`,
-        icon: null,
-      };
+      });
 
-      const sea: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `storm-aura-sea`,
-          type: "dice",
-          scale: {
-            3: { number: 1, faces: 6 },
-            10: { number: 2, faces: 6 },
-            15: { number: 3, faces: 6 },
-            20: { number: 4, faces: 6 },
-          },
+      const sea = AdvancementHelper.buildDiceScale({
+        name: "Storm Aura Sea",
+        identifier: "storm-aura-sea",
+        scale: {
+          3: { number: 1, faces: 6 },
+          10: { number: 2, faces: 6 },
+          15: { number: 3, faces: 6 },
+          20: { number: 4, faces: 6 },
         },
-        value: {},
-        title: `Storm Aura Sea`,
-        icon: null,
-      };
+      });
 
-      const tundra: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `storm-aura-tundra`,
-          type: "number",
-          scale: {
-            3: { value: 2 },
-            5: { value: 3 },
-            10: { value: 4 },
-            15: { value: 5 },
-            20: { value: 6 },
-          },
+      const tundra = AdvancementHelper.buildNumberScale({
+        name: "Storm Aura Tundra",
+        identifier: "storm-aura-tundra",
+        scale: {
+          3: 2,
+          5: 3,
+          10: 4,
+          15: 5,
+          20: 6,
         },
-        value: {},
-        title: `Storm Aura Tundra`,
-        icon: null,
-      };
+      });
 
       this._addAdvancements([desert, sea, tundra]);
     }
@@ -277,59 +259,35 @@ export default class DDBSubClass extends DDBBaseClass {
       }
       this._addAdvancement(cr);
     } else if (this.data.name.startsWith("Circle of the Land") && !this.is2014) {
-      const aid: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `lands-aid`,
-          type: "dice",
-          scale: {
-            3: { number: 2, faces: 6 },
-            10: { number: 3, faces: 6 },
-            14: { number: 4, faces: 6 },
-          },
+      const aid = AdvancementHelper.buildDiceScale({
+        name: "Lands Aid Dice",
+        identifier: "lands-aid",
+        scale: {
+          3: { number: 2, faces: 6 },
+          10: { number: 3, faces: 6 },
+          14: { number: 4, faces: 6 },
         },
-        value: {},
-        title: `Lands Aid Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(aid);
     } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
-      const form: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `starry-form`,
-          type: "dice",
-          scale: {
-            3: { number: 1, faces: 8 },
-            10: { number: 2, faces: 8 },
-          },
+      const form = AdvancementHelper.buildDiceScale({
+        name: "Starry Form Dice",
+        identifier: "starry-form",
+        scale: {
+          3: { number: 1, faces: 8 },
+          10: { number: 2, faces: 8 },
         },
-        value: {},
-        title: `Starry Form Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(form);
     } else if ((this.data.name.startsWith("Circle of the Sea"))) {
-      const form: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `wrath-range`,
-          type: "number",
-          scale: {
-            3: { value: 5 },
-            6: { value: 10 },
-          },
+      const form = AdvancementHelper.buildNumberScale({
+        name: "Wrath Range",
+        identifier: "wrath-range",
+        scale: {
+          3: 5,
+          6: 10,
         },
-        value: {},
-        title: `Wrath Range`,
-        icon: null,
-      };
+      });
       this._addAdvancement(form);
     }
   }
@@ -351,22 +309,14 @@ export default class DDBSubClass extends DDBBaseClass {
         advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Rune Knight")) {
-      const number: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `rune-uses`,
-          type: "number",
-          scale: {
-            3: { value: 1 },
-            15: { value: 2 },
-          },
+      const number = AdvancementHelper.buildNumberScale({
+        name: "Rune Uses",
+        identifier: "rune-uses",
+        scale: {
+          3: 1,
+          15: 2,
         },
-        value: {},
-        title: `Rune Uses`,
-        icon: null,
-      };
+      });
 
       this._addAdvancement(number);
     } else if (this.data.name.startsWith("Steel Hawk")) {
@@ -384,38 +334,22 @@ export default class DDBSubClass extends DDBBaseClass {
         advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Arcane Archer") && this.is2014) {
-      const secondary: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `secondary-damage`,
-          type: "dice",
-          scale: {
-            18: { number: 2, faces: 6 },
-          },
+      const secondary = AdvancementHelper.buildDiceScale({
+        name: "Secondary Damage Dice",
+        identifier: "secondary-damage",
+        scale: {
+          18: { number: 2, faces: 6 },
         },
-        value: {},
-        title: `Secondary Damage Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(secondary);
-      const minor: I5eAdvancementScaleValue = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `minor-damage`,
-          type: "dice",
-          scale: {
-            3: { number: 1, faces: 6 },
-            18: { number: 2, faces: 6 },
-          },
+      const minor = AdvancementHelper.buildDiceScale({
+        name: "Minor Damage Dice",
+        identifier: "minor-damage",
+        scale: {
+          3: { number: 1, faces: 6 },
+          18: { number: 2, faces: 6 },
         },
-        value: {},
-        title: `Minor Damage Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(minor);
     }
   }
@@ -434,22 +368,14 @@ export default class DDBSubClass extends DDBBaseClass {
         advancementData[id] = advancement;
       }
     } else if (this.data.name.startsWith("Grim Harbinger")) {
-      const minor: I5eAdvancementScaleValue = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `grim-damage`,
-          type: "dice",
-          scale: {
-            7: { number: 1, faces: 6 },
-            15: { number: 2, faces: 6 },
-          },
+      const minor = AdvancementHelper.buildDiceScale({
+        name: "Grim Damage Dice",
+        identifier: "grim-damage",
+        scale: {
+          7: { number: 1, faces: 6 },
+          15: { number: 2, faces: 6 },
         },
-        value: {},
-        title: `Grim Damage Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(minor);
     }
   }
@@ -484,22 +410,14 @@ export default class DDBSubClass extends DDBBaseClass {
 
   _sorcererFixes() {
     if (this.data.name.startsWith("Spellfire Sorcery")) {
-      const dice: I5eAdvancement = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `spellfire-burst-damage-dice`,
-          type: "dice",
-          scale: {
-            3: { number: 1, faces: 4 },
-            14: { number: 1, faces: 8 },
-          },
+      const dice = AdvancementHelper.buildDiceScale({
+        name: "Spellfire Burst Damage Dice",
+        identifier: "spellfire-burst-damage-dice",
+        scale: {
+          3: { number: 1, faces: 4 },
+          14: { number: 1, faces: 8 },
         },
-        value: {},
-        title: `Spellfire Burst Damage Dice`,
-        icon: null,
-      };
+      });
       this._addAdvancement(dice);
     }
   }
@@ -674,7 +592,7 @@ export default class DDBSubClass extends DDBBaseClass {
   _monkFixes() {
     if (this.data.name.startsWith("Way of the Ascendant Dragon")) {
       // for (let advancement of this.data.system.advancement) {
-      //   if (advancement.title !== "Breath of the Dragon") continue;
+      //   if (advancement.name !== "Breath of the Dragon") continue;
       //   advancement.configuration.scale['17'] = { number: 4, faces: 10 };
       // }
       // const breathConeSize = {
@@ -725,6 +643,48 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  _warlockFixes() {
+    if (this.data.name.startsWith("Vestige Patron")) {
+      // Semblance of Life: the spirit form uses the Summon Celestial/Fiend/Undead stat block at a
+      // spell level of half the warlock level (round down, maximum 9)
+      const spiritLevel: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "semblance-spirit-level",
+          type: "number",
+          scale: {
+            14: { value: 7 },
+            16: { value: 8 },
+            18: { value: 9 },
+          },
+        },
+        title: "Semblance of Life Spirit Level",
+      };
+      this._addAdvancement(spiritLevel);
+    }
+  }
+
+  /**
+   * Necromancer (Arcana Unleashed): Necromancy Spellbook puts Find Familiar in the spellbook at
+   * level 3, but DDB does not add the spell to the character, so the subclass grants it. It is a
+   * spellbook entry rather than an always-prepared spell, hence the unprepared state.
+   */
+  async _wizardFixes() {
+    if (this.data.name.startsWith("Necromancer") && !this.is2014) {
+      const findFamiliar = await AdvancementHelper.getSpellGrantAdvancement({
+        name: "Necromancy Spellbook",
+        spellGrants: [{ name: "Find Familiar", level: 3 }],
+        spellLinks: this.spellLinks,
+        method: "spell",
+        requireSlot: true,
+        prepared: CONFIG.DND5E.spellPreparationStates.unprepared.value,
+        level: 3,
+        is2024: this.is2024,
+      });
+      if (findFamiliar) this._addAdvancement(findFamiliar.toObject() as I5eAdvancement);
+    }
+  }
+
   async _clericFixes() {
     if (this.data.name.startsWith("Grave Domain")) {
       const pullOfDeath: I5eAdvancementScaleValue = {
@@ -754,6 +714,8 @@ export default class DDBSubClass extends DDBBaseClass {
     this._artificerFixes();
     this._monkFixes();
     this._clericFixes();
+    this._warlockFixes();
+    await this._wizardFixes();
     await this._bardFixes();
   }
 

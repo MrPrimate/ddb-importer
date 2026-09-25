@@ -162,6 +162,11 @@ export default class ChangeHelper {
     };
   }
 
+  /** Flat bonus/penalty to all speeds, e.g. "10" or "-10"; dnd5e applies it as max(0, speed + bonus). */
+  static movementBonusChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(String(value), priority, "system.attributes.movement.bonus");
+  }
+
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",
@@ -197,7 +202,6 @@ export default class ChangeHelper {
       priority,
     };
   }
-
 
   // Advantage/disadvantage ("roll mode") change helpers.
   //
@@ -275,6 +279,15 @@ export default class ChangeHelper {
     return ChangeHelper.rollModeChange("system.attributes.death.roll.mode", ChangeHelper.DISADVANTAGE, priority);
   }
 
+  /** Saves to maintain concentration, which dnd5e rolls apart from the Constitution save. */
+  static concentrationRollModeChange(mode: number | string, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.rollModeChange("system.attributes.concentration.roll.mode", mode, priority);
+  }
+
+  /**
+   * Active Token Effects change. dnd5e 5.3 does not sync token vision, detection modes or size from
+   * the actor, so those stay on ATL; lights use native `token.light.*` changes.
+   */
   static atlChange(atlKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
     let key = atlKey;
 
@@ -306,6 +319,44 @@ export default class ChangeHelper {
       value: String(value).trim(),
       priority,
     };
+  }
+  /**
+   * Build a change targeting the token document (`token.light.dim`, `token.sight.range`,
+   * `token.detectionModes.<id>.range`, `token.texture.src`...), which Foundry applies
+   * natively. Legacy `ATL.*` keys from older enrichers and macros are translated.
+   */
+  static tokenChange(tokenKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
+    const legacyAliases: Record<string, string> = {
+      "ATL.dimLight": "ATL.light.dim",
+      "ATL.brightLight": "ATL.light.bright",
+      "ATL.lightAnimation": "ATL.light.animation",
+      "ATL.lightColor": "ATL.light.color",
+      "ATL.lightAlpha": "ATL.light.alpha",
+      "ATL.lightAngle": "ATL.light.angle",
+    };
+    const key = (legacyAliases[tokenKey] ?? tokenKey).replace(/^ATL\./, "token.");
+
+    return {
+      key,
+      type,
+      value: String(value).trim(),
+      priority,
+    };
+  }
+
+  /**
+   * Grant a token detection mode (`seeInvisibility`, `seeAll`, `blindsight`...) through native token changes.
+   *
+   * Both keys must be overrides. Token changes apply after `TokenDocument#_prepareDetectionModes` has filled
+   * defaults, so a change that creates the entry would otherwise leave `enabled` undefined (and the mode is
+   * skipped), and an upgrade against a missing entry compares `delta > undefined` and changes nothing.
+   * Range must be finite: the field rejects Infinity, so pass a large distance for "unlimited" senses.
+   */
+  static detectionModeChanges(modeId: string, range: number, priority = 20): IActiveEffectChangeData[] {
+    return [
+      ChangeHelper.tokenChange(`token.detectionModes.${modeId}.enabled`, "override", "true", priority),
+      ChangeHelper.tokenChange(`token.detectionModes.${modeId}.range`, "override", range, priority),
+    ];
   }
 
   static daeStatusEffectChange(statusName: string, priority = 20): IActiveEffectChangeData {

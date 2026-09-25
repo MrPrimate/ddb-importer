@@ -291,6 +291,7 @@ export default class DDBRace {
     const importerFlags: IDDBImporterItemFlags = {
       type: "race",
       entityRaceId: this.race.entityRaceId,
+      entityRaceTypeId: this.race.entityRaceTypeId,
       version: CONFIG.DDBI.version,
       sourceId: this.race.sources.length > 0 ? this.race.sources[0].sourceId : -1, // is homebrew
       baseName: this.race.baseName,
@@ -520,7 +521,7 @@ export default class DDBRace {
       // Your Charisma score increases by 2. In addition, one other ability score of your choice increases by 1.
       // Your Constitution score increases by 2, and      one other ability score of your choice increases by 1.
 
-      const update = foundry.utils.duplicate(this.abilityAdvancement.configuration);
+      const update = foundry.utils.duplicate(this.abilityAdvancement.configuration) as unknown as dnd5e.types.Advancement.OfType<"AbilityScoreImprovement">["configuration"];
       const fixedRegex = /Your (\w+) score increases by (\d)/i;
       const fixedMatch = trait.description.match(fixedRegex);
       if (fixedMatch) {
@@ -956,7 +957,8 @@ export default class DDBRace {
       .filter(
         (option) =>
           trait.entityTypeId == option.componentTypeId
-          && trait.id == option.componentId,
+          && trait.id == option.componentId
+          && !DICTIONARY.parsing.nonItemChoiceLabels.includes(option.definition.name),
       );
     if (optionMatches.length === 0) return;
     await this.#generateTraitOptionAdvancement(trait, optionMatches);
@@ -1345,13 +1347,8 @@ export default class DDBRace {
         ...DDBModifiers.filterModifiers((this.ddbData.character?.modifiers?.race ?? []), "set-base", basicOptions),
       ];
       senseModifiers
-        .filter((mod) => {
-          // we remove senses that are granted as part of a choice feature for the species
-          const isChoiceModifier = this.ddbData.character.choices.choiceDefinitions.some((def) =>
-            def.options.some((opt) => opt.id === mod.componentId),
-          );
-          return !isChoiceModifier;
-        })
+        // we remove senses that are granted as part of a choice feature for the species
+        .filter((mod) => !DDBModifiers.isChoiceOptionModifier(this.ddbData, mod))
         .forEach((mod) => {
           const key = senseName as keyof T5eSenseRanges;
           if (Number.isInteger(mod.value) && parseInt(String(mod.value)) > (ranges[key] ?? 0)) {

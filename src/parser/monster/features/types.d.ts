@@ -2,6 +2,30 @@ export {};
 
 global {
 
+  /** A numeric damage token and its position in the original hit text. */
+  interface IMonsterDamageToken {
+    index: number;
+    0: string;
+    groups: Record<string, string>;
+  }
+
+  interface IMonsterDamageMode {
+    name: string;
+    condition: string;
+    operation: "add" | "replace";
+    parts: number[];
+    start: number;
+    end: number;
+    text: string;
+  }
+
+  interface IMonsterDamageModeResult {
+    normal: number[];
+    modes: IMonsterDamageMode[];
+    warnings: string[];
+    normalText: string;
+  }
+
   interface IDDBMonsterActionDataDamagePart {
     profBonus: string;
     levelBonus: boolean;

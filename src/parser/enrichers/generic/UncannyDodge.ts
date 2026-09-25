@@ -22,7 +22,7 @@ export default class UncannyDodge extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.uncanny-dodge"),
         ],
         daeSpecialDurations: [
-          "1Reaction" as const,
+          "1Reaction",
         ],
       },
     ];

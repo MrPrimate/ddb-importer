@@ -211,6 +211,45 @@ export default class DDBDataUtils {
     return hasClassOptions;
   }
 
+  /**
+   * Whether the character has taken a feat by name. 2024 Fighting Style choices land here as feats,
+   * not in `character.options`, so `hasChosenCharacterOption` does not see them.
+   * @param {IDDBData} ddb the DDB character data
+   * @param {string} featName the feat definition name
+   * @returns {boolean} true if a feat with that name is present
+   */
+  static hasCharacterFeat(ddb: IDDBData, featName: string): boolean {
+    return (ddb.character.feats ?? []).some((feat) => feat.definition?.name === featName);
+  }
+
+  static ELEMENTAL_ADEPT_TYPES = ["acid", "cold", "fire", "lightning", "thunder"];
+
+  /**
+   * The damage types the character has taken Elemental Adept for. The feat is repeatable, and DDB
+   * records each pick as a feat option named for the damage type ("Fire"). Some feat definitions
+   * carry the type in the name instead ("Elemental Adept (Fire)"), so both are read.
+   * @param {IDDBData} ddb the DDB character data
+   * @returns {string[]} lowercase dnd5e damage types, empty without the feat
+   */
+  static getElementalAdeptTypes(ddb: IDDBData): string[] {
+    const types = new Set<string>();
+    const featIds = new Set<number>();
+    for (const feat of ddb.character.feats ?? []) {
+      const name = feat.definition?.name ?? "";
+      if (!name.startsWith("Elemental Adept")) continue;
+      featIds.add(feat.definition.id);
+      const named = name.match(/\((\w+)\)/)?.[1]?.toLowerCase();
+      if (named && DDBDataUtils.ELEMENTAL_ADEPT_TYPES.includes(named)) types.add(named);
+    }
+    if (featIds.size === 0) return [];
+    for (const option of ddb.character.options?.feat ?? []) {
+      if (!featIds.has(option.componentId)) continue;
+      const chosen = (option.definition?.name ?? "").toLowerCase();
+      if (DDBDataUtils.ELEMENTAL_ADEPT_TYPES.includes(chosen)) types.add(chosen);
+    }
+    return [...types];
+  }
+
   static getClassFromOptionID(ddb: IDDBData, optionId: number): IDDBClass | undefined {
     // Use case class spell - which class?
     // componentId on spells.class[0].componentId = options.class[0].definition.id
@@ -384,8 +423,16 @@ export default class DDBDataUtils {
       ...(ddb.character.options.feat ?? []),
     ].find((option) => option.definition.id === componentId);
 
-    let feat = "levelScale" in feature && feature.levelScale && componentId
-      ? feature
+    // A class feature arrives as its own { definition, levelScale } wrapper and carries no
+    // componentId (only DDB actions do), so it is the scale source itself whenever it has a
+    // current levelScale or any levelScales on the definition. Actions go through their
+    // componentId to the feature they belong to.
+    const definition = "definition" in feature ? feature.definition : undefined;
+    const definitionScales = definition && "levelScales" in definition ? definition.levelScales : undefined;
+    const isScaleSource = ("levelScale" in feature && Boolean(feature.levelScale))
+      || (definitionScales?.length ?? 0) > 0;
+    let feat: IDDBClassFeature | IDDBRacialTrait | undefined = isScaleSource
+      ? feature as IDDBClassFeature
       : componentId != null
         ? DDBDataUtils.findComponentByComponentId(ddb, componentId)
         : undefined;

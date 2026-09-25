@@ -7,6 +7,7 @@ import {
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBCharacterImporter from "../../muncher/DDBCharacterImporter";
 
+
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 type TEncounterNotifier = (
@@ -76,7 +77,7 @@ export default class DDBEncounter {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f: any) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
-        goodMonsterIds.push({ ddbId: id, name: monsterInPack.name ?? "", id: monsterInPack._id, quantity: monster.quantity });
+        goodMonsterIds.push({ ddbId: id, name: (monsterInPack as unknown as INameMatchIndexEntry).name ?? "", id: monsterInPack._id, quantity: monster.quantity });
       } else {
         missingMonsterIds.push({ ddbId: id, quantity: monster.quantity });
       }
@@ -307,7 +308,7 @@ export default class DDBEncounter {
     if (!worldJournal) return;
 
     const content = this.#buildJournalPageContent();
-    const existingPage = worldJournal.pages.find(
+    const existingPage = worldJournal.pages?.find(
       (p: JournalEntryPage) => p.flags?.ddbimporter?.encounterId == this.data.id,
     );
 
@@ -344,7 +345,7 @@ export default class DDBEncounter {
     }
 
     this.journal = worldJournal;
-    this.journalPage = worldJournal.pages.find(
+    this.journalPage = worldJournal.pages?.find(
       (p: JournalEntryPage) => p.flags?.ddbimporter?.encounterId == this.data.id,
     );
   }
@@ -480,11 +481,11 @@ export default class DDBEncounter {
           );
           if (characterInGame) {
             const onScene = (useExistingScene && worldScene?.tokens
-              .some((t: TokenDocument) => foundry.utils.getProperty(t.actor ?? {}, "flags.ddbimporter.id") == character.id && t.actor?.type == "character")) ?? false;
+              ?.some((t: TokenDocument) => foundry.utils.getProperty(t.actor ?? {}, "flags.ddbimporter.id") == character.id && t.actor?.type == "character")) ?? false;
 
             if (!onScene) {
               const linkedToken = foundry.utils.duplicate(await characterInGame.getTokenDocument());
-              linkedToken.delta ??= {};
+              (linkedToken as { delta?: object | null }).delta ??= {};
               if (useDDBSave) {
                 foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
@@ -505,8 +506,12 @@ export default class DDBEncounter {
       for (const worldMonster of this.data.worldMonsters ?? []) {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.data.name}`);
         const monster = game.actors.get(worldMonster.id);
+        if (!monster) {
+          logger.warn(`World monster ${worldMonster.ddbName} (${worldMonster.id}) not found, skipping token`);
+          continue;
+        }
         const linkedToken = foundry.utils.duplicate(await monster.getTokenDocument());
-        linkedToken.delta ??= {};
+        (linkedToken as { delta?: object | null }).delta ??= {};
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;
           monsterRows += rowMonsterWidth;
@@ -568,8 +573,8 @@ export default class DDBEncounter {
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
           const existingSceneMonsterIds = existingScene.tokens
-            .filter((t: any) => t.flags?.ddbimporter?.encounterId == this.data.id && t.actor.type == "npc")
-            .map((t: any) => t.id);
+            ?.filter((t: any) => t.flags?.ddbimporter?.encounterId == this.data.id && t.actor.type == "npc")
+            .map((t: any) => t.id) ?? [];
           await existingScene.deleteEmbeddedDocuments("Token", existingSceneMonsterIds);
         }
       } else if (importDDBIScene) {

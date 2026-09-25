@@ -5,3 +5,4 @@ export { default as EffectGenerator } from "./EffectGenerator";
 export { default as MidiOverTimeEffect } from "./MidiOverTimeEffect";
 export { default as ACBonusEffects } from "./ACBonusEffects";
 export { default as AutoEffects } from "./AutoEffects";
+export { default as EffectExpiryHelpers } from "./EffectExpiryHelpers";

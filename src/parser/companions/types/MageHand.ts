@@ -1,7 +1,7 @@
 import { utils } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export function getMageHands(): ICompanionResult {
+export async function getMageHands(): Promise<ICompanionResult> {
 
   return {
     MageHandRed: {

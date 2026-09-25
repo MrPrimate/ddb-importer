@@ -36,6 +36,7 @@ const DELEGATED_GETTERS = {
   documentStub: { default: () => null },
   clearAutoEffects: { default: () => false },
   addAutoAdditionalActivities: { default: () => true },
+  keepParsedActivities: { default: () => false },
   addToDefaultAdditionalActivities: { default: () => false },
   builtFeaturesFromActionFilters: { default: () => [] },
   itemMacro: { default: () => null },
@@ -43,6 +44,8 @@ const DELEGATED_GETTERS = {
   stopDefaultActivity: { default: () => false },
   parseAllChoiceFeatures: { default: () => false },
   noChoiceBuild: { default: () => false },
+  mergeChoiceActivities: { default: () => false },
+  noSuppressedChoiceModifiers: { default: () => false },
   ddbMacroDescriptionData: { default: () => null },
   summonsFunction: { default: () => null },
   generateSummons: { default: () => false },
@@ -442,6 +445,11 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         units: "ft",
       });
       foundry.utils.setProperty(activity, "target.prompt", false);
+      // blanking the activity's own template is not enough: dnd5e's `_setOverride`
+      // merges the ITEM's target over any activity whose `target.override` is false,
+      // putting the spell's template straight back. An activity that wants no
+      // template has to own its target block.
+      foundry.utils.setProperty(activity, "target.override", true);
     }
 
     if (overrideData.overrideTemplate || overrideData.overrideTarget)
@@ -635,7 +643,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (effectHint.noCreate && dataEffects.length > 0) {
         effect = dataEffects[0];
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
         useExistingEffect = true;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
@@ -643,7 +650,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       } else if (effectHint.raw) {
         effect = foundry.utils.deepClone(effectHint.raw);
         if (effectHint.name) effect.name = effectHint.name;
-        if (effectOptions.description) effect.description = effectOptions.description;
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":
@@ -675,24 +681,38 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
             effect = AutoEffects.BaseEffect(this.data, name, effectOptions);
         }
 
-        if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
+        // a numeric durationSeconds (or rounds/turns) owns the whole duration and silences
+        // description parsing; an explicit null owns only the COUNTED duration ("none"), so the
+        // description may still contribute a native turn-edge expiry; undefined lets it contribute both
+        const countedDuration = effectOptions.durationSeconds || effectOptions.durationRounds || effectOptions.durationTurns;
+        if (!countedDuration) {
           const duration = DDBDescriptions.getDuration(this.data.system.description?.value ?? "", false);
-          if (duration.type) {
-            if (duration.seconds) {
-              foundry.utils.setProperty(effect, "duration.value", duration.seconds);
-              foundry.utils.setProperty(effect, "duration.units", "seconds");
-              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
-            } else if (duration.rounds) {
-              foundry.utils.setProperty(effect, "duration.value", duration.rounds);
-              foundry.utils.setProperty(effect, "duration.units", "rounds");
-              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
+          // a parsed "next turn" sentence (type "special") carries a six-second stand-in for the
+          // native expiry it also yields; a hint that declares its own expiry gets neither
+          const parsedStandIn = duration.type === "special" && "expiry" in effectOptions;
+          if (effectOptions.durationSeconds === undefined && duration.type && duration.seconds && !parsedStandIn) {
+            foundry.utils.setProperty(effect, "duration.value", duration.seconds);
+            foundry.utils.setProperty(effect, "duration.units", "seconds");
+            foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
+          }
+          // An enricher that declares options.expiry or daeSpecialDurations (either one
+          // even as an empty/null value) owns the effect's expiry: description parsing is
+          // first-match over the WHOLE spell text, so a rider sentence can stamp the wrong
+          // effect (Haste 2024's "until the end of its next turn" lethargy clause was
+          // expiring the main 1-minute buff at the target's next turn end).
+          if (!effectHint.daeSpecialDurations && !("expiry" in effectOptions)) {
+
+            if (duration.expiry) {
+              effect = EffectGenerator.applyNativeExpiry(effect, duration.expiry);
             }
           }
-          const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags?.dae?.specialDuration ?? [], duration.dae ?? []);
-          foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 
       }
+
+      // Presentation options also apply to reused and raw effects, not just newly built ones.
+      if (effectOptions.description) effect.description = effectOptions.description;
+      if (effectOptions.showIcon !== undefined) effect.showIcon = effectOptions.showIcon;
 
       if (effectHint.statuses) {
         for (const status of effectHint.statuses) {
@@ -717,6 +737,14 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.atlChanges && AutoEffects.effectModules().atlInstalled) {
         this._ensureEffectChanges(effect).push(...effectHint.atlChanges);
+      }
+      // ATL keys in the plain change list only do something with the module active
+      if (!AutoEffects.effectModules().atlInstalled && effect.system?.changes) {
+        effect.system.changes = effect.system.changes.filter((change) => !String(change.key).startsWith("ATL."));
+      }
+
+      if (effectHint.tokenChanges) {
+        this._ensureEffectChanges(effect).push(...effectHint.tokenChanges);
       }
 
       if (effectHint.tokenMagicChanges && AutoEffects.effectModules().tokenMagicInstalled) {
@@ -743,6 +771,12 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         effect = EffectGenerator.applyDaeSpecialDurations(effect, effectHint.daeSpecialDurations);
       }
 
+      // applied last so an explicit native expiry outranks a DAE token on the same hint;
+      // a hint's raw `data.duration` still wins over both at the merge below
+      if ("expiry" in effectOptions) {
+        effect = EffectGenerator.applyNativeExpiry(effect, effectOptions.expiry ?? null);
+      }
+
       if (effectHint.midiProperties && applyMidiOnlyEffects) {
         foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
@@ -753,6 +787,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.activitiesMatch) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
+      }
+      if (effectHint.onSave) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.effectOnSave", true);
       }
 
       if (effectHint.ignoreTransfer) {
@@ -815,7 +852,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
         if (foundry.utils.hasProperty(effect, "flags.ActiveAuras")) {
-          delete effect.flags.ActiveAuras;
+          delete effect.flags?.ActiveAuras;
         }
       }
 
@@ -844,18 +881,26 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
 
     if (!additionalAdvancements) return this.data;
+    const advancements = additionalAdvancements.flat();
+    if (advancements.length === 0) return this.data;
     if (!("advancement" in this.data.system)) return this.data;
-    if (!this.data.system.advancement) {
-      this.data.system.advancement = {};
-    }
+    // an item stub can carry the array form, which dnd5e migrates to an id-keyed object; string
+    // keys written onto the array would be dropped the next time the data is cloned
+    const existing: unknown = this.data.system.advancement;
+    const target: Record<string, I5eAdvancement> = Array.isArray(existing)
+      ? Object.fromEntries(existing
+        .filter((advancement) => advancement?._id)
+        .map((advancement) => [advancement._id, advancement]))
+      : (existing as Record<string, I5eAdvancement> | null | undefined) ?? {};
 
-    for (const advancement of (additionalAdvancements).flat()) {
+    for (const advancement of advancements) {
       if (!advancement._id) {
         logger.warn(`Advancement missing _id for ${this.name}`, { advancement });
         continue;
       }
-      this.data.system.advancement[advancement._id] = advancement;
+      target[advancement._id] = advancement;
     }
+    this.data.system.advancement = target;
     return this.data;
   }
 
@@ -938,6 +983,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainUseSpent", true);
     }
 
+    if (override.retainActivityUseSpent) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.retainActivityUseSpent", override.retainActivityUseSpent);
+    }
+
     // an override carrying no data must not wipe the uses the parser generated
     if (override.uses && !foundry.utils.isEmpty(override.uses)) {
       foundry.utils.setProperty(this.data, "system.uses", override.uses);
@@ -1018,7 +1067,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     };
     const ddbCharacter = foundry.utils.getProperty(this.ddbParser, "ddbCharacter") as DDBCharacter | undefined;
     if (!ddbCharacter) return result;
-    const actions = ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    const actions = this._getActivityActions({ name, type });
     if (actions.length === 0) {
       // The enricher asked for an activity DDB did not ship. Either the action hangs off a
       // builder toggle the character has switched off, or DDB renamed it - both leave the
@@ -1069,6 +1118,11 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     logger.debug(`Additional Activities from Action ${name}`, { result });
     return result;
 
+  }
+
+  _getActivityActions({ name, type }: { name: string; type: IActionTypes }): IDDBAction[] {
+    const ddbCharacter = foundry.utils.getProperty(this.ddbParser, "ddbCharacter") as DDBCharacter | undefined;
+    return ddbCharacter?._characterFeatureFactory.getActions({ name, type }) ?? [];
   }
 
   async _addActivityHintAdditionalActivities(ddbParent: TDDBParsers): Promise<void> {
@@ -1190,6 +1244,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
+
+        // the cloned activities can carry named itemUses targets; the consumption
+        // link pass only visits documents with this flag, and the action document
+        // that owned it is discarded once its activities are absorbed here
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.replaceActivityUses")) {
+          foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+        }
 
         if (feature.system.advancement) {
           activityData.advancements.push(...(foundry.utils.deepClone(Object.values(feature.system.advancement)) as I5eAdvancement[]));
@@ -1428,15 +1489,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
   async _buildFeaturesFromAction({ name, type, isAttack = null, id = null }: { name: string; type: IActionTypes; isAttack?: boolean | null; id?: string | number | null }): Promise<T5eFeatureMixinDataTypes[]> {
     const ddbCharacter = this.ddbParser?.ddbCharacter;
     if (!ddbCharacter) return [];
-    const actions = ddbCharacter._characterFeatureFactory.getActions({ name, type })
-      .filter((action) => this._matchesBuiltFeatureFilter(action.name))
+    const f = this._getActivityActions({ name, type })
+      .filter((action) => this._matchesBuiltFeatureFilter(action.name));
+    const actions = f
       .filter((action) => !id
         || type === "class"
         || String(action.id) === String(id),
       );
-
-    const f = ddbCharacter._characterFeatureFactory.getActions({ name, type })
-      .filter((action) => this._matchesBuiltFeatureFilter(action.name));
 
     if (f.length !== actions.length) {
       logger.warn(`Filtered actions from ${f.length} to ${actions.length} for ${name} (${type}) do not match`, {
@@ -1573,6 +1632,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly documentStub: IDDBDocumentStub | null;
   readonly clearAutoEffects: boolean;
   readonly addAutoAdditionalActivities: boolean;
+  readonly keepParsedActivities: boolean;
   readonly addToDefaultAdditionalActivities: boolean;
   readonly builtFeaturesFromActionFilters: any[];
   readonly itemMacro: IDDBItemMacro | null;
@@ -1580,6 +1640,8 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly stopDefaultActivity: boolean;
   readonly parseAllChoiceFeatures: boolean;
   readonly noChoiceBuild: boolean;
+  readonly mergeChoiceActivities: boolean;
+  readonly noSuppressedChoiceModifiers: boolean;
   readonly ddbMacroDescriptionData: IDDBMacroDescriptionData | null;
   readonly summonsFunction: ((data: ICompanionData) => Promise<ICompanionResult>) | null;
   readonly generateSummons: boolean;

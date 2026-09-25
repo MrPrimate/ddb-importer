@@ -1,6 +1,7 @@
 import { logger, utils } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
+import { parseMonsterDamageModes } from "./MonsterDamageModes";
 
 // a DAMAGE_EXPRESSION match; the regex uses named groups so `groups` is always present
 type TDamageMatch = RegExpExecArray & { groups: NonNullable<RegExpExecArray["groups"]> };
@@ -30,6 +31,10 @@ export class DDBMonsterDamage {
   saves: { type: string | null; hit: string };
   hitsMatch: string[] = [];
   hitMatches: TDamageMatch[] = [];
+  damageModes: (IMonsterDamageMode & { damageParts: IDDBMonsterActionDataDamagePart[] })[] = [];
+  damageModeWarnings: string[] = [];
+  normalHit = "";
+  replacesVersatile = false;
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;
@@ -299,6 +304,48 @@ export class DDBMonsterDamage {
     } else if (this.saves.type) {
       this._generateOtherSaveDamage();
     }
+
+    this._generateDamageModes();
+  }
+
+  /** Conditional modes belong to an attack's hit, never a standalone damage trait or save. */
+  _generateDamageModes() {
+    if (!this.ddbMonsterFeature.isAttack || !(/\bHit:/i).test(this.hit)
+      || this.ddbMonsterFeature.enricher?.noVersatile) return;
+    const tokens = this.hitMatches.filter((match) => match.groups.dice || match.groups.diceminor);
+    const result = parseMonsterDamageModes(this.hit, tokens);
+    this.damageModeWarnings = result.warnings;
+    if (result.modes.length === 0) return;
+    // Save and recurring damage retain the legacy routing until those independent stages
+    // have their own clause model. Never move their dice onto a newly generated attack.
+    if (tokens.some((token) => (/saving throw|\bat (?:the |each )?(?:start|end) of (?:each|its|the|their)|\b(?:Failure|Success):/i)
+      .test(this.hit.slice(0, token.index)))) {
+      this.damageModeWarnings.push("Conditional hit mixed with save or recurring damage requires separate stage parsing");
+      return;
+    }
+
+    const parts = tokens.map((match): IDDBMonsterActionDataDamagePart | null => {
+      const { finalDamage, includesDice } = this._getHitMatchDamage(match);
+      if (!finalDamage) return null;
+      const damageString = finalDamage.replace(/\s+/g, " ").trim();
+      const damageTypes = DDBMonsterDamage._getDamageTypes(this.hit, match.groups.type);
+      const part = SystemHelpers.buildDamagePart({ damageString, types: damageTypes,
+        stripMod: this.templateType === "weapon" });
+      return {
+        part, damageString, damageTypes, includesDice,
+        profBonus: damageString.includes("@prof") ? "@prof" : "",
+        levelBonus: (/the spell[’']s level/i).test(match.groups.dice ?? ""),
+        versatile: false, other: false, noBonus: part.bonus === "", damageHasMod: damageString.includes("@mod"),
+      };
+    });
+    if (parts.some((part) => part === null)) return;
+    const select = (indices: number[]) => indices.map((index) => parts[index]!);
+    this.replacesVersatile = this.versatileParts.length > 0;
+    this.damageParts = select(result.normal);
+    this.versatileParts = [];
+    this.versatile = false;
+    this.normalHit = result.normalText;
+    this.damageModes = result.modes.map((mode) => ({ ...mode, damageParts: select(mode.parts) }));
   }
 
 }

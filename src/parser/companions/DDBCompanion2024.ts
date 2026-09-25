@@ -117,7 +117,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   }
 
   #generateHitPoints() {
-    const hpString = this._extractValue("HP");
+    // AU Semblance of Life spirit forms carry their pool under a "Temp HP" label
+    const hpString = this._extractValue("HP") ?? this._extractValue("Temp HP");
     if (!hpString) return;
     this._handleHitPoints(hpString);
     this._handleHitDice(hpString);
@@ -252,13 +253,12 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
         this.summons.match.saves = true;
       }
       if (html.includes("your Proficiency Bonus to any ability check or saving throw")) {
-        const abilityBonuses = this.npc.system.bonuses?.abilities;
-        if (abilityBonuses) {
-          abilityBonuses.check = "@prof";
-          abilityBonuses.save = "@prof";
-        } else {
-          logger.warn(`Companion ${this.npc.name} has no ability bonuses data, unable to set proficiency bonuses`);
-        }
+        const bonuses = ((this.npc.system as I5eMonsterSystemData).bonuses ??= {});
+        bonuses.abilities = {
+          ...(bonuses.abilities ?? {}),
+          check: "@prof",
+          save: "@prof",
+        };
       }
     });
   }
@@ -267,7 +267,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     for (const header of this.block.querySelectorAll(".monster-header")) {
       let now = header.nextElementSibling as HTMLElement | null;
       if (!now) continue;
-      const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText);
+      // jsdom (the audit harness) has no innerText
+      const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText ?? header.textContent ?? "");
       let block = now.outerHTML;
       while (now !== null) {
         if (now.nextElementSibling === null || now.nextElementSibling.classList.contains("monster-header")) {

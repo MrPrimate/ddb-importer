@@ -34,7 +34,7 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect: I5eEffectData & { system: Required<I5eEffectSystem> } = {
+  const effect: I5eEffectData & { system: I5eEffectSystem & Required<Pick<I5eEffectSystem, "changes">> } = {
     system: {
       changes: [
         ChangeHelper.customChange(`+${characterProficiencyBonus}`, 20, "system.bonuses.rwak.attack"),
@@ -52,11 +52,11 @@ function generateBeastCompanionEffects(extra: I5eMonsterData, characterProficien
     name: "Beast Companion Effects",
   };
   DICTIONARY.actor.abilities.filter((ability) => (extra.system.abilities?.[ability.value].proficient ?? 0) >= 1).forEach((ability) => {
-    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.abilities.${ability.value}.save`);
+    const boost = ChangeHelper.addChange(`${characterProficiencyBonus}`, 20, `system.abilities.${ability.value}.bonuses.save`);
     effect.system.changes.push(boost);
   });
   DICTIONARY.actor.skills.filter((skill) => (extra.system.skills?.[skill.name].value ?? 0) >= 1).forEach((skill) => {
-    const boost = ChangeHelper.addChange(`{characterProficiencyBonus}`, 20, `data.skills.${skill.name}.mod`);
+    const boost = ChangeHelper.addChange(`${characterProficiencyBonus}`, 20, `system.skills.${skill.name}.bonuses.check`);
     effect.system.changes.push(boost);
   });
   extra.effects = [effect];
@@ -73,8 +73,8 @@ function generateArtificerDamageEffect(actor: TImporterActor, extra: I5eMonsterD
   const effect: I5eEffectData = {
     system: {
       changes: [
-        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.rwak.damage"),
-        ChangeHelper.customChange("+ @prof", 20, "data.bonuses.mwak.damage"),
+        ChangeHelper.customChange("+ @prof", 20, "system.bonuses.rwak.damage"),
+        ChangeHelper.customChange("+ @prof", 20, "system.bonuses.mwak.damage"),
       ],
     },
     duration: {

@@ -285,9 +285,7 @@ export default class DDBClassFeatures {
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
           if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(name)) {
-            if (existingFeature.system.description) {
-              existingFeature.system.description.value = `${item.system.description?.value ?? ""}`;
-            }
+            CharacterFeatureFactory.overwriteDuplicateFeature(existingFeature, item);
           } else {
             const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
             if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
@@ -312,9 +310,7 @@ export default class DDBClassFeatures {
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
           if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(name)) {
-            if (existingFeature.system.description) {
-              existingFeature.system.description.value = `${item.system.description?.value ?? ""}`;
-            }
+            CharacterFeatureFactory.overwriteDuplicateFeature(existingFeature, item);
           } else {
             const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
             if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;

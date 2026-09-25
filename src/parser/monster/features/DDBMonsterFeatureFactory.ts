@@ -176,6 +176,17 @@ export default class DDBMonsterFeatureFactory {
     return dom;
   }
 
+  /**
+   * The node holding a special trait's title. 2024 save traits italicise the save label with
+   * the title, "<em><strong>Stench.</strong> Constitution Saving Throw:</em>", so the emphasis
+   * alone would name the trait "Stench Constitution Saving Throw:" and no name-keyed enricher
+   * would ever match it.
+   */
+  static specialTraitTitle(emphasis: Element): Element {
+    if (!(/Saving Throw:\s*$/).test((emphasis.textContent ?? "").trim())) return emphasis;
+    return emphasis.querySelector("strong") ?? emphasis;
+  }
+
   static EM_STRONG_EXCEPTIONS = [
     "Yeenoghu",
   ];
@@ -549,8 +560,9 @@ export default class DDBMonsterFeatureFactory {
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
       const pDom = utils.htmlToDocumentFragment(node.outerHTML);
-      const query = pDom.querySelector("em");
-      if (!query) return;
+      const emphasis = pDom.querySelector("em");
+      if (!emphasis) return;
+      const query = DDBMonsterFeatureFactory.specialTraitTitle(emphasis);
       let name = query.textContent.trim().replace(/\./g, "");
       name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
       if (name) {

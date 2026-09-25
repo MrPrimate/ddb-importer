@@ -52,8 +52,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.actionData = ddbParent?.actionData as IDDBMonsterActionData;
   }
 
-  override _generateActivation() {
-    this.data.activation = this.actionData.activation;
+  override _generateActivation({ activationOverride = null, activationCondition }: {
+    activationOverride?: I5eActivityActivation | null;
+    activationCondition?: string;
+  } = {}) {
+    this.data.activation = foundry.utils.deepClone(activationOverride ?? this.actionData.activation);
+    if (activationCondition !== undefined) this.data.activation.condition = activationCondition;
   }
 
   override _generateConsumption({ consumptionOverride = null }: { consumptionOverride?: I5eActivityConsumption | null } = {}) {
@@ -104,8 +108,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  override _generateDuration() {
-    this.data.duration = this.actionData.duration;
+  override _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}) {
+    // cloned for the reason `_generateRange` gives: actionData.duration is shared by every
+    // activity of the feature, and an enricher's own duration must not rewrite its siblings'
+    if (durationOverride) {
+      this.data.duration = { ...foundry.utils.deepClone(durationOverride), override: true };
+      return;
+    }
+    this.data.duration = foundry.utils.deepClone(this.actionData.duration);
   }
 
   override _generateEffects() {
@@ -113,12 +123,18 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  override _generateRange() {
-    this.data.range = this.actionData.range as unknown as I5eActivityRange;
+  override _generateRange({ rangeOverride = null }: { rangeOverride?: I5eActivityRange | null } = {}) {
+    // cloned: actionData.range is shared by every activity of the feature, and an enricher
+    // `data.range` override merges in place, which would rewrite the sibling activities' range
+    this.data.range = rangeOverride
+      ? foundry.utils.deepClone(rangeOverride)
+      : foundry.utils.deepClone(this.actionData.range as unknown as I5eActivityRange);
   }
 
-  override _generateTarget() {
-    this.data.target = this.actionData.target;
+  override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {
+    // cloned: actionData.target is shared by every activity of the feature, and an enricher
+    // override that blanks one activity's template must not blank its siblings through it
+    this.data.target = foundry.utils.deepClone(targetOverride ?? this.actionData.target);
   }
 
   _getFeaturePartsDamage() {
@@ -217,13 +233,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   override _generateCheck({ checkOverride = null }: { checkOverride?: I5eActivityCheck | null }) {
     this.buildData.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
-      ability: this.actionData.ability,
+      ability: this.actionData.ability ?? "",
       dc: {},
     };
   }
 
   override build({
     activationOverride,
+    activationCondition,
     allowCritical,
     additionalTargets,
     attackData,
@@ -300,14 +317,14 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       this: this,
     });
 
-    if (generateActivation) this._generateActivation();
+    if (generateActivation) this._generateActivation({ activationOverride, activationCondition });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
+    if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
+    if (generateRange) this._generateRange({ rangeOverride });
+    if (generateTarget) this._generateTarget({ targetOverride });
 
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, allowCritical, onSave });

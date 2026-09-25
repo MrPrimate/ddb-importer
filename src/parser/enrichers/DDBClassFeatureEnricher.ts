@@ -92,6 +92,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINTS: Record<string, string> = {
+    // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
+    "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
@@ -145,6 +147,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font of Magic: Convert Spell Slots": "Font of Magic",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
+    "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
     "Preserve Life": "Channel Divinity: Preserve Life",
     // Cleric Astral Domain / Community Domain features share their action's enricher
     "Create Void": "Channel Divinity: Create Void",
@@ -171,7 +174,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Enfeebling Arrow": "Arcane Shot Option",
     // "Piercing Arrow": "Arcane Shot Option",
     // "Seeking Arrow": "Arcane Shot Option",
-    "Shadow Arrow": "Arcane Shot Option",
+    // "Shadow Arrow": "Arcane Shot Option",
     "Circle of the Land Spells": "Circle of the Spells",
     "Circle of the Moon Spells": "Circle of the Spells",
     "Circle of the Sea Spells": "Circle of the Spells",
@@ -216,6 +219,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Hollow Warden Spells": "Ranger Spells",
     "Bloodhound Spells": "Ranger Spells",
     "Winter Trapper Magic": "Ranger Spells",
+    "Field Researcher Magic": "Ranger Spells",
     "Psionic Spells": "Sorcerer Extra Spells",
     "Clockwork Spells": "Sorcerer Extra Spells",
     "Draconic Spells": "Sorcerer Extra Spells",
@@ -243,6 +247,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Astral Griffon Spells": "Warlock Extra Spells",
     "Lantern Spells": "Warlock Extra Spells",
     "Stone Sovereign Spells": "Warlock Extra Spells",
+    "Fungus Spells": "Warlock Extra Spells",
     "Alchemist Spells": "Artificer Spells",
     "Armorer Spells": "Artificer Spells",
     "Artillerist Spells": "Artificer Spells",
@@ -279,6 +284,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Paladin: {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
+    "Augmentation Compounds: Maddening Fumes": ClassEnrichers.Barbarian.AugmentationCompoundsMaddeningFumes,
     Barbarian: {
       "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
       "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
@@ -290,6 +296,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       "Expanded Spell List": ClassEnrichers.Warlock.ExtraSpells,
       "Dark Heart": ClassEnrichers.Warlock.CrownOfHorns,
       "Eldritch Invocations: Eldritch Smite": ClassEnrichers.Warlock.EldritchSmite,
+      "Eldritch Invocations: Gift of the Protectors": ClassEnrichers.Warlock.EldritchInvocationsGiftOfTheProtectors,
+      "Eldritch Invocations: Rebuke of the Talisman": ClassEnrichers.Warlock.EldritchInvocationsRebukeOfTheTalisman,
     },
     Fighter: {
       "Monster Kill: Bonus Damage": ClassEnrichers.Fighter.MonsterKill,
@@ -332,6 +340,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,
     "Channel Divinity: Turn the Unholy": ClassEnrichers.Paladin.ChannelDivinityTurnTheUnholy,
     "EnchantmentsExtras": ClassEnrichers.Rogue.EnchantmentsExtras,
+    "FloodingAbundance": ClassEnrichers.Rogue.FloodingAbundance,
     "Eldritch Cannon: Flamethrower": ClassEnrichers.Artificer.EldritchCannonFlamethrower,
     "Eldritch Cannon: Force Ballista": ClassEnrichers.Artificer.EldritchCannonForceBallista,
     "Eldritch Cannon: Protector": ClassEnrichers.Artificer.EldritchCannonProtector,
@@ -346,6 +355,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Chains of Carceri": ClassEnrichers.Warlock.ChainsOfCarceri,
     "Eldritch Invocations: Beast Speech": ClassEnrichers.Warlock.BeastSpeech,
     "Eldritch Invocations: Eldritch Sight": ClassEnrichers.Warlock.EldritchSight,
+    "Eldritch Invocations: Eldritch Spear": ClassEnrichers.Warlock.EldritchInvocationsEldritchSpear,
+    "Eldritch Invocations: Repelling Blast": ClassEnrichers.Warlock.EldritchInvocationsRepellingBlast,
     "Eldritch Invocations: Dreadful Word": ClassEnrichers.Warlock.DreadfulWord,
     "Eldritch Invocations: Far Scribe": ClassEnrichers.Warlock.FarScribe,
     "Eldritch Invocations: Feral Transformation": ClassEnrichers.Warlock.FeralTransformation,
@@ -367,6 +378,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Undying Servitude": ClassEnrichers.Warlock.UndyingServitude,
     "Elemental Affinity": ClassEnrichers.Sorcerer.ElementalAffinity,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
+    "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Topple": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
@@ -380,6 +392,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Giant's Havoc: Crushing Throw": ClassEnrichers.Barbarian.GiantsHavocCrushingThrow,
     "Giant's Havoc: Giant Stature": ClassEnrichers.Barbarian.GiantsHavocGiantStature,
     "Improved Blessed Strikes: Potent Spellcasting": ClassEnrichers.Cleric.ImprovedBlessedStrikesPotentSpellcasting,
+    "Jinx Points": ClassEnrichers.Rogue.JinxPoints,
     "Lay On Hands: Purify Poison": ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
     "Lay on Hands": ClassEnrichers.Paladin.LayOnHands,
     "Lay On Hands": ClassEnrichers.Paladin.LayOnHands,
@@ -476,7 +489,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Martial Adept: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Martial Adept: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Metamagic Options": ClassEnrichers.Sorcerer.MetamagicOptions,
-    "Mystic Arcanum (Level 8 Spell)": GenericEnrichers.None,
+    "Mystic Arcanum (Level 6 Spell)": ClassEnrichers.Warlock.MysticArcanum,
+    "Mystic Arcanum (Level 7 Spell)": ClassEnrichers.Warlock.MysticArcanum,
+    "Mystic Arcanum (Level 8 Spell)": ClassEnrichers.Warlock.MysticArcanum,
+    "Mystic Arcanum (Level 9 Spell)": ClassEnrichers.Warlock.MysticArcanum,
     "Pact Boon: Pact of the Chain": ClassEnrichers.Warlock.PactOfTheChain,
     "Pact Boon: Pact of the Talisman": ClassEnrichers.Warlock.PactBoonPactOfTheTalisman,
     "Pact Magic": ClassEnrichers.Shared.PactMagic,

@@ -1,14 +1,20 @@
 import { logger } from "../../lib/_module";
 
-async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
+/**
+ * Create the applied copy of an enchantment profile on an item at import time. dnd5e 5.3 treats an
+ * enchantment whose origin is another document as applied, so the profile's own `transfer: false`
+ * is kept.
+ */
+export async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
   const effectData = effect.toObject() as unknown as I5eEffectData;
+  const profileId = effectData._id;
   effectData.origin = activity.uuid;
 
   const createOperation = {
     parent: item,
     keepOrigin: true,
     dnd5e: {
-      enchantmentProfile: effectData._id,
+      enchantmentProfile: profileId,
       activityId: activity._id,
     },
   } as unknown as any;
@@ -20,11 +26,20 @@ async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect
   });
 }
 
-function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantmentTargetItemMatches[]): boolean {
+/**
+ * Does every `targetItemMatches` clause hold for the item? An array-valued field (the weapon's
+ * scraped `classFeatures`, used to find the DDB-marked pact weapon) matches when it contains the
+ * value; anything else must equal it.
+ */
+export function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantmentTargetItemMatches[]): boolean {
   for (const flag of flags) {
     const itemValue = foundry.utils.getProperty(item, flag.field);
     if (itemValue === undefined) return false;
-    if (itemValue !== flag.value) return false;
+    if (Array.isArray(itemValue)) {
+      if (!itemValue.includes(flag.value)) return false;
+    } else if (itemValue !== flag.value) {
+      return false;
+    }
   }
   return true;
 }
@@ -50,8 +65,8 @@ export async function linkSelectedEnchantments(actor: TImporterActor) {
     // loot items don't have activities, so we can't link the enchantment to them
     if (!item.system.activities) continue;
 
-    const activity: I5eEnchantActivity = item.system.activities.getByType("enchant")
-      .find((a: I5eEnchantActivity) => a._id === enchantmentFlag.activityId);
+    const enchantActivities = item.system.activities.getByType("enchant") as unknown as I5eEnchantActivity[];
+    const activity = enchantActivities.find((a) => a._id === enchantmentFlag.activityId);
 
     if (!activity) continue;
 
@@ -108,7 +123,7 @@ export async function createInfusedItems(ddb: IDDBData, actor: TImporterActor) {
     );
 
     if (!infusionFeature?.system.activities) continue;
-    const infusionActivities: I5eEnchantActivity[] = infusionFeature.system.activities.getByType("enchant");
+    const infusionActivities = infusionFeature.system.activities.getByType("enchant") as unknown as I5eEnchantActivity[];
 
     for (const activity of infusionActivities) {
       const activityEffects = activity.effects ?? [];

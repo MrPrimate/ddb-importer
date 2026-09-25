@@ -549,30 +549,10 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     });
   }
 
+  /** A bare "escape DC N" names no ability, so the shared outline offers Acrobatics or Athletics. */
   _generateEscapeCheck(hit: any) {
     const escape = hit.match(/escape DC ([0-9]+)/);
-    if (escape) {
-      this.additionalActivities.push({
-        type: "check",
-        name: `Escape Check`,
-        options: {
-          generateCheck: true,
-          generateTarget: false,
-          generateRange: false,
-          checkOverride: {
-            "associated": [
-              "acr",
-              "ath",
-            ],
-            "ability": "",
-            "dc": {
-              "calculation": "",
-              "formula": escape[1],
-            },
-          },
-        },
-      });
-    }
+    if (escape) this.additionalActivities.push(DDBActivityFactoryMixin.escapeCheckOutline(escape[1]));
   }
 
   override _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
@@ -710,13 +690,11 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     // if (this.originalName === "Multiattack") {
     //   description = this.#processMultiAttack(description);
     // }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
-
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data })
-      ?? description;
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
-    description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
+    description = await DDBReferenceLinker.parseMonsterDescription({
+      text: description,
+      document: this.data,
+      actor: this.ddbVehicle.data,
+    });
 
     this.data.system.description.value = await DDBTable.generateTable({
       parentName: this.ddbVehicle.data.name,
@@ -769,6 +747,7 @@ ${this.data.system.description.value}
     this.enricher.createDefaultEffects();
 
     this._activityEffectLinking();
+
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 

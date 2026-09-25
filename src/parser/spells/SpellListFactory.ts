@@ -2,6 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "../lib/_module";
 
+
 const BASE_CLASS_PAGE: I5eSpellsJournalPageData = {
   sort: 1,
   name: "Spell List",
@@ -50,6 +51,9 @@ export default class SpellListFactory {
   available = false;
   type = "class";
   ALL_SPELL_LISTS: string[] = [];
+
+  /** Basic Rules (2014) and Free Rules (2024) source ids mapped to their Player's Handbook. */
+  static BASIC_RULES_FALLBACK: Record<number, number> = { 1: 2, 148: 145 };
 
   #buildSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[] | undefined;
@@ -205,7 +209,7 @@ export default class SpellListFactory {
 
   async _getJournalSpellListPage(journal: JournalEntry.Implementation, spellListName: string, source: ISpellListSource) {
     const spellListIdentifier = DDBDataUtils.classIdentifierName(spellListName);
-    const page = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const page = journal.pages?.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE) as typeof BASE_CLASS_PAGE & { _id?: string };
@@ -221,7 +225,7 @@ export default class SpellListFactory {
     // });
     logger.debug(`Creating Spell Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData as unknown as JournalEntryPage.CreateInput], { keepId: true });
-    const newPage = journal.pages.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
+    const newPage = journal.pages?.find((p: JournalEntryPage.Implementation) => foundry.utils.getProperty(p, "system.identifier") === spellListIdentifier);
     return newPage;
   }
 
@@ -238,7 +242,11 @@ export default class SpellListFactory {
 
     if (spells.length === 0) return;
     const page = await this._getJournalSpellListPage(journal, spellListName, source);
-    const newSpells = new Set([...page.system.spells, ...spells]);
+    if (!page) {
+      logger.error(`Spell list page ${spellListName} could not be created for ${source.acronym}`);
+      return;
+    }
+    const newSpells = new Set([...(page.system.spells ?? []), ...spells]);
     const update = {
       _id: page._id,
       system: {
@@ -269,6 +277,53 @@ export default class SpellListFactory {
     await this._generateJournalSpellListPage(journal, spellListName, source);
   }
 
+  /**
+   * Adds compendium spells, matched by DDB definition id, to a named list, one page per source
+   * book. Existing pages are extended rather than replaced, so this can top up a list the spell
+   * munch built (DDB's class spell endpoint stops at the class's highest slot level, which
+   * leaves the Warlock list without its Mystic Arcanum levels).
+   * @returns definition ids resolved to compendium uuids, after writing and registering the lists
+   */
+  async addSpellsByDefinitionId(spellListName: string, spells: { id: number; sourceId?: number | null }[]): Promise<number[]> {
+    if (!this.available || !this.sources || !this.spellCompendium) return [];
+    await this.init();
+
+    const homebrew = this.sources.find((s) => s.id === 9999999);
+    const touchedSources = new Set<ISpellListSource>();
+    const resolved = new Set<number>();
+
+    for (const spell of spells) {
+      // basic rules books get no journal unless the setting asks for them, their spells sit on
+      // the matching Player's Handbook page instead
+      const sourceId = spell.sourceId && !this.filteredSources.some((s) => s.id === spell.sourceId)
+        ? SpellListFactory.BASIC_RULES_FALLBACK[spell.sourceId] ?? spell.sourceId
+        : spell.sourceId;
+      const source = this.filteredSources.find((s) => s.id === sourceId) ?? homebrew;
+      if (!source) continue;
+      const match = this.spellCompendium.index.find((s) =>
+        foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id,
+      );
+      if (!match) {
+        logger.debug(`Spell definition ${spell.id} not found in spell compendium for spell list ${spellListName}`);
+        continue;
+      }
+      if (!touchedSources.has(source)) {
+        this._addSpellListOutline(spellListName, source.acronym);
+        touchedSources.add(source);
+      }
+      this.uuidsBySourceAndSpellListName[source.acronym][spellListName].push(match.uuid);
+      resolved.add(spell.id);
+    }
+
+    if (resolved.size === 0) return [];
+
+    for (const source of touchedSources) {
+      await this.buildSpellList(source, spellListName);
+    }
+    await this.registerSpellLists();
+    return [...resolved];
+  }
+
   async registerSpellLists() {
     if (!this.available) return;
     await this.init();
@@ -282,7 +337,7 @@ export default class SpellListFactory {
 
     for (const journal of spellListJournals) {
       const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
-      const spellListPages = journalEntry.pages.filter((p: JournalEntryPage.Implementation) => p.type === "spells");
+      const spellListPages = journalEntry.pages?.filter((p: JournalEntryPage.Implementation) => p.type === "spells") ?? [];
       pages.push(...spellListPages.map((p: JournalEntryPage.Implementation) => p.uuid));
     }
 
