@@ -1,5 +1,10 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { area } from "./_SpellRegions";
 
+/**
+ * A 30-foot-radius, 5-foot-deep swirl of water centred on a point within range: a fixed cylinder,
+ * not an emanation, which would attach to the token that cast it.
+ */
 export default class Maelstrom extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -10,18 +15,7 @@ export default class Maelstrom extends DDBEnricherData {
     return {
       name: "Cast",
       data: {
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "30",
-            units: "ft",
-          },
-        },
+        target: area("cylinder", "30", { height: "5" }),
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain(),
           DDBEnricherData.BehaviorHelper.activity({

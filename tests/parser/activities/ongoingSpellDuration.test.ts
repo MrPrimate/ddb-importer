@@ -113,6 +113,21 @@ it.each([
   expectFollowUp(ongoing);
 });
 
+// A follow-up that applies an effect keeps the spell's duration: dnd5e hands a linked effect with no
+// expiry of its own the activity's duration, so an instantaneous one would make the effect permanent.
+it.each([
+  ["save", ongoingTrigger({ condition: "Enters the area", keepSpellDuration: true })],
+  ["attack", ongoingAttack({ name: "Follow-up Attack", condition: "Enters the area", keepSpellDuration: true })],
+  ["clone", ongoingClone("ddbTestOngoing01", "Enters the area", "Ongoing Save", {
+    override: true, value: "10", units: "minute", concentration: false,
+  })],
+] as const)("keeps the spell's duration without concentration through the shared %s builder", async (_name, hint) => {
+  const [cast, ongoing] = await generate("Synthetic Area Spell", false, [hint]);
+  expect(cast.duration?.override).not.toBe(true);
+  expect(ongoing.duration).toMatchObject({ override: true, value: "10", units: "minute", concentration: false });
+  expect(ongoing.consumption).toMatchObject({ spellSlot: false });
+});
+
 describe("parser-built spell follow-ups", () => {
   function host(concentration = true) {
     const definition = { name: "Test Spell", level: 2, description: "", modifiers: [], range: { rangeValue: 60 } };

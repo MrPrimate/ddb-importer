@@ -38,7 +38,8 @@ export default class Eyebite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Concentration Action",
-          data: { duration: { override: true, units: "inst", concentration: false } },
+          // the condition it applies lasts as long as the spell
+          data: { duration: this.followUpDuration },
           noSpellslot: true,
         },
       },

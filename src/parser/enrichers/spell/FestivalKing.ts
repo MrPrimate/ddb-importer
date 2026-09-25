@@ -27,6 +27,8 @@ export default class FestivalKing extends DDBEnricherData {
       ongoingTrigger({
         condition: "Moves within 20 feet of the Festival King for the first time on a turn or starts its turn there; automatic success if it can't be charmed",
         noDamage: true,
+        // the enamored effect lasts as long as the spell
+        keepSpellDuration: true,
       }),
     ];
   }

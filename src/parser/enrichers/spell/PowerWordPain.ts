@@ -65,10 +65,8 @@ export default class PowerWordPain extends DDBEnricherData {
         name: this.is2014 ? "Crippling Pain" : "Pained",
         statuses: this.is2014 ? [] : ["Charmed"],
         changes: [
-          // "any speed it has can be no higher than 10 feet": cap every movement mode, not just walking
-          ...["walk", "burrow", "climb", "fly", "swim"].map((speed) =>
-            DDBEnricherData.ChangeHelper.downgradeChange("10", 20, `system.attributes.movement.speeds.${speed}`),
-          ),
+          // "any speed it has can be no higher than 10 feet": every mode it has, not just walking
+          ...DDBEnricherData.ChangeHelper.speedCapChanges("10"),
           DDBEnricherData.ChangeHelper.ruleDisadvantageChange("attack"),
           DDBEnricherData.ChangeHelper.ruleDisadvantageChange("check"),
           DDBEnricherData.ChangeHelper.ruleDisadvantageChange("save", {

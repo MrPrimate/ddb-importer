@@ -1,5 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { area } from "./_SpellRegions";
 
+/**
+ * A 5-foot cube of air that damages a creature ending its turn within 5 feet of it, so the area is
+ * the cube plus 5 feet on every side: a fixed 15-foot cube. Moving the dust devil with a Bonus
+ * Action means dragging the area by hand; its 10-foot debris cloud is not modelled.
+ */
 export default class DustDevil extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -10,18 +16,7 @@ export default class DustDevil extends DDBEnricherData {
     return {
       name: "Cast",
       data: {
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "5",
-            units: "ft",
-          },
-        },
+        target: area("cube", "15"),
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenTurnEnd"],

@@ -385,6 +385,19 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return this.ddbEnricher.ddbParser.data;
   }
 
+  /**
+   * The spell's own duration without concentration, for a duplicated follow-up activity (a
+   * region's ongoing save, a transformation used again later). Using an activity whose duration
+   * concentrates begins concentration again, ending the spell's; an instantaneous duration avoids
+   * that but gives any effect it applies no length, since dnd5e hands a linked effect with no
+   * expiry of its own the activity's duration. Built activities get the same through the
+   * `noConcentration` build option.
+   */
+  get followUpDuration(): I5eActivityDuration {
+    const duration = (this.data?.system?.duration ?? {}) as I5eSystemDurationData;
+    return { ...foundry.utils.deepClone(duration), concentration: false, override: true };
+  }
+
   get activity(): IDDBActivityData | null {
     return null;
   }

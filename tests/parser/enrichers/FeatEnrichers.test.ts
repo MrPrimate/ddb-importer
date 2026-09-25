@@ -214,8 +214,12 @@ describe("feat action hints match what DDB ships", () => {
   });
 
   describe("Inspiring Leader builds Bolstering Performance itself", () => {
-    it("wants no activity on 2014 builds", () => {
-      expect(makeEnricherData(FeatEnrichers.InspiringLeader, { is2014: true }).additionalActivities).toEqual([]);
+    it("builds the 2014 ten-minute speech: level plus Charisma temp HP for six allies", () => {
+      const [speech]: any[] = makeEnricherData(FeatEnrichers.InspiringLeader, { is2014: true }).additionalActivities;
+      expect(speech.init).toEqual({ name: "Inspiring Speech", type: "heal" });
+      expect(speech.build.activationOverride).toMatchObject({ type: "minute", value: 10 });
+      expect(speech.build.healingPart.custom.formula).toBe("@details.level + @abilities.cha.mod");
+      expect(speech.build.targetOverride.affects).toMatchObject({ count: "6", type: "ally" });
     });
 
     it("builds both ability variants for the muncher, ignoring any recorded choice", () => {

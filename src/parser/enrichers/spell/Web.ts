@@ -33,7 +33,8 @@ export default class Web extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
-            duration: { override: true, units: "inst", concentration: false },
+            // the Restrained it applies lasts as long as the spell
+            duration: this.followUpDuration,
             range: {
               override: true,
               units: "spec",

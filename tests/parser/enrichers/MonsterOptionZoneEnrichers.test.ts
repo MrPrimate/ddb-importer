@@ -104,9 +104,14 @@ describe("options that left no activity get a placer beside the parsed one", () 
     expect(chill.init.type).toBe("damage");
     expect(chill.build.damageParts[0]).toMatchObject({ number: 3, denomination: 6, types: ["cold"] });
     expect(e.effects[0]).toMatchObject({ activityMatch: "Frost Squall: Chill", options: { transfer: false, expiry: "turnEnd" } });
-    // every mode is capped at 15 ft; a downgrade leaves a slower speed alone
-    expect(e.effects[0].changes.map((c: { key: string; value: string }) => [c.key, c.value])).toEqual(
-      ["walk", "fly", "swim", "climb", "burrow"].map((mode) => [`system.attributes.movement.speeds.${mode}`, "15"]),
+    // every mode the creature has is capped at 15 ft; a downgrade leaves a slower speed alone, and
+    // the add of 0 before it stops a blank speed being set to the cap
+    const changes = e.effects[0].changes as { key: string; value: string; type: string }[];
+    expect(changes.map((c) => [c.key, c.type, c.value])).toEqual(
+      ["walk", "burrow", "climb", "fly", "swim"].flatMap((mode) => [
+        [`system.attributes.movement.speeds.${mode}`, "add", "0"],
+        [`system.attributes.movement.speeds.${mode}`, "downgrade", "15"],
+      ]),
     );
   });
 

@@ -27,6 +27,8 @@ export default class LivingShadows extends DDBEnricherData {
       ongoingTrigger({
         condition: "Starts its turn in the shadows or enters them for the first time on its turn",
         noDamage: true,
+        // it applies Restrained, which lasts as long as the spell
+        keepSpellDuration: true,
       }),
       ongoingTrigger({
         name: "Exhaustion Save",

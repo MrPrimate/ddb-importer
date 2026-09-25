@@ -65,8 +65,8 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
-          generateDuration: true,
-          durationOverride: { units: "inst", concentration: false },
+          // the enchantment takes this activity's duration: the spell's, without concentration
+          noConcentration: true,
           img: "icons/magic/holy/angel-wings-gray.webp",
           generateDamage: false,
           generateHealing: false,

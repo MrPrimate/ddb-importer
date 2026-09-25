@@ -367,6 +367,21 @@ describe("native aura spells", () => {
     expect(e.effects.some((effect: any) => effect.auraeffects)).toBe(false);
   });
 
+  it("Holy Aura gives attackers disadvantage against warded creatures in midi and AC5e", () => {
+    const aura = build(SpellEnrichers.HolyAura).effects.find((effect: any) => effect.name === "Holy Aura");
+    expect(aura.midiChanges).toEqual([expect.objectContaining({ key: "flags.midi-qol.grants.disadvantage.attack.all", value: "1" })]);
+    expect(aura.ac5eChanges).toEqual([expect.objectContaining({ key: "flags.automated-conditions-5e.grants.attack.disadvantage", value: "1" })]);
+  });
+
+  it("Holy Aura's blindness and light follow the ruleset", () => {
+    const blinded = (is2014: boolean) => build(SpellEnrichers.HolyAura, { is2014 }).effects.find((e: any) => e.name === "Holy Aura: Blinded");
+    expect(blinded(true).options.expiry).toBeUndefined();
+    expect(blinded(false).options.expiry).toBe("targetEnd");
+    const hasLight = (is2014: boolean) => build(SpellEnrichers.HolyAura, { is2014 }).effects.some((e: any) => e.name === "Holy Aura: Light");
+    expect(hasLight(true)).toBe(true);
+    expect(hasLight(false)).toBe(false);
+  });
+
   it.each([
     ["WardingWind", []],
     ["DarkStar", []],
@@ -1265,14 +1280,68 @@ describe("follow-up activities on concentration spells do not require concentrat
   it.each([
     ["Moonbeam", "Ongoing Save"],
     ["Cloudkill", "Ongoing Save"],
-    ["Web", "Ongoing Save"],
     ["BlackTentacles", "Ongoing Save"],
-    ["Eyebite", "Concentration Action"],
     ["Earthquake", "Damage from Collapsed Structure"],
   ])("%s duplicates %s with a concentration-free duration", (name, activityName) => {
     const e = build((SpellEnrichers as any)[name]);
     const activity = e.additionalActivities.find((a: any) => a.duplicate && a.overrides?.name === activityName);
     expect(activity.overrides.data.duration).toMatchObject({ override: true, ...INST_NO_CONCENTRATION });
+  });
+
+  /** A concentration spell lasting one minute, as the parser records it on the document. */
+  const SPELL = { data: { system: { duration: { value: "1", units: "minute", concentration: true } } } };
+  const SPELL_WITHOUT_CONCENTRATION = { override: true, value: "1", units: "minute", concentration: false };
+
+  it.each([
+    ["Web", "Ongoing Save"],
+    ["Eyebite", "Concentration Action"],
+    ["AnimalShapes", "Follow Up Animal Shape"],
+    ["Shapechange", "Change Form"],
+  ])("%s duplicates %s with the spell's duration, so what it applies lasts as long as the spell", (name, activityName) => {
+    const e = build((SpellEnrichers as any)[name], SPELL);
+    const activity = e.additionalActivities.find((a: any) => a.duplicate && a.overrides?.name === activityName);
+    expect(activity.overrides.data.duration).toEqual(SPELL_WITHOUT_CONCENTRATION);
+  });
+
+  it("Shadow Puppets' incapacitating save keeps the spell's duration", () => {
+    const e = build(SpellEnrichers.ShadowPuppets, {
+      ...SPELL,
+      ddbParser: { _originalActivity: { type: "save" } },
+    });
+    e.ddbEnricher._originalActivity = { type: "save" };
+    expect(e.activity?.data.duration).toEqual(SPELL_WITHOUT_CONCENTRATION);
+  });
+
+  it.each([
+    ["ChainsOfBeleth", "Ongoing Save"],
+    ["LivingShadows", "Ongoing Save"],
+    ["FestivalKing", "Ongoing Save"],
+    ["TashasOtherworldlyGuise", "Otherworldly Weapon"],
+    ["DispelEvilAndGood", "Ward Self"],
+    ["HolyAura", "Save vs Blinded"],
+    ["Scrying", "Create Sensor"],
+    ["Polymorph", "Transform"],
+    ["TruePolymorph", "Transform"],
+  ])("%s builds %s on the spell's duration without concentration", (name, activityName) => {
+    const e = build((SpellEnrichers as any)[name], { is2014: true });
+    const activity = e.additionalActivities.find((a: any) => a.init?.name === activityName);
+    expect(activity.build).toMatchObject({ noSpellslot: true, noConcentration: true });
+    expect(activity.build.generateDuration).toBeUndefined();
+  });
+
+  it("the damage-only follow-ups keep an instantaneous duration", () => {
+    const crushing = build(SpellEnrichers.ChainsOfBeleth).additionalActivities.find((a: any) => a.init?.name === "Crushing Chains");
+    expect(crushing.build).toMatchObject({ generateDuration: true, durationOverride: INST_NO_CONCENTRATION });
+  });
+
+  it("Dispel Evil and Good links its Warded effect to Ward Self", () => {
+    const ward = build(SpellEnrichers.DispelEvilAndGood).additionalActivities.find((a: any) => a.init?.name === "Ward Self");
+    expect(ward.build.noeffect).toBeUndefined();
+  });
+
+  it("Heat Metal's heat lasts until the start of the caster's next turn", () => {
+    const [hot] = build(SpellEnrichers.HeatMetal).effects;
+    expect(hot.options.expiry).toBe("sourceStart");
   });
 
   it("Investiture of Ice's slow lasts until the start of the caster's next turn", () => {
@@ -1296,11 +1365,87 @@ describe("movement changes use the dnd5e 6 paths", () => {
     }
   });
 
+  it.each([[true], [false]])("Power Word Pain caps only the speeds a creature has (2014: %s)", (is2014) => {
+    const [pain] = build(SpellEnrichers.PowerWordPain, { is2014 }).effects;
+    const speedChanges = pain.changes.filter((change: any) => change.key.startsWith("system.attributes.movement.speeds."));
+    for (const mode of ["walk", "burrow", "climb", "fly", "swim"]) {
+      const [zero, cap] = speedChanges.filter((change: any) => change.key === `system.attributes.movement.speeds.${mode}`);
+      // the add of 0 runs first, so a blank speed is not set to the cap by the downgrade
+      expect(zero).toMatchObject({ type: "add", value: "0" });
+      expect(cap).toMatchObject({ type: "downgrade", value: "10" });
+      expect(zero.priority).toBeLessThan(cap.priority);
+      // above the usual speed grants, so a speed another effect grants is capped too
+      expect(zero.priority).toBeGreaterThan(20);
+    }
+  });
+
   it("Dream's Speed of 0 stops every movement mode", () => {
     const [trance] = build(SpellEnrichers.Dream).effects;
     expect(trance.changes).toContainEqual(expect.objectContaining({
       key: "system.attributes.movement.multiplier",
       value: "0",
     }));
+  });
+});
+
+describe("point-centred areas are fixed templates, not emanations", () => {
+  it("Maelstrom is a 30-foot, 5-foot-deep cylinder", () => {
+    expect(build(SpellEnrichers.Maelstrom).activity.data.target.template).toMatchObject({ type: "cylinder", size: "30", height: "5" });
+  });
+
+  it("Cordon of Arrows plants a sphere in 2014 and a stationary area on the caster in 2024", () => {
+    expect(build(SpellEnrichers.CordonOfArrows, { is2014: true }).activity.data.target.template).toMatchObject({ type: "sphere", size: "30" });
+    const modern = build(SpellEnrichers.CordonOfArrows).activity.data.target.template;
+    expect(modern).toMatchObject({ type: "radius", size: "30", stationary: true });
+  });
+
+  it("Cordon of Arrows deals 1d6 in 2014 and 2d4 in 2024", () => {
+    const part = (is2014: boolean) => build(SpellEnrichers.CordonOfArrows, { is2014 }).additionalActivities[0].build.damageParts[0];
+    expect(part(true)).toMatchObject({ number: 1, denomination: 6 });
+    expect(part(false)).toMatchObject({ number: 2, denomination: 4 });
+  });
+
+  it("Dust Devil covers the cube and 5 feet around it", () => {
+    expect(build(SpellEnrichers.DustDevil).activity.data.target.template).toMatchObject({ type: "cube", size: "15" });
+  });
+});
+
+describe("BestowCurse", () => {
+  const e = () => build(SpellEnrichers.BestowCurse);
+
+  it("rolls the Resilience die when the caster later deals damage, not when the curse lands", () => {
+    const resilience = e().additionalActivities.find((a: any) => a.overrides?.name === "Curse Resilience");
+    expect(resilience.overrides.damageParts).toBeUndefined();
+    const damage = e().additionalActivities.find((a: any) => a.init?.name === "Curse Damage");
+    expect(damage.build).toMatchObject({ noSpellslot: true, noConcentration: true, generateDamage: true });
+    expect(damage.build.damageParts[0]).toMatchObject({ number: 1, denomination: 8, types: ["necrotic"] });
+    expect(damage.build.activationOverride.type).toBe("special");
+  });
+
+  it("limits the attack curse to attacks against the caster and adds the Resilience die through AC5e", () => {
+    const effects = e().effects;
+    const attacks = effects.find((effect: any) => effect.name === "Cursed Attacks");
+    expect(attacks.midiChanges).toBeUndefined();
+    expect(attacks.ac5eChanges[0]).toMatchObject({
+      key: "flags.automated-conditions-5e.attack.disadvantage",
+      value: "effectOriginTokenId === opponentId",
+    });
+    const resilience = effects.find((effect: any) => effect.name === "Cursed Resilience");
+    expect(resilience.ac5eChanges[0].key).toBe("flags.automated-conditions-5e.grants.damage.bonus");
+    expect(resilience.ac5eChanges[0].value).toContain("1d8[necrotic]");
+  });
+
+  it("curses one ability's checks and saves with disadvantage", () => {
+    const strength = e().effects.find((effect: any) => effect.name === "Cursed Strength");
+    expect(strength.changes.map((change: any) => change.key)).toEqual([
+      "system.abilities.str.check.roll.mode",
+      "system.abilities.str.save.roll.mode",
+    ]);
+  });
+
+  it("words the action curse by ruleset", () => {
+    const actions = (is2014: boolean) => build(SpellEnrichers.BestowCurse, { is2014 }).effects.find((effect: any) => effect.name === "Cursed Actions");
+    expect(actions(true).options.description).toContain("waste its action");
+    expect(actions(false).options.description).toContain("Dodge");
   });
 });

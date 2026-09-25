@@ -33,6 +33,8 @@ export default class ChainsOfBeleth extends DDBEnricherData {
       ongoingTrigger({
         condition: "Enters the chains for the first time on a turn or starts its turn there",
         noDamage: true,
+        // it applies Restrained, which lasts as long as the spell
+        keepSpellDuration: true,
       }),
       ongoingTrigger({
         name: "Crushing Chains",

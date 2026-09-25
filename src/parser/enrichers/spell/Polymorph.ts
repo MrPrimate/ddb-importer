@@ -9,6 +9,11 @@ export default class Polymorph extends DDBEnricherData {
           name: "Transform",
           type: DDBEnricherData.ACTIVITY_TYPES.TRANSFORM,
         },
+        // applied after the save fails, while the spell is already being concentrated on
+        build: {
+          noSpellslot: true,
+          noConcentration: true,
+        },
         overrides: {
           noConsumeTargets: true,
           removeSpellSlotConsume: true,

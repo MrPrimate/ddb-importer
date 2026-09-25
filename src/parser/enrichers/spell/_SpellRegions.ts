@@ -30,6 +30,21 @@ interface IOngoingTrigger {
   damageParts?: number[];
   /** The save ability, when it is not the one DDB records for the spell. */
   saveAbility?: string;
+  /** Keep the spell's duration (without concentration) rather than an instantaneous one; see `followUpBuild`. */
+  keepSpellDuration?: boolean;
+}
+
+/**
+ * The duration part of a follow-up's build. Either way using it must not begin concentration
+ * again, which would end the spell's. An instantaneous duration suits a roll that only deals
+ * damage; one that applies an effect keeps the spell's duration, because dnd5e gives a linked
+ * effect with no expiry of its own the activity's duration, and an instantaneous one makes it
+ * permanent.
+ */
+function followUpBuild(keepSpellDuration: boolean): IDDBActivityBuild {
+  return keepSpellDuration
+    ? { noConcentration: true }
+    : { generateDuration: true, durationOverride: { units: "inst", concentration: false } };
 }
 
 export const ONGOING = "Ongoing Save";
@@ -48,6 +63,7 @@ export function castPlacer(behaviors: I5eActivityBehavior[], data: Partial<I5eAc
 /** The free roll a region fires against one token, for a spell that rolls nothing when cast. */
 export function ongoingTrigger({
   name = ONGOING, condition, affects = "creature", noSave = false, noDamage = false, damageParts, saveAbility,
+  keepSpellDuration = false,
 }: IOngoingTrigger): IDDBAdditionalActivity {
   const type = noSave
     ? (noDamage ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DAMAGE)
@@ -57,9 +73,7 @@ export function ongoingTrigger({
     build: {
       generateActivation: true,
       generateConsumption: false,
-      // Follow-up rolls must not inherit the spell's concentration and replace its dependents.
-      generateDuration: true,
-      durationOverride: { units: "inst", concentration: false },
+      ...followUpBuild(keepSpellDuration),
       generateTarget: true,
       generateSave: !noSave,
       generateDamage: !noDamage,
@@ -77,8 +91,16 @@ export function ongoingTrigger({
   };
 }
 
-/** The cast-time save again, free and without a template, for the region to fire. */
-export function ongoingClone(id: string, condition: string, name = ONGOING): IDDBAdditionalActivity {
+/**
+ * The cast-time save again, free and without a template, for the region to fire. It must not begin
+ * concentration: pass the spell's own duration (`followUpDuration`) when the save applies an
+ * effect, which then lasts as long as the spell; the default instantaneous duration suits a save
+ * that only deals damage.
+ */
+export function ongoingClone(
+  id: string, condition: string, name = ONGOING,
+  duration: I5eActivityDuration = { override: true, units: "inst", concentration: false },
+): IDDBAdditionalActivity {
   return {
     duplicate: true,
     id,
@@ -90,7 +112,7 @@ export function ongoingClone(id: string, condition: string, name = ONGOING): IDD
       noConsumeTargets: true,
       noTemplate: true,
       data: {
-        duration: { override: true, units: "inst", concentration: false },
+        duration,
         range: { override: true, units: "spec" },
         target: { override: true },
         behaviors: [],
@@ -105,17 +127,20 @@ interface IOngoingAttack {
   affects?: TTarget;
   /** "reaction" where the rules spend one; the region offers the card either way. */
   activation?: TActivationCost;
+  /** Keep the spell's duration (without concentration); see `followUpBuild`. */
+  keepSpellDuration?: boolean;
 }
 
 /** The free attack a region offers against one token; the dice and upcast scaling are DDB's. */
-export function ongoingAttack({ name, condition, affects = "enemy", activation = "special" }: IOngoingAttack): IDDBAdditionalActivity {
+export function ongoingAttack({
+  name, condition, affects = "enemy", activation = "special", keepSpellDuration = false,
+}: IOngoingAttack): IDDBAdditionalActivity {
   return {
     init: { name, type: DDBEnricherData.ACTIVITY_TYPES.ATTACK },
     build: {
       generateActivation: true,
       generateConsumption: false,
-      generateDuration: true,
-      durationOverride: { units: "inst", concentration: false },
+      ...followUpBuild(keepSpellDuration),
       generateTarget: true,
       generateAttack: true,
       generateDamage: true,

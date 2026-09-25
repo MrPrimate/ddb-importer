@@ -76,6 +76,8 @@ global {
     modRestrictionFilter?: any;
     modRestrictionFilterExcludes?: any;
     noSpellslot?: boolean;
+    /** See IDDBSpellActivityBuild.noConcentration: keep the spell's duration without concentration. */
+    noConcentration?: boolean;
 
     // --- Generate flags ---
     generateActivation?: boolean;

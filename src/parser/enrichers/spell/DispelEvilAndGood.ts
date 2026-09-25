@@ -13,14 +13,13 @@ export default class DispelEvilAndGood extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
-          generateDuration: true,
-          durationOverride: { units: "inst", concentration: false },
+          // the Warded effect it applies lasts as long as the spell
+          noConcentration: true,
           generateActivation: true,
           generateTarget: true,
           generateRange: true,
           generateConsumption: false,
           noSpellslot: true,
-          noeffect: true,
           generateUtility: true,
           activationOverride: {
             type: "action",

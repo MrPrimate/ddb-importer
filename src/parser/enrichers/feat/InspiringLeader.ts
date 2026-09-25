@@ -23,14 +23,18 @@ export default class InspiringLeader extends DDBEnricherData {
   }
 
   /**
-   * DDB ships the 2024 "Bolstering Performance" action only once the feat's ability is
-   * picked, so the activity is built here. The 2014 feat has no action and wants no activity.
+   * The temp HP activity: level plus the ability modifier, for up to six allies within 30 feet.
+   * DDB ships the 2024 "Bolstering Performance" action only once the feat's ability is picked,
+   * and the 2014 feat has no action at all, so both are built here.
    */
-  _bolsteringPerformance(ability: "wis" | "cha", { suffix = true } = {}): IDDBAdditionalActivity {
-    const label = ability === "wis" ? "Wisdom" : "Charisma";
+  _temporaryHitPoints({ name, ability, activation }: {
+    name: string;
+    ability: "wis" | "cha";
+    activation: I5eActivityActivation;
+  }): IDDBAdditionalActivity {
     return {
       init: {
-        name: `Bolstering Performance: Temp HP${suffix ? ` (${label})` : ""}`,
+        name,
         type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       },
       build: {
@@ -39,11 +43,7 @@ export default class InspiringLeader extends DDBEnricherData {
         generateTarget: true,
         generateHealing: true,
         generateConsumption: false,
-        activationOverride: {
-          type: "special",
-          value: 1,
-          condition: "After you finish a Short or Long Rest",
-        },
+        activationOverride: activation,
         rangeOverride: {
           value: "30",
           units: "ft",
@@ -65,8 +65,30 @@ export default class InspiringLeader extends DDBEnricherData {
     };
   }
 
+  _bolsteringPerformance(ability: "wis" | "cha", { suffix = true } = {}): IDDBAdditionalActivity {
+    const label = ability === "wis" ? "Wisdom" : "Charisma";
+    return this._temporaryHitPoints({
+      name: `Bolstering Performance: Temp HP${suffix ? ` (${label})` : ""}`,
+      ability,
+      activation: { type: "special", value: 1, condition: "After you finish a Short or Long Rest" },
+    });
+  }
+
+  /** The 2014 feat: a 10-minute speech, Charisma based; a creature benefits once per rest. */
+  get _inspiringSpeech(): IDDBAdditionalActivity {
+    return this._temporaryHitPoints({
+      name: "Inspiring Speech",
+      ability: "cha",
+      activation: {
+        type: "minute",
+        value: 10,
+        condition: "A creature can't gain these temporary hit points again until it finishes a Short or Long Rest",
+      },
+    });
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (this.is2014) return [];
+    if (this.is2014) return [this._inspiringSpeech];
     const chosen = this._chosenAbility;
     if (chosen) return [this._bolsteringPerformance(chosen, { suffix: false })];
     return [this._bolsteringPerformance("wis"), this._bolsteringPerformance("cha")];

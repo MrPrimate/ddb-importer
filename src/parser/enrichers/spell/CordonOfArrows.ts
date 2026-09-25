@@ -1,5 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { area } from "./_SpellRegions";
 
+/**
+ * The ammunition is planted in the ground and the area is everything within 30 feet of it. The
+ * 2014 spell plants it at a point within range, a fixed sphere; the 2024 spell plants it in the
+ * caster's space, an area centred on the caster that stays put when the caster moves on. The 2014
+ * spell deals 1d6 piercing, the 2024 one 2d4.
+ */
 export default class CordonOfArrows extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -10,18 +17,7 @@ export default class CordonOfArrows extends DDBEnricherData {
     return {
       name: "Cast",
       data: {
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "30",
-            units: "ft",
-          },
-        },
+        target: this.is2014 ? area("sphere", "30") : area("radius", "30", { stationary: true }),
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
@@ -54,7 +50,9 @@ export default class CordonOfArrows extends DDBEnricherData {
           },
           generateDamage: true,
           damageParts: [
-            DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
+            this.is2014
+              ? DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "piercing" })
+              : DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "piercing" }),
           ],
           activationOverride: {
             type: "special",

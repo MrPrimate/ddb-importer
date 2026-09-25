@@ -198,6 +198,32 @@ export default class ChangeHelper {
     return ChangeHelper.multiplyChange(value, priority, "system.attributes.movement.multiplier");
   }
 
+  /** The movement modes a speed cap limits. */
+  static SPEED_MODES = ["walk", "burrow", "climb", "fly", "swim"] as const;
+
+  /**
+   * Cap every speed a creature HAS at `limit` ("any speed it has can be no higher than 10 feet").
+   * A plain downgrade would grant the others: dnd5e's `FormulaField` downgrade returns the cap when
+   * the current value is blank, so a creature with no fly speed would gain one. Each mode therefore
+   * first gets an `add` of 0, which turns a blank speed into "0" (and leaves "40" as "40 + 0"), so
+   * the downgrade that follows sees a value and keeps a missing speed at 0.
+   *
+   * A condition on the downgrade cannot do this: change conditions are checked against the
+   * actor's data from before any effect applies, so a speed granted by another effect (the Fly
+   * spell) would look absent and escape the cap. The priority sits above the usual speed grants
+   * (20), so those are capped too. dnd5e adds `movement.bonus` after the speeds resolve, so a flat
+   * speed bonus still lifts a capped speed.
+   */
+  static speedCapChanges(limit: string | number, priority = 50, modes: readonly string[] = ChangeHelper.SPEED_MODES): IActiveEffectChangeData[] {
+    return modes.flatMap((mode) => {
+      const key = `system.attributes.movement.speeds.${mode}`;
+      return [
+        ChangeHelper.addChange("0", priority - 1, key),
+        ChangeHelper.downgradeChange(limit, priority, key),
+      ];
+    });
+  }
+
   /**
    * An `add` to a number field that stops at a ceiling, e.g. "2<=20" adds 2 but never takes the
    * value past 20. dnd5e 6 resolves both halves as deterministic formulas and never lowers a value
