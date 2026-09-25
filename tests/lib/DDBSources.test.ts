@@ -25,6 +25,34 @@ describe("DDBSources.getSource", () => {
   });
 });
 
+describe("DDBSources.getSourceCoverURL", () => {
+  it("returns the cover for a book that has one", () => {
+    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("PHB")))
+      .toBe("https://www.dndbeyond.com/avatars/10435/389/637248131811862290.jpeg");
+  });
+
+  it("rejects the bare avatar directory DDB sends for a book with no cover", () => {
+    // 52 of the 245 shipped sources look like this, and the URL is truthy enough to render as a
+    // broken image; Critical Role is one of them
+    expect(DDBSources.getSource("CR")?.avatarURL).toBe("https://www.dndbeyond.com/avatars/");
+    expect(DDBSources.getSourceCoverURL(DDBSources.getSource("CR"))).toBeNull();
+  });
+
+  it.each([
+    ["an empty string", ""],
+    ["whitespace", "   "],
+    ["a directory with a query string", "https://www.dndbeyond.com/avatars/?v=2"],
+  ])("returns null for %s", (_label, avatarURL) => {
+    expect(DDBSources.getSourceCoverURL({ avatarURL })).toBeNull();
+  });
+
+  it("returns null for a missing source or a missing avatarURL", () => {
+    expect(DDBSources.getSourceCoverURL(null)).toBeNull();
+    expect(DDBSources.getSourceCoverURL(undefined)).toBeNull();
+    expect(DDBSources.getSourceCoverURL({})).toBeNull();
+  });
+});
+
 describe("DDBSources.getBookName", () => {
   it("returns the description for legacy and 2024 books", () => {
     expect(DDBSources.getBookName("PHB")).toBe("Player’s Handbook (2014)");
@@ -139,6 +167,49 @@ describe("DDBSources.getChosenSourceIdSet", () => {
     });
     expect(DDBSources.getChosenSourceIdSet({ includeCore: false })).toEqual(new Set([2]));
     expect(DDBSources.getChosenSourceIdSet({ includeCore: false, useOverride: false }).has(238)).toBe(true);
+  });
+});
+
+describe("DDBSources.getBookFilter", () => {
+  // PHB (2) sits in category 26, EGtW (59) in category 2
+  const bookFilter = (overrides: Record<string, unknown> = {}) => {
+    setMockSettings({
+      "munching-policy-muncher-included-source-categories": [26],
+      "munching-policy-use-source-filter": true,
+      "munching-policy-muncher-sources": [2],
+      ...overrides,
+    });
+    return DDBSources.getBookFilter();
+  };
+
+  it("is inert while the filter is off, but still exposes the raw selection", () => {
+    expect(bookFilter({ "munching-policy-use-source-filter": false })).toEqual({
+      enabled: false, selected: [2], effective: [], ignored: [],
+    });
+  });
+
+  it("keeps books inside the included categories", () => {
+    expect(bookFilter()).toEqual({ enabled: true, selected: [2], effective: [2], ignored: [] });
+  });
+
+  it("ignores a selection made entirely of books outside the included categories", () => {
+    expect(bookFilter({ "munching-policy-muncher-included-source-categories": [2] })).toEqual({
+      enabled: true, selected: [2], effective: [], ignored: [2],
+    });
+  });
+
+  it("splits a mixed selection", () => {
+    expect(bookFilter({
+      "munching-policy-muncher-included-source-categories": [2],
+      "munching-policy-muncher-sources": [2, 59],
+    })).toEqual({ enabled: true, selected: [2, 59], effective: [59], ignored: [2] });
+  });
+
+  it("no longer empties the chosen book set when the selection is ineffective", () => {
+    bookFilter({ "munching-policy-muncher-included-source-categories": [21] });
+    const ids = DDBSources.getChosenSourceIdSet({ includeCore: false });
+    expect(ids.has(238)).toBe(true);
+    expect(ids.has(239)).toBe(true);
   });
 });
 

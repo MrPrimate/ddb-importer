@@ -42,6 +42,7 @@ function buildApp() {
     notifierV2: DDBAppV2.prototype.notifierV2,
     getMessageClass: DDBAppV2.prototype.getMessageClass,
     clearProgressBars: DDBAppV2.prototype.clearProgressBars,
+    clearDetails: DDBAppV2.prototype.clearDetails,
   } as unknown as DDBAppV2;
 }
 
@@ -138,6 +139,25 @@ describe("DDBAppV2 progress bars", () => {
       expect(barHidden(app, name)).toBe(true);
     }
     expect((app.element.querySelector("#munching-task-overall") as HTMLElement).textContent).toBe("");
+  });
+
+  it("blanks every status row as well as the bars", () => {
+    const app = buildApp();
+    for (const section of ["name", "monster", "note", "import", "overall"]) {
+      app.notifierV2({ section, message: `${section} text`, suppress: true });
+    }
+    app.notifierV2({ progress: { current: 1, total: 2 }, message: "a", progressBar: "primary", suppress: true });
+    app.notifierV2({ progress: { current: 1, total: 4 }, message: "b", progressBar: "secondary", suppress: true });
+
+    app.clearDetails();
+
+    for (const id of DDBAppV2.DETAIL_MESSAGE_IDS) {
+      expect((app.element.querySelector(`#${id}`) as HTMLElement).textContent).toBe("");
+    }
+    for (const name of ["primary", "secondary", "overall"]) {
+      expect(barWidth(app, name)).toBe("0%");
+      expect(barHidden(app, name)).toBe(true);
+    }
   });
 
 });

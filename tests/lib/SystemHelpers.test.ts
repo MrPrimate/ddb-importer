@@ -235,6 +235,8 @@ describe("effectModules", () => {
     expect(result.daeInstalled).toBe(false);
     expect(result.chrisInstalled).toBe(false);
     expect(result.vision5eInstalled).toBe(false);
+    expect(result.atlInstalled).toBe(false);
+    expect(result.activeAurasInstalled).toBe(false);
   });
 
   it("sets hasCore when midi-qol and dae are both active", () => {
@@ -256,16 +258,17 @@ describe("effectModules", () => {
   it("detects the other effect modules", () => {
     setMockModules({
       ATL: { active: true },
-      tokenmagic: { active: true },
       ActiveAuras: { active: true },
+      tokenmagic: { active: true },
       auraeffects: { active: true },
       autoanimations: { active: true },
       "vision-5e": { active: true },
     });
     const result = SystemHelpers.effectModules();
+    // the enricher ATL and Active Auras gates read these; a missing key silently drops those effects
     expect(result.atlInstalled).toBe(true);
-    expect(result.tokenMagicInstalled).toBe(true);
     expect(result.activeAurasInstalled).toBe(true);
+    expect(result.tokenMagicInstalled).toBe(true);
     expect(result.auraeffectsInstalled).toBe(true);
     expect(result.autoAnimationsInstalled).toBe(true);
     expect(result.vision5eInstalled).toBe(true);

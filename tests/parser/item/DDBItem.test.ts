@@ -13,7 +13,14 @@ vi.mock("../../../src/parser/activities/mixins/DDBActivityFactoryMixin", () => (
   },
 }));
 vi.mock("../../../src/parser/enrichers/DDBItemEnricher", () => ({
-  default: class { init() {} load() {} },
+  default: class {
+    init() {
+      // Item unit tests do not initialise enrichment.
+    }
+    load() {
+      // Item unit tests do not load document enrichers.
+    }
+  },
 }));
 vi.mock("../../../src/parser/activities/_module", () => ({
   DDBItemActivity: class {},
@@ -27,6 +34,7 @@ vi.mock("../../../src/effects/restrictions", () => ({
 
 import DDBItem from "../../../src/parser/item/DDBItem";
 import { JEWEL_OF_THREE_PRAYERS, NO_CHARGE_VESTIGE } from "../../_fixtures/ddb/vestiges";
+import { setMockModules, setMockSettings } from "../../_setup/foundryMocks";
 
 // =============================================================================
 // getPublisherAmmunitionType* - Mage Hand Press ammunition, gated on the DDB
@@ -217,16 +225,26 @@ describe("DDBItem.getMagicItemResetType", () => {
     expect(DDBItem.getMagicItemResetType("The item regains expended charges each day at sunset.")).toBe("dusk");
   });
 
-  it("detects next dawn from can't-be-used formula", () => {
-    expect(DDBItem.getMagicItemResetType("This property can't be used this way again until the next dawn.")).toBe("Dawn");
+  it.each([
+    ["This property can't be used this way again until the next dawn.", "dawn"],
+    ["Once this property is used, it can't be used again until the next dusk.", "dusk"],
+    ["Once this property is used, it can’t be used again until the next dawn.", "dawn"],
+  ])("detects prose reset in %s", (description, expected) => {
+    expect(DDBItem.getMagicItemResetType(description)).toBe(expected);
   });
 
   it("detects long rest", () => {
-    expect(DDBItem.getMagicItemResetType("You can't use this feature again until you finish a long rest.")).toBe("LongRest");
+    expect(DDBItem.getMagicItemResetType("You can't use this feature again until you finish a long rest.")).toBe("lr");
   });
 
   it("detects short or long rest as 'sr'", () => {
     expect(DDBItem.getMagicItemResetType("You can't use it again until you finish a short or long rest.")).toBe("sr");
+  });
+
+  it("reads the capitalised 2024 rest wording", () => {
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Short or Long Rest.")).toBe("sr");
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Short Rest.")).toBe("sr");
+    expect(DDBItem.getMagicItemResetType("It can't be used this way again until you finish a Long Rest.")).toBe("lr");
   });
 
   it("returns null when no reset pattern found", () => {
@@ -243,6 +261,8 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
   function makeUsesMock(originalName: string, description: string, isMuncher = true) {
     const mock = Object.create(DDBItem.prototype);
     mock.isMuncher = isMuncher;
+    // this branch gates compendium uses on the compendium flag rather than the muncher flag
+    mock.isCompendiumItem = isMuncher;
     mock.originalName = originalName;
     mock.ddbDefinition = { description };
     mock.ddbItem = { definition: mock.ddbDefinition };
@@ -324,6 +344,16 @@ describe("DDBItem.prototype.isFirearm", () => {
 // weapon that already adds the ability modifier
 // =============================================================================
 describe("DDBItem.prototype.hasOverkillRangedDamage", () => {
+  const originalSettings = game.settings.settings;
+
+  beforeEach(() => {
+    foundry.utils.setProperty(game, "settings.settings", new Map([["mage-hand-press-core.gunslinger", {}]]));
+  });
+
+  afterEach(() => {
+    foundry.utils.setProperty(game, "settings.settings", originalSettings);
+  });
+
   // DDB attackType: 1 melee, 2 ranged
   function makeWeaponMock({
     properties = [] as { name: string }[],
@@ -343,6 +373,25 @@ describe("DDBItem.prototype.hasOverkillRangedDamage", () => {
   // Longbow, Shortbow, Sling and the Dart, which DDB types as ranged despite
   // being thrown, because it is a Simple Ranged Weapon
   it("applies to a ranged weapon", () => {
+    expect(makeWeaponMock().hasOverkillRangedDamage).toBe(true);
+  });
+
+  it.each([
+    [true, true, false],
+    [true, false, true],
+    [false, true, true],
+    [false, false, true],
+  ])("handles MHP active=%s and automation=%s without duplicating its die", (active, mankillerOverkill, expected) => {
+    setMockModules({ "mage-hand-press-core": { active } });
+    setMockSettings({ gunslinger: { mankillerOverkill } }, "mage-hand-press-core");
+    expect(makeWeaponMock().hasOverkillRangedDamage).toBe(expected);
+    expect(makeWeaponMock({ properties: FIREARM }).hasOverkillRangedDamage).toBe(false);
+    expect(makeWeaponMock({ attackType: 1 }).hasOverkillRangedDamage).toBe(false);
+  });
+
+  it("keeps importer automation when MHP has no registered Gunslinger settings", () => {
+    setMockModules({ "mage-hand-press-core": { active: true } });
+    foundry.utils.setProperty(game, "settings.settings", new Map());
     expect(makeWeaponMock().hasOverkillRangedDamage).toBe(true);
   });
 
@@ -555,8 +604,12 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     expect(result.charges).toBe(2);
   });
 
-  it("falls back to description when useDescription is empty", () => {
-    const mock = makeItemMock("This property can\u2019t be used this way again until the next dawn.");
+  it.each([
+    "This property can't be used this way again until the next dawn.",
+    "Once this property is used, it can't be used again until the next dusk.",
+    "Once this property is used, it can’t be used again until the next dawn.",
+  ])("falls back to per-spell wording in the item description: %s", (description) => {
+    const mock = makeItemMock(description);
     const result = mock.parsePerSpellMagicItem("");
     expect(result.isPerSpell).toBe(true);
     expect(result.charges).toBe(1);
@@ -569,10 +622,75 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     expect(result.charges).toBeNull();
   });
 
-  it("detects 'can't be used to cast that spell again' in useDescription", () => {
+  it.each([
+    "This property can’t be used to cast that spell again until the next dawn.",
+    "Once this property is used, it can't be used again until the next dusk.",
+    "Once this property is used, it can’t be used again until the next dawn.",
+  ])("detects per-spell wording in useDescription: %s", (useDescription) => {
     const mock = makeItemMock("");
-    const result = mock.parsePerSpellMagicItem("This property can\u2019t be used to cast that spell again until the next dawn.");
+    const result = mock.parsePerSpellMagicItem(useDescription);
     expect(result.isPerSpell).toBe(true);
     expect(result.charges).toBe(1);
+  });
+});
+
+// =============================================================================
+// parseSaveFromDescription - save.ability may only ever hold 5e ability keys.
+// The wildcard capture this replaced produced "dc " from "DC 15 Dexterity", and
+// its lazy match paired DCs with abilities from unrelated sentences.
+// =============================================================================
+describe("DDBItem.parseSaveFromDescription", () => {
+  it.each([
+    // the common phrasing, which used to yield ["dc ", "dex"]
+    ["must succeed on a DC 15 Dexterity saving throw or take 5d4 force damage", ["dex"], "15", ""],
+    ["must make a DC 15 Dexterity saving throw", ["dex"], "15", ""],
+    ["must succeed on an Intelligence saving throw against your spell save DC", ["int"], "", "spellcasting"],
+    // save.ability is a choice list, so both halves of an either/or belong in it
+    ["must make a DC 16 Strength or Dexterity saving throw", ["str", "dex"], "16", ""],
+    // DDB text is not reliably capitalised
+    ["must succeed on a DC 12 wisdom saving throw", ["wis"], "12", ""],
+    // DDB writes the roll both ways; Muscle Graft uses the "save" shorthand
+    ["you must succeed on a DC 15 Constitution save", ["con"], "15", ""],
+    ["each creature makes a DC 10 Charisma save", ["cha"], "10", ""],
+  ])("reads %s", (description, ability, formula, calculation) => {
+    expect(DDBItem.parseSaveFromDescription(description)).toEqual({
+      ability,
+      dc: { formula, calculation },
+    });
+  });
+
+  it.each([
+    // an ability check, which the lazy wildcard used to reach past into a later save
+    ["A DC 24 Dexterity (Acrobatics) check ends the effect. It must make a saving throw."],
+    // "death" and "saving" are not abilities; these produced "dea" and "sav"
+    ["must succeed on a death saving throw"],
+    ["must make a DC 13 saving throw of your choice"],
+    // a bare parenthesised DC names no ability at all
+    ["you can cast one of the following spells (save DC 18)"],
+    ["A perfectly ordinary hat."],
+  ])("finds no save in %s", (description) => {
+    expect(DDBItem.parseSaveFromDescription(description)).toBeNull();
+  });
+
+  it("never emits an ability outside the six", () => {
+    const abilities = ["str", "dex", "con", "int", "wis", "cha"];
+    for (const description of [
+      "must succeed on a DC 15 Dexterity saving throw",
+      "must make a DC 16 Strength or Dexterity saving throw",
+      "must succeed on a Charisma saving throw against your spell save DC",
+    ]) {
+      const save = DDBItem.parseSaveFromDescription(description);
+      expect(save?.ability?.every((ability) => abilities.includes(ability))).toBe(true);
+    }
+  });
+
+  it("pairs the ability with the DC from its own sentence when an item has two saves", () => {
+    // Banjo of Ol' Jericho Sticks: a Wisdom save with a formula DC, and a
+    // separate DC 19 Charisma save on another property
+    const save = DDBItem.parseSaveFromDescription(
+      "The target must succeed on a Wisdom saving throw (DC = 16 + the banjo's bonus) or have the Charmed condition."
+      + " Birdcage. You can force a creature you have Charmed to make a DC 19 Charisma saving throw.",
+    );
+    expect(save).toEqual({ ability: ["cha"], dc: { formula: "19", calculation: "" } });
   });
 });

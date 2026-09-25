@@ -139,8 +139,13 @@ const noopClass = class {};
     isNewerVersion() {
       return false;
     },
+    // Foundry ids are exactly 16 alphanumeric characters and the audit harness checks for it;
+    // Math.random().toString(36) alone yields 9 to 12
     randomID() {
-      return Math.random().toString(36).substring(2, 18);
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let id = "";
+      for (let i = 0; i < 16; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      return id;
     },
     Semaphore: class Semaphore {
       max: number;
@@ -180,6 +185,9 @@ const noopClass = class {};
     },
   },
   applications: {
+    // the live registry of open windows, keyed by application id, which the apps use to find and
+    // reuse an already-open window rather than rendering a second one into the same id
+    instances: new Map<string, unknown>(),
     api: {
       ApplicationV2: noopClass,
       HandlebarsApplicationMixin: (cls: any) => cls,
@@ -188,6 +196,10 @@ const noopClass = class {};
       DialogV2: class DialogV2 {
         static async wait(_config: any): Promise<any> {
           return undefined;
+        }
+
+        static async confirm(_config: any): Promise<boolean> {
+          return false;
         }
       },
     },
@@ -216,9 +228,12 @@ const noopClass = class {};
   data: {
     fields: {
       BooleanField: noopClass,
+      JSONField: noopClass,
       SchemaField: noopClass,
+      SetField: noopClass,
       StringField: noopClass,
       NumberField: noopClass,
+      ColorField: noopClass,
     },
   },
   CONST: {
@@ -295,13 +310,15 @@ function makeFakeAdvancement(type: string) {
     _data: Record<string, any>;
 
     constructor(data: Record<string, any> = {}) {
-      this._data = {
+      // deep-merged like the real data model, so a caller's `configuration: {}` (AdvancementWrapper)
+      // keeps the schema defaults: the real ASI schema initialises fixed/points/cap and DDBRace
+      // writes into `configuration.fixed` directly for a 2014 species "Ability Score Increase"
+      this._data = foundry.utils.mergeObject({
         _id: foundry.utils.randomID(),
         type,
-        configuration: {},
+        configuration: type === "AbilityScoreImprovement" ? { fixed: {}, points: 0, cap: 2, locked: [] } : {},
         value: {},
-        ...data,
-      };
+      }, data);
     }
 
     toObject() {
@@ -311,11 +328,47 @@ function makeFakeAdvancement(type: string) {
     updateSource(changes: Record<string, any>) {
       foundry.utils.mergeObject(this._data, changes);
     }
+
+    // the real advancement exposes its data model fields as live properties; DDBRace reads
+    // `advancement.configuration` back before updating it
+    get configuration() {
+      return this._data.configuration;
+    }
+
+    get value() {
+      return this._data.value;
+    }
   };
 }
 
+// foundry.data.operators.ForcedDeletion singleton: an update value that removes a field
+(globalThis as any)._del = new (class ForcedDeletion {})();
+
+// dnd5e exposes itself on globalThis as well as game.dnd5e. Only the pieces read
+// outside of game.dnd5e are stubbed here.
+(globalThis as any).dnd5e = {
+  dataModels: {
+    chatMessage: {
+      fields: {
+        TargetsField: {
+          getDescriptors: (tokens: any[] = []) => tokens.map((t) => ({
+            actor: t.actor?.uuid ?? null,
+            ac: null,
+            img: t.texture?.src,
+            name: t.name,
+            token: t.uuid,
+          })),
+        },
+      },
+    },
+  },
+};
+
 (globalThis as any).game = {
   settings: {
+    storage: new Map([["world", {
+      getItem: (key: string) => mockSettings.has(key) ? JSON.stringify(mockSettings.get(key)) : null,
+    }]]),
     get: (moduleId: string, key: string) => {
       const namespaced = `${moduleId}.${key}`;
       return mockSettings.has(namespaced) ? mockSettings.get(namespaced) : "OFF";

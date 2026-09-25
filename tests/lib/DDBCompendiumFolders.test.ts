@@ -126,3 +126,10 @@ describe("DDBCompendiumFolders specialist subclass folders", () => {
     expect(compendiumFolders.getFolderId(feature)).toBeDefined();
   });
 });
+
+/**
+ * dnd5e 6.0 stores rarity as the `rarities` set and a compendium index is raw source, so the
+ * rarity folder pass meets three entry shapes over a pack's life: legacy (`rarity` string only),
+ * updated (`rarities` plus a stale `rarity`), fresh (`rarities` only). DDB's "Varies" survives only
+ * on the dndbeyond flag (new imports) or as the old "varies" string (un-migrated packs).
+ */

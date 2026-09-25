@@ -205,6 +205,7 @@ export default defineConfig(
       "src/parser/enrichers/effects/**/*.ts",
       "src/parser/lib/{DDBDataUtils,DDBTemplateStrings,DDBReferenceLinker,DDBDescriptions,DDBModifiers,ProficiencyFinder,SpecialAdvancements}.ts",
       "src/parser/spells/SpellDataUtils.ts",
+      "src/parser/advancements/AdvancementBuilder.ts",
       "src/effects/DDBEffectHelperText.ts",
     ],
     rules: {

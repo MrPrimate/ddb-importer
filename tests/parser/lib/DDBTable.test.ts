@@ -19,111 +19,113 @@ function build(html: string, tableName = "Test Table") {
 }
 
 // =============================================================================
-// Sample tables (DDB compendium HTML)
+// Sample tables. Synthetic content in the exact markup shapes DDB's compendium
+// emits (table--generic-dice, generic-dice--second nesting, entity-encoded d100
+// ranges); the row text itself is invented so no book text ships in the repo.
 // =============================================================================
 
 const REGULAR_TABLE = `
 <table class="table-compendium table--generic-dice" data-content-chunk-id="0d8f3275">
-<caption><h5>Villain's Weakness</h5></caption>
-<thead><tr><th>d8</th><th>Weakness</th></tr></thead>
+<caption><h5>Lighthouse Rumor</h5></caption>
+<thead><tr><th>d8</th><th>Rumor</th></tr></thead>
 <tbody>
-<tr><td>1</td><td>A hidden object holds the villain's soul.</td></tr>
-<tr><td>2</td><td>The villain's power is broken if the death of its true love is avenged.</td></tr>
-<tr><td>3</td><td>The villain is weakened in the presence of a particular artifact.</td></tr>
-<tr><td>4</td><td>A special weapon deals extra damage when used against the villain.</td></tr>
-<tr><td>5</td><td>The villain is destroyed if it speaks its true name.</td></tr>
-<tr><td>6</td><td>An ancient prophecy or riddle reveals how the villain can be overthrown.</td></tr>
-<tr><td>7</td><td>The villain falls when an ancient enemy forgives its past actions.</td></tr>
-<tr><td>8</td><td>The villain loses its power if a mystic bargain it struck long ago is completed.</td></tr>
+<tr><td>1</td><td>The keeper has not been seen since the last storm.</td></tr>
+<tr><td>2</td><td>Ships steer wide of the point after dark.</td></tr>
+<tr><td>3</td><td>A second light sometimes answers from the sea.</td></tr>
+<tr><td>4</td><td>The cellar stairs go down further than they should.</td></tr>
+<tr><td>5</td><td>Gulls will not land on the gallery rail.</td></tr>
+<tr><td>6</td><td>The lamp oil is delivered by a boat with no crew.</td></tr>
+<tr><td>7</td><td>A bell rings under the water at low tide.</td></tr>
+<tr><td>8</td><td>The logbook's last page is written in a different hand.</td></tr>
 </tbody>
 </table>`;
 
 const JOINED_COLUMNS_TABLE = `
 <table class="table-compendium table--generic-dice table--left-col3" data-content-chunk-id="e63f3dd5">
-<thead><tr><th>d100</th><th>Gems or Art Objects</th><th>Magic Items</th></tr></thead>
+<thead><tr><th>d100</th><th>Trinkets</th><th>Supplies</th></tr></thead>
 <tbody>
 <tr><td>01&ndash;06</td><td>&mdash;</td><td>&mdash;</td></tr>
-<tr><td>07&ndash;16</td><td>2d6 (7) 10 gp gems</td><td>&mdash;</td></tr>
-<tr><td>17&ndash;26</td><td>2d4 (5) 25 gp art objects</td><td>&mdash;</td></tr>
-<tr><td>27&ndash;36</td><td>2d6 (7) 50 gp gems</td><td>&mdash;</td></tr>
-<tr><td>37&ndash;44</td><td>2d6 (7) 10 gp gems</td><td>Roll 1d6 times on <a href="#MagicItemTableA">Magic Item Table A</a>.</td></tr>
-<tr><td>45&ndash;52</td><td>2d4 (5) 25 gp art objects</td><td>Roll 1d6 times on <a href="#MagicItemTableA">Magic Item Table A</a>.</td></tr>
-<tr><td>53&ndash;60</td><td>2d6 (7) 50 gp gems</td><td>Roll 1d6 times on <a href="#MagicItemTableA">Magic Item Table A</a>.</td></tr>
-<tr><td>61&ndash;65</td><td>2d6 (7) 10 gp gems</td><td>Roll 1d4 times on <a href="#MagicItemTableB">Magic Item Table B</a>.</td></tr>
-<tr><td>66&ndash;70</td><td>2d4 (5) 25 gp art objects</td><td>Roll 1d4 times on <a href="#MagicItemTableB">Magic Item Table B</a>.</td></tr>
-<tr><td>71&ndash;75</td><td>2d6 (7) 50 gp gems</td><td>Roll 1d4 times on <a href="#MagicItemTableB">Magic Item Table B</a>.</td></tr>
-<tr><td>76&ndash;78</td><td>2d6 (7) 10 gp gems</td><td>Roll 1d4 times on <a href="#MagicItemTableC">Magic Item Table C</a>.</td></tr>
-<tr><td>79&ndash;80</td><td>2d4 (5) 25 gp art objects</td><td>Roll 1d4 times on <a href="#MagicItemTableC">Magic Item Table C</a>.</td></tr>
-<tr><td>81&ndash;85</td><td>2d6 (7) 50 gp gems</td><td>Roll 1d4 times on <a href="#MagicItemTableC">Magic Item Table C</a>.</td></tr>
-<tr><td>86&ndash;92</td><td>2d4 (5) 25 gp art objects</td><td>Roll 1d4 times on <a href="#MagicItemTableF">Magic Item Table F</a>.</td></tr>
-<tr><td>93&ndash;97</td><td>2d6 (7) 50 gp gems</td><td>Roll 1d4 times on <a href="#MagicItemTableF">Magic Item Table F</a>.</td></tr>
-<tr><td>98&ndash;99</td><td>2d4 (5) 25 gp art objects</td><td>Roll once on <a href="#MagicItemTableG">Magic Item Table G</a>.</td></tr>
-<tr><td>00</td><td>2d6 (7) 50 gp gems</td><td>Roll once on <a href="#MagicItemTableG">Magic Item Table G</a>.</td></tr>
+<tr><td>07&ndash;16</td><td>2d6 (7) glass beads</td><td>&mdash;</td></tr>
+<tr><td>17&ndash;26</td><td>2d4 (5) carved buttons</td><td>&mdash;</td></tr>
+<tr><td>27&ndash;36</td><td>2d6 (7) tin charms</td><td>&mdash;</td></tr>
+<tr><td>37&ndash;44</td><td>2d6 (7) glass beads</td><td>Roll 1d6 times on <a href="#SupplyTableA">Supply Table A</a>.</td></tr>
+<tr><td>45&ndash;52</td><td>2d4 (5) carved buttons</td><td>Roll 1d6 times on <a href="#SupplyTableA">Supply Table A</a>.</td></tr>
+<tr><td>53&ndash;60</td><td>2d6 (7) tin charms</td><td>Roll 1d6 times on <a href="#SupplyTableA">Supply Table A</a>.</td></tr>
+<tr><td>61&ndash;65</td><td>2d6 (7) glass beads</td><td>Roll 1d4 times on <a href="#SupplyTableB">Supply Table B</a>.</td></tr>
+<tr><td>66&ndash;70</td><td>2d4 (5) carved buttons</td><td>Roll 1d4 times on <a href="#SupplyTableB">Supply Table B</a>.</td></tr>
+<tr><td>71&ndash;75</td><td>2d6 (7) tin charms</td><td>Roll 1d4 times on <a href="#SupplyTableB">Supply Table B</a>.</td></tr>
+<tr><td>76&ndash;78</td><td>2d6 (7) glass beads</td><td>Roll 1d4 times on <a href="#SupplyTableC">Supply Table C</a>.</td></tr>
+<tr><td>79&ndash;80</td><td>2d4 (5) carved buttons</td><td>Roll 1d4 times on <a href="#SupplyTableC">Supply Table C</a>.</td></tr>
+<tr><td>81&ndash;85</td><td>2d6 (7) tin charms</td><td>Roll 1d4 times on <a href="#SupplyTableC">Supply Table C</a>.</td></tr>
+<tr><td>86&ndash;92</td><td>2d4 (5) carved buttons</td><td>Roll 1d4 times on <a href="#SupplyTableF">Supply Table F</a>.</td></tr>
+<tr><td>93&ndash;97</td><td>2d6 (7) tin charms</td><td>Roll 1d4 times on <a href="#SupplyTableF">Supply Table F</a>.</td></tr>
+<tr><td>98&ndash;99</td><td>2d4 (5) carved buttons</td><td>Roll once on <a href="#SupplyTableG">Supply Table G</a>.</td></tr>
+<tr><td>00</td><td>2d6 (7) tin charms</td><td>Roll once on <a href="#SupplyTableG">Supply Table G</a>.</td></tr>
 </tbody>
 </table>`;
 
 const NON_ROLL_TABLE = `
 <table class="table-compendium table--left-all" data-content-chunk-id="319ec3be">
-<caption><h4>Magic Item Rarity</h4></caption>
-<thead><tr><th>Rarity</th><th>Character Level</th><th>Value</th></tr></thead>
+<caption><h4>Guild Rank</h4></caption>
+<thead><tr><th>Rank</th><th>Character Level</th><th>Dues</th></tr></thead>
 <tbody>
-<tr><td>Common</td><td>1st or higher</td><td>50&ndash;100 gp</td></tr>
-<tr><td>Uncommon</td><td>1st or higher</td><td>101&ndash;500 gp</td></tr>
-<tr><td>Rare</td><td>5th or higher</td><td>501&ndash;5,000 gp</td></tr>
-<tr><td>Very rare</td><td>11th or higher</td><td>5,001&ndash;50,000 gp</td></tr>
-<tr><td>Legendary</td><td>17th or higher</td><td>50,001+ gp</td></tr>
+<tr><td>Apprentice</td><td>1st or higher</td><td>50&ndash;100 gp</td></tr>
+<tr><td>Journeyman</td><td>1st or higher</td><td>101&ndash;500 gp</td></tr>
+<tr><td>Adept</td><td>5th or higher</td><td>501&ndash;5,000 gp</td></tr>
+<tr><td>Master</td><td>11th or higher</td><td>5,001&ndash;50,000 gp</td></tr>
+<tr><td>Grandmaster</td><td>17th or higher</td><td>50,001+ gp</td></tr>
 </tbody>
 </table>`;
 
 const NESTED_TABLE = `
 <table class="table-compendium table--generic-dice" data-content-chunk-id="2256f26a">
-<caption><h3 id="VillainsScheme">Villain's Scheme</h3></caption>
-<thead><tr><th>d8</th><th colspan="2">Objective and Scheme</th></tr></thead>
+<caption><h3 id="ExpeditionComplication">Expedition Complication</h3></caption>
+<thead><tr><th>d8</th><th colspan="2">Region and Complication</th></tr></thead>
 <tbody>
-<tr><td>1</td><td colspan="2"><em>Immortality (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Acquire a legendary item to prolong life</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Ascend to godhood</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Become undead or obtain a younger body</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Steal a planar creature's essence</td></tr>
-<tr><td>2</td><td colspan="2"><em>Influence (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Seize a position of power or title</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Win a contest or tournament</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Win favor with a powerful individual</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Place a pawn in a position of power</td></tr>
-<tr><td>3</td><td colspan="2"><em>Magic (d6)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Obtain an ancient artifact</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Build a construct or magical device</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Carry out a deity's wishes</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Offer sacrifices to a deity</td></tr>
-<tr class="generic-dice--second"><td></td><td>5</td><td>Contact a lost deity or power</td></tr>
-<tr class="generic-dice--second"><td></td><td>6</td><td>Open a gate to another world</td></tr>
-<tr><td>4</td><td colspan="2"><em>Mayhem (d6)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Fulfill an apocalyptic prophecy</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Enact the vengeful will of a god or patron</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Spread a vile contagion</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Overthrow a government</td></tr>
-<tr class="generic-dice--second"><td></td><td>5</td><td>Trigger a natural disaster</td></tr>
-<tr class="generic-dice--second"><td></td><td>6</td><td>Utterly destroy a bloodline or clan</td></tr>
-<tr><td>5</td><td colspan="2"><em>Passion (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Prolong the life of a loved one</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Prove worthy of another person's love</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Raise or restore a dead loved one</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Destroy rivals for another person's affection</td></tr>
-<tr><td>6</td><td colspan="2"><em>Power (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Conquer a region or incite a rebellion</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Seize control of an army</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Become the power behind the throne</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Gain the favor of a ruler</td></tr>
-<tr><td>7</td><td colspan="2"><em>Revenge (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Avenge a past humiliation or insult</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Avenge a past imprisonment or injury</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Avenge the death of a loved one</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Retrieve stolen property and punish the thief</td></tr>
-<tr><td>8</td><td colspan="2"><em>Wealth (d4)</em></td></tr>
-<tr class="generic-dice--second"><td></td><td>1</td><td>Control natural resources or trade</td></tr>
-<tr class="generic-dice--second"><td></td><td>2</td><td>Marry into wealth</td></tr>
-<tr class="generic-dice--second"><td></td><td>3</td><td>Plunder ancient ruins</td></tr>
-<tr class="generic-dice--second"><td></td><td>4</td><td>Steal land, goods, or money</td></tr>
+<tr><td>1</td><td colspan="2"><em>Harbor (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>A fog bank rolls in and hides the pier</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>The harbormaster doubles the mooring fee</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>A rival crew claims the last berth</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>The tide leaves the boat stranded on mud</td></tr>
+<tr><td>2</td><td colspan="2"><em>Forest (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>The trail markers have been moved</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>A fallen tree blocks the only ford</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>Something follows just out of sight</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>The guide refuses to go further</td></tr>
+<tr><td>3</td><td colspan="2"><em>Ruins (d6)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>A stair collapses under the first step</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>The map is drawn upside down</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>Fresh footprints lead inward</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>A door seals behind the party</td></tr>
+<tr class="generic-dice--second"><td></td><td>5</td><td>The torches gutter in a wind with no source</td></tr>
+<tr class="generic-dice--second"><td></td><td>6</td><td>A statue has been recently repainted</td></tr>
+<tr><td>4</td><td colspan="2"><em>Market (d6)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>A pickpocket lifts the letter of introduction</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>The only supplier has sold out</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>A crier announces a curfew</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>The coin is the wrong mint and refused</td></tr>
+<tr class="generic-dice--second"><td></td><td>5</td><td>A stall fire closes the square</td></tr>
+<tr class="generic-dice--second"><td></td><td>6</td><td>The guards are checking papers</td></tr>
+<tr><td>5</td><td colspan="2"><em>Temple (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>The rite runs a full day longer than planned</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>The priest asks for a favor first</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>The relic is on loan elsewhere</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>A pilgrim recognises someone in the party</td></tr>
+<tr><td>6</td><td colspan="2"><em>Sewers (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>The grate is welded shut</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>Rising water forces a detour</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>A work crew is already down there</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>The lantern oil runs low</td></tr>
+<tr><td>7</td><td colspan="2"><em>Palace (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>The invitation names the wrong day</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>A steward demands the weapons be left at the gate</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>The audience is moved to the gardens</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>A courtier mistakes the party for entertainers</td></tr>
+<tr><td>8</td><td colspan="2"><em>Wastes (d4)</em></td></tr>
+<tr class="generic-dice--second"><td></td><td>1</td><td>The well on the map is dry</td></tr>
+<tr class="generic-dice--second"><td></td><td>2</td><td>A sandstorm costs a day of travel</td></tr>
+<tr class="generic-dice--second"><td></td><td>3</td><td>The pack animals bolt in the night</td></tr>
+<tr class="generic-dice--second"><td></td><td>4</td><td>A caravan offers passage at a steep price</td></tr>
 </tbody>
 </table>`;
 
@@ -137,7 +139,7 @@ describe("buildTable - regular roll table", () => {
   });
 
   it("builds one d8 table with 8 well-formed results", () => {
-    const tables = build(REGULAR_TABLE, "Villain's Weakness");
+    const tables = build(REGULAR_TABLE, "Lighthouse Rumor");
     expect(tables).toHaveLength(1);
     const table = tables[0];
     expect(table.formula).toBe("d8");
@@ -145,7 +147,7 @@ describe("buildTable - regular roll table", () => {
     expect(table.results!.map((r) => r.range)).toEqual([
       [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8],
     ]);
-    expect(table.results![0].description).toContain("A hidden object holds the villain's soul.");
+    expect(table.results![0].description).toContain("The keeper has not been seen since the last storm.");
   });
 });
 
@@ -155,7 +157,7 @@ describe("buildTable - regular roll table", () => {
 
 describe("buildTable - joined columns", () => {
   it("builds a d100 table with concatenated columns and correct ranges", () => {
-    const tables = build(JOINED_COLUMNS_TABLE, "Treasure Hoard");
+    const tables = build(JOINED_COLUMNS_TABLE, "Salvage");
     expect(tables).toHaveLength(1);
     const table = tables[0];
     expect(table.formula).toBe("d100");
@@ -171,9 +173,9 @@ describe("buildTable - joined columns", () => {
 
     // both columns concatenated, with the cross-reference link preserved
     const linkRow = table.results![4]; // 37-44
-    expect(linkRow.description).toContain("<b>Gems or Art Objects</b>");
-    expect(linkRow.description).toContain("<b>Magic Items</b>");
-    expect(linkRow.description).toContain("href=\"#MagicItemTableA\"");
+    expect(linkRow.description).toContain("<b>Trinkets</b>");
+    expect(linkRow.description).toContain("<b>Supplies</b>");
+    expect(linkRow.description).toContain("href=\"#SupplyTableA\"");
   });
 });
 
@@ -198,7 +200,7 @@ describe("parseNestedDiceTable / buildNestedTables", () => {
     expect(parse!.primaryDie).toBe("d8");
     expect(parse!.groups).toHaveLength(8);
     expect(parse!.groups.map((g) => g.name)).toEqual([
-      "Immortality", "Influence", "Magic", "Mayhem", "Passion", "Power", "Revenge", "Wealth",
+      "Harbor", "Forest", "Ruins", "Market", "Temple", "Sewers", "Palace", "Wastes",
     ]);
     expect(parse!.groups.map((g) => g.die)).toEqual([
       "d4", "d4", "d6", "d6", "d4", "d4", "d4", "d4",
@@ -211,7 +213,7 @@ describe("parseNestedDiceTable / buildNestedTables", () => {
 
   it("builds a parent table plus one child per group", () => {
     const parse = parseNestedDiceTable(tableNode(NESTED_TABLE))!;
-    const { parent, children } = buildNestedTables({ parse, tableName: "Villain's Scheme" });
+    const { parent, children } = buildNestedTables({ parse, tableName: "Expedition Complication" });
 
     expect(parent.formula).toBe("d8");
     expect(parent.results).toHaveLength(8);
@@ -222,21 +224,21 @@ describe("parseNestedDiceTable / buildNestedTables", () => {
     expect(children).toHaveLength(8);
     expect(children.every((c) => c !== null)).toBe(true);
     expect(children.map((c) => c!.name)).toEqual([
-      "Villain's Scheme: Immortality",
-      "Villain's Scheme: Influence",
-      "Villain's Scheme: Magic",
-      "Villain's Scheme: Mayhem",
-      "Villain's Scheme: Passion",
-      "Villain's Scheme: Power",
-      "Villain's Scheme: Revenge",
-      "Villain's Scheme: Wealth",
+      "Expedition Complication: Harbor",
+      "Expedition Complication: Forest",
+      "Expedition Complication: Ruins",
+      "Expedition Complication: Market",
+      "Expedition Complication: Temple",
+      "Expedition Complication: Sewers",
+      "Expedition Complication: Palace",
+      "Expedition Complication: Wastes",
     ]);
     expect(children.map((c) => c!.formula)).toEqual(["d4", "d4", "d6", "d6", "d4", "d4", "d4", "d4"]);
     expect(children.map((c) => c!.results!.length)).toEqual([4, 4, 6, 6, 4, 4, 4, 4]);
 
-    const immortality = children[0]!;
-    expect(immortality.results!.map((r) => r.range)).toEqual([[1, 1], [2, 2], [3, 3], [4, 4]]);
-    expect(immortality.results![0].description).toContain("Acquire a legendary item to prolong life");
+    const harbor = children[0]!;
+    expect(harbor.results!.map((r) => r.range)).toEqual([[1, 1], [2, 2], [3, 3], [4, 4]]);
+    expect(harbor.results![0].description).toContain("A fog bank rolls in and hides the pier");
 
     // no result anywhere has an invalid range
     const allResults = [parent, ...children.map((c) => c!)].flatMap((t) => t.results!);

@@ -275,8 +275,9 @@ describe("gunslinger Overkill", () => {
     expect(e.activity.data.damage.parts[0]).toMatchObject({
       number: 1,
       denomination: 8,
-      types: ["bludgeoning", "piercing", "slashing"],
     });
+    // the extra die takes the weapon's own damage type, so every type is offered
+    expect(e.activity.data.damage.parts[0].types).toEqual(expect.arrayContaining(["bludgeoning", "piercing", "slashing"]));
   });
 
   it("notes that imported weapons handle both halves themselves", () => {
@@ -404,7 +405,7 @@ describe("pugilist GrotesqueGrowth", () => {
     expect(e.effects).toHaveLength(1);
     expect(e.effects[0]).toMatchObject({ name: "Grotesque Growth", options: { durationSeconds: 60 } });
     expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
-      // ["system.traits.size", "lg"],
+      ["system.traits.size", "lg"],
       ["system.abilities.str.check.roll.mode", "1"],
       ["system.abilities.str.save.roll.mode", "1"],
       ["system.bonuses.mwak.damage", "1d4"],
@@ -832,7 +833,8 @@ describe("warlock Malediction", () => {
       "Agony (Attack) (Reaction)",
     ]);
     // the curse lasts until the end of the target's next turn, not the warlock's
-    expect(effects[0].daeSpecialDurations).toContain("turnEnd");
+    expect(effects[0].options.expiry).toBe("targetEnd");
+    expect(effects[0].daeSpecialDurations).toContain("1Attack");
     // each save-hampering curse carries exactly the one save it names
     expect(effects.slice(1, 5).map((e: any) => e.changes.map((c: any) => c.key))).toEqual([
       ["system.abilities.con.save.roll.mode"],

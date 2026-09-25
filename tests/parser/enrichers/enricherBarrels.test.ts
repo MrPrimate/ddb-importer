@@ -4,7 +4,7 @@
  * src/parser/enrichers/_linkBuilder.js generates every `_module.ts` barrel by
  * reading each file's declared class name. It only `console.warn`s when a class
  * name is not contained in its file name, and nothing at all notices when a
- * barrel is stale because someone forgot `npm run link` — so both failures ship
+ * barrel is stale because someone forgot `npm run link` - so both failures ship
  * silently today. DDBClassFeatureEnricher._defaultClassLoader resolves an
  * enricher as ClassEnrichers[pascalCase(class)][pascalCase(featureName)], i.e.
  * off the barrel key, so a missing export means the enricher never loads and
@@ -13,6 +13,11 @@
  * This walks the source tree rather than importing the barrels: the point is to
  * compare what is on disk against what the generated barrel says, which an
  * import of the barrel alone cannot do.
+ *
+ * Abstract bases (`_StormAura`) are excluded on both sides. _linkBuilder skips
+ * them because an `abstract new (...)` in a lookup map typed as concrete
+ * constructors does not typecheck, and they are extended by a direct import
+ * rather than resolved by name.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -25,7 +30,7 @@ const FLAT_DIRECTORIES = ["generic", "feat", "spell", "item", "background"];
 const NESTED_DIRECTORIES = ["monster", "class", "trait"];
 
 /** Same shape _linkBuilder.js matches, anchored so prose in comments cannot hit. */
-const CLASS_DECLARATION = /^\s*(?:export\s+default\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)/m;
+const CLASS_DECLARATION = /^\s*(?:export\s+default\s+)?(abstract\s+)?class\s+([A-Za-z_$][\w$]*)/m;
 const BARREL_EXPORT = /export \{ default as (\w+) \}/g;
 
 function enricherFolders(): string[] {
@@ -50,7 +55,10 @@ function enricherFilesIn(folder: string): IEnricherFile[] {
     .filter((f) => f.endsWith(".ts") && f !== "_module.ts")
     .map((file) => {
       const declaration = CLASS_DECLARATION.exec(fs.readFileSync(path.join(folder, file), "utf8"));
-      return declaration ? { folder, file, className: declaration[1] } : null;
+      // abstract bases are extended by a direct sibling import and never resolved
+      // by name, so _linkBuilder deliberately keeps them out of the barrel
+      if (!declaration || declaration[1]) return null;
+      return { folder, file, className: declaration[2] };
     })
     .filter((entry): entry is IEnricherFile => entry !== null);
 }
@@ -94,11 +102,29 @@ describe("enricher barrels", () => {
     }
 
     // a stale barrel here means the enricher never resolves and the feature
-    // silently falls back to Generic — run `npm run link`
+    // silently falls back to Generic - run `npm run link`
     const unexported = FILES
       .filter((entry) => !exportsByFolder.get(entry.folder)?.has(entry.className))
       .map((entry) => `${relative(entry)} (${entry.className})`);
     expect(unexported).toEqual([]);
+  });
+
+  it("keeps abstract bases out of the barrels", () => {
+    // exporting one puts an `abstract new (...)` into the enricher lookup maps,
+    // which are typed as concrete constructors, and fails the typecheck
+    const abstracts: string[] = [];
+    for (const folder of FOLDERS) {
+      const barrelPath = path.join(folder, "_module.ts");
+      if (!fs.existsSync(barrelPath)) continue;
+      const exported = new Set([...fs.readFileSync(barrelPath, "utf8").matchAll(BARREL_EXPORT)].map((m) => m[1]));
+      for (const file of fs.readdirSync(folder).filter((f) => f.endsWith(".ts") && f !== "_module.ts")) {
+        const declaration = CLASS_DECLARATION.exec(fs.readFileSync(path.join(folder, file), "utf8"));
+        if (declaration?.[1] && exported.has(declaration[2])) {
+          abstracts.push(`${path.relative(ENRICHER_ROOT, barrelPath)} exports abstract ${declaration[2]}`);
+        }
+      }
+    }
+    expect(abstracts).toEqual([]);
   });
 
   it("exports nothing from a barrel that has no matching source file", () => {

@@ -258,6 +258,51 @@ describe("DDBDataUtils.findComponentByComponentId", () => {
 });
 
 // =============================================================================
+// getScaleValueString
+// =============================================================================
+
+describe("DDBDataUtils.getScaleValueString", () => {
+  const scales = [{ level: 1, fixedValue: 1, dice: null }, { level: 5, fixedValue: 2, dice: null }];
+
+  // Class features arrive as { definition, levelScale } with no componentId; only actions
+  // carry one. The wrapper is itself the scale source.
+  it("resolves a class feature wrapper without a componentId", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const feature: any = {
+      definition: { id: 100, name: "Action Surge", classId: 1, levelScales: scales },
+      levelScale: scales[1],
+    };
+    expect(DDBDataUtils.getScaleValueString(ddb, feature)).toEqual({
+      name: "Action Surge",
+      value: "@scale.fighter.action-surge",
+    });
+  });
+
+  it("resolves a wrapper whose current level has no scale row", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const feature: any = {
+      definition: { id: 100, name: "Action Surge", classId: 1, levelScales: [{ level: 17, fixedValue: 2, dice: null }] },
+      levelScale: null,
+    };
+    expect(DDBDataUtils.getScaleValueString(ddb, feature).value).toBe("@scale.fighter.action-surge");
+  });
+
+  it("follows an action's componentId to its class feature", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    ddb.character.classes[0].classFeatures[0].definition.classId = 1;
+    ddb.character.classes[0].classFeatures[0].definition.levelScales = scales;
+    const action: any = { name: "Action Surge", componentId: 100, componentTypeId: 1 };
+    expect(DDBDataUtils.getScaleValueString(ddb, action).value).toBe("@scale.fighter.action-surge");
+  });
+
+  it("returns no value when nothing resolves", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const action: any = { name: "Orphan", componentId: 99999, componentTypeId: 1 };
+    expect(DDBDataUtils.getScaleValueString(ddb, action)).toEqual({ name: undefined, value: undefined });
+  });
+});
+
+// =============================================================================
 // isModifierFromNamedFeature
 // =============================================================================
 describe("DDBDataUtils.isModifierFromNamedFeature", () => {
@@ -562,6 +607,27 @@ describe("DDBDataUtils.hasChosenCharacterOption", () => {
   it("returns false when option is not present", () => {
     const ddb = makeDDB();
     expect(DDBDataUtils.hasChosenCharacterOption(ddb, "Nonexistent")).toBe(false);
+  });
+});
+
+// =============================================================================
+// hasCharacterFeat
+// =============================================================================
+describe("DDBDataUtils.hasCharacterFeat", () => {
+  // 2024 Fighting Style choices are feats, and DDB leaves character.options empty for them
+  it("finds a 2024 Fighting Style feat that hasChosenCharacterOption misses", () => {
+    const ddb = makeDDB({
+      character: {
+        feats: [{ definition: { name: "Great Weapon Fighting" } }],
+        options: { class: [], race: [], feat: [] },
+      },
+    });
+    expect(DDBDataUtils.hasCharacterFeat(ddb, "Great Weapon Fighting")).toBe(true);
+    expect(DDBDataUtils.hasChosenCharacterOption(ddb, "Great Weapon Fighting")).toBe(false);
+  });
+
+  it("returns false when the feat is not present", () => {
+    expect(DDBDataUtils.hasCharacterFeat(makeDDB(), "Great Weapon Fighting")).toBe(false);
   });
 });
 

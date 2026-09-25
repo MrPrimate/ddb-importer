@@ -227,6 +227,62 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     expect(parent.data.name).toBe("Test Feature");
   });
 
+  // A parent whose enricher builds the primary activity itself would otherwise lose the chosen
+  // option's own actions (Semblance of Life's spirit-form attacks) in the single-choice merge.
+  it("appends a lone chosen option's activities when the enricher sets mergeChoiceActivities", async () => {
+    const primary = { _id: "primaryAAAAAAAAA", name: "Shapeshift", type: "transform" };
+    const ddbCopy = { _id: "ddbCopyAAAAAAAAA", name: "Shapeshift", type: "utility" };
+    const attack = { _id: "attackAAAAAAAAAA", name: "Radiant Mace", type: "damage" };
+    const originalBuild = DDBChoiceFeature.prototype.build;
+    vi.spyOn(DDBChoiceFeature.prototype, "build").mockImplementation(async function (this: any, choice: any) {
+      await originalBuild.call(this, choice);
+      this.data.system.activities = { [ddbCopy._id]: ddbCopy, [attack._id]: attack };
+    });
+
+    const parent = makeParentFeature();
+    parent.data.system.activities = { [primary._id]: primary };
+    vi.spyOn(parent.enricher, "mergeChoiceActivities", "get").mockReturnValue(true);
+
+    const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+    expect(features).toEqual([]);
+    expect(parent.data.name).toBe("Test Feature: Option A");
+    // the same-named DDB copy loses to the parent's activity, the rest are appended
+    expect(Object.keys(parent.data.system.activities)).toEqual([primary._id, attack._id]);
+
+    // a companion option's summon folds its profiles into the parent's summon instead of
+    // arriving as a second summon activity
+    const parentSummon = { _id: "summonParentAAAA", name: "Summon Vestige", type: "summon", profiles: [] as any[] };
+    const childSummon = {
+      _id: "summonChildAAAAA", name: "Summon", type: "summon",
+      bonuses: { ac: "@abilities.cha.mod" }, match: { proficiency: true },
+      profiles: [{ _id: "profileAAAAAAAAA", name: "Vestige Companion (Celestial)", uuid: "Actor.vestige" }],
+    };
+    vi.mocked(DDBChoiceFeature.prototype.build).mockImplementation(async function (this: any, choice: any) {
+      await originalBuild.call(this, choice);
+      this.data.system.activities = { [childSummon._id]: childSummon, [attack._id]: attack };
+    });
+    const companionParent = makeParentFeature();
+    // an actor already linked (the sheet copy's generic parse) is not added a second time
+    parentSummon.profiles.push({ _id: "profileBBBBBBBBB", name: "Vestige Companion (Celestial)", uuid: "Actor.vestige" });
+    companionParent.data.system.activities = { [parentSummon._id]: parentSummon };
+    vi.spyOn(companionParent.enricher, "mergeChoiceActivities", "get").mockReturnValue(true);
+    await DDBChoiceFeature.buildChoiceFeatures(companionParent);
+    expect(Object.keys(companionParent.data.system.activities)).toEqual([parentSummon._id, attack._id]);
+    expect(companionParent.data.system.activities[parentSummon._id]).toMatchObject({
+      bonuses: { ac: "@abilities.cha.mod" },
+      match: { proficiency: true },
+      profiles: [{ name: "Vestige Companion (Celestial)", uuid: "Actor.vestige" }],
+    });
+    expect(companionParent.data.system.activities[parentSummon._id].profiles).toHaveLength(1);
+
+    // without the getter the parent's activities win outright, as before
+    const control = makeParentFeature();
+    control.data.system.activities = { [primary._id]: primary };
+    await DDBChoiceFeature.buildChoiceFeatures(control);
+    expect(Object.keys(control.data.system.activities)).toEqual([primary._id]);
+    vi.mocked(DDBChoiceFeature.prototype.build).mockRestore();
+  });
+
   it("builds the children for the same parent with a default enricher", async () => {
     // control for the case above: the suppression must come from the enricher,
     // not from anything else about this feature

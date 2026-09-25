@@ -568,5 +568,710 @@
     "name": "Angry Defiance",
     "monster": "Immolated Vengeful Spirit",
     "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
+  },
+  {
+    "name": "Banishing Blast",
+    "monster": "Abjurer Archmage",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Magic Disruption",
+    "monster": "Abjurer Archmage",
+    "path": "icons/magic/symbols/runes-star-pentagon-orange.webp"
+  },
+  {
+    "name": "Benign Transposition",
+    "monster": "Conjurer Archmage",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Duplicitous Magic",
+    "monster": "Enchanter Archmage",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Evocation Sculptor",
+    "monster": "Evoker Archmage",
+    "path": "icons/magic/fire/barrier-wall-explosion-orange.webp"
+  },
+  {
+    "name": "Evocation Barrage",
+    "monster": "Evoker Archmage",
+    "path": "icons/magic/fire/blast-jet-stream-embers-yellow.webp"
+  },
+  {
+    "name": "Beguiling Spells",
+    "monster": "Illusionist Archmage",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
+    "name": "Frightening Glance",
+    "monster": "Baelnorn",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Overwhelming Radiance",
+    "monster": "Baelnorn",
+    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+  },
+  {
+    "name": "Recuperative Teleport",
+    "monster": "Baelnorn",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Spell Imprint",
+    "monster": "Darkenbeast",
+    "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp"
+  },
+  {
+    "name": "Shadow Stalker",
+    "monster": "Darkenbeast",
+    "path": "icons/magic/control/silhouette-hold-change-green.webp"
+  },
+  {
+    "name": "Go to Ground",
+    "monster": "Groundling Grunt",
+    "path": "icons/skills/melee/strike-sword-stabbed-brown.webp"
+  },
+  {
+    "name": "Plate Armor",
+    "monster": "Spellguard",
+    "path": "icons/equipment/chest/breastplate-collared-steel.webp"
+  },
+  {
+    "name": "Superior Magic Resistance",
+    "monster": "Spellguard",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Force Flail",
+    "monster": "Spellguard",
+    "path": "icons/weapons/maces/flail-studded-grey.webp"
+  },
+  {
+    "name": "Defensive Divination",
+    "monster": "Spellguard",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
+  },
+  {
+    "name": "Arcane Immortality",
+    "monster": "Taisus",
+    "path": "icons/magic/life/heart-cross-strong-flame-purple-orange.webp"
+  },
+  {
+    "name": "Brain Drain",
+    "monster": "Taisus",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Deadly Drain",
+    "monster": "Taisus",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Crimson Claw",
+    "monster": "Venger",
+    "path": "icons/creatures/claws/claw-talons-glowing-orange.webp"
+  },
+  {
+    "name": "Crimson Blast",
+    "monster": "Venger",
+    "path": "icons/magic/air/wind-vortex-swirl-red.webp"
+  },
+  {
+    "name": "Booming Censure",
+    "monster": "Venger",
+    "path": "icons/magic/air/air-smoke-casting.webp"
+  },
+  {
+    "name": "Crimson Strike",
+    "monster": "Venger",
+    "path": "icons/skills/melee/blood-slash-foam-red.webp"
+  },
+  {
+    "name": "Magic-Binding Chains",
+    "monster": "Venger",
+    "path": "icons/magic/control/debuff-chains-orb-movement-blue.webp"
+  },
+  {
+    "name": "Talented",
+    "monster": "Battle Familiar (Brute)",
+    "path": "icons/magic/defensive/barrier-shield-dome-pink.webp"
+  },
+  {
+    "name": "Pact Bond",
+    "monster": "Celestial Vestige Companion",
+    "path": "icons/magic/unholy/hands-cloud-light-pink.webp"
+  },
+  {
+    "name": "Vestige's Strike",
+    "monster": "Celestial Vestige Companion",
+    "path": "icons/magic/unholy/hand-light-green.webp"
+  },
+  {
+    "name": "Divine Power",
+    "monster": "Celestial Vestige Companion",
+    "path": "icons/magic/unholy/hand-claw-fire-green.webp"
+  },
+  {
+    "name": "Frightening Appearance",
+    "monster": "Illusory Acid Dragon",
+    "path": "icons/magic/control/fear-fright-shadow-monster-purple.webp"
+  },
+  {
+    "name": "Exhale Blast of Energy",
+    "monster": "Illusory Acid Dragon",
+    "path": "icons/magic/acid/projectile-stream-bubbles.webp"
+  },
+  {
+    "name": "Tough",
+    "monster": "Spirit Ankylosaur",
+    "path": "icons/magic/control/buff-strength-muscle-damage-red.webp"
+  },
+  {
+    "name": "Spore Spray",
+    "monster": "Spirit Fungus",
+    "path": "icons/magic/air/air-wave-gust-smoke-yellow.webp"
+  },
+  {
+    "name": "Twist Away",
+    "monster": "Spirit Vine",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Claw Attack",
+    "monster": "Apparatus of Kwalish",
+    "path": "icons/commodities/tech/metal-jaws.webp"
+  },
+  {
+    "name": "Grapple Attack",
+    "monster": "Apparatus of Kwalish",
+    "path": "icons/commodities/tech/metal-jaws.webp"
+  },
+  {
+    "name": "Carry Weight Adjustment",
+    "monster": "Carpet of Flying (3 by 5 ft.)",
+    "path": "icons/skills/social/trading-injustice-scale-gray.webp"
+  },
+  {
+    "name": "Melee Spell Attack",
+    "monster": "Floating Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Frightened Emanation",
+    "monster": "Goat of Terror",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Hustle",
+    "monster": "Boromar Smuggler",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Poisoned Blade",
+    "monster": "Boromar Underboss",
+    "path": "icons/weapons/swords/greatsword-guard.webp"
+  },
+  {
+    "name": "Arcane Firearm",
+    "monster": "Boromar Underboss",
+    "path": "icons/magic/light/projectile-halo-teal.webp"
+  },
+  {
+    "name": "Artillery Strike",
+    "monster": "Cannith Artificer",
+    "path": "icons/weapons/ammunition/bullets-cartridge-shell-gray.webp"
+  },
+  {
+    "name": "Battering Mace",
+    "monster": "Cannith Artificer",
+    "path": "icons/weapons/maces/mace-skull-ram.webp"
+  },
+  {
+    "name": "Smackback",
+    "monster": "Daask Bruiser",
+    "path": "icons/skills/melee/unarmed-punch-fist-white.webp"
+  },
+  {
+    "name": "Mind Curse",
+    "monster": "Dreaming Dark Infiltrator",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Nightmare Whisper",
+    "monster": "Dreaming Dark Mindkiller",
+    "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+  },
+  {
+    "name": "Primal Fear",
+    "monster": "Dreaming Dark Mindkiller",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Slayer’s Puppet",
+    "monster": "Dreaming Dark Mindkiller",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
+    "name": "Poisoned Dagger",
+    "monster": "Ghallanda Troubleshooter",
+    "path": "icons/weapons/daggers/dagger-straight-blue.webp"
+  },
+  {
+    "name": "Mark of Healing",
+    "monster": "Jorasco Medic",
+    "path": "icons/magic/life/cross-beam-green.webp"
+  },
+  {
+    "name": "Arcane Whip",
+    "monster": "Kundarak Warden",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Shackling Glyph",
+    "monster": "Kundarak Warden",
+    "path": "icons/magic/control/debuff-chains-shackles-movement-purple.webp"
+  },
+  {
+    "name": "Crooked Staff",
+    "monster": "Medani Inquisitive",
+    "path": "icons/weapons/staves/staff-simple-spiral.webp"
+  },
+  {
+    "name": "Inquisitive Eye",
+    "monster": "Medani Inquisitive",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-large-teal.webp"
+  },
+  {
+    "name": "Spontaneous Barrier",
+    "monster": "Medani Inquisitive",
+    "path": "icons/magic/defensive/barrier-shield-dome-pink.webp"
+  },
+  {
+    "name": "Lightning Cage",
+    "monster": "Orien Enforcer",
+    "path": "icons/magic/lightning/barrier-wall-shield-gray.webp"
+  },
+  {
+    "name": "Temporal Disruption",
+    "monster": "Orien Enforcer",
+    "path": "icons/magic/control/debuff-energy-hold-levitate-blue-yellow.webp"
+  },
+  {
+    "name": "Shadow Knife",
+    "monster": "Shadow-Marked Agent",
+    "path": "icons/weapons/daggers/dagger-crooked-ice-blue.webp"
+  },
+  {
+    "name": "Shadow Cloak",
+    "monster": "Shadow-Marked Agent",
+    "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+  },
+  {
+    "name": "Bursting Sigil",
+    "monster": "Sivis Scribe",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Word of Stasis",
+    "monster": "Sivis Scribe",
+    "path": "icons/magic/control/silhouette-hold-change-green.webp"
+  },
+  {
+    "name": "Words of Reason",
+    "monster": "Sivis Scribe",
+    "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp"
+  },
+  {
+    "name": "Aberrant Strike",
+    "monster": "Tarkanan Marauder",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Tear Through Space",
+    "monster": "Tarkanan Marauder",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Aberrant Surge",
+    "monster": "Tarkanan Ruffian",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Mark of Tharashk",
+    "monster": "Tharashk Hunter",
+    "path": "icons/magic/symbols/rune-sigil-red-orange.webp"
+  },
+  {
+    "name": "Gloom Burst",
+    "monster": "Umbragen Shadow Walker",
+    "path": "icons/magic/light/explosion-star-large-pink.webp"
+  },
+  {
+    "name": "Shadow Cowl",
+    "monster": "Umbragen Shadow Walker",
+    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+  },
+  {
+    "name": "Draining Teleport",
+    "monster": "Umbragen Shadow Walker",
+    "path": "icons/magic/control/debuff-energy-hold-levitate-pink.webp"
+  },
+  {
+    "name": "Lunar Wisp",
+    "monster": "Vadalis Heir",
+    "path": "icons/magic/unholy/energy-smoke-pink.webp"
+  },
+  {
+    "name": "Spur Beast",
+    "monster": "Vadalis Heir",
+    "path": "icons/creatures/abilities/cougar-roar-rush-orange.webp"
+  },
+  {
+    "name": "Stingblade",
+    "monster": "Vulkoori Stingblade",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged.webp"
+  },
+  {
+    "name": "Venom Staff",
+    "monster": "Vulkoori Venom Priest",
+    "path": "icons/weapons/staves/staff-orb-purple.webp"
+  },
+  {
+    "name": "Intensify Poison",
+    "monster": "Vulkoori Venom Priest",
+    "path": "icons/magic/acid/dissolve-drip-droplet-smoke.webp"
+  },
+  {
+    "name": "Mend Cannon",
+    "monster": "Eldritch Cannon",
+    "path": "icons/magic/life/cross-beam-green.webp"
+  },
+  {
+    "name": "Flame Thrower",
+    "monster": "Eldritch Cannon",
+    "path": "icons/magic/fire/blast-jet-stream-splash.webp"
+  },
+  {
+    "name": "Mechanical Determination",
+    "monster": "Domestic Wonder",
+    "path": "icons/commodities/tech/coil-steel-grey.webp"
+  },
+  {
+    "name": "Wind-Up Operation",
+    "monster": "Domestic Wonder",
+    "path": "icons/commodities/tech/cog-track-steel.webp"
+  },
+  {
+    "name": "Grant Save Advantage",
+    "monster": "Conjured Animals",
+    "path": "icons/magic/control/buff-strength-muscle-damage-red.webp"
+  },
+  {
+    "name": "Regeneration (Slaad Only)",
+    "monster": "Aberrant Spirit",
+    "path": "icons/skills/wounds/injury-stapled-flesh-tan.webp"
+  },
+  {
+    "name": "Whispering Aura (Mind Flayer Only)",
+    "monster": "Aberrant Spirit",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Claw (Slaad Only)",
+    "monster": "Aberrant Spirit",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
+    "name": "Eye Ray (Beholderkin Only)",
+    "monster": "Aberrant Spirit",
+    "path": "icons/creatures/eyes/slime-single-red.webp"
+  },
+  {
+    "name": "Psychic Slam (Mind Flayer Only)",
+    "monster": "Aberrant Spirit",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Flyby (Air Only)",
+    "monster": "Bestial Spirit",
+    "path": "icons/creatures/birds/songbird-yellow-flying.webp"
+  },
+  {
+    "name": "Pack Tactics (Land and Water Only)",
+    "monster": "Bestial Spirit",
+    "path": "icons/skills/melee/weapons-crossed-swords-black.webp"
+  },
+  {
+    "name": "Water Breathing (Water Only)",
+    "monster": "Bestial Spirit",
+    "path": "icons/creatures/fish/fish-bluefin-yellow-blue.webp"
+  },
+  {
+    "name": "Radiant Bow (Avenger Only)",
+    "monster": "Celestial Spirit",
+    "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+  },
+  {
+    "name": "Radiant Mace (Defender Only)",
+    "monster": "Celestial Spirit",
+    "path": "icons/weapons/clubs/club-spiked-glowing.webp"
+  },
+  {
+    "name": "Stony Lethargy (Stone Only)",
+    "monster": "Construct Spirit",
+    "path": "icons/magic/earth/construct-stone-long-arms.webp"
+  },
+  {
+    "name": "Heated Body (Metal Only)",
+    "monster": "Construct Spirit",
+    "path": "icons/magic/defensive/armor-shield-barrier-steel.webp"
+  },
+  {
+    "name": "Berserk Lashing (Clay Only)",
+    "monster": "Construct Spirit",
+    "path": "icons/skills/wounds/bone-broken-marrow-yellow.webp"
+  },
+  {
+    "name": "Amorphous Form (Air, Fire, and Water Only)",
+    "monster": "Elemental Spirit",
+    "path": "icons/creatures/slimes/slime-blob-pseudopods-green.webp"
+  },
+  {
+    "name": "Death Throes (Demon Only)",
+    "monster": "Fiendish Spirit",
+    "path": "icons/creatures/unholy/demon-fire-horned-clawed.webp"
+  },
+  {
+    "name": "Devil’s Sight (Devil Only)",
+    "monster": "Fiendish Spirit",
+    "path": "icons/magic/perception/eye-winged-pink.webp"
+  },
+  {
+    "name": "Web Bolt (Spider Only)",
+    "monster": "Giant Insect",
+    "path": "icons/creatures/webs/web-spider-moving-blue.webp"
+  },
+  {
+    "name": "Venomous Spew (Centipede Only)",
+    "monster": "Giant Insect",
+    "path": "icons/magic/acid/projectile-flame-smoke-green.webp"
+  },
+  {
+    "name": "Festering Aura (Putrid Only)",
+    "monster": "Undead Spirit",
+    "path": "icons/magic/death/undead-skeleton-fire-green.webp"
+  },
+  {
+    "name": "Incorporeal Passage (Ghostly Only)",
+    "monster": "Undead Spirit",
+    "path": "icons/magic/death/skull-weapon-staff-glow-pink.webp"
+  },
+  {
+    "name": "Deathly Touch (Ghostly Only)",
+    "monster": "Undead Spirit",
+    "path": "icons/magic/death/undead-ghost-strike-white.webp"
+  },
+  {
+    "name": "Grave Bolt (Skeletal Only)",
+    "monster": "Undead Spirit",
+    "path": "icons/magic/death/projectile-skull-fire-green.webp"
+  },
+  {
+    "name": "Rotting Claw (Putrid Only)",
+    "monster": "Undead Spirit",
+    "path": "icons/creatures/claws/claw-curved-jagged-yellow.webp"
+  },
+  {
+    "name": "Charm Ray",
+    "monster": "Beholder",
+    "path": "icons/skills/social/diplomacy-handshake.webp"
+  },
+  {
+    "name": "Slowing Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/control/debuff-energy-snare-brown.webp"
+  },
+  {
+    "name": "Enervation Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/unholy/beam-ringed-impact-purple.webp"
+  },
+  {
+    "name": "Telekinetic Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/control/debuff-chains-orb-movement-blue.webp"
+  },
+  {
+    "name": "Sleep Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/unholy/strike-body-life-soul-green.webp"
+  },
+  {
+    "name": "Petrification Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/defensive/armor-stone-skin.webp"
+  },
+  {
+    "name": "Disintegration Ray",
+    "monster": "Beholder",
+    "path": "icons/magic/unholy/strike-body-explode-disintegrate.webp"
+  },
+  {
+    "name": "Lair Action: Eye Ray",
+    "monster": "Beholder",
+    "path": "icons/creatures/tentacles/tentacle-eyes-yellow-pink.webp"
+  },
+  {
+    "name": "Lair Action: Wall Tentacles",
+    "monster": "Beholder",
+    "path": "icons/creatures/tentacles/tentacles-eyes-poisoned-green.webp"
+  },
+  {
+    "name": "Lair Action: Terrain Alteration",
+    "monster": "Beholder",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "Bite (Slaad Form Only)",
+    "monster": "Death Slaad",
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
+  },
+  {
+    "name": "Claw (Slaad Form Only)",
+    "monster": "Death Slaad",
+    "path": "icons/skills/melee/blood-slash-foam-red.webp"
+  },
+  {
+    "name": "Innate Spellcasting (Psionics)",
+    "monster": "Mind Flayer",
+    "path": "icons/magic/light/projectiles-star-purple.webp"
+  },
+  {
+    "name": "Tail Attack",
+    "monster": "Ancient Blue Dragon",
+    "path": "icons/skills/wounds/injury-pain-impaled-hand-blood.webp"
+  },
+  {
+    "name": "Bite (beast form only)",
+    "monster": "Imp",
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
+  },
+  {
+    "name": "Claw (Fiend Form Only)",
+    "monster": "Incubus",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
+    "name": "Claws (Hag Form Only)",
+    "monster": "Night Hag",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
+    "name": "Claw (Bite in Beast Form)",
+    "monster": "Quasit",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
+    "name": "Claw (Oni Form Only)",
+    "monster": "Oni",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
+    "name": "Destructive Fist (melee)",
+    "monster": "Mighty Servant of Leuk-o",
+    "path": "icons/equipment/hand/gauntlet-plate-gold.webp"
+  },
+  {
+    "name": "Destructive Fist (ranged)",
+    "monster": "Mighty Servant of Leuk-o",
+    "path": "icons/skills/melee/strike-flail-destructive-yellow.webp"
+  },
+  {
+    "name": "Self-Destruct",
+    "monster": "Mighty Servant of Leuk-o",
+    "path": "icons/magic/fire/explosion-mushroom-nuke-orange.webp"
+  },
+  {
+    "name": "Ghost in the Machine",
+    "monster": "Mighty Servant of Leuk-o",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "Servant Controls",
+    "monster": "Mighty Servant of Leuk-o",
+    "path": "icons/commodities/tech/levers-colored.webp"
+  },
+  {
+    "name": "False Appearance (Object Form Only)",
+    "monster": "Juvenile Mimic",
+    "path": "icons/magic/nature/stealth-hide-eyes-green.webp"
+  },
+  {
+    "name": "Treant - Rock",
+    "monster": "Treant",
+    "path": "icons/magic/earth/projectile-boulder-yellow.webp"
+  },
+  {
+    "name": "Binding Strike: Piercing",
+    "monster": "Beast of the Sea",
+    "path": "icons/creatures/abilities/stinger-spine-horn-blood.webp"
+  },
+  {
+    "name": "Binding Strike: Bludgeoning",
+    "monster": "Beast of the Sea",
+    "path": "icons/creatures/tentacles/tentacles-octopus-black-pink.webp"
+  },
+  {
+    "name": "Irrepressible Dance",
+    "monster": "Dancing Item",
+    "path": "icons/tools/instruments/rattle-gourd-glowing-teal.webp"
+  },
+  {
+    "name": "Force-Empowered Slam",
+    "monster": "Dancing Item",
+    "path": "icons/magic/sonic/explosion-impact-shock-wave.webp"
+  },
+  {
+    "name": "Devil Sight",
+    "monster": "Devil Spirit",
+    "path": "icons/magic/perception/eye-slit-pink.webp"
+  },
+  {
+    "name": "Weight of Sorrow",
+    "monster": "Despair Shadow",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-teal.webp"
+  },
+  {
+    "name": "Chilling Rend",
+    "monster": "Despair Shadow",
+    "path": "icons/magic/water/strike-ice-blade-fang.webp"
+  },
+  {
+    "name": "Dreadful Scream",
+    "monster": "Despair Shadow",
+    "path": "icons/magic/sonic/scream-wail-shout-teal.webp"
+  },
+  {
+    "name": "Terror Frenzy",
+    "monster": "Fury Shadow",
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Fiery Teleportation",
+    "monster": "Wildfire Spirit",
+    "path": "icons/magic/fire/blast-jet-stream-embers-yellow.webp"
+  },
+  {
+    "name": "Unarmed Strike (Vampire Form Only)",
+    "monster": "Vampire",
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
+  },
+  {
+    "name": "Wraith - Life Drain",
+    "monster": "Wraith",
+    "path": "icons/magic/unholy/strike-hand-glow-pink.webp"
   }
 ]

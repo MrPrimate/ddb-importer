@@ -5,9 +5,10 @@
 import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBFeature from "../../../src/parser/features/DDBFeature";
 
-// The real Blood Hunter Brand of Axiom text: DDB ships this identically as both the
-// class feature description and the description of the option synthesised for it.
-const BRAND_OF_AXIOM = `<p>At 11th level, your mutagenic hemocraft lets your Brand of Castigation reveal a foe’s true nature. Any illusion or invisibility in effect on a creature when you brand it ends, and the creature can’t benefit from invisibility or illusion effects while branded by you. If a creature branded by you is in an alternative form (by way of the polymorph spell, the Change Shape action or Shapechanger trait, the Wild Shape feature, and similar effects), it must succeed on a Wisdom saving throw or revert to its true form and be stunned until the end of your next turn. Whenever a branded creature attempts to alter its form, it must succeed on a Wisdom saving throw or have the attempt fail, and it is stunned until the end of your next turn.</p>`;
+// Stands in for a class feature DDB ships identically as both the feature description
+// and the description of the option it synthesises for it (Blood Hunter's Brand of
+// Axiom is the real case). Synthetic text of the same length so no book text ships.
+const SIGIL_OF_UNMASKING = `<p>At 11th level, your sigil learns to see through deceit. Any disguise or veil affecting a creature when you mark it ends, and the creature cannot benefit from disguises or veils while your mark remains on it. If a marked creature is wearing a borrowed shape (by way of a shapechanging spell, a Change Shape action or Shapechanger trait, a druidic wild form, and similar effects), it must succeed on a Wisdom saving throw or return to its true shape and be stunned until the end of your next turn. Whenever a marked creature tries to take a new shape, it must succeed on a Wisdom saving throw or the attempt fails, and it is stunned until the end of your next turn.</p>`;
 
 describe("DDBFeature.isChoiceDescriptionRedundant", () => {
   beforeAll(() => {
@@ -31,7 +32,7 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
   });
 
   it("flags an option description identical to the parent", () => {
-    expect(DDBFeature.isChoiceDescriptionRedundant(BRAND_OF_AXIOM, BRAND_OF_AXIOM)).toBe(true);
+    expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, SIGIL_OF_UNMASKING)).toBe(true);
   });
 
   it("flags an identical option through markup, case and whitespace differences", () => {
@@ -39,23 +40,24 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
   });
 
   it("flags an option quoted inside a larger parent description", () => {
-    const parent = `<p>Choose one of the following.</p>${BRAND_OF_AXIOM}<p>You can change this choice when you gain a level.</p>`;
-    expect(DDBFeature.isChoiceDescriptionRedundant(parent, BRAND_OF_AXIOM)).toBe(true);
+    const parent = `<p>Choose one of the following.</p>${SIGIL_OF_UNMASKING}<p>You can change this choice when you gain a level.</p>`;
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, SIGIL_OF_UNMASKING)).toBe(true);
   });
 
   it("flags an option that DDB truncated and punctuated off mid-sentence", () => {
-    // Pugilist Grotesque Growth: the option copy stops at "Long Rest." where the feature runs
-    // on with "unless you take a level of Exhaustion", so it is a 214-of-215 character prefix
-    const parent = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
-<p>Once you use this feature, you can’t use it again until you finish a Long Rest unless you take a level of Exhaustion (no action required by you) to restore your use of it.</p>`;
-    const choice = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
-<p>Once you use this feature, you can’t use it again until you finish a Long Rest.</p>`;
+    // Seen on a third-party growth feature: the option copy stops at "Long Rest." where
+    // the feature runs on with an alternative recovery clause, so it is a prefix that
+    // differs only by the final sentence's tail
+    const parent = `<p>When you use your Iron Grip feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
+<p>Once you use this feature, you can't use it again until you finish a Long Rest unless you spend a Hit Die (no action required by you) to restore your use of it.</p>`;
+    const choice = `<p>When you use your Iron Grip feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>
+<p>Once you use this feature, you can't use it again until you finish a Long Rest.</p>`;
     expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(true);
   });
 
   it("keeps an option that only shares a prefix and then diverges", () => {
-    const parent = `<p>When you use your Dread Hand feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>`;
-    const choice = `<p>When you use your Dread Hand feature, you gain the benefits of the Reduce effect instead, and your reach drops to 0 feet.</p>`;
+    const parent = `<p>When you use your Iron Grip feature, you gain the benefits of the Enlarge effect of the Enlarge/Reduce spell and have a 10-foot reach.</p>`;
+    const choice = `<p>When you use your Iron Grip feature, you gain the benefits of the Reduce effect instead, and your reach drops to 0 feet.</p>`;
     expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(false);
   });
 
@@ -68,12 +70,12 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
   });
 
   it("keeps an option whose text is genuinely different", () => {
-    expect(DDBFeature.isChoiceDescriptionRedundant(BRAND_OF_AXIOM, "<p>Your brand deals an extra 1d6 radiant damage when the target fails its save against it.</p>")).toBe(false);
+    expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "<p>Your sigil deals an extra 1d6 radiant damage when the target fails its save against it.</p>")).toBe(false);
   });
 
   it("keeps an option when either side is empty", () => {
-    expect(DDBFeature.isChoiceDescriptionRedundant("", BRAND_OF_AXIOM)).toBe(false);
-    expect(DDBFeature.isChoiceDescriptionRedundant(BRAND_OF_AXIOM, "")).toBe(false);
+    expect(DDBFeature.isChoiceDescriptionRedundant("", SIGIL_OF_UNMASKING)).toBe(false);
+    expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "")).toBe(false);
     expect(DDBFeature.isChoiceDescriptionRedundant("<p> </p>", "<p> </p>")).toBe(false);
   });
 });

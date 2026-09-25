@@ -2109,3 +2109,53 @@ z-index: -2;
 .ddb .chapter-number {
     color: var(--wheat-core-shadow);
 }
+
+
+.ddb.aud {
+  .aud-adventure-box {
+    border-style: solid;
+    border-color: transparent;
+    border-image-source: url("https://media.dndbeyond.com/compendium-images/aud/ui/dnd-AUD-level_frame.png");
+    border-image-slice: 266 249 266 249 fill;
+    border-image-width: 250px;
+    border-image-repeat: stretch;
+    background-clip: border-box;
+    width: 400px;
+    margin: auto;
+    padding: 30px 60px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.25));
+  }
+  .aud-adventure-box div {
+    flex: 1;
+    text-align: center;
+    font-family: var(--custom-font-view--aud-box-font);
+    font-size: 1rem;
+    line-height: 1.2rem;
+    text-transform: uppercase;
+  }
+  .aud-adventure-box div p:nth-of-type(2) {
+    margin-bottom: 0.5rem;
+    font-family: var(--custom-font-view--mrs-eaves);
+    font-size: 2rem;
+    color: var(--theme-primary-dark);
+    font-weight: bold;
+  }
+  .aud-adventure-box div:first-of-type {
+    border-width: 0 10px 0 0;
+    border-style: solid;
+    border-image-source: url("https://media.dndbeyond.com/compendium-images/aud/ui/dnd-AUD-level_frame_divider.png");
+    border-image-slice: 28;
+    border-image-outset: 7px;
+  }
+  .chapter-opener {
+    text-align: center;
+    font-family: var(--custom-font-view--aud-box-font);
+    margin: -20px auto 10px auto;
+    font-size: 1.25rem;
+    color: var(--theme-accent-dark);
+    font-style: italic;
+  }
+}
