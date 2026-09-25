@@ -1,6 +1,7 @@
-import { logger } from "../../../lib/_module";
+import { logger, utils } from "../../../lib/_module";
 import NativeIdFactory from "./NativeIdFactory";
 import { buildDdbFlags } from "./NativeShared";
+import { deriveTitle } from "./ContentRowProcessor";
 // ProcessedRow + ItemNotify are declared globally in ./types.d.ts.
 
 const JOURNAL_SORT = 1000;
@@ -22,10 +23,19 @@ function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null
   return { ddb };
 }
 
+/**
+ * Rows normally arrive titled by processRow, but rows built elsewhere (hints,
+ * tests) can still carry a blank title; the pre-strip HTML keeps the heading.
+ */
+function rowName(row: ProcessedRow): string {
+  if (row.title && row.title.trim() !== "") return row.title;
+  return deriveTitle(utils.htmlToDoc(row.sourceHtml || row.content || ""), null);
+}
+
 function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5eJournalPageData & { title: I5eJournalPageTitle } {
   return {
     _id: id,
-    name: row.title,
+    name: rowName(row),
     type: "text",
     title: { show: false, level: row.level },
     text: { format: 1, content: row.content },
@@ -41,9 +51,9 @@ function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5
 /**
  * Port of the journals-relevant parts of JournalFactory.js + Journal.js.
  *
- * - A row with a `cobaltId` is a chapter → its own JournalEntry (forceAdd).
- * - A row with neither cobaltId nor parentId is a standalone → its own JournalEntry.
- * - A row with a `parentId` (and no cobaltId) is a section → its page is appended to
+ * - A row with a `cobaltId` is a chapter -> its own JournalEntry (forceAdd).
+ * - A row with neither cobaltId nor parentId is a standalone -> its own JournalEntry.
+ * - A row with a `parentId` (and no cobaltId) is a section -> its page is appended to
  *   the chapter JournalEntry whose `cobaltId === parentId`.
  *
  * Returns an array of JournalEntry document objects (each with `pages`).
@@ -80,7 +90,7 @@ export function buildJournals(
 
     const journal: I5eJournalData = {
       _id,
-      name: row.title,
+      name: rowName(row),
       folder: folderId,
       sort: JOURNAL_SORT + row.id,
       ownership: { default: 0 },

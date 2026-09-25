@@ -2,10 +2,10 @@ import { logger, DDBProxy, PatreonHelper, postJson, Secrets } from "../../../lib
 
 /**
  * Table name/folder hints from ddb-meta-data's `table_info/<bookCode>.json`.
- * Mirrors the muncher's tableHints. Optional: any failure → empty map.
+ * Mirrors the muncher's tableHints. Optional: any failure -> empty map.
  *
  * Endpoint: POST {proxy}/proxy/adventure/table-info
- * body { cobalt, betaKey, bookCode } → { success, data: [{ contentChunkId, tableName?, folderName? }] }.
+ * body { cobalt, betaKey, bookCode } -> { success, data: [{ contentChunkId, tableName?, folderName? }] }.
  */
 
 // TableHint is declared globally in ./types.d.ts.

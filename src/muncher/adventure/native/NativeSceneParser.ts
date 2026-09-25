@@ -33,7 +33,7 @@ function titleString(s: string): string {
 
 /**
  * Convert a journal image href to the canonical assetMap key.
- *   "ddb://image/lmop/foo.jpg" + bookCode="lmop" → "assets/foo.jpg"
+ *   "ddb://image/lmop/foo.jpg" + bookCode="lmop" -> "assets/foo.jpg"
  *
  * The bookCode subfolder strip mirrors NativeLinkReplacer.replaceImageLinks
  * (and muncher's ImageJournal.replaceImgLinksForJournal); without it the
@@ -247,7 +247,7 @@ export function scanForScenes(row: ProcessedRow, bookCode: string): DetectedScen
   }
 
   if (scenes.length > 0) {
-    logger.debug(`NativeSceneParser: row "${documentName}" → ${scenes.length} scene(s)`);
+    logger.debug(`NativeSceneParser: row "${documentName}" -> ${scenes.length} scene(s)`);
   }
   return scenes;
 }

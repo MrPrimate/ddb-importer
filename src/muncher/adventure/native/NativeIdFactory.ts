@@ -3,9 +3,9 @@
  * adventure importer.
  *
  * The Node muncher (ddb-adventure-muncher IdFactory.js) assigns RANDOM 16-char
- * ids and relies on a persisted key→id map for re-import stability. We cannot
+ * ids and relies on a persisted key->id map for re-import stability. We cannot
  * reproduce its ids, so instead we derive a *deterministic* id by hashing a
- * composite key built from the DDB identifiers. Same book → same ids on every
+ * composite key built from the DDB identifiers. Same book -> same ids on every
  * run, with no persisted map, so re-import updates rather than duplicates.
  *
  * Ids are 16 chars from [A-Za-z0-9], matching Foundry's `randomID()` charset,
@@ -14,7 +14,7 @@
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-// cyrb128: string → 128-bit seed (four 32-bit ints). Public-domain hash.
+// cyrb128: string -> 128-bit seed (four 32-bit ints). Public-domain hash.
 function cyrb128(str: string): [number, number, number, number] {
   let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
   for (let i = 0, k; i < str.length; i++) {
@@ -31,7 +31,7 @@ function cyrb128(str: string): [number, number, number, number] {
   return [(h1 ^ h2 ^ h3 ^ h4) >>> 0, (h2 ^ h1) >>> 0, (h3 ^ h1) >>> 0, (h4 ^ h1) >>> 0];
 }
 
-// sfc32: seeded PRNG → deterministic stream of floats in [0, 1).
+// sfc32: seeded PRNG -> deterministic stream of floats in [0, 1).
 function sfc32(a: number, b: number, c: number, d: number): () => number {
   return () => {
     a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;

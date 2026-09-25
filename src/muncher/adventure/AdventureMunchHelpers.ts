@@ -4,6 +4,7 @@ import DDBItemsImporter from "../DDBItemsImporter";
 import { SETTINGS } from "../../config/_module";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
+
 type TGameDataType = "scenes" | "actors" | "items" | "journal" | "tables" | "playlist" | "macros";
 type TEntityType = Scene | Actor | Item | JournalEntry | RollTable | Playlist | Macro;
 
@@ -75,64 +76,84 @@ export default class AdventureMunchHelpers {
     return matches;
   }
 
-  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 | null = null) {
-    return new Promise((resolve) => {
-      if (docIds && docIds.length > 0) {
-        switch (type) {
-          case "item":
-            logger.debug(`Importing missing ${type}s from DDB`, docIds);
-            notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
-            resolve(DDBItemsImporter.fetchAndImportItems({
-              useSourceFilter: false,
-              ids: docIds,
-              deleteBeforeUpdate: false,
-              notifierV2,
-            }));
-            break;
-          case "monster": {
-            try {
-              const tier = PatreonHelper.getPatreonTier();
-              const tiers = PatreonHelper.calculateAccessMatrix(tier);
-              if (tiers.all) {
-                logger.debug(`Importing missing ${type}s from DDB`, docIds);
-                notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
-                const monsterFactory = new DDBMonsterFactory({
-                  notifierV2: notifierV2 ?? undefined,
-                });
-                resolve(monsterFactory.processIntoCompendium(docIds));
-              } else {
-                logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
-                ui.notifications.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, { permanent: true });
-                resolve([]);
-              }
-            } catch (err) {
-              if (err instanceof SyntaxError) {
-                ui.notifications.error("Error fetching monsters, likely cause outdated ddb-proxy", { permanent: true });
-              } else {
-                throw err;
-              }
-            }
-            break;
-          }
-          case "spell":
-            logger.debug(`Importing missing ${type}s from DDB`);
-            notifierV2?.({ section: "note", message: `Missing spells detected, importing from DDB` });
-            // we actually want all spells, because monsters don't just use spells from a single source
-            resolve(parseSpells({ ids: null, deleteBeforeUpdate: false, notifierV2 }));
-            break;
-          // no default
+  static async loadMissingDocuments(type: TCompendiumTypes, docIds: number[], notifierV2: INotifierV2 | null = null): Promise<unknown> {
+    if (!docIds || docIds.length === 0) return [];
+    const family = AdventureMunchHelpers.documentFamily(type);
+    switch (family) {
+      case "item":
+        logger.debug(`Importing missing ${type}s from DDB`, docIds);
+        notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+        return DDBItemsImporter.fetchAndImportItems({
+          useSourceFilter: false,
+          ids: docIds,
+          deleteBeforeUpdate: false,
+          notifierV2,
+        });
+      case "monster": {
+        const tier = PatreonHelper.getPatreonTier();
+        const tiers = PatreonHelper.calculateAccessMatrix(tier);
+        if (!tiers.all) {
+          logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
+          ui.notifications.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, { permanent: true });
+          return [];
         }
-      } else {
-        resolve([]);
+        logger.debug(`Importing missing ${type}s from DDB`, docIds);
+        notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+        try {
+          const monsterFactory = new DDBMonsterFactory({
+            notifierV2: notifierV2 ?? undefined,
+          });
+          return await monsterFactory.processIntoCompendium(docIds);
+        } catch (err) {
+          // an outdated proxy answers with something that is not JSON; report it and carry on
+          // without the monsters rather than failing the whole import
+          if (err instanceof SyntaxError) {
+            logger.error("Error fetching monsters, likely cause outdated ddb-proxy", err);
+            ui.notifications.error("Error fetching monsters, likely cause outdated ddb-proxy", { permanent: true });
+            return [];
+          }
+          throw err;
+        }
       }
-    });
+      case "spell":
+        logger.debug(`Importing missing ${type}s from DDB`);
+        notifierV2?.({ section: "note", message: `Missing spells detected, importing from DDB` });
+        // we actually want all spells, because monsters don't just use spells from a single source
+        return parseSpells({ ids: null, deleteBeforeUpdate: false, notifierV2 });
+      default:
+        logger.warn(`Unable to import missing documents of type ${type} from DDB`, docIds);
+        return [];
+    }
+  }
+
+  /**
+   * COMPENDIUM_LOOKUP holds singular and plural spellings of each compendium type; these helpers
+   * only branch on the three document families, so collapse the spelling first.
+   * @param {string} type compendium type
+   * @returns {string | null} the document family, or null if these helpers do not handle the type
+   */
+  static documentFamily(type: TCompendiumTypes): "monster" | "item" | "spell" | null {
+    switch (type) {
+      case "monster":
+      case "monsters":
+      case "npc":
+        return "monster";
+      case "item":
+      case "items":
+        return "item";
+      case "spell":
+      case "spells":
+        return "spell";
+      default:
+        return null;
+    }
   }
 
   static async getCompendiumIndex(type: TCompendiumTypes) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     // getCompendiumType with fail=true (default) throws when missing, so this is unreachable
     if (!compendium) throw new Error(`Unable to find compendium for type ${type}`);
-    const fields = (type === "monster")
+    const fields = (AdventureMunchHelpers.documentFamily(type) === "monster")
       ? ["flags.ddbimporter.id"]
       : ["flags.ddbimporter.definitionId"];
 
@@ -143,7 +164,9 @@ export default class AdventureMunchHelpers {
 
   static async getMissingIds(type: TCompendiumTypes, ids: (string | number)[]): Promise<number[]> {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
-    const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
+    const flagPath = (AdventureMunchHelpers.documentFamily(type) === "monster")
+      ? "flags.ddbimporter.id"
+      : "flags.ddbimporter.definitionId";
     return ids.filter((id) =>
       !index.some((i) => {
         const v = foundry.utils.getProperty(i, flagPath);
@@ -155,7 +178,7 @@ export default class AdventureMunchHelpers {
   static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2: INotifierV2 | null = null) {
     const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
     logger.debug(`${type} missing ids`, missingIds);
-    const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
+    const missingDocuments = await AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
     logger.debug(`${type} missing`, missingDocuments);
   }
 
@@ -167,46 +190,62 @@ export default class AdventureMunchHelpers {
    * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
-  static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides = {}, temporary = false) {
+  static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides: Record<string, unknown> = {}, temporary = false) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
+    const family = AdventureMunchHelpers.documentFamily(type);
     const ddbIds = ids.map((num) => {
       return String(num);
     });
 
-    return new Promise((resolve) => {
-      const documents = index
-        .filter((idx) => {
-          switch (type) {
-            case "monster":
-              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
-            case "spell":
-            case "item":
-              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.definitionId")));
-            default:
-              return false;
-          }
-        })
-        .map((i) => {
-          switch (type) {
-            case "monster":
-              return game.actors.importFromCompendium(
-                compendium as CompendiumCollection<"Actor">,
-                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
-              );
-            case "spell":
-            case "item":
-              return game.items.importFromCompendium(
-                compendium as CompendiumCollection<"Item">,
-                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
-              );
-            default:
-              return undefined;
-          }
-        });
-      logger.debug(`${type} documents loaded`, documents);
-      resolve(documents);
+    const matches = index.filter((idx) => {
+      switch (family) {
+        case "monster":
+          return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
+        case "spell":
+        case "item":
+          return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.definitionId")));
+        default:
+          return false;
+      }
     });
+
+    const settled = await Promise.allSettled(matches.map(async (i) => {
+      if (temporary) {
+        const source = await compendium?.getDocument(i._id) as
+          { clone: (data: Record<string, unknown>, context: { keepId: boolean }) => unknown } | null | undefined;
+        return source?.clone(overrides, { keepId: true }) ?? null;
+      }
+      switch (family) {
+        case "monster":
+          return game.actors.importFromCompendium(
+            compendium as CompendiumCollection<"Actor">,
+            i._id, overrides, { keepId: true, keepEmbeddedIds: true },
+          );
+        case "spell":
+        case "item":
+          return game.items.importFromCompendium(
+            compendium as CompendiumCollection<"Item">,
+            i._id, overrides, { keepId: true, keepEmbeddedIds: true },
+          );
+        default:
+          return undefined;
+      }
+    }));
+
+    // One unreadable compendium entry must not sink the whole adventure: it is logged and left
+    // out, and so is an entry that resolved to nothing, since callers call toObject() on every
+    // returned document.
+    const loaded: unknown[] = [];
+    settled.forEach((result, position) => {
+      if (result.status === "rejected") {
+        logger.error(`Unable to load ${type} ${matches[position]._id} from the compendium, skipping it`, result.reason);
+      } else if (result.value !== null && result.value !== undefined) {
+        loaded.push(result.value);
+      }
+    });
+    logger.debug(`${type} documents loaded`, loaded);
+    return loaded;
   }
 
 
@@ -391,14 +430,14 @@ export default class AdventureMunchHelpers {
       );
       if (!worldActor) {
         const override: IAdventureMuncherOverrideById = overridesById?.get?.(ddbId) ?? {};
-        const overrides = { folder: folderId, ...override };
+        const overrides: Record<string, unknown> = { folder: folderId, ...override };
         try {
           worldActor = await game.actors.importFromCompendium(
             compendium as CompendiumCollection<"Actor">,
             idx._id, overrides, { keepId: true, keepEmbeddedIds: true },
           );
         } catch (err) {
-          logger.warn(`AdventureMunchHelpers: failed to import monster ${idx.name} (ddbId ${ddbId}) into world: ${(err as Error).message ?? err}`);
+          logger.warn(`AdventureMunchHelpers: failed to import monster ${(idx as unknown as INameMatchIndexEntry).name} (ddbId ${ddbId}) into world: ${(err as Error).message ?? err}`);
           continue;
         }
       }
@@ -460,6 +499,8 @@ export default class AdventureMunchHelpers {
       ],
     });
 
+    // the "All" button resolves null via its callback; the action id is only in the inferred type
+    if (response === "all") return null;
     return response ?? null;
   }
 

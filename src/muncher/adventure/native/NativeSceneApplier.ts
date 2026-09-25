@@ -209,7 +209,7 @@ async function reapplyScenesSnips(liveScene: Scene, snips: PreservedSnips): Prom
  * needed here.
  *
  * @param scenes the BuiltScene[] returned by buildScenes
- * @param journals the journal docs created this run (used for slug→pageId lookup)
+ * @param journals the journal docs created this run (used for slug->pageId lookup)
  * @param bookCode the active book
  * @param options.applyTokens when false, tokens are skipped (compendium-only path)
  */

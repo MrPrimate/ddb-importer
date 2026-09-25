@@ -5,6 +5,22 @@ import { injectHeadingAnchors } from "./NativeHeadingAnchors";
 
 // ImageOpts, ContentRow + ProcessedRow are declared globally in ./types.d.ts.
 
+export const UNKNOWN_JOURNAL_NAME = "Unknown Journal";
+
+/**
+ * Some Content rows ship a null/blank Title (seen on the RWG introduction chapter).
+ * Foundry rejects a JournalEntry or page without a name, so recover one from the
+ * first h1, then h2, then h3 in the page HTML, and otherwise use a placeholder.
+ */
+export function deriveTitle(doc: Document, title: string | null | undefined): string {
+  if (title && title.trim() !== "") return title;
+  for (const tag of ["h1", "h2", "h3"]) {
+    const text = doc.querySelector(tag)?.textContent?.replace(/\s+/g, " ").trim();
+    if (text) return text;
+  }
+  return UNKNOWN_JOURNAL_NAME;
+}
+
 /**
  * Port of the muncher's row parent adjustments (Row.js:40-132), applied to the
  * processed rows in document order. Three repairs, mirroring the standalone:
@@ -64,15 +80,33 @@ export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint
 }
 
 /**
+ * Port of the muncher's Row._removeMapContainers: drops the book's map figures
+ * (`figure.<bookCode>-map-figure` / `figure.<bookCode>--map-figure`), which DDB
+ * renders as a floating map sidebar alongside the chapter text, plus the
+ * book-independent `div.map-nav-container` floating map navigation.
+ */
+export function removeMapContainers(doc: Document, bookCode: string | undefined): void {
+  const selectors = ["div.map-nav-container"];
+  if (bookCode) selectors.push(`figure.${bookCode}-map-figure`, `figure.${bookCode}--map-figure`);
+  doc.body
+    .querySelectorAll(selectors.join(", "))
+    .forEach((node) => node.remove());
+}
+
+/**
  * Port of the journals-relevant parts of the muncher's Row.js +
  * Journal._generateJournalEntryWithPages.
  *
- * Pipeline: parse → addClasses → ddb:// link replacement → strip the leading
- * title heading → collapse whitespace. JSDOM is replaced by `utils.htmlToDoc`
- * (DOMParser). Dice replacement and cross-page dynamic links are deferred.
+ * Pipeline: parse -> addClasses -> ddb:// link replacement -> remove map figures
+ * -> strip the leading title heading -> collapse whitespace. JSDOM is replaced by
+ * `utils.htmlToDoc` (DOMParser). Dice replacement and cross-page dynamic links are deferred.
  */
-export function processRow(row: ContentRow, adventureConfig: any, images?: ImageOpts): ProcessedRow {
-  const title = row.title ?? "";
+export function processRow(
+  row: ContentRow,
+  adventureConfig: any,
+  images?: ImageOpts,
+  bookCode: string | undefined = images?.bookCode,
+): ProcessedRow {
   const rawHtml = row.html ?? "";
 
   // 1. styling classes, then ddb:// link replacement
@@ -81,8 +115,13 @@ export function processRow(row: ContentRow, adventureConfig: any, images?: Image
   const linked = foundryCompendiumReplace(classDoc.body.innerHTML, adventureConfig);
 
   const doc = utils.htmlToDoc(linked);
+  // resolved before the heading strip below so a missing Title can borrow the page heading
+  const title = deriveTitle(doc, row.title);
 
-  // 2. image links → uploaded stored paths (only when assets were imported)
+  // removed before sourceHtml is captured so table and scene parsing never see them, matching Row.js
+  removeMapContainers(doc, bookCode);
+
+  // 2. image links -> uploaded stored paths (only when assets were imported)
   if (images) replaceImageLinks(doc, images.bookCode, images.assetMap);
 
   // capture pre-strip, PRE-dice HTML (tables + headings intact) for table parsing.

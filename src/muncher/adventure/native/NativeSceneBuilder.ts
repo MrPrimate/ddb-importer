@@ -15,8 +15,8 @@ import { buildEnhancedNameMap } from "./NativeEnhancements";
  * Build the per-book Scene docs from the processed Content rows.
  *
  * Pipeline per row:
- *   1. NativeSceneParser → DetectedScene[] (HTML scan, muncher-parity).
- *   2. NativeImageProbe → real image dimensions (or 2000x2000 fallback).
+ *   1. NativeSceneParser -> DetectedScene[] (HTML scan, muncher-parity).
+ *   2. NativeImageProbe -> real image dimensions (or 2000x2000 fallback).
  *   3. assemble base Scene doc (deterministic id, V14 levels[0].background, default grid,
  *      chapter folder).
  *
@@ -25,7 +25,7 @@ import { buildEnhancedNameMap } from "./NativeEnhancements";
  * `DDBMapMetaData.enrich`, the existing meta-apply path with cleansing + token
  * world-actor resolution + Iconizer-generated note icons).
  *
- * Cross-row dedup: same image used in two pages → only the first becomes a scene
+ * Cross-row dedup: same image used in two pages -> only the first becomes a scene
  * (matches the muncher's adventure.sceneImages Set).
  */
 
@@ -93,12 +93,12 @@ function buildBaseScene(args: {
   const displayName = (typeof nameOverride === "string" && nameOverride.trim() !== "")
     ? nameOverride.trim()
     : detection.name;
-  // sampled edge color → matches the painted image edge, so the canvas
+  // sampled edge color -> matches the painted image edge, so the canvas
   // border blends in (parity with DDBMap.createScene).
   const bgColor = edgeColor ?? DEFAULT_BG_COLOR;
 
-  // Nav-bar label: drop the chapter prefix ("Chapter: Foo" → "Foo") then strip
-  // parenthetical suffixes ("Foo (Player Version)" → "Foo") for a tidy nav bar
+  // Nav-bar label: drop the chapter prefix ("Chapter: Foo" -> "Foo") then strip
+  // parenthetical suffixes ("Foo (Player Version)" -> "Foo") for a tidy nav bar
   // (muncher parity). Fall back to the un-stripped base if a wholly-bracketed
   // name strips to empty. Metadata name/navName override this post-create via
   // DDBMapMetaData.buildSceneUpdate (neither is merge-excluded).
@@ -211,7 +211,7 @@ function buildMissingDetection(es: any, bookCode: string, index: number): { dete
   return { detection, row };
 }
 
-/** Build all Scene docs + matching scene folders. Empty book → `{ scenes: [], folders: [] }`. */
+/** Build all Scene docs + matching scene folders. Empty book -> `{ scenes: [], folders: [] }`. */
 export async function buildScenes(
   rows: ProcessedRow[],
   bookCode: string,
@@ -274,7 +274,7 @@ export async function buildScenes(
   //    DDBMapMetaData.cleanseSceneInfo runs on every doc to share AdventureMunch's
   //    V14 migration + doorSound/perfect-vision/drawing fixes; no-op for our bare
   //    base docs today, defensive for future embedded-data additions.
-  // Enrichment-endpoint name lookup (tier 2): keyed by asset path → enhancement
+  // Enrichment-endpoint name lookup (tier 2): keyed by asset path -> enhancement
   // adjustName/name. Preferred over the parsed caption (tier 3); the proxy
   // meta-data name still overrides post-create (tier 1, NativeSceneApplier).
   const nameMap = buildEnhancedNameMap(enhancements);
