@@ -10,6 +10,7 @@
         "Button": "Execute Macro",
         "Config": "Macro Configuration",
         "Hide": "Hide Macro Activity",
+        "NotFound": "No macro found for \"{macro}\".",
         "FIELDS": {
           "macro": {
             "label": "Macro",
@@ -450,7 +451,7 @@
           },
           "function": {
             "label": "Custom Handler",
-            "hint": "Handler in DDBImporter.effects.AuraAutomations.handlers. Use Activity uses the activity that placed this region (or one named in Handler Arguments) against each token that triggers the chosen events."
+            "hint": "Handler in DDBImporter.effects.AuraAutomations.RegionAutomations.handlers. Use Activity uses the activity that placed this region (or one named in Handler Arguments) against each token that triggers the chosen events."
           },
           "events": {
             "label": "Region Events"
@@ -502,7 +503,7 @@
           },
           "macroName": {
             "label": "Macro",
-            "hint": "For the Execute Macro handler: ddb.<type>.<file> for a DDB Importer macro (e.g. ddb.generic.light), or a Foundry macro name or Macro.<id> uuid."
+            "hint": "For the Execute Macro handler: ddb.<type>.<file> for a DDB Importer macro (e.g. ddb.generic.light), or a Foundry macro name or uuid (a world Macro.<id> or a Compendium.<pack>.Macro.<id> macro)."
           },
           "sizes": {
             "label": "Creature Sizes",

@@ -1,4 +1,4 @@
-import { DDBSimpleMacro, logger } from "../../lib/_module";
+import { DDBSimpleMacro, logger, resolveFoundryMacro } from "../../lib/_module";
 import DDBEffectHelper from "../DDBEffectHelper";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import { regionLabel, resolveRegionActivity } from "./regionBehaviorUtils";
@@ -54,7 +54,7 @@ interface ITokenFilterArgs {
 }
 
 interface IExecuteMacroArgs extends ITokenFilterArgs {
-  /** `ddb.<type>.<file>` for a DDB Importer macro, or a Foundry macro name / `Macro.<id>` uuid. */
+  /** `ddb.<type>.<file>` for a DDB Importer macro, or a Foundry macro name or a world / compendium macro uuid. */
   macroFunction?: string;
   macroParameters?: string | Record<string, unknown>;
   oncePerTurn?: boolean;
@@ -589,7 +589,7 @@ export default class RegionAutomations {
   /**
    * Run a macro directly, the way a ddbmacro activity would: `ddb.<type>.<file>`
    * functions go through DDBSimpleMacro, anything else is a Foundry macro
-   * looked up by name or `Macro.<id>` uuid. The placing activity (when the
+   * looked up by name or world / compendium uuid. The placing activity (when the
    * region came from one) supplies the actor/item context.
    */
   static async executeMacroHandler(context: IRegionEventContext): Promise<void> {
@@ -637,9 +637,7 @@ export default class RegionAutomations {
         regionContext,
       });
     } else {
-      const macro = macroFunction.startsWith("Macro.")
-        ? await fromUuid(macroFunction) as Macro.Implementation | null
-        : game.macros.find((m) => m.name === macroFunction);
+      const macro = await resolveFoundryMacro(macroFunction);
       if (!macro) {
         logger.warn(`executeMacro behavior on region ${context.region.name}: no macro found for "${macroFunction}"`, { context });
         return;

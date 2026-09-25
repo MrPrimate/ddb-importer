@@ -119,7 +119,7 @@ global {
     types?: string[];
     /** Never trigger for these creature types - "any creature other than an ooze" wording. */
     excludeTypes?: string[];
-    /** executeMacro handler: `ddb.<type>.<file>` or a Foundry macro name / `Macro.<id>` uuid. */
+    /** executeMacro handler: `ddb.<type>.<file>` or a Foundry macro name or a world / compendium macro uuid. */
     macroName?: string;
     /** Override for a ddbmacro activity's stored macro parameters, or the executeMacro parameters. */
     macroParameters?: string;
