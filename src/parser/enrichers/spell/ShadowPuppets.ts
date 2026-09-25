@@ -19,6 +19,8 @@ export default class ShadowPuppets extends DDBEnricherData {
       activationType: this.ddbEnricher?._originalActivity?.type === "save" ? "special" : "bonus",
       data: {
         sort: this.ddbEnricher?._originalActivity?.type === "save" ? 2 : 3,
+        // used on later turns while concentrating, so it must not start (and replace) the concentration
+        duration: { override: true, value: "", units: "inst", concentration: false },
       },
     };
   }

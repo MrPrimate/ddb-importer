@@ -70,7 +70,10 @@ export default class PowerWordPain extends DDBEnricherData {
         name: this.is2014 ? "Crippling Pain" : "Pained",
         statuses: this.is2014 ? [] : ["Charmed"],
         changes: [
-          DDBEnricherData.ChangeHelper.downgradeChange("10", 20, "system.attributes.movement.walk"),
+          // "any speed it has can be no higher than 10 feet": cap every movement mode, not just walking
+          ...["walk", "burrow", "climb", "fly", "swim"].map((speed) =>
+            DDBEnricherData.ChangeHelper.downgradeChange("10", 20, `system.attributes.movement.${speed}`),
+          ),
           ...["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
             DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability),
           ),

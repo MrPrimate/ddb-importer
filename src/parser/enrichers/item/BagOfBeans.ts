@@ -16,18 +16,32 @@ export default class BagOfBeans extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
+    // 2014 dumps the bag's whole contents; the 2024 reprint lets you dump one or more beans. The
+    // explosion is 5d4 however many beans go, so the bean count scales consumption, never damage.
+    const consumption: IDDBActivityData = {
+      addItemConsume: true,
+      itemConsumeValue: "@item.uses.value",
+    };
+    if (!this.is2014) {
+      consumption.itemConsumeValue = 1;
+      consumption.addScalingMode = "amount";
+      consumption.addConsumptionScalingMax = "@item.uses.value";
+    }
     return {
       name: "Dump Beans",
       activationType: "special",
       activationCondition: "Object interaction",
       rangeSelf: true,
-      addItemConsume: true,
-      itemConsumeValue: 1,
-      addScalingMode: "amount",
-      addConsumptionScalingMax: "@item.uses.value",
+      ...consumption,
       removeDamageParts: true,
       damageParts: [
-        DDBEnricherData.basicDamagePart({ number: 5, denomination: 4, type: this.explosionDamageType }),
+        DDBEnricherData.basicDamagePart({
+          number: 5,
+          denomination: 4,
+          type: this.explosionDamageType,
+          scalingMode: "none",
+          scalingNumber: null,
+        }),
       ],
       data: {
         damage: {
@@ -140,10 +154,10 @@ export default class BagOfBeans extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       retainUseSpent: true,
-      // the bag holds 3d4 beans, so 12 is the most it can be found with; Count Beans
-      // spends the difference down to the number actually rolled
+      // the bag holds 3d4 beans, so 12 is the most it can be found with. It starts with every use
+      // spent, and Count Beans' negative consumption hands back the number actually rolled.
       uses: {
-        spent: 0,
+        spent: 12,
         max: "12",
         recovery: [],
       } as I5eSystemLimitedUses,

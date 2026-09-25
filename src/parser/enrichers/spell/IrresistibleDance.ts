@@ -20,6 +20,9 @@ export default class IrresistibleDance extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          // in 2014 the save is a follow-up to the cast; in 2024 it is the cast itself and concentrates
+          generateDuration: this.is2014,
+          durationOverride: this.is2014 ? { units: "inst", concentration: false } : undefined,
           generateSave: true,
           generateDamage: false,
           generateTarget: true,

@@ -21,9 +21,11 @@ export default class StatusRider extends DDBEnricherData {
 
   static riders(): Record<string, IStatusRider[]> {
     const C = DDBEnricherData.ChangeHelper;
-    const MOVES = ["walk", "burrow", "climb", "fly", "swim"];
-    const speedPenalty = (value: string) => MOVES.map((m) => C.unsignedAddChange(value, 20, `system.attributes.movement.${m}`));
-    const speedOverride = (value: string) => MOVES.map((m) => C.overrideChange(value, 20, `system.attributes.movement.${m}`));
+    // "Speed is 0": every movement mode, the same as Sentinel
+    const speedZero = () => [
+      C.customChange("*0", 20, "system.attributes.movement.all"),
+      ...["walk", "burrow", "climb", "fly", "swim"].map((mode) => C.overrideChange("0", 60, `system.attributes.movement.${mode}`)),
+    ];
     const chaos = (): IStatusRider[] => [
       { name: "Chaos: 1 Charmed", statuses: ["Charmed"], durationSeconds: 60, description: "Roll a d4: on a 1 the target is Charmed." },
       { name: "Chaos: 2 Frightened", statuses: ["Frightened"], durationSeconds: 60, description: "Roll a d4: on a 2 the target is Frightened." },
@@ -45,11 +47,11 @@ export default class StatusRider extends DDBEnricherData {
         { name: "Charmed", statuses: ["Charmed"], durationSeconds: 60 },
         { name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 },
       ],
-      "Fiendish Blood": [{ name: "Cursed", statuses: ["Cursed"], changes: speedPenalty("-10"), durationSeconds: null }],
+      "Fiendish Blood": [{ name: "Cursed", statuses: ["Cursed"], changes: [C.customChange("-10", 20, "system.attributes.movement.all")], durationSeconds: null }],
       "First Roar": [{ name: "Frightened", statuses: ["Frightened"], durationSeconds: 600 }],
       "Second Roar": [{ name: "Paralyzed", statuses: ["Paralyzed"], durationSeconds: 60 }],
       "Third Roar": [{ name: "Prone", statuses: ["Prone"] }],
-      "Freezing Burst": [{ name: "Speed 0", changes: speedOverride("0"), durationSeconds: 6 }],
+      "Freezing Burst": [{ name: "Speed 0", changes: speedZero(), durationSeconds: 6 }],
       "Giggling Magic": [{
         name: "Giggling",
         changes: [
@@ -61,10 +63,10 @@ export default class StatusRider extends DDBEnricherData {
         ],
         durationSeconds: 60,
       }],
-      "Great Bow": [{ name: "Speed -10 ft", changes: [C.unsignedAddChange("-10", 20, "system.attributes.movement.walk")], durationSeconds: 6 }],
-      "Ice Spear": [{ name: "Speed -10 ft", changes: [C.unsignedAddChange("-10", 20, "system.attributes.movement.walk")], durationSeconds: 6 }],
-      "Icy Bite": [{ name: "Speed -5 ft", changes: [C.unsignedAddChange("-5", 20, "system.attributes.movement.walk")], durationSeconds: 6 }],
-      "Ocean Spear": [{ name: "Speed -10 ft", changes: [C.unsignedAddChange("-10", 20, "system.attributes.movement.walk")], durationSeconds: 6 }],
+      "Great Bow": [{ name: "Speed -10 ft", changes: [C.customChange("-10", 20, "system.attributes.movement.all")], durationSeconds: 6 }],
+      "Ice Spear": [{ name: "Speed -10 ft", changes: [C.customChange("-10", 20, "system.attributes.movement.all")], durationSeconds: 6 }],
+      "Icy Bite": [{ name: "Speed -5 ft", changes: [C.customChange("-5", 20, "system.attributes.movement.all")], durationSeconds: 6 }],
+      "Ocean Spear": [{ name: "Speed -10 ft", changes: [C.customChange("-10", 20, "system.attributes.movement.all")], durationSeconds: 6 }],
       "Inferno Blast": [{ name: "Exhaustion", statuses: ["Exhaustion:1"], durationSeconds: null }],
       "Invitation": [{ name: "Total Cover", statuses: ["coverTotal"] }],
       "Majestic Song": [
@@ -85,7 +87,7 @@ export default class StatusRider extends DDBEnricherData {
       "Repulsion Breath": [{ name: "Prone", statuses: ["Prone"] }],
       "Restless Touch": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
       "Rotting Fist": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
-      "Scorching Sands": [{ name: "Half Speed", changes: MOVES.map((m) => C.multiplyChange("0.5", 20, `system.attributes.movement.${m}`)), durationSeconds: 6 }],
+      "Scorching Sands": [{ name: "Half Speed", changes: [C.customChange("/2", 20, "system.attributes.movement.all")], durationSeconds: 6 }],
       "Shadow Stealth": [{ name: "Hiding", statuses: ["Hiding"], durationSeconds: null }],
       "Shadowy Teleport": [{ name: "Invisible", statuses: ["Invisible"], durationSeconds: 60 }],
       "Shimmering Shield": [{ name: "Shielded", changes: [C.unsignedAddChange("2", 20, "system.attributes.ac.bonus")], durationSeconds: 6 }],

@@ -18,6 +18,7 @@ export default class FleshToStone extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Save (no spellslot)",
+          data: { duration: { override: true, units: "inst", concentration: false } },
           activationType: "special",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,

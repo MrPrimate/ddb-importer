@@ -17,6 +17,8 @@ export default class Banishment extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           noeffect: true,
           generateConsumption: false,
           generateActivation: true,
