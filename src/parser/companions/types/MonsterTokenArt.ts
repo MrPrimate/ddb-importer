@@ -7,20 +7,14 @@ import DDBMonster from "../../DDBMonster";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
 import { resolveMonsterSource } from "../../monster/source";
 import { newNPC } from "../../monster/templates/monster";
+import {
+  MISSED_TOKEN_ART as MISSES,
+  PENDING_TOKEN_ART as PENDING,
+  RESOLVED_TOKEN_ART as RESOLVED,
+  TOKEN_ART_MISS_TTL_MS as MISS_TTL_MS,
+} from "./MonsterTokenArtCache";
 
-// Found art is kept for the page load. A creature neither the compendium nor DDB has art for is
-// remembered only briefly, and a lookup that failed or could not run is not remembered at all, so
-// munching the monster (or fixing the setting or connection) is picked up on the next lookup.
-const RESOLVED = new Map<string, string>();
-const MISSES = new Map<string, number>();
-const PENDING = new Map<string, Promise<string | null>>();
-const MISS_TTL_MS = 5 * 60_000;
-
-/** Forget every remembered lookup, e.g. when a monster munch may have added the missing art. */
-export function clearMonsterTokenArtCache(): void {
-  RESOLVED.clear();
-  MISSES.clear();
-}
+export { clearMonsterTokenArtCache } from "./MonsterTokenArtCache";
 
 /** A token image an effect can point `token.texture.src` at: a real, single file. */
 function usableTokenPath(path: string | null | undefined): path is string {

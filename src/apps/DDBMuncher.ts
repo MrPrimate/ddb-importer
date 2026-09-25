@@ -16,7 +16,8 @@ import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools";
 import DDBSelectiveMonsterUpdate from "./DDBSelectiveMonsterUpdate";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
-import { clearMonsterTokenArtCache } from "../parser/companions/types/MonsterTokenArt";
+// the cache module, not MonsterTokenArt: that pulls in the monster parser and closes a module cycle
+import { clearMonsterTokenArtCache } from "../parser/companions/types/MonsterTokenArtCache";
 import { updateItemPrices } from "../muncher/prices";
 import DDBAppV2 from "./DDBAppV2";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory";
