@@ -25,6 +25,8 @@ export default class FocusedShot extends DDBEnricherData {
         ],
         options: {
           durationRounds: 1,
+          // the single attack this turn
+          expiry: "turnEnd",
         },
       },
     ];

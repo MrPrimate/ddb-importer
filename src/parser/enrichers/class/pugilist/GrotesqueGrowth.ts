@@ -69,7 +69,7 @@ export default class GrotesqueGrowth extends DDBEnricherData {
         },
         activitiesMatch: ["Grotesque Growth"],
         changes: [
-          // DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
           DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.mwak.damage"),

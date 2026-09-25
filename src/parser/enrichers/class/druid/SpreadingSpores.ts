@@ -23,7 +23,7 @@ export default class SpreadingSpores extends DDBEnricherData {
           prompt: false,
         },
         duration: {
-          value: "10",
+          value: "1",
           units: "minute",
         },
       },

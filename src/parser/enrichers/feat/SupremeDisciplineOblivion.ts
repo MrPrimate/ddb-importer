@@ -12,7 +12,7 @@ export default class SupremeDisciplineOblivion extends DDBEnricherData {
       activationType: "reaction",
       activationCondition: "When a creature you can see within 10 feet of you misses an attack roll",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       data: {
         range: {
           units: "ft",

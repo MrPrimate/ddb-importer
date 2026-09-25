@@ -12,7 +12,7 @@ export default class SupremeDisciplineFortitude extends DDBEnricherData {
       activationType: "reaction",
       activationCondition: "When you take damage except Fire and Radiant; 2 Blood Points halves it, 4 reduces it to 0",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       itemConsumeValue: "2",
       addScalingMode: "amount",
       addConsumptionScalingMax: "4",

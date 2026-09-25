@@ -52,6 +52,8 @@ export default class PetalDance extends DDBEnricherData {
             }),
           ],
         },
+        overrides: {
+        },
       },
       {
         init: {
@@ -80,6 +82,8 @@ export default class PetalDance extends DDBEnricherData {
             customFormula: "@classes.druid.levels + @abilities.wis.mod",
             type: "healing",
           }),
+        },
+        overrides: {
         },
       },
     ];

@@ -1,6 +1,7 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 import type { DDBMonsterDamage } from "../../../monster/features/DDBMonsterDamage";
+import type DDBMonsterFeature from "../../../monster/features/DDBMonsterFeature";
 
 export default class EyeRays extends DDBEnricherData {
 
@@ -70,16 +71,21 @@ export default class EyeRays extends DDBEnricherData {
     //   rayText: this.rayText,
     // })
     const results = rayChoices.map((ray) => {
+      const name = EyeRays.rayName(ray);
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
+      const rayDescription = DDBImporter.lib.ParserLib.DDBDescriptions
+        .matchActivitySection(ray.full, name)?.section ?? ray.full;
       const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml }) as IFeatureBasicsResult;
 
-      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser }) as DDBMonsterDamage;
+      // Eye Rays is a monster-only enricher, so the parser is always the monster feature.
+      const ddbMonsterFeature = this.ddbParser as DDBMonsterFeature;
+      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature }) as DDBMonsterDamage;
       ddbMonsterDamage.generateDamage();
       ddbMonsterDamage.generateRegain();
 
       const result = {
         init: {
-          name: EyeRays.rayName(ray),
+          name,
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -92,6 +98,14 @@ export default class EyeRays extends DDBEnricherData {
         },
         overrides: {
           id: EyeRays.getId(ray.title),
+          // a ray hits one target; without this the Disintegration Ray's "10-foot cube of it"
+          // (the portion of an object destroyed) would read as an area on that ray
+          noTemplate: true,
+          data: {
+            description: {
+              value: rayDescription,
+            },
+          },
         },
       };
 

@@ -9,7 +9,7 @@ export default class Longstrider extends DDBEnricherData {
           durationSeconds: 3600,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("+10", 30, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("10", 30),
         ],
       },
     ];

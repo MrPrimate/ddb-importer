@@ -71,9 +71,12 @@ export default class PlanarWarrior extends DDBEnricherData {
     return [
       {
         name: "Marked by Planar Warrior",
+        statuses: ["Marked"],
         activityMatch: "Mark Target",
         options: {
           durationTurns: 1,
+          // "until the end of the current turn" - the ranger's, whoever carries the mark
+          expiry: "turnEnd",
         },
       },
     ];

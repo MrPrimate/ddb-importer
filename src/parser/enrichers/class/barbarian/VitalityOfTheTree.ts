@@ -54,6 +54,8 @@ export default class VitalityOfTheTree extends DDBEnricherData {
             type: "temphp",
           }),
         },
+        overrides: {
+        },
       },
     ];
   }

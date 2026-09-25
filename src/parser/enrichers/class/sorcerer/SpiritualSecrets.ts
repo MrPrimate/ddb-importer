@@ -45,7 +45,7 @@ export default class SpiritualSecrets extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "3",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

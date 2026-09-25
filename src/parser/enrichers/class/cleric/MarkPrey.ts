@@ -58,6 +58,7 @@ export default class MarkPrey extends DDBEnricherData {
     return [
       {
         name: "Marked as Prey",
+        statuses: ["Marked"],
         activityMatch: "Mark Prey",
         options: {
           durationSeconds: 3600,

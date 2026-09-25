@@ -24,6 +24,7 @@ export default class IrrationalRetaliation extends DDBEnricherData<DDBClassFeatu
         options: {
           durationRounds: 1,
           durationSeconds: 12,
+          expiry: "sourceEnd",
           description: "The Warrior of Pride has Advantage on attack rolls against this creature until the end of their next turn.",
         },
         midiChanges: [

@@ -29,15 +29,9 @@ export default class AdjustDensity extends DDBEnricherData {
           description: "Speed +10 ft, jump distance doubled, disadvantage on Strength checks and saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 30, "system.attributes.movement.walk"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.check.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.ability.save.str"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.check.disadvantage"),
-          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.save.disadvantage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("str"),
         ],
       },
       {
@@ -47,15 +41,9 @@ export default class AdjustDensity extends DDBEnricherData {
           description: "Speed -10 ft, advantage on Strength checks and saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-10", 30, "system.attributes.movement.walk"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.check.advantage"),
-          DDBEnricherData.ChangeHelper.ac5eChange("ability.str", 20, "flags.automated-conditions-5e.save.advantage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.advantageAbilityCheckChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
         ],
       },
     ];

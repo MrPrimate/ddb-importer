@@ -4,7 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ElementalAffinity extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
   get damageTypes(): string[] {

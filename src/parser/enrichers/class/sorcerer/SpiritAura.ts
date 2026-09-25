@@ -71,7 +71,7 @@ export default class SpiritAura extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "3",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { allowed: false, max: "" },
               },
             ],

@@ -27,7 +27,8 @@ export default class BlessedChosen extends DDBEnricherData {
         name: "Blessed Chosen: Disadvantage",
         options: {
           durationRounds: 1,
-          description: "Disadvantage on the triggering attack roll.",
+          expiry: "turnEnd",
+          description: "Disadvantage on the triggering attack roll. Without AC5e the effect lasts for every attack until the end of the turn.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),

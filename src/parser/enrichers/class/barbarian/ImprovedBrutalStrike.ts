@@ -61,18 +61,19 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
       {
         name: "Staggered: Opportunity Attacks",
         options: {
+          expiry: "sourceStart",
           description: `Can't make opportunity attacks.`,
         },
         activityMatch: "Staggering Blow",
-        daeSpecialDurations: ["turnStartSource"],
       },
       {
         name: "Staggered: Saving Throws",
         changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value)),
         options: {
+          expiry: "sourceStart",
           description: `Disadvantage on next saving throw.`,
         },
-        daeSpecialDurations: ["turnStartSource", "isSave" as const],
+        daeSpecialDurations: ["isSave"],
         activityMatch: "Staggering Blow",
       },
       {

@@ -21,12 +21,12 @@ export default class LargeForm extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [
       {
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
-        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.width"),
           DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.height"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
         ],
       },
     ];

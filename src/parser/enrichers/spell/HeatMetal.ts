@@ -11,6 +11,7 @@ export default class HeatMetal extends DDBEnricherData {
           noSpellslot: true,
           noConsumeTargets: true,
           data: {
+            duration: { override: true, units: "inst", concentration: false },
             type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
           },
         },
@@ -21,6 +22,8 @@ export default class HeatMetal extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateDamage: false,
           generateSave: true,
           noSpellslot: true,

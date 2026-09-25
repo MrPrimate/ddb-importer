@@ -33,7 +33,7 @@ export default class Invisibility extends DDBEnricherData {
         daeStackable: "noneName",
         daeSpecialDurations: improvedEffect
           ? []
-          : ["1Attack" as const, "1Spell" as const, "1Action" as const],
+          : ["1Attack", "1Spell" as const, "1Action" as const],
         midiProperties: {
           concentration: true,
         },
@@ -50,7 +50,7 @@ export default class Invisibility extends DDBEnricherData {
         daeStackable: "noneName",
         daeSpecialDurations: improvedEffect
           ? []
-          : ["1Attack" as const, "1Spell" as const, "1Action" as const],
+          : ["1Attack", "1Spell" as const, "1Action" as const],
         midiProperties: {
           concentration: true,
         },

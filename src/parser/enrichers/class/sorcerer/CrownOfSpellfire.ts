@@ -125,7 +125,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "5",
-                target: "sorcery-points",
+                target: "feat:sorcery-points",
                 scaling: { mode: "", formula: "" },
               },
             ],

@@ -25,7 +25,9 @@ export default class HexWarrior extends DDBEnricherData {
         ignoreTransfer: true,
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Hex Weapon]`, 20, "name"),
-          DDBEnricherData.ChangeHelper.overrideChange("cha", 20, "system.ability"),
+          // the attack activity's own ability, which makes the weapon roll with Charisma. The legacy
+          // "system.ability" key only adds to the candidate abilities through a dnd5e shim
+          DDBEnricherData.ChangeHelper.overrideChange("cha", 20, "activities[attack].attack.ability"),
         ],
       },
     ];

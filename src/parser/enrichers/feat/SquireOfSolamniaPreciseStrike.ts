@@ -44,7 +44,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "squireOfSolamnia.js", document: this.data },
         ],
-        daeSpecialDurations: ["1Attack" as const],
+        daeSpecialDurations: ["1Attack"],
         data: {
           flags: {
             dae: {

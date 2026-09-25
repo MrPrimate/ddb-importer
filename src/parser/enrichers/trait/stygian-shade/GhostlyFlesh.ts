@@ -28,6 +28,8 @@ export default class GhostlyFlesh extends DDBEnricherData {
           generateActivation: true,
           activationOverride: { type: "bonus", condition: "" },
         },
+        overrides: {
+        },
       },
     ];
   }

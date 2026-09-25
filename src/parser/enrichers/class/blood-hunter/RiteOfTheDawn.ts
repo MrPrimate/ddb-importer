@@ -53,9 +53,9 @@ export default class RiteOfTheDawn extends _CrimsonRite {
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("necrotic"),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", 20, 20),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", 40, 20),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.bright", "upgrade", 20, 20),
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.dim", "upgrade", 40, 20),
         ],
       },
     ];

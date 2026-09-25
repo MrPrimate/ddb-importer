@@ -101,6 +101,8 @@ export default class DreadHand extends DDBEnricherData {
             condition: "The first time you miss with an Unarmed Strike each turn",
           },
         },
+        overrides: {
+        },
       },
     ];
   }

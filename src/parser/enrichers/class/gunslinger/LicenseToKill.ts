@@ -10,6 +10,7 @@ export default class LicenseToKill extends DDBEnricherData {
     return {
       targetType: "creature",
       targetCount: 1,
+      rangeType: "any",
       activationType: "special",
       activationCondition: "You deal damage with a Ranged weapon (Risk Dice explode on their highest number)",
       addItemConsume: true,
@@ -21,7 +22,7 @@ export default class LicenseToKill extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: "1@scale.gunslinger.risk.die",
-              types: ["bludgeoning", "piercing", "slashing"],
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },

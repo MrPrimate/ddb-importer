@@ -39,6 +39,8 @@ export default class StormSphere extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateAttack: true,
           generateConsumption: false,
           generateActivation: true,
@@ -48,6 +50,7 @@ export default class StormSphere extends DDBEnricherData {
           targetType: "enemy",
           noTemplate: true,
           activationType: "bonus",
+          noSpellslot: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
               number: 4,

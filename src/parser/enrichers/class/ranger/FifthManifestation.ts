@@ -53,6 +53,8 @@ export default class FifthManifestation extends DDBEnricherData {
             }),
           ],
         },
+        overrides: {
+        },
       },
     ];
   }

@@ -11,6 +11,11 @@ export default class GatheredSwarm extends DDBEnricherData {
       name: "Extra Damage",
       activationType: "special",
       targetType: "creature",
+      func: ({ activity }: { activity: IActivityData }) => {
+        for (const part of activity.damage?.parts ?? []) {
+          part.types = ["piercing"];
+        }
+      },
     };
   }
 
@@ -23,6 +28,8 @@ export default class GatheredSwarm extends DDBEnricherData {
         },
         build: {
           generateDamage: false,
+          generateSave: true,
+          saveOverride: { ability: ["str"], dc: { calculation: "spellcasting", formula: "" } },
         },
         overrides: {
           activationType: "special",

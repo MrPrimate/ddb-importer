@@ -10,6 +10,7 @@ export default class EverReadyShot extends DDBEnricherData {
     return {
       name: "Regain 1 Use",
       addItemConsume: true,
+      itemConsumeTargetName: "Arcane Shot",
       itemConsumeValue: "-1",
       activationType: "encounter",
     };

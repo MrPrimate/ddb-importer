@@ -1,3 +1,4 @@
+import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinity extends DDBEnricherData {
@@ -23,35 +24,59 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
+  /**
+   * 2014 Channel Divinity options keyed by the oath that grants them. Oaths carry a source
+   * suffix on some DDB builds ("Oath of Conquest (XGtE)") and not others, so they are matched
+   * on the name before any parenthesis. Mark of the Heretic and Inquisitor's Eye have no known
+   * oath and are included only when the character carries the action.
+   */
+  static OATH_OPTIONS_2014: Record<string, string[]> = {
+    "Oath of Devotion": ["Sacred Weapon", "Turn the Unholy"],
+    "Oath of the Ancients": ["Nature’s Wrath", "Turn the Faithless"],
+    "Oath of Vengeance": ["Abjure Enemy", "Vow of Enmity"],
+    "Oath of Glory": ["Peerless Athlete", "Inspiring Smite"],
+    "Oathbreaker": ["Control Undead", "Dreadful Aspect"],
+    "Oath of Conquest": ["Conquering Presence", "Guided Strike"],
+    "Oath of Redemption": ["Emissary of Peace", "Rebuke the Violent"],
+    "Oath of the Crown": ["Champion Challenge", "Turn the Tide"],
+    "Oath of the Watchers": ["Watcher's Will", "Abjure the Extraplanar"],
+    "Oath of the Harvest": ["Vow of Sustenance", "Share Vitality"],
+    "Oath of the Open Sea": ["Marine Layer", "Fury of the Tides"],
+    "Oath of the Spelldrinker": ["Absorb Magic", "Expeditious Command"],
+    "": ["Mark of the Heretic", "Inquisitor's Eye"],
+  };
+
+  /** Subclass names of the character's classes, with any source suffix removed. */
+  get _characterOathNames(): string[] {
+    const classes = this.ddbParser?.ddbData?.character.classes ?? [];
+    return classes
+      .map((klass) => klass.subclassDefinition?.name)
+      .filter((name): name is string => Boolean(name))
+      .map((name) => name.split("(")[0].trim());
+  }
+
+  _characterHasClassAction(name: string): boolean {
+    const wanted = utils.nameString(name);
+    return (this.ddbParser?.ddbData?.character.actions.class ?? []).some((action) =>
+      utils.nameString(action.name) === wanted,
+    );
+  }
+
   get _additionalActivitiesPaladin2014(): IDDBAdditionalActivity[] {
-    return [
-      { action: { name: "Channel Divinity: Sacred Weapon", type: "class" } },
-      { action: { name: "Channel Divinity: Turn the Unholy", type: "class" } },
-      { action: { name: "Channel Divinity: Conquering Presence", type: "class" } },
-      { action: { name: "Channel Divinity: Guided Strike", type: "class" } },
-      { action: { name: "Channel Divinity: Peerless Athlete", type: "class" } },
-      { action: { name: "Channel Divinity: Inspiring Smite", type: "class" } },
-      { action: { name: "Channel Divinity: Emissary of Peace", type: "class" } },
-      { action: { name: "Channel Divinity: Rebuke the Violent", type: "class" } },
-      { action: { name: "Channel Divinity: Nature’s Wrath", type: "class" } },
-      { action: { name: "Channel Divinity: Turn the Faithless", type: "class" } },
-      { action: { name: "Channel Divinity: Champion Challenge", type: "class" } },
-      { action: { name: "Channel Divinity: Turn the Tide", type: "class" } },
-      { action: { name: "Channel Divinity: Watcher's Will", type: "class" } },
-      { action: { name: "Channel Divinity: Abjure the Extraplanar", type: "class" } },
-      { action: { name: "Channel Divinity: Abjure Enemy", type: "class" } },
-      { action: { name: "Channel Divinity: Vow of Enmity", type: "class" } },
-      { action: { name: "Channel Divinity: Control Undead", type: "class" } },
-      { action: { name: "Channel Divinity: Dreadful Aspect", type: "class" } },
-      { action: { name: "Channel Divinity: Vow of Sustenance", type: "class" } },
-      { action: { name: "Channel Divinity: Share Vitality", type: "class" } },
-      { action: { name: "Channel Divinity: Marine Layer", type: "class" } },
-      { action: { name: "Channel Divinity: Fury of the Tides", type: "class" } },
-      { action: { name: "Channel Divinity: Absorb Magic", type: "class" } },
-      { action: { name: "Channel Divinity: Expeditious Command", type: "class" } },
-      { action: { name: "Channel Divinity: Mark of the Heretic", type: "class" } },
-      { action: { name: "Channel Divinity: Inquisitor's Eye", type: "class" } },
-    ];
+    const oaths = this._characterOathNames;
+    const results: IDDBAdditionalActivity[] = [];
+    for (const [oath, options] of Object.entries(ChannelDivinity.OATH_OPTIONS_2014)) {
+      for (const option of options) {
+        const name = `Channel Divinity: ${option}`;
+        // the muncher wants every option; a character gets its own oath's, so a missing
+        // action still warns for the oath it has and stays silent for the ones it does not
+        const wanted = this.ddbParser.isMuncher
+          || (oath !== "" && oaths.includes(oath))
+          || this._characterHasClassAction(name);
+        if (wanted) results.push({ action: { name, type: "class" } });
+      }
+    }
+    return results;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

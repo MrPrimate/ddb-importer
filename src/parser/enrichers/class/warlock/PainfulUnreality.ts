@@ -24,10 +24,9 @@ export default class PainfulUnreality extends DDBEnricherData {
         name: "Painful Unreality: Stunned",
         statuses: ["Stunned"],
         options: {
-          durationTurns: 1,
+          expiry: "targetEnd",
           description: "Stunned until the end of its next turn (on a failed save only).",
         },
-        daeSpecialDurations: ["turnEnd"],
       },
     ];
   }

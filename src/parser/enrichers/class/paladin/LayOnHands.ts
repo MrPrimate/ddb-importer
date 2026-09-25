@@ -22,7 +22,7 @@ export default class LayOnHands extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
+    const macro: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Lay On Hands Macro",
@@ -42,8 +42,48 @@ export default class LayOnHands extends DDBEnricherData {
           },
         },
       },
-      { action: { name: "Lay On Hands: Purify Poison", type: "class", rename: ["Purify Poison"] } },
     ];
+    if (this.is2014) {
+      // DDB folds the 2014 cure into the pool action's text and ships no action for it
+      return [...macro, this._cureDiseaseActivity2014];
+    }
+    return [...macro, { action: { name: "Lay On Hands: Purify Poison", type: "class", rename: ["Purify Poison"] } }];
+  }
+
+  get _cureDiseaseActivity2014(): IDDBAdditionalActivity {
+    return {
+      init: {
+        name: "Cure Disease / Neutralize Poison",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+      },
+      build: {
+        generateActivation: true,
+        generateConsumption: true,
+        generateRange: true,
+        generateTarget: true,
+        consumptionOverride: {
+          targets: [
+            {
+              type: "itemUses",
+              target: "",
+              value: "5",
+              scaling: { mode: "", formula: "" },
+            },
+          ],
+          scaling: { allowed: false, max: "" },
+        },
+        rangeOverride: {
+          units: "touch",
+          value: "",
+        },
+        targetOverride: {
+          affects: {
+            count: "1",
+            type: "creature",
+          },
+        },
+      },
+    };
   }
 
   override get override(): IDDBOverrideData {

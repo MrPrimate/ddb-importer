@@ -69,6 +69,7 @@ export default class AnimalShapes extends DDBEnricherData {
         overrides: {
           name: "Follow Up Animal Shape",
           noConsumeTargets: true,
+          removeSpellSlotConsume: true,
           activationType: "action",
           data: {
             settings: {

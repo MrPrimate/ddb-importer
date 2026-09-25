@@ -94,10 +94,14 @@ export default class EerieToken extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData | null {
-    const uses = this._getGeneratedUses({
-      type: "class",
-      name: "Eerie Token",
-    });
+    // The species action lives in the race bucket. 2014 ships three separate actions with no
+    // limited use, so its once-per-long-rest token is stated here.
+    const uses: I5eSystemLimitedUses = this.is2014
+      ? { max: "1", recovery: [{ period: "lr", type: "recoverAll", formula: undefined }] }
+      : this._getGeneratedUses({
+        type: "race",
+        name: "Eerie Token",
+      });
     return {
       uses,
     };
@@ -239,7 +243,7 @@ export default class EerieToken extends DDBEnricherData {
           "value": 0,
           "units": "lb",
         },
-        "rarity": "",
+        rarity: "",
         "properties": [
           "mgc",
         ],

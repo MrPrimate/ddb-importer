@@ -62,14 +62,10 @@ export default class AbsorbElements extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.msak.damage"),
         ],
-        daeSpecialDurations: ["DamageDealt", "turnEnd"],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnEnd",
-            units: "seconds",
-          },
-        },
+        // "the first time you hit with a melee attack on your next turn" - the effect
+        // rides the caster, so the caster's turn end is the bound
+        options: { expiry: "sourceEnd" },
+        daeSpecialDurations: ["DamageDealt"],
       },
       {
         name: `${this.data.name}: Resistance`,
@@ -77,14 +73,7 @@ export default class AbsorbElements extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
-        daeSpecialDurations: ["turnStartSource"],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnEnd",
-            units: "seconds",
-          },
-        },
+        options: { expiry: "sourceStart" },
       },
     ];
     return [...noMidiEffects, ...midiEffects];

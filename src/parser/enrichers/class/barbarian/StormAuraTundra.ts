@@ -22,7 +22,7 @@ export default class StormAuraTundra extends DDBEnricherData {
           },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.path-of-the-storm-herald.storm-aura-tundra",
+          customFormula: "@scale.storm-herald.storm-aura-tundra",
           types: ["temphp"],
         }),
       },

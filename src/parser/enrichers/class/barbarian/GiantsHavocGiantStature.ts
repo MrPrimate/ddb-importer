@@ -17,12 +17,12 @@ export default class GiantsHavocGiantStature extends DDBEnricherData {
     return [
       {
         name: "Giant Stature",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
-        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.width"),
           DDBEnricherData.ChangeHelper.upgradeChange(2, 5, "ATL.height"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
         ],
       },
     ];

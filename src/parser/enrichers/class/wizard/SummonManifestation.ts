@@ -49,10 +49,9 @@ export default class SummonManifestation extends DDBEnricherData {
       {
         name: "Blinded",
         options: {
-          durationTurns: 1,
+          expiry: "targetEnd",
           description: "Blinded until the end of its next turn (failed save only).",
         },
-        daeSpecialDurations: ["turnEnd"],
         statuses: ["Blinded"],
       },
     ];

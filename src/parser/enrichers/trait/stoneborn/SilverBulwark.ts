@@ -11,10 +11,9 @@ export default class SilverBulwark extends DDBEnricherData {
       {
         name: "Silver Bulwark",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Resistance to Bludgeoning, Piercing and Slashing damage until the start of your next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),

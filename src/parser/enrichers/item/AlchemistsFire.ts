@@ -52,7 +52,7 @@ export default class AlchemistsFire extends DDBEnricherData {
             generateCheck: true,
             checkOverride: {
               associated: [],
-              ability: ["dex"],
+              ability: "dex",
               dc: {
                 calculation: "",
                 formula: "10",

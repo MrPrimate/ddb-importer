@@ -49,11 +49,9 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
         activityMatch: "Enchant Weapon",
         name: `Fangs of the Fire Snake`,
         options: {
+          expiry: "sourceEnd",
           description: `This weapon is infused with elemental energy.`,
-          durationTurns: 1,
-          durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnEndSource" as const],
         data: {
           flags: {
             ddbimporter: {

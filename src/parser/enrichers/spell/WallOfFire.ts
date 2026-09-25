@@ -60,6 +60,7 @@ export default class WallOfFire extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
           img: "icons/magic/fire/flame-burning-skeleton-explosion.webp",
           generateDamage: true,
           generateConsumption: false,

@@ -24,11 +24,10 @@ export default class PathToTheGrave extends DDBEnricherData {
       {
         activityMatch: "Activate Path to the Grave",
         name: "Cursed",
+        statuses: ["Cursed"],
         options: {
-          durationSeconds: 6,
-          expiry: "turnStart",
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability.value)),
       },
     ];

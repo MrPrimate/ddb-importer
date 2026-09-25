@@ -20,9 +20,10 @@ export default class InspiredEclipse extends DDBEnricherData {
       {
         statuses: ["Invisible"],
         options: {
-          durationSeconds: 6,
+          // "This invisibility lasts until the start of your next turn" - a self buff
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStart" as const, "1Attack" as const, "1Spell" as const],
+        daeSpecialDurations: ["1Attack", "1Spell"],
       },
     ];
   }

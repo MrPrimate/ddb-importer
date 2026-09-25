@@ -13,7 +13,7 @@ export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@ability.wis.mod",
+              customFormula: "@abilities.wis.mod",
               types: ["cold", "fire", "lightning", "thunder"],
             }),
           ],

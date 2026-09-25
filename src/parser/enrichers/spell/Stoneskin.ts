@@ -12,7 +12,7 @@ export default class Stoneskin extends DDBEnricherData {
           // {
           //   key: "system.traits.dr.bypass",
           //   value: "mgc",
-          //   mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          //   mode: "add",
           //   priority: 0,
           // },
         ],

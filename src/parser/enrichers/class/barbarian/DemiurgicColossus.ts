@@ -17,12 +17,12 @@ export default class DemiurgicColossus extends DDBEnricherData {
     return [
       {
         name: "Demiurgic Colossus",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("hg", 20, "system.traits.size"),
-        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange(3, 5, "ATL.width"),
           DDBEnricherData.ChangeHelper.upgradeChange(3, 5, "ATL.height"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("hg", 20, "system.traits.size"),
         ],
       },
     ];

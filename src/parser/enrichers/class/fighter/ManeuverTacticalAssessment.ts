@@ -20,7 +20,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
           name: "Roll Check (Apply Effect First)",
           check: {
             associated: ["his", "inv", "ins"],
-            ability: [],
+            ability: "",
             dc: {
               calculation: "",
               formula: "",

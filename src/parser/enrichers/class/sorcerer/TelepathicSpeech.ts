@@ -11,7 +11,7 @@ export default class TelepathicSpeech extends DDBEnricherData {
       targetCount: "1",
       data: {
         range: {
-          value: "min(1, @abilities.cha.mod)",
+          value: "max(1, @abilities.cha.mod)",
           units: "mi",
         },
         duration: {

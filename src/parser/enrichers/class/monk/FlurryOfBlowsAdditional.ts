@@ -36,10 +36,9 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
           name: "Addled",
           activityMatch: "Addle",
           options: {
-            durationTurns: 1,
+            expiry: "targetStart",
             description: "Target cannot make opportunity attacks",
           },
-          daeSpecialDurations: ["turnStart" as const],
         },
       ];
     }

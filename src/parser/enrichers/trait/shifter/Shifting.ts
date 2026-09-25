@@ -150,7 +150,7 @@ export default class Shifting extends DDBEnricherData {
           _id: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
           duration: {
             value: null,
-            units: undefined,
+            units: null,
           },
           flags: {
             ddbimporter: {

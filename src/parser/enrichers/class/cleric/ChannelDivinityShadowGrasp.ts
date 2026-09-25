@@ -26,19 +26,17 @@ export default class ChannelDivinityShadowGrasp extends DDBEnricherData {
         name: "Shadow Grasp: Restrained",
         statuses: ["Restrained"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Restrained by its shadow until the end of the cleric's next turn (failed save).",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
       {
         name: "Shadow Grasp: Grappled",
         statuses: ["Grappled"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Grappled by its shadow until the end of the cleric's next turn (successful save).",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

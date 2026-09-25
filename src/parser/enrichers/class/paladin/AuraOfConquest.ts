@@ -10,7 +10,7 @@ export default class AuraOfConquest extends DDBEnricherData {
     return {
       name: "Damage",
       noeffect: true,
-      targetType: "creature",
+      targetType: "enemy",
       data: {
         range: {
           value: "@scale.conquest.aura-of-conquest",
@@ -19,10 +19,24 @@ export default class AuraOfConquest extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.paladin.levels",
+              customFormula: "floor(@classes.paladin.levels / 2)",
               types: ["psychic"],
             }),
           ],
+        },
+      },
+    };
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            // the aura-of-conquest scale is the aura's radius; without this the character import
+            // (CharacterFeatureFactory._setLevelScales) swaps it in as the damage formula
+            skipScale: true,
+          },
         },
       },
     };

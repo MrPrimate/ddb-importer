@@ -1,71 +1,12 @@
-import { DICTIONARY } from "../../../config/_module";
-import { logger } from "../../../lib/_module";
-import { DDBModifiers } from "../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Eldritch Blast: a plain 1d10 force attack. The invocations that modify it (Agonizing Blast
+ * damage, Eldritch Spear range, Repelling Blast) are enchantments on their own feature documents
+ * that the character importer's enchantment step applies to this spell, so nothing from the DDB
+ * eldritch-blast modifiers is baked in here; doing both would double them.
+ */
 export default class EldritchBlast extends DDBEnricherData {
-
-  _getEldritchInvocations() {
-    let damage = "";
-    let range = 0;
-
-    const eldritchBlastMods = DDBModifiers.filterBaseModifiers(this.ddbParser.ddbData, "eldritch-blast").filter((modifier) => modifier.isGranted);
-
-    eldritchBlastMods.forEach((mod) => {
-      switch (mod.subType) {
-        case "bonus-damage": {
-          // almost certainly CHA :D
-          const abilityModifierLookup = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
-          if (abilityModifierLookup) {
-            if (damage !== "") damage += " + ";
-            damage += `@abilities.${abilityModifierLookup.value}.mod`;
-          } else if (mod.fixedValue) {
-            if (damage !== "") damage += " + ";
-            damage += `${mod.fixedValue}`;
-          }
-          break;
-        }
-        case "bonus-range":
-          range = parseInt(String(mod.value));
-          break;
-        default:
-          logger.warn(`Not yet able to process ${mod.subType}, please raise an issue.`);
-      }
-    });
-
-    return {
-      damage: damage,
-      range: range,
-    };
-  }
-
-  eldritchBlastRangeAdjustments(initialRange: number) {
-    const eldritchBlastMods = this.ddbParser.isMuncher
-      ? null
-      : this.ddbParser.ddbData
-        ? this._getEldritchInvocations()
-        : null;
-
-    if (eldritchBlastMods && foundry.utils.hasProperty(eldritchBlastMods, "range") && Number.isInteger(eldritchBlastMods.range)) {
-      const range = Number.parseInt(String(initialRange)) + eldritchBlastMods.range;
-      return `${range}`;
-    }
-    return initialRange;
-  }
-
-  eldritchBlastDamageBonus() {
-    const eldritchBlastMods = this.ddbParser.isMuncher
-      ? null
-      : this.ddbParser.ddbData
-        ? this._getEldritchInvocations()
-        : null;
-    const bonus = eldritchBlastMods?.damage
-      ? `${eldritchBlastMods["damage"]}`
-      : "";
-
-    return bonus;
-  }
-
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
@@ -75,16 +16,8 @@ export default class EldritchBlast extends DDBEnricherData {
     return {
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none" })],
         },
-      },
-    };
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        "system.range.value": this.eldritchBlastRangeAdjustments((foundry.utils.getProperty(this.ddbParser.ddbDefinition, "range.rangeValue") as number) ?? 0),
       },
     };
   }

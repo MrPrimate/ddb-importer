@@ -1,19 +1,15 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Misfortune from "./Misfortune";
 
-export default class MisfortunesCurseOfTheUnlucky extends DDBEnricherData {
+export default class MisfortunesCurseOfTheUnlucky extends Misfortune {
 
-  override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  override get jinxCost(): number {
+    return 3;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Curse of the Unlucky",
-      targetType: "creature",
+      ...super.activity,
       activationType: "bonus",
-      addItemConsume: true,
-      itemConsumeTargetName: "Misfortunist",
-      itemConsumeValue: "3",
     };
   }
 
@@ -21,28 +17,19 @@ export default class MisfortunesCurseOfTheUnlucky extends DDBEnricherData {
     return [
       {
         name: "Curse of the Unlucky",
+        statuses: ["Cursed"],
         options: {
           description: "Subtract 1d4 from this creature's attack rolls and saving throws while it remains cursed by the rogue's Evil Eye.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.mwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rwak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rsak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
+          Misfortune.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.mwak.attack"),
+          Misfortune.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rwak.attack"),
+          Misfortune.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.msak.attack"),
+          Misfortune.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.rsak.attack"),
+          Misfortune.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
         ],
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        system: {
-          uses: { spent: null, max: "", recovery: [] },
-        },
-      },
-    };
   }
 
 }

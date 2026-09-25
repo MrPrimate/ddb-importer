@@ -10,16 +10,11 @@ export default class KeenSenses extends DDBEnricherData {
       {
         options: {
           transfer: true,
-          description: "Advantage on Wisdom (Perception) checks. AC5e cannot restrict this to checks that rely on the listed sense.",
+          description: "Advantage on Wisdom (Perception) checks. This cannot be restricted to checks that rely on the listed sense.",
         },
         name: this.name,
-        ac5eOnly: true,
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange(
-            "skill.prc",
-            20,
-            "flags.automated-conditions-5e.skill.advantage",
-          ),
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageSkillChange("prc"),
         ],
       },
     ];

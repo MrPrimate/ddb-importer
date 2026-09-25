@@ -46,10 +46,9 @@ export default class MenacingRoar extends DDBEnricherData {
         name: "Frightened",
         statuses: ["Frightened"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "Frightened until the end of your next turn.",
         },
-        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

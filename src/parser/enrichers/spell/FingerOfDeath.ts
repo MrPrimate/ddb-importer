@@ -19,6 +19,7 @@ export default class FingerOfDeath extends DDBEnricherData {
         },
         build: {
           generateSummon: true,
+          noSpellslot: true,
         },
         overrides: {
           noTemplate: true,

@@ -32,11 +32,10 @@ export default class Crusher extends DDBEnricherData {
       {
         name: "Crushed: Enhanced Critical",
         options: {
-          durationSeconds: 6,
+          expiry: "sourceStart",
           description: "Attack rolls against the creature have advantage until the start of the origin's next turn",
         },
         activitiesMatch: ["Enhanced Critical"],
-        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
@@ -50,6 +49,7 @@ export default class Crusher extends DDBEnricherData {
           transfer: true,
           durationSeconds: undefined,
           durationRounds: undefined,
+          expiry: null,
         },
         damageBonusMacroChanges: [
           { macroType: "feat", macroName: "crusher.js", document: this.data },
@@ -61,7 +61,6 @@ export default class Crusher extends DDBEnricherData {
             expired: undefined,
           },
         },
-        daeSpecialDurations: [],
       },
     ];
 

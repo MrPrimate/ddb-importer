@@ -10,7 +10,7 @@ export default class GreaterDisciplineCelerity extends DDBEnricherData {
     return {
       targetType: "self",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
     };
   }
 

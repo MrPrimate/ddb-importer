@@ -45,16 +45,9 @@ export default class Dragonscarred extends DDBEnricherData {
     const effects: IDDBEffectHint[] = [
       {
         name: "Frightened",
-        daeSpecialDurations: ["turnEndSource"],
+        options: { expiry: "sourceEnd" },
         statuses: ["Frightened"],
         activityMatch: "Fearsome Power",
-        data: {
-          duration: {
-            value: 6,
-            units: "seconds",
-            expiry: "turnEnd",
-          },
-        },
       },
     ];
 

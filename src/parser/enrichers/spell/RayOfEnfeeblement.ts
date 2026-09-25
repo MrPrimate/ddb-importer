@@ -20,6 +20,8 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateSave: true,
           generateTarget: true,
           noSpellslot: true,
@@ -61,10 +63,10 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           name: "Briefly Enfeebled",
           activityMatch: "Cast",
           options: {
-            durationSeconds: 6,
+            expiry: "sourceStart",
             description: this.ddbParser?.ddbDefinition?.description ?? "",
           },
-          daeSpecialDurations: ["1Attack" as const],
+          daeSpecialDurations: ["1Attack"],
         },
         {
           name: "Enfeebled",

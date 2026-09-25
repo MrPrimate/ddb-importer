@@ -13,6 +13,7 @@ export default class WailsFromTheGrave extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       noTemplate: true,
+      removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({
           customFormula: "(ceil(@scale.rogue.sneak-attack.number / 2))d@scale.rogue.sneak-attack.faces",

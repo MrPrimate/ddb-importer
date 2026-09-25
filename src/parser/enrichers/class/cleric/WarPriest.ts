@@ -6,6 +6,14 @@ export default class WarPriest extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Bonus Attack",
+      activationType: "bonus",
+      targetType: "self",
+    };
+  }
+
   override get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",

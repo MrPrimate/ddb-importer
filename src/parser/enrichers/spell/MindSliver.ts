@@ -8,7 +8,9 @@ export default class MindSliver extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.addChange("-1d4", 20, "system.bonuses.abilities.save"),
         ],
-        daeSpecialDurations: ["isSave" as const],
+        daeSpecialDurations: ["isSave"],
+        // "subtract 1d4 from the next saving throw it makes before the end of your next turn"
+        options: { expiry: "sourceEnd" },
       },
     ];
   }

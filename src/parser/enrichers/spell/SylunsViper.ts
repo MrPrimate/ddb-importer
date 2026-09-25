@@ -42,10 +42,8 @@ export default class SylunsViper extends DDBEnricherData {
         name: "Viper Poison",
         activityMatch: "Spectral Snake Attack",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         statuses: ["Poisoned", "Incapacitated"],
       },
     ];

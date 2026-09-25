@@ -96,10 +96,10 @@ export default class CabalsRuin extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(damageType, 20),
         ],
-        daeSpecialDurations: ["turnEnd"],
         options: {
+          // "This resistance then lasts until the end of your next turn" - on the wearer
+          expiry: "sourceEnd",
           transfer: false,
-          durationRounds: 1,
         },
       } as IDDBEffectHint;
     });

@@ -62,9 +62,9 @@ export default class DreadAmbusher extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.addChange("10", 10, "system.attributes.movement.walk"),
         ],
         options: {
-          durationSeconds: 6,
+          // "your Speed increases by 10 feet until the end of that turn" - a self buff
+          expiry: "turnEnd",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

@@ -37,6 +37,8 @@ export default class MythicSwashbuckler extends DDBEnricherData {
           activationOverride: { type: "bonus", value: 1, condition: "" },
           rangeOverride: { value: "5", units: "ft", special: "" },
         },
+        overrides: {
+        },
       },
       {
         init: {
@@ -52,6 +54,8 @@ export default class MythicSwashbuckler extends DDBEnricherData {
           generateConsumption: false,
           activationOverride: { type: "bonus", value: 1, condition: "" },
           rangeOverride: { value: "5", units: "ft", special: "" },
+        },
+        overrides: {
         },
       },
       {
@@ -73,6 +77,8 @@ export default class MythicSwashbuckler extends DDBEnricherData {
             condition: "When you are within 5 feet of a creature and no other creature is within 5 feet of you",
           },
           rangeOverride: { value: "5", units: "ft", special: "" },
+        },
+        overrides: {
         },
       },
     ];

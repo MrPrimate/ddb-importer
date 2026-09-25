@@ -49,6 +49,8 @@ export default class PartyAnimal extends DDBEnricherData {
             name: "Roll",
           },
         },
+        overrides: {
+        },
       },
       {
         init: {
@@ -67,6 +69,8 @@ export default class PartyAnimal extends DDBEnricherData {
             value: null,
             condition: "At the start of each of your turns",
           },
+        },
+        overrides: {
         },
       },
     ];

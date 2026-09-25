@@ -98,11 +98,11 @@ export default class BurningSpirit extends DDBEnricherData {
           description: "You shed Bright Light in your Aura of Protection and Dim Light for an additional 30 feet, your Speed increases by 10 feet, and you can move through other creatures' spaces.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("10", 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.movementBonusChange("10", 20),
         ],
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "@scale.paladin.aura-of-protection", 20),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "@scale.paladin.aura-of-protection + 30", 20),
+        tokenChanges: [
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.bright", "upgrade", "@scale.paladin.aura-of-protection", 20),
+          DDBEnricherData.ChangeHelper.tokenChange("token.light.dim", "upgrade", "@scale.paladin.aura-of-protection + 30", 20),
         ],
       },
     ];

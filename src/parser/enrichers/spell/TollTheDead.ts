@@ -15,7 +15,7 @@ export default class TollTheDead extends DDBEnricherData {
               number: 1,
               denomination: 12,
               type: "necrotic",
-              bonus: this.ddbParser.cantripBoost ? "+@mod" : "",
+              bonus: "cantripBoost" in this.ddbParser && this.ddbParser.cantripBoost ? "+@mod" : "",
             }),
           ],
           generateSave: true,

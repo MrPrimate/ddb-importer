@@ -32,9 +32,8 @@ export default class CloseQuarters extends DDBEnricherData {
       {
         name: "Off Balance",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
-        daeSpecialDurations: ["turnStartSource"],
         ac5eChanges: [
           // automated-conditions-5e: disadvantage on the target's next attack
           DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),

@@ -45,8 +45,9 @@ export default class WallOfThorns extends DDBEnricherData {
             template: {
               count: "1",
               contiguous: false,
+              // "a circle that has a 20-foot diameter and is up to 20 feet high and 5 feet thick"
               type: "cylinder",
-              size: "20",
+              size: "10",
               height: "20",
               width: "5",
               units: "ft",
@@ -61,6 +62,7 @@ export default class WallOfThorns extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: true,
           generateConsumption: false,
           generateSave: true,

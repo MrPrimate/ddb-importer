@@ -77,7 +77,7 @@ export default class ArcanePrototype extends DDBEnricherData {
       const spellChoice = choices.find((c) =>
         c.parentChoiceId === outer.id && c.label === "Choose a Spell" && c.optionValue != null,
       );
-      if (!spellChoice) continue;
+      if (spellChoice?.optionValue == null) continue;
 
       results.push({
         slotFeatureId: slot.id,

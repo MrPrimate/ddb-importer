@@ -18,10 +18,10 @@ export default class ViciousMockery extends DDBEnricherData {
     return [
       {
         name: "Vicious Mockery",
-        daeSpecialDurations: ["1Attack", "turnEnd"],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
-        ],
+        options: {
+          description: "Disadvantage on the next attack roll made before the end of the target's next turn.",
+        },
+        daeSpecialDurations: ["1Attack" as const, "turnEnd" as const],
       },
       {
         midiOnly: true,

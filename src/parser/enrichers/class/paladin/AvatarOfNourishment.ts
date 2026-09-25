@@ -49,6 +49,8 @@ export default class AvatarOfNourishment extends DDBEnricherData {
             type: "healing",
           }),
         },
+        overrides: {
+        },
       },
       {
         init: {
@@ -77,6 +79,8 @@ export default class AvatarOfNourishment extends DDBEnricherData {
             types: ["temphp"],
           }),
         },
+        overrides: {
+        },
       },
       {
         init: {
@@ -101,6 +105,8 @@ export default class AvatarOfNourishment extends DDBEnricherData {
             units: "ft",
             special: "",
           },
+        },
+        overrides: {
         },
       },
     ];

@@ -54,28 +54,27 @@ export default class WoodWose extends DDBEnricherData {
         activityMatch: "Wood Wose",
         options: {
           durationSeconds: 600,
-          description: "While you aren't wearing armor, your base Armor Class is 10 plus your Dexterity and Wisdom modifiers, and you have Advantage on Strength and Constitution saving throws.",
+          description: "While you aren't wearing armor, your base Armor Class is 10 plus your Dexterity and Wisdom modifiers (applied as a minimum AC; a shield is not added on top of it), and you have Advantage on Strength and Constitution saving throws.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("custom", 10, "system.attributes.ac.calc"),
-          DDBEnricherData.ChangeHelper.overrideChange("10 + @abilities.dex.mod + @abilities.wis.mod", 15, "system.attributes.ac.formula"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.ability.save.con"),
+          // a minimum, so an AC that is already higher is kept
+          DDBEnricherData.ChangeHelper.upgradeChange("10 + @abilities.dex.mod + @abilities.wis.mod", 20, "system.attributes.ac.min"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("str"),
+          DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("con"),
         ],
       },
       {
         name: "Coated in Elderwood Sap",
         activityMatch: "Elderwood Sap",
         options: {
-          durationTurns: 1,
+          durationSeconds: 6,
+          durationRounds: 1,
+          expiry: "sourceStart",
           description: "While coated in Elderwood sap, the target has Disadvantage on attack rolls against targets other than the druid.",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

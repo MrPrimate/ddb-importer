@@ -45,7 +45,7 @@ export default class UmbralForm extends DDBEnricherData {
                 {
                   type: "itemUses",
                   value: "6",
-                  target: "sorcery-points",
+                  target: "feat:sorcery-points",
                   scaling: { allowed: false, max: "" },
                 },
               ],
@@ -59,6 +59,7 @@ export default class UmbralForm extends DDBEnricherData {
     return [
       {
         name: "Umbral Form",
+        statuses: ["Transformed"],
         changes: DDBEnricherData.allDamageTypes(["force", "radiant"]).map((t) => {
           return DDBEnricherData.ChangeHelper.damageResistanceChange(t);
         }),

@@ -7,8 +7,10 @@ export default class SorceryPoints extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    // 2014 sorcerers ship "Convert Sorcery Points", which DDBAction skips as a standalone
+    // document so that it can live here instead
     return this.is2014
-      ? [{ action: { name: "Font of Magic", type: "class" } }]
+      ? [{ action: { name: "Convert Sorcery Points", type: "class" } }]
       : [{ action: { name: "Font of Magic: Sorcery Points", type: "class" } }];
 
   }

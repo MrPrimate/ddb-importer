@@ -2,6 +2,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class MetamagicAdept extends DDBEnricherData {
 
+  override get useDefaultAdditionalActivities(): boolean {
+    return true;
+  }
 
   override get override(): IDDBOverrideData {
     return {

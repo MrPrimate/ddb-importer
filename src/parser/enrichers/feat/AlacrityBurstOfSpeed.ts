@@ -12,7 +12,7 @@ export default class AlacrityBurstOfSpeed extends DDBEnricherData {
       activationType: "bonus",
       activationCondition: "Extra action usable only for Attack (one attack) or Disengage",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
     };
   }
 

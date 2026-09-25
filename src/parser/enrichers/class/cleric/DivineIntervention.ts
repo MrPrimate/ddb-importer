@@ -34,6 +34,7 @@ export default class DivineIntervention extends DDBEnricherData {
         ],
       },
       retainOriginalConsumption: true,
+      retainUseSpent: true,
     };
   }
 

@@ -14,7 +14,7 @@ export default class AbsorbSpells extends DDBEnricherData {
         {
           type: "itemUses",
           value: "-1d4",
-          target: "sorcery-points",
+          target: "feat:sorcery-points",
           scaling: { allowed: false, max: "" },
         },
       ],

@@ -14,7 +14,7 @@ export default class InnateSorcery extends DDBEnricherData {
       {
         activityMatch: "Innate Sorcery",
         options: {
-          description: "Advantage on Sorcerer spell attack rolls",
+          description: "+1 to spell save DC and advantage on Sorcerer spell attack rolls",
         },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.bonuses.spell.dc"),

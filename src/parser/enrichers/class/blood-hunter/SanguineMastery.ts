@@ -10,6 +10,10 @@ import _BloodHunter from "./_BloodHunter";
  *   be rolled for necrotic (Amplify Curse / Invoke Rite) or for any of the
  *   crimson rite types
  * - a refund of one Blood Maledict use on a crimson rite critical hit
+ *
+ * The reroll is optional, once per turn, and spans every hemocraft die roll (rite damage, curse
+ * amplification, order benefits), so it cannot be persisted as a die modifier on any one damage
+ * part: a baked modifier would fire on every roll. It stays a manual reroll activity.
  */
 export default class SanguineMastery extends _BloodHunter {
 

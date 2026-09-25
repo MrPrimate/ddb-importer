@@ -22,6 +22,7 @@ export default class CallLightning extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           noSpellslot: true,
           generateDamage: true,
           generateSave: true,
@@ -54,6 +55,8 @@ export default class CallLightning extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          noSpellslot: true,
           generateDamage: true,
           generateSave: true,
           damageParts: [DDBEnricherData.basicDamagePart({

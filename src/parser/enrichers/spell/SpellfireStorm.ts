@@ -20,6 +20,8 @@ export default class SpellfireStorm extends DDBEnricherData {
           noConsumeTargets: true,
           noTemplate: true,
           data: {
+            // used on later turns while concentrating, so it must not start (and replace) the concentration
+            duration: { override: true, value: "", units: "inst", concentration: false },
             range: {
               override: true,
               units: "spec",

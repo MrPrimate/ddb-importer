@@ -48,7 +48,8 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Otherworldly Weapon]`, 20, "name"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
-          DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "system.ability"),
+          // the legacy "system.ability" key cannot carry "spellcasting" in dnd5e 6, see AlterSelf
+          DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "activities[attack].attack.ability"),
         ],
         activityMatch: "Otherworldly Weapon",
       },
@@ -64,11 +65,14 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           img: "icons/magic/holy/angel-wings-gray.webp",
           generateDamage: false,
           generateHealing: false,
           generateRange: false,
-          generateConsumption: true,
+          generateConsumption: false,
+          noSpellslot: true,
           data: {
             restrictions: {
               type: "weapon",

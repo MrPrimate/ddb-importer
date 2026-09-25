@@ -1,30 +1,16 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Misfortune from "./Misfortune";
 
-export default class MisfortunesCurseOfTheInept extends DDBEnricherData {
+export default class MisfortunesCurseOfTheInept extends Misfortune {
 
-  override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  override get jinxCost(): number {
+    return 1;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Curse of the Inept",
-      targetType: "creature",
+      ...super.activity,
       activationType: "reaction",
       activationCondition: "A creature cursed by your Evil Eye makes a D20 Test",
-      addItemConsume: true,
-      itemConsumeTargetName: "Misfortunist",
-      itemConsumeValue: "1",
-    };
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        system: {
-          uses: { spent: null, max: "", recovery: [] },
-        },
-      },
     };
   }
 

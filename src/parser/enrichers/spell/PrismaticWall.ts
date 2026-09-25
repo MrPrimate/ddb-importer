@@ -54,6 +54,7 @@ export default class PrismaticWall extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: false,
           generateConsumption: false,
           generateSave: true,
@@ -74,9 +75,12 @@ export default class PrismaticWall extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           generateDamage: true,
           generateConsumption: false,
           generateSave: true,
+          // DDB's save on the spell is the Constitution blinding save; each layer is a Dexterity save
+          saveOverride: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
           generateTarget: true,
           noSpellslot: true,
           activationOverride: { type: "special", condition: "Moving through" },
@@ -86,7 +90,7 @@ export default class PrismaticWall extends DDBEnricherData {
             affects: { type: "creature" },
             template: {},
           },
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: this.is2024 ? 12 : 10, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
         },
       },
     ];

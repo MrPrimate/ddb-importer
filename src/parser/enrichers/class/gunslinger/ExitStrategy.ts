@@ -20,10 +20,9 @@ export default class ExitStrategy extends DDBEnricherData {
       {
         name: "Exit Strategy: Invisible",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
         },
         statuses: ["Invisible"],
-        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

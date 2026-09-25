@@ -11,7 +11,8 @@ export default class BladeWard extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.damageResistanceChange("slashing", 10),
             DDBEnricherData.ChangeHelper.damageResistanceChange("piercing", 10),
           ],
-          daeSpecialDurations: ["turnEnd"],
+          // "Until the end of your next turn, you have resistance" - a self buff
+          options: { expiry: "sourceEnd" },
         },
       ];
     } else {

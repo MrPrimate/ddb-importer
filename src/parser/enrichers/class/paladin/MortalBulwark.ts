@@ -68,12 +68,12 @@ export default class MortalBulwark extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [{
       name: "Mortal Bulwark",
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.truesight"),
-      ],
       atlChanges: [
         DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
         DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
+      ],
+      changes: [
+        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.truesight"),
       ],
       activitiesMatch: ["Activate Mortal Bulwark"],
     }];

@@ -17,6 +17,8 @@ export default class HellsLash extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           generateDamage: true,
           generateConsumption: false,
           generateTarget: true,
@@ -43,6 +45,9 @@ export default class HellsLash extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
+          generateSave: true,
           generateDamage: false,
           generateConsumption: false,
           noSpellslot: true,

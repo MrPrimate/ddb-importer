@@ -18,4 +18,17 @@ export default class HuntersRime extends DDBEnricherData {
     };
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Rimed Hunter's Mark",
+        statuses: ["Marked"],
+        options: {
+          durationSeconds: 3600,
+          description: "Can't take the Disengage action while marked by your Hunter's Mark.",
+        },
+      },
+    ];
+  }
+
 }

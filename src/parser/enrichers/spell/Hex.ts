@@ -26,6 +26,8 @@ export default class Hex extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
           allowCritical: true,
           generateDamage: true,
           generateConsumption: false,
@@ -43,6 +45,7 @@ export default class Hex extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
+          noSpellslot: true,
         },
         overrides: {
           noConsumeTargets: true,
@@ -61,6 +64,7 @@ export default class Hex extends DDBEnricherData {
     return DICTIONARY.actor.abilities.map((ability) => {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,
+        statuses: ["Cursed"],
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
         ],

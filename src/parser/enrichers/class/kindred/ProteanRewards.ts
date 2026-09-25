@@ -13,7 +13,7 @@ export default class ProteanRewards extends DDBEnricherData {
       targetType: "self",
       activationType: "action",
       addItemConsume: true,
-      itemConsumeTargetName: "Blood Potency",
+      itemConsumeTargetName: "feat:blood-potency",
       itemConsumeValue: 2,
       data: {
         duration: { value: "1", units: "minute", special: "" },
@@ -41,6 +41,8 @@ export default class ProteanRewards extends DDBEnricherData {
             value: 1,
             condition: "",
           },
+        },
+        overrides: {
         },
       },
     ];

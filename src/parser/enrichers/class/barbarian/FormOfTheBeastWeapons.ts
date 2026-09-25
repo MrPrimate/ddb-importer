@@ -94,8 +94,9 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
           activityMatch: "Tail (reaction)",
           options: {
             durationTurns: 1,
+            expiry: "turnEnd",
           },
-          daeSpecialDurations: ["isAttacked" as const],
+          daeSpecialDurations: ["isAttacked"],
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
           ],

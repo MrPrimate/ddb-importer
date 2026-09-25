@@ -22,6 +22,7 @@ export default class Sanctuary extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
           noSpellslot: true,
           generateDamage: false,
           generateSave: true,

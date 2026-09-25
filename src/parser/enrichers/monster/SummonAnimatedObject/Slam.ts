@@ -19,7 +19,13 @@ export default class Slam extends DDBEnricherData {
     }
   }
 
-  override get activity(): IDDBActivityData {
+  /**
+   * The scaling force damage belongs to the 2024 Animated Object stat block. The 2014 spell's
+   * objects share the "Animated Object (" name that routes here, but their Slam is a fixed row of
+   * the spell's statistics table and must keep the damage parsed from it.
+   */
+  override get activity(): IDDBActivityData | null {
+    if (this.is2014) return null;
     return {
       data: {
         damage: {

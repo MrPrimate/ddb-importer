@@ -18,4 +18,11 @@ export default class VoiceOfDeath extends DDBEnricherData {
     };
   }
 
+  // DDB ships no action (and so no limited use) for this feature; the activities consume item uses, which need a max
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: null, max: "1", recovery: [{ period: "sr", type: "recoverAll", formula: undefined }] },
+    };
+  }
+
 }

@@ -18,10 +18,9 @@ export default class AntlerDefence extends DDBEnricherData {
       {
         name: "Antler Defence",
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "+2 bonus to AC against melee attacks until the start of your next turn.",
         },
-        daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.attributes.ac.bonus"),
         ],

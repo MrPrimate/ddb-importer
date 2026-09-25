@@ -13,7 +13,7 @@ export default class WrapsOfUnarmedPower extends DDBEnricherData {
         _id: utils.namedIDStub("wrapsOfUnarmedPower", { postfix: "core" }),
         restrictions: {
           type: "weapon",
-          categories: ["unarmed"],
+          categories: ["natural"],
           allowMagical: true,
         },
       },

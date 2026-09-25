@@ -36,11 +36,9 @@ export default class BrandOfAxiom extends _BloodHunter {
       {
         name: "Denied Form Change",
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
           description: "The attempt fails and the creature is stunned until the end of your next turn.",
         },
-        daeSpecialDurations: ["turnEndSource"],
         statuses: ["Stunned"],
       },
     ];

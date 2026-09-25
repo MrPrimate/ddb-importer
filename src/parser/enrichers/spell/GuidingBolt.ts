@@ -6,11 +6,11 @@ export default class GuidingBolt extends DDBEnricherData {
     return [
       {
         name: `Glittering`,
+        statuses: ["Marked"],
         options: {
-          durationSeconds: 6,
-          durationRounds: 1,
+          expiry: "sourceEnd",
         },
-        daeSpecialDurations: ["isAttacked" as const],
+        daeSpecialDurations: ["isAttacked"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],

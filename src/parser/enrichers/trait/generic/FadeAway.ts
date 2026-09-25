@@ -19,10 +19,10 @@ export default class FadeAway extends DDBEnricherData {
         name: "Fade Away",
         statuses: ["Invisible"],
         options: {
-          durationRounds: 1,
+          expiry: "sourceStart",
           description: "Invisible until the start of your next turn, or until you attack, deal damage, or force a saving throw.",
         },
-        daeSpecialDurations: ["turnStartSource", "1Attack"],
+        daeSpecialDurations: ["1Attack"],
       },
     ];
   }

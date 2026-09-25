@@ -30,9 +30,8 @@ export default class BanishingArrow extends ArcaneShotOption {
         name: "Banished",
         statuses: ["Incapacitated"],
         options: {
-          durationSeconds: 12,
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

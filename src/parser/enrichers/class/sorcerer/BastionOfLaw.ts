@@ -24,13 +24,6 @@ export default class BastionOfLaw extends DDBEnricherData {
     };
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      { action: { name: "Font of Magic", type: "class" } },
-    ];
-
-  }
-
   override get effects(): IDDBEffectHint[] {
     return [{
       name: "Bastion of Law",

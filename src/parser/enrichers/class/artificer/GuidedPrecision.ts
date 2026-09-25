@@ -23,4 +23,11 @@ export default class GuidedPrecision extends DDBEnricherData {
     };
   }
 
+  // once per turn; DDB ships no action for the feature so the uses are spelled out
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: null, max: "1", recovery: [{ period: "turn", type: "recoverAll", formula: undefined }] },
+    };
+  }
+
 }

@@ -35,6 +35,7 @@ export default class Sleep extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Save vs Unconscious",
+          data: { duration: { override: true, units: "inst", concentration: false } },
           activationType: "special",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
@@ -52,9 +53,8 @@ export default class Sleep extends DDBEnricherData {
         name: "Incapacitated",
         statuses: ["Incapacitated"],
         options: {
-          durationSeconds: 6,
+          expiry: "targetEnd",
         },
-        daeSpecialDurations: ["turnEnd" as const],
         activityMatch: "Cast",
       },
       {
@@ -63,7 +63,7 @@ export default class Sleep extends DDBEnricherData {
         options: {
           durationSeconds: 54,
         },
-        daeSpecialDurations: ["isDamaged" as const],
+        daeSpecialDurations: ["isDamaged"],
         activityMatch: "Save vs Unconscious",
       },
     ];

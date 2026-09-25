@@ -19,14 +19,13 @@ export default class CloakOfShadowsEnshrouded extends DDBEnricherData {
         name: "Enshrouded",
         options: {
           durationTurns: 1,
-          description: "You have Advantage on your next Dexterity (Stealth) check this turn.",
+          expiry: "turnEnd",
+          description: "You have Advantage on your next Dexterity (Stealth) check this turn. Without DAE the effect lasts for every Stealth check until the end of the turn.",
         },
+        // DAE ends the effect after the one Stealth check; the native expiry is the ceiling
         daeSpecialDurations: ["isSkill.ste"],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.skill.ste"),
-        ],
-        ac5eChanges: [
-          DDBEnricherData.ChangeHelper.ac5eChange("skill.ste", 20, "flags.automated-conditions-5e.check.advantage"),
+        changes: [
+          DDBEnricherData.ChangeHelper.advantageSkillChange("ste"),
         ],
       },
     ];
