@@ -1,3 +1,4 @@
+import { nameString } from "./NameNormalizer.mjs";
 import { SETTINGS } from "../config/_module";
 
 interface DiceParserDice { sign: string; count: number; die: number };
@@ -81,7 +82,14 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  static getToolKey({ baseTool = null, name }: { baseTool?: string | null; name: string }): string {
+  static getToolKey({ baseTool = null, toolKey, name }: {
+    baseTool?: string | null;
+    toolKey?: string;
+    name: string;
+  }): string {
+    if (toolKey && Utils.getSetting<boolean>("add-ddb-tools")) {
+      return toolKey;
+    }
     return baseTool ?? Utils.idString(name.toLowerCase());
   }
 
@@ -130,23 +138,13 @@ export default class Utils {
     //   });
     // }
 
-    return result;
+    // prefix and postfix alone can exceed the length (teleport + legendary is 17), and Foundry
+    // rejects any activity or effect id that is not exactly 16 characters
+    return result.substring(0, length);
   }
 
   static nameString(str: string): string {
-    return str
-      .replaceAll("&amp;", "&")
-      .replaceAll("&nbsp;", " ")
-      .replaceAll("&eacute;", "é")
-      .replaceAll("&ucirc;", "û")
-      .replaceAll("&iacute;", "í")
-      .replaceAll("&shy;", "")
-      .replaceAll("&hellip;", "...")
-      .replaceAll(/&mdash;|&ndash;/g, "-")
-      .replaceAll(/&ldquo;|&rdquo;/g, "\"")
-      .replaceAll("&rsquo;", "'")
-      .replaceAll("’", "'")
-      .replaceAll("  ", " ").trim();
+    return nameString(str);
   }
 
   // Escape a string for literal use inside a `new RegExp(...)`.
@@ -255,7 +253,7 @@ export default class Utils {
     return result;
   }
 
-  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = ""): DiceParserResult {
+  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = "", addHint = false): DiceParserResult {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
@@ -326,7 +324,7 @@ export default class Utils {
       }
     });
 
-    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
+    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags, addHint);
     return result;
   }
 
@@ -400,6 +398,8 @@ export default class Utils {
     entityTypes.set("table", "RollTable");
     entityTypes.set("tables", "RollTable");
     entityTypes.set("RollTable", "RollTable");
+    entityTypes.set("effect", "ActiveEffect");
+    entityTypes.set("effects", "ActiveEffect");
 
     [
       "feat", "spell", "inventory", "equipment", "consumable", "tool", "loot",

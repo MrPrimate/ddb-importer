@@ -2,18 +2,21 @@ export interface IDDBRunContextOptions {
   keyPostfix?: string | null;
   useLocal?: boolean;
   ignoreEnrichedImages?: boolean;
+  bypassProxyCache?: boolean;
 }
 
 interface IDDBRunContextState {
   keyPostfix: string | null;
   useLocal: boolean;
   ignoreEnrichedImages: boolean;
+  bypassProxyCache: boolean;
 }
 
 const DEFAULT_STATE: IDDBRunContextState = {
   keyPostfix: null,
   useLocal: false,
   ignoreEnrichedImages: false,
+  bypassProxyCache: false,
 };
 
 let state: IDDBRunContextState = { ...DEFAULT_STATE };
@@ -40,6 +43,11 @@ const DDBRunContext = {
 
   get ignoreEnrichedImages(): boolean {
     return state.ignoreEnrichedImages;
+  },
+
+  /** Skip proxy-cache reads for this run; results are still written so the cache refreshes. */
+  get bypassProxyCache(): boolean {
+    return state.bypassProxyCache;
   },
 
   async runWith<T>(options: IDDBRunContextOptions, fn: () => Promise<T>): Promise<T> {

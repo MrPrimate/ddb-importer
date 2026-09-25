@@ -4,6 +4,7 @@ export * as Notifications from "./Notifications";
 export { default as utils } from "./Utils";
 export { default as Utils } from "./Utils";
 export { default as DDBSources } from "./DDBSources";
+export * as SourceFilters from "./SourceFilters";
 export { default as DDBToolProficiencies } from "./DDBToolProficiencies";
 export { default as Iconizer } from "./Iconizer";
 export { ChooserDialog } from "./AdvancedDialog";
@@ -28,6 +29,8 @@ export * as Secrets from "./Secrets";
 export { default as DDBDebug } from "./DDBDebug";
 export { fetchJson, postJson, FetchError } from "./FetchHelper";
 export { default as DDBRunContext } from "./DDBRunContext";
+export { default as DDBProxyCache } from "./DDBProxyCache";
+export { default as DDBProxyCacheSettings } from "./DDBProxyCacheSettings";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";

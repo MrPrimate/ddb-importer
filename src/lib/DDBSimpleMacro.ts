@@ -17,7 +17,7 @@ interface IMacroEffectVariables {
 interface ISimpleMacroIds {
   effect?: string;
   actor?: string;
-  token?: string;
+  token?: string | null;
   item?: string;
   origin?: string;
   scene?: string;
@@ -108,7 +108,7 @@ export default class DDBSimpleMacro {
     if (origin) effectVariables.origin = origin;
 
     if (!effectVariables.speaker && actor) {
-      const speaker = ChatMessage.implementation.getSpeaker({ actor: actor as Actor.Stored, token });
+      const speaker = ChatMessage.implementation.getSpeaker({ actor: actor as Actor.Stored, token: (token ?? undefined) as TokenDocument.Stored | undefined });
       if (speaker) effectVariables.speaker = speaker;
     }
 

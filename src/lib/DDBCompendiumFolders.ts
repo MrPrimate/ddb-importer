@@ -757,9 +757,31 @@ export class DDBCompendiumFolders {
     }
   }
 
+  /**
+   * "Effect Items" holds documents generated to carry automation other documents grant or
+   * reference (the evolved item property host feats), one sub-folder per generator.
+   */
+  async createEffectFoldersForItemDocuments(documents: T5eCompendiumDocuments[] = []) {
+    const rootFolder = this.getFolder("Effect Items", "effectitems")
+      ?? (await this.createCompendiumFolder({ name: "Effect Items", flagTag: "effectitems" }));
+    for (const doc of documents.filter((d) => foundry.utils.getProperty(d, "flags.ddbimporter.isEffectItem"))) {
+      const effectFolder = DDBCompendiumFolders.getEffectItemFolderNameForType(doc);
+      if (this.getFolder(effectFolder.name, effectFolder.flagTag)) continue;
+      await this.createCompendiumFolder({
+        name: effectFolder.name,
+        parentId: rootFolder._id,
+        color: effectFolder.color ?? "#222222",
+        flagTag: effectFolder.flagTag,
+      });
+    }
+  }
+
   async createItemFoldersForDocuments({ documents = [] }: { documents: I5eInventoryItem[] }) {
     if (documents.filter((d) => foundry.utils.getProperty(d, "flags.ddbImporter.isSpellItem")).length > 0) {
       await this.createSpellFoldersForItemDocuments(documents);
+    }
+    if (documents.some((d) => foundry.utils.getProperty(d, "flags.ddbimporter.isEffectItem"))) {
+      await this.createEffectFoldersForItemDocuments(documents);
     }
     switch (this.compendiumFolderTypeItem) {
       case "TYPE":
@@ -1147,6 +1169,8 @@ export class DDBCompendiumFolders {
           name = "Varies";
           break;
         case "unknown":
+        case "unknown rarity":
+        case "unknownrarity":
         case "":
         default:
           name = "Unknown";
@@ -1304,6 +1328,18 @@ export class DDBCompendiumFolders {
     };
   }
 
+  static getEffectItemFolderNameForType(document: T5eCompendiumDocuments) {
+    const effectName = foundry.utils.getProperty(document, "flags.ddbimporter.effectName") as string ?? "Unknown";
+    return {
+      name: effectName,
+      type: "effect",
+      suffix: null as string | number | null,
+      color: null as string | null,
+      parentFolderName: "Effect Items",
+      flagTag: `effectitem/${utils.idString(effectName)}`,
+    };
+  }
+
   getItemCompendiumFolderName(document: I5eInventoryItem) {
     let name;
     const isSpellItem = foundry.utils.getProperty(document, "flags.ddbimporter.isSpellItem");
@@ -1311,6 +1347,9 @@ export class DDBCompendiumFolders {
     if (isSpellItem) {
       name = DDBCompendiumFolders.getSpellItemFolderNameForType(document);
       return name;
+    }
+    if (foundry.utils.getProperty(document, "flags.ddbimporter.isEffectItem")) {
+      return DDBCompendiumFolders.getEffectItemFolderNameForType(document);
     }
     switch (this.compendiumFolderTypeItem) {
       case "RARITY": {
@@ -1824,6 +1863,10 @@ export class DDBCompendiumFolders {
 
 
   #getIndexFields() {
+    return CompendiumHelper.safeIndexFields(this.compendium, this.#rawIndexFields());
+  }
+
+  #rawIndexFields() {
     switch (this.type) {
       case "spells":
       case "spell": {
@@ -1850,7 +1893,7 @@ export class DDBCompendiumFolders {
           "system.armor.type",
           "system.type.value",
           "system.rarity",
-          "system.type.value",
+          "flags.ddbimporter.dndbeyond.rarity",
           "system.details.type.value",
           "system.type.subtype",
         ];

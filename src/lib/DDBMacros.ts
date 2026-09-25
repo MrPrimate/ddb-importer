@@ -18,7 +18,6 @@ export default class DDBMacros {
 
   static MACROS: {
     WORLD: Record<string, IDDBWorldMacro>;
-    ACTIVE_AURAS: Record<string, IDDBWorldMacro>;
   } = {
     WORLD: {
       // DARKNESS_GM: {
@@ -37,40 +36,6 @@ export default class DDBMacros {
       //   img: "icons/magic/fire/flame-burning-hand-purple.webp",
       //   world: true,
       // },
-    },
-    ACTIVE_AURAS: {
-    //   AA_ONLY: {
-    //     name: "Active Aura Only (Generic)",
-    //     type: "generic",
-    //     file: "activeAuraOnly.js",
-    //     isGM: false,
-    //     img: null,
-    //     world: true,
-    //   },
-    //   AA_ON_ENTRY: {
-    //     name: "Active Aura Damage and Condition On Entry (Generic)",
-    //     type: "generic",
-    //     file: "activeAuraDamageAndConditionOnEntry.js",
-    //     isGM: false,
-    //     img: null,
-    //     world: true,
-    //   },
-    //   AA_CONDITION_ON_ENTRY: {
-    //     name: "Active Aura Condition On Entry (Generic)",
-    //     type: "generic",
-    //     file: "activeAuraConditionOnEntry.js",
-    //     isGM: false,
-    //     img: null,
-    //     world: true,
-    //   },
-    //   AA_DAMAGE_ON_ENTRY: {
-    //     name: "Active Aura Damage On Entry (Generic)",
-    //     type: "generic",
-    //     file: "activeAuraDamageOnEntry.js",
-    //     isGM: false,
-    //     img: null,
-    //     world: true,
-    //   },
     },
   };
 
@@ -375,7 +340,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
       return existingMacro;
     } else {
       logger.debug(`Creating new macro ${name}.`);
-      const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false, temporary: isTemp });
+      const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false });
       if (!macro) throw new Error(`Unable to create macro ${name}`);
       return macro;
     }
@@ -389,7 +354,6 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
 
       const worldMacros = ([] as IDDBWorldMacro[]).concat(
         Object.values(DDBMacros.MACROS.WORLD),
-        // Object.values(DDBMacros.MACROS.ACTIVE_AURAS),
       ).filter((m) => m.world);
 
       for (const macro of worldMacros) {

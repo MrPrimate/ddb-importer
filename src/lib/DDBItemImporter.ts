@@ -149,7 +149,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       }
     }
     this.indexFilter = indexFilter;
-    this.indexFilter.fields = Array.from(flagSet) as CompendiumCollection.GetIndexOptions["fields"];
+    this.indexFilter.fields = CompendiumHelper.safeIndexFields(this.compendium, Array.from(flagSet)) as CompendiumCollection.GetIndexOptions["fields"];
     this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 
@@ -205,6 +205,79 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   }
 
 
+  /**
+   * Take the source data of a document that may be live.
+   *
+   * A live Item's system.activities is an ActivityCollection (a Map subclass), so both
+   * keyed access and Object.values come back empty on it, and deep cloning one clones
+   * data models rather than data. Plain objects pass through untouched.
+   */
+  static sourceData<T>(document: T): T {
+    const toObject = (document as { toObject?: () => T } | undefined)?.toObject;
+    return typeof toObject === "function" ? toObject.call(document) : document;
+  }
+
+  /**
+   * Resolve a retain style flag for a matched item.
+   */
+  static retainFlagValue<T>(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments, flag: string): T | undefined {
+    const parsed = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`) as T | undefined;
+    if (parsed !== undefined && parsed !== null && parsed !== false) return parsed;
+    return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
+  }
+
+  static ACTOR_TYPES: readonly string[] = ["character", "npc", "vehicle"];
+
+  /**
+   * The importer also handles actor and roll table data; only item documents
+   * carry activities.
+   */
+  static isItemDocument(document: TDDBItemImporterDocument): document is TAll5eItemDocuments {
+    return "system" in document
+      && typeof document.type === "string"
+      && !DDBItemImporter.ACTOR_TYPES.includes(document.type);
+  }
+
+  /**
+   * Copy activity level uses.spent over from the previously imported document.
+   *
+   * Independent of the item level retainUseSpent: an activity can carry its own uses
+   * pool while the item has none, and vice versa.
+   *
+   * Activity ids are generated deterministically from the activity name
+   * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
+   * an activity changes its id, so fall back to matching on name rather than silently
+   * dropping the play state.
+   */
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+    const existingItem = DDBItemImporter.sourceData(existing);
+    if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    const names = Array.isArray(selection) ? selection : null;
+    if (names && names.length === 0) return;
+
+    for (const activity of Object.values(item.system.activities)) {
+      if (names && !names.includes(activity.name ?? "")) continue;
+      // an activity with no max of its own has no meaningful spent value
+      const max = activity.uses?.max;
+      if (!activity.uses || max === undefined || max === null || `${max}`.trim() === "") continue;
+
+      const original = existingItem.system.activities[activity._id ?? ""]
+        ?? Object.values(existingItem.system.activities).find((existing) =>
+          Boolean(activity.name) && existing.name === activity.name,
+        );
+      const spent = original?.uses?.spent;
+      if (typeof spent !== "number") continue;
+
+      const literalMax = (/^\d+$/).test(`${max}`.trim())
+        ? Number.parseInt(`${max}`.trim())
+        : null;
+      activity.uses.spent = literalMax === null
+        ? Math.max(spent, 0)
+        : Math.min(Math.max(spent, 0), literalMax);
+      logger.debug(`Retaining activity uses for ${item.name}: ${activity.name} spent ${activity.uses.spent}`);
+    }
+  }
+
   static updateCharacterItemFlags(itemData: TAll5eDocuments, replaceData: TAll5eDocuments): TAll5eDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") === replaceData._id;
@@ -226,6 +299,12 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;
       if ("ability" in itemData.system && "ability" in replaceData.system) replaceData.system.ability = itemData.system.ability;
+    }
+    const retainActivitySpent = foundry.utils.getProperty(itemData, "flags.ddbimporter.retainActivityUseSpent") as boolean | string[] | undefined;
+    if (retainActivitySpent && "activities" in itemData.system && "activities" in replaceData.system) {
+      DDBItemImporter.restoreActivityUseSpent(
+        itemData as TAll5eItemDocuments, replaceData as TAll5eItemDocuments, retainActivitySpent,
+      );
     }
     if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
       replaceData.system.levels = itemData.system.levels;
@@ -394,6 +473,31 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
+  /**
+   * Empty the embedded collections (effects, table results) of an existing compendium document
+   * before it is updated.
+   *
+   * This is a non-recursive replacement of each branch rather than a deleteAll on purpose.
+   * deleteAll builds its id list from this client's cached copy of the document, and the server
+   * rejects the whole request when any of those ids is already gone
+   * ("ActiveEffect X does not exist!"). That is exactly what happens when two munches write the
+   * same document at the same time. A replacement is applied server side against the live
+   * document, so it cannot go stale.
+   */
+  async purgeEmbeddedDocuments(existingItem: Item.Implementation): Promise<void> {
+    const purge: Record<string, never[]> = {};
+    const results = foundry.utils.getProperty(existingItem, "results") as { size?: number } | undefined;
+    if (results?.size) purge.results = [];
+    if (existingItem.effects?.size) purge.effects = [];
+    if (foundry.utils.isEmpty(purge)) return;
+    logger.debug(`Purging ${Object.keys(purge).join(", ")} on ${existingItem.name} before update`);
+    await existingItem.update(purge as unknown as Parameters<typeof existingItem.update>[0], {
+      pack: this.compendium.metadata.id,
+      render: false,
+      recursive: false,
+    } as unknown as Parameters<typeof existingItem.update>[1]);
+  }
+
   async updateCompendiumItem(updateItem: TType, existingItem: Item.Implementation): Promise<TImportedDocumentResult> {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
@@ -415,14 +519,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       packId: this.compendium.metadata.id,
     });
 
-    if (foundry.utils.getProperty(existingItem, "results")) {
-      logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
-      await (existingItem as unknown as RollTable.Implementation).deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-    }
-    if (existingItem.effects?.size && existingItem.effects.size > 0) {
-      logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
-      await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    }
+    await this.purgeEmbeddedDocuments(existingItem);
 
     const update = await existingItem.update(updateItem as any, {
       pack: this.compendium.metadata.id,
@@ -617,6 +714,7 @@ ${item.system.description.chat}
     const loadedItems = [];
     for (const i of firstPassItems) {
       const item = await this.compendium.getDocument(i._id).then((doc) => {
+        if (!doc) return null;
         const docData = doc.toObject() as unknown as TAll5eDocuments;
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
@@ -626,6 +724,10 @@ ${item.system.description.chat}
 
         return docData;
       });
+      if (!item) {
+        logger.warn(`Indexed document ${i._id} is missing from ${this.compendium.metadata.id}, skipping`);
+        continue;
+      }
       foundry.utils.setProperty(item, "flags.ddbimporter.pack", `${this.compendium.metadata.id}`);
       loadedItems.push(item);
     }

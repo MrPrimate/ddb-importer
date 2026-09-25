@@ -28,21 +28,39 @@ export default class OriginFixer {
 
     for (const effect of actor.effects) {
       const newEffect = effect.toObject() as I5eEffectData;
-      const isDDBMonsterCompendium = (effect.origin as string | null)?.startsWith(`Compendium.${CompendiumHelper.getCompendiumLabel("monsters")}.`);
-      const matchRe = compendiumOnly || isDDBMonsterCompendium ? OriginFixer.COMPENDIUM_ORIGIN_RE : OriginFixer.ORIGIN_RE;
-      const effectOrigin = effect.origin as string | null;
-      if (typeof effectOrigin === "string"
-        && effectOrigin.match(matchRe)
-        && (!effectOrigin.startsWith("Compendium") || isDDBMonsterCompendium)
-      ) {
-        const testOrigin = OriginFixer._getEffectOrigin(effect.origin, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
+
+      const fixOrigin = async (effectOrigin: string | null | undefined): Promise<string | null> => {
+        const isDDBMonsterCompendium = effectOrigin?.startsWith(`Compendium.${CompendiumHelper.getCompendiumLabel("monsters")}.`) ?? false;
+        const matchRe = compendiumOnly || isDDBMonsterCompendium ? OriginFixer.COMPENDIUM_ORIGIN_RE : OriginFixer.ORIGIN_RE;
+        if (typeof effectOrigin !== "string"
+          || !effectOrigin.match(matchRe)
+          || (effectOrigin.startsWith("Compendium") && !isDDBMonsterCompendium)
+        ) return null;
+        const testOrigin = OriginFixer._getEffectOrigin(effectOrigin, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
+        if (testOrigin === effectOrigin) return null;
         const originLoaded = await fromUuid(testOrigin);
-        if (originLoaded && testOrigin !== effect.origin) {
+        return originLoaded ? testOrigin : null;
+      };
+
+      const fixedLegacy = await fixOrigin(effect.origin as string | null);
+      if (fixedLegacy) {
+        changesMade = true;
+        logger.debug(`${actor.name} effect ${effect.name} origin ${effect.origin} -> ${fixedLegacy} ${actorUuid}`);
+        newEffect.origin = fixedLegacy;
+      }
+
+      // dnd5e 6.0 structured origins (system.origin.*): relative uuids never match the
+      // broken-absolute patterns, so only absolute strings pointing at the wrong actor change
+      const systemOrigin = (newEffect.system as { origin?: Record<string, string | undefined> } | undefined)?.origin;
+      for (const field of ["activity", "actor", "effect", "item"]) {
+        const fixed = await fixOrigin(systemOrigin?.[field]);
+        if (fixed && systemOrigin) {
           changesMade = true;
-          logger.debug(`${actor.name} effect ${effect.name} origin ${effect.origin} -> ${testOrigin} ${actorUuid}`);
-          newEffect.origin = testOrigin;
+          logger.debug(`${actor.name} effect ${effect.name} system.origin.${field} ${systemOrigin[field]} -> ${fixed}`);
+          systemOrigin[field] = fixed;
         }
       }
+
       newEffects.push(newEffect);
     }
     if (changesMade) {

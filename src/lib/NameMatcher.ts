@@ -1,6 +1,17 @@
 import { DICTIONARY } from "../config/_module";
 import logger from "./Logger";
 
+/** Structural slice of the fields NameMatcher.looseItemNameMatch reads. Constraining its
+ * generic to this instead of TAll5eDocuments | TImporterItem keeps the recursive fvtt-types
+ * document generics out of the signature, which tsserver mis-resolves when NameMatcher.ts is
+ * the first file checked. */
+interface INameMatchableDocument {
+  name: string;
+  type: string;
+  system?: object | null;
+  flags?: object | null;
+}
+
 export default class NameMatcher {
 
   static getMonsterNames(name: string) {
@@ -100,17 +111,17 @@ export default class NameMatcher {
   }
 
   // The monster setting is less vigorous!
-  static looseItemNameMatch<T extends (TAll5eDocuments | TImporterItem)>(item: T, items: ICompendiumIconMapEntry[] | T[] | IUpdateItemIndex["contents"], loose = false, monster = false, magicMatch = false): T | undefined {
-    type TMatchCandidate = T | ICompendiumIconMapEntry | IUpdateItemIndex["contents"][number];
+  static looseItemNameMatch<T extends INameMatchableDocument>(item: T, items: ICompendiumIconMapEntry[] | T[] | INameMatchIndexEntry[], loose = false, monster = false, magicMatch = false): T | undefined {
+    type TMatchCandidate = T | ICompendiumIconMapEntry | INameMatchIndexEntry;
     // first pass is a strict match
     let matchingItem = items.find((matchItem: TMatchCandidate) => {
       let activationMatch = false;
       const extraNames = (foundry.utils.getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
 
-      const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
-      const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
+      const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system ?? {}, "activation");
+      const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system ?? {}, "activation");
 
-      if (itemActivationProperty && "activation" in item.system && item.system?.activation?.type == "") {
+      if (itemActivationProperty && foundry.utils.getProperty(item, "system.activation.type") == "") {
         activationMatch = true;
       } else if (matchItemActivationProperty && itemActivationProperty) {
         // I can't remember why I added this. Maybe I was concerned about identical named items with
@@ -134,7 +145,7 @@ export default class NameMatcher {
         if (matchItem.name === undefined) return false;
         const monsterNames = NameMatcher.getMonsterNames(matchItem.name);
         const monsterMatch = monsterNames.includes(item.name.toLowerCase())
-          && DICTIONARY.types.monster.includes(matchItem.type)
+          && DICTIONARY.types.monster.includes(matchItem.type ?? "")
           && DICTIONARY.types.inventory.includes(item.type);
         return monsterMatch;
       });
@@ -165,7 +176,7 @@ export default class NameMatcher {
           const looseItemMatch = (looseName === matchItem.name.toLowerCase()
             || looseName === matchItem.name.toLowerCase().replace(" armor", ""))
             && DICTIONARY.types.inventory.includes(item.type)
-            && DICTIONARY.types.inventory.includes(matchItem.type);
+            && DICTIONARY.types.inventory.includes(matchItem.type ?? "");
           return looseItemMatch;
         });
         if (matchingItem) {
