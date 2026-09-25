@@ -11,6 +11,7 @@ import OngoingDamage from "../../../src/parser/enrichers/monster/Generic/Ongoing
 import StagedSave from "../../../src/parser/enrichers/monster/Generic/StagedSave";
 import InfernalWound from "../../../src/parser/enrichers/monster/Generic/InfernalWound";
 import FeyMelody from "../../../src/parser/enrichers/monster/Generic/FeyMelody";
+import StatusRider from "../../../src/parser/enrichers/monster/Generic/StatusRider";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 import type _MonsterFeatureSupport from "../../../src/parser/enrichers/monster/Generic/_MonsterFeatureSupport";
@@ -335,4 +336,37 @@ describe("Consume Life effect links", () => {
       expect(e.activities[1].effects).toEqual([]);
     },
   );
+});
+
+describe("monster StatusRider", () => {
+  it("applies a shared-name rider only when the feature carries its wording", () => {
+    const gasSpore = feature(StatusRider, "Tendril", "Melee Attack Roll: +0, reach 5 ft. Hit: 3 (1d6) Poison damage, and the target has the Poisoned condition until the end of its next turn.");
+    expect(gasSpore.effects).toHaveLength(1);
+    expect(gasSpore.effects[0].statuses).toEqual(["Poisoned"]);
+    expect(gasSpore.clearAutoEffects).toBe(true);
+
+    // a Roper's Tendril grapples; it keeps whatever the parser built
+    const roper = feature(StatusRider, "Tendril", "Melee Weapon Attack: +7 to hit, reach 50 ft., one creature. Hit: The target is grappled (escape DC 15).");
+    expect(roper.effects).toEqual([]);
+    expect(roper.clearAutoEffects).toBe(false);
+  });
+
+  it("matches Charming's charm and incapacitation across sentences, and not an unrelated Charming", () => {
+    const satyr = feature(StatusRider, "Charming", "The target has the Charmed condition for 1 minute. While Charmed, the target has the Incapacitated condition.");
+    expect(satyr.effects[0].statuses).toEqual(["Charmed", "Incapacitated"]);
+    const redirect = feature(StatusRider, "Charming (3/Day)", "When a creature makes an attack against the wizard, the creature must succeed on a DC 14 Wisdom saving throw or target the next closest creature.");
+    expect(redirect.effects).toEqual([]);
+  });
+
+  it("keeps the 2024 speed penalties off the 2014 stat blocks of the same name", () => {
+    const text = "Hit: 14 (2d8 + 5) Piercing damage plus 10 (3d6) Cold damage. Until the end of the devil's next turn, the target can't take Reactions and its Speed decreases by 10 feet.";
+    expect(feature(StatusRider, "Ice Spear", text).effects).toHaveLength(1);
+    const legacy = makeEnricherData(StatusRider, { name: "Ice Spear", actions: null, is2014: true, ddbParser: { strippedHtml: text } });
+    expect(legacy.effects).toEqual([]);
+    expect(legacy.clearAutoEffects).toBe(false);
+  });
+
+  it("applies a distinctive name's rider with no wording check", () => {
+    expect(feature(StatusRider, "Brutal Gore", "Hit: damage.").effects[0].statuses).toEqual(["Prone"]);
+  });
 });

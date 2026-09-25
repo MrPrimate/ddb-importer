@@ -1,5 +1,6 @@
 import AutoEffects from "../../enrichers/effects/AutoEffects";
 import ChangeHelper from "../../enrichers/effects/ChangeHelper";
+import utils from "../../../lib/Utils";
 
 const TRUE_FORM_EFFECT = "True Form";
 
@@ -79,7 +80,8 @@ export function applyShapeShiftFormItems(items: I5eMonsterItem[]): void {
       showIcon: 0,
       description: "Actions only available in another form are hidden.",
     });
-    trueForm._id = foundry.utils.randomID();
+    // stable, so a re-import updates the same effect rather than adding another
+    trueForm._id = utils.namedIDStub(TRUE_FORM_EFFECT, { prefix: "ddb", postfix: "ef" });
     trueForm.system.changes = trueFormHidden.map((identifier) => ChangeHelper.hiddenItemChange(identifier));
     shifter.effects ??= [];
     shifter.effects.push(trueForm);

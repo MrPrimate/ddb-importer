@@ -146,14 +146,24 @@ describe("monster Generic TurnStartAuraSave", () => {
   });
 
   it.each([
-    ["Boon of Dread", { excludeTypes: ["undead"] }],
-    ["Aura of Annihilation", { excludeTypes: ["undead", "fiend"] }],
-    ["Dread", { excludeTypes: ["fiend"] }],
-    ["Aberrant Form", { excludeTypes: ["aberration"] }],
-    ["Confounding Ugliness", { types: ["humanoid"] }],
-  ])("carries the type exemption for %s", (name, filters) => {
-    const e = trait(TurnStartAuraSave, name, `Any creature that starts its turn within 10 feet of ${name} must save.`);
+    ["Boon of Dread", "Any non-Undead creature that starts its turn within 30 feet of the priest must save.", { excludeTypes: ["undead"] }],
+    ["Aura of Annihilation", "The aura deals 5 necrotic damage to any creature that ends its turn within 30 feet of the bodak. Undead and fiends ignore this effect.", { excludeTypes: ["undead", "fiend"] }],
+    ["Dread", "Any creature, other than a devil, that starts its turn within 10 feet of Bael must save.", { excludeTypes: ["fiend"] }],
+    ["Drone", "Constitution Saving Throw: DC 12, each creature that starts its turn within 30 feet of the chasme (demons automatically succeed on this save).", { excludeTypes: ["fiend"] }],
+    ["Aberrant Form", "Any non-Aberration creature that starts its turn within 5 feet of the zealot must save.", { excludeTypes: ["aberration"] }],
+    ["Confounding Ugliness", "Any Humanoid that starts its turn within 60 feet of the hag must save.", { types: ["humanoid"] }],
+  ])("carries the type exemption the %s text states", (name, text, filters) => {
+    const e = trait(TurnStartAuraSave, name, text);
     expect(macro(e.activity).config).toMatchObject(filters);
+  });
+
+  it.each([
+    ["Drone", "Each creature that starts its turn within 10 feet of the gigant must succeed on a DC 19 Constitution saving throw."],
+    ["Dread", "Any creature that starts its turn within 10 feet of it must save."],
+  ])("leaves %s unfiltered on a monster whose text states no exemption", (name, text) => {
+    const config = macro(trait(TurnStartAuraSave, name, text).activity).config;
+    expect(config.excludeTypes ?? []).toEqual([]);
+    expect(config.types ?? []).toEqual([]);
   });
 });
 

@@ -51,6 +51,11 @@ describe("applyShapeShiftFormItems", () => {
     const [hybrid, wolf, trueForm] = items[0].effects;
 
     expect(trueForm).toMatchObject({ name: "True Form", transfer: true });
+    // the same id on every import, so a re-import updates it rather than adding another
+    const again = lycanthrope();
+    applyShapeShiftFormItems(again);
+    expect(again[0].effects[2]._id).toBe(trueForm._id);
+    expect(trueForm._id).toMatch(/^[a-zA-Z0-9]{16}$/);
     expect(hiddenBy(trueForm)).toEqual(["add:bite-wolf-or-hybrid-form-only"]);
     expect(hiddenBy(hybrid)).toContain("subtract:bite-wolf-or-hybrid-form-only");
     expect(hiddenBy(wolf)).toContain("subtract:bite-wolf-or-hybrid-form-only");

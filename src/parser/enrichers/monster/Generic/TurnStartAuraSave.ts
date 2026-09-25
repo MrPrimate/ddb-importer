@@ -30,41 +30,46 @@ const BUILT_TRIGGER = "Aura Damage";
 export default class TurnStartAuraSave extends DDBEnricherData {
 
   /**
-   * Size/creature-type filters for auras whose text exempts a type ("to which
-   * demons are immune", "other than a devil"). Creature types are top level only,
-   * so demon/devil exemptions are approximated at the fiend type.
+   * Size/creature-type filters for auras whose text exempts a type ("to which demons are
+   * immune", "other than a devil"). Creature types are top level only, so demon/devil exemptions
+   * are approximated at the fiend type. Each filter applies only when the trait carries the
+   * exemption (`requires`): the same name on an unrelated monster (the Gigant's Drone) has none.
    */
-  static NAME_FILTERS: Record<string, { sizes?: string[]; types?: string[]; excludeTypes?: string[] }> = {
-    // Chasme: "produces a horrid droning sound to which demons are immune"
-    "Drone": { excludeTypes: ["fiend"] },
-    // Nupperibo: "Any creature, other than a devil..."
-    "Cloud of Vermin": { excludeTypes: ["fiend"] },
-    // Far Realm zealot: "Any non-Aberration creature..."
-    "Aberrant Form": { excludeTypes: ["aberration"] },
-    // rutterkin, alkilith, Bael: "a creature that isn't a demon" / "other than a devil"
-    "Immobilizing Fear": { excludeTypes: ["fiend"] },
-    "Crippling Fear": { excludeTypes: ["fiend"] },
-    "Foment Confusion": { excludeTypes: ["fiend"] },
-    "Foment Madness": { excludeTypes: ["fiend"] },
-    "Dread": { excludeTypes: ["fiend"] },
-    "Dreadful": { excludeTypes: ["fiend"] },
-    // swarm of ravens: "any creature (other than a Fiend) with a Fly Speed"
-    "Wing Bind": { excludeTypes: ["fiend"] },
-    // hag: "Any Humanoid that starts its turn within 60 feet"
-    "Confounding Ugliness": { types: ["humanoid"] },
-    // priest of Osybus: "Any non-Undead creature..."
-    "Boon of Dread": { excludeTypes: ["undead"] },
-    // nightmare shepherd, nihileth, Ygorl: "that isn't undead or a construct"
-    "Aura of Nightmares": { excludeTypes: ["undead", "construct"] },
-    "Void Aura": { excludeTypes: ["undead", "construct"] },
-    "Entropic Aura": { excludeTypes: ["undead", "construct"] },
-    // bodak: "Undead and fiends ignore this effect"
-    "Aura of Annihilation": { excludeTypes: ["undead", "fiend"] },
-  };
-
+  static NAME_FILTERS: Record<string, { requires: RegExp; filter: { sizes?: string[]; types?: string[]; excludeTypes?: string[] } }> = (() => {
+    const notDemonOrDevil = /isn['’]t a demon|other than a (?:devil|demon|fiend)|demons (?:are immune|automatically succeed)/i;
+    const notUndeadOrConstruct = /isn['’]t (?:an? )?undead or a construct|not a construct or undead|isn['’]t a construct or undead/i;
+    return {
+      // Chasme: "a horrid droning sound to which demons are immune" / "demons automatically succeed"
+      "Drone": { requires: /demons are immune|demons automatically succeed/i, filter: { excludeTypes: ["fiend"] } },
+      // Nupperibo: "Any creature, other than a devil..."
+      "Cloud of Vermin": { requires: /other than a devil/i, filter: { excludeTypes: ["fiend"] } },
+      // Far Realm zealot: "Any non-Aberration creature..."
+      "Aberrant Form": { requires: /non-Aberration/i, filter: { excludeTypes: ["aberration"] } },
+      // rutterkin, alkilith, Bael: "a creature that isn't a demon" / "other than a devil"
+      "Immobilizing Fear": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      "Crippling Fear": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      "Foment Confusion": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      "Foment Madness": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      "Dread": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      "Dreadful": { requires: notDemonOrDevil, filter: { excludeTypes: ["fiend"] } },
+      // swarm of ravens: "any creature (other than a Fiend) with a Fly Speed"
+      "Wing Bind": { requires: /other than a Fiend/i, filter: { excludeTypes: ["fiend"] } },
+      // hag: "Any Humanoid that starts its turn within 60 feet"
+      "Confounding Ugliness": { requires: /Any Humanoid that starts/i, filter: { types: ["humanoid"] } },
+      // priest of Osybus: "Any non-Undead creature..."
+      "Boon of Dread": { requires: /non-Undead/i, filter: { excludeTypes: ["undead"] } },
+      // nightmare shepherd, nihileth, Ygorl: "that isn't undead or a construct"
+      "Aura of Nightmares": { requires: notUndeadOrConstruct, filter: { excludeTypes: ["undead", "construct"] } },
+      "Void Aura": { requires: notUndeadOrConstruct, filter: { excludeTypes: ["undead", "construct"] } },
+      "Entropic Aura": { requires: notUndeadOrConstruct, filter: { excludeTypes: ["undead", "construct"] } },
+      // bodak: "Undead and fiends ignore this effect"
+      "Aura of Annihilation": { requires: /Undead and fiends ignore/i, filter: { excludeTypes: ["undead", "fiend"] } },
+    };
+  })();
 
   get behaviorFilters(): { sizes?: string[]; types?: string[]; excludeTypes?: string[] } {
-    return TurnStartAuraSave.NAME_FILTERS[this.name] ?? {};
+    const entry = TurnStartAuraSave.NAME_FILTERS[this.name];
+    return entry && entry.requires.test(this.traitText) ? entry.filter : {};
   }
 
   /**
