@@ -996,6 +996,12 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         await effectHint.func({ effect });
       }
 
+      if (effectHint.originReplacement) {
+        for (const change of effect.system?.changes ?? []) {
+          if (typeof change.value === "string" && change.value.includes("@")) change.replacement = "origin";
+        }
+      }
+
       if (effectHint.standalone) {
         effect._id = DDBEffectImporter.standaloneEffectId({
           documentName: this.data.name,
@@ -1004,11 +1010,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           key: effectHint.standaloneKey,
         });
         effect.transfer = false;
-        if (effectHint.originReplacement) {
-          for (const change of effect.system?.changes ?? []) {
-            if (typeof change.value === "string" && change.value.includes("@")) change.replacement = "origin";
-          }
-        }
         // a noCreate standalone hint MOVES the matched embedded effect into the compendium stash
         if (useExistingEffect) {
           const index = this.data.effects?.indexOf(effect) ?? -1;

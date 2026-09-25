@@ -24,13 +24,12 @@ export default class ImpalingShot extends _Illrigger {
       {
         name: "Impaled",
         activityMatch: "Impaling Shot",
+        originReplacement: true,
         options: {
           expiry: "sourceEnd",
         },
         changes: [
-          _Illrigger.originChange(
-            DDBEnricherData.ChangeHelper.addChange("-@prof", 20, "system.attributes.ac.bonus"),
-          ),
+          DDBEnricherData.ChangeHelper.addChange("-@prof", 20, "system.attributes.ac.bonus"),
         ],
       },
     ];

@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { emanation } from "../../data/RegionBuilders";
 import _Illrigger from "./_Illrigger";
 
 /**
@@ -17,24 +18,14 @@ export default class UnleashHell extends _Illrigger {
       activationType: "reaction",
       activationCondition: "When you burn one or more seals on an interdicted creature. Damage is per seal burned.",
       targetType: "creature",
+      targetChoice: true,
       rangeType: "ft",
       rangeValue: 30,
       data: {
         target: {
-          override: true,
-          template: {
-            count: "",
-            contiguous: false,
-            type: "radius",
-            size: "5",
-            width: "",
-            height: "",
-            units: "ft",
-          },
+          ...emanation("5"),
           affects: {
-            count: "",
             type: "creature",
-            choice: true,
             special: "Creatures of your choice within 5 feet of the interdicted creature",
           },
         },

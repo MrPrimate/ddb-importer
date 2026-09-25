@@ -14,11 +14,8 @@ export default class ShadowShroud extends _Illrigger {
       activationType: "bonus",
       targetType: "creature",
       targetCount: 1,
+      rangeType: "touch",
       data: {
-        range: {
-          units: "touch",
-          value: "",
-        },
         duration: {
           units: "minute",
           value: "1",

@@ -10,11 +10,28 @@ export default class TerrorizingForce extends DDBEnricherData {
 
   static DAMAGE_TYPES = ["cold", "fire", "necrotic", "poison"];
 
+  /**
+   * The damage type chosen for Terrorizing Force on DDB. Only an option hanging off the Terrorizing
+   * Force feature itself counts, so another class's "Fire" option cannot match.
+   */
+  static chosenType(ddbData: IDDBData | null | undefined): string | null {
+    if (!ddbData) return null;
+    const feature = ddbData.character.classes
+      .flatMap((klass) => klass.classFeatures)
+      .find((f) => f.definition.name === "Terrorizing Force");
+    if (!feature) return null;
+    const option = (ddbData.character.options?.class ?? []).find((o) =>
+      o.componentId === feature.definition.id
+      && TerrorizingForce.DAMAGE_TYPES.includes((o.definition?.name ?? "").toLowerCase()),
+    );
+    return option ? (option.definition.name ?? "").toLowerCase() : null;
+  }
+
   get chosenDamageType(): string | null {
     const label = this.ddbParser._chosen?.find((c) =>
       TerrorizingForce.DAMAGE_TYPES.includes((c.label ?? "").toLowerCase()),
     )?.label;
-    return label ? label.toLowerCase() : null;
+    return label ? label.toLowerCase() : TerrorizingForce.chosenType(this.ddbParser.ddbData);
   }
 
   override get type(): IDDBActivityType | null {

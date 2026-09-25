@@ -176,9 +176,14 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return DDBDataUtils.classIdentifierName(name);
   }
 
+  /**
+   * The character's DDB action of this name, compared through nameString so curly apostrophes
+   * and trailing spaces in DDB's names ("Slippery Ploy ") still match.
+   */
   hasAction({ name, type }: { name: string; type: IActionTypes }): IDDBAction | undefined {
+    const target = utils.nameString(name);
     return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name,
+      utils.nameString(a.name) === target,
     );
   }
 

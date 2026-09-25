@@ -1,21 +1,30 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { area } from "../../data/RegionBuilders";
+import _Illrigger from "./_Illrigger";
 
 interface IHellstorm {
   label: string;
   ability: string;
   parts: I5eDamagePart[];
-  effectName: string;
+  /** The effect a failed save applies; Darkness has none, its region blinds instead. */
+  effectName: string | null;
   statuses: string[];
   description: string;
-  // the Darkness blindness affects every enemy in the storm, save or not
-  onSave: boolean;
+  behaviors: I5eActivityBehavior[];
 }
 
 /**
  * Master of Hell summons one of three hellstorms, picked as a choice on DDB. A character import
  * carries the choice and gets that storm; without one (muncher) every storm is built.
+ *
+ * Inferno's burning repeats its save at the end of each of the target's turns: a separate save
+ * activity rolls it natively, and midi's OverTime drives it when installed. Darkness blinds every
+ * enemy while it stands in the storm, so its placed region applies Blinded on entry and removes
+ * it on exit rather than applying a timed effect.
  */
-export default class MasterOfHell extends DDBEnricherData {
+export default class MasterOfHell extends _Illrigger {
+
+  static BURNING_SAVE = "Burning: End of Turn Save";
 
   static HELLSTORMS: IHellstorm[] = [
     {
@@ -27,8 +36,8 @@ export default class MasterOfHell extends DDBEnricherData {
       ],
       effectName: "Burning",
       statuses: [],
-      description: "At the end of each of your turns, make a Dexterity saving throw, taking 1d10 fire damage plus 1d10 necrotic damage on a failure, or ending the effect on a success. This hellfire can't be extinguished by nonmagical means.",
-      onSave: false,
+      description: "At the end of each of its turns, the burning creature makes a Dexterity saving throw, taking 1d10 fire damage plus 1d10 necrotic damage on a failure, or ending the effect on a success. This hellfire can't be extinguished by nonmagical means.",
+      behaviors: [],
     },
     {
       label: "Pestilence",
@@ -40,7 +49,7 @@ export default class MasterOfHell extends DDBEnricherData {
       effectName: "Pestilence: Poisoned",
       statuses: ["Poisoned"],
       description: "",
-      onSave: false,
+      behaviors: [],
     },
     {
       label: "Darkness",
@@ -48,10 +57,12 @@ export default class MasterOfHell extends DDBEnricherData {
       parts: [
         DDBEnricherData.basicDamagePart({ number: 10, denomination: 10, type: "cold" }),
       ],
-      effectName: "Darkness: Blinded",
-      statuses: ["Blinded"],
-      description: "Blinded while you remain in the storm's area.",
-      onSave: true,
+      effectName: null,
+      statuses: [],
+      description: "",
+      behaviors: [
+        DDBEnricherData.BehaviorHelper.applyEffect({ effects: DDBEnricherData.SRDEffects.condition("blinded") }),
+      ],
     },
   ];
 
@@ -70,35 +81,20 @@ export default class MasterOfHell extends DDBEnricherData {
       rangeType: "ft",
       rangeValue: 150,
       data: {
-        target: {
-          override: true,
-          template: {
-            count: "",
-            contiguous: false,
-            type: "sphere",
-            size: "50",
-            width: "",
-            height: "",
-            units: "ft",
-          },
-          affects: {
-            count: "",
-            type: "enemy",
-            choice: false,
-          },
-        },
+        target: area("sphere", "50", {}, "enemy"),
         duration: {
           units: "minute",
           value: "1",
         },
         save: {
           ability: [storm.ability],
-          dc: { calculation: "cha", formula: "" },
+          dc: _Illrigger.INTERDICT_DC,
         },
         damage: {
           onSave: "half",
           parts: storm.parts,
         },
+        ...(storm.behaviors.length > 0 ? { behaviors: storm.behaviors } : {}),
       },
     };
   }
@@ -111,8 +107,45 @@ export default class MasterOfHell extends DDBEnricherData {
     return this.hellstormActivity(this.hellstorms[0]);
   }
 
+  /** The repeated save a burning creature makes at the end of each of its turns. */
+  get burningSaveActivity(): IDDBAdditionalActivity {
+    return {
+      init: {
+        name: MasterOfHell.BURNING_SAVE,
+        type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+      },
+      build: {
+        generateActivation: true,
+        generateConsumption: false,
+        generateTarget: true,
+        generateSave: true,
+        generateDamage: true,
+        activationOverride: {
+          type: "special",
+          value: null,
+          condition: "At the end of each of a burning creature's turns; a success ends Burning",
+        },
+        saveOverride: {
+          ability: ["dex"],
+          dc: _Illrigger.INTERDICT_DC,
+        },
+        onSave: "none",
+        damageParts: [
+          DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, type: "fire" }),
+          DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, type: "necrotic" }),
+        ],
+      },
+      overrides: {
+        noConsumeTargets: true,
+        noTemplate: true,
+        targetType: "creature",
+        targetCount: 1,
+      },
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return this.hellstorms.slice(1).map((storm) => ({
+    const storms: IDDBAdditionalActivity[] = this.hellstorms.slice(1).map((storm) => ({
       init: {
         name: storm.label,
         type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
@@ -128,6 +161,8 @@ export default class MasterOfHell extends DDBEnricherData {
       },
       overrides: this.hellstormActivity(storm),
     }));
+    const inferno = this.hellstorms.some((storm) => storm.label === "Inferno");
+    return inferno ? [...storms, this.burningSaveActivity] : storms;
   }
 
   override get clearAutoEffects(): boolean {
@@ -135,16 +170,32 @@ export default class MasterOfHell extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return this.hellstorms.map((storm) => ({
-      name: storm.effectName,
-      activityMatch: storm.label,
-      statuses: storm.statuses,
-      onSave: storm.onSave,
-      options: {
-        durationSeconds: 60,
-        ...(storm.description ? { description: storm.description } : {}),
-      },
-    }));
+    return this.hellstorms.flatMap((storm): IDDBEffectHint[] => {
+      if (!storm.effectName) return [];
+      return [{
+        name: storm.effectName,
+        activityMatch: storm.label,
+        statuses: storm.statuses,
+        options: {
+          durationSeconds: 60,
+          ...(storm.description ? { description: storm.description } : {}),
+        },
+        midiChanges: storm.label === "Inferno"
+          ? [
+            DDBEnricherData.ChangeHelper.overTimeDamageChange({
+              document: this.data,
+              turn: "end",
+              damage: "1d10[fire] + 1d10[necrotic]",
+              damageType: "fire",
+              saveAbility: "dex",
+              saveRemove: true,
+              saveDamage: "nodamage",
+              dc: "8 + @prof + @abilities.cha.mod",
+            }),
+          ]
+          : [],
+      }];
+    });
   }
 
 }

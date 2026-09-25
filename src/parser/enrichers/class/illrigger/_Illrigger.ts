@@ -1,8 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Shared helpers for Illrigger features: the Baleful Interdict seal pool, the Invoke Hell use
- * and the interdict save DC.
+ * Shared helpers for Illrigger features: the Baleful Interdict seal pool, the Invoke Hell use,
+ * the interdict save DC and boon level gating.
  *
  * The leading underscore keeps this out of the name lookup - pascalCase of a DDB feature name
  * can never start with one - while still being exported by the generated barrel.
@@ -47,13 +47,16 @@ export default class _Illrigger extends DDBEnricherData {
   }
 
   /**
-   * A change whose roll data is resolved against the illrigger when the effect is applied to
-   * someone else, so `@prof` and the illrigger level read the caster's values.
+   * Activity visibility for an interdiction boon learned at a later illrigger level. DDB ships
+   * every boon's action with the 7th-level interdiction feature, so without this a 7th-level
+   * character sees the 13th and 18th-level boons too.
    */
-  static originChange(change: IActiveEffectChangeData): IActiveEffectChangeData {
+  static boonVisibility(min: number): { visibility: I5eActivityVisibility } {
     return {
-      ...change,
-      replacement: "origin",
+      visibility: {
+        identifier: "illrigger",
+        level: { min, max: null },
+      },
     };
   }
 

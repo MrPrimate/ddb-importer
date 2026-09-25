@@ -252,9 +252,13 @@ export function regionTrigger(name: string, trigger: IRegionTrigger): IDDBAdditi
 
 /**
  * The Athletics or Acrobatics check that ends a grapple. The parser writes this one itself, but
- * only for an item whose enricher adds no activities of its own.
+ * only for an item whose enricher adds no activities of its own. `dc` is a fixed formula, or an
+ * ability calculation (8 + proficiency + that modifier) for a DC that follows the grappler.
  */
-export function escapeCheck(dc: string, name = "Escape Check"): IDDBAdditionalActivity {
+export function escapeCheck(
+  dc: string | { calculation: string; formula: string }, name = "Escape Check",
+): IDDBAdditionalActivity {
+  const checkDc = typeof dc === "string" ? { calculation: "", formula: dc } : dc;
   return {
     init: { name, type: DDBEnricherData.ACTIVITY_TYPES.CHECK },
     build: {
@@ -262,7 +266,7 @@ export function escapeCheck(dc: string, name = "Escape Check"): IDDBAdditionalAc
       generateRange: false,
       generateConsumption: false,
       generateCheck: true,
-      checkOverride: { ability: "", associated: ["acr", "ath"], dc: { calculation: "", formula: dc } },
+      checkOverride: { ability: "", associated: ["acr", "ath"], dc: checkDc },
     },
     overrides: { noConsumeTargets: true, noTemplate: true, noeffect: true },
   };

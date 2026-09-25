@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { emanation } from "../../data/RegionBuilders";
 import _Illrigger from "./_Illrigger";
 
 /**
@@ -21,28 +22,10 @@ export default class LastWord extends _Illrigger {
       activationType: "special",
       activationCondition: "When you are reduced to 0 hit points and have unplaced seals remaining. You regain hit points equal to the total rolled if the explosion damages at least one creature.",
       targetType: "creature",
+      targetChoice: true,
+      rangeSelf: true,
       data: {
-        range: {
-          units: "self",
-          value: "",
-        },
-        target: {
-          override: true,
-          template: {
-            count: "",
-            contiguous: false,
-            type: "radius",
-            size: "30",
-            width: "",
-            height: "",
-            units: "ft",
-          },
-          affects: {
-            count: "",
-            type: "creature",
-            choice: true,
-          },
-        },
+        target: emanation("30"),
         save: {
           ability: ["dex"],
           dc: _Illrigger.INTERDICT_DC,

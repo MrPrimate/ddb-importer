@@ -1,6 +1,10 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import _Illrigger from "./_Illrigger";
 
+/**
+ * The doomed creature takes extra damage equal to the illrigger's proficiency bonus, as a damage
+ * modification on every damage type resolved against the illrigger when the effect is applied.
+ */
 export default class SoulsDoom extends _Illrigger {
 
   override get type(): IDDBActivityType | null {
@@ -30,10 +34,14 @@ export default class SoulsDoom extends _Illrigger {
       {
         name: "Soul's Doom",
         activityMatch: "Soul's Doom",
+        originReplacement: true,
         options: {
           durationSeconds: 60,
           description: "Whenever you take damage, you take extra damage equal to the illrigger's proficiency bonus.",
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.signedAddChange("@prof", 20, "system.traits.dm.amount.ALL"),
+        ],
       },
     ];
   }

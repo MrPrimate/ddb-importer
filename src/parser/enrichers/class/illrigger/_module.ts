@@ -3,6 +3,7 @@
 export { default as _Illrigger } from "./_Illrigger";
 export { default as AbatingSeal } from "./AbatingSeal";
 export { default as AcheronsChain } from "./AcheronsChain";
+export { default as AsmodeussInterdiction } from "./AsmodeussInterdiction";
 export { default as BalefulInterdict } from "./BalefulInterdict";
 export { default as Bedevil } from "./Bedevil";
 export { default as BelialsInterdiction } from "./BelialsInterdiction";

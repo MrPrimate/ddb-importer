@@ -2,8 +2,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import _Illrigger from "./_Illrigger";
 
 /**
- * Red Cant keeps DDB's action. Slippery Ploy is a Charisma save DDB ships as a plain utility,
- * so it is rebuilt. Incontrovertible is passive against interdicted creatures and left as text.
+ * Red Cant keeps DDB's action. Slippery Ploy (13th level) is a Charisma save DDB ships as a plain
+ * utility, so it is rebuilt and hidden until the illrigger reaches 13th level. Incontrovertible
+ * (18th level) is passive; BalefulInterdict adds its save disadvantage to the Interdict Seal.
  */
 export default class MolochsInterdiction extends _Illrigger {
 
@@ -45,6 +46,7 @@ export default class MolochsInterdiction extends _Illrigger {
         overrides: {
           targetType: "creature",
           targetCount: 1,
+          data: _Illrigger.boonVisibility(13),
         },
       },
     ];

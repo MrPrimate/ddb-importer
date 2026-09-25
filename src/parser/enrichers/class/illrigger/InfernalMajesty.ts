@@ -1,15 +1,16 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import TerrorizingForce from "./TerrorizingForce";
 
+/**
+ * Infernal Majesty doubles the Terrorizing Force die, so its effect adds a second 1d8 of the type
+ * chosen on DDB. That type is fixed at import; switching Terrorizing Force after a long rest does
+ * not follow into this effect.
+ */
 export default class InfernalMajesty extends DDBEnricherData {
 
   /** The Terrorizing Force damage type chosen on DDB, which Infernal Majesty doubles. */
   get terrorizingForceType(): string | null {
-    const options = this.ddbParser.ddbData?.character?.options?.class ?? [];
-    const option = options.find((o) =>
-      TerrorizingForce.DAMAGE_TYPES.includes((o.definition?.name ?? "").toLowerCase()),
-    );
-    return option ? (option.definition.name ?? "").toLowerCase() : null;
+    return TerrorizingForce.chosenType(this.ddbParser.ddbData);
   }
 
   override get type(): IDDBActivityType | null {
@@ -61,7 +62,15 @@ export default class InfernalMajesty extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
+    const damageType = this.terrorizingForceType;
     return {
+      descriptionSuffix: damageType
+        ? `
+<section class="secret ddbSecret" id="secret-ddbInfernalMajesty">
+<p><strong>Implementation Details</strong></p>
+<p>The extra Terrorizing Force die is ${damageType} damage, the type chosen when this character was imported. If you switch Terrorizing Force to another type, edit the Infernal Majesty effect or re-import.</p>
+</section>`
+        : undefined,
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Infernal Majesty",

@@ -78,13 +78,12 @@ export default class InvokeHellSanguineKnight extends _Illrigger {
       {
         name: "Vitalized",
         activityMatch: "Vitalize",
+        originReplacement: true,
         options: {
           durationSeconds: 60,
         },
         changes: [
-          _Illrigger.originChange(
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+@prof", 20, "system.rolls.ability.check.bonus"),
-          ),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+@prof", 20, "system.rolls.ability.check.bonus"),
         ],
       },
     ];

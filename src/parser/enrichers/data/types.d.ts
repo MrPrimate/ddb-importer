@@ -328,9 +328,9 @@ global {
      */
     standaloneKey?: string;
     /**
-     * With `standalone`: stamp `replacement: "origin"` on changes whose value carries roll data,
-     * so caster-derived formulas (@abilities.cha.mod, @scale...) resolve against the placing
-     * activity when the region applies the effect to another actor.
+     * Stamp `replacement: "origin"` on changes whose value carries roll data, so caster-derived
+     * formulas (@prof, @abilities.cha.mod, @scale...) resolve against the origin activity's actor
+     * when the effect is applied to another actor, by an activity or by a region.
      */
     originReplacement?: boolean;
 
