@@ -40,7 +40,8 @@ export default class Requiem extends DDBEnricherData {
       activationCondition: "One use of the activity per question asked",
       addActivityConsume: true,
       addActivityScalingMode: "amount",
-      addConsumptionScalingMax: `${variant.maxQuestions - 1}`,
+      // dnd5e's scaling max is the highest scaling value offered, which here is questions asked
+      addConsumptionScalingMax: `${variant.maxQuestions}`,
       removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "poison", scalingMode: "whole", scalingNumber: 1 }),

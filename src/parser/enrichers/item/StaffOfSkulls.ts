@@ -1,6 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { shippedItemSpellNames } from "./_ItemActivities";
 
-/** The three AU Staff of Skulls variants share one enricher and branch on the item name. */
+/**
+ * The three AU Staff of Skulls variants share one enricher and branch on the item name. The
+ * Ominous staff casts Chill Touch with the wielder's own spell attack bonus, grants advantage on
+ * Intimidation and sheds dim light while held.
+ */
 export default class StaffOfSkulls extends DDBEnricherData {
 
   get variant(): "chattering" | "ominous" | "pulverizing" | "base" {
@@ -39,6 +44,17 @@ export default class StaffOfSkulls extends DDBEnricherData {
             overrides: { targetType: "creature", activationType: "action", addItemConsume: true, noTemplate: true },
           },
         ];
+      case "ominous":
+        // a character import that already carries Chill Touch as an item spell has its cast
+        if (shippedItemSpellNames(this).includes("Chill Touch")) return [];
+        return [
+          {
+            init: { name: "Cast Chill Touch", type: DDBEnricherData.ACTIVITY_TYPES.CAST },
+            build: { generateSpell: true, generateConsumption: false },
+            // the staff's own spell attack is not fixed, so the caster's is used
+            overrides: { addSpellUuid: "Chill Touch", noSpellslot: true },
+          },
+        ];
       default:
         return [];
     }
@@ -62,6 +78,22 @@ export default class StaffOfSkulls extends DDBEnricherData {
             // AC5e's once ends the effect after the one attack; the native expiry is the ceiling
             ac5eChanges: [
               DDBEnricherData.ChangeHelper.ac5eChange("once; 1", 20, "flags.automated-conditions-5e.attack.disadvantage"),
+            ],
+          },
+        ];
+      case "ominous":
+        return [
+          {
+            name: "Ominous Staff of Skulls",
+            options: {
+              transfer: true,
+              description: "Advantage on Charisma (Intimidation) checks and Dim Light in a 5-foot radius while you hold the staff.",
+            },
+            changes: [
+              DDBEnricherData.ChangeHelper.advantageSkillChange("itm"),
+            ],
+            tokenChanges: [
+              DDBEnricherData.ChangeHelper.upgradeChange(5, 20, "token.light.dim"),
             ],
           },
         ];

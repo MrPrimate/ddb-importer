@@ -73,6 +73,29 @@ describe("Arcana Unleashed AC5e pins", () => {
     expect(changes[0]).toMatchObject({ key: "flags.automated-conditions-5e.attack.disadvantage", value: "once; 1" });
     expect(ac5eChanges(StaffOfSkulls, { name: "Ominous Staff of Skulls" })).toHaveLength(0);
   });
+
+  it("Ominous Staff of Skulls casts Chill Touch and carries its held benefits", () => {
+    const ominous: any = makeEnricherData(StaffOfSkulls, { name: "Ominous Staff of Skulls", actions: null });
+    const [cast] = ominous.additionalActivities;
+    expect(cast.init).toEqual({ name: "Cast Chill Touch", type: "cast" });
+    expect(cast.overrides).toMatchObject({ addSpellUuid: "Chill Touch", noSpellslot: true });
+    const [held] = ominous.effects;
+    expect(held.options.transfer).toBe(true);
+    expect(held.changes).toContainEqual(expect.objectContaining({ key: "system.skills.itm.roll.mode" }));
+    expect(held.tokenChanges).toContainEqual(expect.objectContaining({ key: "token.light.dim", value: "5" }));
+  });
+
+  it("Ominous Staff of Skulls leaves the cast to DDB's item spell when the character has one", () => {
+    const ominous: any = makeEnricherData(StaffOfSkulls, {
+      name: "Ominous Staff of Skulls",
+      actions: null,
+      ddbParser: {
+        ddbDefinition: { id: 42 },
+        raw: { itemSpells: [{ name: "Chill Touch", flags: { ddbimporter: { dndbeyond: { lookup: "item", lookupId: 42 } } } }] },
+      },
+    });
+    expect(ominous.additionalActivities).toEqual([]);
+  });
 });
 
 describe("Arcana Unleashed Arcane Shot options", () => {

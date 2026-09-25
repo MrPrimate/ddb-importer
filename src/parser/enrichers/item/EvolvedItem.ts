@@ -1,6 +1,8 @@
 import { CompendiumHelper, DDBCompendiumFolders, DDBItemImporter, logger, utils } from "../../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 import EvolvedItemProperties, { type IEvolvedProperty } from "./_EvolvedItemProperties";
+import { HOST_ITEMS_BUILDING, HOST_ITEMS_BUILT } from "./_EvolvedItemHosts";
+import { shippedItemSpellNames } from "./_ItemActivities";
 
 /**
  * The Arcana Unleashed evolving-item example families (Blade of the Guardian, Breastplate of
@@ -24,9 +26,6 @@ export default class EvolvedItem extends DDBEnricherData {
     },
   };
 
-  /** Items compendium ids whose host feats were written this session; one munch pass is enough. */
-  static hostItemsBuiltFor = new Set<string>();
-
   get property(): IEvolvedProperty | undefined {
     return EvolvedItemProperties.find(this.name);
   }
@@ -45,14 +44,7 @@ export default class EvolvedItem extends DDBEnricherData {
 
   /** Spells DDB attached to this item; the item-spell path already builds their cast activities. */
   get shippedSpellNames(): string[] {
-    const definitionId = this.ddbParser?.ddbDefinition?.id;
-    // only the item parser carries the character's item spells; the parser union has no `raw`
-    const parser = this.ddbParser as { raw?: { itemSpells?: I5eSpellItem[] } } | undefined;
-    const itemSpells = parser?.raw?.itemSpells ?? [];
-    return itemSpells
-      .filter((spell) => spell.flags?.ddbimporter?.dndbeyond?.lookup === "item"
-        && spell.flags?.ddbimporter?.dndbeyond?.lookupId === definitionId)
-      .map((spell) => spell.flags?.ddbimporter?.originalName ?? spell.name);
+    return shippedItemSpellNames(this);
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -100,10 +92,24 @@ export default class EvolvedItem extends DDBEnricherData {
     // put the host feats; the standalone effects still flow through the effects importer
     const compendium = CompendiumHelper.getCompendiumType("items", false);
     if (!compendium || !game.user?.isGM) return;
+    // one write per compendium and munch: the key is recorded only once the write succeeds, so
+    // a failed one is retried, and the items muncher clears it so a re-munch rebuilds them
     const key = compendium.metadata.id;
-    if (EvolvedItem.hostItemsBuiltFor.has(key)) return;
-    EvolvedItem.hostItemsBuiltFor.add(key);
-    await this.generateHostItems();
+    if (HOST_ITEMS_BUILT.has(key)) return;
+    const pending = HOST_ITEMS_BUILDING.get(key);
+    if (pending) {
+      await pending;
+      return;
+    }
+    const build = this.generateHostItems()
+      .then(() => {
+        HOST_ITEMS_BUILT.add(key);
+      })
+      .finally(() => {
+        HOST_ITEMS_BUILDING.delete(key);
+      });
+    HOST_ITEMS_BUILDING.set(key, build);
+    await build;
   }
 
 }

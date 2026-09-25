@@ -40,6 +40,8 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 
 import EvolvedItem from "../../../src/parser/enrichers/item/EvolvedItem";
 import EvolvedItemProperties, { EVOLVED_PROPERTIES } from "../../../src/parser/enrichers/item/_EvolvedItemProperties";
+import { HOST_ITEMS_BUILDING, HOST_ITEMS_BUILT, resetEvolvedHostItems } from "../../../src/parser/enrichers/item/_EvolvedItemHosts";
+import { CompendiumHelper } from "../../../src/lib/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -278,5 +280,55 @@ describe("Evolved item host feats", () => {
     // the activity effect is carried by its activity, not the profile's rider list
     const enchant = quickening.system.activities[EvolvedItemProperties.enchantActivityId(property("Quickening"))] as any;
     expect(enchant.effects[0].riders.effect).not.toContain(velocityId);
+  });
+});
+
+describe("Evolved item host feat writes", () => {
+  const compendium = { metadata: { id: "world.ddb-items" } };
+  const originalUser = (globalThis as any).game.user;
+
+  beforeEach(() => {
+    resetEvolvedHostItems();
+    HOST_ITEMS_BUILDING.clear();
+    vi.mocked(CompendiumHelper.getCompendiumType).mockReturnValue(compendium as any);
+    (globalThis as any).game.user = { isGM: true };
+  });
+
+  afterEach(() => {
+    vi.mocked(CompendiumHelper.getCompendiumType).mockReturnValue(null as any);
+    (globalThis as any).game.user = originalUser;
+    vi.restoreAllMocks();
+  });
+
+  it("retries after a failed write instead of remembering the compendium as done", async () => {
+    const generate = vi.spyOn(EvolvedItem.prototype, "generateHostItems")
+      .mockRejectedValueOnce(new Error("pack locked"))
+      .mockResolvedValueOnce(undefined);
+    await expect(enricherFor("Blade of the Guardian").cleanup()).rejects.toThrow("pack locked");
+    expect(HOST_ITEMS_BUILT.has("world.ddb-items")).toBe(false);
+    await enricherFor("Blade of the Guardian").cleanup();
+    expect(generate).toHaveBeenCalledTimes(2);
+    expect(HOST_ITEMS_BUILT.has("world.ddb-items")).toBe(true);
+  });
+
+  it("shares one write between parallel item parses", async () => {
+    let finish!: () => void;
+    const generate = vi.spyOn(EvolvedItem.prototype, "generateHostItems")
+      .mockImplementation(() => new Promise<void>((resolve) => (finish = resolve)));
+    const first = enricherFor("Blade of the Guardian").cleanup();
+    const second = enricherFor("Studious Blade of the Guardian").cleanup();
+    finish();
+    await Promise.all([first, second]);
+    expect(generate).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes again after the muncher resets it", async () => {
+    const generate = vi.spyOn(EvolvedItem.prototype, "generateHostItems").mockResolvedValue(undefined);
+    await enricherFor("Blade of the Guardian").cleanup();
+    await enricherFor("Blade of the Guardian").cleanup();
+    expect(generate).toHaveBeenCalledTimes(1);
+    resetEvolvedHostItems();
+    await enricherFor("Blade of the Guardian").cleanup();
+    expect(generate).toHaveBeenCalledTimes(2);
   });
 });

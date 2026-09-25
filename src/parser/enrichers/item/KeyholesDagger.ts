@@ -208,12 +208,12 @@ export default class KeyholesDagger extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.overrideChange(form.mastery, 20, "system.mastery"),
             DDBEnricherData.ChangeHelper.overrideChange(form.die, 20, "system.damage.base.denomination"),
             DDBEnricherData.ChangeHelper.overrideChange(form.damage, 20, "system.damage.base.types"),
-            // Ability choice does not grant Finesse to forms that lack that property.
-            DDBEnricherData.ChangeHelper.overrideChange(
-              JSON.stringify(["str", "dex"]),
-              20,
-              "activities[attack].attack.abilities",
-            ),
+            // Ability choice does not grant Finesse to forms that lack that property. Each ability
+            // is added to the attack's candidate set, which is what dnd5e's own
+            // `attack.ability` shim does; an override of the whole set stores the JSON text as a
+            // single bogus entry, leaving Strength the only real choice on a non-finesse form.
+            DDBEnricherData.ChangeHelper.addChange("str", 20, "activities[attack].attack.abilities"),
+            DDBEnricherData.ChangeHelper.addChange("dex", 20, "activities[attack].attack.abilities"),
             DDBEnricherData.ChangeHelper.overrideChange(
               JSON.stringify(["mgc", ...form.properties]),
               20,

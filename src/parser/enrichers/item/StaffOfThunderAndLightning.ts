@@ -79,14 +79,20 @@ export default class StaffOfThunderAndLightning extends DDBEnricherData {
           },
         },
         {
-          // the daily use is spent by the Lightning Strike half; this half costs nothing
+          // dnd5e cannot spend one activity's use from another, so this half tracks its own
+          // once-per-dawn use; used alongside the Lightning Strike half, both reset at dawn
           init: {
             name: "Thunder and Lightning (Thunderclap)",
             type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           },
-          build: StaffOfThunderAndLightning.thunderclapBuild("Used together with Thunder and Lightning (Lightning Strike)"),
+          build: {
+            ...StaffOfThunderAndLightning.thunderclapBuild("Used together with Thunder and Lightning (Lightning Strike)"),
+            generateUses: true,
+            usesOverride: StaffOfThunderAndLightning.dawnUse(),
+          },
           overrides: {
             noConsumeTargets: true,
+            addActivityConsume: true,
             rangeSelf: true,
           },
         },

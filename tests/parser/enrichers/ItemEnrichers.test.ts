@@ -767,10 +767,12 @@ describe("items with more than one roll", () => {
     // 2024 Thunder and Lightning is a Bonus Action after a hit
     expect(modern.additionalActivities[2].build.activationOverride.type).toBe("bonus");
 
-    // the 2014 Thunderclap half is paid for by the Lightning Strike half
+    // one activity cannot spend another's use, so the 2014 Thunderclap half has its own daily use
     const legacyThunderclap = legacy.additionalActivities[3];
-    expect(legacyThunderclap.build.generateUses).toBeUndefined();
-    expect(legacyThunderclap.overrides.addActivityConsume).toBeUndefined();
+    expect(legacyThunderclap.init.name).toBe("Thunder and Lightning (Thunderclap)");
+    expect(legacyThunderclap.build.generateUses).toBe(true);
+    expect(legacyThunderclap.build.usesOverride).toMatchObject({ max: "1", recovery: [{ period: "dawn", type: "recoverAll" }] });
+    expect(legacyThunderclap.overrides.addActivityConsume).toBe(true);
 
     const stunned = modern.effects.find((e: any) => e.name === "Stunned");
     expect(stunned.options.expiry).toBe("sourceEnd");
@@ -1007,12 +1009,14 @@ describe("Requiem", () => {
     // @scaling is the question count (increase + 1), so it carries the "+ 1 per question" itself
     expect(bliss.activity.data.save.dc.formula).toBe("12 + @scaling");
     expect(bliss.activity.data.uses.max).toBe("10");
-    expect(bliss.activity.addConsumptionScalingMax).toBe("9");
+    // dnd5e's scaling max is the highest scaling value offered, which is questions asked
+    expect(bliss.activity.addConsumptionScalingMax).toBe("10");
     expect(bliss.additionalActivities[0].build.saveOverride.dc.formula).toBe("15");
 
     const clay = build(Enricher, { name: "Requiem Clay" });
     expect(clay.activity.data.save.dc.formula).toBe("10 + @scaling");
     expect(clay.activity.data.uses.max).toBe("5");
+    expect(clay.activity.addConsumptionScalingMax).toBe("5");
     expect(clay.additionalActivities[0].build.saveOverride.dc.formula).toBe("13");
   });
 

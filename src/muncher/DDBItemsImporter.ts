@@ -21,6 +21,8 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
 import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
 import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
+// the guard module only, not the enricher: importing enrichers from the muncher closes a module cycle
+import { resetEvolvedHostItems } from "../parser/enrichers/item/_EvolvedItemHosts";
 
 
 // Parsed documents generated from the raw DDB item data by _processDDBItemData.
@@ -210,6 +212,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
   }
 
   async init() {
+    // a new munch rewrites the evolved-item host feats, which may now link freshly munched spells
+    resetEvolvedHostItems();
     await DDBReferenceLinker.importCacheLoad();
     // to speed up file checking we pregenerate existing files now.
     logger.info("Checking for existing files...");
