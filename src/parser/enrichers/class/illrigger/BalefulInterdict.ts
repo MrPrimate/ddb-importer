@@ -3,8 +3,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * Baleful Interdict is the Illrigger's seal pool (Baleful Interdict Seals
  * scale, short rest recovery). Placing a seal spends a use and applies a
- * stackable Interdict Seal effect to the target; burning seals deals 1d6 per
- * seal burned (the player removes stacks manually).
+ * stackable Interdict Seal effect to the target; burning seals deals the Seal
+ * Damage scale (1d6, rising to 4d6 at 20th level) per seal burned (the player
+ * removes stacks manually).
  */
 export default class BalefulInterdict extends DDBEnricherData {
 
@@ -69,12 +70,11 @@ export default class BalefulInterdict extends DDBEnricherData {
           activationOverride: {
             type: "special",
             value: null,
-            condition: "Burn any number of seals on the target (1d6 per seal)",
+            condition: "Burn any number of seals on the target; roll once per seal burned",
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 6,
+              customFormula: "@scale.illrigger.seal-damage",
               type: "fire",
             }),
           ],
@@ -98,12 +98,11 @@ export default class BalefulInterdict extends DDBEnricherData {
           activationOverride: {
             type: "special",
             value: null,
-            condition: "Burn any number of seals on the target (1d6 per seal)",
+            condition: "Burn any number of seals on the target; roll once per seal burned",
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 6,
+              customFormula: "@scale.illrigger.seal-damage",
               type: "necrotic",
             }),
           ],

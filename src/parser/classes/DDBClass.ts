@@ -81,8 +81,21 @@ export default class DDBClass extends DDBBaseClass {
       fix: true,
       fixFunction: AdvancementHelper.rename,
       functionArgs: { newName: "Baleful Interdict Seals", identifier: "seals" },
-      additionalAdvancements: false,
-      additionalFunctions: [],
+      // DDB has no scale for the Seal Damage column of the class table
+      additionalAdvancements: true,
+      additionalFunctions: [
+        // deferred so this static table only reads the helper while modules load (tests stub it empty)
+        (_advancement) => AdvancementHelper.buildDiceScale({
+          name: "Seal Damage",
+          identifier: "seal-damage",
+          scale: {
+            1: { number: 1, faces: 6 },
+            5: { number: 2, faces: 6 },
+            11: { number: 3, faces: 6 },
+            20: { number: 4, faces: 6 },
+          },
+        }),
+      ],
     },
     "Interdiction": {
       fix: true,
