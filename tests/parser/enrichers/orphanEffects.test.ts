@@ -34,10 +34,6 @@ const KNOWN_ORPHANS: Record<string, string> = {
   "class.Fighter.Blindsight": "parent: the Night Stalker feature's Blindsight action builds the activity",
   "class.Paladin.EmissaryOfPeace": "parent: paladin ChannelDivinity builds the Emissary of Peace action activity",
   "class.Warlock.SpiritProjectionProjectSpirit": "parent: Spirit Projection option, the parent action activity applies it",
-  // the dnd6 versions of these three add an activity built on dnd5e 6.0 rule changes, which this branch lacks
-  "class.Cleric.ChannelDivinityPathToTheGrave": "v7.1.x: effect rides the DDB Channel Divinity action; the dnd6 activity uses ruleDisadvantageChange",
-  "class.Fighter.EldritchStrike": "v7.1.x: passive rider effect; the dnd6 activity uses ruleDisadvantageChange",
-  "class.Wizard.MomentaryStasis": "v7.1.x: effect rides the DDB action; the dnd6 save activity uses 6.0 rule changes",
 };
 
 /** Flatten a barrel (one level of namespace re-exports for class/trait) into `Key` / `Group.Key`. */
