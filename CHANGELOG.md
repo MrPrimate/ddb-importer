@@ -26,6 +26,7 @@
 - Power Word Pain now caps all speeds at 10 ft, and Dream and Magic Jar reduce all speeds to 0.
 - Several monster attacks that reduce Speed now affect all speeds in 2024.
 - Speed effects now use the dnd5e 6 speed fields.
+- Re-importing a character with "Retain Active Effects?" ticked broke the links between activities and their effects, so spells like Shield showed no Applied Effects in the chat card. Retained effects now keep the links, and custom effects on items are still kept.
 - For 2024 content, a general "Speed" bonus (e.g. Fast Movement, Roving) now applies to all your speeds rather than just walking speed.
 
 # 7.5.5
