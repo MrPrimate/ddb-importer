@@ -36,19 +36,19 @@ async function getDirection(total, denomination) {
 
 if (args[0] === "each") {
   if (scope.effect) {
-    const changeIndex = scope.effect.changes.findIndex(
+    const changeIndex = scope.effect.system.changes.findIndex(
       (change) =>
         change.key === "system.attributes.movement.all" &&
-        change.mode === CONST.ACTIVE_EFFECT_MODES.CUSTOM &&
-        change.value === 0,
+        change.type === "custom" &&
+        change.value === "*0",
     );
 
     if (changeIndex !== -1) {
-      scope.effect.changes.splice(changeIndex, 1);
+      scope.effect.system.changes.splice(changeIndex, 1);
 
       await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
+        updates: [{ _id: scope.effect._id, "system.changes": scope.effect.system.changes }],
       });
     } else {
       console.log("Specified change not found in the Confusion effect.");
@@ -85,15 +85,15 @@ if (args[0] === "each") {
     case 6: {
       content = "The creature doesn't move or take actions this turn.";
       if (scope.effect)
-        scope.effect.changes.push({
+        scope.effect.system.changes.push({
           key: "system.attributes.movement.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: 0,
+          type: "custom",
+          value: "*0",
           priority: 20,
         });
       await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
+        updates: [{ _id: scope.effect._id, "system.changes": scope.effect.system.changes }],
       });
       break;
     }

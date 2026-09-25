@@ -17,24 +17,30 @@ if (args[0].tag === "OnUse") {
       }
 
       const favoredFoeHitData = {
-        changes: [
-          {
-            key: "flags.midi-qol.favoredFoeHit",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: targetUuid,
-            priority: 20
-          }
-        ],
+        system: {
+          changes: [
+            {
+              key: "flags.midi-qol.favoredFoeHit",
+              type: "override",
+              value: targetUuid,
+              priority: 20
+            }
+          ],
+        },
         origin: args[0].actorUuid,
         disabled: false,
         img: args[0].item.img,
-        label: "Favored Foe Hit",
         name: "Favored Foe Hit",
+        // "until the start of your next turn" - native sourceStart expiry, DAE flag kept below
+        duration: {
+          value: null,
+          expiry: "sourceStart",
+        },
       };
       foundry.utils.setProperty(favoredFoeHitData, "flags.dae.specialDuration", ["turnStartSource"]);
       await args[0].actor.createEmbeddedDocuments("ActiveEffect", [favoredFoeHitData]);
 
-      const damageType = args[0].item.system.damage.parts[0][1];
+      const damageType = Array.from(args[0].item.system.damage?.base?.types ?? [])[0] ?? "";
       const diceMult = args[0].isCritical ? 2 : 1;
       return { damageRoll: `${diceMult}d${args[0].actor.classes.ranger.scaleValues["favored-foe"].faces }[${damageType}]`, flavor: "Favored Foe" };
     }

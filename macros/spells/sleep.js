@@ -26,14 +26,13 @@ for (let target of targets) {
     remainingSleepHp -= targetHpValue;
     console.log(`Sleep Results => Target: ${findTarget.name} |  HP: ${targetHpValue} | HP Pool: ${remainingSleepHp} | Status: Slept`);
     sleepTarget.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);
-    const gameRound = game.combat ? game.combat.round : 0;
     const effectData = {
       label: "Sleep Spell",
       name: "Sleep Spell",
       img: "icons/svg/sleep.svg",
       origin: args[0].uuid,
       disabled: false,
-      duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
+      duration: { value: 60, units: "seconds", expiry: "turnStart" },
       flags: { dae: { specialDuration: ["isDamaged"] } },
       statuses: ["unconscious"],
     };

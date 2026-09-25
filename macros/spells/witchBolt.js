@@ -57,7 +57,7 @@ if (args[0].macroPass === "postActiveEffects" || args[0].macroPass === "postAtta
     label: "WitchBolt Ongoing",
     name: "WitchBolt Ongoing",
     img: args[0].item.img,
-    duration: { rounds: 10, startTime: game.time.worldTime },
+    duration: { value: 60, units: "seconds", expiry: "turnStart" },
     origin: args[0].item.uuid,
     changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "witchBolt.js", document: { name: "Witch Bolt" } })],
     disabled: false,

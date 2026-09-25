@@ -36,22 +36,22 @@ if (args[0].tag === "OnUse") {
   const caster = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
   const effectData = {
-    changes: [
-      {
-        key: "flags.dnd5e.DamageBonusMacro",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "spiritShroud.js", document: { name: "Spirit Shroud" } }),
-        priority: 20,
-      }, // macro to apply the damage
-    ],
+    system: {
+      changes: [
+        {
+          key: "flags.dnd5e.DamageBonusMacro",
+          type: "custom",
+          value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "spiritShroud.js", document: { name: "Spirit Shroud" } }),
+          priority: 20,
+        }, // macro to apply the damage
+      ],
+    },
     origin: args[0].itemUuid,
     disabled: false,
-    duration: args[0].item.effects[0].duration,
+    duration: foundry.utils.duplicate(args[0].item.effects[0].duration),
     img: args[0].item.img,
-    label: args[0].item.name,
     name: args[0].item.name,
   };
-  effectData.duration.startTime = game.time.worldTime;
   await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);
   selectDamage(caster);
 } else if (args[0].tag === "DamageBonus") {

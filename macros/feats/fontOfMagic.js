@@ -145,18 +145,15 @@ if (can_convert_points_to_slot) buttons["point_to_slot"] = {
 
 if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
   if (!actor || ! item) {
-    logger.error("No actor or item passed to arcane recovery");
+    console.error("No actor or item passed to font of magic");
     return;
   }
   new Dialog({ title: "Font of Magic", buttons }).render(true);
 } else if (args && args[0] === "on") {
   // midi changes to skip config dialog and not consume usage
-  Hooks.once("dnd5e.preUseItem", (item, config, options) => {
-    options.configureDialog = false;
-    return true;
-  });
-  Hooks.once("dnd5e.preItemUsageConsumption", (item, config, options) => {
-    config.consumeUsage = false;
+  Hooks.once("dnd5e.preUseActivity", (activity, usageConfig, dialogConfig, _messageConfig) => {
+    dialogConfig.configure = false;
+    usageConfig.consume = false;
     return true;
   });
   // End of midi changes to macro

@@ -184,7 +184,7 @@ async function arcanePrototype(actor, feature) {
 
 if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
   if (!actor || !item) {
-    logger.error("No actor or item passed to arcane prototype");
+    console.error("No actor or item passed to arcane prototype");
     return;
   }
   console.info("Running Arcane Prototype macro with:", {

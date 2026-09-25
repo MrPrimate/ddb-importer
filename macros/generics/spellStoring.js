@@ -44,15 +44,17 @@ if (scopeParameters.action === "store-spell") {
 
   const activities = {};
   for (const [key, value] of Object.entries(sourceItem._source.system.activities)) {
-    if (value.type === "cast" || value.type === "enchant") activities[`-=${key}`] = null;
+    // system.activities is a MappingField/TypedObjectField: v14 replaced the legacy
+    // {"-=key": null} deletion syntax with the ForcedDeletion operator as the value
+    if (value.type === "cast" || value.type === "enchant") activities[key] = _del;
     else activities[key] = value;
   }
   await sourceItem.update({ "system.activities": activities, effects: [] });
 
-  console.warn({
-    sourceItem,
-    source: sourceItem.toObject(),
-  })
+  // console.warn({
+  //   sourceItem,
+  //   source: sourceItem.toObject(),
+  // })
 
   let uuid = await dnd5e.applications.CompendiumBrowser.selectOne({
     filters: {
@@ -130,7 +132,9 @@ if (scopeParameters.action === "store-spell") {
     changes: [
       {
         key: "name",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        // these land in system.changes via a document UPDATE, and update diffs do not
+        // run migrateData, so the legacy numeric `mode` would be dropped silently
+        type: "override",
         value: `{} (Stored Spell)`,
         priority: 20,
       },

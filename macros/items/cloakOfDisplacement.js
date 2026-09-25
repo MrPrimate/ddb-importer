@@ -2,19 +2,25 @@ if (args[0] === "each") {
 
   const lastArg = args[args.length - 1];
   const effectData = {
-    changes: [
-      {
-        key: "flags.midi-qol.grants.disadvantage.attack.all ",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: 1,
-        priority: 20,
-      },
-    ],
+    system: {
+      changes: [
+        {
+          key: "flags.midi-qol.grants.disadvantage.attack.all",
+          type: "add",
+          value: 1,
+          priority: 20,
+        },
+      ],
+    },
     origin: lastArg.origin,
     disabled: false,
     img: lastArg.efData.img,
-    label: `Cloak of Displacement - Enforced Disadvantage`,
     name: `Cloak of Displacement - Enforced Disadvantage`,
+    // "until the start of your next turn" - native sourceStart expiry; isDamaged stays DAE-only
+    duration: {
+      value: null,
+      expiry: "sourceStart",
+    },
   };
   foundry.utils.setProperty(effectData, "flags.dae.specialDuration", ["isDamaged", "turnStartSource"]);
   foundry.utils.setProperty(effectData, "flags.dae.showIcon", true);

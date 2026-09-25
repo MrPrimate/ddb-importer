@@ -76,7 +76,7 @@ ${spellSlotChoices}
 
 if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
   if (!actor || ! item) {
-    logger.error("No actor or item passed to natural recovery");
+    console.error("No actor or item passed to natural recovery");
     return;
   }
   naturalRecovery(actor, item);

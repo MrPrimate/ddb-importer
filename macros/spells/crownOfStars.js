@@ -14,10 +14,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     }
 
     const changes = [
-      DDBImporter.EffectHelper.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '30'),
+      DDBImporter.EffectHelper.generateATLChange("ATL.light.dim", "upgrade", '30'),
       DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "crownOfStars.js" }),
     ];
-    await effect.update({ changes });
+    await effect.update({ "system.changes": changes });
   }
 }
 

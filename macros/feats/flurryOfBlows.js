@@ -1,4 +1,4 @@
-await game.user.updateTokenTargets([]);
+canvas.tokens.setTargets([], { mode: "replace" });
 await DDBImporter.EffectHelper.wait(1000);
 const secondAttack = foundry.utils.duplicate(item);
 secondAttack.name = `${item.name} Second Attack`;

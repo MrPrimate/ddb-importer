@@ -17,7 +17,9 @@ const EFFECT_LOOKUP = {
 
 async function eyebite(type, dc, targetActor) {
   const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dc} ${DAEItem?.name || ""}`;
-  const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastForward: true });
+  const saveRolls = await targetActor.rollSavingThrow({ ability: "wis" }, { configure: false }, { data: { flavor } });
+  const saveRoll = saveRolls?.[0];
+  if (!saveRoll) return;
   if (dc > saveRoll.total) {
     ChatMessage.create({ content: `${targetActor.name} failed the save with a ${saveRoll.total}` });
     const conditions = EFFECT_LOOKUP[type];

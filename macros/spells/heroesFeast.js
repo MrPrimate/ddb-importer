@@ -7,7 +7,7 @@
 if (scope.rolledActivity?.type !== "heal") return;
 
 if (workflow.targets.size === 0) {
-  logger.warn("No targets found");
+  console.warn("No targets found");
   ui.notifications.warn(`Please Target up to 12 creatures!`);
   item.update({ "system.uses.spent": item.system.uses.spent + extraSpent });
   return;
@@ -23,7 +23,7 @@ for (const damageData of scope.workflow.damageList) {
 
   const effect = {
     _id: originalEffect._id,
-    changes: originalEffect.changes.map((c) => {
+    "system.changes": foundry.utils.duplicate(originalEffect.system.changes).map((c) => {
       if (c.key !== "system.attributes.hp.tempmax") return c;
       c.value = damageData.totalDamage;
       return c;

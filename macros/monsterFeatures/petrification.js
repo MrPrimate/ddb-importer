@@ -17,7 +17,9 @@ if (args[0] === "on") {
 
 async function checkPetrification(flag) {
   const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveData.dc} ${DAEItem?.name || ""}`;
-  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor, fastForward: true });
+  const saveRolls = await targetActor.rollSavingThrow({ ability: saveData.ability }, { configure: false }, { data: { flavor } });
+  const saveRoll = saveRolls?.[0];
+  if (!saveRoll) return;
 
   if (saveRoll.total < saveData.dc) {
     flag.failures += 1;
