@@ -3,33 +3,50 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverTacticalAssessment extends Maneuver {
 
-  override get type(): IDDBActivityType {
-    return DDBEnricherData.ACTIVITY_TYPES.CHECK;
+  get type(): IDDBActivityType | null {
+    return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  override get activity(): IDDBActivityData {
-    return {
-      name: "Tactical Assessment Check",
-      targetType: "self",
-      activationType: "special",
-      addItemConsume: true,
-      data: {
-        check: {
-          associated: ["his", "inv", "ins"],
-          ability: "",
-          bonus: this.diceString,
-          dc: {
-            calculation: "",
-            formula: "",
+  get activity(): IDDBActivityData {
+    return this.useMidiAutomations
+      ? {
+        targetType: "self",
+        activationType: "special",
+        addItemConsume: true,
+      }
+      : {
+        addItemConsume: true,
+        data: {
+          name: "Roll Check (Apply Effect First)",
+          check: {
+            associated: ["his", "inv", "ins"],
+            ability: "",
+            dc: {
+              calculation: "",
+              formula: "",
+            },
           },
-          visible: true,
         },
-      },
-    };
+      };
   }
 
-  override get effects(): IDDBEffectHint[] {
-    return [];
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Tactical Assessment Bonus",
+        daeSpecialDurations: ["isSkill.his" as const, "isSkill.inv" as const, "isSkill.ins" as const],
+        data: {
+          duration: {
+            turns: 2,
+          },
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.his.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.inv.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ins.bonuses.check"),
+        ],
+      },
+    ];
   }
 
 }

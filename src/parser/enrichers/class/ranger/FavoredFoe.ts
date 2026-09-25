@@ -32,7 +32,7 @@ export default class FavoredFoe extends DDBEnricherData {
           },
         },
       },
-      "name": "Favored Foe Damage",
+      "title": "Favored Foe Damage",
       "hint": "The extra damage dealt to a marked favored enemy.",
     };
 
