@@ -17,13 +17,13 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static override LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
+  static override LOCALIZATION_PREFIXES = [...BaseMacroActivity.LOCALIZATION_PREFIXES, "ddb-importer.activities.macro"];
 
   /* -------------------------------------------- */
 
   /** @inheritDoc */
   static override metadata = Object.freeze(
-    foundry.utils.mergeObject(super.metadata, {
+    foundry.utils.mergeObject(BaseMacroActivity.metadata, {
       type: "ddbmacro",
       img: "systems/dnd5e/icons/svg/items/tool.svg",
       title: "ddb-importer.activities.macro.Title",
@@ -41,9 +41,12 @@ export default class MacroActivity extends BaseMacroActivity {
   /* -------------------------------------------- */
 
   /** @override */
-  override async _usageChatButtons(message: Record<string, any>) {
-    const superButtons = await super._usageChatButtons(message);
-    if (!this.macro.function) return superButtons;
+  // synchronous like the base: dnd5e reads the returned array directly when it builds the usage card
+  // (dnd5e-types 5.0 declares it async, so the base result and our return are cast)
+  override _usageChatButtons(message: Record<string, any>) {
+    const superButtons = super._usageChatButtons(message) as unknown as Record<string, unknown>[];
+    type TBaseButtons = ReturnType<InstanceType<typeof BaseMacroActivity>["_usageChatButtons"]>;
+    if (!this.macro.function) return superButtons as unknown as TBaseButtons;
     const macroButton = {
       label: this.macro.name || game.i18n.localize("ddb-importer.activities.macro.Button"),
       icon: "<i class=\"fas fa-code\" inert></i>",
@@ -51,11 +54,11 @@ export default class MacroActivity extends BaseMacroActivity {
         action: "executeMacro",
         visibility: this.macro.visible ? "all" : undefined,
       },
-    } as unknown as (typeof superButtons)[number];
-    return [macroButton].concat(superButtons);
+    } as Record<string, unknown>;
+    return [macroButton].concat(superButtons) as unknown as TBaseButtons;
   }
 
-  async _executeDDBMacro(targetUuids: string[] = []) {
+  async _executeDDBMacro(targetUuids: string[] = [], parametersOverride?: string, regionContext?: unknown) {
 
     // DDBSimpleMacro.execute treats absent ids by truthiness, so undefined is equivalent to null here
     const ids = {
@@ -77,7 +80,8 @@ export default class MacroActivity extends BaseMacroActivity {
       activityActorUuid: this.actor?.uuid,
       activityItemUuid: this.item.uuid,
       targetUuids,
-      parameters: this.macro.parameters,
+      parameters: parametersOverride ?? this.macro.parameters,
+      regionContext,
     };
 
     logger.verbose("executing simple ddb macro", {
@@ -92,7 +96,7 @@ export default class MacroActivity extends BaseMacroActivity {
 
   }
 
-  async _executeFoundryMacro(targets: unknown[] = []) {
+  async _executeFoundryMacro(targets: unknown[] = [], parametersOverride?: string, regionContext?: unknown) {
     let macro;
     if (this.macro.function.startsWith("Macro.")) {
       macro = await fromUuid(this.macro.function) as Macro.Implementation;
@@ -109,7 +113,8 @@ export default class MacroActivity extends BaseMacroActivity {
         token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
         activity: this,
         origin: this.uuid,
-        parameters: this.macro.parameters,
+        parameters: parametersOverride ?? this.macro.parameters,
+        regionContext,
       } as unknown as Parameters<typeof macro.execute>[0]);
     }
   }
@@ -129,22 +134,27 @@ export default class MacroActivity extends BaseMacroActivity {
     const targets = Array.from(game.user.targets);
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.document.uuid));
+      this._executeDDBMacro(targets.map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid));
     } else {
       this._executeFoundryMacro(targets);
     }
   }
 
   /** @override */
-  override async _triggerSubsequentActions(_config: unknown, _results: unknown) {
+  override async _triggerSubsequentActions(config: unknown, _results: unknown) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
     const targets = Array.from(game.user.targets);
+    // callers such as RegionAutomations.useActivity can override the stored macro
+    // parameters and provide the triggering region's details via the usage config
+    const usageConfig = config as { ddbMacroParameters?: string; ddbRegionContext?: unknown } | null;
+    const parametersOverride = usageConfig?.ddbMacroParameters;
+    const regionContext = usageConfig?.ddbRegionContext;
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.document.uuid));
+      this._executeDDBMacro(targets.map((t) => t.document.uuid).filter((uuid): uuid is string => !!uuid), parametersOverride, regionContext);
     } else {
-      this._executeFoundryMacro(targets);
+      this._executeFoundryMacro(targets, parametersOverride, regionContext);
     }
   }
 }

@@ -154,4 +154,3 @@ export const renderJournalEntryPageSheet: Hooks.Function<"renderJournalEntryPage
     adventureFlags(sheet, html, data);
   }
 };
-

@@ -7,6 +7,7 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 
+
 interface IDDBMonsterImporterBuildOptions {
   temporary?: boolean;
   update?: boolean;
@@ -26,6 +27,12 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
   updateExisting: boolean;
   monster: T;
   data: Actor.Implementation | null = null;
+
+  /**
+   * The single token files the last getNPCImage produced. The prototype token cannot stand in for
+   * them: with wildcard tokens it points at the folder pattern, not at a file.
+   */
+  tokenFiles: { downloaded: string | null; tokenized: string | null } = { downloaded: null, tokenized: null };
 
   constructor({ monster, type, updateExisting, notifier, fullWipe = false }: {
     monster?: T;
@@ -111,8 +118,17 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         } else {
           item["_id"] = existingItem.id ?? undefined;
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
-            item.img = existingItem.img;
+            item.img = existingItem.img ?? undefined;
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
+          }
+          const existingMonsterFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags | undefined;
+          const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
+            existingMonsterFlags, item, "retainActivityUseSpent",
+          );
+          if (retainActivitySpent) {
+            DDBItemImporter.restoreActivityUseSpent(
+              existingItem.toObject() as unknown as TAll5eItemDocuments, item, retainActivitySpent,
+            );
           }
           if ("consume" in existingItem.system
             && foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")
@@ -220,10 +236,58 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       await this.generateCastSpells();
     }
 
-    await Hooks.callAll("ddb-importer.monsterAddToCompendiumComplete", { actor: this.compendiumActor });
+    await Hooks.callAll<"ddb-importer.monsterAddToCompendiumComplete">(
+      "ddb-importer.monsterAddToCompendiumComplete",
+      { actor: this.compendiumActor },
+    );
 
   }
 
+
+  /**
+   * Where a monster's DDB token image is stored: the file name and folder follow the rules and
+   * book, and with deep paths (or wildcard tokens, which imply them) the creature type folder.
+   * Shared with lookups that download another monster's token (shape-shift form art), so the
+   * file lands where that monster's own munch would put it.
+   */
+  static tokenDownloadOptions({ tokenUrl, monsterName, npcType, subType, rules, book, isStock = false, useTokenizer = false, force = false }: {
+    tokenUrl: string;
+    monsterName: string;
+    npcType: string;
+    subType: string;
+    rules: string;
+    book: string;
+    isStock?: boolean;
+    useTokenizer?: boolean;
+    force?: boolean;
+  }) {
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useWildcard = utils.getSetting<boolean>("munching-policy-monster-wildcard");
+    const useDeepPaths = useWildcard || utils.getSetting<boolean>("use-deep-file-paths");
+    const bookRuleStub = [rules, book].join("-");
+
+    const tokenExt = tokenUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
+    const genericNpc = tokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
+    const name = genericNpc ? utils.referenceNameString(npcType) : utils.referenceNameString(monsterName);
+    const nameType = genericNpc ? "npc-generic-token" : "npc-token";
+    const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
+    const pathPostfix = useDeepPaths
+      ? useWildcard && !useTokenizer
+        ? `/monster/token/${subType}/${name}`
+        : `/monster/token/${subType}`
+      : "";
+    // Token images always have to be downloaded.
+    return {
+      type: nameType,
+      name,
+      download: true,
+      remoteImages: false,
+      force,
+      imageNamePrefix,
+      pathPostfix,
+      targetDirectory,
+    };
+  }
 
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
@@ -334,29 +398,20 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         protoTexture.src = monsterTokenImgPath;
         if (useWildcard && protoTexture.src?.includes("*")) protoToken.randomImg = true;
       } else {
-        const tokenExt = ddbTokenUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
-        const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
-        const name = genericNpc ? genericNPCName : npcName;
-        tokenName = name;
-        const nameType = genericNpc ? "npc-generic-token" : "npc-token";
-        const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
-        const pathPostfix = useDeepPaths
-          ? useWildcard && !useTokenizer
-            ? `/monster/token/${subType}/${name}`
-            : `/monster/token/${subType}`
-          : "";
-        // Token images always have to be downloaded.
-        const downloadOptions = {
-          type: nameType,
-          name,
-          download: true,
-          remoteImages: false,
+        const downloadOptions = DDBMonsterImporter.tokenDownloadOptions({
+          tokenUrl: ddbTokenUrl,
+          monsterName: this.monster.name,
+          npcType,
+          subType,
+          rules,
+          book,
+          isStock,
+          useTokenizer,
           force: forceUpdate || updateImages,
-          imageNamePrefix,
-          pathPostfix,
-          targetDirectory,
-        };
+        });
+        tokenName = downloadOptions.name;
         monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        this.tokenFiles.downloaded = monsterTokenImgPath;
         protoTexture.src = monsterTokenImgPath;
         if (monsterTokenImgPath && useWildcard && !useTokenizer) {
           const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
@@ -448,6 +503,9 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         protoTexture.src = tokenizerResult;
       }
 
+      if (protoTexture.src && protoTexture.src !== monsterTokenImgPath && !protoTexture.src.includes("*")) {
+        this.tokenFiles.tokenized = protoTexture.src;
+      }
       if (useWildcard) {
         protoTexture.src = `${wildcardPath}*`;
         protoToken.randomImg = true;
@@ -488,15 +546,14 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         throw new Error(`Unable to update world actor for ${this.monster.name}: monster has no _id`);
       }
       const npc = game.actors.get(this.monster._id);
+      if (!npc) {
+        throw new Error(`Unable to update world actor for ${this.monster.name}: actor ${this.monster._id} not found`);
+      }
       await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
       await Actor.updateDocuments([this.monster as any]);
       this.data = npc as Actor.Implementation;
     } else {
-      const options = {
-        displaySheet: false,
-        temporary: false, // default
-      };
-      if (temporary) options.temporary = true;
+      const options = { renderSheet: false };
       const npc = temporary
         ? new (Actor.implementation as any)(this.monster, options)
         : await Actor.create(this.monster as any, options);

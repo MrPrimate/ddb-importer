@@ -2,7 +2,7 @@ import logger from "../../lib/Logger";
 import { utils } from "../../lib/_module";
 import { migrateJournalsToDDBSheet } from "./migration/migration_5_6_0_journals";
 
-const SCHEMA_VERSION = "6.5.0";
+const SCHEMA_VERSION = "7.5.5";
 
 
 export function registerSettings () {
@@ -32,6 +32,15 @@ export async function migration() {
     logger.info("Migrating DDB Journal Data");
     await migrateJournalsToDDBSheet(false);
     logger.info("Migration complete");
+  }
+
+  if (foundry.utils.isNewerVersion("7.5.5", dataVersion)) {
+    // Numeric species IDs cannot distinguish species from subraces.
+    const selectedSpecies = utils.getSetting<unknown[]>("munching-policy-character-species");
+    await game.settings.set("ddb-importer", "munching-policy-character-species", []);
+    if (selectedSpecies.length > 0) {
+      ui.notifications.info("DDB Importer: saved species selections have been reset. Select species again before munching; an empty selection imports all enabled sources.");
+    }
   }
 
   if (dataVersion !== SCHEMA_VERSION) {

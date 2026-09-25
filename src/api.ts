@@ -47,6 +47,9 @@ import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
 import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
+import SceneCopyApp from "./apps/SceneCopyApp";
+import SceneCopyBatchApp from "./apps/SceneCopyBatchApp";
+import { sceneFieldGroups } from "./apps/lib/sceneFieldCopy";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
 function resetSecrets() {
@@ -102,13 +105,14 @@ async function updateDDBCharacters(debug = false) {
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
       if (debug) lib.logger.error(`Updating ${actor.name} to DDB`, { actor });
-      await updateDDBCharacter(actor as TSyncCharacterActor);
+      await updateDDBCharacter(actor as unknown as TSyncCharacterActor);
     }
   }
 }
 
 
 export const API_BASE = {
+  socket: undefined as unknown as import("./hooks/socket/sockets").DDBSocket,
   notification: lib.Notifications.NOTIFICATION_API,
   hint: lib.Notifications.HINT_API,
   // libWrapper,
@@ -142,6 +146,18 @@ export const API_BASE = {
     DDBKeyChangeDialog: DDBKeyChangeDialog,
     DDBDebug: lib.DDBDebug,
     DDBPartySync,
+    SceneCopyApp,
+    SceneCopyBatchApp,
+  },
+  scenes: {
+    // single scene Copy Scene Fields dialog
+    openCopyFields: (scene: Scene) => new SceneCopyApp(scene).render({ force: true }),
+    // batch dialog, optionally seeded, e.g. { sourceFolder: "Adventures/Old Adventure", targetFolder: "New Adventure" }
+    openBatchCopyFields: (options: ISceneCopyBatchOptions = {}) => SceneCopyBatchApp.open(options),
+    // the same batch copy without the dialog; resolves to one result per scene pair
+    batchCopyFields: (options: ISceneCopyBatchOptions) => SceneCopyBatchApp.copy(options),
+    // the selectable field and group ids accepted by `fields`
+    copyFieldGroups: (scenes: Scene[] = []) => sceneFieldGroups(scenes),
   },
   lib: {
     CPRHelper: External.ChrisPremadesHelper,
@@ -251,6 +267,17 @@ export const API_BASE = {
   importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
   resetCompendiumActorImages,
   createStorage,
+  proxyCache: {
+    clear: lib.DDBProxyCache.clear,
+    stats: lib.DDBProxyCache.stats,
+    list: lib.DDBProxyCache.list,
+    // run an import with cache reads skipped; results are still written so the cache refreshes. The
+    // in-memory layers are dropped first, otherwise they would answer before the bypass is consulted.
+    bypass: <T>(fn: () => Promise<T>): Promise<T> => lib.DDBRunContext.runWith({ bypassProxyCache: true }, async () => {
+      lib.DDBProxyCache.invalidateSessionCaches();
+      return fn();
+    }),
+  },
 
   generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
   EffectHelper: DDBEffectHelper,

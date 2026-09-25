@@ -42,6 +42,12 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "enable-region-display-profiles.name": "Enable Region Display Profiles",
+      "enable-region-display-profiles.hint": "Draw aura and area-template regions with DDB Importer's display profiles (opacity, pattern, lines, border). Disabling leaves every region to Foundry's own highlight, removes the DDB Importer Region Display behavior and the Region config box, and stops imports adding region display behaviors. All connected clients must reload.",
+      "icon-browser-shift-click.name": "Shift-Click Opens the Icon Browser",
+      "icon-browser-shift-click.hint": "Shift-click an item, activity or effect image while the sheet is unlocked to search DDB Importer's icon browser instead of opening the file picker. Actor portraits and token images are not affected.",
+      "enable-ddb-macro-region-behaviors.name": "Enable DDB Importer Region Automation",
+      "enable-ddb-macro-region-behaviors.hint": "Enable DDB Importer region triggers and their supporting hooks. Disabling prevents new DDB triggers and stops existing ones. Native 5e region effects and terrain are unaffected. All connected clients must reload.",
       "stickers-upload-path.name": "DDB Stickers upload directory",
       "stickers-upload-path.hint": "Specifies the image upload location on the server for stickers, this is not for adventures, but DDB Maps stickers.",
       "maps-upload-path.name": "DDB Map image upload directory",
@@ -94,8 +100,6 @@
       "cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
       "campaign-id.name": "DDB Campaign URL or ID",
       "campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
-      "spells-on-items-as-activities.name": "Spells on Items As Activities",
-      "spells-on-items-as-activities.hint": "If checked spells on items will be created as activities, rather than usage linked from spells",
       "patreon-key.name": "Patreon Supporter Key",
       "patreon-key.hint": "Enter your Patreon Supporter Key here.",
       "auto-create-compendium.name": "Auto create compendiums if not present?",
@@ -116,6 +120,9 @@
       "use-loose-srd-reference-matching.hint": "Attempt to match any references to SRD rules, may result in some false positives",
       "setup.name": "Core setup",
       "setup.hint": "Core setup options",
+      "region-display-profiles.name": "Region Display Profiles",
+      "region-display-profiles.label": "Edit Profiles",
+      "region-display-profiles.hint": "Build the appearance profiles (opacity, line spacing, fill pattern) that auras and area templates can use, chosen per activity in its Area of Effect Behaviors or per region in the Region config.",
       "compendium-setup.name": "Compendiums",
       "compendium-setup.hint": "Configure compendiums to use",
       "folder-setup.name": "Directory Locations",
@@ -238,6 +245,26 @@
       "copy": "Copy",
       "cancel": "Cancel"
     },
+    "scene-copy-batch": {
+      "title": "Batch Copy Scene Fields",
+      "hint": "Map source scenes to target scenes, then copy the selected fields across every pair.",
+      "match": "Match by folder",
+      "source-folder": "Source folder",
+      "target-folder": "Target folder",
+      "choose-folder": "Choose a folder…",
+      "subfolders": "Include subfolders",
+      "match-button": "Match scenes by name",
+      "unmatched": "No target found for",
+      "mappings": "Scene mappings",
+      "choose-source": "Choose a source scene…",
+      "choose-target": "Choose a target scene…",
+      "no-mappings": "No mappings yet. Match two folders or add a mapping.",
+      "add": "Add mapping",
+      "clear": "Clear mappings",
+      "remove": "Remove mapping",
+      "copy": "Copy all",
+      "cancel": "Close"
+    },
     "Dialogs": {
       "ResetSettings": {
         "Label": "Reset DDB Importer Settings",
@@ -254,6 +281,271 @@
         "Title": "DDB Proxy Settings",
         "Use": "Use a custom proxy?",
         "AddressExample": "Custom proxy address, e.g. http://localhost:3000"
+      }
+    },
+    "behaviors": {
+      "display": {
+        "Label": "DDB Importer Region Display",
+        "noProfile": "None (Foundry default)",
+        "unknownProfile": "Unknown profile \"{profile}\" (Foundry default)",
+        "profilesPermission": "Region display profiles are a world setting: only a Game Master who may change world settings can edit them.",
+        "editPermission": "You do not have permission to change this region display.",
+        "profileDefault": "Profile default",
+        "dashed": "Dashed",
+        "continuous": "Continuous",
+        "border": "Border",
+        "noBorder": "No border",
+        "summaryColor": "colour {color}",
+        "patterns": {
+          "hatch": "Diagonal Lines",
+          "solid": "Solid",
+          "crosshatch": "Crosshatch",
+          "dots": "Dots",
+          "edge": "Edge Band",
+          "hollowDots": "Hollow Dots",
+          "diamonds": "Diamonds",
+          "crosses": "Crosses",
+          "checkerboard": "Checkerboard",
+          "waves": "Waves",
+          "chevrons": "Chevrons",
+          "imagePoints": "Image Points",
+          "imageTile": "Tiled Image",
+          "imageStretch": "Fill Image"
+        },
+        "FIELDS": {
+          "profile": {
+            "label": "Region Display",
+            "hint": "How the regions this activity places are drawn. Configure opens the editor for the profile and its overrides."
+          },
+          "pattern": {
+            "label": "Pattern",
+            "hint": "The fill drawn inside the region."
+          },
+          "opacity": {
+            "label": "Fill Opacity",
+            "hint": "0 to 1. Foundry draws every region at 0.5."
+          },
+          "gapOpacity": {
+            "label": "Gap Opacity",
+            "hint": "Relative to fill opacity. Zero makes the gaps fully transparent; one fills them at the same opacity as the pattern."
+          },
+          "borderOpacity": {
+            "label": "Border Opacity",
+            "hint": "Independent of fill opacity, so the border can remain visible when the fill is transparent."
+          },
+          "spacing": {
+            "label": "Spacing",
+            "hint": "Distance between lines or symbols, in grid squares.",
+            "hints": {
+              "checkerboard": "Side length of each checkerboard square, in grid squares.",
+              "waves": "Distance between bands, in grid squares. Wave Length scales the repeat length.",
+              "chevrons": "Distance between bands and length of each zigzag repeat, in grid squares.",
+              "imageTile": "Tile width in grid squares. Height follows the image proportions."
+            }
+          },
+          "thickness": {
+            "label": "Thickness",
+            "hint": "Line width or symbol diameter as a share of spacing. Hollow dots have an inner radius 60% of their outer radius.",
+            "hints": {
+              "crosses": "Base cross size as a share of spacing. Arm width is one third of this size; Cross Length extends the arms independently.",
+              "imagePoints": "Image size as a share of the spacing. Images keep their proportions."
+            }
+          },
+          "edgeWidth": {
+            "label": "Edge Width",
+            "hint": "Band width of the Edge Band pattern, inside the region's edge, in grid squares."
+          },
+          "dashed": {
+            "label": "Lines",
+            "hint": "Dashed or continuous lines for the line patterns; the edge band is always continuous."
+          },
+          "dashLength": {
+            "label": "Dash Length",
+            "hint": "Length of each dash along the pattern's overall direction, in grid squares; the gap after it is the same length."
+          },
+          "angle": {
+            "label": "Line Angle",
+            "hint": "Direction the lines face, in degrees; 45 is diagonal, 0 is vertical and 90 is horizontal."
+          },
+          "crossRotation": {
+            "label": "Cross Rotation",
+            "hint": "Clockwise rotation of each cross around its centre. 0° is +, 45° is ×; spacing and positions stay fixed."
+          },
+          "crossLength": {
+            "label": "Cross Length",
+            "hint": "Arm length multiplier, 1 to 3. Larger values extend both arms without thickening them; long crosses can overlap their neighbours."
+          },
+          "waveAmplitude": {
+            "label": "Wave Height",
+            "hint": "Distance from the centre line to a crest, as a share of spacing. Higher values make deeper bends; zero makes straight lines."
+          },
+          "waveLength": {
+            "label": "Wave Length",
+            "hint": "Length of each wave as a multiple of spacing. Smaller values make tighter bends; larger values spread them out."
+          },
+          "offset": {
+            "label": "Offset",
+            "hint": "Shift of the pattern by a share of the spacing. 0 centres each symbol or line in its cell; 0.5 puts it on the grid lines, so a pattern starts in the corner of a square."
+          },
+          "border": {
+            "label": "Border",
+            "hint": "A band inside the region's edge on top of the fill; the Edge Band pattern always has one."
+          },
+          "borderWidth": {
+            "label": "Border Width",
+            "hint": "Band width inside the region's edge, in grid squares."
+          },
+          "color": {
+            "label": "Colour",
+            "hint": "The profile's colour is the region's own unless the profile sets one."
+          }
+        },
+        "profileGroups": {
+          "general": "General",
+          "damage": "Damage types",
+          "status": "Conditions and statuses",
+          "custom": "Custom profiles"
+        },
+        "texture": {
+          "image": "Image",
+          "customCatalogError": "Unable to load the custom icon list {path}: {error}",
+          "search": "Search Icons",
+          "browse": "Browse Images",
+          "filter": "Image category",
+          "all": "All",
+          "svg": "SVG Symbols",
+          "damage": "D&D5e Damage Icons",
+          "dnd5eStatus": "D&D5e Status Icons",
+          "damageProfile": "Damage",
+          "statusProfile": "Status",
+          "status": "Status Icons",
+          "previous": "Previous",
+          "next": "Next",
+          "results": "{count} matching icons",
+          "catalogError": "Unable to load the icon catalogue. You can still browse for an image.",
+          "loadError": "The image could not be loaded. A hatch is shown instead.",
+          "hint": "Search the icon catalogue or browse for a static image. Blank overrides inherit the profile image.",
+          "colour": "Image Colour",
+          "original": "Original colours",
+          "region": "Region colour",
+          "sizing": "Image Sizing",
+          "fitHint": "Stretch to fill the region bounds, or centre the whole image while keeping its proportions. Space around the image uses the gap background.",
+          "fit": {
+            "stretch": "Stretch to fit",
+            "contain": "Keep proportions"
+          },
+          "anchoring": "Image Anchoring",
+          "anchor": {
+            "scene": "Scene (aligned like dots)",
+            "region": "Region (moves with the area)"
+          }
+        }
+      },
+      "macro": {
+        "Label": "DDB Importer Trigger",
+        "FIELDS": {
+          "displayProfile": {
+            "label": "Display Profile",
+            "hint": "How the region this trigger is placed on is drawn. A DDB Importer Region Display behavior on the same activity takes precedence."
+          },
+          "function": {
+            "label": "Custom Handler",
+            "hint": "Handler in DDBImporter.effects.AuraAutomations.handlers. Use Activity uses the activity that placed this region (or one named in Handler Arguments) against each token that triggers the chosen events."
+          },
+          "events": {
+            "label": "Region Events"
+          },
+          "args": {
+            "label": "Additional Arguments",
+            "hint": "JSON for anything not covered above, e.g. {\"activityName\": \"...\"} or custom handler data."
+          },
+          "activity": {
+            "label": "Activity",
+            "hint": "The activity to use when triggered; defaults to the activity that placed this region."
+          },
+          "oncePerTurn": {
+            "label": "Once Per Turn",
+            "hint": "Only trigger once per token per combat turn."
+          },
+          "excludeSelf": {
+            "label": "Exclude Origin Token",
+            "hint": "Never trigger for the token the region originates from, for an emanation that does not affect its own caster."
+          },
+          "scale": {
+            "label": "Apply Upcast Scaling",
+            "hint": "Scale the activity by the level the spell was cast at."
+          },
+          "autoRoll": {
+            "label": "Roll Automatically",
+            "hint": "Roll the activity's attack or damage straight away instead of posting a card with buttons."
+          },
+          "groupTargets": {
+            "label": "Group Targets",
+            "hint": "Tokens triggered at the same moment, such as every token inside a newly placed template, share one chat card. Turn off for one card per token. DDB Macro activities always run once per token."
+          },
+          "ownerTurn": {
+            "label": "Owner's Turn",
+            "hint": "Use Activity fires on the origin token's turn, including when it is outside this region. Select Turn Start or Turn End below."
+          },
+          "ownerTurnTargets": {
+            "label": "Owner-Turn Recipients",
+            "hint": "Affect the region's occupants, or use no recipients for a region's own roll."
+          },
+          "fireOnPlacement": { "label": "Also Fire on Placement" },
+          "deleteAfterUse": {
+            "label": "End Region after Use",
+            "hint": "Fire once on the next owner turn, then remove this region, even when it has no occupants."
+          },
+          "macroParameters": {
+            "label": "Macro Parameters",
+            "hint": "JSON passed to the macro: for DDB Macro activities it replaces the stored parameters; for the Execute Macro handler it is the macro's parameters."
+          },
+          "macroName": {
+            "label": "Macro",
+            "hint": "For the Execute Macro handler: ddb.<type>.<file> for a DDB Importer macro (e.g. ddb.generic.light), or a Foundry macro name or Macro.<id> uuid."
+          },
+          "sizes": {
+            "label": "Creature Sizes",
+            "hint": "Only trigger for actors of these sizes. Leave empty for all sizes."
+          },
+          "types": {
+            "label": "Creature Types",
+            "hint": "Only trigger for these creature types. Leave empty for all types."
+          },
+          "excludeTypes": {
+            "label": "Excluded Creature Types",
+            "hint": "Never trigger for these creature types, for auras that affect any creature other than a given type."
+          }
+        },
+        "events": {
+          "tokenEnter": "Token Enter",
+          "tokenExit": "Token Exit",
+          "tokenMoveIn": "Token Move In",
+          "tokenMoveOut": "Token Move Out",
+          "tokenMoveWithin": "Token Move Within",
+          "tokenTurnStart": "Token Turn Start",
+          "tokenTurnEnd": "Token Turn End",
+          "tokenRoundStart": "Token Round Start",
+          "tokenRoundEnd": "Token Round End"
+        },
+        "placingActivity": "(The activity that placed this region)",
+        "ownerTurnFailure": "{region}: the owner-turn activity could not complete. The region remains; use its follow-up manually.",
+        "legacyAura": "{name} was imported with the retired Active Auras automation, which no longer runs. Re-import it to use DDB Importer region automation.",
+        "ownerTurnTargets": { "region": "Region occupants", "none": "No recipients" },
+        "choice": {
+          "waiting": "Waiting for the owning player. You can take over or skip this trigger; advancing combat does not answer it.",
+          "limit": "Choose up to {max} creatures. Select no creatures or Skip to pass.",
+          "takeover": "Take over",
+          "choose": "Use activity",
+          "skip": "Skip"
+        },
+        "notifyMessage": "{token} triggered {region} ({event}).",
+        "handlers": {
+          "useActivity": "Use Activity",
+          "log": "Log Event (Debug)",
+          "executeMacro": "Execute Macro",
+          "notify": "Notify Owner"
+        }
       }
     }
   }

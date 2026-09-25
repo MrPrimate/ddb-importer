@@ -9,6 +9,7 @@ import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBMonsterImporter from "./DDBMonsterImporter";
 
+
 let totalTargets = 0;
 let count = 0;
 
@@ -81,18 +82,19 @@ export async function updateWorldMonsters() {
     logger.debug(`Checking ${totalTargets} world monsters`);
 
     for (const [key, value] of index.entries()) {
+      const valueName = (value as unknown as INameMatchIndexEntry).name;
 
       // fvtt-types Actor.Implementation union does not structurally satisfy the
       // importer flag view, but these are the same runtime documents
       const worldMatches = game.actors.filter((actor) =>
         !!foundry.utils.getProperty(actor, "flags.ddbimporter.id")
-        && actor.name === value.name
+        && actor.name === valueName
         && foundry.utils.getProperty(actor, "flags.ddbimporter.id") == foundry.utils.getProperty(value, "flags.ddbimporter.id"),
       ) as unknown as TImporterActor[];
 
       if (worldMatches.length > 0) {
-        utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
-        logger.debug(`Matched ${value.name} (${key})`);
+        utils.munchNote(`Found ${valueName} world monster`, { nameField: true });
+        logger.debug(`Matched ${valueName} (${key})`);
         const monster = await monsterCompendium.getDocument(value._id) as Actor.Implementation;
         const updatedActors = await updateActorsWithActor(worldMatches, monster);
         results.push(updatedActors);
@@ -121,7 +123,6 @@ export async function resetCompendiumActorImages(compendiumName: string | null =
   await FileHelper.generateCurrentFiles(otherDirectory);
 
   const updates = await Promise.all(index
-    .filter((i) => i.name !== "#[CF_tempEntity]")
     .map(async (i) => {
       const options = { forceUpdate: true, disableAutoTokenizeOverride: true };
       const monsterImporter = new DDBMonsterImporter({
@@ -129,7 +130,7 @@ export async function resetCompendiumActorImages(compendiumName: string | null =
         type,
       });
       const update = await monsterImporter.getNPCImage(options);
-      logger.info(`Resetting ${i.name}`, update);
+      logger.info(`Resetting ${(i as unknown as INameMatchIndexEntry).name}`, update);
       return update;
     }));
 

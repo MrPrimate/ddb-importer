@@ -56,7 +56,7 @@ export function anchorInjection() {
     return;
   }
 
-  Hooks.on("activateNote", (note, options) => {
+  Hooks.on<"activateNote">("activateNote", (note, options) => {
     const slug = getSlug(note.document);
     if (slug) {
       logger.debug("Injecting note anchor", slug);
@@ -65,7 +65,7 @@ export function anchorInjection() {
   });
 
   // when we render a note we add the anchor links box
-  Hooks.on("renderNoteConfig", (noteConfig, form, data) => {
+  Hooks.on<"renderNoteConfig">("renderNoteConfig", (noteConfig, form, data) => {
     const slug = getSlug(noteConfig.document) as string;
 
     if (!form.querySelector(`input[name='flags.ddb.slugLink']`)) {
@@ -86,10 +86,10 @@ export function anchorInjection() {
     pageIdSelect?.addEventListener("change", () => updateNotePage(noteConfig, slug));
 
     if (isExistingNote) {
-      const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
+      const closeHookId = Hooks.on<"closeDocumentSheetV2">("closeDocumentSheetV2", async (documentSheet) => {
         if (!(documentSheet instanceof foundry.applications.sheets.NoteConfig)) return;
         if (noteConfig.document.id !== documentSheet.document.id) return;
-        Hooks.off("closeDocumentSheetV2", closeHookId);
+        Hooks.off<"closeDocumentSheetV2">("closeDocumentSheetV2", closeHookId);
         const selectedSlug = foundry.utils.getProperty(documentSheet.document, "flags.ddb.slugLink") as string;
         if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== slug) {
           const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
@@ -101,7 +101,7 @@ export function anchorInjection() {
   });
 
   // handle new notes, we just inject the slug properties into the source from the sheet data
-  Hooks.on("preCreateNote", (note: NoteDocument, data) => {
+  Hooks.on<"preCreateNote">("preCreateNote", (note: NoteDocument, data) => {
     const noteData = data as { slug?: string; text?: string };
     if (noteData.slug) {
       const flagData = setSlugProperties(foundry.utils.deepClone(note), noteData.slug, noteData.text);
@@ -109,12 +109,12 @@ export function anchorInjection() {
     };
   });
 
-  Hooks.on("dropCanvasData", (_, dropData) => {
+  Hooks.on<"dropCanvasData">("dropCanvasData", (_, dropData) => {
     if (dropData.type !== "JournalEntryPage" && !foundry.utils.hasProperty(dropData, "anchor.slug")) return;
 
     // when we create from the side bar we fill in the input label name to match
     // the anchor name and set the slug value to the anchor slug
-    Hooks.once("renderNoteConfig", (noteConfig, form, app) => {
+    Hooks.once<"renderNoteConfig">("renderNoteConfig", (noteConfig, form, app) => {
       const titleInput = form.querySelector("input[name='text']");
       if (!titleInput) return;
       const anchor = dropData.anchor as { slug?: string; name?: string };

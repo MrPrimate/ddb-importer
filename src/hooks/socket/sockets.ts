@@ -80,10 +80,11 @@ export class DDBSocket {
   }
 
    
-  _receiveResponse(message: Record<string, any>, _senderId: string) {
+  _receiveResponse(message: Record<string, any>, senderId: string) {
     const { id, result, type } = message;
     const request = this.requests.get(id);
     if (!request) return;
+    if (Array.isArray(request.recipient) && !request.recipient.includes(senderId)) return;
     switch (type) {
       case "RESULT":
         request.resolve(result);
@@ -110,7 +111,7 @@ export class DDBSocket {
     }
   }
 
-  _sendRequest(functionName: string, args: unknown[], recipient: string | string[]) {
+  _sendRequest(functionName: string, args: unknown[], recipient: string | string[], signal?: AbortSignal) {
     const message = {
       functionName,
       args,
@@ -118,11 +119,48 @@ export class DDBSocket {
       type: "REQUEST",
       id: foundry.utils.randomID(),
     };
-    const promise = new Promise((resolve, reject) =>
-      this.requests.set(message.id, { functionName, resolve, reject, recipient }),
-    );
+    if (signal?.aborted) return Promise.reject(new DOMException("Request cancelled", "AbortError"));
+    const promise = new Promise((resolve, reject) => {
+      const abort = () => {
+        this.requests.delete(message.id);
+        reject(new DOMException("Request cancelled", "AbortError"));
+      };
+      const clean = () => signal?.removeEventListener("abort", abort);
+      this.requests.set(message.id, {
+        functionName, recipient,
+        resolve: (value) => {
+          clean();
+          resolve(value);
+        },
+        reject: (reason) => {
+          clean();
+          reject(reason);
+        },
+      });
+      signal?.addEventListener("abort", abort, { once: true });
+    });
     game.socket.emit(this.name, message);
     return promise;
+  }
+
+  /** A remote dialog can be abandoned without retaining an unresolved socket request. */
+  executeAsUserWithSignal(functionName: string, userId: string, signal: AbortSignal, ...args: unknown[]) {
+    const [name, func] = this.#getFunction(functionName);
+    if (userId === game.userId) return Promise.resolve(DDBSocket._executeLocal(func, ...args));
+    if (!game.users.get(userId)?.active) return Promise.reject(new Error("The selected user is offline"));
+    return this._sendRequest(name, args, [userId], signal);
+  }
+
+  /** Fire-and-forget cancellation must not create another request waiting on an offline client. */
+  notifyUser(functionName: string, userId: string, ...args: unknown[]): void {
+    const [name, func] = this.#getFunction(functionName);
+    if (userId === game.userId) {
+      DDBSocket._executeLocal(func, ...args);
+      return;
+    }
+    game.socket.emit(this.name, {
+      functionName: name, args, recipient: [userId], type: "REQUEST", id: foundry.utils.randomID(),
+    });
   }
 
   static _executeLocal(func: (...args: any[]) => unknown, ...args: any[]) {

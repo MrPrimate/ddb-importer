@@ -49,7 +49,7 @@ async function getMonsterMap () {
     return [];
   }
   const monsterIndices = ["name", "flags.ddbimporter.id", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices }) as unknown as IAdventureIndexEntry[];
+  const monsterIndex = await monsterCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(monsterCompendium, monsterIndices) }) as unknown as IAdventureIndexEntry[];
 
   const results = monsterIndex
     .filter((monster) => monster.flags?.ddbimporter?.id)
@@ -78,7 +78,7 @@ async function getSpellMap() {
     return [];
   }
   const spellIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const spellIndex = await spellCompendium.getIndex({ fields: spellIndices }) as unknown as IAdventureIndexEntry[];
+  const spellIndex = await spellCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(spellCompendium, spellIndices) }) as unknown as IAdventureIndexEntry[];
 
   const results = spellIndex
     .filter((spell) => spell.flags?.ddbimporter?.definitionId)
@@ -106,7 +106,7 @@ async function getItemMap() {
     return [];
   }
   const itemIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const itemIndex = await itemCompendium.getIndex({ fields: itemIndices }) as unknown as IAdventureIndexEntry[];
+  const itemIndex = await itemCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(itemCompendium, itemIndices) }) as unknown as IAdventureIndexEntry[];
 
   const results = itemIndex
     .filter((i) => i.flags?.ddbimporter?.definitionId)

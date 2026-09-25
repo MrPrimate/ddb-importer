@@ -57,8 +57,10 @@
  * by id, so multi-pass subclasses count once.
  */
 import DDBMuncher from "../apps/DDBMuncher";
+import DDBProxyCacheSettings from "../lib/DDBProxyCacheSettings";
+import { existingSpeciesKey, isSpeciesKey, speciesKey } from "../lib/SpeciesIdentity";
 import { DICTIONARY } from "../config/_module";
-import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
+import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBProxyCache, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
@@ -71,7 +73,7 @@ interface IDDBMuleHandlerQuickBase {
   characterId: string;
   sources: number[];
   homebrew: boolean;
-  filterIds: number[];
+  filterIds?: number[];
 }
 
 interface IDDBMuleHandlerQuickClass extends IDDBMuleHandlerQuickBase {
@@ -102,6 +104,7 @@ interface IDDBMuleRequestBody {
   includeHomebrew: boolean;
   onlyHomebrew: boolean;
   filterIds: number[];
+  speciesKeys?: string[];
   cleanup: boolean;
   backgroundId: string | null;
   systemRules: string;
@@ -124,6 +127,7 @@ export default class DDBMuleHandler {
   optionSourceIds: number[] = [];
   type: string | null = null;
   filterIds: number[] = [];
+  speciesKeys?: string[];
   cleanup = true;
   backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
@@ -156,6 +160,7 @@ export default class DDBMuleHandler {
   // Streaming progressive-import state. When true, all per-item work is
   // done and process() just runs the flush / finalize phases.
   _streamProcessedAll = false;
+  _streamProcessingErrors = 0;
   // Per-subclass actor cache so each subclass's choice variants share
   // one mockCharacter (one actor per subclass id across event arrivals).
   _streamMockActors = new Map<string | number, any>();
@@ -178,6 +183,7 @@ export default class DDBMuleHandler {
     onlyHomebrew,
     type = null,
     filterIds = [],
+    speciesKeys,
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
@@ -197,6 +203,10 @@ export default class DDBMuleHandler {
     this.onlyHomebrew = onlyHomebrew ?? this.allowedHomebrew;
     this.type = type;
     this.filterIds = filterIds;
+    if (speciesKeys !== undefined && (!Array.isArray(speciesKeys) || !speciesKeys.every(isSpeciesKey))) {
+      throw new Error("Invalid species selection: expected entityRaceTypeId:entityRaceId keys.");
+    }
+    this.speciesKeys = speciesKeys === undefined ? undefined : [...new Set(speciesKeys)];
     this.cleanup = cleanup;
     this.backgroundId = backgroundId;
     this.includeOptionalClassFeatures = optionalClassFeatures
@@ -325,6 +335,32 @@ export default class DDBMuleHandler {
     (this.source as any).baseCharacter = payload;
   }
 
+  // the event kinds _ingestIterationItem stores into the source; everything else is a lifecycle or
+  // progress marker, or a kind it does not know and drops
+  static #PAYLOAD_EVENT_KINDS = new Set([
+    "baseCharacter",
+    "class",
+    "subClasses",
+    "options",
+    "subClassData",
+    "subClassChoices",
+    "optionData",
+    "optionChoicesData",
+    "featOptions",
+    "backgroundOptions",
+    "speciesOptions",
+  ]);
+
+  /**
+   * Whether a streamed mule event carries content for the source, as opposed to a lifecycle or
+   * progress marker. Used to tell a finished stream with data from one that delivered nothing.
+   * @param {string} kind the mule event kind
+   * @returns {boolean} true when the event adds to the buffered source
+   */
+  static isMulePayloadEvent(kind: string): boolean {
+    return DDBMuleHandler.#PAYLOAD_EVENT_KINDS.has(kind);
+  }
+
   _ingestIterationItem({ kind, payload }: { kind: string; payload: any }) {
     this._ensureSource();
     const src = this.source as any;
@@ -421,6 +457,12 @@ export default class DDBMuleHandler {
     }
   }
 
+  /** Whether parsing produced documents, excluding folder and class metadata. */
+  get hasImportableDocuments(): boolean {
+    return (["features", "traits", "feats", "backgrounds", "species", "classes", "subclasses"] as const)
+      .some((type) => this.pendingDocs[type].size > 0);
+  }
+
   async _flushCompendiumDocuments() {
     const total = this.pendingDocs.features.size + this.pendingDocs.traits.size
       + this.pendingDocs.feats.size + this.pendingDocs.backgrounds.size + this.pendingDocs.species.size;
@@ -459,8 +501,8 @@ export default class DDBMuleHandler {
    * Short, stable hash of an id list, so a filename can carry "which ids" without
    * carrying every id. Sorted first, so ordering differences do not change the hash.
    */
-  static #hashIds(ids: number[]): string {
-    const input = [...ids].sort((a, b) => a - b).join("_");
+  static #hashIds(ids: (number | string)[]): string {
+    const input = [...ids].map(String).sort().join("_");
     let hash = 5381;
     for (let i = 0; i < input.length; i++) {
       hash = ((hash * 33) ^ input.charCodeAt(i)) >>> 0;
@@ -473,7 +515,7 @@ export default class DDBMuleHandler {
    * truncated by the browser, which is one of the ways two different payloads end up
    * fighting over one file. Keep short lists readable and hash the long ones.
    */
-  static #idSegment(ids: number[]): string {
+  static #idSegment(ids: (number | string)[]): string {
     if (ids.length === 0) return "all";
     if (ids.length <= 6) return ids.join("_");
     return `${ids.length}x${DDBMuleHandler.#hashIds(ids)}`;
@@ -503,6 +545,39 @@ export default class DDBMuleHandler {
    * and the homebrew flags to tell those runs apart: without them every class that shares a
    * narrowed source list writes the same file.
    */
+  /**
+   * Human name for this run's cache entry. The request only carries ids; the names arrive with
+   * the stream, so this is derived from the buffered source once it is complete.
+   */
+  _cacheLabel(): string {
+    const source = this.source as Partial<IDDBMuleClassSource> | undefined;
+    const selection = (noun: string, ids: (number | string)[] = this.filterIds) => (ids.length > 0
+      ? `${noun}: ${ids.length} selected`
+      : `${noun}: all`);
+    switch (this.type) {
+      case "class": {
+        const className = source?.class?.name ?? (this.classId !== null ? `class ${this.classId}` : "class");
+        const subclasses = (this.classId !== null ? source?.subClasses?.[String(this.classId)] ?? [] : [])
+          .map((subclass) => subclass?.name)
+          .filter((name): name is string => typeof name === "string" && name !== "")
+          .sort((a, b) => a.localeCompare(b));
+        if (subclasses.length === 0) return className;
+        const shown = subclasses.slice(0, 6).join(", ");
+        const more = subclasses.length > 6 ? ` and ${subclasses.length - 6} more` : "";
+        return `${className}: ${shown}${more}`;
+      }
+      case "feat":
+        return selection("Feats");
+      case "background":
+        return selection("Backgrounds");
+      case "race":
+      case "species":
+        return selection("Species", this.speciesKeys ?? this.filterIds);
+      default:
+        return this.type ?? "mule";
+    }
+  }
+
   _rawExampleFileName(): string {
     const homebrewSegment = this.onlyHomebrew
       ? "onlyhb"
@@ -513,7 +588,7 @@ export default class DDBMuleHandler {
       this.type,
       this.classId !== null ? `c${this.classId}` : null,
       homebrewSegment,
-      `f${DDBMuleHandler.#idSegment(this.filterIds)}`,
+      `f${DDBMuleHandler.#idSegment(this.speciesKeys ?? this.filterIds)}`,
       `s${DDBMuleHandler.#idSegment(this.allowedSourceIds)}`,
     ].filter((segment) => segment !== null && segment !== "");
 
@@ -540,6 +615,7 @@ export default class DDBMuleHandler {
       includeHomebrew: this.allowedHomebrew,
       onlyHomebrew: this.onlyHomebrew,
       filterIds: this.filterIds,
+      ...(this.speciesKeys === undefined ? {} : { speciesKeys: this.speciesKeys }),
       cleanup: this.cleanup,
       backgroundId: this.backgroundId,
       systemRules: isModern ? "2024" : "2014",
@@ -563,6 +639,7 @@ export default class DDBMuleHandler {
       onlyHomebrew: this.onlyHomebrew,
       cleanup: this.cleanup,
       filterIds: this.filterIds,
+      ...(this.speciesKeys === undefined ? {} : { speciesKeys: this.speciesKeys }),
       systemRules: body.systemRules,
       include2014Adjusted: body.include2014Adjusted,
       useCache: true,
@@ -572,24 +649,68 @@ export default class DDBMuleHandler {
     };
 
     this._ensureSource();
+
+    // A local hit takes exactly the path a proxy-side cacheHit event does: the whole buffered
+    // payload becomes this.source and is replayed through the per-item processors.
+    const params = {
+      element: streamElement,
+      ...startParams,
+      ...(streamElement === "species" ? { speciesIdentityVersion: 1 } : {}),
+    };
+    const cacheRequest: IProxyCacheRequest = {
+      domain: "mule-stream",
+      params,
+      sourceSelection: DDBProxyCacheSettings.captureMuleSelection(params),
+    };
+    if (DDBProxyCache.isEnabled() && !DDBProxyCache.isRefreshing()) {
+      const cached = await DDBProxyCache.get<IDDBMuleClassSource>(cacheRequest);
+      if (cached !== undefined) {
+        this.source = cached;
+        await this._replayBufferedSourceThroughStreamProcessors();
+        if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
+          FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
+        }
+        logger.debug(`[DDBMuleSocket] served ${streamElement} from the proxy cache`);
+        return;
+      }
+    }
+
+    // captured before the stream so a clear issued while it runs drops the write
+    const cacheStamp = DDBProxyCache.stampFor(cacheRequest);
     const socket = new DDBMuleSocket(parsingApi);
     const startedAt = Date.now();
     let firstItemAt: number | null = null;
     let eventCount = 0;
     let cacheHit = false;
+    // whether any event actually carried content into this.source; progress markers do not
+    let receivedPayload = false;
     const counts: Record<string, number> = {};
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
         let settled = false;
         socket.connect({
           onEvent: (event: DDBMuleEvent) => {
+            if (settled) return;
+            if (event.kind === "speciesOptions") {
+              try {
+                this._validateSpeciesPayload(event.payload);
+              } catch (error) {
+                settled = true;
+                reject(error);
+                return;
+              }
+            }
             if (event.kind === "cacheHit") {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
-              if (cached) (this as any).source = cached;
+              if (cached) {
+                (this as any).source = cached;
+                receivedPayload = true;
+              }
               return;
             }
             if (["started", "done", "error"].includes(event.kind)) return;
+            if (DDBMuleHandler.isMulePayloadEvent(event.kind)) receivedPayload = true;
             eventCount++;
             counts[event.kind] = (counts[event.kind] ?? 0) + 1;
             if (firstItemAt === null) firstItemAt = Date.now();
@@ -647,6 +768,17 @@ export default class DDBMuleHandler {
         await this._drainStreamProcessing();
         this._streamProcessedAll = true;
       }
+      // both branches leave the fully buffered payload in this.source. A stream that finished
+      // without delivering any content leaves only the empty skeleton from _ensureSource, which
+      // is indistinguishable from a dropped stream, so it is not cached: the run proceeds with
+      // what it has and the next run asks the proxy again.
+      if (DDBProxyCache.isEnabled()) {
+        if (receivedPayload) {
+          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
+        } else {
+          logger.warn(`[DDBMuleSocket] ${streamElement} stream completed without any content; not caching it`);
+        }
+      }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
         FileHelper.download(JSON.stringify(this.source), this._rawExampleFileName(), "application/json");
       }
@@ -656,6 +788,7 @@ export default class DDBMuleHandler {
       // this.notifier({ message: `Stream complete in ${(totalMs / 1000).toFixed(1)}s (${eventCount} events)` });
     } finally {
       socket.close();
+      await this._drainStreamProcessing();
     }
   }
 
@@ -690,7 +823,7 @@ export default class DDBMuleHandler {
         const payload = event.payload;
         if (event.raceTotal) this._streamSecondaryTotal = event.raceTotal;
         const name = payload?.data?.race?.fullName ?? payload?.data?.race?.baseName ?? "species";
-        const id = payload?.data?.race?.entityRaceId ?? name;
+        const id = speciesKey(payload?.data?.race) ?? name;
         const desc = `${name} pass ${event.pass ?? "?"}`;
         this._scheduleStreamTask("speciesOptions", desc, id, () => this._processStreamSpecies(payload));
         break;
@@ -898,6 +1031,7 @@ export default class DDBMuleHandler {
       try {
         await task();
       } catch (err) {
+        this._streamProcessingErrors++;
         logger.error(`[stream-process] ${label} failed: ${(err as Error).message}`, err);
       } finally {
         if (unitId != null) this._streamSecondaryUnits.add(unitId);
@@ -1121,7 +1255,16 @@ export default class DDBMuleHandler {
     await this._loadCharacterIntoFoundryWorld(ddbCharacter);
   }
 
+  /** Reject a mismatched proxy/cache response before it can reach the character parser. */
+  _validateSpeciesPayload(payload: { data?: { race?: Partial<IDDBRace> } }) {
+    const key = speciesKey(payload?.data?.race);
+    if (!key || (this.speciesKeys?.length && !this.speciesKeys.includes(key))) {
+      throw new Error("The proxy returned an unexpected species. Please raise an issue! 🤪");
+    }
+  }
+
   async _processStreamSpecies(speciesData: any) {
+    this._validateSpeciesPayload(speciesData);
     const mockCharacter = this._getStreamMockActor("species", "Species Muncher");
     const ddbStub = await this._buildDDBStub();
     await this._speciesProcess({
@@ -1165,16 +1308,17 @@ export default class DDBMuleHandler {
       }
       case "species": {
         const species = (src.speciesOptions ?? []) as any[];
-        // Unique race ids in cached data so total represents unique races, not passes
+        for (const sp of species) this._validateSpeciesPayload(sp);
+        // Unique identities in cached data so total represents species, not choice passes.
         const raceIds = new Set<string | number>();
         for (const sp of species) {
-          const id = sp?.data?.race?.entityRaceId ?? sp?.data?.race?.fullName ?? sp?.data?.race?.baseName;
+          const id = speciesKey(sp?.data?.race);
           if (id != null) raceIds.add(id);
         }
         this._streamSecondaryTotal = raceIds.size > 0 ? raceIds.size : species.length;
         for (const sp of species) {
           const name = sp?.data?.race?.fullName ?? sp?.data?.race?.baseName ?? "species";
-          const id = sp?.data?.race?.entityRaceId ?? name;
+          const id = speciesKey(sp?.data?.race) ?? name;
           this._scheduleStreamTask("speciesOptions (cacheHit)", `${name} (cached)`, id, () => this._processStreamSpecies(sp));
         }
         break;
@@ -1187,6 +1331,7 @@ export default class DDBMuleHandler {
   }
 
   async process() {
+    this._streamProcessingErrors = 0;
     this._resetSecondaryProgress();
     await this._init();
     if (!this._streamProcessedAll) {
@@ -1196,6 +1341,9 @@ export default class DDBMuleHandler {
     if (this.type === "class") {
       await this._finalizeClassCompendiumLinks();
       await this._flushClassCompendiumDocuments();
+    }
+    if (this._streamProcessingErrors > 0) {
+      throw new Error("Some entries could not be imported. See the console for details.");
     }
   }
 
@@ -1234,13 +1382,14 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchSpecies({ characterId, sources, homebrew, filterIds }: IDDBMuleHandlerQuickBase) {
+  static async munchSpecies({ characterId, sources, homebrew, filterIds = [], speciesKeys }: IDDBMuleHandlerQuickBase & { speciesKeys?: string[] }) {
     const muleHandler = new DDBMuleHandler({
       characterId,
       sources,
       homebrew,
       type: "species",
       filterIds,
+      speciesKeys,
       cleanup: false,
     });
 
@@ -1295,11 +1444,24 @@ export default class DDBMuleHandler {
   // Life domain parsing errors
   // Light domain parsing errors
 
-  static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
-    if (cacheHit) {
-      return cacheHit as T[];
+  /**
+   * A session memo bucket on CONFIG.DDBI.KNOWN. Entries are keyed by the proxy cache key of the
+   * request, so they separate on the same proxy, account and campaign identity the persistent
+   * cache does: switching cobalt or campaign misses the memo instead of serving the old list.
+   * The key holds dots (proxy URL, JSON params), so it is indexed directly, never as a property path.
+   * @param {"MULE_LISTS" | "SUBCLASSES"} name the bucket, reset by DDBProxyCache.invalidateSessionCaches
+   * @returns {Record<string, unknown>} the bucket
+   */
+  static #sessionMemo(name: "MULE_LISTS" | "SUBCLASSES"): Record<string, unknown> {
+    let bucket = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, name) as Record<string, unknown> | undefined;
+    if (!bucket) {
+      bucket = {};
+      foundry.utils.setProperty(CONFIG.DDBI.KNOWN, name, bucket);
     }
+    return bucket;
+  }
+
+  static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -1311,7 +1473,7 @@ export default class DDBMuleHandler {
       includeEquipment: false,
     };
 
-    let urlPostfix;
+    let urlPostfix: string | undefined;
     switch (type) {
       case "class":
         urlPostfix = "/proxy/classes";
@@ -1332,15 +1494,27 @@ export default class DDBMuleHandler {
         throw new Error(`Unknown mule type ${type}`);
     }
 
-    const data = await postJson(`${parsingApi}${urlPostfix}`, body);
+    // the list type selects the endpoint, so it has to be part of the cache key
+    const request: IProxyCacheRequest = { domain: "mule-list", params: { type, ...body } };
+    const memoKey = DDBProxyCache.buildKey(request);
+    const cacheHit = DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey];
+    if (cacheHit) return cacheHit as T[];
+    const stamp = DDBProxyCache.stampFor(request);
+    const list = await DDBProxyCache.wrap<T[]>(request, async () => {
+      const data = await postJson(`${parsingApi}${urlPostfix}`, body);
+      if (!data.success) {
+        logger.error(`Failure: ${data.message}`, { data });
+        throw new Error(data.message);
+      }
+      return data.data as T[];
+    });
 
-    if (!data.success) {
-      logger.error(`Failure: ${data.message}`, { data });
-      throw new Error(data.message);
+    // a clear or delete that landed while the download ran already dropped the persistent write;
+    // memoising the result here would hand the next lookup that same stale list without a fetch
+    if (DDBProxyCache.stampFor(request) === stamp) {
+      DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey] = list;
     }
-
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
-    return data.data as T[];
+    return list;
   }
 
   /**
@@ -1376,8 +1550,27 @@ export default class DDBMuleHandler {
     return result;
   }
 
-  static async getExistingSpeciesIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
-    return DDBMuleHandler.#getExistingCompendiumIds("species", "entityRaceId", rulesVersion);
+  /** Read typed identities, recovering pre-type imports only from an unambiguous catalogue match. */
+  static async getExistingSpeciesKeys(
+    rulesVersion: T5eRulesVersion | null,
+    catalog: IDDBMuleSpeciesDefinition[],
+  ): Promise<Set<string>> {
+    const keys = new Set<string>();
+    try {
+      const fields = ["name", ...["entityRaceId", "entityRaceTypeId", "baseRaceId", "fullRaceName", "fullName", "is2014"]
+        .map((flag) => `flags.ddbimporter.${flag}`)];
+      const index = await CompendiumHelper.loadCompendiumIndex("species", { fields });
+      for (const entry of index?.contents ?? []) {
+        const flags = foundry.utils.getProperty(entry, "flags.ddbimporter") as Partial<IDDBImporterItemFlags> | undefined;
+        if (!flags) continue;
+        if (rulesVersion !== null && typeof flags.is2014 === "boolean" && flags.is2014 !== (rulesVersion === "2014")) continue;
+        const key = existingSpeciesKey(flags, catalog);
+        if (key) keys.add(key);
+      }
+    } catch (error) {
+      logger.warn("Failed to load existing species identities for dedupe", error);
+    }
+    return keys;
   }
 
   static async getExistingSubclassIds(rulesVersion: T5eRulesVersion | null): Promise<Set<number>> {
@@ -1393,41 +1586,52 @@ export default class DDBMuleHandler {
     return DDBMuleHandler.#getExistingCompendiumIds("backgrounds", "id", rulesVersion);
   }
 
-  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
-    const cobaltCookie = Secrets.getCobalt();
-    const resolvedCampaignId = campaignId ?? DDBCampaigns.getCampaignId();
-    const parsingApi = DDBProxy.getProxy();
-    const betaKey = PatreonHelper.getPatreonKey();
+  /** The subclass request body and its cache request, shared by the fetch and the session memo. */
+  static #subclassRequest({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
     const body = {
-      cobalt: cobaltCookie,
-      campaignId: resolvedCampaignId,
-      betaKey,
+      cobalt: Secrets.getCobalt(),
+      campaignId: campaignId ?? DDBCampaigns.getCampaignId(),
+      betaKey: PatreonHelper.getPatreonKey(),
       className,
       rulesVersion,
       includeHomebrew,
     };
+    const request: IProxyCacheRequest = { domain: "subclasses", params: body };
+    return { body, request };
+  }
 
-    const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
-    if (!data.success) {
-      logger.error(`Failure: ${data.message}`);
-      throw new Error(data.message);
-    }
-    return data.data;
+  static async getSubclasses(options: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
+    const parsingApi = DDBProxy.getProxy();
+    const { body, request } = DDBMuleHandler.#subclassRequest(options);
+
+    return DDBProxyCache.wrap<IDDBMuleSubclassDefinition[]>(request, async () => {
+      const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
+      if (!data.success) {
+        logger.error(`Failure: ${data.message}`);
+        throw new Error(data.message);
+      }
+      return data.data;
+    });
 
   }
 
+  // classId stays in the signature for the callers, but the memo keys on the request alone: the
+  // proxy answers by class name, so the id adds nothing to what comes back
   static async getSubclassesCached({
     className,
-    classId,
     rulesVersion = "2024",
     includeHomebrew = false,
     campaignId = null,
   }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
-    const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
-    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey) as IDDBMuleSubclassDefinition[] | undefined;
+    const options = { className, rulesVersion, includeHomebrew, campaignId };
+    const { request } = DDBMuleHandler.#subclassRequest(options);
+    const memoKey = DDBProxyCache.buildKey(request);
+    const cacheHit = DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] as IDDBMuleSubclassDefinition[] | undefined;
     if (cacheHit) return cacheHit;
-    const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
-    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
+    const stamp = DDBProxyCache.stampFor(request);
+    const data = await DDBMuleHandler.getSubclasses(options);
+    // same reasoning as getList: a clear during the fetch must not be undone by the memo
+    if (DDBProxyCache.stampFor(request) === stamp) DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] = data;
     return data;
   }
 

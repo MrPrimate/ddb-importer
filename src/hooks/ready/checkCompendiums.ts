@@ -49,5 +49,8 @@ export default async function () {
       compendiums.push(compendiumId);
     }
   }
-  await Hooks.callAll("ddb-importer.compendiumCreationComplete", { compendiums });
+  await Hooks.callAll<"ddb-importer.compendiumCreationComplete">(
+    "ddb-importer.compendiumCreationComplete",
+    { compendiums },
+  );
 }

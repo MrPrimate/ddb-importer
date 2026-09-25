@@ -32,7 +32,8 @@ export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOption
     },
     condition: (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = utils.getSetting<boolean>("allow-scene-download");
+      const sceneDownload = utils.getSetting<boolean>("allow-scene-download")
+        || utils.getSetting<boolean>("developer-mode");
       const allowDownload = game.user.isGM && sceneDownload && scene?.flags?.ddb?.ddbId;
       return allowDownload;
     },

@@ -13,7 +13,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.attributes.movement.swim": {
       if (change.value == null) return true;
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
+      const formula = Roll.replaceFormulaData(String(change.value), rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
@@ -34,15 +34,19 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
     case "system.traits.languages.communication.telepathy.value": {
       if (change.value == null) return true;
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
+      const formula = Roll.replaceFormulaData(String(change.value), rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
     }
+    // dnd5e 5.3 has no multiplier, so enrichers scale or zero every speed through movement.all
     case "system.attributes.movement.all": {
       if (change.value == null) return true;
       if (!("attributes" in actor.system)) break;
-      const movement = actor.system.attributes.movement;
+      // group actors carry travel rather than movement under attributes
+      const movement = (actor.system as unknown as { attributes?: { movement?: I5eMovementRecord } }).attributes?.movement;
+      // const movement = actor.system.attributes.movement;
+      if (!movement) break;
       let op = "";
       if (typeof change.value === "string") {
         change.value = change.value.trim();
@@ -52,7 +56,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
       }
       for (const key of Object.keys(movement) as (keyof I5eMovementRecord)[]) {
         if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
-        let valueString = change.value;
+        let valueString = String(change.value);
         if (op !== "") {
           if (!movement[key]) continue;
           valueString = `${movement[key]} ${change.value}`;
@@ -96,11 +100,11 @@ export default class DDBEffectHooks {
 
   static loadHooks() {
     // special effect functions
-    Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
+    Hooks.on<"applyActiveEffect">("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
       // the hook types the actor as Actor5e with optional flags; TImporterActor requires flags
       // but daeStubEffects never reads them, so the cast is safe
-      Hooks.on(
+      Hooks.on<"applyActiveEffect">(
         "applyActiveEffect",
         daeStubEffects as unknown as (
           actor: Actor.Implementation,

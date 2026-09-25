@@ -20,7 +20,7 @@ function addChatImgButtonClickEvent(chatImg: HTMLElement) {
 
 export function chatHooks() {
 
-  Hooks.on("renderChatMessageHTML", (_message, element) => {
+  Hooks.on<"renderChatMessageHTML">("renderChatMessageHTML", (_message, element) => {
     const chatImg = element.querySelector("img.ddbimporter-chat-image");
     const settingsButton = element.querySelector("button.ddb-importer-chat-settings");
 

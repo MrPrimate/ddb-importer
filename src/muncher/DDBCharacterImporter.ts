@@ -192,16 +192,53 @@ export default class DDBCharacterImporter {
             if (!item.effects) item.effects = [];
             if (originalItem.effects) {
               logger.info(`Copying Effects for ${originalItem.name}`);
-              item.effects = originalItem.effects.map((m) => {
-                delete m._id;
-                return m;
-              });
+              item.effects = DDBCharacterImporter.mergeRetainedItemEffects(item.effects, originalItem.effects);
             }
           }
           return item;
         }),
       );
     });
+  }
+
+  /**
+   * Merge the effects of an item's previous import into its freshly generated effects.
+   *
+   * The new item's activities, enchantment riders and region behaviors reference the generated
+   * effect ids, so a retained effect takes over the id of the generated effect it replaces
+   * (matched by name, in order) and those links keep resolving. Generated effects with no
+   * retained counterpart are kept, as something may link to them.
+   * @param {I5eEffectData[]} generated effects built by this import
+   * @param {I5eEffectData[]} retained effects on the item before this import
+   * @returns {I5eEffectData[]} the effects to create the item with
+   */
+  static mergeRetainedItemEffects(generated: I5eEffectData[], retained: I5eEffectData[]): I5eEffectData[] {
+    const unmatchedGenerated = [...generated];
+    const unmatchedRetained: I5eEffectData[] = [];
+    const merged: I5eEffectData[] = [];
+
+    for (const original of retained) {
+      const effect = foundry.utils.deepClone(original);
+      const index = unmatchedGenerated.findIndex((e) => e.name === effect.name);
+      if (index === -1) {
+        unmatchedRetained.push(effect);
+        continue;
+      }
+      const [replaced] = unmatchedGenerated.splice(index, 1);
+      if (replaced._id) effect._id = replaced._id;
+      else delete effect._id;
+      merged.push(effect);
+    }
+
+    merged.push(...unmatchedGenerated);
+    const usedIds = new Set(merged.map((e) => e._id).filter((id) => id));
+    for (const effect of unmatchedRetained) {
+      // an id taken by a generated effect gets a fresh one on create
+      if (effect._id && usedIds.has(effect._id)) delete effect._id;
+      else if (effect._id) usedIds.add(effect._id);
+      merged.push(effect);
+    }
+    return merged;
   }
 
   static async removeItems(itemList: TAll5eItemDocuments[], itemsToRemove: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
@@ -498,7 +535,11 @@ ${itemDescription.chat}
     return remappedItems;
   }
 
-  static restoreDDBMatchedFlags(existingItem: I5ePCItem, item: I5ePCItem) {
+  static restoreDDBMatchedFlags(existing: I5ePCItem, item: I5ePCItem) {
+    // the match comes from the actor's embedded collection, so it is a live Item: its
+    // system.activities is an ActivityCollection that neither keyed access nor
+    // Object.values can read, and its system deep clones as data models
+    const existingItem = DDBItemImporter.sourceData(existing);
     const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags;
     logger.debug(`Item flags for ${existingItem.name}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
@@ -519,14 +560,14 @@ ${itemDescription.chat}
     // some items get ignored completly, if so we don't match these
     if (!(foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false)) {
       logger.debug(`Updating ${item.name} with id`);
-      item["_id"] = foundry.utils.getProperty(existingItem, "id") as string
+      item["_id"] = foundry.utils.getProperty(existing, "id") as string
         ?? foundry.utils.getProperty(existingItem, "_id") as string;
       if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);
         foundry.utils.setProperty(item, "flags.ddbimporter.matchedImg", existingItem.img);
         foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
       }
-      if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
+      if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
         if ("activities" in item.system && "activities" in existingItem.system) {
           for (const [key, activity] of Object.entries(item.system.activities)) {
@@ -546,9 +587,15 @@ ${itemDescription.chat}
         }
       }
       if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
-        if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
+        if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainUseSpent") ?? false) {
           item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
         }
+      }
+      const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
+        ddbItemFlags, item, "retainActivityUseSpent",
+      );
+      if (retainActivitySpent) {
+        DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
@@ -609,19 +656,8 @@ ${itemDescription.chat}
     this.notifier("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
-    const spellsAsActivities = utils.getSetting<boolean>("spells-on-items-as-activities");
-    // If there is no magicitems module fall back to importing the magic
-    // item spells as normal spells fo the character
-    if (!spellsAsActivities) {
-      logger.debug("No magic items module(s) found, adding spells to sheet.");
-      items.push(
-        ...(this.result.itemSpells.filter((item) => {
-          const active = item.flags.ddbimporter?.dndbeyond?.active === true;
-          if (!active) logger.info(`Missing active flag on item spell ${item.name}`);
-          return active;
-        })),
-      );
-    }
+    // item spells are cast activities on their items (linked to the spells compendium during
+    // the parse), never separate spell documents on the sheet
     logger.debug("Finished item fetch");
     return items;
   }
@@ -916,6 +952,115 @@ ${itemDescription.chat}
     }
   }
 
+  /**
+   * Assembles the `debug-import-capture` document from a finished import.
+   */
+  static buildImportCapture({ source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null }: {
+    source: IDDBCharacterResponse | null;
+    actor: TImporterActor;
+    settings: DDBCharacterImporter["settings"];
+    importError: string | null;
+    versions: IDDBImportCapture["versions"];
+    modules: string[];
+    derived?: IDDBImportCaptureDerived | null;
+    moduleSettings?: Record<string, unknown> | null;
+  }): IDDBImportCapture {
+    // midiConfig is the live midi-qol settings object: large, sometimes circular, and the
+    // module list already records whether midi was present for the import
+    const { midiConfig: _midiConfig, ...importSettings } = settings;
+    return {
+      // format 2: `source` is the pre-parse snapshot and `derived` carries the prepared totals
+      format: 2,
+      capturedAt: new Date().toISOString(),
+      characterId: source?.ddb?.character?.id ?? null,
+      versions,
+      modules,
+      importSettings,
+      importError,
+      source,
+      actor: actor.toObject() as unknown as I5ePCData,
+      ...(derived ? { derived } : {}),
+      ...(moduleSettings ? { settings: moduleSettings } : {}),
+    };
+  }
+
+  /** Settings whose values are credentials and must never leave the world. */
+  static SECRET_SETTING_PATTERN = /cookie|key|token|secret|patreon/i;
+
+  /**
+   * Every registered module setting as the import saw it. The parse branches on dozens of
+   * them (spells on items as activities, container policies, effect toggles), so a replay
+   * without them compares against a different import.
+   */
+  static collectModuleSettings(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(SETTINGS.GET_ALL_SETTINGS())) {
+      if (DDBCharacterImporter.SECRET_SETTING_PATTERN.test(key)) {
+        result[key] = "REDACTED";
+        continue;
+      }
+      try {
+        result[key] = utils.getSetting<unknown>(key);
+      } catch (_error) {
+        // a setting registered late (or not at all in this world) is simply absent
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The sheet totals dnd5e computes at prepareData and toObject() leaves out: what a user
+   * reads on the sheet, and what the lifecycle audit needs to check the parsed numbers.
+   */
+  static deriveSheetValues(actor: TImporterActor): IDDBImportCaptureDerived {
+    const system: any = actor.system ?? {};
+    const num = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
+    const record = (source: Record<string, any> | undefined, pick: (entry: any) => unknown): Record<string, number | null> =>
+      Object.fromEntries(Object.entries(source ?? {}).map(([key, entry]) => [key, num(pick(entry))]));
+    return {
+      ac: num(system.attributes?.ac?.value),
+      hpMax: num(system.attributes?.hp?.max),
+      prof: num(system.attributes?.prof),
+      abilities: Object.fromEntries(Object.entries(system.abilities ?? {}).map(([key, ability]: [string, any]) => [
+        key, { value: num(ability?.value), mod: num(ability?.mod), save: num(ability?.save?.value ?? ability?.save) },
+      ])),
+      skills: record(system.skills, (skill) => skill?.total),
+      spells: record(system.spells, (slot) => slot?.max),
+      movement: record(system.attributes?.movement, (value) => value),
+      senses: record(system.attributes?.senses, (value) => value),
+      init: num(system.attributes?.init?.total),
+    };
+  }
+
+  /**
+   * Downloads the proxy response and the finished actor as one `<id>-<name>-import.json`,
+   */
+  downloadImportCapture(importError: string | null) {
+    if (!utils.getSetting<boolean>("debug-import-capture")) return;
+    try {
+      const capture = DDBCharacterImporter.buildImportCapture({
+        // process() mutates source in place; the audit replays the snapshot taken at fetch time
+        source: this.ddbCharacter.sourceSnapshot ?? this.ddbCharacter.source,
+        actor: this.actor,
+        settings: this.settings,
+        importError,
+        derived: DDBCharacterImporter.deriveSheetValues(this.actor),
+        moduleSettings: DDBCharacterImporter.collectModuleSettings(),
+        versions: {
+          game: game.version,
+          system: game.system.version,
+          ddbimporter: game.modules.get("ddb-importer")?.version ?? "unknown",
+        },
+        modules: game.modules.filter((m) => m.active).map((m) => m.id),
+      });
+      const characterId = capture.characterId ?? this.ddbCharacter.characterId ?? "unknown";
+      const name = this.ddbCharacter.source?.ddb?.character?.name ?? this.actor.name;
+      FileHelper.download(JSON.stringify(capture), `${characterId}-${name}-import.json`, "application/json");
+    } catch (error) {
+      logger.warn("Unable to build the import capture", { error });
+    }
+  }
+
   async processCharacterData() {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
@@ -930,6 +1075,7 @@ ${itemDescription.chat}
     await this.ddbCharacter.disableDynamicUpdates();
     await this.setAtLeastOneHP();
 
+    let importError: string | null = null;
     try {
       this.importId = foundry.utils.randomID();
       foundry.utils.setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
@@ -1085,6 +1231,7 @@ ${itemDescription.chat}
       await this.resetHitPoints();
 
     } catch (error) {
+      importError = utils.errorMessage(error);
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
       if (error instanceof Error) logger.error(error.stack);
       this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: utils.errorMessage(error), isError: true });
@@ -1099,9 +1246,13 @@ ${itemDescription.chat}
       if (CONFIG.DDBI.DEV.downloadFinalActorJSON) {
         FileHelper.download(JSON.stringify(this.actor._source), `${this.actor.name}-${this.actor.id}.json`, "application/json");
       }
+      this.downloadImportCapture(importError);
     }
 
-    await Hooks.callAll("ddb-importer.characterProcessDataComplete", { actor: this.actor, ddbCharacter: this.ddbCharacter });
+    await Hooks.callAll<"ddb-importer.characterProcessDataComplete">(
+      "ddb-importer.characterProcessDataComplete",
+      { actor: this.actor, ddbCharacter: this.ddbCharacter },
+    );
   }
 
 

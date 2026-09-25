@@ -11,7 +11,9 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  SourceFilters,
   postJson,
+  DDBProxyCache,
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { ExternalAutomations } from "../effects/_module";
@@ -55,72 +57,13 @@ export interface IDDBItemsImporter {
 // streaming attempt for the session we latch this and stick to HTTP.
 let _itemSocketDisabled = false;
 
-interface IApplyItemFilters {
-  ids: (number | string)[];
-  useSourceFilter: boolean;
-  useGenerics: boolean;
-  sources: number[];
-  exactMatch: boolean;
-  searchFilter: string | null;
-}
-
-function applyItemFilters(input: IDDBItemsSource, {
-  ids,
-  useSourceFilter,
-  useGenerics,
-  sources,
-  exactMatch,
-  searchFilter,
-}: IApplyItemFilters): IDDBItemsSource {
-  let data = input;
-  // category filtering
-  if (ids.length === 0) {
-    const categoryItems = data.items
-      .map((item) => {
-        item.sources = item.sources.filter((source) =>
-          DDBSources.isSourceInAllowedCategory(source),
-        );
-        return item;
-      })
-      .filter((item) => {
-        if (item.isHomebrew) return true;
-        return item.sources.length > 0;
-      });
-    data = { items: categoryItems, spells: data.spells, extra: data.extra };
-  }
-  // source filtering
-  const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
-  data = {
-    items: (sources.length === 0 || !useSourceFilter)
-      ? filteredItems
-      : filteredItems.filter((item) =>
-        item.sources.some((source) => sources.includes(source.sourceId)),
-      ),
-    spells: data.spells,
-    extra: data.extra,
-  };
-  // homebrew filtering
-  if (sources.length === 0) {
-    if (utils.getSetting<boolean>("munching-policy-item-homebrew-only")) {
-      data = { items: data.items.filter((item) => item.isHomebrew), spells: data.spells, extra: data.extra };
-    } else if (!utils.getSetting<boolean>("munching-policy-item-homebrew")) {
-      data = { items: data.items.filter((item) => !item.isHomebrew), spells: data.spells, extra: data.extra };
-    }
-  }
-  if (ids.length > 0) {
-    data = { items: data.items.filter((item) => ids.includes(item.id)), spells: data.spells, extra: data.extra };
-  }
-  if (searchFilter && searchFilter !== "") {
-    if (exactMatch) {
-      data = { items: data.items.filter((item) => item.name.toLowerCase() === searchFilter.toLowerCase()), spells: data.spells, extra: data.extra };
-    } else {
-      data = { items: data.items.filter((item) => item.name.toLowerCase().includes(searchFilter.toLowerCase())), spells: data.spells, extra: data.extra };
-    }
-  }
-  return data;
-}
-
 type TDDBItemsPayload = IDDBItemsResponseData | IDDBItemDefinition[];
+
+// the filtered payload plus how many items each filter stage let through
+interface IItemFetchResult {
+  data: IDDBItemsSource;
+  counts: SourceFilters.ISourceFilterCounts;
+}
 
 /**
  * Fold a streamed `items` event into the payload gathered so far. Custom proxies
@@ -146,11 +89,20 @@ function mergeItemPayloads(accumulated: TDDBItemsPayload | null, incoming: unkno
   const previous = accumulated !== null && !Array.isArray(accumulated)
     ? accumulated
     : { items: [], spells: [], extra: [] } as IDDBItemsResponseData;
+  const evolved = { ...(previous.evolved ?? {}), ...(chunk.evolved ?? {}) };
   return {
     items: [...(previous.items ?? []), ...items],
     spells: [...(previous.spells ?? []), ...spells],
     extra: [...(previous.extra ?? []), ...extra],
+    ...(Object.keys(evolved).length > 0 ? { evolved } : {}),
   };
+}
+
+export function registerEvolvedProperties(evolved: Record<string, string> | undefined): void {
+  if (!evolved || Object.keys(evolved).length === 0) return;
+  if (!foundry.utils.hasProperty(CONFIG, "DDB")) return;
+  CONFIG.DDB.EVOLVED_PROPERTIES = { ...(CONFIG.DDB.EVOLVED_PROPERTIES ?? {}), ...evolved };
+  logger.debug(`Registered ${Object.keys(evolved).length} evolved item property texts from the proxy`);
 }
 
 function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinition[]): IDDBItemsSource {
@@ -159,10 +111,12 @@ function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinitio
     return { items: payload as IDDBItemDefinition[], spells: [], extra: [] };
   }
   const raw = payload as IDDBItemsResponseData;
+  registerEvolvedProperties(raw.evolved);
   return {
     items: raw.items,
     spells: (raw.spells ?? []).map((s) => s.data),
     extra: raw.extra ?? [],
+    ...(raw.evolved ? { evolved: raw.evolved } : {}),
   };
 }
 
@@ -280,10 +234,9 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
     const debugJson = utils.getSetting<boolean>("debug-json");
-    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
     const useGenerics = utils.getSetting<boolean>("munching-policy-use-generic-items");
     // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
-    const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+    const sources = sourcesOverride ?? DDBSources.getBookFilter().effective;
     const effectiveUseSourceFilter = sourcesOverride !== null ? true : useSourceFilter;
     const exactMatch = utils.getSetting<boolean>("munching-policy-item-exact-match");
     return {
@@ -293,7 +246,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     };
   }
 
-  static _getItemDataHttp({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IDDBItemsSource> {
+  static _getItemDataHttp({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IItemFetchResult> {
     const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
     const body = { cobalt: cobaltCookie, campaignId, betaKey, addSpells: true };
@@ -303,30 +256,30 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
-    return new Promise<IDDBItemsSource>((resolve, reject) => {
-      postJson(`${parsingApi}/proxy/items`, body)
-        .then((data: IDDBItemsProxyResponse) => {
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
-          }
-          if (!data.success) {
-            utils.munchNote(`Failure: ${data.message}`);
-            reject(data.message);
-            return null;
-          }
-          return data.data;
-        })
+    const fetchRaw = async (): Promise<TDDBItemsPayload> => {
+      const data: IDDBItemsProxyResponse = await postJson(`${parsingApi}/proxy/items`, body);
+      if (!data.success) {
+        utils.munchNote(`Failure: ${data.message}`);
+        throw new Error(data.message);
+      }
+      return data.data;
+    };
+
+    return new Promise<IItemFetchResult>((resolve, reject) => {
+      DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: body }, fetchRaw)
         .then(async (raw) => {
-          if (raw == null) return;
+          if (debugJson) {
+            FileHelper.download(JSON.stringify({ success: true, data: raw }), `items-raw.json`, "application/json");
+          }
           const normalised = normaliseItemPayload(raw);
           await downloadRawItemsBySource(normalised);
-          resolve(applyItemFilters(normalised, ctx.filters));
+          resolve(SourceFilters.applyItemFilters(normalised, ctx.filters));
         })
         .catch((error) => reject(error));
     });
   }
 
-  static _getItemDataStreaming({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IDDBItemsSource> {
+  static _getItemDataStreaming({ useSourceFilter = true, ids = [] as (number | string)[], searchFilter = null as string | null, sourcesOverride = null as number[] | null } = {}): Promise<IItemFetchResult> {
     const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
 
@@ -335,7 +288,10 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
-    return (async () => {
+    // The same params drive the cache key for both transports, so an HTTP-fetched catalogue serves
+    // a later streaming request and vice versa.
+    const jobParams = { campaignId, addSpells: true, cobalt: cobaltCookie };
+    const streamViaSocket = async (): Promise<TDDBItemsPayload> => {
       const socket = new DDBItemSocket(parsingApi);
       socket.connect();
       try {
@@ -343,7 +299,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
         if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
         let raw: TDDBItemsPayload | null = null;
-        await socket.runJob("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie }, {
+        await socket.runJob("all-items", jobParams, {
           timeoutMs: 60000,
           onEvent: (event: DDBItemEvent) => {
             if (event.kind !== "items") return;
@@ -352,21 +308,25 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
             raw = mergeItemPayloads(raw, event.payload);
           },
         });
-
-        if (debugJson) {
-          FileHelper.download(
-            JSON.stringify({ success: true, data: raw }),
-            `items-raw.json`,
-            "application/json",
-          );
-        }
         if (raw == null) throw new Error("Stream completed without items payload");
-        const normalised = normaliseItemPayload(raw);
-        await downloadRawItemsBySource(normalised);
-        return applyItemFilters(normalised, ctx.filters);
+        return raw;
       } finally {
         socket.close();
       }
+    };
+
+    return (async () => {
+      const raw = await DDBProxyCache.wrap<TDDBItemsPayload>({ domain: "items", params: jobParams }, streamViaSocket);
+      if (debugJson) {
+        FileHelper.download(
+          JSON.stringify({ success: true, data: raw }),
+          `items-raw.json`,
+          "application/json",
+        );
+      }
+      const normalised = normaliseItemPayload(raw);
+      await downloadRawItemsBySource(normalised);
+      return SourceFilters.applyItemFilters(normalised, ctx.filters);
     })();
   }
 
@@ -375,7 +335,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     ids?: (number | string)[];
     searchFilter?: string | null;
     sourcesOverride?: number[] | null;
-  } = {}): Promise<IDDBItemsSource> {
+  } = {}): Promise<IItemFetchResult> {
     if (!_itemSocketDisabled) {
       try {
         return await DDBItemsImporter._getItemDataStreaming(args);
@@ -494,12 +454,18 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
 
     // disable source filter if ids provided
     const sourceFilter = (this.ids === null || this.ids.length === 0) && this.useSourceFilter;
-    this.source = await DDBItemsImporter._getItemData({
+    // an explicit source or id list is a programmatic caller (adventure import), not the muncher UI
+    if (this.sources === null && sourceFilter) {
+      SourceFilters.preflightSourceSettings("items", this.notifier);
+    }
+    const { data, counts } = await DDBItemsImporter._getItemData({
       useSourceFilter: sourceFilter,
       ids: this.ids,
       searchFilter: this.searchFilter,
       sourcesOverride: this.sources,
     });
+    this.source = data;
+    SourceFilters.reportFilterResult("items", counts, this.notifier);
   }
 
   async _importSyntheticItems() {
@@ -518,11 +484,12 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     await itemHandler.init();
     this.notifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
     await itemHandler.iconAdditions();
-    this.data = (this.ids !== null && this.ids.length > 0)
+    const wantedIds = SourceFilters.ddbIdSet(this.ids);
+    this.data = wantedIds.size > 0
       // definitionId only exists on item-flavoured ddbimporter flags, not the full union
       ? itemHandler.documents.filter((s: any) =>
         s.flags?.ddbimporter?.definitionId
-        && this.ids.includes(String(s.flags.ddbimporter.definitionId)),
+        && wantedIds.has(String(s.flags.ddbimporter.definitionId)),
       )
       : itemHandler.documents;
     itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({
