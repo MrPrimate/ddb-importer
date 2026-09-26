@@ -1202,7 +1202,7 @@ export class DDBCompendiumFolders {
    * parsed plain objects and raw compendium index entries alike, so it reads the dnd5e 6.0
    * `rarities` set first, then the DDB label kept on the dndbeyond flags
    * (the only trace of "Varies" on a new import; any other label without a key is mundane gear, which
-   * has always been filed under Unknown), then a pre-6.0 `system.rarity` string, but only from an
+   * is filed under Unknown), then a pre-6.0 `system.rarity` string, but only from an
    * un-migrated entry: a re-munched entry keeps a stale string beside its set.
    */
   static getItemFolderNameForRarity(document: I5eInventoryItem, useSource = false) {

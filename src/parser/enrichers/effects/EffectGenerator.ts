@@ -1032,9 +1032,9 @@ export default class EffectGenerator {
   }
 
   /**
-   * DDB carries these gates in the modifier subtype rather than in a restriction string, so they
-   * survive the restriction filtering and were previously flattened onto every melee or every
-   * weapon damage roll.
+   * DDB carries these gates in the modifier subtype rather than in a restriction string, so the
+   * restriction filtering keeps them; without a condition from this table they would apply to
+   * every melee or every weapon damage roll.
    */
   static ATTACK_MODE_DAMAGE_SUBTYPES: Record<string, IEffectChangeFilter> = {
     "one-handed-melee-attacks": { k: "roll.attack.mode", v: "oneHanded" },
@@ -1071,7 +1071,7 @@ export default class EffectGenerator {
       this._conditionedDamageBonus(subTypeMods, conditions, subType);
     }
 
-    // weapon-specific bonuses used to fall through to the unconditional melee AND ranged bonuses
+    // a bonus for one weapon type is conditioned on that base item; it is not a melee or ranged bonus
     const weaponSubTypes = new Set<string>();
     for (const mod of DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)) {
       if (mod.subType && EffectGenerator.weaponBaseItemForSubType(mod.subType)) weaponSubTypes.add(mod.subType);

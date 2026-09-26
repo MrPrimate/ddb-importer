@@ -18,7 +18,7 @@ export default class RegionBehaviorSettings {
 
   /**
    * Copy the old import preference once. Its existing value becomes the master switch too, so
-   * worlds that opted out now start completely disabled. Presence of the new setting is the
+   * a world that had opted out starts with region behaviors fully off. Presence of the new setting is the
    * migration marker; later master changes must not overwrite the independent import preference.
    * Only the active GM writes world settings, and a failed write can retry on the next load.
    */

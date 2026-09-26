@@ -131,7 +131,7 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   // whether the last thing the user did in the app was commit a control (a change event) rather
   // than start using one (pointer or key). Choosing from a `<select>` fires change and closes the
   // popup but leaves focus on the select, so focus alone would hold the render until they click
-  // elsewhere - the class list on the mule tab never gained its new class
+  // elsewhere (the class list on the mule tab would not show a newly chosen class)
   protected controlSettled = false;
 
   // set while a flush (a tab change) wants the parked render to land without waiting for quiet
@@ -176,9 +176,9 @@ export default abstract class DDBAppV2 extends DDBAppV2Base<DDBAppV2Context> {
   }
 
   /**
-   * Resolve once every setting write queued so far has been applied. A munch button read its
-   * settings at click time, so a category change made a moment earlier could still be in flight and
-   * the import would run against the previous value. Waits for the writes only, never for the
+   * Resolve once every setting write queued so far has been applied. A munch button reads its
+   * settings at click time, when a category change made a moment earlier can still be in flight,
+   * so it awaits this before the import reads them. Waits for the writes only, never for the
    * follow-up render, which may be parked on the user indefinitely.
    */
   protected async awaitSettingUpdates(): Promise<void> {

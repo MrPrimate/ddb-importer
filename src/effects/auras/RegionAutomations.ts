@@ -145,7 +145,7 @@ export default class RegionAutomations {
    * behaviors support (apply-active-effect.mjs), plus an exclusion set for
    * "any creature other than an ooze" wording. Empty sets match everything; a
    * token without an actor can still be filtered by disposition but otherwise
-   * passes so the behavior degrades no differently than before.
+   * passes, as it would with no filters set.
    */
   static matchesTokenFilters(token: TokenDocument, args: ITokenFilterArgs): boolean {
     const dispositions = args.dispositions ?? [];

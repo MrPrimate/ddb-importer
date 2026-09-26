@@ -37,8 +37,8 @@ interface IDDBSourceBookBrowserOptions {
 }
 
 /**
- * Display order and heading for each proxy cache domain. The future display pass extends this
- * table rather than the template.
+ * Display order and heading for each proxy cache domain. A new domain gets an entry here rather
+ * than in the template.
  */
 export const CACHE_DOMAIN_LABELS: { domain: TProxyCacheDomain; label: string }[] = [
   { domain: "spells", label: "Spells" },

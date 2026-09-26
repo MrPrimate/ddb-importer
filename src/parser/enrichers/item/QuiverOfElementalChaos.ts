@@ -4,12 +4,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * Eight kinds of ammunition, each with its own rider, and none of them reachable by
  * the parser.
  *
- * The generator that names a save activity per description section cannot split this
- * item: DDB writes most of its labels `<em><strong>Air Ammunition.</strong></em>` but
- * "Water Ammunition." the other way round, and `DDBDescriptions.sections` ranks a
- * marker by its outermost tag, so only the odd one out reads as a boundary. Without
- * two sections it falls back to flat mode and produces "Dex Save"/"Con Save" - and the
- * primary activity ends up carrying every element's damage dice at once.
+ * The parser's per-section save generator cannot split this item: DDB marks up one
+ * section label differently from the rest, so the sections do not read as a set, and the
+ * flat fallback would put every element's damage dice on one activity.
  *
  * Each element gets its extra damage and its save as separate activities, because they
  * are separate rolls: the extra damage lands whenever the attack hits, while the save

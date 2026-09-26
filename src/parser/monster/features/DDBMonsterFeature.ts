@@ -431,7 +431,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           generateDamage: true,
           includeBaseDamage: false,
           activationCondition: mode.condition,
-          // Reuse the former versatile ID as well as its slot to preserve document links.
+          // Take the id and slot a versatile activity would have, so links to it keep resolving.
           ...(this.templateType !== "weapon" && this.ddbMonsterDamage.replacesVersatile ? {
             data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
           } : {}),
@@ -1653,7 +1653,7 @@ ${this.data.system.description.value}
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 
-    // Named effect hints can still refer to the former parser-generated versatile activity.
+    // Effect hints matched to the "Versatile" activity follow the damage mode that replaces it.
     if (this.ddbMonsterDamage.replacesVersatile && this.ddbMonsterDamage.damageModes.length) {
       const name = this.ddbMonsterDamage.damageModes[0].name;
       for (const effect of this.data.effects) {
@@ -2096,8 +2096,8 @@ ${this.data.system.description.value}
     }
 
     // A feature with limited uses of its own spends one when used. Recharge sets this where its
-    // uses are read; "(1/Day)" and "Recharges after a Short or Long Rest" gave the item uses but
-    // no consumption, so the use was never spent. Every activity of the feature spends from the
+    // uses are read; "(1/Day)" and "Recharges after a Short or Long Rest" give the item uses but
+    // no consumption of their own, so it is added here. Every activity of the feature spends from the
     // same pool, which is also what a conditional weapon attack wants in either mode. An at-will
     // feature has no uses and must not acquire a target; Legendary Resistance and a legendary
     // action's cost already carry their own.

@@ -508,8 +508,8 @@ export function parse(
       result.definitions.push(entry);
       return;
     }
-    // DDB also writes the sign marker as the last entry of a constraint list ("#min:1,unsigned"); the legacy
-    // splitter cannot read that form, so it goes through the expression compiler with the marker stripped
+    // DDB also writes the sign marker as the last entry of a constraint list ("#min:1,unsigned"); the
+    // constraint splitter cannot read that form, so it goes through the expression compiler with the marker stripped
     const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
       || (/#(?:min|max):/).test(match) || (/,(?:signed|unsigned)\b/).test(match)
       || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
@@ -523,7 +523,7 @@ export function parse(
         const expression = match.replace(/[#,](?:signed|unsigned)\b/g, "");
         const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
         const number = getNumber(formula, signed);
-        // keep the sign outside the inline roll, matching the legacy path, unless a dice term precedes it
+        // keep the sign outside the inline roll, as the constraint splitter does, unless a dice term precedes it
         entry.parsed = !entry.rollMatchTest && (/^\+\s/).test(number)
           ? `+ [[${number.replace(/^\+\s/, "")}]]`
           : `[[${number}]]`;

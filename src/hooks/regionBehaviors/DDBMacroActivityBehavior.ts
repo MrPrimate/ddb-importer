@@ -66,8 +66,8 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     args.oncePerTurn = this.oncePerTurn;
     args.excludeSelf = this.excludeSelf;
     args.scale = this.scale;
-    // the checkbox, or `{"autoRoll": true}` in the arguments JSON, which hand-built
-    // behaviors were told to use before the checkbox had a label
+    // the checkbox, or `{"autoRoll": true}` in the arguments JSON, which older hand-built
+    // behaviors carry
     args.autoRoll = this.autoRoll || args.autoRoll === true;
     args.groupTargets = this.groupTargets;
     if (this.ownerTurn) {

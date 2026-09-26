@@ -645,10 +645,10 @@ export default class DDBDescriptions {
    *
    * The saving throw a feature is ABOUT is the one its text states first. The two word orders
    * the parsers look for - "DC 15 Dexterity saving throw" (2014) and "Dexterity Saving Throw:
-   * DC 15" (2024) - are printing conventions, not a precedence, so preferring one of them
-   * wherever it appeared let a trailing clause supply the primary save: a Behir's Swallow read
-   * the DC 14 Constitution throw the BEHIR makes to regurgitate rather than the DC 18 Dexterity
-   * throw its victim makes to avoid being swallowed. A tie keeps the earlier argument.
+   * DC 15" (2024) - are printing conventions, not a precedence, so neither is preferred: a
+   * trailing clause must not supply the primary save. A Behir's Swallow states the DC 18
+   * Dexterity throw its victim makes to avoid being swallowed before the DC 14 Constitution throw
+   * the behir makes to regurgitate, and the first is its save. A tie keeps the earlier argument.
    */
   static firstMatch(...matches: (RegExpMatchArray | null)[]): RegExpMatchArray | null {
     return matches.reduce((first: RegExpMatchArray | null, match) => {
@@ -892,17 +892,13 @@ export default class DDBDescriptions {
   /**
    * Merge a DAE special duration parsed from a dcParser match tail into an effect.
    *
-   * Retained for the public `DDBEffectHelper.getSpecialDuration` API only - the
-   * parser itself no longer calls this.
+   * Serves the public `DDBEffectHelper.getSpecialDuration` API; the parser does not call it.
    *
    * Note that `dcParser`'s trailing capture is lazy-optional (`(.*)??`),
    * so `match[7]` is always undefined for matches produced by that regex;
    * only an external caller supplying its own match can reach the classification
-   * below.
-   *
-   * It previously mapped ANY "until the start of the..." to
-   * `turnStartSource`, anchoring "the target's next turn" on the
-   * caster; it now shares `nextTurnExpiry`'s reference rules.
+   * below, which follows `nextTurnExpiry`'s rules for whose turn a duration counts
+   * ("the target's next turn" is not the caster's).
    */
   static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match: any) {
     const durations: string[] = [];

@@ -857,8 +857,8 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           // An enricher that declares options.expiry or daeSpecialDurations (either one
           // even as an empty/null value) owns the effect's expiry: description parsing is
           // first-match over the WHOLE spell text, so a rider sentence can stamp the wrong
-          // effect (Haste 2024's "until the end of its next turn" lethargy clause was
-          // expiring the main 1-minute buff at the target's next turn end).
+          // effect (Haste 2024's "until the end of its next turn" lethargy clause would expire
+          // the main 1-minute buff at the target's next turn end).
           if (!effectHint.daeSpecialDurations && !("expiry" in effectOptions)) {
 
             if (duration.expiry) {

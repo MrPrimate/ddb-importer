@@ -6,7 +6,7 @@ import { logger } from "../../lib/_module";
  * spells imported on those versions still carry midi onUse flags, DAE macro
  * changes and OverTime `macro=function.` references naming these functions,
  * and a missing function throws inside the midi workflow and aborts the cast.
- * They now do nothing except ask for a re-import, once per document per session,
+ * They do nothing except ask for a re-import, once per document per session,
  * and return nothing so midi reads no halt or template result from them.
  */
 

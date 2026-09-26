@@ -961,7 +961,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       seen.add(key);
       checks.push(check);
     }
-    // read from the whole text, tables included, as the escape-only generator always did
+    // read from the whole text, tables included: an escape DC can sit anywhere in the feature
     const escape = text.match(/escape DC (\d+)/);
     if (escape && !checks.some((check) => check.dc.formula === escape[1])) {
       checks.push(DDBActivityFactoryMixin.escapeDcCheck(escape[1]));

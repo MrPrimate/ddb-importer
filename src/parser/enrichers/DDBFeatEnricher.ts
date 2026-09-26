@@ -42,7 +42,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   override NAME_HINTS: Record<string, string> = {
     // a barrel export named Actor would shadow the Foundry global
     "Actor": "ActorFeat",
-    // the enricher file predates the spelling fix
+    // the enricher is filed under a misspelt name
     "Aberrant Dragonmark": "AbberantDragonmark",
   };
 

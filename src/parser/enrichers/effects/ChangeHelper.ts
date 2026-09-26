@@ -261,7 +261,7 @@ export default class ChangeHelper {
   // is evaluated during data prep and would suppress the whole effect.
   // Values may use `@` references in every category: `attack`, `check` and `save` values are
   // resolved by `constructParts` before the roll is built, and `damage` / `healing` values ride in
-  // as the `@ruleBonus` part, which dnd5e's `BasicRoll.replaceFormulaData` now expands recursively
+  // as the `@ruleBonus` part, which dnd5e's `BasicRoll.replaceFormulaData` expands recursively
   // (#7354, depth 3) against the rolled item's data - so `@item.level` or `@abilities.wis.mod`
   // work there too.
 

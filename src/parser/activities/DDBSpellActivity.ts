@@ -407,9 +407,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         if (!this.damageRestrictionHints && restrictionText !== "") {
           chatFlavor.push(`Restriction: ${restrictionText}`);
         }
-        // class cantrip damage bonuses (Potent Spellcasting) are now native damage rules on the granting feature's effect
+        // class cantrip damage bonuses (Potent Spellcasting) are native damage rules on the granting feature's effect
         const addMod = damageMod.usePrimaryStat ? " + @mod" : "";
-        // parseDiceString stringifies its input, so a missing die keeps the historic "null" handling below
+        // parseDiceString stringifies its input, so a missing die arrives as "null" and is skipped below
         const diceString = utils.parseDiceString(String(damageMod.die?.diceString ?? null), addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
           const damage = this.buildDamagePart({

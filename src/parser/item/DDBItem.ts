@@ -432,11 +432,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   /**
    * Read a save out of an item's rules text, or null when it names none.
    *
-   * The ability is matched by name rather than captured with a wildcard. A
-   * wildcard swallows the "DC 15 " prefix of the usual phrasing, and the
-   * three-character truncation that followed turned it into a bogus "dc "
-   * ability; it also let a lazy match reach across a sentence and pair a DC
-   * with an ability from somewhere else entirely.
+   * The ability is matched by name rather than captured with a wildcard: a
+   * wildcard would swallow the "DC 15 " prefix of the usual phrasing and read
+   * part of it as the ability, and a lazy match could reach across a sentence
+   * and pair a DC with an ability from somewhere else entirely.
    *
    * DDB text writes the roll as both "saving throw" and the "save" shorthand
    * ("must succeed on a DC 15 Constitution save"), so both are accepted.
@@ -444,7 +443,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * Where an item describes several saves - a magic item with two properties -
    * the explicit-DC form wins, so that the ability and the DC at least come
    * from the same sentence. An item whose two saves both matter needs an
-   * enricher; see docs/multi-roll-items.md.
+   * enricher that builds each save as its own activity.
    */
   static parseSaveFromDescription(description: string): I5eActivitySave | null {
     const save = {

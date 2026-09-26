@@ -488,7 +488,7 @@ export default class RegionExpiryCleanup {
    * 3. A region with a RUNNING timer and no governing effect is alive - it governs itself.
    *    Without this an aura whose only effect is the one its own behavior applies (e.g. Storm Aura)
    *    would be offered for removal the moment the scene was next viewed.
-   * 4. With neither, the pre-existing rule stands: nothing governs it, so it is stale.
+   * 4. With neither, nothing governs it, so it is stale.
    */
   static regionExpiry(region: RegionDocument): { expired: boolean; reason: string; remaining: number | null } {
     const timer = RegionExpiryCleanup.#regionTimer(region);

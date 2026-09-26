@@ -289,7 +289,7 @@ export const API_BASE = {
   DialogHelper: lib.DialogHelper,
   effects: {
     helpers: DDBEffectHelper,
-    // these are now in DDBEffectHelper, wrapped here for historical reasons
+    // aliases of DDBEffectHelper functions, kept for macros that call them through this api
     addSaveAdvantageToTarget: DDBEffectHelper.addSaveAdvantageToTarget,
     attachSequencerFileToTemplate: DDBEffectHelper.attachSequencerFileToTemplate,
     checkCollision: DDBEffectHelper.checkCollision,

@@ -248,7 +248,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
   );
 
   const applyForm = (form: HTMLFormElement | null, type: string) => {
-    // DialogV2 wraps the template in its own <form>; serialize it as before
+    // DialogV2 wraps the template in its own <form>, which is what gets serialized
     const formData = $(form as HTMLFormElement).serializeArray();
     this._generateResourceSelectionFromForm(formData, type);
   };

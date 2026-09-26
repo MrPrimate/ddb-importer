@@ -276,8 +276,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
     const textMatch = DDBDescriptions.dcParser({ text: description });
     // dcParser also matches condition-only wording ("the target has the Frightened condition"),
-    // which names no saving throw; treating that as a save built save activities with no
-    // ability on plain attack actions (Semblance of Life's Deathly Touch, third-party features).
+    // which names no saving throw; treated as a save it would build a save activity with no
+    // ability on a plain attack action (Semblance of Life's Deathly Touch, third-party features).
     if (textMatch.match && textMatch.save.ability.length > 0) {
       this._descriptionSave = textMatch.save;
     } else {
@@ -1284,7 +1284,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     // Features are built hints-only, so a bare `type` getter on the enricher is enough to
     // request an activity; without it the type would never be consulted and the enricher
-    // would silently drop the DDB action the Generic fallback used to match.
+    // would silently drop the DDB action the Generic fallback would have matched.
     if (hintsOnly && !this.enricher.activity && !this.enricher.type) {
       await this.enricher.customFunction({
         name: name as string,

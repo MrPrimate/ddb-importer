@@ -277,8 +277,8 @@ export default class DDBBasicActivity {
 
   // Every one of these assigns a CLONE. A parser hands the same `actionData.target`/`save`/`uses`
   // object to every activity it builds, so assigning by reference makes the activities alias each
-  // other - an enricher override applied to one could then silently rewrite its siblings (the whole
-  // Quiver of Elemental Chaos ended up sharing the last section's template).
+  // other - an enricher override applied to one would silently rewrite its siblings (every section
+  // of the Quiver of Elemental Chaos would share the last section's template).
 
   _generateDuration({ durationOverride = null }: { durationOverride?: I5eActivityDuration | null } = {}): void {
     if (durationOverride) {

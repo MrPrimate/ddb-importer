@@ -72,7 +72,7 @@ export default class DDBAction extends DDBFeatureMixin {
       ? " + @mod"
       : "";
     // unarmed damage and attack bonuses (damage/unarmed-attacks, bonus/unarmed-attacks) are
-    // now generated on effects with conditions
+    // generated on effects with conditions, not added here
     const damage = this.ddbDefinition.isMartialArts
       ? super.getMartialArtsDamage(bonuses)
       : super.getDamage(bonuses.concat([modBonus]));

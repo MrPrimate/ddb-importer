@@ -13,7 +13,7 @@ export interface IRaritySystemLike {
 }
 
 export class ItemRarity {
-  /** DDB display labels to dnd5e rarity keys. "Varies" and "Unknown Rarity" have no key any more. */
+  /** DDB display labels to dnd5e rarity keys. "Varies" and "Unknown Rarity" have no dnd5e key. */
   static DDB_RARITY_KEYS: Record<string, TItemRarity> = {
     "Common": "common",
     "Uncommon": "uncommon",
@@ -41,7 +41,7 @@ export class ItemRarity {
 
   /**
    * Convert DDB's rarity label into the dnd5e rarity set. Non-magical "Common" gear is mundane and
-   * carries no rarity, matching the pre-6.0 import behaviour.
+   * carries no rarity.
    */
   static fromDDB(raw: string | null | undefined, magic: boolean): TItemRarity[] {
     if (!raw) return [];

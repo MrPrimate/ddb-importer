@@ -316,8 +316,8 @@ export class DDBMonsterDamage {
     const result = parseMonsterDamageModes(this.hit, tokens);
     this.damageModeWarnings = result.warnings;
     if (result.modes.length === 0) return;
-    // Save and recurring damage retain the legacy routing until those independent stages
-    // have their own clause model. Never move their dice onto a newly generated attack.
+    // Save and recurring damage stay on the save-damage path: they have no clause model of their
+    // own here, and their dice must never move onto a newly generated attack.
     if (tokens.some((token) => (/saving throw|\bat (?:the |each )?(?:start|end) of (?:each|its|the|their)|\b(?:Failure|Success):/i)
       .test(this.hit.slice(0, token.index)))) {
       this.damageModeWarnings.push("Conditional hit mixed with save or recurring damage requires separate stage parsing");

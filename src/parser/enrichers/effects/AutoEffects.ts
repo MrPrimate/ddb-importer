@@ -428,7 +428,7 @@ export default class AutoEffects {
   /**
    * Stamp an effect's origin in both shapes: the legacy core `origin` string
    * (still read by DAE and older modules) and dnd5e 6.0's typed
-   * `system.origin.<field>` (which the system now derives `origin` from at
+   * `system.origin.<field>` (which the system derives `origin` from at
    * preparation and matches via `ActiveEffect#matchesOrigin`).
    */
   static setEffectOrigin(

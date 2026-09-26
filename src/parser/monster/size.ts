@@ -15,7 +15,7 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, si
   const sizeData = DICTIONARY.sizes.find((s) => size === s.name);
 
   if (!sizeData) {
-    // Combined sizes retain the historical Medium default; their other sizes are optional effects.
+    // Combined sizes default to Medium; their other sizes are optional effects.
     if (getSizeOptions(sizeId).length < 2) {
       logger.warn(`No foundry size found for "${size}" (${this.name}), using medium`);
     }

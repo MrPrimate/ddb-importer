@@ -79,10 +79,10 @@ function downloadRawMonstersByCategoryAndVersion(monsters: IDDBMonsterSourceData
 }
 
 // --- Shared by-id monster streaming session ------------------------------
-// By-id lookups (companion / summons enriched images, CreateUndead, etc.) are
-// fired hundreds of times during a spell import, each previously opening +
-// closing its own socket and re-fetching the same monster ids. We instead keep
-// ONE persistent socket for by-id jobs and cache results by monster id.
+// By-id lookups (companion / summons enriched images, CreateUndead, etc.) fire
+// hundreds of times during a spell import, often for the same monster ids, so
+// they share ONE persistent socket rather than opening one each, and results
+// are cached by monster id.
 let _sharedSocket: DDBMonsterSocket | null = null;
 let _sharedCredSig: string | null = null;
 let _sharedOpening: Promise<DDBMonsterSocket> | null = null;
