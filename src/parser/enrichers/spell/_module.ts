@@ -245,6 +245,7 @@ export { default as MageHand } from "./MageHand";
 export { default as MagicJar } from "./MagicJar";
 export { default as MagicWeapon } from "./MagicWeapon";
 export { default as MajorImage } from "./MajorImage";
+export { default as MarrowTransplant } from "./MarrowTransplant";
 export { default as MassSuggestion } from "./MassSuggestion";
 export { default as Maze } from "./Maze";
 export { default as MeldIntoStone } from "./MeldIntoStone";

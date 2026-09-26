@@ -792,9 +792,12 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
         ? `${healValue} + @mod`
         : `${healValue}`;
       if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
+        // scale from this modifier alone: without it getScaling walks every damage and healing
+        // modifier and the last one wins, so the result follows DDB's modifier order
         const damage = activityParser.buildDamagePart({
           damageString: diceString,
           type: heal.subType === "hit-points" ? "healing" : "temphp",
+          damageMod: heal,
         });
         healingPart.part = damage;
         this.healingParts.push(healingPart);

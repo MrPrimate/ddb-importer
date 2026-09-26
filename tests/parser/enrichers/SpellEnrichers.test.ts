@@ -1449,3 +1449,23 @@ describe("BestowCurse", () => {
     expect(actions(false).options.description).toContain("Dodge");
   });
 });
+
+describe("MarrowTransplant", () => {
+  const Enricher = SpellEnrichers.MarrowTransplant;
+  const upcast = { mode: "whole", number: 1, formula: "" };
+
+  it("scales the attack damage by 1d6 per slot level, which DDB leaves off the damage modifier", () => {
+    const attack = build(Enricher);
+    attack.ddbEnricher._originalActivity = { type: "attack" };
+    expect(attack.activity.data.damage.parts).toEqual([
+      expect.objectContaining({ number: 4, denomination: 6, types: ["necrotic"], scaling: upcast }),
+    ]);
+  });
+
+  it("scales the healing the same way, independent of DDB's modifier order", () => {
+    const heal = build(Enricher);
+    heal.ddbEnricher._originalActivity = { type: "heal" };
+    expect(heal.activity.data.damage).toBeUndefined();
+    expect(heal.activity.data.healing).toMatchObject({ number: 4, denomination: 6, types: ["healing"], scaling: upcast });
+  });
+});
