@@ -33,7 +33,11 @@ function stem(word) {
   return word;
 }
 
-/** Keywords from prose (names, descriptions, tags): drops short words, numbers and stop words. */
+/**
+ * Keywords from prose (names, descriptions, tags): drops short words, numbers and stop words.
+ * @param {string | null | undefined} value text to analyse
+ * @returns {string[]} unique folded, stemmed keywords ("Swords of Fire" -> ["sword", "fire"])
+ */
 export function tokens(value) {
   const words = fold(value)
     .split(/[^a-z0-9]+/)
@@ -44,6 +48,8 @@ export function tokens(value) {
 /**
  * A document name as a starting search: the words `tokens` would keep, unstemmed so the query
  * reads as the name did ("Cloak of the Bat" -> "cloak bat").
+ * @param {string | null | undefined} value a document name
+ * @returns {string} space-separated query words
  */
 export function searchWords(value) {
   const words = fold(value)
@@ -52,7 +58,11 @@ export function searchWords(value) {
   return [...new Set(words)].join(" ");
 }
 
-/** Literal user vocabulary, including short prefixes and words excluded from prose analysis. */
+/**
+ * Literal user vocabulary, including short prefixes and words excluded from prose analysis.
+ * @param {string | null | undefined} value what the user typed
+ * @returns {string[]} unique folded, stemmed words, short ones and stop words included
+ */
 export function queryTokens(value) {
   const words = fold(value)
     .split(/[^a-z0-9]+/)
@@ -60,6 +70,11 @@ export function queryTokens(value) {
   return [...new Set(words.map(stem))];
 }
 
+/**
+ * Add every synonym of each tag (SYNONYMS groups words that mean the same icon subject).
+ * @param {string[]} tags keywords
+ * @returns {string[]} the tags plus their synonyms, sorted
+ */
 export function expandTags(tags) {
   const result = new Set(tags);
   for (const [key, values] of Object.entries(SYNONYMS)) {
@@ -72,6 +87,10 @@ export function expandTags(tags) {
  * Every keyword an icon answers to: its derived tags and name, plus reviewed visual and manual
  * tags. `hints` carries the workshop's per-icon review; visual tags there only count while the
  * artwork hash still matches the one they were reviewed against.
+ * @param {{id?: string, name: string, hash?: string, tags: string[], inferred?: string[], manual?: string[]}} record
+ *   a catalogue entry, or any record with a name and tags (a document being given an icon)
+ * @param {Record<string, {hash?: string, inferred?: string[], manual?: string[]}>} [hints] review data by icon id
+ * @returns {string[]} the record's keywords, synonyms included
  */
 export function allTags(record, hints = {}) {
   const custom = hints[record.id];
@@ -85,7 +104,22 @@ export function allTags(record, hints = {}) {
   return [...new Set([...tokens(record.name), ...expanded])];
 }
 
-/** Precompute keywords once. Filters select indexed entries without rebuilding frequencies. */
+/**
+ * Precompute keywords once. Filters select indexed entries without rebuilding frequencies.
+ *
+ * The returned ranker scores each icon by the keywords it shares with the search: every shared
+ * keyword is worth its rarity across the catalogue (log inverse frequency), four times over when
+ * it comes from the title or query itself. With a typed query, the last word may still be
+ * incomplete, so it also matches as a prefix at a small score that never outweighs a whole word.
+ * Equal scores are broken by matches in the icon's folder path, then in its path or name, then by
+ * path.
+ * @param {{icons: {id?: string, path: string, name: string, hash?: string, tags: string[], inferred?: string[], manual?: string[]}[]}} catalog
+ * @param {Record<string, {hash?: string, inferred?: string[], manual?: string[]}>} [hints] review data by icon id
+ * @returns {(record: {id?: string, name: string, tags: string[]}, limit?: number, query?: string, accepts?: (icon: *) => boolean)
+ *   => {id: string, path: string, name: string, score: number, matched: string[]}[]}
+ *   ranks icons for a document (`record`, when `query` is empty) or for the typed `query`; `accepts`
+ *   filters the candidates, and only icons scoring above zero are returned for a query
+ */
 export function createRanker(catalog, hints = {}) {
   const frequencies = [new Map(), new Map()];
   const icons = catalog.icons.map((icon) => {

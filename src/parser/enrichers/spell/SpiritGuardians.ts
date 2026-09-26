@@ -1,5 +1,15 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Nothing is rolled as the spell is cast. The area is forced to a "radius" template, an emanation
+ * that follows the caster, and the region fires the save when a creature enters it (including when
+ * the moving emanation reaches it) and on the turn event each printing names: turn start for 2014
+ * ("first time on a turn or starts its turn there"), turn end for 2024 ("enters or ends its turn
+ * there"). The default once-per-turn gate holds a creature to one save a turn. The save targets
+ * enemies, so only hostile tokens are affected and the caster is skipped; difficult terrain for
+ * the same hostile tokens stands in for the halved Speed. Sparing chosen hostile creatures and
+ * catching neutral ones are left to the table, and the damage roll offers radiant or necrotic.
+ */
 export default class SpiritGuardians extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {

@@ -18,6 +18,11 @@ const ONE = (match: string, activityName: string, creature: string, count = "1")
   profiles: [{ creature, count }],
 });
 
+/**
+ * Items whose use places an SRD creature or object. `match` is a substring of the item's DDB
+ * name and the first entry that matches wins (findSRDItemSummon), so an entry for a specific
+ * variant must come before any entry whose match is a shorter part of the same name.
+ */
 export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   ONE("(Bronze Griffon)", "Become Griffon", "Griffon"),
   ONE("(Ebony Fly)", "Become Giant Fly", "Giant Fly"),
@@ -90,7 +95,7 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   { match: "Dancing Sword", activityName: "Activate Sword", placement: "additional", activationType: "bonus", profiles: [{ object: "SRDObjectDancingSword" }] },
 ];
 
-/** The summon an item's DDB name maps to, if any. */
+/** The summon an item's DDB name maps to, if any: the first table entry its name contains. */
 export function findSRDItemSummon(name: string | null | undefined): ISRDItemSummon | null {
   if (!name) return null;
   return SRD_ITEM_SUMMONS.find((entry) => name.includes(entry.match)) ?? null;

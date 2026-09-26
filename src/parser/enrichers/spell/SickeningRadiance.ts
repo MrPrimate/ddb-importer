@@ -1,5 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Nothing is rolled as the spell is cast. "Cast" places DDB's 30-foot sphere, a fixed area, and
+ * the region fires "Ongoing Save" when a creature moves into it or starts its turn there; the
+ * default once-per-turn gate matches "for the first time on a turn". It fires for any creature,
+ * the caster included, and nothing branches on the printing. DDB's Exhaustion effect rides the
+ * save; the dim light that stops an affected creature benefiting from being Invisible is left to
+ * the table.
+ */
 export default class SickeningRadiance extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {

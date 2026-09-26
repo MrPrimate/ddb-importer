@@ -777,6 +777,9 @@ export default class RegionExpiryCleanup {
     if (!entries.length) return 0;
     RegionExpiryCleanup.#busy = true;
     try {
+      // imported on first use: the dialog extends dnd5e's Dialog5e as its module is evaluated, so a
+      // static import would need the dnd5e global before this module (and its tests) could load;
+      // the eager mode keeps it in the single bundle
       const { default: RegionExpiryDialog } = await import(/* webpackMode: "eager" */ "./RegionExpiryDialog");
       const confirmed = await RegionExpiryDialog.prompt(entries);
       logger.debug(`${LOG} GM confirmed removal of ${confirmed?.length ?? 0} template(s)`, confirmed);

@@ -6,6 +6,15 @@ interface IGrenadeMetal {
   effectName: string | null;
 }
 
+/**
+ * The metal grenades share one enricher and read their save from the name prefix; the unprefixed
+ * catalogue item gets a plain DC 15 Constitution save. Throw is a 60 ft save in a 15 ft radius
+ * lasting 1 minute, whose region reuses it on creatures entering or starting a turn inside. A
+ * failure applies the metal's rider: Brass Unconscious (ends on damage with DAE), Copper slowed
+ * (AC, Dexterity save and speed penalties), Gold disadvantage through midi-qol only, Silver
+ * Paralyzed, Bronze 2d6 bludgeoning and Prone. Being flung, collision damage, the Brass hit point
+ * immunity and lost actions are left to the table.
+ */
 export default class WyrmsBreathGrenade extends DDBEnricherData {
 
   static METALS: Record<string, IGrenadeMetal> = {

@@ -1,5 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * "Cast" applies the cold immunity and fire resistance and places a 10-foot "radius" emanation
+ * that follows the caster. The area only carries icy difficult terrain: the spell deals no damage
+ * for being near the caster, so no region event fires an activity. The terrain applies to every
+ * creature, because native difficult terrain filters by disposition but cannot exempt the caster
+ * ("creatures other than you"), which is left to the table. Nothing branches on the printing.
+ * Freezing Cone is a separate action whose slow lasts until the start of the caster's next turn.
+ */
 export default class InvestitureOfIce extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {

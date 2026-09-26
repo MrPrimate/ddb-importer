@@ -6,6 +6,10 @@ import { area } from "./_SpellRegions";
  * 2014 spell plants it at a point within range, a fixed sphere; the 2024 spell plants it in the
  * caster's space, an area centred on the caster that stays put when the caster moves on. The 2014
  * spell deals 1d6 piercing, the 2024 one 2d4.
+ * Both printings fire the save when a creature enters the area or ends its turn there, and the
+ * default once-per-turn gate covers the 2014 "for the first time on a turn" wording. The save
+ * fires for any creature: nothing skips the caster or the creatures the caster designates, and
+ * the remaining pieces of ammunition are not counted, so those are left to the table.
  */
 export default class CordonOfArrows extends DDBEnricherData {
 

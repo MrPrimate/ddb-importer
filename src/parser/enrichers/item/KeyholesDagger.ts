@@ -3,6 +3,15 @@ import type DDBItem from "../../item/DDBItem";
 import utils from "../../../lib/Utils";
 import { hasItemSource, itemActivity, itemUses } from "./_ItemActivities";
 
+/**
+ * The Arcana Unleashed evolving dagger. The Three, Ten and Many Keyholes tiers, read from the
+ * first word of the name, set magicalBonus to the tier and add a Transform Weapon enchant with one
+ * form per unlocked weapon, accumulating by tier (Handaxe and Mace, then the other simple weapons,
+ * then martial ones). A form rewrites the base item, damage die and type, mastery, properties and
+ * range until the start of the next turn, and offers Strength or Dexterity for the attack. The
+ * Many tier adds a once-per-dawn Reroll Miss reminder. DDB's melee attack bonus is stripped from
+ * the item's effects so it does not apply globally; the untiered root keeps DDB's actions.
+ */
 export default class KeyholesDagger extends DDBEnricherData {
 
   /** The higher DDB tiers omit the lower-tier rules that evolving items retain. */
