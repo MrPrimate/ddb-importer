@@ -135,6 +135,9 @@ describe("ongoing damage separation", () => {
     expect(e.additionalActivities[0].build?.damageParts).toHaveLength(1);
     expect(e.additionalActivities[0].build?.activationOverride?.condition).toContain("its turns");
     expect(e.additionalActivities[0].overrides).toMatchObject({ noConsumeTargets: true, noeffect: true });
+    const held = e.effects[0];
+    expect(held).toMatchObject({ name: "Held Conditions", activityTypesMatch: ["attack", "save", "utility"] });
+    expect(held.activityMatch).toBeUndefined();
   });
   it("preserves an existing @mod part when it matches the source ability", () => {
     const e = feature(OngoingDamage, "Smother", text, {
@@ -176,16 +179,13 @@ describe("ongoing damage separation", () => {
     expect(e.split).toBeNull();
     expect(e.clearAutoEffects).toBe(false);
   });
-  it("makes the optional grapple a separate non-damaging choice", async () => {
+  it("makes the optional grapple a separate non-damaging choice", () => {
     const e = feature(OngoingDamage, "Smother", text + " It can grapple instead of dealing damage.");
-    e.document.system.activities = {
-      attack: { type: "attack" },
-      grapple: { _id: "ddbGrappleAlt001", type: "utility" },
-    };
-    e.document.effects = [{ _id: "held", name: "Held Conditions" }];
-    await e.cleanup();
-    expect(e.activities[0].effects).toEqual([]);
-    expect(e.activities[1].effects).toEqual([{ _id: "held" }]);
+    const grapple = e.additionalActivities.find((a) => a.init?.id === "ddbGrappleAlt001");
+    expect(grapple?.init?.name).toBe("Grapple Instead");
+    // the held conditions link to the grapple alternative, never the damaging attack
+    expect(e.effects[0].activityMatch).toBe("Grapple Instead");
+    expect(e.effects[0].activityTypesMatch).toBeUndefined();
   });
 });
 
@@ -205,12 +205,10 @@ describe("staged saves", () => {
       first: { type: "save", consumption: { targets: [{ type: "itemUses", value: "1" }] } },
       second: { type: "save", _id: "ddbSecondSave001" },
     };
-    e.document.effects = [
-      { _id: "one", name: "First Failure" },
-      { _id: "two", name: "Second Failure" },
-    ];
     await e.cleanup();
-    expect(e.activities.map((a) => a.effects)).toEqual([[], [{ _id: "one" }], [{ _id: "two" }]]);
+    expect(e.activities.map((a) => a.name)).toEqual([undefined, "First Save", undefined]);
+    expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["save"], activityIdsExclude: ["ddbSecondSave001"] });
+    expect(e.effects[1].activityMatch).toBe(e.additionalActivities[0].init?.name);
     expect(e.effects[1].options?.durationSeconds).toBe(seconds);
     expect(e.additionalActivities[0].build?.generateConsumption).toBe(false);
     expect(e.activities[1].consumption?.targets).toHaveLength(1);
@@ -227,17 +225,41 @@ describe("staged saves", () => {
 });
 
 describe("wounds, healing and shared-name buffs", () => {
-  it("models infernal HP loss as an untyped utility roll", () => {
+  it("models infernal HP loss as untyped damage on the target's turn", () => {
     const e = feature(
       InfernalWound,
       "Infernal Tail",
-      "An infernal wound loses 9 (2d8) Hit Points at the start of each of its turns. Stanch it with a DC 16 Wisdom (Medicine) check.",
+      "An infernal wound loses 9 (2d8) Hit Points at the start of each of its turns. The wound closes after 1 minute. Stanch it with a DC 16 Wisdom (Medicine) check.",
     );
     const [loss, stanch] = e.additionalActivities;
-    expect(loss.init?.type).toBe("utility");
-    expect(loss.build?.rollOverride?.formula).toBe("2d8");
-    expect(loss.build?.damageParts).toBeUndefined();
+    expect(loss.init?.type).toBe("damage");
+    expect(loss.build?.damageParts?.[0]).toMatchObject({ number: 2, denomination: 8, types: [] });
+    expect(loss.build?.activationOverride?.type).toBe("special");
+    expect(loss.build?.activationOverride?.condition).not.toMatch(/further hit/);
     expect(stanch.build?.checkOverride?.dc?.formula).toBe("16");
+    const [tracker] = e.effects;
+    expect(tracker.name).toBe("Infernal Wound");
+    expect(tracker.activityTypesMatch).toEqual(["save", "attack"]);
+    expect(tracker.activityMatch).toBeUndefined();
+    expect(tracker.options?.durationSeconds).toBe(60);
+  });
+  it("reads the legacy infernal wound wording without a timer", () => {
+    const e = feature(
+      InfernalWound,
+      "Glaive",
+      "Hit: 8 (1d10 + 3) slashing damage. If the target is a creature other than an undead or a construct, it must succeed on a DC 12 Constitution saving throw or lose 5 (1d10) hit points at the start of each of its turns due to an infernal wound. Each time the devil hits the wounded target with this attack, the damage dealt by the wound increases by 5 (1d10). Any creature can take an action to stanch the wound with a successful DC 12 Wisdom (Medicine) check.",
+    );
+    const [loss, stanch] = e.additionalActivities;
+    expect(loss.init?.type).toBe("damage");
+    expect(loss.build?.damageParts?.[0]).toMatchObject({ number: 1, denomination: 10, types: [] });
+    expect(loss.build?.activationOverride?.condition).toMatch(/adds another 1d10/);
+    expect(stanch.build?.checkOverride?.associated).toEqual(["med"]);
+    expect(e.effects[0].options?.durationSeconds).toBeNull();
+  });
+  it("leaves an ordinary glaive alone", () => {
+    const e = feature(InfernalWound, "Glaive", "Hit: 8 (1d10 + 3) slashing damage.");
+    expect(e.additionalActivities).toEqual([]);
+    expect(e.effects).toEqual([]);
   });
   it("keeps War Cry's temporary HP and source-turn advantage distinct", () => {
     const e = feature(
@@ -292,6 +314,7 @@ describe("shared grapple name guards", () => {
       "If the target is a Large or smaller creature, it has the Grappled condition, and it has the Restrained condition until the grapple ends.",
     );
     expect(e.effects[0].statuses).toEqual(["Grappled", "Restrained"]);
+    expect(e.effects[0].activityTypesMatch).toEqual(["attack"]);
   });
   it("does not attach a grapple to an unrelated claw rider", () => {
     const e = feature(
@@ -316,26 +339,11 @@ it("keeps a lowercase daily limit on the maneuver utility", async () => {
 });
 
 describe("Consume Life effect links", () => {
-  it.each([false, true])(
-    "links only the save once, including a sentinel-name collision (%s)",
-    async (alreadyLinked) => {
-      const e = feature(ConsumeLife, "Consume Life", "DC 12 Constitution saving throw. On a failure, the target dies.");
-      e.document.effects = [{ _id: "death", name: "Consumed Life" }];
-      e.document.system.activities = {
-        save: {
-          _id: "save",
-          name: "Consume Life Save",
-          type: "save",
-          effects: alreadyLinked ? [{ _id: "death" }] : [],
-        },
-        heal: { _id: "heal", type: "heal", effects: [] },
-      };
-      await e.cleanup();
-      await e.cleanup();
-      expect(e.activities[0].effects).toEqual([{ _id: "death" }]);
-      expect(e.activities[1].effects).toEqual([]);
-    },
-  );
+  it("links the death rider to the save by type, never the healing roll", () => {
+    const e = feature(ConsumeLife, "Consume Life", "DC 12 Constitution saving throw. On a failure, the target dies.");
+    expect(e.effects[0]).toMatchObject({ name: "Consumed Life", activityTypesMatch: ["save"] });
+    expect(e.effects[0].activityMatch).toBeUndefined();
+  });
 });
 
 describe("monster StatusRider", () => {

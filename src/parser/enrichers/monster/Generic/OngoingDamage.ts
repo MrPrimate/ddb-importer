@@ -120,7 +120,10 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
         {
           name: "Held Conditions",
           statuses,
-          activityMatch: "Initial Effect",
+          // the parsed primary, or the alternative that grapples instead of dealing damage
+          ...(this.grappleInstead
+            ? { activityMatch: "Grapple Instead" }
+            : { activityTypesMatch: ["attack", "save", "utility"] as IDDBActivityType[] }),
           options: { expiry: null, durationSeconds: null, description: this.text },
         },
       ]
@@ -136,11 +139,6 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
     if (!primary) return;
     // Use complete source clauses, so identical initial and tick formulas remain separate occurrences.
     if (primary.type !== "utility") primary.damage = { ...primary.damage, includeBase: false, parts: split.initial };
-    const held = (this.document.effects as { _id: string; name: string }[]).filter((e) => e.name === "Held Conditions");
-    for (const activity of this.activities) {
-      const applies = this.grappleInstead ? activity._id === "ddbGrappleAlt001" : activity === primary;
-      activity.effects = applies ? held.map((e) => ({ _id: e._id })) : [];
-    }
     // An ongoing token mistaken for weapon base damage must not survive as an alternate attack.
     if (split.initial.length === 0 && this.document.system.damage?.base) {
       this.document.system.damage.base = _MonsterFeatureSupport.basicDamagePart();

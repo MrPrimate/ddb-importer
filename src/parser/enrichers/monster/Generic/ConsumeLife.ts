@@ -8,20 +8,10 @@ export default class ConsumeLife extends _MonsterFeatureSupport {
         {
           name: "Consumed Life",
           statuses: ["Dead"],
-          activityMatch: "Consume Life Save",
+          activityTypesMatch: ["save"],
           options: { expiry: null, durationSeconds: null },
         },
       ]
       : [];
-  }
-
-  override async cleanup(): Promise<void> {
-    if (!this.effects.length) return;
-    const save = this.activities.find((a) => a.type === "save");
-    if (!save) return;
-    const effect = (this.document.effects as { _id: string; name: string }[]).find((e) => e.name === "Consumed Life");
-    if (effect && !save.effects?.some((link) => link._id === effect._id)) {
-      save.effects = [...(save.effects ?? []), { _id: effect._id }];
-    }
   }
 }
