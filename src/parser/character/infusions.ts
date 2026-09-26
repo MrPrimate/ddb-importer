@@ -1,5 +1,105 @@
 import { logger } from "../../lib/_module";
 
+/** The ids an enchantment profile rides (SetFields at runtime). */
+interface IProfileRiders {
+  activity?: Iterable<string>;
+  effect?: Iterable<string>;
+  item?: Iterable<string>;
+}
+
+/** A rider source activity on the origin item, as far as the copy reads it. */
+interface IRiderSourceActivity {
+  toObject(): Record<string, unknown>;
+  effects?: { _id: string; uuid?: string | null }[];
+}
+
+/** The item the enchant activity lives on: where rider sources are read from. */
+interface IRiderOrigin {
+  system?: { activities?: { get(id: string): IRiderSourceActivity | undefined } };
+  effects?: { get(id: string): { toObject(): unknown } | undefined };
+}
+
+/** The enchanted item: its existing ids must not be reused by a copy. */
+interface IRiderTarget {
+  system?: { activities?: { keys(): Iterable<string> } };
+  effects?: { keys(): Iterable<string> };
+}
+
+interface IRiderCopyOptions {
+  riders: IProfileRiders;
+  origin: IRiderOrigin;
+  target: IRiderTarget;
+  appliedId: string;
+  /** The applied enchantment's own `system.origin`, which dnd5e gives every rider effect copy. */
+  systemOrigin: I5eEffectSystemOrigin;
+}
+
+/**
+ * A stable id for a copy of `sourceId` on an item: the first 12 characters of the source plus a
+ * counter, skipping any id in `taken` (which it then joins). The same source on the same freshly
+ * recreated item gets the same id on every import.
+ */
+export function stableCopyId(sourceId: string, taken: Set<string>): string {
+  const stem = sourceId.slice(0, 12).padEnd(12, "0");
+  for (let n = 0; n < 100; n++) {
+    const id = `${stem}Cp${String(n).padStart(2, "0")}`;
+    if (!taken.has(id)) {
+      taken.add(id);
+      return id;
+    }
+  }
+  return foundry.utils.randomID();
+}
+
+/**
+ * The rider documents an applied enchantment brings with it, built from the profile's stored
+ * rider ids with the data dnd5e's `EnchantmentData#collectRiders` gives its copies: rider
+ * activities copied onto the target, the effects those activities apply (kept under their own
+ * ids when the target lacks them), and the profile's rider effects, all tied to the applied
+ * enchantment through `flags.dnd5e.dependentOn` so dnd5e removes them with it. Unlike dnd5e's
+ * random ids, each copy's id derives from its source, so a re-import reproduces it.
+ */
+export function buildRiderCopies({ riders, origin, target, appliedId, systemOrigin }: IRiderCopyOptions): {
+  activities: Record<string, Record<string, unknown>>;
+  effects: I5eEffectData[];
+} {
+  const takenActivities = new Set(target.system?.activities?.keys() ?? []);
+  const existingEffects = new Set([...(target.effects?.keys() ?? []), appliedId]);
+  const takenEffects = new Set(existingEffects);
+  const activities: Record<string, Record<string, unknown>> = {};
+  const effects: I5eEffectData[] = [];
+
+  for (const id of riders.activity ?? []) {
+    const source = origin.system?.activities?.get(id);
+    if (!source) continue;
+    const copy = source.toObject();
+    copy._id = stableCopyId(id, takenActivities);
+    foundry.utils.setProperty(copy, "flags.dnd5e.dependentOn", appliedId);
+    activities[copy._id as string] = copy;
+
+    // effects the rider activity applies must exist on the item it now lives on
+    for (const ref of source.effects ?? []) {
+      if (ref.uuid || takenEffects.has(ref._id)) continue;
+      const effect = origin.effects?.get(ref._id)?.toObject() as I5eEffectData | undefined;
+      if (!effect) continue;
+      takenEffects.add(ref._id);
+      effects.push(effect);
+    }
+  }
+
+  for (const id of riders.effect ?? []) {
+    const effect = origin.effects?.get(id)?.toObject() as I5eEffectData | undefined;
+    if (!effect) continue;
+    effect._id = stableCopyId(id, takenEffects);
+    if (effect.flags?.dnd5e) delete (effect.flags.dnd5e as Record<string, unknown>).rider;
+    foundry.utils.setProperty(effect, "system.origin", { ...systemOrigin });
+    effects.push(effect);
+  }
+
+  effects.forEach((effect) => foundry.utils.setProperty(effect, "flags.dnd5e.dependentOn", appliedId));
+  return { activities, effects };
+}
+
 /**
  * Create the applied copy of an enchantment profile on an item at import time, shaped the way
  * dnd5e 6.0's `EnchantActivity#applyEnchantment` shapes a runtime application. The copy must be
@@ -7,11 +107,18 @@ import { logger } from "../../lib/_module";
  * clone that keeps the profile's `transfer: false` is inert on the item (never yielded by
  * `Item5e#allApplicableEffects`, untracked by the enchantment registry, never expired). The
  * activity's duration is inherited the way the chat tray does it and change formulas are
- * resolved against the origin, while the rider collection still keys off the create options.
+ * resolved against the origin.
+ *
+ * The applied copy and its riders get ids that are stable across re-imports, so favorites and
+ * other references to them survive. The create operation carries no `dnd5e` profile options,
+ * which leaves dnd5e's own rider step (random ids) idle; the riders come from
+ * `buildRiderCopies` instead.
  */
 export async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
   const effectData = effect.toObject() as unknown as I5eEffectData;
   const profileId = effectData._id;
+  const appliedId = stableCopyId(profileId ?? "enchantment", new Set(item.effects?.keys() ?? []));
+  effectData._id = appliedId;
   effectData.origin = activity.uuid;
   effectData.transfer = true;
   effectData.disabled = false;
@@ -30,20 +137,42 @@ export async function linkSelectedEnchantment(item: TImporterItem, effect: Activ
     effectData.system.changes = await forApplication(effectData.system.changes, activity, item) as typeof effectData.system.changes;
   }
 
+  const profile = (activity.effects as { _id: string; riders?: IProfileRiders }[] | undefined)
+    ?.find((e) => e._id === profileId);
+  const riders = profile?.riders ?? {};
+  // item riders are compendium documents dnd5e creates with contents; leave every rider of such
+  // a profile to dnd5e (random ids). Nothing currently writes them: DDBInfusion's branch is dead.
+  const dnd5eRiders = Array.from(riders.item ?? []).length > 0;
+
   const createOperation = {
     parent: item,
+    keepId: true,
     keepOrigin: true,
-    dnd5e: {
-      enchantmentProfile: profileId,
-      activityId: activity._id,
-    },
+    ...(dnd5eRiders ? { dnd5e: { enchantmentProfile: profileId, activityId: activity._id } } : {}),
   } as unknown as any;
 
-  const applied = await ActiveEffect.create(effectData as any, createOperation);
+  const applied = await ActiveEffect.create(effectData as any, createOperation) as unknown as { active?: boolean } | undefined;
   logger.debug(`Applied enchantment effect from ${featureName} to ${item.name}`, {
     effect: effectData,
     applied,
   });
+
+  // dnd5e only brings riders along with an active enchantment
+  if (dnd5eRiders || !applied?.active) return;
+
+  const { activities, effects } = buildRiderCopies({
+    riders,
+    origin: activity.item,
+    target: item as unknown as IRiderTarget,
+    appliedId,
+    systemOrigin: { activity: activity.uuid, profile: profileId },
+  });
+  if (!foundry.utils.isEmpty(activities)) {
+    await item.update({ "system.activities": activities } as unknown as Item.UpdateData);
+  }
+  if (effects.length > 0) {
+    await item.createEmbeddedDocuments("ActiveEffect", effects as unknown as ActiveEffect.CreateData[], { keepId: true });
+  }
 }
 
 /**
