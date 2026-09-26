@@ -106,6 +106,14 @@ function cleanVitestTmpDir(): Plugin {
 export default defineConfig({
   plugins: [cleanVitestTmpDir()],
   test: {
+    /**
+     * Persists transformed modules in node_modules/.vitest-cache (on disk, not tmpfs). Entries are
+     * keyed on each module's own content plus this config file and the lockfile, but NOT on
+     * tsconfig.json, which the oxc transform reads (target, class field semantics). After changing
+     * tsconfig compiler options run `npx vitest --clearCache`. The cache has no eviction; deleting
+     * the directory is always safe.
+     */
+    fsModuleCache: true,
     globals: true,
     include: ["tests/**/*.test.ts"],
     setupFiles: ["tests/_setup/foundryMocks.ts"],
