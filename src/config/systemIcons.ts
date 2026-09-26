@@ -1,5 +1,8 @@
 import { SYSTEM_ICON_PRESETS } from "./systemIconPresets";
 
+/** Hidden world setting: extra icon lists (JSON files under the Foundry data root, or URLs). */
+export const CUSTOM_ICON_CATALOGS_SETTING = "icon-catalog-custom-paths";
+
 /** Bright enough to read on maps; acid and poison remain visually distinct. */
 const DAMAGE_COLORS: Readonly<Record<string, string>> = {
   acid: "#80ff00",

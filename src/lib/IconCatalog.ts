@@ -1,10 +1,8 @@
 import { createRanker, queryTokens } from "./IconCatalogSearch.mjs";
-import { stableSystemIcons } from "../config/systemIcons";
+import { CUSTOM_ICON_CATALOGS_SETTING, stableSystemIcons } from "../config/systemIcons";
 import logger from "./Logger";
 import utils from "./Utils";
 
-/** Hidden world setting: extra icon lists (JSON files under the Foundry data root, or URLs). */
-export const CUSTOM_ICON_CATALOGS_SETTING = "icon-catalog-custom-paths";
 
 let catalogue: { key: string; icons: Promise<IIconCatalogEntry[]> } | null = null;
 const ranks = new WeakMap<IIconCatalogEntry[], ReturnType<typeof createRanker>>();

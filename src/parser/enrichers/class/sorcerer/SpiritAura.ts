@@ -4,7 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Spirit Caller: a bonus action raises a 10-foot aura on the sorcerer or a
  * willing ally (drop the emanation on that token).
  *
- * "Spirit Aura" places it andnthe region fires Maddening Whispers (enemies: Wis save or disadvantage on
+ * "Spirit Aura" places it and the region fires Maddening Whispers (enemies: Wis save or disadvantage on
  * checks and attacks) or Bolstering Whispers (allies: advantage, no save) when
  * a creature enters or starts its turn inside - each behavior takes the
  * disposition of the activity it fires, so the aura can carry both.

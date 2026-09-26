@@ -407,7 +407,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell: I5eSpe
 };
 
 // temporary spell hints
-// these covercurrent gaps in teh parser, or blocks that are impossible to parse
+// these cover current gaps in the parser, or blocks that are impossible to parse
 DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
   switch (this.name) {
     case "Faerie Dragon (Younger)":

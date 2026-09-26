@@ -81,7 +81,7 @@ export default class RegionExpiryCleanup {
   /** Region uuids the GM chose to keep this session; never re-offered automatically. */
   static #kept = new Set<string>();
 
-  /** Is a confirmation dialog is currently open. */
+  /** Whether a confirmation dialog is currently open. */
   static #busy = false;
 
   // built lazily so evaluating this module never touches the foundry globals
@@ -98,13 +98,9 @@ export default class RegionExpiryCleanup {
   /* -------------------------------------------- */
 
   /**
-   * Only the primary GM performs the cleanup, matching the system's own idiom for
-   * single-client side effects (active-effect.mjs, activity/mixin.mjs). The setting is read
-   * per event rather than at registration so toggling it needs no reload and the watcher
-   * fails over when the active GM changes mid-session.
-   *
-   * Setting gate without the active-GM requirement: the duration snapshot has to be written by
-   * whichever client places the template, which is often a player.
+   * The setting alone, without the active-GM requirement: the duration snapshot has to be
+   * written by whichever client places the template, which is often a player. Read per event,
+   * like #active, so toggling the setting needs no reload.
    */
   static get #enabled(): boolean {
     return utils.getSetting<boolean>("enable-region-expiry-cleanup");
@@ -112,6 +108,12 @@ export default class RegionExpiryCleanup {
 
   /* -------------------------------------------- */
 
+  /**
+   * Only the primary GM performs the cleanup, matching the system's own idiom for
+   * single-client side effects (active-effect.mjs, activity/mixin.mjs). The setting and the
+   * GM check are read per event rather than at registration, so toggling the setting needs no
+   * reload and the watcher fails over when the active GM changes mid-session.
+   */
   static get #active(): boolean {
     const isActiveGM = game.user?.isActiveGM ?? false;
     const enabled = utils.getSetting<boolean>("enable-region-expiry-cleanup");
@@ -1050,7 +1052,7 @@ export default class RegionExpiryCleanup {
       // Decides which hook we hear about an expiry on:
       // "update" (core default) persists duration.expired and fires updateActiveEffect
       // "delete" removes the effect instead, anything else means an expired effect emits
-      // no document event at all and only teh combat/scene sweeps will find it.
+      // no document event at all and only the combat/scene sweeps will find it.
       expiryAction: (CONFIG.ActiveEffect as { expiryAction?: string }).expiryAction,
       busy: RegionExpiryCleanup.#busy,
       pending: Array.from(RegionExpiryCleanup.#pending.keys()),

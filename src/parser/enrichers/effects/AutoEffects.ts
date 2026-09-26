@@ -213,7 +213,8 @@ export default class AutoEffects {
 
   /**
    * dnd5e's own rule for which documents make their effects magical (`isSpellOrScroll` plus the
-   * `mgc` property in its 6.0 migration). The system only applies that rule when migrating
+   * `mgc` property in its 6.0 migration). The system only applies that rule when migrating old
+   * data, so the importer applies it to the effects it creates (see markMagical).
    */
   static isMagicalSource(document: { type?: string; system?: unknown }): boolean {
     const system = document.system as { type?: { value?: string }; properties?: string[] | Set<string> } | undefined;

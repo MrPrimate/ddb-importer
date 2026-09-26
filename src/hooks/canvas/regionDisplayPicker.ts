@@ -23,8 +23,8 @@ function profileEditor(): IProfileEditorApp | null {
 
 /**
  * Whether this user may change the profiles. They are a world setting, which Foundry lets only
- * SETTINGS_MODIFY users write (by default the full Game Master, not an assistant), so this is
- * the same test the settings sheet applies to a restricted menu.
+ * SETTINGS_MODIFY users write (by default Assistant GMs and above), so this is the same test the
+ * settings sheet applies to a restricted menu.
  */
 export function canEditProfiles(): boolean {
   return game.user?.can("SETTINGS_MODIFY") === true;

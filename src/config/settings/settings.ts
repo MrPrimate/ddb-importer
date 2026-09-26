@@ -1,6 +1,7 @@
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
 import { REGION_DISPLAY_PROFILES_CHANGED } from "../regionDisplayProfiles";
+import { CUSTOM_ICON_CATALOGS_SETTING } from "../systemIcons";
 
 const SUPPORTED_FLAG_GROUPS = [
   "advancedspelleffects",
@@ -180,12 +181,12 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      // the cleanup handlers read this per event, so toggling it needs no reload
       "enable-region-expiry-cleanup": {
         scope: "world",
         config: false,
         type: Boolean,
         default: false,
-        requiresReload: true,
       },
       // master switch for the region display profiles: rendering hooks, the appearance
       // behavior, the Region config fieldset, the settings menu and import-time defaults
@@ -210,7 +211,7 @@ const SETTINGS = {
       },
       // extra icon list JSON files merged into the icon browser (see "Icon catalogue" in
       // CONTRIBUTING.md); no UI, set from the console. Read on each load, so no reload is needed
-      "icon-catalog-custom-paths": {
+      [CUSTOM_ICON_CATALOGS_SETTING]: {
         scope: "world",
         config: false,
         type: Array,

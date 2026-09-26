@@ -698,9 +698,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
 
   }
 
-  // A document with more modes than this is a table or a set of unrelated properties
-  // or, you kow, third party nonsense. Flat prose carries no structure to trust, so this is
-  // where a run of loose saves stops being a set of modes.
+  // A document with more modes than this is a table, a set of unrelated properties or loosely
+  // written third-party text. Flat prose carries no structure to trust, so this is where a run
+  // of loose saves stops being a set of modes.
   static MULTI_SAVE_MAX_EXTRAS = 5;
 
   // Labelled sections ARE trustworthy structure, so they get a higher ceiling - a beholder's

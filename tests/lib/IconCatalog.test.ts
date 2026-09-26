@@ -9,7 +9,7 @@ import {
   withSystemIcons,
 } from "../../src/lib/IconCatalog";
 import { setMockSettings } from "../_setup/foundryMocks";
-import { systemIcons } from "../../src/config/systemIcons";
+import { CUSTOM_ICON_CATALOGS_SETTING, systemIcons } from "../../src/config/systemIcons";
 import { allTags, createRanker } from "../../src/lib/IconCatalogSearch.mjs";
 
 const icons: IIconCatalogEntry[] = [
@@ -156,15 +156,15 @@ describe("custom icon lists", () => {
       : { ok: false, status: 404, json: async () => null });
     vi.stubGlobal("fetch", fetchMock);
     try {
-      setMockSettings({ "icon-catalog-custom-paths": ["worlds/w/one.json", "worlds/w/missing.json"] });
+      setMockSettings({ [CUSTOM_ICON_CATALOGS_SETTING]: ["worlds/w/one.json", "worlds/w/missing.json"] });
       const first = await loadIconCatalog();
       expect(first.map((icon) => icon.path)).toEqual(["icons/svg/fire.svg", "worlds/w/one.webp"]);
       expect(await loadIconCatalog()).toBe(first);
-      setMockSettings({ "icon-catalog-custom-paths": ["worlds/w/two.json"] });
+      setMockSettings({ [CUSTOM_ICON_CATALOGS_SETTING]: ["worlds/w/two.json"] });
       expect((await loadIconCatalog()).map((icon) => icon.name)).toEqual(["fire", "Two"]);
     } finally {
       vi.unstubAllGlobals();
-      setMockSettings({ "icon-catalog-custom-paths": [] });
+      setMockSettings({ [CUSTOM_ICON_CATALOGS_SETTING]: [] });
     }
   });
 });

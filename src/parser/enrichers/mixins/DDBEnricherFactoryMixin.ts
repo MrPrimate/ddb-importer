@@ -401,7 +401,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
     // An action document's own snippet already describes the action, so it must not be
     // swapped for a section describing that same thing, only for one describing something
-    // else. THis is how a secondary activity  e.g. ("Autumn (Save)") finds its rules.
+    // else. This is how a secondary activity (e.g. "Autumn (Save)") finds its rules.
     // Explicit sections are always honoured.
     const documentName = this.ddbParser.isAction && !sectionName
       ? DDBDescriptions.normalizeSectionLabel(this.ddbParser.originalName ?? definition.name ?? "")

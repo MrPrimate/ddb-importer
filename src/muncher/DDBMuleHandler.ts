@@ -318,7 +318,8 @@ export default class DDBMuleHandler {
 
   _ensureSource() {
     if (!this.source) {
-      (this as any).source = {};
+      // filled in below and by the stream as its events arrive
+      this.source = {} as IDDBMuleClassSource;
     }
     const src = this.source as any;
     if (!src.subClasses) src.subClasses = {};
@@ -333,7 +334,7 @@ export default class DDBMuleHandler {
 
   _ingestBaseCharacter(payload: any) {
     this._ensureSource();
-    (this.source as any).baseCharacter = payload;
+    this.source.baseCharacter = payload;
   }
 
   // the event kinds _ingestIterationItem stores into the source; everything else is a lifecycle or
@@ -542,11 +543,6 @@ export default class DDBMuleHandler {
   }
 
   /**
-   * The class munch loops every class in a source category, so the name needs the class id
-   * and the homebrew flags to tell those runs apart: without them every class that shares a
-   * narrowed source list writes the same file.
-   */
-  /**
    * Human name for this run's cache entry. The request only carries ids; the names arrive with
    * the stream, so this is derived from the buffered source once it is complete.
    */
@@ -579,6 +575,11 @@ export default class DDBMuleHandler {
     }
   }
 
+  /**
+   * The class munch loops every class in a source category, so the name needs the class id
+   * and the homebrew flags to tell those runs apart: without them every class that shares a
+   * narrowed source list writes the same file.
+   */
   _rawExampleFileName(): string {
     const homebrewSegment = this.onlyHomebrew
       ? "onlyhb"
@@ -707,7 +708,7 @@ export default class DDBMuleHandler {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
               if (cached) {
-                (this as any).source = cached;
+                this.source = cached as IDDBMuleClassSource;
                 receivedPayload = true;
               }
               return;
@@ -1125,7 +1126,7 @@ export default class DDBMuleHandler {
       logger.warn(`[stream-process] subClassChoices missing debug.subClassId`, { subClassChoiceData });
       return;
     }
-    const subClassData = (this.source as any).subClassData?.[subClassId];
+    const subClassData = this.source.subClassData?.[subClassId];
     if (!subClassData) {
       logger.warn(`[stream-process] no subClassData for subClassId ${subClassId} yet, deferring`);
       return;

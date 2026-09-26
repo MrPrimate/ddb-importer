@@ -4,7 +4,7 @@ import { DICTIONARY } from "../../config/_module";
 import SystemHelpers from "../../lib/SystemHelpers";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 
-/** A dwescription section label found in a DDB description or snippet. */
+/** A description section label found in a DDB description or snippet. */
 interface ISectionMarker {
   /** index just past the label, where the section's rules text starts */
   end: number;
@@ -193,18 +193,19 @@ export default class DDBDescriptions {
     return markers;
   }
 
-  /**
-   * The label as DDB wrote it, minus markup and the punctuation that terminates it.
-   * DDB labels sections "Frost Shot." or "Splashing Mucous (1 Charge):", and a generated
-   * activity wants the words without either terminator; the case is kept so the activity
-   * reads "Frost Shot" rather than the lowercased form used for matching.
-   */
+  /** The HTML named entities DDB puts in section labels, decoded to their characters. */
   static #NAMED_ENTITIES: Record<string, string> = {
     amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " ",
     ldquo: "\u201c", rdquo: "\u201d", lsquo: "\u2018", rsquo: "\u2019",
     hellip: "\u2026", ndash: "\u2013", mdash: "\u2014",
   };
 
+  /**
+   * The label as DDB wrote it, minus markup and the punctuation that terminates it.
+   * DDB labels sections "Frost Shot." or "Splashing Mucous (1 Charge):", and a generated
+   * activity wants the words without either terminator; the case is kept so the activity
+   * reads "Frost Shot" rather than the lowercased form used for matching.
+   */
   static #rawSectionLabel(value: string): string {
     return value
       .replace(/<[^>]*>/g, "")
@@ -223,8 +224,9 @@ export default class DDBDescriptions {
 
   /**
    * Collect the section markers in a snippet whose labels carry no markup at all - a small
-   * tail of DDB's features. In tehse cases a label is then a short Title Case phrase terminated by a period
-   * at the start of the text or of a line. Some internal candidates are not considered: ordinary prose produces too many of them to use as section boundaries.
+   * tail of DDB's features. In these a label is a short Title Case phrase ending in a period at
+   * the start of the text or of a line. Candidates inside a line are not considered: ordinary
+   * prose produces too many of them to use as section boundaries.
    */
   static #plainSectionMarkers(text: string): ISectionMarker[] {
     const markerRegex = /(?:^|\r?\n)[ \t]*([^\s.!?<>][^.!?<>]{1,59})\.(?=\s|$)\s*/g;
