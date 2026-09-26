@@ -3,25 +3,19 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ChannelDivinity extends DDBEnricherData {
 
   override get activity(): IDDBActivityData | null {
-    if (this.is2014) {
-      return null;
-    } else if (this.is2024) {
-      return {
-        type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
-        name: "Divine Spark (Healing)",
-        targetType: "creature",
-        data: {
-          healing: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["healing"] }),
-          range: {
-            value: "30",
-            units: "ft",
-          },
+    if (this.is2014) return null;
+    return {
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+      name: "Divine Spark (Healing)",
+      targetType: "creature",
+      data: {
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["healing"] }),
+        range: {
+          value: "30",
+          units: "ft",
         },
-      };
-    }
-
-    return null;
-
+      },
+    };
   }
 
   get _additionalActivitiesCleric2014(): IDDBAdditionalActivity[] {
@@ -124,13 +118,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (this.is2014) {
-      return this._additionalActivitiesCleric2014;
-    } else if (this.is2024) {
-      return this._additionalActivitiesCleric2024;
-    }
-
-    return [];
+    return this.is2014 ? this._additionalActivitiesCleric2014 : this._additionalActivitiesCleric2024;
   }
 
   get _effectCleric2024(): IDDBEffectHint {
@@ -146,15 +134,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    if (this.is2014) {
-      return [];
-    } else if (this.is2024) {
-      return [this._effectCleric2024];
-
-    }
-
-    // unreachable: a feature is always 2014 or 2024; the consumer treats null and [] identically
-    return [];
+    return this.is2014 ? [] : [this._effectCleric2024];
   }
 
   override get override(): IDDBOverrideData | null {

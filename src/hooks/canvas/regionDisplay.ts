@@ -127,6 +127,7 @@ export function tintFor(color: string | null | undefined, fallback: number | str
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+/** Core's hatch width, which Region#_draw sets once and a shader swap resets. */
 function coreHatchThickness(metrics: IDisplayCanvasMetrics): number {
   return 4 * metrics.uiScale;
 }
@@ -163,7 +164,6 @@ export function applyStyle(
   uniforms.waveAmplitude = style.waveAmplitude;
   uniforms.waveLength = style.waveLength;
   uniforms.patternOffset = style.offset;
-  uniforms.hatchThickness = coreHatchThickness(metrics);
 }
 
 /** Shader replacement resets uniforms; keep the interaction state core computed before our hook. */

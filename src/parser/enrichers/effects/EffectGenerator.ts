@@ -9,24 +9,10 @@ import ProficiencyFinder from "../../lib/ProficiencyFinder";
 import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
-import {
-  applyDaeSpecialDurations,
-  applyNativeExpiry,
-  DURATIONLESS_EXPIRIES,
-  expirySupportsDuration,
-  PSEUDO_EXPIRIES,
-} from "./EffectExpiryHelpers";
+import { applyDaeSpecialDurations, applyNativeExpiry } from "./EffectExpiryHelpers";
 
-
-export { EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
-
+// DAE's turn and combat expiries are left out: core dnd5e expiry handles those
 export const DAE_SPECIAL_DURATIONS = [
-  // we handle these in core expiry now
-  // "turnStart",
-  // "turnEnd",
-  // "turnStartSource",
-  // "turnEndSource",
-  // "combatEnd",
   // Attack/Action triggers
   "1Action",
   "1Attack",
@@ -1460,12 +1446,6 @@ export default class EffectGenerator {
   // expiry translation lives in the EffectExpiryHelpers leaf so AutoEffects can
   // use it without importing EffectGenerator (which imports AutoEffects); these
   // statics stay as the established call surface
-  static PSEUDO_EXPIRIES = PSEUDO_EXPIRIES;
-
-  static DURATIONLESS_EXPIRIES = DURATIONLESS_EXPIRIES;
-
-  static expirySupportsDuration = expirySupportsDuration;
-
   static applyNativeExpiry = applyNativeExpiry;
 
   static applyDaeSpecialDurations = applyDaeSpecialDurations;

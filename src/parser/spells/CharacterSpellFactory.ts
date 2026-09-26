@@ -929,40 +929,29 @@ export default class CharacterSpellFactory {
   }
 
   /**
-   * Bake the 2024 Healer feat's healing-die reroll onto the character's healing spells.
-   * The flag lets a later import strip a reroll we added if the feat goes away or AC5e turns up.
+   * Bake the 2024 Healer feat's healing-die reroll onto the character's healing spells, flagging
+   * each spell it changed. Every import re-parses the spells, so there is never a stale reroll to
+   * strip when the feat goes away or AC5e turns up.
    */
   _applyHealingRerolls() {
+    if (!this.healingReroll) return;
     for (const spell of this.processed) {
-      const flagged = foundry.utils.getProperty(spell, "flags.ddbimporter.healingReroll") === true;
-      if (this.healingReroll) {
-        const applied = SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS);
-        if (applied) foundry.utils.setProperty(spell, "flags.ddbimporter.healingReroll", true);
-      } else if (flagged) {
-        SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS, { remove: true });
-        delete spell.flags.ddbimporter?.healingReroll;
-      }
+      const applied = SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS);
+      if (applied) foundry.utils.setProperty(spell, "flags.ddbimporter.healingReroll", true);
     }
   }
 
   /**
    * Bake Elemental Adept's "treat a 1 as a 2" onto the damage parts of the character's spells that
-   * deal the chosen damage type. The flag records the types we stamped, so a later import can strip
-   * them if the feat goes away, the type changes, or AC5e turns up.
+   * deal the chosen damage type, recording the stamped types on each spell it changed. Every import
+   * re-parses the spells, so a dropped feat or changed type leaves nothing to strip.
    */
   _applyElementalAdept() {
+    if (this.elementalAdeptTypes.length === 0) return;
     const modifiers = CharacterSpellFactory.ELEMENTAL_ADEPT_MODIFIERS;
     for (const spell of this.processed) {
-      const flagged = spell.flags.ddbimporter?.elementalAdept ?? [];
-      const stale = flagged.filter((type) => !this.elementalAdeptTypes.includes(type));
-      if (stale.length > 0) SpellDataUtils.applyDamageDieModifiers(spell, modifiers, stale, { remove: true });
-      if (flagged.length > 0) delete spell.flags.ddbimporter?.elementalAdept;
-
       // a part is only stamped when every damage type it offers is a chosen one
-      const applied = this.elementalAdeptTypes.length > 0
-        && SpellDataUtils.applyDamageDieModifiers(spell, modifiers, this.elementalAdeptTypes);
-      const kept = flagged.filter((type) => this.elementalAdeptTypes.includes(type));
-      if (applied || kept.length > 0) {
+      if (SpellDataUtils.applyDamageDieModifiers(spell, modifiers, this.elementalAdeptTypes)) {
         foundry.utils.setProperty(spell, "flags.ddbimporter.elementalAdept", [...this.elementalAdeptTypes]);
       }
     }
