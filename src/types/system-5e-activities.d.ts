@@ -87,6 +87,21 @@ global {
     config?: I5eActivityBehaviorApplyEffectConfig | I5eActivityBehaviorDifficultTerrainConfig | I5eActivityBehaviorMacroConfig | I5eActivityBehaviorDisplayConfig;
   }
 
+  /**
+   * Which `tokenEnter` events a region trigger treats as a creature entering its area. Core also
+   * raises `tokenEnter`, with no movement, for every token inside a region that is created,
+   * activated or moved, and for a token created inside one.
+   * - "movement": only a token's own movement into the area (the 2014 rule: creating the area on
+   *   a creature or moving it onto one is not entering).
+   * - "movementOrArea": that, plus the area moving onto a token, but not the region being created
+   *   or activated, or a token created inside it (the 2024 "when the area moves into its space"
+   *   wording, where the cast rolled for creatures already inside).
+   * - "any": every `tokenEnter`.
+   * - "auto": resolved at placement to "movementOrArea" when the placing activity rolls for the
+   *   creatures in its area (save, attack, damage, heal), otherwise to "any".
+   */
+  type TRegionEnterOn = "auto" | "movement" | "movementOrArea" | "any";
+
   /** ddb-importer's `ddbMacro` activity behavior: run a RegionAutomations handler on core region events. */
   interface I5eActivityBehaviorMacroConfig {
     /** Fire on the origin token's turn, even outside the region. */
@@ -108,6 +123,8 @@ global {
     oncePerTurn?: boolean;
     /** Never trigger for the token the region originates from. */
     excludeSelf?: boolean;
+    /** Which `tokenEnter` events count as entering the area; see TRegionEnterOn. */
+    enterOn?: TRegionEnterOn;
     scale?: boolean;
     /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
     autoRoll?: boolean;

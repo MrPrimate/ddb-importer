@@ -1,14 +1,17 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Nothing is rolled as the spell is cast. The area is forced to a "radius" template, an emanation
- * that follows the caster, and the region fires the save when a creature enters it (including when
- * the moving emanation reaches it) and on the turn event each printing names: turn start for 2014
- * ("first time on a turn or starts its turn there"), turn end for 2024 ("enters or ends its turn
- * there"). The default once-per-turn gate holds a creature to one save a turn. The save targets
- * enemies, so only hostile tokens are affected and the caster is skipped; difficult terrain for
- * the same hostile tokens stands in for the halved Speed. Sparing chosen hostile creatures and
- * catching neutral ones are left to the table, and the damage roll offers radiant or necrotic.
+ * Nothing is rolled by the cast itself. The area is forced to a "radius" template, an emanation
+ * that follows the caster, and the region fires the save on entering and on the turn event each
+ * printing names. 2014: when a creature passes into the area for the first time on a turn or
+ * starts its turn there; the emanation appearing on a creature or moving onto one is not entering
+ * (enterOn "movement"). 2024: whenever the emanation enters a creature's space, including as it
+ * appears around creatures on the cast, and whenever a creature enters it or ends its turn there
+ * (enterOn "any"). The default once-per-turn gate holds a creature to one save a turn. The save
+ * targets enemies, so only hostile tokens are affected and the caster is skipped; difficult
+ * terrain for the same hostile tokens stands in for the halved Speed. Sparing chosen hostile
+ * creatures and catching neutral ones are left to the table, and the damage roll offers radiant or
+ * necrotic.
  */
 export default class SpiritGuardians extends DDBEnricherData {
 
@@ -26,6 +29,9 @@ export default class SpiritGuardians extends DDBEnricherData {
             events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
             activityName: "Save vs Damage",
             excludeSelf: true,
+            // 2014: only a creature passing into the area counts; 2024: "whenever the Emanation
+            // enters a creature's space" includes it appearing around creatures as it is cast
+            enterOn: this.is2014 ? "movement" : "any",
           }),
         ],
       },

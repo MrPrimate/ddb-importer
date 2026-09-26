@@ -26,6 +26,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       activity: new StringField(),
       oncePerTurn: new BooleanField({ initial: true }),
       excludeSelf: new BooleanField({ initial: false }),
+      enterOn: new StringField({ initial: "auto", choices: ["auto", "movement", "movementOrArea", "any"] }),
       scale: new BooleanField({ initial: true }),
       autoRoll: new BooleanField({ initial: false }),
       groupTargets: new BooleanField({ initial: true }),
@@ -47,6 +48,20 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     };
   }
 
+  /** Placing activity types that roll for the creatures in their area when used. */
+  static ROLLING_ACTIVITY_TYPES = new Set(["save", "attack", "damage", "heal"]);
+
+  /**
+   * The `enterOn` rule a placed region uses. "auto" becomes "movementOrArea" when the placing
+   * activity rolls for the creatures already in its area, since the region's creation enters would
+   * roll for them again, and "any" otherwise, where those enters are the only thing that reaches
+   * them (a lair action or a utility that only places the area).
+   */
+  static resolveEnterOn(enterOn: TRegionEnterOn | undefined, activity: { type?: string } | null | undefined): TRegionEnterOn {
+    if (enterOn && enterOn !== "auto") return enterOn;
+    return DDBMacroActivityBehavior.ROLLING_ACTIVITY_TYPES.has(activity?.type ?? "") ? "movementOrArea" : "any";
+  }
+
   override createBehaviorData(activity: any, { token }: { token?: any } = {}) {
     if (!RegionBehaviorSettings.enabled) return false;
     const args: Record<string, unknown> = { ...((this.args as Record<string, unknown> | undefined) ?? {}) };
@@ -65,6 +80,7 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
     if (this.macroName) args.macroFunction = this.macroName;
     args.oncePerTurn = this.oncePerTurn;
     args.excludeSelf = this.excludeSelf;
+    args.enterOn = DDBMacroActivityBehavior.resolveEnterOn(this.enterOn as TRegionEnterOn | undefined, activity);
     args.scale = this.scale;
     // the checkbox, or `{"autoRoll": true}` in the arguments JSON, which older hand-built
     // behaviors carry
@@ -117,6 +133,11 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
       data.options = REGION_EVENTS.map((value) => ({
         value,
         label: game.i18n.localize(`ddb-importer.behaviors.macro.events.${value}`),
+      }));
+    } else if (field.name === "enterOn") {
+      data.options = ["auto", "movement", "movementOrArea", "any"].map((value) => ({
+        value,
+        label: game.i18n.localize(`ddb-importer.behaviors.macro.enterOn.${value}`),
       }));
     } else if (field.name === "ownerTurnTargets") {
       data.options = ["region", "none"].map((value) => ({

@@ -472,6 +472,10 @@
             "label": "Exclude Origin Token",
             "hint": "Never trigger for the token the region originates from, for an emanation that does not affect its own caster."
           },
+          "enterOn": {
+            "label": "Counts as Entering",
+            "hint": "Which Token Enters count. Automatic skips the area's own creation when the placing activity already rolled for the creatures inside. Creature Movement Only follows the 2014 rule that creating an area on a creature, or moving it onto one, is not entering."
+          },
           "scale": {
             "label": "Apply Upcast Scaling",
             "hint": "Scale the activity by the level the spell was cast at."
@@ -533,6 +537,12 @@
         "ownerTurnFailure": "{region}: the owner-turn activity could not complete. The region remains; use its follow-up manually.",
         "legacyAura": "{name} was imported with the retired Active Auras automation, which no longer runs. Re-import it to use DDB Importer region automation.",
         "ownerTurnTargets": { "region": "Region occupants", "none": "No recipients" },
+        "enterOn": {
+          "auto": "Automatic",
+          "movement": "Creature movement only",
+          "movementOrArea": "Creature movement or the area moving onto it",
+          "any": "Any enter, including the area's creation"
+        },
         "choice": {
           "waiting": "Waiting for the owning player. You can take over or skip this trigger; advancing combat does not answer it.",
           "limit": "Choose up to {max} creatures. Select no creatures or Skip to pass.",

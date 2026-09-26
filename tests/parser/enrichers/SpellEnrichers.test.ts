@@ -435,9 +435,7 @@ describe("ddbMacro region automation behaviors", () => {
     ["Cloudkill", ["tokenEnter", "tokenTurnEnd"], "ddbCloKilZoneSa1"],
     ["IncendiaryCloud", ["tokenEnter", "tokenTurnEnd"], "ddbIncCloZoneSa1"],
     ["CreateBonfire", ["tokenEnter", "tokenTurnEnd"], "ddbBonfirZoneSa1"],
-    ["Web", ["tokenEnter", "tokenTurnStart"], "ddbWebSpellZone1"],
     ["InsectPlague", ["tokenEnter", "tokenTurnEnd"], "ddbInsPlaZoneSa1"],
-    ["SleetStorm", ["tokenEnter", "tokenTurnStart"], "ddbSleetStZoneS1"],
     ["SpellfireStorm", ["tokenEnter", "tokenTurnEnd"], "ddbSpellStormSa1"],
     ["ConjureWoodlandBeings", ["tokenEnter", "tokenTurnEnd"], "ddbConjWoodBeSav"],
   ])("%s triggers useActivity against its no-consumption ongoing activity on %j", (name, events, activity) => {
@@ -455,10 +453,8 @@ describe("ddbMacro region automation behaviors", () => {
     ["Cloudkill", "ddbCloKilZoneSa1"],
     ["IncendiaryCloud", "ddbIncCloZoneSa1"],
     ["CreateBonfire", "ddbBonfirZoneSa1"],
-    ["Web", "ddbWebSpellZone1"],
     ["Grease", "ddbGreaseZoneSa1"],
     ["InsectPlague", "ddbInsPlaZoneSa1"],
-    ["SleetStorm", "ddbSleetStZoneS1"],
     ["BlackTentacles", "ddbBlaTenZoneSa1"],
   ])("%s duplicates its save as a special-activation Ongoing Save without consumption", (name, id) => {
     const e = build((SpellEnrichers as any)[name]);
@@ -1293,7 +1289,6 @@ describe("follow-up activities on concentration spells do not require concentrat
   const SPELL_WITHOUT_CONCENTRATION = { override: true, value: "1", units: "minute", concentration: false };
 
   it.each([
-    ["Web", "Ongoing Save"],
     ["Eyebite", "Concentration Action"],
     ["AnimalShapes", "Follow Up Animal Shape"],
     ["Shapechange", "Change Form"],
@@ -1322,6 +1317,7 @@ describe("follow-up activities on concentration spells do not require concentrat
     ["Scrying", "Create Sensor"],
     ["Polymorph", "Transform"],
     ["TruePolymorph", "Transform"],
+    ["Web", "Ongoing Save"],
   ])("%s builds %s on the spell's duration without concentration", (name, activityName) => {
     const e = build((SpellEnrichers as any)[name], { is2014: true });
     const activity = e.additionalActivities.find((a: any) => a.init?.name === activityName);
@@ -1467,5 +1463,95 @@ describe("MarrowTransplant", () => {
     heal.ddbEnricher._originalActivity = { type: "heal" };
     expect(heal.activity.data.damage).toBeUndefined();
     expect(heal.activity.data.healing).toMatchObject({ number: 4, denomination: 6, types: ["healing"], scaling: upcast });
+  });
+});
+
+describe("region enter timing", () => {
+  const macroOf = (e: any) => e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+
+  it.each([
+    ["Cloudkill", "Cast", "Ongoing Save", "save"],
+    ["Moonbeam", "Cast", "Ongoing Save", "save"],
+    ["BladeBarrier", "Place Wall", "Ongoing Save", "save"],
+    ["CloudOfDaggers", "Cast", "Ongoing Damage", "damage"],
+    ["BlackTentacles", "Cast", "Ongoing Save", "save"],
+    ["SleetStorm", "Cast", "Ongoing Save", "save"],
+    ["Web", "Cast", "Ongoing Save", "save"],
+  ])("2014 %s casts as a utility %j that rolls nothing and fires %j only on movement", (name, castName, activityName, type) => {
+    const e = build((SpellEnrichers as any)[name], { is2014: true });
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: castName, removeDamageParts: true, noeffect: true });
+    const macro = macroOf(e);
+    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(macro.config.activity).toBe("");
+    expect(macro.config.args).toEqual({ activityName });
+    expect(macro.config.enterOn).toBe("movement");
+    const roll = e.additionalActivities.find((a: any) => a.init?.name === activityName);
+    expect(roll.init.type).toBe(type);
+    expect(roll.build).toMatchObject({ generateConsumption: false, noSpellslot: true });
+    expect(roll.build.activationOverride.condition).toMatch(/for the first time on a turn or starts its turn there/);
+  });
+
+  it.each([
+    ["Cloudkill", "ddbCloKilZoneSa1"],
+    ["Moonbeam", "ddbMoonbeamZone1"],
+    ["BladeBarrier", "ddbBlaBarZoneSa1"],
+    ["CloudOfDaggers", "ddbCloDagZoneDa1"],
+    ["BlackTentacles", "ddbBlaTenZoneSa1"],
+  ])("2024 %s keeps DDB's cast roll and leaves enterOn to placement", (name, id) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.type).toBeNull();
+    const macro = macroOf(e);
+    expect(macro.config.activity).toBe(id);
+    // "auto": the placing save or damage resolves it to "movementOrArea" when the region is placed
+    expect(macro.config.enterOn).toBeUndefined();
+    expect(e.additionalActivities.find((a: any) => a.id === id).duplicate).toBe(true);
+  });
+
+  it.each([
+    ["SleetStorm"],
+    ["Web"],
+  ])("2024 %s places its area without a roll and counts only movement", (name) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.type).toBe("utility");
+    expect(macroOf(e).config).toMatchObject({ args: { activityName: "Ongoing Save" }, enterOn: "movement" });
+  });
+
+  it("Web's Restrained follows the region's Ongoing Save", () => {
+    const e = build(SpellEnrichers.Web);
+    expect(e.effects).toEqual([expect.objectContaining({ name: "Restrained", activityMatch: "Ongoing Save" })]);
+    const roll = e.additionalActivities.find((a: any) => a.init?.name === "Ongoing Save");
+    expect(roll.build.generateDamage).toBe(false);
+  });
+
+  it("Blade Barrier's 2014 wall keeps its template and the ring copy", () => {
+    const e = build(SpellEnrichers.BladeBarrier, { is2014: true });
+    expect(e.activity.data.target.template).toMatchObject({ type: "wall", size: "100", width: "5", height: "20" });
+    expect(e.additionalActivities.map((a: any) => a.id ?? a.init?.name)).toEqual(["ddbBlaBarRingPl1", "Ongoing Save"]);
+  });
+
+  it.each([
+    [true, "movement"],
+    [false, "any"],
+  ])("Spirit Guardians (2014 %s) counts %s enters", (is2014, enterOn) => {
+    // 2024 "whenever the Emanation enters a creature's space" includes it appearing around them
+    expect(macroOf(build(SpellEnrichers.SpiritGuardians, { is2014 })).config.enterOn).toBe(enterOn);
+  });
+
+  it.each([
+    ["ZoneOfTruth"],
+    ["Forbiddance"],
+  ])("%s counts only movement into the area", (name) => {
+    for (const is2014 of [true, false]) {
+      expect(macroOf(build((SpellEnrichers as any)[name], { is2014 })).config.enterOn).toBe("movement");
+    }
+  });
+
+  it("Cordon of Arrows spares the caster and counts only movement", () => {
+    for (const is2014 of [true, false]) {
+      const macro = macroOf(build(SpellEnrichers.CordonOfArrows, { is2014 }));
+      expect(macro.config.excludeSelf).toBe(true);
+      expect(macro.config.enterOn).toBe("movement");
+    }
   });
 });

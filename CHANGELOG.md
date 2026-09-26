@@ -29,6 +29,10 @@
 - Speed effects now use the dnd5e 6 speed fields.
 - Re-importing a character with "Retain Active Effects?" ticked broke the links between activities and their effects, so spells like Shield showed no Applied Effects in the chat card. Retained effects now keep the links, and custom effects on items are still kept.
 - For 2024 content, a general "Speed" bonus (e.g. Fast Movement, Roving) now applies to all your speeds rather than just walking speed.
+- Fix some scaling issues, and some pugilist fixes.
+- Area spells no longer roll their ongoing save again for creatures already inside when the area is created. The 2014 "enters for the first time on a turn" spells (Cloudkill, Moonbeam, Blade Barrier, Cloud of Daggers, Evard's Black Tentacles, Sleet Storm, Web) roll nothing on cast and only trigger when a creature moves in or starts its turn there.
+- Region triggers have a new "Counts as Entering" option (Automatic / Creature movement only / Creature movement or the area moving onto it / Any enter).
+- Cordon of Arrows no longer targets its caster.
 
 # 7.5.5
 

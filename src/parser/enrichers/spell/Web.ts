@@ -1,52 +1,42 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { ONGOING, castPlacer, ongoingTrigger } from "./_SpellRegions";
 
+/**
+ * A fixed 20-foot cube of webs, difficult terrain. Neither printing rolls anything as the webs
+ * appear: the cast only places them, and the region fires "Ongoing Save" when a creature passes
+ * into the webs for the first time on a turn or starts its turn there. Creating the webs on a
+ * creature is not entering (enterOn "movement", per the 2014 design intent for this timing, which
+ * the 2024 wording keeps). A failure applies Restrained for as long as the spell lasts; breaking
+ * free and burning the webs are left to the table.
+ */
 export default class Web extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
 
   override get activity(): IDDBActivityData {
     return {
-      id: "ddbWebSpellSave1",
+      ...castPlacer([
+        DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["web"] }),
+        DDBEnricherData.BehaviorHelper.activity({
+          events: ["tokenEnter", "tokenTurnStart"],
+          activityName: ONGOING,
+          enterOn: "movement",
+        }),
+      ]),
       // the restrained icon is a web
       display: "status-restrained",
-      data: {
-        behaviors: [
-          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["web"] }),
-          DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnStart"],
-            activityId: "ddbWebSpellZone1",
-          }),
-        ],
-      },
     };
   }
 
-
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      {
-        duplicate: true,
-        id: "ddbWebSpellZone1",
-        overrides: {
-          name: "Ongoing Save",
-          activationType: "special",
-          activationCondition: "Enters the webs or starts its turn there",
-          removeSpellSlotConsume: true,
-          noConsumeTargets: true,
-          noTemplate: true,
-          data: {
-            // the Restrained it applies lasts as long as the spell
-            duration: this.followUpDuration,
-            range: {
-              override: true,
-              units: "spec",
-            },
-            target: {
-              override: true,
-            },
-            behaviors: [],
-          },
-        },
-      },
-    ];
+    return [ongoingTrigger({
+      condition: "Enters the webs for the first time on a turn or starts its turn there",
+      noDamage: true,
+      // the Restrained it applies lasts as long as the spell
+      keepSpellDuration: true,
+    })];
   }
 
   override get clearAutoEffects(): boolean {
@@ -57,6 +47,7 @@ export default class Web extends DDBEnricherData {
     return [
       {
         name: "Restrained",
+        activityMatch: ONGOING,
         statuses: ["Restrained"],
       },
     ];

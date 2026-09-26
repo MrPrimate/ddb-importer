@@ -36,6 +36,8 @@ export default class Forbiddance extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
             activityName: "Damage",
+            // only a creature passing into the area counts, not the area appearing on it
+            enterOn: "movement",
             types: this.is2014
               ? ["celestial", "elemental", "fey", "fiend", "undead"]
               : ["aberration", "celestial", "elemental", "fey", "fiend", "undead"],

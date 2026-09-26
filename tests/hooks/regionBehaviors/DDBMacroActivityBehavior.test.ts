@@ -118,6 +118,33 @@ describe("DDBMacroActivityBehavior.createBehaviorData", () => {
     } as any);
   }
 
+  it.each([
+    ["save", "movementOrArea"],
+    ["damage", "movementOrArea"],
+    ["attack", "movementOrArea"],
+    ["heal", "movementOrArea"],
+    ["utility", "any"],
+    [undefined, "any"],
+  ])("resolves an automatic enter rule from a %s placing activity to %s", (type, expected) => {
+    expect(DDBMacroActivityBehavior.resolveEnterOn("auto", { type })).toBe(expected);
+    expect(DDBMacroActivityBehavior.resolveEnterOn(undefined, { type })).toBe(expected);
+  });
+
+  it("keeps an explicit enter rule whatever the placing activity", () => {
+    expect(DDBMacroActivityBehavior.resolveEnterOn("movement", { type: "save" })).toBe("movement");
+    expect(DDBMacroActivityBehavior.resolveEnterOn("any", { type: "save" })).toBe("any");
+    expect(DDBMacroActivityBehavior.resolveEnterOn("movementOrArea", null)).toBe("movementOrArea");
+  });
+
+  it("serializes the resolved enter rule", () => {
+    getDispositions.mockReturnValue(new Set());
+    const data = behavior().createBehaviorData({ type: "save", target: {} }) as any;
+    expect(data.system.source).toContain("\"enterOn\":\"movementOrArea\"");
+    expect(data.system.events).toEqual(["tokenEnter"]);
+    const utility = behavior().createBehaviorData({ type: "utility", target: {} }) as any;
+    expect(utility.system.source).toContain("\"enterOn\":\"any\"");
+  });
+
   it("serializes target dispositions relative to the token that placed the region", () => {
     const target = { affects: { type: "enemy" } };
     const activity = {

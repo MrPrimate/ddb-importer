@@ -14,6 +14,8 @@ export default class ZoneOfTruth extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
             activityName: "Ongoing Save",
+            // only a creature passing into the zone counts, not the zone appearing on it
+            enterOn: "movement",
           }),
         ],
       },

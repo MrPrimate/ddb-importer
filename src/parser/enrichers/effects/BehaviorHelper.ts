@@ -142,6 +142,7 @@ export default class BehaviorHelper {
       deleteAfterUse,
       macroParameters,
       macroFunction,
+      enterOn,
       ...rest
     } = args as {
       activityId?: string;
@@ -156,6 +157,7 @@ export default class BehaviorHelper {
       deleteAfterUse?: boolean;
       macroParameters?: string;
       macroFunction?: string;
+      enterOn?: TRegionEnterOn;
       [key: string]: unknown;
     };
     return {
@@ -177,6 +179,7 @@ export default class BehaviorHelper {
         // same-named argument. Only the non-default value is written.
         ...(autoRoll === true ? { autoRoll } : {}),
         ...(groupTargets === false ? { groupTargets } : {}),
+        ...(enterOn && enterOn !== "auto" ? { enterOn } : {}),
         ...(ownerTurn
           ? {
             ownerTurn,
@@ -210,6 +213,7 @@ export default class BehaviorHelper {
     scale,
     autoRoll,
     groupTargets,
+    enterOn,
     ownerTurn,
     ownerTurnTargets,
     fireOnPlacement,
@@ -231,6 +235,13 @@ export default class BehaviorHelper {
     oncePerTurn?: boolean;
     /** Skip the token the region originates from: an emanation that does not affect its own caster. */
     excludeSelf?: boolean;
+    /**
+     * Which enters count as entering the area (TRegionEnterOn). The default, "auto", skips the
+     * enters of the region's own creation when the placing activity already rolled for the
+     * creatures inside. "movement" is the 2014 rule for "enters the area for the first time on a
+     * turn" spells: only a creature passing into the area counts.
+     */
+    enterOn?: TRegionEnterOn;
     scale?: boolean;
     /** Roll attack/damage automatically instead of posting a card with buttons (default false). */
     autoRoll?: boolean;
@@ -276,6 +287,7 @@ export default class BehaviorHelper {
         ...(scale !== undefined ? { scale } : {}),
         ...(autoRoll !== undefined ? { autoRoll } : {}),
         ...(groupTargets !== undefined ? { groupTargets } : {}),
+        ...(enterOn !== undefined ? { enterOn } : {}),
         ...(macroParameters !== undefined ? { macroParameters } : {}),
       },
     });

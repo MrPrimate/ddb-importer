@@ -724,9 +724,55 @@ export default class RegionAutomations {
     notify: (context) => RegionAutomations.notifyHandler(context),
   };
 
+  /** How long after a region moves its enters count as the area moving onto a token, in ms. */
+  static MOVE_WINDOW_MS = 2000;
+
+  /** Region uuid -> the time until which a null-movement enter counts as the region having moved. */
+  static #moved = new Map<string, number>();
+
+  /**
+   * Record that a region's area moved: its shapes, elevation or levels changed, which is also how
+   * an emanation follows its token. Core recomputes which tokens are inside afterwards, through a
+   * separate token update, so the enters it raises arrive a database round trip later; the window
+   * only has to cover that. If it ever closes early the enter is skipped, a missed trigger rather
+   * than a second roll for a creature the cast already covered.
+   */
+  static markMoved(region: RegionDocument, changed: Record<string, unknown>): void {
+    const uuid = region.uuid;
+    if (!uuid || !("shapes" in changed || "elevation" in changed || "levels" in changed)) return;
+    const now = Date.now();
+    for (const [key, until] of RegionAutomations.#moved) {
+      if (until <= now) RegionAutomations.#moved.delete(key);
+    }
+    RegionAutomations.#moved.set(uuid, now + RegionAutomations.MOVE_WINDOW_MS);
+  }
+
+  /**
+   * Whether a `tokenEnter` is one the behavior's `enterOn` rule does not count as entering (see
+   * TRegionEnterOn). Core gives a token's own movement a `movement` payload; every other enter
+   * (the region created, activated or moved, or a token created inside it) has none, and only a
+   * recent move (markMoved) tells the area moving onto a token apart from the rest.
+   */
+  static skipsEnter(context: IRegionEventContext): boolean {
+    if (context.event.name !== "tokenEnter") return false;
+    const enterOn = (context.args?.enterOn as TRegionEnterOn | undefined) ?? "any";
+    if (enterOn === "any" || enterOn === "auto" || context.event.data?.movement) return false;
+    if (enterOn === "movement") return true;
+    const uuid = context.region.uuid;
+    return !uuid || (RegionAutomations.#moved.get(uuid) ?? 0) <= Date.now();
+  }
+
+  /** Track region moves for the "movementOrArea" enter rule. */
+  static registerHooks(): void {
+    Hooks.on<"updateRegion">("updateRegion", (region, changed) => {
+      RegionAutomations.markMoved(region, changed as Record<string, unknown>);
+    });
+  }
+
   static async handleRegionEvent(context: IRegionEventContext): Promise<void> {
     // Already-placed executeScript behaviors still call this entry point when the master is off.
     if (!RegionBehaviorSettings.enabled || !game.user?.isActiveGM) return;
+    if (RegionAutomations.skipsEnter(context)) return;
     const handler = RegionAutomations.handlers[context.handler];
     if (!handler) {
       logger.warn(`No region automation handler registered for "${context.handler}"`, context);

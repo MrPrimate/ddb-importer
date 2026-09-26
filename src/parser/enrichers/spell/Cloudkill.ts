@@ -1,23 +1,39 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { ONGOING, castPlacer, ongoingClone, ongoingTrigger } from "./_SpellRegions";
 
 /**
- * The cast stays DDB's save over its 20-foot sphere, a fixed area rather than an emanation, and
- * "Ongoing Save" is a free copy the region fires. 2014 fires it when a creature enters the cloud or
- * starts its turn there ("for the first time on a turn"); 2024 when it enters or ends its turn
- * there. The default once-per-turn gate holds either to one save a turn, and dragging the cloud
- * onto a creature raises the same enter event, covering 2024's "moves into its space". Any
- * creature is affected. Moving the cloud 10 feet away from the caster each turn is left to the
- * table, as is the 2014 printing rolling nothing as the cloud appears.
+ * A fixed 20-foot sphere, not an emanation. The 2014 cloud rolls nothing as it appears: the cast
+ * only places it, and the region fires "Ongoing Save" when a creature passes into it for the
+ * first time on a turn or starts its turn there. Creating the cloud on a creature or moving it
+ * onto one is not entering (enterOn "movement", per the 2014 design intent for this timing).
+ * The 2024 cast keeps DDB's save for every creature in the sphere, and the region fires a free
+ * copy when a creature enters it, the sphere moves into its space, or it ends its turn there; the
+ * cloud's own creation does not fire it again ("auto" resolves to "movementOrArea"). The default
+ * once-per-turn gate holds a creature to one save a turn, and any creature is affected. Moving the
+ * cloud 10 feet away from the caster each turn is left to the table.
  */
 export default class Cloudkill extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
+  }
+
   override get activity(): IDDBActivityData {
+    if (this.is2014) {
+      return castPlacer([
+        DDBEnricherData.BehaviorHelper.activity({
+          events: ["tokenEnter", "tokenTurnStart"],
+          activityName: ONGOING,
+          enterOn: "movement",
+        }),
+      ]);
+    }
     return {
       id: "ddbCloKilSpellSa",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
+            events: ["tokenEnter", "tokenTurnEnd"],
             activityId: "ddbCloKilZoneSa1",
           }),
         ],
@@ -26,31 +42,10 @@ export default class Cloudkill extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      {
-        duplicate: true,
-        id: "ddbCloKilZoneSa1",
-        overrides: {
-          name: "Ongoing Save",
-          activationType: "special",
-          activationCondition: this.is2014 ? "Enters the cloud or starts its turn there" : "Enters the cloud or ends its turn there",
-          removeSpellSlotConsume: true,
-          noConsumeTargets: true,
-          noTemplate: true,
-          data: {
-            duration: { override: true, units: "inst", concentration: false },
-            range: {
-              override: true,
-              units: "spec",
-            },
-            target: {
-              override: true,
-            },
-            behaviors: [],
-          },
-        },
-      },
-    ];
+    if (this.is2014) {
+      return [ongoingTrigger({ condition: "Enters the cloud for the first time on a turn or starts its turn there" })];
+    }
+    return [ongoingClone("ddbCloKilZoneSa1", "Enters the cloud, the cloud moves into its space, or it ends its turn there")];
   }
 
 }

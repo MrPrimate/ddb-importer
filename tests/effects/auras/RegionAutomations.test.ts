@@ -75,6 +75,88 @@ describe("RegionAutomations.handleRegionEvent", () => {
   });
 });
 
+describe("RegionAutomations enter rules", () => {
+  const originalUser = (globalThis as any).game.user;
+
+  beforeEach(() => {
+    (globalThis as any).game.user = { isActiveGM: true };
+  });
+
+  afterEach(() => {
+    (globalThis as any).game.user = originalUser;
+    delete RegionAutomations.handlers.testHandler;
+    vi.useRealTimers();
+  });
+
+  let regionCount = 0;
+
+  /**
+   * A tokenEnter under the given rule in a region of its own, so no move mark carries over from
+   * another test; `moved` marks a token's own movement into the area.
+   */
+  function enter(enterOn: string | undefined, moved: boolean): any {
+    const context = makeContext("testHandler", { args: enterOn ? { enterOn } : {} });
+    context.region = { ...context.region, uuid: `Scene.s.Region.enter${++regionCount}` };
+    if (moved) context.event.data.movement = { passed: {} };
+    return context;
+  }
+
+  it.each([undefined, "auto", "any", "movement", "movementOrArea"])("counts a token moving in under %s", (enterOn) => {
+    expect(RegionAutomations.skipsEnter(enter(enterOn, true))).toBe(false);
+  });
+
+  it("skips every enter without movement under \"movement\", a moved area included", () => {
+    const context = enter("movement", false);
+    RegionAutomations.markMoved(context.region, { shapes: [] });
+    expect(RegionAutomations.skipsEnter(context)).toBe(true);
+  });
+
+  it.each([undefined, "auto", "any"])("counts an enter without movement under %s", (enterOn) => {
+    expect(RegionAutomations.skipsEnter(enter(enterOn, false))).toBe(false);
+  });
+
+  it("never skips other events", () => {
+    const context = enter("movement", false);
+    context.event.name = "tokenTurnStart";
+    expect(RegionAutomations.skipsEnter(context)).toBe(false);
+  });
+
+  it("under \"movementOrArea\" counts an enter without movement only just after the area moved", async () => {
+    vi.useFakeTimers();
+    const handler = vi.fn();
+    RegionAutomations.register("testHandler", handler);
+
+    // the region's creation, a token created inside it: no move, so skipped
+    await RegionAutomations.handleRegionEvent(enter("movementOrArea", false));
+    expect(handler).not.toHaveBeenCalled();
+
+    // the area moved onto a token: core raises the enter a round trip after the region update
+    const moved = enter("movementOrArea", false);
+    RegionAutomations.markMoved(moved.region, { shapes: [] });
+    vi.advanceTimersByTime(RegionAutomations.MOVE_WINDOW_MS / 2);
+    await RegionAutomations.handleRegionEvent(moved);
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(RegionAutomations.MOVE_WINDOW_MS);
+    await RegionAutomations.handleRegionEvent(moved);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks only boundary changes, and only for the region that moved", () => {
+    vi.useFakeTimers();
+    const context = enter("movementOrArea", false);
+    RegionAutomations.markMoved(context.region, { name: "Renamed", flags: {} });
+    expect(RegionAutomations.skipsEnter(context)).toBe(true);
+    for (const changed of [{ shapes: [] }, { elevation: {} }, { levels: [] }]) {
+      vi.advanceTimersByTime(RegionAutomations.MOVE_WINDOW_MS * 2);
+      RegionAutomations.markMoved(context.region, changed);
+      expect(RegionAutomations.skipsEnter(context)).toBe(false);
+    }
+    const other = enter("movementOrArea", false);
+    expect(RegionAutomations.skipsEnter(other)).toBe(true);
+  });
+});
+
 describe("RegionAutomations.useActivityHandler", () => {
   const originalUser = (globalThis as any).game.user;
   const originalCombat = (globalThis as any).game.combat;
