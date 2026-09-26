@@ -94,7 +94,9 @@ export interface IDisplayTarget {
 export function regionDisplayTarget(region: IRegionLike): IDisplayTarget {
   return {
     key: region.uuid ?? String(region.id),
-    title: `Region Display${region.name ? `: ${region.name}` : ""}`,
+    title: region.name
+      ? RegionDisplayProfiles.format("config.titleNamed", { name: region.name })
+      : RegionDisplayProfiles.localize("config.title"),
     color: typeof region.color === "string" && region.color ? region.color : REGION_DISPLAY_FALLBACK_COLOR,
     read: () => ({ ...(displayFlag(region as RegionDocument.Implementation) ?? {}) }),
     write: async (flag) => {
@@ -114,10 +116,12 @@ export function regionDisplayTarget(region: IRegionLike): IDisplayTarget {
  */
 export function activityBehaviorDisplayTarget(activity: IActivityLike, behaviorId: string): IDisplayTarget {
   const find = () => (activity.toObject?.().behaviors ?? []).find((behavior) => behavior._id === behaviorId);
-  const item = activity.item?.name ? `${activity.item.name}: ` : "";
+  const activityName = activity.name ?? RegionDisplayProfiles.localize("config.activityFallback");
   return {
     key: `${activity.uuid ?? "activity"}.behavior.${behaviorId}`,
-    title: `Region Display: ${item}${activity.name ?? "Activity"}`,
+    title: activity.item?.name
+      ? RegionDisplayProfiles.format("config.titleActivity", { item: activity.item.name, activity: activityName })
+      : RegionDisplayProfiles.format("config.titleNamed", { name: activityName }),
     color: userPreviewColor(),
     read: () => flagFromBehaviorConfig(find()?.config),
     write: async (flag) => {
@@ -158,7 +162,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     id: "ddb-region-display-config-{id}",
     classes: ["standard-form", "dnd5e2", "ddbi-display-region-config"],
     window: {
-      title: "Region Display",
+      title: "ddb-importer.behaviors.display.config.title",
       icon: "fas fa-draw-polygon",
       resizable: true,
     },
@@ -308,7 +312,8 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     context.canEditProfiles = canEditProfiles();
     const ownSpacing = RegionDisplayProfiles.clamp("spacing", draft.spacing, NaN);
     context.perSquare = Number.isFinite(ownSpacing) ? (RegionDisplayProfiles.countForSpacing(ownSpacing) ?? "") : "";
-    context.perSquarePlaceholder = style ? (RegionDisplayProfiles.countForSpacing(style.spacing) ?? "profile") : "profile";
+    const profilePlaceholder = RegionDisplayProfiles.localize("perSquare.profile");
+    context.perSquarePlaceholder = style ? (RegionDisplayProfiles.countForSpacing(style.spacing) ?? profilePlaceholder) : profilePlaceholder;
     context.patternOptions = [
       { value: "", label: profileDefault, selected: !RegionDisplayProfiles.isPattern(draft.pattern) },
       ...REGION_DISPLAY_PATTERNS.map((value) => ({
@@ -344,7 +349,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
           value: Number.isFinite(value) ? value : "",
           limits: REGION_DISPLAY_LIMITS[key],
           // the profile's value shows as the placeholder so a blank field reads as what it inherits
-          placeholder: style ? String(style[key]) : "profile",
+          placeholder: style ? String(style[key]) : profilePlaceholder,
         };
       });
     const customColor = typeof draft.color === "string" && draft.color.trim() ? draft.color.trim() : null;
@@ -428,7 +433,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       await this.close();
     } catch (error) {
       logger.error("Unable to update the region display", { error, flag, target: this.target.key });
-      ui.notifications.error("Unable to update the region display; see the console.");
+      ui.notifications.error(RegionDisplayProfiles.localize("config.updateError"));
     }
   }
 

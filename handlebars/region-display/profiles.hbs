@@ -1,8 +1,8 @@
 <section class="ddbi-display-profiles-body">
   <aside class="ddbi-display-region-list">
     <header>
-      <span>Profiles</span>
-      <button type="button" class="unbutton" data-action="createProfile" data-tooltip="New profile" aria-label="New profile">
+      <span>{{localize "ddb-importer.behaviors.display.profiles.heading"}}</span>
+      <button type="button" class="unbutton" data-action="createProfile" data-tooltip="{{localize 'ddb-importer.behaviors.display.profiles.new'}}" aria-label="{{localize 'ddb-importer.behaviors.display.profiles.new'}}">
         <i class="fa-solid fa-plus" inert></i>
       </button>
     </header>
@@ -12,7 +12,7 @@
       <li class="ddbi-display-region-entry {{#if selected}}active{{/if}}" data-action="selectProfile" data-profile-id="{{id}}">
         <span class="ddbi-display-region-swatch" style="{{swatchStyle}}" data-image-preview="{{swatchImage}}"><span class="ddbi-display-region-fill"></span></span>
         <span class="ddbi-display-region-name">{{name}}</span>
-        {{#if builtin}}<span class="ddbi-display-region-badge">{{#if overridden}}modified{{else}}built-in{{/if}}</span>{{/if}}
+        {{#if builtin}}<span class="ddbi-display-region-badge">{{#if overridden}}{{localize "ddb-importer.behaviors.display.profiles.modified"}}{{else}}{{localize "ddb-importer.behaviors.display.profiles.builtIn"}}{{/if}}</span>{{/if}}
       </li>
       {{/each}}
     </ul>
@@ -21,21 +21,21 @@
   <div class="ddbi-display-region-editor">
     {{#if draft}}
     <div class="ddbi-display-region-preview-row">
-      <div class="ddbi-display-region-preview-frame large" data-tooltip="One grid square, enlarged">
+      <div class="ddbi-display-region-preview-frame large" data-tooltip="{{localize 'ddb-importer.behaviors.display.preview.large'}}">
         <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}" data-image-preview="{{previewImageLarge}}"><span class="ddbi-display-region-fill"></span></div>
       </div>
-      <div class="ddbi-display-region-preview-frame" data-tooltip="Several grid squares at a smaller scale">
+      <div class="ddbi-display-region-preview-frame" data-tooltip="{{localize 'ddb-importer.behaviors.display.preview.small'}}">
         <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}" data-image-preview="{{previewImage}}"><span class="ddbi-display-region-fill"></span></div>
       </div>
     </div>
-    <p class="hint">The previews approximate the canvas: the square on the left is one grid square enlarged, the strip shows several at a smaller scale. Selected and hovered regions always render solid, as Foundry does.</p>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.profiles.previewHint"}}</p>
 
     <div class="form-group">
-      <label>Name</label>
+      <label>{{localize "ddb-importer.behaviors.display.profiles.name"}}</label>
       <div class="form-fields">
         <input type="text" name="name" value="{{draft.name}}" {{#if isBuiltin}}readonly{{/if}} />
       </div>
-      {{#if isBuiltin}}<p class="hint">Shipped profile: its name and id stay fixed so imports keep finding it; every other setting can be changed.</p>{{else}}<p class="hint">Id: <code>{{draft.id}}</code></p>{{/if}}
+      {{#if isBuiltin}}<p class="hint">{{localize "ddb-importer.behaviors.display.profiles.shippedHint"}}</p>{{else}}<p class="hint">{{localize "ddb-importer.behaviors.display.profiles.id"}} <code>{{draft.id}}</code></p>{{/if}}
     </div>
 
     <div class="form-group">
@@ -83,11 +83,11 @@
 
     {{#if fields.spacing.visible}}
     <div class="form-group">
-      <label>Per Square</label>
+      <label>{{localize "ddb-importer.behaviors.display.perSquare.label"}}</label>
       <div class="form-fields">
-        <input type="number" name="perSquare" value="{{perSquare}}" min="1" max="20" step="1" placeholder="any" />
+        <input type="number" name="perSquare" value="{{perSquare}}" min="1" max="20" step="1" placeholder="{{localize 'ddb-importer.behaviors.display.perSquare.any'}}" />
       </div>
-      <p class="hint">How many lines or symbols fit across one grid square; entering a count sets the spacing so they space evenly. Blank when the spacing is not a whole number per square.</p>
+      <p class="hint">{{localize "ddb-importer.behaviors.display.perSquare.profileHint"}}</p>
     </div>
     {{/if}}
 
@@ -165,7 +165,7 @@
     <div class="form-group">
       <label>{{localize "ddb-importer.behaviors.display.FIELDS.dashed.label"}}</label>
       <div class="form-fields">
-        <label class="checkbox"><input type="checkbox" name="dashed" {{#if draft.dashed}}checked{{/if}} /> Break the lines into dashes</label>
+        <label class="checkbox"><input type="checkbox" name="dashed" {{#if draft.dashed}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.dashes"}}</label>
       </div>
     </div>
     {{/if}}
@@ -184,7 +184,7 @@
     <div class="form-group">
       <label>{{localize "ddb-importer.behaviors.display.FIELDS.border.label"}}</label>
       <div class="form-fields">
-        <label class="checkbox"><input type="checkbox" name="border" {{#if draft.border}}checked{{/if}} /> Draw a band inside the edge</label>
+        <label class="checkbox"><input type="checkbox" name="border" {{#if draft.border}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.borderBand"}}</label>
       </div>
     </div>
     {{/if}}
@@ -213,7 +213,7 @@
     <div class="form-group">
       <label>{{fields.borderOpacity.label}}</label>
       <div class="form-fields">
-        <label class="checkbox"><input type="checkbox" name="matchFillOpacity" {{#if matchFillOpacity}}checked{{/if}} /> Match fill opacity</label>
+        <label class="checkbox"><input type="checkbox" name="matchFillOpacity" {{#if matchFillOpacity}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.matchOpacity"}}</label>
       </div>
     </div>
     {{#unless matchFillOpacity}}
@@ -230,7 +230,7 @@
     <div class="form-group">
       <label>{{localize "ddb-importer.behaviors.display.FIELDS.color.label"}}</label>
       <div class="form-fields">
-        <label class="checkbox"><input type="checkbox" name="useRegionColor" {{#if useRegionColor}}checked{{/if}} /> Use the region's colour</label>
+        <label class="checkbox"><input type="checkbox" name="useRegionColor" {{#if useRegionColor}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.regionColor"}}</label>
         {{#unless useRegionColor}}
         <color-picker name="color" value="{{colorValue}}"></color-picker>
         {{/unless}}
@@ -238,14 +238,14 @@
     </div>
 
     <footer class="ddbi-display-region-actions">
-      <button type="button" class="munch-button" data-action="saveProfile"><i class="fas fa-save"></i> {{#if isNew}}Create{{else}}Save{{/if}}</button>
-      <button type="button" class="munch-button" data-action="duplicateProfile"><i class="fas fa-copy"></i> Duplicate</button>
-      {{#if canReset}}<button type="button" class="munch-button" data-action="resetProfile"><i class="fas fa-rotate-left"></i> Reset to Shipped</button>{{/if}}
-      {{#if canDelete}}<button type="button" class="munch-button" data-action="deleteProfile"><i class="fas fa-trash"></i> Delete</button>{{/if}}
-      <button type="button" class="munch-button" data-action="closeApp"><i class="fas fa-times"></i> Close</button>
+      <button type="button" class="munch-button" data-action="saveProfile"><i class="fas fa-save"></i> {{#if isNew}}{{localize "ddb-importer.behaviors.display.profiles.create"}}{{else}}{{localize "ddb-importer.behaviors.display.profiles.save"}}{{/if}}</button>
+      <button type="button" class="munch-button" data-action="duplicateProfile"><i class="fas fa-copy"></i> {{localize "ddb-importer.behaviors.display.profiles.duplicate"}}</button>
+      {{#if canReset}}<button type="button" class="munch-button" data-action="resetProfile"><i class="fas fa-rotate-left"></i> {{localize "ddb-importer.behaviors.display.profiles.reset"}}</button>{{/if}}
+      {{#if canDelete}}<button type="button" class="munch-button" data-action="deleteProfile"><i class="fas fa-trash"></i> {{localize "ddb-importer.behaviors.display.profiles.delete"}}</button>{{/if}}
+      <button type="button" class="munch-button" data-action="closeApp"><i class="fas fa-times"></i> {{localize "ddb-importer.behaviors.display.profiles.close"}}</button>
     </footer>
     {{else}}
-    <p class="hint">Select a profile on the left, or create a new one.</p>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.profiles.empty"}}</p>
     {{/if}}
   </div>
 </section>

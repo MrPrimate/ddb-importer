@@ -1,6 +1,7 @@
 import DDBAppV2 from "./DDBAppV2";
 import { iconSearch, loadIconCatalog, pickerIcons } from "../lib/IconCatalog";
 import logger from "../lib/Logger";
+import utils from "../lib/Utils";
 import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 
 const FILTERS = ["all", "svg", "damage", "dnd5eStatus", "status"] as const;
@@ -105,9 +106,7 @@ export default class DDBIconPicker extends DDBAppV2 {
       selected: value === this.filter,
     }));
     context.icons = page.icons;
-    context.countLabel = game.i18n.format("ddb-importer.behaviors.display.texture.results", {
-      count: String(page.count),
-    });
+    context.countLabel = utils.localizePlural("ddb-importer.behaviors.display.texture.results", page.count);
     context.hasPrevious = page.hasPrevious;
     context.hasNext = page.hasNext;
     return context;

@@ -1,4 +1,7 @@
-import { REGION_EXPIRY_REASONS } from "./RegionExpiryReasons";
+import utils from "../../../lib/Utils";
+import { REGION_EXPIRY_REASONS, regionExpiryReasonLabel } from "./RegionExpiryReasons";
+
+const I18N = "ddb-importer.regionExpiry";
 
 /**
  * Display data for one activity-placed template Region offered for removal.
@@ -48,7 +51,7 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
       width: 480,
     },
     window: {
-      title: "Expired Templates",
+      title: `${I18N}.title`,
       icon: "fa-solid fa-explosion",
     },
     buttons: [
@@ -56,13 +59,13 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
         action: "removeSelected",
         default: true,
         icon: "fa-solid fa-trash",
-        label: "Remove Selected",
+        label: `${I18N}.removeSelected`,
         type: "button",
       },
       {
         action: "keepAll",
         icon: "fa-solid fa-xmark",
-        label: "Keep All",
+        label: `${I18N}.keepAll`,
         type: "button",
       },
     ],
@@ -96,8 +99,7 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
 
   /** @override */
   override get subtitle(): string {
-    const count = this.#entries.length;
-    return `${count} template${count === 1 ? "" : "s"}`;
+    return utils.localizePlural(`${I18N}.templates`, this.#entries.length);
   }
 
   /* -------------------------------------------- */
@@ -121,11 +123,9 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
       const tags: string[] = [];
       if (entry.shape) tags.push(entry.shape);
       if (entry.size) tags.push(entry.size);
-      if (entry.spellLevel) tags.push(`Level ${entry.spellLevel}`);
+      if (entry.spellLevel) tags.push(game.i18n.format(`${I18N}.level`, { level: String(entry.spellLevel) }));
       for (const behavior of entry.behaviors) tags.push(behavior);
-      if (entry.effectCount) {
-        tags.push(`${entry.effectCount} applied effect${entry.effectCount === 1 ? "" : "s"}`);
-      }
+      if (entry.effectCount) tags.push(utils.localizePlural(`${I18N}.appliedEffects`, entry.effectCount));
       const subtitle = [entry.itemName, entry.activityName].filter((part) => part)
         .map((part) => escape(part as string)).join(" &rsaquo; ");
       return `
@@ -138,21 +138,21 @@ export default class RegionExpiryDialog extends dnd5e.applications.api.Dialog5e 
           ${subtitle ? `<div class="entry-subtitle">${subtitle}</div>` : ""}
           <div class="entry-tags">${tags.map((t) => `<span class="tag">${escape(t)}</span>`).join("")}</div>
         </div>
-        <div class="entry-reason">${escape(entry.reason)}</div>
+        <div class="entry-reason">${escape(regionExpiryReasonLabel(entry.reason))}</div>
       </li>`;
     }).join("");
 
     const combatOnly = entries.length
       && entries.every((entry) => entry.reason === REGION_EXPIRY_REASONS.combat);
     const hint = combatOnly
-      ? "Combat has ended, do you wish to remove any of these templates?"
-      : `The following template${entries.length === 1 ? "" : "s"} might have expired. Choose if you want to remove from the scene.`;
+      ? game.i18n.localize(`${I18N}.hint.combat`)
+      : utils.localizePlural(`${I18N}.hint.expired`, entries.length);
 
     return `
-    <p class="template-expiry-hint">${hint}</p>
+    <p class="template-expiry-hint">${escape(hint)}</p>
     <ul class="template-expiry-list">${rows}</ul>
     <button type="button" class="template-expiry-toggle" data-action="toggleAll">
-      <i class="fa-solid fa-check-double" inert></i> <span>Toggle All</span>
+      <i class="fa-solid fa-check-double" inert></i> <span>${escape(game.i18n.localize(`${I18N}.toggleAll`))}</span>
     </button>`;
   }
 

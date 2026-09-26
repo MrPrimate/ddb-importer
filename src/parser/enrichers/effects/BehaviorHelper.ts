@@ -11,6 +11,7 @@
 
 import utils from "../../../lib/Utils";
 import {
+  BUILTIN_REGION_DISPLAY_PROFILES,
   DEFAULT_REGION_DISPLAY_PROFILES,
   REGION_DISPLAY_BEHAVIOR_TYPE,
 } from "../../../config/regionDisplayProfiles";
@@ -329,9 +330,12 @@ export default class BehaviorHelper {
     // the behavior's dashed and border fields are string choices; a boolean from an enricher maps onto them
     const dashedChoice = dashed === true ? "dashed" : dashed === false ? "continuous" : (dashed ?? "");
     const borderChoice = border === true ? "border" : border === false ? "none" : (border ?? "");
+    // the name is saved on the imported document, so a general profile's stays English whatever
+    // the world's language (the system presets carry dnd5e's own localized labels)
+    const english = BUILTIN_REGION_DISPLAY_PROFILES.find((entry) => entry.id === profile)?.name;
     const shipped = RegionDisplayProfiles.builtin(profile);
     return {
-      ...BehaviorHelper.#base(common, `Region Display: ${shipped?.name ?? profile}`),
+      ...BehaviorHelper.#base(common, `Region Display: ${english ?? shipped?.name ?? profile}`),
       type: REGION_DISPLAY_BEHAVIOR_TYPE,
       config: {
         profile,

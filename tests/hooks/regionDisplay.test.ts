@@ -1090,7 +1090,7 @@ describe("region config summary box", () => {
     // the sheet's own submission must not carry the flag: the editor writes the document
     expect(boxes[0].querySelectorAll("input, select, color-picker")).toHaveLength(0);
     expect(boxes[0].querySelector(".ddbi-display-region-summary-text")!.textContent)
-      .toBe("Ongoing Damage, dashed, no border, fill opacity 0.25, line angle 90°, colour #123456");
+      .toBe("Ongoing Damage, Dashed, No border, Fill Opacity 0.25, Line Angle 90°, Colour #123456");
     expect(boxes[0].querySelector(".ddbi-display-region-swatch")).not.toBeNull();
   });
 

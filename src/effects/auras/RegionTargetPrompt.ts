@@ -1,4 +1,5 @@
 import logger from "../../lib/Logger";
+import utils from "../../lib/Utils";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import type { DDBSocket } from "../../hooks/socket/sockets";
 import RegionTargetPreview from "./RegionTargetPreview";
@@ -72,7 +73,7 @@ export default class RegionTargetPrompt {
     const tokens = waiting ? [] : RegionTargetPrompt.visibleTokens(request);
     const content = waiting
       ? `<p>${escape(game.i18n.localize("ddb-importer.behaviors.macro.choice.waiting"))}</p>`
-      : `<p>${escape(request.instruction)}</p><p>${escape(game.i18n.format("ddb-importer.behaviors.macro.choice.limit", { max: request.max }))}</p>` +
+      : `<p>${escape(request.instruction)}</p><p>${escape(utils.localizePlural("ddb-importer.behaviors.macro.choice.limit", request.max, { max: String(request.max) }))}</p>` +
         `<div class="ddb-region-recipients">` + tokens
         .map(
           (token) =>

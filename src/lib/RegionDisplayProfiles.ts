@@ -42,7 +42,14 @@ let settled = false;
  */
 function shippedProfiles(): IBuiltinProfileCache {
   if (builtinCache && settled && builtinCache.language === game.i18n.lang) return builtinCache;
-  const profiles = builtinRegionDisplayProfiles((name) => game.i18n.localize(name));
+  const profiles = builtinRegionDisplayProfiles(
+    (name) => game.i18n.localize(name),
+    undefined,
+    (key, data) => {
+      const formatted = game.i18n.format(key, data);
+      return formatted === key ? `${data.category}: ${data.name}` : formatted;
+    },
+  );
   const cache = { language: game.i18n.lang, profiles, byId: new Map(profiles.map((profile) => [profile.id, profile])) };
   if (settled) builtinCache = cache;
   return cache;
@@ -116,8 +123,9 @@ export default class RegionDisplayProfiles {
   /** Shipped profiles first (with any stored replacement applied), then custom ones by name. */
   static all(): IRegionDisplayProfile[] {
     const stored = RegionDisplayProfiles.stored();
+    // a tuned shipped profile keeps the shipped name, so it reads in the world's language
     const builtins = RegionDisplayProfiles.builtins.map((profile) =>
-      stored[profile.id] ? { ...stored[profile.id], builtin: true } : { ...profile },
+      stored[profile.id] ? { ...stored[profile.id], name: profile.name, builtin: true } : { ...profile },
     );
     const custom = Object.values(stored)
       .filter((profile) => !RegionDisplayProfiles.isBuiltinId(profile.id))
@@ -130,7 +138,9 @@ export default class RegionDisplayProfiles {
     if (!id) return null;
     const shipped = RegionDisplayProfiles.builtin(id);
     const stored = utils.getSetting<Record<string, Partial<IRegionDisplayProfile>> | null>(SETTING)?.[id];
-    return stored && typeof stored === "object" ? RegionDisplayProfiles.normalize({ ...stored, id }) : shipped ?? null;
+    if (!stored || typeof stored !== "object") return shipped ?? null;
+    const profile = RegionDisplayProfiles.normalize({ ...stored, id });
+    return shipped ? { ...profile, name: shipped.name } : profile;
   }
 
   /** Select options for the pickers. */
@@ -193,7 +203,7 @@ export default class RegionDisplayProfiles {
    * or from Foundry's own look when there is none.
    */
   static normalize(data: Partial<IRegionDisplayProfile>, base?: IRegionDisplayProfile): IRegionDisplayProfile {
-    const fallback = base ?? { ...REGION_DISPLAY_DEFAULTS, name: REGION_DISPLAY_DEFAULT_NAME };
+    const fallback = base ?? { ...REGION_DISPLAY_DEFAULTS, name: RegionDisplayProfiles.defaultName };
     const name = typeof data.name === "string" && data.name.trim() ? data.name.trim() : fallback.name;
     const id = typeof data.id === "string" && data.id.trim() ? data.id.trim() : RegionDisplayProfiles.newId();
     const color = typeof data.color === "string" && data.color.trim() ? data.color.trim() : null;
@@ -343,6 +353,18 @@ export default class RegionDisplayProfiles {
   /** A localized string under the display behavior's i18n root. */
   static localize(path: string): string {
     return game.i18n.localize(`${REGION_DISPLAY_I18N}.${path}`);
+  }
+
+  /** A localized string under the display behavior's i18n root, with `{placeholders}` filled. */
+  static format(path: string, data: Record<string, unknown>): string {
+    return game.i18n.format(`${REGION_DISPLAY_I18N}.${path}`, data);
+  }
+
+  /** The name a profile takes when none is given, in the world's language when it has one. */
+  static get defaultName(): string {
+    const key = `${REGION_DISPLAY_I18N}.defaultName`;
+    const localized = game.i18n.localize(key);
+    return localized && localized !== key ? localized : REGION_DISPLAY_DEFAULT_NAME;
   }
 
   static fieldLabel(key: TRegionDisplayNumericKey): string {

@@ -1,16 +1,16 @@
 <section class="ddbi-display-region-config-body">
   <div class="ddbi-display-region-preview-row">
-    <div class="ddbi-display-region-preview-frame large" data-tooltip="One grid square, enlarged">
+    <div class="ddbi-display-region-preview-frame large" data-tooltip="{{localize 'ddb-importer.behaviors.display.preview.large'}}">
       <div class="ddbi-display-region-preview" data-grid="{{previewGridLarge}}" style="{{previewStyleLarge}}" data-image-preview="{{previewImageLarge}}"><span class="ddbi-display-region-fill"></span></div>
     </div>
-    <div class="ddbi-display-region-preview-frame" data-tooltip="Several grid squares at a smaller scale">
+    <div class="ddbi-display-region-preview-frame" data-tooltip="{{localize 'ddb-importer.behaviors.display.preview.small'}}">
       <div class="ddbi-display-region-preview" data-grid="{{previewGrid}}" style="{{previewStyle}}" data-image-preview="{{previewImage}}"><span class="ddbi-display-region-fill"></span></div>
     </div>
   </div>
   <p class="hint ddbi-display-region-summary-text">{{summary}}</p>
 
   <div class="form-group">
-    <label>Profile</label>
+    <label>{{localize "ddb-importer.behaviors.display.config.profile"}}</label>
     <div class="form-fields">
       <div class="ddbi-display-region-picker">
         <select name="profile">
@@ -23,13 +23,13 @@
           {{/each}}
         </select>
         {{#if canEditProfiles}}
-        <button type="button" class="ddbi-display-region-picker-edit" data-tooltip="Edit region display profiles" aria-label="Edit region display profiles">
+        <button type="button" class="ddbi-display-region-picker-edit" data-tooltip="{{localize 'ddb-importer.behaviors.display.editProfiles'}}" aria-label="{{localize 'ddb-importer.behaviors.display.editProfiles'}}">
           <i class="fa-solid fa-gears" inert></i>
         </button>
         {{/if}}
       </div>
     </div>
-    <p class="hint">How this region's display is drawn. Leave the overrides below blank to take the profile's values.</p>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.config.hint"}}</p>
   </div>
 
   {{#if hasProfile}}
@@ -77,11 +77,11 @@
 
   {{#if showPerSquare}}
   <div class="form-group">
-    <label>Per Square</label>
+    <label>{{localize "ddb-importer.behaviors.display.perSquare.label"}}</label>
     <div class="form-fields">
       <input type="number" name="perSquare" value="{{perSquare}}" min="1" max="20" step="1" placeholder="{{perSquarePlaceholder}}" />
     </div>
-    <p class="hint">How many lines or symbols fit across one grid square; entering a count sets the spacing override so they space evenly. Blank clears the override.</p>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.perSquare.regionHint"}}</p>
   </div>
   {{/if}}
 
@@ -100,7 +100,7 @@
   <div class="form-group">
     <label>{{localize "ddb-importer.behaviors.display.FIELDS.color.label"}}</label>
     <div class="form-fields">
-      <label class="checkbox"><input type="checkbox" name="useProfileColor" {{#if useProfileColor}}checked{{/if}} /> Use the profile's colour</label>
+      <label class="checkbox"><input type="checkbox" name="useProfileColor" {{#if useProfileColor}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.config.profileColor"}}</label>
       {{#unless useProfileColor}}
       <color-picker name="color" value="{{colorValue}}"></color-picker>
       {{/unless}}
@@ -110,8 +110,8 @@
   {{/if}}
 
   <footer class="ddbi-display-region-actions">
-    <button type="button" class="munch-button" data-action="saveDisplay"><i class="fas fa-save"></i> Save</button>
-    <button type="button" class="munch-button" data-action="clearDisplay"><i class="fas fa-eraser"></i> Use Foundry Default</button>
-    <button type="button" class="munch-button" data-action="closeApp"><i class="fas fa-times"></i> Cancel</button>
+    <button type="button" class="munch-button" data-action="saveDisplay"><i class="fas fa-save"></i> {{localize "ddb-importer.behaviors.display.config.save"}}</button>
+    <button type="button" class="munch-button" data-action="clearDisplay"><i class="fas fa-eraser"></i> {{localize "ddb-importer.behaviors.display.config.useDefault"}}</button>
+    <button type="button" class="munch-button" data-action="closeApp"><i class="fas fa-times"></i> {{localize "ddb-importer.behaviors.display.config.cancel"}}</button>
   </footer>
 </section>

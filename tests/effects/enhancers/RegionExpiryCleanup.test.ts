@@ -415,7 +415,7 @@ describe("RegionExpiryCleanup region timers", () => {
 
     const verdict = RegionExpiryCleanup.regionExpiry(region as any);
     expect(verdict.expired).toBe(true);
-    expect(verdict.reason).toBe("duration elapsed");
+    expect(verdict.reason).toBe("duration");
     expect(RegionExpiryCleanup.timerExpiredRegions()).toEqual([region]);
   });
 

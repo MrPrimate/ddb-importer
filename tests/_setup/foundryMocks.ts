@@ -383,9 +383,14 @@ function makeFakeAdvancement(type: string) {
   packs: {
     get: (): undefined => undefined,
   },
+  // no translations: localize and format return the key, and `has` finds none
   i18n: {
+    lang: "en",
     localize: (s: string) => s,
     format: (s: string) => s,
+    has: () => false,
+    pluralRules: new Intl.PluralRules("en"),
+    getListFormatter: (options?: Intl.ListFormatOptions) => new Intl.ListFormat("en", options),
   },
   dnd5e: {
     dataModels: { actor: dnd5eDataModel, item: dnd5eDataModel },

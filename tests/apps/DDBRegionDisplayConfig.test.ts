@@ -1,7 +1,7 @@
 import DDBRegionDisplayConfig, { activityBehaviorDisplayTarget, regionDisplayTarget } from "../../src/apps/DDBRegionDisplayConfig";
 import { behaviorConfigFromFlag, describeDisplayFlag, flagFromBehaviorConfig } from "../../src/hooks/canvas/regionDisplaySummary";
 import { setMockSettings } from "../_setup/foundryMocks";
-import { useEnLocalization } from "../_fixtures/enLocalize";
+import { enString, useEnLocalization } from "../_fixtures/enLocalize";
 
 // summaries and titles are asserted in the words users see
 let restoreLocalization: () => void;
@@ -33,7 +33,7 @@ describe("DDBRegionDisplayConfig.flagFromForm", () => {
     expect(flag).toEqual({ profile: "status", pattern, angle: 0, dashed: "dashed", dashLength: 0.4, gapOpacity: 0 });
     expect(flagFromBehaviorConfig(behaviorConfigFromFlag(flag))).toEqual(flag);
     expect(DDBRegionDisplayConfig.updateData({}, flag)["flags.ddbimporter.display.pattern"]).toBe(pattern);
-    expect(describeDisplayFlag(flag)).toContain(pattern);
+    expect(describeDisplayFlag(flag)).toContain(enString(`ddb-importer.behaviors.display.patterns.${pattern}`)!);
   });
 
   it("inherits blank cross rotation but retains zero and hidden overrides through form and document updates", () => {
@@ -47,7 +47,7 @@ describe("DDBRegionDisplayConfig.flagFromForm", () => {
     const hidden = DDBRegionDisplayConfig.flagFromForm({ pattern: "checkerboard" }, draft, "#ffffff").flag;
     expect(hidden.crossRotation).toBe(45);
     expect(flagFromBehaviorConfig(behaviorConfigFromFlag(hidden))).toEqual(hidden);
-    expect(describeDisplayFlag(draft)).toBe("Status Effect, crosses, cross rotation 45°");
+    expect(describeDisplayFlag(draft)).toBe("Status Effect, Crosses, Cross Rotation 45°");
   });
 
   it("keeps only filled overrides, clamped, and drops blanks", () => {
@@ -122,10 +122,10 @@ describe("describeDisplayFlag", () => {
     expect(describeDisplayFlag({ profile: "gone" })).toBe("Unknown profile \"gone\" (Foundry default)");
     expect(describeDisplayFlag({ profile: "aura" })).toBe("Aura");
     expect(describeDisplayFlag({ profile: "status", pattern: "hollowDots", border: "border", borderOpacity: "0.4", spacing: 9 }))
-      .toBe("Status Effect, hollow dots, border, border opacity 0.4, spacing 4");
+      .toBe("Status Effect, Hollow Dots, Border, Border Opacity 0.4, Spacing 4");
     // overrides left behind by a control another pattern hid do not draw, so they are not listed
     expect(describeDisplayFlag({ profile: "status", pattern: "dots", angle: 120, dashed: "dashed", dashLength: 0.4, spacing: 0.5 }))
-      .toBe("Status Effect, dots, spacing 0.5");
+      .toBe("Status Effect, Dots, Spacing 0.5");
   });
 });
 

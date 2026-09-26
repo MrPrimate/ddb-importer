@@ -1,4 +1,5 @@
 import DDBRegionDisplayConfig from "../../apps/DDBRegionDisplayConfig";
+import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 import { REGION_DISPLAY_FALLBACK_COLOR } from "../../config/regionDisplayProfiles";
 import { displayFlag } from "./regionDisplay";
 import { paintSheetImagePreviews } from "./regionDisplayImagePreview";
@@ -19,7 +20,7 @@ export function buildDisplaySummary(doc: RegionDocument.Implementation, editable
   const fieldset = document.createElement("fieldset");
   fieldset.classList.add("ddbi-display-region-fieldset");
   const legend = document.createElement("legend");
-  legend.textContent = "DDB Importer Region Display";
+  legend.textContent = RegionDisplayProfiles.localize("Label");
   fieldset.append(legend);
 
   const row = buildDisplaySummaryRow({

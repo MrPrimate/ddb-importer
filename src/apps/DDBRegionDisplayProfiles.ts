@@ -1,6 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
 import {
-  REGION_DISPLAY_DEFAULT_NAME,
   REGION_DISPLAY_DEFAULTS,
   REGION_DISPLAY_FALLBACK_COLOR,
   REGION_DISPLAY_FIELDS,
@@ -75,7 +74,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     id: "ddb-region-display-profiles",
     classes: ["standard-form", "dnd5e2", "ddbi-display-profiles"],
     window: {
-      title: "Region Display Profiles",
+      title: "ddb-importer.behaviors.display.profiles.title",
       icon: "fas fa-draw-polygon",
       resizable: true,
     },
@@ -327,7 +326,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   static createProfile(this: DDBRegionDisplayProfiles): void {
     this.draft = RegionDisplayProfiles.normalize({
       ...REGION_DISPLAY_DEFAULTS,
-      name: REGION_DISPLAY_DEFAULT_NAME,
+      name: RegionDisplayProfiles.defaultName,
       id: RegionDisplayProfiles.newId(),
     });
     this.selectedId = null;
@@ -337,7 +336,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
   static duplicateProfile(this: DDBRegionDisplayProfiles): void {
     if (!this.draft) return;
     this.#syncDraftFromForm();
-    const name = `${this.draft.name} Copy`;
+    const name = RegionDisplayProfiles.format("copyName", { name: this.draft.name });
     this.draft = RegionDisplayProfiles.normalize(
       { ...this.draft, name, id: RegionDisplayProfiles.newId() },
       this.draft,
@@ -351,8 +350,8 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     if (!id || RegionDisplayProfiles.isBuiltinId(id)) return;
     const proceed = await foundry.applications.api.DialogV2.confirm({
       rejectClose: false,
-      window: { title: "Delete Profile?" },
-      content: `<p>Delete the region display profile <strong>${foundry.utils.escapeHTML(this.draft?.name ?? id)}</strong>? Regions using it fall back to the Foundry look.</p>`,
+      window: { title: RegionDisplayProfiles.localize("profiles.deleteTitle") },
+      content: `<p>${RegionDisplayProfiles.format("profiles.deleteContent", { name: foundry.utils.escapeHTML(this.draft?.name ?? id) })}</p>`,
     });
     if (!proceed) return;
     await RegionDisplayProfiles.remove(id);
@@ -371,11 +370,11 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     this.#syncDraftFromForm();
     try {
       const saved = await RegionDisplayProfiles.save(this.draft);
-      ui.notifications.info(`Saved region display profile "${saved.name}".`);
+      ui.notifications.info(RegionDisplayProfiles.format("profiles.saved", { name: saved.name }));
       this.#afterStoreChange(saved);
     } catch (error) {
       logger.error("Unable to save region display profile", { error });
-      ui.notifications.error("Unable to save the region display profile; see the console.");
+      ui.notifications.error(RegionDisplayProfiles.localize("profiles.saveError"));
     }
   }
 

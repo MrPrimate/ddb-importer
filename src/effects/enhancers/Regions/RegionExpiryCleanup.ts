@@ -2,6 +2,8 @@ import { ownerTurnExpired } from "../../auras/regionBehaviorUtils";
 import { logger, utils } from "../../../lib/_module";
 import type { IRegionExpiryEntry } from "./RegionExpiryDialog";
 import { REGION_EXPIRY_REASONS as REASONS } from "./RegionExpiryReasons";
+
+const I18N = "ddb-importer.regionExpiry";
 import { activityEffectDuration, durationSeconds } from "./regionDuration";
 
 const FLAG = "dnd5e";
@@ -609,14 +611,21 @@ export default class RegionExpiryCleanup {
     return {
       region, behaviors, effectCount, reason,
       uuid: region.uuid as string,
-      name: region.name || item?.name || "Template",
+      name: region.name || item?.name || game.i18n.localize(`${I18N}.fallbackName`),
       img: (token?.texture?.src as string | undefined) ?? actor?.img ?? item?.img ?? "icons/svg/explosion.svg",
       itemName: item?.name ?? null,
       activityName: (activity?.name && (activity.name !== item?.name)) ? activity.name : null,
-      shape: shapes.map((s) => s.type).find((type) => type) ?? null,
+      shape: RegionExpiryCleanup.#shapeLabel(shapes.map((s) => s.type).find((type) => type) ?? null),
       size,
       spellLevel: (region.getFlag(FLAG, "spellLevel") as number | undefined) || null,
     };
+  }
+
+  /** Core's name for a region shape type ("Circle", "Cone"), or the type itself for one it does not name. */
+  static #shapeLabel(type: string | null | undefined): string | null {
+    if (!type) return null;
+    const key = `SHAPE.TYPES.${type}.name`;
+    return game.i18n.has(key, false) ? game.i18n.localize(key) : type;
   }
 
   /**
@@ -688,9 +697,11 @@ export default class RegionExpiryCleanup {
       effectCount = 0;
     }
 
-    const parts = [`${templateCount} template${templateCount === 1 ? "" : "s"}`];
-    if (effectCount) parts.push(`${effectCount} applied effect${effectCount === 1 ? "" : "s"}`);
-    ui.notifications?.info(`Removed ${parts.join(" and ")}.`);
+    const parts = [utils.localizePlural(`${I18N}.templates`, templateCount)];
+    if (effectCount) parts.push(utils.localizePlural(`${I18N}.appliedEffects`, effectCount));
+    ui.notifications?.info(game.i18n.format(`${I18N}.notify.removed`, {
+      items: game.i18n.getListFormatter().format(parts),
+    }));
     logger.debug("RegionExpiryCleanup removed templates", { entries, batch });
   }
 
@@ -918,11 +929,11 @@ export default class RegionExpiryCleanup {
    */
   static #canScan(): boolean {
     if (!game.user?.isGM) {
-      ui.notifications?.warn("Only a GM can scan scenes for expired templates.");
+      ui.notifications?.warn(game.i18n.localize(`${I18N}.notify.gmOnly`));
       return false;
     }
     if (RegionExpiryCleanup.#busy) {
-      ui.notifications?.warn("A template cleanup prompt is already open.");
+      ui.notifications?.warn(game.i18n.localize(`${I18N}.notify.promptOpen`));
       return false;
     }
     return true;
@@ -945,13 +956,17 @@ export default class RegionExpiryCleanup {
     return { offered: entries.length, removed };
   }
 
-  /** Report a finished scan to the GM. */
-  static #reportScan(what: string, summary: { offered: number; removed: number }): void {
-    logger.info(`${LOG} manual scan complete: ${what}`, summary);
+  /**
+   * Report a finished scan to the GM: one sentence per kind of scan, so no translated fragment is
+   * spliced into another.
+   */
+  static #reportScan(scope: "current" | "all", summary: { scanned: number; offered: number; removed: number }): void {
+    logger.info(`${LOG} manual scan complete: ${scope}`, summary);
+    const base = `${I18N}.notify.${scope === "current" ? "scanCurrent" : "scanAll"}`;
+    const scenes = utils.localizePlural(`${I18N}.scenes`, summary.scanned);
     ui.notifications?.info(summary.offered
-      ? `Scanned ${what}, removed ${summary.removed} of `
-        + `${summary.offered} template${summary.offered === 1 ? "" : "s"}.`
-      : `Scanned ${what}, no expired templates found.`);
+      ? utils.localizePlural(`${base}.found`, summary.offered, { removed: String(summary.removed), scenes })
+      : game.i18n.format(`${base}.none`, { scenes }));
   }
 
   /**
@@ -963,12 +978,12 @@ export default class RegionExpiryCleanup {
     if (!RegionExpiryCleanup.#canScan()) return summary;
     const scene = canvas?.scene ?? null;
     if (!scene) {
-      ui.notifications?.warn("No scene is currently being viewed.");
+      ui.notifications?.warn(game.i18n.localize(`${I18N}.notify.noScene`));
       return summary;
     }
     summary.scanned = 1;
     Object.assign(summary, await RegionExpiryCleanup.#scanScene(scene));
-    RegionExpiryCleanup.#reportScan("the current scene", summary);
+    RegionExpiryCleanup.#reportScan("current", summary);
     return summary;
   }
 
@@ -999,7 +1014,7 @@ export default class RegionExpiryCleanup {
     if (startingScene && (startingScene !== canvas?.scene) && game.scenes?.has(startingScene.id as string)) {
       await (startingScene as Scene.Implementation).view();
     }
-    RegionExpiryCleanup.#reportScan(`${summary.scanned} scene${summary.scanned === 1 ? "" : "s"}`, summary);
+    RegionExpiryCleanup.#reportScan("all", summary);
     return summary;
   }
 

@@ -292,13 +292,25 @@ export const DEFAULT_REGION_DISPLAY_PROFILES = {
   minimal: "minimal",
 } as const;
 
-/** System-backed presets share the picker's icons and retain stable ids across languages. */
+/**
+ * The shipped profiles, named in the world's language. System-backed presets share the picker's
+ * icons and retain stable ids across languages; an unlocalized key comes back unchanged, so the
+ * English name stands in for it.
+ */
 export function builtinRegionDisplayProfiles(
   localize: (name: string) => string = (name) => name,
   icons: ISystemIcon[] = stableSystemIcons(),
+  format: (key: string, data: Record<string, string>) => string = (_key, data) => `${data.category}: ${data.name}`,
 ): readonly IRegionDisplayProfile[] {
+  const named = (key: string, english: string) => {
+    const localized = localize(key);
+    return localized === key ? english : localized;
+  };
   return [
-    ...BUILTIN_REGION_DISPLAY_PROFILES,
+    ...BUILTIN_REGION_DISPLAY_PROFILES.map((profile) => ({
+      ...profile,
+      name: named(`${REGION_DISPLAY_I18N}.builtin.${profile.id}`, profile.name),
+    })),
     ...icons.map((icon): IRegionDisplayProfile => {
       // an unlocalized key comes back unchanged, so fall back to the English name
       const localized = localize(icon.name);
@@ -307,7 +319,7 @@ export function builtinRegionDisplayProfiles(
       return {
         ...REGION_DISPLAY_DEFAULTS,
         id: `${icon.category}-${icon.id}`,
-        name: `${category}: ${name}`,
+        name: format(`${REGION_DISPLAY_I18N}.presetName`, { category, name }),
         pattern: "imagePoints",
         textureSrc: icon.path,
         textureColorMode: "region",

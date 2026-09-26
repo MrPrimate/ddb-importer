@@ -30,7 +30,7 @@ describe("DDBDisplayActivityBehavior", () => {
     const profile: Record<string, any> = {};
     expect(behavior.customizeField({ name: "profile" }, profile)).toBeUndefined();
     const input = profile.input({}, { name: "behaviors.0.config.profile", value: "status" }) as HTMLElement;
-    expect(input.querySelector(".ddbi-display-region-summary-text")!.textContent).toBe("Status Effect, hollow dots, fill opacity 0.4");
+    expect(input.querySelector(".ddbi-display-region-summary-text")!.textContent).toBe("Status Effect, Hollow Dots, Fill Opacity 0.4");
     expect(input.querySelector(`button.${BEHAVIOR_CONFIGURE_CLASS}`)).not.toBeNull();
     expect(input.querySelector(".ddbi-display-region-swatch")).not.toBeNull();
     // the sheet rebuilds the behaviors array from its form, so every config key must be in it

@@ -296,7 +296,7 @@
         "continuous": "Continuous",
         "border": "Border",
         "noBorder": "No border",
-        "summaryColor": "colour {color}",
+        "summaryColor": "Colour {color}",
         "patterns": {
           "hatch": "Diagonal Lines",
           "solid": "Solid",
@@ -422,7 +422,10 @@
           "status": "Status Icons",
           "previous": "Previous",
           "next": "Next",
-          "results": "{count} matching icons",
+          "results": {
+            "one": "{count} matching icon",
+            "other": "{count} matching icons"
+          },
           "catalogError": "Unable to load the icon catalogue. You can still browse for an image.",
           "loadError": "The image could not be loaded. A hatch is shown instead.",
           "hint": "Search the icon catalogue or browse for a static image. Blank overrides inherit the profile image.",
@@ -440,6 +443,71 @@
             "scene": "Scene (aligned like dots)",
             "region": "Region (moves with the area)"
           }
+        },
+        "builtin": {
+          "aura": "Aura",
+          "damage": "Ongoing Damage",
+          "status": "Status Effect",
+          "minimal": "Minimal"
+        },
+        "defaultName": "New Profile",
+        "copyName": "{name} Copy",
+        "presetName": "{category}: {name}",
+        "configure": "Configure",
+        "editProfiles": "Edit region display profiles",
+        "summary": {
+          "text": "{profile}, {parts}",
+          "field": "{field} {value}"
+        },
+        "preview": {
+          "large": "One grid square, enlarged",
+          "small": "Several grid squares at a smaller scale"
+        },
+        "perSquare": {
+          "label": "Per Square",
+          "any": "any",
+          "profile": "profile",
+          "profileHint": "How many lines or symbols fit across one grid square; entering a count sets the spacing so they space evenly. Blank when the spacing is not a whole number per square.",
+          "regionHint": "How many lines or symbols fit across one grid square; entering a count sets the spacing override so they space evenly. Blank clears the override."
+        },
+        "profiles": {
+          "title": "Region Display Profiles",
+          "heading": "Profiles",
+          "new": "New profile",
+          "modified": "modified",
+          "builtIn": "built-in",
+          "previewHint": "The previews approximate the canvas: the square on the left is one grid square enlarged, the strip shows several at a smaller scale. Selected and hovered regions always render solid, as Foundry does.",
+          "name": "Name",
+          "shippedHint": "Shipped profile: its name and id stay fixed so imports keep finding it; every other setting can be changed.",
+          "id": "Id:",
+          "dashes": "Break the lines into dashes",
+          "borderBand": "Draw a band inside the edge",
+          "matchOpacity": "Match fill opacity",
+          "regionColor": "Use the region's colour",
+          "create": "Create",
+          "save": "Save",
+          "duplicate": "Duplicate",
+          "reset": "Reset to Shipped",
+          "delete": "Delete",
+          "close": "Close",
+          "empty": "Select a profile on the left, or create a new one.",
+          "deleteTitle": "Delete Profile?",
+          "deleteContent": "Delete the region display profile <strong>{name}</strong>? Regions using it fall back to the Foundry look.",
+          "saved": "Saved region display profile \"{name}\".",
+          "saveError": "Unable to save the region display profile; see the console."
+        },
+        "config": {
+          "title": "Region Display",
+          "titleNamed": "Region Display: {name}",
+          "titleActivity": "Region Display: {item}: {activity}",
+          "activityFallback": "Activity",
+          "profile": "Profile",
+          "hint": "How this region's display is drawn. Leave the overrides below blank to take the profile's values.",
+          "profileColor": "Use the profile's colour",
+          "save": "Save",
+          "useDefault": "Use Foundry Default",
+          "cancel": "Cancel",
+          "updateError": "Unable to update the region display; see the console."
         }
       },
       "macro": {
@@ -545,7 +613,10 @@
         },
         "choice": {
           "waiting": "Waiting for the owning player. You can take over or skip this trigger; advancing combat does not answer it.",
-          "limit": "Choose up to {max} creatures. Select no creatures or Skip to pass.",
+          "limit": {
+            "one": "Choose up to {max} creature. Select no creatures or Skip to pass.",
+            "other": "Choose up to {max} creatures. Select no creatures or Skip to pass."
+          },
           "takeover": "Take over",
           "choose": "Use activity",
           "skip": "Skip"
@@ -556,6 +627,61 @@
           "log": "Log Event (Debug)",
           "executeMacro": "Execute Macro",
           "notify": "Notify Owner"
+        }
+      }
+    },
+    "regionExpiry": {
+      "title": "Expired Templates",
+      "removeSelected": "Remove Selected",
+      "keepAll": "Keep All",
+      "toggleAll": "Toggle All",
+      "fallbackName": "Template",
+      "level": "Level {level}",
+      "templates": {
+        "one": "{count} template",
+        "other": "{count} templates"
+      },
+      "appliedEffects": {
+        "one": "{count} applied effect",
+        "other": "{count} applied effects"
+      },
+      "scenes": {
+        "one": "{count} scene",
+        "other": "{count} scenes"
+      },
+      "hint": {
+        "combat": "Combat has ended, do you wish to remove any of these templates?",
+        "expired": {
+          "one": "The following template might have expired. Choose whether to remove it from the scene.",
+          "other": "The following templates might have expired. Choose which to remove from the scene."
+        }
+      },
+      "reason": {
+        "expired": "duration expired",
+        "deleted": "effect removed",
+        "concentration": "concentration ended",
+        "combat": "combat ended",
+        "scene": "scene sweep",
+        "duration": "duration elapsed"
+      },
+      "notify": {
+        "removed": "Removed {items}.",
+        "gmOnly": "Only a GM can scan scenes for expired templates.",
+        "promptOpen": "A template cleanup prompt is already open.",
+        "noScene": "No scene is currently being viewed.",
+        "scanCurrent": {
+          "found": {
+            "one": "Scanned the current scene, removed {removed} of {count} template.",
+            "other": "Scanned the current scene, removed {removed} of {count} templates."
+          },
+          "none": "Scanned the current scene, no expired templates found."
+        },
+        "scanAll": {
+          "found": {
+            "one": "Scanned {scenes}, removed {removed} of {count} template.",
+            "other": "Scanned {scenes}, removed {removed} of {count} templates."
+          },
+          "none": "Scanned {scenes}, no expired templates found."
         }
       }
     }

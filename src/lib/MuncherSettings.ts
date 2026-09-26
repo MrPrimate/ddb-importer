@@ -1298,7 +1298,7 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         name: "enable-region-expiry-cleanup",
         isChecked: utils.getSetting<boolean>("enable-region-expiry-cleanup"),
         enabled: true,
-        hint: "When a spell or feature effect expires, is deleted, or its concentration ends, prompt the GM to remove the area template it placed. Works around the 5e system leaving templates behind when their governing effect ends. Requires reload.",
+        hint: "When a spell or feature effect expires, is deleted, or its concentration ends, prompt the GM to remove the area template it placed. Works around the 5e system leaving templates behind when their governing effect ends.",
         label: "Prompt to Remove Expired Area Templates?",
       },
     ];

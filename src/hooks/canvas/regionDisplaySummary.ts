@@ -50,19 +50,23 @@ export function describeDisplayFlag(stored: IRegionDisplayFlag | null | undefine
   if (!profile) return game.i18n.format(`${REGION_DISPLAY_I18N}.unknownProfile`, { profile: stored.profile });
   // an editor's draft may still hold overrides for controls another pattern hid; they do not draw
   const flag = RegionDisplayProfiles.applicable(stored);
+  // labels keep the language's own casing: lowercasing them is wrong wherever nouns are capitalised
   const parts: string[] = [];
   if (RegionDisplayProfiles.isPattern(flag.pattern)) {
-    parts.push(RegionDisplayProfiles.patternLabel(flag.pattern).toLowerCase());
+    parts.push(RegionDisplayProfiles.patternLabel(flag.pattern));
   }
   const dashed = RegionDisplayProfiles.dashedValue(flag.dashed);
-  if (dashed !== null) parts.push(RegionDisplayProfiles.localize(dashed ? "dashed" : "continuous").toLowerCase());
+  if (dashed !== null) parts.push(RegionDisplayProfiles.localize(dashed ? "dashed" : "continuous"));
   const border = RegionDisplayProfiles.borderValue(flag.border);
-  if (border !== null) parts.push(RegionDisplayProfiles.localize(border ? "border" : "noBorder").toLowerCase());
+  if (border !== null) parts.push(RegionDisplayProfiles.localize(border ? "border" : "noBorder"));
   for (const { key } of REGION_DISPLAY_FIELDS) {
     const value = RegionDisplayProfiles.clamp(key, flag[key], NaN);
     if (!Number.isFinite(value)) continue;
     const degrees = key === "angle" || key === "crossRotation" ? "°" : "";
-    parts.push(`${RegionDisplayProfiles.fieldLabel(key).toLowerCase()} ${value}${degrees}`);
+    parts.push(RegionDisplayProfiles.format("summary.field", {
+      field: RegionDisplayProfiles.fieldLabel(key),
+      value: `${value}${degrees}`,
+    }));
   }
   if (typeof flag.color === "string" && flag.color.trim()) {
     parts.push(game.i18n.format(`${REGION_DISPLAY_I18N}.summaryColor`, { color: flag.color.trim() }));
@@ -71,7 +75,11 @@ export function describeDisplayFlag(stored: IRegionDisplayFlag | null | undefine
   if (flag.textureColorMode) parts.push(RegionDisplayProfiles.localize(`texture.${flag.textureColorMode}`));
   if (flag.textureFit) parts.push(RegionDisplayProfiles.localize(`texture.fit.${flag.textureFit}`));
   if (flag.textureAnchor) parts.push(RegionDisplayProfiles.localize(`texture.anchor.${flag.textureAnchor}`));
-  return parts.length ? `${profile.name}, ${parts.join(", ")}` : profile.name;
+  if (!parts.length) return profile.name;
+  return RegionDisplayProfiles.format("summary.text", {
+    profile: profile.name,
+    parts: game.i18n.getListFormatter({ type: "unit", style: "short" }).format(parts),
+  });
 }
 
 function overrideValue(value: unknown): number | string | null {
@@ -179,7 +187,8 @@ export function buildDisplaySummaryRow({
   const button = document.createElement("button");
   button.type = "button";
   button.classList.add("ddbi-display-region-configure", buttonClass);
-  button.innerHTML = `<i class="fa-solid fa-sliders" inert></i> Configure`;
+  button.innerHTML = `<i class="fa-solid fa-sliders" inert></i> `;
+  button.append(RegionDisplayProfiles.localize("configure"));
   row.append(button);
   return row;
 }

@@ -122,8 +122,9 @@ export function createProfilePicker(config: IProfilePickerConfig): HTMLElement {
   const gear = document.createElement("button");
   gear.type = "button";
   gear.classList.add(GEAR_CLASS);
-  gear.dataset.tooltip = "Edit region display profiles";
-  gear.setAttribute("aria-label", "Edit region display profiles");
+  const editLabel = RegionDisplayProfiles.localize("editProfiles");
+  gear.dataset.tooltip = editLabel;
+  gear.setAttribute("aria-label", editLabel);
   gear.innerHTML = `<i class="fa-solid fa-gears" inert></i>`;
   wrapper.append(gear);
   return wrapper;

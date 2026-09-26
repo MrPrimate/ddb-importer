@@ -674,6 +674,17 @@ export default class Utils {
   }
 
 
+  /**
+   * A localized string for a count, from the plural forms nested under `key` ("one", "other", and
+   * whatever else the language's rules need), selected with `game.i18n.pluralRules` as dnd5e does.
+   * `{count}` is filled with the count; a category the language file lacks falls back to "other".
+   */
+  static localizePlural(key: string, count: number, data: Record<string, unknown> = {}): string {
+    const category = game.i18n.pluralRules.select(count);
+    const pluralKey = game.i18n.has(`${key}.${category}`, false) ? `${key}.${category}` : `${key}.other`;
+    return game.i18n.format(pluralKey, { count: String(count), ...data });
+  }
+
   static getSetting<T>(key: string, moduleId: string = SETTINGS.MODULE_ID): T {
     return (game.settings.get as (moduleId: string, key: string) => unknown)(moduleId, key) as T;
   }
