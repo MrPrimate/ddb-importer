@@ -3,6 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class InsectPlague extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbInsPlaSpellSa",
       data: {
         behaviors: [

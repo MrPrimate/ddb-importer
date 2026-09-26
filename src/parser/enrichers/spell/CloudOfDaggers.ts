@@ -27,6 +27,7 @@ export default class CloudOfDaggers extends DDBEnricherData {
       ]);
     }
     return {
+      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({

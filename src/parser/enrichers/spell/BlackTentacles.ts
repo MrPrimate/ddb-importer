@@ -29,6 +29,7 @@ export default class BlackTentacles extends DDBEnricherData {
       ]);
     }
     return {
+      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain(),

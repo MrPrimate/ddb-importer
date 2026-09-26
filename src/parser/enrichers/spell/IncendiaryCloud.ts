@@ -4,6 +4,7 @@ export default class IncendiaryCloud extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbIncCloSpellSa",
       data: {
         behaviors: [

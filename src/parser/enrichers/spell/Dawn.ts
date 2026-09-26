@@ -4,6 +4,7 @@ export default class Dawn extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({

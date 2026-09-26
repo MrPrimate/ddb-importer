@@ -1555,3 +1555,18 @@ describe("region enter timing", () => {
     }
   });
 });
+
+describe("rolling casts that place an ongoing area", () => {
+  it.each([
+    "AcidRain", "Bearstormer", "BlackTentacles", "CloudOfDaggers", "Cloudkill", "CreateBonfire", "DarkStar", "Dawn",
+    "DustOfSuleiman", "Grease", "GustOfWind", "IncendiaryCloud", "InsectPlague", "JallarzisStormOfRadiance",
+    "MistOfMourning", "Moonbeam", "RavenousVoid", "Whirlwind", "YolandesRegalPresence",
+  ])("%s names its cast Cast, apart from the Ongoing copy the region fires", (name) => {
+    const e = build((SpellEnrichers as any)[name]);
+    expect(e.type).toBeNull();
+    expect(e.activity.name).toBe("Cast");
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    const ongoing = e.additionalActivities.find((a: any) => a.id === macro.config.activity);
+    expect(ongoing.overrides.name).toMatch(/^Ongoing/);
+  });
+});

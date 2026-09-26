@@ -4,6 +4,7 @@ export default class Grease extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbGreaseSpellSa",
       data: {
         behaviors: [

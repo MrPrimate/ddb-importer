@@ -10,6 +10,7 @@ export default class Bearstormer extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbBearstormSpSv",
       targetType: "enemy",
       data: {

@@ -29,6 +29,7 @@ export default class Moonbeam extends DDBEnricherData {
       ]);
     }
     return {
+      name: "Cast",
       id: "ddbMoonbeamSpSav",
       data: {
         behaviors: [

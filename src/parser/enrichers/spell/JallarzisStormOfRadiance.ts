@@ -4,6 +4,7 @@ export default class JallarzisStormOfRadiance extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({

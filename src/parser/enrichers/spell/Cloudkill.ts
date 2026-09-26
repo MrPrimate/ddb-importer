@@ -29,6 +29,7 @@ export default class Cloudkill extends DDBEnricherData {
       ]);
     }
     return {
+      name: "Cast",
       id: "ddbCloKilSpellSa",
       data: {
         behaviors: [
