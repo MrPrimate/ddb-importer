@@ -118,16 +118,33 @@ export default class OwnerTurnRegions {
       .filter((period) => period === "turnStart" || period === "turnEnd")
       .map((period) => `token${period[0].toUpperCase()}${period.slice(1)}`));
     if (!events.size) return;
+    const covered = OwnerTurnRegions.#coveredActivityUuids(scene, origin.uuid, events);
+    if (!covered.size) return;
+    const remaining = system.activations.filter((uuid) => {
+      const activity = fromUuidSync(uuid, { relative: actor, strict: false });
+      return typeof activity?.uuid !== "string" || !covered.has(activity.uuid);
+    });
+    if (remaining.length === system.activations.length) return;
+    system.activations = remaining;
+    if (!OwnerTurnRegions.#hasOtherContent(messageConfig)) messageConfig.create = false;
+  }
+
+  /**
+   * The uuids of the activities that a live owner-turn behavior in one of `origin`'s regions
+   * runs on this turn edge (`tokenTurnStart` / `tokenTurnEnd`). An activity counts only when the
+   * behavior listens for the edge AND the activity's own activation period is that edge. Expired
+   * or inactive behaviors are skipped, and so is a one-shot use that already failed and was left
+   * for manual recovery, unless its attempt is still in flight.
+   */
+  static #coveredActivityUuids(scene: Scene.Implementation, originUuid: string, events: Set<string>): Set<string> {
     const covered = new Set<string>();
     for (const region of scene.regions) {
-      if (region.getFlag("dnd5e", "origin") !== origin.uuid) continue;
+      if (region.getFlag("dnd5e", "origin") !== originUuid) continue;
       for (const behavior of region.behaviors) {
         const metadata = OwnerTurnRegions.metadata(behavior);
         if (!behavior.active || !metadata?.events.some((event) => events.has(event)) || ownerTurnExpired(behavior)) {
           continue;
         }
-        // Failed one-shot uses retain their region for manual recovery. An in-flight attempt is
-        // still automated, but after it settles the native reminder must remain available.
         if (foundry.utils.getProperty(behavior, "flags.ddbimporter.ownerTurnState.oneShotClaimed")
           && !OwnerTurnRegions.#oneShots.has(behavior)) continue;
         const uuid = region.getFlag("dnd5e", "activity");
@@ -144,20 +161,21 @@ export default class OwnerTurnRegions {
         }
       }
     }
-    if (!covered.size) return;
-    const remaining = system.activations.filter((uuid) => {
-      const activity = fromUuidSync(uuid, { relative: actor, strict: false });
-      return typeof activity?.uuid !== "string" || !covered.has(activity.uuid);
-    });
-    if (remaining.length === system.activations.length) return;
-    system.activations = remaining;
-    // Recovery notices share this card. Preserve rolls and unknown extension payloads too;
-    // only a card containing nothing beyond the removed reminders may be suppressed.
-    const hasContent = Object.entries(messageConfig.data).some(([key, value]) =>
+    return covered;
+  }
+
+  /**
+   * Whether the combat card carries anything beyond the reminders just removed. Recovery notices
+   * share the card, so rolls and unknown extension payloads keep it: only the bookkeeping fields
+   * (the message's `system`, `speaker`, `type` and `whisper`, and the system data's `periods` and
+   * `origin`) may be non-empty on a card that is suppressed.
+   */
+  static #hasOtherContent(messageConfig: Parameters<Hooks.Function<"dnd5e.preCreateCombatMessage">>[1]): boolean {
+    const { system } = messageConfig.data;
+    return Object.entries(messageConfig.data).some(([key, value]) =>
       !["system", "speaker", "type", "whisper"].includes(key) && !foundry.utils.isEmpty(value))
       || Object.entries(system).some(([key, value]) =>
         !["periods", "origin"].includes(key) && !foundry.utils.isEmpty(value));
-    if (!hasContent) messageConfig.create = false;
   }
 
   /**

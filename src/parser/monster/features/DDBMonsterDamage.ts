@@ -1,7 +1,7 @@
 import { logger, utils } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
-import { parseMonsterDamageModes } from "./MonsterDamageModes";
+import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, parseMonsterDamageModes } from "./MonsterDamageModes";
 
 // a DAMAGE_EXPRESSION match; the regex uses named groups so `groups` is always present
 type TDamageMatch = RegExpExecArray & { groups: NonNullable<RegExpExecArray["groups"]> };
@@ -318,8 +318,7 @@ export class DDBMonsterDamage {
     if (result.modes.length === 0) return;
     // Save and recurring damage stay on the save-damage path: they have no clause model of their
     // own here, and their dice must never move onto a newly generated attack.
-    if (tokens.some((token) => (/saving throw|\bat (?:the |each )?(?:start|end) of (?:each|its|the|their)|\b(?:Failure|Success):/i)
-      .test(this.hit.slice(0, token.index)))) {
+    if (tokens.some((token) => SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, token.index)))) {
       this.damageModeWarnings.push("Conditional hit mixed with save or recurring damage requires separate stage parsing");
       return;
     }
