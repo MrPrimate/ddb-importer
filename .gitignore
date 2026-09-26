@@ -21,6 +21,7 @@ dnd5e
 
 .fallow/
 .vitest/
+.vitest-tmp/
 coverage/
 
 # Secrets
