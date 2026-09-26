@@ -299,7 +299,6 @@ describe("CharacterFeatureFactory.addSpellAdvancements", () => {
     const factory: any = Object.create(CharacterFeatureFactory.prototype);
     factory.processed = { features };
     factory.spellsGranted = {};
-    factory.spellAdvancementsForce = { class: [], background: [], race: [], feat: [] };
     factory.ddbCharacter = {
       raw: { spells: [] },
       _spellParser: { _granted: { class: [], feat: [], race: [], background: [], item: [], ...granted } },
@@ -307,17 +306,17 @@ describe("CharacterFeatureFactory.addSpellAdvancements", () => {
     return factory;
   }
   // no `advancement` key on the feature, so the advancement helper returns before it needs a world
-  const bonusCantrips = { name: "Bonus Cantrips", system: {}, flags: { ddbimporter: { type: "class", forceSpellAdvancement: true } } };
+  const bonusCantrips = { name: "Bonus Cantrips", system: {}, flags: { ddbimporter: { type: "class" } } };
   const light = { name: "Light", flags: { ddbimporter: { originalName: "Light", dndbeyond: { lookup: "classFeature", lookupName: "Bonus Cantrips" } } }, system: { prepared: 2, method: "pact" } };
 
-  it("puts a granted spell on the sheet once when its feature forces a second pass over the same type", async () => {
+  it("puts a feature's granted spell on the sheet once", async () => {
     const factory = makeFactory([bonusCantrips], { class: [light] });
     await factory.addSpellAdvancements();
     expect(factory.ddbCharacter.raw.spells).toEqual([light]);
   });
 
-  it("survives a forced feature whose type has no granted spell list", async () => {
-    const trait = { name: "Odd Trait", system: {}, flags: { ddbimporter: { type: "trait", forceSpellAdvancement: true } } };
+  it("ignores a feature whose type has no granted spell list", async () => {
+    const trait = { name: "Odd Trait", system: {}, flags: { ddbimporter: { type: "trait" } } };
     const factory = makeFactory([trait], { class: [light] });
     await factory.addSpellAdvancements();
     expect(factory.ddbCharacter.raw.spells).toEqual([light]);

@@ -1122,7 +1122,6 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
   it("sets the ddbimporter flag family from the retain/replace hints", async () => {
     const e = makeOverrideEnricher({
       replaceActivityUses: true,
-      forceSpellAdvancement: true,
       retainResourceConsumption: true,
       retainOriginalConsumption: true,
       retainChildUses: true,
@@ -1133,7 +1132,6 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
     const result = await e.addDocumentOverride();
     expect(result.flags.ddbimporter).toMatchObject({
       replaceActivityUses: true,
-      forceSpellAdvancement: true,
       retainResourceConsumption: true,
       retainOriginalConsumption: true,
       retainChildUses: true,

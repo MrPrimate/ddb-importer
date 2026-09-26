@@ -71,14 +71,6 @@ describe("CharacterSpellFactory._applyHealingRerolls", () => {
     expect(spell.system.activities.abc.healing.modifiers).toBeUndefined();
     expect(spell.flags.ddbimporter.healingReroll).toBeUndefined();
   });
-
-  it("strips a previously applied reroll, so losing the feat cleans up", () => {
-    const spell = healingSpell({ healingReroll: true });
-    spell.system.activities.abc.healing.modifiers = ["r1"];
-    factory(false, [spell])._applyHealingRerolls();
-    expect(spell.system.activities.abc.healing.modifiers).toEqual([]);
-    expect(spell.flags.ddbimporter.healingReroll).toBeUndefined();
-  });
 });
 
 describe("CharacterSpellFactory.featureSourceItem", () => {

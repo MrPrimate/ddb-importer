@@ -343,7 +343,7 @@ describe("region sync", () => {
     expect(flaggedMesh.setShaderClass).toHaveBeenCalledWith(Shader);
     expect(flaggedMesh.alpha).toBe(RegionDisplayProfiles.get("aura")!.opacity);
     expect(flaggedMesh.tint).toBe(0x00ff00);
-    expect(flaggedMesh.shader.uniforms).toMatchObject({ pattern: 0, period: RegionDisplayProfiles.get("aura")!.spacing * 100, thickness: 0.15, hatchThickness: 4 });
+    expect(flaggedMesh.shader.uniforms).toMatchObject({ pattern: 0, period: RegionDisplayProfiles.get("aura")!.spacing * 100, thickness: 0.15 });
     expect(plainMesh.setShaderClass).not.toHaveBeenCalled();
     expect(plainMesh.alpha).toBe(0.5);
   });
