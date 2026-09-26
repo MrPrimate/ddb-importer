@@ -254,11 +254,16 @@ describe("the tail: reactions offered by an emanation", () => {
     ]);
   });
 
-  it("Dispater's Interdiction keeps DDB's actions and offers Telekinetic Seal on entry", () => {
+  it("Dispater's Interdiction keeps DDB's actions, gates the later boons and offers Telekinetic Seal on entry", () => {
     const e = build(DispatersInterdiction);
-    expect(e.type).toBeNull();
-    expect(e.useDefaultAdditionalActivities).toBe(true);
-    expect(e.addToDefaultAdditionalActivities).toBe(true);
+    expect(e.type).toBe("none");
+    expect(e.useDefaultAdditionalActivities).toBe(false);
+    const actions = e.additionalActivities.filter((a: any) => a.action);
+    expect(actions.map((a: any) => [a.action.name, a.overrides?.data?.visibility?.level?.min ?? null])).toEqual([
+      ["Telekinetic Seal", null],
+      ["By the Throat", 13],
+      ["Dispater's Supremacy (Passive)", 18],
+    ]);
     expect(named(e, "Telekinetic Seal: Place Aura")).toMatchObject({ affects: "enemy", template: { type: "radius", size: "5" } });
     expect(macro(named(e, "Telekinetic Seal: Place Aura")).config).toMatchObject({ events: ["tokenEnter"], args: { activityName: "Telekinetic Seal" } });
     // DDB's actions carry their own effect links, so the parsed effects are left alone

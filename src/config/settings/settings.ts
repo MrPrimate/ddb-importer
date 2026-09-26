@@ -198,7 +198,7 @@ const SETTINGS = {
         default: true,
         requiresReload: true,
       },
-      // read on every click, so toggling it needs no reload
+      // read once on ready to decide whether the click listener is bound at all
       "icon-browser-shift-click": {
         name: "ddb-importer.settings.icon-browser-shift-click.name",
         hint: "ddb-importer.settings.icon-browser-shift-click.hint",
@@ -206,6 +206,7 @@ const SETTINGS = {
         config: true,
         type: Boolean,
         default: true,
+        requiresReload: true,
       },
       // extra icon list JSON files merged into the icon browser (see "Icon catalogue" in
       // CONTRIBUTING.md); no UI, set from the console. Read on each load, so no reload is needed

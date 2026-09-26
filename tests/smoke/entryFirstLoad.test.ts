@@ -48,8 +48,12 @@ for (const name of ["AdventureImporter", "PIXI", "io", "socketlib", "libWrapper"
   (globalThis as any)[name] ??= universal();
 }
 
+// The cold import transforms most of the module graph, which takes ~4s alone and runs past the
+// default 5s when the rest of the suite is competing for workers.
+const ENTRY_LOAD_TIMEOUT_MS = 60_000;
+
 describe("module entry first-load smoke", () => {
   it("evaluates src/index.ts without a module cycle hitting an uninitialised binding", async () => {
     await expect(import("../../src/index")).resolves.toBeDefined();
-  });
+  }, ENTRY_LOAD_TIMEOUT_MS);
 });

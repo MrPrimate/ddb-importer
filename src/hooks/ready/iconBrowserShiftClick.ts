@@ -115,7 +115,8 @@ export function iconBrowserSelection(
 /**
  * Shift-clicking an unlocked item, activity or effect image opens the icon browser instead of the
  * file picker. One capture-phase listener on the body runs ahead of every sheet's own action
- * handler and covers sheets rendered later.
+ * handler and covers sheets rendered later. With the setting off no listener is bound at all; the
+ * setting requires a reload, so it is only read here.
  */
 export function registerIconBrowserShiftClick() {
   if (!utils.getSetting<boolean>("icon-browser-shift-click")) return;

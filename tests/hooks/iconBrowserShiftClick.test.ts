@@ -171,15 +171,27 @@ describe("registerIconBrowserShiftClick", () => {
     expect(changed).toHaveBeenCalledOnce();
   });
 
-  it("leaves actor portraits, plain clicks and the disabled setting alone", () => {
+  it("leaves actor portraits and plain clicks alone", () => {
     const actor = mountSheet("actor", "<img data-action=\"editImage\" data-edit=\"img\">", {
       document: { documentName: "Actor" },
     });
     shiftClick(actor.querySelector("img")!);
     const item = mountSheet("item", "<img data-action=\"editImage\" data-edit=\"img\">", { document: itemDocument() });
     shiftClick(item.querySelector("img")!, false);
-    setMockSettings({ "icon-browser-shift-click": false });
-    shiftClick(item.querySelector("img")!);
     expect(opened).toHaveLength(0);
+  });
+
+  it("binds no listener when the setting is off", async () => {
+    // a fresh module copy, since the one loaded above is already bound
+    vi.resetModules();
+    const fresh = await import("../../src/hooks/ready/iconBrowserShiftClick");
+    setMockSettings({ "icon-browser-shift-click": false });
+    const add = vi.spyOn(document.body, "addEventListener");
+    try {
+      fresh.registerIconBrowserShiftClick();
+      expect(add).not.toHaveBeenCalled();
+    } finally {
+      add.mockRestore();
+    }
   });
 });
