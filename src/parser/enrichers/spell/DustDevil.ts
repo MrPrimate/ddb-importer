@@ -6,8 +6,8 @@ import { area } from "./_SpellRegions";
  * the cube plus 5 feet on every side: a fixed 15-foot cube. Moving the dust devil with a Bonus
  * Action means dragging the area by hand; its 10-foot debris cloud is not modelled.
  * Only a turn ending in the area fires the save, since entering does nothing in the rules, and
- * nothing branches on the printing. It fires for any creature; skipping the caster and the
- * 10-foot push on a failed save are left to the table.
+ * nothing branches on the printing. It fires for any creature, the caster included, as the spell
+ * says ("Any creature"); the 10-foot push on a failed save is left to the table.
  */
 export default class DustDevil extends DDBEnricherData {
 

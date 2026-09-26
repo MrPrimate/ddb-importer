@@ -2620,3 +2620,28 @@ describe("recovery periods", () => {
     expect(uses).toMatchObject({ max: "1", recovery: [{ period: "turnStart", type: "recoverAll" }] });
   });
 });
+
+describe("damage formulas CharacterFeatureFactory._setLevelScales used to mask", () => {
+  it("Moxie's Unarmed Strike activities roll the Fisticuffs die and opt out of the Moxie point scale", () => {
+    const e = build(ClassEnrichers.Pugilist.Moxie);
+    for (const name of ["One-Two Punch", "Stick and Move"]) {
+      const hint = e.additionalActivities.find((a: any) => a.action?.name === name);
+      expect(hint.overrides.data.damage.parts).toEqual([
+        expect.objectContaining({ types: ["bludgeoning"], custom: { enabled: true, formula: "@scale.pugilist.fisticuffs + @abilities.str.mod" } }),
+      ]);
+    }
+    expect(e.override.data.flags.ddbimporter.skipScale).toBe(true);
+  });
+
+  it("Tentacle of the Deeps deals flat scaled cold damage with no ability modifier", () => {
+    const parts = build(ClassEnrichers.Warlock.TentacleOfTheDeepsAttack).activity.data.damage.parts;
+    expect(parts).toEqual([
+      expect.objectContaining({ types: ["cold"], custom: { enabled: true, formula: "@scale.the-fathomless.tentacle-of-the-deeps" } }),
+    ]);
+  });
+
+  it("Elemental Epitome's damage is one Martial Arts die", () => {
+    const hint = build(ClassEnrichers.Monk.ElementalEpitome).additionalActivities.find((a: any) => a.init?.name === "Elemental Epitome Damage");
+    expect(hint.build.damageParts[0].custom.formula).toBe("@scale.monk.die");
+  });
+});

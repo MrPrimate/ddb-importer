@@ -836,37 +836,72 @@ export default class CharacterFeatureFactory {
 
   _setLevelScales(type: keyof CharacterFeatureFactory["parsed"] = "features") {
     for (const feature of this.parsed[type] as (T5eFeatureMixinDataTypes)[]) {
-      if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) continue;
+      CharacterFeatureFactory.applyLevelScale(feature, this.ddbCharacter.raw.classes);
+    }
+  }
 
-      if (DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS.includes(feature.name)) continue;
+  /**
+   * The class or subclass carrying a dice ScaleValue named like the feature, looked up on the
+   * feature's own class and subclass before the character's other classes, so a multiclass
+   * character with two same-named scales gets its own. Number, distance and other scale types
+   * count uses, points, dice pools or ranges (Channel Divinity, Moxie, Infernal Conduit) and are
+   * never damage.
+   */
+  static findLevelScaleClass(
+    feature: T5eFeatureMixinDataTypes,
+    classes: (I5eClassItem | I5eSubclassItem)[],
+  ): I5eClassItem | I5eSubclassItem | undefined {
+    const featureName = utils.referenceNameString(feature.name).toLowerCase();
+    const ownNames = [feature.flags?.ddbimporter?.subClass, feature.flags?.ddbimporter?.class].filter(Boolean);
+    const ordered = [
+      ...classes.filter((klass) => ownNames.includes(klass.name)),
+      ...classes.filter((klass) => !ownNames.includes(klass.name)),
+    ];
+    return ordered.find((klass) =>
+      Object.values(klass.system.advancement ?? {}).some((advancement) =>
+        advancement.type === "ScaleValue"
+        && advancement.configuration?.identifier === featureName
+        && (advancement as I5eAdvancementScaleValue).configuration?.type === "dice",
+      ));
+  }
 
-      const featureName = utils.referenceNameString(feature.name).toLowerCase();
-      const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
-        Object.values(klass.system.advancement ?? {})
-          .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration?.identifier === featureName,
-          ));
+  /** A damage part the scale may fill: its custom formula is off or empty. */
+  static isUnsetDamagePart(part: I5eDamagePart | undefined): part is I5eDamagePart {
+    return !!part && (!part.custom?.enabled || !part.custom.formula);
+  }
 
-      if (!scaleKlass) continue;
+  /**
+   * Upgrades the damage of a feature named like one of its class's dice ScaleValues (Dread
+   * Ambusher's 2d6 becoming 2d8 at 11th level) to that scale. Only the first part of an
+   * activity that already deals damage, and only while no formula has been chosen for it:
+   * adding a part put damage on activities that deal none (Turn Undead), and overwriting one
+   * dropped the modifiers and multipliers enrichers write (Starry Form's + Wisdom).
+   */
+  static applyLevelScale(
+    feature: T5eFeatureMixinDataTypes,
+    classes: (I5eClassItem | I5eSubclassItem)[],
+  ): void {
+    if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) return;
+    if (DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS.includes(feature.name)) return;
 
-      const identifier = utils.referenceNameString(scaleKlass.system.identifier ?? "").toLowerCase();
-      const damage = SystemHelpers.buildDamagePart({
-        damageString: `@scale.${identifier}.${featureName}`,
-      });
-      if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+    const scaleKlass = CharacterFeatureFactory.findLevelScaleClass(feature, classes);
+    if (!scaleKlass) return;
+
+    const featureName = utils.referenceNameString(feature.name).toLowerCase();
+    const identifier = utils.referenceNameString(scaleKlass.system.identifier ?? "").toLowerCase();
+    const damage = SystemHelpers.buildDamagePart({
+      damageString: `@scale.${identifier}.${featureName}`,
+    });
+    if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+      const base = foundry.utils.getProperty(feature, "system.damage.base") as I5eDamagePart | undefined;
+      if (CharacterFeatureFactory.isUnsetDamagePart(base)) {
         foundry.utils.setProperty(feature, "system.damage.base.custom", damage.custom);
-      } else if (foundry.utils.hasProperty(feature, "system.activities")) {
-        for (const [key, activity] of Object.entries(feature.system.activities)) {
-          if ("damage" in activity && activity.damage) {
-            const parts = activity.damage.parts ?? [];
-            if (parts.length === 0) {
-              activity.damage.parts = [damage];
-            } else {
-              parts[0].custom = damage.custom;
-            }
-          }
-          feature.system.activities[key] = activity;
-        }
+      }
+    } else if (foundry.utils.hasProperty(feature, "system.activities")) {
+      for (const activity of Object.values(feature.system.activities)) {
+        if (!("damage" in activity) || !activity.damage) continue;
+        const part = activity.damage.parts?.[0];
+        if (CharacterFeatureFactory.isUnsetDamagePart(part)) part.custom = damage.custom;
       }
     }
   }
