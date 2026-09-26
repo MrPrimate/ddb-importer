@@ -96,10 +96,4 @@ export default class RestrictionRules {
     return RestrictionRules.match(restriction)?.concentration === true;
   }
 
-  /** The filter clauses for an attack subtype, or null when the subtype is not an attack scope. */
-  static attackConditions(subType: string | null | undefined): IEffectChangeFilter[] | null {
-    if (!subType) return null;
-    return ATTACK_SUBTYPE_CONDITIONS[subType] ?? null;
-  }
-
 }

@@ -65,12 +65,6 @@ export default class CharacterFeatureFactory {
   };
   rawCharacter: I5ePCData;
   spellLinks: IDDBSpellLink[];
-  spellAdvancementsForce: {
-    class: string[];
-    background: string[];
-    race: string[];
-    feat: string[];
-  };
   spellsGranted: Record<string, ISpellsGranted[]>;
   pendingCompendiumDocuments: {
     features: T5eFeatureMixinDataTypes[];
@@ -107,13 +101,6 @@ export default class CharacterFeatureFactory {
     this.spellLinks = [];
 
     this.spellsGranted = {};
-
-    this.spellAdvancementsForce = {
-      class: [],
-      background: [],
-      race: [],
-      feat: [], // these are now always processed.
-    };
 
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .map((f) => f.affectedRacialTraitId)
@@ -1410,20 +1397,13 @@ export default class CharacterFeatureFactory {
     });
   }
 
-  async _addSpellAdvancementTypeWithFilter(type: TGrantedSpellTypeOrigins, filters: string[] = []) {
-    logger.debug(`Adding spell advancements for type ${type} with filters`, { type, filters, this: this });
+  /** Adds the spell advancements of every processed feature of one granted-spell origin type. */
+  async _addSpellAdvancementsForType(type: TGrantedSpellTypeOrigins) {
+    logger.debug(`Adding spell advancements for type ${type}`, { type, this: this });
     if (!this.spellsGranted[type]) this.spellsGranted[type] = [];
     const featuresToCheck: { feature: T5eFeatureMixinDataTypes; type: TGrantedSpellTypeOrigins; version: T5eRulesVersion }[] = [];
     for (const feature of this.processed.features) {
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
-      if (filters.length > 0) {
-        const featureName = utils.referenceNameString(feature.name).toLowerCase();
-        const filterMatch = filters.some((f) => featureName.includes(utils.referenceNameString(f).toLowerCase()));
-        if (!filterMatch) {
-          logger.verbose(`Feature ${feature.name} does not match any filters, skipping`, { feature, filters });
-          continue;
-        }
-      }
 
       // console.warn(`Adding spell advancements for feature ${feature.name} of type ${type}`, {
       //   feature: foundry.utils.deepClone(feature),
@@ -1488,30 +1468,7 @@ export default class CharacterFeatureFactory {
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
       this.spellsGranted[type] = [];
-      await this._addSpellAdvancementTypeWithFilter(type);
-    }
-
-    // `forceSpellAdvancement` dates from when only some granted-spell types were processed
-    // above; every type is now, so a forced pass over a type already handled would build the
-    // feature's spell advancements a second time and push its granted spells onto the sheet
-    // twice (the Celestial warlock's Bonus Cantrips arrived as two Light and two Sacred Flame)
-    const forcedTypes = new Set<string>();
-
-    for (const feature of this.processed.features) {
-      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as TGrantedSpellTypeOrigins;
-      const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement") as boolean;
-      if (featureType && forceSpellAdvancement && !types.includes(featureType)) {
-        if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
-        this.spellAdvancementsForce[featureType].push(feature.name);
-        forcedTypes.add(featureType);
-      }
-    }
-
-    for (const type of forcedTypes) {
-      const filters = this.spellAdvancementsForce[type as TGrantedSpellTypeOrigins] ?? [];
-      if (filters.length > 0) {
-        await this._addSpellAdvancementTypeWithFilter(type as TGrantedSpellTypeOrigins, filters);
-      }
+      await this._addSpellAdvancementsForType(type);
     }
   }
 

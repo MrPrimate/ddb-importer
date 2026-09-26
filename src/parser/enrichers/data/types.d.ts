@@ -359,7 +359,6 @@ global {
     removeDamage?: boolean;
     rangeSelf?: boolean;
     replaceActivityUses?: boolean;
-    forceSpellAdvancement?: boolean;
     descriptionSuffix?: string;
     ddbMacroDescription?: boolean;
     // keep the consumption targets and uses recovery already on the document in the

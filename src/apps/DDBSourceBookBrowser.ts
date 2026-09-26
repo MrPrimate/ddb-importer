@@ -93,11 +93,8 @@ export function describeCacheEntry(domain: TProxyCacheDomain, params: Record<str
       const rules = asText(params.systemRules, "2014") === "2024" && params.include2014Adjusted === false
         ? "2024 rules, 2014 content"
         : asText(params.systemRules, "2014");
-      if (label) return `${label} (${rules})`;
-      // entries written before labels were stored, or a stream that never named its class
-      const element = asText(params.element);
-      const target = params.classId ? ` class ${params.classId}` : (params.backgroundId ? ` background ${params.backgroundId}` : "");
-      return `Munch: ${element}${target} (${rules})`;
+      // DDBMuleHandler labels every stream entry it caches
+      return `${label || "Munch"} (${rules})`;
     }
     default:
       return `${domain}`;

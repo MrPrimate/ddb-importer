@@ -1137,10 +1137,6 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       });
     }
 
-    if (override.forceSpellAdvancement) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
-    }
-
     if (override.retainResourceConsumption) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainResourceConsumption", true);
     }

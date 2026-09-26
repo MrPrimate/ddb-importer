@@ -868,7 +868,6 @@ global {
 
     // Activity/enricher flags
     replaceActivityUses?: boolean;
-    forceSpellAdvancement?: boolean;
     spellHintName?: string;
     defaultAdditionalActivities?: { data?: Record<string, unknown> };
 
