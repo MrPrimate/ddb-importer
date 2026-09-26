@@ -1,25 +1,47 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Two options from one cast. DDB's parsed save is the mud-to-rock entombing save ("Mud to Rock").
+ * "Rock to Mud" places the mud: difficult terrain, and a Strength "Sinking Save (Mud)" for any
+ * creature on the ground when the spell is cast and for one moving into the mud for the first time
+ * on a turn or ending its turn there. The placer rolls nothing itself, so the mud's creation is what
+ * reaches the creatures already on it (enterOn "any").
+ */
 export default class TransmuteRock extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
-    // the default parse is the mud-to-rock entombing save; the region covers the
-    // rock-to-mud option (difficult terrain plus the sinking save on entry)
     return {
-      data: {
-        behaviors: [
-          DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["mud"] }),
-          DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
-            activityId: "ddbTraRocZoneSa1",
-          }),
-        ],
-      },
+      name: "Mud to Rock",
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      {
+        init: {
+          name: "Rock to Mud",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: true,
+          generateTarget: true,
+          generateDuration: true,
+          noeffect: true,
+        },
+        overrides: {
+          data: {
+            behaviors: [
+              DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["mud"] }),
+              DDBEnricherData.BehaviorHelper.activity({
+                events: ["tokenEnter", "tokenTurnEnd"],
+                enterOn: "any",
+                activityId: "ddbTraRocZoneSa1",
+              }),
+            ],
+          },
+        },
+      },
       {
         init: {
           name: "Sinking Save (Mud)",
@@ -33,7 +55,7 @@ export default class TransmuteRock extends DDBEnricherData {
           noSpellslot: true,
           activationOverride: {
             type: "special",
-            condition: "Moves into the mud for the first time on a turn or ends its turn there",
+            condition: "On the ground when the mud appears, moves into it for the first time on a turn, or ends its turn there",
           },
           targetOverride: {
             override: true,

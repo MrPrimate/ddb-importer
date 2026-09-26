@@ -17,6 +17,7 @@ export default class Tremor extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.difficultTerrain(),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnEnd"],
+        enterOn: "any",
         activityName: ONGOING,
         excludeSelf: true,
       }),

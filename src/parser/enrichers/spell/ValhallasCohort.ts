@@ -6,8 +6,9 @@ const COHORT_ATTACK = "Cohort Attack";
 /**
  * Nothing is rolled as the spell is cast. The cohort is a Huge mass the caster moves 30 feet a
  * turn, and it strikes at creatures within 5 feet, so the area is a 25-foot square dropped on it
- * that has to be dragged along when it moves. A creature moving in is offered the attack; the
- * cohort ending its own move beside one is the caster's turn, so that attack is used by hand.
+ * that has to be dragged along when it moves. A creature moving in is offered the attack, and so
+ * is one the dragged cohort ends up beside (enterOn "movementOrArea"); the cohort appearing does
+ * not count.
  */
 export default class ValhallasCohort extends DDBEnricherData {
 
@@ -19,6 +20,7 @@ export default class ValhallasCohort extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter"],
+        enterOn: "movementOrArea",
         activityName: COHORT_ATTACK,
       }),
     ], { target: area("square", "25", {}, "enemy") });

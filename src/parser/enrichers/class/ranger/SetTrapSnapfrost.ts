@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * Trapper ranger, "Set Trap: Snapfrost (Magical)". Same split as Miasma:
  * "Create Magical Trap" (the parsed activity, keeps its uses) places the 5 ft
- * marker; "Trigger Magical Trap" places the 20-foot-radius frigid cloud whose
+ * marker; "Trigger Magical Trap" places the 20-foot sphere of frigid cloud centred on the trap whose
  * region fires the parsed "Activate Snapfrost" save on enter/turn start for the
  * minute it lasts.
  */
@@ -66,10 +66,12 @@ export default class SetTrapSnapfrost extends DDBEnricherData {
             affects: {
               type: "creature",
             },
+            // "a 20-foot-radius sphere centred on the trap": fixed where the trap is, not an emanation
+            // following whoever was clicked
             template: {
               count: "1",
               contiguous: false,
-              type: "radius",
+              type: "sphere",
               size: "20",
               units: "ft",
             },
@@ -85,6 +87,7 @@ export default class SetTrapSnapfrost extends DDBEnricherData {
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
                 events: ["tokenEnter", "tokenTurnStart"],
+                enterOn: "movement",
                 activityName: "Activate Snapfrost",
               }),
             ],

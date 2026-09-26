@@ -4,7 +4,8 @@ import { ongoingClone } from "./_SpellRegions";
 /**
  * The bears roll their save against each enemy as the cube appears, then again for one that
  * enters it or ends its turn there. Moving the cube 40 feet is a Bonus Action that means dragging
- * the region, and the save it forces on creatures it moves onto is rolled by hand.
+ * the region, and the creatures it moves onto get the save too; its own appearance does not fire
+ * the region again ("auto" resolves to "movementOrArea" from the rolling cast).
  */
 export default class Bearstormer extends DDBEnricherData {
 

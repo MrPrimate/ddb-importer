@@ -25,10 +25,12 @@ export default class SpiritAura extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Maddening Whispers",
           }),
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Bolstering Whispers",
           }),
         ],

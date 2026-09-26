@@ -41,6 +41,7 @@ export default class Bark extends DDBEnricherData {
             sizes: ["sm", "med", "lg", "huge", "grg"],
             args: {
               excludeSelf: true,
+              enterOn: "movement",
               message: "The Faithful Hound barks loudly: {token} came within 30 feet of it!",
             },
           }),

@@ -21,6 +21,7 @@ export default class BlizzardSphere extends DDBEnricherData {
         DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["ice"] }),
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Blizzard Save",
         }),
       ],

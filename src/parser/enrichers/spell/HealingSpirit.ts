@@ -17,6 +17,7 @@ export default class HealingSpirit extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Ongoing Heal",
           }),
         ],

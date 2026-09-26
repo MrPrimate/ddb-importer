@@ -38,6 +38,7 @@ export default class Caltrops extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter"],
+            enterOn: "movement",
             activityName: "Caltrops Save",
           }),
         ],

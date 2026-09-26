@@ -1,11 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { ONGOING, area, castPlacer, ongoingTrigger } from "./_SpellRegions";
+import { ONGOING, castPlacer, emanation, ongoingTrigger } from "./_SpellRegions";
 
 /**
- * Nothing is rolled as the spell is cast. The aura belongs to the chosen creature, not the caster,
- * and an emanation only attaches to the token that used the activity, so the area is a 20-foot
- * circle dropped on the target that has to be dragged along when it moves. DDB gives the spell no
- * template.
+ * Nothing is rolled as the spell is cast. The aura belongs to the chosen creature, so the cast
+ * places a 20-foot emanation on the Festival King's token (click the king when placing), which then
+ * follows it; the aura moving onto a creature is not that creature moving within 20 feet (enterOn
+ * "movement"). The king is not within 20 feet of itself, so the region skips the token it is
+ * attached to, and with it the caster (excludeSelf covers both). DDB gives the spell no template.
  */
 export default class FestivalKing extends DDBEnricherData {
 
@@ -17,9 +18,11 @@ export default class FestivalKing extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
+        excludeSelf: true,
         activityName: ONGOING,
       }),
-    ], { target: area("circle", "20") });
+    ], { target: emanation("20") });
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

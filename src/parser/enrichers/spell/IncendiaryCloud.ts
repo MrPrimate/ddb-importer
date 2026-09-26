@@ -10,6 +10,9 @@ export default class IncendiaryCloud extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            // 2024 also counts "the Sphere moves into its space" ("auto" gives movementOrArea); the 2014
+            // cloud moving onto a creature is not it entering
+            ...(this.is2014 ? { enterOn: "movement" as const } : {}),
             activityId: "ddbIncCloZoneSa1",
           }),
         ],

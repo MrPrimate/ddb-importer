@@ -1,16 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { regionTrigger } from "../data/RegionBuilders";
+
+const ONGOING = "Ongoing Save";
 
 /**
- * A thrown orb that fills a 20 ft radius sphere for 1d4 rounds; each creature
- * that starts its turn in it or enters it on its turn saves against falling
- * Unconscious for 1 minute, and the effect ends early if the creature takes
- * damage. DDB parses the range, the template and the DC but picks up the
- * DC as an extra save ability.
+ * A thrown orb that fills a 20-foot sphere where it shatters for 1d4 rounds, and rolls nothing as
+ * it does: the region fires "Ongoing Save" at a creature that starts its turn in the scent or moves
+ * into it on its turn (being inside as it spreads is not entering). A failure is Unconscious for 1
+ * minute, ending early if the creature takes damage. DDB picks up the DC as an extra save ability,
+ * so the save is restated.
  */
 export default class WisteriaDragonPerfume extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {
@@ -18,28 +21,38 @@ export default class WisteriaDragonPerfume extends DDBEnricherData {
       name: "Throw Orb",
       targetType: "creature",
       activationType: "action",
+      noeffect: true,
       data: {
-        save: {
-          ability: ["con"],
-          dc: {
-            calculation: "",
-            formula: "19",
-          },
+        // the scent fills a sphere where the orb shatters, not an emanation following whoever was clicked
+        target: {
+          override: true,
+          affects: { type: "creature" },
+          template: { count: "1", contiguous: false, type: "sphere", size: "20", units: "ft" },
         },
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
+            activityName: ONGOING,
           }),
         ],
       },
     };
   }
 
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [regionTrigger(ONGOING, {
+      condition: "Starts its turn in the scent or enters it on its turn",
+      save: { ability: ["con"], dc: "19" },
+      onSave: "none",
+    })];
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Unconscious (Wisteria Perfume)",
-        activityMatch: "Throw Orb",
+        activityMatch: ONGOING,
         statuses: ["Unconscious"],
         daeSpecialDurations: ["isDamaged"],
         options: {

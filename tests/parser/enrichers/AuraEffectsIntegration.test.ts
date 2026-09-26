@@ -230,9 +230,14 @@ describe("generated Jewel and summon effects", () => {
       modules({ aura, midi });
       const active = aura && midi && enabled;
       const { effects, activity, hints } = await generate(Enricher, Enricher.name, { midi: enabled });
-      expect(activity.behaviors ?? []).toHaveLength(active ? 0 : 1);
       expect(effects).toHaveLength(active ? 1 : 0);
-      if (Enricher === PackDamage) expect(hints.additionalActivities).toHaveLength(active ? 1 : 0);
+      if (Enricher === PackDamage) {
+        // the pack's save places nothing: its region comes from Place Aura, which the Aura Effects arm replaces
+        expect(activity.behaviors ?? []).toHaveLength(0);
+        expect(hints.additionalActivities!.map((a) => a.init?.name)).toEqual([active ? "Pack Damage (Aura Automation)" : "Place Aura"]);
+      } else {
+        expect(activity.behaviors ?? []).toHaveLength(active ? 0 : 1);
+      }
       if (active) {
         expect(auraSystem(effects[0])).toMatchObject({
           bestFormula: "@flags.dnd5e.summon.level", canStack: false,

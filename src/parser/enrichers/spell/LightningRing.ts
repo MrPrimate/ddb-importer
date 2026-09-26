@@ -28,6 +28,7 @@ export default class LightningRing extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            enterOn: "any",
             activityName: "Ring Save",
             excludeSelf: true,
           }),

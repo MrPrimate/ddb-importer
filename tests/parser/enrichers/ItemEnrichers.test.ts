@@ -448,12 +448,17 @@ describe("hazard gear regions", () => {
     expect(e.effects[0]).toMatchObject({ activityMatch: "Ball Bearings Save", statuses: ["Prone"], options: { transfer: false } });
   });
 
-  it("Oil douses a space that burns on entry or turn end when lit", () => {
+  it("Oil pours without burning; lighting it places the 2-round fire that burns on entry or turn end", () => {
     const e = build(ItemEnrichers.Oil);
-    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
-    expect(macro.config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
-    expect(macro.config.args.activityName).toBe("Burning Oil Damage");
-    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Burning Oil Damage", "Douse a Creature"]);
+    expect(e.activity).toMatchObject({ name: "Douse a Space", addItemConsume: true, noTemplate: true });
+    expect(e.activity.data.behaviors).toBeUndefined();
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Light the Oil", "Burning Oil Damage", "Douse a Creature"]);
+    const [light] = e.additionalActivities;
+    expect(light.init.type).toBe("utility");
+    expect(light.build.targetOverride.template).toMatchObject({ type: "square", size: "5" });
+    expect(light.build.durationOverride).toMatchObject({ value: "2", units: "round" });
+    const macro = light.overrides.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], enterOn: "movement", args: { activityName: "Burning Oil Damage" } });
   });
 });
 

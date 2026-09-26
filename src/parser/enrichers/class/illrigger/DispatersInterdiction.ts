@@ -32,6 +32,7 @@ export default class DispatersInterdiction extends _Illrigger {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter"],
+            enterOn: "movement",
             activityName: "Telekinetic Seal",
             excludeSelf: true,
           }),

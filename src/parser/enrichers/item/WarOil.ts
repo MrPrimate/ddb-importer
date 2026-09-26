@@ -23,6 +23,7 @@ export default class WarOil extends DDBEnricherData {
         DDBEnricherData.BehaviorHelper.difficultTerrain(),
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "War Oil Slip Save",
         }),
       ],

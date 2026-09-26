@@ -22,6 +22,7 @@ export default class CorrosiveHaze extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Corrosive Haze Save",
           excludeSelf: true,
         }),

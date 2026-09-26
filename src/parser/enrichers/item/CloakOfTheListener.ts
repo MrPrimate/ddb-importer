@@ -23,6 +23,7 @@ export default class CloakOfTheListener extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Ooze Save",
         }),
       ],

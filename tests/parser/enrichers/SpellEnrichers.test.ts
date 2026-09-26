@@ -513,14 +513,11 @@ describe("C/D region candidates wave", () => {
   it.each([
     ["GustOfWind", ["tokenTurnEnd"], "ddbGustWiZoneSa1", []],
     ["StormSphere", ["tokenTurnEnd"], "ddbStormSpZoneS1", [""]],
-    ["DarkStar", ["tokenEnter", "tokenTurnStart"], "ddbDarkStZoneSa1", [""]],
     ["JallarzisStormOfRadiance", ["tokenEnter", "tokenTurnEnd"], "ddbJalStoZoneSa1", []],
     ["Dawn", ["tokenTurnEnd"], "ddbDawnSpZoneSa1", []],
     ["Whirlwind", ["tokenEnter"], "ddbWhirlwZoneSa1", []],
     ["YolandesRegalPresence", ["tokenEnter", "tokenTurnEnd"], "ddbYolRegZoneSa1", []],
-    ["RavenousVoid", ["tokenEnter", "tokenTurnStart"], "ddbRavVoiZoneSa1", [""]],
     ["CloudOfDaggers", ["tokenEnter", "tokenTurnEnd"], "ddbCloDagZoneDa1", []],
-    ["TransmuteRock", ["tokenEnter", "tokenTurnEnd"], "ddbTraRocZoneSa1", ["mud"]],
   ])("%s rolls at cast and triggers its Ongoing duplicate on %j", (name, events, activityId, terrain) => {
     const e = build((SpellEnrichers as any)[name]);
     const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
@@ -541,6 +538,8 @@ describe("C/D region candidates wave", () => {
     ["DustDevil", ["tokenTurnEnd"], "Ongoing Save", []],
     ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "Ongoing Save", []],
     ["HealingSpirit", ["tokenEnter", "tokenTurnStart"], "Ongoing Heal", []],
+    ["DarkStar", ["tokenEnter", "tokenTurnStart"], "Ongoing Save", [""]],
+    ["RavenousVoid", ["tokenEnter", "tokenTurnStart"], "Ongoing Damage", [""]],
   ])("%s casts as a utility and fires %j -> its no-roll-at-cast activity", (name, events, activityName, terrain) => {
     const e = build((SpellEnrichers as any)[name]);
     expect(e.type).toBe("utility");
@@ -1558,9 +1557,9 @@ describe("region enter timing", () => {
 
 describe("rolling casts that place an ongoing area", () => {
   it.each([
-    "AcidRain", "Bearstormer", "BlackTentacles", "CloudOfDaggers", "Cloudkill", "CreateBonfire", "DarkStar", "Dawn",
+    "AcidRain", "Bearstormer", "BlackTentacles", "CloudOfDaggers", "Cloudkill", "CreateBonfire", "Dawn",
     "DustOfSuleiman", "Grease", "GustOfWind", "IncendiaryCloud", "InsectPlague", "JallarzisStormOfRadiance",
-    "MistOfMourning", "Moonbeam", "RavenousVoid", "Whirlwind", "YolandesRegalPresence",
+    "MistOfMourning", "Moonbeam", "Whirlwind", "YolandesRegalPresence",
   ])("%s names its cast Cast, apart from the Ongoing copy the region fires", (name) => {
     const e = build((SpellEnrichers as any)[name]);
     expect(e.type).toBeNull();
@@ -1568,5 +1567,72 @@ describe("rolling casts that place an ongoing area", () => {
     const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
     const ongoing = e.additionalActivities.find((a: any) => a.id === macro.config.activity);
     expect(ongoing.overrides.name).toMatch(/^Ongoing/);
+  });
+});
+
+describe("region enter rules by wording", () => {
+  const enterMacros = (e: any) => [
+    ...(e.activity?.data?.behaviors ?? []),
+    ...(e.additionalActivities ?? []).flatMap((a: any) => a.overrides?.data?.behaviors ?? []),
+  ].filter((b: any) => b.type === "ddbMacro" && b.config.events.includes("tokenEnter"));
+
+  it.each([
+    "Alarm", "ArcanomagneticStorm", "AuraOfDesecration", "AuraOfImpurity", "Biohazard", "BlindingRadiance",
+    "ConjureTheDeepHaze", "CrookedWard", "CrownOfRadiance", "DarkStar", "FestivalKing", "ForestGuard",
+    "GlobeOfTwilight", "GrimShadows", "HealingSpirit", "InvestitureOfFlame", "Lifesink", "LivingShadows",
+    "RavenousVoid", "SickeningRadiance", "SpiderSong", "Stench", "UmbralStorm", "WallOfGloom", "Whiteout",
+  ])("%s counts only a creature moving in (\"enters\" / \"moves within\" wording)", (name) => {
+    for (const is2014 of [true, false]) {
+      const macros = enterMacros(build((SpellEnrichers as any)[name], { is2014 }));
+      expect(macros.length).toBeGreaterThan(0);
+      for (const macro of macros) expect(macro.config.enterOn).toBe("movement");
+    }
+  });
+
+  it.each(["ConjurePlants", "ValhallasCohort"])("%s also counts the area moving onto a creature", (name) => {
+    for (const macro of enterMacros(build((SpellEnrichers as any)[name]))) expect(macro.config.enterOn).toBe("movementOrArea");
+  });
+
+  it.each(["CacophonicShield", "ConjureCelestial", "ConjureWoodlandBeings", "Dirge", "FieldOfReaping", "LightningRing", "ShadowDrain", "Tremor"])(
+    "%s counts every enter, the area appearing around a creature included", (name) => {
+      const macros = enterMacros(build((SpellEnrichers as any)[name]));
+      expect(macros.length).toBeGreaterThan(0);
+      for (const macro of macros) expect(macro.config.enterOn).toBe("any");
+    });
+
+  it("Incendiary Cloud counts the cloud moving onto a creature only in 2024", () => {
+    expect(enterMacros(build(SpellEnrichers.IncendiaryCloud, { is2014: true }))[0].config.enterOn).toBe("movement");
+    // "auto" resolves to movementOrArea from the rolling cast
+    expect(enterMacros(build(SpellEnrichers.IncendiaryCloud))[0].config.enterOn).toBeUndefined();
+  });
+
+  it.each(["YolandesRegalPresence", "ConjureWoodlandBeings"])("%s spares the caster standing in their own emanation", (name) => {
+    expect(enterMacros(build((SpellEnrichers as any)[name]))[0].config.excludeSelf).toBe(true);
+  });
+
+  it("Festival King puts its aura on the king's token as an emanation that skips the king", () => {
+    const e = build(SpellEnrichers.FestivalKing);
+    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "20" });
+    expect(enterMacros(e)[0].config).toMatchObject({ enterOn: "movement", excludeSelf: true });
+  });
+
+  it("Transmute Rock places the mud from its own option, whose creation reaches creatures already on it", () => {
+    const e = build(SpellEnrichers.TransmuteRock);
+    expect(e.activity).toEqual({ name: "Mud to Rock" });
+    const mud = e.additionalActivities.find((a: any) => a.init?.name === "Rock to Mud");
+    expect(mud.init.type).toBe("utility");
+    expect(mud.build).toMatchObject({ generateConsumption: true, generateTarget: true, noeffect: true });
+    const [terrain, macro] = mud.overrides.data.behaviors;
+    expect(terrain).toMatchObject({ type: "difficultTerrain", config: { types: ["mud"] } });
+    expect(macro.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], enterOn: "any", activity: "ddbTraRocZoneSa1" });
+  });
+
+  it("Ravenous Void deals its sphere damage without a save and keeps DDB's save for the pull", () => {
+    const e = build(SpellEnrichers.RavenousVoid);
+    const [damage, pull] = e.additionalActivities;
+    expect(damage.init).toEqual({ name: "Ongoing Damage", type: "damage" });
+    expect(damage.build.generateSave).toBe(false);
+    expect(pull.init).toEqual({ name: "Pull Save", type: "save" });
+    expect(pull.build.generateDamage).toBe(false);
   });
 });

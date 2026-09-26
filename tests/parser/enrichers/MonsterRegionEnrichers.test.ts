@@ -41,29 +41,51 @@ function macro(activity: any): any {
   return activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
 }
 
+/**
+ * The activity that places the aura: the whole built aura when the parser read no roll, otherwise
+ * the "Place Aura" utility beside the parser's roll.
+ */
+function placer(e: any): { template: any; affects: string | undefined; behaviors: any[] } {
+  const extra = (e.additionalActivities ?? []).find((a: any) => a.init?.name === "Place Aura");
+  if (extra) {
+    return { template: extra.build.targetOverride.template, affects: extra.build.targetOverride.affects?.type, behaviors: extra.overrides.data.behaviors };
+  }
+  return { template: e.activity.data?.target?.template, affects: e.activity.data?.target?.affects?.type, behaviors: e.activity.data?.behaviors ?? [] };
+}
+
+function auraMacro(e: any): any {
+  return placer(e).behaviors.find((b: any) => b.type === "ddbMacro");
+}
+
 describe("monster Generic TurnStartAuraSave", () => {
   const rakdos = "Any creature that starts its turn within 30 feet of Rakdos must make a DC 25 Wisdom saving throw.";
 
-  it("supplies the emanation when the text names the monster and the parser found no template", () => {
+  it("places the aura with its own utility and fires the parser's roll, which places nothing", () => {
     const e = trait(TurnStartAuraSave, "Captivating Presence", rakdos);
-    expect(e.activity.targetType).toBe("creature");
-    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "30" });
-    expect(macro(e.activity).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
+    // switching the aura on rolls nothing: the parsed save is what the region fires
+    expect(e.activity).toMatchObject({ name: "Captivating Presence", activationType: "special", targetType: "creature", targetCount: "1", noTemplate: true });
+    expect(e.keepParsedActivities).toBe(true);
+    const [place] = e.additionalActivities;
+    expect(place.init).toEqual({ name: "Place Aura", type: "utility" });
+    // the text names the monster, so the parser found no template and the size is read here
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "30" });
+    expect(auraMacro(e).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true, args: { activityName: "Captivating Presence" } });
   });
 
   it("leaves the parser's template alone when it already extracted one", () => {
     const e = trait(TurnStartAuraSave, "Gibbering",
       "Each creature that starts its turn within 20 feet of the mouther must succeed on a DC 10 Wisdom saving throw.",
       { ddbParser: { actionData: { target: { template: { size: "20" } } } } });
-    expect(e.activity.targetType).toBeUndefined();
-    expect(e.activity.data.target).toBeUndefined();
-    expect(macro(e.activity).config.events).toEqual(["tokenTurnStart"]);
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "20" });
+    expect(auraMacro(e).config.events).toEqual(["tokenTurnStart"]);
   });
 
   it("also fires on entry when the trait says so", () => {
     const e = trait(TurnStartAuraSave, "Arcane Leak",
       "Any creature that starts its turn within 10 feet of the adranach or enters that area for the first time on a turn takes 10 (3d6) radiant damage.");
-    expect(macro(e.activity).config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    expect(auraMacro(e).config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+    // the aura following the monster onto a creature is not that creature entering it
+    expect(auraMacro(e).config.enterOn).toBe("movement");
   });
 
   it("builds the whole aura when the parser read no roll for it", () => {
@@ -72,21 +94,21 @@ describe("monster Generic TurnStartAuraSave", () => {
     expect(e.type).toBe("utility");
     expect(e.activity.name).toBe("Chill Aura");
     expect(e.activity.activationType).toBe("special");
-    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
-    expect(macro(e.activity).config).toMatchObject({ events: ["tokenTurnStart"], args: { activityName: "Aura Damage" } });
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "10" });
+    expect(auraMacro(e).config).toMatchObject({ events: ["tokenTurnStart"], args: { activityName: "Aura Damage" } });
     const [fired] = e.additionalActivities;
     expect(fired.init).toEqual({ name: "Aura Damage", type: "damage" });
     expect(fired.build.damageParts[0]).toMatchObject({ number: 2, denomination: 6, types: ["cold"] });
     expect(fired.overrides.noeffect).toBe(true);
   });
 
-  it("builds nothing extra when the parser already has the roll", () => {
+  it("fires the parser's roll rather than building one when the parser already has it", () => {
     const e = trait(TurnStartAuraSave, "Chill Aura",
       "Any creature that starts its turn within 10 feet of the ogre takes 7 (2d6) cold damage.",
       { ddbParser: { actionData: { damageParts: [{}], target: { template: { size: "10" } } } } });
     expect(e.type).toBeNull();
-    expect(e.additionalActivities).toEqual([]);
-    expect(e.activity.name).toBeUndefined();
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Place Aura"]);
+    expect(auraMacro(e).config.args.activityName).toBe("Chill Aura");
   });
 
   it("emits nothing for an owner-turn variant sharing the name", () => {
@@ -97,11 +119,11 @@ describe("monster Generic TurnStartAuraSave", () => {
 
   it("fires at turn end for an aura worded that way, and at both ends when both are named", () => {
     const end = trait(TurnStartAuraSave, "Test Aura", "Any creature that ends its turn within 30 feet of the thing takes 5 necrotic damage.");
-    expect(macro(end.activity).config.events).toEqual(["tokenTurnEnd"]);
-    expect(end.activity.data.target.template).toMatchObject({ type: "radius", size: "30" });
+    expect(auraMacro(end).config.events).toEqual(["tokenTurnEnd"]);
+    expect(placer(end).template).toMatchObject({ type: "radius", size: "30" });
     const both = trait(TurnStartAuraSave, "Test Aura",
       "A creature that starts its turn within 5 feet of it, or ends its turn within 5 feet of it, takes 3 fire damage.");
-    expect(macro(both.activity).config.events).toEqual(["tokenTurnStart", "tokenTurnEnd"]);
+    expect(auraMacro(both).config.events).toEqual(["tokenTurnStart", "tokenTurnEnd"]);
   });
 
   it.each([
@@ -112,14 +134,14 @@ describe("monster Generic TurnStartAuraSave", () => {
   ])("cards enemies only for: %s", (text) => {
     const e = trait(TurnStartAuraSave, "Test Aura", text);
     expect(e.activity.targetType).toBe("enemy");
-    expect(e.activity.data.target.affects.type).toBe("enemy");
+    expect(placer(e).affects).toBe("enemy");
   });
 
   it("keeps the parser's template but still narrows to enemies", () => {
     const e = trait(TurnStartAuraSave, "Test Aura", "Any enemy that starts its turn within 30 feet of it must save.",
       { ddbParser: { actionData: { target: { template: { size: "30" } } } } });
     expect(e.activity.targetType).toBe("enemy");
-    expect(e.activity.data.target).toBeUndefined();
+    expect(placer(e).affects).toBe("enemy");
   });
 
   it.each([
@@ -128,21 +150,21 @@ describe("monster Generic TurnStartAuraSave", () => {
     ["It emits an aura of corruption 30 feet in every direction, and the ground in the aura is difficult terrain for other creatures. Any creature that starts its turn in the aura must save.", "30"],
   ])("reads a size stated before the turn clause and adds terrain: %s", (text, size) => {
     const e = trait(TurnStartAuraSave, "Test Aura", text);
-    expect(e.activity.data.target.template.size).toBe(size);
-    expect(e.activity.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
+    expect(placer(e).template.size).toBe(size);
+    expect(placer(e).behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
   });
 
   it("treats the monster's own space as a 1 ft emanation", () => {
     const e = trait(TurnStartAuraSave, "Test Aura", "Constitution Saving Throw: DC 12, any creature that starts its turn in the swarm's space.");
-    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "1" });
-    expect(macro(e.activity).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "1" });
+    expect(auraMacro(e).config).toMatchObject({ events: ["tokenTurnStart"], excludeSelf: true });
   });
 
   it("reads 'a radius of N feet'", () => {
     const e = trait(TurnStartAuraSave, "Test Aura",
       "It radiates an aura to a radius of 20 feet. Each creature that starts its turn in the aura must save.");
-    expect(e.activity.data.target.template.size).toBe("20");
-    expect(e.activity.data.behaviors.map((b: any) => b.type)).toEqual(["ddbMacro"]);
+    expect(placer(e).template.size).toBe("20");
+    expect(placer(e).behaviors.map((b: any) => b.type)).toEqual(["ddbMacro"]);
   });
 
   it.each([
@@ -154,14 +176,14 @@ describe("monster Generic TurnStartAuraSave", () => {
     ["Confounding Ugliness", "Any Humanoid that starts its turn within 60 feet of the hag must save.", { types: ["humanoid"] }],
   ])("carries the type exemption the %s text states", (name, text, filters) => {
     const e = trait(TurnStartAuraSave, name, text);
-    expect(macro(e.activity).config).toMatchObject(filters);
+    expect(auraMacro(e).config).toMatchObject(filters);
   });
 
   it.each([
     ["Drone", "Each creature that starts its turn within 10 feet of the gigant must succeed on a DC 19 Constitution saving throw."],
     ["Dread", "Any creature that starts its turn within 10 feet of it must save."],
   ])("leaves %s unfiltered on a monster whose text states no exemption", (name, text) => {
-    const config = macro(trait(TurnStartAuraSave, name, text).activity).config;
+    const config = auraMacro(trait(TurnStartAuraSave, name, text)).config;
     expect(config.excludeTypes ?? []).toEqual([]);
     expect(config.types ?? []).toEqual([]);
   });
@@ -222,31 +244,34 @@ describe("summon-side auras", () => {
     expect(e.effects[0]).toMatchObject({ auraeffectsOnly: true, midiOnly: true });
   });
 
-  it("Guardian of Faith: enemies entering, plus turn start in 2024", () => {
+  it("Guardian of Faith: a Place Aura that rolls nothing, firing the save for enemies entering (and at turn start in 2024)", () => {
     const legacy = trait(GuardianAura, "Guardian Aura", "", { is2014: true });
-    expect(legacy.activity.targetType).toBe("enemy");
-    expect(legacy.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
-    expect(macro(legacy.activity).config.events).toEqual(["tokenEnter", "tokenMoveIn"]);
-    expect(legacy.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "20" });
+    // the save is what the region fires; it spends 20 of the 60-damage pool each time
+    expect(legacy.activity).toMatchObject({ id: "ddbGuardianAuraS", targetType: "enemy", noTemplate: true, addItemConsume: true, itemConsumeValue: "20" });
+    expect(legacy.activity.data.behaviors).toBeUndefined();
+    expect(placer(legacy)).toMatchObject({ template: { type: "radius", size: "10" }, affects: "enemy" });
+    expect(auraMacro(legacy).config).toMatchObject({ events: ["tokenEnter"], enterOn: "movement", excludeSelf: true, activity: "ddbGuardianAuraS" });
 
     const modern = trait(GuardianAura, "Guardian Aura", "");
-    expect(macro(modern.activity).config.events).toEqual(["tokenEnter", "tokenMoveIn", "tokenTurnStart"]);
+    expect(auraMacro(modern).config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
   });
 
-  it("Conjured Animals: Pack Damage fires on enter and turn end without the Aura Effects arm", () => {
+  it("Conjured Animals: Place Aura fires Pack Damage on enter, the pack moving close, and turn end", () => {
     const e = trait(PackDamage, "Pack Damage", "");
-    expect(e.activity.id).toBe("ddbPackDamageSav");
-    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "10" });
-    const behavior = macro(e.activity);
-    expect(behavior.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], excludeSelf: true });
+    expect(e.activity).toMatchObject({ id: "ddbPackDamageSav", noTemplate: true });
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "10" });
+    const behavior = auraMacro(e);
+    // "whenever the pack moves within 10 feet of a creature" counts; the pack appearing does not
+    expect(behavior.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], enterOn: "movementOrArea", excludeSelf: true, activity: "ddbPackDamageSav" });
     expect(behavior.ddbimporter?.auraeffectsNever).toBeUndefined();
   });
 
-  it("Conjured Elemental: the element's damage type and an enter/turn-start trigger", () => {
+  it("Conjured Elemental: the element's damage type, fired by a Place Aura on enter or turn start", () => {
     const e = trait(ElementDamage, "Fire Element", "");
     expect(e.activity.data.damage.parts[0].types).toEqual(["fire"]);
-    expect(e.activity.data.target.template).toMatchObject({ type: "radius", size: "5" });
-    expect(macro(e.activity).config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], excludeSelf: true });
+    expect(e.activity.noTemplate).toBe(true);
+    expect(placer(e).template).toMatchObject({ type: "radius", size: "5" });
+    expect(auraMacro(e).config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], enterOn: "movement", excludeSelf: true, activity: "ddbElemDamageSav" });
   });
 
   it("Faithful Hound: Bark whispers the owner for Small or larger creatures within 30 feet", () => {

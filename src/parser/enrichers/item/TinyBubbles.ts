@@ -22,6 +22,7 @@ export default class TinyBubbles extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter"],
+          enterOn: "movement",
           activityName: "Bubbles Burst Save",
         }),
       ],

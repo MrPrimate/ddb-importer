@@ -20,6 +20,7 @@ export default class Caltrooze extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter"],
+          enterOn: "movement",
           activityName: "Caltrooze Save",
         }),
       ],

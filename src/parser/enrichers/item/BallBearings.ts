@@ -38,6 +38,7 @@ export default class BallBearings extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter"],
+            enterOn: "movement",
             activityName: "Ball Bearings Save",
           }),
         ],

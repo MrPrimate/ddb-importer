@@ -1896,7 +1896,8 @@ describe("paladin capstone aura regions", () => {
 
   it.each([
     ["HolyNimbus", "Aura Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
-    ["AvengingAngel", "Avenging Angel", ["tokenEnter"], "30"],
+    // 2024 "Whenever an enemy starts its turn in your Aura of Protection"
+    ["AvengingAngel", "Avenging Angel", ["tokenTurnStart"], "30"],
     ["Plaguebringer", "Entropic Radiance Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
     ["ApocalypticRevelation", "Blinding Glory", ["tokenTurnStart"], "5"],
     ["SpiritOfTheValkyrie", "Thunderstruck", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
@@ -1909,6 +1910,14 @@ describe("paladin capstone aura regions", () => {
     expect(behavior.config.events).toEqual(events);
     expect(behavior.config.args.activityName).toBe(activityName);
   });
+});
+
+it("2014 Avenging Angel also frightens an enemy moving into the aura, but not one it is carried onto", () => {
+  const e = build(ClassEnrichers.Paladin.AvengingAngel, { is2014: true });
+  const aura = e.additionalActivities.find((a: any) => a.init?.name === "Place Aura");
+  const [behavior] = aura.overrides.data.behaviors;
+  expect(behavior.config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
+  expect(behavior.config.enterOn).toBe("movement");
 });
 
 describe("paladin aura marker regions", () => {
@@ -2039,14 +2048,15 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
     ]);
   });
 
-  it("druid HaloOfSpores: Place Halo offers the parsed reaction on move-in and turn start", () => {
+  it("druid HaloOfSpores: Place Halo offers the parsed reaction on moving in and turn start", () => {
     const e = build(ClassEnrichers.Druid.HaloOfSpores);
     expect(e.activity.name).toBe("Halo of Spores");
     const [halo] = e.additionalActivities;
     expect(halo.init).toEqual({ name: "Place Halo", type: "utility" });
     expect(halo.build.targetOverride.template).toMatchObject({ type: "radius", size: "10" });
     expect(macros(halo.overrides)[0].config).toMatchObject({
-      events: ["tokenEnter", "tokenMoveIn", "tokenTurnStart"],
+      events: ["tokenEnter", "tokenTurnStart"],
+      enterOn: "movement",
       excludeSelf: true,
       args: { activityName: "Halo of Spores" },
     });
@@ -2098,13 +2108,14 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
     // the trigger fires the trap's class action by name, so that action is pulled onto the document
     expect(pulled(snap)).toEqual(["Activate Snapfrost"]);
     const snapTrigger = trigger(snap);
-    expect(snapTrigger.build.targetOverride.template).toMatchObject({ type: "radius", size: "20" });
+    // "a 20-foot-radius sphere centred on the trap" stays where the trap is
+    expect(snapTrigger.build.targetOverride.template).toMatchObject({ type: "sphere", size: "20" });
     expect(macros(snapTrigger.overrides)[0].config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], args: { activityName: "Activate Snapfrost" } });
 
     const well = build(ClassEnrichers.Ranger.SetTrapGravityWell);
     expect(pulled(well)).toEqual(["Activate Gravity Well", "Gravity Well: Damage", "Gravity Well: Critical Mass"]);
     const wellTrigger = trigger(well);
-    expect(wellTrigger.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
+    expect(wellTrigger.build.targetOverride.template).toMatchObject({ type: "circle", size: "30" });
     expect(wellTrigger.overrides.data.duration).toMatchObject({ value: "1", units: "round" });
     expect(wellTrigger.overrides.data.behaviors.map((b: any) => b.type)).toEqual(["difficultTerrain", "ddbMacro"]);
     expect(macros(wellTrigger.overrides)[0].config).toMatchObject({ events: ["tokenTurnStart"], args: { activityName: "Gravity Well: Damage" } });
@@ -2114,7 +2125,8 @@ describe("region-behavior class features (2026-09-02 wave)", () => {
     expect(pulled(bear)).toEqual(["Bear Trap: Damage"]);
     expect(bear.activity.data.target.template).toMatchObject({ type: "square", size: "5" });
     expect(macros(bear.activity)[0].config).toMatchObject({
-      events: ["tokenEnter", "tokenMoveIn"],
+      events: ["tokenEnter"],
+      enterOn: "movement",
       sizes: ["tiny", "sm", "med", "lg"],
       args: { activityName: "Bear Trap: Damage" },
     });

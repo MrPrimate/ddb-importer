@@ -4,8 +4,8 @@ import { castPlacer, ongoingTrigger } from "./_SpellRegions";
 /**
  * Nothing is rolled as the spell is cast. A hostile creature in the field is cursed until the end
  * of its next turn, even if it leaves, so the region fires a free activity that applies the curse
- * where an effect held only while inside would drop it early; use that same activity on hostile
- * creatures already in the field at the cast. DDB's damage part is what a cursed creature takes
+ * where an effect held only while inside would drop it early. Hostile creatures already in the
+ * field when it appears are cursed by the same trigger (enterOn "any"). DDB's damage part is what a cursed creature takes
  * the first time it is damaged on a turn, which is rolled by hand, as is the healing it feeds.
  */
 export default class FieldOfReaping extends DDBEnricherData {
@@ -18,6 +18,7 @@ export default class FieldOfReaping extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnEnd"],
+        enterOn: "any",
         activityName: "Reaping Curse",
       }),
     ]);

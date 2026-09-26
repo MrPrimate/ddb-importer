@@ -169,6 +169,8 @@ describe("LairActions enricher", () => {
     const [terrain, trigger] = placer.overrides.data.behaviors;
     expect(terrain).toMatchObject({ type: "difficultTerrain", config: { types: ["ice"] } });
     expect(trigger.config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], args: { activityName: "Hailstorm Save" } });
+    // the parser's own save covers creatures caught as the zone appears
+    expect(trigger.config.enterOn).toBe("movement");
     expect(trigger.config.args.autoRoll).toBeUndefined();
   });
 

@@ -16,6 +16,7 @@ export default class ConjurePlants extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnEnd"],
+        enterOn: "movementOrArea",
         activityName: ONGOING,
       }),
     ], { target: area("square", "20") });

@@ -16,6 +16,7 @@ export default class Biohazard extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.difficultTerrain(),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
       }),
     ]);

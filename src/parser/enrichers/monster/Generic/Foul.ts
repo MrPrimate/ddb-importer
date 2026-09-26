@@ -1,9 +1,9 @@
 import TurnStartAuraSave from "./TurnStartAuraSave";
 
 /**
- * Juiblex's Foul trait: The parser extracts
- * the save but no template ("within 10 feet" prose), so the emanation is supplied
- * here; the ooze exemption is the region's excluded creature type.
+ * Juiblex's Foul trait: the parser extracts the save but no template ("within 10 feet" prose), so
+ * the emanation's size is supplied here when the text reading finds none; the ooze exemption is the
+ * region's excluded creature type.
  */
 export default class Foul extends TurnStartAuraSave {
 
@@ -11,29 +11,8 @@ export default class Foul extends TurnStartAuraSave {
     return { excludeTypes: ["ooze"] };
   }
 
-  override get activity(): IDDBActivityData {
-    const base = super.activity;
-    if (!this.isTargetTurnAura) return base;
-    return {
-      ...base,
-      targetType: "creature",
-      data: {
-        ...base.data,
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            count: "1",
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
-        },
-      },
-    };
+  override get radius(): string | null {
+    return super.radius ?? "10";
   }
 
 }

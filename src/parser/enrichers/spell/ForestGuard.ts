@@ -19,6 +19,7 @@ export default class ForestGuard extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: LEAF_ATTACK,
       }),
     ], { target: area("square", "25", {}, "enemy") });

@@ -17,6 +17,7 @@ export default class Whiteout extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["snow"] }),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
       }),
     ]);

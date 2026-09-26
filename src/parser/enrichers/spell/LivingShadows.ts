@@ -17,6 +17,7 @@ export default class LivingShadows extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
       }),
     ]);

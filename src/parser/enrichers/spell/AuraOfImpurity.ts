@@ -17,6 +17,7 @@ export default class AuraOfImpurity extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
         excludeSelf: true,
       }),

@@ -34,10 +34,13 @@ const MOVEMENT_DAMAGE = "Movement Damage";
  * trait text and adds only that.
  *
  * A region re-uses an activity without spending its uses or placing a second template, so where
- * the area's later roll is the roll the action makes anyway, the region fires the action's own
- * activity. A sibling is built only when the text rolls one thing as the area appears and another
- * afterwards (a breath that deals damage, then a fog that only poisons), and then the parser's
- * own activities are kept beside it.
+ * the text rolls as the area appears and a creature "must also" make that roll later, the region
+ * fires the action's own activity. A sibling is built from the trigger sentence otherwise: when
+ * the text rolls one thing as the area appears and another afterwards (a breath that deals damage,
+ * then a fog that only poisons), the parser's own activities are kept beside it; when the area
+ * rolls nothing as it appears (a fog that poisons a creature entering it or starting its turn
+ * there), the action becomes a utility that only places the area, since using the parsed roll to
+ * place it would roll for every creature already inside.
  *
  * Several of these names are ordinary actions on other monsters (a dragon's Poison Breath, a
  * mephit's Death Burst), so text with no zone wording changes nothing.
@@ -107,25 +110,48 @@ export default class PlacedZone extends DDBEnricherData {
     return terrainTypes(text.slice(start, end < 0 ? undefined : end));
   }
 
+  /** The text before the trigger sentence (what happens as the area appears) and from it on. */
+  get triggerSplit(): { head: string; tail: string } {
+    const text = this.text;
+    const first = PlacedZone.ZONE_WORDING.exec(text)?.index ?? 0;
+    const sentenceStart = Math.max(text.lastIndexOf(". ", first) + 2, 0);
+    return { head: text.slice(0, sentenceStart), tail: text.slice(sentenceStart) };
+  }
+
+  /** True when the text rolls something as the area appears, before the trigger sentence. */
+  get rollsAsItAppears(): boolean {
+    const { head } = this.triggerSplit;
+    return DDBDescriptions.parseSaves(head).length > 0 || DDBDescriptions.parseDamageParts(head).parts.length > 0;
+  }
+
   /**
    * True when the text rolls something as the area appears and the trigger sentence then rolls
    * something else, rather than saying a creature "must also" make the same save.
    */
   get triggerNeedsSibling(): boolean {
+    if (!this.trigger) return false;
+    if ((/\bmust also\b|\b(?:this|that|the same) sav(?:e|ing throw)\b/i).test(this.triggerSplit.tail)) return false;
+    return this.rollsAsItAppears;
+  }
+
+  /**
+   * True when the area rolls nothing as it appears but the parser made the action's roll: the
+   * action then only places the area, and the region fires the roll built from the trigger sentence.
+   */
+  get placesWithoutRoll(): boolean {
     const trigger = this.trigger;
-    if (!trigger) return false;
-    const text = this.text;
-    const first = PlacedZone.ZONE_WORDING.exec(text)?.index ?? 0;
-    const sentenceStart = Math.max(text.lastIndexOf(". ", first) + 2, 0);
-    const head = text.slice(0, sentenceStart);
-    const tail = text.slice(sentenceStart);
-    if ((/\bmust also\b|\b(?:this|that|the same) sav(?:e|ing throw)\b/i).test(tail)) return false;
-    return DDBDescriptions.parseSaves(head).length > 0 || DDBDescriptions.parseDamageParts(head).parts.length > 0;
+    return trigger !== null && !this.hasNoParsedActivity && !this.rollsAsItAppears
+      && (trigger.save !== null || trigger.damageParts.length > 0);
+  }
+
+  /** The region fires a sibling built from the trigger sentence rather than the action itself. */
+  get firesBuiltTrigger(): boolean {
+    return this.triggerNeedsSibling || this.placesWithoutRoll;
   }
 
   /** Movement damage is a roll of its own beside a save; an action that only deals it fires itself. */
   get movementNeedsSibling(): boolean {
-    return this.movementSentence !== null && this.parser.isSave === true;
+    return this.movementSentence !== null && (this.parser.isSave === true || this.placesWithoutRoll);
   }
 
   /** A trait the parser gives no activity: no save, no dice, and nothing to spend. */
@@ -195,7 +221,10 @@ export default class PlacedZone extends DDBEnricherData {
       ...(trigger
         ? [DDBEnricherData.BehaviorHelper.activity({
           events: trigger.events,
-          ...(this.triggerNeedsSibling ? { activityName: this.triggerName } : {}),
+          // every matched wording is creature-side ("enters", "moves into"): a zone following its
+          // monster onto a creature is not that creature entering it
+          enterOn: "movement",
+          ...(this.firesBuiltTrigger ? { activityName: this.triggerName } : {}),
           ...(excludeSelf ? { excludeSelf: true } : {}),
         })]
         : []),
@@ -211,7 +240,7 @@ export default class PlacedZone extends DDBEnricherData {
   }
 
   override get type(): IDDBActivityType | null {
-    return this.isZone && this.hasNoParsedActivity ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
+    return this.isZone && (this.hasNoParsedActivity || this.placesWithoutRoll) ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }
 
   override get activity(): IDDBActivityData {
@@ -219,6 +248,8 @@ export default class PlacedZone extends DDBEnricherData {
     const target = this.target;
     return {
       ...(this.hasNoParsedActivity ? { name: this.name, activationType: "special" } : {}),
+      // what the area does to a creature belongs to the roll the region fires
+      ...(this.placesWithoutRoll ? { removeDamageParts: true, noeffect: true } : {}),
       ...(target ? { targetType: "creature" } : {}),
       data: {
         ...(target
@@ -240,7 +271,7 @@ export default class PlacedZone extends DDBEnricherData {
     if (!this.isZone) return [];
     const siblings: IDDBAdditionalActivity[] = [];
     const trigger = this.trigger;
-    if (trigger && this.triggerNeedsSibling) {
+    if (trigger && this.firesBuiltTrigger) {
       const when = [
         trigger.events.includes("tokenEnter") ? "enters the area" : null,
         trigger.events.includes("tokenTurnStart") ? "starts its turn there" : null,
@@ -278,7 +309,7 @@ export default class PlacedZone extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     const trigger = this.trigger;
-    if (!this.isZone || !trigger?.status || !this.triggerNeedsSibling) return [];
+    if (!this.isZone || !trigger?.status || !this.firesBuiltTrigger) return [];
     return [{
       name: `${this.name}: ${trigger.status}`,
       activityMatch: this.triggerName,
@@ -289,6 +320,11 @@ export default class PlacedZone extends DDBEnricherData {
         ...(trigger.expiry ? { expiry: trigger.expiry, durationSeconds: null } : {}),
       },
     }];
+  }
+
+  // the parser's status effect belonged to the roll the placer no longer makes; the fired roll has its own
+  override get clearAutoEffects(): boolean {
+    return this.isZone && this.placesWithoutRoll && this.trigger?.status !== null;
   }
 
   // a sibling sits beside the saves the parser builds from the same text, not instead of them

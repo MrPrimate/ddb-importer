@@ -13,6 +13,7 @@ export default class SpreadingSpores extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Save vs Spore Damage",
           }),
         ],

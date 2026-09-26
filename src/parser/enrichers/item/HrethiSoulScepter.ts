@@ -47,6 +47,7 @@ export default class HrethiSoulScepter extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Sandstorm Save",
             excludeSelf: true,
           }),

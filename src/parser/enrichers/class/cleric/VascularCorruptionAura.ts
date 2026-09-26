@@ -34,6 +34,7 @@ export default class VascularCorruptionAura extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Aura Damage",
             excludeSelf: true,
           }),

@@ -20,6 +20,7 @@ export default class PoisonPopper extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Noxious Gas Save",
         }),
       ],

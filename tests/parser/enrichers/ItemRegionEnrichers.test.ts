@@ -533,3 +533,43 @@ describe("family names reach their shared enricher", () => {
     expect(resolve("Grass Whistle Blade")).toBeNull();
   });
 });
+
+describe("item region enter rules", () => {
+  /** Every trigger behavior that listens for tokenEnter, across the item's activities. */
+  const enterMacros = (e: any) => activities(e).flatMap(behaviorsOf)
+    .filter((behavior: any) => behavior.type === "ddbMacro" && behavior.config.events.includes("tokenEnter"));
+
+  it.each([
+    ItemEnrichers.AstralCaltrops, ItemEnrichers.BallBearings, ItemEnrichers.BlizzardSphere, ItemEnrichers.Caltrooze,
+    ItemEnrichers.Caltrops, ItemEnrichers.CloakOfTheListener, ItemEnrichers.HrethiSoulScepter,
+    ItemEnrichers.IndigoStraysConviction, ItemEnrichers.MourningsteelHalfPlate, ItemEnrichers.Oil, ItemEnrichers.PoisonPopper,
+    ItemEnrichers.SheerCold, ItemEnrichers.TinyBubbles, ItemEnrichers.VilesmogBomb, ItemEnrichers.VolcanicBoots,
+    ItemEnrichers.WarOil,
+  ].map((Enricher) => [Enricher.name, Enricher]))("%s counts only a creature moving into the area", (_name, Enricher) => {
+    const macros = enterMacros(build(Enricher as TEnricher));
+    expect(macros.length).toBeGreaterThan(0);
+    for (const behavior of macros) expect(behavior.config.enterOn).toBe("movement");
+  });
+
+  it("Calimemnon Crystal's aura counts the emanation entering a creature's space", () => {
+    expect(enterMacros(build(ItemEnrichers.CalimemnonCrystal))[0].config.enterOn).toBe("any");
+  });
+
+  it.each(["Silver Wyrm's Breath Grenade", "Bronze Wyrm's Breath Grenade", "Wyrm's Breath Grenade"])(
+    "%s lands as a fixed cloud that rolls nothing on impact and fires the metal's save", (name) => {
+      const e = build(ItemEnrichers.WyrmsBreathGrenade, name);
+      expect(e.type).toBe("utility");
+      expect(e.activity.data.target.template).toMatchObject({ type: "sphere", size: "15" });
+      const [macro] = enterMacros(e);
+      expect(macro.config).toMatchObject({ enterOn: "movement", args: { activityName: "Ongoing Save" } });
+      const [save] = e.additionalActivities;
+      expect(save.init).toEqual({ name: "Ongoing Save", type: "save" });
+      expect(save.build.saveOverride.ability).toEqual([name.startsWith("Bronze") ? "str" : "con"]);
+      expect(save.build.generateDamage).toBe(name.startsWith("Bronze"));
+      for (const effect of e.effects) expect(effect.activityMatch).toBe("Ongoing Save");
+    });
+
+  it("Inferno Rope's wall catches its user walking in, since only the ignition spares them", () => {
+    expect(enterMacros(build(ItemEnrichers.InfernoRope))[0].config.excludeSelf).toBe(false);
+  });
+});

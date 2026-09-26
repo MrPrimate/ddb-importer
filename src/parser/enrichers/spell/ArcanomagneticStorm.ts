@@ -18,6 +18,7 @@ export default class ArcanomagneticStorm extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: "Lightning Save",
       }),
       DDBEnricherData.BehaviorHelper.activity({

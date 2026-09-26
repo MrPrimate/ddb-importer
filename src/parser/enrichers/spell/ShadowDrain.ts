@@ -16,6 +16,7 @@ export default class ShadowDrain extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "any",
         activityName: ONGOING,
         excludeSelf: true,
       }),

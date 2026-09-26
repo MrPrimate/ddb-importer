@@ -210,11 +210,18 @@ describe("Floral Dragons items", () => {
     expect(e.effects[0]).toMatchObject({ statuses: ["Poisoned"], activityMatch: "Poison Spines" });
   });
 
-  it("fixes the perfume save and ends the sleep on damage", () => {
+  it("throws a scent that rolls nothing on impact, fires the fixed save, and ends the sleep on damage", () => {
     const e = build(WisteriaDragonPerfume, { name: "Wisteria Dragon Perfume" });
-    expect(e.activity.data.save.ability).toEqual(["con"]);
-    expect(e.activity.data.save.dc.formula).toBe("19");
+    expect(e.type).toBe("utility");
+    // a sphere where the orb shatters, not an emanation following whoever was clicked
+    expect(e.activity.data.target.template).toMatchObject({ type: "sphere", size: "20" });
+    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
+    expect(macro.config).toMatchObject({ events: ["tokenEnter", "tokenTurnStart"], enterOn: "movement", args: { activityName: "Ongoing Save" } });
+    const [save] = e.additionalActivities;
+    expect(save.init).toEqual({ name: "Ongoing Save", type: "save" });
+    expect(save.build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "19" } });
     expect(e.effects[0]).toMatchObject({
+      activityMatch: "Ongoing Save",
       statuses: ["Unconscious"],
       daeSpecialDurations: ["isDamaged"],
       options: { durationSeconds: 60 },

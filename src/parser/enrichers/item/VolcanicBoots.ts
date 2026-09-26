@@ -24,6 +24,7 @@ export default class VolcanicBoots extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Volcanic Ground Save",
           excludeSelf: true,
         }),

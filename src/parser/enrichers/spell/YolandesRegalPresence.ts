@@ -9,6 +9,8 @@ export default class YolandesRegalPresence extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            // the caster always stands in their own emanation and never forces the save on themselves
+            excludeSelf: true,
             activityId: "ddbYolRegZoneSa1",
           }),
         ],

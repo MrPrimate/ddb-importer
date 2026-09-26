@@ -15,6 +15,8 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            enterOn: "any",
+            excludeSelf: true,
             activityId: "ddbConjWoodBeSav",
           }),
         ],

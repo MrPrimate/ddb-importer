@@ -19,6 +19,7 @@ export default class CrookedWard extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Crooked Ward: Agony", types: TWISTED }),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
         types: TWISTED,
       }),

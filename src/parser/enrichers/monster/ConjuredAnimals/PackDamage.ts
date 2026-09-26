@@ -1,11 +1,14 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { regionPlacer } from "../../data/RegionBuilders";
+
+const PACK_SAVE_ID = "ddbPackDamageSav";
 
 /**
  * The importer-built 2024 Conjure Animals pack.
- * Using Pack Damage from the pack token places a 10-foot emanation attached to it;
- * the region fires the save when a creature enters or ends its turn inside (once per turn).
- * The pack moving within 10 feet of a creature is mover-inverted and stays manual. The
+ * "Place Aura" puts a 10-foot emanation on the pack token and rolls nothing; the region fires
+ * Pack Damage when a creature enters or ends its turn inside (once per turn), and when the pack
+ * moves within 10 feet of one ("movementOrArea": the pack appearing is not it moving). The
  * "(Aura Automation)" activity below is the Aura Effects + midi arm of the same
  * automation, so the region arm remains unless both modules can automate it.
  */
@@ -16,32 +19,14 @@ export default class PackDamage extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      id: "ddbPackDamageSav",
+      id: PACK_SAVE_ID,
       targetType: "creature",
+      targetCount: "1",
+      noTemplate: true,
       activationType: "special",
       activationCondition:
         "Moves within 10 feet of a creature you can see and whenever a creature you can see enters a space within 10 feet of the pack or ends its turn there",
       data: {
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            count: "1",
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
-        },
-        behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
-            excludeSelf: true,
-            auraeffectsNever: this.useMidiAutomations,
-          }),
-        ],
         save: {
           ability: ["dex"],
           dc: {
@@ -54,7 +39,22 @@ export default class PackDamage extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (!this.useMidiAutomations || !DDBEnricherData.AutoEffects.effectModules().auraeffectsInstalled) return [];
+    const placer = regionPlacer("Place Aura", {
+      template: { type: "radius", size: "10" },
+      activationType: "special",
+      activationCondition: "When the pack appears",
+      behaviors: [
+        DDBEnricherData.BehaviorHelper.activity({
+          events: ["tokenEnter", "tokenTurnEnd"],
+          enterOn: "movementOrArea",
+          excludeSelf: true,
+          auraeffectsNever: this.useMidiAutomations,
+          activityId: PACK_SAVE_ID,
+        }),
+      ],
+    });
+    // one working path: the region, or the Aura Effects + midi arm in its place
+    if (!this.useMidiAutomations || !DDBEnricherData.AutoEffects.effectModules().auraeffectsInstalled) return [placer];
     return [
       {
         init: {
@@ -151,7 +151,7 @@ export default class PackDamage extends DDBEnricherData {
           ddbimporter: {
             effect: {
               sequencerFile: "jb2a.swirling_feathers.outburst.01.textured.2",
-              activityIds: ["ddbPackDamageSav"],
+              activityIds: [PACK_SAVE_ID],
             },
           },
         },

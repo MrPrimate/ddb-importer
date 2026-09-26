@@ -43,6 +43,7 @@ export default class IndigoStraysConviction extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Aura of Retribution Damage",
             excludeSelf: true,
           }),

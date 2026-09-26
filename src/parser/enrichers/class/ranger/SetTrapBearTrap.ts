@@ -41,7 +41,8 @@ export default class SetTrapBearTrap extends DDBEnricherData {
         },
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenMoveIn"],
+            events: ["tokenEnter"],
+            enterOn: "movement",
             activityName: "Bear Trap: Damage",
             sizes: ["tiny", "sm", "med", "lg"],
           }),

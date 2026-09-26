@@ -5,8 +5,8 @@ import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
  * The parser's single save is the once-a-day ray action, reshaped here into the damage ray with
  * the healing ray beside it. The Aura of Cold is a 20-foot emanation toggled with a Magic action;
  * its region rolls the cold damage for a creature that enters it or ends its turn there, never
- * for the attuned holder. The rules also deal the damage when the emanation moves onto a creature,
- * which a region cannot see, so that case is a manual roll of the same activity.
+ * for the attuned holder. The rules also deal the damage whenever the emanation enters a creature's
+ * space, so its movement and its being switched on around a creature count too (enterOn "any").
  */
 export default class CalimemnonCrystal extends DDBEnricherData {
 
@@ -58,6 +58,7 @@ export default class CalimemnonCrystal extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            enterOn: "any",
             activityName: "Aura of Cold Damage",
             excludeSelf: true,
           }),

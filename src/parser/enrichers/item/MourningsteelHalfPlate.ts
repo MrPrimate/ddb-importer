@@ -47,6 +47,7 @@ export default class MourningsteelHalfPlate extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Unholy Aura Damage",
             types: ["celestial"],
             excludeSelf: true,

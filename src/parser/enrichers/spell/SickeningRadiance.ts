@@ -21,6 +21,7 @@ export default class SickeningRadiance extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Ongoing Save",
           }),
         ],

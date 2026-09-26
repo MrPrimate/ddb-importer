@@ -190,6 +190,9 @@ export default class LairActions extends DDBEnricherData {
           ...(trigger
             ? [DDBEnricherData.BehaviorHelper.activity({
               events: trigger.events,
+              // the placer only places the zone: the parser's own save covers creatures caught as it
+              // appears, so only a creature moving in afterwards triggers it
+              enterOn: "movement",
               activityName: LairActions.triggerName(zone),
               ...(trigger.excludeSelf ? { excludeSelf: true } : {}),
             })]

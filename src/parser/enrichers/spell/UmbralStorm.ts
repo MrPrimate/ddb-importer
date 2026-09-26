@@ -3,7 +3,8 @@ import { ONGOING, castPlacer, ongoingTrigger } from "./_SpellRegions";
 
 /**
  * Nothing is rolled as the spell is cast: the storm catches a creature that enters it or starts its
- * turn there. Moving the storm 30 feet is a Bonus Action that means dragging the region.
+ * turn there. Moving the storm 30 feet is a Bonus Action that means dragging the region; the storm
+ * moving onto a creature is not that creature entering it (enterOn "movement").
  */
 export default class UmbralStorm extends DDBEnricherData {
 
@@ -15,6 +16,7 @@ export default class UmbralStorm extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
       }),
     ]);

@@ -20,6 +20,7 @@ export default class WallOfGloom extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnEnd"],
+        enterOn: "movement",
         activityName: WALL_SAVE,
       }),
     ]);

@@ -79,10 +79,12 @@ export default class SetTrapGravityWell extends DDBEnricherData {
             affects: {
               type: "creature",
             },
+            // "a 30-foot-radius circle centred on the trap": fixed where the trap is, not an emanation
+            // following whoever was clicked
             template: {
               count: "1",
               contiguous: false,
-              type: "radius",
+              type: "circle",
               size: "30",
               units: "ft",
             },

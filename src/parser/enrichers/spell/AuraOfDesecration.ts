@@ -3,7 +3,8 @@ import { ONGOING, castPlacer, ongoingTrigger } from "./_SpellRegions";
 
 /**
  * Nothing is rolled as the spell is cast. The 30-foot aura follows the caster and fires the save at
- * a creature that enters it or starts its turn there.
+ * a creature that enters it or starts its turn there; the aura moving onto a creature is not that
+ * creature entering it (enterOn "movement").
  * It harms creatures of the caster's choice, which a region cannot ask, so it fires for enemies.
  */
 export default class AuraOfDesecration extends DDBEnricherData {
@@ -16,6 +17,7 @@ export default class AuraOfDesecration extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
         excludeSelf: true,
       }),

@@ -19,6 +19,7 @@ export default class Dirge extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Dirge: No Healing" }),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnEnd"],
+        enterOn: "any",
         activityName: ONGOING,
         excludeSelf: true,
       }),

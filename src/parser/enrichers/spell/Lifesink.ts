@@ -3,7 +3,8 @@ import { castPlacer, ongoingTrigger } from "./_SpellRegions";
 
 /**
  * Nothing is rolled as the spell is cast. The 15-foot emanation follows the caster and rolls its
- * damage, with no save, for any other creature that enters it or starts its turn there. The
+ * damage, with no save, for any other creature that enters it or starts its turn there, but not for
+ * one the emanation moves onto (enterOn "movement"). The
  * caster's own healing happens on the caster's turn, which a region cannot see.
  */
 export default class Lifesink extends DDBEnricherData {
@@ -16,6 +17,7 @@ export default class Lifesink extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: "Lifesink Damage",
         excludeSelf: true,
       }),

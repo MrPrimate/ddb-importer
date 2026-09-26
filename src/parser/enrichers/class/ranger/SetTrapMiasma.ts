@@ -4,7 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Trapper ranger, "Set Trap: Miasma (Magical)". Split into two steps:
  * - "Create Magical Trap" (the parsed activity, keeps its itemUses consumption)
  *   places a plain 5x5 ft template marking the untriggered trap - no behaviors.
- * - "Trigger Magical Trap" (no consumption) places the 20-foot-radius gas cloud
+ * - "Trigger Magical Trap" (no consumption) places the 20-foot sphere of gas centred on the trap
  *   whose region fires the parsed "Activate Miasma" save on enter/turn start:
  *   3d6 poison half on success, poisoned until the start of its next turn on a
  *   failure. The gas lasts 1 minute.
@@ -68,10 +68,12 @@ export default class SetTrapMiasma extends DDBEnricherData {
             affects: {
               type: "creature",
             },
+            // "a 20-foot-radius sphere centred on the trap": fixed where the trap is, not an emanation
+            // following whoever was clicked
             template: {
               count: "1",
               contiguous: false,
-              type: "radius",
+              type: "sphere",
               size: "20",
               units: "ft",
             },
@@ -87,6 +89,7 @@ export default class SetTrapMiasma extends DDBEnricherData {
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
                 events: ["tokenEnter", "tokenTurnStart"],
+                enterOn: "movement",
                 activityName: "Activate Miasma",
               }),
             ],

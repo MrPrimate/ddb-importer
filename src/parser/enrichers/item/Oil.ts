@@ -1,5 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { regionPlacer } from "../data/RegionBuilders";
 
+const BURNING = "Burning Oil Damage";
+
+/**
+ * Oil, dousing a space: pouring the flask spends it and does nothing else until the oil is lit.
+ * "Light the Oil" then places the burning 5-foot square where it was poured, for 2 rounds, and its
+ * region deals the fire damage to a creature that moves in or ends its turn there (being in the
+ * oil as it is lit is not entering). "Douse a Creature" is the thrown flask.
+ */
 export default class Oil extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -9,42 +18,38 @@ export default class Oil extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Douse a Space",
-      targetType: "creature",
       activationType: "action",
       addItemConsume: true,
+      noTemplate: true,
       data: {
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "square",
-            size: "5",
-            units: "ft",
-          },
-        },
         range: {
           override: true,
           value: "5",
           units: "ft",
         },
-        behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
-            activityName: "Burning Oil Damage",
-          }),
-        ],
       },
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      regionPlacer("Light the Oil", {
+        template: { type: "square", size: "5" },
+        rangeSpecial: "Where the oil was poured",
+        activationType: "special",
+        activationCondition: "The poured oil is set alight",
+        duration: { value: "2", units: "round" },
+        behaviors: [
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenEnter", "tokenTurnEnd"],
+            enterOn: "movement",
+            activityName: BURNING,
+          }),
+        ],
+      }),
       {
         init: {
-          name: "Burning Oil Damage",
+          name: BURNING,
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
@@ -54,7 +59,7 @@ export default class Oil extends DDBEnricherData {
           generateTarget: true,
           activationOverride: {
             type: "special",
-            condition: "If lit: enters the oil or ends its turn there (burns for 2 rounds)",
+            condition: "Enters the burning oil or ends its turn there",
           },
           targetOverride: {
             override: true,
@@ -64,8 +69,6 @@ export default class Oil extends DDBEnricherData {
             },
             template: {},
           },
-          // the burning square is placed by "Douse a Space", so this rolls against whoever is
-          // already in it;
           rangeOverride: {
             override: true,
             value: null,

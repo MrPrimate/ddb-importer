@@ -29,6 +29,7 @@ export default class CacophonicShield extends DDBEnricherData {
           }),
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
+            enterOn: "any",
             activityName: "Save vs Damage and Deafness",
             // the emanation originates from the caster, who gains the thunder
             // resistance instead of saving against their own shield

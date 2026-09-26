@@ -17,6 +17,7 @@ export default class CrownOfRadiance extends DDBEnricherData {
       ...castPlacer([
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: "Crown Damage",
           types: ["fiend", "fey", "undead"],
           excludeSelf: true,

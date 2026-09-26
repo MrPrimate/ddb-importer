@@ -1,5 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { regionPlacerData, regionTrigger } from "../../data/RegionBuilders";
+import { regionPlacer, regionPlacerData, regionTrigger } from "../../data/RegionBuilders";
 import { parseTrigger } from "./_ZoneText";
 
 interface IParsedAura {
@@ -11,6 +11,7 @@ interface IParsedAura {
 }
 
 const BUILT_TRIGGER = "Aura Damage";
+const PLACE_AURA = "Place Aura";
 
 /**
  * Aura traits whose rules text is "any creature that starts (or ends) its turn
@@ -21,6 +22,11 @@ const BUILT_TRIGGER = "Aura Damage";
  * emanation originates from. Owner-turn auras (Fire Aura
  * and friends, "at the start/end of each of the MONSTER's turns") are NOT
  * registered here as region events cannot express them.
+ *
+ * The aura rolls nothing as it is switched on: the text only acts on a creature's turn (or as it
+ * walks in). So the emanation is placed by a utility of its own, "Place Aura", and the parser's roll
+ * is the activity the region fires, with no template of its own. Using the parsed roll directly
+ * would roll it for everything already within range.
  *
  * The parser stops reading damage at the first "At the start of", so an aura that says something
  * about the monster's own turn before it gets to the creature's (the Ice Troll's Cold Aura puts out
@@ -179,67 +185,71 @@ export default class TurnStartAuraSave extends DDBEnricherData {
       affects: this.enemiesOnly ? "enemy" : "creature",
       activationType: "special",
       duration: { units: "perm" },
-      behaviors: [
-        ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
-        DDBEnricherData.BehaviorHelper.activity({
-          events: this.events,
-          excludeSelf: true,
-          activityName: BUILT_TRIGGER,
-          ...this.behaviorFilters,
-        }),
-      ],
+      behaviors: this.auraBehaviors(BUILT_TRIGGER),
     });
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    const trigger = this.builtTrigger;
-    if (!trigger || !this.radius) return [];
+  /** When the region fires, for the fired roll's activation text. */
+  get triggerCondition(): string {
     const when = this.turnEvents.map((event) => (event === "tokenTurnEnd" ? "ends" : "starts")).join(" or ");
+    return `A creature ${this.firesOnEntry ? "enters the area or " : ""}${when} its turn within ${this.radius} feet`;
+  }
+
+  /** The region behaviors, firing the named activity. */
+  auraBehaviors(activityName: string): I5eActivityBehavior[] {
+    return [
+      ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
+      DDBEnricherData.BehaviorHelper.activity({
+        events: this.events,
+        // the emanation originates from the monster, which does not save against its own
+        // stench/presence/thing
+        excludeSelf: true,
+        // "enters that area": the aura following its monster onto a creature does not count
+        enterOn: "movement",
+        activityName,
+        ...this.behaviorFilters,
+      }),
+    ];
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (!this.isTargetTurnAura || !this.radius) return [];
+    const trigger = this.builtTrigger;
+    if (!trigger) {
+      return [regionPlacer(PLACE_AURA, {
+        template: { type: "radius", size: this.radius, count: "1" },
+        affects: this.enemiesOnly ? "enemy" : "creature",
+        activationType: "special",
+        activationCondition: "While the aura is active",
+        duration: { units: "perm" },
+        behaviors: this.auraBehaviors(this.name),
+      })];
+    }
     const fired = regionTrigger(BUILT_TRIGGER, {
       affects: this.enemiesOnly ? "enemy" : "creature",
-      condition: `A creature ${when} its turn within ${this.radius} feet`,
+      condition: this.triggerCondition,
       ...(trigger.save ? { save: trigger.save, onSave: trigger.onSave } : {}),
       damageParts: trigger.damageParts,
     });
     return [{ ...fired, overrides: { ...fired.overrides, noeffect: true } }];
   }
 
+  // "Place Aura" sits beside the saves and checks the parser builds from the text, not instead of them
+  override get keepParsedActivities(): boolean {
+    return this.isTargetTurnAura && this.radius !== null && !this.builtTrigger;
+  }
+
   override get activity(): IDDBActivityData {
-    if (!this.isTargetTurnAura) return {};
-    if (this.builtTrigger && this.radius) return this.placer;
-    const radius = this.missingTemplateRadius;
-    const affects = this.enemiesOnly ? "enemy" : "creature";
+    if (!this.isTargetTurnAura || !this.radius) return {};
+    if (this.builtTrigger) return this.placer;
+    // the parser's roll, with its effects, is what the region fires at one creature
     return {
-      ...(radius || this.enemiesOnly ? { targetType: affects } : {}),
-      data: {
-        ...(radius
-          ? {
-            target: {
-              override: true,
-              affects: {
-                type: affects,
-              },
-              template: {
-                count: "1",
-                contiguous: false,
-                type: "radius",
-                size: radius,
-                units: "ft",
-              },
-            },
-          }
-          : {}),
-        behaviors: [
-          ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
-          DDBEnricherData.BehaviorHelper.activity({
-            events: this.events,
-            // the emanation originates from the monster, which does not save
-            // against its own stench/presence/thing
-            excludeSelf: true,
-            ...this.behaviorFilters,
-          }),
-        ],
-      },
+      name: this.name,
+      activationType: "special",
+      activationCondition: this.triggerCondition,
+      targetType: this.enemiesOnly ? "enemy" : "creature",
+      targetCount: "1",
+      noTemplate: true,
     };
   }
 

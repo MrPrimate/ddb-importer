@@ -16,6 +16,7 @@ export default class ConjureTheDeepHaze extends DDBEnricherData {
     return castPlacer([
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: ONGOING,
       }),
     ]);

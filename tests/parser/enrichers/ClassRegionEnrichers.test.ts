@@ -291,13 +291,13 @@ describe("the tail: areas set down away from the owner", () => {
     expect(parent.additionalActivities ?? []).toEqual([]);
   });
 
-  it("Handy Haints: Grump drops a fixed circle on the inspired creature with stock Advantage effects", () => {
+  it("Handy Haints: Grump places an emanation on the inspired creature with stock Advantage effects", () => {
     const e = build(HandyHaintsGrump, "Handy Haints: Grump");
     expect(e.builtFeaturesFromActionFilters).toEqual(["Grump: Reaction"]);
     expect(e.useDefaultAdditionalActivities).toBe(true);
     const placer = named(e, "Grump: Place Aura");
-    // a circle, not a radius: the aura belongs to the inspired creature, not to the bard
-    expect(placer).toMatchObject({ affects: "ally", template: { type: "circle", size: "15" } });
+    // an emanation placed on the inspired creature's token, which then follows it
+    expect(placer).toMatchObject({ affects: "ally", template: { type: "radius", size: "15" } });
     expect(behaviorsOf(placer)[0]).toMatchObject({
       type: "applyActiveEffect",
       config: { effects: [SRDEffects.skillAdvantage("itm"), SRDEffects.saveAdvantage("str")] },
@@ -329,5 +329,27 @@ describe("the tail: an aura placed onto a companion", () => {
     expect(save.overrides.noTemplate).toBe(true);
     expect(save.overrides.data.save.dc.calculation).toBe("spellcasting");
     expect(e.effects.find((effect: any) => effect.activityMatch === "Macabre Modification: Gaunt Save").statuses).toEqual(["Frightened"]);
+  });
+});
+
+describe("class feature region enter rules", () => {
+  const enterMacros = (e: any) => activities(e).flatMap(behaviorsOf)
+    .filter((behavior: any) => behavior.type === "ddbMacro" && behavior.config.events.includes("tokenEnter"));
+
+  it.each([
+    ["CorrosiveHaze", ClassEnrichers.Barbarian.CorrosiveHaze],
+    ["VascularCorruptionAura", ClassEnrichers.Cleric.VascularCorruptionAura],
+    ["BondOfShelter", ClassEnrichers.Druid.BondOfShelter],
+    ["HaloOfSpores", ClassEnrichers.Druid.HaloOfSpores],
+    ["SpreadingSpores", ClassEnrichers.Druid.SpreadingSpores],
+    ["DispatersInterdiction", ClassEnrichers.Illrigger.DispatersInterdiction],
+    ["SetTrapBearTrap", ClassEnrichers.Ranger.SetTrapBearTrap],
+    ["SetTrapMiasma", ClassEnrichers.Ranger.SetTrapMiasma],
+    ["SetTrapSnapfrost", ClassEnrichers.Ranger.SetTrapSnapfrost],
+    ["SpiritAura", ClassEnrichers.Sorcerer.SpiritAura],
+  ])("%s counts only a creature moving into the area", (_name, Enricher) => {
+    const macros = enterMacros(build(Enricher as TEnricher));
+    expect(macros.length).toBeGreaterThan(0);
+    for (const behavior of macros) expect(behavior.config.enterOn).toBe("movement");
   });
 });

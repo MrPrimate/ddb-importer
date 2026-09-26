@@ -14,6 +14,7 @@ export default class SheerCold extends DDBEnricherData {
       DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["ice"] }),
       DDBEnricherData.BehaviorHelper.activity({
         events: ["tokenEnter", "tokenTurnStart"],
+        enterOn: "movement",
         activityName: "Slick Ice Save",
       }),
     ];

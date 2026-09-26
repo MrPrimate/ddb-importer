@@ -20,6 +20,7 @@ export default class GlobeOfTwilight extends DDBEnricherData {
         DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Globe of Twilight: Concealed" }),
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter", "tokenTurnStart"],
+          enterOn: "movement",
           activityName: ONGOING,
         }),
       ]),

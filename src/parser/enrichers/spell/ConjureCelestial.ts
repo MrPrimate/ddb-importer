@@ -5,9 +5,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * themself. "Cast" places it; the region fires Healing Light for allies and
  * Searing Light for enemies whenever a creature enters the cylinder or ends its
  * turn there (once per turn) - the two behaviors take their dispositions from
- * the activity they fire. The cylinder moving into a creature's space is
- * mover-inverted and stays manual, as does choosing the "wrong" light for a
- * creature. 2014 is a plain summon.
+ * the activity they fire. The cylinder moving into a creature's space counts
+ * too, including as it appears (enterOn "any": nothing is rolled at the cast).
+ * Choosing the "wrong" light for a creature stays manual. 2014 is a plain summon.
  */
 export default class ConjureCelestial extends DDBEnricherData {
 
@@ -89,10 +89,12 @@ export default class ConjureCelestial extends DDBEnricherData {
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
                 events: ["tokenEnter", "tokenTurnEnd"],
+                enterOn: "any",
                 activityName: "Healing Light",
               }),
               DDBEnricherData.BehaviorHelper.activity({
                 events: ["tokenEnter", "tokenTurnEnd"],
+                enterOn: "any",
                 activityName: "Searing Light",
               }),
             ],

@@ -35,6 +35,7 @@ export default class BondOfShelter extends DDBEnricherData {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnStart"],
+            enterOn: "movement",
             activityName: "Nature's Wrath",
             excludeSelf: true,
           }),

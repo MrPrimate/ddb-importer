@@ -59,7 +59,8 @@ export default class HaloOfSpores extends DDBEnricherData {
             },
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
-                events: ["tokenEnter", "tokenMoveIn", "tokenTurnStart"],
+                events: ["tokenEnter", "tokenTurnStart"],
+                enterOn: "movement",
                 activityName: "Halo of Spores",
                 excludeSelf: true,
               }),

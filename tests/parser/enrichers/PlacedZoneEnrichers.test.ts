@@ -65,14 +65,22 @@ describe("PlacedZone: text with no zone wording changes nothing", () => {
   });
 });
 
-describe("PlacedZone: the region fires the action's own activity", () => {
+describe("PlacedZone: what the region fires", () => {
   const cloud = "Test Cloud (1/Day). A 10-foot radius of gas extends out from the thing and lasts for 1 minute. Any creature that starts its turn in that area must succeed on a DC 11 Constitution saving throw or be poisoned until the start of its next turn.";
 
-  it("names no sibling, so the use is not spent again and nothing extra is built", () => {
+  it("places an area that rolls nothing as it appears with a utility, and fires a free built save", () => {
     const e = zone(cloud);
+    // using the parsed save to place the cloud would roll it for every creature already inside
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ removeDamageParts: true, noeffect: true });
     expect(macro(e).config.events).toEqual(["tokenTurnStart"]);
-    expect(macro(e).config.args.activityName).toBeUndefined();
-    expect(e.additionalActivities).toEqual([]);
+    expect(macro(e).config.args.activityName).toBe("Ongoing Save");
+    const [fired] = e.additionalActivities;
+    expect(fired.init).toEqual({ name: "Ongoing Save", type: "save" });
+    expect(fired.build).toMatchObject({ generateConsumption: false, saveOverride: { ability: ["con"], dc: { formula: "11" } } });
+    expect(e.effects).toEqual([expect.objectContaining({ activityMatch: "Ongoing Save", statuses: ["Poisoned"] })]);
+    // the parser's own poisoned effect belonged to the roll the placer no longer makes
+    expect(e.clearAutoEffects).toBe(true);
     expect(e.keepParsedActivities).toBe(false);
   });
 
@@ -88,6 +96,8 @@ describe("PlacedZone: the region fires the action's own activity", () => {
     const e = zone("Test Spray. Grease covers a 10-foot square centered on a point within 30 feet, and the area is difficult terrain. Each creature standing in the area must succeed on a DC 16 Dexterity saving throw or fall prone. A creature that enters the area or ends its turn there must also succeed on a DC 16 Dexterity saving throw or fall prone.",
       { template: { type: "radius", size: "30" } });
     expect(macro(e).config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+    // "enters" is the creature's own movement; the zone appearing or following its monster is not
+    expect(macro(e).config.enterOn).toBe("movement");
     expect(macro(e).config.args.activityName).toBeUndefined();
     // the parser read the range as a radius
     expect(e.activity.data.target.template).toMatchObject({ type: "square", size: "10" });

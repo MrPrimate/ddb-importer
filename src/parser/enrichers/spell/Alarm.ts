@@ -39,6 +39,7 @@ export default class Alarm extends DDBEnricherData {
             events: ["tokenEnter"],
             args: {
               excludeSelf: true,
+              enterOn: "movement",
               message: "Alarm: {token} entered the warded area ({region}).",
             },
           }),

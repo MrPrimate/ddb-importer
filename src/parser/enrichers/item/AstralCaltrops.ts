@@ -19,6 +19,7 @@ export default class AstralCaltrops extends DDBEnricherData {
       behaviors: [
         DDBEnricherData.BehaviorHelper.activity({
           events: ["tokenEnter"],
+          enterOn: "movement",
           activityName: "Astral Caltrops Save",
         }),
       ],

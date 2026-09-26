@@ -49,7 +49,10 @@ export default class AvengingAngel extends DDBEnricherData {
           data: {
             behaviors: [
               DDBEnricherData.BehaviorHelper.activity({
-                events: ["tokenEnter"],
+                // 2014 "enters the aura for the first time on a turn or starts its turn there";
+                // 2024 "starts its turn in your Aura of Protection"
+                events: this.is2014 ? ["tokenEnter", "tokenTurnStart"] : ["tokenTurnStart"],
+                enterOn: "movement",
                 activityName: "Avenging Angel",
               }),
             ],
