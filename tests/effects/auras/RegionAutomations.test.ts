@@ -451,6 +451,26 @@ describe("RegionAutomations.useActivityHandler", () => {
     });
   });
 
+  it("auto-rolls an upcast use from a clone carrying the card's scaling", async () => {
+    const { context, placing } = setup();
+    placing.type = "damage";
+    placing.id = "actCast000";
+    placing.use = vi.fn().mockResolvedValue({ message: { id: "msg1", system: { scaling: 2 } } });
+    placing.rollDamage = vi.fn().mockResolvedValue([]);
+    const scaled = { type: "damage", rollDamage: vi.fn().mockResolvedValue([]) };
+    const clone = vi.fn().mockReturnValue({ system: { activities: new Map([["actCast000", scaled]]) } });
+    placing.item.clone = clone;
+    context.args = { autoRoll: true };
+
+    await RegionAutomations.useActivityHandler(context);
+
+    expect(clone).toHaveBeenCalledWith({ "flags.dnd5e.scaling": 2 }, { keepId: true });
+    expect(placing.rollDamage).not.toHaveBeenCalled();
+    expect(scaled.rollDamage).toHaveBeenCalledWith({}, {}, {
+      data: { system: { origin: "msg1", targets: [expect.objectContaining({ token: "Scene.s.Token.tok1" })] } },
+    });
+  });
+
   it("passes a macro parameters override through the usage config", async () => {
     const { context, placing } = setup();
     context.args = { macroParameters: { save: "ddbSpellStormSa1", upcast: 2 } };

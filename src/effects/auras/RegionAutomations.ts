@@ -579,13 +579,23 @@ export default class RegionAutomations {
    * region's tokens rather than the GM's canvas targets: an attack takes a single target's AC, and
    * the roll card records the tokens for its Apply tray.
    */
-  static async #autoRoll(activity: Record<string, any>, targets: IRegionTargetDescriptor[], results: { message?: { id?: string } | null }) {
+  static async #autoRoll(
+    activity: Record<string, any>,
+    targets: IRegionTargetDescriptor[],
+    results: { message?: { id?: string; system?: { scaling?: number } } | null },
+  ) {
+    // `use` scales a clone of the item and leaves this activity at its base level, so the roll
+    // is made from a clone carrying the card's recorded scaling, as dnd5e's chat buttons do
+    const scaling = results.message?.system?.scaling ?? 0;
+    const rolling = scaling
+      ? activity.item.clone({ "flags.dnd5e.scaling": scaling }, { keepId: true }).system.activities.get(activity.id) ?? activity
+      : activity;
     const message = { data: { system: { origin: results.message?.id, targets } } };
-    if (activity.type === "attack") {
+    if (rolling.type === "attack") {
       const target = targets.length === 1 ? (targets[0].ac ?? undefined) : undefined;
-      await activity.rollAttack({ target }, {}, message);
+      await rolling.rollAttack({ target }, {}, message);
     } else {
-      await activity.rollDamage({}, {}, message);
+      await rolling.rollDamage({}, {}, message);
     }
   }
 
