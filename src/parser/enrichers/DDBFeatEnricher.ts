@@ -26,7 +26,10 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014: Record<string, string> = {};
 
-  NAME_HINTS: Record<string, string> = {};
+  NAME_HINTS: Record<string, string> = {
+    "Actor": "ActorFeat",
+    "Aberrant Dragonmark": "AbberantDragonmark",
+  };
 
   NAME_HINT_INCLUDES: Record<string, string> = {
     "Ritual Caster (": "Ritual Caster",
@@ -35,6 +38,9 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Greater Mark of ": "Greater Mark of",
     "Familiar Friend (": "Familiar Friend",
     "Arcane Infiltrator (": "Arcane Infiltrator",
+    "Arcane Overload (": "Arcane Overload",
+    "Transmutation Adept (": "Transmutation Adept",
+    "Elemental Adept (": "Elemental Adept",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {

@@ -162,6 +162,26 @@ export default class ChangeHelper {
     };
   }
 
+  static SPEED_MODES = ["walk", "burrow", "climb", "fly", "swim"] as const;
+
+  /**
+   * "Its speed can be no higher than X": cap each movement mode the creature has at `limit`.
+   * dnd5e 5.x turns a DOWNGRADE on an unset (null) mode into an OVERRIDE, which would grant that
+   * mode, so each mode first gets an ADD of 0 one priority earlier (null becomes 0 and stays 0).
+   * Priority 50 runs after the priority-20 grants and bonuses of other effects, so they are capped too.
+   */
+  static speedCapChanges(
+    limit: string | number, priority = 50, modes: readonly string[] = ChangeHelper.SPEED_MODES,
+  ): IActiveEffectChangeData[] {
+    return modes.flatMap((mode) => {
+      const key = `system.attributes.movement.${mode}`;
+      return [
+        ChangeHelper.addChange("0", priority - 1, key),
+        ChangeHelper.downgradeChange(`${limit}`, priority, key),
+      ];
+    });
+  }
+
   /**
    * A change consumed by Automated Conditions 5e via its `flags.automated-conditions-5e.*` keys.
    * The v14 branch registers a dedicated "ac5e" change type; on v13 AC5e documents these flags

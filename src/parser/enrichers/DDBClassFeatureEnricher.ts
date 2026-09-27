@@ -266,6 +266,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Elemental Disciplines: Shape the Flowing River": "Elemental Disciplines",
     // "Elemental Disciplines: Sweeping Cinder Strike": "Elemental Disciplines",
     // "Elemental Disciplines: Water Whip": "Elemental Disciplines",
+    "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
   };
 
   NAME_HINT_INCLUDES: Record<string, string> = {
