@@ -247,6 +247,9 @@ export default class PlacedZone extends DDBEnricherData {
     if (!this.isZone) return {};
     const target = this.target;
     return {
+      // the area and its behaviors belong to the action's own activity, not to the other saves
+      // the parser reads from the same text (Zaratan's buried-creature Dexterity save)
+      primaryOnly: true,
       ...(this.hasNoParsedActivity ? { name: this.name, activationType: "special" } : {}),
       // what the area does to a creature belongs to the roll the region fires
       ...(this.placesWithoutRoll ? { removeDamageParts: true, noeffect: true } : {}),

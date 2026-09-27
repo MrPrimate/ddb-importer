@@ -29,6 +29,9 @@ export default class FlockOfFamiliars extends DDBEnricherData {
             midiProperties: {
               confirmTargets: "default",
             },
+            // the forwarded summon joins the running concentration instead of restarting it
+            // (ConcentrationFollowUp)
+            flags: { ddbimporter: { joinConcentration: true } },
           },
         },
       },

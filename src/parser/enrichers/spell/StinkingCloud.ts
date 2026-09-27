@@ -17,6 +17,8 @@ export default class StinkingCloud extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cast",
+      // the Poisoned effect follows a failed Ongoing Save, not the casting that places the area
+      noeffect: true,
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({

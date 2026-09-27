@@ -51,7 +51,8 @@ export default class HuntersMark extends DDBEnricherData {
           noConsumeTargets: true,
           removeSpellSlotConsume: true,
           data: {
-
+            // joins the running concentration instead of restarting it (ConcentrationFollowUp)
+            flags: { ddbimporter: { joinConcentration: true } },
           },
         },
       },
