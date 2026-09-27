@@ -162,6 +162,19 @@ describe("DDBMonster._generateSize", () => {
     }
   });
 
+  it("gives each size effect the same id on every import", () => {
+    const run = () => {
+      const mock = makeMockMonster({ source: { sizeId: 10 } });
+      mock.getSizeFromId = DDBMonster.prototype.getSizeFromId;
+      generateSize.call(mock);
+      return mock.npc.effects.map((effect: I5eEffectData) => effect._id);
+    };
+    const first = run();
+    expect(first).toHaveLength(1);
+    // a re-import updates the same effect instead of adding another
+    expect(run()).toEqual(first);
+  });
+
   it("preserves existing actor effects", () => {
     const existingEffect: I5eEffectData = { name: "Existing effect", disabled: false, changes: [] };
     const mock = makeMockMonster({ source: { sizeId: 10 }, npc: { effects: [existingEffect] } });

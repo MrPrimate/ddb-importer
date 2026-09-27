@@ -24,7 +24,7 @@ export default class Berserk extends _MonsterFeatureSupport {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [];
     const check = this.check();
-    if (check)
+    if (check) {
       activities.push(
         this.extra("Calm Check", "ddbExtraCheck001", "check", {
           generateCheck: true,
@@ -37,6 +37,7 @@ export default class Berserk extends _MonsterFeatureSupport {
           },
         }),
       );
+    }
     return activities;
   }
 }

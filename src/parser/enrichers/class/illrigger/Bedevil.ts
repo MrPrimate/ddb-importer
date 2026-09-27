@@ -24,6 +24,7 @@ export default class Bedevil extends _Illrigger {
       {
         name: "Bedevilled",
         activityMatch: "Bedevil",
+        daeSpecialDurations: ["isSave"],
         options: {
           description: "Subtract the illrigger's proficiency bonus from the next saving throw made before the end of your next turn.",
           durationSeconds: 6,
@@ -31,7 +32,7 @@ export default class Bedevil extends _Illrigger {
           expiry: "targetEnd",
         },
         changes: [
-          _Illrigger.originChange(
+          this.originChange(
             DDBEnricherData.ChangeHelper.addChange("-@prof", 20, "system.bonuses.abilities.save"),
           ),
         ],

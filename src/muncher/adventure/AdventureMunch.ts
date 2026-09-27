@@ -328,17 +328,17 @@ export default class AdventureMunch {
     if (this.adventure.required?.spells && this.adventure.required.spells.length > 0) {
       logger.debug(`${this.adventure.name} - spells required`, this.adventure.required.spells);
       AdventureMunch._progressNote(`Checking for missing spells from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("spell", this.adventure.required.spells);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("spell", this.adventure.required.spells);
     }
     if (this.adventure.required?.items && this.adventure.required.items.length > 0) {
       logger.debug(`${this.adventure.name} - items required`, this.adventure.required.items);
       AdventureMunch._progressNote(`Checking for missing items from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("item", this.adventure.required.items);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("item", this.adventure.required.items);
     }
     if (this.adventure.required?.monsters && this.adventure.required.monsters.length > 0) {
       logger.debug(`${this.adventure.name} - monsters required`, this.adventure.required.monsters);
       AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("monster", this.adventure.required.monsters);
     }
     if (parseFloat(this.adventure.version) < 4.1 && this.allMonsters) {
       ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);

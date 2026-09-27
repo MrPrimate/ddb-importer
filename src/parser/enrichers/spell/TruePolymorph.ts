@@ -15,6 +15,7 @@ export default class TruePolymorph extends DDBEnricherData {
     build: {
       generateSummon: true,
       noSpellslot: true,
+      noConcentration: true,
     },
     overrides: {
       noTemplate: true,
@@ -39,6 +40,11 @@ export default class TruePolymorph extends DDBEnricherData {
         init: {
           name: "Transform",
           type: DDBEnricherData.ACTIVITY_TYPES.TRANSFORM,
+        },
+        // applied after the save fails, while the spell is already being concentrated on
+        build: {
+          noSpellslot: true,
+          noConcentration: true,
         },
         overrides: {
           noConsumeTargets: true,

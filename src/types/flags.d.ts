@@ -346,6 +346,8 @@ global {
     // Effect matching (on effects)
     activityMatch?: string;
     activitiesMatch?: string[];
+    activityTypesMatch?: IDDBActivityType[];
+    activityIdsExclude?: string[];
     ignoreTransfer?: boolean;
     effectIdLevel?: { min?: number | null; max?: number | null };
     activityRiders?: string[];
@@ -371,7 +373,6 @@ global {
 
     // Activity/enricher flags
     replaceActivityUses?: boolean;
-    forceSpellAdvancement?: boolean;
     spellHintName?: string;
     defaultAdditionalActivities?: { data?: Record<string, unknown> };
 

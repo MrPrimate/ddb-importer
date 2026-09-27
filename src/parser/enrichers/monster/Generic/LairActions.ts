@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import utils from "../../../../lib/Utils";
-import { STATUSES, TERRAIN_WORDS, parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
+import { parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
 import { linkMonsterSummons, monsterSummon } from "../_MonsterSummons";
 import { monsterLinksToResidue, parseSummon } from "./_SummonText";
 
@@ -46,9 +46,6 @@ interface ILairSummon {
  */
 export default class LairActions extends DDBEnricherData {
 
-  // the shared readers live in _ZoneText; these names are what the lair tests and callers use
-  static TERRAIN_WORDS = TERRAIN_WORDS;
-
   /** Names for an option whose terrain has no dnd5e type and whose text leads with no name of its own. */
   static LABEL_WORDS: [RegExp, string][] = [
     [/\bfog\b/i, "Fog"],
@@ -67,11 +64,10 @@ export default class LairActions extends DDBEnricherData {
     [/\bwind\b|\bgale\b/i, "Wind"],
   ];
 
+  // the shared readers live in _ZoneText; these names are what the lair tests and callers use
   static stripBlock = stripBlock;
 
   static parseShape = parseShape;
-
-  static STATUSES = STATUSES;
 
   static parseTrigger = parseTrigger;
 

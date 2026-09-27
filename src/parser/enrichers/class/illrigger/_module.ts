@@ -1,6 +1,7 @@
 export { default as _Illrigger } from "./_Illrigger";
 export { default as AbatingSeal } from "./AbatingSeal";
 export { default as AcheronsChain } from "./AcheronsChain";
+export { default as AsmodeussInterdiction } from "./AsmodeussInterdiction";
 export { default as BalefulInterdict } from "./BalefulInterdict";
 export { default as Bedevil } from "./Bedevil";
 export { default as BelialsInterdiction } from "./BelialsInterdiction";
@@ -8,6 +9,7 @@ export { default as BloodPrice } from "./BloodPrice";
 export { default as Bloodstroke } from "./Bloodstroke";
 export { default as CharmEnemy } from "./CharmEnemy";
 export { default as ConflagrantChannel } from "./ConflagrantChannel";
+export { default as DispatersInterdiction } from "./DispatersInterdiction";
 export { default as DissOnslaughtPassive } from "./DissOnslaughtPassive";
 export { default as DoomedToTheShadows } from "./DoomedToTheShadows";
 export { default as EyesOfTheGate } from "./EyesOfTheGate";

@@ -38,6 +38,7 @@ export default class DDBClass {
     features: {
       fields: [
         "name",
+        "flags.ddbimporter.id",
         "flags.ddbimporter.classId",
         "flags.ddbimporter.class",
         "flags.ddbimporter.subClass",
@@ -2242,7 +2243,7 @@ export default class DDBClass {
       title: "Sorcery Points",
       icon: null,
     };
-    utils.arrayRange(20, 1, 2).forEach((i) => {
+    utils.arrayRange(19, 1, 2).forEach((i) => {
       points.configuration.scale[i] = {
         value: i,
       };

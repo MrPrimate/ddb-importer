@@ -1,4 +1,4 @@
-import { DDBSimpleMacro, logger } from "../../lib/_module";
+import { DDBSimpleMacro, logger, resolveFoundryMacro } from "../../lib/_module";
 import MacroActivityData from "./MacroActivityData";
 import MacroSheet from "./MacroSheet";
 
@@ -83,26 +83,24 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
 
   }
 
-  async _executeFoundryMacro(targets = []) {
-    let macro;
-    if (this.macro.function.startsWith("Macro.")) {
-      macro = await fromUuid(this.macro.function);
-    } else {
-      macro = game.macros.find((m) => m.name === this.macro.function);
+  async _executeFoundryMacro(targets: unknown[] = []) {
+    const macro = await resolveFoundryMacro(this.macro.function);
+    if (!macro) {
+      logger.warn(`Macro activity ${this.item.name}: no macro found for "${this.macro.function}"`, { activity: this });
+      ui.notifications.warn(game.i18n.format("ddb-importer.activities.macro.NotFound", { macro: this.macro.function }));
+      return;
     }
 
-    if (macro) {
-      await macro.execute({
-        macroLabel: this.macro.name,
-        targets,
-        item: this.item,
-        actor: this.actor,
-        token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
-        activity: this,
-        origin: this.uuid,
-        parameters: this.macro.parameters,
-      });
-    }
+    await macro.execute({
+      macroLabel: this.macro.name,
+      targets,
+      item: this.item,
+      actor: this.actor,
+      token: this.actor?.isOwner ? canvas.tokens.controlled[0]?.document?.uuid : null,
+      activity: this,
+      origin: this.uuid,
+      parameters: this.macro.parameters,
+    } as unknown as Parameters<typeof macro.execute>[0]);
   }
 
   /* -------------------------------------------- */

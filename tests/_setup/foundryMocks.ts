@@ -150,7 +150,7 @@ const noopClass = class {};
     Semaphore: class Semaphore {
       max: number;
       _active = 0;
-      _queue: Array<() => void> = [];
+      _queue: (() => void)[] = [];
       constructor(max = 1) {
         this.max = max;
       }
@@ -367,9 +367,14 @@ function makeFakeAdvancement(type: string) {
   packs: {
     get: (): undefined => undefined,
   },
+  // no translations: localize and format return the key, and `has` finds none
   i18n: {
+    lang: "en",
     localize: (s: string) => s,
     format: (s: string) => s,
+    has: () => false,
+    pluralRules: new Intl.PluralRules("en"),
+    getListFormatter: (options?: Intl.ListFormatOptions) => new Intl.ListFormat("en", options),
   },
   dnd5e: {
     dataModels: { actor: dnd5eDataModel, item: dnd5eDataModel },
@@ -592,7 +597,9 @@ export function pristineDDBI(): Record<string, any> {
 // -- Dialog --
 (globalThis as any).Dialog = class Dialog {
   constructor() {}
-  render() { return this; }
+  render() {
+    return this;
+  }
 };
 
 // -- Document classes --

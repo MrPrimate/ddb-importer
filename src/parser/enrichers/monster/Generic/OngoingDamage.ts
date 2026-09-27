@@ -73,7 +73,7 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
       const clauseStart = this.text.indexOf("If ");
       const clause = clauseStart < 0 ? "" : this.text.slice(clauseStart);
       const save = clauseStart < 0 ? null : this.save(clause);
-      if (save && save.ability?.[0] === "con")
+      if (save && save.ability?.[0] === "con") {
         activities.push(
           this.extra("Regurgitate Save", "ddbRegurgitate01", "save", {
             generateSave: true,
@@ -83,10 +83,11 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
             activationOverride: { type: "turnEnd", value: null, condition: clause },
           }),
         );
+      }
     }
     if (this.key === "Whelm") {
       const check = this.check();
-      if (check)
+      if (check) {
         activities.push(
           this.extra("Pull Free", "ddbPullFree00001", "check", {
             generateCheck: true,
@@ -99,6 +100,7 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
             },
           }),
         );
+      }
     }
     return activities;
   }
@@ -118,7 +120,10 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
         {
           name: "Held Conditions",
           statuses,
-          activityMatch: "Initial Effect",
+          // the parsed primary, or the alternative that grapples instead of dealing damage
+          ...(this.grappleInstead
+            ? { activityMatch: "Grapple Instead" }
+            : { activityTypesMatch: ["attack", "save", "utility"] as IDDBActivityType[] }),
           options: { expiry: null, durationSeconds: null, description: this.text },
         },
       ]
@@ -134,11 +139,6 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
     if (!primary) return;
     // Use complete source clauses, so identical initial and tick formulas remain separate occurrences.
     if (primary.type !== "utility") primary.damage = { ...primary.damage, includeBase: false, parts: split.initial };
-    const held = (this.document.effects as { _id: string; name: string }[]).filter((e) => e.name === "Held Conditions");
-    for (const activity of this.activities) {
-      const applies = this.grappleInstead ? activity._id === "ddbGrappleAlt001" : activity === primary;
-      activity.effects = applies ? held.map((e) => ({ _id: e._id })) : [];
-    }
     // An ongoing token mistaken for weapon base damage must not survive as an alternate attack.
     if (split.initial.length === 0 && this.document.system.damage?.base) {
       this.document.system.damage.base = _MonsterFeatureSupport.basicDamagePart();

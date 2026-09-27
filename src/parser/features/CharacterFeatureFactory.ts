@@ -57,12 +57,6 @@ export default class CharacterFeatureFactory {
   };
   rawCharacter: I5ePCData;
   spellLinks: IDDBSpellLink[];
-  spellAdvancementsForce: {
-    class: string[];
-    background: string[];
-    race: string[];
-    feat: string[];
-  };
   spellsGranted: Record<string, any[]>;
   pendingCompendiumDocuments: {
     features: T5eFeatureMixinDataTypes[];
@@ -96,13 +90,6 @@ export default class CharacterFeatureFactory {
     this.spellLinks = [];
 
     this.spellsGranted = {};
-
-    this.spellAdvancementsForce = {
-      class: [],
-      background: [],
-      race: [],
-      feat: [], // these are now always processed.
-    };
 
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .filter((f) => f.affectedRacialTraitId)
@@ -763,34 +750,72 @@ export default class CharacterFeatureFactory {
 
   _setLevelScales(type = "features") {
     for (const feature of this.parsed[type]) {
-      if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) continue;
+      CharacterFeatureFactory.applyLevelScale(feature, this.ddbCharacter.raw.classes);
+    }
+  }
 
-      if (DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS.includes(feature.name)) continue;
+  /**
+   * The class or subclass carrying a dice ScaleValue named like the feature, looked up on the
+   * feature's own class and subclass before the character's other classes, so a multiclass
+   * character with two same-named scales gets its own. Number, distance and other scale types
+   * count uses, points, dice pools or ranges (Channel Divinity, Moxie, Infernal Conduit) and are
+   * never damage.
+   */
+  static findLevelScaleClass(
+    feature: T5eFeatureMixinDataTypes,
+    classes: (I5eClassItem | I5eSubclassItem)[],
+  ): I5eClassItem | I5eSubclassItem | undefined {
+    const featureName = utils.referenceNameString(feature.name).toLowerCase();
+    const ownNames = [feature.flags?.ddbimporter?.subClass, feature.flags?.ddbimporter?.class].filter(Boolean);
+    const ordered = [
+      ...classes.filter((klass) => ownNames.includes(klass.name)),
+      ...classes.filter((klass) => !ownNames.includes(klass.name)),
+    ];
+    return ordered.find((klass) =>
+      Object.values(klass.system.advancement ?? {}).some((advancement) =>
+        advancement.type === "ScaleValue"
+        && advancement.configuration?.identifier === featureName
+        && (advancement as I5eAdvancementScaleValue).configuration?.type === "dice",
+      ));
+  }
 
-      const featureName = utils.referenceNameString(feature.name).toLowerCase();
-      const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
-        klass.system.advancement
-          .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration.identifier === featureName,
-          ));
+  /** A damage part the scale may fill: its custom formula is off or empty. */
+  static isUnsetDamagePart(part: I5eDamagePart | undefined): part is I5eDamagePart {
+    return !!part && (!part.custom?.enabled || !part.custom.formula);
+  }
 
-      if (!scaleKlass) continue;
+  /**
+   * Upgrades the damage of a feature named like one of its class's dice ScaleValues (Dread
+   * Ambusher's 2d6 becoming 2d8 at 11th level) to that scale. Only the first part of an
+   * activity that already deals damage, and only while no formula has been chosen for it:
+   * adding a part put damage on activities that deal none (Turn Undead), and overwriting one
+   * dropped the modifiers and multipliers enrichers write (Starry Form's + Wisdom).
+   */
+  static applyLevelScale(
+    feature: T5eFeatureMixinDataTypes,
+    classes: (I5eClassItem | I5eSubclassItem)[],
+  ): void {
+    if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) return;
+    if (DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS.includes(feature.name)) return;
 
-      const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-      const damage = SystemHelpers.buildDamagePart({
-        damageString: `@scale.${identifier}.${featureName}`,
-      });
-      if (foundry.utils.hasProperty(feature, "system.damage.base")) {
-        feature.system.damage.base.custom = damage.custom;
-      } else if (foundry.utils.hasProperty(feature, "system.activities")) {
-        for (const [key, activity] of Object.entries(feature.system.activities)) {
-          if (activity.damage && activity.damage.parts.length === 0) {
-            activity.damage.parts = [damage];
-          } else if (activity.damage && activity.damage.parts.length > 0) {
-            activity.damage.parts[0].custom = damage.custom;
-          }
-          feature.system.activities[key] = activity;
-        }
+    const scaleKlass = CharacterFeatureFactory.findLevelScaleClass(feature, classes);
+    if (!scaleKlass) return;
+
+    const featureName = utils.referenceNameString(feature.name).toLowerCase();
+    const identifier = utils.referenceNameString(scaleKlass.system.identifier ?? "").toLowerCase();
+    const damage = SystemHelpers.buildDamagePart({
+      damageString: `@scale.${identifier}.${featureName}`,
+    });
+    if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+      const base = foundry.utils.getProperty(feature, "system.damage.base") as I5eDamagePart | undefined;
+      if (CharacterFeatureFactory.isUnsetDamagePart(base)) {
+        foundry.utils.setProperty(feature, "system.damage.base.custom", damage.custom);
+      }
+    } else if (foundry.utils.hasProperty(feature, "system.activities")) {
+      for (const activity of Object.values(feature.system.activities)) {
+        if (!("damage" in activity) || !activity.damage) continue;
+        const part = activity.damage.parts?.[0];
+        if (CharacterFeatureFactory.isUnsetDamagePart(part)) part.custom = damage.custom;
       }
     }
   }
@@ -1290,20 +1315,13 @@ export default class CharacterFeatureFactory {
     });
   }
 
-  async _addSpellAdvancementTypeWithFilter(type, filters = []) {
-    logger.debug(`Adding spell advancements for type ${type} with filters`, { type, filters, this: this });
+  /** Adds the spell advancements of every processed feature of one granted-spell origin type. */
+  async _addSpellAdvancementsForType(type) {
+    logger.debug(`Adding spell advancements for type ${type}`, { type, this: this });
     if (!this.spellsGranted[type]) this.spellsGranted[type] = [];
     const featuresToCheck = [];
     for (const feature of this.processed.features) {
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
-      if (filters.length > 0) {
-        const featureName = utils.referenceNameString(feature.name).toLowerCase();
-        const filterMatch = filters.some((f) => featureName.includes(utils.referenceNameString(f).toLowerCase()));
-        if (!filterMatch) {
-          logger.verbose(`Feature ${feature.name} does not match any filters, skipping`, { feature, filters });
-          continue;
-        }
-      }
 
       await this.addSpellAdvancement({ feature, type });
       featuresToCheck.push({
@@ -1341,30 +1359,7 @@ export default class CharacterFeatureFactory {
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
       this.spellsGranted[type] = [];
-      await this._addSpellAdvancementTypeWithFilter(type);
-    }
-
-    // `forceSpellAdvancement` dates from when only some granted-spell types were processed
-    // above; every type is now, so a forced pass over a type already handled would build the
-    // feature's spell advancements a second time and push its granted spells onto the sheet
-    // twice (the Celestial warlock's Bonus Cantrips arrived as two Light and two Sacred Flame)
-    const forcedTypes = new Set<string>();
-
-    for (const feature of this.processed.features) {
-      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
-      const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement");
-      if (featureType && forceSpellAdvancement && !types.includes(featureType)) {
-        if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
-        this.spellAdvancementsForce[featureType].push(feature.name);
-        forcedTypes.add(featureType);
-      }
-    }
-
-    for (const type of forcedTypes) {
-      const filters = this.spellAdvancementsForce[type] ?? [];
-      if (filters.length > 0) {
-        await this._addSpellAdvancementTypeWithFilter(type, filters);
-      }
+      await this._addSpellAdvancementsForType(type);
     }
   }
 

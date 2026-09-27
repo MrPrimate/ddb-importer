@@ -65,8 +65,9 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
-          generateDuration: true,
-          durationOverride: { units: "inst", concentration: false },
+          // the spell's duration without concentration, so using it does not restart concentration;
+          // dnd5e 5.x does not copy it onto the enchantment, which carries the spell's duration itself
+          noConcentration: true,
           img: "icons/magic/holy/angel-wings-gray.webp",
           generateDamage: false,
           generateHealing: false,

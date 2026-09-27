@@ -7,10 +7,6 @@ import _MasteredSpells from "./_MasteredSpells";
  */
 export default class SpellMastery extends _MasteredSpells {
 
-  override get featureName(): string {
-    return "Spell Mastery";
-  }
-
   override isMarked(spell: IDDBSpellEntry): boolean {
     return spell.baseLevelAtWill === true;
   }

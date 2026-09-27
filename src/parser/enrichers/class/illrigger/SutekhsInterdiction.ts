@@ -3,7 +3,8 @@ import _Illrigger from "./_Illrigger";
 
 /**
  * Foul Interchange keeps DDB's action with the interdict DC; the condition it moves is chosen at
- * the table. Sanguine Gift and Blood for Blood are rebuilt as a heal and a damage roll.
+ * the table. Sanguine Gift (13th level) and Blood for Blood (18th level) are rebuilt as a heal and
+ * a damage roll, hidden until the illrigger reaches their level.
  */
 export default class SutekhsInterdiction extends _Illrigger {
 
@@ -52,6 +53,7 @@ export default class SutekhsInterdiction extends _Illrigger {
           targetCount: 1,
           rangeType: "ft",
           rangeValue: 30,
+          data: _Illrigger.boonVisibility(13),
         },
       },
       {
@@ -80,6 +82,7 @@ export default class SutekhsInterdiction extends _Illrigger {
           noConsumeTargets: true,
           targetType: "creature",
           targetCount: 1,
+          data: _Illrigger.boonVisibility(18),
         },
       },
     ];

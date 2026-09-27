@@ -927,6 +927,14 @@ export default abstract class DDBEnricherFactoryMixin {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
 
+      if (effectHint.activityTypesMatch) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", effectHint.activityTypesMatch);
+      }
+
+      if (effectHint.activityIdsExclude) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activityIdsExclude", effectHint.activityIdsExclude);
+      }
+
       if (effectHint.ignoreTransfer) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
       }
@@ -1067,10 +1075,6 @@ export default abstract class DDBEnricherFactoryMixin {
         height: "",
         units: "ft",
       });
-    }
-
-    if (override.forceSpellAdvancement) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
     }
 
     if (override.retainResourceConsumption) {
@@ -1350,6 +1354,7 @@ export default abstract class DDBEnricherFactoryMixin {
               t.name.startsWith("Status:")
               && t.name === v.name
               && !t.flags?.ddbimporter?.activitiesMatch
+              && !t.flags?.ddbimporter?.activityTypesMatch
               && !t.flags?.ddbimporter?.activityMatch) === i;
           }
           return true;

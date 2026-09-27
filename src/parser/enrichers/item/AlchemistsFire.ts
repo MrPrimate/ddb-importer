@@ -80,12 +80,14 @@ export default class AlchemistsFire extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    if (this.is2014) return [{
-      options: {
-        transfer: false,
-        description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
-      },
-    }];
+    if (this.is2014) {
+      return [{
+        options: {
+          transfer: false,
+          description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
+        },
+      }];
+    }
 
     return [{
       statuses: ["Burning"],

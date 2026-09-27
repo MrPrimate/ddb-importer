@@ -116,7 +116,18 @@ export default class BalefulInterdict extends DDBEnricherData {
     ];
   }
 
+  /**
+   * Moloch's Interdiction grants Incontrovertible at 18th level: interdicted creatures have
+   * disadvantage on Wisdom and Charisma saving throws, which the seal effect carries.
+   */
+  get hasIncontrovertible(): boolean {
+    const illrigger = this.ddbParser?.ddbData?.character.classes.find((klass) => klass.definition.name === "Illrigger");
+    return (illrigger?.level ?? 0) >= 18
+      && this.hasClassFeature({ featureName: "Moloch's Interdiction", className: "Illrigger" });
+  }
+
   override get effects(): IDDBEffectHint[] {
+    const incontrovertible = this.hasIncontrovertible;
     return [
       {
         // stackable marker for seals on the target, applied by placing or
@@ -126,7 +137,16 @@ export default class BalefulInterdict extends DDBEnricherData {
         daeStackable: "count",
         options: {
           durationSeconds: 60,
+          ...(incontrovertible
+            ? { description: "Incontrovertible: disadvantage on Wisdom and Charisma saving throws." }
+            : {}),
         },
+        changes: incontrovertible
+          ? [
+            DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("wis"),
+            DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("cha"),
+          ]
+          : [],
       },
     ];
   }

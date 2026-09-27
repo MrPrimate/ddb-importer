@@ -10,6 +10,7 @@ export default class DustOfSuleiman extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbDustSuleimDmg",
       removeDamageParts: true,
       damageParts: [

@@ -1,5 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Dump Beans is the primary save: a 10 ft sphere of 5d4 damage (fire in 2014, force in 2024),
+ * half on a save. The 2014 bag empties at once; the 2024 one dumps one bean by default, scaling
+ * the consumption up to the beans left but never the damage. Item uses are the bean count: they
+ * start at 12 all spent, and the one-shot Count Beans utility consumes -3d4 uses to hand the
+ * rolled count back. Plant Bean spends one bean and leaves the table roll to the player. The
+ * parser's automatic extra activities are off because every mode is authored here.
+ */
 export default class BagOfBeans extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
