@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
@@ -75,5 +76,12 @@ module.exports = {
     filename: '[name].mjs',
     path: path.resolve(__dirname, 'dist'),
   },
+  plugins: [
+    // The module ships as a single ES module. A dynamic import() without the
+    // `webpackMode: "eager"` hint would otherwise become a separate chunk whose
+    // loader cannot find its public path from an ES module script, so it would
+    // fail only in release builds (the esbuild dev build inlines everything).
+    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+  ],
 };
 
