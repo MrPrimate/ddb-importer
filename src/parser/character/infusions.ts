@@ -101,6 +101,42 @@ export function buildRiderCopies({ riders, origin, target, appliedId, systemOrig
 }
 
 /**
+ * Remove the applied copies of an enchantment profile already on an item, with the rider
+ * activities and effects that depend on them, so the import applies the profile exactly once.
+ *
+ * "Retain Active Effects" carries the previous import's applied copy over onto the recreated item,
+ * and before this every re-import added another copy beside it (and older imports left copies
+ * under random ids). Riders go first: dnd5e also deletes an enchantment's dependents when the
+ * enchantment is deleted, and removing them beforehand leaves that cascade nothing to race.
+ */
+export async function removeAppliedCopies(item: TImporterItem, profileId: string): Promise<void> {
+  const effects = Array.from((item.effects ?? []) as Iterable<ActiveEffect.Implementation>);
+  // dnd5e-types does not declare the enchantmentProfile flag dnd5e stamps on an applied copy
+  const applied = effects.filter((e) => foundry.utils.getProperty(e, "flags.dnd5e.enchantmentProfile") === profileId);
+  if (applied.length === 0) return;
+
+  // dnd5e stamps a dependent with the bare id on the same item, or with the uuid
+  const refs = new Set(applied.flatMap((e) => [e.id, e.uuid]).filter((ref): ref is string => !!ref));
+  const dependsOnApplied = (doc: unknown) =>
+    refs.has(foundry.utils.getProperty(doc as object, "flags.dnd5e.dependentOn") as string);
+
+  const activities = Array.from(
+    ((item.system as { activities?: Iterable<{ id?: string }> }).activities ?? []) as Iterable<{ id?: string }>,
+  );
+  const activityUpdate: Record<string, unknown> = {};
+  for (const riderActivity of activities.filter(dependsOnApplied)) {
+    if (riderActivity.id) activityUpdate[`system.activities.${riderActivity.id}`] = _del;
+  }
+  if (!foundry.utils.isEmpty(activityUpdate)) await item.update(activityUpdate as unknown as Item.UpdateData);
+
+  const riderEffectIds = effects.filter((e) => !applied.includes(e) && dependsOnApplied(e)).map((e) => e.id);
+  const ids = [...riderEffectIds, ...applied.map((e) => e.id)].filter((id): id is string => !!id);
+  logger.debug(`Replacing ${applied.length} applied copies of enchantment ${profileId} on ${item.name}`, { ids });
+  if (riderEffectIds.length > 0) await item.deleteEmbeddedDocuments("ActiveEffect", riderEffectIds as string[]);
+  await item.deleteEmbeddedDocuments("ActiveEffect", applied.map((e) => e.id).filter((id): id is string => !!id));
+}
+
+/**
  * Create the applied copy of an enchantment profile on an item at import time, shaped the way
  * dnd5e 6.0's `EnchantActivity#applyEnchantment` shapes a runtime application. The copy must be
  * `transfer: true`: since dnd5e #7319 `EnchantmentData#isApplied` is `transfer && item`, so a
@@ -117,6 +153,7 @@ export function buildRiderCopies({ riders, origin, target, appliedId, systemOrig
 export async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
   const effectData = effect.toObject() as unknown as I5eEffectData;
   const profileId = effectData._id;
+  if (profileId) await removeAppliedCopies(item, profileId);
   const appliedId = stableCopyId(profileId ?? "enchantment", new Set(item.effects?.keys() ?? []));
   effectData._id = appliedId;
   effectData.origin = activity.uuid;
