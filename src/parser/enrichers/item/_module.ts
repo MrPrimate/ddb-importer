@@ -16,6 +16,7 @@ export { default as AstralCaltrops } from "./AstralCaltrops";
 export { default as AstromancyArchive } from "./AstromancyArchive";
 export { default as AtlasOfEndlessHorizons } from "./AtlasOfEndlessHorizons";
 export { default as AutomaticRifle } from "./AutomaticRifle";
+export { default as AxeOfTheGallopingHeadsman } from "./AxeOfTheGallopingHeadsman";
 export { default as BabaYagasPestle } from "./BabaYagasPestle";
 export { default as BagOfBeans } from "./BagOfBeans";
 export { default as BallBearings } from "./BallBearings";
@@ -94,6 +95,7 @@ export { default as GlovesOfSwimmingAndClimbing } from "./GlovesOfSwimmingAndCli
 export { default as GnomengardeGrenade } from "./GnomengardeGrenade";
 export { default as GoadingAmmunition } from "./GoadingAmmunition";
 export { default as GrapplingHook } from "./GrapplingHook";
+export { default as GrassWhistleBlade } from "./GrassWhistleBlade";
 export { default as Haemscale } from "./Haemscale";
 export { default as HaintHooch } from "./HaintHooch";
 export { default as HammerOfThunderbolts } from "./HammerOfThunderbolts";

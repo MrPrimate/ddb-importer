@@ -59,6 +59,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
+    "Axe of the Galloping Headsman": "Axe of the Galloping Headsman",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Bell of the Dusk Mother": "Bell of the Dusk Mother",
@@ -103,6 +104,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Bagpipes": ItemEnrichers.MusicalInstrumentChecks,
+    "Axe of the Galloping Headsman": ItemEnrichers.AxeOfTheGallopingHeadsman,
     "Ball Bearings": ItemEnrichers.BallBearings,
     "Banjo of Ol' Jericho Sticks": ItemEnrichers.BanjoOfOlJerichoSticks,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,

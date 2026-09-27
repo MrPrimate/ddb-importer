@@ -785,6 +785,24 @@ describe("DDBItem.parseItemBonusSaveDC", () => {
   });
 });
 
+describe("DDBItem.restrictionSave", () => {
+  it.each([
+    ["Backfire - DC 15 CON save", ["con"], "15"],
+    ["Dex. Save: DC 16 with Disadvantage; Success: half damage", ["dex"], "16"],
+    ["Line: 60 ft. long and 5 ft. wide Save DC: 15 Dex.", ["dex"], "15"],
+    ["DC 15 Strength or Dexterity saving throw", ["str", "dex"], "15"],
+    // "Construct" is not a Constitution save
+    ["20 on the attack roll, not Construct; save for half", [], null],
+  ])("reads %s", (restriction, abilities, dc) => {
+    expect(DDBItem.restrictionSave(restriction)).toEqual({ abilities, dc });
+  });
+
+  it("recognises a restriction that names a save", () => {
+    expect(DDBItem.RESTRICTION_NAMES_SAVE.test("Con. Save: DC 16: On fail, damage and paralyzed")).toBe(true);
+    expect(DDBItem.RESTRICTION_NAMES_SAVE.test("When you hit a Giant")).toBe(false);
+  });
+});
+
 // =============================================================================
 // WIELDER_SAVE - saves the wielder makes get no rider activity against the target
 // =============================================================================

@@ -877,6 +877,64 @@ describe("BanjoOfOlJerichoSticks", () => {
   });
 });
 
+describe("AxeOfTheGallopingHeadsman", () => {
+  const Enricher = ItemEnrichers.AxeOfTheGallopingHeadsman;
+  const axe = (name: string, ...bonuses: number[]) => build(Enricher, {
+    name,
+    ddbParser: {
+      originalName: name,
+      ddbDefinition: { grantedModifiers: bonuses.map((value) => ({ type: "bonus", subType: "magic", value })) },
+    },
+  });
+  const names = (e: any) => e.additionalActivities.map((a: any) => a.init.name);
+
+  it("unlocks the properties by tier", () => {
+    expect(names(axe("Axe of the Galloping Headsman, +1", 1))).toEqual(["Fiery Smite (1d10)"]);
+    expect(names(axe("Axe of the Galloping Headsman, +2", 2))).toEqual(["Fiery Smite (1d10)", "Mark of Guilt", "Sense Guilt"]);
+    expect(names(axe("Axe of the Galloping Headsman, +3", 3))).toEqual([
+      "Fiery Smite (1d10)", "Mark of Guilt", "Sense Guilt", "Dark Binding", "Executioner's Blade Damage", "Executioner's Blade Save",
+    ]);
+  });
+
+  it("adds the Fiery Smite die to the weapon attack and bakes the Sense Guilt DC", () => {
+    const plusTwo = axe("Axe of the Galloping Headsman, +2", 2);
+    expect(plusTwo.activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 6, types: ["fire"] });
+    const sense = plusTwo.additionalActivities.find((a: any) => a.init.name === "Sense Guilt");
+    expect(sense.build.saveOverride.dc.formula).toBe("18");
+  });
+
+  it("builds the Varies record at the Rare tier and corrects its summed bonus", () => {
+    const varies = axe("Axe of the Galloping Headsman", 1, 2, 3);
+    expect(names(varies)).toEqual(["Fiery Smite (1d10)"]);
+    expect(varies.override.data["system.magicalBonus"]).toBe(1);
+    expect(varies.override.descriptionSuffix).toContain("Rare tier");
+    expect(axe("Axe of the Galloping Headsman, +3", 3).override).toEqual({});
+  });
+
+  it("scopes the prone critical range to this axe for AC5e", () => {
+    const executioner = axe("Axe of the Galloping Headsman, +3", 3).effects.find((e: any) => e.name === "Executioner's Blade");
+    expect(executioner.ac5eOnly).toBe(true);
+    expect(executioner.ac5eChanges[0]).toMatchObject({
+      key: "flags.automated-conditions-5e.attack.criticalThreshold",
+      value: "set=19; opponentActor.statuses.prone && item.identifier === 'axe-of-the-galloping-headsman-3'",
+    });
+  });
+});
+
+describe("GrassWhistleBlade", () => {
+  const e = build(ItemEnrichers.GrassWhistleBlade, { name: "Grass Whistle Blade" });
+
+  it("rolls the psychic damage apart from the saves, since it lands on a success", () => {
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Lullaby", "Lullaby: Second Save", "Lullaby: Psychic Damage"]);
+    expect(e.additionalActivities[0].overrides.addItemConsume).toBe(true);
+    expect(e.additionalActivities[1].build.generateDamage).toBe(false);
+    expect(e.effects.map((effect: any) => [effect.activityMatch, effect.statuses])).toEqual([
+      ["Lullaby", ["Incapacitated"]],
+      ["Lullaby: Second Save", ["Unconscious"]],
+    ]);
+  });
+});
+
 describe("BellOfTheDuskMother", () => {
   const Enricher = ItemEnrichers.BellOfTheDuskMother;
   const bell = (name: string, ...bonuses: number[]) =>

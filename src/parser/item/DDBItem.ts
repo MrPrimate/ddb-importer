@@ -100,6 +100,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
+  /** Restricted damage modifiers whose restriction names a save; see `#foldRestrictedSaveAttacks`. */
+  #restrictedSaveAttacks: { name: string; restriction: string; damage: I5eDamagePart }[] = [];
   // never populated for items; activity generation guards its reads
   rawCharacter: I5ePCData | null = null;
   raw: IDDBCharacterDataStub;
@@ -513,6 +515,58 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return null;
   }
 
+  static RESTRICTION_NAMES_SAVE = /\bsav(?:e|ing)\b/i;
+
+  /**
+   * The save a restricted damage modifier's restriction names, as far as it says:
+   * "Backfire - DC 15 CON save", "Dex. Save: DC 16", "DC 13 Dexterity saving throw".
+   */
+  static restrictionSave(restriction: string): { abilities: string[]; dc: string | null } {
+    const abilities = new Set<string>();
+    for (const match of restriction.matchAll(/\b(str|dex|con|int|wis|cha)(?:ength|terity|stitution|elligence|dom|risma)?\b/gi)) {
+      abilities.add(match[1].toLowerCase());
+    }
+    const dc = restriction.match(/\bDC:? ?(\d+)/i);
+    return { abilities: [...abilities], dc: dc ? dc[1] : null };
+  }
+
+  /**
+   * DDB often ships the damage of a weapon's save as a restricted damage modifier as well, which
+   * the parser turns into a "Restricted Attack" activity: a second attack roll for damage the
+   * save already rolls. Such an attack is dropped when a save activity on the item rolls the same
+   * dice against the save the restriction names. Where no save carries the dice (wound damage
+   * that a save ends, on-hit dice beside a condition-only save) the attack is the only home of
+   * that damage and stays.
+   */
+  #foldRestrictedSaveAttacks(): void {
+    if (this.#restrictedSaveAttacks.length === 0) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    const saves = Object.values(activities).filter((activity) => activity.type === "save");
+    if (saves.length === 0) return;
+
+    for (const restricted of this.#restrictedSaveAttacks) {
+      const { number, denomination } = restricted.damage;
+      if (!number || !denomination) continue;
+      const { abilities, dc } = DDBItem.restrictionSave(restricted.restriction);
+      const covered = saves.some((activity) => {
+        const saveAbilities = Array.from(activity.save?.ability ?? []);
+        if (abilities.length > 0 && !abilities.some((ability) => saveAbilities.includes(ability))) return false;
+        const formula = activity.save?.dc?.formula;
+        if (dc && formula && (/^\d+$/).test(formula) && formula !== dc) return false;
+        return (activity.damage?.parts ?? []).some((part) => part.number === number && part.denomination === denomination);
+      });
+      if (!covered) continue;
+      // DDB restrictions carry stray whitespace ("Save DC: 15 Dex.  "), which Foundry's string
+      // field trims from the activity name when the activity is built live
+      const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
+      const name = squash(restricted.name);
+      for (const [id, activity] of Object.entries(activities)) {
+        if (activity.type === "attack" && squash(activity.name ?? "") === name) delete activities[id];
+      }
+    }
+  }
+
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
   static parseItemBonusSaveDC(description: string): number | null {
     const text = DDBDescriptions.plainText(description);
@@ -863,6 +917,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
             const includeBaseRegex = /takes an extra/i;
             const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
 
+            if (DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction)) {
+              this.#restrictedSaveAttacks.push({ name: `Restricted Attack: ${mod.restriction}`, restriction: mod.restriction, damage });
+            }
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
               type: "attack",
@@ -3424,6 +3481,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           await this._generateAdditionalActivities();
         }
         await this.enricher.addAdditionalActivities(this);
+        this.#foldRestrictedSaveAttacks();
       }
 
       this.#generatePrice();
