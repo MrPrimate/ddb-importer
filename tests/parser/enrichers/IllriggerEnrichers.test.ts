@@ -6,7 +6,6 @@
  * These assert the enricher hints, not the built document.
  */
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
-import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -129,12 +128,71 @@ describe("illrigger InfernalMajesty", () => {
     expect(e.override.descriptionSuffix).toContain("necrotic damage, the type chosen when this character was imported");
   });
 
+  it("does not take another feature's damage-type option for the Terrorizing Force type", () => {
+    const e = build(Illrigger.InfernalMajesty, {
+      character: {
+        classes: [illriggerClass(20, [{ id: TERRORIZING_FORCE_ID, name: "Terrorizing Force" }])],
+        options: { class: [{ componentId: 1234, componentTypeId: 1, definition: { name: "Fire" } }], race: [], feat: [] },
+      },
+    });
+    const keys = e.effects[0].changes.map((c: any) => c.key);
+    expect(keys).not.toContain("system.bonuses.mwak.damage");
+  });
+
   it("keeps the resistances and flight when no Terrorizing Force type is known", () => {
     const e = build(Illrigger.InfernalMajesty);
     const keys = e.effects[0].changes.map((c: any) => c.key);
     expect(keys).not.toContain("system.bonuses.mwak.damage");
     expect(keys.filter((k: string) => k === "system.traits.dr.value")).toHaveLength(3);
     expect(e.override.descriptionSuffix).toBeUndefined();
+  });
+});
+
+describe("illrigger interdiction boon levels", () => {
+  const visibility = (min: number) => ({ visibility: { identifier: "illrigger", level: { min, max: null } } });
+
+  it("hides Sutekh's later boons until 13th and 18th level", () => {
+    const e = build(Illrigger.SutekhsInterdiction);
+    const byName = Object.fromEntries(e.additionalActivities.map((a: any) => [a.init?.name ?? a.action.name, a]));
+    expect(byName["Foul Interchange"].overrides.data.visibility).toBeUndefined();
+    expect(byName["Sanguine Gift"].overrides.data).toEqual(visibility(13));
+    expect(byName["Blood for Blood"].overrides.data).toEqual(visibility(18));
+  });
+
+  it("hides Moloch's Slippery Ploy until 13th level", () => {
+    const e = build(Illrigger.MolochsInterdiction);
+    const ploy = e.additionalActivities.find((a: any) => a.init?.name === "Slippery Ploy");
+    expect(ploy.overrides.data).toEqual(visibility(13));
+  });
+
+  it.each([
+    ["DispatersInterdiction", ["Telekinetic Seal", "By the Throat", "Dispater's Supremacy (Passive)"]],
+    ["BelialsInterdiction", ["Veil of Lies", "Hell's Assassin (Passive)", "Dark Malediction (Passive)"]],
+    ["AsmodeussInterdiction", [
+      "Asmodeus's Interdiction: Axiomatic Seals (Passive)",
+      "Asmodeus's Interdiction: Spellbreaker",
+      "Asmodeus's Interdiction: Hell Mage (Passive)",
+    ]],
+  ])("%s keeps DDB's boon actions gated at 7th, 13th and 18th level", (enricher, names) => {
+    const e = build((Illrigger as Record<string, any>)[enricher]);
+    expect(e.type).toBe("none");
+    expect(e.useDefaultAdditionalActivities).toBe(false);
+    const actions = e.additionalActivities.filter((a: any) => a.action);
+    expect(actions.map((a: any) => a.action.name)).toEqual(names);
+    expect(actions[0].overrides).toBeUndefined();
+    expect(actions[1].overrides.data).toEqual(visibility(13));
+    expect(actions[2].overrides.data).toEqual(visibility(18));
+  });
+});
+
+describe("DDBEnricherData.hasAction", () => {
+  it("matches DDB action names with trailing spaces and curly apostrophes", () => {
+    const e = build(Illrigger.MolochsInterdiction, {
+      actions: { class: [{ name: "Slippery Ploy " }, { name: "Dispater\u2019s Supremacy (Passive)" }] },
+    });
+    expect(e.hasAction({ name: "Slippery Ploy", type: "class" })?.name).toBe("Slippery Ploy ");
+    expect(e.hasAction({ name: "Dispater's Supremacy (Passive)", type: "class" })).toBeDefined();
+    expect(e.hasAction({ name: "Red Cant", type: "class" })).toBeUndefined();
   });
 });
 
@@ -243,16 +301,33 @@ describe("illrigger 5.x specifics", () => {
     expect(overTime.value).toContain("turn=end");
   });
 
-  it("gives Soul's Doom a damage modification on every damage type", () => {
+  it("gives Soul's Doom a single damage modification on all damage", () => {
     const e = build(Illrigger.SoulsDoom);
     const keys = e.effects[0].changes.map((c: any) => c.key);
-    expect(keys).toContain("system.traits.dm.amount.fire");
-    expect(keys).not.toContain("system.traits.dm.amount.ALL");
+    expect(keys).toEqual(["system.traits.dm.amount.ALL"]);
     expect(e.effects[0].changes.every((c: any) => c.value.includes("@prof"))).toBe(true);
   });
 
   it("ends Bedevil on the next save under DAE", () => {
     const e = build(Illrigger.Bedevil);
     expect(e.effects[0].daeSpecialDurations).toEqual(["isSave"]);
+  });
+});
+
+describe("illrigger origin changes", () => {
+  // without DAE's own apply path dnd5e resolves @prof against the target, so a character import
+  // writes the illrigger's proficiency bonus in; a munched copy keeps @prof for DAE
+  const character = { ddbParser: { ddbCharacter: { profBonus: 4 } } };
+  const values = (e: any) => e.effects[0].changes.map((c: any) => c.value);
+
+  it("uses the illrigger's proficiency bonus on a character import", () => {
+    const soul = values(build(Illrigger.SoulsDoom, character));
+    expect(soul).toEqual(["+4"]);
+    expect(values(build(Illrigger.Bedevil, character))).toEqual(["-4"]);
+  });
+
+  it("keeps @prof when munched without a character", () => {
+    expect(values(build(Illrigger.SoulsDoom)).every((value: string) => value.includes("@prof"))).toBe(true);
+    expect(values(build(Illrigger.Bedevil))).toEqual(["-@prof"]);
   });
 });

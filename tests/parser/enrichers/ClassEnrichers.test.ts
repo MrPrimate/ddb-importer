@@ -18,6 +18,7 @@
  * itself (pinned by tests/smoke/enricherFirstLoad.test.ts).
  */
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
+import * as GenericEnrichers from "../../../src/parser/enrichers/generic/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
@@ -915,5 +916,123 @@ describe("illrigger InfernalConduit", () => {
     expect(e.activity.addScalingMode).toBe("amount");
     expect(e.activity.addConsumptionScalingMax).toBe("@scale.illrigger.infernal-conduit");
     expect(e.activity.data.healing).toMatchObject({ number: 1, denomination: 10 });
+  });
+});
+
+describe("paladin auras", () => {
+  /** A paladin aura feature with the description AuraOf copies onto its effect. */
+  const paladinAura = (Enricher: TEnricher, originalName: string, is2014 = false) => named(Enricher, originalName, {
+    is2014,
+    klass: "Paladin",
+    data: { name: originalName, flags: {}, system: { description: { value: "" } } },
+  });
+
+  it("Aura of Alacrity resolves its own enricher, not the generic paladin aura", async () => {
+    const { default: DDBClassFeatureEnricher } = await import("../../../src/parser/enrichers/DDBClassFeatureEnricher");
+    // ENRICHERS is a class field, so it only exists on an instance
+    const factory = new DDBClassFeatureEnricher({ activityGenerator: null as any });
+    expect(factory.ENRICHERS["Aura of Alacrity"]).toBe(ClassEnrichers.Paladin.AuraOfAlacrity);
+  });
+
+  it("Aura of Alacrity reaches allies in the Aura of Protection in 2024, and 5 then 10 feet in 2014", () => {
+    const aura = (is2014: boolean) => paladinAura(ClassEnrichers.Paladin.AuraOfAlacrity, "Aura of Alacrity", is2014).effects[0];
+    expect(aura(false).auraeffects.distanceFormula).toBe("@scale.paladin.aura-of-protection");
+    // the paladin's own +10 comes from DDB's speed modifier, so the aura skips them
+    const legacy = aura(true);
+    expect(legacy.auraeffects).toMatchObject({
+      applyToSelf: false,
+      distanceFormula: "min(10, 5 + (5 * floor(@classes.paladin.levels / 18)))",
+    });
+    expect(legacy.data.flags.ActiveAuras).toMatchObject({
+      ignoreSelf: true,
+      radius: "min(10, 5 + (5 * floor(@classes.paladin.levels / 18)))",
+    });
+  });
+
+  it("Aura of Protection's AC5e save bonus reaches further with paladin levels, not the character's", () => {
+    const [aura] = paladinAura(GenericEnrichers.AuraOf, "Aura of Protection").effects;
+    expect(aura.ac5eChanges).toEqual([expect.objectContaining({
+      key: "flags.automated-conditions-5e.aura.save.bonus",
+      value: "bonus=max(1, auraActor.abilities.cha.mod); radius=(auraActor.classes.paladin.levels < 18 ? 10 : 30); allies; singleAura; includeSelf",
+    })]);
+  });
+});
+
+describe("warlock InvocationPactOfTheBlade", () => {
+  it("leaves the weapon's attack ability alone; Charisma is the rider's option", () => {
+    const [pactWeapon] = build(ClassEnrichers.Warlock.InvocationPactOfTheBlade).effects;
+    expect(pactWeapon.changes.some((change: any) => change.key.includes("ability"))).toBe(false);
+    expect(pactWeapon.data.flags.ddbimporter.activityRiders).toEqual([ClassEnrichers.Warlock.InvocationPactOfTheBlade.ATTACK_ID]);
+  });
+});
+
+describe("warlock FormOfTheBeast", () => {
+  it("makes Bite and Claw melee Unarmed Strikes that add the better of Strength and Charisma once", () => {
+    const attacks = build(ClassEnrichers.Warlock.FormOfTheBeast).additionalActivities
+      .filter((a: any) => ["Bite", "Claw"].includes(a.init?.name));
+    expect(attacks).toHaveLength(2);
+    for (const attack of attacks) {
+      expect(attack.overrides.data.attack).toMatchObject({
+        ability: "none",
+        bonus: "max(@abilities.str.mod, @abilities.cha.mod)",
+        type: { value: "melee", classification: "unarmed" },
+      });
+    }
+  });
+});
+
+describe("feature-held scales rooted on their class", () => {
+  const RANGER = { ddbCharacter: { raw: { classes: [{ name: "Rogue", _id: "rogue000000000aa" }, { name: "Ranger", _id: "ranger00000000aa" }] } } };
+
+  it("Favored Foe reads its die scale against the ranger's level", () => {
+    expect(build(ClassEnrichers.Ranger.FavoredFoe, { ddbParser: RANGER }).override.data.flags)
+      .toEqual({ dnd5e: { advancementRoot: "ranger00000000aa" } });
+    // the muncher has no character, so no root
+    expect(build(ClassEnrichers.Ranger.FavoredFoe).override.data.flags).toEqual({});
+  });
+});
+
+describe("single save definitions", () => {
+  it.each([
+    ["TakeGhastlyForm"],
+    ["WrathOfTheWild"],
+  ])("%s builds its Unnerving Aura as one Wisdom save against the spell save DC", (name) => {
+    const aura = build((ClassEnrichers.Ranger as any)[name]).additionalActivities.find((a: any) => a.init?.name === "Unnerving Aura");
+    expect(aura.build.saveOverride).toEqual({ ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } });
+    expect(aura.overrides.data.save).toBeUndefined();
+  });
+});
+
+describe("recovery periods", () => {
+  it("Symbiotic Biosphere's Retaliate recharges at the start of the druid's own turn", () => {
+    // "can't do so again until the start of your next turn": `turn` would refill on every
+    // combatant's turn, which is once per turn rather than once per round
+    const { uses } = build(ClassEnrichers.Druid.SymbioticBiosphere).retaliateActivity.overrides.data;
+    expect(uses).toMatchObject({ max: "1", recovery: [{ period: "turnStart", type: "recoverAll" }] });
+  });
+});
+
+describe("damage formulas that must not be replaced by a class scale", () => {
+  it("Moxie's Unarmed Strike activities roll the Fisticuffs die and opt out of the Moxie point scale", () => {
+    const e = build(ClassEnrichers.Pugilist.Moxie);
+    for (const name of ["One-Two Punch", "Stick and Move"]) {
+      const hint = e.additionalActivities.find((a: any) => a.action?.name === name);
+      expect(hint.overrides.data.damage.parts).toEqual([
+        expect.objectContaining({ types: ["bludgeoning"], custom: { enabled: true, formula: "@scale.pugilist.fisticuffs + @abilities.str.mod" } }),
+      ]);
+    }
+    expect(e.override.data.flags.ddbimporter.skipScale).toBe(true);
+  });
+
+  it("Tentacle of the Deeps deals flat scaled cold damage with no ability modifier", () => {
+    const parts = build(ClassEnrichers.Warlock.TentacleOfTheDeepsAttack).activity.data.damage.parts;
+    expect(parts).toEqual([
+      expect.objectContaining({ types: ["cold"], custom: { enabled: true, formula: "@scale.the-fathomless.tentacle-of-the-deeps" } }),
+    ]);
+  });
+
+  it("Elemental Epitome's damage is one Martial Arts die", () => {
+    const hint = build(ClassEnrichers.Monk.ElementalEpitome).additionalActivities.find((a: any) => a.init?.name === "Elemental Epitome Damage");
+    expect(hint.build.damageParts[0].custom.formula).toBe("@scale.monk.die");
   });
 });

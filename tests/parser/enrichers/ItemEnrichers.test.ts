@@ -299,3 +299,75 @@ describe("EldritchClawTattoo", () => {
     expect(e.effects.map((effect: any) => effect.name)).toContain("Eldritch Maul");
   });
 });
+
+describe("StaffOfThunderAndLightning", () => {
+  it("splits the staff into separately recovering properties", () => {
+    const legacy = build(ItemEnrichers.StaffOfThunderAndLightning, { name: "Staff of Thunder and Lightning", is2014: true });
+    const modern = build(ItemEnrichers.StaffOfThunderAndLightning, { name: "Staff of Thunder and Lightning", is2014: false });
+
+    expect(modern.clearAutoEffects).toBe(true);
+    expect(modern.override.uses).toMatchObject({ max: "", recovery: [] });
+
+    expect(legacy.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Thunder",
+      "Lightning",
+      "Thunder and Lightning (Lightning Strike)",
+      "Thunder and Lightning (Thunderclap)",
+      "Lightning Strike",
+      "Thunderclap",
+    ]);
+    expect(modern.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Thunder",
+      "Lightning",
+      "Thunder and Lightning",
+      "Lightning Strike",
+      "Thunderclap",
+    ]);
+
+    // Thunder rides on a hit and needs no action of its own
+    expect(modern.additionalActivities[0].build.activationOverride.type).toBe("special");
+    // 2024 Thunder and Lightning is a Bonus Action after a hit
+    expect(modern.additionalActivities[2].build.activationOverride.type).toBe("bonus");
+
+    // one activity cannot spend another's use, so the 2014 Thunderclap half has its own daily use
+    const legacyThunderclap = legacy.additionalActivities[3];
+    expect(legacyThunderclap.init.name).toBe("Thunder and Lightning (Thunderclap)");
+    expect(legacyThunderclap.build.generateUses).toBe(true);
+    expect(legacyThunderclap.build.usesOverride).toMatchObject({ max: "1", recovery: [{ period: "dawn", type: "recoverAll" }] });
+    expect(legacyThunderclap.overrides.addActivityConsume).toBe(true);
+
+    const stunned = modern.effects.find((e: any) => e.name === "Stunned");
+    expect(stunned.options.expiry).toBe("sourceEnd");
+    expect(stunned.activitiesMatch).toEqual(["Thunder", "Thunder and Lightning"]);
+    expect(legacy.effects.find((e: any) => e.name === "Deafened").activitiesMatch)
+      .toEqual(["Thunderclap", "Thunder and Lightning (Thunderclap)"]);
+  });
+});
+
+describe("Requiem", () => {
+  const Enricher = ItemEnrichers.Requiem;
+
+  it("keys the addiction DC and the question pool on the drug", () => {
+    const bliss = build(Enricher, { name: "Requiem Bliss" });
+    // @scaling is the question count (increase + 1), so it carries the "+ 1 per question" itself
+    expect(bliss.activity.data.save.dc.formula).toBe("12 + @scaling");
+    expect(bliss.activity.data.uses.max).toBe("10");
+    // dnd5e's scaling max is the highest scaling value offered, which is questions asked
+    expect(bliss.activity.addConsumptionScalingMax).toBe("10");
+    expect(bliss.additionalActivities[0].build.saveOverride.dc.formula).toBe("15");
+
+    const clay = build(Enricher, { name: "Requiem Clay" });
+    expect(clay.activity.data.save.dc.formula).toBe("10 + @scaling");
+    expect(clay.activity.data.uses.max).toBe("5");
+    expect(clay.activity.addConsumptionScalingMax).toBe("5");
+    expect(clay.additionalActivities[0].build.saveOverride.dc.formula).toBe("13");
+  });
+
+  it("rolls the poison per question regardless of the save", () => {
+    const smoke = build(Enricher, { name: "Requiem Bliss" }).activity;
+    expect(smoke.removeDamageParts).toBe(true);
+    expect(smoke.damageParts[0]).toMatchObject({ number: 1, denomination: 6, types: ["poison"], scaling: { mode: "whole", number: 1 } });
+    expect(smoke.data.damage.onSave).toBe("full");
+    expect(smoke.addActivityScalingMode).toBe("amount");
+  });
+});

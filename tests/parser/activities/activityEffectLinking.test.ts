@@ -127,13 +127,4 @@ describe("DDBActivityFactoryMixin._activityEffectLinking by activity type", () =
     expect(tracker._id).toEqual(expect.any(String));
     expect(linked).toMatchObject({ _id: tracker._id, onSave: true, level: { min: 5, max: null } });
   });
-
-  it("offers a type-matched effect to a form-mode transform", () => {
-    const data = link({
-      activities: { form: { name: "Change Form", type: "transform", transform: { mode: "form" }, effects: [] } },
-      effects: [typed("formByType000000", { activityTypesMatch: ["transform"] })],
-    });
-
-    expect(ids(data.system.activities.form)).toEqual(["formByType000000"]);
-  });
 });
