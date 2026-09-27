@@ -1,3 +1,4 @@
+import logger from "../../src/lib/Logger";
 import DDBRegionDisplayProfiles, { DDBRegionDisplayProfilesMenu } from "../../src/apps/DDBRegionDisplayProfiles";
 import { BUILTIN_REGION_DISPLAY_PROFILES, REGION_DISPLAY_DEFAULTS } from "../../src/config/regionDisplayProfiles";
 import RegionDisplayProfiles from "../../src/lib/RegionDisplayProfiles";
@@ -149,6 +150,23 @@ describe("DDBRegionDisplayProfiles.open", () => {
     expect(direct.selectedId).toBe("status");
     expect(DDBRegionDisplayProfiles.open({ profileId: "aura" })).toBe(direct);
     expect(direct.selectedId).toBe("aura");
+  });
+
+  it("logs a render that fails rather than leaving an unhandled rejection, and forgets that window", async () => {
+    user.can = vi.fn(() => true);
+    const refusal = new Error("template failed to render");
+    proto.render = vi.fn(async () => {
+      throw refusal;
+    });
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const first = DDBRegionDisplayProfiles.open();
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith("Region display profiles editor could not open", refusal));
+    // the next open builds a fresh window instead of reusing the one that never opened
+    proto.render = vi.fn(async function (this: unknown) {
+      return this;
+    });
+    expect(DDBRegionDisplayProfiles.open()).not.toBe(first);
+    warn.mockRestore();
   });
 
   it("gives the settings menu a stand-in that hands over to the one editor", async () => {

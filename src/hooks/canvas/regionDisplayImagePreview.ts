@@ -1,5 +1,6 @@
 import { isImagePattern } from "../../config/regionDisplayProfiles";
 import { imageDimensions, imageFillDimensions, loadDisplayTexture } from "./regionDisplayTexture";
+import logger from "../../lib/Logger";
 
 const selector = ".ddbi-display-region-preview, .ddbi-display-region-swatch";
 const keys = new WeakMap<HTMLElement, string>();
@@ -79,7 +80,13 @@ function symbolFor(
   symbol.height = h;
   const ink = symbol.getContext("2d");
   if (!ink) return null;
-  ink.drawImage(source, 0, 0, w, h);
+  try {
+    ink.drawImage(source, 0, 0, w, h);
+  } catch (error) {
+    // a texture Foundry has since released can leave a closed ImageBitmap behind
+    logger.debug(`Region display preview could not draw ${style.textureSrc}`, error);
+    return null;
+  }
   if (style.textureColorMode === "region") {
     ink.globalCompositeOperation = "source-in";
     ink.fillStyle = color;
@@ -96,8 +103,21 @@ function symbolFor(
   return symbol;
 }
 
-/** Paint into the fill element, retaining its CSS opacity and independent outer border. */
+/**
+ * Paint into the fill element, retaining its CSS opacity and independent outer border. Callers
+ * fire and forget it from observers and frames, so a failure is logged and marks the preview as
+ * unavailable rather than escaping as an unhandled rejection.
+ */
 export async function paintImagePreview(element: HTMLElement): Promise<void> {
+  try {
+    await paint(element);
+  } catch (error) {
+    element.dataset.imageError = "true";
+    logger.warn("Region display image preview failed", error);
+  }
+}
+
+async function paint(element: HTMLElement): Promise<void> {
   const encoded = element.dataset.imagePreview ?? "";
   const rect = element.getBoundingClientRect();
   const ratio = Math.min(window.devicePixelRatio || 1, 2);

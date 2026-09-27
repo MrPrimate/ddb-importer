@@ -202,7 +202,14 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       app = new DDBRegionDisplayConfig(target);
       DDBRegionDisplayConfig.#instances.set(target.key, app);
     }
-    app.render({ force: true });
+    const opening = app;
+    // Foundry turns a _canRender refusal into a warning itself; this catches a render that
+    // fails outright (context or template), and drops a window that never opened so the next
+    // open builds a new one
+    opening.render({ force: true }).catch((error: unknown) => {
+      logger.warn(`Region display editor for ${target.key} could not open`, error);
+      if (!opening.rendered) DDBRegionDisplayConfig.#instances.delete(target.key);
+    });
     return app;
   }
 

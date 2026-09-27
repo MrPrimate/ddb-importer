@@ -173,6 +173,18 @@ describe("RegionDisplayProfiles store", () => {
     expect(RegionDisplayProfiles.resolve({ profile: "damage", dashed: true })!.dashed).toBe(true);
   });
 
+  it("accepts only hex colours from flag and stored data", () => {
+    expect(RegionDisplayProfiles.color("#AbC")).toBe("#aabbcc");
+    expect(RegionDisplayProfiles.color(" 123456 ")).toBe("#123456");
+    expect(RegionDisplayProfiles.color("red")).toBeNull();
+    expect(RegionDisplayProfiles.color("#ff0000; background-image: url(https://example.invalid/x)")).toBeNull();
+    expect(RegionDisplayProfiles.color(0xff0000)).toBeNull();
+    // a player-written region flag cannot smuggle CSS in: the profile's own colour is kept
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", color: "red; background:url(x)" })!.color)
+      .toBe(RegionDisplayProfiles.get("damage")!.color);
+    expect(RegionDisplayProfiles.normalize({ name: "x", color: "url(x)" }).color).toBeNull();
+  });
+
   it("saves, removes and resets through the world setting and announces the change", async () => {
     const set = vi.spyOn(game.settings, "set");
     const saved = await RegionDisplayProfiles.save({ name: "Fog", pattern: "dots", opacity: 0.4 });

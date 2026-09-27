@@ -125,7 +125,12 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
     DDBRegionDisplayProfiles.#instance = app;
     const profile = RegionDisplayProfiles.get(profileId) ?? (app.draft ? null : RegionDisplayProfiles.all()[0]);
     if (profile) app.load(profile);
-    app.render({ force: true });
+    // Foundry turns a _canRender refusal into a warning itself; this catches a render that fails
+    // outright (context or template), and forgets a window that never opened
+    app.render({ force: true }).catch((error: unknown) => {
+      logger.warn("Region display profiles editor could not open", error);
+      if (!app.rendered && DDBRegionDisplayProfiles.#instance === app) DDBRegionDisplayProfiles.#instance = null;
+    });
     return app;
   }
 

@@ -1,15 +1,18 @@
-import { isImagePattern } from "../../config/regionDisplayProfiles";
+import { isImagePattern, REGION_DISPLAY_FALLBACK_COLOR } from "../../config/regionDisplayProfiles";
 
 /**
  * A CSS approximation of a display style, for swatches in the profile editor and the
  * Region config. The canvas shader is the truth; this only has to read the same way.
  */
 
-/** `#rrggbb` / `#rgb` to `rgba()`; other colour strings pass through untouched. */
+/**
+ * `#rrggbb` / `#rgb` to `rgba()`. The result is written into a `style` attribute, so any other
+ * string is replaced by the fallback colour rather than passed through as CSS.
+ */
 export function rgba(color: string, alpha: number): string {
-  const hex = color.trim().replace(/^#/, "");
+  const hex = String(color ?? "").trim().replace(/^#/, "");
   const short = (/^[0-9a-f]{3}$/i).test(hex);
-  if (!short && !(/^[0-9a-f]{6}$/i).test(hex)) return color;
+  if (!short && !(/^[0-9a-f]{6}$/i).test(hex)) return rgba(REGION_DISPLAY_FALLBACK_COLOR, alpha);
   const full = short
     ? hex
       .split("")

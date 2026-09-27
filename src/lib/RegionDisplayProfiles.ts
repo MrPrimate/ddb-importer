@@ -169,6 +169,18 @@ export default class RegionDisplayProfiles {
     return isTextureChoice(key, value) ? value : fallback;
   }
 
+  /**
+   * A `#rrggbb` colour from stored or flag data, or null when the value is not a hex colour.
+   * Region flags are writable by players and the colour ends up in the `style` attribute of the
+   * GM's previews, so anything but a hex colour is refused rather than passed on as CSS.
+   */
+  static color(value: unknown): string | null {
+    if (typeof value !== "string") return null;
+    const hex = value.trim().replace(/^#/, "");
+    if ((/^[0-9a-f]{3}$/i).test(hex)) return `#${hex.split("").map((c) => c + c).join("").toLowerCase()}`;
+    return (/^[0-9a-f]{6}$/i).test(hex) ? `#${hex.toLowerCase()}` : null;
+  }
+
   /** A trimmed image path, or the fallback when the value is not a non-blank string. */
   static textureSrc(value: unknown, fallback: string): string {
     return typeof value === "string" && value.trim() ? value.trim() : fallback;
@@ -206,7 +218,7 @@ export default class RegionDisplayProfiles {
     const fallback = base ?? { ...REGION_DISPLAY_DEFAULTS, name: RegionDisplayProfiles.defaultName };
     const name = typeof data.name === "string" && data.name.trim() ? data.name.trim() : fallback.name;
     const id = typeof data.id === "string" && data.id.trim() ? data.id.trim() : RegionDisplayProfiles.newId();
-    const color = typeof data.color === "string" && data.color.trim() ? data.color.trim() : null;
+    const color = RegionDisplayProfiles.color(data.color);
     const borderOpacity = RegionDisplayProfiles.clamp("borderOpacity", data.borderOpacity, NaN);
     return {
       id,
@@ -255,7 +267,7 @@ export default class RegionDisplayProfiles {
       }
       return null;
     }
-    const color = typeof flag.color === "string" && flag.color.trim() ? flag.color.trim() : profile.color;
+    const color = RegionDisplayProfiles.color(flag.color) ?? profile.color;
     const opacity = RegionDisplayProfiles.clamp("opacity", flag.opacity, profile.opacity);
     return {
       profile: profile.id,

@@ -1,3 +1,4 @@
+import logger from "../../src/lib/Logger";
 import DDBRegionDisplayConfig, { activityBehaviorDisplayTarget, regionDisplayTarget } from "../../src/apps/DDBRegionDisplayConfig";
 import { behaviorConfigFromFlag, describeDisplayFlag, flagFromBehaviorConfig } from "../../src/hooks/canvas/regionDisplaySummary";
 import { setMockSettings } from "../_setup/foundryMocks";
@@ -182,6 +183,29 @@ describe("region display targets", () => {
     expect(DDBRegionDisplayConfig.openForBehavior(activity({ isOwner: false }), "bbb")).toBeNull();
     expect(warn).toHaveBeenCalledTimes(2);
     expect(warn).toHaveBeenCalledWith("You do not have permission to change this region display.");
+    warn.mockRestore();
+  });
+
+  it("logs a render that fails rather than leaving an unhandled rejection, and forgets that window", async () => {
+    const proto = DDBRegionDisplayConfig.prototype as unknown as Record<string, unknown>;
+    const refusal = new Error("template failed to render");
+    proto.render = vi.fn(async () => {
+      throw refusal;
+    });
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const region = { uuid: "Scene.a.Region.refused", isOwner: true };
+    const first = DDBRegionDisplayConfig.open(region);
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith(
+      "Region display editor for Scene.a.Region.refused could not open", refusal,
+    ));
+    proto.render = vi.fn(async function (this: unknown) {
+      return this;
+    });
+    const second = DDBRegionDisplayConfig.open(region);
+    expect(second).not.toBe(first);
+    // a window that did open is reused
+    expect(DDBRegionDisplayConfig.open(region)).toBe(second);
+    delete proto.render;
     warn.mockRestore();
   });
 

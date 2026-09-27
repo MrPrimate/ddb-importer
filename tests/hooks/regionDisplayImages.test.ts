@@ -173,6 +173,25 @@ it("reuses destination-sized symbols and paints dense repeats with one pattern f
   root.remove();
 });
 
+it("settles instead of rejecting when a released texture cannot be drawn", async () => {
+  const draw = vi.fn(() => {
+    throw new DOMException("The image source is detached", "InvalidStateError");
+  });
+  const context = { drawImage: draw, createPattern: vi.fn(), fillRect: vi.fn(), scale: vi.fn(), beginPath: vi.fn(), rect: vi.fn(), clip: vi.fn() };
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
+  vi.stubGlobal("DOMMatrix", class {});
+  Object.assign(foundry.canvas, { loadTexture: vi.fn().mockResolvedValue({ valid: true, width: 64, height: 64, baseTexture: { resource: { source: document.createElement("img") } } }) });
+  const element = document.createElement("div");
+  element.innerHTML = "<span class=\"ddbi-display-region-fill\"></span>";
+  element.dataset.imagePreview = imagePreviewData({ ...REGION_DISPLAY_DEFAULTS, id: "x", name: "x", pattern: "imageStretch", textureSrc: "released-texture.png" }, "#00ff00", 150);
+  element.getBoundingClientRect = () => ({ width: 100, height: 100 } as DOMRect);
+  document.body.append(element);
+  await expect(paintImagePreview(element)).resolves.toBeUndefined();
+  expect(draw).toHaveBeenCalled();
+  expect(element.querySelector("canvas")).toBeNull();
+  element.remove();
+});
+
 it("releases sheet observers and ignores loads completed after disposal", async () => {
   let frame: FrameRequestCallback | undefined;
   const observer = { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };

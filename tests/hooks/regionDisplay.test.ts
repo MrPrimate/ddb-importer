@@ -923,7 +923,9 @@ describe("preview css", () => {
   it("converts hex colours and passes others through", () => {
     expect(rgba("#ff0000", 0.5)).toBe("rgba(255, 0, 0, 0.5)");
     expect(rgba("#0f0", 1)).toBe("rgba(0, 255, 0, 1)");
-    expect(rgba("red", 1)).toBe("red");
+    // anything but a hex colour becomes the fallback: the result lands in a style attribute
+    expect(rgba("red", 1)).toBe("rgba(255, 100, 0, 1)");
+    expect(rgba("#ff0000; background-image: url(https://example.invalid/x)", 0.5)).toBe("rgba(255, 100, 0, 0.5)");
   });
 
   it("describes each pattern", () => {
