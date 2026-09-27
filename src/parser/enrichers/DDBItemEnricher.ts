@@ -29,6 +29,12 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
+    "Delerium Chip": "Delerium",
+    "Delerium Crystal": "Delerium",
+    "Delerium Fragment": "Delerium",
+    "Delerium Geode": "Delerium",
+    "Delerium Massive Cluster": "Delerium",
+    "Delerium Shard": "Delerium",
   };
 
   NAME_HINT_INCLUDES: Record<string, any> = {
@@ -53,6 +59,17 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Staff of Skulls": "Staff of Skulls",
     "Tramontane ": "Tramontane Armor",
     "Goading ": "Goading Ammunition",
+    "Frost Brand": "Frost Brand",
+    "Haemscale": "Haemscale",
+    "Keyholes Dagger": "Keyholes Dagger",
+    " of Grass": "Weapon of Grass",
+    "Rhythm-Maker's Drum": "Rhythm-Maker's Drum",
+    "Ring of Dedicated Focus": "Ring of Dedicated Focus",
+    "Rod of the Pact Keeper": "Rod of the Pact Keeper",
+    "Shovel of Yorgrim": "Shovel of Yorgrim",
+    "Visage of the Old Ways": "Visage of the Old Ways",
+    "Wave-Swept": "Wave-Swept Weapon",
+    "Workshop Wrecker": "Workshop Wrecker",
   };
 
   ENRICHERS: Record<string, any> = {

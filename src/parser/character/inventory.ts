@@ -75,8 +75,8 @@ DDBCharacter.prototype._generateInventory = async function _generateInventory(th
   const isCompendiumCharacter = this.isMuncher
     || (foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") as boolean ?? false);
   if (!isCompendiumCharacter && this.ensureItemSpellsInCompendium) {
-    // on this branch a spell the compendium lacks still falls back to the item spell handling in
-    // DDBItem #basicMagicItem, so a failure here (player import, no compendium) must not stop the import
+    // a missing compendium spell only warns inside ensureItemSpellsInCompendium; this guards the
+    // munch itself failing. The item keeps its fallback handling in DDBItem #basicMagicItem.
     try {
       await ensureItemSpellsInCompendium(this.source.ddb, this.raw.itemSpells, { generateSummons: this.generateSummons });
     } catch (err) {

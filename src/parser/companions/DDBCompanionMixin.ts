@@ -115,7 +115,7 @@ export default class DDBCompanionMixin {
         logger.warn(`Unable to fetch enriched summon images for ${document.name}, using fallback images`, error);
       }
 
-      for (const monsterSource of monsterFactory.source) {
+      for (const monsterSource of monsterFactory.source ?? []) {
         const img = monsterSource.basicAvatarUrl ?? monsterSource.largeAvatarUrl ?? monsterSource.avatarUrl;
         const tokenImg = monsterSource.avatarUrl;
         foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", tokenImg);
