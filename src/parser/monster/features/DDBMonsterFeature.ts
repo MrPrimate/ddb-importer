@@ -1334,11 +1334,30 @@ ${this.data.system.description.value}
     this.actionData.uses = this.getUses();
   }
 
+  /**
+   * The damage the feature's own save names, for text that describes several different saves
+   * with no labelled sections and gave the save no damage parts of its own. Null when that does
+   * not apply. Without it the save falls back to every damage figure in the feature, which then
+   * belongs to the other saves: Zaratan's concentration save would deal the rubble's 5d6.
+   */
+  get #ownSaveDamage(): I5eDamagePart[] | null {
+    if (this.actionData.saveParts.length > 0 || !this.descriptionSave) return null;
+    if (this.multiSaveSections.length > 0) return null;
+    const html = this.html;
+    const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(html));
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
+    const text = DDBDescriptions.saveDamageTexts(html).get(DDBDescriptions.saveKey(this.descriptionSave));
+    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(text);
+  }
+
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const ownDamage = this.#ownSaveDamage;
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
-      damageParts: this.actionData.saveParts,
+      damageParts: ownDamage ?? this.actionData.saveParts,
+      // an empty list would fall back to the whole feature's damage
+      ...(ownDamage?.length === 0 ? { generateDamage: false } : {}),
       onSave: this.halfDamage ? "half" : "none",
     }, options);
 
@@ -1438,10 +1457,28 @@ ${this.data.system.description.value}
   get #primaryActivityOptions(): IDDBActivityBuild {
     if (!(this.isSave && !this.isAttack)) return {};
     const first = this.multiSaveSections[0];
-    if (!first) return {};
+    if (!first) {
+      const flatTarget = this.#flatPrimaryTarget;
+      return flatTarget ? { targetOverride: flatTarget } : {};
+    }
     return {
       targetOverride: this.#sectionTarget(first.slice.section),
     };
+  }
+
+  /**
+   * The primary save's own target when the text describes several different saves without
+   * labelled sections, read like its siblings' (`flatSaveTarget`). Null keeps the target read
+   * from the whole feature: a single save, a save that refers back to that area, or one the
+   * scopes cannot place.
+   */
+  get #flatPrimaryTarget(): I5eActivityTarget | null {
+    if (!this.descriptionSave) return null;
+    const html = DDBDescriptions.stripTables(this.html);
+    const saves = DDBDescriptions.parseSaves(html);
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
+    const scope = DDBDescriptions.saveScopes(html).get(DDBDescriptions.saveKey(this.descriptionSave));
+    return DDBActivityFactoryMixin.flatSaveTarget(scope, (text) => this.#sectionTarget(text));
   }
 
   /**
@@ -1474,6 +1511,7 @@ ${this.data.system.description.value}
       primarySave: this.descriptionSave,
       skipFirstSection: this.isSave && !this.isAttack,
       targetOverrideForSection: (section) => this.#sectionTarget(section),
+      flatTargetFor: (text) => this.#sectionTarget(text),
     });
   }
 

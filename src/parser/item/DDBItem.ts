@@ -2060,6 +2060,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this._checkActivityGeneration({ text: this.ddbDefinition.description ?? "" });
   }
 
+  /**
+   * The damage the item's own save names, for text that describes several different saves with
+   * no labelled sections. Null when that does not apply, and for weapons, whose save riders sit
+   * beside their attack. Without it the save takes every damage figure in the description, which
+   * then belongs to the other saves: Many Hands' frighten save would deal the 10d6 of its
+   * Constitution save.
+   */
+  get #ownSaveDamage(): I5eDamagePart[] | null {
+    if (this.#primaryIsFirstSection || !this.actionData.save) return null;
+    if (["weapon", "staff"].includes(this.parsingType ?? "")) return null;
+    const html = this.ddbDefinition.description ?? "";
+    const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(html));
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
+    const text = DDBDescriptions.saveDamageTexts(html).get(DDBDescriptions.saveKey(this.actionData.save));
+    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(text);
+  }
+
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
@@ -2069,8 +2086,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const sectioned = this.#primaryIsFirstSection;
     const description = utils.stripHtml(source).replace(/[\u2013-\u2013\u2212]/g, "-");
 
-    const { parts, otherParts } = DDBDescriptions.parseDamageParts(source);
-    logger.debug(`${this.name} Description Damage matches`, { description, parts, otherParts });
+    const ownSaveDamage = this.#ownSaveDamage;
+    const { parts, otherParts } = ownSaveDamage
+      ? { parts: ownSaveDamage, otherParts: [] as I5eDamagePart[] }
+      : DDBDescriptions.parseDamageParts(source);
+    logger.debug(`${this.name} Description Damage matches`, { description, parts, otherParts, ownSaveDamage });
     this.damageParts.push(...parts);
 
     const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9 ]+d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
@@ -3620,12 +3640,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /** @override */
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    // the item's damage parts can come from DDB's damage modifiers as well as the text (Many
+    // Hands, Nightmare Flask), so the primary save's own damage is chosen here; the multi-save
+    // extras pass their own parts in `options`, which win
+    const ownSaveDamage = this.#ownSaveDamage;
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       damageParts: ["weapon", "staff"].includes(this.parsingType)
         ? this.damageParts.slice(1)
-        : null,
+        : ownSaveDamage,
+      // an empty list would fall back to the whole item's damage
+      ...(ownSaveDamage?.length === 0 ? { generateDamage: false } : {}),
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);

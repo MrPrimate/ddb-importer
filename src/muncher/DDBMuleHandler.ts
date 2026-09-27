@@ -1256,6 +1256,31 @@ export default class DDBMuleHandler {
     return data;
   }
 
+  static #muleCampaigns = new Map<string, string | null>();
+
+  /**
+   * The campaign the mule character belongs to, which decides the campaign homebrew DDB returns
+   * with the subclass lists. Memoised per character and account for the session; a failed lookup
+   * is not memoised and reads as no campaign.
+   * @param {string | null | undefined} characterId the mule character's DDB id
+   * @returns {Promise<string | null>} the campaign id, or null
+   */
+  static async getMuleCampaignId(characterId: string | null | undefined): Promise<string | null> {
+    if (!characterId) return null;
+    const memoKey = `${characterId}|${Secrets.getCobalt()}`;
+    if (DDBMuleHandler.#muleCampaigns.has(memoKey)) return DDBMuleHandler.#muleCampaigns.get(memoKey) ?? null;
+    try {
+      const slimData = await DDBMuleHandler.getSlimCharacters([characterId]);
+      const id = slimData?.[0]?.campaign?.id;
+      const campaignId = id === undefined || id === null || id === "" ? null : String(id);
+      DDBMuleHandler.#muleCampaigns.set(memoKey, campaignId);
+      return campaignId;
+    } catch (err) {
+      logger.warn(`Unable to read the campaign for mule character ${characterId}`, err);
+      return null;
+    }
+  }
+
   static async getSlimCharacters(ids = []) {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();

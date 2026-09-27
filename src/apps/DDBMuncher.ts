@@ -1255,8 +1255,12 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.processErrors = [];
-    // reset homebrew tracking; keep subclass cache populated during render
+    // rebuilt for every munch: the subclass lists come from the session memo in
+    // getSubclassesCached, which is keyed on account and campaign, so a map kept from an earlier
+    // render could hold another account's or campaign's subclasses
     this.homebrewClasses = new Set();
+    this.subClassMap = {};
+
     this.#startMuleOverallProgress(
       DDBMuncher.MULE_OVERALL_LABELS.class,
       onlyHomebrew ? 0 : sourceIdArrays.length * classList.length,
@@ -1265,23 +1269,20 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       // determine campaign id for the character to fetch appropriate subclass list
       this.autoRotateMessage("class");
-      const slimData = await DDBMuleHandler.getSlimCharacters([this.characterId]);
-      const campaignId = slimData && slimData.length > 0 ? slimData[0]?.campaign?.id : null;
+      const campaignId = await DDBMuleHandler.getMuleCampaignId(this.characterId);
 
       // generate subclasses to parse (parallel, using the cached helper)
       await Promise.all(classList.map(async (klass) => {
         const version = klass.sources.every((s) => DDBSources.is2014Source(s))
           ? "2014"
           : "2024";
-        if (!this.subClassMap[klass.id]) {
-          this.subClassMap[klass.id] = await DDBMuleHandler.getSubclassesCached({
-            className: klass.name,
-            classId: klass.id,
-            rulesVersion: version,
-            includeHomebrew: true,
-            campaignId,
-          });
-        }
+        this.subClassMap[klass.id] = await DDBMuleHandler.getSubclassesCached({
+          className: klass.name,
+          classId: klass.id,
+          rulesVersion: version,
+          includeHomebrew: true,
+          campaignId,
+        });
         if (this.subClassMap[klass.id].some((subKlass) => subKlass.isHomebrew)) {
           this.homebrewClasses.add(klass.id);
         }

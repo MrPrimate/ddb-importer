@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildRiderCopies, linkSelectedEnchantments, stableCopyId } from "../../../src/parser/character/infusions";
+import { buildRiderCopies, linkSelectedEnchantments, removeAppliedCopies, stableCopyId } from "../../../src/parser/character/infusions";
 
 vi.mock("../../../src/lib/_module", () => ({ logger: { debug: vi.fn() } }));
 
@@ -59,7 +59,7 @@ describe("selected enchantment targets", () => {
     expect(createEffect.mock.calls.map(([, operation]) => operation.parent)).toEqual([unarmed, claws]);
     // a stable id kept through creation, and no dnd5e options: the linker collects riders itself
     expect(createEffect).toHaveBeenCalledWith(
-      { _id: "enchantEffecCp00", type: "enchantment", origin: activity.uuid },
+      { _id: "enchantEffecCp00", type: "enchantment", origin: activity.uuid, flags: { dnd5e: { enchantmentProfile: "enchantEffect" } } },
       { parent: unarmed, keepId: true, keepOrigin: true },
     );
   });
@@ -222,5 +222,57 @@ describe("buildRiderCopies", () => {
     const second = run();
     expect(Object.keys(second.activities)).toEqual(Object.keys(first.activities));
     expect(second.effects.map((effect) => effect._id)).toEqual(first.effects.map((effect) => effect._id));
+  });
+});
+
+/**
+ * "Retain Active Effects" carries the previous import's applied copy onto the recreated item; the
+ * import replaces it (and its riders) rather than stacking another copy beside it.
+ */
+describe("removeAppliedCopies", () => {
+  const ITEM_UUID = "Actor.a.Item.sickle";
+
+  function effectDoc(id: string, flags: Record<string, unknown> = {}, type = "enchantment") {
+    return { id, type, uuid: `${ITEM_UUID}.ActiveEffect.${id}`, name: id, flags: { dnd5e: flags } };
+  }
+
+  function sickle() {
+    const effects = [
+      effectDoc("ddbPactWeaponEf1"),
+      // a copy from before the profile flag was stamped, found by its id stem
+      effectDoc("ddbPactWeapoCp00"),
+      effectDoc("ddbPactWeapoCp01", { enchantmentProfile: "ddbPactWeaponEf1" }),
+      effectDoc("riderEffectCp000", { dependentOn: "ddbPactWeapoCp01" }, "base"),
+      effectDoc("otherEnchantCp00", { enchantmentProfile: "ddbAgonBlastEf01" }),
+      effectDoc("userCustomEffect", {}, "base"),
+    ];
+    const activities = [
+      { id: "ddbPactSpellCp00", flags: { dnd5e: { dependentOn: "ddbPactWeapoCp01" } } },
+      { id: "attackSickle0000", flags: {} },
+    ];
+    return {
+      name: "Sickle",
+      effects,
+      system: { activities },
+      update: vi.fn(async () => undefined),
+      deleteEmbeddedDocuments: vi.fn(async () => []),
+    } as any;
+  }
+
+  it("removes every applied copy of the profile, riders first, and keeps the profile", async () => {
+    const item = sickle();
+    await removeAppliedCopies(item, "ddbPactWeaponEf1");
+    expect(item.update).toHaveBeenCalledWith({ "system.activities.-=ddbPactSpellCp00": null });
+    expect(item.deleteEmbeddedDocuments.mock.calls).toEqual([
+      ["ActiveEffect", ["riderEffectCp000"]],
+      ["ActiveEffect", ["ddbPactWeapoCp00", "ddbPactWeapoCp01"]],
+    ]);
+  });
+
+  it("leaves an item without a copy of the profile untouched", async () => {
+    const item = sickle();
+    await removeAppliedCopies(item, "notOnThisItem000");
+    expect(item.update).not.toHaveBeenCalled();
+    expect(item.deleteEmbeddedDocuments).not.toHaveBeenCalled();
   });
 });

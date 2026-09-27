@@ -473,6 +473,7 @@ export default class AdvancementHelper {
   static SKILL_CHOICE_PROFICIENCY_SLUGS = new Set([
     "enchanter-proficiency",
     "choose-banneret-proficiency",
+    "choose-a-nightwatcher-proficiency",
     "choose-primal-lore-proficiency",
     "choose-genies-splendor-proficiency",
     "choose-dhakaani-ghaaldar-proficiency",
@@ -1570,8 +1571,12 @@ export default class AdvancementHelper {
     const twoRegex = /also become proficient in your choice of (\w+) of the following skills:\s(.*?)(\.|$)/im;
     const twoMatch = textDescription.match(twoRegex);
 
-    if (skillMatch || oneOffMatch || twoMatch) {
-      const match = skillMatch ?? oneOffMatch ?? twoMatch;
+    // You gain proficiency in two skills of your choice from the following list: Deception, History, Insight, ... or Stealth.
+    const listRegex = /you gain proficiency (?:in|with) (\w+) skills? of your choice from the following list:\s(.*?)(\.|$)/im;
+    const listMatch = textDescription.match(listRegex);
+
+    if (skillMatch || oneOffMatch || twoMatch || listMatch) {
+      const match = skillMatch ?? oneOffMatch ?? twoMatch ?? listMatch;
       const skillNames = match[2].replace(" and ", ",").replace(" or ", " ").split(",").map((skill) => skill.trim());
       const skills = skillNames
         .filter((name) => DICTIONARY.actor.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))

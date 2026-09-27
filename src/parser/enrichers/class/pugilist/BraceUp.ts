@@ -11,7 +11,7 @@ export default class BraceUp extends DDBEnricherData {
       activationType: "bonus",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.pugilist.fisticuffs + @classes.pugilist.level + @abilities.con.mod",
+          customFormula: "@scale.pugilist.fisticuffs + @classes.pugilist.levels + @abilities.con.mod",
           types: ["temphp"],
         }),
       },

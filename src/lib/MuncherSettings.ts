@@ -1284,7 +1284,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return enhancementConfig;
   },
 
-  async getCharacterMuncherSettings(app?: { subClassMap?: Record<number, any[]> }) {
+  async getCharacterMuncherSettings(app?: { subClassMap?: Record<number, any[]>; characterId?: string | null }) {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const disableUse = !tiers.experimentalMid;
@@ -1351,7 +1351,10 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       })
       .sort((a, b) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
 
-    const cache = app?.subClassMap ?? {};
+    // fetched through the session memo on every render (keyed on account and campaign), never
+    // reused from the app's last render, and with the mule character's campaign as the munch uses
+    const subClassMap: Record<number, any[]> = {};
+    const campaignId = await DDBMuleHandler.getMuleCampaignId(app?.characterId);
 
     const relevantClasses = selectedClassIds
       .map((classId) => classes.find((c) => c.id === classId))
@@ -1359,29 +1362,27 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       .filter((klass) => (isKlass2014(klass) ? "2014" : "2024") === rulesVersion);
 
     await Promise.all(
-      relevantClasses
-        .filter((klass) => !cache[klass.id])
-        .map(async (klass) => {
-          try {
-            cache[klass.id] = await DDBMuleHandler.getSubclassesCached({
-              className: klass.name,
-              classId: klass.id,
-              rulesVersion,
-              includeHomebrew: true,
-              campaignId: null,
-            });
-          } catch (err) {
-            logger.error(`Failed fetching subclasses for ${klass.name}`, err);
-            cache[klass.id] = [];
-          }
-        }),
+      relevantClasses.map(async (klass) => {
+        try {
+          subClassMap[klass.id] = await DDBMuleHandler.getSubclassesCached({
+            className: klass.name,
+            classId: klass.id,
+            rulesVersion,
+            includeHomebrew: true,
+            campaignId,
+          });
+        } catch (err) {
+          // left out of the map, so the next render asks again rather than showing none
+          logger.error(`Failed fetching subclasses for ${klass.name}`, err);
+        }
+      }),
     );
 
     const subclassSelection: any[] = [];
     for (const klass of relevantClasses) {
       const classId = klass.id;
       const selectedSubIds = (subclassSelections[String(classId)] ?? []).map((id) => parseInt(String(id)));
-      const subclasses = (cache[classId] ?? [])
+      const subclasses = (subClassMap[classId] ?? [])
         .filter((sc: any) => {
           if (onlyHomebrew) return sc.isHomebrew;
           if (sc.isHomebrew) return allowHomebrew;
@@ -1401,7 +1402,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         allSelected: selectedSubIds.length === 0,
       });
     }
-    if (app) app.subClassMap = cache;
+    if (app) app.subClassMap = subClassMap;
     result.subclassSelection = subclassSelection;
     result.classMunchEnabled = relevantClasses.length > 0;
 
