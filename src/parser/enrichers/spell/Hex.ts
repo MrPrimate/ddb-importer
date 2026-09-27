@@ -54,6 +54,9 @@ export default class Hex extends DDBEnricherData {
             activity: {
               id: "ddbHexMarkTarget",
             },
+            // the forwarded Mark Target joins the running concentration instead of restarting it
+            // (ConcentrationFollowUp)
+            flags: { ddbimporter: { joinConcentration: true } },
           },
         },
       },

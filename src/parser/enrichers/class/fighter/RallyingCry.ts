@@ -11,7 +11,7 @@ export default class RallyingCry extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.fighter.level",
+          customFormula: "@classes.fighter.levels",
           types: ["healing"],
         }),
       },

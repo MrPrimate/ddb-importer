@@ -17,7 +17,7 @@ export default class BloodiedButUnbowed extends DDBEnricherData {
       ],
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.pugilist.level * 4",
+          customFormula: "@classes.pugilist.levels * 4",
           types: ["temphp"],
         }),
       },

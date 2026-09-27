@@ -113,6 +113,8 @@ global {
         activityRiders?: string[];
         effectRiders?: string[];
         itemRiders?: string[];
+        /** Used while its spell is concentrated on, joins that concentration (ConcentrationFollowUp). */
+        joinConcentration?: boolean;
         [key: string]: any;
       };
       dnd5e?: {

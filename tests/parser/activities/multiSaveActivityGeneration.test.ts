@@ -146,6 +146,17 @@ describe("_multiSaveActivityGeneration - flat text", () => {
     expect(outlines.map((outline) => outline.name)).toEqual(["Con Save"]);
   });
 
+  it("gives each remaining save the damage its own sentences name, not an earlier paragraph's", () => {
+    const text = "<p>Each creature must succeed on a DC 14 Wisdom saving throw or be frightened. A creature near the"
+      + " rubble must make a DC 14 Dexterity saving throw, taking 7 (2d6) bludgeoning damage on a failed save.</p>"
+      + "<p><strong>Next.</strong> Stones fall for 9 (2d8) damage. A DC 14 Strength saving throw avoids being knocked prone.</p>";
+    const outlines = generate(text, { primarySave: { ability: ["wis"], dc: { calculation: "", formula: "14" } } });
+    const damage = (name: string) => outlines.find((outline) => outline.name === name)?.options.damageParts
+      .map((part: any) => `${part.number}d${part.denomination}`);
+    expect(damage("Dex Save")).toEqual(["2d6"]);
+    expect(damage("Str Save")).toEqual([]);
+  });
+
   it("joins the halves of an either/or save", () => {
     const text = "a DC 15 Dexterity saving throw. Later, a DC 15 Strength or Dexterity saving throw.";
 
@@ -236,5 +247,54 @@ describe("_multiSaveActivityGeneration - guards", () => {
 
     expect(outlines.every((outline) => outline.options.noSpellslot === true)).toBe(true);
     expect(generate(ARCANE_CANNON)[0].options.noSpellslot).toBeUndefined();
+  });
+});
+
+describe("flat multi-save targets", () => {
+  const base = () => ({
+    override: false, prompt: true,
+    affects: { count: "", type: "creature", choice: false, special: "" },
+    template: { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" },
+  }) as any;
+  const target = (scope: { sentence: string; lead: string[] } | undefined) =>
+    DDBActivityFactoryMixin.flatSaveTarget(scope, () => base());
+  const shape = (t: any) => (t === null ? "inherit" : `${t.template.type} ${t.template.size}`.trim());
+
+  it("reads shapes strictly, not where an area is placed or who is targeted", () => {
+    expect(DDBActivityFactoryMixin.areaFromText("Magma erupts from a point it can see within 120 feet of it, creating a 5-foot-radius geyser."))
+      .toEqual({ type: "radius", size: "5", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("A 20-foot radius sphere of insects appears.")?.type).toBe("sphere");
+    expect(DDBActivityFactoryMixin.areaFromText("Dust swirls in a cylinder that is 30 feet tall with a 20-foot radius.")?.type).toBe("cylinder");
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature in a line 30 feet long and 5 feet wide must"))
+      .toEqual({ type: "line", size: "30", width: "5" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each enemy within 60 feet of the queen must succeed on a DC 15 Wisdom saving throw."))
+      .toEqual({ type: "radius", size: "60", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("The ceiling collapses above one creature it can see within 120 feet of it.")).toBeNull();
+    expect(DDBActivityFactoryMixin.areaFromText("It can target any number of creatures it can see within 90 feet of it.")).toBeNull();
+    expect(DDBActivityFactoryMixin.areaFromText("It must succeed on a DC 16 Constitution saving throw or regurgitate all swallowed creatures, which fall prone within 15 feet of it.")).toBeNull();
+  });
+
+  it("decides each save's own target from its sentence and lead-in", () => {
+    // the area named before the save
+    expect(shape(target({ sentence: "Each creature in the geyser's area must make a DC 15 Dexterity saving throw.", lead: ["Magma erupts, creating a 5-foot-radius geyser."] }))).toBe("radius 5");
+    // a single target has no area
+    expect(shape(target({ sentence: "The creature must succeed on a DC 15 Dexterity saving throw.", lead: ["The ceiling collapses above one creature."] }))).toBe("");
+    // a repeat save has no area, whatever came before
+    expect(shape(target({ sentence: "A creature can make a DC 12 Constitution saving throw at the end of each of its turns.", lead: ["Light fills a 20-foot-radius sphere."] }))).toBe("");
+    // "in that area" keeps the document's area
+    expect(shape(target({ sentence: "Each creature in that area must also succeed on a DC 18 Wisdom saving throw.", lead: [] }))).toBe("inherit");
+    expect(target(undefined)).toBeNull();
+  });
+
+  it("gives flat extras their own target when the caller reads targets", () => {
+    const text = "<p>A cloud fills a 20-foot-radius sphere. Each creature in the cloud must succeed on a DC 15 Constitution saving throw.</p>"
+      + "<p>The ceiling collapses above one creature. The creature must succeed on a DC 15 Dexterity saving throw.</p>";
+    const outlines = generate(text, {
+      primarySave: { ability: ["con"], dc: { calculation: "", formula: "15" } },
+      flatTargetFor: () => base(),
+    });
+    expect(outlines.map((o) => [o.name, o.options.targetOverride?.template.type])).toEqual([["Dex Save", ""]]);
+    // without a reader the document's target stays
+    expect(generate(text, { primarySave: { ability: ["con"], dc: { calculation: "", formula: "15" } } })[0].options.targetOverride).toBeUndefined();
   });
 });

@@ -1,5 +1,5 @@
 import { logger, utils } from "../../../lib/_module";
-import { SystemHelpers } from "../../lib/_module";
+import { DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
 import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, parseMonsterDamageModes } from "./MonsterDamageModes";
 
@@ -156,6 +156,7 @@ export class DDBMonsterDamage {
     if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
       return;
     }
+    if (DDBDescriptions.damagesObjectsOnly(dmg)) return;
     // check for versatile
     if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
       this.versatile = true;
@@ -238,6 +239,7 @@ export class DDBMonsterDamage {
 
   _generateSaveParts(matches: RegExpExecArray[]) {
     for (const dmg of matches) {
+      if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;
       const damageTypes = DDBMonsterDamage._getDamageTypes(this.saves.hit, dmg.groups.type);
