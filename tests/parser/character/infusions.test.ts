@@ -232,19 +232,21 @@ describe("buildRiderCopies", () => {
 describe("removeAppliedCopies", () => {
   const ITEM_UUID = "Actor.a.Item.sickle";
 
-  function effectDoc(id: string, flags: Record<string, unknown> = {}, type = "enchantment") {
-    return { id, type, uuid: `${ITEM_UUID}.ActiveEffect.${id}`, name: id, flags: { dnd5e: flags } };
+  function effectDoc(id: string, flags: Record<string, unknown> = {}) {
+    return { id, uuid: `${ITEM_UUID}.ActiveEffect.${id}`, name: id, flags: { dnd5e: flags } };
   }
 
   function sickle() {
     const effects = [
-      effectDoc("ddbPactWeaponEf1"),
-      // a copy from before the profile flag was stamped, found by its id stem
-      effectDoc("ddbPactWeapoCp00"),
+      effectDoc("ddbPactWeapoCp00", { enchantmentProfile: "ddbPactWeaponEf1" }),
       effectDoc("ddbPactWeapoCp01", { enchantmentProfile: "ddbPactWeaponEf1" }),
-      effectDoc("riderEffectCp000", { dependentOn: "ddbPactWeapoCp01" }, "base"),
+      // another profile's copy whose id starts the same way stays
+      effectDoc("ddbPactWeapoCp02", { enchantmentProfile: "ddbPactWeaponEf2" }),
+      effectDoc("randomOldCopy001", { enchantmentProfile: "ddbPactWeaponEf1" }),
+      effectDoc("riderEffectCp000", { dependentOn: "ddbPactWeapoCp01" }),
+      effectDoc("riderByUuid00000", { dependentOn: `${ITEM_UUID}.ActiveEffect.randomOldCopy001` }),
       effectDoc("otherEnchantCp00", { enchantmentProfile: "ddbAgonBlastEf01" }),
-      effectDoc("userCustomEffect", {}, "base"),
+      effectDoc("userCustomEffect"),
     ];
     const activities = [
       { id: "ddbPactSpellCp00", flags: { dnd5e: { dependentOn: "ddbPactWeapoCp01" } } },
@@ -259,13 +261,13 @@ describe("removeAppliedCopies", () => {
     } as any;
   }
 
-  it("removes every applied copy of the profile, riders first, and keeps the profile", async () => {
+  it("removes every applied copy of the profile, riders first", async () => {
     const item = sickle();
     await removeAppliedCopies(item, "ddbPactWeaponEf1");
     expect(item.update).toHaveBeenCalledWith({ "system.activities.-=ddbPactSpellCp00": null });
     expect(item.deleteEmbeddedDocuments.mock.calls).toEqual([
-      ["ActiveEffect", ["riderEffectCp000"]],
-      ["ActiveEffect", ["ddbPactWeapoCp00", "ddbPactWeapoCp01"]],
+      ["ActiveEffect", ["riderEffectCp000", "riderByUuid00000"]],
+      ["ActiveEffect", ["ddbPactWeapoCp00", "ddbPactWeapoCp01", "randomOldCopy001"]],
     ]);
   });
 
