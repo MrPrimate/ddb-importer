@@ -1,9 +1,9 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Relentless Endurance (orc, half-orc and their lineages): dropping to 1 hit point instead of
- * 0 is modelled, as a 1 hit point heal on the reduced-to-zero
- * trigger. The DDB action shares the trait name, so this enricher runs for both
+ * Relentless Endurance (orc, half-orc and their lineages): dropping to 1 hit point instead of 0
+ * is modelled as a 1 hit point heal on the reduced-to-zero trigger. The DDB action shares the
+ * trait's name, so this enricher builds both documents.
  */
 export default class RelentlessEndurance extends DDBEnricherData {
 

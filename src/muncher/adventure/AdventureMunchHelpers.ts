@@ -283,6 +283,26 @@ export default class AdventureMunchHelpers {
   }
 
   /**
+   * checkForMissingDocuments for an adventure import, where a failed fetch of one document family
+   * must not abort the whole adventure: the failure is reported and the import carries on without
+   * those documents.
+   * @param {string} type compendium type
+   * @param {Array} ids ddb ids the adventure needs
+   * @returns {Promise<boolean>} false when the missing documents could not be imported
+   */
+  static async tryCheckForMissingDocuments(type: string, ids: (number | string)[]): Promise<boolean> {
+    try {
+      await AdventureMunchHelpers.checkForMissingDocuments(type, ids);
+      return true;
+    } catch (err) {
+      const message = `Could not import the missing ${type}s from DDB; the adventure will be imported without them.`;
+      logger.error(message, err);
+      ui.notifications.warn(message, { permanent: true });
+      return false;
+    }
+  }
+
+  /**
    * Get documents for ids from compendium
    * @param {string} type compendium type
    * @param {Array} ids array of ddb ids

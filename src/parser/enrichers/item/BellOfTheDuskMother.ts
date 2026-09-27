@@ -1,5 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Dolorous Tolling is the primary save: a 30 ft emanation, Wisdom save or 3d10 psychic plus a
+ * 1 minute -1d4 penalty to attacks and saves, one use per dusk. The tier comes from DDB's
+ * spell-save-dc bonuses: the lowest sets the DC (16 + bonus), a +2 adds the Call of the Bell doll
+ * utility and a +3 adds Death Knell (DC 19 Constitution, 5d10 necrotic, half on a success), each
+ * with its own dusk use. The doll's stat block and Death Knell's drop to 0 Hit Points are left to
+ * the table. The "Varies" record carries several bonuses, so it builds at Rare with every mode and
+ * gets a hidden note to raise the DC per rarity tier.
+ */
 export default class BellOfTheDuskMother extends DDBEnricherData {
 
   /** the spell-save-dc bonus values DDB grants this record, ascending */

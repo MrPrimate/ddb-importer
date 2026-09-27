@@ -88,11 +88,13 @@ export default class Shapechange extends DDBEnricherData {
       {
         duplicate: true,
         overrides: {
-          name: "Follow Up Animal Shape",
+          name: "Change Form",
           noConsumeTargets: true,
           removeSpellSlotConsume: true,
           activationType: "action",
           data: {
+            // a later change of form must not begin concentration again, ending the spell's
+            duration: this.followUpDuration,
             settings: {
               tempFormula: "",
             },

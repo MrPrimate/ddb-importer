@@ -276,6 +276,15 @@ global {
     // Activity matching
     activityMatch?: string;
     activitiesMatch?: string[];
+    /**
+     * Link by activity type, in preference order: the first listed type with an eligible activity
+     * wins and every eligible activity of that type is linked. Combines with activityMatch /
+     * activitiesMatch (both must pass). For parser-built activities, whose names follow the
+     * source's section labels and so cannot be predicted by the enricher.
+     */
+    activityTypesMatch?: IDDBActivityType[];
+    /** Activity ids this hint never links, e.g. an enricher's own sibling of a matched type. */
+    activityIdsExclude?: string[];
     ignoreTransfer?: boolean;
 
     // MIDI
@@ -321,7 +330,6 @@ global {
     removeDamage?: boolean;
     rangeSelf?: boolean;
     replaceActivityUses?: boolean;
-    forceSpellAdvancement?: boolean;
     descriptionSuffix?: string;
     ddbMacroDescription?: boolean;
     retainResourceConsumption?: boolean;

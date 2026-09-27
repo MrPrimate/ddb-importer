@@ -4,7 +4,7 @@
  * from that link). The inventory parse can only build the link when the compendium holds the
  * spell, so before the items are parsed this step finds every item spell the character
  * carries that the compendium lacks and either munches it there (a GM can write compendia)
- * or stops the import with the list of spells and source books the GM needs to munch.
+ * or warns with the list of spells and source books the GM needs to munch.
  */
 
 import { CompendiumHelper, DDBItemImporter, DDBSources, logger } from "../../lib/_module";
@@ -89,8 +89,9 @@ async function munchMissingItemSpells(ddb: IDDBData, missing: I5eSpellItem[], {
 /**
  * Make sure every item spell the character carries exists in the spells compendium before
  * the inventory parse links them. A GM munches the missing ones on the spot; anyone else is
- * told which books the GM must munch, because the import would otherwise silently lose the
- * item's spells.
+ * told which books the GM must munch. A spell that still cannot be linked does not fail the
+ * import: the item parse leaves it on the character's spell list rather than as a cast
+ * activity on the item, and the warning says what to munch.
  */
 export async function ensureItemSpellsInCompendium(ddb: IDDBData, itemSpells: I5eSpellItem[], {
   notifier = null,
@@ -99,20 +100,30 @@ export async function ensureItemSpellsInCompendium(ddb: IDDBData, itemSpells: I5
   if (itemSpells.length === 0) return;
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
   if (!spellCompendium) {
-    throw new Error("No spells compendium is configured, so this character's item spells cannot be linked. Check the compendium settings.");
+    warnItemSpells("No spells compendium is configured, so this character's item spells cannot be linked. Check the compendium settings.");
+    return;
   }
   await DDBItem.prepareSpellCompendiumIndex();
   const missing = findMissingItemSpells(itemSpells, spellCompendium);
   if (missing.length === 0) return;
 
   const description = describeMissingItemSpells(missing);
-  if (!game.user?.isGM) throw new Error(description);
+  if (!game.user?.isGM) {
+    warnItemSpells(description);
+    return;
+  }
 
   logger.info(`Munching ${missing.length} item spell(s) missing from the spells compendium`, { missing: missing.map((s) => s.name) });
   await munchMissingItemSpells(ddb, missing, { notifier, generateSummons });
 
   const stillMissing = findMissingItemSpells(itemSpells, CompendiumHelper.getCompendiumType("spells", false));
   if (stillMissing.length > 0) {
-    throw new Error(`${describeMissingItemSpells(stillMissing)} (The automatic munch did not add them; munch spells from the Muncher and import again.)`);
+    warnItemSpells(`${describeMissingItemSpells(stillMissing)} (The automatic munch did not add them; munch spells from the Muncher and import again.)`);
   }
+}
+
+/** Report item spells that cannot be linked; the import carries on with them on the spell list. */
+function warnItemSpells(message: string): void {
+  logger.warn(message);
+  ui.notifications.warn(message, { permanent: true });
 }

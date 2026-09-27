@@ -10,6 +10,7 @@
         "Button": "Execute Macro",
         "Config": "Macro Configuration",
         "Hide": "Hide Macro Activity",
+        "NotFound": "No macro found for \"{macro}\".",
         "FIELDS": {
           "macro": {
             "label": "Macro",

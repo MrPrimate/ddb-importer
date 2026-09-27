@@ -36,6 +36,7 @@ export default abstract class DDBBaseClass {
     features: {
       fields: [
         "name",
+        "flags.ddbimporter.id",
         "flags.ddbimporter.classId",
         "flags.ddbimporter.class",
         "flags.ddbimporter.subClass",

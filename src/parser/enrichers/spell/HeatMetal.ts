@@ -40,6 +40,8 @@ export default class HeatMetal extends DDBEnricherData {
     return [
       {
         name: "Heat Metal: It's getting real hot",
+        // disadvantage until the start of the caster's next turn, whichever activity applied it
+        options: { expiry: "sourceStart", durationSeconds: 6, durationRounds: 1 },
       },
     ];
   }

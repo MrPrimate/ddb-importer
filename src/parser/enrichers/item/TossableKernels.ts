@@ -3,8 +3,8 @@ import RandomTableItem from "./_RandomTableItem";
 
 /**
  * A bag holds a single kind of kernel, set once by a d8 on the table, so the type roll spends
- * nothing; throwing a kernel destroys it and is what uses the bag up. Read as prose, the item
- * became a save scraped from one kernel's row.
+ * nothing; throwing a kernel destroys it and is what uses the bag up. Left to the prose parser,
+ * the item would be a save scraped from one kernel's row.
  */
 export default class TossableKernels extends DDBEnricherData {
 

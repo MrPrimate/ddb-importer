@@ -23,7 +23,6 @@ export default class DispelEvilAndGood extends DDBEnricherData {
           generateRange: true,
           generateConsumption: false,
           noSpellslot: true,
-          noeffect: true,
           generateUtility: true,
           activationOverride: {
             type: "action",

@@ -569,7 +569,7 @@ export default class DDBClass extends DDBBaseClass {
       title: "Sorcery Points",
       icon: null,
     };
-    utils.arrayRange(20, 1, 2).forEach((i) => {
+    utils.arrayRange(19, 1, 2).forEach((i) => {
       points.configuration.scale[i] = {
         value: i,
       };

@@ -1,6 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import _Illrigger from "./_Illrigger";
 
+/**
+ * The doomed creature takes extra damage equal to the illrigger's proficiency bonus, as a damage
+ * modification on all damage (dnd5e 5.3's "ALL" key applies once per hit, not once per damage
+ * type). The bonus is the illrigger's, written in at import by `originChange`.
+ */
 export default class SoulsDoom extends _Illrigger {
 
   override get type(): IDDBActivityType | null {
@@ -34,6 +39,11 @@ export default class SoulsDoom extends _Illrigger {
           durationSeconds: 60,
           description: "Whenever you take damage, you take extra damage equal to the illrigger's proficiency bonus.",
         },
+        changes: [
+          this.originChange(
+            DDBEnricherData.ChangeHelper.signedAddChange("@prof", 20, "system.traits.dm.amount.ALL"),
+          ),
+        ],
       },
     ];
   }

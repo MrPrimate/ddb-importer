@@ -6,7 +6,7 @@ export default class SharpenedBeak extends _MonsterFeatureSupport {
     const activities: IDDBAdditionalActivity[] = [];
     if ((/a creature within 5 feet of the target/i).test(this.text)) {
       const parts = this.damageTokens(this.text);
-      if (parts.length === 2)
+      if (parts.length === 2) {
         activities.push(
           this.extra("Nearby Creature Damage", "ddbNearbyDmg0001", "damage", {
             generateDamage: true,
@@ -18,6 +18,7 @@ export default class SharpenedBeak extends _MonsterFeatureSupport {
             },
           }),
         );
+      }
     }
     return activities;
   }
@@ -25,8 +26,9 @@ export default class SharpenedBeak extends _MonsterFeatureSupport {
   override async cleanup(): Promise<void> {
     if (this.additionalActivities.length) {
       const attack = this.activities.find((a) => a.type === "attack");
-      if (attack)
+      if (attack) {
         attack.damage = { ...attack.damage, includeBase: false, parts: [this.damageTokens(this.text)[0].part] };
+      }
     }
   }
 }

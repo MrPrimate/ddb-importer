@@ -5,7 +5,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * and 30 feet per warlock level in 2024 (any warlock cantrip with a range of 10+ feet). The
  * character importer's enchantment step applies it to Eldritch Blast; other cantrips can take it
  * from the feature's enchant activity. DDB only carries a range modifier for the 2014 printing,
- * and the Eldritch Blast spell enricher no longer bakes it in, so the range lives here alone.
+ * and the Eldritch Blast spell keeps its own range, so the extended range lives here alone.
  */
 export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
 

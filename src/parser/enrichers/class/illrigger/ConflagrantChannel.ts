@@ -15,13 +15,7 @@ export default class ConflagrantChannel extends _Illrigger {
       targetType: "self",
       rangeType: "ft",
       rangeValue: 60,
-      data: {
-        range: {
-          units: "ft",
-          value: "60",
-          special: "An unoccupied space you can see",
-        },
-      },
+      rangeSpecial: "An unoccupied space you can see",
     };
   }
 

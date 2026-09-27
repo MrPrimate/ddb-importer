@@ -287,3 +287,51 @@ describe("DDBEffectHelper.syntheticItemWorkflowOptions", () => {
     expect(config.consume).toEqual({ action: false, resources: true, spellSlot: true });
   });
 });
+
+describe("DDBEffectHelper.rollSaveForItem", () => {
+  const executeAsUser = vi.fn(async (_request: string, _user: string, data: any) => ({ total: 12, options: data.options }));
+  const token = { actor: { name: "Target" }, document: { uuid: "Scene.s.Token.t" } } as any;
+  /** A dnd5e 6 save activity: `save.ability` is a Set (Foundry adds `first`), `ability` is the DC ability. */
+  const saveActivity = (ability: string, dc: number) => ({
+    type: "save",
+    ability: "int",
+    save: { ability: { first: () => ability }, dc: { value: dc } },
+  });
+  const itemWith = (activities: any[]) => ({
+    system: { activities: { getByType: (type: string) => activities.filter((a) => a.type === type) } },
+  }) as any;
+
+  beforeEach(() => {
+    executeAsUser.mockClear();
+    globalAny.MidiQOL = {
+      playerForActor: () => ({ active: true, id: "player1" }),
+      socket: () => ({ executeAsUser }),
+    };
+  });
+
+  afterEach(() => {
+    delete globalAny.MidiQOL;
+  });
+
+  it("rolls the ability and DC of the item's save activity", async () => {
+    const workflow = { saveResults: [] as any[] };
+    const save = await DDBEffectHelper.rollSaveForItem(itemWith([saveActivity("dex", 15)]), token, workflow);
+    expect(executeAsUser).toHaveBeenCalledWith("rollAbility", "player1", expect.objectContaining({
+      request: "save",
+      ability: "dex",
+      options: expect.objectContaining({ targetValue: 15 }),
+    }));
+    expect(workflow.saveResults).toEqual([save]);
+  });
+
+  it("prefers the workflow's own save activity", async () => {
+    const workflow = { saveResults: [] as any[], activity: saveActivity("wis", 17) };
+    await DDBEffectHelper.rollSaveForItem(itemWith([saveActivity("dex", 15)]), token, workflow);
+    expect(executeAsUser.mock.calls[0][2]).toMatchObject({ ability: "wis", options: { targetValue: 17 } });
+  });
+
+  it("returns undefined when the item has no save activity", async () => {
+    await expect(DDBEffectHelper.rollSaveForItem(itemWith([{ type: "attack" }]), token)).resolves.toBeUndefined();
+    expect(executeAsUser).not.toHaveBeenCalled();
+  });
+});

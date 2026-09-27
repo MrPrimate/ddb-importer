@@ -3,8 +3,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * Pact of the Blade (2024 invocation): a bonus-action enchant that turns a simple or martial
  * melee weapon into the pact weapon (proficient, spellcasting focus, necrotic/psychic/radiant
- * damage options, magical, Charisma attack ability) and rides a "Spellcasting Attack" activity
- * onto it. Mirrors the standard shape.
+ * damage options, magical) and rides a "Spellcasting Attack" activity onto it. Attacking with
+ * Charisma is optional, so the rider carries it rather than an override of the weapon's own
+ * attack ability. Mirrors the standard shape.
  *
  * DDB lets the player mark a weapon as the pact weapon; the item parser bakes Charisma and
  * proficiency into that weapon directly, and the character importer's enchantment step applies
@@ -101,7 +102,8 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
           nameAddition: "Pact Weapon",
         },
         changes: [
-          // DDBEnricherData.ChangeHelper.overrideChange("cha", 20, "system.ability"),
+          // no attack ability override: Charisma is an option ("you can use"), which the
+          // Spellcasting Attack rider offers beside the weapon's own attack
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.proficient"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("foc", 20, "system.properties"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.damage.base.types"),
@@ -115,7 +117,7 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
           // the feature text mentions the bonus-action timing; the enchantment itself is permanent
           durationSeconds: null,
           expiry: null,
-          description: "This weapon is your pact weapon: you attack with Charisma, you are proficient with it, it is a spellcasting focus, its damage can be necrotic, psychic or radiant, it adds a Cha Based Spellcasting Attack activity.",
+          description: "This weapon is your pact weapon: you can attack with Charisma through its Spellcasting Attack, you are proficient with it, it is a spellcasting focus, its damage can be necrotic, psychic or radiant, it adds a Cha Based Spellcasting Attack activity.",
         },
         data: {
           _id: InvocationPactOfTheBlade.EFFECT_ID,

@@ -1,6 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity, itemUses } from "./_ItemActivities";
 
+/**
+ * Throw Bands is a 60 ft ranged weapon attack using Dexterity plus proficiency that spends the
+ * once-per-dawn use and applies Restrained until removed. Release Bands is a reminder utility, and
+ * Escape Check is the DC 20 Strength check to break free, with Athletics associated in the 2024
+ * version. The Huge or smaller limit and the 24 hour lockout after a failed escape are left to the
+ * table. The parser's automatic extra activities and DDB modifier effects are cleared because
+ * every mode is authored here.
+ */
 export default class IronBandsOfBilarro extends DDBEnricherData {
 
   override get type(): IDDBActivityType {

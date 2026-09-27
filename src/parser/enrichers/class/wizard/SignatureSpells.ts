@@ -8,10 +8,6 @@ import _MasteredSpells, { type IMasteredSpell } from "./_MasteredSpells";
  */
 export default class SignatureSpells extends _MasteredSpells {
 
-  override get featureName(): string {
-    return "Signature Spells";
-  }
-
   /** DDB leaves `isSignatureSpell` null on the pick and marks it with the at-will level instead. */
   override isMarked(spell: IDDBSpellEntry): boolean {
     return spell.isSignatureSpell === true || spell.atWillLimitedUseLevel !== null;

@@ -1146,5 +1146,145 @@
   {
     "name": "Charm of the Black Rose",
     "path": "icons/equipment/neck/pendant-rough-purple.webp"
+  },
+  {
+    "name": "Adept of the Black Robes",
+    "path": "icons/equipment/back/mantle-collared-black.webp"
+  },
+  {
+    "name": "Adept of the Red Robes",
+    "path": "icons/equipment/chest/robe-layered-red.webp"
+  },
+  {
+    "name": "Adept of the White Robes",
+    "path": "icons/equipment/chest/robe-layered-white.webp"
+  },
+  {
+    "name": "Agent of Order",
+    "path": "icons/commodities/treasure/token-gold-cross.webp"
+  },
+  {
+    "name": "Baleful Scion",
+    "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+  },
+  {
+    "name": "Cartomancer",
+    "path": "icons/sundries/gaming/playing-cards-black.webp"
+  },
+  {
+    "name": "Cohort of Chaos",
+    "path": "icons/magic/air/wind-swirl-pink-purple.webp"
+  },
+  {
+    "name": "Divinely Favored",
+    "path": "icons/magic/light/beam-rays-blue.webp"
+  },
+  {
+    "name": "Ember of the Fire Giant",
+    "path": "icons/magic/fire/projectile-feathers-embers-gold.webp"
+  },
+  {
+    "name": "Initiate of High Sorcery (Lunitari)",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Initiate of High Sorcery",
+    "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
+  },
+  {
+    "name": "Fury of the Frost Giant",
+    "path": "icons/magic/air/wind-tornado-wall-blue.webp"
+  },
+  {
+    "name": "Initiate of High Sorcery (Nuitari)",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Initiate of High Sorcery (Solinari)",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Keenness of the Stone Giant",
+    "path": "icons/creatures/magical/construct-golem-stone-blue.webp"
+  },
+  {
+    "name": "Knight of the Crown",
+    "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Knight of the Rose",
+    "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Knight of the Sword",
+    "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Outlands Envoy",
+    "path": "icons/skills/social/diplomacy-peace-alliance.webp"
+  },
+  {
+    "name": "Planar Wanderer",
+    "path": "icons/environment/people/cavalry.webp"
+  },
+  {
+    "name": "Righteous Heritor",
+    "path": "icons/magic/unholy/strike-hand-glow-pink.webp"
+  },
+  {
+    "name": "Scion of the Outer Planes (Chaotic Outer Plane)",
+    "path": "icons/magic/light/beam-rays-magenta.webp"
+  },
+  {
+    "name": "Scion of the Outer Planes (Evil Outer Plane)",
+    "path": "icons/magic/light/beam-rays-magenta.webp"
+  },
+  {
+    "name": "Scion of the Outer Planes (Good Outer Plane)",
+    "path": "icons/magic/light/beam-rays-magenta.webp"
+  },
+  {
+    "name": "Scion of the Outer Planes (Lawful Outer Plane)",
+    "path": "icons/magic/light/beam-rays-magenta.webp"
+  },
+  {
+    "name": "Scion of the Outer Planes (The Outlands)",
+    "path": "icons/magic/light/beam-rays-magenta.webp"
+  },
+  {
+    "name": "Soul of the Storm Giant",
+    "path": "icons/commodities/treasure/stone-cracked-lightning-blue.webp"
+  },
+  {
+    "name": "Squire of Solamnia",
+    "path": "icons/environment/people/cavalry.webp"
+  },
+  {
+    "name": "Strixhaven Initiate (Lorehold)",
+    "path": "icons/sundries/books/book-eye-purple.webp"
+  },
+  {
+    "name": "Strixhaven Initiate (Prismari)",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Strixhaven Initiate (Quandrix)",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Strixhaven Initiate (Silverquill)",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Strixhaven Initiate (Witherbloom)",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Strixhaven Mascot",
+    "path": "icons/magic/control/voodoo-doll-pain-damage-green.webp"
+  },
+  {
+    "name": "Vigor of the Hill Giant",
+    "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
   }
 ]

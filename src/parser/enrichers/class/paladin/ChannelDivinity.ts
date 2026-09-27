@@ -80,14 +80,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (this.is2014) {
-      return this._additionalActivitiesPaladin2014;
-    } else if (this.is2024) {
-      return this._additionalActivitiesPaladin2024;
-    }
-
-    // unreachable: a feature is always 2014 or 2024; the consumer treats undefined and [] identically
-    return [];
+    return this.is2014 ? this._additionalActivitiesPaladin2014 : this._additionalActivitiesPaladin2024;
   }
 
   get _effectPaladin2024(): IDDBEffectHint {
@@ -100,14 +93,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    if (this.is2014) {
-      return [];
-    } else if (this.is2024) {
-      return [this._effectPaladin2024];
-    }
-
-    // unreachable: a feature is always 2014 or 2024; the consumer treats undefined and [] identically
-    return [];
+    return this.is2014 ? [] : [this._effectPaladin2024];
   }
 
   override get override(): IDDBOverrideData | null {

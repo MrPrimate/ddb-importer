@@ -32,3 +32,4 @@ export { default as DDBMacros } from "./DDBMacros";
 export * from "./GridDetector";
 export * from "./GridResolver";
 export * from "./ImageEdgeColor";
+export { default as resolveFoundryMacro } from "./MacroReference";

@@ -5,7 +5,7 @@ export default class EnergyDrain extends _MonsterFeatureSupport {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [];
     const loss = this.text.match(/maximum decreases by (\d+)(?:\s*\((\d+d\d+)\))?/i);
-    if (loss)
+    if (loss) {
       activities.push(
         this.extra("HP Maximum Decrease", "ddbMaxHPLoss0001", "utility", {
           generateRoll: true,
@@ -17,6 +17,7 @@ export default class EnergyDrain extends _MonsterFeatureSupport {
           },
         }),
       );
+    }
     return activities;
   }
 }

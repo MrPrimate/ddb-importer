@@ -19,7 +19,7 @@ export default class ShadowEscape extends _MonsterFeatureSupport {
   }
 
   override get effects(): IDDBEffectHint[] {
-    if (this.activity)
+    if (this.activity) {
       return [
         {
           name: "Resting",
@@ -28,6 +28,7 @@ export default class ShadowEscape extends _MonsterFeatureSupport {
           options: { expiry: null, durationSeconds: 3600 },
         },
       ];
+    }
     return [];
   }
 

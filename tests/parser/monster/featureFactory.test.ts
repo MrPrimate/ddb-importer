@@ -9,13 +9,13 @@ import DDBMonsterFeatureFactory from "../../../src/parser/monster/features/DDBMo
 // =============================================================================
 describe("DDBMonsterFeatureFactory.replaceRollable", () => {
   it("removes rollable tags keeping content before semicolon", () => {
-    const input = '[rollable]2d6;{"diceNotation":"2d6","diceValue":7}[/rollable] fire damage';
+    const input = "[rollable]2d6;{\"diceNotation\":\"2d6\",\"diceValue\":7}[/rollable] fire damage";
     expect(DDBMonsterFeatureFactory.replaceRollable(input)).toBe("2d6 fire damage");
   });
 
   it("greedy match: multiple rollable tags collapse to first content", () => {
     // The regex is greedy (.*), so it matches from first ; to last [/rollable]
-    const input = '[rollable]1d8;meta1[/rollable] plus [rollable]2d6;meta2[/rollable] damage';
+    const input = "[rollable]1d8;meta1[/rollable] plus [rollable]2d6;meta2[/rollable] damage";
     expect(DDBMonsterFeatureFactory.replaceRollable(input)).toBe("1d8 damage");
   });
 
@@ -25,7 +25,7 @@ describe("DDBMonsterFeatureFactory.replaceRollable", () => {
   });
 
   it("handles complex dice expression before semicolon", () => {
-    const input = '[rollable]3d8 + 5;{"diceNotation":"3d8+5","total":18}[/rollable] bludgeoning damage';
+    const input = "[rollable]3d8 + 5;{\"diceNotation\":\"3d8+5\",\"total\":18}[/rollable] bludgeoning damage";
     expect(DDBMonsterFeatureFactory.replaceRollable(input)).toBe("3d8 + 5 bludgeoning damage");
   });
 

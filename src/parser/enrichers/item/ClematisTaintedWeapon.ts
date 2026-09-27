@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import type DDBItem from "../../item/DDBItem";
 
 /**
  * The clematis toxin family: seven weapons plus the ammunition and the generic
@@ -6,15 +7,23 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * Constitution save for 1d8 poison damage, half on a success, and a failure
  * also paralyses it until the end of its next turn.
  *
- * DDB carries the poison die as a restricted damage modifier, so the weapons
- * already get a "Restricted Attack" rider activity holding the 1d8 - those get
- * a damage-free save so the paralysis is not paid for twice. The ammunition and
- * catalogue entries have no such rider, so their save carries the damage.
+ * DDB carries the poison die as a restricted damage modifier, which the item parser
+ * turns into a "Restricted Attack" rider activity holding the 1d8 on a weapon. Those
+ * get a damage-free save so the poison is not rolled twice. An item without that
+ * rider (ammunition that imports as a consumable, or a copy missing the modifier)
+ * gets the damage on its save instead.
  */
 export default class ClematisTaintedWeapon extends DDBEnricherData {
 
+  /** DDB's poison damage modifier; carrying a restriction, it becomes the Restricted Attack rider. */
+  get poisonModifier(): IDDBModifier | undefined {
+    const definition = (this.ddbParser as DDBItem | null)?.ddbDefinition;
+    return definition?.grantedModifiers?.find((mod) => mod.type === "damage" && mod.subType === "poison");
+  }
+
+  /** The item parser built a Restricted Attack activity holding the poison die. */
   get hasRestrictedDamageRider(): boolean {
-    return this.data.type === "weapon";
+    return this.data.type === "weapon" && Boolean(this.poisonModifier?.restriction);
   }
 
   get saveData(): Partial<I5eActivity> {
@@ -85,6 +94,9 @@ export default class ClematisTaintedWeapon extends DDBEnricherData {
         options: {
           transfer: false,
           expiry: "targetEnd",
+          // counted stand-in for the pseudo expiry, which only DAE can honour on Foundry 13
+          durationSeconds: 6,
+          durationRounds: 1,
           description: "Paralyzed until the end of its next turn, unless it is immune to the Poisoned condition. Once paralysed this way a creature is immune to the weapon's paralysing effect for 24 hours.",
         },
       },

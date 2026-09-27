@@ -202,8 +202,10 @@ export default class DDBCharacterImporter {
    *
    * The new item's activities, enchantment riders and region behaviors reference the generated
    * effect ids, so a retained effect takes over the id of the generated effect it replaces
-   * (matched by name, in order) and those links keep resolving. Generated effects with no
-   * retained counterpart are kept, as something may link to them.
+   * (matched by name, in order) and those links keep resolving. The retained content wins, so a
+   * user's edits survive the re-import, and so do any outdated changes it carries. Generated
+   * effects with no retained counterpart are kept, as something may link to them; a generated
+   * effect the user had deleted therefore comes back.
    * @param {I5eEffectData[]} generated effects built by this import
    * @param {I5eEffectData[]} retained effects on the item before this import
    * @returns {I5eEffectData[]} the effects to create the item with

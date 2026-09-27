@@ -465,21 +465,42 @@ export default class AdvancementHelper {
     return feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
   }
 
-  /** Words in a "choose" proficiency subtype that mark it as something other than a skill choice. */
-  static SKILL_CHOICE_EXCLUDES = ["saving-throw", "tool", "weapon", "armor", "armour", "language", "gaming-set", "artisan", "instrument", "expertise"];
+  /**
+   * Feature-named "-proficiency" subtypes that DDB uses for a skill pick (their feature text lists
+   * the skills). The slug alone cannot tell these from feature-named weapon or tool picks
+   * ("choose-bladesinger-proficiency" is a weapon), so they are listed.
+   */
+  static SKILL_CHOICE_PROFICIENCY_SLUGS = new Set([
+    "enchanter-proficiency",
+    "choose-banneret-proficiency",
+    "choose-primal-lore-proficiency",
+    "choose-genies-splendor-proficiency",
+    "choose-dhakaani-ghaaldar-proficiency",
+  ]);
+
+  /** Open picks that may be a skill or something else; imported as an open skill choice. */
+  static MIXED_SKILL_CHOICE_SLUGS = new Set(["choose-a-skill-or-tool", "choose-a-skill-tool-or-weapon"]);
+
+  /** Words in a choose subtype that name no skill: "choose-a-skill", "choose-nature-or-survival". */
+  static #CHOOSE_NOISE = new Set(["choose", "a", "an", "or", "and", "the", "proficiency", "skill", "skills"]);
 
   /**
    * A DDB proficiency modifier whose subtype is a skill choice rather than a named skill:
-   * "choose-a-barbarian-skill-proficiency", "choose-nature-or-survival", "magical-knowledge-skill",
-   * "enchanter-proficiency", "choose-a-skill-or-tool". Saves, tools, weapons, armor, languages,
-   * gaming sets and instruments carry their own words and are excluded.
+   * - an open pick, "choose-a-skill" or "choose-a-<class>-skill[-proficiency]";
+   * - a feature pick ending "-skill", e.g. "magical-knowledge-skill";
+   * - a named list whose every word is a skill, e.g. "choose-nature-or-survival";
+   * - one of the listed feature-named or mixed slugs above.
+   * Anything else ("choose-cooks-utensils-or-herbalism-kit", "choose-a-kensei-tool",
+   * "choose-an-iron-mind-saving-throw") is not a skill choice.
    */
   static isSkillChoiceSubType(subType: string | null | undefined): boolean {
     const slug = (subType ?? "").toLowerCase();
     if (slug === "") return false;
-    const shape = slug.startsWith("choose-") || slug.endsWith("-skill") || slug.endsWith("-skill-proficiency") || slug.endsWith("-proficiency");
-    if (!shape) return false;
-    return !AdvancementHelper.SKILL_CHOICE_EXCLUDES.some((word) => slug.includes(word));
+    if (AdvancementHelper.SKILL_CHOICE_PROFICIENCY_SLUGS.has(slug) || AdvancementHelper.MIXED_SKILL_CHOICE_SLUGS.has(slug)) return true;
+    if ((/^choose-an?-(?:[a-z-]+-)?skill(?:-proficiency)?$/).test(slug)) return true;
+    if (!slug.startsWith("choose-")) return (/-skill(?:-proficiency)?$/).test(slug);
+    const { skills, leftover } = AdvancementHelper.#parseChooseSubType(slug);
+    return skills.length > 0 && leftover.length === 0;
   }
 
   /**
@@ -488,21 +509,30 @@ export default class AdvancementHelper {
    * "slight-of-hand" is a DDB typo for Sleight of Hand. An open choice names nothing.
    */
   static skillsFromChooseSubType(subType: string | null | undefined): string[] {
-    const noise = new Set(["choose", "a", "an", "or", "and", "the", "proficiency", "skill", "skills"]);
-    const tokens = (subType ?? "").toLowerCase().replace("slight-of-hand", "sleight-of-hand").split("-").filter((token) => token !== "" && !noise.has(token));
+    return AdvancementHelper.#parseChooseSubType(subType).skills;
+  }
+
+  /** The skills a choose subtype names, and the words left over that are not skills. */
+  static #parseChooseSubType(subType: string | null | undefined): { skills: string[]; leftover: string[] } {
+    const tokens = (subType ?? "").toLowerCase().replace("slight-of-hand", "sleight-of-hand").split("-")
+      .filter((token) => token !== "" && !AdvancementHelper.#CHOOSE_NOISE.has(token));
     const skills: string[] = [];
+    const leftover: string[] = [];
     for (let i = 0; i < tokens.length; i++) {
+      let matched = false;
       for (const width of [3, 2, 1]) {
         const slug = tokens.slice(i, i + width).join("-");
         const skill = DICTIONARY.actor.skills.find((s) => s.subType === slug);
         if (skill) {
           if (!skills.includes(skill.name)) skills.push(skill.name);
           i += width - 1;
+          matched = true;
           break;
         }
       }
+      if (!matched) leftover.push(tokens[i]);
     }
-    return skills;
+    return { skills, leftover };
   }
 
   /** "Expertise" and the 2024 level-prefixed repeats ("6: Expertise", "9: Expertise") are the class's own pick-two feature. */

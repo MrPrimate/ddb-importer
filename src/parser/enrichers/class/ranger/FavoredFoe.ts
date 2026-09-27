@@ -40,6 +40,8 @@ export default class FavoredFoe extends DDBEnricherData {
       data: {
         "system.identifier": "favored-foe",
         "system.advancement": [...advancements.filter((a) => !isDamageScale(a)), advancement],
+        // the feature-held die scale follows the ranger's level, not the character's
+        flags: this.classAdvancementRootFlags("Ranger"),
       },
     };
   }

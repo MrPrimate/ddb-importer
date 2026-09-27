@@ -2,8 +2,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Nothing is rolled as the spell is cast. The aura belongs to the chosen creature, not the caster,
- * so the area is a 20-foot circle dropped on the target. DDB gives the spell no template. The
- * save a creature makes against the aura is a free roll made by hand.
+ * so the area is a 20-foot emanation placed on the Festival King's token (a radius template, sized
+ * to the token it is dropped on, that has to be dragged along when the king moves). DDB gives the
+ * spell no template. The save a creature makes against the aura is a free roll made by hand.
  */
 export default class FestivalKing extends DDBEnricherData {
 
@@ -21,7 +22,7 @@ export default class FestivalKing extends DDBEnricherData {
         target: {
           override: true,
           affects: { type: "creature" },
-          template: { contiguous: false, units: "ft", type: "circle", size: "20", count: "1" },
+          template: { contiguous: false, units: "ft", type: "radius", size: "20", count: "1" },
         },
       },
     };

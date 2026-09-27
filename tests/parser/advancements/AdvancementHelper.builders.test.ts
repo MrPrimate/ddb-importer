@@ -296,7 +296,34 @@ describe("AdvancementHelper skill choice subtypes", () => {
     expect(AdvancementHelper.isSkillChoiceSubType("choose-an-iron-mind-saving-throw")).toBe(false);
     expect(AdvancementHelper.isSkillChoiceSubType("choose-a-gaming-set")).toBe(false);
     expect(AdvancementHelper.isSkillChoiceSubType("perception")).toBe(false);
+  });
 
+  it("separates skill picks from tool, weapon and feature picks that share the shape", () => {
+    for (const slug of [
+      "choose-a-skill",
+      "choose-a-warlock-skill",
+      "choose-an-arcane-archer-lore-skill",
+      "choose-a-skill-or-tool",
+      "choose-banneret-proficiency",
+      "choose-deception-investigation-persuasion-slight-of-hand-or-stealth",
+    ]) {
+      expect(AdvancementHelper.isSkillChoiceSubType(slug), slug).toBe(true);
+    }
+    for (const slug of [
+      "choose-cooks-utensils-or-herbalism-kit",
+      "choose-herbalism-kit-or-water-vehicles",
+      "choose-brewers-supplies-or-cooks-utensils",
+      "choose-bladesinger-proficiency",
+      "choose-a-nightwatcher-proficiency",
+      "choose-a-dwarven-artisanal-focus",
+      "armorer-tool-proficiency",
+      "choose-intelligence-wisdom-or-charisma-saving-throws",
+    ]) {
+      expect(AdvancementHelper.isSkillChoiceSubType(slug), slug).toBe(false);
+    }
+  });
+
+  it("names the skills of a choose subtype", () => {
     expect(AdvancementHelper.skillsFromChooseSubType("choose-nature-or-survival")).toEqual(["nat", "sur"]);
     expect(AdvancementHelper.skillsFromChooseSubType("choose-deception-investigation-persuasion-slight-of-hand-or-stealth"))
       .toEqual(["dec", "inv", "per", "slt", "ste"]);
