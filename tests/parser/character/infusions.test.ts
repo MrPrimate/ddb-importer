@@ -100,6 +100,8 @@ describe("removeAppliedCopies", () => {
     const effects = [
       effectDoc("ddbPactWeapoCp00", { enchantmentProfile: "ddbPactWeaponEf1" }),
       effectDoc("ddbPactWeapoCp01", { enchantmentProfile: "ddbPactWeaponEf1" }),
+      // another profile's copy whose id starts the same way stays
+      effectDoc("ddbPactWeapoCp02", { enchantmentProfile: "ddbPactWeaponEf2" }),
       effectDoc("randomOldCopy001", { enchantmentProfile: "ddbPactWeaponEf1" }),
       effectDoc("riderEffectCp000", { dependentOn: "ddbPactWeapoCp01" }),
       effectDoc("riderByUuid00000", { dependentOn: `${ITEM_UUID}.ActiveEffect.randomOldCopy001` }),
