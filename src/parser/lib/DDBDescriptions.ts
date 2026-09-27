@@ -513,7 +513,8 @@ export default class DDBDescriptions {
    * save, to its full stop) and the sentences before it back to the previous save or the start of
    * the paragraph, nearest last. A lair block puts each action's area in the sentence before its
    * save ("A cloud fills a 20-foot-radius sphere ... Each creature in the cloud must succeed on
-   * a DC 15 Constitution saving throw"). The first occurrence of a key wins.
+   * a DC 15 Constitution saving throw"). A paragraph ending in a colon leads the first save of
+   * each save paragraph that follows it. The first occurrence of a key wins.
    * @param {string} source rules text (HTML)
    * @returns {Map<string, { sentence: string; lead: string[] }>} scopes per save key
    */
@@ -521,22 +522,29 @@ export default class DDBDescriptions {
     const scopes = new Map<string, { sentence: string; lead: string[] }>();
     const paragraphs = DDBDescriptions.stripTables(source ?? "")
       .split(/<(?:br|\/?p|\/?div|\/?li|\/?ul|\/?ol|\/?h[1-6]|\/?blockquote)\b[^>]*>/i);
+    // a paragraph ending in a colon introduces the ones after it ("All creatures within 60 feet
+    // of the grenade suffer the following effects:"), so it leads each of their first saves
+    let introduction: string[] = [];
     for (const paragraph of paragraphs) {
-      const saves = DDBDescriptions.parseSaves(paragraph).sort((a, b) => a.index - b.index);
-      if (saves.length === 0) continue;
       const plain = DDBDescriptions.plainText(paragraph);
+      if (!plain) continue;
+      const saves = DDBDescriptions.parseSaves(paragraph).sort((a, b) => a.index - b.index);
       let previousEnd = 0;
       for (const save of saves) {
         const stop = plain.indexOf(". ", save.index);
         const end = stop < 0 ? plain.length : stop + 1;
-        const start = Math.max(previousEnd, plain.lastIndexOf(". ", save.index) + 2);
+        const stopBefore = plain.lastIndexOf(". ", save.index);
+        const start = Math.max(previousEnd, stopBefore < 0 ? 0 : stopBefore + 2);
         const key = DDBDescriptions.saveKey(save);
         if (!scopes.has(key)) {
           const lead = plain.slice(previousEnd, start).split(/(?<=\.)\s+/).map((part) => part.trim()).filter(Boolean);
-          scopes.set(key, { sentence: plain.slice(start, end).trim(), lead });
+          scopes.set(key, { sentence: plain.slice(start, end).trim(), lead: previousEnd === 0 ? [...introduction, ...lead] : lead });
         }
         previousEnd = Math.max(previousEnd, end);
       }
+      // the introduction holds for the run of save paragraphs after it; any other paragraph ends it
+      if (plain.endsWith(":")) introduction = plain.split(/(?<=\.)\s+/).map((part) => part.trim()).filter(Boolean);
+      else if (saves.length === 0) introduction = [];
     }
     return scopes;
   }

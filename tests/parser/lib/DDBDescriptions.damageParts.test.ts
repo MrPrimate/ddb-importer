@@ -80,3 +80,18 @@ describe("DDBDescriptions.saveScopes", () => {
     });
   });
 });
+
+describe("DDBDescriptions.saveScopes introductions", () => {
+  it("leads each save paragraph after a paragraph ending in a colon", () => {
+    const scopes = DDBDescriptions.saveScopes(
+      "<p>The device bursts. All creatures within 30 feet of it suffer the following effects:</p>"
+      + "<p>Each creature must make a DC 14 Dexterity saving throw, taking 2d6 fire damage on a failed save.</p>"
+      + "<p>Each creature must make a DC 14 Constitution saving throw or be deafened.</p>"
+      + "<p>Unrelated text.</p><p>A creature must make a DC 14 Wisdom saving throw.</p>",
+    );
+    const intro = ["The device bursts.", "All creatures within 30 feet of it suffer the following effects:"];
+    expect(scopes.get("|14|dex")?.lead).toEqual(intro);
+    expect(scopes.get("|14|con")?.lead).toEqual(intro);
+    expect(scopes.get("|14|wis")?.lead).toEqual([]);
+  });
+});

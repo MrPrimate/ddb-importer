@@ -2064,8 +2064,33 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * on this item describes every other mode too.
    */
   get #primaryActivityOptions(): IDDBActivityBuild {
-    if (!this.#primaryIsFirstSection) return {};
+    if (!this.#primaryIsFirstSection) {
+      const flatTarget = this.#flatPrimaryTarget;
+      return flatTarget ? { targetOverride: flatTarget } : {};
+    }
     return { data: { description: { value: this.multiSaveSections[0].slice.section } } };
+  }
+
+  /** Who a save in the item's text is aimed at, read from a piece of it; a save always affects a creature. */
+  #flatSaveTargetFor(text: string): I5eActivityTarget {
+    const target = this.#targetFromDescription(text);
+    if (target.affects && !target.affects.type) target.affects.type = "creature";
+    return target;
+  }
+
+  /**
+   * The primary save's own target when the text describes several different saves without
+   * labelled sections, read like its siblings' (`flatSaveTarget`): an attunement save has no
+   * area, and "throw the flask at a point within 30 feet" is a range, not the area. Null keeps
+   * the item's target. Weapons are left alone: their primary is the attack.
+   */
+  get #flatPrimaryTarget(): I5eActivityTarget | null {
+    if (!this.actionData.save || ["weapon", "staff"].includes(this.parsingType ?? "")) return null;
+    const html = DDBDescriptions.stripTables(this.ddbDefinition.description ?? "");
+    const saves = DDBDescriptions.parseSaves(html);
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
+    const scope = DDBDescriptions.saveScopes(html).get(DDBDescriptions.saveKey(this.actionData.save));
+    return DDBActivityFactoryMixin.flatSaveTarget(scope, (text) => this.#flatSaveTargetFor(text));
   }
 
   /** The description text the primary activity describes: its own section, or the whole item. */
@@ -2088,6 +2113,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       primarySave: this.actionData.save,
       skipFirstSection: this.#primaryIsFirstSection,
       targetOverrideForSection: (section) => this.#sectionTarget(section),
+      flatTargetFor: (text) => this.#flatSaveTargetFor(text),
     });
   }
 
@@ -3510,11 +3536,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
   /** @override */
+  /**
+   * The damage the first labelled section names, when that section is the primary save. Its
+   * siblings read their own sections; the primary would otherwise take every DDB damage modifier
+   * on the item (Kobbold Flaymefrower's Dragon's Breath dealing Backfire's 4d6 as well).
+   */
+  get #sectionedPrimaryDamage(): I5eDamagePart[] | null {
+    if (!this.#primaryIsFirstSection) return null;
+    return DDBDescriptions.parseDamageParts(this.multiSaveSections[0].slice.section).parts;
+  }
+
   override _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
     // the item's damage parts can come from DDB's damage modifiers as well as the text (Many
     // Hands, Nightmare Flask), so the primary save's own damage is chosen here; the multi-save
     // extras pass their own parts in `options`, which win
-    const ownSaveDamage = this.#ownSaveDamage;
+    const ownSaveDamage = this.#sectionedPrimaryDamage ?? this.#ownSaveDamage;
     const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType ?? ""),
