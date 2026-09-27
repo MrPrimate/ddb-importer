@@ -8,16 +8,7 @@ import ProficiencyFinder from "../../lib/ProficiencyFinder";
 import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
-import {
-  applyDaeSpecialDurations,
-  applyNativeExpiry,
-  DURATIONLESS_EXPIRIES,
-  expirySupportsDuration,
-  PSEUDO_EXPIRIES,
-} from "./EffectExpiryHelpers";
-
-
-export { EFFECT_EXPIRY_TYPES } from "./EffectExpiryHelpers";
+import { applyDaeSpecialDurations, applyNativeExpiry } from "./EffectExpiryHelpers";
 
 export const DAE_SPECIAL_DURATIONS = [
   // legacy turn-edge tokens: accepted as input and moved onto duration.expiry
@@ -1302,12 +1293,6 @@ export default class EffectGenerator {
   // expiry translation lives in the EffectExpiryHelpers leaf so AutoEffects can
   // use it without importing EffectGenerator (which imports AutoEffects); these
   // statics stay as the established call surface
-  static PSEUDO_EXPIRIES = PSEUDO_EXPIRIES;
-
-  static DURATIONLESS_EXPIRIES = DURATIONLESS_EXPIRIES;
-
-  static expirySupportsDuration = expirySupportsDuration;
-
   static applyNativeExpiry = applyNativeExpiry;
 
   static applyDaeSpecialDurations = applyDaeSpecialDurations;

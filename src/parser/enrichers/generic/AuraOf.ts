@@ -35,7 +35,7 @@ export default class AuraOf extends DDBEnricherData {
         ac5eChanges: isAuraOfProtection
           ? [
             DDBEnricherData.ChangeHelper.ac5eChange(
-              "bonus=auraActor.abilities.cha.mod; radius=(auraActor.details.level < 18 ? 10 : 30); allies; singleAura; includeSelf",
+              "bonus=max(1, auraActor.abilities.cha.mod); radius=(auraActor.classes.paladin.levels < 18 ? 10 : 30); allies; singleAura; includeSelf",
               20,
               "flags.automated-conditions-5e.aura.save.bonus",
             ),
