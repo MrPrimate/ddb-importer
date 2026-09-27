@@ -106,17 +106,13 @@ export function buildRiderCopies({ riders, origin, target, appliedId, effectOrig
  *
  * "Retain Active Effects" carries the previous import's applied copy over onto the recreated item,
  * and before this every re-import added another copy beside it. dnd5e 5.x stamps no profile flag
- * on an applied copy, so the import stamps `flags.dnd5e.enchantmentProfile` itself; copies from
- * before that are found by their stable id stem. Riders go first: dnd5e also deletes an
- * enchantment's dependents when the enchantment is deleted, and removing them beforehand leaves
- * that cascade nothing to race.
+ * on an applied copy, so the import stamps `flags.dnd5e.enchantmentProfile` itself. Riders go
+ * first: dnd5e also deletes an enchantment's dependents when the enchantment is deleted, and
+ * removing them beforehand leaves that cascade nothing to race.
  */
 export async function removeAppliedCopies(item: Item.Implementation, profileId: string): Promise<void> {
   const effects = Array.from((item.effects ?? []) as Iterable<ActiveEffect.Implementation>);
-  const stem = `${profileId.slice(0, 12).padEnd(12, "0")}Cp`;
-  const applied = effects.filter((e) => e.id !== profileId
-    && (foundry.utils.getProperty(e, "flags.dnd5e.enchantmentProfile") === profileId
-      || (e.type === "enchantment" && (e.id ?? "").startsWith(stem))));
+  const applied = effects.filter((e) => foundry.utils.getProperty(e, "flags.dnd5e.enchantmentProfile") === profileId);
   if (applied.length === 0) return;
 
   // dnd5e stamps a dependent with the bare id on the same item, or with the uuid
