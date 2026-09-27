@@ -479,6 +479,80 @@ export default class DDBDescriptions {
   }
 
   /** Two saves are the same property when they ask for the same roll against the same DC. */
+  /**
+   * The text each save's own damage is read from, keyed by `saveKey`, for rules text that names
+   * several saves without labelled sections: from the save to the next save in the same
+   * paragraph, or to the paragraph's end. A paragraph bounds it because the next paragraph is
+   * usually another action whose damage comes before its own save. The first occurrence of a
+   * key wins, matching the order `parseSaves` lists them in.
+   * @param {string} source rules text (HTML)
+   * @returns {Map<string, string>} plain text per save key
+   */
+  static saveDamageTexts(source: string): Map<string, string> {
+    const texts = new Map<string, string>();
+    const paragraphs = DDBDescriptions.stripTables(source ?? "")
+      .split(/<(?:br|\/?p|\/?div|\/?li|\/?ul|\/?ol|\/?h[1-6]|\/?blockquote)\b[^>]*>/i);
+    for (const paragraph of paragraphs) {
+      const saves = DDBDescriptions.parseSaves(paragraph);
+      if (saves.length === 0) continue;
+      const plain = DDBDescriptions.plainText(paragraph);
+      const starts = saves.map((save) => save.index).sort((a, b) => a - b);
+      for (const save of saves) {
+        const key = DDBDescriptions.saveKey(save);
+        if (texts.has(key)) continue;
+        const end = starts.find((index) => index > save.index) ?? plain.length;
+        texts.set(key, plain.slice(save.index, end));
+      }
+    }
+    return texts;
+  }
+
+  /**
+   * Where each save of a multi-save text without labelled sections sits, keyed by `saveKey`, for
+   * reading its own target: the sentence that asks for the save (from its start, or the previous
+   * save, to its full stop) and the sentences before it back to the previous save or the start of
+   * the paragraph, nearest last. A lair block puts each action's area in the sentence before its
+   * save ("A cloud fills a 20-foot-radius sphere ... Each creature in the cloud must succeed on
+   * a DC 15 Constitution saving throw"). The first occurrence of a key wins.
+   * @param {string} source rules text (HTML)
+   * @returns {Map<string, { sentence: string; lead: string[] }>} scopes per save key
+   */
+  static saveScopes(source: string): Map<string, { sentence: string; lead: string[] }> {
+    const scopes = new Map<string, { sentence: string; lead: string[] }>();
+    const paragraphs = DDBDescriptions.stripTables(source ?? "")
+      .split(/<(?:br|\/?p|\/?div|\/?li|\/?ul|\/?ol|\/?h[1-6]|\/?blockquote)\b[^>]*>/i);
+    for (const paragraph of paragraphs) {
+      const saves = DDBDescriptions.parseSaves(paragraph).sort((a, b) => a.index - b.index);
+      if (saves.length === 0) continue;
+      const plain = DDBDescriptions.plainText(paragraph);
+      let previousEnd = 0;
+      for (const save of saves) {
+        const stop = plain.indexOf(". ", save.index);
+        const end = stop < 0 ? plain.length : stop + 1;
+        const start = Math.max(previousEnd, plain.lastIndexOf(". ", save.index) + 2);
+        const key = DDBDescriptions.saveKey(save);
+        if (!scopes.has(key)) {
+          const lead = plain.slice(previousEnd, start).split(/(?<=\.)\s+/).map((part) => part.trim()).filter(Boolean);
+          scopes.set(key, { sentence: plain.slice(start, end).trim(), lead });
+        }
+        previousEnd = Math.max(previousEnd, end);
+      }
+    }
+    return scopes;
+  }
+
+  /**
+   * The damage parts a save's own text names: what it deals on the failed save, or, when it
+   * deals nothing then, the damage its consequence deals at the start of a turn (a swallow's
+   * digestion) so the card still carries it.
+   * @param {string} text a save's damage text, from `saveDamageTexts`
+   * @returns {I5eDamagePart[]} the parts, possibly empty
+   */
+  static saveOwnDamageParts(text: string): I5eDamagePart[] {
+    const { parts, otherParts } = DDBDescriptions.parseDamageParts(text);
+    return parts.length > 0 ? parts : otherParts;
+  }
+
   static saveKey(save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null }): string {
     const ability = [...(save.ability ?? [])].sort().join("+");
     return `${save.dc?.calculation ?? ""}|${save.dc?.formula ?? ""}|${ability}`;
@@ -672,6 +746,19 @@ export default class DDBDescriptions {
    * `parseDice` decides whether dice strings are normalised through `utils.parseDiceString`, which the item parser
    *    only does when it has action data.
    */
+  /**
+   * Whether a damage match is dealt to objects rather than creatures: "The shock wave deals 100
+   * thunder damage to all structures in contact with the ground". Such damage is scenery for the
+   * table, and read as a creature's damage it lands on whichever save or attack sits nearest.
+   * @param {RegExpMatchArray} match a damage expression match, with its input and index
+   * @returns {boolean} true when the words right after the match aim it at objects or structures
+   */
+  static damagesObjectsOnly(match: RegExpMatchArray): boolean {
+    if (match.input === undefined || match.index === undefined) return false;
+    const after = match.input.slice(match.index + match[0].length, match.index + match[0].length + 60);
+    return (/^\s*to (?:all |any |each |every |the |nonmagical |unattended |other )*(?:objects?|structures?|buildings?)\b/i).test(after);
+  }
+
   static parseDamageParts(text: string, { parseDice = true } = {}): {
     parts: I5eDamagePart[];
     otherParts: I5eDamagePart[];
@@ -689,6 +776,7 @@ export default class DDBDescriptions {
       if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
         continue;
       }
+      if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
       // check for other
       if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
       const damage = dmg.groups.damageDice ?? dmg.groups.flat;

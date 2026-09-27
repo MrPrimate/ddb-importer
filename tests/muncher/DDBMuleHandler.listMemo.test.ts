@@ -162,4 +162,30 @@ describe("DDBMuleHandler session memos", () => {
     expect(post).toHaveBeenCalledTimes(3);
   });
 
+  it("reads the mule character's campaign once per character and account", async () => {
+    post.mockResolvedValue({ success: true, data: [{ campaign: { id: 777 } }] });
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-memo")).toBe("777");
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-memo")).toBe("777");
+    expect(post).toHaveBeenCalledTimes(1);
+
+    setMockSettings({ "cobalt-cookie": "other-cobalt-token" });
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-memo")).toBe("777");
+    expect(post).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not memoise a failed campaign lookup, and reads it as no campaign", async () => {
+    post.mockResolvedValueOnce({ success: false, message: "offline" });
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-failure")).toBeNull();
+    post.mockResolvedValueOnce({ success: true, data: [{ campaign: { id: 42 } }] });
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-failure")).toBe("42");
+    expect(post).toHaveBeenCalledTimes(2);
+  });
+
+  it("has no campaign without a mule character or when the character has none", async () => {
+    expect(await DDBMuleHandler.getMuleCampaignId(null)).toBeNull();
+    expect(post).not.toHaveBeenCalled();
+    post.mockResolvedValueOnce({ success: true, data: [{ campaign: null }] });
+    expect(await DDBMuleHandler.getMuleCampaignId("mule-no-campaign")).toBeNull();
+  });
+
 });

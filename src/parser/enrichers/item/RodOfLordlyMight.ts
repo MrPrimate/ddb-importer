@@ -117,8 +117,27 @@ export default class RodOfLordlyMight extends DDBEnricherData {
     };
   }
 
+  /**
+   * Every button and property is a magical property of the rod, which does nothing unless the
+   * wielder is attuned. Only the plain Mace attack stays visible, and its magical bonus already
+   * follows attunement through dnd5e's base weapon damage. On an item that requires attunement
+   * dnd5e derives `requireAttunement` from `requireMagic` when preparing the activity, so
+   * `requireMagic` is the switch that hides the activity until the rod is attuned.
+   */
+  static requireAttunement(activity: IDDBAdditionalActivity): IDDBAdditionalActivity {
+    const overrides = activity.overrides ?? {};
+    const data = overrides.data ?? {};
+    return {
+      ...activity,
+      overrides: {
+        ...overrides,
+        data: { ...data, visibility: { ...(data.visibility ?? {}), requireMagic: true } },
+      },
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
+    const activities: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Drain Life",
@@ -232,6 +251,7 @@ export default class RodOfLordlyMight extends DDBEnricherData {
         },
       },
     ];
+    return activities.map((activity) => RodOfLordlyMight.requireAttunement(activity));
   }
 
   override get effects(): IDDBEffectHint[] {

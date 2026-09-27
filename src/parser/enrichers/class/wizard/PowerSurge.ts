@@ -78,7 +78,7 @@ export default class PowerSurge extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.wizard.level / 2)",
+              customFormula: "floor(@classes.wizard.levels / 2)",
               types: ["force"],
             }),
           ],

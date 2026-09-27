@@ -4,6 +4,7 @@ import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import Vestige from "./ClassFeatures/Warlock/Vestige";
+import ConcentrationFollowUp from "./Spells/ConcentrationFollowUp";
 import { logger, utils } from "../../lib/_module";
 
 
@@ -93,6 +94,12 @@ export default class DDBEnhancers {
     }
   }
 
+  static _concentrationHooks() {
+    Hooks.on<"dnd5e.preUseActivity">("dnd5e.preUseActivity", (activity, usageConfig, _dialogConfig, messageConfig) => {
+      ConcentrationFollowUp.preUseActivityHook(activity, usageConfig, messageConfig);
+    });
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -101,6 +108,7 @@ export default class DDBEnhancers {
     DDBEnhancers._activityConsumptionHooks();
     DDBEnhancers._summonHooks();
     DDBEnhancers._restHooks();
+    DDBEnhancers._concentrationHooks();
   }
 
 }

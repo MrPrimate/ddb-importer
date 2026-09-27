@@ -63,6 +63,11 @@ global {
     name?: string;
     id?: string;
     type?: string;
+    /**
+     * Apply this primary-activity hint to the document's first activity only. Without it the
+     * hint also lands on every activity the parser generates beside it (multi-save extras).
+     */
+    primaryOnly?: boolean;
     parent?: IDDBActivityParentLookup[];
 
     // Consume targets

@@ -503,6 +503,7 @@ describe("AdvancementHelper skill choice subtypes", () => {
       "choose-an-arcane-archer-lore-skill",
       "choose-a-skill-or-tool",
       "choose-banneret-proficiency",
+      "choose-a-nightwatcher-proficiency",
       "choose-deception-investigation-persuasion-slight-of-hand-or-stealth",
     ]) {
       expect(AdvancementHelper.isSkillChoiceSubType(slug), slug).toBe(true);
@@ -512,7 +513,6 @@ describe("AdvancementHelper skill choice subtypes", () => {
       "choose-herbalism-kit-or-water-vehicles",
       "choose-brewers-supplies-or-cooks-utensils",
       "choose-bladesinger-proficiency",
-      "choose-a-nightwatcher-proficiency",
       "choose-a-dwarven-artisanal-focus",
       "armorer-tool-proficiency",
       "choose-intelligence-wisdom-or-charisma-saving-throws",
@@ -526,6 +526,20 @@ describe("AdvancementHelper skill choice subtypes", () => {
     expect(AdvancementHelper.skillsFromChooseSubType("choose-deception-investigation-persuasion-slight-of-hand-or-stealth"))
       .toEqual(["dec", "inv", "per", "slt", "ste"]);
     expect(AdvancementHelper.skillsFromChooseSubType("choose-a-skill")).toEqual([]);
+  });
+
+  it("reads a \"from the following list\" skill choice from the description", () => {
+    const feature = makeFeature({
+      name: "Watchful Training",
+      requiredLevel: 3,
+      description: "<p>You gain proficiency in two skills of your choice from the following list: Arcana, History, or Nature.</p>",
+    });
+    const adv: any = makeHelper({ isSubclass: true }).getSkillAdvancement({
+      feature,
+      mods: [profMod("choose-a-watchful-proficiency", "Choose a Watchful Proficiency")],
+      level: 3,
+    });
+    expect(adv.toObject().configuration.choices).toEqual([{ count: 2, pool: ["skills:arc", "skills:his", "skills:nat"] }]);
   });
 
   it("builds a skill pick from a choose subtype the description does not spell out", () => {
