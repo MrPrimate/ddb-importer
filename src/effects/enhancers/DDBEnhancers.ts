@@ -5,6 +5,7 @@ import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
 import Vestige from "./ClassFeatures/Warlock/Vestige";
 import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
+import ConcentrationFollowUp from "./Spells/ConcentrationFollowUp";
 import { logger, utils } from "../../lib/_module";
 
 
@@ -102,6 +103,12 @@ export default class DDBEnhancers {
     }
   }
 
+  static _concentrationHooks() {
+    Hooks.on<"dnd5e.preUseActivity">("dnd5e.preUseActivity", (activity, usageConfig, _dialogConfig, messageConfig) => {
+      ConcentrationFollowUp.preUseActivityHook(activity, usageConfig, messageConfig);
+    });
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -111,6 +118,7 @@ export default class DDBEnhancers {
     DDBEnhancers._summonHooks();
     DDBEnhancers._restHooks();
     DDBEnhancers._enchantmentHooks();
+    DDBEnhancers._concentrationHooks();
     RegionExpiryCleanup.registerHooks();
   }
 

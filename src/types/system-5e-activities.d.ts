@@ -208,6 +208,8 @@ global {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
         activityRiders?: string[];
+        /** Used while its spell is concentrated on, joins that concentration (ConcentrationFollowUp). */
+        joinConcentration?: boolean;
       };
       dnd5e?: {
         /** Id of the applied enchantment (same item) this rider activity was created for; removed with it. */
