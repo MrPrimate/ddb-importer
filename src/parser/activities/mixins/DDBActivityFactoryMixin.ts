@@ -443,7 +443,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
 
     if (!this.activityType) this.activityType = activity.data.type;
 
-    await this.enricher.applyActivityOverride(activity.data);
+    // a primaryOnly hint (a placer's area and region behaviors) must not also land on the
+    // extras the parser generates beside the first activity
+    const primaryOnly = this.enricher.activity?.primaryOnly === true && this.activities.length > 0;
+    if (!primaryOnly) await this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
 
     if (this.enricher.activity?.addSingleFreeUse) {
@@ -807,6 +810,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     noSpellslot = false,
     sectionDamage = true,
     targetOverrideForSection = null,
+    flatTargetFor = null,
     maxExtras = DDBActivityFactoryMixin.MULTI_SAVE_MAX_EXTRAS,
   }: {
     text: string;
@@ -816,6 +820,12 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     noSpellslot?: boolean;
     sectionDamage?: boolean;
     targetOverrideForSection?: ((section: string) => I5eActivityTarget | null) | null;
+    /**
+     * Reads a target from a piece of text. When given, each save of a text without labelled
+     * sections takes the target its own sentences name (`flatSaveTarget`) instead of the one read
+     * from the whole document.
+     */
+    flatTargetFor?: ((text: string) => I5eActivityTarget) | null;
     maxExtras?: number;
   }): void {
     if (this._multiSaveGenerated) return;
@@ -837,19 +847,29 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         }));
       }
     } else {
-      const flatSaves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(text));
+      const flatText = DDBDescriptions.stripTables(text);
+      const flatSaves = DDBDescriptions.parseSaves(flatText);
       // one save is the document's own; this only reshapes documents that describe several
       if (new Set(flatSaves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return;
+      const damageTexts = DDBDescriptions.saveDamageTexts(flatText);
+      const scopes = flatTargetFor ? DDBDescriptions.saveScopes(flatText) : null;
       const seen = new Set<string>();
       if (primarySave) seen.add(DDBDescriptions.saveKey(primarySave));
       for (const save of flatSaves) {
         const key = DDBDescriptions.saveKey(save);
         if (seen.has(key)) continue;
         seen.add(key);
+        // with no labelled sections, a save's damage is what its own sentences name: "must make
+        // a DC 25 Dexterity saving throw. On a failed save, the creature takes 17 (5d6)
+        // bludgeoning damage"
         outlines.push(DDBActivityFactoryMixin.#multiSaveOutline({
           name: DDBActivityFactoryMixin.multiSaveFallbackName(save),
           save,
           section: null,
+          damageSection: damageTexts.get(key) ?? null,
+          flatTarget: scopes && flatTargetFor
+            ? DDBActivityFactoryMixin.flatSaveTarget(scopes.get(key), flatTargetFor)
+            : null,
           noSpellslot,
           sectionDamage,
           targetOverrideForSection,
@@ -871,20 +891,28 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     this.additionalActivities.push(...outlines);
   }
 
-  static #multiSaveOutline({ name, save, section, noSpellslot, sectionDamage, targetOverrideForSection }: {
+  static #multiSaveOutline({
+    name, save, section, damageSection = null, flatTarget = null, noSpellslot, sectionDamage, targetOverrideForSection,
+  }: {
     name: string;
     save: IParsedSave;
     section: string | null;
+    /** The target a flat-text save's own sentences name; null keeps the document's. */
+    flatTarget?: I5eActivityTarget | null;
+    /** The text to read damage from when there is no labelled section to show as the description. */
+    damageSection?: string | null;
     noSpellslot: boolean;
     sectionDamage: boolean;
     targetOverrideForSection: ((section: string) => I5eActivityTarget | null) | null;
   }): IAdditionalActivityOutline {
-    const damageParts = section && sectionDamage
-      ? DDBDescriptions.parseDamageParts(section).parts
-      : [];
+    const damageParts = !sectionDamage
+      ? []
+      : section
+        ? DDBDescriptions.parseDamageParts(section).parts
+        : damageSection ? DDBDescriptions.saveOwnDamageParts(damageSection) : [];
     const targetOverride = section && targetOverrideForSection
       ? targetOverrideForSection(section)
-      : null;
+      : flatTarget;
 
     return {
       type: ACTIVITY_TYPES.SAVE,
@@ -912,6 +940,94 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         ...(noSpellslot ? { noSpellslot: true } : {}),
       },
     };
+  }
+
+  /** A save made again later by a creature already affected, which has no area of its own. */
+  static REPEAT_SAVE = /\bat the (?:end|start) of each of (?:its|their|his|her) turns\b|\brepeats? the saving throw\b/i;
+
+  /** A save sentence that points back at an area the text has already described. */
+  static SAVE_AREA_BACKREFERENCE = /\bin (?:that|the|its) (?:area|cloud|sphere|cylinder|wall|cone|line|fog|zone|emanation|aura)\b|\bin it\b|\bthat area\b/i;
+
+  /**
+   * The area a piece of rules text names, read strictly: a shape with its size ("a 20-foot radius
+   * sphere", "a 5-foot-radius geyser", "a line 30 feet long and 5 feet wide"), or the creatures
+   * caught around someone before the save is asked for ("each enemy within 60 feet of the
+   * medusa"). Unlike `getTarget`, "a point it can see within 120 feet of it" is where an area is
+   * placed, and "one creature within 5 feet of itself" is a target, so neither is an area.
+   * @param {string} text a sentence of rules text
+   * @returns {{ type: string; size: string; width: string } | null} the area, or null
+   */
+  static areaFromText(text: string): { type: string; size: string; width: string } | null {
+    const clean = text.replace(/[\u00AD]/g, "").replace(/[‐‑–—−]/g, "-");
+    const line = (/(\d+)-foot-long,? (\d+)-foot-? ?wide line|(\d+)-foot line(?: that is (\d+) feet wide)?|line that is (\d+) feet long(?: and (\d+) feet wide)?|line (\d+) feet long(?: and (\d+) feet wide)?/i).exec(clean);
+    if (line) {
+      return {
+        type: "line",
+        size: line[1] ?? line[3] ?? line[5] ?? line[7] ?? "",
+        width: line[2] ?? line[4] ?? line[6] ?? line[8] ?? "",
+      };
+    }
+    const shaped = (/(\d+)-foot cone|(\d+)-foot cube(?! of it\b)|(\d+)[- ]foot[- ]radius(?: (sphere|cylinder))?|(\d+)[- ]foot[- ](sphere|cylinder|square|emanation)/i).exec(clean);
+    if (shaped) {
+      if (shaped[1]) return { type: "cone", size: shaped[1], width: "" };
+      if (shaped[2]) return { type: "cube", size: shaped[2], width: "" };
+      if (shaped[3]) {
+        const type = shaped[4]?.toLowerCase() ?? ((/\bcylinder\b/i).test(clean) ? "cylinder" : "radius");
+        return { type, size: shaped[3], width: "" };
+      }
+      const type = shaped[6].toLowerCase() === "emanation" ? "radius" : shaped[6].toLowerCase();
+      return { type, size: shaped[5], width: "" };
+    }
+    // only the words before the save is asked for: after it come where a creature lands
+    // ("regurgitate all swallowed creatures, which fall prone within 15 feet"); "any number of
+    // creatures it can see within 90 feet" are chosen targets, not everything in an area
+    const beforeSave = clean.split(/saving throw/i)[0];
+    if ((/\bnumber of (?:creatures|targets|enemies)\b/i).test(beforeSave)) return null;
+    const around = (/\b(?:each|all|every|any)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) feet\b/i).exec(beforeSave);
+    return around ? { type: "radius", size: around[1], width: "" } : null;
+  }
+
+  /**
+   * The target a save in text without labelled sections takes from its own sentences, or null
+   * to keep the document's (the save refers back to that area):
+   * - a repeat save ("at the end of each of its turns") has no area;
+   * - otherwise the area its own sentence names, else the one in the nearest sentence before
+   *   it since the previous save (a lair action names its area, then asks for the save);
+   * - "in that area" / "in it" keeps the document's area;
+   * - anything else (one creature, a creature near the rubble) has no area.
+   * `targetFor` supplies who is affected; the area is read by `areaFromText`.
+   * @param {object | undefined} scope the save's sentence and lead-in, from `saveScopes`
+   * @param {Function} targetFor reads a target from text
+   * @returns {I5eActivityTarget | null} the target, or null to keep the document's
+   */
+  static flatSaveTarget(
+    scope: { sentence: string; lead: string[] } | undefined,
+    targetFor: (text: string) => I5eActivityTarget,
+  ): I5eActivityTarget | null {
+    if (!scope) return null;
+    const base = targetFor(scope.sentence);
+    const withArea = (area: { type: string; size: string; width: string } | null): I5eActivityTarget => ({
+      ...base,
+      template: {
+        ...(base.template ?? {}),
+        count: area ? "1" : "",
+        contiguous: false,
+        type: area?.type ?? "",
+        size: area?.size ?? "",
+        width: area?.width ?? "",
+        height: "",
+        units: "ft",
+      } as I5eActivityTarget["template"],
+    });
+    if (DDBActivityFactoryMixin.REPEAT_SAVE.test(scope.sentence)) return withArea(null);
+    const own = DDBActivityFactoryMixin.areaFromText(scope.sentence);
+    if (own) return withArea(own);
+    for (let i = scope.lead.length - 1; i >= 0; i--) {
+      const area = DDBActivityFactoryMixin.areaFromText(scope.lead[i]);
+      if (area) return withArea(area);
+    }
+    if (DDBActivityFactoryMixin.SAVE_AREA_BACKREFERENCE.test(scope.sentence)) return null;
+    return withArea(null);
   }
 
   // A fourth distinct release check on one item is a table, not a set of properties.

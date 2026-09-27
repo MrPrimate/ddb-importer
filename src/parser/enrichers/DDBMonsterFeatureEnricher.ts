@@ -478,7 +478,6 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Haunted Haboob": "Placed Zone",
     "Incendiary Smoke": "Placed Zone",
     "Lava Pool": "Placed Zone",
-    "Lay the Foundation": "Placed Zone",
     "Miasma": "Placed Zone",
     "Mud Splash": "Placed Zone",
     "Nauseating Fog": "Placed Zone",
