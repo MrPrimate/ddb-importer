@@ -752,6 +752,58 @@ describe("DDBItem.parseSaveFromDescription", () => {
     );
     expect(save).toEqual({ ability: ["cha"], dc: { formula: "19", calculation: "" } });
   });
+
+  it.each([
+    ["The target must succeed on a Dexterity saving throw (DC 10 plus your Proficiency Bonus) or be grappled.",
+      ["dex"], "10 + @prof", ""],
+    ["The target must succeed on a Strength saving throw (DC equals 8 plus your Strength modifier and your Proficiency Bonus) or fall prone.",
+      ["str"], "", "str"],
+    ["the creature must succeed on a Strength saving throw (DC equals 8 + your proficiency bonus + your Strength modifier) or fall prone.",
+      ["str"], "", "str"],
+  ])("reads a prose DC from %s", (description, ability, formula, calculation) => {
+    expect(DDBItem.parseSaveFromDescription(description)).toEqual({ ability, dc: { formula, calculation } });
+  });
+
+  it.each([
+    // a term the parser cannot resolve follows the proficiency bonus
+    ["Creatures in the area must succeed on a Dexterity saving throw. The DC for the save is equal to 8 plus your Proficiency Bonus and the modifier used for the attack."],
+    // an item-bonus DC would roll "16 + " on an item with no bonus
+    ["The target must succeed on a Wisdom saving throw (DC = 16 + the wand's bonus) or be frightened."],
+  ])("leaves the DC blank for %s", (description) => {
+    expect(DDBItem.parseSaveFromDescription(description)?.dc).toEqual({ formula: "", calculation: "" });
+  });
+});
+
+describe("DDBItem.parseItemBonusSaveDC", () => {
+  it.each([
+    ["must succeed on a Wisdom saving throw (DC = 16 + the wand’s bonus) or be frightened.", 16],
+    ["must succeed on a Charisma saving throw (DC = 15 + the rusty axe's bonus).", 15],
+    ["must succeed on a DC 15 Charisma saving throw.", null],
+    ["The DC equals 8 plus your Proficiency Bonus.", null],
+  ])("reads %s", (description, expected) => {
+    expect(DDBItem.parseItemBonusSaveDC(description)).toBe(expected);
+  });
+});
+
+// =============================================================================
+// WIELDER_SAVE - saves the wielder makes get no rider activity against the target
+// =============================================================================
+describe("DDBItem.WIELDER_SAVE", () => {
+  it.each([
+    "When you use this property, you must succeed on a DC 13 Wisdom saving throw or be charmed by the blade.",
+    "Each time you finish a Long Rest, you make a DC 15 Constitution saving throw.",
+    "you can attempt a DC 12 Charisma saving throw to end the curse.",
+  ])("is the wielder's save in %s", (sentence) => {
+    expect(DDBItem.WIELDER_SAVE.test(sentence)).toBe(true);
+  });
+
+  it.each([
+    "Each enemy you can see within 30 feet of you must make a DC 18 Strength saving throw or be pushed.",
+    "The target must succeed on a DC 15 Constitution saving throw or take 2d10 poison damage.",
+    "A creature adjacent to you must make a DC 14 Dexterity saving throw.",
+  ])("is the target's save in %s", (sentence) => {
+    expect(DDBItem.WIELDER_SAVE.test(sentence)).toBe(false);
+  });
 });
 
 // =============================================================================

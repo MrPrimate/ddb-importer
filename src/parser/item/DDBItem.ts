@@ -478,12 +478,62 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       found = true;
     }
 
+    if (found && !save.dc.formula && !save.dc.calculation) {
+      const proseDC = DDBItem.parseProseSaveDC(description);
+      if (proseDC) save.dc = proseDC;
+    }
+
     return found ? save : null;
   }
 
+  /**
+   * A save DC written out as a sum rather than a number: "(DC 10 plus your Proficiency Bonus)" or
+   * "DC equals 8 plus your Strength modifier and your Proficiency Bonus". The item-bonus form
+   * ("DC = 16 + the axe's bonus") needs the item's bonus, see {@link DDBItem.parseItemBonusSaveDC}.
+   */
+  static parseProseSaveDC(description: string): { calculation: string; formula: string } | null {
+    const text = DDBDescriptions.plainText(description);
+    const abilities = DDBItem.SAVE_ABILITY_NAMES;
+    const lead = "DC (?:for the save )?(?:equals |is equal to |is |= )?";
+
+    const plus = "(?:plus|\\+|and)";
+    const abilityDC = text.match(new RegExp(
+      `${lead}8 (?:plus|\\+) your (?:(${abilities}) modifier ${plus} your Proficiency Bonus|Proficiency Bonus ${plus} your (${abilities}) modifier)`,
+      "i",
+    ));
+    if (abilityDC) {
+      const [ability] = DDBItem.saveAbilityKeys(abilityDC[1] ?? abilityDC[2]);
+      if (ability) return { calculation: ability, formula: "" };
+    }
+
+    // a further term after the bonus is one this cannot resolve, such as the ability used for the attack
+    const profDC = text.match(new RegExp(`${lead}(\\d+) (?:plus|\\+) your Proficiency Bonus(?! ${plus})`, "i"));
+    if (profDC) return { calculation: "", formula: `${profDC[1]} + @prof` };
+
+    return null;
+  }
+
+  /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
+  static parseItemBonusSaveDC(description: string): number | null {
+    const text = DDBDescriptions.plainText(description);
+    const match = text.match(/DC (?:equals |is equal to |is |= )?(\d+) (?:plus|\+) (?:the|this) [\w\s'’-]{1,30}?['’]s? bonus/i);
+    return match ? Number(match[1]) : null;
+  }
+
   #generateSave() {
-    const save = DDBItem.parseSaveFromDescription(this.ddbDefinition.description ?? "");
-    if (save) this.actionData.save = save;
+    const description = this.ddbDefinition.description ?? "";
+    const save = DDBItem.parseSaveFromDescription(description);
+    if (!save) return;
+    // Only where system.magicalBonus is set: the field is blank-able, and a sheet save on a
+    // magical item without a bonus writes "", which makes "16 + @item.magicalBonus" roll DC 0.
+    // Other item types have no system.magicalBonus; their variants' enrichers bake the DC.
+    const bonusDC = !save.dc?.formula && !save.dc?.calculation
+      && ["weapon", "staff", "ammunition"].includes(this.parsingType ?? "")
+      && (this.#getMagicalBonus(true) as number) > 0
+      ? DDBItem.parseItemBonusSaveDC(description)
+      : null;
+    if (bonusDC) save.dc = { calculation: "", formula: `${bonusDC} + ${DDBItem.MAGICAL_BONUS_REF}` };
+    this.actionData.save = save;
   }
 
   /**
@@ -3599,6 +3649,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /** "You must succeed on a DC 15 Wisdom saving throw": the wielder saves, not the target. */
+  // "you" as the subject: "within 30 feet of you must make" is the enemy's save
+  static WIELDER_SAVE = /(?<!\b(?:of|to|by|from|with|at|near|around|toward|towards) )\byou (?:must |can |then |also )?(?:succeed on|make|attempt|roll) (?:an?|the) (?:DC \d+ )?\w+(?: or \w+)? sav/i;
+
+  /** Whether the item's save is one its wielder makes (a curse or a drawback), read from its sentence. */
+  get #wielderMakesSave(): boolean {
+    if (!this.actionData.save) return false;
+    const scope = DDBDescriptions.saveScopes(this.ddbDefinition.description ?? "")
+      .get(DDBDescriptions.saveKey(this.actionData.save));
+    return scope ? DDBItem.WIELDER_SAVE.test(scope.sentence) : false;
+  }
+
   /**
    * The save a weapon's hit can force, as its own activity. It deals the damage its own words name
    * (`saveRiderDamageParts`), never the weapon's: the item's damage parts start with the base die
@@ -3665,7 +3727,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // some attacks will have a save and attack
       if (this.actionData.save) {
         // on a multi-mode weapon every save already has its own named activity
-        if (this.damageParts.length > 1 && this.multiSaveSections.length === 0) {
+        // any save the weapon forces becomes a rider, with or without extra damage (Nine Lives
+        // Stealer's save-or-die has none); a save the wielder makes is a curse, not a rider. An
+        // enricher that builds its own activities keeps the rider only as before (extra damage
+        // parts), so its saves are not doubled and its activity ids do not shift.
+        const enricherAuthors = (this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities;
+        if (this.multiSaveSections.length === 0 && !this.#wielderMakesSave
+          && (!enricherAuthors || this.damageParts.length > 1)) {
           this.#addSaveAdditionalActivity(false);
         }
       }
