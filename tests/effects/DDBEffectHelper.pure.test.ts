@@ -291,7 +291,7 @@ describe("DDBEffectHelper.syntheticItemWorkflowOptions", () => {
 describe("DDBEffectHelper.rollSaveForItem", () => {
   const executeAsUser = vi.fn(async (_request: string, _user: string, data: any) => ({ total: 12, options: data.options }));
   const token = { actor: { name: "Target" }, document: { uuid: "Scene.s.Token.t" } } as any;
-  /** A dnd5e 6 save activity: `save.ability` is a Set (Foundry adds `first`), `ability` is the DC ability. */
+  /** A dnd5e 5.x save activity (the same shape as 6.0): `save.ability` is a Set (Foundry adds `first`), `ability` is the DC ability. */
   const saveActivity = (ability: string, dc: number) => ({
     type: "save",
     ability: "int",
