@@ -47,6 +47,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Delerium Geode": "Delerium",
     "Delerium Massive Cluster": "Delerium",
     "Delerium Shard": "Delerium",
+    // the very rare variant alone: its cold "Coldfire Flame" toggle doubled the breath's damage
+    "Kobbold Flaymefrower (Very Rare)": "Kobbold Flaymefrower Coldfire",
     "Oil (flask)": "Oil",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
@@ -106,6 +108,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
     "Bell of the Dusk Mother": ItemEnrichers.BellOfTheDuskMother,
     "Broodslinger": ItemEnrichers.Broodslinger,
+    "Kobbold Flaymefrower Coldfire": ItemEnrichers.KobboldFlaymefrowerColdfire,
     "Cabal's Ruin": ItemEnrichers.CabalsRuin,
     "Caltrops": ItemEnrichers.Caltrops,
     "Canaith Mandolin": ItemEnrichers.InstrumentOfTheBards,

@@ -95,3 +95,24 @@ describe("DDBDescriptions.saveScopes introductions", () => {
     expect(scopes.get("|14|wis")?.lead).toEqual([]);
   });
 });
+
+describe("DDBDescriptions.saveRiderDamageParts", () => {
+  const dice = (parts: I5eDamagePart[] | null) => parts?.map((part) => `${part.number}d${part.denomination}`) ?? null;
+  const save = (ability: string, formula: string) => ({ ability: [ability], dc: { calculation: "", formula } });
+
+  it("reads the save's own damage, not the hit's extra damage before it", () => {
+    const html = "<p>When you hit a giant, it takes an extra 2d6 damage and must succeed on a DC 15 Strength saving throw or fall prone.</p>";
+    expect(dice(DDBDescriptions.saveRiderDamageParts(html, save("str", "15")))).toEqual([]);
+  });
+
+  it("counts damage earlier in the sentence when the sentence ties it to the save", () => {
+    const html = "<p>A cone of frost blasts out, dealing 9d8 cold damage to each creature that fails a DC 18 Constitution saving throw, or half as much on a success.</p>";
+    expect(dice(DDBDescriptions.saveRiderDamageParts(html, save("con", "18")))).toEqual(["9d8"]);
+  });
+
+  it("reads damage that follows the save", () => {
+    const html = "<p>The target must make a DC 15 Constitution saving throw, taking 2d10 poison damage on a failed save.</p>";
+    expect(dice(DDBDescriptions.saveRiderDamageParts(html, save("con", "15")))).toEqual(["2d10"]);
+    expect(DDBDescriptions.saveRiderDamageParts(html, save("dex", "12"))).toBeNull();
+  });
+});

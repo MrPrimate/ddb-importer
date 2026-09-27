@@ -125,6 +125,7 @@ export { default as JewelOfThreePrayers } from "./JewelOfThreePrayers";
 export { default as KeoghtomsOintment } from "./KeoghtomsOintment";
 export { default as KeyholesDagger } from "./KeyholesDagger";
 export { default as KnightsStandardOfValor } from "./KnightsStandardOfValor";
+export { default as KobboldFlaymefrowerColdfire } from "./KobboldFlaymefrowerColdfire";
 export { default as KorolnorScepter } from "./KorolnorScepter";
 export { default as Lamp } from "./Lamp";
 export { default as LibramOfSoulsAndFlesh } from "./LibramOfSoulsAndFlesh";

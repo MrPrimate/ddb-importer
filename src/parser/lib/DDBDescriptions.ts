@@ -561,6 +561,37 @@ export default class DDBDescriptions {
     return parts.length > 0 ? parts : otherParts;
   }
 
+  /** A sentence that ties damage it names before the save to that save's outcome. */
+  static SAVE_DAMAGE_TIE = /\bhalf as much\b|\bif (?:it|they|the target|a creature) fails?\b|\bon a failed save\b|\bon a failure\b/i;
+
+  /**
+   * The damage a rider save deals, read from its own words, for a document where the save sits
+   * among other text (a weapon's on-hit rider): what follows the save up to the next one, plus
+   * damage earlier in the save's own sentence only when that sentence ties it to the save ("dealing
+   * 9d8 cold damage ... if they fail a DC 18 Constitution saving throw, or half as much on a
+   * success"). Damage the hit deals before the save ("takes an extra 2d6 damage and must succeed
+   * on a DC 15 Strength saving throw") is the attack's, not the save's.
+   * @param {string} source rules text (HTML)
+   * @param {object} save the save to read, as `saveKey` takes it
+   * @returns {I5eDamagePart[] | null} the parts, possibly empty; null when the save is not in the text
+   */
+  static saveRiderDamageParts(
+    source: string,
+    save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null },
+  ): I5eDamagePart[] | null {
+    const key = DDBDescriptions.saveKey(save);
+    const after = DDBDescriptions.saveDamageTexts(source).get(key);
+    const scope = DDBDescriptions.saveScopes(source).get(key);
+    if (after === undefined || !scope) return null;
+    const parts = DDBDescriptions.saveOwnDamageParts(after);
+    const savePhrase = scope.sentence.search(/saving throw/i);
+    const before = savePhrase > 0 ? scope.sentence.slice(0, savePhrase) : "";
+    if (before && DDBDescriptions.SAVE_DAMAGE_TIE.test(scope.sentence)) {
+      parts.unshift(...DDBDescriptions.parseDamageParts(before).parts);
+    }
+    return parts;
+  }
+
   static saveKey(save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null }): string {
     const ability = [...(save.ability ?? [])].sort().join("+");
     return `${save.dc?.calculation ?? ""}|${save.dc?.formula ?? ""}|${ability}`;

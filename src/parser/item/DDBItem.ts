@@ -3599,15 +3599,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /**
+   * The save a weapon's hit can force, as its own activity. It deals the damage its own words name
+   * (`saveRiderDamageParts`), never the weapon's: the item's damage parts start with the base die
+   * and hold the on-hit extras, so Dagger of Venom's save rolled 1d4 + 2d10 and Giant Slayer's
+   * prone save rolled 1d8 + 2d6. When the text cannot be read the on-hit extras stay, as before.
+   */
   #addSaveAdditionalActivity(includeBase = false) {
+    const ownDamage = this.actionData.save
+      ? DDBDescriptions.saveRiderDamageParts(this.ddbDefinition.description ?? "", this.actionData.save)
+      : null;
+    const damageParts = ownDamage ?? (includeBase ? this.damageParts : this.damageParts.slice(1));
     this.additionalActivities.push({
       name: "Save",
       type: "save",
       options: {
-        generateDamage: this.damageParts.length > 1,
-        damageParts: ["weapon", "staff"].includes(this.parsingType ?? "") || includeBase
-          ? this.damageParts
-          : this.damageParts.slice(1),
+        generateDamage: damageParts.length > 0,
+        damageParts,
         includeBaseDamage: false,
       },
     });
