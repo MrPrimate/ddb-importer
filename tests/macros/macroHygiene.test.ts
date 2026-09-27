@@ -35,7 +35,6 @@ const BANNED_PATTERNS: { name: string; pattern: RegExp; reason: string }[] = [
   },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const AsyncFunction = (async function() {}).constructor as new (...fnArgs: string[]) => unknown;
 
 describe("runtime macro hygiene", () => {

@@ -48,10 +48,12 @@ export default class AdventureMunchHelpers {
     const result: Record<string, any> = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
-      if (Array.isArray(obj2[key]) && Array.isArray(obj1[key]))
+      if (Array.isArray(obj2[key]) && Array.isArray(obj1[key])) {
         result[key] = this.diff(obj1[key], obj2[key]);
-      if (typeof obj2[key] == "object" && typeof obj1[key] == "object")
+      }
+      if (typeof obj2[key] == "object" && typeof obj1[key] == "object") {
         result[key] = this.diff(obj1[key], obj2[key]);
+      }
     }
     return result;
   }
@@ -180,6 +182,33 @@ export default class AdventureMunchHelpers {
     logger.debug(`${type} missing ids`, missingIds);
     const missingDocuments = await AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
     logger.debug(`${type} missing`, missingDocuments);
+  }
+
+  /**
+   * checkForMissingDocuments for an adventure import, where a failed fetch of one document family
+   * must not abort the whole adventure: the failure is reported and the import carries on without
+   * those documents.
+   * @param {string} type compendium type
+   * @param {Array} ids ddb ids the adventure needs
+   * @param {Function} notifierV2 optional progress notifier
+   * @returns {Promise<boolean>} false when the missing documents could not be imported
+   */
+  static async tryCheckForMissingDocuments(
+    type: TCompendiumTypes,
+    ids: (number | string)[],
+    notifierV2: INotifierV2 | null = null,
+  ): Promise<boolean> {
+    try {
+      await AdventureMunchHelpers.checkForMissingDocuments(type, ids, notifierV2);
+      return true;
+    } catch (err) {
+      const family = AdventureMunchHelpers.documentFamily(type) ?? type;
+      const message = `Could not import the missing ${family}s from DDB; the adventure will be imported without them.`;
+      logger.error(message, err);
+      ui.notifications.warn(message, { permanent: true });
+      notifierV2?.({ section: "note", message });
+      return false;
+    }
   }
 
   /**

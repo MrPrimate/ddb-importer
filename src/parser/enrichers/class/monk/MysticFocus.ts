@@ -11,8 +11,8 @@ const RECOVER: { level: number; cost: number; monkLevel: number }[] = [
 /**
  * Warrior of the Mystic Arts (AU 2024): spell slots and Focus Points convert both ways. The
  * Monk's Focus pool is the consumption target; slot recovery is the negative spell-slot
- * consumption the system supports. Nothing here reads the DDB action, whose name shipped as
- * "Covert Spell Slots" (bug reported 2026-09-03), so the correction to "Convert" needs no change.
+ * consumption the system supports. Nothing here reads the DDB action, so its name (DDB has spelt
+ * it "Covert Spell Slots") does not affect the import.
  */
 export default class MysticFocus extends DDBEnricherData {
 

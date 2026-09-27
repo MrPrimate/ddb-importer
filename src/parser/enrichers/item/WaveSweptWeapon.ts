@@ -3,6 +3,14 @@ import type DDBItem from "../../item/DDBItem";
 import utils from "../../../lib/Utils";
 import { hasItemSource, itemActivity } from "./_ItemActivities";
 
+/**
+ * The Arcana Unleashed evolving weapon. The Barnacled, Aquatic and Ascendant tiers, read from the
+ * first word of the name, set magicalBonus to the tier and add Infuse Brine, a touch utility whose
+ * change to the liquid is resolved by hand. From the Aquatic tier, Hold Wave-Swept Weapon applies
+ * the holding traits (30 ft swim speed, a 30 ft fly speed at Ascendant, and light) until the
+ * player removes them. DDB's passive speeds are stripped so they only apply while held, and its
+ * melee attack bonus so it does not reach other weapons. The untiered root keeps DDB's actions.
+ */
 export default class WaveSweptWeapon extends DDBEnricherData {
 
   /** Only concrete tiers have selected powers; the family root is an unselected catalogue entry. */

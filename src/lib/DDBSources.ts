@@ -93,8 +93,9 @@ export default class DDBSources {
     } else if (source.book === "br-2024") {
       source.book = "BR-2024";
     }
-    if (utils.getSetting<boolean>("no-source-book-pages"))
+    if (utils.getSetting<boolean>("no-source-book-pages")) {
       source.page = "";
+    }
   }
 
   /**
@@ -223,13 +224,15 @@ export default class DDBSources {
       })
       : null;
 
-    if (!latestSource) return {
-      book: "Homebrew",
-      page: "",
-      license: "",
-      custom: "",
-      rules: null,
-    };
+    if (!latestSource) {
+      return {
+        book: "Homebrew",
+        page: "",
+        license: "",
+        custom: "",
+        rules: null,
+      };
+    }
     delete latestSource.id;
     return latestSource;
   }

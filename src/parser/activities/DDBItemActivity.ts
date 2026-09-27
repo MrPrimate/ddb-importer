@@ -167,12 +167,14 @@ export default class DDBItemActivity extends DDBBasicActivity {
     consumptionOverride = null,
   }: IDDBItemActivityBuild = {}) {
 
-    if (generateConsumption) this._generateConsumption({
-      targetOverrides: consumptionTargetOverrides,
-      additionalTargets,
-      consumeActivity,
-      consumptionOverride,
-    });
+    if (generateConsumption) {
+      this._generateConsumption({
+        targetOverrides: consumptionTargetOverrides,
+        additionalTargets,
+        consumeActivity,
+        consumptionOverride,
+      });
+    }
 
     if (generateCheck) this._generateCheck({ checkOverride });
 

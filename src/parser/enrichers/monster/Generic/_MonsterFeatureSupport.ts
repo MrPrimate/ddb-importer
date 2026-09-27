@@ -4,10 +4,11 @@ import type DDBMonsterFeature from "../../../monster/features/DDBMonsterFeature"
 
 /**
  * Source-text helpers for monster families whose numbers and rules vary between stat blocks.
- * Effects linked manually in cleanup use a deliberately unmatched activityMatch (for example,
- * "Initial Effect", "Grappling Hit", or "Consume Life Save") to skip shared activity linking.
- * That linking pass runs before cleanup, which selects the intended activities by type or ID.
- * Cleanup must deduplicate links in case a parsed activity happens to have the sentinel name.
+ * Parser-built activities are named after the stat block's section labels, so an effect meant for
+ * one of them should select it with `activityTypesMatch` (and `activityIdsExclude` for an
+ * enricher-built sibling of the same type) rather than a guessed `activityMatch` name. Do not link
+ * effects by hand in cleanup: the shared linking pass is what assigns effect ids and applies
+ * onSave, level and rider data.
  */
 export default abstract class _MonsterFeatureSupport extends DDBEnricherData {
   get parser(): DDBMonsterFeature {

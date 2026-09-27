@@ -481,23 +481,49 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     const documentEffects = this.data.effects;
     if (!documentEffects || documentEffects.length === 0) return;
     if (!foundry.utils.hasProperty(this.data, "system.activities")) return;
-    for (const activityId of Object.keys(this.data.system.activities)) {
-      const activity = this.data.system.activities[activityId];
-      if (!activity.effects || activity.effects.length !== 0) continue;
-      if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+    // snapshot eligibility first: the loop below fills each activity's effects as it goes
+    const eligible = Object.entries(this.data.system.activities as Record<string, I5eActivity>)
+      .filter(([, activity]) => activity.effects && activity.effects.length === 0
+        && !foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect"));
+    const namesRequired = (effect: I5eEffectData): string[] =>
+      foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
+        ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch") as string[]
+        : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+          ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")] as string[]
+          : [];
+    const excluded = (effect: I5eEffectData, activityId: string, activity: I5eActivity): boolean => {
+      const ids = foundry.utils.getProperty(effect, "flags.ddbimporter.activityIdsExclude") as string[] | undefined;
+      return !!ids && (ids.includes(activityId) || ids.includes(activity._id ?? ""));
+    };
+    // A type preference resolves once per effect, over the eligible activities that also pass the
+    // effect's name filter and exclusions; null means no listed type is present, so nothing links.
+    const resolvedTypes = new Map<I5eEffectData, string | null>();
+    const resolvedType = (effect: I5eEffectData): string | null | undefined => {
+      const types = foundry.utils.getProperty(effect, "flags.ddbimporter.activityTypesMatch") as string[] | undefined;
+      if (!types?.length) return undefined;
+      if (!resolvedTypes.has(effect)) {
+        const names = namesRequired(effect);
+        const candidates = eligible.filter(([id, activity]) => !excluded(effect, id, activity)
+          && (names.length === 0 || names.includes(activity.name ?? "")));
+        resolvedTypes.set(effect, types.find((type) => candidates.some(([, activity]) => activity.type === type)) ?? null);
+      }
+      return resolvedTypes.get(effect);
+    };
+    for (const [activityId, activity] of eligible) {
       for (const effect of documentEffects) {
         const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
         if (effect.transfer && !ignoreTransfer) continue;
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-        const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
-          ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch") as string[]
-          : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
-            ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")] as string[]
-            : [] as string[];
+        const activityNamesRequired = namesRequired(effect);
+        const type = resolvedType(effect);
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
+        if (type !== undefined && activity.type !== type) continue;
+        if (excluded(effect, activityId, activity)) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
-        activity.effects.push({
+        const onSave = foundry.utils.getProperty(effect, "flags.ddbimporter.effectOnSave") === true;
+        activity.effects!.push({
           _id: effect._id,
+          ...(onSave ? { onSave } : {}),
           level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
           riders: {
             activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") as string[] ?? [],
@@ -590,9 +616,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
 
   }
 
-  // A document with more modes than this is a table or a set of unrelated properties
-  // or, you kow, third party nonsense. Flat prose carries no structure to trust, so this is
-  // where a run of loose saves stops being a set of modes.
+  // A document with more modes than this is a table, a set of unrelated properties or loosely
+  // written third-party text. Flat prose carries no structure to trust, so this is where a run
+  // of loose saves stops being a set of modes.
   static MULTI_SAVE_MAX_EXTRAS = 5;
 
   // Labelled sections ARE trustworthy structure, so they get a higher ceiling - a beholder's

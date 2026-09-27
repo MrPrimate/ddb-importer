@@ -82,9 +82,25 @@ function ac5eChanges(Enricher: TEnricher, options: any = {}): any[] {
   return (enricher.effects as any[]).flatMap((hint: any) => (hint.ac5eChanges ?? []).map((c: any) => ({ hint, ...c })));
 }
 
+describe("2014 Divine Strike", () => {
+  const withText = (description: string) => ({ ddbParser: { ddbDefinition: { description } } });
+
+  it.each([
+    ["<p>...deal an extra 1d8 fire damage to the target.</p>", ["fire"], "[fire]"],
+    ["<p>...deal an extra 1d8 psychic damage to the target.</p>", ["psychic"], "[psychic]"],
+    ["<p>...deal an extra 1d8 cold, fire, or lightning damage (your choice).</p>", ["cold", "fire", "lightning"], "[cold, fire, lightning]"],
+    ["<p>...deal an extra 1d8 damage of the same type dealt by the weapon to the target.</p>", ["bludgeoning", "piercing", "slashing"], ""],
+  ])("reads the domain damage type from %s", (description, types, flavor) => {
+    const enricher = makeEnricherData(DivineStrike, { name: "Divine Strike", actions: null, is2014: true, ...withText(description) }) as any;
+    const formula = "(1 + floor(@classes.cleric.levels / 14))d8";
+    expect(enricher.activity.data.damage.parts[0]).toMatchObject({ types, custom: { enabled: true, formula } });
+    const changes = ac5eChanges(DivineStrike, withText(description));
+    expect(changes[0].value).toBe(`bonus=${formula}${flavor}; oncePerTurn; optin; actionType.mwak || actionType.rwak`);
+  });
+});
+
 describe("Once-per-turn opt-in AC5e damage bonuses", () => {
   it.each([
-    [DivineStrike, "bonus=@scale.order.divine-strike[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BlessedStrikes, "bonus=1d8[radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BlessedStrikesDivineStrike, "bonus=@scale.cleric.divine-strike[necrotic, radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ElementalFuryPrimalStrike, "bonus=@scale.druid.elemental-fury[cold, fire, lightning, thunder]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],

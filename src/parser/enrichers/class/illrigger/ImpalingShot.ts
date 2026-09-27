@@ -30,7 +30,7 @@ export default class ImpalingShot extends _Illrigger {
           expiry: "sourceEnd",
         },
         changes: [
-          _Illrigger.originChange(
+          this.originChange(
             DDBEnricherData.ChangeHelper.addChange("-@prof", 20, "system.attributes.ac.bonus"),
           ),
         ],

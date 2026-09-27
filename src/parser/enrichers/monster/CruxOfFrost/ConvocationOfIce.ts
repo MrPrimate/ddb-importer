@@ -44,9 +44,8 @@ export default class ConvocationOfIce extends DDBEnricherData {
       {
         name: "Frost Squall: Slowed",
         activityMatch: CHILL,
-        // every mode is capped; a downgrade leaves a speed already below 15 feet alone
-        changes: ["walk", "fly", "swim", "climb", "burrow"].map((mode) =>
-          DDBEnricherData.ChangeHelper.downgradeChange("15", 50, `system.attributes.movement.${mode}`)),
+        // every mode it has is capped; a speed already below 15 feet is left alone
+        changes: DDBEnricherData.ChangeHelper.speedCapChanges("15"),
         options: { transfer: false, expiry: "turnEnd", description: "Speed reduced to 15 feet until the end of its turn." },
       },
     ];

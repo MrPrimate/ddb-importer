@@ -34,6 +34,7 @@ export { default as DDBProxyCacheSettings } from "./DDBProxyCacheSettings";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";
+export { default as resolveFoundryMacro } from "./MacroReference";
 
 export * from "./GridDetector";
 export * from "./GridResolver";

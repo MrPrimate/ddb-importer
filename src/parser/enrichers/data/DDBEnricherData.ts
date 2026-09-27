@@ -166,9 +166,14 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return DDBDataUtils.classIdentifierName(name);
   }
 
+  /**
+   * The character's DDB action of this name, compared through nameString so curly apostrophes
+   * and trailing spaces in DDB's names ("Slippery Ploy ") still match.
+   */
   hasAction({ name, type }: { name: string; type: IActionTypes }): IDDBAction | undefined {
+    const target = utils.nameString(name);
     return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name,
+      utils.nameString(a.name) === target,
     );
   }
 
@@ -356,6 +361,27 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   get data(): any {
     return this.ddbEnricher.ddbParser.data;
+  }
+
+  /**
+   * `flags` pointing a feature-held scale value at one class's level. Without an advancement root
+   * dnd5e reads such a scale against the character's total level, which overshoots on a
+   * multiclass. Empty when the class is not on the character, as in the muncher.
+   */
+  classAdvancementRootFlags(className: string): { dnd5e?: { advancementRoot: string } } {
+    const klass = this.ddbParser?.ddbCharacter?.raw?.classes?.find((entry) => entry.name === className);
+    return klass?._id ? { dnd5e: { advancementRoot: klass._id } } : {};
+  }
+
+  /**
+   * The spell's own duration without concentration, for a duplicated follow-up activity (a
+   * transformation used again later). Using an activity whose duration concentrates begins
+   * concentration again, ending the spell's. Built activities get the same through the
+   * `noConcentration` build option.
+   */
+  get followUpDuration(): I5eActivityDuration {
+    const duration = (this.data?.system?.duration ?? {}) as I5eSystemDurationData;
+    return { ...foundry.utils.deepClone(duration), concentration: false, override: true };
   }
 
   get activity(): IDDBActivityData | null {

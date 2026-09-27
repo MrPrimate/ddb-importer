@@ -21,6 +21,7 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
 import DDBSpellSocket, { DDBSpellEvent, DDBSpellStartParams } from "../lib/streaming/DDBSpellSocket";
+import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 
 /**
  * Dev-only capture buffer.
@@ -178,7 +179,7 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
     opened.connect();
     state.socket = opened;
     const authRes = await opened.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
-    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+    if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
     return opened;
   };
 
@@ -195,9 +196,16 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
         });
 
         const jobParams = { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie };
+        const job = { degraded: false };
         const raw = await DDBProxyCache.wrap<IDDBSpellEntry[]>(
           { domain: "spells", params: jobParams },
-          async () => runClassSpellsJob(await ensureSocket(), jobParams),
+          async () => {
+            const socket = await ensureSocket();
+            const spells = await runClassSpellsJob(socket, jobParams);
+            job.degraded = socket.nonFatalErrors > 0;
+            return spells;
+          },
+          { shouldCache: () => !job.degraded },
         );
 
         if (debugJson) debugDump.push(...raw);
@@ -218,8 +226,8 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
   return out;
 }
 
-// Custom proxies may not expose the /spells socket namespace. Try the streaming
-// path first; on connect/auth/start failure fall through to the HTTP endpoint.
+// Custom proxies may not expose the /spells socket namespace. Try the streaming path first; any
+// failure falls through to the HTTP endpoint, and a connect/auth/start failure latches this.
 let _spellSocketDisabled = false;
 
 interface IParseSpellsOptions {
@@ -265,15 +273,15 @@ export async function parseSpells({
   const stageCounts: SourceFilters.ISourceFilterCounts[] = [];
   const spellListFactory = new DDBSpellListFactory();
 
-  // Prefer streaming all classes over one reused socket. On any streaming
-  // failure latch off and fall back to one HTTP request per class.
+  // Prefer streaming all classes over one reused socket. Any streaming failure falls back to one
+  // HTTP request per class; only an unusable endpoint latches streaming off for the session.
   let classSpellSets: ClassSpellSet[] | null = null;
   if (!_spellSocketDisabled) {
     try {
       classSpellSets = await streamAllClassSpells({ sourceFilter, searchFilter: searchFilter ?? "", sourcesOverride: sources });
     } catch (err) {
       logger.warn(`[spells] streaming failed, falling back to HTTP: ${(err as Error)?.message ?? String(err)}`);
-      _spellSocketDisabled = true;
+      if (err instanceof StreamUnavailableError) _spellSocketDisabled = true;
     }
   }
 

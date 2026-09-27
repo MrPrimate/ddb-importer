@@ -162,7 +162,11 @@ function evaluateVehicles(params: Record<string, unknown>): TDifference[] {
   ];
 }
 
-/** Older class entries only recorded the books left after filtering by available subclasses. */
+/**
+ * Whether a mule request's books came from this muncher run. A class request only carries the
+ * run's books that hold subclasses for that class, so, unless the stored selection recorded the
+ * run's full book list (`runSources`), a class request matches any run containing all its books.
+ */
 function matchesMuleRun(params: Record<string, unknown>, run: number[], selection?: IProxyCacheSourceSelection): boolean {
   const sources = numberList(selection?.runSources ?? params.sources);
   if (params.element === "class" && !selection?.runSources) {

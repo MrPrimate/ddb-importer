@@ -37,7 +37,9 @@ describe("class mule proxy cache", () => {
     }));
     await DDBProxyCache._resetForTests();
     globalThis.indexedDB = new IDBFactory();
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("Unexpected HTTP request"); }));
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      throw new Error("Unexpected HTTP request");
+    }));
 
   });
 
@@ -103,6 +105,27 @@ describe("class mule proxy cache", () => {
       this.handlers?.onDone?.({});
       return { ok: true };
     });
+    const handler = new DDBMuleHandler({
+      characterId: "123", classId: 12, type: "class", sources: [2], filterIds: [10],
+      optionSourceIds: Array.from(DDBSources.getChosenSourceIdSet()),
+    });
+    await handler._fetchMuleData();
+    expect(await DDBProxyCache.list()).toEqual([]);
+  });
+
+  it("does not cache a stream that reported a non-fatal error", async () => {
+    vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
+      this.handlers = handlers;
+    });
+    vi.spyOn(DDBMuleSocket.prototype, "auth").mockResolvedValue({ ok: true });
+    vi.spyOn(DDBMuleSocket.prototype, "start").mockImplementation(async function (this: DDBMuleSocket) {
+      this.handlers?.onEvent({ kind: "class", payload: { id: 12, name: "Test Class" } });
+      // a skipped subclass: the stream carries on, but the payload is incomplete
+      this.handlers?.onError?.("subclass 10 failed", false);
+      this.handlers?.onDone?.({});
+      return { ok: true };
+    });
+    vi.spyOn(DDBMuleHandler.prototype, "_processStreamSubClassChoice").mockResolvedValue();
     const handler = new DDBMuleHandler({
       characterId: "123", classId: 12, type: "class", sources: [2], filterIds: [10],
       optionSourceIds: Array.from(DDBSources.getChosenSourceIdSet()),

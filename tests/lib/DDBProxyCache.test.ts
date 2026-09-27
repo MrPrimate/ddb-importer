@@ -124,6 +124,17 @@ describe("DDBProxyCache", () => {
       expect(entry.expiresAt - entry.createdAt).toBe(2 * 3600000);
     });
 
+    it("returns but does not store a fetch that shouldCache rejects", async () => {
+      const fetcher = vi.fn(async () => "partial");
+      const shouldCache = vi.fn(() => false);
+      expect(await DDBProxyCache.wrap(request, fetcher, { shouldCache })).toBe("partial");
+      expect(shouldCache).toHaveBeenCalledWith("partial");
+      expect(await DDBProxyCache.get(request)).toBeUndefined();
+      // the next call asks again rather than serving the incomplete payload
+      await DDBProxyCache.wrap(request, fetcher, { shouldCache });
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    });
+
     it("passes straight through when disabled and stores nothing", async () => {
       setMockSettings({ "proxy-cache-enabled": false });
       const fetcher = vi.fn(async () => "live");

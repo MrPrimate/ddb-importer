@@ -105,9 +105,9 @@ export function applySpellFilters(
 }
 
 /**
- * An explicit id list as a lookup set. DDB's payload carries ids as numbers, the importer's flags
- * and a script in the console carry them as strings, and the two id stages of an import once
- * compared them each way, so no list passed both and an import by id brought in nothing.
+ * An explicit id list as a lookup set of strings. DDB's payload carries ids as numbers while the
+ * importer's flags and console scripts carry them as strings, so every id stage of an import
+ * compares through this rather than against the raw values.
  */
 export function ddbIdSet(ids: (number | string)[] | null | undefined): Set<string> {
   return new Set((ids ?? []).map((id) => String(id).trim()).filter((id) => id !== ""));

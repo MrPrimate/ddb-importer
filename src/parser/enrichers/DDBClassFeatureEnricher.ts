@@ -349,7 +349,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Arms of the Astral Self (WIS)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
     "Arms of the Astral Self (Wis.)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
     "Arms of the Astral Self (Wis)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
-    "Aura of Alacrity": GenericEnrichers.AuraOf,
+    "Aura of Alacrity": ClassEnrichers.Paladin.AuraOfAlacrity,
     "Aura of Courage": GenericEnrichers.AuraOf,
     "Aura Of Courage": GenericEnrichers.AuraOf,
     "Aura of Hate": ClassEnrichers.Paladin.AuraOfHate,

@@ -84,7 +84,9 @@ export default class DDBClass extends DDBBaseClass {
       // DDB has no scale for the Seal Damage column of the class table
       additionalAdvancements: true,
       additionalFunctions: [
-        // deferred so this static table only reads the helper while modules load (tests stub it empty)
+        // wrapped in a closure so the helper is called when the advancement is built, not while this
+        // static table is evaluated at module load (tests mock AdvancementHelper empty, so an eager
+        // call throws)
         (_advancement) => AdvancementHelper.buildDiceScale({
           name: "Seal Damage",
           identifier: "seal-damage",
@@ -491,7 +493,7 @@ export default class DDBClass extends DDBBaseClass {
     const points = AdvancementHelper.buildNumberScale({
       name: "Sorcery Points",
       identifier: "points",
-      scale: Object.fromEntries(utils.arrayRange(20, 1, 2).map((i) => [i, i])),
+      scale: Object.fromEntries(utils.arrayRange(19, 1, 2).map((i) => [i, i])),
     });
     this._addAdvancement(points);
   }

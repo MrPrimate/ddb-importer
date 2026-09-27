@@ -508,8 +508,14 @@ export function parse(
       result.definitions.push(entry);
       return;
     }
-    // DDB also writes the sign marker as the last entry of a constraint list ("#min:1,unsigned"); the legacy
-    // splitter cannot read that form, so it goes through the expression compiler with the marker stripped
+    // Which templates the expression compiler (DDBTemplateExpression) handles rather than the
+    // constraint splitter below. The splitter reads "<operand>@<constraint>" with one sign marker
+    // after a "#"; these forms need the full grammar:
+    // - "@rounddown" followed by more arithmetic: "(classlevel/2)@rounddown+1";
+    // - a "#min:" or "#max:" constraint on the whole expression: "modifier:cha+proficiency#min:1";
+    // - a sign marker at the end of a constraint list: "classlevel#min:1,unsigned" (the marker is
+    //   stripped before compiling and applied to the result);
+    // - an "@min:"/"@max:" bound that is itself a template value: "classlevel@max:modifier:cha".
     const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
       || (/#(?:min|max):/).test(match) || (/,(?:signed|unsigned)\b/).test(match)
       || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
@@ -523,7 +529,7 @@ export function parse(
         const expression = match.replace(/[#,](?:signed|unsigned)\b/g, "");
         const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
         const number = getNumber(formula, signed);
-        // keep the sign outside the inline roll, matching the legacy path, unless a dice term precedes it
+        // keep the sign outside the inline roll, as the constraint splitter does, unless a dice term precedes it
         entry.parsed = !entry.rollMatchTest && (/^\+\s/).test(number)
           ? `+ [[${number.replace(/^\+\s/, "")}]]`
           : `[[${number}]]`;

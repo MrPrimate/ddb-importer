@@ -280,10 +280,9 @@ describe("DDBSourceBookBrowser cache management", () => {
     expect(describeCacheEntry("vehicles", { search: "", homebrew: true, sources: [5] })).toBe("Vehicles: all");
     expect(describeCacheEntry("mule-list", { type: "feat", sources: [1] })).toBe("feat list");
     expect(describeCacheEntry("subclasses", { className: "Fighter", rulesVersion: "2014" })).toBe("Subclasses: Fighter (2014)");
-    // the stored label names the class and its subclasses; ids are only the fallback for old entries
+    // the stored label names the class and its subclasses
     expect(describeCacheEntry("mule-stream", { element: "class", classId: 12, systemRules: "2024" }, "Fighter: Battle Master, Champion")).toBe("Fighter: Battle Master, Champion (2024)");
-    expect(describeCacheEntry("mule-stream", { element: "class", classId: 12, systemRules: "2024" })).toBe("Munch: class class 12 (2024)");
-    expect(describeCacheEntry("mule-stream", { element: "background", backgroundId: 7, systemRules: "2014" })).toBe("Munch: background background 7 (2014)");
+    expect(describeCacheEntry("mule-stream", { element: "class", classId: 12, systemRules: "2024" })).toBe("Munch (2024)");
   });
 
   it("groups entries in display order and collapses monster ids into one row", () => {

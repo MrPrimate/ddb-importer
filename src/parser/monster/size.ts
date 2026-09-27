@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import ChangeHelper from "../enrichers/effects/ChangeHelper";
 
@@ -15,7 +15,7 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, si
   const sizeData = DICTIONARY.sizes.find((s) => size === s.name);
 
   if (!sizeData) {
-    // Combined sizes retain the historical Medium default; their other sizes are optional effects.
+    // Combined sizes default to Medium; their other sizes are optional effects.
     if (getSizeOptions(sizeId).length < 2) {
       logger.warn(`No foundry size found for "${size}" (${this.name}), using medium`);
     }
@@ -47,7 +47,8 @@ DDBMonster.prototype._generateSize = function _generateSize (this: DDBMonster) {
   this.npc.effects ??= [];
   for (const size of sizeOptions.filter((option) => option.value !== sizeData.value)) {
     this.npc.effects.push({
-      _id: foundry.utils.randomID(),
+      // stable, so a re-import updates the same effect rather than adding another
+      _id: utils.namedIDStub(`size ${size.name}`, { prefix: "ddb", postfix: "ef" }),
       name: `Size: ${size.name}`,
       type: "base",
       img: "icons/magic/control/silhouette-grow-shrink-tan.webp",

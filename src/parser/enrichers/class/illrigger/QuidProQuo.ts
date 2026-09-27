@@ -2,8 +2,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import _Illrigger from "./_Illrigger";
 
 /**
- * The use is only spent on a successful banishment; the devil that takes the target's place is
- * left to the table.
+ * The use is only spent on a successful banishment, but the activity spends it on every use, so a
+ * target that saves needs its use restored by hand (noted in the description). The devil that
+ * takes the target's place is left to the table.
  */
 export default class QuidProQuo extends _Illrigger {
 
@@ -30,6 +31,16 @@ export default class QuidProQuo extends _Illrigger {
           dc: _Illrigger.INTERDICT_DC,
         },
       },
+    };
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      descriptionSuffix: `
+<section class="secret ddbSecret" id="secret-ddbQuidProQuo">
+<p><strong>Implementation Details</strong></p>
+<p>Using the activity spends the use. If the target succeeds on its saving throw, restore the use.</p>
+</section>`,
     };
   }
 

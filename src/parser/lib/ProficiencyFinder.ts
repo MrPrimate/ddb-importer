@@ -158,8 +158,13 @@ export default class ProficiencyFinder {
         const key = utils.getToolKey(profMatch);
         const ability = (profMatch.ability ?? "dex") as T5eAbility;
 
-        if (!profMatch.baseTool || (includeCustomTools && profMatch.toolKey)) {
-          if (!includeCustomTools) return;
+        // A tool dnd5e has no base item for exists only as a custom tool, so without custom tools
+        // it is dropped. A standard tool the importer gives its own key (toolKey) is registered as
+        // a custom tool too when custom tools are wanted, so that key resolves; otherwise it is a
+        // plain dnd5e tool and needs no registration.
+        const isCustomOnly = !profMatch.baseTool;
+        if (isCustomOnly && !includeCustomTools) return;
+        if (isCustomOnly || (includeCustomTools && profMatch.toolKey)) {
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
         }
 

@@ -36,7 +36,9 @@ export default class StagedSave extends _MonsterFeatureSupport {
     return [
       {
         name: "First Failure",
-        activityMatch: "First Save",
+        // the parsed save, named after the stat block's section label until cleanup renames it
+        activityTypesMatch: ["save"],
+        activityIdsExclude: ["ddbSecondSave001"],
         statuses: [sleep ? "Incapacitated" : "Restrained"],
         options: {
           ...(sleep ? { expiry: "targetEnd" as const } : { expiry: null, durationSeconds: null }),
@@ -65,10 +67,5 @@ export default class StagedSave extends _MonsterFeatureSupport {
     const first = this.activities.find((a) => a.type === "save" && a._id !== "ddbSecondSave001");
     if (!first) return;
     first.name = "First Save";
-    const effects = this.document.effects as { _id: string; name: string }[];
-    for (const activity of this.activities) {
-      const name = activity === first ? "First Failure" : activity._id === "ddbSecondSave001" ? "Second Failure" : null;
-      activity.effects = name ? effects.filter((e) => e.name === name).map((e) => ({ _id: e._id })) : [];
-    }
   }
 }

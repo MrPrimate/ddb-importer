@@ -30,6 +30,8 @@ export default class Scrying extends DDBEnricherData {
           },
           generateSummon: true,
           noSpellslot: true,
+          // made after the save fails, while the spell is already being concentrated on
+          noConcentration: true,
         },
         overrides: {
           noTemplate: true,

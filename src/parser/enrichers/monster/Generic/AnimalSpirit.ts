@@ -5,7 +5,7 @@ export default class AnimalSpirit extends _MonsterFeatureSupport {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [];
     const hp = this.text.match(/gains (\d+) Temporary Hit Points/i);
-    if (hp)
+    if (hp) {
       activities.push(
         this.extra("Temporary Hit Points", "ddbSecondaryHP01", "heal", {
           generateHealing: true,
@@ -19,6 +19,7 @@ export default class AnimalSpirit extends _MonsterFeatureSupport {
           rangeOverride: { units: "self" },
         }),
       );
+    }
     return activities;
   }
 }

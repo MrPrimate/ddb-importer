@@ -3,8 +3,8 @@ import RandomTableItem from "./_RandomTableItem";
 
 /**
  * A rod that doubles as a magical club swung with Charisma. Each hit rolls a d100, and only a
- * result of 10 or less goes on to the d10 table, so the two rolls stay separate. Read as prose,
- * the item became a save scraped from one table row and no attack at all.
+ * result of 10 or less goes on to the d10 table, so the two rolls stay separate. Left to the
+ * prose parser, the item would be a save scraped from one table row and no attack at all.
  */
 export default class MarotteOfChance extends DDBEnricherData {
 

@@ -8,6 +8,7 @@ export default class AcidRain extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbAcidRainSpSav",
     };
   }

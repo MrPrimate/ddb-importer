@@ -484,6 +484,92 @@ describe("AdvancementHelper.getWeaponAdvancement", () => {
   });
 });
 
+describe("AdvancementHelper skill choice subtypes", () => {
+  it("recognises DDB choose subtypes and names their skills", () => {
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-barbarian-skill-proficiency")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-nature-or-survival")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("magical-knowledge-skill")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("enchanter-proficiency")).toBe(true);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-kensei-tool")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-an-iron-mind-saving-throw")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("choose-a-gaming-set")).toBe(false);
+    expect(AdvancementHelper.isSkillChoiceSubType("perception")).toBe(false);
+  });
+
+  it("separates skill picks from tool, weapon and feature picks that share the shape", () => {
+    for (const slug of [
+      "choose-a-skill",
+      "choose-a-warlock-skill",
+      "choose-an-arcane-archer-lore-skill",
+      "choose-a-skill-or-tool",
+      "choose-banneret-proficiency",
+      "choose-deception-investigation-persuasion-slight-of-hand-or-stealth",
+    ]) {
+      expect(AdvancementHelper.isSkillChoiceSubType(slug), slug).toBe(true);
+    }
+    for (const slug of [
+      "choose-cooks-utensils-or-herbalism-kit",
+      "choose-herbalism-kit-or-water-vehicles",
+      "choose-brewers-supplies-or-cooks-utensils",
+      "choose-bladesinger-proficiency",
+      "choose-a-nightwatcher-proficiency",
+      "choose-a-dwarven-artisanal-focus",
+      "armorer-tool-proficiency",
+      "choose-intelligence-wisdom-or-charisma-saving-throws",
+    ]) {
+      expect(AdvancementHelper.isSkillChoiceSubType(slug), slug).toBe(false);
+    }
+  });
+
+  it("names the skills of a choose subtype", () => {
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-nature-or-survival")).toEqual(["nat", "sur"]);
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-deception-investigation-persuasion-slight-of-hand-or-stealth"))
+      .toEqual(["dec", "inv", "per", "slt", "ste"]);
+    expect(AdvancementHelper.skillsFromChooseSubType("choose-a-skill")).toEqual([]);
+  });
+
+  it("builds a skill pick from a choose subtype the description does not spell out", () => {
+    const feature = makeFeature({ name: "Research Skills", requiredLevel: 3, description: "<p>You gain a proficiency.</p>" });
+    const adv: any = makeHelper({ isSubclass: true }).getSkillAdvancement({
+      feature,
+      mods: [profMod("choose-history-investigation-or-nature", "Choose History, Investigation, or Nature")],
+      level: 3,
+    });
+    expect(adv.toObject().configuration.choices).toEqual([{ count: 1, pool: ["skills:his", "skills:inv", "skills:nat"] }]);
+
+    const open: any = makeHelper({ isSubclass: true }).getSkillAdvancement({
+      feature: makeFeature({ name: "Well-Rounded", requiredLevel: 6, description: "<p>You gain a proficiency.</p>" }),
+      mods: [profMod("choose-a-skill", "Choose a Skill")],
+      level: 6,
+    });
+    expect(open.toObject().configuration.choices).toEqual([{ count: 1, pool: ["skills:*"] }]);
+  });
+});
+
+describe("AdvancementHelper.getSaveAdvancement all saves", () => {
+  it("expands Diamond Soul's single saving-throws modifier to every save", () => {
+    const adv: any = makeHelper().getSaveAdvancement({
+      feature: makeFeature({ name: "Diamond Soul", requiredLevel: 14 }),
+      mods: [profMod("saving-throws", "Saving Throws")],
+      availableToMulticlass: false,
+      level: 14,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["saves:str", "saves:dex", "saves:con", "saves:int", "saves:wis", "saves:cha"]);
+  });
+
+  it("offers a pick of any save for a choose-a-saving-throw modifier", () => {
+    const adv: any = makeHelper({ isSubclass: true }).getSaveAdvancement({
+      feature: makeFeature({ name: "Iron Mind", requiredLevel: 7 }),
+      mods: [profMod("choose-an-iron-mind-saving-throw", "Choose a Saving Throw")],
+      availableToMulticlass: false,
+      level: 7,
+    });
+    const data = adv.toObject();
+    expect(data.configuration.grants).toEqual([]);
+    expect(data.configuration.choices).toEqual([{ count: 1, pool: ["saves:*"] }]);
+  });
+});
+
 // =============================================================================
 // getExpertiseAdvancement
 // =============================================================================

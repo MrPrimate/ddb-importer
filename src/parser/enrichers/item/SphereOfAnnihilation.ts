@@ -1,13 +1,18 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-
+/**
+ * The parsed Dexterity save becomes "Touched by the Sphere", the damage to a creature whose space
+ * the sphere enters (the parser reads its DC from the text: 13, or 19 in the 2024 reprint).
+ * "Engulfed" is the flat touch damage for anything that touches the sphere without being wholly
+ * engulfed and obliterated, and "Control the Sphere" is the DC 25 Arcana check to move it.
+ */
 export default class SphereOfAnnihilation extends DDBEnricherData {
 
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }
 
-  /** The 2024 reprint doubled the sphere's damage; the DC moved with it. */
+  /** The 2024 reprint doubled the sphere's damage (4d10 to 8d10). */
   get touchDamage(): I5eDamagePart {
     return DDBEnricherData.basicDamagePart({
       number: this.is2014 ? 4 : 8,

@@ -4,7 +4,7 @@ import { DICTIONARY } from "../../config/_module";
 import SystemHelpers from "../../lib/SystemHelpers";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 
-/** A dwescription section label found in a DDB description or snippet. */
+/** A description section label found in a DDB description or snippet. */
 interface ISectionMarker {
   /** index just past the label, where the section's rules text starts */
   end: number;
@@ -193,18 +193,19 @@ export default class DDBDescriptions {
     return markers;
   }
 
-  /**
-   * The label as DDB wrote it, minus markup and the punctuation that terminates it.
-   * DDB labels sections "Frost Shot." or "Splashing Mucous (1 Charge):", and a generated
-   * activity wants the words without either terminator; the case is kept so the activity
-   * reads "Frost Shot" rather than the lowercased form used for matching.
-   */
+  /** The HTML named entities DDB puts in section labels, decoded to their characters. */
   static #NAMED_ENTITIES: Record<string, string> = {
     amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " ",
     ldquo: "\u201c", rdquo: "\u201d", lsquo: "\u2018", rsquo: "\u2019",
     hellip: "\u2026", ndash: "\u2013", mdash: "\u2014",
   };
 
+  /**
+   * The label as DDB wrote it, minus markup and the punctuation that terminates it.
+   * DDB labels sections "Frost Shot." or "Splashing Mucous (1 Charge):", and a generated
+   * activity wants the words without either terminator; the case is kept so the activity
+   * reads "Frost Shot" rather than the lowercased form used for matching.
+   */
   static #rawSectionLabel(value: string): string {
     return value
       .replace(/<[^>]*>/g, "")
@@ -223,8 +224,9 @@ export default class DDBDescriptions {
 
   /**
    * Collect the section markers in a snippet whose labels carry no markup at all - a small
-   * tail of DDB's features. In tehse cases a label is then a short Title Case phrase terminated by a period
-   * at the start of the text or of a line. Some internal candidates are not considered: ordinary prose produces too many of them to use as section boundaries.
+   * tail of DDB's features. In these a label is a short Title Case phrase ending in a period at
+   * the start of the text or of a line. Candidates inside a line are not considered: ordinary
+   * prose produces too many of them to use as section boundaries.
    */
   static #plainSectionMarkers(text: string): ISectionMarker[] {
     const markerRegex = /(?:^|\r?\n)[ \t]*([^\s.!?<>][^.!?<>]{1,59})\.(?=\s|$)\s*/g;
@@ -643,10 +645,10 @@ export default class DDBDescriptions {
    *
    * The saving throw a feature is ABOUT is the one its text states first. The two word orders
    * the parsers look for - "DC 15 Dexterity saving throw" (2014) and "Dexterity Saving Throw:
-   * DC 15" (2024) - are printing conventions, not a precedence, so preferring one of them
-   * wherever it appeared let a trailing clause supply the primary save: a Behir's Swallow read
-   * the DC 14 Constitution throw the BEHIR makes to regurgitate rather than the DC 18 Dexterity
-   * throw its victim makes to avoid being swallowed. A tie keeps the earlier argument.
+   * DC 15" (2024) - are printing conventions, not a precedence, so neither is preferred: a
+   * trailing clause must not supply the primary save. A Behir's Swallow states the DC 18
+   * Dexterity throw its victim makes to avoid being swallowed before the DC 14 Constitution throw
+   * the behir makes to regurgitate, and the first is its save. A tie keeps the earlier argument.
    */
   static firstMatch(...matches: (RegExpMatchArray | null)[]): RegExpMatchArray | null {
     return matches.reduce((first: RegExpMatchArray | null, match) => {
@@ -890,17 +892,13 @@ export default class DDBDescriptions {
   /**
    * Merge a DAE special duration parsed from a dcParser match tail into an effect.
    *
-   * Retained for the public `DDBEffectHelper.getSpecialDuration` API only - the
-   * parser itself no longer calls this.
+   * Serves the public `DDBEffectHelper.getSpecialDuration` API; the parser does not call it.
    *
    * Note that `dcParser`'s trailing capture is lazy-optional (`(.*)??`),
    * so `match[7]` is always undefined for matches produced by that regex;
    * only an external caller supplying its own match can reach the classification
-   * below.
-   *
-   * It previously mapped ANY "until the start of the..." to
-   * `turnStartSource`, anchoring "the target's next turn" on the
-   * caster; it now shares `nextTurnExpiry`'s reference rules.
+   * below, which follows `nextTurnExpiry`'s rules for whose turn a duration counts
+   * ("the target's next turn" is not the caster's).
    */
   static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match: any) {
     const durations: string[] = [];

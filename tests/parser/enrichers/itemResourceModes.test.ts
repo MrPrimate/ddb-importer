@@ -66,3 +66,22 @@ describe("Arcana evolving weapon source guards", () => {
     }
   });
 });
+
+describe("Keyholes Dagger forms", () => {
+  it("add Strength and Dexterity to each form's attack instead of overriding the whole set", () => {
+    const enricher = Object.assign(Object.create(KeyholesDagger.prototype), {
+      ddbParser: { ddbDefinition: { name: "Many Keyholes Dagger", sources: [{ sourceId: 301, sourceType: 1 }] } },
+      is2014: false,
+    });
+    const forms = enricher.effects.filter((effect: any) => effect.name?.startsWith("Keyholes Form:"));
+    expect(forms.length).toBeGreaterThan(0);
+    for (const form of forms) {
+      const abilityChanges = form.changes.filter((change: any) => change.key.includes("attack.abilities"));
+      // an override would store the JSON text as one bogus entry in the ability set
+      expect(abilityChanges).toEqual([
+        expect.objectContaining({ key: "activities[attack].attack.abilities", type: "add", value: "str" }),
+        expect.objectContaining({ key: "activities[attack].attack.abilities", type: "add", value: "dex" }),
+      ]);
+    }
+  });
+});

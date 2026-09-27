@@ -1,6 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { escapeCheck } from "../../data/AreaBuilders";
 import _Illrigger from "./_Illrigger";
 
+/**
+ * A Strength save against the interdict DC grapples the target until the end of the illrigger's
+ * next turn; the escape check uses the same DC. The 10-foot pull alternative is left to the table.
+ */
 export default class AcheronsChain extends _Illrigger {
 
   override get type(): IDDBActivityType | null {
@@ -23,6 +28,17 @@ export default class AcheronsChain extends _Illrigger {
         },
       },
     };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const escape = escapeCheck(_Illrigger.INTERDICT_DC);
+    return [
+      {
+        ...escape,
+        // the grappled creature escapes with its action, not the boon's bonus action
+        overrides: { ...escape.overrides, activationType: "action" },
+      },
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {

@@ -23,8 +23,6 @@ export interface IMasteredSpell {
  */
 export default abstract class _MasteredSpells extends DDBEnricherData {
 
-  abstract get featureName(): string;
-
   /** DDB's per-spell marker for this feature on the class spell list. */
   abstract isMarked(spell: IDDBSpellEntry): boolean;
 

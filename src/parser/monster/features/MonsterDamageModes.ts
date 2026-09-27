@@ -1,5 +1,12 @@
 const STATUSES = "bloodied|grappled|prone|poisoned|frightened|restrained|stunned|paralyzed|incapacitated|unconscious|blinded|deafened";
 
+/**
+ * Text before a damage roll that puts it in a saving throw's or a later turn's damage rather than
+ * the hit ("On a failed save", "at the start of each of its turns", 2024's "Failure:"). Damage
+ * after it is never a conditional variant of the hit.
+ */
+export const SAVE_OR_RECURRING_DAMAGE_CONTEXT = /saving throw|\bat (?:the |each )?(?:start|end) of (?:each|its|the|their)|\b(?:Failure|Success):/i;
+
 /** Conditions applied after damage are distinct from statuses tested for extra damage. */
 export function monsterDamageAppliedStatuses(text: string): Set<string> {
   return new Set([...text.matchAll(new RegExp(
@@ -56,6 +63,23 @@ function damageConditionFamilyName(condition: string): string | null {
  * Partition a hit's numeric damage tokens using explicit conditional clauses. Indices refer
  * to the caller's tokens so dice parsing, source modifiers and damage types stay with it.
  * Unsupported or interacting clauses leave the entire hit untouched and return an advisory.
+ *
+ * Each token after the first is looked at against the text that joins it to the one before:
+ * - "or ..." makes it a replacement: "7 (1d8 + 3) piercing damage, or 12 (2d8 + 3) piercing
+ *   damage while enlarged" swaps the normal damage for the enlarged roll;
+ * - "plus ..." or a leading "If X, the target takes an extra ..." makes it additive: the bloodied
+ *   rider in "... plus 7 (2d6) necrotic damage if the target is Bloodied" adds to the hit.
+ * The condition is the leading "If" clause or the trailing "if/while/when/in/against" clause,
+ * and the scan walks forward over a plus-joined group until the clause that names it (so one
+ * condition can own physical plus elemental damage). A clause is dropped, not turned into a
+ * mode, when it is a versatile two-handed alternative, a save outcome, or sits in save or later
+ * turn damage (SAVE_OR_RECURRING_DAMAGE_CONTEXT). A replacement then takes over the plus-joined
+ * group before it, whose damage types must cover the alternative's.
+ *
+ * Only one conditional clause is turned into a mode: two, or one beside a versatile
+ * alternative, leave the hit unchanged with a warning asking for explicit combined modes. The
+ * result lists the token indices of the normal hit, the one mode with its parts and name
+ * (monsterDamageModeName), and the text with the conditional clause cut out.
  */
 export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToken[]): IMonsterDamageModeResult {
   const all = tokens.map((_, index) => index);
@@ -135,7 +159,7 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     }
     // A condition after a saving throw, or a later turn's damage, is not a hit variant.
     const context = text.slice(0, token.index);
-    if ((/saving throw|\bat (?:the |each )?(?:start|end) of (?:each|its|the|their)|\b(?:Failure|Success):/i).test(context)) continue;
+    if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(context)) continue;
 
     const selected = all.slice(i, last + 1);
     let groupStart = i - 1;

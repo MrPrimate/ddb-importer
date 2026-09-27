@@ -3,6 +3,15 @@ import type DDBItem from "../../item/DDBItem";
 import utils from "../../../lib/Utils";
 import { hasItemSource, itemActivity, itemUses } from "./_ItemActivities";
 
+/**
+ * The Arcana Unleashed evolving dagger. The Three, Ten and Many Keyholes tiers, read from the
+ * first word of the name, set magicalBonus to the tier and add a Transform Weapon enchant with one
+ * form per unlocked weapon, accumulating by tier (Handaxe and Mace, then the other simple weapons,
+ * then martial ones). A form rewrites the base item, damage die and type, mastery, properties and
+ * range until the start of the next turn, and offers Strength or Dexterity for the attack. The
+ * Many tier adds a once-per-dawn Reroll Miss reminder. DDB's melee attack bonus is stripped from
+ * the item's effects so it does not apply globally; the untiered root keeps DDB's actions.
+ */
 export default class KeyholesDagger extends DDBEnricherData {
 
   /** The higher DDB tiers omit the lower-tier rules that evolving items retain. */
@@ -191,7 +200,8 @@ export default class KeyholesDagger extends DDBEnricherData {
             transfer: false,
             durationSeconds: null,
             expiry: "sourceStart",
-            description: "Retains the dagger's magic bonus and choice of Strength or Dexterity. Reverts next turn.",
+            description:
+              "Retains the dagger's magic bonus and choice of Strength or Dexterity: on a form without Finesse, set the attack's ability to Dexterity by hand to use it. Reverts next turn.",
           },
           changes: [
             DDBEnricherData.ChangeHelper.overrideChange(`{} (${form.name})`, 20, "name"),
@@ -208,12 +218,9 @@ export default class KeyholesDagger extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.overrideChange(form.mastery, 20, "system.mastery"),
             DDBEnricherData.ChangeHelper.overrideChange(form.die, 20, "system.damage.base.denomination"),
             DDBEnricherData.ChangeHelper.overrideChange(form.damage, 20, "system.damage.base.types"),
-            // Ability choice does not grant Finesse to forms that lack that property.
-            DDBEnricherData.ChangeHelper.overrideChange(
-              JSON.stringify(["str", "dex"]),
-              20,
-              "activities[attack].attack.abilities",
-            ),
+            // dnd5e below 6.0 offers Strength or Dexterity only through the Finesse property, and
+            // granting Finesse would also make a non-finesse form eligible for Sneak Attack. The
+            // attack keeps its default ability; the description tells the user to switch it.
             DDBEnricherData.ChangeHelper.overrideChange(
               JSON.stringify(["mgc", ...form.properties]),
               20,

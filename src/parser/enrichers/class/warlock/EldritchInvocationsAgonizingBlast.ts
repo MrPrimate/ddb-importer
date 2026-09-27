@@ -4,8 +4,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Agonizing Blast: an enchant rider adding the Charisma modifier to a cantrip's damage. In 2014
  * it always targets Eldritch Blast; the 2024 invocation is repeatable and DDB names each pick
  * after its cantrip ("Agonizing Blast (Eldritch Blast)"), so the target is read from the name.
- * The character importer's enchantment step applies it to that cantrip; the Eldritch Blast spell
- * enricher no longer bakes the bonus, so the enchantment is the only source of the damage.
+ * The character importer's enchantment step applies it to that cantrip. The Eldritch Blast spell
+ * is a plain attack, so the enchantment is the only source of the bonus damage.
  */
 export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
 

@@ -4,6 +4,14 @@ const PROTECTION_AURA = { bestFormula: "max(1, @abilities.cha.mod)", overrideNam
 
 export default class AuraOf extends DDBEnricherData {
 
+  /**
+   * The aura's radius in feet, as a formula. Paladin auras share the Aura of Protection's reach,
+   * which DDB ships as a scale; a subclass aura with its own reach overrides this.
+   */
+  get auraSize(): string {
+    return "@scale.paladin.aura-of-protection";
+  }
+
   get ignoreSelf(): boolean {
     return ["aura of alacrity"].includes(this.ddbParser.originalName.toLowerCase());
   }
@@ -38,7 +46,7 @@ export default class AuraOf extends DDBEnricherData {
             ActiveAuras: {
               ignoreSelf: this.ignoreSelf,
               aura: "Allies",
-              radius: this.is2014 ? `@scale.paladin.aura-of-protection` : `@scale.paladin.aura`,
+              radius: this.is2014 ? this.auraSize : `@scale.paladin.aura`,
               isAura: true,
               inactive: false,
               hidden: false,
@@ -53,7 +61,7 @@ export default class AuraOf extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: `@scale.paladin.aura-of-protection`,
+          distanceFormula: this.auraSize,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: isAuraOfProtection ? PROTECTION_AURA.overrideName : "",

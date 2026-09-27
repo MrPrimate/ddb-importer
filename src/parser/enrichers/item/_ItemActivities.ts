@@ -19,6 +19,21 @@ export function hasItemSource(enricher: DDBEnricherData, ...ids: number[]): bool
   );
 }
 
+/**
+ * The spells DDB attached to this item on a character import. The item-spell path already builds
+ * their cast activities, so an enricher adding its own cast skips these. Empty for the muncher.
+ */
+export function shippedItemSpellNames(enricher: DDBEnricherData): string[] {
+  const definitionId = enricher.ddbParser?.ddbDefinition?.id;
+  // only the item parser carries the character's item spells; the parser union has no `raw`
+  const parser = enricher.ddbParser as { raw?: { itemSpells?: I5eSpellItem[] } } | undefined;
+  const itemSpells = parser?.raw?.itemSpells ?? [];
+  return itemSpells
+    .filter((spell) => spell.flags?.ddbimporter?.dndbeyond?.lookup === "item"
+      && spell.flags?.ddbimporter?.dndbeyond?.lookupId === definitionId)
+    .map((spell) => spell.flags?.ddbimporter?.originalName ?? spell.name);
+}
+
 /** Secondary modes start without the weapon's damage, charge cost, area or applied effects. */
 export function itemActivity(
   name: string,

@@ -296,7 +296,7 @@ const MuncherSettings = {
         isChecked: utils.getSetting<boolean>("character-update-policy-active-effect-copy"),
         label: "Retain Active Effects?",
         hint:
-          "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour.",
+          "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. An item's retained effects are matched to the newly imported ones by name and replace them, keeping their links to the item's activities, so your edits win over the importer's version. Effects the importer generates that you had deleted are added back, and custom effects are kept. Untick this option if you experience <i>odd</i> behaviour.",
         enabled: true,
       },
     ];

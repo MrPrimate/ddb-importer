@@ -19,10 +19,4 @@ export default class GraspingTentacles extends DDBEnricherData {
     };
   }
 
-  override get override(): IDDBOverrideData {
-    return {
-      forceSpellAdvancement: true,
-    };
-  }
-
 }

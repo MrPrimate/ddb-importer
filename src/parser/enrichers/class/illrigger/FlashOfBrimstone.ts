@@ -14,13 +14,9 @@ export default class FlashOfBrimstone extends _Illrigger {
       activationCondition: "When you place or move a seal (no action required)",
       targetType: "self",
       noTemplate: true,
-      data: {
-        range: {
-          units: "ft",
-          value: "5",
-          special: "An unoccupied space you can see within 5 feet of the interdicted creature",
-        },
-      },
+      rangeType: "ft",
+      rangeValue: 5,
+      rangeSpecial: "An unoccupied space you can see within 5 feet of the interdicted creature",
     };
   }
 

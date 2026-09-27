@@ -279,6 +279,15 @@ global {
     // Activity matching
     activityMatch?: string;
     activitiesMatch?: string[];
+    /**
+     * Link by activity type, in preference order: the first listed type with an eligible activity
+     * wins and every eligible activity of that type is linked. Combines with activityMatch /
+     * activitiesMatch (both must pass). For parser-built activities, whose names follow the
+     * source's section labels and so cannot be predicted by the enricher.
+     */
+    activityTypesMatch?: IDDBActivityType[];
+    /** Activity ids this hint never links, e.g. an enricher's own sibling of a matched type. */
+    activityIdsExclude?: string[];
     /** Link the effect to its activity with `onSave: true` so it applies even when the target saves. */
     onSave?: boolean;
     ignoreTransfer?: boolean;
@@ -326,7 +335,6 @@ global {
     removeDamage?: boolean;
     rangeSelf?: boolean;
     replaceActivityUses?: boolean;
-    forceSpellAdvancement?: boolean;
     descriptionSuffix?: string;
     ddbMacroDescription?: boolean;
     // keep the consumption targets and uses recovery already on the document in the

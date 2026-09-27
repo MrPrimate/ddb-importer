@@ -31,7 +31,7 @@ export default class ElementalEpitome extends DDBEnricherData {
           generateTarget: false,
           generateRange: false,
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.die.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
           ],
         },
         overrides: {

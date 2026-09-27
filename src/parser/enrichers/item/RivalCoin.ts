@@ -1,6 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity, itemUses } from "./_ItemActivities";
 
+/**
+ * Toss Coin spends the once-per-dawn use and rolls 1d2 to call the side; the player then uses the
+ * matching activity. Heads is a DC 13 Wisdom save for 2d4 psychic, half on a success, and a
+ * failure applies Rival's Distraction: disadvantage on attack rolls until the end of the target's
+ * next turn, expired after one attack by DAE or AC5e when present and by hand otherwise. Tails
+ * deals 1d4 psychic to the tosser. The parser's automatic extra activities are off because every
+ * mode is authored here.
+ */
 export default class RivalCoin extends DDBEnricherData {
 
   override get type(): IDDBActivityType {

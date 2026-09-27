@@ -31,6 +31,16 @@ export interface StartAck {
   message?: string;
 }
 
+/**
+ * The streaming endpoint cannot be used at all: the socket never connected, auth was refused, or
+ * the proxy rejected the job. Callers latch streaming off for the session on this error only; a
+ * stream that connected but ended badly (no payload, a fatal job event, a timeout) is a one-off
+ * failure that falls back to HTTP for that call without disabling streaming.
+ */
+export class StreamUnavailableError extends Error {
+  override name = "StreamUnavailableError";
+}
+
 export interface RunJobOptions<E extends BaseStreamEvent = BaseStreamEvent> {
   timeoutMs?: number;
   onEvent?: (event: E) => void;
@@ -55,6 +65,8 @@ export default abstract class BaseStreamSocket<
   lastSeq = 0;
   handlers: BaseStreamHandlers<E> | null = null;
   authenticated = false;
+  /** Non-fatal error events seen by the current job. A job with any may be missing data, so it is not cached. */
+  nonFatalErrors = 0;
 
   protected abstract get namespace(): string;
   protected abstract get logTag(): string;
@@ -105,7 +117,7 @@ export default abstract class BaseStreamSocket<
   }
 
   protected ensureConnected() {
-    if (!this.socket) throw new Error(`${this.logTag} not connected, call connect() first`);
+    if (!this.socket) throw new StreamUnavailableError(`${this.logTag} not connected, call connect() first`);
     return this.socket;
   }
 
@@ -147,6 +159,7 @@ export default abstract class BaseStreamSocket<
     this.lastSeq = 0;
     this.jobId = null;
     this.jobToken = null;
+    this.nonFatalErrors = 0;
     return new Promise((resolve) => {
       socket.emit("start", { element, params }, (res: StartAck) => {
         if (res?.ok) {
@@ -219,11 +232,15 @@ export default abstract class BaseStreamSocket<
       this.handlers = {
         onEvent: (event: E) => onEvent?.(event),
         onError: (message, fatal) => {
-          if (fatal) finish(new Error(message), null);
-          else logger.warn(`${this.logTag} non-fatal error: ${message}`);
+          if (fatal) {
+            finish(new Error(message), null);
+          } else {
+            this.nonFatalErrors++;
+            logger.warn(`${this.logTag} non-fatal error: ${message}`);
+          }
         },
         onDone: (summary) => finish(null, summary),
-        onConnectError: (err) => finish(err, null),
+        onConnectError: (err) => finish(new StreamUnavailableError(err.message, { cause: err }), null),
       };
 
       if (timeoutMs && timeoutMs > 0) {
@@ -233,7 +250,7 @@ export default abstract class BaseStreamSocket<
       this.start(element, params)
         .then((startRes) => {
           if (!startRes.ok) {
-            finish(new Error(`Start failed: ${startRes.message}`), null);
+            finish(new StreamUnavailableError(`Start failed: ${startRes.message}`), null);
           } else {
             logger.debug(`${this.logTag} jobId=${startRes.jobId} replayed=${startRes.replayed}`);
           }

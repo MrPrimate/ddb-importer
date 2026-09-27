@@ -122,6 +122,29 @@ export function parseSummonDuration(text: string): { value: string; units: TDura
  * working when the text gives one. Null when the text names none.
  *
  * `selfName` is the summoner's own name, for "1d4 mephits of its kind".
+ *
+ * The pipeline, in order:
+ * 1. Normalise the text (soft hyphens, curly apostrophes, run-together paragraphs) and split it
+ *    into sentences.
+ * 2. Walk the sentences. A sentence is read when it has a calling verb (VERB: "summons",
+ *    "calls forth", "animates"...) or, until a certain creature is found, when it only says
+ *    something appears ("Up to five skeletons appear in unoccupied spaces"). The clause after the
+ *    verb is scanned for:
+ *    - "N <creatures> of its kind", which names the summoner itself and ends the walk;
+ *    - a challenge-rating pick ("a demon of challenge rating 5 or lower"), kept as `challenge`;
+ *    - a list of count-and-name items (ITEM). Nouns that are not creatures (NOT_A_CREATURE:
+ *      "corpses", "minutes"...), counts after a preposition and adjective runs are skipped; an
+ *      "or" between two names shares the first count; a plural after a count of several is cut
+ *      back to its singular unless the tag residue already gives the singular.
+ *    A name carrying the tag residue, or one vouched for by "(both appear in ...)", is `certain`.
+ * 3. When any name is certain, the uncertain ones (usually ordinary nouns) are dropped.
+ * 4. With no names at all, fall back to what the creature becomes ("rises as a zombie") or to a
+ *    stand-in stat block ("use the statistics of a giant wasp"); a stand-in also renames a single
+ *    creature found in step 2.
+ * 5. Untagged names are only trusted when the text says the creatures turn up somewhere
+ *    ("appears", "unoccupied space"); otherwise the result is null.
+ * 6. Read the extras: the summoning's own percent chance, an arrival delay in rounds, the range
+ *    (from the sentence that named the creatures, then anywhere) and the duration.
  */
 export function parseSummon(source: string, selfName = "") {
   const text = `${source ?? ""}`

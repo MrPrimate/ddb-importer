@@ -38,7 +38,9 @@ export default class Eyebite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Concentration Action",
-          data: { duration: { override: true, units: "inst", concentration: false } },
+          // the spell's duration without concentration, so using it does not restart concentration;
+          // the condition's effect carries the spell's duration itself (dnd5e 5.x does not copy this one)
+          data: { duration: this.followUpDuration },
           noSpellslot: true,
         },
       },

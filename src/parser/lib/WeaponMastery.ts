@@ -29,6 +29,9 @@ export function parseWeaponMastery(label: string) {
   // Extra base weapons are registered from this same DDB catalog by DDBRuleJournalFactory.
   // Preserve their keys (including silver/wooden variants) even when the core dictionary
   // has no mapping, rather than discarding previously imported masteries.
+  // DDB's catalogue names put the qualifier after a comma; reversed and squashed they become the
+  // dnd5e base item key: "Crossbow, Hand" -> "handcrossbow". DDBItem builds weapon and armor base
+  // item keys the same way.
   const keyOf = (name: string) => normalize(name).split(",").reverse().join("").replace(/\s/g, "");
   const catalogWeapon = CONFIG.DDB.weapons.find((entry) => keyOf(entry.name) === keyOf(weapon));
   if (catalogWeapon) {

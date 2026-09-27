@@ -229,17 +229,17 @@ export default class ThirdPartyMunch extends FormApplication {
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
       logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
       ThirdPartyMunch._progressNote(`Checking for missing spells from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("spell", adventure.required.spells);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("spell", adventure.required.spells);
     }
     if (adventure.required?.items && adventure.required.items.length > 0) {
       logger.debug(`${adventure.name} - items required`, adventure.required.items);
       ThirdPartyMunch._progressNote(`Checking for missing items from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("item", adventure.required.items);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("item", adventure.required.items);
     }
     if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
       logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
       ThirdPartyMunch._progressNote(`Checking for missing monsters from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("monster", adventure.required.monsters);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("monster", adventure.required.monsters);
     }
   }
 

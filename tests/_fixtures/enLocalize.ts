@@ -34,13 +34,16 @@ export function useEnLocalization(): () => void {
   const i18n = game.i18n as unknown as {
     localize: (key: string) => string;
     format: (key: string, data?: Record<string, unknown>) => string;
+    has: (key: string, fallback?: boolean) => boolean;
   };
-  const original = { localize: i18n.localize, format: i18n.format };
+  const original = { localize: i18n.localize, format: i18n.format, has: i18n.has };
   i18n.localize = (key) => enString(key) ?? key;
   i18n.format = (key, data = {}) =>
     (enString(key) ?? key).replace(/\{(\w+)\}/g, (match, name: string) => (name in data ? String(data[name]) : match));
+  i18n.has = (key) => enString(key) !== undefined;
   return () => {
     i18n.localize = original.localize;
     i18n.format = original.format;
+    i18n.has = original.has;
   };
 }

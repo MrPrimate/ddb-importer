@@ -70,7 +70,7 @@ export default class HypnovulfenFigure extends DDBEnricherData {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbFigure">
 <p><strong>Implementation Details</strong></p>
-<p>The uses valued of Cursed Hunger tracks your current DC.</p>
+<p>The uses value of Cursed Hunger tracks your current DC.</p>
 </section>`,
       data: {
         flags: {

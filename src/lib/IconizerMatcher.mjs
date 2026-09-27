@@ -44,7 +44,7 @@ export function buildIconCache(files) {
 }
 
 /**
- * Resolve the built-in mapping, including the historical first-entry and prefix precedence.
+ * Resolve the built-in mapping, including the first-entry and prefix precedence the importer applies.
  * Keep this independent of Foundry so the reviewer can prove what a saved mapping will do.
  * @param {IIconDocument} item
  * @param {string} type

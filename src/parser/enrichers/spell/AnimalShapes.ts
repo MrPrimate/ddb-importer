@@ -72,6 +72,8 @@ export default class AnimalShapes extends DDBEnricherData {
           removeSpellSlotConsume: true,
           activationType: "action",
           data: {
+            // a later change of form must not begin concentration again, ending the spell's
+            duration: this.followUpDuration,
             settings: {
               tempFormula: "",
             },

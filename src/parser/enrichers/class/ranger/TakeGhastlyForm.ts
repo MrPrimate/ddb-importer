@@ -34,9 +34,10 @@ export default class TakeGhastlyForm extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateConsumption: false,
+          // a Wisdom save against the ranger's spell save DC
           saveOverride: {
-            ability: ["str"],
-            dc: { calculation: "wis", formula: "" },
+            ability: ["wis"],
+            dc: { calculation: "spellcasting", formula: "" },
           },
           activationOverride: {
             type: "turnStart",
@@ -46,13 +47,6 @@ export default class TakeGhastlyForm extends DDBEnricherData {
         overrides: {
           id: "ddbUnnervingAura",
           data: {
-            save: {
-              ability: ["wis"],
-              dc: {
-                calculation: "spellcasting",
-                formula: "",
-              },
-            },
             target: {
               affects: {
                 type: "creature",

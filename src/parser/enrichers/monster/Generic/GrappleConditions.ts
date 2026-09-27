@@ -20,21 +20,10 @@ export default class GrappleConditions extends _MonsterFeatureSupport {
     return [
       {
         name: "Grapple Conditions",
-        activityMatch: "Grappling Hit",
+        activityTypesMatch: ["attack"],
         statuses: restrained ? ["Grappled", "Restrained"] : ["Grappled"],
         options: { expiry: null, durationSeconds: null, description: this.text },
       },
     ];
-  }
-
-  override async cleanup(): Promise<void> {
-    if (!this.simpleGrapple) return;
-    const effect = (this.document.effects as { _id: string; name: string }[]).find(
-      (e) => e.name === "Grapple Conditions",
-    );
-    if (!effect) return;
-    for (const activity of this.activities) {
-      activity.effects = activity.type === "attack" ? [{ _id: effect._id }] : [];
-    }
   }
 }

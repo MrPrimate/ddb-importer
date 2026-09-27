@@ -82,7 +82,7 @@ export default class InvokeHellSanguineKnight extends _Illrigger {
           durationSeconds: 60,
         },
         changes: [
-          _Illrigger.originChange(
+          this.originChange(
             DDBEnricherData.ChangeHelper.unsignedAddChange("+@prof", 20, "system.bonuses.abilities.check"),
           ),
         ],

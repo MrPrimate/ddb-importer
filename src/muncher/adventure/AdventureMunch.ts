@@ -392,17 +392,17 @@ export default class AdventureMunch {
     if (this.adventure.required?.spells && this.adventure.required.spells.length > 0) {
       logger.debug(`${this.adventure.name} - spells required`, this.adventure.required.spells);
       this._progressNote(`Checking for missing spells from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("spell", this.adventure.required.spells, this.notifierV2);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("spell", this.adventure.required.spells, this.notifierV2);
     }
     if (this.adventure.required?.items && this.adventure.required.items.length > 0) {
       logger.debug(`${this.adventure.name} - items required`, this.adventure.required.items);
       this._progressNote(`Checking for missing items from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("item", this.adventure.required.items, this.notifierV2);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("item", this.adventure.required.items, this.notifierV2);
     }
     if (this.adventure.required?.monsters && this.adventure.required.monsters.length > 0) {
       logger.debug(`${this.adventure.name} - monsters required`, this.adventure.required.monsters);
       this._progressNote(`Checking for missing monsters from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters, this.notifierV2);
+      await AdventureMunchHelpers.tryCheckForMissingDocuments("monster", this.adventure.required.monsters, this.notifierV2);
     }
     if (parseFloat(this.adventure.version as string) < 4.1 && this.allMonsters) {
       ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);
@@ -1248,10 +1248,12 @@ export default class AdventureMunch {
 
   // this should be the drawing data type but we would need to model old fields for migration
   static _drawingFixes(drawing: any) {
-    if (!foundry.utils.hasProperty(drawing, "interface"))
+    if (!foundry.utils.hasProperty(drawing, "interface")) {
       drawing.interface = true;
-    if (!foundry.utils.hasProperty(drawing, "levels"))
+    }
+    if (!foundry.utils.hasProperty(drawing, "levels")) {
       drawing.levels = [DEFAULT_LEVEL_ID];
+    }
     if (!drawing.shape) {
       // Map legacy (v10/v11) drawing types to v14 ShapeData types. v14 only
       // knows r/c/e/p; the old freehand ("f") and text ("t") types must be

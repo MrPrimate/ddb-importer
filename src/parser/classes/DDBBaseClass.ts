@@ -46,6 +46,7 @@ export default abstract class DDBBaseClass {
     features: {
       fields: [
         "name",
+        "flags.ddbimporter.id",
         "flags.ddbimporter.classId",
         "flags.ddbimporter.class",
         "flags.ddbimporter.subClass",
@@ -688,8 +689,14 @@ export default abstract class DDBBaseClass {
     });
   }
 
-  async _buildCompendiumIndex(type: TBaseClassCompendiumTypes, indexFilter: IIndexFilter = { fields: ["name"] }) {
-    if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
+  /**
+   * Load a compendium's index with the fields the matchers read (`_indexFilter`, unless a filter
+   * is passed). Foundry merges the fields of every getIndex call into the cached index, so a
+   * narrower request would leave matching dependent on what earlier imports in the same session
+   * happened to index.
+   */
+  async _buildCompendiumIndex(type: TBaseClassCompendiumTypes, indexFilter?: IIndexFilter) {
+    if (indexFilter && Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
     if (!this._compendiums[type]) return;
     await this._compendiums[type].getIndex(this._indexFilter[type]);
   }

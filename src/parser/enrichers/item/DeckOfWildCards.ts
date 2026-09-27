@@ -3,7 +3,8 @@ import RandomTableItem from "./_RandomTableItem";
 
 /**
  * A thrown card is a Dexterity-based ranged spell attack; the suit drawn adds one row of the
- * table. Read as prose, the item became a save scraped from a single suit and no attack at all.
+ * table. Left to the prose parser, the item would be a save scraped from a single suit and no
+ * attack at all.
  */
 export default class DeckOfWildCards extends DDBEnricherData {
 

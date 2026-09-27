@@ -110,11 +110,14 @@ export default class FormOfTheBeast extends DDBEnricherData {
           targetType: "creature",
           noConsumeTargets: true,
           data: {
+            // Unarmed Strikes using the better of Strength and Charisma. The bonus carries that
+            // modifier, so the attack names no ability of its own: dnd5e would add Strength again.
             attack: {
-              ability: "",
+              ability: "none",
               bonus: "max(@abilities.str.mod, @abilities.cha.mod)",
               type: {
-                value: "ranged",
+                value: "melee",
+                classification: "unarmed",
               },
             },
             range: {
@@ -157,11 +160,14 @@ export default class FormOfTheBeast extends DDBEnricherData {
           targetType: "creature",
           noConsumeTargets: true,
           data: {
+            // Unarmed Strikes using the better of Strength and Charisma. The bonus carries that
+            // modifier, so the attack names no ability of its own: dnd5e would add Strength again.
             attack: {
-              ability: "",
+              ability: "none",
               bonus: "max(@abilities.str.mod, @abilities.cha.mod)",
               type: {
-                value: "ranged",
+                value: "melee",
+                classification: "unarmed",
               },
             },
             range: {
@@ -185,12 +191,9 @@ export default class FormOfTheBeast extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    // without an advancement root dnd5e reads a feature-held scale against character level,
-    // which overshoots on a multiclass
-    const warlock = this.ddbParser?.ddbCharacter?.raw?.classes?.find((klass) => klass.name === "Warlock");
     return {
       data: {
-        ...(warlock ? { flags: { dnd5e: { advancementRoot: warlock._id } } } : {}),
+        flags: this.classAdvancementRootFlags("Warlock"),
         // pins the key the duration scale is read under
         system: {
           identifier: "form-of-the-beast",

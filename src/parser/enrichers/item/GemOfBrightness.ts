@@ -1,6 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import { itemActivity, itemUses } from "./_ItemActivities";
 
+/**
+ * The gem's 50 charges are the item uses. First Command Word is a free self utility applying Gem
+ * Light (30 ft bright, 60 ft dim) until removed by hand. The second word is a one-charge DC 15
+ * Constitution save against one creature within 60 ft and the third a five-charge save in a 30 ft
+ * cone, each applying Blinded for 1 minute; the repeat save at each turn end is left to the table.
+ * Extinguish Light is a reminder utility. The parser's automatic extra activities and DDB modifier
+ * effects are cleared because every mode is authored here.
+ */
 export default class GemOfBrightness extends DDBEnricherData {
 
   override get type(): IDDBActivityType {

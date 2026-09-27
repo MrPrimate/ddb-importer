@@ -10,6 +10,7 @@ export default class MistOfMourning extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Cast",
       id: "ddbMistMournSpSv",
       removeDamageParts: true,
     };

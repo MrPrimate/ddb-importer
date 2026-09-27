@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Circle of the Hive. Releasing pheromones is a self-enchantment lasting a minute; while it is
- * applied the Retaliate activity (once per turn) and, from 6th level, the Protect the Monarch
+ * applied the Retaliate activity (once until the start of the druid's next turn) and, from 6th level, the Protect the Monarch
  * damage reduction are exposed as rider activities.
  */
 export default class SymbioticBiosphere extends DDBEnricherData {

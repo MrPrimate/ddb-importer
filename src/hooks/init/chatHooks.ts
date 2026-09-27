@@ -24,11 +24,13 @@ export function chatHooks() {
     const chatImg = element.querySelector("img.ddbimporter-chat-image");
     const settingsButton = element.querySelector("button.ddb-importer-chat-settings");
 
-    if (chatImg) chatImg.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      addChatImgButtonClickEvent(chatImg as HTMLElement);
-    });
+    if (chatImg) {
+      chatImg.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        addChatImgButtonClickEvent(chatImg as HTMLElement);
+      });
+    }
     if (settingsButton) settingsButton.addEventListener("click", addAppButtonClickEvent);
   });
 

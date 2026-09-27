@@ -125,7 +125,7 @@ export default class DDBCompanionFactory {
    * list the forms of several printings (Summon Plant's GHPG and Arcana Unleashed sets), and
    * building a form the block never mentions yields a bad actor. When the text
    * names none of them the whole list is kept, so a block that describes its forms elsewhere
-   * still builds as before.
+   * still builds every form.
    */
   static subTypesInBlock(name: string, text: string): string[] {
     const subTypes = DDBCompanionFactory.MULTI_2024[name] ?? [];

@@ -299,7 +299,6 @@ describe("CharacterFeatureFactory.addSpellAdvancements", () => {
     const factory: any = Object.create(CharacterFeatureFactory.prototype);
     factory.processed = { features };
     factory.spellsGranted = {};
-    factory.spellAdvancementsForce = { class: [], background: [], race: [], feat: [] };
     factory.ddbCharacter = {
       raw: { spells: [] },
       _spellParser: { _granted: { class: [], feat: [], race: [], background: [], item: [], ...granted } },
@@ -307,19 +306,91 @@ describe("CharacterFeatureFactory.addSpellAdvancements", () => {
     return factory;
   }
   // no `advancement` key on the feature, so the advancement helper returns before it needs a world
-  const bonusCantrips = { name: "Bonus Cantrips", system: {}, flags: { ddbimporter: { type: "class", forceSpellAdvancement: true } } };
+  const bonusCantrips = { name: "Bonus Cantrips", system: {}, flags: { ddbimporter: { type: "class" } } };
   const light = { name: "Light", flags: { ddbimporter: { originalName: "Light", dndbeyond: { lookup: "classFeature", lookupName: "Bonus Cantrips" } } }, system: { prepared: 2, method: "pact" } };
 
-  it("puts a granted spell on the sheet once when its feature forces a second pass over the same type", async () => {
+  it("puts a feature's granted spell on the sheet once", async () => {
     const factory = makeFactory([bonusCantrips], { class: [light] });
     await factory.addSpellAdvancements();
     expect(factory.ddbCharacter.raw.spells).toEqual([light]);
   });
 
-  it("survives a forced feature whose type has no granted spell list", async () => {
-    const trait = { name: "Odd Trait", system: {}, flags: { ddbimporter: { type: "trait", forceSpellAdvancement: true } } };
+  it("ignores a feature whose type has no granted spell list", async () => {
+    const trait = { name: "Odd Trait", system: {}, flags: { ddbimporter: { type: "trait" } } };
     const factory = makeFactory([trait], { class: [light] });
     await factory.addSpellAdvancements();
     expect(factory.ddbCharacter.raw.spells).toEqual([light]);
+  });
+});
+
+describe("CharacterFeatureFactory.applyLevelScale", () => {
+  function scaleClass(name: string, identifier: string, scales: Record<string, string>): any {
+    return {
+      name,
+      type: "class",
+      system: {
+        identifier,
+        advancement: Object.fromEntries(Object.entries(scales).map(([scaleId, type]) => [
+          `adv${scaleId}`,
+          { type: "ScaleValue", configuration: { identifier: scaleId, type } },
+        ])),
+      },
+    };
+  }
+
+  function part(formula = "", number: number | null = null, denomination: number | null = null): any {
+    return { number, denomination, bonus: "", types: [], custom: { enabled: formula !== "", formula } };
+  }
+
+  function feature(name: string, activities: Record<string, any>, flags: Record<string, any> = {}): any {
+    return { name, flags: { ddbimporter: flags }, system: { activities } };
+  }
+
+  const ranger = scaleClass("Gloom Stalker", "gloom-stalker", { "dread-ambusher": "dice" });
+  const cleric = scaleClass("Cleric", "cleric", { "channel-divinity": "number" });
+
+  it("fills an unset first damage part from a dice scale", () => {
+    const doc = feature("Dread Ambusher", { a: { damage: { parts: [part("", 2, 6)] } } });
+    CharacterFeatureFactory.applyLevelScale(doc, [ranger]);
+    expect(doc.system.activities.a.damage.parts[0].custom).toEqual({ enabled: true, formula: "@scale.gloom-stalker.dread-ambusher" });
+  });
+
+  it("leaves number scales alone, they count uses rather than damage", () => {
+    const doc = feature("Channel Divinity", { a: { damage: { parts: [part("", 1, 8)] } } });
+    CharacterFeatureFactory.applyLevelScale(doc, [cleric]);
+    expect(doc.system.activities.a.damage.parts[0].custom.enabled).toBe(false);
+  });
+
+  it("never adds a part to an activity that deals no damage", () => {
+    const doc = feature("Dread Ambusher", { save: { damage: { parts: [] } } });
+    CharacterFeatureFactory.applyLevelScale(doc, [ranger]);
+    expect(doc.system.activities.save.damage.parts).toEqual([]);
+  });
+
+  it("keeps a formula already chosen for the part", () => {
+    const doc = feature("Dread Ambusher", { a: { damage: { parts: [part("@scale.gloom-stalker.dread-ambusher + @abilities.wis.mod")] } } });
+    CharacterFeatureFactory.applyLevelScale(doc, [ranger]);
+    expect(doc.system.activities.a.damage.parts[0].custom.formula).toBe("@scale.gloom-stalker.dread-ambusher + @abilities.wis.mod");
+  });
+
+  it("prefers the feature's own subclass when two classes carry the same scale", () => {
+    const order = scaleClass("Order Domain", "order", { "divine-strike": "dice" });
+    const twilight = scaleClass("Twilight Domain", "twilight", { "divine-strike": "dice" });
+    const doc = feature("Divine Strike", { a: { damage: { parts: [part("", 1, 8)] } } }, { class: "Cleric", subClass: "Twilight Domain" });
+    CharacterFeatureFactory.applyLevelScale(doc, [order, twilight]);
+    expect(doc.system.activities.a.damage.parts[0].custom.formula).toBe("@scale.twilight.divine-strike");
+  });
+
+  it("honours skipScale and fills an unset weapon base damage", () => {
+    const skipped = feature("Dread Ambusher", { a: { damage: { parts: [part("", 2, 6)] } } }, { skipScale: true });
+    CharacterFeatureFactory.applyLevelScale(skipped, [ranger]);
+    expect(skipped.system.activities.a.damage.parts[0].custom.enabled).toBe(false);
+
+    const weapon: any = { name: "Dread Ambusher", flags: { ddbimporter: {} }, system: { damage: { base: part("", 1, 6) } } };
+    CharacterFeatureFactory.applyLevelScale(weapon, [ranger]);
+    expect(weapon.system.damage.base.custom.formula).toBe("@scale.gloom-stalker.dread-ambusher");
+    const custom: any = { name: "Dread Ambusher", flags: { ddbimporter: {} }, system: { damage: { base: part("1d4 + @mod") } } };
+    CharacterFeatureFactory.applyLevelScale(custom, [ranger]);
+    expect(custom.system.damage.base.custom.formula).toBe("1d4 + @mod");
   });
 });

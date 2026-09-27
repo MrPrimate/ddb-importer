@@ -51,7 +51,9 @@ export default class DDBSubClass extends DDBBaseClass {
       functionArgs: { newName: "Misfortunes Known", identifier: "misfortunes-known" },
       additionalAdvancements: true,
       additionalFunctions: [
-        // deferred so this static table only reads the helper while modules load (tests stub it empty)
+        // wrapped in a closure so the helper is called when the advancement is built, not while this
+        // static table is evaluated at module load (tests mock AdvancementHelper empty, so an eager
+        // call throws)
         (advancement) => AdvancementHelper.fixedNumberScale({
           name: "Jinx Points",
           identifier: "jinx-points",

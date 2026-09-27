@@ -25,14 +25,7 @@ export default class SuperiorInterdict extends _Illrigger {
 
   override get override(): IDDBOverrideData {
     return {
-      // resolves the named seal pool target at import, as addItemConsume does for a named target
-      data: {
-        flags: {
-          ddbimporter: {
-            replaceActivityUses: true,
-          },
-        },
-      },
+      replaceActivityUses: true,
     };
   }
 

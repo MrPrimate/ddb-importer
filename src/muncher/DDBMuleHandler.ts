@@ -62,6 +62,7 @@ import { existingSpeciesKey, isSpeciesKey, speciesKey } from "../lib/SpeciesIden
 import { DICTIONARY } from "../config/_module";
 import { CompendiumHelper, DDBCampaigns, DDBProxy, DDBProxyCache, DDBSources, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
+import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
 import DDBClass from "../parser/classes/DDBClass";
@@ -317,7 +318,8 @@ export default class DDBMuleHandler {
 
   _ensureSource() {
     if (!this.source) {
-      (this as any).source = {};
+      // filled in below and by the stream as its events arrive
+      this.source = {} as IDDBMuleClassSource;
     }
     const src = this.source as any;
     if (!src.subClasses) src.subClasses = {};
@@ -332,7 +334,7 @@ export default class DDBMuleHandler {
 
   _ingestBaseCharacter(payload: any) {
     this._ensureSource();
-    (this.source as any).baseCharacter = payload;
+    this.source.baseCharacter = payload;
   }
 
   // the event kinds _ingestIterationItem stores into the source; everything else is a lifecycle or
@@ -541,11 +543,6 @@ export default class DDBMuleHandler {
   }
 
   /**
-   * The class munch loops every class in a source category, so the name needs the class id
-   * and the homebrew flags to tell those runs apart: without them every class that shares a
-   * narrowed source list writes the same file.
-   */
-  /**
    * Human name for this run's cache entry. The request only carries ids; the names arrive with
    * the stream, so this is derived from the buffered source once it is complete.
    */
@@ -578,6 +575,11 @@ export default class DDBMuleHandler {
     }
   }
 
+  /**
+   * The class munch loops every class in a source category, so the name needs the class id
+   * and the homebrew flags to tell those runs apart: without them every class that shares a
+   * narrowed source list writes the same file.
+   */
   _rawExampleFileName(): string {
     const homebrewSegment = this.onlyHomebrew
       ? "onlyhb"
@@ -684,6 +686,8 @@ export default class DDBMuleHandler {
     let cacheHit = false;
     // whether any event actually carried content into this.source; progress markers do not
     let receivedPayload = false;
+    // a non-fatal error means the stream may have skipped content, so its result is not cached
+    let nonFatalErrors = 0;
     const counts: Record<string, number> = {};
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
@@ -704,7 +708,7 @@ export default class DDBMuleHandler {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
               if (cached) {
-                (this as any).source = cached;
+                this.source = cached as IDDBMuleClassSource;
                 receivedPayload = true;
               }
               return;
@@ -724,6 +728,7 @@ export default class DDBMuleHandler {
               settled = true;
               reject(new Error(message));
             } else {
+              nonFatalErrors++;
               logger.warn(`[DDBMuleSocket] non-fatal error: ${message}`);
             }
           },
@@ -748,9 +753,9 @@ export default class DDBMuleHandler {
               campaignId: body.campaignId,
             };
             const authRes = await socket.auth(authBody);
-            if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+            if (!authRes.ok) throw new StreamUnavailableError(`Auth failed: ${authRes.message}`);
             const startRes = await socket.start(streamElement, startParams);
-            if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
+            if (!startRes.ok) throw new StreamUnavailableError(`Start failed: ${startRes.message}`);
             logger.debug(`[DDBMuleSocket] jobId=${startRes.jobId} replayed=${startRes.replayed}`);
             // this.notifier({ message: `Streaming ${streamElement} (jobId=${startRes.jobId?.slice(0, 8)})` });
           } catch (err) {
@@ -770,13 +775,16 @@ export default class DDBMuleHandler {
       }
       // both branches leave the fully buffered payload in this.source. A stream that finished
       // without delivering any content leaves only the empty skeleton from _ensureSource, which
-      // is indistinguishable from a dropped stream, so it is not cached: the run proceeds with
-      // what it has and the next run asks the proxy again.
+      // is indistinguishable from a dropped stream, and one that reported non-fatal errors may be
+      // missing entries. Neither is cached: the run proceeds with what it has and the next run
+      // asks the proxy again.
       if (DDBProxyCache.isEnabled()) {
-        if (receivedPayload) {
-          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
-        } else {
+        if (!receivedPayload) {
           logger.warn(`[DDBMuleSocket] ${streamElement} stream completed without any content; not caching it`);
+        } else if (nonFatalErrors > 0) {
+          logger.warn(`[DDBMuleSocket] ${streamElement} stream completed with ${nonFatalErrors} non-fatal error(s); not caching it`);
+        } else {
+          await DDBProxyCache.set({ ...cacheRequest, label: this._cacheLabel() }, this.source, { stamp: cacheStamp });
         }
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
@@ -1118,7 +1126,7 @@ export default class DDBMuleHandler {
       logger.warn(`[stream-process] subClassChoices missing debug.subClassId`, { subClassChoiceData });
       return;
     }
-    const subClassData = (this.source as any).subClassData?.[subClassId];
+    const subClassData = this.source.subClassData?.[subClassId];
     if (!subClassData) {
       logger.warn(`[stream-process] no subClassData for subClassId ${subClassId} yet, deferring`);
       return;

@@ -211,13 +211,13 @@ export function makeEnricherData<T>(
     ...(actions === null
       ? {}
       : {
-          ddbData: makeDdbCharacterData({
-            character: {
-              actions: { class: [], race: [], feat: [], item: [], background: [], ...actions },
-              ...character,
-            },
-          }),
+        ddbData: makeDdbCharacterData({
+          character: {
+            actions: { class: [], race: [], feat: [], item: [], background: [], ...actions },
+            ...character,
+          },
         }),
+      }),
     rawCharacter,
     klass,
     subKlass,

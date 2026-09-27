@@ -176,10 +176,12 @@ export default class DDBDataUtils {
       });
     }
 
-    if ("cost" in foundryItem.system && costOverride)
+    if ("cost" in foundryItem.system && costOverride) {
       foundryItem.system.cost = costOverride;
-    if ("weight" in foundryItem.system && weightOverride)
+    }
+    if ("weight" in foundryItem.system && weightOverride) {
       foundryItem.system.weight.value = parseInt(String(weightOverride));
+    }
     if (silvered) {
       foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "sil");
     }
