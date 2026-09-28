@@ -530,7 +530,8 @@ describe("family names reach their shared enricher", () => {
 
   it("does not sweep unrelated grass items into the weapon family", () => {
     expect(resolve("Grass Carpet")).toBeNull();
-    expect(resolve("Grass Whistle Blade")).toBeNull();
+    // a real item with its own enricher, not the "of Grass" family
+    expect(resolve("Grass Whistle Blade")).toBe("GrassWhistleBlade");
   });
 });
 

@@ -69,8 +69,17 @@ describe.each([false, true])("ongoing spell durations (2014: %s)", (is2014) => {
       expect(cast.consumption?.spellSlot).toBe(true);
     }
     expect(ring.target?.template).toMatchObject({ type: "ring", size: "30" });
-    expect(ongoing._id).toBe("ddbBlaBarZoneSa1");
     expectFollowUp(ongoing);
+    if (is2014) {
+      // the 2014 casts only place the wall; the region finds the save by name, not by a fixed id
+      expect(ongoing._id).not.toBe("ddbBlaBarZoneSa1");
+      expect(ongoing.type).toBe("save");
+      for (const cast of [wall, ring]) {
+        expect("damage" in cast ? cast.damage.parts : []).toEqual([]);
+      }
+      return;
+    }
+    expect(ongoing._id).toBe("ddbBlaBarZoneSa1");
     assert("save" in ongoing && "save" in wall && "damage" in ongoing && "damage" in wall);
     expect(ongoing.save).toEqual(wall.save);
     expect(ongoing.damage).toEqual(wall.damage);
