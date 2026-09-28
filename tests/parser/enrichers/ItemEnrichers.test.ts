@@ -41,6 +41,7 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 
 import * as ItemEnrichers from "../../../src/parser/enrichers/item/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
+import { retributiveStrike } from "../../../src/parser/enrichers/item/_ItemActivities";
 
 type TEnricher = new (options: any) => any;
 
@@ -1289,5 +1290,73 @@ describe("item effects applied by an activity do not transfer", () => {
 
   it("has no activity-matched or condition hint left at the transfer default", () => {
     expect(offenders, `set options.transfer false on: ${offenders.join(", ")}`).toEqual([]);
+  });
+});
+
+// =============================================================================
+// Weapon property enrichers built from the 2026-09-28 rider review. Text here is synthetic.
+// =============================================================================
+describe("weapon property enrichers", () => {
+  const record = (Enricher: TEnricher, name: string, description = "", extra: Record<string, any> = {}) => build(Enricher, {
+    name,
+    ddbParser: { originalName: name, parsingType: "weapon", ddbDefinition: { description, properties: [] }, data: { system: { uses: {} } }, ...extra },
+  });
+  const names = (e: any) => e.additionalActivities.map((a: any) => a.init.name);
+
+  it("reads Retributive Strike's DC and multipliers from either printing", () => {
+    const banded: any = retributiveStrike("Retributive Strike. Break it. You take force damage equal to 16 x the number of charges. Every other creature must make a DC 17 Dexterity saving throw. On a failed save, 8 x the number of charges within 10 ft, 6 x the number of charges farther, 4 x the number of charges at the edge.");
+    expect(banded.build.saveOverride.dc.formula).toBe("17");
+    expect(banded.build.damageParts[0].custom.formula).toBe("8 * @item.uses.value");
+    expect(banded.build.activationOverride.condition).toContain("6x at 11-20 ft");
+    const flat: any = retributiveStrike("Retributive Strike. You take Force damage equal to 16 times the number of charges. Each other creature makes a DC 18 Dexterity saving throw. On a failed save, a creature takes Force damage equal to 4 times the number of charges.");
+    expect(flat.build.saveOverride.dc.formula).toBe("18");
+    expect(flat.build.damageParts[0].custom.formula).toBe("4 * @item.uses.value");
+  });
+
+  it("scales Will of the Talon and Lash of Shadows by stage", () => {
+    const dormant = record(ItemEnrichers.WillOfTheTalon, "Will of the Talon (Dormant)");
+    const exalted = record(ItemEnrichers.WillOfTheTalon, "Will of the Talon");
+    expect(dormant.additionalActivities[1].build.saveOverride.dc.formula).toBe("13");
+    expect(dormant.additionalActivities[1].build.damageParts[0].number).toBe(3);
+    expect(exalted.additionalActivities[1].build.damageParts[0].number).toBe(5);
+    expect(dormant.effects.map((e: any) => e.name)).toEqual(["Frightful Presence"]);
+    expect(exalted.effects.map((e: any) => e.name)).toContain("Will of the Talon: Resistances");
+    expect(names(record(ItemEnrichers.LashOfShadows, "Lash of Shadows (Dormant)"))).toEqual(["Serpent Venom", "Dead Eyes"]);
+    expect(names(record(ItemEnrichers.LashOfShadows, "Lash of Shadows (Exalted)"))).toContain("Cockatrice Tears: Second Save");
+  });
+
+  it("builds Dragon's Wrath Weapon by tier with a choice of breath types", () => {
+    expect(names(record(ItemEnrichers.DragonsWrathWeapon, "Dragon's Wrath Weapon (Stirring)"))).toEqual(["Wrathful Burst"]);
+    const ascendant = record(ItemEnrichers.DragonsWrathWeapon, "Dragon's Wrath Weapon (Ascendant)");
+    const cone = ascendant.additionalActivities[1];
+    expect(cone.build.saveOverride.dc.formula).toBe("18");
+    expect(cone.build.damageParts[0].number).toBe(12);
+    expect(cone.build.damageParts[0].types).toContain("radiant");
+    expect(ascendant.activity.data.damage.parts[0].number).toBe(3);
+  });
+
+  it("builds only the songs a Headbanger Lute record describes", () => {
+    const both = "Panic! at the Tavern. Each creature must make a DC 14 Wisdom saving throw, taking 4d6 psychic damage. Mithrallica. Each creature in a 20-foot cone must make a DC 14 Strength saving throw, taking 4d6 thunder damage.";
+    const lute = record(ItemEnrichers.HeadbangerLute, "Headbanger Lute (Rare Club)", both);
+    expect(names(lute)).toEqual(["Corrosive Strike", "Panic! at the Tavern", "Mithrallica"]);
+    expect(lute.additionalActivities[2].build.targetOverride.template.size).toBe("20");
+    expect(names(record(ItemEnrichers.HeadbangerLute, "Headbanger Lute (Uncommon Club)", "A lute that deals an additional 1d8 acid damage."))).toEqual(["Corrosive Strike"]);
+  });
+
+  it("gives Gunnspier Backfire or Chomp by rarity and keeps Sword of Kas's save on its wielder", () => {
+    expect(names(record(ItemEnrichers.Gunnspier, "Gunnspier (Rare Pike)"))).toEqual(["Point Blank Shot", "Backfire"]);
+    expect(names(record(ItemEnrichers.Gunnspier, "Gunnspier (Very Rare Pike)"))).toEqual(["Point Blank Shot", "Chomp"]);
+    const kas = record(ItemEnrichers.SwordOfKas, "Sword of Kas");
+    expect(kas.additionalActivities[1].build.targetOverride.affects.type).toBe("self");
+  });
+
+  it("puts charges the text states onto items DDB leaves without uses", () => {
+    const teeth = record(ItemEnrichers.TrappersTeeth, "Trapper's Teeth", "The teeth have 4 charges and regain all expended charges at dawn.", { ddbItem: { chargesUsed: 0 } });
+    expect(teeth.override.uses).toMatchObject({ max: "4", recovery: [{ period: "dawn", type: "recoverAll" }] });
+  });
+
+  it("stops the stray primary on a parent record that does not parse as a weapon", () => {
+    expect(record(ItemEnrichers.Moonblade, "Moonblade", "", { parsingType: "wondrous" }).stopDefaultActivity).toBe(true);
+    expect(record(ItemEnrichers.Moonblade, "Moonblade Longsword").stopDefaultActivity).toBe(false);
   });
 });
