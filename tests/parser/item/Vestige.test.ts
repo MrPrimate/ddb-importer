@@ -180,3 +180,16 @@ describe("Vestige.getStageUses", () => {
     expect(Vestige.getStageUses("Cabal’s Ruin (Exalted)", "", DDBItem)).toBeNull();
   });
 });
+
+describe("Vestige.getStageSaveDC", () => {
+  const description = "<p>Dormant</p><h4>Dormant</h4><p>On a critical hit, the target must succeed on a DC 13 Wisdom saving throw or be frightened.</p>"
+    + "<h4>Awakened</h4><p>The DC to resist being frightened increases to 15.</p>"
+    + "<h4>Exalted</h4><p>The DC to resist being frightened increases to 17. A Strength saving throw DC increases to 19.</p>";
+
+  it("takes the last raise up to the record's stage", () => {
+    expect(Vestige.getStageSaveDC("Whistle (Dormant)", description, ["wisdom"])).toBeNull();
+    expect(Vestige.getStageSaveDC("Whistle (Awakened)", description, ["wisdom"])).toBe("15");
+    expect(Vestige.getStageSaveDC("Whistle (Exalted)", description, ["wisdom"])).toBe("17");
+    expect(Vestige.getStageSaveDC("Whistle", description, ["wisdom"])).toBeNull();
+  });
+});

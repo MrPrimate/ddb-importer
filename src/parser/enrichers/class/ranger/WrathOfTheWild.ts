@@ -76,7 +76,9 @@ export default class WrathOfTheWild extends DDBEnricherData {
     return [
       {
         name: "Ancient Armor",
-        activityMatch: "NONE",
+        // a rider stays inert on the feature until the enchantment copies it, and the copy must
+        // transfer to reach the actor
+        options: { transfer: true },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("@scale.hollow-warden.wrath-of-the-wild", 20, "system.attributes.ac.bonus"),
         ],

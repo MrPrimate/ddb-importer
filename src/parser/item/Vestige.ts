@@ -66,6 +66,32 @@ export default class Vestige {
   }
 
   /**
+   * A save's DC as of the stage declared by `name`. Later stages raise it in prose rather than
+   * restating the save ("the saving throw DC increases to 17", "The DC to resist being frightened
+   * from a critical hit increases to 15"), so the dormant number is the one the save sentence
+   * carries. The last raise up to and including the item's stage wins; a raise that names a
+   * different ability belongs to another save. Null when unstaged, dormant or never raised.
+   */
+  static getStageSaveDC(name: string | null | undefined, description: string, abilityNames: string[]): string | null {
+    const target = Vestige.getStage(name);
+    if (!target || target === "dormant") return null;
+    const upTo = Vestige.STAGES.indexOf(target);
+    const others = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
+      .filter((ability) => !abilityNames.includes(ability));
+    let dc: string | null = null;
+    for (const section of Vestige.splitDescription(description)) {
+      if (!section.stage || Vestige.STAGES.indexOf(section.stage) > upTo) continue;
+      const text = section.text.replace(/<[^>]+>/g, " ");
+      for (const match of text.matchAll(/[^.]*\bDC\b[^.]{0,80}?\bincreases to (\d+)[^.]*/gi)) {
+        const sentence = match[0].toLowerCase();
+        if (others.some((ability) => sentence.includes(ability))) continue;
+        dc = match[1];
+      }
+    }
+    return dc;
+  }
+
+  /**
    * Charges as of the stage declared by `name`, or null when this is not a staged item or no
    * charge count could be found (in which case callers fall back to the whole-description scan).
    */

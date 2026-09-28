@@ -81,6 +81,28 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
 }
 
 
+/** Foundry 14's ActiveEffect.getEffectStart, which the installed fvtt-types do not declare. */
+interface IEffectStartSource {
+  getEffectStart(combat?: Combat.Implementation | null): IEffectStartData;
+}
+
+/**
+ * Give an importer enchantment its start data as it is applied, so Foundry can expire it.
+ *
+ * Foundry 14 only stamps `start` on actor-owned effects, and dnd5e stamps applied enchantments
+ * itself only from 6.0, so on 5.3 an enchantment lands on its item with no start. The effect
+ * registry skips effects without one, so neither a counted duration nor a core expiry
+ * (turnStart, turnEnd...) ever ends it.
+ */
+function stampEnchantmentStart(_item: Item.Implementation, enchantmentData: I5eEffectData) {
+  if (!foundry.utils.isNewerVersion("5.99.99", game.system?.version ?? "6.0.0")) return true;
+  if (!enchantmentData.flags?.ddbimporter || enchantmentData.start) return true;
+  const duration = enchantmentData.duration;
+  if (!duration?.expiry && !Number.isFinite(duration?.value)) return true;
+  enchantmentData.start = (ActiveEffect.implementation as unknown as IEffectStartSource).getEffectStart();
+  return true;
+}
+
 export default class DDBEffectHooks {
 
 
@@ -101,6 +123,7 @@ export default class DDBEffectHooks {
   static loadHooks() {
     // special effect functions
     Hooks.on<"applyActiveEffect">("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
+    Hooks.on("dnd5e.preApplyEnchantment", stampEnchantmentStart);
     if (!game.modules.get("dae")?.active) {
       // the hook types the actor as Actor5e with optional flags; TImporterActor requires flags
       // but daeStubEffects never reads them, so the cast is safe

@@ -3738,5 +3738,221 @@
   {
     "name": "Invisibility (Self Only)",
     "path": "icons/magic/air/fog-gas-smoke-dense-gray.webp"
+  },
+  {
+    "name": "Acid Blast",
+    "path": "icons/magic/acid/projectile-needles-salvo-green.webp"
+  },
+  {
+    "name": "Antiballistics Field",
+    "path": "icons/commodities/gems/pearl-purple-dark.webp"
+  },
+  {
+    "name": "Arboreal Curse",
+    "path": "icons/creatures/magical/spirit-undead-ghost-tan-teal.webp"
+  },
+  {
+    "name": "Arboreal Curse",
+    "path": "icons/creatures/magical/spirit-undead-ghost-tan-teal.webp"
+  },
+  {
+    "name": "Arcanomagnetic Storm",
+    "path": "icons/magic/lightning/barrier-shield-orb-pink.webp"
+  },
+  {
+    "name": "Arm Cannon",
+    "path": "icons/skills/ranged/cannon-barrel-firing-orange.webp"
+  },
+  {
+    "name": "Aspect of the Narwhal",
+    "path": "icons/commodities/bones/horn-simple-grey.webp"
+  },
+  {
+    "name": "Aura of Impurity",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Banish to the Space Between Worlds",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Bearstormer",
+    "path": "icons/creatures/abilities/bear-roar-bite-brown-green.webp"
+  },
+  {
+    "name": "Beast of Ragnarok",
+    "path": "icons/magic/unholy/orb-glowing-purple.webp"
+  },
+  {
+    "name": "Become Nightwing",
+    "path": "icons/creatures/mammals/bat-movement-flying-purple.webp"
+  },
+  {
+    "name": "Bergelmir's Provocation",
+    "path": "icons/magic/control/energy-stream-link-large-orange.webp"
+  },
+  {
+    "name": "Billowing Sails",
+    "path": "icons/environment/settlement/ship.webp"
+  },
+  {
+    "name": "Black Hand",
+    "path": "icons/equipment/hand/gauntlet-armored-blue.webp"
+  },
+  {
+    "name": "Black Ribbons",
+    "path": "icons/commodities/cloth/ribbon-bow-purple.webp"
+  },
+  {
+    "name": "Black Well",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Blood Sacrifice",
+    "path": "icons/magic/death/skull-horned-goat-pentagram-red.webp"
+  },
+  {
+    "name": "Blood Wisp",
+    "path": "icons/magic/unholy/projectiles-blood-salvo-red.webp"
+  },
+  {
+    "name": "Blunder",
+    "path": "icons/magic/control/silhouette-fall-slip-prone.webp"
+  },
+  {
+    "name": "Body Warping of Gorgoroth",
+    "path": "icons/magic/earth/strike-body-stone-crumble.webp"
+  },
+  {
+    "name": "Bone-Chilling Smite",
+    "path": "icons/magic/water/water-elemental-blue-teeth.webp"
+  },
+  {
+    "name": "Bound Fortunes",
+    "path": "icons/magic/control/buff-luck-fortune-green.webp"
+  },
+  {
+    "name": "Bragi's Theatrical Fall",
+    "path": "icons/magic/control/silhouette-fall-slip-prone.webp"
+  },
+  {
+    "name": "Branch and Root of Yggdrasil",
+    "path": "icons/commodities/materials/plant-branch-brown-green.webp"
+  },
+  {
+    "name": "Breath of the Deep",
+    "path": "icons/creatures/fish/fish-bioluminous-blue.webp"
+  },
+  {
+    "name": "Burning Radiance",
+    "path": "icons/magic/light/beam-strike-village-yellow.webp"
+  },
+  {
+    "name": "Burst Forth",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Calcified Memories",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Call Deity",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Call Shadow Mastiff",
+    "path": "icons/creatures/mammals/wolf-howl-moon-black.webp"
+  },
+  {
+    "name": "Cannotrip",
+    "path": "icons/sundries/scrolls/scroll-bound-sealed-red-green.webp"
+  },
+  {
+    "name": "Caustic Grip",
+    "path": "icons/magic/acid/dissolve-arm-flesh.webp"
+  },
+  {
+    "name": "Chains of Beleth",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Charnel Banquet",
+    "path": "icons/skills/wounds/illness-disease-glowing-green.webp"
+  },
+  {
+    "name": "Child of Light and Darkness",
+    "path": "icons/magic/time/day-night-sun-moon.webp"
+  },
+  {
+    "name": "Cloak of Shadow",
+    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+  },
+  {
+    "name": "Circle of Scarlet",
+    "path": "icons/skills/melee/blood-slash-foam-red.webp"
+  },
+  {
+    "name": "Clutch of Darkness",
+    "path": "icons/magic/unholy/strike-beam-blood-red-gray.webp"
+  },
+  {
+    "name": "Coldheart",
+    "path": "icons/magic/water/heart-ice-freeze.webp"
+  },
+  {
+    "name": "Comet Shards",
+    "path": "icons/commodities/gems/gem-fragmented-pink.webp"
+  },
+  {
+    "name": "Concussive Burst",
+    "path": "icons/magic/air/air-burst-spiral-large-blue.webp"
+  },
+  {
+    "name": "Conjure Cannonball",
+    "path": "icons/skills/ranged/bullets-triple-ball-orange.webp"
+  },
+  {
+    "name": "Conjure Shadow Titan",
+    "path": "icons/magic/control/fear-fright-monster-purple-blue.webp"
+  },
+  {
+    "name": "Conjure Anomaly",
+    "path": "icons/magic/unholy/projectile-fireball-agile-purple.webp"
+  },
+  {
+    "name": "Cosmic Horror",
+    "path": "icons/magic/control/fear-fright-monster-grin-purple-blue.webp"
+  },
+  {
+    "name": "Contamination Immunity",
+    "path": "icons/svg/biohazard.svg"
+  },
+  {
+    "name": "Contaminated Power",
+    "path": "icons/svg/biohazard.svg"
+  },
+  {
+    "name": "Create Spirit Train Stop",
+    "path": "icons/magic/time/clock-stopwatch-white-blue.webp"
+  },
+  {
+    "name": "Create Mist of R'lyeh",
+    "path": "icons/magic/air/fog-gas-smoke-brown.webp"
+  },
+  {
+    "name": "Creeping Darkness",
+    "path": "icons/magic/air/fog-gas-smoke-blue-gray.webp"
+  },
+  {
+    "name": "Crustacean Form",
+    "path": "icons/environment/creatures/crustacean-shrimp.webp"
+  },
+  {
+    "name": "Crimson Harvest",
+    "path": "icons/skills/melee/blood-slash-foam-red.webp"
+  },
+  {
+    "name": "Creeping Death",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-green.webp"
   }
 ]

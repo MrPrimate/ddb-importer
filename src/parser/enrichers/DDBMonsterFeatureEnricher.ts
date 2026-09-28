@@ -474,6 +474,50 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "An Army from Blood": "Summon Creatures",
     "Action 2: The Manifold Self": "Summon Creatures",
     "Abyssal Rift": "Summon Creatures",
+    // enemy-debuff emanations
+    "Aura of Murder": "Vulnerability Aura",
+    // the monster grants itself resistance for a while; shared names are text-gated
+    "Battle Fury": "Self Resistance",
+    "Blessing of the Raven Queen": "Self Resistance",
+    "Dohma Rally": "Self Resistance",
+    "Draconic Rage": "Self Resistance",
+    "Enlarge": "Self Resistance",
+    "Frenzy": "Self Resistance",
+    "Panic Shift": "Self Resistance",
+    "Phase": "Self Resistance",
+    "Rage": "Self Resistance",
+    "Retract": "Self Resistance",
+    "Shadow Cloak": "Self Resistance",
+    "Shadow Form": "Self Resistance",
+    "Skin to Stone": "Self Resistance",
+    "Vaprak's Rage": "Self Resistance",
+    // a resistance picked on use: one enchantment per option
+    "Absorb Magic": "Self Resistance",
+    "Adaptive Skin": "Self Resistance",
+    "Apothecary": "Self Resistance",
+    "Breath Born": "Self Resistance",
+    "Chromatic Resistance": "Self Resistance",
+    "Dragon's Resistance": "Self Resistance",
+    "Elemental Affinity": "Self Resistance",
+    "Evasive Blink": "Self Resistance",
+    "Infused Arsenal": "Self Resistance",
+    "Resistance": "Self Resistance",
+    "Stonehide Growth": "Self Resistance",
+    // resistance given to other creatures
+    "Alchemical Vapors": "Grant Resistance",
+    "Bind": "Grant Resistance",
+    "Burning Heart": "Grant Resistance",
+    "Devotion": "Grant Resistance",
+    "Kiss of the Frozen Heart": "Grant Resistance",
+    "Liquefaction Ritual": "Grant Resistance",
+    "Protective Bond": "Grant Resistance",
+    "Sheltering Shield": "Grant Resistance",
+    "Spell Refuge": "Grant Resistance",
+    // resistance that holds only in one form or state: a Living Shadow style toggle
+    "Ghostly Body": "Form Resistance",
+    "Made of Shadows": "Form Resistance",
+    "Orb of Water": "Form Resistance",
+    "Shield of Erasmus": "Form Resistance",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH: Record<string, string> = {
@@ -563,6 +607,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "War Cry": MonsterEnrichers.Generic.WarCry,
     "Lair Actions": MonsterEnrichers.Generic.LairActions,
     "Summon Creatures": MonsterEnrichers.Generic.SummonCreatures,
+    "Self Resistance": MonsterEnrichers.Generic.SelfResistance,
+    "Grant Resistance": MonsterEnrichers.Generic.GrantResistance,
+    "Form Resistance": MonsterEnrichers.Generic.FormResistance,
+    "Vulnerability Aura": MonsterEnrichers.Generic.VulnerabilityAura,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
@@ -581,6 +629,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Giant Insect": {
       "Poison Jab": MonsterEnrichers.GiantInsect.PoisonJab,
       "Venomous Spew (Centipede Only)": MonsterEnrichers.GiantInsect.VenomousSpew,
+    },
+    "Laeral Silverhand": {
+      "Spellfire": MonsterEnrichers.LaeralSilverhand.Spellfire,
     },
     "Clay Golem": {
       "Haste (Recharge 5\u20136)": MonsterEnrichers.ClayGolem.Haste,

@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.4.5
+
+Backported changes from 7.5.6
+
 # 7.4.4
 
 - Some 2024 Companions would incorrectly type Damage immunities as custom conditions. (Reanimator companion). @redarchongaming
