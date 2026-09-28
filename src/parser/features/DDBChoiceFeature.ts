@@ -159,7 +159,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         wasOption: choice.wasOption,
         entityTypeId: choice.entityTypeId,
         type: choice.type,
-        optionId: String(choice.optionId),
+        optionId: choice.optionId,
         optionComponentId: choice.optionComponentId,
       });
 

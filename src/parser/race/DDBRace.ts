@@ -159,6 +159,14 @@ export default class DDBRace {
     // "Gnomish Lineage",
   ];
 
+  /**
+   * Strict flag equality, except that a numeric id also matches its string form: choice option ids
+   * were written to compendium documents as strings by earlier 7.x releases.
+   */
+  static flagValueMatches(flagValue: unknown, value: unknown): boolean {
+    return flagValue === value || (typeof value === "number" && flagValue === String(value));
+  }
+
   static getGroupName(ids: number[], baseRaceName: string) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
     if (ddbGroup) {
@@ -351,7 +359,7 @@ export default class DDBRace {
 
       const filterFunction = ((i: object) => {
         return Object.entries(flags).every(([key, value]) => {
-          return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
+          return DDBRace.flagValueMatches(foundry.utils.getProperty(i, `flags.ddbimporter.${key}`), value);
         });
       });
       const match = findAll
@@ -363,7 +371,7 @@ export default class DDBRace {
   }
 
   getCompendiumIxByFlags<T extends TRaceIndexEntries>(compendiums: string[], flags: Record<string, unknown>): T | null {
-    const match = this.#getCompendiumIxesByFlags<T>(compendiums, flags, true);
+    const match = this.#getCompendiumIxesByFlags<T>(compendiums, flags, false);
     if (match) return match as T;
     return null;
   }
@@ -1024,6 +1032,10 @@ export default class DDBRace {
   }
 
   #generateConditionAdvancement(trait: IDDBRacialTraitDefinition) {
+    // A munched lineage species grants its chosen lineage trait, which carries the resistance as an
+    // effect. The muncher reads conditions from the description table instead of the modifiers, which
+    // always yields the first lineage row (e.g. Poison for every Tiefling legacy).
+    if (this.isMuncher && this.isLineage && this.lineageTrait?.componentId === trait.id) return;
     // TO DO: Dragonborn Resistance choice advancement
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
@@ -1073,7 +1085,9 @@ export default class DDBRace {
         if (choiceMatch && traitMatch) {
           const choice = this.#getTraitChoice(trait);
           if (!choice) return false;
-          const choiceOptionMatch = foundry.utils.getProperty(matchFlags, "dndbeyond.choice.optionId") === choice.id;
+          const choiceOptionMatch = DDBRace.flagValueMatches(
+            foundry.utils.getProperty(matchFlags, "dndbeyond.choice.optionId"), choice.id,
+          );
           if (!choiceOptionMatch) return false;
         }
         return traitMatch;
@@ -1482,6 +1496,21 @@ export default class DDBRace {
       advancementRecord[id] = advancement;
     }
     return race;
+  }
+
+  /**
+   * Builds the compendium species document for an already parsed character. The mule munch parses
+   * species before their traits are written to the compendium, so it rebuilds each species with this
+   * once the traits exist, otherwise the species would carry no trait advancements.
+   */
+  static async buildPendingSpeciesDocument(ddbCharacter: DDBCharacter): Promise<I5eRaceItem | null> {
+    const ddb = ddbCharacter.source?.ddb;
+    if (!ddb) return null;
+    const traits = ddb.character.race.racialTraits.map((r) => r.definition);
+    const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
+    const ddbRace = new DDBRace({ ddbCharacter, compendiumRacialTraits });
+    await ddbRace.build();
+    return ddbRace._buildPendingSpeciesDocument();
   }
 
   static async writePendingSpeciesDocuments(races: I5eRaceItem[], update: boolean | null) {

@@ -292,6 +292,19 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["languages:*"] }]);
     expect(data.value.chosen).toEqual(["languages:standard:giant"]);
   });
+  it("grants Common for the 2024 species phrasing without doubling the trait prefix", () => {
+    const adv: any = makeHelper({ type: "race", isMuncher: true }).getLanguageAdvancement(
+      [],
+      makeFeature({
+        name: "Languages",
+        description: "<p>Your character knows at least three languages: Common plus two languages you roll or choose from the Standard Languages table.</p>",
+      }),
+      0,
+    );
+    const data = adv.toObject();
+    expect(data.configuration.grants).toEqual(["languages:standard:common"]);
+    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["languages:standard:*"] }]);
+  });
 });
 
 // =============================================================================
@@ -744,5 +757,38 @@ describe("AdvancementHelper.generateScaleValueAdvancement", () => {
     const result: any = AdvancementHelper.generateScaleValueAdvancement(feature);
     expect(result.configuration.type).toBe("string");
     expect(result.configuration.scale["1"]).toEqual({ value: "1d8 + 2" });
+  });
+});
+
+// =============================================================================
+// getSpellChoiceAdvancement (school restricted feat choice)
+// =============================================================================
+describe("AdvancementHelper.getSpellChoiceAdvancement", () => {
+  it("offers a school restricted level 1 choice when the feat is gained, with one free cast", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getSpellChoiceAdvancement({
+        spellChoice: { level: 1, spellList: "", amount: "1", schools: ["div", "enc"] },
+        abilities: ["int", "wis", "cha"],
+        name: "Test Feat (Spells)",
+        spellLinks: [],
+        is2024: false,
+        method: "spell",
+      });
+      const data = adv.toObject();
+      expect(data.level).toBe(0);
+      expect(data.configuration.choices).toEqual({ 0: { count: 1, replacement: false } });
+      expect(data.configuration.restriction).toEqual({ level: 1, type: "spell", list: [], school: ["div", "enc"] });
+      expect(data.configuration.spell).toEqual({
+        ability: ["int", "wis", "cha"],
+        method: "spell",
+        prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+        uses: { max: "1", per: "lr", requireSlot: false },
+      });
+      expect(data.hint).toBe("Choose a level 1 spell from the Divination or Enchantment school.");
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
   });
 });

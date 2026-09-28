@@ -649,7 +649,8 @@ global {
       componentId?: number;
       componentTypeId?: number;
       choiceId?: string;
-      optionId?: string;
+      // numeric DDB option id; documents written by earlier 7.x releases hold it as a string
+      optionId?: number | string;
       optionComponentId?: number;
       parentChoiceId?: string | null;
       parentName?: string;

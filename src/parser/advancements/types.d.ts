@@ -67,6 +67,8 @@ global {
     level: number;
     spellList: string;
     amount: string;
+    /** dnd5e spell school keys the chosen spell must come from (Fey Touched: div, enc) */
+    schools?: string[];
   }
 
   interface IParsedSpellAdvancementData {
