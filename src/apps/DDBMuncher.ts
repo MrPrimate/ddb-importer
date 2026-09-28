@@ -36,7 +36,7 @@ import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
 import DDBSourceBookBrowser from "./DDBSourceBookBrowser";
 import SourceSelectionPreview from "./lib/SourceSelectionPreview";
-import { isSpeciesKey, speciesKey } from "../lib/SpeciesIdentity";
+import { isSpeciesKey, speciesKey, speciesRulesVersion } from "../lib/SpeciesIdentity";
 
 
 interface IDDBMuncherContext extends
@@ -1427,24 +1427,29 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // Keep unavailable selections in the filter: no matches must never become an all-species request.
     const dontGrabExisting = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
+    const rulesVersion = DDBMuncher.getSelectedRulesVersion();
     const savedSpecies = type === "species"
       ? utils.getSetting<string[]>("munching-policy-character-species")
       : [];
-    const speciesFilterActive = type === "species" && (savedSpecies.length > 0 || dontGrabExisting);
+    // Species always go out as explicit keys: the proxy treats an empty list as every species of
+    // both rules versions, and an empty selection means every species the picker lists.
+    const speciesFilterActive = type === "species";
     let speciesList: IDDBMuleSpeciesDefinition[] = [];
     const selectedSpeciesKeys = savedSpecies;
     let existingSpeciesKeys = new Set<string>();
     if (type === "species") baseOptions.speciesKeys = [];
     if (speciesFilterActive) {
-      speciesList = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
+      const catalogue = await DDBMuleHandler.getList<IDDBMuleSpeciesDefinition>("species", null);
       if (!savedSpecies.every(isSpeciesKey)) {
         throw new Error("Invalid species selection. Clear the saved selections and select species again.");
       }
+      speciesList = catalogue.filter((sp) => speciesRulesVersion(sp) === rulesVersion);
       if (savedSpecies.length > 0 && !speciesList.some((sp) => savedSpecies.includes(speciesKey(sp) ?? ""))) {
         return "No selected species are available in the catalogue. Please reselect species.";
       }
       if (dontGrabExisting) {
-        existingSpeciesKeys = await DDBMuleHandler.getExistingSpeciesKeys(null, speciesList);
+        // the full catalogue resolves older compendium entries that carry no entityRaceTypeId
+        existingSpeciesKeys = await DDBMuleHandler.getExistingSpeciesKeys(rulesVersion, catalogue);
       }
     }
 
@@ -1453,7 +1458,6 @@ export default class DDBMuncher extends DDBAppV2 {
     let featBgActive = type === "feat" || type === "background";
     let catalog: IDDBMuleFeatDefinition[] = [];
     let existingFeatBgIds = new Set<number>();
-    const rulesVersion = DDBMuncher.getSelectedRulesVersion();
     if (featBgActive) {
       try {
         // the /proxy/feats and /proxy/backgrounds endpoints ignore sources and return the full catalog
