@@ -11,6 +11,7 @@ import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
+import { expiryToDaeSpecialDurations, pseudoExpiryBackstop } from "../enrichers/effects/EffectExpiryHelpers";
 
 interface IDDBItemMartialArtsDie {
   diceCount: number | null;
@@ -100,6 +101,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
+  /** Restricted damage modifiers whose restriction names a save; see `#foldRestrictedSaveAttacks`. */
+  #restrictedSaveAttacks: { name: string; restriction: string; damage: I5eDamagePart }[] = [];
   rawCharacter: I5ePCData;
   raw: IDDBCharacterDataStub;
   declare ddbDefinition: IDDBItemDefinition;
@@ -472,12 +475,121 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       found = true;
     }
 
+    if (found && !save.dc.formula && !save.dc.calculation) {
+      const proseDC = DDBItem.parseProseSaveDC(description);
+      if (proseDC) save.dc = proseDC;
+    }
+
     return found ? save : null;
   }
 
+  /**
+   * A save DC written out as a sum rather than a number: "(DC 10 plus your Proficiency Bonus)" or
+   * "DC equals 8 plus your Strength modifier and your Proficiency Bonus". The item-bonus form
+   * ("DC = 16 + the axe's bonus") needs the item's bonus, see {@link DDBItem.parseItemBonusSaveDC}.
+   */
+  static parseProseSaveDC(description: string): { calculation: string; formula: string } | null {
+    const text = DDBDescriptions.plainText(description);
+    const abilities = DDBItem.SAVE_ABILITY_NAMES;
+    const lead = "DC (?:for the save )?(?:equals |is equal to |is |= )?";
+
+    const plus = "(?:plus|\\+|and)";
+    const abilityDC = text.match(new RegExp(
+      `${lead}8 (?:plus|\\+) your (?:(${abilities}) modifier ${plus} (?:your )?Proficiency Bonus|Proficiency Bonus ${plus} (?:your )?(${abilities}) modifier)`,
+      "i",
+    ));
+    if (abilityDC) {
+      const [ability] = DDBItem.saveAbilityKeys(abilityDC[1] ?? abilityDC[2]);
+      if (ability) return { calculation: ability, formula: "" };
+    }
+
+    // a further term after the bonus is one this cannot resolve, such as the ability used for the attack
+    const profDC = text.match(new RegExp(`${lead}(\\d+) (?:plus|\\+) your Proficiency Bonus(?! ${plus})`, "i"));
+    if (profDC) return { calculation: "", formula: `${profDC[1]} + @prof` };
+
+    return null;
+  }
+
+  static RESTRICTION_NAMES_SAVE = /\bsav(?:e|ing)\b/i;
+
+  /**
+   * The save a restricted damage modifier's restriction names, as far as it says:
+   * "Backfire - DC 15 CON save", "Dex. Save: DC 16", "DC 13 Dexterity saving throw".
+   */
+  static restrictionSave(restriction: string): { abilities: string[]; dc: string | null } {
+    const abilities = new Set<string>();
+    for (const match of restriction.matchAll(/\b(str|dex|con|int|wis|cha)(?:ength|terity|stitution|elligence|dom|risma)?\b/gi)) {
+      abilities.add(match[1].toLowerCase());
+    }
+    const dc = restriction.match(/\bDC:? ?(\d+)/i);
+    return { abilities: [...abilities], dc: dc ? dc[1] : null };
+  }
+
+  /**
+   * DDB often ships the damage of a weapon's save as a restricted damage modifier as well, which
+   * the parser turns into a "Restricted Attack" activity: a second attack roll for damage the
+   * save already rolls. Such an attack is dropped when a save activity on the item rolls the same
+   * dice against the save the restriction names. Where no save carries the dice (wound damage
+   * that a save ends, on-hit dice beside a condition-only save) the attack is the only home of
+   * that damage and stays.
+   */
+  #foldRestrictedSaveAttacks(): void {
+    if (this.#restrictedSaveAttacks.length === 0) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    const saves = Object.values(activities).filter((activity) => activity.type === "save");
+    if (saves.length === 0) return;
+
+    for (const restricted of this.#restrictedSaveAttacks) {
+      const { number, denomination } = restricted.damage;
+      if (!number || !denomination) continue;
+      const { abilities, dc } = DDBItem.restrictionSave(restricted.restriction);
+      const covered = saves.some((activity) => {
+        const saveAbilities = Array.from(activity.save?.ability ?? []);
+        if (abilities.length > 0 && !abilities.some((ability) => saveAbilities.includes(ability))) return false;
+        const formula = activity.save?.dc?.formula;
+        if (dc && formula && (/^\d+$/).test(formula) && formula !== dc) return false;
+        return (activity.damage?.parts ?? []).some((part) => part.number === number && part.denomination === denomination);
+      });
+      if (!covered) continue;
+      // DDB restrictions carry stray whitespace ("Save DC: 15 Dex.  "), which Foundry's string
+      // field trims from the activity name when the activity is built live
+      const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
+      const name = squash(restricted.name);
+      for (const [id, activity] of Object.entries(activities)) {
+        if (activity.type === "attack" && squash(activity.name ?? "") === name) delete activities[id];
+      }
+    }
+  }
+
+  /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
+  static parseItemBonusSaveDC(description: string): number | null {
+    const text = DDBDescriptions.plainText(description);
+    const match = text.match(/DC (?:equals |is equal to |is |= )?(\d+) (?:plus|\+) (?:the|this) [\w\s'’-]{1,30}?['’]s? bonus/i);
+    return match ? Number(match[1]) : null;
+  }
+
   #generateSave() {
-    const save = DDBItem.parseSaveFromDescription(this.ddbDefinition.description ?? "");
-    if (save) this.actionData.save = save;
+    const description = this.ddbDefinition.description ?? "";
+    const save = DDBItem.parseSaveFromDescription(description);
+    if (!save) return;
+    // Only where system.magicalBonus is set: the field is blank-able, and a sheet save on a
+    // magical item without a bonus writes "", which makes "16 + @item.magicalBonus" roll DC 0.
+    // Other item types have no system.magicalBonus; their variants' enrichers bake the DC.
+    const bonusDC = !save.dc?.formula && !save.dc?.calculation
+      && ["weapon", "staff", "ammunition"].includes(this.parsingType ?? "")
+      && (this.#getMagicalBonus(true) as number) > 0
+      ? DDBItem.parseItemBonusSaveDC(description)
+      : null;
+    if (bonusDC) save.dc = { calculation: "", formula: `${bonusDC} + ${DDBItem.MAGICAL_BONUS_REF}` };
+    if (save.dc?.formula && (/^\d+$/).test(save.dc.formula)) {
+      const abilityNames = (save.ability ?? [])
+        .map((key) => DICTIONARY.actor.abilities.find((ability) => ability.value === key)?.long)
+        .filter((name): name is T5eAbilityLongNames => Boolean(name));
+      const stageDC = Vestige.getStageSaveDC(this.originalName, description, abilityNames);
+      if (stageDC) save.dc = { calculation: "", formula: stageDC };
+    }
+    this.actionData.save = save;
   }
 
   /**
@@ -791,6 +903,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
             const includeBaseRegex = /takes an extra/i;
             const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
 
+            if (DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction)) {
+              this.#restrictedSaveAttacks.push({ name: `Restricted Attack: ${mod.restriction}`, restriction: mod.restriction, damage });
+            }
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
               type: "attack",
@@ -1547,12 +1662,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #getMagicalBonus(returnZero = false): number | "" {
-    const bonus = this.ddbDefinition.grantedModifiers
+    const values = this.ddbDefinition.grantedModifiers
       .filter(
         (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
-      // @ts-expect-error we confirm this is an integer in the filter, so value should be number here
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .map((mod) => mod.value as number);
+    // Distinct values are alternatives, not a stack: a "Varies" record carries its +1/+2/+3 tiers
+    // and a levelled weapon each level's bonus ("+2 instead of +1"), so the lowest is the one that
+    // applies unconditionally. Repeats (Hazirawn's +1 and attuned +1) do add up.
+    const bonus = values.length > 1 && new Set(values).size === values.length
+      ? Math.min(...values)
+      : values.reduce((prev, cur) => prev + cur, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
   }
 
@@ -2025,6 +2145,38 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return DDBActivityFactoryMixin.multiSaveActivityName(this.multiSaveSections[0].slice.rawLabel) || null;
   }
 
+  /**
+   * On an item that describes several different saves without labelled sections, the primary
+   * save's own target (see `#flatPrimaryTarget`).
+   */
+  get #primaryActivityOptions(): IDDBActivityBuild {
+    if (this.#primaryIsFirstSection) return {};
+    const flatTarget = this.#flatPrimaryTarget;
+    return flatTarget ? { targetOverride: flatTarget } : {};
+  }
+
+  /** Who a save in the item's text is aimed at, read from a piece of it; a save always affects a creature. */
+  #flatSaveTargetFor(text: string): I5eActivityTarget {
+    const target = this.#targetFromDescription(text);
+    if (target.affects && !target.affects.type) target.affects.type = "creature";
+    return target;
+  }
+
+  /**
+   * The primary save's own target when the text describes several different saves without
+   * labelled sections, read like its siblings' (`flatSaveTarget`): an attunement save has no
+   * area, and "throw the flask at a point within 30 feet" is a range, not the area. Null keeps
+   * the item's target. Weapons are left alone: their primary is the attack.
+   */
+  get #flatPrimaryTarget(): I5eActivityTarget | null {
+    if (!this.actionData.save || ["weapon", "staff"].includes(this.parsingType ?? "")) return null;
+    const html = DDBDescriptions.stripTables(this.ddbDefinition.description ?? "");
+    const saves = DDBDescriptions.parseSaves(html);
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
+    const scope = DDBDescriptions.saveScopes(html).get(DDBDescriptions.saveKey(this.actionData.save));
+    return DDBActivityFactoryMixin.flatSaveTarget(scope, (text) => this.#flatSaveTargetFor(text));
+  }
+
   /** The description text the primary activity describes: its own section, or the whole item. */
   get #primaryDescription(): string {
     return this.#primaryIsFirstSection
@@ -2045,6 +2197,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       primarySave: this.actionData.save,
       skipFirstSection: this.#primaryIsFirstSection,
       targetOverrideForSection: (section) => this.#sectionTarget(section),
+      flatTargetFor: (text) => this.#flatSaveTargetFor(text),
     });
   }
 
@@ -3486,12 +3639,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           // first section, so it takes that section's label to tell it from its siblings
           await this._generateActivity(
             { name: this.#primaryActivityName },
-            this.activityOptions,
+            foundry.utils.mergeObject(foundry.utils.deepClone(this.activityOptions), this.#primaryActivityOptions),
           );
         this.#addHealAdditionalActivities();
         if (this.enricher.addAutoAdditionalActivities)
           await this._generateAdditionalActivities();
         await this.enricher.addAdditionalActivities(this);
+        this.#foldRestrictedSaveAttacks();
       }
 
       this.#generatePrice();
@@ -3636,11 +3790,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
   /** @override */
+  /**
+   * The damage the first labelled section names, when that section is the primary save. Its
+   * siblings read their own sections; the primary would otherwise take every DDB damage modifier
+   * on the item (Kobbold Flaymefrower's Dragon's Breath dealing Backfire's 4d6 as well).
+   */
+  get #sectionedPrimaryDamage(): I5eDamagePart[] | null {
+    if (!this.#primaryIsFirstSection) return null;
+    return DDBDescriptions.parseDamageParts(this.multiSaveSections[0].slice.section).parts;
+  }
+
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     // the item's damage parts can come from DDB's damage modifiers as well as the text (Many
     // Hands, Nightmare Flask), so the primary save's own damage is chosen here; the multi-save
     // extras pass their own parts in `options`, which win
-    const ownSaveDamage = this.#ownSaveDamage;
+    const ownSaveDamage = this.#sectionedPrimaryDamage ?? this.#ownSaveDamage;
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
@@ -3658,6 +3822,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
+      generateConsumption: !["weapon", "staff"].includes(this.parsingType),
       // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
@@ -3686,17 +3851,142 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /** "You must succeed on a DC 15 Wisdom saving throw": the wielder saves, not the target. */
+  // "you" as the subject: "within 30 feet of you must make" and "each creature other than you
+  // must make" are the enemy's save
+  static WIELDER_SAVE = /(?<!\b(?:of|to|by|from|with|at|near|around|toward|towards|than|excluding|except|besides|but) )\b(?:you|(?:its|the|your) (?:wielder|bearer|owner|attuned creature)) (?:must |can |then |also )?(?:succeeds? on|makes?|attempts?|rolls?) (?:an?|the) (?:DC \d+ )?\w+(?: or \w+)? sav/i;
+
+  /** Whether the item's save is one its wielder makes (a curse or a drawback), read from its sentence. */
+  get #wielderMakesSave(): boolean {
+    if (!this.actionData.save) return false;
+    const scope = DDBDescriptions.saveScopes(this.ddbDefinition.description ?? "")
+      .get(DDBDescriptions.saveKey(this.actionData.save));
+    return scope ? DDBItem.WIELDER_SAVE.test(scope.sentence) : false;
+  }
+
+  /**
+   * The save a weapon's hit can force, as its own activity. It deals the damage its own words name
+   * (`saveRiderDamageParts`), never the weapon's: the item's damage parts start with the base die
+   * and hold the on-hit extras, so Dagger of Venom's save rolled 1d4 + 2d10 and Giant Slayer's
+   * prone save rolled 1d8 + 2d6. When the text cannot be read the on-hit extras stay, as before.
+   */
+  static #RIDER_CHARGE_COUNTS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+
+  /** The charges a rider save's own paragraph spends: "expend 1 charge", "spend two charges". */
+  static riderCharges(paragraph: string): number | null {
+    const counted = (/\b(?:expend|spend|use|cost)(?:s|ing)?\s+(\d+|one|two|three|four|five)\s+(?:of (?:its|the [\w\s'’]+?'s) )?charges?\b/i).exec(paragraph);
+    if (counted) return DDBItem.#RIDER_CHARGE_COUNTS[counted[1].toLowerCase()] ?? Number(counted[1]);
+    return (/\b(?:expend|spend)(?:s|ing)?\b[^.]{0,30}\bcharges?\b/i).test(paragraph) ? 1 : null;
+  }
+
+  /** "Can't be used again until the next dawn" or "until you finish a long rest": a limit the parser reads onto the item's uses. */
+  static RIDER_DAILY = /\buntil the next (?:dawn|dusk)\b|\bonce per (?:day|dawn|dusk)\b|\bonce each day\b|\buntil you finish a (?:short or )?long rest\b/i;
+
+  /** A rider's own action cost, from its sentence or the ones before it in its paragraph. */
+  static riderActivation(text: string): TActivationCost | null {
+    if ((/\bbonus action\b/i).test(text)) return "bonus";
+    // the wielder's reaction, not an ally's ("allowing it to immediately take a Reaction")
+    if ((/\byou (?:can )?(?:use|take) (?:a|your) reaction\b|\bas a reaction\b/i).test(text)) return "reaction";
+    if ((/\bmagic action\b|\bas an action\b|\buse an action\b|\btake an action\b/i).test(text)) return "action";
+    return null;
+  }
+
+  static #RIDER_CONDITION_DURATIONS: [RegExp, { expiry: TDDBEffectExpiry }][] = [
+    [/\buntil the end of (?:its|their|the target's) next turn\b/i, { expiry: "targetEnd" }],
+    [/\buntil the start of (?:its|their|the target's) next turn\b/i, { expiry: "targetStart" }],
+    [/\buntil the end of your next turn\b/i, { expiry: "sourceEnd" }],
+    [/\buntil the start of your next turn\b/i, { expiry: "sourceStart" }],
+  ];
+
+  /**
+   * The conditions a rider save's failure imposes ("or have the Prone condition", "is knocked
+   * prone", "is Stunned until the end of its next turn"), with the duration its words give.
+   */
+  static riderConditions(failure: string): { statuses: string[]; seconds: number | null; expiry: TDDBEffectExpiry | null } | null {
+    const ids = Object.keys(CONFIG.DND5E.conditionTypes ?? {}).filter((id) => !["exhaustion", "concentrating"].includes(id));
+    if (ids.length === 0) return null;
+    const regex = new RegExp(`\\b(?:the|be|is|are|becomes?|falls?|knocked|knocks? it|has|have|gains?|and|or)\\s+(?:the\\s+)?(?:knocked\\s+)?(${ids.join("|")})\\b`, "gi");
+    const statuses = [...new Set([...failure.matchAll(regex)].map((match) => match[1].toLowerCase()))];
+    if (statuses.length === 0) return null;
+    const timed = (/\bfor (\d+|one|an?) (round|minute|hour)s?\b/i).exec(failure);
+    const amount = timed ? (Number(timed[1]) || 1) : null;
+    const seconds = timed && amount ? amount * ({ round: 6, minute: 60, hour: 3600 } as Record<string, number>)[timed[2].toLowerCase()] : null;
+    const expiry = DDBItem.#RIDER_CONDITION_DURATIONS.find(([pattern]) => pattern.test(failure))?.[1].expiry ?? null;
+    return { statuses, seconds, expiry: expiry ?? null };
+  }
+
+  /**
+   * The rider's status effect when the item carries none for it: the text-driven auto status
+   * effect only reads "DC 15 X saving throw or have the Y condition", so prose DCs and "is knocked
+   * prone" wordings arrive without one. It links to the rider by name.
+   */
+  #addRiderConditionEffect(failure: string) {
+    // an enricher's own effect hints are added after the activities and would duplicate these
+    if ((this.enricher.effects ?? []).length > 0) return;
+    const conditions = DDBItem.riderConditions(failure);
+    if (!conditions) return;
+    const present = new Set((this.data.effects ?? []).flatMap((effect) => [...(effect.statuses ?? [])]));
+    const statuses = conditions.statuses.filter((status) => !present.has(status));
+    if (statuses.length === 0) return;
+    const label = statuses.map((status) => utils.capitalize(status)).join(", ");
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `Status: ${label}`, {
+      transfer: false,
+      durationSeconds: conditions.expiry ? null : conditions.seconds ?? undefined,
+      description: `Apply status ${label}`,
+    });
+    effect.statuses.push(...statuses);
+    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.icon ?? effect.img;
+    if (conditions.expiry) {
+      // no native expiry on Foundry 13: DAE ends it at the turn edge, the round is the stand-in without DAE
+      const backstop = pseudoExpiryBackstop(conditions.expiry);
+      effect.duration.seconds = backstop?.seconds ?? 6;
+      effect.duration.rounds = backstop?.rounds ?? 1;
+      const special = expiryToDaeSpecialDurations(conditions.expiry);
+      if (special.length > 0) foundry.utils.setProperty(effect, "flags.dae.specialDuration", special);
+    }
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", "Save");
+    this.data.effects ??= [];
+    this.data.effects.push(effect);
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
+    const description = this.ddbDefinition.description ?? "";
+    const outcome = this.actionData.save ? DDBDescriptions.saveRiderOutcome(description, this.actionData.save) : null;
+    const ownDamage = this.actionData.save ? DDBDescriptions.saveRiderDamageParts(description, this.actionData.save) : null;
+    const damageParts = ownDamage ?? (includeBase ? this.damageParts : this.damageParts.slice(1));
+    const options: IDDBActivityBuild = {
+      generateDamage: damageParts.length > 0,
+      damageParts,
+      includeBaseDamage: false,
+    };
+    if (outcome) {
+      // a condition-only save still records its onSave, rather than dnd5e's "half" default
+      options.generateDamage = true;
+      options.onSave = outcome.half ? "half" : "none";
+      // a rider spends charges only when its own paragraph says so; the item's charges usually
+      // belong to another property (a spell cast, a different power)
+      const charges = DDBItem.riderCharges(outcome.paragraph);
+      const daily = !charges && DDBItem.RIDER_DAILY.test(outcome.paragraph)
+        && "uses" in this.data.system && Boolean(this.data.system.uses?.max);
+      options.consumptionTargetOverrides = charges || daily
+        ? [{ type: "itemUses", target: "", value: String(charges ?? 1), scaling: { mode: "", formula: "" } }]
+        : [];
+      // a save that follows a hit keeps the weapon's trigger: an action named before it is a
+      // preparation step ("use an action to coat the blade ... the next time you hit")
+      const trigger = `${outcome.lead} ${outcome.sentence}`;
+      const activation = (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
+      if (activation) options.activationOverride = { type: activation, value: 1, condition: "" };
+      const target = DDBActivityFactoryMixin.flatSaveTarget(
+        { sentence: outcome.sentence, lead: outcome.lead ? outcome.lead.split(/(?<=\.)\s+/) : [] },
+        (text) => this.#flatSaveTargetFor(text),
+      );
+      if (target?.template?.type) options.targetOverride = { ...target, override: true };
+      this.#addRiderConditionEffect(outcome.failure);
+    }
     this.additionalActivities.push({
       name: "Save",
       type: "save",
-      options: {
-        generateDamage: this.damageParts.length > 1,
-        damageParts: ["weapon", "staff"].includes(this.parsingType) || includeBase
-          ? this.damageParts
-          : this.damageParts.slice(1),
-        includeBaseDamage: false,
-      },
+      options,
     });
   }
 
@@ -3743,9 +4033,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (["weapon", "staff"].includes(this.parsingType)) {
       // some attacks will have a save and attack
       if (this.actionData.save) {
-        if (this.damageParts.length > 1) {
-          // on a multi-mode weapon every save already has its own named activity
-          if (this.multiSaveSections.length === 0) this.#addSaveAdditionalActivity(false);
+        // on a multi-mode weapon every save already has its own named activity
+        // any save the weapon forces becomes a rider, with or without extra damage (Nine Lives
+        // Stealer's save-or-die has none); a save the wielder makes is a curse, not a rider. An
+        // enricher that builds its own activities keeps the rider only as before (extra damage
+        // parts), so its saves are not doubled and its activity ids do not shift.
+        const enricherAuthors = (this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities;
+        if (this.multiSaveSections.length === 0 && !this.#wielderMakesSave
+          && (!enricherAuthors || this.damageParts.length > 1)) {
+          this.#addSaveAdditionalActivity(false);
         }
       }
       return "attack";

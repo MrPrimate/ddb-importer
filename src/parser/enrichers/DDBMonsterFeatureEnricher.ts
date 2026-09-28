@@ -449,6 +449,45 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "An Army from Blood": "Summon Creatures",
     "Action 2: The Manifold Self": "Summon Creatures",
     "Abyssal Rift": "Summon Creatures",
+    "Shield of Erasmus": "Form Resistance",
+    "Orb of Water": "Form Resistance",
+    "Made of Shadows": "Form Resistance",
+    "Ghostly Body": "Form Resistance",
+    "Spell Refuge": "Grant Resistance",
+    "Sheltering Shield": "Grant Resistance",
+    "Protective Bond": "Grant Resistance",
+    "Liquefaction Ritual": "Grant Resistance",
+    "Kiss of the Frozen Heart": "Grant Resistance",
+    "Devotion": "Grant Resistance",
+    "Burning Heart": "Grant Resistance",
+    "Bind": "Grant Resistance",
+    "Alchemical Vapors": "Grant Resistance",
+    "Stonehide Growth": "Self Resistance",
+    "Resistance": "Self Resistance",
+    "Infused Arsenal": "Self Resistance",
+    "Evasive Blink": "Self Resistance",
+    "Elemental Affinity": "Self Resistance",
+    "Dragon's Resistance": "Self Resistance",
+    "Chromatic Resistance": "Self Resistance",
+    "Breath Born": "Self Resistance",
+    "Apothecary": "Self Resistance",
+    "Adaptive Skin": "Self Resistance",
+    "Absorb Magic": "Self Resistance",
+    "Vaprak's Rage": "Self Resistance",
+    "Skin to Stone": "Self Resistance",
+    "Shadow Form": "Self Resistance",
+    "Shadow Cloak": "Self Resistance",
+    "Retract": "Self Resistance",
+    "Rage": "Self Resistance",
+    "Phase": "Self Resistance",
+    "Panic Shift": "Self Resistance",
+    "Frenzy": "Self Resistance",
+    "Enlarge": "Self Resistance",
+    "Draconic Rage": "Self Resistance",
+    "Dohma Rally": "Self Resistance",
+    "Blessing of the Raven Queen": "Self Resistance",
+    "Battle Fury": "Self Resistance",
+    "Aura of Murder": "Vulnerability Aura",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH: Record<string, string> = {
@@ -537,6 +576,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "War Cry": MonsterEnrichers.Generic.WarCry,
     "Lair Actions": MonsterEnrichers.Generic.LairActions,
     "Summon Creatures": MonsterEnrichers.Generic.SummonCreatures,
+    "Vulnerability Aura": MonsterEnrichers.Generic.VulnerabilityAura,
+    "Form Resistance": MonsterEnrichers.Generic.FormResistance,
+    "Grant Resistance": MonsterEnrichers.Generic.GrantResistance,
+    "Self Resistance": MonsterEnrichers.Generic.SelfResistance,
   };
 
   ENRICHERS: Record<string, any> = {
@@ -594,6 +637,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Venom Troll": {
       "Venom Spray": MonsterEnrichers.VenomTroll.VenomSpray,
       "Venom Spray (Recharge 6)": MonsterEnrichers.VenomTroll.VenomSpray,
+    },
+    "Laeral Silverhand": {
+      "Spellfire": MonsterEnrichers.LaeralSilverhand.Spellfire,
     },
   };
 }

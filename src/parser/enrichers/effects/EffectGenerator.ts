@@ -245,6 +245,19 @@ export default class EffectGenerator {
     }
   }
 
+  // CONFIG.DND5E.maxAbilityScore, read as a constant so compendium munches do not depend on world config
+  static STANDARD_ABILITY_MAXIMUM = 20;
+
+  /**
+   * An "ability-score-maximum" modifier's value as an increase. DDB mostly ships the increase
+   * (Manuals +10, i.e. up to 30), but the legacy Book of Exalted Deeds ships its absolute ceiling
+   * (24); a value above the standard maximum can only be the latter.
+   */
+  static statMaximumIncrease(modifier: IDDBBaseModifier): number {
+    const value = Number(modifier.value) || 0;
+    return value > EffectGenerator.STANDARD_ABILITY_MAXIMUM ? value - EffectGenerator.STANDARD_ABILITY_MAXIMUM : value;
+  }
+
   _addStatMaximumEffect(subType) {
     const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType);
     const bonuses = this.grantedModifiers.filter((modifier) =>
@@ -256,7 +269,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat max for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.addChange(bonus.value, 3, `system.abilities.${ability.value}.max`));
+        this.effect.changes.push(ChangeHelper.addChange(EffectGenerator.statMaximumIncrease(bonus), 3, `system.abilities.${ability.value}.max`));
       });
     }
   }

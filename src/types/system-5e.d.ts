@@ -3,6 +3,7 @@ export {};
 global {
 
   type T5eAbility = "str" | "dex" | "con" | "int" | "wis" | "cha";
+  type T5eAbilityLongNames = "strength" | "dexterity" | "constitution" | "intelligence" | "wisdom" | "charisma";
 
   type TAll5eActorDocuments = I5ePCData | I5eMonsterData | I5eVehicleData;
 
