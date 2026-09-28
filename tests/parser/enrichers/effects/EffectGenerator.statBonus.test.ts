@@ -81,6 +81,14 @@ describe("EffectGenerator ability score bonuses with DAE", () => {
     expect(generator.effect.changes).toEqual([expect.objectContaining({ value })]);
   });
 
+  it("reads a maximum above the standard 20 as the absolute ceiling, not an increase", () => {
+    const generator = buildGenerator([{ ...modifier("ability-score-maximum", 24), statId: 5 }]);
+    generator._addStatMaximumEffect("wisdom");
+    expect(generator.effect.changes).toEqual([
+      expect.objectContaining({ key: "system.abilities.wis.max", value: "4" }),
+    ]);
+  });
+
   it("stops a penalty at a written floor", () => {
     const generator = buildGenerator([modifier("intelligence-score", -4, "Curse. (minimum of 7)")]);
     generator._addStatBonusEffect("intelligence-score");

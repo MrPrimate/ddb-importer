@@ -61,6 +61,24 @@ const EXPIRY_TO_COUNTED: Partial<Record<TDDBEffectExpiry, { rounds?: number; tur
   roundEnd: { rounds: 1 },
 };
 
+/**
+ * The counted backstop for a turn-edge expiry that DAE ends through its turn tokens. "Until the end
+ * of its next turn" on a self buff, or "until the end of your next turn", ends a full round and a
+ * turn after it is applied, so an end edge needs two rounds or times-up removes the effect before
+ * DAE's token fires; a start edge is reached within one.
+ */
+const PSEUDO_EXPIRY_BACKSTOP: Partial<Record<TDDBEffectExpiry, { seconds: number; rounds: number }>> = {
+  sourceStart: { seconds: 6, rounds: 1 },
+  targetStart: { seconds: 6, rounds: 1 },
+  sourceEnd: { seconds: 12, rounds: 2 },
+  targetEnd: { seconds: 12, rounds: 2 },
+};
+
+export function pseudoExpiryBackstop(expiry: TDDBEffectExpiry | null | undefined): { seconds: number; rounds: number } | null {
+  if (!expiry) return null;
+  return PSEUDO_EXPIRY_BACKSTOP[expiry] ?? null;
+}
+
 export function expiryFallbackDuration(expiry: TDDBEffectExpiry | null | undefined): { rounds?: number; turns?: number } | null {
   if (!expiry) return null;
   return EXPIRY_TO_COUNTED[expiry] ?? null;
@@ -97,4 +115,5 @@ export default {
   resolveDaeSpecialDurations,
   expiryFallbackDuration,
   resolveExpiryFallback,
+  pseudoExpiryBackstop,
 };

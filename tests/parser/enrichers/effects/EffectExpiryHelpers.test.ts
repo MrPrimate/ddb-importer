@@ -8,6 +8,7 @@ import {
   expiryToDaeSpecialDurations,
   resolveDaeSpecialDurations,
   resolveExpiryFallback,
+  pseudoExpiryBackstop,
 } from "../../../../src/parser/enrichers/effects/EffectExpiryHelpers";
 
 describe("expiryToDaeSpecialDurations", () => {
@@ -110,6 +111,28 @@ describe("resolveExpiryFallback", () => {
     expect(resolveExpiryFallback({ effectOptions: { durationSeconds: null, expiry: null }, inherited: tenMinutes }))
       .toBeNull();
     expect(resolveExpiryFallback({ effectOptions: {}, inherited: {} })).toBeNull();
+  });
+
+});
+
+// DAE ends a turn-edge expiry through its turn tokens; the counted duration is only the backstop
+// times-up applies, so it must not run out before the edge the text names.
+describe("pseudoExpiryBackstop", () => {
+
+  it("gives end edges two rounds, so a self buff lasts through its next turn", () => {
+    expect(pseudoExpiryBackstop("targetEnd")).toEqual({ seconds: 12, rounds: 2 });
+    expect(pseudoExpiryBackstop("sourceEnd")).toEqual({ seconds: 12, rounds: 2 });
+  });
+
+  it("gives start edges one round", () => {
+    expect(pseudoExpiryBackstop("targetStart")).toEqual({ seconds: 6, rounds: 1 });
+    expect(pseudoExpiryBackstop("sourceStart")).toEqual({ seconds: 6, rounds: 1 });
+  });
+
+  it("has no backstop for timed or missing expiries", () => {
+    expect(pseudoExpiryBackstop("turnEnd")).toBeNull();
+    expect(pseudoExpiryBackstop(null)).toBeNull();
+    expect(pseudoExpiryBackstop(undefined)).toBeNull();
   });
 
 });

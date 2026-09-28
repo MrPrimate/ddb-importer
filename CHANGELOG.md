@@ -2,7 +2,7 @@
 
 # 7.1.39
 
-- Backport of features.
+- Backported changes from 7.5.6.
 
 # 7.1.38
 

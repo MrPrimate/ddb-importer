@@ -8,8 +8,9 @@ export default class DaggerOfVenom extends DDBEnricherData {
     return [
       {
         name: "Poisoned",
-        // the 2014 payload names the coated attack, the 2024 one builds a plain "Save"
-        activitiesMatch: ["Restricted Attack: DC 15 Constitution Save Negates", "Save"],
+        // both printings build a plain "Save"; the legacy payload's restricted poison modifier is
+        // folded into it rather than kept as a second attack
+        activityMatch: "Save",
         statuses: ["Poisoned"],
         options: {
           transfer: false,
