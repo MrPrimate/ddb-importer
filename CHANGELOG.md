@@ -2,7 +2,7 @@
 
 # 7.0.24
 
-- Backport of features.
+- Backported changes from 7.5.6
 
 # 7.0.23
 
