@@ -191,6 +191,21 @@ export default class DDBCompanionMixin {
     return conditions;
   }
 
+  /**
+   * Companion stubs only carry ability scores, but the monster feature parser matches a stated
+   * to-hit against each ability's mod. Without one every match fails, a fixed-bonus attack falls
+   * through to the negative-mod path and the damage bonus is built as "NaN", which the actor
+   * rejects on creation. Returns a copy with the mods derived, leaving the npc data untouched.
+   */
+  static abilitiesWithMods(abilities: I5eAbilities): DDBMonster["abilities"] {
+    const result = foundry.utils.deepClone(abilities) as DDBMonster["abilities"];
+    for (const data of Object.values(result)) {
+      if (!data || Number.isFinite(data.mod)) continue;
+      data.mod = utils.calculateModifier(data.value ?? 10);
+    }
+    return result;
+  }
+
   async getFeature(text, type) {
     const enricher = new DDBMonsterFeatureEnricher();
     await enricher.init();
@@ -206,7 +221,7 @@ export default class DDBCompanionMixin {
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
     ddbMonster.npc = this.npc;
-    ddbMonster.abilities = ddbMonster.npc.system.abilities;
+    ddbMonster.abilities = DDBCompanionMixin.abilitiesWithMods(ddbMonster.npc.system.abilities);
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBMonsterFeatureFactory({
       ddbMonster,
