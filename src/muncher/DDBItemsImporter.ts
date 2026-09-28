@@ -65,7 +65,7 @@ type TDDBItemsPayload = IDDBItemsResponseData | IDDBItemDefinition[];
 // the filtered payload plus how many items each filter stage let through
 interface IItemFetchResult {
   data: IDDBItemsSource;
-  counts: SourceFilters.ISourceFilterCounts;
+  counts: ISourceFilterCounts;
 }
 
 /**

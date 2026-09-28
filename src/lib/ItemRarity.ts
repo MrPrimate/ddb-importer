@@ -7,7 +7,7 @@
  */
 
 /** A loosely typed `system` block as found on a parsed item, a live document or a compendium index entry. */
-export interface IRaritySystemLike {
+interface IRaritySystemLike {
   rarities?: Iterable<string> | null;
   rarity?: string | null;
 }

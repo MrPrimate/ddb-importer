@@ -348,4 +348,17 @@ global {
     originQuotaBytes?: number;
   }
 
+  /**
+   * How many entries survived each filter stage. `raw` is the proxy payload; every later key is the
+   * count after that stage ran, so the last populated stage is the final result. Stages that did not
+   * run repeat the previous count, which keeps the summary readable in a log line.
+   */
+  interface ISourceFilterCounts {
+    raw: number;
+    category: number;
+    book: number;
+    homebrew: number;
+    ids?: number;
+    search: number;
+  }
 }

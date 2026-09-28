@@ -18,61 +18,6 @@ import ChangeHelper from "../effects/ChangeHelper";
  *   activity, exactly as dnd5e's own `applyEnchantment` / `EnchantmentData#collectRiders` leave it.
  */
 
-export type TEvolvedTier = "rare" | "veryRare" | "legendary";
-
-export interface IEvolvedSpell {
-  name: string;
-  /** Fixed save DC printed with the property; the item is not a spellcaster. */
-  dc?: number;
-  /** Fixed spell attack bonus (Withering only). */
-  attack?: number;
-  /** Extra activity description, e.g. Mind Blank's self-only restriction. */
-  note?: string;
-}
-
-export interface IEvolvedUse {
-  /** Activity name, e.g. "Studious: Add 1d6". */
-  name: string;
-  max: number;
-  activation: TActivationCost;
-  condition?: string;
-  /** Utility roll formula (Amicable / Studious). */
-  roll?: string;
-  /** Duration of the effect the activity applies (Quickening / Vanishing). */
-  durationSeconds?: number;
-  concentration?: boolean;
-}
-
-export interface IEvolvedProperty {
-  name: string;
-  tier: TEvolvedTier;
-  /** Paraphrase of the rule; `EvolvedItemProperties.text` prefers the proxy-served printed text. */
-  text: string;
-  /** Property text opens with "While attuned", so the enchantment also requires attunement. */
-  attuned?: boolean;
-  /** One cast activity per spell, each with its own daily use. */
-  spells?: IEvolvedSpell[];
-  /** The spells are cast together with one Magic action and share the single daily use (Restorative). */
-  sharedSpellUse?: boolean;
-  /** A limited-use utility activity. */
-  use?: IEvolvedUse;
-}
-
-/** A rider activity in raw dnd5e shape, before the enricher or host item wraps it. */
-export interface IEvolvedRawActivity {
-  id: string;
-  name: string;
-  type: "cast" | "utility";
-  /** Spell name of a cast activity; the caller resolves it to a compendium uuid. */
-  spell?: string;
-  data: Partial<I5eActivity>;
-}
-
-/** Which optional module channels to emit on hand-built effects. */
-export interface IEvolvedModules {
-  ac5e?: boolean;
-  midi?: boolean;
-}
 
 const DAWN_RECOVERY = [{ period: "dawn" as TLimitedUsePeriod, type: "recoverAll" }];
 
@@ -368,7 +313,7 @@ export default class EvolvedItemProperties {
     effect.type = "enchantment";
     (effect.system as I5eEnchantmentEffectSystem).magical = true;
     const changes: IActiveEffectChangeData[] = [
-      ChangeHelper.addChange(`${property.name} {}`, 20, "name"),
+      ChangeHelper.overrideChange(`${property.name} {}`, 20, "name"),
       // a bare string override on the rarities SetField becomes Set{tier}
       ChangeHelper.overrideChange(property.tier, 20, "system.rarities"),
       ChangeHelper.addChange("mgc", 20, "system.properties"),

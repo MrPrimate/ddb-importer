@@ -1,6 +1,5 @@
 import { ownerTurnExpired } from "../../auras/regionBehaviorUtils";
 import { logger, utils } from "../../../lib/_module";
-import type { IRegionExpiryEntry } from "./RegionExpiryDialog";
 import { REGION_EXPIRY_REASONS as REASONS } from "./RegionExpiryReasons";
 
 const I18N = "ddb-importer.regionExpiry";
@@ -27,7 +26,7 @@ const SELF_CLEANING_BEHAVIORS = new Set(["dnd5e.applyActiveEffect"]);
  *
  * This snapshot gives every activity-placed region an expiry taken from the duration on the activity.
  */
-export interface IRegionExpiryTimer {
+interface IRegionExpiryTimer {
   /** ActiveEffect duration units: seconds/minutes/hours/days/months/years/rounds/turns. */
   units: string;
   value: number;

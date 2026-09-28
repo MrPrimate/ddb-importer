@@ -141,7 +141,7 @@ export function behaviorConfigFromFlag(flag: IRegionDisplayFlag | null | undefin
   return config;
 }
 
-export interface IDisplaySummaryRowConfig {
+interface IDisplaySummaryRowConfig {
   flag: IRegionDisplayFlag | null | undefined;
   /** The colour a profile without its own takes: the region's, or the placing user's. */
   color: string;

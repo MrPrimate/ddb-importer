@@ -3,23 +3,6 @@ import { REGION_EXPIRY_REASONS, regionExpiryReasonLabel } from "./RegionExpiryRe
 
 const I18N = "ddb-importer.regionExpiry";
 
-/**
- * Display data for one activity-placed template Region offered for removal.
- */
-export interface IRegionExpiryEntry {
-  region: RegionDocument;
-  uuid: string;
-  name: string;
-  img: string;
-  itemName: string | null;
-  activityName: string | null;
-  shape: string | null;
-  size: string | null;
-  spellLevel: number | string | null;
-  behaviors: string[];
-  effectCount: number;
-  reason: string;
-}
 
 interface IRegionExpiryDialogOptions {
   entries?: IRegionExpiryEntry[];

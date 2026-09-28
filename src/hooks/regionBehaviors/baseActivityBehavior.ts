@@ -4,14 +4,14 @@
  * package predates it, so the runtime value is typed here.
  */
 
-export interface IBaseActivityBehavior {
+interface IBaseActivityBehavior {
   getDispositions(target: any, options?: { ignored?: boolean; relativeTo?: number }): Set<number>;
   createBehaviorData(activity: any, options?: { token?: any }): Record<string, unknown> | false;
   customizeField(field: any, data: any): void;
   [key: string]: any;
 }
 
-export interface IBaseActivityBehaviorClass {
+interface IBaseActivityBehaviorClass {
   new (...args: any[]): IBaseActivityBehavior;
   LOCALIZATION_PREFIXES: string[];
   defineSchema(): Record<string, unknown>;

@@ -117,7 +117,7 @@ interface ClassSpellSet {
   className: string;
   rulesVersion: string;
   spellData: IDDBSpellEntry[];
-  counts: SourceFilters.ISourceFilterCounts;
+  counts: ISourceFilterCounts;
 }
 
 interface IStreamAllClassSpellsOptions {
@@ -270,7 +270,7 @@ export async function parseSpells({
     SourceFilters.preflightSourceSettings("spells", resolvedNotifier);
   }
   const results: IDDBSpellEntry[] = [];
-  const stageCounts: SourceFilters.ISourceFilterCounts[] = [];
+  const stageCounts: ISourceFilterCounts[] = [];
   const spellListFactory = new DDBSpellListFactory();
 
   // Prefer streaming all classes over one reused socket. Any streaming failure falls back to one

@@ -1,14 +1,6 @@
 import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-/** A spell the wizard picked for the feature, as far as the character payload tells us. */
-export interface IMasteredSpell {
-  name: string;
-  /** Spell level, when the class spell list carries the spell; the cast then pins that level. */
-  level: number | null;
-  /** DDB's spent count for the feature's copy of the spell, when it tracks one. */
-  spent: number;
-}
 
 /**
  * Shared shape for Spell Mastery and Signature Spells: the wizard picks spells from the

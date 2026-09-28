@@ -1,6 +1,6 @@
 import logger from "../../lib/Logger";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
-import RegionAutomations, { type IRegionEventContext } from "./RegionAutomations";
+import RegionAutomations from "./RegionAutomations";
 import RegionTargetPrompt from "./RegionTargetPrompt";
 import { ownerTurnExpired, regionLabel, resolveRegionActivity } from "./regionBehaviorUtils";
 

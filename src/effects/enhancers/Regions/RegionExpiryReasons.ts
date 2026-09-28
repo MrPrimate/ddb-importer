@@ -11,7 +11,6 @@ export const REGION_EXPIRY_REASONS = {
   duration: "duration",
 } as const;
 
-export type TRegionExpiryReason = typeof REGION_EXPIRY_REASONS[keyof typeof REGION_EXPIRY_REASONS];
 
 /** The localized label for a reason id, or the id itself for one this module does not know. */
 export function regionExpiryReasonLabel(reason: string): string {

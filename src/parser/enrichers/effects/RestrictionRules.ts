@@ -13,7 +13,7 @@ import ChangeHelper from "./ChangeHelper";
  * The DDB strings are quoted verbatim in each entry so a payload change is easy to spot.
  */
 
-export interface IRestrictionMatch {
+interface IRestrictionMatch {
   /** Table entry id, for tests and logs. */
   id: string;
   /** Extra filter clauses the rule change must carry. */

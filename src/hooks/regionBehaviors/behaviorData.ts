@@ -18,7 +18,6 @@ export const REGION_EVENTS = [
   "tokenRoundEnd",
 ] as const;
 
-export type TRegionEvent = typeof REGION_EVENTS[number];
 
 /** Script source executed by a core "executeScript" RegionBehavior for each configured event. */
 export function buildMacroBehaviorSource(handler: string, args: Record<string, unknown> = {}): string {

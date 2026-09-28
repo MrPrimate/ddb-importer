@@ -4,32 +4,19 @@ import DDBSources from "./DDBSources";
 import logger from "./Logger";
 import utils from "./Utils";
 
-/**
- * How many entries survived each filter stage. `raw` is the proxy payload; every later key is the
- * count after that stage ran, so the last populated stage is the final result. Stages that did not
- * run repeat the previous count, which keeps the summary readable in a log line.
- */
-export interface ISourceFilterCounts {
-  raw: number;
-  category: number;
-  book: number;
-  homebrew: number;
-  ids?: number;
-  search: number;
-}
 
-export type TSourceFilterKind = "spells" | "items" | "monsters" | "vehicles";
+type TSourceFilterKind = "spells" | "items" | "monsters" | "vehicles";
 
 type TFilterNotifier = (note: string, opts?: { nameField?: boolean }) => void;
 
-export interface ISpellFilterOptions {
+interface ISpellFilterOptions {
   sourceFilter: boolean;
   sources: number[];
   exactMatch: boolean;
   searchFilter?: string | null;
 }
 
-export interface IItemFilterOptions {
+interface IItemFilterOptions {
   ids: (number | string)[];
   useSourceFilter: boolean;
   useGenerics: boolean;

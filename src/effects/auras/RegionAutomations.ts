@@ -3,19 +3,6 @@ import DDBEffectHelper from "../DDBEffectHelper";
 import RegionBehaviorSettings from "../../lib/RegionBehaviorSettings";
 import { regionLabel, resolveRegionActivity } from "./regionBehaviorUtils";
 
-export interface IRegionEventContext {
-  scene: Scene;
-  region: RegionDocument;
-  behavior: RegionBehavior;
-  event: {
-    name: string;
-    data: Record<string, any>;
-    region: RegionDocument;
-    user: User;
-  };
-  handler: string;
-  args: Record<string, unknown>;
-}
 
 /** Recorded against an actor by `checkOncePerTurn`; `key` is the trigger it collapses on. */
 interface ITurnFlag {
@@ -25,14 +12,14 @@ interface ITurnFlag {
   key: string;
 }
 
-export type TRegionHandler = (context: IRegionEventContext, helpers: typeof RegionAutomations) => Promise<void> | void;
+type TRegionHandler = (context: IRegionEventContext, helpers: typeof RegionAutomations) => Promise<void> | void;
 
 /**
  * Details of the region trigger, injected into the activity usage config as
  * `ddbRegionContext` and surfaced to macros on run by a ddbmacro activity
  * (`scope.regionContext` for DDB macros, `regionContext` for Foundry macros).
  */
-export interface IDDBRegionContext {
+interface IDDBRegionContext {
   regionUuid: string;
   regionName: string | null;
   sceneUuid: string | null;

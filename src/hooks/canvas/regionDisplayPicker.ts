@@ -35,7 +35,7 @@ export function openProfileEditor(profileId: string | null = null): void {
   profileEditor()?.open({ profileId });
 }
 
-export interface IProfilePickerConfig {
+interface IProfilePickerConfig {
   name: string;
   value?: unknown;
   /** Label for the empty choice; omit for none. */

@@ -1,4 +1,4 @@
-import _MasteredSpells, { type IMasteredSpell } from "./_MasteredSpells";
+import _MasteredSpells from "./_MasteredSpells";
 
 /**
  * Wizard level 20: two level 3 spells from the spellbook are always prepared and each can be cast

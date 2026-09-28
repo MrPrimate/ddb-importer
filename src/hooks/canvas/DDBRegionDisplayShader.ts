@@ -317,7 +317,7 @@ ${patternDefines()}
 }
 
 /** The subset of WebGLRenderingContext the compile check uses, so tests can fake it. */
-export interface IShaderCompileContext {
+interface IShaderCompileContext {
   getExtension?(name: string): unknown;
   VERTEX_SHADER: number;
   FRAGMENT_SHADER: number;

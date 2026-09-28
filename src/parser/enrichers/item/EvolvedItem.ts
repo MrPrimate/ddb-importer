@@ -1,6 +1,6 @@
 import { CompendiumHelper, DDBCompendiumFolders, DDBItemImporter, logger, utils } from "../../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
-import EvolvedItemProperties, { type IEvolvedProperty } from "./_EvolvedItemProperties";
+import EvolvedItemProperties from "./_EvolvedItemProperties";
 import { HOST_ITEMS_BUILDING, HOST_ITEMS_BUILT } from "./_EvolvedItemHosts";
 import { shippedItemSpellNames } from "./_ItemActivities";
 
