@@ -75,7 +75,7 @@ describe.each([false, true])("ongoing spell durations (2014: %s)", (is2014) => {
       expect(ongoing._id).not.toBe("ddbBlaBarZoneSa1");
       expect(ongoing.type).toBe("save");
       for (const cast of [wall, ring]) {
-        expect("damage" in cast ? cast.damage.parts : []).toEqual([]);
+        expect("damage" in cast ? cast.damage?.parts ?? [] : []).toEqual([]);
       }
       return;
     }
