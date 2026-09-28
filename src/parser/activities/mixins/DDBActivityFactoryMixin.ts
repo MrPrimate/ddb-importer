@@ -4,6 +4,7 @@ import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
 import SystemHelpers from "../../../lib/SystemHelpers";
 import BehaviorHelper from "../../enrichers/effects/BehaviorHelper";
+import EnchantmentEffects from "../../enrichers/effects/EnchantmentEffects";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
@@ -590,6 +591,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     const eligible = Object.entries(this.data.system.activities as Record<string, I5eActivity>)
       .filter(([, activity]) => activity.effects && activity.effects.length === 0
         && !foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect"));
+    // an enchantment's rider effects are copied in by the enchantment, never applied by an activity
+    const riderIds = new Set(documentEffects.flatMap((effect) =>
+      (foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") as string[] | undefined) ?? []));
     const namesRequired = (effect: I5eEffectData): string[] =>
       foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
         ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch") as string[]
@@ -621,6 +625,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       for (const effect of documentEffects) {
         const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
         if (effect.transfer && !ignoreTransfer) continue;
+        if (effect._id && riderIds.has(effect._id)) continue;
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
         const activityNamesRequired = namesRequired(effect);
         const type = resolvedType(effect);
@@ -663,6 +668,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       activity: Array.from(riders.activity),
       effect: Array.from(riders.effect),
     });
+
+    EnchantmentEffects.zeroConsumptionClears(this.data);
 
   }
 

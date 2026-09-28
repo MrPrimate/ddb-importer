@@ -34,6 +34,7 @@ export * as GuardianOfFaith from "./GuardianOfFaith/_module";
 export * as HomunculusServant from "./HomunculusServant/_module";
 export * as IllusoryDragon from "./IllusoryDragon/_module";
 export * as KeeperOfTheBlight from "./KeeperOfTheBlight/_module";
+export * as LaeralSilverhand from "./LaeralSilverhand/_module";
 export * as LivingBladeOfDisaster from "./LivingBladeOfDisaster/_module";
 export * as ManesVaporspawn from "./ManesVaporspawn/_module";
 export * as Nosferatu from "./Nosferatu/_module";

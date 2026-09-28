@@ -76,6 +76,9 @@ export default class TakeGhastlyForm extends DDBEnricherData {
     return [
       {
         name: "Ancient Armor",
+        // a rider stays inert on the feature until the enchantment copies it, and the copy must
+        // transfer to reach the actor
+        options: { transfer: true },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("@scale.hollow-warden.wrath-of-the-wild", 20, "system.attributes.ac.bonus"),
         ],

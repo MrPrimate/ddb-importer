@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { parseSelfResistance, resistanceChanges } from "./_ResistanceText";
 
 const SPEED_KEYS: Record<string, string> = {
   speed: "walk",
@@ -138,6 +139,22 @@ export default class ShapeShift extends DDBEnricherData {
     return `${title} Form`;
   }
 
+  /**
+   * The rules that hold only in one form: the "While in mist form, ..." passage up to the next
+   * "While in" passage. A passage may cover several forms ("While in bat or wolf form"), so it is
+   * matched on the last word of the form name ("cloud of mist" -> "mist").
+   */
+  _formRulesText(name: string): string {
+    const text = ((foundry.utils.getProperty(this, "ddbParser.strippedHtml") as string | undefined) ?? "")
+      .replace(/[’‘]/g, "'")
+      .replace(/\s+/g, " ");
+    const keyword = name.split(/[\s-]+/).pop() ?? name;
+    return text.split(/(?=\bWhile in\b)/i)
+      .filter((passage) => (/^While in\b/i).test(passage))
+      .filter((passage) => new RegExp(`\\b${keyword}\\b`, "i").test(passage.split(",")[0]))
+      .join(" ");
+  }
+
   override get effects(): IDDBEffectHint[] {
     const monsterSpeeds = (foundry.utils.getProperty(this, "ddbParser.ddbMonster.npc.system.attributes.movement.speeds") ?? {}) as Record<string, unknown>;
 
@@ -154,6 +171,8 @@ export default class ShapeShift extends DDBEnricherData {
       }
       const size = form.size ? SIZE_KEYS[form.size] : null;
       if (size) changes.push(DDBEnricherData.ChangeHelper.overrideChange(size, 20, "system.traits.size"));
+      const resistance = parseSelfResistance(this._formRulesText(form.name));
+      if (resistance && !resistance.choice) changes.push(...resistanceChanges(resistance, DDBEnricherData.ChangeHelper));
 
       const art = FALLBACK_ART[form.name] ? `systems/dnd5e/tokens/${FALLBACK_ART[form.name]}.webp` : null;
       const hint: IDDBEffectHint = {

@@ -140,6 +140,9 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return [
       {
         name: "Crown of Spellfire (Flight)",
+        // a rider stays inert on the feature until the enchantment copies it, and the copy must
+        // transfer to reach the actor
+        options: { transfer: true },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
