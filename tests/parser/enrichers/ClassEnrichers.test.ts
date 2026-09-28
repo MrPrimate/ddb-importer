@@ -1596,6 +1596,10 @@ describe("blood-hunter HybridTransformation level bands", () => {
         : Enricher.ATTACK_BONUS;
       for (const activity of pair) {
         expect(activity.overrides.data.attack.bonus).toBe(expectedBonus);
+        // dnd5e adds proficiency to a non-flat feat attack itself, so the bonus must not repeat it
+        expect(activity.overrides.data.attack.bonus).not.toContain("@prof");
+        expect(activity.overrides.data.attack.ability).toBe("none");
+        expect(activity.overrides.data.attack.flat).toBeUndefined();
         expect(activity.overrides.data.attack.type.classification).toBe("unarmed");
         expect(activity.build.damageParts[0].custom.formula).toContain(`1d${band.denomination}`);
       }

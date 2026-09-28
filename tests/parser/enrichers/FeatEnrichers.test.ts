@@ -17,8 +17,9 @@ describe("Sentinel Halted", () => {
       name: "Halted",
       activityMatch: "Sentinel Attack",
       changes: [{ key: "system.attributes.movement.multiplier", type: "multiply", value: "0", priority: 20 }],
-      data: { duration: { value: 6, expiry: "turnEnd", expired: null } },
+      options: { expiry: "turnEnd" },
     })]);
+    expect(enricher.effects[0].data).toBeUndefined();
   });
 });
 

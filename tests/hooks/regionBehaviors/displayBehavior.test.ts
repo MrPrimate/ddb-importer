@@ -12,6 +12,7 @@ import DDBDisplayActivityBehavior from "../../../src/hooks/regionBehaviors/DDBDi
 import DDBMacroActivityBehavior from "../../../src/hooks/regionBehaviors/DDBMacroActivityBehavior";
 import { BEHAVIOR_CONFIGURE_CLASS } from "../../../src/hooks/canvas/regionDisplaySummary";
 import { useEnLocalization } from "../../_fixtures/enLocalize";
+import { resetMockSettings, setMockSettings } from "../../_setup/foundryMocks";
 
 let restoreLocalization: () => void;
 beforeEach(() => {
@@ -55,6 +56,21 @@ describe("DDBDisplayActivityBehavior", () => {
     expect(input.outerHTML).toContain("name=\"behaviors.0.config.opacity\" value=\"0.4\" data-dtype=\"Number\"");
     for (const name of ["pattern", "opacity", "dashed", "border", "color"]) {
       expect(behavior.customizeField({ name }, {})).toBe(false);
+    }
+  });
+
+  it("keeps the trigger's stored profile in a hidden input while profiles are switched off", () => {
+    setMockSettings({ "enable-region-display-profiles": false });
+    try {
+      const behavior = new DDBMacroActivityBehavior({} as any);
+      const data: Record<string, any> = {};
+      // rendering nothing would let the sheet's next save write the profile blank
+      expect(behavior.customizeField({ name: "displayProfile" }, data)).toBeUndefined();
+      expect(data.classes).toBe("hidden");
+      const input = data.input({}, { name: "behaviors.1.config.displayProfile", value: "status-prone" }) as HTMLInputElement;
+      expect(input.outerHTML).toBe("<input type=\"hidden\" name=\"behaviors.1.config.displayProfile\" value=\"status-prone\">");
+    } finally {
+      resetMockSettings();
     }
   });
 

@@ -948,3 +948,32 @@ describe("DDBItem rider readers", () => {
     expect(DDBItem.riderConditions("or take 2d6 fire damage")).toBeNull();
   });
 });
+
+/**
+ * Charge costs of spells cast from an item. DDB writes a fixed cost as the maximum alone and a
+ * variable cost as a min-max range (Staff of Healing: Cure Wounds 1-4, Lesser Restoration 2,
+ * Mass Cure Wounds 5), so a missing minimum must not fall back to the item's generic cost of 1.
+ */
+describe("DDBItem.itemSpellChargeCost", () => {
+  it.each([
+    [{ minNumberConsumed: null, maxNumberConsumed: 2 }, 1, { cost: 2, min: null, max: 2, variable: false }],
+    [{ minNumberConsumed: null, maxNumberConsumed: 5 }, 1, { cost: 5, min: null, max: 5, variable: false }],
+    [{ minNumberConsumed: 1, maxNumberConsumed: 4 }, 1, { cost: 1, min: 1, max: 4, variable: true }],
+    [{ minNumberConsumed: 5, maxNumberConsumed: 5 }, 1, { cost: 5, min: 5, max: 5, variable: false }],
+    [{ minNumberConsumed: 0, maxNumberConsumed: 3 }, 1, { cost: 0, min: 0, max: 3, variable: true }],
+    [{ minNumberConsumed: 2, maxNumberConsumed: 10 }, 1, { cost: 2, min: 2, max: 10, variable: true }],
+    [{ minNumberConsumed: null, maxNumberConsumed: null }, 3, { cost: 3, min: null, max: null, variable: false }],
+    [null, null, { cost: 1, min: null, max: null, variable: false }],
+  ])("resolves %j (fallback %s)", (limitedUse, fallback, expected) => {
+    expect(DDBItem.itemSpellChargeCost(limitedUse, fallback)).toEqual(expected);
+  });
+
+  it("compares limits numerically, not as strings", () => {
+    expect(DDBItem.itemSpellChargeCost({ minNumberConsumed: "2", maxNumberConsumed: "10" }, 1).variable).toBe(true);
+  });
+
+  it("caps scaling at the size of the range and the charges left", () => {
+    expect(DDBItem.itemSpellChargeScalingMax(1, 4)).toBe("min(@item.uses.value,4)");
+    expect(DDBItem.itemSpellChargeScalingMax(2, 5)).toBe("min(@item.uses.value - 1,4)");
+  });
+});

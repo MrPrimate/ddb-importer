@@ -1,6 +1,6 @@
 vi.mock("../../../src/hooks/regionBehaviors/baseActivityBehavior", () => ({ default: class {} }));
 
-import addRegionBehaviorHooks from "../../../src/hooks/regionBehaviors/loadBehaviors";
+import addRegionBehaviorHooks, { restoreSwitchedOffBehaviors } from "../../../src/hooks/regionBehaviors/loadBehaviors";
 import OwnerTurnRegions from "../../../src/effects/auras/OwnerTurnRegions";
 import RegionTargetPrompt from "../../../src/effects/auras/RegionTargetPrompt";
 import RegionAutomations from "../../../src/effects/auras/RegionAutomations";
@@ -56,5 +56,53 @@ describe("region automation registration", () => {
     vi.stubGlobal("CONFIG", { ...CONFIG, DND5E: { ...CONFIG.DND5E, activityBehaviorTypes: {} } });
     addRegionBehaviorHooks();
     expect(Object.keys(CONFIG.DND5E.activityBehaviorTypes)).toEqual(["ddbMacro"]);
+  });
+});
+
+/**
+ * dnd5e rebuilds an activity's behaviors from its sheet form, keyed by index, and renders only
+ * registered types; a DDB behavior whose switch is off must survive the save.
+ */
+describe("switched-off DDB behaviors survive an activity sheet save", () => {
+  const source = [
+    { _id: "a", type: "difficultTerrain", config: {} },
+    { _id: "b", type: "ddbMacro", config: { function: "useActivity" } },
+    { _id: "c", type: "ddbDisplay", config: { profile: "aura" } },
+    { _id: "d", type: "someOtherModule", config: {} },
+  ];
+
+  it("restores unregistered DDB behaviors at their own index and leaves the rest alone", () => {
+    vi.stubGlobal("CONFIG", { ...CONFIG, DND5E: { ...CONFIG.DND5E, activityBehaviorTypes: { difficultTerrain: {} } } });
+    const submitData: Record<string, any> = { behaviors: { 0: { _id: "a", type: "difficultTerrain", config: { edited: true } } } };
+    restoreSwitchedOffBehaviors(submitData, source);
+    expect(submitData.behaviors).toEqual({ 0: { _id: "a", type: "difficultTerrain", config: { edited: true } }, 1: source[1], 2: source[2] });
+  });
+
+  it("never overrides a submitted entry or a registered type the user removed", () => {
+    vi.stubGlobal("CONFIG", { ...CONFIG, DND5E: { ...CONFIG.DND5E, activityBehaviorTypes: { ddbMacro: {}, ddbDisplay: {} } } });
+    const submitData: Record<string, any> = { behaviors: { 1: { _id: "b", type: "ddbMacro", config: { function: "notify" } } } };
+    restoreSwitchedOffBehaviors(submitData, source);
+    expect(submitData.behaviors).toEqual({ 1: { _id: "b", type: "ddbMacro", config: { function: "notify" } } });
+  });
+
+  it("does nothing when the form carried no behaviors", () => {
+    const submitData: Record<string, any> = { name: "Cast" };
+    restoreSwitchedOffBehaviors(submitData, source);
+    expect(submitData).toEqual({ name: "Cast" });
+  });
+
+  it("wraps the activity sheet's submit data preparation", () => {
+    setMockSettings({ "enable-ddb-macro-region-behaviors": false, "enable-region-display-profiles": false });
+    vi.stubGlobal("CONFIG", { ...CONFIG, DND5E: { ...CONFIG.DND5E, activityBehaviorTypes: {} } });
+    class ActivitySheet {
+      activity = { toObject: () => ({ behaviors: source }) };
+      _prepareSubmitData(): Record<string, any> {
+        return { behaviors: {} };
+      }
+    }
+    vi.stubGlobal("dnd5e", { ...(globalThis as any).dnd5e, applications: { activity: { ActivitySheet } } });
+    addRegionBehaviorHooks();
+    const submitData = new ActivitySheet()._prepareSubmitData();
+    expect(Object.keys(submitData.behaviors)).toEqual(["1", "2"]);
   });
 });

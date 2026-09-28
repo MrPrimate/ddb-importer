@@ -114,7 +114,7 @@ describe("Evolved item property table", () => {
     expect(effect.type).toBe("enchantment");
     expect(effect.transfer).toBe(false);
     expect(effect.system?.changes?.map((c) => [c.key, c.type, c.value])).toEqual([
-      ["name", "add", "Resistant {}"],
+      ["name", "override", "Resistant {}"],
       ["system.rarities", "override", "veryRare"],
       ["system.properties", "add", "mgc"],
       ["system.description.value", "override", expect.stringContaining("{}<p><strong>Resistant.</strong>")],
