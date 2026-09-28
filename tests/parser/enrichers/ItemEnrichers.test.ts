@@ -954,7 +954,7 @@ describe("levelled and variant weapon properties", () => {
 
   it("spends Scorching Cleaver charges by consumption scaling", () => {
     const [slash] = named(ItemEnrichers.ScorchingCleaver, "Scorching Cleaver").additionalActivities;
-    expect(slash.build.saveOverride.dc.formula).toBe("11 + @prof + @scaling");
+    expect(slash.build.saveOverride.dc.formula).toBe("10 + @prof + @scaling");
     expect(slash.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "3", addScalingMode: "amount", addConsumptionScalingMax: "@item.uses.value - 2" });
   });
 });

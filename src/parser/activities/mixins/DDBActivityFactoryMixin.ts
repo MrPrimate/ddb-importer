@@ -954,11 +954,16 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
    * caught around someone before the save is asked for ("each enemy within 60 feet of the
    * medusa"). Unlike `getTarget`, "a point it can see within 120 feet of it" is where an area is
    * placed, and "one creature within 5 feet of itself" is a target, so neither is an area.
+   * The radius of light an item sheds ("bright light in a 20-foot radius") is not an area unless
+   * the save is taken in that light ("each creature of your choice within the Bright Light").
    * @param {string} text a sentence of rules text
+   * @param {object} [options] reading options
+   * @param {boolean} [options.lightIsArea] the save's own sentence is about the light
    * @returns {{ type: string; size: string; width: string } | null} the area, or null
    */
-  static areaFromText(text: string): { type: string; size: string; width: string } | null {
-    const clean = text.replace(/[\u00AD]/g, "").replace(/[‐‑–—−]/g, "-");
+  static areaFromText(text: string, { lightIsArea = false }: { lightIsArea?: boolean } = {}): { type: string; size: string; width: string } | null {
+    const dashed = text.replace(/[\u00AD]/g, "").replace(/[‐‑–—−]/g, "-");
+    const clean = lightIsArea ? dashed : dashed.replace(/\blight in an? \d+[- ]foot[- ]radius/gi, "light");
     const line = (/(\d+)-foot-long,? (\d+)-foot-? ?wide line|(\d+)-foot line(?: that is (\d+) feet wide)?|line that is (\d+) feet long(?: and (\d+) feet wide)?|line (\d+) feet long(?: and (\d+) feet wide)?/i).exec(clean);
     if (line) {
       return {
@@ -967,7 +972,13 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         width: line[2] ?? line[4] ?? line[6] ?? line[8] ?? "",
       };
     }
-    const shaped = (/(\d+)-foot cone|(\d+)-foot cube(?! of it\b)|(\d+)[- ]foot[- ]radius(?: (sphere|cylinder))?|(\d+)[- ]foot[- ](sphere|cylinder|square|emanation)/i).exec(clean);
+    // width first: "a 5-foot-wide, 60-foot-long line"; "a line 5 feet wide that extends out from
+    // you to a creature you can see within 120 feet"
+    const wideLine = (/(\d+)-foot-wide,? (\d+)-foot-long line|line (\d+) feet wide that extends[^.]*?\bwithin (\d+) feet/i).exec(clean);
+    if (wideLine) {
+      return { type: "line", size: wideLine[2] ?? wideLine[4] ?? "", width: wideLine[1] ?? wideLine[3] ?? "" };
+    }
+    const shaped = (/(\d+)-foot[- ]cone|(\d+)-foot cube(?! of it\b)|\b(\d+)[- ]foot[- ]radius(?: (sphere|cylinder))?|(\d+)[- ]foot[- ](sphere|cylinder|square|emanation)/i).exec(clean);
     if (shaped) {
       if (shaped[1]) return { type: "cone", size: shaped[1], width: "" };
       if (shaped[2]) return { type: "cube", size: shaped[2], width: "" };
@@ -982,8 +993,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     // ("regurgitate all swallowed creatures, which fall prone within 15 feet"); "any number of
     // creatures it can see within 90 feet" are chosen targets, not everything in an area
     const beforeSave = clean.split(/saving throw/i)[0];
-    if ((/\bnumber of (?:creatures|targets|enemies)\b/i).test(beforeSave)) return null;
-    const around = (/\b(?:each|all|every|any)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) feet\b/i).exec(beforeSave);
+    if ((/\bnumber of (?:creatures|targets|enemies)\b|\bup to (?:\d+|one|two|three|four|five) other\b/i).test(beforeSave)) return null;
+    const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) feet\b/i).exec(beforeSave);
     return around ? { type: "radius", size: around[1], width: "" } : null;
   }
 
@@ -1020,10 +1031,11 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       } as I5eActivityTarget["template"],
     });
     if (DDBActivityFactoryMixin.REPEAT_SAVE.test(scope.sentence)) return withArea(null);
-    const own = DDBActivityFactoryMixin.areaFromText(scope.sentence);
+    const lightIsArea = (/\blight\b/i).test(scope.sentence);
+    const own = DDBActivityFactoryMixin.areaFromText(scope.sentence, { lightIsArea });
     if (own) return withArea(own);
     for (let i = scope.lead.length - 1; i >= 0; i--) {
-      const area = DDBActivityFactoryMixin.areaFromText(scope.lead[i]);
+      const area = DDBActivityFactoryMixin.areaFromText(scope.lead[i], { lightIsArea });
       if (area) return withArea(area);
     }
     if (DDBActivityFactoryMixin.SAVE_AREA_BACKREFERENCE.test(scope.sentence)) return null;
