@@ -28,7 +28,7 @@ export default class DDBRace {
   name: string;
   data: I5eRaceItem;
   lineageTrait: IDDBChoiceResult;
-  compendiumRacialTraits: CompendiumCollection.Any;
+  compendiumRacialTraits: TIndexEntry[];
   pendingSpeciesDocument: I5eRaceItem | null = null;
 
   static SPECIES_HANDLER_OPTIONS = {
@@ -197,7 +197,7 @@ export default class DDBRace {
 
   abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
 
-  constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: CompendiumCollection.Any }) {
+  constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: TIndexEntry[] }) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.isMuncher = ddbCharacter.isMuncher ?? false;
@@ -1057,6 +1057,10 @@ export default class DDBRace {
   }
 
   #generateConditionAdvancement(trait: IDDBRacialTraitDefinition) {
+    // A munched lineage species grants its chosen lineage trait, which carries the resistance as an
+    // effect. The muncher reads conditions from the description table instead of the modifiers, which
+    // always yields the first lineage row (e.g. Poison for every Tiefling legacy).
+    if (this.isMuncher && this.isLineage && this.lineageTrait?.componentId === trait.id) return;
     // TO DO: Dragonborn Resistance choice advancement
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
@@ -1471,6 +1475,24 @@ export default class DDBRace {
       race.system.advancement[id] = advancement;
     }
     return race;
+  }
+
+  /**
+   * Builds the compendium species document for an already parsed character. The mule munch parses
+   * species before their traits are written to the compendium, so it rebuilds each species with this
+   * once the traits exist, otherwise the species would carry no trait advancements.
+   */
+  static async buildPendingSpeciesDocument(ddbCharacter: DDBCharacter): Promise<I5eRaceItem | null> {
+    const ddb = ddbCharacter.source?.ddb;
+    if (!ddb) return null;
+    const traits = ddb.character.race.racialTraits.map((r) => r.definition);
+    const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
+    const ddbRace = new DDBRace({
+      ddbCharacter,
+      compendiumRacialTraits,
+    });
+    await ddbRace.build();
+    return ddbRace._buildPendingSpeciesDocument();
   }
 
   static async writePendingSpeciesDocuments(races: I5eRaceItem[], update: boolean) {

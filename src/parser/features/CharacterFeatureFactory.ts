@@ -1307,12 +1307,12 @@ export default class CharacterFeatureFactory {
   }
 
 
-  async addSpellAdvancement({ feature, type } = {}) {
+  async addSpellAdvancement({ feature, type } = {}, addToAdvancements = true) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,
       feature,
       type,
-    });
+    }, addToAdvancements);
   }
 
   /** Adds the spell advancements of every processed feature of one granted-spell origin type. */
@@ -1323,7 +1323,9 @@ export default class CharacterFeatureFactory {
     for (const feature of this.processed.features) {
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
 
-      await this.addSpellAdvancement({ feature, type });
+      // the species item carries the spell advancements for its traits (DDBRace), and lineage
+      // traits describe every lineage, so parsing them here would grant every lineage's spells
+      await this.addSpellAdvancement({ feature, type }, type !== "race");
       featuresToCheck.push({
         feature,
         type,
