@@ -111,6 +111,8 @@ global {
     subtype?: string;
     list?: string[];
     level?: number | string | null;
+    /** spell school keys, dnd5e 6.0+ */
+    school?: string[];
   }
 
   type TI5eAdvItemChoiceConfigChoices = Record<string, I5eAdvItemChoiceLevelConfig>;

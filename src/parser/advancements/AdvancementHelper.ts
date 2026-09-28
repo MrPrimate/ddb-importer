@@ -2629,6 +2629,46 @@ export default class AdvancementHelper {
     return confirmed;
   }
 
+  /** "1" when the text gives a free cast that comes back on a rest (Fey Touched), otherwise no uses. */
+  static #freeCastAmount(text: string): string {
+    return (/without (?:expending |using )?a spell slot/i).test(text) && (/\bonce\b|finish a (?:long|short) rest/i).test(text)
+      ? "1"
+      : "";
+  }
+
+  /**
+   * Chosen spells restricted to schools or to a spell list named earlier in the text:
+   * "one 1st-level spell of your choice. The 1st-level spell must be from the divination or enchantment
+   * school of magic", "Choose one level 1 spell from the Illusion or Necromancy school of magic",
+   * "you learn one 1st-level spell of your choice from that list".
+   */
+  static #restrictedSpellChoices(text: string): ISpellAdvancementChoice[] {
+    const choices: ISpellAdvancementChoice[] = [];
+    const amount = AdvancementHelper.#freeCastAmount(text);
+    const schoolRegexes = [
+      /one (\d)(?:st|nd|rd|th)-level spell of your choice\. The \d(?:st|nd|rd|th)-level spell must be from the (\w+)(?: or (\w+))? school of magic/gi,
+      /choose one level (\d) spell from the (\w+)(?: or (\w+))? school of magic/gi,
+    ];
+    for (const regex of schoolRegexes) {
+      for (const match of text.matchAll(regex)) {
+        const schools = [match[2], match[3]]
+          .filter((name): name is string => name !== undefined)
+          .map((name) => DICTIONARY.spell.schools.find((school) => school.name === name.toLowerCase())?.id)
+          .filter((id): id is string => id !== undefined);
+        if (schools.length === 0) continue;
+        choices.push({ level: parseInt(match[1]), spellList: "", amount, schools });
+      }
+    }
+
+    // You learn one cantrip of your choice from the artificer spell list, and you learn one 1st-level spell of your choice from that list.
+    const listMatch = text.match(/from the (\w+) spell list/i);
+    const fromThatList = text.match(/one (\d)(?:st|nd|rd|th)-level spell of your choice from that list/i);
+    if (listMatch && fromThatList) {
+      choices.push({ level: parseInt(fromThatList[1]), spellList: listMatch[1].toLowerCase(), amount });
+    }
+    return choices;
+  }
+
   /**
    * "You always have the Disguise Self and Hex spells prepared. You can cast each spell once without a
    * spell slot": always prepared spells with one free cast.
@@ -2637,11 +2677,20 @@ export default class AdvancementHelper {
     // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
     const alwaysPreparedRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?You always have the ([^.]+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
     const match = text.match(alwaysPreparedRegex);
-    if (!match) return [];
-    const level = match[1] ? parseInt(match[1]) : 1;
-    return AdvancementHelper.splitSpellNames(match[2] ?? match[3])
+    if (match) {
+      const level = match[1] ? parseInt(match[1]) : 1;
+      return AdvancementHelper.splitSpellNames(match[2] ?? match[3])
+        .filter((name) => AdvancementHelper.isPlausibleSpellName(name))
+        .map((name) => ({ level, name, amount: "1" }));
+    }
+
+    // Choose one level 1 spell from the Illusion or Necromancy school of magic. You always have that spell and the Invisibility spell prepared.
+    const withChoiceMatch = text.match(/You always have that spell and the ([^.]+?) spells? prepared\./i);
+    if (!withChoiceMatch) return [];
+    const amount = AdvancementHelper.#freeCastAmount(text);
+    return AdvancementHelper.splitSpellNames(withChoiceMatch[1])
       .filter((name) => AdvancementHelper.isPlausibleSpellName(name))
-      .map((name) => ({ level, name, amount: "1" }));
+      .map((name) => ({ level: 1, name, amount }));
   }
 
   /** "When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively." */
@@ -2808,6 +2857,8 @@ export default class AdvancementHelper {
       });
     }
 
+    result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
+
     const spellListChoiceReplace = /you can replace one of the spells you chose with this feature/i;
     if (spellListChoiceReplace.test(strippedDescription)) {
       result.spellListChoiceReplace = true;
@@ -2909,6 +2960,8 @@ export default class AdvancementHelper {
         amount: "@prof",
       });
     }
+
+    result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
 
     AdvancementHelper.#dropImplausibleSpellNames(result, description);
     return result;
@@ -3479,9 +3532,22 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       }
     }
 
+    const schools = spellChoice.schools ?? [];
+    // the choice describes itself; "Choose a level 1 spell from the Divination or Enchantment school"
+    // is also the only school restriction dnd5e before 6.0 can show
+    const choiceHint = schools.length > 0
+      ? `Choose a level ${spellChoice.level} spell from the ${schools
+        .map((id) => DICTIONARY.spell.schools.find((school) => school.id === id)?.name ?? id)
+        .map((school) => utils.capitalize(school))
+        .join(" or ")} school.`
+      : spellListChoice
+        ? `Choose a level ${spellChoice.level} spell from the ${utils.capitalize(spellListChoice)} spell list.`
+        : "";
+
     const update: I5eAdvancementItemChoice = {
       name: name,
-      level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
+      // the level the feature offers the choice at; the spell's own level is the restriction below
+      level: level ? parseInt(String(level)) : parseInt(String(choiceLevel)),
       configuration: {
         allowDrops: true,
         pool: uuids.map((s) => {
@@ -3489,9 +3555,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         }),
         choices: levelChoices,
         restriction: {
-          level: level ? parseInt(String(level)) : (parseInt(String(spellChoice.level)) ?? null),
+          level: parseInt(String(spellChoice.level)),
           type: "spell",
           list: spellListChoice ? [`class:${spellListChoice}`] : [],
+          school: schools,
         },
         type: "spell",
         spell: {
@@ -3511,7 +3578,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
             },
         },
       },
-      hint,
+      hint: choiceHint !== "" ? choiceHint : hint,
     };
     advancement.updateSource(update as any);
 
@@ -3697,12 +3764,15 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       advancements.push(cantripGrantAdvancement);
     }
 
-    // species spells are innate unless the trait also lets you cast them with your spell slots
-    // (2024 lineages, Monsters of the Multiverse); older traits such as Infernal Legacy do not
-    const speciesSpellMethod = (/using any spell slots|with any spell slots|spell slots you have/i)
+    // spells carried by an advancement are innate unless the text also lets you cast them with your
+    // spell slots (2024 lineages, Monsters of the Multiverse, Fey Touched); Infernal Legacy does not
+    const advancementSpellMethod = (/using any spell slots|with any spell slots|spell slots you have/i)
       .test(AdvancementHelper.stripDescription(feature.system.description.value))
       ? "spell"
       : "innate";
+    // a feat that also lets you choose a spell follows the official shape (Fey Touched): the granted
+    // spell carries its free cast on the advancement like the chosen one, with no cast activity
+    const usesOnAdvancement = advancementsOnlyForLimitedUses || (type === "feat" && htmlData.spellChoices.length > 0);
 
     const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")
       || feature.system.uses.max === ""
@@ -3716,11 +3786,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         name,
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
-        // no cast activity is built when advancementsOnlyForLimitedUses (species), so the free or
-        // unlimited casts live on the advancement instead
-        requireSlot: !advancementsOnlyForLimitedUses,
-        forceNoAmount: !advancementsOnlyForLimitedUses,
-        method: advancementsOnlyForLimitedUses ? speciesSpellMethod : "spell",
+        // no cast activity is built when the uses live on the advancement (species, choice feats), so
+        // the free or unlimited casts are carried by the granted spell instead
+        requireSlot: !usesOnAdvancement,
+        forceNoAmount: !usesOnAdvancement,
+        method: usesOnAdvancement ? advancementSpellMethod : "spell",
         spellData,
       });
       if (spellGrantAdvancement) {
@@ -3776,7 +3846,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         } else {
           activity.data.uses = uses;
         }
-        if (advancementsOnlyForLimitedUses) {
+        if (usesOnAdvancement) {
           logger.debug(`Not adding spell activity for ${spellGrant.name} to feature ${feature.name} as advancementOnlyForLimitedUses is true`);
         } else if (activity.data._id) {
           // DDBBasicActivity always assigns data._id in its constructor
@@ -3797,6 +3867,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
         allowReplacements: htmlData.spellListChoiceReplace,
+        method: advancementSpellMethod,
         spellData,
       });
       if (spellChoiceAdvancement) {

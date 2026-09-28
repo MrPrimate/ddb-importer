@@ -695,3 +695,32 @@ describe("AdvancementHelper spell cast back-references", () => {
     ]);
   });
 });
+
+describe("AdvancementHelper restricted spell choices", () => {
+  const traits = (text: string) => AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(`<p>${text}</p>`);
+
+  it("reads a fixed spell and a school restricted choice (2014 wording)", () => {
+    const result = traits("You learn the Sigma Step spell and one 1st-level spell of your choice. The 1st-level spell must be from the divination or enchantment school of magic. You can cast each of these spells without expending a spell slot. Once you cast either of these spells in this way, you can’t cast that spell in this way again until you finish a long rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "sigma step", amount: "1" }]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["div", "enc"] }]);
+  });
+
+  it("reads a school restricted choice and 'that spell and the X spell' (2024 wording)", () => {
+    const result = traits("Choose one level 1 spell from the Illusion or Necromancy school of magic. You always have that spell and the Tau Veil spell prepared. You can cast each of these spells without expending a spell slot. Once you cast either spell in this way, you can’t cast that spell in this way again until you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "tau veil", amount: "1" }]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["ill", "nec"] }]);
+  });
+
+  it("reads a higher level school choice without a fixed spell", () => {
+    const result = traits("You learn one 2nd-level spell of your choice. The 2nd-level spell must be from the abjuration or divination school of magic. You can cast this feat’s 2nd-level spell without a spell slot, and you must finish a long rest before you can cast it in this way again.");
+    expect(result.spellGrants).toEqual([]);
+    expect(result.spellChoices).toEqual([{ level: 2, spellList: "", amount: "1", schools: ["abj", "div"] }]);
+  });
+
+  it("reads a spell choice from a list named earlier", () => {
+    const result = traits("You learn one cantrip of your choice from the artificer spell list, and you learn one 1st-level spell of your choice from that list. You can cast this feat’s 1st-level spell without a spell slot, and you must finish a long rest before you can cast it in this way again.");
+    expect(result.spellListCantripChoice).toBe("artificer");
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "artificer", amount: "1" }]);
+  });
+});
+
