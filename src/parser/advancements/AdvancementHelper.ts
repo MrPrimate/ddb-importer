@@ -32,10 +32,14 @@ interface ISpellAdvancementChoice {
   level: number;
   spellList: string;
   amount: string;
+  /** dnd5e spell school keys the chosen spell must come from (Fey Touched: div, enc); hint only before dnd5e 6.0 */
+  schools?: string[];
 }
 
 interface IParsedSpellAdvancementData {
   spellListCantripChoice: string | null;
+  spellListCantripChoiceNum?: number | string | null;
+  spellListChoiceReplace?: boolean;
   cantripChoices: string[];
   cantripGrants: string[];
   spellGrants: ISpellAdvancementGrant[];
@@ -107,6 +111,8 @@ export default class AdvancementHelper {
 
   static stripDescription(description: string): string {
     const descriptionReplaced = description
+      // processed descriptions carry reference links (the Minor &Reference[ill]{Illusion} cantrip)
+      .replaceAll(/(?:&amp;|[&@])\w+\[[^\]]*\]\{([^}]*)\}/g, "$1")
       .replaceAll(/<br \/>(?:\s*)*/g, "<br />\n")
       .replaceAll(/<\/p>(?:\s*)*/g, "</p>\n")
       .replaceAll(/<\/dt>(?:\s*)*<dt>/g, "</dt>\n<dt>");
@@ -1641,7 +1647,7 @@ export default class AdvancementHelper {
     const standardLanguagesRegex = /Your character knows at least three languages:\sCommon plus two languages you roll or choose from the Standard Languages table/im;
     const standardLanguagesMatch = textDescription.match(standardLanguagesRegex);
     if (standardLanguagesMatch) {
-      parsedLanguages.grants = ["languages:standard:common"];
+      parsedLanguages.grants = ["standard:common"];
       parsedLanguages.number = 2;
       parsedLanguages.choices = ["standard:*"];
       return parsedLanguages;
@@ -2481,8 +2487,269 @@ export default class AdvancementHelper {
   }
 
 
+  // words that never appear in a spell name, so a capture holding one is prose that ran past the name
+  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
+
+  /** Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed. */
+  static spellParseText(description: string): string {
+    return AdvancementHelper.stripDescription(description)
+      .replace(/\[\/?spells?\]/gi, "")
+      .replace(/&nbsp;|\u00a0/g, " ")
+      .replaceAll("*", "")
+      .replace(/[ \t]+/g, " ");
+  }
+
+  static #sentences(text: string): string[] {
+    // no spell name contains a full stop, so sentence boundaries bound every spell capture
+    return text
+      .split(/(?<=[.!?;])\s+|\n+/)
+      .map((sentence) => sentence.trim())
+      .filter((sentence) => sentence !== "");
+  }
+
+  /** Character level a sentence gates its spells behind ("Starting at 3rd level", "When you reach character level 5"). */
+  static #sentenceLevel(sentence: string): number | null {
+    const match = sentence.match(/\b(?:(?:starting at|when you reach|beginning at|once you reach) (?:character )?(?:level (\d+)|(\d+)(?:st|nd|rd|th) level)|at character level (\d+))\b/i);
+    if (!match) return null;
+    return parseInt(match[1] ?? match[2] ?? match[3]);
+  }
+
+  /** Uses a sentence gives its spells, or null when it says nothing about how often they can be cast. */
+  static #sentenceAmount(sentence: string): string | null {
+    if ((/an unlimited number of times|\bat will\b/i).test(sentence)) return "";
+    if ((/a number of times equal to half your proficiency bonus/i).test(sentence)) return "floor(@prof / 2)";
+    if ((/a number of times equal to your proficiency bonus/i).test(sentence)) return "@prof";
+    const modifier = sentence.match(/a number of times equal to your (strength|dexterity|constitution|intelligence|wisdom|charisma) modifier/i);
+    if (modifier) {
+      const ability = DICTIONARY.actor.abilities.find((a) => a.long === modifier[1].toLowerCase());
+      if (ability) return `max(1, @abilities.${ability.value}.mod)`;
+    }
+    if ((/\bonce\b|(?:until|when) you finish a (?:long|short) rest/i).test(sentence)) return "1";
+    return null;
+  }
+
+  static #cleanSpellName(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/^(?:either |both )?(?:the |a |an )?(?:spells? )?/, "")
+      .replace(/\s+(?:spells?|cantrips?)$/, "")
+      .replace(/[.,;:]+$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  /**
+   * Splits "detect magic and disguise self" or "animal friendship, animal messenger, and speak with
+   * animals" into spell names, keeping names such as purify food and drink whole.
+   */
+  static splitSpellNames(text: string): string[] {
+    let working = text.toLowerCase();
+    const kept: string[] = [];
+    for (const name of DICTIONARY.parsing.spellNamesWithConjunctions) {
+      if (!working.includes(name)) continue;
+      working = working.replaceAll(name, `@@${kept.length}@@`);
+      kept.push(name);
+    }
+    return working
+      .split(/\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or)\s+/)
+      .map((part) => part.replace(/@@(\d+)@@/g, (_match, index) => kept[parseInt(index)]))
+      .map((part) => AdvancementHelper.#cleanSpellName(part))
+      .filter((part) => part !== "");
+  }
+
+  /** False for captures that are prose rather than a spell name (a sentence that ran on, a pronoun). */
+  static isPlausibleSpellName(name: string): boolean {
+    const cleaned = name.trim();
+    if (cleaned === "") return false;
+    if (cleaned.split(/\s+/).length > 6) return false;
+    return !AdvancementHelper.#NOT_A_SPELL_NAME.test(cleaned);
+  }
+
+  /**
+   * Spells a description grants by casting: "you can cast the jump spell with this trait",
+   * "Starting at 5th level, you can also cast misty step with it", "you can cast each of these spells
+   * once". Each sentence is read on its own, so one grant cannot swallow the next. Sentences that only
+   * refer back to spells already named ("Once you cast jump or misty step with this trait…", "You can
+   * cast each of these spells once…") set the uses of those spells instead of adding grants.
+   */
+  static parseSpellCastGrants(text: string, { defaultAmount = "1" }: { defaultAmount?: string | null } = {}): ISpellAdvancementGrant[] {
+    const grants: ISpellAdvancementGrant[] = [];
+    // names from "cast X" that no sentence has yet marked as a free or innate cast
+    const unconfirmed = new Set<string>();
+    // "pass without trace" is the one spell name holding a terminator word
+    const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
+    const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
+    // "you can cast X" alone is often a reminder of normal casting (Divine Smite "without using a bonus
+    // action"); only a free, limited or innate cast is a grant
+    const freeCastRegex = /without (?:expending |using )?a spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short) rest|with this trait|\bwith it\b/i;
+
+    for (const sentence of AdvancementHelper.#sentences(text)) {
+      const level = AdvancementHelper.#sentenceLevel(sentence) ?? 1;
+      const amount = AdvancementHelper.#sentenceAmount(sentence);
+      // "You expend a spell slot as normal, and you can cast this spell in this way only once per turn"
+      const freeCast = freeCastRegex.test(sentence) && !(/spell slot as normal/i).test(sentence);
+      const captures = [
+        ...[...sentence.matchAll(castRegex)].map((match) => ({ capture: match[1], learned: false })),
+        // "levels 3 and 5, you learn the X spell and the Y spell" is read by the level pair parser
+        ...[...((/levels?\s+\d+\s+and\s+\d+/i).test(sentence) ? [] : sentence.matchAll(learnRegex))]
+          .map((match) => ({ capture: match[1], learned: true }))
+          .filter(({ capture }) => !(/cantrip/i).test(capture)),
+      ];
+      for (const { capture, learned } of captures) {
+        // "hex, and you regain the ability…": keep the listed names up to the first piece of prose
+        const names: string[] = [];
+        for (const name of AdvancementHelper.splitSpellNames(capture)) {
+          if (!AdvancementHelper.isPlausibleSpellName(name)) break;
+          names.push(name);
+        }
+        if (names.length === 0) {
+          // a pronoun such as "each of these" or "it": the sentence sets the uses of what came before
+          const targets = AdvancementHelper.#backReferenceTargets(capture, grants);
+          for (const grant of targets) {
+            if (amount !== null) grant.amount = amount;
+            if (freeCast) unconfirmed.delete(grant.name);
+          }
+          continue;
+        }
+        // "You learn the sacred flame spell, which doesn't count against the number of cantrips you know"
+        const learnedCantrip = learned && (/cantrip/i).test(sentence);
+        for (const name of names) {
+          if (grants.some((grant) => grant.name === name)) continue;
+          grants.push({ level, name, amount: learnedCantrip ? "" : amount ?? undefined });
+          if (!learned && !freeCast) unconfirmed.add(name);
+        }
+      }
+
+      // Once you cast jump or misty step with this trait, you can't cast that spell with it again until you finish a long rest.
+      const onceMatch = sentence.match(/\bonce you (?:have )?cast (.+?)(?= with\b| using\b| in this way| this way|,|\.|$)/i);
+      if (onceMatch) {
+        const names = AdvancementHelper.splitSpellNames(onceMatch[1]).filter((name) => AdvancementHelper.isPlausibleSpellName(name));
+        const targets = names.length > 0
+          ? grants.filter((grant) => names.includes(grant.name))
+          : AdvancementHelper.#backReferenceTargets(onceMatch[1], grants);
+        for (const grant of targets) {
+          grant.amount = "1";
+          unconfirmed.delete(grant.name);
+        }
+      }
+    }
+
+    const confirmed = grants.filter((grant) => !unconfirmed.has(grant.name));
+    // a description that limits its casts anywhere applies that limit to grants that did not say
+    const limited = (/\bonce\b|(?:until|when) you finish a (?:long|short) rest/i).test(text);
+    for (const grant of confirmed) {
+      if (grant.amount !== undefined) continue;
+      if (limited) grant.amount = "1";
+      else if (defaultAmount !== null) grant.amount = defaultAmount;
+      else delete grant.amount;
+    }
+    return confirmed;
+  }
+
+  /** "1" when the text gives a free cast that comes back on a rest (Fey Touched), otherwise no uses. */
+  static #freeCastAmount(text: string): string {
+    return (/without (?:expending |using )?a spell slot/i).test(text) && (/\bonce\b|finish a (?:long|short) rest/i).test(text)
+      ? "1"
+      : "";
+  }
+
+  /**
+   * Chosen spells restricted to schools or to a spell list named earlier in the text:
+   * "one 1st-level spell of your choice. The 1st-level spell must be from the divination or enchantment
+   * school of magic", "Choose one level 1 spell from the Illusion or Necromancy school of magic",
+   * "you learn one 1st-level spell of your choice from that list".
+   */
+  static #restrictedSpellChoices(text: string): ISpellAdvancementChoice[] {
+    const choices: ISpellAdvancementChoice[] = [];
+    const amount = AdvancementHelper.#freeCastAmount(text);
+    const schoolRegexes = [
+      /one (\d)(?:st|nd|rd|th)-level spell of your choice\. The \d(?:st|nd|rd|th)-level spell must be from the (\w+)(?: or (\w+))? school of magic/gi,
+      /choose one level (\d) spell from the (\w+)(?: or (\w+))? school of magic/gi,
+    ];
+    for (const regex of schoolRegexes) {
+      for (const match of text.matchAll(regex)) {
+        const schools = [match[2], match[3]]
+          .filter((name): name is string => name !== undefined)
+          .map((name) => DICTIONARY.spell.schools.find((school) => school.name === name.toLowerCase())?.id)
+          .filter((id): id is string => id !== undefined);
+        if (schools.length === 0) continue;
+        choices.push({ level: parseInt(match[1]), spellList: "", amount, schools });
+      }
+    }
+
+    // You learn one cantrip of your choice from the artificer spell list, and you learn one 1st-level spell of your choice from that list.
+    const listMatch = text.match(/from the (\w+) spell list/i);
+    const fromThatList = text.match(/one (\d)(?:st|nd|rd|th)-level spell of your choice from that list/i);
+    if (listMatch && fromThatList) {
+      choices.push({ level: parseInt(fromThatList[1]), spellList: listMatch[1].toLowerCase(), amount });
+    }
+    return choices;
+  }
+
+  /**
+   * "You always have the Disguise Self and Hex spells prepared. You can cast each spell once without a
+   * spell slot": always prepared spells with one free cast.
+   */
+  static #alwaysPreparedGrants(text: string): ISpellAdvancementGrant[] {
+    // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
+    const alwaysPreparedRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?You always have the ([^.]+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
+    const match = text.match(alwaysPreparedRegex);
+    if (match) {
+      const level = match[1] ? parseInt(match[1]) : 1;
+      return AdvancementHelper.splitSpellNames(match[2] ?? match[3])
+        .filter((name) => AdvancementHelper.isPlausibleSpellName(name))
+        .map((name) => ({ level, name, amount: "1" }));
+    }
+
+    // Choose one level 1 spell from the Illusion or Necromancy school of magic. You always have that spell and the Invisibility spell prepared.
+    const withChoiceMatch = text.match(/You always have that spell and the ([^.]+?) spells? prepared\./i);
+    if (!withChoiceMatch) return [];
+    const amount = AdvancementHelper.#freeCastAmount(text);
+    return AdvancementHelper.splitSpellNames(withChoiceMatch[1])
+      .filter((name) => AdvancementHelper.isPlausibleSpellName(name))
+      .map((name) => ({ level: 1, name, amount }));
+  }
+
+  /** "When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively." */
+  static #levelPairGrants(text: string): ISpellAdvancementGrant[] {
+    const grants: ISpellAdvancementGrant[] = [];
+    const levelPairRegex = /levels?\s+(\d+)\s+and\s+(\d+)[^.]*?the\s+([^.]+?)\s+spell\s+and\s+the\s+([^.]+?)\s+spell/gi;
+    for (const match of text.matchAll(levelPairRegex)) {
+      for (const [level, name] of [[match[1], match[3]], [match[2], match[4]]]) {
+        const spell = AdvancementHelper.#cleanSpellName(name);
+        if (!AdvancementHelper.isPlausibleSpellName(spell) || grants.some((grant) => grant.name === spell)) continue;
+        grants.push({ level: parseInt(level), name: spell, amount: "1" });
+      }
+    }
+    return grants;
+  }
+
+  /** The grants a pronoun refers to: "it" or "that spell" is the latest one, "these" or "either" all of them. */
+  static #backReferenceTargets(reference: string, grants: ISpellAdvancementGrant[]): ISpellAdvancementGrant[] {
+    if (grants.length === 0) return [];
+    const singular = (/^(?:it|this|that|the)(?: spell)?$/i).test(reference.trim());
+    return singular ? [grants[grants.length - 1]] : grants;
+  }
+
+  /** Drops parsed names that are prose rather than spells, warning so a missed spell is visible. */
+  static #dropImplausibleSpellNames(result: IParsedSpellAdvancementData, description: string) {
+    const keep = (name: string) => {
+      if (AdvancementHelper.isPlausibleSpellName(name)) return true;
+      logger.warn(`Ignoring "${name}" parsed as a spell name`, { description });
+      return false;
+    };
+    const clean = (name: string) => AdvancementHelper.#cleanSpellName(name);
+    result.cantripGrants = result.cantripGrants.map(clean).filter(keep);
+    result.cantripChoices = result.cantripChoices.map(clean).filter(keep);
+    result.spellGrants = result.spellGrants
+      .map((grant) => ({ ...grant, name: clean(grant.name) }))
+      .filter((grant) => keep(grant.name));
+  }
+
+
   static parseHTMLSpellAdvancementDataForTraits(description: string) {
-    const result = {
+    const result: IParsedSpellAdvancementData = {
       spellListCantripChoice: null,
       spellListCantripChoiceNum: null,
       spellListChoiceReplace: false,
@@ -2493,7 +2760,7 @@ export default class AdvancementHelper {
       hint: "",
     };
     const spellsAdded = new Set();
-    const strippedDescription = AdvancementHelper.stripDescription(description).replace("*", "");
+    const strippedDescription = AdvancementHelper.spellParseText(description);
 
     // You also know the Poison Spray cantrip.
     // You know the shocking grasp cantrip.
@@ -2531,8 +2798,8 @@ export default class AdvancementHelper {
     }
 
     // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
     if (strippedDescription.includes("one of the following cantrips of your choice")) {
-      // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
       const choices = strippedDescription.split(/one of the following cantrips of your choice[:;]?/)
         .slice(1)[0]
         .split(".")[0]
@@ -2567,32 +2834,17 @@ export default class AdvancementHelper {
     // You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again
     // You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus
     // You also have the ability to cast Faerie Fire once per long rest. (homebrew)
-    const canCastRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?you (?:also )?(?:can|gain the ability to|have the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
-    const canCastMatches = strippedDescription.matchAll(canCastRegex);
-
-    for (const match of canCastMatches) {
-      const spells = match[2]
-        .replace("spell", "")
-        .replaceAll(" or ", " and ")
-        .split(" and ")
-        .map((s) => s.toLowerCase().trim());
-      const unlimited = match[3] && match[3].includes("unlimited");
-      const halfProficiency = match[3] && match[3].includes("half your proficiency bonus");
-      for (const spell of spells) {
-        if (["it"].includes(spell)) continue;
-        if (spellsAdded.has(spell)) continue;
-        spellsAdded.add(spell);
-        const level = match[1] ? parseInt(match[1]) : 1;
-        result.spellGrants.push({
-          level,
-          name: spell,
-          amount: unlimited
-            ? ""
-            : halfProficiency
-              ? "floor(@prof / 2)"
-              : "1",
-        });
-      }
+    // Starting at 3rd level, you can cast the jump spell with this trait. Starting at 5th level, you can also cast the misty step spell with it.
+    // You learn the misty step spell and one level 1 spell of your choice.
+    // When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively.
+    const spellCastGrants = [
+      ...AdvancementHelper.#levelPairGrants(strippedDescription),
+      ...AdvancementHelper.parseSpellCastGrants(strippedDescription),
+    ];
+    for (const grant of spellCastGrants) {
+      if (spellsAdded.has(grant.name)) continue;
+      spellsAdded.add(grant.name);
+      result.spellGrants.push(grant);
     }
 
     // from the Sorcerer spell list. Also, choose a level 1 spell from that spell list. You always have that spell prepared. You can cast it once without a spell slot,
@@ -2607,37 +2859,10 @@ export default class AdvancementHelper {
       });
     }
 
-    // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
-    const alwaysPreparedRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?You always have the (.+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
-    const alwaysPreparedMatch = strippedDescription.match(alwaysPreparedRegex);
-    if (alwaysPreparedMatch) {
-      const spellMatch = (alwaysPreparedMatch[2] ?? alwaysPreparedMatch[3]).toLowerCase().trim();
-      const spellArray = spellMatch.replace(" and ", ",").split(",").map((s) => s.trim());
-      for (const spell of spellArray) {
-        if (!spellsAdded.has(spell)) {
-          const level = alwaysPreparedMatch[1] ? parseInt(alwaysPreparedMatch[1]) : 1;
-          result.spellGrants.push({
-            level,
-            name: spell,
-            amount: "1",
-          });
-          spellsAdded.add(spell);
-        }
-      }
-    }
-
-    const learnTheSpellRegex = /you learn (?:the )?(.+?)(?: spell)\./i;
-    const learnTheSpellMatch = strippedDescription.match(learnTheSpellRegex);
-    if (learnTheSpellMatch) {
-      const spell = learnTheSpellMatch[1].toLowerCase().trim();
-      if (!spellsAdded.has(spell)) {
-        result.spellGrants.push({
-          level: 1,
-          name: spell,
-          amount: "1",
-        });
-        spellsAdded.add(spell);
-      }
+    for (const grant of AdvancementHelper.#alwaysPreparedGrants(strippedDescription)) {
+      if (spellsAdded.has(grant.name)) continue;
+      spellsAdded.add(grant.name);
+      result.spellGrants.push(grant);
     }
 
     const chooseSpellListRegex2 = /Choose a level (\d) spell from the (\w+) spell list. You always have that spell prepared. You can cast it once without a spell slo/i;
@@ -2650,11 +2875,14 @@ export default class AdvancementHelper {
       });
     }
 
+    result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
+
     const spellListChoiceReplace = /you can replace one of the spells you chose with this feature/i;
     if (spellListChoiceReplace.test(strippedDescription)) {
       result.spellListChoiceReplace = true;
     }
 
+    AdvancementHelper.#dropImplausibleSpellNames(result, description);
     return result;
   }
 
@@ -2668,7 +2896,7 @@ export default class AdvancementHelper {
       hint: "",
     };
     const spellsAdded = new Set();
-    const strippedDescription = AdvancementHelper.stripDescription(description);
+    const strippedDescription = AdvancementHelper.spellParseText(description);
 
     const spellListRegex = /You know one cantrip of your choice from the (\w+) spell list/i;
     const spellListMatch = strippedDescription.match(spellListRegex);
@@ -2679,8 +2907,8 @@ export default class AdvancementHelper {
     }
 
     // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
     if (strippedDescription.includes("one of the following cantrips of your choice")) {
-      // Homebrew traits sometimes use a semicolon or other punctuation after "choice".
       const choices = strippedDescription.split(/one of the following cantrips of your choice[:;]?/)
         .slice(1)[0]
         .split(".")[0]
@@ -2699,7 +2927,7 @@ export default class AdvancementHelper {
     // You know the shocking grasp cantrip.
     // You know the druidcraft cantrip.
     // You know the mage hand cantrip, and the hand is invisible when you cast the cantrip with this trait.
-    const cantripGrantRegex = /You (?:also )?know the ([\w /]+) cantrip/ig;
+    const cantripGrantRegex = /You (?:also )?(?:learn|know) the ([\w /]+) cantrip/ig;
     const cantripGrants = strippedDescription.matchAll(cantripGrantRegex);
     for (const match of cantripGrants) {
       const cantrips = match[1]
@@ -2714,80 +2942,46 @@ export default class AdvancementHelper {
       }
     }
 
-    // Starting at 3rd level, you can cast the feather fall spell with this trait, without requiring a material component. Starting at 5th level, you can also cast the levitate spell with this trait, without requiring a material component.
-    // Starting at 3rd level, you can also cast suggestion with this trait.
-    // Starting at 3rd level, you can cast the disguise self spell with this trait. Starting at 5th level, you can also cast the nondetection spell with it, without requiring a material component.
-    // Starting at 3rd level, you can cast the enlarge/reduce spell on yourself with this trait, without requiring a material component. Starting at 5th level, you can also cast the invisibility spell on yourself with this trait, without requiring a material component.
-    // Starting at 5th level, you can cast the pass without trace spell with this trait, without requiring a material component.
-    // Starting at 3rd level, you can cast the faerie fire spell with this trait. Starting at 5th level, you can also cast the enlarge/reduce spell with this trait.
-    //  When you reach 3rd level, you can cast the create or destroy water spell as a 2nd-level spell once with this trait, and you regain the ability to cast it this way when you finish a long rest
-
-    const startingAtRegex = /(?:Starting at|When you reach) (\d+)(?:st|nd|rd|th) level, you can (?:also )?cast (?:the )?(.+?)(?: spell)?(?:spell on yourself)? (?:with this trait|as a|with it)/ig;
-    const startingAtMatches = strippedDescription.matchAll(startingAtRegex);
-    for (const match of startingAtMatches) {
-      const spells = match[2]
-        .replace(" and ", ",")
-        .replaceAll(",,", ",")
-        .split(",")
-        .map((cantrip) => cantrip.toLowerCase().trim());
-
-      for (const spell of spells) {
-        if (spellsAdded.has(spell)) continue;
-        const level = parseInt(match[1]);
-        spellsAdded.add(spell);
-        result.spellGrants.push({
-          level: level,
-          name: spell,
-        });
-      }
-    }
-
-    // You can cast the detect magic and disguise self spells with this trait. When you use this version of disguise self, you can seem up to 3 feet shorter or taller. Once you cast either of these spells with this trait, you can’t cast that spell with it again until you finish a long rest.
-    // You can cast the levitate spell once with this trait, requiring no material components, and you regain the ability to cast it this way when you finish a long rest.
-    // You can cast animal friendship an unlimited number of times with this trait, but you can target only snakes with it.
-    const canCastRegex = /you can (?:also )?cast (?:the )?(.+?)(?: spells?)? (once |an unlimited number of times |on yourself |as a \d+(?:st|nd|rd|th)[- ]level spell once )?with this trait/ig;
-
-    const canCastMatches = strippedDescription.matchAll(canCastRegex);
-    for (const match of canCastMatches) {
-      const spells = match[1].split(" and ").map((s) => s.toLowerCase().trim());
-      const unlimited = match[2] && match[2].includes("unlimited");
-      for (const spell of spells) {
-        if (spellsAdded.has(spell)) continue;
-        spellsAdded.add(spell);
-        result.spellGrants.push({
-          level: 1,
-          name: spell,
-          amount: unlimited ? "" : "1",
-        });
-      }
-    }
-
-    // When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table
-
     // When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively.
-    const levelPairRegex = /levels?\s+(\d+)\s+and\s+(\d+)[^.]*?the\s+(.+?)\s+spell\s+and\s+the\s+(.+?)\s+spell/gi;
-    const levelPairMatches = strippedDescription.matchAll(levelPairRegex);
-    for (const match of levelPairMatches) {
-      if (!spellsAdded.has(match[3].toLowerCase())) {
-        const spell = match[3].toLowerCase().trim();
-        spellsAdded.add(spell);
-        result.spellGrants.push({
-          level: parseInt(match[1]),
-          name: spell,
-          amount: "1",
-        });
-      }
-      if (!spellsAdded.has(match[4].toLowerCase())) {
-        const spell = match[4].toLowerCase().trim();
-        spellsAdded.add(spell);
-        result.spellGrants.push({
-          level: parseInt(match[2]),
-          name: spell,
-          amount: "1",
-        });
-      }
+    for (const grant of AdvancementHelper.#levelPairGrants(strippedDescription)) {
+      if (spellsAdded.has(grant.name)) continue;
+      spellsAdded.add(grant.name);
+      result.spellGrants.push(grant);
     }
 
+    // Starting at 3rd level, you can cast the feather fall spell with this trait, without requiring a material component. Starting at 5th level, you can also cast the levitate spell with this trait, without requiring a material component.
+    // When you reach 3rd level, you can cast the create or destroy water spell as a 2nd-level spell once with this trait, and you regain the ability to cast it this way when you finish a long rest
+    // You can cast the detect magic and disguise self spells with this trait. Once you cast either of these spells with this trait, you can’t cast that spell with it again until you finish a long rest.
+    // You can cast animal friendship an unlimited number of times with this trait, but you can target only snakes with it.
+    // grants that state no limit keep no uses (lineage tables add theirs afterwards)
+    for (const grant of AdvancementHelper.parseSpellCastGrants(strippedDescription, { defaultAmount: null })) {
+      if (spellsAdded.has(grant.name)) continue;
+      spellsAdded.add(grant.name);
+      result.spellGrants.push(grant);
+    }
+
+    for (const grant of AdvancementHelper.#alwaysPreparedGrants(strippedDescription)) {
+      if (spellsAdded.has(grant.name)) continue;
+      spellsAdded.add(grant.name);
+      result.spellGrants.push(grant);
+    }
+
+    // You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus
+    const alwaysPreparedProfRegex = /You (?:also )?always have the (.+?) spell prepared\. You can cast it without a spell slot a number of times equal to your Proficiency Bonus/ig;
+    for (const match of strippedDescription.matchAll(alwaysPreparedProfRegex)) {
+      const spell = match[1].toLowerCase().trim();
+      if (spellsAdded.has(spell)) continue;
+      spellsAdded.add(spell);
+      result.spellGrants.push({
+        level: 1,
+        name: spell,
+        amount: "@prof",
+      });
+    }
+
+    result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
+
+    AdvancementHelper.#dropImplausibleSpellNames(result, description);
     return result;
   }
 
@@ -2828,10 +3022,18 @@ export default class AdvancementHelper {
       }
     });
 
+    const speciesWords = species.toLowerCase().split(/[^a-z]+/).filter((word) => word !== "");
     const lineageMatch = lineages.find((l) => l.name.toLowerCase() === species.toLowerCase())
-      ?? lineages.find((l) => species.toLowerCase().includes(l.name.toLowerCase()));
+      ?? lineages.find((l) => species.toLowerCase().includes(l.name.toLowerCase()))
+      // DDB spells some option names differently from the table row (Cthonic vs Chthonic)
+      ?? lineages.find((l) => !l.name.includes(" ")
+        && speciesWords.some((word) => AdvancementHelper.#withinOneEdit(word, l.name.toLowerCase())));
 
-    if (!lineageMatch) return AdvancementHelper.parseHTMLSpellAdvancementData(description);
+    if (!lineageMatch) {
+      // parsing the whole table would grant every lineage's spells
+      logger.warn(`No lineage table row found for ${species}, no lineage spells will be granted`, { lineages });
+      return AdvancementHelper.parseHTMLSpellAdvancementData("");
+    }
 
     const adjustedDescription = `${lineageMatch.one}
 Starting at 3rd level, you can cast the ${lineageMatch.three} spell with this trait.
@@ -2839,7 +3041,37 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     const result = AdvancementHelper.parseHTMLSpellAdvancementData(adjustedDescription);
 
+    // 2024 lineages: "You can cast it once without a spell slot" for the level 3 and 5 spells
+    if ((/cast it once without a spell slot/i).test(AdvancementHelper.stripDescription(description))) {
+      for (const grant of result.spellGrants) {
+        if (grant.level > 1) grant.amount = "1";
+      }
+    }
+
     return result;
+  }
+
+  /** True when the two strings differ by at most one inserted, deleted or substituted character. */
+  static #withinOneEdit(a: string, b: string): boolean {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0;
+    let j = 0;
+    let edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) {
+        i++;
+        j++;
+        continue;
+      }
+      if (++edits > 1) return false;
+      if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else {
+        i++;
+        j++;
+      }
+    }
+    return edits + (a.length - i) + (b.length - j) <= 1;
   }
 
   static getHTMLDataForSpellAdvancements(description: string, species: string): IParsedSpellAdvancementData {
@@ -3313,9 +3545,22 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       }
     }
 
+    const schools = spellChoice.schools ?? [];
+    // the choice describes itself; "Choose a level 1 spell from the Divination or Enchantment school"
+    // is the only school restriction dnd5e 5.x can show (no restriction.school before 6.0)
+    const choiceHint = schools.length > 0
+      ? `Choose a level ${spellChoice.level} spell from the ${schools
+        .map((id) => DICTIONARY.spell.schools.find((school) => school.id === id)?.name ?? id)
+        .map((school) => utils.capitalize(school))
+        .join(" or ")} school.`
+      : spellListChoice
+        ? `Choose a level ${spellChoice.level} spell from the ${utils.capitalize(spellListChoice)} spell list.`
+        : "";
+
     advancement.updateSource({
       title: name,
-      level: level ? parseInt(level) : parseInt(spellChoice.level),
+      // the level the feature offers the choice at; the spell's own level is the restriction below
+      level: level ? parseInt(level) : parseInt(String(choiceLevel)),
       configuration: {
         allowDrops: true,
         pool: uuids.map((s) => {
@@ -3323,7 +3568,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         }),
         choices: levelChoices,
         restriction: {
-          level: level ? parseInt(level) : (parseInt(spellChoice.level) ?? null),
+          level: parseInt(spellChoice.level),
           type: "spell",
           list: spellListChoice ? [`class:${spellListChoice}`] : [],
         },
@@ -3345,7 +3590,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
             },
         },
       },
-      hint,
+      hint: choiceHint !== "" ? choiceHint : hint,
     });
 
     return advancement;
@@ -3572,6 +3817,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       // }
     }
 
+    // spells carried by an advancement are innate unless the text also lets you cast them with your
+    // spell slots (2024 lineages, Monsters of the Multiverse, Fey Touched); Infernal Legacy does not
+    const advancementSpellMethod = (/using any spell slots|with any spell slots|spell slots you have/i)
+      .test(AdvancementHelper.stripDescription(feature.system.description.value))
+      ? "spell"
+      : "innate";
+    // a feat that also lets you choose a spell follows the official shape (Fey Touched): the granted
+    // spell carries its free cast on the advancement like the chosen one, with no cast activity
+    const usesOnAdvancement = advancementsOnlyForLimitedUses || (type === "feat" && htmlData.spellChoices.length > 0);
+
     const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")
       || feature.system.uses.max === ""
       || String(feature.system.uses.max) === "0";
@@ -3584,9 +3839,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         name,
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
-        requireSlot: true,
-        forceNoAmount: true,
-        method: "spell",
+        // no cast activity is built when the uses live on the advancement (species, choice feats), so
+        // the free or unlimited casts are carried by the granted spell instead
+        requireSlot: !usesOnAdvancement,
+        forceNoAmount: !usesOnAdvancement,
+        method: usesOnAdvancement ? advancementSpellMethod : "spell",
         spellData,
       });
       if (spellGrantAdvancement) {
@@ -3642,7 +3899,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         } else {
           activity.data.uses = uses as I5eSystemLimitedUses;
         }
-        if (advancementsOnlyForLimitedUses) {
+        if (usesOnAdvancement) {
           logger.debug(`Not adding spell activity for ${spellGrant.name} to feature ${feature.name} as advancementOnlyForLimitedUses is true`);
         } else {
           feature.system.activities[activity.data._id] = activity.data;
@@ -3662,6 +3919,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
         allowReplacements: htmlData.spellListChoiceReplace,
+        method: advancementSpellMethod,
         spellData,
       });
       if (spellChoiceAdvancement) {

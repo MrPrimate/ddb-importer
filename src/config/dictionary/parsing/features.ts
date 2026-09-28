@@ -758,3 +758,16 @@ export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: stri
     formula: "@scale.channel-divinity.spark",
   },
 ];
+
+/** Spell names that contain a list separator, so splitting a parsed spell list must not break them. */
+export const SPELL_NAMES_WITH_CONJUNCTIONS: string[] = [
+  "purify food and drink",
+  "create or destroy water",
+  "detect poison and disease",
+  "detect evil and good",
+  "protection from evil and good",
+  "dispel evil and good",
+  "antipathy/sympathy",
+  "blindness/deafness",
+  "enlarge/reduce",
+];

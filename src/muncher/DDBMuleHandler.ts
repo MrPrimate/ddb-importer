@@ -101,6 +101,10 @@ export default class DDBMuleHandler {
     subclasses: new Map(),
   };
 
+  // Parsed DDB data for each pending species, keyed as pendingDocs.species, so species can be
+  // rebuilt once their traits are in the compendium.
+  _pendingSpeciesSources = new Map<string, IDDBData>();
+
   cachedClassCharacters: DDBCharacter[] = [];
 
   // Streaming progressive-import state. When true, all per-item work is
@@ -359,6 +363,8 @@ export default class DDBMuleHandler {
       const flags = (foundry.utils.getProperty(speciesDoc, "flags.ddbimporter") ?? {}) as IDDBImporterFlags;
       const key = `${flags.baseRaceId ?? ""}|${flags.fullRaceName ?? speciesDoc.name}|${flags.groupName ?? ""}|${flags.isLineage ?? false}|${flags.is2014 ?? true}|${flags.isLegacy ?? false}`;
       this.pendingDocs.species.set(key, speciesDoc);
+      const ddb = ddbCharacter.source?.ddb;
+      if (ddb) this._pendingSpeciesSources.set(key, ddb);
     }
   }
 
@@ -384,6 +390,7 @@ export default class DDBMuleHandler {
       classMeta: Array.from(this.pendingDocs.classMeta.values()),
       raceFolderSources: Array.from(this.pendingDocs.raceFolderSources.values()),
     }, true);
+    await this._finalizeSpeciesCompendiumLinks();
     await DDBRace.writePendingSpeciesDocuments(
       Array.from(this.pendingDocs.species.values()),
       true,
@@ -686,6 +693,30 @@ export default class DDBMuleHandler {
       } catch (error) {
         logger.error("Error finalizing class compendium links", { error, ddbCharacter });
         logger.error((error as Error).stack);
+      }
+    }
+  }
+
+  /**
+   * Species are parsed while the stream arrives, before their traits are written, so on a first munch
+   * into an empty compendium they find no traits to grant. Rebuild each one against the traits
+   * compendium once the traits have been flushed.
+   */
+  async _finalizeSpeciesCompendiumLinks() {
+    if (this._pendingSpeciesSources.size === 0) return;
+    this.notifier({
+      section: "level3",
+      message: `Finalizing species compendium links for ${this._pendingSpeciesSources.size} entries`,
+    });
+    for (const [key, ddb] of this._pendingSpeciesSources) {
+      try {
+        const ddbCharacter = new DDBCharacter({ characterId: this.characterId, isMuncher: true });
+        ddbCharacter.source = { success: true, ddb };
+        const speciesDoc = await DDBRace.buildPendingSpeciesDocument(ddbCharacter);
+        if (speciesDoc) this.pendingDocs.species.set(key, speciesDoc);
+      } catch (error) {
+        // the species parsed during the stream is still written, just without the late trait links
+        logger.error("Error finalizing species compendium links", { error, key });
       }
     }
   }
