@@ -188,7 +188,9 @@ describe("muncher empty import notices", () => {
       "munching-policy-character-fetch-homebrew": homebrew, "munching-policy-character-only-homebrew": homebrew,
     });
     vi.mocked(DDBMuleHandler.getList).mockImplementation(async (type) =>
-      type === "class" ? [klass] : [{ ...feat, isHomebrew: homebrew }]);
+      type === "class" ? [klass]
+        : type === "species" ? [{ ...species, isHomebrew: homebrew }]
+          : [{ ...feat, isHomebrew: homebrew }]);
     vi.mocked(DDBMuleHandler.getSubclassesCached).mockResolvedValue([{ ...subclass, isHomebrew: homebrew }]);
     const error = "Some entries could not be imported. See the console for details.";
     vi.mocked(DDBMuleHandler.prototype.process).mockRejectedValue(new Error(error));
