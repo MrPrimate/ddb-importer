@@ -73,6 +73,19 @@ describe("EffectGenerator ability score bonuses without DAE", () => {
     ]);
   });
 
+  it("reads a maximum above the standard 20 as the absolute ceiling, not an increase", () => {
+    const generator = buildGenerator([
+      modifier("wisdom-score", 2),
+      modifier("ability-score-maximum", 24, 5),
+    ]);
+    generator._addStatBonusEffect("wisdom-score");
+    generator._addStatMaximumEffect("wisdom");
+    expect(generator.effect.system.changes).toEqual([
+      expect.objectContaining({ key: "system.abilities.wis.value", value: "2<=24" }),
+      expect.objectContaining({ key: "system.abilities.wis.max", value: "4" }),
+    ]);
+  });
+
   it("leaves a penalty as a plain signed add", () => {
     const generator = buildGenerator([modifier("strength-score", -2)]);
     generator._addStatBonusEffect("strength-score");

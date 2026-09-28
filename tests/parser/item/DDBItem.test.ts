@@ -760,6 +760,8 @@ describe("DDBItem.parseSaveFromDescription", () => {
       ["str"], "", "str"],
     ["the creature must succeed on a Strength saving throw (DC equals 8 + your proficiency bonus + your Strength modifier) or fall prone.",
       ["str"], "", "str"],
+    ["the target must succeed on a Constitution saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or be stunned.",
+      ["con"], "", "dex"],
   ])("reads a prose DC from %s", (description, ability, formula, calculation) => {
     expect(DDBItem.parseSaveFromDescription(description)).toEqual({ ability, dc: { formula, calculation } });
   });
@@ -811,6 +813,7 @@ describe("DDBItem.WIELDER_SAVE", () => {
     "When you use this property, you must succeed on a DC 13 Wisdom saving throw or be charmed by the blade.",
     "Each time you finish a Long Rest, you make a DC 15 Constitution saving throw.",
     "you can attempt a DC 12 Charisma saving throw to end the curse.",
+    "If the blade isn't fed within 1 minute, its wielder makes a DC 15 Charisma saving throw.",
   ])("is the wielder's save in %s", (sentence) => {
     expect(DDBItem.WIELDER_SAVE.test(sentence)).toBe(true);
   });
@@ -819,6 +822,8 @@ describe("DDBItem.WIELDER_SAVE", () => {
     "Each enemy you can see within 30 feet of you must make a DC 18 Strength saving throw or be pushed.",
     "The target must succeed on a DC 15 Constitution saving throw or take 2d10 poison damage.",
     "A creature adjacent to you must make a DC 14 Dexterity saving throw.",
+    "Each creature in the area other than you must make a DC 15 Dexterity saving throw.",
+    "Each creature in the area excluding you must make a DC 13 Strength saving throw.",
   ])("is the target's save in %s", (sentence) => {
     expect(DDBItem.WIELDER_SAVE.test(sentence)).toBe(false);
   });
@@ -908,5 +913,38 @@ describe("DDBItem.ACTIVATION_WORDING", () => {
 
   it("a spell cast from the item with no wording states nothing", () => {
     expect(kind("While you wear these boots, you can cast Levitate on yourself.")).toBeNull();
+  });
+});
+
+// =============================================================================
+// Rider save readers - charges, activation and conditions from the save's own paragraph
+// =============================================================================
+describe("DDBItem rider readers", () => {
+  it.each([
+    ["As an action, you can expend 1 charge to fire a beam.", 1],
+    ["you can spend three charges to call the phalanx", 3],
+    ["You can expend charges to unleash the flame.", 1],
+    ["As a bonus action, expending 1 charge, you twist the pommel.", 1],
+    ["When you hit a creature, it must succeed on a saving throw.", null],
+  ])("reads the charges in %s", (text, charges) => {
+    expect(DDBItem.riderCharges(text)).toBe(charges);
+  });
+
+  it.each([
+    ["As a Bonus Action, you speak the command word.", "bonus"],
+    ["When a creature hits you, you can use your reaction to flash the blade.", "reaction"],
+    ["As a Magic action, you point the weapon.", "action"],
+    ["An ally is invigorated, allowing it to immediately take a Reaction to attack.", null],
+  ])("reads the activation in %s", (text, activation) => {
+    expect(DDBItem.riderActivation(text)).toBe(activation);
+  });
+
+  it("reads the conditions and duration a failure imposes", () => {
+    expect(DDBItem.riderConditions("or have the Paralyzed and Prone conditions until the end of its next turn")).toMatchObject({
+      statuses: ["paralyzed", "prone"], expiry: "targetEnd",
+    });
+    expect(DDBItem.riderConditions("must succeed on a saving throw or be knocked prone")?.statuses).toEqual(["prone"]);
+    expect(DDBItem.riderConditions("or become poisoned for 1 minute")).toMatchObject({ statuses: ["poisoned"], seconds: 60 });
+    expect(DDBItem.riderConditions("or take 2d6 fire damage")).toBeNull();
   });
 });

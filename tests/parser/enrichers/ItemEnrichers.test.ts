@@ -903,10 +903,9 @@ describe("AxeOfTheGallopingHeadsman", () => {
     expect(sense.build.saveOverride.dc.formula).toBe("18");
   });
 
-  it("builds the Varies record at the Rare tier and corrects its summed bonus", () => {
+  it("builds the Varies record at the Rare tier and says so", () => {
     const varies = axe("Axe of the Galloping Headsman", 1, 2, 3);
     expect(names(varies)).toEqual(["Fiery Smite (1d10)"]);
-    expect(varies.override.data["system.magicalBonus"]).toBe(1);
     expect(varies.override.descriptionSuffix).toContain("Rare tier");
     expect(axe("Axe of the Galloping Headsman, +3", 3).override).toEqual({});
   });
@@ -918,6 +917,45 @@ describe("AxeOfTheGallopingHeadsman", () => {
       key: "flags.automated-conditions-5e.attack.criticalThreshold",
       value: "set=19; opponentActor.statuses.prone && item.identifier === 'axe-of-the-galloping-headsman-3'",
     });
+  });
+});
+
+describe("levelled and variant weapon properties", () => {
+  const named = (Enricher: TEnricher, name: string) => build(Enricher, { name, ddbParser: { originalName: name } });
+  const names = (e: any) => e.additionalActivities.map((a: any) => a.init.name);
+
+  it("gates Tordalfr's Rebuttal by the level in the record name, the parent carrying every level", () => {
+    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)"))).toEqual([]);
+    expect(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)").override.uses.max).toBe("");
+    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 13)"))).toEqual(["Charged Strike"]);
+    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal"))).toEqual(["Charged Strike", "Lightning Bolt"]);
+    expect(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal").override).toEqual({});
+  });
+
+  it("builds the Pneuma misfire from the text's save, not DDB's modifier label", () => {
+    const veryRare = named(ItemEnrichers.PneumaBlade, "Pneuma Greatsword (Very Rare)");
+    expect(names(veryRare)).toEqual(["Pneumatic Strike", "Burnout"]);
+    expect(veryRare.additionalActivities[1].build.saveOverride).toMatchObject({ ability: ["dex"], dc: { formula: "16" } });
+    expect(veryRare.additionalActivities[0].overrides.data.attack.bonus).toBe("5");
+    const rare = named(ItemEnrichers.PneumaBlade, "Pneuma Longsword (Rare)");
+    expect(rare.additionalActivities[1].build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "15" } });
+    expect(rare.stopDefaultActivity).toBe(false);
+    expect(named(ItemEnrichers.PneumaBlade, "Pneuma Blade").stopDefaultActivity).toBe(true);
+  });
+
+  it("splits the Unstable Crumbler forms and keeps both on the parent", () => {
+    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler (Cannon)"))).toEqual(["Overheated Cannonball"]);
+    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler (Maul)"))).toEqual(["Detonation"]);
+    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler"))).toEqual(["Overheated Cannonball", "Detonation"]);
+    expect(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler").effects[0].changes[0]).toMatchObject({
+      key: "system.traits.dm.amount.fire", value: "-max(@abilities.con.mod, 1)",
+    });
+  });
+
+  it("spends Scorching Cleaver charges by consumption scaling", () => {
+    const [slash] = named(ItemEnrichers.ScorchingCleaver, "Scorching Cleaver").additionalActivities;
+    expect(slash.build.saveOverride.dc.formula).toBe("11 + @prof + @scaling");
+    expect(slash.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "3", addScalingMode: "amount", addConsumptionScalingMax: "@item.uses.value - 2" });
   });
 });
 

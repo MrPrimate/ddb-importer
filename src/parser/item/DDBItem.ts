@@ -500,7 +500,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const plus = "(?:plus|\\+|and)";
     const abilityDC = text.match(new RegExp(
-      `${lead}8 (?:plus|\\+) your (?:(${abilities}) modifier ${plus} your Proficiency Bonus|Proficiency Bonus ${plus} your (${abilities}) modifier)`,
+      `${lead}8 (?:plus|\\+) your (?:(${abilities}) modifier ${plus} (?:your )?Proficiency Bonus|Proficiency Bonus ${plus} (?:your )?(${abilities}) modifier)`,
       "i",
     ));
     if (abilityDC) {
@@ -587,6 +587,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? DDBItem.parseItemBonusSaveDC(description)
       : null;
     if (bonusDC) save.dc = { calculation: "", formula: `${bonusDC} + ${DDBItem.MAGICAL_BONUS_REF}` };
+    if (save.dc?.formula && (/^\d+$/).test(save.dc.formula)) {
+      const abilityNames = (save.ability ?? [])
+        .map((key) => DICTIONARY.actor.abilities.find((ability) => ability.value === key)?.long)
+        .filter((name): name is T5eAbilityLongNames => Boolean(name));
+      const stageDC = Vestige.getStageSaveDC(this.originalName, description, abilityNames);
+      if (stageDC) save.dc = { calculation: "", formula: stageDC };
+    }
     this.actionData.save = save;
   }
 
@@ -1688,11 +1695,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #getMagicalBonus(returnZero = false): number | "" {
-    const bonus = this.ddbDefinition.grantedModifiers
+    const values = this.ddbDefinition.grantedModifiers
       .filter(
         (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
-      .reduce((prev, cur) => prev + (cur.value as number), 0);
+      .map((mod) => mod.value as number);
+    // Distinct values are alternatives, not a stack: a "Varies" record carries its +1/+2/+3 tiers
+    // and a levelled weapon each level's bonus ("+2 instead of +1"), so the lowest is the one that
+    // applies unconditionally. Repeats (Hazirawn's +1 and attuned +1) do add up.
+    const bonus = values.length > 1 && new Set(values).size === values.length
+      ? Math.min(...values)
+      : values.reduce((prev, cur) => prev + cur, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
   }
 
@@ -3708,8 +3721,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /** "You must succeed on a DC 15 Wisdom saving throw": the wielder saves, not the target. */
-  // "you" as the subject: "within 30 feet of you must make" is the enemy's save
-  static WIELDER_SAVE = /(?<!\b(?:of|to|by|from|with|at|near|around|toward|towards) )\byou (?:must |can |then |also )?(?:succeed on|make|attempt|roll) (?:an?|the) (?:DC \d+ )?\w+(?: or \w+)? sav/i;
+  // "you" as the subject: "within 30 feet of you must make" and "each creature other than you
+  // must make" are the enemy's save
+  static WIELDER_SAVE = /(?<!\b(?:of|to|by|from|with|at|near|around|toward|towards|than|excluding|except|besides|but) )\b(?:you|(?:its|the|your) (?:wielder|bearer|owner|attuned creature)) (?:must |can |then |also )?(?:succeeds? on|makes?|attempts?|rolls?) (?:an?|the) (?:DC \d+ )?\w+(?: or \w+)? sav/i;
 
   /** Whether the item's save is one its wielder makes (a curse or a drawback), read from its sentence. */
   get #wielderMakesSave(): boolean {
@@ -3725,19 +3739,116 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * and hold the on-hit extras, so Dagger of Venom's save rolled 1d4 + 2d10 and Giant Slayer's
    * prone save rolled 1d8 + 2d6. When the text cannot be read the on-hit extras stay, as before.
    */
+  static #RIDER_CHARGE_COUNTS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+
+  /** The charges a rider save's own paragraph spends: "expend 1 charge", "spend two charges". */
+  static riderCharges(paragraph: string): number | null {
+    const counted = (/\b(?:expend|spend|use|cost)(?:s|ing)?\s+(\d+|one|two|three|four|five)\s+(?:of (?:its|the [\w\s'’]+?'s) )?charges?\b/i).exec(paragraph);
+    if (counted) return DDBItem.#RIDER_CHARGE_COUNTS[counted[1].toLowerCase()] ?? Number(counted[1]);
+    return (/\b(?:expend|spend)(?:s|ing)?\b[^.]{0,30}\bcharges?\b/i).test(paragraph) ? 1 : null;
+  }
+
+  /** "Can't be used again until the next dawn" or "until you finish a long rest": a limit the parser reads onto the item's uses. */
+  static RIDER_DAILY = /\buntil the next (?:dawn|dusk)\b|\bonce per (?:day|dawn|dusk)\b|\bonce each day\b|\buntil you finish a (?:short or )?long rest\b/i;
+
+  /** A rider's own action cost, from its sentence or the ones before it in its paragraph. */
+  static riderActivation(text: string): TActivationCost | null {
+    if ((/\bbonus action\b/i).test(text)) return "bonus";
+    // the wielder's reaction, not an ally's ("allowing it to immediately take a Reaction")
+    if ((/\byou (?:can )?(?:use|take) (?:a|your) reaction\b|\bas a reaction\b/i).test(text)) return "reaction";
+    if ((/\bmagic action\b|\bas an action\b|\buse an action\b|\btake an action\b/i).test(text)) return "action";
+    return null;
+  }
+
+  static #RIDER_CONDITION_DURATIONS: [RegExp, Partial<I5eEffectData["duration"]> & { seconds?: number }][] = [
+    [/\buntil the end of (?:its|their|the target's) next turn\b/i, { expiry: "targetEnd" }],
+    [/\buntil the start of (?:its|their|the target's) next turn\b/i, { expiry: "targetStart" }],
+    [/\buntil the end of your next turn\b/i, { expiry: "sourceEnd" }],
+    [/\buntil the start of your next turn\b/i, { expiry: "sourceStart" }],
+  ];
+
+  /**
+   * The conditions a rider save's failure imposes ("or have the Prone condition", "is knocked
+   * prone", "is Stunned until the end of its next turn"), with the duration its words give.
+   */
+  static riderConditions(failure: string): { statuses: string[]; seconds: number | null; expiry: string | null } | null {
+    const ids = Object.keys(CONFIG.DND5E.conditionTypes ?? {}).filter((id) => !["exhaustion", "concentrating"].includes(id));
+    if (ids.length === 0) return null;
+    const regex = new RegExp(`\\b(?:the|be|is|are|becomes?|falls?|knocked|knocks? it|has|have|gains?|and|or)\\s+(?:the\\s+)?(?:knocked\\s+)?(${ids.join("|")})\\b`, "gi");
+    const statuses = [...new Set([...failure.matchAll(regex)].map((match) => match[1].toLowerCase()))];
+    if (statuses.length === 0) return null;
+    const timed = (/\bfor (\d+|one|an?) (round|minute|hour)s?\b/i).exec(failure);
+    const amount = timed ? (Number(timed[1]) || 1) : null;
+    const seconds = timed && amount ? amount * ({ round: 6, minute: 60, hour: 3600 } as Record<string, number>)[timed[2].toLowerCase()] : null;
+    const expiry = DDBItem.#RIDER_CONDITION_DURATIONS.find(([pattern]) => pattern.test(failure))?.[1].expiry ?? null;
+    return { statuses, seconds, expiry: expiry ?? null };
+  }
+
+  /**
+   * The rider's status effect when the item carries none for it: the text-driven auto status
+   * effect only reads "DC 15 X saving throw or have the Y condition", so prose DCs and "is knocked
+   * prone" wordings arrive without one. It links to the rider by name.
+   */
+  #addRiderConditionEffect(failure: string) {
+    // an enricher's own effect hints are added after the activities and would duplicate these
+    if ((this.enricher.effects ?? []).length > 0) return;
+    const conditions = DDBItem.riderConditions(failure);
+    if (!conditions) return;
+    const present = new Set((this.data.effects ?? []).flatMap((effect) => [...(effect.statuses ?? [])]));
+    const statuses = conditions.statuses.filter((status) => !present.has(status));
+    if (statuses.length === 0) return;
+    const label = statuses.map((status) => utils.capitalize(status)).join(", ");
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `Status: ${label}`, {
+      transfer: false,
+      durationSeconds: conditions.expiry ? null : conditions.seconds ?? undefined,
+      description: `Apply status ${label}`,
+    });
+    effect.statuses.push(...statuses);
+    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.icon ?? effect.img;
+    if (conditions.expiry) foundry.utils.setProperty(effect, "duration.expiry", conditions.expiry);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", "Save");
+    this.data.effects ??= [];
+    this.data.effects.push(effect);
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
-    const ownDamage = this.actionData.save
-      ? DDBDescriptions.saveRiderDamageParts(this.ddbDefinition.description ?? "", this.actionData.save)
-      : null;
+    const description = this.ddbDefinition.description ?? "";
+    const outcome = this.actionData.save ? DDBDescriptions.saveRiderOutcome(description, this.actionData.save) : null;
+    const ownDamage = this.actionData.save ? DDBDescriptions.saveRiderDamageParts(description, this.actionData.save) : null;
     const damageParts = ownDamage ?? (includeBase ? this.damageParts : this.damageParts.slice(1));
+    const options: IDDBActivityBuild = {
+      generateDamage: damageParts.length > 0,
+      damageParts,
+      includeBaseDamage: false,
+    };
+    if (outcome) {
+      // a condition-only save still records its onSave, rather than dnd5e's "half" default
+      options.generateDamage = true;
+      options.onSave = outcome.half ? "half" : "none";
+      // a rider spends charges only when its own paragraph says so; the item's charges usually
+      // belong to another property (a spell cast, a different power)
+      const charges = DDBItem.riderCharges(outcome.paragraph);
+      const daily = !charges && DDBItem.RIDER_DAILY.test(outcome.paragraph)
+        && "uses" in this.data.system && Boolean(this.data.system.uses?.max);
+      options.consumptionTargetOverrides = charges || daily
+        ? [{ type: "itemUses", target: "", value: String(charges ?? 1), scaling: { mode: "", formula: "" } }]
+        : [];
+      // a save that follows a hit keeps the weapon's trigger: an action named before it is a
+      // preparation step ("use an action to coat the blade ... the next time you hit")
+      const trigger = `${outcome.lead} ${outcome.sentence}`;
+      const activation = (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
+      if (activation) options.activationOverride = { type: activation, value: 1, condition: "" };
+      const target = DDBActivityFactoryMixin.flatSaveTarget(
+        { sentence: outcome.sentence, lead: outcome.lead ? outcome.lead.split(/(?<=\.)\s+/) : [] },
+        (text) => this.#flatSaveTargetFor(text),
+      );
+      if (target?.template?.type) options.targetOverride = { ...target, override: true };
+      this.#addRiderConditionEffect(outcome.failure);
+    }
     this.additionalActivities.push({
       name: "Save",
       type: "save",
-      options: {
-        generateDamage: damageParts.length > 0,
-        damageParts,
-        includeBaseDamage: false,
-      },
+      options,
     });
   }
 

@@ -564,13 +564,81 @@ export default class DDBDescriptions {
   /** A sentence that ties damage it names before the save to that save's outcome. */
   static SAVE_DAMAGE_TIE = /\bhalf as much\b|\bif (?:it|they|the target|a creature) fails?\b|\bon a failed save\b|\bon a failure\b/i;
 
+  /** A sentence that continues a save with its outcome ("On a failed save, ..."). */
+  static #RIDER_OUTCOME_START = /^(?:On a (?:failed save|failure|successful save|success)|If (?:it|the target|the creature|a creature|they|that creature) (?:fails|succeeds|failed|succeeded)|(?:A|Any|Each) (?:creature|target) that (?:fails|succeeds)|Failure|Success|Fail|(?:It|The target|The creature|That creature|(?:A|Each|Any) (?:creatures?|targets?)) (?:also )?(?:takes|is|has|falls|becomes|can't))\b/i;
+
+  /** Success, as opposed to failure, outcomes: what a creature that makes the save suffers. */
+  static #RIDER_SUCCESS = /^(?:On a (?:successful save|success)|If (?:it|the target|the creature|a creature|they|that creature) succeed|(?:A|Any|Each) (?:creature|target) that succeeds|Success)/i;
+
+  /** Where a save sentence turns to what a success does: ", or half as much damage on a successful one". */
+  static #RIDER_SUCCESS_CLAUSE = /,?\s*(?:or|and) (?:takes? )?half as much|[,;]\s*on a success(?:ful save)?\b|\bor half (?:as much )?damage\b/i;
+
+  /** A sentence about damage each turn afterwards is the effect's, not the save's. */
+  static #RIDER_ONGOING = /\bat the (?:start|end) of each\b|\beach (?:of its|of their) turns\b/i;
+
   /**
-   * The damage a rider save deals, read from its own words, for a document where the save sits
-   * among other text (a weapon's on-hit rider): what follows the save up to the next one, plus
-   * damage earlier in the save's own sentence only when that sentence ties it to the save ("dealing
-   * 9d8 cold damage ... if they fail a DC 18 Constitution saving throw, or half as much on a
-   * success"). Damage the hit deals before the save ("takes an extra 2d6 damage and must succeed
-   * on a DC 15 Strength saving throw") is the attack's, not the save's.
+   * A weapon rider save read from its own words: the paragraph that asks for it, the sentences
+   * before it in that paragraph, and its outcome - the rest of its sentence plus the outcome
+   * sentences straight after it ("On a failed save, ..."), split into what a failure and what a
+   * success does. A sentence about damage at the start of each later turn, or anything else,
+   * ends the outcome. The save is found by its ability rather than its key so a prose DC ("DC 10
+   * plus your Proficiency Bonus") still finds its sentence; a numeric DC prefers the paragraph
+   * that names it.
+   * @param {string} source rules text (HTML)
+   * @param {object} save the save, as `saveKey` takes it
+   * @returns {object | null} null when no sentence asks for the save
+   */
+  static saveRiderOutcome(
+    source: string,
+    save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null },
+  ): { paragraph: string; lead: string; sentence: string; failure: string; success: string; half: boolean } | null {
+    const names = (save.ability ?? [])
+      .map((key) => DICTIONARY.actor.abilities.find((ability) => ability.value === key)?.long)
+      .filter((name): name is T5eAbilityLongNames => Boolean(name));
+    if (names.length === 0) return null;
+    const saveRegex = new RegExp(`\\b(?:${names.join("|")})\\b(?: or \\w+)? sav(?:e|ing throw)|\\b(?:${names.join("|")}) Saving Throw\\b`, "i");
+    const paragraphs = DDBDescriptions.stripTables(source ?? "")
+      .split(/<(?:br|\/?p|\/?div|\/?li|\/?ul|\/?ol|\/?h[1-6]|\/?blockquote)\b[^>]*>/i)
+      .map((paragraph) => DDBDescriptions.plainText(paragraph))
+      .filter((paragraph) => saveRegex.test(paragraph));
+    if (paragraphs.length === 0) return null;
+    const dc = save.dc?.formula && (/^\d+$/).test(save.dc.formula) ? save.dc.formula : null;
+    const paragraph = (dc ? paragraphs.find((text) => text.includes(`DC ${dc}`) || text.includes(`DC: ${dc}`)) : null) ?? paragraphs[0];
+    const match = saveRegex.exec(paragraph);
+    if (!match) return null;
+    const stopBefore = paragraph.lastIndexOf(". ", match.index);
+    const sentenceStart = stopBefore < 0 ? 0 : stopBefore + 2;
+    const lead = paragraph.slice(0, sentenceStart).trim();
+    const rest = paragraph.slice(match.index);
+    const [first, ...following] = rest.split(DDBDescriptions.#SENTENCE_SPLIT_REGEX);
+    const sentence = paragraph.slice(sentenceStart, match.index) + first;
+
+    const clause = DDBDescriptions.#RIDER_SUCCESS_CLAUSE.exec(first);
+    const failure: string[] = [clause ? first.slice(0, clause.index) : first];
+    const success: string[] = clause ? [first.slice(clause.index)] : [];
+    for (const next of following) {
+      if (!DDBDescriptions.#RIDER_OUTCOME_START.test(next) || DDBDescriptions.#RIDER_ONGOING.test(next)) break;
+      if (DDBDescriptions.#RIDER_SUCCESS.test(next)) success.push(next);
+      else failure.push(next);
+    }
+    const outcome = [...failure, ...success].join(" ");
+    return {
+      paragraph,
+      lead,
+      sentence,
+      failure: failure.join(" "),
+      success: success.join(" "),
+      half: (/\bhalf as much\b|\bhalf (?:the )?damage\b/i).test(outcome),
+    };
+  }
+
+  /**
+   * The damage a rider save deals, read from its own words (`saveRiderOutcome`): what its failure
+   * deals, plus damage earlier in the save's own sentence only when that sentence ties it to the
+   * save ("dealing 9d8 cold damage ... if they fail a DC 18 Constitution saving throw, or half as
+   * much on a success"). Damage the hit deals before the save ("takes an extra 2d6 damage and
+   * must succeed on a DC 15 Strength saving throw") is the attack's, and damage at the start of
+   * each later turn belongs to the effect the failure imposes, not the save.
    * @param {string} source rules text (HTML)
    * @param {object} save the save to read, as `saveKey` takes it
    * @returns {I5eDamagePart[] | null} the parts, possibly empty; null when the save is not in the text
@@ -579,14 +647,13 @@ export default class DDBDescriptions {
     source: string,
     save: { ability?: string[] | null; dc?: { calculation?: string; formula?: string } | null },
   ): I5eDamagePart[] | null {
-    const key = DDBDescriptions.saveKey(save);
-    const after = DDBDescriptions.saveDamageTexts(source).get(key);
-    const scope = DDBDescriptions.saveScopes(source).get(key);
-    if (after === undefined || !scope) return null;
-    const parts = DDBDescriptions.saveOwnDamageParts(after);
-    const savePhrase = scope.sentence.search(/saving throw/i);
-    const before = savePhrase > 0 ? scope.sentence.slice(0, savePhrase) : "";
-    if (before && DDBDescriptions.SAVE_DAMAGE_TIE.test(scope.sentence)) {
+    const outcome = DDBDescriptions.saveRiderOutcome(source, save);
+    if (!outcome) return null;
+    const ownText = outcome.failure.replace(/\bat the (?:start|end) of each\b.*$/i, "");
+    const parts = DDBDescriptions.parseDamageParts(ownText).parts;
+    const savePhrase = outcome.sentence.search(/saving throw|\bsave\b/i);
+    const before = savePhrase > 0 ? outcome.sentence.slice(0, savePhrase) : "";
+    if (before && DDBDescriptions.SAVE_DAMAGE_TIE.test(outcome.sentence)) {
       parts.unshift(...DDBDescriptions.parseDamageParts(before).parts);
     }
     return parts;

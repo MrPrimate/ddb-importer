@@ -281,6 +281,20 @@ describe("flat multi-save targets", () => {
     expect(DDBActivityFactoryMixin.areaFromText("The ceiling collapses above one creature it can see within 120 feet of it.")).toBeNull();
     expect(DDBActivityFactoryMixin.areaFromText("It can target any number of creatures it can see within 90 feet of it.")).toBeNull();
     expect(DDBActivityFactoryMixin.areaFromText("It must succeed on a DC 16 Constitution saving throw or regurgitate all swallowed creatures, which fall prone within 15 feet of it.")).toBeNull();
+    // width first, and a line that runs to a target
+    expect(DDBActivityFactoryMixin.areaFromText("fire a beam in a 5-foot-wide, 60-foot-long line originating from you"))
+      .toEqual({ type: "line", size: "60", width: "5" });
+    expect(DDBActivityFactoryMixin.areaFromText("forming a line 5 feet wide that extends out from you to a creature you can see within 120 feet of you"))
+      .toEqual({ type: "line", size: "120", width: "5" });
+    expect(DDBActivityFactoryMixin.areaFromText("A 100-foot-cone of hoarfrost blasts forth")?.type).toBe("cone");
+    expect(DDBActivityFactoryMixin.areaFromText("forcing other creatures within 30 feet of you to make a DC 17 Dexterity saving throw"))
+      .toEqual({ type: "radius", size: "30", width: "" });
+    // the light an item sheds is not the save's area
+    expect(DDBActivityFactoryMixin.areaFromText("The flame sheds bright light in a 20-foot radius, and the target must succeed on a DC 13 Wisdom saving throw")).toBeNull();
+    expect(DDBActivityFactoryMixin.areaFromText("casting Bright Light in a 20-foot radius", { lightIsArea: true }))
+      .toEqual({ type: "radius", size: "20", width: "" });
+    // chosen targets near the first one are targets, not an area
+    expect(DDBActivityFactoryMixin.areaFromText("the target and up to 2 other targets of your choice within 15 feet of it must make a DC 13 Strength saving throw")).toBeNull();
   });
 
   it("decides each save's own target from its sentence and lead-in", () => {

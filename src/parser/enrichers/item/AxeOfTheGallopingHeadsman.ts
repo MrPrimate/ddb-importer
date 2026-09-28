@@ -284,10 +284,6 @@ export default class AxeOfTheGallopingHeadsman extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     if (!this.isVaries) return {};
     return {
-      data: {
-        // the parser sums the three tiers' bonuses on this record
-        "system.magicalBonus": this.bonus,
-      },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbGallopingHeadsman">
 <p><strong>Implementation Details</strong></p>

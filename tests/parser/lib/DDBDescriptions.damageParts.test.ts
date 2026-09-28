@@ -116,3 +116,33 @@ describe("DDBDescriptions.saveRiderDamageParts", () => {
     expect(DDBDescriptions.saveRiderDamageParts(html, save("dex", "12"))).toBeNull();
   });
 });
+
+describe("DDBDescriptions.saveRiderOutcome", () => {
+  const save = (ability: string, formula: string) => ({ ability: [ability], dc: { calculation: "", formula } });
+
+  it("splits the failure from the success and ends at an ongoing-damage sentence", () => {
+    const html = "<p>The target must succeed on a DC 13 Constitution saving throw or take 2d4 poison damage and have the Poisoned condition. "
+      + "On a successful save, it takes half as much damage. The poisoned target takes 1d4 poison damage at the start of each of its turns.</p>";
+    const outcome = DDBDescriptions.saveRiderOutcome(html, save("con", "13"))!;
+    expect(outcome.failure).toContain("Poisoned condition");
+    expect(outcome.success).toContain("half as much");
+    expect(outcome.half).toBe(true);
+    expect(outcome.failure).not.toContain("start of each");
+    expect(DDBDescriptions.saveRiderDamageParts(html, save("con", "13"))?.map((part) => part.number)).toEqual([2]);
+  });
+
+  it("finds a save whose DC is written as a sum", () => {
+    const html = "<p>You swing the chain. The target must succeed on a Dexterity saving throw (DC 10 plus your Proficiency Bonus) or have the Grappled condition.</p>";
+    const outcome = DDBDescriptions.saveRiderOutcome(html, { ability: ["dex"], dc: { calculation: "", formula: "10 + @prof" } })!;
+    expect(outcome.failure).toContain("Grappled");
+    expect(outcome.lead).toBe("You swing the chain.");
+    expect(outcome.half).toBe(false);
+  });
+
+  it("keeps a following outcome sentence and gives no damage to a success that takes none", () => {
+    const html = "<p>Each creature in a 15-foot cone must make a DC 14 Dexterity saving throw. A creature takes 3d6 poison damage on a failed save.</p>";
+    const outcome = DDBDescriptions.saveRiderOutcome(html, save("dex", "14"))!;
+    expect(outcome.failure).toContain("3d6");
+    expect(outcome.half).toBe(false);
+  });
+});

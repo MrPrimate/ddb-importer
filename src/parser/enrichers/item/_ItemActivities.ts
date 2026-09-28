@@ -84,3 +84,76 @@ export function itemUses(
     uses: { max, spent: spent ?? parser.ddbItem.chargesUsed ?? 0, recovery, autoDestroy: false },
   };
 }
+
+interface IItemPropertyOptions {
+  save?: { ability: string[]; formula?: string; calculation?: string };
+  damageParts?: I5eDamagePart[];
+  onSave?: "half" | "none" | "full";
+  activationType?: TActivationCost;
+  condition?: string;
+  /** a template, or "creature" for one creature */
+  template?: I5eActivityTarget["template"] | "creature";
+  range?: { value: string | null; units: TDistanceUnit };
+  /** item charges spent per use */
+  charges?: string;
+  /** the activity's own limited uses: max per recovery period */
+  uses?: { max: string; period: string };
+  noeffect?: boolean;
+  data?: Partial<I5eActivity>;
+}
+
+/**
+ * A weapon's activated or triggered property as its own save or damage activity: a trigger
+ * condition, one creature or an area, an optional charge cost or once-per-period use, and no base
+ * weapon damage.
+ */
+export function itemProperty(
+  name: string,
+  type: IDDBActivityType,
+  options: IItemPropertyOptions,
+): IDDBAdditionalActivity {
+  const target = options.template === "creature" || !options.template
+    ? { override: true, affects: { count: "1", type: "creature" }, template: {} }
+    : { override: true, affects: { count: "", type: "creature" }, template: { units: "ft", ...options.template } };
+  const data: Partial<I5eActivity> = foundry.utils.mergeObject({
+    damage: { onSave: options.onSave ?? "none", includeBase: false, parts: options.damageParts ?? [] },
+  }, options.data ?? {}, { inplace: false });
+  if (options.uses) {
+    foundry.utils.setProperty(data, "uses", {
+      spent: 0,
+      max: options.uses.max,
+      recovery: [{ period: options.uses.period, type: "recoverAll" }],
+    });
+  }
+  return {
+    init: { name, type, id: utils.namedIDStub(name, { prefix: "ddbItem" }) },
+    build: {
+      generateActivation: true,
+      generateTarget: true,
+      generateRange: true,
+      generateConsumption: false,
+      generateSave: Boolean(options.save),
+      generateDamage: (options.damageParts?.length ?? 0) > 0,
+      includeBaseDamage: false,
+      damageParts: options.damageParts ?? [],
+      saveOverride: options.save
+        ? { ability: options.save.ability, dc: { calculation: options.save.calculation ?? "", formula: options.save.formula ?? "" } }
+        : undefined,
+      activationOverride: {
+        type: options.activationType ?? "special",
+        value: (options.activationType ?? "special") === "special" ? null : 1,
+        condition: options.condition ?? "",
+      },
+      targetOverride: target as IDDBActivityBuild["targetOverride"],
+      rangeOverride: { override: true, value: options.range ? options.range.value : "5", units: options.range?.units ?? "ft", special: "" },
+    },
+    overrides: {
+      noConsumeTargets: !options.charges && !options.uses,
+      addItemConsume: Boolean(options.charges),
+      itemConsumeValue: options.charges,
+      addActivityConsume: Boolean(options.uses),
+      noeffect: options.noeffect ?? false,
+      data,
+    },
+  };
+}

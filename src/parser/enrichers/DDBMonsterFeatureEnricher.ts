@@ -186,6 +186,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Force Ballista": "Eldritch Cannon",
     "Flamethrower": "Eldritch Cannon",
     "Protector": "Eldritch Cannon",
+    // its Earth-Shaking Movement differs from the scions' generic placed zone; other features
+    // still reach the generic maps through the fallback loader
+    "Zaratan": "Zaratan",
   };
 
   override NAME_HINTS_2014: Record<string, Record<string, string>> = {};
