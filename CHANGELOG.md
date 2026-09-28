@@ -38,6 +38,8 @@
 - 2024 species Languages advancements did not grant Common automatically, so players were asked to pick three languages instead of two. Re-munch species to fix.
 - 2024 species lineages and legacies (Elf, Gnome, Tiefling) granted their lineage spells twice, or every lineage's cantrips at once, and Tiefling (Chthonic) and Forest Gnome lost some of theirs. Each lineage now grants its own cantrip plus its level 3 and 5 spells, always prepared with one free cast per Long Rest, and Forest Gnome's Speak with Animals uses your Proficiency Bonus. Re-munch species to fix. @featherjackal
 - Munching species with nothing selected in the species picker imported both the 2014 and 2024 versions. It now only munches the rules version selected on the species tab, the same species the picker lists.
+- Spells granted by species traits, feats and class features were often lost or mis-levelled when the description listed more than one spell or described the limit in a later sentence (for example Githyanki Psionics lost Jump and Misty Step, Firbolg Magic lost Detect Magic, Duergar and Fire Genasi got their spells at level 1). These now import with the right levels and uses, and some feats and class features that grant free casts (Fey Touched, Shadow Touched, Pyromaniac, Misty Wanderer, Steps of the Fey) now get their spells. Re-munch to fix.
+
 
 # 7.5.5
 
