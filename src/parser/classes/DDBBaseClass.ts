@@ -918,7 +918,9 @@ export default abstract class DDBBaseClass {
 
       const match = this._compendiums[compendium].index.find((i: TIndexEntry) => {
         return Object.entries(flags).every(([key, value]) => {
-          return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
+          const flagValue = foundry.utils.getProperty(i, `flags.ddbimporter.${key}`);
+          // earlier 7.x releases wrote choice option ids to compendium documents as strings
+          return flagValue === value || (typeof value === "number" && flagValue === String(value));
         });
       });
       if (match) return match;

@@ -69,6 +69,8 @@ export default class AdvancementHelper {
 
   static stripDescription(description: string): string {
     const descriptionReplaced = description
+      // processed descriptions carry reference links (the Minor &Reference[ill]{Illusion} cantrip)
+      .replaceAll(/(?:&amp;|[&@])\w+\[[^\]]*\]\{([^}]*)\}/g, "$1")
       .replaceAll(/<br \/>(?:\s*)*/g, "<br />\n")
       .replaceAll(/<\/p>(?:\s*)*/g, "</p>\n")
       .replaceAll(/<\/dt>(?:\s*)*<dt>/g, "</dt>\n<dt>");
@@ -1620,7 +1622,7 @@ export default class AdvancementHelper {
     const standardLanguagesRegex = /Your character knows at least three languages:\sCommon plus two languages you roll or choose from the Standard Languages table/im;
     const standardLanguagesMatch = textDescription.match(standardLanguagesRegex);
     if (standardLanguagesMatch) {
-      parsedLanguages.grants = ["languages:standard:common"];
+      parsedLanguages.grants = ["standard:common"];
       parsedLanguages.number = 2;
       parsedLanguages.choices = ["standard:*"];
       return parsedLanguages;
@@ -2749,6 +2751,19 @@ export default class AdvancementHelper {
       }
     }
 
+    // You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus
+    const alwaysPreparedProfRegex = /You (?:also )?always have the (.+?) spell prepared\. You can cast it without a spell slot a number of times equal to your Proficiency Bonus/ig;
+    for (const match of strippedDescription.matchAll(alwaysPreparedProfRegex)) {
+      const spell = match[1].toLowerCase().trim();
+      if (spellsAdded.has(spell)) continue;
+      spellsAdded.add(spell);
+      result.spellGrants.push({
+        level: 1,
+        name: spell,
+        amount: "@prof",
+      });
+    }
+
     // When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table
 
     // When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively.
@@ -2815,10 +2830,18 @@ export default class AdvancementHelper {
       }
     });
 
+    const speciesWords = species.toLowerCase().split(/[^a-z]+/).filter((word) => word !== "");
     const lineageMatch = lineages.find((l) => l.name.toLowerCase() === species.toLowerCase())
-      ?? lineages.find((l) => species.toLowerCase().includes(l.name.toLowerCase()));
+      ?? lineages.find((l) => species.toLowerCase().includes(l.name.toLowerCase()))
+      // DDB spells some option names differently from the table row (Cthonic vs Chthonic)
+      ?? lineages.find((l) => !l.name.includes(" ")
+        && speciesWords.some((word) => AdvancementHelper.#withinOneEdit(word, l.name.toLowerCase())));
 
-    if (!lineageMatch) return AdvancementHelper.parseHTMLSpellAdvancementData(description);
+    if (!lineageMatch) {
+      // parsing the whole table would grant every lineage's spells
+      logger.warn(`No lineage table row found for ${species}, no lineage spells will be granted`, { lineages });
+      return AdvancementHelper.parseHTMLSpellAdvancementData("");
+    }
 
     const adjustedDescription = `${lineageMatch.one}
 Starting at 3rd level, you can cast the ${lineageMatch.three} spell with this trait.
@@ -2826,7 +2849,37 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     const result = AdvancementHelper.parseHTMLSpellAdvancementData(adjustedDescription);
 
+    // 2024 lineages: "You can cast it once without a spell slot" for the level 3 and 5 spells
+    if ((/cast it once without a spell slot/i).test(AdvancementHelper.stripDescription(description))) {
+      for (const grant of result.spellGrants) {
+        if (grant.level > 1) grant.amount = "1";
+      }
+    }
+
     return result;
+  }
+
+  /** True when the two strings differ by at most one inserted, deleted or substituted character. */
+  static #withinOneEdit(a: string, b: string): boolean {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0;
+    let j = 0;
+    let edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) {
+        i++;
+        j++;
+        continue;
+      }
+      if (++edits > 1) return false;
+      if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else {
+        i++;
+        j++;
+      }
+    }
+    return edits + (a.length - i) + (b.length - j) <= 1;
   }
 
   static getHTMLDataForSpellAdvancements(description: string, species: string): IParsedSpellAdvancementData {
@@ -3535,8 +3588,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         name,
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
-        requireSlot: true,
-        forceNoAmount: true,
+        // no cast activity is built when advancementsOnlyForLimitedUses (species), so the free casts
+        // live on the advancement instead
+        requireSlot: !(advancementsOnlyForLimitedUses && spellGrant.amount),
+        forceNoAmount: !advancementsOnlyForLimitedUses,
         method: "spell",
         spellData,
       });

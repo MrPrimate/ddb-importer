@@ -671,8 +671,6 @@ export default class CharacterFeatureFactory {
       await ddbFeature._generateBackgroundEquipment();
     } else if (type === "feat") {
       ddbFeature.generateFeatAbilityScoreAdvancement();
-    } else if(type === "race") {
-      await ddbFeature._generateSpellAdvancements();
     }
     const choiceFeatures = ddbFeature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)

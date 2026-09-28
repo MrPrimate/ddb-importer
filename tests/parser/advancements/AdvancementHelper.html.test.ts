@@ -150,9 +150,7 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
   it("parses the 2024 standard languages phrasing", () => {
     const html = "<p>Your character knows at least three languages: Common plus two languages you roll or choose from the Standard Languages table.</p>";
     const result = AdvancementHelper.parseHTMLLanguages(html);
-    // note: the grant is pre-prefixed with "languages:" here, unlike every other
-    // language grant value in this parser
-    expect(result.grants).toEqual(["languages:standard:common"]);
+    expect(result.grants).toEqual(["standard:common"]);
     expect(result.number).toBe(2);
     expect(result.choices).toEqual(["standard:*"]);
   });
@@ -539,5 +537,67 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementData", () => {
     const html = "<p>You know one of the following cantrips of your choice; minor illusion, ray of frost or frostbite.</p>";
     const result = AdvancementHelper.parseHTMLSpellAdvancementData(html);
     expect(result.cantripChoices).toEqual(["minor illusion", "ray of frost", "frostbite"]);
+  });
+});
+
+// =============================================================================
+// Lineage and legacy spell tables
+// =============================================================================
+describe("AdvancementHelper lineage spell parsing", () => {
+  // foundryMocks stubs jQuery parseHTML to return nothing; the table parser needs real nodes
+  let originalParseHTML: unknown;
+  beforeAll(() => {
+    const jquery = (globalThis as any).$;
+    originalParseHTML = jquery.parseHTML;
+    jquery.parseHTML = (text: string) => {
+      const template = document.createElement("template");
+      template.innerHTML = text;
+      return Array.from(template.content.childNodes);
+    };
+  });
+  afterAll(() => {
+    (globalThis as any).$.parseHTML = originalParseHTML;
+  });
+
+  // synthetic table in the DDB lineage shape: Lineage | Level 1 | Level 3 | Level 5
+  const table = `<p>Choose a legacy from the Test Legacies table. When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot.</p>
+<table><thead><tr><td>Legacy</td><td>Level 1</td><td>Level 3</td><td>Level 5</td></tr></thead><tbody>
+<tr><td>Ashen</td><td>You also know the Spark Cantrip cantrip.</td><td>Ember Bolt</td><td>Smoke Wall</td></tr>
+<tr><td>Chthonic</td><td>You also know the Grave Touch cantrip.</td><td>Gloom Ward</td><td>Hollow Ray</td></tr>
+</tbody></table>`;
+
+  it("grants only the chosen row, with one free cast of the level 3 and 5 spells", () => {
+    const result = AdvancementHelper.getHTMLDataForSpellAdvancements(table, "Tiefling (Ashen)");
+    expect(result.cantripGrants).toEqual(["spark cantrip"]);
+    expect(result.spellGrants).toEqual([
+      { level: 3, name: "ember bolt", amount: "1" },
+      { level: 5, name: "smoke wall", amount: "1" },
+    ]);
+  });
+
+  it("matches a row DDB spells one letter differently from the option (Cthonic vs Chthonic)", () => {
+    const result = AdvancementHelper.getHTMLDataForSpellAdvancements(table, "Tiefling (Cthonic)");
+    expect(result.cantripGrants).toEqual(["grave touch"]);
+    expect(result.spellGrants.map((grant) => grant.name)).toEqual(["gloom ward", "hollow ray"]);
+  });
+
+  it("grants nothing rather than every row when no row matches", () => {
+    const result = AdvancementHelper.getHTMLDataForSpellAdvancements(table, "Tiefling (Verdant)");
+    expect(result.cantripGrants).toEqual([]);
+    expect(result.spellGrants).toEqual([]);
+  });
+
+  it("parses an always prepared spell with proficiency bonus casts", () => {
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData(
+      "<p>You also always have the Beast Chat spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+    );
+    expect(result.spellGrants).toEqual([{ level: 1, name: "beast chat", amount: "@prof" }]);
+  });
+
+  it("reads reference-linked words in processed descriptions", () => {
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData("<p>You know the Minor &Reference[ill]{Illusion} cantrip.</p>");
+    expect(result.cantripGrants).toEqual(["minor illusion"]);
+    const escaped = AdvancementHelper.parseHTMLSpellAdvancementData("<p>You know the Minor &amp;Reference[ill]{Illusion} cantrip.</p>");
+    expect(escaped.cantripGrants).toEqual(["minor illusion"]);
   });
 });

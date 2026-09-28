@@ -303,6 +303,19 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["languages:*"] }]);
     expect(data.value.chosen).toEqual(["languages:standard:giant"]);
   });
+  it("grants Common for the 2024 species phrasing without doubling the trait prefix", () => {
+    const adv: any = makeHelper({ type: "race", isMuncher: true }).getLanguageAdvancement(
+      [],
+      makeFeature({
+        name: "Languages",
+        description: "<p>Your character knows at least three languages: Common plus two languages you roll or choose from the Standard Languages table.</p>",
+      }),
+      0,
+    );
+    const data = adv.toObject();
+    expect(data.configuration.grants).toEqual(["languages:standard:common"]);
+    expect(data.configuration.choices).toEqual([{ count: 2, pool: ["languages:standard:*"] }]);
+  });
 });
 
 // =============================================================================

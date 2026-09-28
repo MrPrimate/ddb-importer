@@ -128,7 +128,7 @@ describe("DDBChoiceFeature.build", () => {
       parentName: "Test Feature",
       label: "Option A",
       choiceId: "choice-1",
-      optionId: "101",
+      optionId: 101,
     });
     // build stamps a fresh document id
     expect(feature.data._id).not.toBe(originalId);
