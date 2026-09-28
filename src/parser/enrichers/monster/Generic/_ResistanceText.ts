@@ -1,3 +1,5 @@
+import ChangeHelper from "../../effects/ChangeHelper";
+
 /**
  * Readers for monster rules text that grants damage resistance or immunity for a while: to the
  * monster itself ("Until it takes its Emerge action, it has resistance to all damage, and it is
@@ -159,6 +161,93 @@ export function parseConditionImmunities(text: string): string[] {
 /** "advantage on Strength checks and Strength saving throws", the rage wording. */
 export function hasStrengthAdvantage(text: string): boolean {
   return (/advantage on Strength (?:ability )?checks and (?:Strength )?saving throws/i).test(text);
+}
+
+/** Changes for the other benefits a self-buff grants alongside its resistance. */
+interface IBenefitRiders {
+  changes: IActiveEffectChangeData[];
+  /** Attacks against the monster, which native dnd5e cannot see from the attacker's roll. */
+  ac5eChanges: IAC5eActiveEffectChangeData[];
+  midiChanges: IActiveEffectChangeData[];
+}
+
+const SIZE_KEYS: Record<string, string> = {
+  tiny: "tiny", small: "sm", medium: "med", large: "lg", huge: "huge", gargantuan: "grg",
+};
+const SIZE_ORDER = ["tiny", "sm", "med", "lg", "huge", "grg"];
+const SPEED_WORDS: Record<string, string> = {
+  walking: "walk", climbing: "climb", swimming: "swim", flying: "fly", burrowing: "burrow",
+};
+
+/**
+ * Read the rest of a self-buff's benefits ("While raging, the giant gains the following
+ * benefits: ...") into changes: weapon damage bonuses, size, advantage on its own attack rolls,
+ * condition immunity, a flying speed, Stealth advantage and doubled speeds. Attacks against the
+ * monster at advantage or disadvantage become AC5e and midi grants, as dnd5e's attack roll data
+ * only carries the attacker. `size` is the monster's own size key, for "grows in size".
+ */
+export function parseBenefitRiders(text: string, { size = null }: { size?: string | null } = {}): IBenefitRiders {
+  const C = ChangeHelper;
+  const changes: IActiveEffectChangeData[] = [];
+  const ac5eChanges: IAC5eActiveEffectChangeData[] = [];
+  const midiChanges: IActiveEffectChangeData[] = [];
+
+  // "When it makes a melee weapon attack, the giant gains a +4 bonus to the damage roll"
+  const meleeBonus = text.match(/melee weapon attack[^.]*?\+(\d+) bonus to the damage roll/i);
+  // "He deals an extra 3 damage when he hits a target with a melee weapon attack"; a stat block
+  // that says "(included in attacks)" already carries it in its attack damage
+  const extraMelee = text.match(/deals? an extra (\d+) damage when (?:he|she|it|they) hits? (?:a target )?with a melee weapon attack(?! ?\(included)/i);
+  const melee = meleeBonus?.[1] ?? extraMelee?.[1];
+  if (melee) changes.push(C.unsignedAddChange(melee, 20, "system.rolls.damage.mwak.bonus"));
+  // "She has a +2 bonus to weapon damage rolls"
+  const weaponBonus = text.match(/\+(\d+) bonus to weapon damage rolls/i)?.[1];
+  if (weaponBonus && !melee) {
+    changes.push(
+      C.unsignedAddChange(weaponBonus, 20, "system.rolls.damage.mwak.bonus"),
+      C.unsignedAddChange(weaponBonus, 20, "system.rolls.damage.rwak.bonus"),
+    );
+  }
+
+  // "Her size becomes Large", or enlarge/reduce cast on itself, one size up
+  const namedSize = text.match(/\b(?:her|his|its|their) size becomes (tiny|small|medium|large|huge|gargantuan)\b/i)?.[1];
+  const grows = (/\bcasts? enlarge\/reduce on (?:himself|herself|itself|themselves)|\bgrows? in size\b/i).test(text);
+  const grownSize = grows && size && SIZE_ORDER.includes(size)
+    ? SIZE_ORDER[Math.min(SIZE_ORDER.indexOf(size) + 1, SIZE_ORDER.length - 1)]
+    : null;
+  const newSize = namedSize ? SIZE_KEYS[namedSize.toLowerCase()] : grownSize;
+  if (newSize && newSize !== size) changes.push(C.overrideChange(newSize, 20, "system.traits.size"));
+
+  // its own attack rolls; "attack rolls against it" is handled below
+  if ((/\b(?:has|have) advantage on attack rolls\b/i).test(text)) changes.push(C.advantageAttackChange());
+
+  // "He can't be charmed or frightened"
+  const cannot = text.match(new RegExp(`can't be (${STATUSES.join("|")})(?:,? (?:or|and) (${STATUSES.join("|")}))?`, "i"));
+  if (cannot) {
+    for (const status of [cannot[1], cannot[2]].filter(Boolean)) changes.push(C.conditionImmunityChange(status.toLowerCase()));
+  }
+
+  // "He has a flying speed of 60 feet"
+  const fly = text.match(/\b(?:has|gains) a (?:flying|fly) speed of (\d+) feet/i)?.[1];
+  if (fly) changes.push(C.upgradeChange(fly, 20, "system.attributes.movement.speeds.fly"));
+
+  if ((/advantage on Dexterity \(Stealth\) checks/i).test(text)) changes.push(C.skillRollModeChange("ste", C.ADVANTAGE));
+
+  // "the mimic's walking and climbing speeds are doubled"
+  const doubled = text.match(/((?:walking|climbing|swimming|flying|burrowing)(?:,? (?:and )?(?:walking|climbing|swimming|flying|burrowing))*) speeds? (?:are|is) doubled/i)?.[1];
+  if (doubled) {
+    for (const word of doubled.toLowerCase().match(/walking|climbing|swimming|flying|burrowing/g) ?? []) {
+      changes.push(C.multiplyChange(2, 20, `system.attributes.movement.speeds.${SPEED_WORDS[word]}`));
+    }
+  }
+
+  // "Attack rolls made against a frenzied bearfolk have advantage", "Attacks against the giant are made at disadvantage"
+  const against = text.match(/\battack(?:s| rolls)?(?: made)? against [^.]*? (?:have|are made at|has) (advantage|disadvantage)/i)?.[1]?.toLowerCase();
+  if (against) {
+    ac5eChanges.push(C.ac5eChange("1", 20, `flags.automated-conditions-5e.grants.attack.${against}`));
+    midiChanges.push(C.unsignedAddChange("1", 20, `flags.midi-qol.grants.${against}.attack.all`));
+  }
+
+  return { changes, ac5eChanges, midiChanges };
 }
 
 /**

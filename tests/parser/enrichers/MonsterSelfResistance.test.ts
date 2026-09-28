@@ -3,6 +3,7 @@
 import { MonsterEnrichers } from "../../../src/parser/enrichers/_module";
 import {
   parseAllSelfResistances,
+  parseBenefitRiders,
   parseConditionImmunities,
   parseGrantedResistance,
   parseResistanceDuration as parseSelfDuration,
@@ -208,6 +209,62 @@ describe("generic monster self resistance", () => {
     expect(e.activity).toBeNull();
     expect(e.additionalActivities).toEqual([]);
     expect(e.effects).toEqual([]);
+  });
+});
+
+describe("self-buff benefit riders", () => {
+  const keys = (text: string, size: string | null = null) =>
+    parseBenefitRiders(text, { size }).changes.map((c) => `${c.key}=${c.value}`);
+
+  it("reads melee and weapon damage bonuses, skipping ones already in the attacks", () => {
+    expect(keys("When it makes a melee weapon attack, the test giant gains a +4 bonus to the damage roll."))
+      .toEqual(["system.rolls.damage.mwak.bonus=4"]);
+    expect(keys("He deals an extra 3 damage when he hits a target with a melee weapon attack."))
+      .toEqual(["system.rolls.damage.mwak.bonus=3"]);
+    expect(keys("He deals an extra 4 damage when he hits a target with a melee weapon attack (included in attacks)"))
+      .toEqual([]);
+    expect(keys("She has a +2 bonus to weapon damage rolls."))
+      .toEqual(["system.rolls.damage.mwak.bonus=2", "system.rolls.damage.rwak.bonus=2"]);
+  });
+
+  it("reads a named size and one size up for enlarge", () => {
+    expect(keys("Her size becomes Large.", "med")).toEqual(["system.traits.size=lg"]);
+    expect(keys("The test brute casts enlarge/reduce on himself to grow in size.", "med")).toEqual(["system.traits.size=lg"]);
+    expect(keys("The test brute casts enlarge/reduce on himself.", null)).toEqual([]);
+  });
+
+  it("reads attack advantage, condition immunity, fly speed, stealth and doubled speeds", () => {
+    const changes = keys("It has advantage on attack rolls. He can't be charmed or frightened. He has a flying speed of 60 feet. He has advantage on Dexterity (Stealth) checks. Its walking and climbing speeds are doubled.");
+    expect(changes).toEqual(expect.arrayContaining([
+      "system.traits.ci.value=charmed",
+      "system.traits.ci.value=frightened",
+      "system.attributes.movement.speeds.fly=60",
+      "system.attributes.movement.speeds.walk=2",
+      "system.attributes.movement.speeds.climb=2",
+    ]));
+    expect(changes.some((c) => c.startsWith("system.rolls.attack"))).toBe(true);
+    expect(changes.some((c) => c.startsWith("system.skills.ste.roll.mode"))).toBe(true);
+  });
+
+  it("turns attacks against the monster into AC5e and midi grants only", () => {
+    const riders = parseBenefitRiders("Attack rolls made against the frenzied test bear have advantage.");
+    expect(riders.changes).toEqual([]);
+    expect(riders.ac5eChanges[0]).toMatchObject({ key: "flags.automated-conditions-5e.grants.attack.advantage" });
+    expect(riders.midiChanges[0]).toMatchObject({ key: "flags.midi-qol.grants.advantage.attack.all" });
+    expect(parseBenefitRiders("Attacks against the test giant are made at disadvantage.").ac5eChanges[0])
+      .toMatchObject({ key: "flags.automated-conditions-5e.grants.attack.disadvantage" });
+  });
+
+  it("puts the riders on the rider effect and adds a teleport activity", () => {
+    const e = feature(
+      "Blessing",
+      "The test witch teleports up to 30 feet to an unoccupied space it can see. Until the start of its next turn, it gains resistance to all damage, and attacks against it are made at disadvantage.",
+    );
+    expect(e.additionalActivities[0]).toMatchObject({
+      init: { name: "Teleport", id: "ddbSelfResTele01", type: "teleport" },
+      build: { rangeOverride: { value: "30" } },
+    });
+    expect(e.effects[0].ac5eChanges?.[0]).toMatchObject({ key: "flags.automated-conditions-5e.grants.attack.disadvantage" });
   });
 });
 

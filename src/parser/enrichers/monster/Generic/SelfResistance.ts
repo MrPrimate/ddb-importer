@@ -1,13 +1,16 @@
 import _MonsterFeatureSupport from "./_MonsterFeatureSupport";
+import Teleport from "./Teleport";
 import {
   choiceLabel,
   hasStrengthAdvantage,
+  parseBenefitRiders,
   parseResistanceDuration,
   parseSelfResistance,
   resistanceChanges,
 } from "./_ResistanceText";
 
 const SPIKES_ID = "ddbSelfResDmg001";
+const TELEPORT_ID = "ddbSelfResTele01";
 
 /**
  * Monster features in which the monster grants itself damage resistance or immunity: Zaratan's
@@ -23,10 +26,13 @@ const SPIKES_ID = "ddbSelfResDmg001";
  * and rider per option, which dnd5e offers as a choice when the activity is used.
  *
  * The rider also carries any status the same sentence puts on the monster ("and it is
- * restrained") and the rage wording's advantage on Strength checks and saves. Damage bonuses and
- * attack-roll riders are left to the description. Healing in the text (Dohma Rally) stays the
- * parser's own heal activity beside the enchantment, and damage dealt to others while active
- * (Panic Shift's spikes) becomes an activity that is only offered while the enchantment is on.
+ * restrained"), the rage wording's advantage on Strength checks and saves, and the other benefits
+ * parseBenefitRiders reads (weapon damage bonuses, size, attack advantage, condition immunity,
+ * fly speed, doubled speeds). Attacks against the monster at advantage or disadvantage need AC5e
+ * or midi. Healing in the text (Dohma Rally) stays the parser's own heal activity beside the
+ * enchantment, a self-teleport in the same action becomes a Teleport activity, and damage dealt
+ * to others while active (Panic Shift's spikes) becomes an activity that is only offered while
+ * the enchantment is on.
  */
 export default class SelfResistance extends _MonsterFeatureSupport {
 
@@ -84,11 +90,35 @@ export default class SelfResistance extends _MonsterFeatureSupport {
     };
   }
 
+  /** A self-teleport in the same action ("teleports up to 30 feet ... and gains resistance to all damage"). */
+  get teleportDistance(): string | null {
+    return Teleport.selfTeleportDistance(this.text);
+  }
+
+  /** The monster's size key, for a benefit that grows it one size. */
+  get monsterSize(): string | null {
+    return (this.parser.ddbMonster?.npc?.system?.traits?.size as string | undefined) ?? null;
+  }
+
+  get benefitRiders(): ReturnType<typeof parseBenefitRiders> {
+    return parseBenefitRiders(this.text, { size: this.monsterSize });
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (!this.type) return [];
+    const activities: IDDBAdditionalActivity[] = [];
+    const distance = this.teleportDistance;
+    if (distance) {
+      activities.push(this.extra("Teleport", TELEPORT_ID, "teleport", {
+        rangeOverride: { override: true, value: distance, units: "ft", special: "" },
+        targetOverride: { prompt: false, affects: { count: "1", type: "self" }, template: {} } as I5eActivityTarget,
+        activationOverride: { type: "special", value: null, condition: `Part of ${this.key}` },
+      }));
+    }
     const spikeParts = this.spikeParts;
-    if (spikeParts.length === 0) return [];
+    if (spikeParts.length === 0) return activities;
     return [
+      ...activities,
       this.extra("Damage", SPIKES_ID, "damage", {
         generateDamage: true,
         damageParts: spikeParts,
@@ -126,6 +156,7 @@ export default class SelfResistance extends _MonsterFeatureSupport {
     const duration = this.duration;
     const C = _MonsterFeatureSupport.ChangeHelper;
 
+    const benefits = this.benefitRiders;
     const extraChanges = hasStrengthAdvantage(this.text)
       ? [C.abilityCheckRollModeChange("str", C.ADVANTAGE), C.abilitySaveRollModeChange("str", C.ADVANTAGE)]
       : [];
@@ -141,7 +172,9 @@ export default class SelfResistance extends _MonsterFeatureSupport {
       return [
         {
           name: label,
-          changes: [...resistanceChanges(grant, C, types), ...extraChanges],
+          changes: [...resistanceChanges(grant, C, types), ...extraChanges, ...benefits.changes],
+          ac5eChanges: benefits.ac5eChanges,
+          midiChanges: benefits.midiChanges,
           statuses: grant.statuses,
           // a rider on the feature stays inert until the enchantment copies it onto the item
           options: { transfer: true, durationSeconds: null, expiry: null, description },

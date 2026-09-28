@@ -30,12 +30,13 @@ export default class Teleport extends _MonsterFeatureSupport {
 
   _teleport: IMonsterTeleport | null | undefined;
 
-  /** Parse the travel distance and whether the teleport rides on another roll. */
-  get teleport(): IMonsterTeleport | null {
-    if (this._teleport !== undefined) return this._teleport;
-    this._teleport = null;
-
-    const sentence = this.text.split(/(?<=\.)\s+/).find((s) => (/\bteleport/i).test(s));
+  /**
+   * The distance of the first self-teleport in the text, or null when there is none the native
+   * teleport planner can place. Shared with features whose teleport rides on another benefit
+   * (SelfResistance's Blessing of the Raven Queen).
+   */
+  static selfTeleportDistance(text: string): string | null {
+    const sentence = text.split(/(?<=\.)\s+/).find((s) => (/\bteleport/i).test(s));
     if (!sentence || Teleport.NOT_SELF.test(sentence) || Teleport.UNSUPPORTED.test(sentence)) return null;
 
     // "up to" wins over "within": "teleports itself or a willing demon within 10 feet of itself up to 60 feet"
@@ -43,11 +44,20 @@ export default class Teleport extends _MonsterFeatureSupport {
     const match = afterTeleport.match(/up to (\d+) (?:feet|foot|ft)/i)
       ?? afterTeleport.match(/within (\d+) (?:feet|foot|ft)/i)
       ?? afterTeleport.match(/^teleports? (\d+) (?:feet|foot|ft)/i);
-    if (!match) return null;
+    return match?.[1] ?? null;
+  }
+
+  /** Parse the travel distance and whether the teleport rides on another roll. */
+  get teleport(): IMonsterTeleport | null {
+    if (this._teleport !== undefined) return this._teleport;
+    this._teleport = null;
+
+    const distance = Teleport.selfTeleportDistance(this.text);
+    if (!distance) return null;
 
     const rider = this.save() !== null || this.damageTokens(this.text).length > 0;
 
-    this._teleport = { distance: match[1], rider };
+    this._teleport = { distance, rider };
     return this._teleport;
   }
 
