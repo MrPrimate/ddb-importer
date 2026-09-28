@@ -1,7 +1,9 @@
 # Next Up
 
+# 7.5.6
+
 - Way of the Street parsing updates @oregonpinkrose
-- Illrigger parsing improvements.
+- Illrigger parsing improvements: 13th and 18th level interdiction boons stay hidden until you reach that level, Soul's Doom, Incontrovertible and Acheron's Chain's escape check are automated, Master of Hell's Darkness only blinds enemies in the storm, Inferno has its Burning save, Blood Price rolls your largest Hit Die, Infernal Majesty uses only your chosen Terrorizing Force, and Bedevil and Veil of Lies end correctly with DAE.
 - [New Feature] New region behaviour - Region Display - this allows you to customise the region/template placed by activities and effects. There are a number of new patterns with lots of dials, you can use status and damage icons, or even images. This is not intended to replace modules like Automated Animations or be used with things like JB2A assets. It is to help make templates that have ongoing effects or saves more distinctive on the scene. It has a negligible performance footprint with 40 regions using a variety of textures it adds about 0.2ms per frame in the worst case.
 - [New Feature] Icon browser. You can shift click and use an icon browser to try and find a match for features/effects/activities with missing icons. It uses a curated list of icon hits to try and find good matches for you.
 - Auras such as Spirit Guardians, Lightning Ring, Draconic Presence, Event Horizon, Spell Blind, Dread Lord, Vascular Corruption Aura and Bond of Shelter would trigger their saves/damage on the caster and allies as well as enemies. Twilight Sanctuary's Temp HP could also reach enemies.
@@ -29,7 +31,7 @@
 - Speed effects now use the dnd5e 6 speed fields.
 - Re-importing a character with "Retain Active Effects?" ticked broke the links between activities and their effects, so spells like Shield showed no Applied Effects in the chat card. Retained effects now keep the links, and custom effects on items are still kept.
 - For 2024 content, a general "Speed" bonus (e.g. Fast Movement, Roving) now applies to all your speeds rather than just walking speed.
-- Fix some scaling issues, and some pugilist fixes.
+- Scaling fixes: 2014 Divine Strike scales with cleric level and uses each domain's damage type (War uses the weapon's), Pugilist One-Two Punch and Stick and Move use the Fisticuffs die and Moxie no longer overwrites Unarmed Strike damage, Tentacle of the Deeps deals its flat cold damage, Marrow Transplant's attack now upcasts, and class dice scales on multiclass characters use the feature's own class.
 - Area spells no longer roll their ongoing save again for creatures already inside when the area is created. The 2014 "enters for the first time on a turn" spells (Cloudkill, Moonbeam, Blade Barrier, Cloud of Daggers, Evard's Black Tentacles, Sleet Storm, Web) roll nothing on cast and only trigger when a creature moves in or starts its turn there.
 - Region triggers have a new "Counts as Entering" option (Automatic / Creature movement only / Creature movement or the area moving onto it / Any enter).
 - Cordon of Arrows no longer targets its caster.
@@ -40,7 +42,26 @@
 - Munching species with nothing selected in the species picker imported both the 2014 and 2024 versions. It now only munches the rules version selected on the species tab, the same species the picker lists.
 - Spells granted by species traits, feats and class features were often lost or mis-levelled when the description listed more than one spell or described the limit in a later sentence (for example Githyanki Psionics lost Jump and Misty Step, Firbolg Magic lost Detect Magic, Duergar and Fire Genasi got their spells at level 1). These now import with the right levels and uses, and some feats and class features that grant free casts (Fey Touched, Shadow Touched, Pyromaniac, Misty Wanderer, Steps of the Fey) now get their spells. Re-munch to fix.
 - Fey Touched, Shadow Touched (2014 and 2024), Adept of the White, Red and Black Robes and Artificer Initiate now include their chosen spell as an advancement when munched, restricted to the right spell level and school or spell list, and 2024 Shadow-Touched now grants Invisibility. Both the granted and the chosen spell are always prepared with one free cast per Long Rest. Re-munch feats to fix.
-
+- Region automation no longer changes the GM's targets at all, so regions firing at once can't swap targets and a midi workflow waiting on player saves no longer holds up other regions. Macro activities fired by a region get the region's tokens.
+- Owner-turn region prompts only go to a player viewing that scene (otherwise the GM), and Skip keeps a one-shot region for the next turn. Region durations counted in turns, months and years now expire correctly.
+- Upcast spells that place a region now roll their attacks and damage at the level they were cast at.
+- Around 80 auras and areas (spells, class features, items and monster auras such as Stench) no longer trigger when the aura moves onto a creature where the text says "enters", and monster turn-start auras no longer roll for everyone in range when switched on. Festival King now follows the king, and Transmute Rock has separate Rock to Mud and Mud to Rock options.
+- Macro activities and the region Execute Macro handler can use macros from a compendium (by uuid or pasted link), and warn if the macro can't be found.
+- Spell fixes: Power Word Pain and Frost Squall no longer grant speeds a creature doesn't have. Follow-up effects of Web, Chains of Beleth, Living Shadows, Festival King, Eyebite, Shadow Puppets and Tasha's Otherworldly Guise last as long as the spell. Scrying, Polymorph, True Polymorph, Animal Shapes and Shapechange no longer restart concentration. Maelstrom, Cordon of Arrows and Dust Devil place fixed areas, and 2014 Cordon of Arrows deals 1d6. Bestow Curse, Holy Aura, Heat Metal and Dispel Evil and Good fixes, and the 2014 Inspiring Leader feat gets an Inspiring Speech temp HP activity.
+- Class feature fixes: Aura of Alacrity (2024 matches your Aura of Protection, 2014 reaches 5/10 ft), Aura of Protection's AC5e radius uses paladin level, Redoubled Efforts adds its extra die correctly, Favored Foe scales with ranger level when multiclassed, Form of the Beast's Bite and Claw use the better of Strength or Charisma, and Wrath of the Wild / Take Ghastly Form's Unnerving Aura is a single Wisdom save.
+- Around 45 more magic weapons and items now have their special properties automated (e.g. Moonblade, Sunforger, Hazirawn, Lash of Shadows, Headbanger Lute, Dragon's Wrath Weapons, Weapon of Wounding, Axe of the Galloping Headsman, Grass Whistle Blade), along with fixes for Requiem Bliss/Clay, Keyhole's Dagger, the Ominous Staff of Skulls and Staff of Thunder and Lightning (2014). Rod of Lordly Might's buttons are hidden until attuned.
+- Item saves are detected more reliably: a weapon's on-hit save is its own activity dealing only the damage its text names (Dagger of Venom and Giant Slayer no longer add the weapon die), DCs written as a sum ("DC 10 plus your Proficiency Bonus", "16 + the axe's bonus") are parsed, curses the wielder saves against are no longer treated as attacks, and items with several saves get the right area and damage for each.
+- Monster saves with several parts now get the right area, target and damage for each save.
+- Monster features that grant themselves or others resistance, change resistance by form (e.g. Shadow Form Only), or apply a vulnerability aura are now automated, including rage-like self buffs (extra damage, size, flying) and self-teleports. Laeral Silverhand's Spellfire, the Flesh Meld's Consume Creature and the Servok Builder's Lay the Foundation are also automated.
+- Monster features sharing a name with an unrelated feature (Tendril, Whirlwind, Charming, Thunderbolt and others) no longer pick up the wrong condition, the 2014 Ice Devil's Ice Spear no longer gets the 2024 speed penalty, aura creature-type exemptions only apply where the text says so, and re-importing a monster no longer duplicates its size-choice or True Form effects.
+- Monster summons prefer the summoner's own rules version of the creature, including when "(Legacy)" names are used, and importing a summon without a Patreon key no longer fails if the enriched images can't be fetched.
+- Infusions and other enchantments applied on character import keep the same ids across re-imports (so favourites survive) and no longer stack an extra copy on each re-import with "Retain Active Effects?" ticked.
+- Streaming imports fall back to normal fetching for a single failed request rather than switching streaming off, and incomplete results are no longer cached. A spell missing from the compendium on an item now warns instead of stopping the character import, and monster token art lookups are more reliable.
+- Skill choice advancements no longer treat tool choices as skill choices, and "choose from the following list" skill choices (e.g. Nightwatcher) are detected. Class feature matching no longer depends on what was imported earlier in the session.
+- Subclass lists in the muncher include the mule character's campaign homebrew.
+- Copying a scene keeps its linked tokens and places copied documents on the matching scene levels.
+- Spell Reflection's macro works with dnd5e 6.
+- New icons for a number of spells and feats.
 
 # 7.5.5
 
