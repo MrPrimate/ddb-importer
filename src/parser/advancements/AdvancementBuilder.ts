@@ -9,9 +9,13 @@ import AdvancementWrapper from "./AdvancementWrapper";
  */
 export default class AdvancementBuilder {
 
-  static createAdvancement<T>(AdvancementClass: new () => T): T & { _id: string } {
+  /**
+   * A plain-data advancement built from the system class's defaults. It is an AdvancementWrapper,
+   * not an instance of the class: `updateSource` merges plain data and `toObject` returns it.
+   */
+  static createAdvancement(AdvancementClass: new (data?: any) => any): AdvancementWrapper {
     try {
-      return new AdvancementWrapper(AdvancementClass) as unknown as T & { _id: string; updateSource: (data: Record<string, unknown>) => void };
+      return new AdvancementWrapper(AdvancementClass);
     } catch (error) {
       logger.error("Error creating advancement:", {
         AdvancementClass,
@@ -45,7 +49,7 @@ export default class AdvancementBuilder {
     for (const [level, value] of Object.entries(scale)) {
       update.configuration.scale[level] = { value };
     }
-    adv.updateSource(update as any);
+    adv.updateSource(update);
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
@@ -69,7 +73,7 @@ export default class AdvancementBuilder {
     for (const [level, die] of Object.entries(scale)) {
       update.configuration.scale[level] = { number: die.number, faces: die.faces };
     }
-    adv.updateSource(update as any);
+    adv.updateSource(update);
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
@@ -112,7 +116,7 @@ export default class AdvancementBuilder {
         },
       },
     };
-    adv.updateSource(update as any);
+    adv.updateSource(update);
     return adv.toObject() as unknown as I5eAdvancement;
   }
 

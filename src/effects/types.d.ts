@@ -10,4 +10,37 @@ global {
       dae: NonNullable<NonNullable<I5eEffectData["flags"]>["dae"]>;
     };
   };
+
+  /** A region event as `RegionAutomations` handlers receive it. */
+  interface IRegionEventContext {
+    scene: Scene;
+    region: RegionDocument;
+    behavior: RegionBehavior;
+    event: {
+      name: string;
+      data: Record<string, any>;
+      region: RegionDocument;
+      user: User;
+    };
+    handler: string;
+    args: Record<string, unknown>;
+  }
+
+  /**
+   * Display data for one activity-placed template Region offered for removal.
+   */
+  interface IRegionExpiryEntry {
+    region: RegionDocument;
+    uuid: string;
+    name: string;
+    img: string;
+    itemName: string | null;
+    activityName: string | null;
+    shape: string | null;
+    size: string | null;
+    spellLevel: number | string | null;
+    behaviors: string[];
+    effectCount: number;
+    reason: string;
+  }
 }

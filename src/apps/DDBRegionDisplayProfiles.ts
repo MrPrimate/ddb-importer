@@ -18,6 +18,41 @@ import { bindImagePicker, imageFormContext, loadImageFormTemplate } from "./lib/
 /** The colour the swatches use when a profile takes the region's own colour. */
 const SWATCH_COLOR = REGION_DISPLAY_FALLBACK_COLOR;
 
+interface IRegionDisplayProfilesContext extends DDBAppV2Context, Partial<ReturnType<typeof imageFormContext>> {
+  profiles: {
+    groupHeading: string;
+    id: string;
+    name: string;
+    builtin: boolean;
+    overridden: boolean;
+    selected: boolean;
+    swatchStyle: string;
+    swatchImage: string;
+  }[];
+  draft?: IRegionDisplayProfile;
+  isNew?: boolean;
+  isBuiltin?: boolean;
+  canDelete?: boolean;
+  canReset?: boolean;
+  useRegionColor?: boolean;
+  colorValue?: string;
+  previewGrid?: number;
+  previewGridLarge?: number;
+  previewStyle?: string;
+  previewImage?: string;
+  previewImageLarge?: string;
+  previewStyleLarge?: string;
+  patternOptions?: IRegionDisplaySelectOption[];
+  limits?: typeof REGION_DISPLAY_LIMITS;
+  perSquare?: number | string;
+  spacingStep?: number;
+  fields?: Partial<Record<TRegionDisplayNumericKey, { visible: boolean; label: string; hint: string }>>;
+  showDashed?: boolean;
+  showBorder?: boolean;
+  matchFillOpacity?: boolean;
+  borderOpacityValue?: number;
+}
+
 interface IProfileFormValues {
   name?: string;
   pattern?: string;
@@ -217,7 +252,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
 
   override async _prepareContext(options: any) {
     await loadImageFormTemplate();
-    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
+    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as IRegionDisplayProfilesContext;
     const draft = this.draft;
     // all() keeps each group together, so a heading goes above the first profile of each group
     const profiles = RegionDisplayProfiles.all();

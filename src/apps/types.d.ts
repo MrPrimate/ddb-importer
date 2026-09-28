@@ -45,6 +45,13 @@ global {
     tab?: Partial<IDDBTab>;
   }
 
+  /** One option of a select in the region display editors and icon picker. */
+  interface IRegionDisplaySelectOption {
+    value: string;
+    label: string;
+    selected: boolean;
+  }
+
   /** One listed download in the Sources and Cache window's Cache Management tab. */
   interface ISourceBookBrowserCacheRow {
     /** Full cache key for a single entry; absent on aggregate rows, which are cleared via their group. */

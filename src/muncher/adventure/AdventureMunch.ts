@@ -1041,7 +1041,7 @@ export default class AdventureMunch {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
           const options = { keepId: true, keepEmbeddedIds: true };
-          const imported = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId } as any, options);
+          const imported = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, options);
           if (!imported) throw new Error(`Import of ${actor.name} (${actor.compendiumId}) from ${monsterCompendium.metadata.name} returned no actor`);
           worldActor = imported;
         } catch (err) {

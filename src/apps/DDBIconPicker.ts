@@ -6,6 +6,15 @@ import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 
 const FILTERS = ["all", "svg", "damage", "dnd5eStatus", "status"] as const;
 
+interface IIconPickerContext extends DDBAppV2Context {
+  searchTerm: string;
+  filterOptions: IRegionDisplaySelectOption[];
+  icons: ReturnType<DDBIconPicker["_buildPage"]>["icons"];
+  countLabel: string;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}
+
 /**
  * Search the icon catalogue for a region display image. Nothing in the calling editor changes
  * until an icon is chosen; the choice is handed to the `select` callback and the picker closes.
@@ -97,7 +106,7 @@ export default class DDBIconPicker extends DDBAppV2 {
   }
 
   override async _prepareContext(options: any) {
-    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
+    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as IIconPickerContext;
     const page = this._buildPage(await this._loadIcons());
     context.searchTerm = this.searchTerm;
     context.filterOptions = FILTERS.map((value) => ({

@@ -275,7 +275,7 @@ export default async function () {
       hint: `${SETTINGS.MODULE_ID}.settings.region-display-profiles.hint`,
       icon: "fas fa-draw-polygon",
       // a stand-in that opens the one editor window: Foundry builds a new menu instance per click
-      type: DDBRegionDisplayProfilesMenu as any,
+      type: DDBRegionDisplayProfilesMenu,
       restricted: true,
     });
   }

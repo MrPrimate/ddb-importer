@@ -23,6 +23,37 @@ import RegionDisplayProfiles from "../lib/RegionDisplayProfiles";
 import { bindLiveInput, PREVIEW_GRID, PREVIEW_GRID_LARGE, readForm, resolveColor } from "./lib/regionDisplayForm";
 import { bindImagePicker, imageFormContext, loadImageFormTemplate } from "./lib/regionDisplayImageForm";
 
+interface IRegionDisplayConfigContext extends DDBAppV2Context, Partial<ReturnType<typeof imageFormContext>> {
+  profileGroups: (ReturnType<typeof profileOptionGroups>[number] & { options: IRegionDisplaySelectOption[] })[];
+  hasProfile: boolean;
+  canEditProfiles: boolean;
+  perSquare: number | string;
+  perSquarePlaceholder: number | string;
+  patternOptions: IRegionDisplaySelectOption[];
+  dashedOptions: IRegionDisplaySelectOption[];
+  borderOptions: IRegionDisplaySelectOption[];
+  showDashed: boolean;
+  showBorder: boolean;
+  showPerSquare: boolean;
+  numericFields: {
+    key: TRegionDisplayNumericKey;
+    label: string;
+    hint: string;
+    value: number | string;
+    limits: (typeof REGION_DISPLAY_LIMITS)[TRegionDisplayNumericKey];
+    placeholder: string;
+  }[];
+  useProfileColor: boolean;
+  colorValue: string;
+  summary: string;
+  previewGrid: number;
+  previewGridLarge: number;
+  previewStyle?: string;
+  previewImage?: string;
+  previewImageLarge?: string;
+  previewStyleLarge?: string;
+}
+
 interface IRegionDisplayConfigFormValues {
   profile?: string;
   pattern?: string;
@@ -75,7 +106,7 @@ interface IActivityLike {
  * behavior keeps the same choice in its config, so the editor speaks in flags and each
  * target translates on the way in and out.
  */
-export interface IDisplayTarget {
+interface IDisplayTarget {
   /** Instance key, so one window serves one target. */
   key: string;
   title: string;
@@ -304,7 +335,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
 
   override async _prepareContext(options: any) {
     await loadImageFormTemplate();
-    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as any;
+    const context = (await super._prepareContext({ ...options, noCacheLoad: true })) as IRegionDisplayConfigContext;
     const draft = this.draft;
     const style = RegionDisplayProfiles.resolve(draft);
     Object.assign(context, imageFormContext(style, draft, true));
