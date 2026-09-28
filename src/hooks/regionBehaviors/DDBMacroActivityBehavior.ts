@@ -153,8 +153,20 @@ export default class DDBMacroActivityBehavior extends BaseActivityBehavior {
         ([value, config]) => ({ value, label: game.i18n.localize(config.label) }),
       );
     } else if (field.name === "displayProfile") {
-      // hidden while the profiles are switched off; the stored value is kept for when they return
-      if (!RegionDisplayProfiles.enabled) return false;
+      // hidden while the profiles are switched off, but still submitted: dnd5e rebuilds the
+      // behavior from the sheet's form, so a field that does not render is saved blank
+      if (!RegionDisplayProfiles.enabled) {
+        data.classes = "hidden";
+        data.input = (_field: unknown, config: { name: string; value?: unknown }) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = config.name;
+          // the attribute, not the property: the sheet serialises this element to HTML
+          input.setAttribute("value", typeof config.value === "string" ? config.value : "");
+          return input;
+        };
+        return;
+      }
       data.input = (_field: unknown, config: { name: string; value?: unknown }) =>
         createProfilePicker({
           name: config.name,
