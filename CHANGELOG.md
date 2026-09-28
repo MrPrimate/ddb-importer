@@ -33,6 +33,11 @@
 - Area spells no longer roll their ongoing save again for creatures already inside when the area is created. The 2014 "enters for the first time on a turn" spells (Cloudkill, Moonbeam, Blade Barrier, Cloud of Daggers, Evard's Black Tentacles, Sleet Storm, Web) roll nothing on cast and only trigger when a creature moves in or starts its turn there.
 - Region triggers have a new "Counts as Entering" option (Automatic / Creature movement only / Creature movement or the area moving onto it / Any enter).
 - Cordon of Arrows no longer targets its caster.
+- Munched 2024 Elf, Gnome and Tiefling lineages (e.g. High Elf, Forest Gnome, Tiefling (Infernal)) all had the same advancements: the chosen lineage trait was never granted, every Tiefling got Poison resistance, and some choice advancements had an empty option. Class choice advancements (e.g. Fighting Styles) could also miss their munched options. Re-munch species to fix.
+- Species munched into an empty compendium had no trait advancements (e.g. Fey Ancestry, Trance) until they were munched a second time.
+- 2024 species Languages advancements did not grant Common automatically, so players were asked to pick three languages instead of two. Re-munch species to fix.
+- 2024 species lineages and legacies (Elf, Gnome, Tiefling) granted their lineage spells twice, or every lineage's cantrips at once, and Tiefling (Chthonic) and Forest Gnome lost some of theirs. Each lineage now grants its own cantrip plus its level 3 and 5 spells, always prepared with one free cast per Long Rest, and Forest Gnome's Speak with Animals uses your Proficiency Bonus. Re-munch species to fix.
+- Munching species with nothing selected in the species picker imported both the 2014 and 2024 versions. It now only munches the rules version selected on the species tab, the same species the picker lists.
 
 # 7.5.5
 
