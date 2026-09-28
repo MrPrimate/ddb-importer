@@ -567,6 +567,39 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * The charge cost of a spell cast from an item. DDB states a fixed cost as the maximum alone
+   * (`minNumberConsumed` null, Lesser Restoration's 2 charges on a Staff of Healing) and a
+   * variable cost as a min-max range (Cure Wounds' 1 to 4), so the minimum wins, then the
+   * maximum, and only then the item's generic cost. Zero is a real cost and survives.
+   */
+  static itemSpellChargeCost(
+    limitedUse: { minNumberConsumed?: number | string | null; maxNumberConsumed?: number | string | null } | null | undefined,
+    fallback: number | string | null | undefined,
+  ): { cost: number; min: number | null; max: number | null; variable: boolean } {
+    const count = (value: number | string | null | undefined): number | null => {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    };
+    const min = count(limitedUse?.minNumberConsumed);
+    const max = count(limitedUse?.maxNumberConsumed);
+    const cost = min ?? max ?? count(fallback) ?? 1;
+    return { cost, min, max, variable: min !== null && max !== null && max > min };
+  }
+
+  /**
+   * The consumption scaling ceiling for a variable charge cost. dnd5e offers scaling values 1 to
+   * max and spends `cost + value - 1`, so the ceiling is the size of the range, capped by the
+   * charges left.
+   */
+  static itemSpellChargeScalingMax(min: number, max: number): string {
+    const levels = max - min + 1;
+    return min === 1
+      ? `min(@item.uses.value,${levels})`
+      : `min(@item.uses.value - ${min - 1},${levels})`;
+  }
+
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
   static parseItemBonusSaveDC(description: string): number | null {
     const text = DDBDescriptions.plainText(description);
@@ -3249,33 +3282,30 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const reset = this.#getSpellReset();
 
-    const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
-    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionData.consumptionValue ?? 1}`;
+    const charges = DDBItem.itemSpellChargeCost(spellData.limitedUse, this.actionData.consumptionValue);
     if (generateActivityUses) {
       // spells manage charges
-      usesOverride.max = maxNumberConsumed;
+      usesOverride.max = `${charges.max ?? 1}`;
       usesOverride.recovery.push({
         period: reset.period ?? null,
         type: "recoverAll",
       });
     }
 
-    const scalingAmount = maxNumberConsumed > minNumberConsumed;
-
     const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
         target: "",
-        value: `${spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1}`,
+        value: `${charges.min ?? charges.max ?? 1}`,
         scaling: {},
       }
       : spellData.limitedUse
         ? {
           type: "itemUses",
           target: "",
-          value: `${minNumberConsumed}`,
+          value: `${charges.cost}`,
           scaling: {
-            mode: scalingAmount ? "amount" : "",
+            mode: charges.variable ? "amount" : "",
             formula: "",
           },
         }
@@ -3292,15 +3322,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel") as number;
     }
 
-    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    // the item text describes extra charges for any spell it grants, so only a real DDB cost
+    // range may scale: a fixed-cost spell on the same staff must not
+    const scalingAllowed = !this.perSpell.isPerSpell
+      && charges.variable
+      && Boolean(this.ddbDefinition.description.match("each (?:additional )?charge you expend"));
 
     if (activityConsumptionTarget) {
       consumptionOverride.targets = [activityConsumptionTarget];
     }
 
-    if (scalingAllowed && spellData.limitedUse) {
+    if (scalingAllowed && charges.min !== null && charges.max !== null) {
       consumptionOverride.scaling.allowed = true;
-      consumptionOverride.scaling.max = `min(@item.uses.value,${spellData.limitedUse.maxNumberConsumed})`;
+      consumptionOverride.scaling.max = DDBItem.itemSpellChargeScalingMax(charges.min, charges.max);
     }
 
     const options: TDDBActivityBuildOptions = {

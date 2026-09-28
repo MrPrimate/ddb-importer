@@ -19,16 +19,14 @@ export default class Sentinel extends DDBEnricherData {
       {
         name: "Halted",
         activityMatch: "Sentinel Attack",
+        // Expiry only: a counted duration is a minimum the turn edge waits for, and a turn change
+        // inside a round advances no world time, so a 6 s value kept Halted past the turn.
+        options: {
+          expiry: "turnEnd",
+        },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange(0),
         ],
-        data: {
-          duration: {
-            value: 6,
-            expiry: "turnEnd",
-            expired: null,
-          },
-        },
       },
     ];
   }

@@ -8,7 +8,8 @@ import { regionPlacer } from "../data/RegionBuilders";
  */
 export default class FuriousFlail extends DDBEnricherData {
 
-  // the parser's own save for this property would sit beside the one built here
+  // the parser builds its own Dex save from the Volcanic Fury text; the region placer below
+  // carries that save, so the parsed one is suppressed rather than doubled
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

@@ -24,8 +24,9 @@ export default class HybridTransformation extends DDBEnricherData {
   static BLOODLUST_ID = "ddbLycanBloodlst";
 
   // Predatory Strikes lets you use either Strength or Dexterity, so the ability mod is suppressed
-  // and both the mod and proficiency are rolled into the attack bonus instead.
-  static ATTACK_BONUS = "max(@abilities.str.mod, @abilities.dex.mod) + @prof";
+  // and the better mod is rolled into the attack bonus instead. Proficiency stays native: a feat
+  // item's proficiency multiplier is always 1, so dnd5e adds it to a non-flat attack itself.
+  static ATTACK_BONUS = "max(@abilities.str.mod, @abilities.dex.mod)";
 
   static DAMAGE_BONUS = "max(@abilities.str.mod, @abilities.dex.mod)";
 
