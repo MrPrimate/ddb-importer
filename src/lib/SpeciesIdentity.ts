@@ -1,3 +1,5 @@
+import DDBSources from "./DDBSources";
+
 /** DDB allocates species and subrace IDs in separate entity-type namespaces. */
 export function speciesKey(
   species: { entityRaceId?: unknown; entityRaceTypeId?: unknown } | null | undefined,
@@ -46,4 +48,12 @@ export function existingSpeciesKey(
       .filter((key): key is string => key !== null),
   );
   return matches.size === 1 ? [...matches][0] : null;
+}
+
+/**
+ * The rules version a catalogue species belongs to. The species picker and the species munch both
+ * filter on this, so what the picker lists is what an empty selection munches.
+ */
+export function speciesRulesVersion(species: Pick<IDDBMuleSpeciesDefinition, "sources">): T5eRulesVersion {
+  return species.sources.every((source) => DDBSources.is2014Source(source)) ? "2014" : "2024";
 }

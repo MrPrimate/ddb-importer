@@ -8,7 +8,7 @@ import DDBProxy from "./DDBProxy";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import SystemHelpers from "./SystemHelpers";
 import DDBMuleHandler from "../muncher/DDBMuleHandler";
-import { speciesKey } from "./SpeciesIdentity";
+import { speciesKey, speciesRulesVersion } from "./SpeciesIdentity";
 
 function getActivitySnippetSetting(): ISettingsPolicyExpandedItem {
   return {
@@ -1443,10 +1443,8 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
     const existingSpeciesKeys = dontGrabExisting
       ? await DDBMuleHandler.getExistingSpeciesKeys(rulesVersion, species)
       : new Set<string>();
-    const isSpecies2014 = (sp: IDDBMuleSpeciesDefinition) => sp.sources.every((s) => DDBSources.is2014Source(s));
-
     result.selectedSpecies = species
-      .filter((sp) => (rulesVersion === "2014" ? isSpecies2014(sp) : !isSpecies2014(sp)))
+      .filter((sp) => speciesRulesVersion(sp) === rulesVersion)
       .filter((sp) => {
         if (onlyHomebrew) return sp.isHomebrew;
         if (sp.isHomebrew) return allowHomebrew;

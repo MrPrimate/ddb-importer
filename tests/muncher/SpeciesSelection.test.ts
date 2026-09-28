@@ -122,14 +122,24 @@ describe("mule species selection", () => {
     ]);
   });
 
-  it("keeps intentional empty selection and modern rules behavior", async () => {
-    const requests: (string[] | undefined)[] = [];
+  it("munches only the selected rules version when the selection is empty", async () => {
+    const requests: { keys?: string[]; sources: number[] }[] = [];
     vi.spyOn(DDBMuleHandler.prototype, "process").mockImplementation(async function (this: DDBMuleHandler) {
-      requests.push(this.speciesKeys); 
+      requests.push({ keys: this.speciesKeys, sources: this.allowedSourceIds });
     });
     await makeMuncher()._parseWithMule("species");
-    expect(requests).toEqual([[], [], []]);
+    // 2014 rules: never an empty key list (the proxy reads that as every species), and the
+    // 2024-only book is skipped
+    expect(requests).toEqual([
+      { keys: ["1228963568:4", "1228963568:28", "1228963568:25", "1228963568:30"], sources: [2] },
+      { keys: ["1743923279:4", "1743923279:28", "1743923279:25", "1743923279:30"], sources: [15] },
+    ]);
+
     setMockSettings({ "munching-policy-character-class-rules-version": "2024" });
+    requests.length = 0;
+    await makeMuncher()._parseWithMule("species");
+    expect(requests).toEqual([{ keys: ["1743923279:100"], sources: [145] }]);
+    // the picker lists exactly what an empty selection munches
     expect((await MuncherSettings.getCharacterMuncherSettings()).selectedSpecies.map((s) => s.id)).toEqual(["1743923279:100"]);
   });
 
