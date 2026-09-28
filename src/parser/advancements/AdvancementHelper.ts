@@ -3576,6 +3576,13 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       advancements.push(cantripGrantAdvancement);
     }
 
+    // species spells are innate unless the trait also lets you cast them with your spell slots
+    // (2024 lineages, Monsters of the Multiverse); older traits such as Infernal Legacy do not
+    const speciesSpellMethod = (/using any spell slots|with any spell slots|spell slots you have/i)
+      .test(AdvancementHelper.stripDescription(feature.system.description.value))
+      ? "spell"
+      : "innate";
+
     const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")
       || feature.system.uses.max === ""
       || String(feature.system.uses.max) === "0";
@@ -3588,11 +3595,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         name,
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
-        // no cast activity is built when advancementsOnlyForLimitedUses (species), so the free casts
-        // live on the advancement instead
-        requireSlot: !(advancementsOnlyForLimitedUses && spellGrant.amount),
+        // no cast activity is built when advancementsOnlyForLimitedUses (species), so the free or
+        // unlimited casts live on the advancement instead
+        requireSlot: !advancementsOnlyForLimitedUses,
         forceNoAmount: !advancementsOnlyForLimitedUses,
-        method: "spell",
+        method: advancementsOnlyForLimitedUses ? speciesSpellMethod : "spell",
         spellData,
       });
       if (spellGrantAdvancement) {
