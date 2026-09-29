@@ -80,6 +80,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Jewel of Three Prayers": "Jewel of Three Prayers",
     "Keyholes Dagger": "Keyholes Dagger",
     "Moon Sickle": "Moon Sickle",
+    // the gem variants name their Beast form in parentheses
+    "Necklace of the Beastly Familiar": "Necklace of the Beastly Familiar",
     "Pneuma Greatsword": "Pneuma Blade",
     "Pneuma Longsword": "Pneuma Blade",
     " of Grass": "Weapon of Grass",
@@ -198,6 +200,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Rhythm-Maker's Drum": ItemEnrichers.RhythmMakersDrum,
     "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
     "Rifle, Hunting": ItemEnrichers.HuntingRifle,
+    "Necklace of the Beastly Familiar": ItemEnrichers.NecklaceOfTheBeastlyFamiliar,
     "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
     "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
     "Rod of the Pact Keeper": ItemEnrichers.RodOfThePactKeeper,
