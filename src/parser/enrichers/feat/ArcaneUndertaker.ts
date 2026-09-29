@@ -34,7 +34,14 @@ export default class ArcaneUndertaker extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.ruleBonusChange("check", "1d4", {
-            conditions: { k: "roll.skill", o: "in", v: ["his", "med"] },
+            // the bonus follows the skill only with its default ability
+            conditions: {
+              o: "OR",
+              v: [
+                { o: "AND", v: [{ k: "roll.skill", o: "exact", v: "his" }, { k: "roll.ability", o: "exact", v: "int" }] },
+                { o: "AND", v: [{ k: "roll.skill", o: "exact", v: "med" }, { k: "roll.ability", o: "exact", v: "wis" }] },
+              ],
+            },
           }),
         ],
       },

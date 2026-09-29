@@ -20,7 +20,10 @@ export default class ArcaneEloquence extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.ruleBonusChange("check", "1d4", {
-            conditions: { k: "roll.skill", o: "in", v: ["dec", "itm", "per"] },
+            conditions: [
+              { k: "roll.skill", o: "in", v: ["dec", "itm", "per"] },
+              { k: "roll.ability", o: "exact", v: "cha" },
+            ],
           }),
         ],
       },
