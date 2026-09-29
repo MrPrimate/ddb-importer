@@ -54,6 +54,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Arcane Infiltrator (": "Arcane Infiltrator",
     "Familiar Friend (": "Familiar Friend",
     "Elemental Familiar (": "Elemental Familiar",
+    "Warlike Familiar (": "Warlike Familiar",
     // DM play-along reprints of Arcana Unleashed feats carry a "(DMAU)" suffix
     "Arcane Overload (": "Arcane Overload",
     "Transmutation Adept (": "Transmutation Adept",
@@ -72,6 +73,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Arcane Infiltrator": FeatEnrichers.ArcaneInfiltrator,
     "Familiar Friend": FeatEnrichers.FamiliarFriend,
     "Elemental Familiar": FeatEnrichers.ElementalFamiliar,
+    "Warlike Familiar": FeatEnrichers.WarlikeFamiliar,
     "Arcane Overload": FeatEnrichers.ArcaneOverload,
     "Transmutation Adept": FeatEnrichers.TransmutationAdept,
     "Elemental Adept": FeatEnrichers.ElementalAdept,

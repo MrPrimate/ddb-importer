@@ -1,10 +1,15 @@
-import DDBEnricherData from "../data/DDBEnricherData";
+import _FamiliarFeat from "./_FamiliarFeat";
 
-/** AU origin feat, three ability variants collapse here: a free Find Familiar cast per long rest. */
-export default class FamiliarFriend extends DDBEnricherData {
+/**
+ * AU origin feat, three ability variants collapse here. Faithful Companion's free Find Familiar
+ * cast per long rest and the slot-cast twin are summons carrying Fortified Familiar's HP bonus,
+ * which dnd5e cannot add to the Find Familiar spell DDB grants alongside. Helpful Friend has its
+ * own proficiency-bonus uses.
+ */
+export default class FamiliarFriend extends _FamiliarFeat {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return _FamiliarFeat.ACTIVITY_TYPES.NONE;
   }
 
   override get useDefaultAdditionalActivities(): boolean {
@@ -15,19 +20,12 @@ export default class FamiliarFriend extends DDBEnricherData {
     return false;
   }
 
-  override get activity(): IDDBActivityData {
-    return {
-      name: "Cast Find Familiar",
-      targetType: "self",
-      activationType: "hour",
-      addItemConsume: true,
-    };
-  }
-
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      _FamiliarFeat.familiarSummon({ id: "famFriendFree000", name: "Find Familiar (Free Cast)", itemConsume: true }),
+      _FamiliarFeat.familiarSummon({ id: "famFriendSlot000", name: "Find Familiar (Spell Slot)", slotConsume: true }),
       {
-        init: { name: "Helpful Friend", type: DDBEnricherData.ACTIVITY_TYPES.UTILITY },
+        init: { name: "Helpful Friend", type: _FamiliarFeat.ACTIVITY_TYPES.UTILITY },
         build: { generateActivation: true, generateConsumption: true, generateTarget: true },
         overrides: {
           targetType: "self",
