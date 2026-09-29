@@ -85,6 +85,10 @@ global {
     imagePath: string;
     /** From the source `<a>`/`<figure>` `data-content-chunk-id` (or synthesised when absent). */
     contentChunkId: string;
+    /** The contentChunkId earlier native imports synthesised for this scene
+     *  (figure path, `<figure id>-<count>`), when it differs from `contentChunkId`.
+     *  Only used to find and update scenes created by those imports. */
+    legacyContentChunkId?: string;
     /** True when the source link advertised this as a player-facing map. */
     isPlayer: boolean;
     /** Which detector produced this entry - useful for logging. `"missing"` =

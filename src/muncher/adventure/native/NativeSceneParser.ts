@@ -76,6 +76,7 @@ export function scanForScenes(row: ProcessedRow, bookCode: string): DetectedScen
       name: entry.name,
       imagePath: entry.imagePath,
       contentChunkId: entry.contentChunkId,
+      ...(entry.legacyContentChunkId ? { legacyContentChunkId: entry.legacyContentChunkId } : {}),
       isPlayer: entry.isPlayer,
       source: entry.source,
       syntheticIdOffset: entry.idBase + tmpCount,
@@ -107,18 +108,29 @@ export function scanForScenes(row: ProcessedRow, bookCode: string): DetectedScen
       return `${stripped} (${titleType} Version)`;
     };
 
+    // Figures rarely carry a chunk id. The fallback matches the zip muncher
+    // (SceneParser.#processFigureScene): the figure's element id plus the version
+    // type, e.g. "Map82AbbeyofSaintMarkoviaGroundFloor-player". The meta-data was
+    // captured with these ids, so the proxy can match on them. Earlier native
+    // imports used "<id>-<count>"; that form is kept to find their scenes.
     const chunkFromCaption = caption.getAttribute("data-content-chunk-id");
-    const chunkFallback = `${(node as HTMLElement).id || "figure"}-${tmpCount}`;
-    const contentChunkId = chunkFromCaption ?? chunkFallback;
+    const figureChunks = (titleType: string) => {
+      if (chunkFromCaption) return { contentChunkId: chunkFromCaption };
+      return {
+        contentChunkId: `${(node as HTMLElement).id}-${titleType.toLowerCase()}`,
+        legacyContentChunkId: `${(node as HTMLElement).id || "figure"}-${tmpCount}`,
+      };
+    };
 
     if (playerRef || unlabeledRef) {
       const ref = playerRef ?? unlabeledRef!;
       const href = ref.getAttribute("href") ?? "";
       if (href.endsWith(".pdf")) continue;
+      const titleType = playerRef ? "Player" : "Unlabeled";
       push({
-        name: buildName(playerRef ? "Player" : "Unlabeled"),
+        name: buildName(titleType),
         imagePath: imageHrefToAsset(href, bookCode),
-        contentChunkId,
+        ...figureChunks(titleType),
         isPlayer: !!playerRef,
         source: "figure",
         idBase: 10000 + row.id,
@@ -126,10 +138,11 @@ export function scanForScenes(row: ProcessedRow, bookCode: string): DetectedScen
     } else if (img && (ungriddedRef || mapRef)) {
       const ref = ungriddedRef ?? mapRef!;
       const imgSrc = img.getAttribute("src") ?? "";
+      const titleType = ungriddedRef ? "Ungridded" : "Map";
       push({
-        name: buildName(ungriddedRef ? "Ungridded" : "Map"),
+        name: buildName(titleType),
         imagePath: imageHrefToAsset(imgSrc, bookCode),
-        contentChunkId,
+        ...figureChunks(titleType),
         isPlayer: false,
         source: "figure",
         idBase: 10000 + row.id,
