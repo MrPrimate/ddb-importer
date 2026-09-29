@@ -1,10 +1,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { VENGEFUL_SERVANTS, vengefulServantKey } from "../../../companions/types/_vengefulServants";
+import { vengefulServantKey, vengefulServantsFor } from "../../../companions/types/_vengefulServants";
 
 /**
  * Wretched Bloodline: spend 5 Sorcery Points to summon a servant of the curse-givers for 10
- * minutes. Every creature the Blood Ties choices allow is offered; the stat blocks come from the
- * companions code (companions/types/VengefulSummons), which fetches them from D&D Beyond.
+ * minutes. A character import offers the creatures its Blood Ties choice allows, the muncher all
+ * of them; the stat blocks come from the companions code (companions/types/VengefulSummons), which
+ * fetches them from D&D Beyond.
  */
 export default class VengefulSummons extends DDBEnricherData {
 
@@ -30,7 +31,7 @@ export default class VengefulSummons extends DDBEnricherData {
       addItemConsume: true,
       itemConsumeTargetName: "Sorcery Points",
       itemConsumeValue: "5",
-      profileKeys: VENGEFUL_SERVANTS.map((servant) => ({ count: "1", name: vengefulServantKey(servant.name, rules) })),
+      profileKeys: vengefulServantsFor(this.ddbParser).map((servant) => ({ count: "1", name: vengefulServantKey(servant.name, rules) })),
       summons: {
         match: {
           proficiency: false,

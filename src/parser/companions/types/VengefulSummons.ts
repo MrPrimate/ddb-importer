@@ -1,6 +1,6 @@
 import logger from "../../../lib/Logger";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
-import { VENGEFUL_SERVANTS, vengefulServantKey } from "./_vengefulServants";
+import { vengefulServantKey, vengefulServantsFor } from "./_vengefulServants";
 
 /**
  * Wretched Bloodline's Vengeful Summons: the servants are ordinary stat blocks, fetched from D&D
@@ -21,7 +21,7 @@ export async function getVengefulSummons({
   });
 
   const rules = ddbParser.is2014 ? "2014" : "2024";
-  const servants = VENGEFUL_SERVANTS.map((servant) => ({
+  const servants = vengefulServantsFor(ddbParser).map((servant) => ({
     name: servant.name,
     ddbId: ddbParser.is2014 ? servant.ddbId2014 : servant.ddbId2024,
   }));
