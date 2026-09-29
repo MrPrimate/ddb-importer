@@ -2,8 +2,14 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 const EFFECT_NAME = "Aura of Evasion";
 
+/** An Incapacitated creature gains nothing from the aura. */
 function changes(): IActiveEffectChangeData[] {
-  return [DDBEnricherData.ChangeHelper.ruleAdvantageChange("save", { conditions: { k: "roll.ability", o: "exact", v: "dex" } })];
+  return [DDBEnricherData.ChangeHelper.ruleAdvantageChange("save", {
+    conditions: [
+      { k: "roll.ability", o: "exact", v: "dex" },
+      DDBEnricherData.ChangeHelper.notStatusFilter("incapacitated"),
+    ],
+  })];
 }
 
 function midiChanges(): IActiveEffectChangeData[] {

@@ -72,6 +72,8 @@ export default class PowerWordPain extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.ruleDisadvantageChange("save", {
             conditions: { o: "NOT", v: { k: "roll.ability", o: "exact", v: "con" } },
           }),
+          // death saves are rolled apart from ability saves
+          DDBEnricherData.ChangeHelper.disadvantageDeathSaveChange(),
         ],
         options: {
           durationSeconds: 60,
