@@ -189,6 +189,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     // its Earth-Shaking Movement differs from the scions' generic placed zone; other features
     // still reach the generic maps through the fallback loader
     "Zaratan": "Zaratan",
+    // the Vestige Patron companion actors, one per form ("Vestige Companion (Fiend)")
+    "Vestige Companion (": "Vestige Companion",
   };
 
   override NAME_HINTS_2014: Record<string, Record<string, string>> = {};

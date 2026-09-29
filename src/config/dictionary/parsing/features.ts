@@ -427,6 +427,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Genie's Vessel",
     "Reanimator's Skillset",
     "Storm Aura",
+    "Vestige Spells",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -453,6 +454,8 @@ export const PARSING_CHOICE_FEATURES = {
     // the parent's own <ul> already enumerates the options, and each option is
     // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
     "Adaptive Wild Shape",
+    // the chosen form's spirit stat block; the feature summons all three spirits
+    "Semblance of Life",
     "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
@@ -576,6 +579,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Transmutation Savant",
     "Signature Spells",
     "Spell Mastery",
+    "Vestige Spells",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
