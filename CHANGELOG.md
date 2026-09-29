@@ -1,7 +1,23 @@
 # Next Up
 
+# 7.5.7
+
 - Native Adventure Muncher did not always match all the scene adjustments in adventures. e.g. CoS @talen_gm - reimport the adventure to fix existing scenes.
 - Native Adventure Muncher could throw a warning message about not being able to import some items. This was not true.
+- Arcana Unleashed: Vestige Companion actors get their chosen Divine Power (Healing Touch, Fiendish Swap, Cursed Invocation), Vestige's Strike melee and ranged attacks, and Pact Bond adds your Proficiency Bonus to their checks and saves. Semblance of Life summons Celestial, Fiendish or Undead Spirits scaled to your warlock level.
+- Arcana Unleashed familiar feats (Familiar Friend, Elemental Familiar, Otherworldly Familiar, Warlike Familiar) now summon their own familiars with Fortified Familiar's extra HP and the chosen resistance, plus Energy Pulse and Intercept Attack.
+- Arcana Unleashed wizard subclasses: Necromancer gets Skeleton and Zombie familiars, Undead Vitality, Undead Thralls (applied to Animate Dead) and Grave Resilience. Transmuter improvements.
+- Arcana Unleashed feats, spells and items: general feature improvement pass.
+- Wretched Bloodline: Vengeful Summons summons your Blood Ties servants (fetched from D&D Beyond), and Share the Burden casts Bestow Curse for 3 Sorcery Points.
+- Uses and consumption fixes for many class features and feats.
+- Grasping Shot's Escape Check no longer spends an Arcane Shot use.
+- Spells cast with Focus Points by some third-party monk subclasses (Warrior of the Leaden Crown, Warrior of Cosmic Balance, Way of the Aether, Warrior of the Celestial, Way of the Prophet) now spend the right number of points.
+- Items that cast spells with a fixed charge cost (e.g. Lesser Restoration on a Staff of Healing) spent the wrong number of charges, and could scale when they shouldn't.
+- Items with per-spell charges no longer keep a duplicate activity that spent charges the item doesn't have.
+- Torches can be swung as an improvised weapon for 1 fire damage.
+- Blood Hunter Hybrid Transformation attacks added proficiency twice.
+- Sentinel's Halted effect could last past the end of the turn.
+- Munching classes could miss subclass choices if D&D Beyond sent them before the subclass data.
 
 # 7.5.6
 
