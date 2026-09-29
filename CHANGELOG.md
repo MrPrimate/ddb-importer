@@ -1,5 +1,8 @@
 # Next Up
 
+- Native Adventure Muncher did not always match all the scene adjustments in adventures. e.g. CoS @talen_gm - reimport the adventure to fix existing scenes.
+- Native Adventure Muncher could throw a warning message about not being able to import some items. This was not true.
+
 # 7.5.6
 
 - Way of the Street parsing updates @oregonpinkrose
