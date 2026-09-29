@@ -597,6 +597,12 @@ export const PARSING_CHOICE_FEATURES = {
   ],
 };
 
+// always-prepared feature spells DDB sends only as the feature's slot-less casting: the enricher
+// builds that casting, and the spellbook gets a prepared copy that spends slots instead
+export const FEATURE_SPELLS_FORCE_PREPARED = [
+  "Share the Burden",
+];
+
 export const FEATURE_SPELLS_IGNORE = [
   // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
   "Mystic Arcanum (6th level)",
@@ -643,6 +649,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Spirit Query",
   "Tokens of the Departed",
   "Beasts of Ill Omen",
+  "Share the Burden",
   "Spiteful Curse",
   "Shape-Shifter",
   "Wondrous Alteration",

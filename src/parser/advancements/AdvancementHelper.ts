@@ -2506,8 +2506,25 @@ export default class AdvancementHelper {
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === modifier[1].toLowerCase());
       if (ability) return `max(1, @abilities.${ability.value}.mod)`;
     }
-    if ((/\bonce\b|(?:until|when) you finish a (?:long|short) rest/i).test(sentence)) return "1";
+    if (AdvancementHelper.#statesCastLimit(sentence)) return "1";
     return null;
+  }
+
+  /**
+   * True when text limits a cast to once or to once per rest. "(minimum of once)" is a floor on an ability
+   * modifier count and "once per turn" a rate, so neither counts; "must finish a long rest before you can
+   * cast" and "until you finish a Short or Long Rest" both do.
+   */
+  static #statesCastLimit(text: string): boolean {
+    const cleaned = text
+      .replace(/\(minimum of once\)/gi, "")
+      .replace(/\bonce (?:per turn|on each of your turns|during each of your turns)\b/gi, "");
+    return (/\bonce\b|finish a (?:long|short)(?: or long)? rest/i).test(cleaned);
+  }
+
+  /** "sr" when a sentence restores its casts on a short (or long) rest; a long rest is the default. */
+  static #sentencePeriod(sentence: string): "sr" | null {
+    return (/short or long rest|finish a short rest/i).test(sentence) ? "sr" : null;
   }
 
   static #cleanSpellName(name: string): string {
@@ -2554,21 +2571,36 @@ export default class AdvancementHelper {
    * once". Each sentence is read on its own, so one grant cannot swallow the next. Sentences that only
    * refer back to spells already named ("Once you cast jump or misty step with this trait…", "You can
    * cast each of these spells once…") set the uses of those spells instead of adding grants.
+   * A free cast the text never limits is unlimited (`amount` ""), unless `defaultAmount` says otherwise.
    */
-  static parseSpellCastGrants(text: string, { defaultAmount = "1" }: { defaultAmount?: string | null } = {}): ISpellAdvancementGrant[] {
+  static parseSpellCastGrants(text: string, { defaultAmount = "" }: { defaultAmount?: string | null } = {}): ISpellAdvancementGrant[] {
     const grants: ISpellAdvancementGrant[] = [];
     // names from "cast X" that no sentence has yet marked as a free or innate cast
     const unconfirmed = new Set<string>();
+    // names whose own sentence gives a free cast and says nothing more; a limit elsewhere in the text
+    // belongs to another benefit (Hidden in Plain Sight's Vanish), so it must not reach them
+    const selfContained = new Set<string>();
     // "pass without trace" is the one spell name holding a terminator word
-    const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
+    const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
     const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
     // "you can cast X" alone is often a reminder of normal casting (Divine Smite "without using a bonus
-    // action"); only a free, limited or innate cast is a grant
-    const freeCastRegex = /without (?:expending |using )?a spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short) rest|with this trait|\bwith it\b/i;
+    // action"); only a free, limited, innate or sorcery point cast is a grant
+    const freeCastRegex = /without (?:expending |using )?a spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short)(?: or long)? rest|with this trait|\bwith it\b|by spending \d+ sorcery points?/i;
 
     for (const sentence of AdvancementHelper.#sentences(text)) {
       const level = AdvancementHelper.#sentenceLevel(sentence) ?? 1;
       const amount = AdvancementHelper.#sentenceAmount(sentence);
+      const period = amount ? AdvancementHelper.#sentencePeriod(sentence) : null;
+      // "you can cast it by spending 2 sorcery points or by expending a spell slot" (Eyes of the Dark)
+      const sorceryPoints = sentence.match(/\bby spending (\d+) sorcery points?\b/i);
+      const applySentence = (grant: ISpellAdvancementGrant) => {
+        if (amount !== null) {
+          grant.amount = amount;
+          if (period) grant.period = period;
+          selfContained.delete(grant.name);
+        }
+        if (sorceryPoints) grant.sorceryPoints = parseInt(sorceryPoints[1]);
+      };
       // "You expend a spell slot as normal, and you can cast this spell in this way only once per turn"
       const freeCast = freeCastRegex.test(sentence) && !(/spell slot as normal/i).test(sentence);
       const captures = [
@@ -2589,7 +2621,7 @@ export default class AdvancementHelper {
           // a pronoun such as "each of these" or "it": the sentence sets the uses of what came before
           const targets = AdvancementHelper.#backReferenceTargets(capture, grants);
           for (const grant of targets) {
-            if (amount !== null) grant.amount = amount;
+            applySentence(grant);
             if (freeCast) unconfirmed.delete(grant.name);
           }
           continue;
@@ -2598,9 +2630,23 @@ export default class AdvancementHelper {
         const learnedCantrip = learned && (/cantrip/i).test(sentence);
         for (const name of names) {
           if (grants.some((grant) => grant.name === name)) continue;
-          grants.push({ level, name, amount: learnedCantrip ? "" : amount ?? undefined });
+          const grant: ISpellAdvancementGrant = { level, name, amount: learnedCantrip ? "" : undefined };
+          applySentence(grant);
+          grants.push(grant);
           if (!learned && !freeCast) unconfirmed.add(name);
+          // "with this trait" is an innate cast whose limit usually follows; only "without a spell slot" stands alone
+          if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
         }
+      }
+
+      // "Free Casting. You can cast Magic Missile without a spell slot. You can do so a number of times equal
+      // to your Intelligence modifier", "If you do so, you can't do so again until you finish a Short or Long Rest"
+      const latest = grants.at(-1);
+      if (captures.length === 0 && latest && (/\b(?:you can|if you) do so\b/i).test(sentence)) {
+        applySentence(latest);
+      }
+      if (latest && (/regain one expended use when you finish a short rest/i).test(sentence)) {
+        latest.shortRestRecovery = "1";
       }
 
       // Once you cast jump or misty step with this trait, you can't cast that spell with it again until you finish a long rest.
@@ -2610,21 +2656,48 @@ export default class AdvancementHelper {
         const targets = names.length > 0
           ? grants.filter((grant) => names.includes(grant.name))
           : AdvancementHelper.#backReferenceTargets(onceMatch[1], grants);
+        const oncePeriod = AdvancementHelper.#sentencePeriod(sentence);
         for (const grant of targets) {
           grant.amount = "1";
+          if (oncePeriod) grant.period = oncePeriod;
           unconfirmed.delete(grant.name);
+          selfContained.delete(grant.name);
         }
       }
     }
 
     const confirmed = grants.filter((grant) => !unconfirmed.has(grant.name));
     // a description that limits its casts anywhere applies that limit to grants that did not say
-    const limited = (/\bonce\b|(?:until|when) you finish a (?:long|short) rest/i).test(text);
+    const limitSentence = AdvancementHelper.#sentences(text).find((sentence) => AdvancementHelper.#statesCastLimit(sentence));
+    const limitPeriod = limitSentence ? AdvancementHelper.#sentencePeriod(limitSentence) : null;
+    // "You can't use this feature again until…" (The Third Eye), "to use your Invoke Hell again", "Once you use
+    // this benefit, you can't use it again", "You can use this feature a number of times equal to your Strength
+    // modifier" (Dimensional Duel): the cast is what the feature does, so it spends the feature's uses
+    const featureUseRegex = /\b(?:once|after) you use this (?:feature|benefit)\b|\buse (?:this (?:feature|benefit)|your [a-z' ]+?) again\b|\buse this (?:feature|benefit) a number of times\b/i;
+    const featureSentence = AdvancementHelper.#sentences(text)
+      .find((sentence) => featureUseRegex.test(sentence) && AdvancementHelper.#sentenceAmount(sentence));
+    const featureAmount = featureSentence ? AdvancementHelper.#sentenceAmount(featureSentence) : null;
+    const featurePeriod = featureSentence ? AdvancementHelper.#sentencePeriod(featureSentence) : null;
     for (const grant of confirmed) {
+      // a spell paid for with sorcery points has no free casts to count
+      if (grant.sorceryPoints !== undefined) {
+        grant.amount = "";
+        delete grant.period;
+        continue;
+      }
       if (grant.amount !== undefined) continue;
-      if (limited) grant.amount = "1";
-      else if (defaultAmount !== null) grant.amount = defaultAmount;
-      else delete grant.amount;
+      if (featureAmount && selfContained.has(grant.name)) {
+        grant.amount = featureAmount;
+        grant.featureUses = true;
+        if (featurePeriod) grant.period = featurePeriod;
+      } else if (limitSentence && !selfContained.has(grant.name)) {
+        grant.amount = "1";
+        if (limitPeriod) grant.period = limitPeriod;
+      } else if (defaultAmount !== null) {
+        grant.amount = defaultAmount;
+      } else {
+        delete grant.amount;
+      }
     }
     return confirmed;
   }
@@ -3069,8 +3142,18 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           species,
         })
         // : AdvancementHelper.parseHTMLSpellAdvancementData(description);
-        : AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(description);
+        : AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(AdvancementHelper.#withoutChoiceTables(description));
     return htmlData;
+  }
+
+  /**
+   * "Choose an ancestry from the Giantkin Ancestry table": every row's spells are in the table, but
+   * DDB also gives the chosen row's benefits as traits of their own (Airstep, Crackling Personality),
+   * so the table itself grants nothing and parsing it would grant every row's spells.
+   */
+  static #withoutChoiceTables(description: string): string {
+    if (!(/Choose an? [a-z]+ from the [^.]+? table\b/i).test(AdvancementHelper.stripDescription(description))) return description;
+    return description.replace(/<table[\s\S]*?<\/table>/gi, "");
   }
 
   static async getTraitSpellAdvancements({ name, species, description, is2024 }: { name: string; species: string; description: string; is2024: boolean }, spellLinks: IDDBSpellLink[]) {
@@ -3417,6 +3500,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         uuids.push({
           name: spellName,
           uuid: compendiumSource,
+          level: spellDataMatch.system?.level,
         });
       } else {
         lookupSpellNames.push(spell);
@@ -3425,9 +3509,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     if (lookupSpellNames.length > 0) {
       const remainingUuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(lookupSpellNames, { use2024Spells: is2024 });
       uuids.push(...remainingUuids.map((s) => {
+        const level = foundry.utils.getProperty(s, "system.level");
         return {
           name: s.name,
           uuid: s.uuid,
+          level: typeof level === "number" ? level : undefined,
         };
       }));
     }
@@ -3667,8 +3753,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           prepared,
           uses: spellGrant.amount && !forceNoAmount
             ? {
-              max: spellGrant.amount === "" ? "" : spellGrant.amount,
-              per: spellGrant.amount === "" ? "" : "lr",
+              max: spellGrant.amount,
+              per: spellGrant.period ?? "lr",
               requireSlot,
             }
             : {
@@ -3685,6 +3771,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return advancement;
   }
 
+
+  /** Lower-cased name of a compendium document from its (already indexed) uuid, or null. */
+  static #compendiumName(uuid: string): string | null {
+    try {
+      const doc = fromUuidSync(uuid, { strict: false }) as { name?: string } | null;
+      return doc?.name ? utils.nameString(doc.name).toLowerCase() : null;
+    } catch {
+      return null;
+    }
+  }
 
   static async addSpellAdvancement({
     ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
@@ -3795,7 +3891,13 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       });
       if (spellGrantAdvancement) {
         advancements.push(spellGrantAdvancement);
+        // a cast the feature already carries (usually an enricher's) provides the spell, so it is recorded
+        // as granted and not also put on the sheet on its own
+        const markCastGranted = () => {
+          if (!usesOnAdvancement) ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });
+        };
         if (Object.values(feature.system.activities).some((a) => a.name === spellGrant.name && a.type === "cast")) {
+          markCastGranted();
           continue;
         }
 
@@ -3807,8 +3909,13 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
         const uuid = spellIndex[0].uuid;
 
-        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
+        // an enricher's cast can resolve the other ruleset's copy of the spell (a 2014 Disguise Self beside
+        // the grant's 2024 one), so a cast of the same spell name counts too
+        const grantName = utils.nameString(spellIndex[0].name).toLowerCase();
+        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid
+          && (a.spell.uuid === uuid || AdvancementHelper.#compendiumName(a.spell.uuid) === grantName))) {
           logger.debug(`Spell activity for ${spellGrant.name} already exists on feature ${feature.name}, skipping`);
+          markCastGranted();
           continue;
         }
 
@@ -3827,24 +3934,50 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           spellbook: true,
         };
 
+        // a cantrip is always at will, and a sorcery point cast is paid for rather than counted
+        const isCantrip = spellIndex[0].level === 0;
+        const sorceryPoints = spellGrant.sorceryPoints;
+        const limited = !isCantrip && sorceryPoints === undefined && !!spellGrant.amount;
+        const featureUses = limited && spellGrant.featureUses === true;
+        const additionalTargets: I5eConsumptionTarget[] = sorceryPoints === undefined
+          ? []
+          : [{
+            type: "itemUses",
+            // resolved to the actor's Sorcery Points item by the replaceActivityUses linking pass
+            target: "Sorcery Points",
+            value: String(sorceryPoints),
+            scaling: { mode: "", formula: "" },
+          }];
+
         activity.build({
           generateSpell: true,
           generateConsumption: true,
-          consumeActivity: !isItemConsume,
-          consumeItem: isItemConsume,
+          consumeActivity: limited && !featureUses && !isItemConsume,
+          consumeItem: limited && (featureUses || isItemConsume),
+          additionalTargets,
           spellOverride,
         });
+        if (sorceryPoints !== undefined) {
+          foundry.utils.setProperty(feature, "flags.ddbimporter.replaceActivityUses", true);
+        }
 
-        const uses: I5eSystemLimitedUses = {
-          spent: 0,
-          max: spellGrant.amount,
-          recovery: spellGrant.amount === "" ? [] : [{ period: "lr" as TLimitedUsePeriod, type: "recoverAll" }],
-        };
-
-        if (isItemConsume) {
-          feature.system.uses = uses;
-        } else {
-          activity.data.uses = uses;
+        if (limited) {
+          const uses: I5eSystemLimitedUses = {
+            spent: 0,
+            max: spellGrant.amount,
+            recovery: spellGrant.shortRestRecovery
+              ? [
+                { period: "sr", type: "formula", formula: spellGrant.shortRestRecovery },
+                { period: "lr", type: "recoverAll" },
+              ]
+              : [{ period: spellGrant.period ?? "lr", type: "recoverAll" }],
+          };
+          // a feature that already counts its own uses (The Third Eye) keeps them; the cast spends one
+          if (isItemConsume) {
+            feature.system.uses = uses;
+          } else if (!featureUses) {
+            activity.data.uses = uses;
+          }
         }
         if (usesOnAdvancement) {
           logger.debug(`Not adding spell activity for ${spellGrant.name} to feature ${feature.name} as advancementOnlyForLimitedUses is true`);

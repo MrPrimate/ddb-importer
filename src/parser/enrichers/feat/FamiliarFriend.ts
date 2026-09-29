@@ -35,7 +35,7 @@ export default class FamiliarFriend extends DDBEnricherData {
           activationCondition: "Ability check with a proficient skill while your familiar is within 5 feet",
           noConsumeTargets: true,
           addActivityConsume: true,
-          data: { uses: { spent: 0, max: "1", recovery: [{ period: "lr", type: "recoverAll" }] } },
+          data: { uses: { spent: 0, max: "@prof", recovery: [{ period: "lr", type: "recoverAll" }] } },
         },
       },
     ];

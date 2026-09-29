@@ -28,11 +28,12 @@ export default class HolyStarOfMystra extends DDBEnricherData {
           generateActivation: true,
           noSpellslot: true,
           generateRange: true,
-          generateConsumption: true,
+          generateConsumption: false,
           noeffect: true,
         },
         overrides: {
-          addItemConsume: true,
+          // later bolts are part of the cast spell and spend nothing
+          noConsumeTargets: true,
           activationType: "bonus",
           targetType: "enemy",
           noeffect: true,

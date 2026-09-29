@@ -35,6 +35,7 @@ export { default as PsionicSorcery } from "./PsionicSorcery";
 export { default as RefractionShield } from "./RefractionShield";
 export { default as RevelationInFlesh } from "./RevelationInFlesh";
 export { default as SandForm } from "./SandForm";
+export { default as ShareTheBurden } from "./ShareTheBurden";
 export { default as SorcerousRestoration } from "./SorcerousRestoration";
 export { default as SorceryIncarnate } from "./SorceryIncarnate";
 export { default as SorceryPoints } from "./SorceryPoints";

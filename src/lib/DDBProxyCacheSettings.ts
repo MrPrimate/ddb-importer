@@ -166,6 +166,8 @@ function evaluateVehicles(params: Record<string, unknown>): TDifference[] {
  * Whether a mule request's books came from this muncher run. A class request only carries the
  * run's books that hold subclasses for that class, so, unless the stored selection recorded the
  * run's full book list (`runSources`), a class request matches any run containing all its books.
+ * That subset rule is not compatibility code: capturing the selection has no `runSources` yet (it
+ * is how the run is found), and a request made outside the muncher's selection stores none.
  */
 function matchesMuleRun(params: Record<string, unknown>, run: number[], selection?: IProxyCacheSourceSelection): boolean {
   const sources = numberList(selection?.runSources ?? params.sources);

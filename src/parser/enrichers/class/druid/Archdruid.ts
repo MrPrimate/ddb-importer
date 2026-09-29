@@ -15,6 +15,10 @@ export default class Archdruid extends DDBEnricherData {
       name: "Regain A Wild Shape Use",
       activationType: "encounter",
       activationCondition: "When you roll initiative and have no Wild Shape uses remaining",
+      // once per Initiative roll; the -1 item use is retargeted to Wild Shape by CONSUMPTION_LINKS,
+      // which points the first item-uses target at the pool, so it must be the only one
+      noConsumeTargets: true,
+      addActivityConsume: true,
       additionalConsumptionTargets: [
         {
           type: "itemUses",
@@ -26,6 +30,13 @@ export default class Archdruid extends DDBEnricherData {
           },
         },
       ],
+      data: {
+        uses: {
+          spent: 0,
+          max: "1",
+          recovery: [{ period: "initiative", type: "recoverAll" }],
+        },
+      },
     };
   }
 

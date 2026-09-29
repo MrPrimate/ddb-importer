@@ -104,6 +104,8 @@ global {
   interface ISpellUuidLookup {
     name: string;
     uuid: string;
+    /** Spell level when the source knows it, 0 for a cantrip. */
+    level?: number;
   }
 
   type TGridSource =

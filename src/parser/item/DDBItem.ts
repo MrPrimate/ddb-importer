@@ -3373,6 +3373,38 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   }
 
+  /**
+   * With per-spell charges the item keeps no uses, so nothing may still spend them. The unnamed
+   * activity the parser built from DDB's activation (Cloak of the Bat, Driftglobe) only duplicates
+   * the cast activities and goes; a named property that is not a cast (Whelm's shockwave "Save")
+   * gets its own once-per-reset use instead.
+   */
+  #movePerSpellUsesOffItem() {
+    if (!("activities" in this.data.system)) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    if (!Object.values(activities).some((activity) => activity.type === "cast")) return;
+    const spendsItemUses = (activity: I5eActivity) => (activity.consumption?.targets ?? [])
+      .some((target) => target.type === "itemUses" && !target.target);
+    const reset = this.#getSpellReset();
+    for (const [id, activity] of Object.entries(activities)) {
+      if (activity.type === "cast" || !spendsItemUses(activity)) continue;
+      if (!activity.name && activity.type === "utility" && (activity.effects ?? []).length === 0) {
+        delete activities[id];
+        continue;
+      }
+      activity.uses = {
+        spent: 0,
+        max: "1",
+        recovery: reset.period ? [{ period: reset.period, type: "recoverAll" }] : [],
+      };
+      foundry.utils.setProperty(activity, "consumption.targets", (activity.consumption?.targets ?? []).map((target) =>
+        target.type === "itemUses" && !target.target
+          ? { ...target, type: "activityUses", value: "1" }
+          : target,
+      ));
+    }
+  }
+
   async #basicMagicItem() {
     if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description ?? "")) {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
@@ -3403,6 +3435,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
       await this.#addSpellAsCastActivity(spell, otherSpellNames);
     }
+
+    if (this.perSpell.isPerSpell && itemSpells.length > 0) this.#movePerSpellUsesOffItem();
 
     if (!this.raw.itemSpells) return;
 

@@ -2,9 +2,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import _Illrigger from "./_Illrigger";
 
 /**
- * The Shadowmaster's two Invoke Hell options. Both spend the shared Invoke Hell use; Master of
- * Disguise is the Disguise Self spell DDB grants alongside. DDB's No Escape action carries no
- * save, so it is built here.
+ * The Shadowmaster's two Invoke Hell options. Both spend the shared Invoke Hell use. Master of
+ * Disguise is a cast of Disguise Self, so the spell grant builder finds the cast by its spell and
+ * does not add a second one with uses of its own. DDB's No Escape action carries no save, so it is
+ * built here.
  */
 export default class InvokeHellShadowmaster extends _Illrigger {
 
@@ -15,12 +16,23 @@ export default class InvokeHellShadowmaster extends _Illrigger {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
-        action: { name: "Invoke Hell: Master of Disguise", type: "class", rename: ["Master of Disguise"] },
+        init: {
+          name: "Master of Disguise",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
+        },
+        build: {
+          generateSpell: true,
+        },
         overrides: {
           ..._Illrigger.invokeHellConsume(),
+          addSpellUuid: "Disguise Self",
+          noSpellslot: true,
           activationType: "action",
-          activationCondition: "Cast Disguise Self without expending a spell slot",
-          targetType: "self",
+          data: {
+            spell: {
+              spellbook: true,
+            },
+          },
         },
       },
       {
