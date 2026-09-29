@@ -7,6 +7,11 @@ export default class GraspingShot extends _ArcaneShot2024Option {
     return "slashing";
   }
 
+  // the option base keeps only DDB's action-matched activities unless its own are added to them
+  override get addToDefaultAdditionalActivities(): boolean {
+    return true;
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
@@ -17,8 +22,10 @@ export default class GraspingShot extends _ArcaneShot2024Option {
         },
         build: {
           generateCheck: true,
+          generateActivation: true,
           generateTarget: false,
           generateRange: false,
+          activationOverride: { type: "action", value: 1, condition: "The Grasped creature or a creature within reach of it" },
           checkOverride: {
             associated: ["ath"],
             ability: "str",

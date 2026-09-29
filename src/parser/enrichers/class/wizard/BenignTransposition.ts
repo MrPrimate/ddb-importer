@@ -38,6 +38,39 @@ export default class BenignTransposition extends DDBEnricherData {
     };
   }
 
+  /** The alternative: you and a willing Medium or smaller creature in range swap places. */
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.is2014) return [];
+    return [
+      {
+        init: {
+          name: "Swap Places",
+          type: DDBEnricherData.ACTIVITY_TYPES.TELEPORT,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: true,
+          generateTarget: true,
+          generateRange: true,
+          activationOverride: { type: "bonus", value: null, condition: "" },
+        },
+        overrides: {
+          addItemConsume: true,
+          noTemplate: true,
+          data: {
+            range: { override: true, value: "@scale.conjurer.benign-transposition", units: "ft", special: "" },
+            target: {
+              override: true,
+              prompt: false,
+              affects: { count: "2", type: "creature", special: "You and a willing Medium or smaller creature, swapping places" },
+              template: {},
+            },
+          },
+        },
+      },
+    ];
+  }
+
   override get override(): IDDBOverrideData {
     if (this.is2014) return {};
     return {
