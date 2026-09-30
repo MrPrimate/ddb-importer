@@ -65,9 +65,11 @@ export default class SpellfireSpark extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      uses: this._getSpellUsesWithSpent({
+      uses: this._getUsesWithSpent({
         type: "feat",
         name: "Spellfire Spark",
+        max: "@prof",
+        period: "lr",
       }),
       retainOriginalConsumption: true,
     };

@@ -230,3 +230,28 @@ export function retributiveStrike(text: string): IDDBAdditionalActivity {
     noeffect: true,
   });
 }
+
+/**
+ * Sets the uses of the cast activities the item parse built for its spells (named "Spell (Item)"):
+ * a listed spell is cast once per `period` from the activity's own use, and `unlimited` spells
+ * (a cantrip) spend nothing. Run from an enricher's `cleanup`, after the casts exist.
+ */
+export function setItemCastUses(
+  data: { system?: { activities?: Record<string, I5eActivity> } },
+  { limited = [], unlimited = [], period = "dawn" }: { limited?: string[]; unlimited?: string[]; period?: TLimitedUsePeriod },
+): void {
+  const spellName = (activity: I5eActivity) => (activity.name ?? "").replace(/\s*\(.*\)\s*$/, "");
+  for (const activity of Object.values(data.system?.activities ?? {})) {
+    if (activity.type !== "cast") continue;
+    const name = spellName(activity);
+    if (unlimited.includes(name)) {
+      activity.uses = { spent: 0, max: "", recovery: [] };
+      foundry.utils.setProperty(activity, "consumption.targets", []);
+    } else if (limited.includes(name)) {
+      activity.uses = { spent: 0, max: "1", recovery: [{ period, type: "recoverAll" }] };
+      foundry.utils.setProperty(activity, "consumption.targets", [
+        { type: "activityUses", target: "", value: "1", scaling: { mode: "", formula: "" } },
+      ]);
+    }
+  }
+}

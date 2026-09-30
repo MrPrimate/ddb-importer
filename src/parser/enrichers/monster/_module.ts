@@ -51,4 +51,5 @@ export * as SummonConstruct from "./SummonConstruct/_module";
 export * as SwarmOfStirges from "./SwarmOfStirges/_module";
 export * as VampireFamiliar from "./VampireFamiliar/_module";
 export * as VenomTroll from "./VenomTroll/_module";
+export * as VestigeCompanion from "./VestigeCompanion/_module";
 

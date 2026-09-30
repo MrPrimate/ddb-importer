@@ -25,9 +25,10 @@ export default class Sentinel extends DDBEnricherData {
           ...["walk", "fly", "swim", "climb", "burrow"].map((mode) =>
             DDBEnricherData.ChangeHelper.overrideChange("0", 60, `system.attributes.movement.${mode}`)),
         ],
-        // "for the rest of the current turn"
+        // "for the rest of the current turn". Expiry only: a counted duration is a minimum the turn
+        // edge waits for, and a turn change inside a round advances no world time, so a counted
+        // value kept Halted past the turn.
         options: {
-          durationTurns: 1,
           expiry: "turnEnd",
         },
       },

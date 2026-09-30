@@ -41,12 +41,21 @@ function stripSuffix(displayName: string): string {
  * code reads `bookCode` from `imageKey` (`official/maps/<book>/<file>`), plus
  * the explicit `name` + (filename via imageKey). We populate all three so the
  * match endpoint has the best chance of resolving the scene-info file.
+ *
+ * `id` is only the per-session match cache key, so a stub for the same scene
+ * under a different name needs its own `idSuffix`.
  */
-function mapStubForScene(scene: BuiltScene, bookCode: string, sourceId: number | null): any {
+function mapStubForScene(
+  scene: BuiltScene,
+  bookCode: string,
+  sourceId: number | null,
+  name: string,
+  idSuffix = "",
+): any {
   return {
-    id: scene.doc._id,
+    id: `${scene.doc._id}${idSuffix}`,
     imageKey: `official/maps/${bookCode}/${basename(scene.detection.imagePath)}`,
-    name: stripSuffix(scene.detection.name),
+    name: stripSuffix(name),
     sourceId,
     // parentId (+ filename) is the cross-muncher-stable join the proxy keys on;
     // contentChunkId/ddbId are secondary disambiguators sent for completeness.
@@ -59,6 +68,26 @@ function mapStubForScene(scene: BuiltScene, bookCode: string, sourceId: number |
     officialData: { sourceId, filename: basename(scene.detection.imagePath) },
     flags: {},
   };
+}
+
+/**
+ * Pick the map stub to enrich a scene with. The display name (the enhancement
+ * `adjustName`, e.g. "Abbey of Saint Markovia (Ground)") is tried first because
+ * it follows the meta-data naming, so the proxy resolves it on parentId + exact
+ * name. The parsed caption ("Map 8.2: Abbey of Saint Markovia - Ground Floor")
+ * can only reach the proxy's loose "name contains" fallback, which misses
+ * reworded captions and is ambiguous when a caption contains a second scene's
+ * name ("Map 3.1: Village of Barovia" also contains "Barovia"). The primary
+ * parentId + filename join does not help either: DDB has renamed book images
+ * since the meta-data was captured (cos802.jpg is now map-08.02-abbey-player.jpg).
+ * The caption stays as a fallback for enhancement names the meta-data lacks.
+ */
+export async function resolveMapStub(scene: BuiltScene, bookCode: string, sourceId: number | null): Promise<any> {
+  const displayStub = mapStubForScene(scene, bookCode, sourceId, scene.doc.name ?? scene.detection.name);
+  if (stripSuffix(displayStub.name) === stripSuffix(scene.detection.name)) return displayStub;
+  const displayMatch = await DDBMapMetaData.fetchMatchInfo(displayStub);
+  if (displayMatch?.matches?.length) return displayStub;
+  return mapStubForScene(scene, bookCode, sourceId, scene.detection.name, "-caption");
 }
 
 export async function repointNotesOnLiveScene(sceneDoc: Scene, lookup: JournalPageLookup): Promise<number> {
@@ -249,8 +278,8 @@ export async function applyScenes(
       logger.debug(`NativeSceneApplier: scene ${sceneId} ("${scene.doc.name}") not in world; skipping enrich`);
       continue;
     }
-    const mapStub = mapStubForScene(scene, bookCode, sourceId);
     try {
+      const mapStub = await resolveMapStub(scene, bookCode, sourceId);
       const results = await DDBMapMetaData.enrich(liveScene as any, mapStub, {
         applyTokens: options.applyTokens,
         noAutoImport: false,

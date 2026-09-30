@@ -175,6 +175,16 @@ describe("applyItemFilters", () => {
     expect(data.items.map((i) => i.name)).toEqual(["Dunamancy Focus"]);
   });
 
+  it("keeps an explicitly requested generic item that cannot be added to an inventory", () => {
+    settings({ "munching-policy-muncher-included-source-categories": [] });
+    const generic = { ...item("Weapon, +1", [146], { id: 5400 }), canBeAddedToInventory: false } as IDDBItemDefinition;
+    const otherGeneric = { ...item("Armor, +1", [146], { id: 5377 }), canBeAddedToInventory: false } as IDDBItemDefinition;
+    const raw = itemSource([generic, otherGeneric, item("Dagger", [2], { id: 8 })]);
+    const { data, counts } = applyItemFilters(raw, { ...itemOptions, useGenerics: false, ids: [5400, 8] });
+    expect(data.items.map((i) => i.name)).toEqual(["Weapon, +1", "Dagger"]);
+    expect(counts.ids).toBe(2);
+  });
+
   it("filters to explicit ids without the category stage and records the ids stage", () => {
     settings({ "munching-policy-muncher-included-source-categories": [] });
     const raw = itemSource([item("Longsword", [2], { id: 7 }), item("Dagger", [2], { id: 8 })]);

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { resolveMapBookCode } from "../../../src/muncher/adventure/DDBMapMetaData";
+import DDBMapMetaData, { resolveMapBookCode } from "../../../src/muncher/adventure/DDBMapMetaData";
 import { buildJournalPageLookup } from "../../../src/muncher/adventure/native/NativeSceneNoteResolver";
-import { repointNotesOnLiveScene } from "../../../src/muncher/adventure/native/NativeSceneApplier";
+import { repointNotesOnLiveScene, resolveMapStub } from "../../../src/muncher/adventure/native/NativeSceneApplier";
 
 // Mirrors DDBMapBrowser._bookIdForCode: bookCode -> numeric CONFIG.DDB source id.
 function bookIdForCode(bookCode: string): number | null {
@@ -92,5 +92,60 @@ describe("repointNotesOnLiveScene", () => {
     const lookup = buildJournalPageLookup(journals);
     const scene = fakeScene("Empty", []);
     expect(await repointNotesOnLiveScene(scene, lookup)).toBe(0);
+  });
+});
+
+describe("resolveMapStub", () => {
+  // Curse of Strahd shape: the enhancement feed names the scene the way the
+  // meta-data does, the figcaption carries the book's map numbering.
+  function builtScene(docName: string, caption: string): any {
+    return {
+      doc: { _id: "SCN1", name: docName, flags: { ddb: { parentId: 357, contentChunkId: "Map82-1", ddbId: 53 } } },
+      detection: { name: caption, imagePath: "assets/map-08.02-abbey-player.jpg", source: "figure" },
+      row: {},
+    };
+  }
+
+  function withMatchInfo(result: any, run: (calls: any[]) => Promise<void>) {
+    const original = DDBMapMetaData.fetchMatchInfo;
+    const calls: any[] = [];
+    DDBMapMetaData.fetchMatchInfo = (async (map: any) => {
+      calls.push(map);
+      return result;
+    }) as any;
+    return run(calls).finally(() => {
+      DDBMapMetaData.fetchMatchInfo = original;
+    });
+  }
+
+  it("asks the proxy with the display name first", async () => {
+    const match = { matches: [{ bookCode: "cos", filepath: "x.json", matchedBy: "parentId+name" }], reason: "parentId+name" };
+    await withMatchInfo(match, async (calls) => {
+      const scene = builtScene("Abbey of Saint Markovia (Ground)", "Map 8.2: Abbey of Saint Markovia - Ground Floor (Player Version)");
+      const stub = await resolveMapStub(scene, "cos", 6);
+      expect(stub.name).toBe("Abbey of Saint Markovia (Ground)");
+      expect(stub.id).toBe("SCN1");
+      expect(stub.parentId).toBe(357);
+      expect(calls).toHaveLength(1);
+    });
+  });
+
+  it("falls back to the parsed caption under its own cache key when the display name misses", async () => {
+    await withMatchInfo({ matches: [], reason: "no-match" }, async () => {
+      const scene = builtScene("Some Enhancement Name", "Map 3.2: Church (Player Version)");
+      const stub = await resolveMapStub(scene, "cos", 6);
+      expect(stub.name).toBe("Map 3.2: Church");
+      expect(stub.id).toBe("SCN1-caption");
+    });
+  });
+
+  it("skips the pre-flight lookup when there is no separate display name", async () => {
+    await withMatchInfo(null, async (calls) => {
+      const scene = builtScene("Map 3.2: Church (Player Version)", "Map 3.2: Church (Player Version)");
+      const stub = await resolveMapStub(scene, "cos", 6);
+      expect(stub.name).toBe("Map 3.2: Church");
+      expect(stub.id).toBe("SCN1");
+      expect(calls).toHaveLength(0);
+    });
   });
 });

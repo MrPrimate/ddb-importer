@@ -53,6 +53,12 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
+    // an exact name: the TGC printing only; "Revolver of Warning" and "Revolver, +1" are other items
+    "Revolver (TGC)": "Revolver",
+    // 2014 printings name the delivery method; the 2024 reprints do not
+    "Assassin's Blood (Ingested)": "Assassin's Blood",
+    "Assassin’s Blood (Ingested)": "Assassin's Blood",
+    "Burnt Othur Fumes (Inhaled)": "Burnt Othur Fumes",
   };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
@@ -80,6 +86,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Jewel of Three Prayers": "Jewel of Three Prayers",
     "Keyholes Dagger": "Keyholes Dagger",
     "Moon Sickle": "Moon Sickle",
+    // the gem variants name their Beast form in parentheses
+    "Necklace of the Beastly Familiar": "Necklace of the Beastly Familiar",
     "Pneuma Greatsword": "Pneuma Blade",
     "Pneuma Longsword": "Pneuma Blade",
     " of Grass": "Weapon of Grass",
@@ -97,6 +105,11 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Visage of the Old Ways": "Visage of the Old Ways",
     "Wand of Celestial Prowess": "Evolved Item",
     "Wave-Swept": "Wave-Swept Weapon",
+    // the DM play-along reprint carries a "(DMLS)" suffix
+    "Tarnished Idol of Good Fortunes": "Tarnished Idol of Good Fortunes",
+    // the Breath Weapon printing lists its rarities as "(Rare)" variants
+    "Potion of Dragon's Breath": "Potion of Dragon's Breath",
+    "Potion of Dragon’s Breath": "Potion of Dragon's Breath",
     "Workshop Wrecker": "Workshop Wrecker",
     "Wraps of Dyamak": "Wraps of Dyamak",
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
@@ -195,6 +208,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Rhythm-Maker's Drum": ItemEnrichers.RhythmMakersDrum,
     "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
     "Rifle, Hunting": ItemEnrichers.HuntingRifle,
+    "Necklace of the Beastly Familiar": ItemEnrichers.NecklaceOfTheBeastlyFamiliar,
     "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
     "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
     "Rod of the Pact Keeper": ItemEnrichers.RodOfThePactKeeper,
@@ -222,6 +236,11 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wave-Swept Weapon": ItemEnrichers.WaveSweptWeapon,
     "Weapon of Grass": ItemEnrichers.WeaponOfGrass,
     "Wisteria Dragon Perfume": ItemEnrichers.WisteriaDragonPerfume,
+    "Revolver": ItemEnrichers.Revolver,
+    "Assassin's Blood": ItemEnrichers.AssassinsBlood,
+    "Burnt Othur Fumes": ItemEnrichers.BurntOthurFumes,
+    "Potion of Dragon's Breath": ItemEnrichers.PotionOfDragonsBreath,
+    "Tarnished Idol of Good Fortunes": ItemEnrichers.TarnishedIdolOfGoodFortunes,
     "Workshop Wrecker": ItemEnrichers.WorkshopWrecker,
     "Wraps of Unarmed Power": ItemEnrichers.WrapsOfUnarmedPower,
     "Wyrm's Breath Grenade": ItemEnrichers.WyrmsBreathGrenade,

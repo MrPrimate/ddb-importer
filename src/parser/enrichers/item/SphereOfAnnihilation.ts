@@ -4,7 +4,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * The parsed Dexterity save becomes "Touched by the Sphere", the damage to a creature whose space
  * the sphere enters (the parser reads its DC from the text: 13, or 19 in the 2024 reprint).
  * "Engulfed" is the flat touch damage for anything that touches the sphere without being wholly
- * engulfed and obliterated, and "Control the Sphere" is the DC 25 Arcana check to move it.
+ * engulfed and obliterated; the name reads against that condition but is the official DMG
+ * activity's, kept so the two match. "Control the Sphere" is the DC 25 Arcana check to move it.
  */
 export default class SphereOfAnnihilation extends DDBEnricherData {
 

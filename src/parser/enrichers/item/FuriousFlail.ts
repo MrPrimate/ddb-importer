@@ -7,7 +7,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class FuriousFlail extends DDBEnricherData {
 
-  // the parser's own save for this property would sit beside the one built here
+  // the parser builds its own Dex save from the Volcanic Fury text; the Volcanic Fury save below
+  // replaces it, so the parsed one is suppressed rather than doubled
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

@@ -370,16 +370,18 @@ const CompendiumHelper = {
    * @param {string[]} options.documentNames An array of document names to query.
    * @param {Record<string, any>} [options.matchedProperties={}] An object of properties to match in the index.
    * @param {boolean} [options.useParenthesisMatch=false] If true, uses parentheses to match the document name.
+   * @param {string[]} [options.extraFields=[]] Index fields copied onto each result without being matched.
    * @returns {Promise<Array<object|null>>} A promise that resolves to an array of document entries or complete documents.
    *                                        Returns null for documents that are not found.
    */
   queryCompendiumEntries: async ({
-    compendiumName, documentNames, matchedProperties = {}, useParenthesisMatch = true,
+    compendiumName, documentNames, matchedProperties = {}, useParenthesisMatch = true, extraFields = [],
   }: {
     compendiumName: string;
     documentNames: string[];
     matchedProperties?: Record<string, any>;
     useParenthesisMatch?: boolean;
+    extraFields?: string[];
   }): Promise<(ICompendiumLookup | null)[] | null> => {
     // get the compendium
     const compendium = game.packs.get(compendiumName);
@@ -387,7 +389,7 @@ const CompendiumHelper = {
 
     // retrieve the compendium index
     const matchedPropertiesKeys = Object.keys(matchedProperties);
-    const fields = CompendiumHelper.safeIndexFields(compendium, ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys]);
+    const fields = CompendiumHelper.safeIndexFields(compendium, ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys, ...extraFields]);
     const rawIndex = await compendium.getIndex({ fields });
     const index = rawIndex.map((entry: any) => {
       entry.normalizedName = utils.normalizeString(entry.name);
@@ -428,7 +430,7 @@ const CompendiumHelper = {
             uuid: entry.uuid,
             img: entry.img,
           };
-          for (const field of matchedPropertiesKeys) {
+          for (const field of [...matchedPropertiesKeys, ...extraFields]) {
             foundry.utils.setProperty(i, field, foundry.utils.getProperty(entry, field));
           }
           return i;
@@ -590,6 +592,7 @@ const CompendiumHelper = {
       matchedProperties: {
         "system.source.rules": use2024Spells ? "2024" : "2014",
       },
+      extraFields: ["system.level"],
     });
     if (!results) return [];
     const cleanResults = results.filter((item): item is ICompendiumLookup => item !== null);

@@ -684,6 +684,62 @@ describe("AdvancementHelper spell cast grant parsing", () => {
     const result = AdvancementHelper.parseHTMLSpellAdvancementData("<p>Starting at 3rd level, you can cast the Kappa Veil spell with this trait.</p>");
     expect(result.spellGrants).toEqual([{ level: 3, name: "kappa veil" }]);
   });
+
+  it("gives a free cast the text never limits no uses", () => {
+    expect(traits("You can cast Sigma Guise without expending a spell slot.").spellGrants)
+      .toEqual([{ level: 1, name: "sigma guise", amount: "" }]);
+    expect(traits("You learn the Tau Companion spell and can cast it as a Magic action without expending a spell slot.").spellGrants)
+      .toEqual([{ level: 1, name: "tau companion", amount: "" }]);
+  });
+
+  it("keeps a free cast unlimited when the limit belongs to another benefit", () => {
+    const result = traits("Guise. You can cast the Sigma Guise spell without expending a spell slot. Fade. You can cast the Upsilon Fade spell without expending a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.");
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "sigma guise", amount: "" },
+      { level: 1, name: "upsilon fade", amount: "@prof", period: "sr" },
+    ]);
+  });
+
+  it("reads a limit stated as having to finish a rest first", () => {
+    const result = traits("You also learn the Phi Omen spell. You can cast the Phi Omen spell without a spell slot, and you must finish a long rest before you can cast it in this way again.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "phi omen", amount: "1" }]);
+  });
+
+  it("reads 'do so' uses and short rest recovery for the latest spell", () => {
+    expect(traits("You can cast Chi Sight on yourself without expending a spell slot. If you do so, you can't do so again until you finish a Short or Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr" }]);
+    expect(traits("You can cast Psi Dart without a spell slot. You can do so a number of times equal to your Intelligence modifier (minimum of once). You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "psi dart", amount: "max(1, @abilities.int.mod)", shortRestRecovery: "1" }]);
+  });
+
+  it("spends the feature's own use when the feature limits itself", () => {
+    expect(traits("As a Bonus Action, choose one benefit. You can't use this feature again until you finish a Short or Long Rest. Sight. You can cast Chi Sight without expending a spell slot.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr", featureUses: true }]);
+    expect(traits("You can cast Omega Cauldron without expending a spell slot. Once you use this benefit, you can't use it again until you finish a Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "omega cauldron", amount: "1", featureUses: true }]);
+    expect(traits("While raging, you can cast Omega Exile without a spell slot. If you do so, the target takes no extra harm. You can use this feature a number of times equal to your Strength modifier (minimum of once), and you regain all expended uses when you finish a long rest.").spellGrants)
+      .toEqual([{ level: 1, name: "omega exile", amount: "max(1, @abilities.str.mod)", featureUses: true }]);
+  });
+
+  it("reads sorcery point casts as paid, not free", () => {
+    expect(traits("When you reach 3rd level in this class, you learn the Omega Gloom spell. In addition, you can cast it by spending 2 sorcery points or by expending a spell slot.").spellGrants)
+      .toEqual([{ level: 3, name: "omega gloom", amount: "", sorceryPoints: 2 }]);
+    expect(traits("You learn the Omega Gloom spell and can cast it with a spell slot or by spending 2 sorcery points.").spellGrants)
+      .toEqual([{ level: 1, name: "omega gloom", amount: "", sorceryPoints: 2 }]);
+  });
+
+  it("grants nothing from a choice table whose rows are traits of their own", () => {
+    const html = "<p>Choose an ancestry from the <strong>Kin Ancestry table</strong>. If a benefit grants you the ability to cast a spell, you can cast it once without a spell slot.</p>"
+      + "<table><thead><tr><th>Ancestry</th><th>Benefit</th></tr></thead><tbody>"
+      + "<tr><td>Mist</td><td>You can cast Sigma Float at will.</td></tr>"
+      + "<tr><td>Gale</td><td>You can cast Tau Lift at will.</td></tr></tbody></table>";
+    expect(AdvancementHelper.getHTMLDataForSpellAdvancements(html, "Mist Ancestry").spellGrants).toEqual([]);
+  });
+
+  it("applies an innate trait's later limit to its spells", () => {
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData("<p>When you reach 3rd level, you can cast the Kappa Veil spell with this trait. Once you cast a non-cantrip spell with this trait, you can't do so again until you finish a long rest.</p>");
+    expect(result.spellGrants).toEqual([{ level: 3, name: "kappa veil", amount: "1" }]);
+  });
 });
 
 describe("AdvancementHelper spell cast back-references", () => {

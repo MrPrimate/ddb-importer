@@ -66,6 +66,40 @@ function resolveBackgroundSrc(assetPath: string, adventureName: string, assetMap
   return null;
 }
 
+/** Deterministic scene _id for a detection under one contentChunkId form. */
+function sceneIdForChunk(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow, contentChunkId: string): string {
+  return idFactory.getId(NativeIdFactory.makeKey({
+    docType: "Scene",
+    ddbId: detection.syntheticIdOffset,
+    cobaltId: row.cobaltId,
+    parentId: row.parentId,
+    contentChunkId,
+    name: detection.name,
+  }));
+}
+
+/**
+ * Scene _id for a detection, reusing a world scene from an earlier import when
+ * there is one so a re-import updates it rather than creating a duplicate.
+ * The current (muncher-style) contentChunkId is checked first, then the
+ * `<figure id>-<count>` form earlier native imports used. With neither in the
+ * world, the current form is used.
+ */
+export function resolveSceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string {
+  const currentId = sceneIdForChunk(idFactory, detection, row, detection.contentChunkId);
+  if (game.scenes?.get(currentId)) return currentId;
+  const legacyId = existingLegacySceneId(idFactory, detection, row);
+  return legacyId ?? currentId;
+}
+
+/** The world scene _id an earlier native import gave this detection, if that scene still exists. */
+function existingLegacySceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string | null {
+  const legacyChunk = detection.legacyContentChunkId;
+  if (!legacyChunk || legacyChunk === detection.contentChunkId) return null;
+  const legacyId = sceneIdForChunk(idFactory, detection, row, legacyChunk);
+  return game.scenes?.get(legacyId) ? legacyId : null;
+}
+
 function buildBaseScene(args: {
   detection: DetectedScene;
   row: ProcessedRow;
@@ -82,14 +116,7 @@ function buildBaseScene(args: {
   // _id stays keyed on the PARSED name (stable identity) so it doesn't shift if
   // an enrichment name appears/disappears between imports; the displayed name
   // prefers the enrichment override (tier 2) over the parsed caption (tier 3).
-  const _id = idFactory.getId(NativeIdFactory.makeKey({
-    docType: "Scene",
-    ddbId: detection.syntheticIdOffset,
-    cobaltId: row.cobaltId,
-    parentId: row.parentId,
-    contentChunkId: detection.contentChunkId,
-    name: detection.name,
-  }));
+  const _id = resolveSceneId(idFactory, detection, row);
   const displayName = (typeof nameOverride === "string" && nameOverride.trim() !== "")
     ? nameOverride.trim()
     : detection.name;

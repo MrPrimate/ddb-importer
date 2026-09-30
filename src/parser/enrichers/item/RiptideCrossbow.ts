@@ -7,7 +7,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class RiptideCrossbow extends DDBEnricherData {
 
-  // the parser turns the eruption's damage into a second weapon attack, which it is not
+  // DDB ships the eruption's 3d10 as a restricted damage modifier, which the parser builds as a
+  // "Restricted Attack" mode of the weapon; the eruption is a save, built below instead
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

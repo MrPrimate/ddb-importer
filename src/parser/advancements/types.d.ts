@@ -45,7 +45,16 @@ global {
   interface ISpellAdvancementGrant {
     level: number;
     name: string;
+    /** Free casts: a number or formula, "" for unlimited, undefined when the text is silent. */
     amount?: string;
+    /** Rest that restores the free casts, "lr" when the text does not say. */
+    period?: "sr" | "lr";
+    /** Free casts a short rest restores when a long rest restores them all ("regain one expended use"). */
+    shortRestRecovery?: string;
+    /** Sorcery points spent to cast the spell instead of a spell slot. */
+    sorceryPoints?: number;
+    /** The free cast is one use of the feature itself rather than a count of its own. */
+    featureUses?: boolean;
   }
 
   interface IBasicAdvancementParseResponse {

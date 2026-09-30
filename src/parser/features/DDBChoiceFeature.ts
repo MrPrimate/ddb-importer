@@ -333,6 +333,9 @@ export default class DDBChoiceFeature extends DDBFeature {
             choiceFeature.data.flags.ddbimporter?.dndbeyond?.choice,
           );
         }
+        // a choice parent's build never reaches its enricher's cleanup, and the option's DDB
+        // actions only arrive here, so a merging enricher tidies the combined document now
+        if (ddbFeature.enricher.mergeChoiceActivities) await ddbFeature.enricher.cleanup();
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
         DDBChoiceFeature.foldChoiceSummons(

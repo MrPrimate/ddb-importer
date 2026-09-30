@@ -1,8 +1,9 @@
 /**
- * Pins for the Necromancer's Necromancy Spellbook (AU 2024): the Undead Familiar cast must be a
- * summon that spends a level 1 slot and must route through the companion factory's Find Familiar
- * summon data, creating the factory when the parser has not built one. The audit harness shows
- * the activity but has no monster packs, so the summon data itself is not visible there.
+ * Pins for the Necromancer's Necromancy Spellbook (AU 2024): the Undead Familiar casts (normal
+ * forms, and the Skeleton or Zombie forms) must be summons that spend a level 1 slot and must
+ * route through the companion factory's Find Familiar summon data, creating the factory when
+ * the parser has not built one. The audit harness shows the activity but has no monster packs,
+ * so the summon data itself is not visible there.
  */
 const loggerMock = vi.hoisted(() => ({
   warn: vi.fn(),
@@ -50,23 +51,27 @@ function necromancer(ddbParser: Record<string, any> = {}): NecromancySpellbook {
 }
 
 describe("Necromancy Spellbook Undead Familiar cast", () => {
-  it("keeps the parsed default activity and adds a slot-consuming summon", () => {
+  it("keeps the parsed default activity and adds the two slot-consuming summons", () => {
     const enricher = necromancer();
     expect(enricher.type).toBeNull();
-    const [cast, ...rest] = enricher.additionalActivities;
+    const [cast, undeadForms, ...rest] = enricher.additionalActivities;
     expect(rest).toEqual([]);
     expect(cast.init).toEqual({ name: NecromancySpellbook.SUMMON_ACTIVITY_NAME, type: "summon" });
-    expect(cast.overrides).toMatchObject({
-      activationType: "hour",
-      activationValue: 1,
-      rangeType: "ft",
-      rangeValue: 10,
-      noTemplate: true,
-      noConsumeTargets: true,
-      addSpellSlotConsume: true,
-      spellSlotConsumeTarget: "1",
-      spellSlotConsumeValue: "1",
-    });
+    // the name is the key companions/types/FindFamiliar.ts lists the Skeleton and Zombie under
+    expect(undeadForms.init).toEqual({ name: "Cast Find Familiar (Skeleton or Zombie)", type: "summon" });
+    for (const summon of [cast, undeadForms]) {
+      expect(summon.overrides).toMatchObject({
+        activationType: "hour",
+        activationValue: 1,
+        rangeType: "ft",
+        rangeValue: 10,
+        noTemplate: true,
+        noConsumeTargets: true,
+        addSpellSlotConsume: true,
+        spellSlotConsumeTarget: "1",
+        spellSlotConsumeValue: "1",
+      });
+    }
   });
 
   it("fills the summon from the companion factory's Find Familiar data", async () => {

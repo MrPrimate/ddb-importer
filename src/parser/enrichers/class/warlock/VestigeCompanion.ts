@@ -22,6 +22,12 @@ export default class VestigeCompanion extends DDBEnricherData {
       noTemplate: true,
       data: {
         creatureSizes: ["sm"],
+        // the summoner's Charisma modifier on Vestige's Strike and on Healing Touch (the Celestial
+        // form's Divine Power)
+        bonuses: {
+          attackDamage: "@abilities.cha.mod",
+          healing: "@abilities.cha.mod",
+        },
       },
     };
   }
@@ -56,6 +62,44 @@ export default class VestigeCompanion extends DDBEnricherData {
 
   override get mergeChoiceActivities(): boolean {
     return true;
+  }
+
+  /** DDB's limited use here is its tracker for the vestige's HP, not a use of the feature. */
+  override get override(): IDDBOverrideData {
+    return {
+      uses: {
+        spent: null,
+        max: "",
+        recovery: [],
+      },
+    };
+  }
+
+  /**
+   * DDB's per-form HP tracker action ("Celestial Vestige Companion HP") is dropped; the summoned
+   * actor tracks its own HP. The per-form Divine Power action (1/Day) would spend the feature's
+   * uses, which are that tracker's, so it gets a once-per-long-rest use of its own. Runs again on
+   * the parent once the chosen form's actions are merged in (DDBChoiceFeature). The stat block's
+   * Hit Dice and match data come from the companion parse, which rewrites the summon at import.
+   */
+  override async cleanup(): Promise<void> {
+    const activities = this.data?.system?.activities as Record<string, I5eActivity> | undefined;
+    if (!activities) return;
+
+    for (const [id, activity] of Object.entries(activities)) {
+      if (activity.type === "utility" && (/ Vestige Companion HP$/).test(activity.name ?? "")) {
+        delete activities[id];
+        continue;
+      }
+      if (!activity.name?.startsWith("Divine Power:") || !activity.consumption) continue;
+      const targets = (activity.consumption.targets ?? [])
+        .filter((target) => !(target.type === "itemUses" && !target.target));
+      if (!targets.some((target) => target.type === "activityUses")) {
+        targets.push({ type: "activityUses", target: "", value: "1", scaling: { mode: "", formula: "" } });
+      }
+      activity.consumption.targets = targets;
+      activity.uses = { spent: 0, max: "1", recovery: [{ period: "lr", type: "recoverAll" }] };
+    }
   }
 
 }

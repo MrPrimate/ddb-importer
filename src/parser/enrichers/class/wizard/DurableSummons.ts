@@ -20,6 +20,8 @@ export default class DurableSummons extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       activationCondition: "When a Conjuration spell summons or creates a creature",
+      // the feature has no uses of its own
+      noConsumeTargets: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
           customFormula: "2 * @classes.wizard.levels",

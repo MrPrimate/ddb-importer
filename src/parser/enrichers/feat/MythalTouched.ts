@@ -65,5 +65,15 @@ export default class MythalTouched extends DDBEnricherData {
       : [];
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "feat",
+        name: "Mythal Touched",
+        max: "@prof",
+        period: "lr",
+      }),
+    };
+  }
 
 }
