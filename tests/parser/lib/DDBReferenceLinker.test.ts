@@ -43,8 +43,8 @@ describe("parseTags", () => {
   });
 
   it("strips condition tags when no condition lookup data exists", () => {
-    // CONFIG.DND5E.conditionTypes is not stubbed, so conditions resolve to an
-    // empty lookup and the tag decays to its plain text.
+    // the shared CONFIG.DND5E.conditionTypes mock carries no references, so the
+    // condition cannot be linked and the tag decays to its plain text.
     expect(parseTags("You are [condition]Prone[/condition].")).toBe("You are Prone.");
   });
 
@@ -118,6 +118,43 @@ describe("parseTags", () => {
       setLooseMatching(true, true);
       const result = parseTags("make a DC 13 Grappling saving throw now");
       expect(result).toBe("make a [[/save grappling 13 format=long]] now");
+    });
+
+    // dnd5e 6 conditions carry `name`, not `label`; pseudo-conditions are everyday words
+    describe("conditions", () => {
+      const types = () => globals.CONFIG.DND5E.conditionTypes as Record<string, any>;
+      const saved: Record<string, any> = {};
+
+      beforeEach(() => {
+        for (const key of ["stunned", "burning"]) saved[key] = types()[key];
+        types().stunned = { name: "Stunned", img: "stunned.svg", reference: "Compendium.dnd5e.rules.JournalEntryPage.stunned" };
+        types().burning = { name: "Burning", img: "burning.svg", reference: "Compendium.dnd5e.rules.JournalEntryPage.burning", pseudo: true };
+      });
+
+      afterEach(() => {
+        for (const [key, value] of Object.entries(saved)) {
+          if (value === undefined) delete types()[key];
+          else types()[key] = value;
+        }
+      });
+
+      it("links a condition name in plain loose mode", () => {
+        setLooseMatching(true, false);
+        expect(parseTags("The target is stunned until the end of its next turn."))
+          .toBe("The target is &Reference[stunned]{stunned} until the end of its next turn.");
+      });
+
+      it("leaves an already linked condition alone", () => {
+        setLooseMatching(true, false);
+        const text = "The target has the &Reference[stunned]{Stunned} condition.";
+        expect(parseTags(text)).toBe(text);
+      });
+
+      it("does not loosely link a pseudo-condition, but still resolves its explicit tag", () => {
+        setLooseMatching(true, true);
+        expect(parseTags("A burning torch.")).toBe("A burning torch.");
+        expect(parseTags("It is [condition]Burning[/condition].")).toBe("It is &Reference[burning]{Burning}.");
+      });
     });
   });
 });
