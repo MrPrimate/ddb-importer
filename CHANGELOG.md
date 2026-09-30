@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.40
+
+- Backported changes from 7.5.7
+
 # 7.1.39
 
 - Backported changes from 7.5.6.
