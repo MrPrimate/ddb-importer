@@ -26,7 +26,7 @@ function firearm<T extends AutomaticRifle | HuntingRifle>(
 }
 
 describe("official firearm resource guards", () => {
-  it.each([3, 146])("supports source %s and preserves imported expenditure", (sourceId) => {
+  it.each([3, 146, 197])("supports source %s and preserves imported expenditure", (sourceId) => {
     const enricher = firearm(AutomaticRifle.prototype, sourceId, 1, true, 17);
     expect(enricher.supported).toBe(true);
     expect(enricher.override).toMatchObject({ retainUseSpent: true, uses: { spent: 17 } });
