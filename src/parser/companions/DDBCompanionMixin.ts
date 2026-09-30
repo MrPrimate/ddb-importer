@@ -461,35 +461,38 @@ export default class DDBCompanionMixin {
     }
   }
 
+  /**
+   * Companions whose Hit Dice scale with a class or spell level. dnd5e reads an NPC's hit die size
+   * and count from its HP formula (falling back to the size's die), and the summon activity's
+   * `bonuses.hd` adds the scaling count when the creature is summoned. So the formula names the
+   * printed die with no dice of its own, plus the base HP so that rolling it (dnd5e's auto-roll
+   * when the actor is placed by hand) gives the printed base rather than 0.
+   */
   _handleHitDice(hpString: string) {
     // (the beast has a number of Hit Dice [d8s] equal to your ranger level)
     // (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
+    // (the spirit has a number of Hit Dice [d10s] equal to the spell's level)
+    // (the steed has a number of Hit Dice [d10s] equal to the level of the spell)
     if (!hpString || !hpString.includes("number of Hit Dice")) return;
 
-    const hitDice = hpString.match(/Hit Dice \[d(\d)s\] equal to your (\w+) level/);
-    if (hitDice) {
-      const hitDiceAdjustment = {
-        "key": "system.attributes.hp.formula",
-        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
-      };
-      const changes = this.npc.flags?.ddbimporter?.summons?.changes;
-      if (changes) {
-        changes.push(hitDiceAdjustment);
-      } else {
-        logger.warn(`Companion ${this.npc.name} has no summons changes flags, unable to add hit dice adjustment`);
-      }
+    const text = hpString.replaceAll("’", "'");
+    const classHitDice = text.match(/number of Hit Dice \[d(\d+)s\] equal to your ([a-z][a-z ]*?) level/i);
+    const spellHitDice = text.match(/number of Hit Dice \[d(\d+)s\] equal to (?:the spell's level|the level of the spell)/i);
+    const hitDice = classHitDice ?? spellHitDice;
+    if (!hitDice) return;
+
+    const hp = this.npc.system.attributes?.hp;
+    if (hp) {
+      const base = Number(hp.max) > 0 ? ` + ${hp.max}` : "";
+      hp.formula = `0d${hitDice[1]}${base}`;
+    } else {
+      logger.warn(`Companion ${this.npc.name} has no hp attributes, unable to set hit dice formula`);
     }
 
-    const spellHitDice = hpString.match(/number of Hit Dice \[d(\d+)s\] equal to the spell's level/i);
-    if (spellHitDice) {
-      const hp = this.npc.system.attributes?.hp;
-      if (hp) {
-        hp.formula = `0d${spellHitDice[1]}`;
-      } else {
-        logger.warn(`Companion ${this.npc.name} has no hp attributes, unable to set hit dice formula`);
-      }
-      this.summons.bonuses.hd = "@item.level";
-    }
+    // class identifiers are lowercase slugs, "Blood Hunter" is blood-hunter
+    this.summons.bonuses.hd = classHitDice
+      ? `@classes.${classHitDice[2].trim().toLowerCase().replace(/\s+/g, "-")}.levels`
+      : "@item.level";
   }
 
   _handleSize(sizeString: string) {
