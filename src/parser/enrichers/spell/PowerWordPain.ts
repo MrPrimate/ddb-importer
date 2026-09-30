@@ -79,6 +79,8 @@ export default class PowerWordPain extends DDBEnricherData {
           ...["str", "dex", "int", "wis", "cha"].map((ability) =>
             DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange(ability),
           ),
+          // death saves are rolled apart from ability saves
+          DDBEnricherData.ChangeHelper.disadvantageDeathSaveChange(),
         ],
         options: {
           durationSeconds: 60,

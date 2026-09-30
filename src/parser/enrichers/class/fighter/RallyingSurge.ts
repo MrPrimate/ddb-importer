@@ -4,7 +4,8 @@ export default class RallyingSurge extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      addItemConsume: true,
+      // rides on Action Surge, which spends its own use
+      noConsumeTargets: true,
       activationType: "special",
       activationCondition: "You use Action Surge",
       targetType: "ally",

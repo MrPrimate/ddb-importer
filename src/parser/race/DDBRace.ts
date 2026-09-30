@@ -536,7 +536,7 @@ export default class DDBRace {
           description: trait.description,
           species: this.fullName,
         })
-        : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
+        : AdvancementHelper.parseHTMLSpellAdvancementData(AdvancementHelper.withoutChoiceTables(trait.description));
 
     const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(trait.description);
     const name = trait.name.toLowerCase().includes("spell")

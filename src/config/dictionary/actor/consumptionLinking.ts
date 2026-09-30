@@ -151,6 +151,29 @@ export const CONSUMPTION_SPELL_LINKS = {
   ],
   "Monk's Focus": [
     { name: "Darkness", cost: 1, lookupName: "Shadow Arts" },
+    // Warrior of the Leaden Crown (Grim Hollow: Player's Guide)
+    { name: "Detect Evil and Good", cost: 1, lookupName: "Psionic Prowess" },
+    { name: "Protection from Evil and Good", cost: 1, lookupName: "Psionic Prowess" },
+    { name: "Hold Person", cost: 2, lookupName: "Psionic Prowess" },
+    { name: "Levitate", cost: 2, lookupName: "Psionic Prowess" },
+    { name: "Shatter", cost: 2, lookupName: "Psionic Prowess" },
+    { name: "Dispel Evil and Good", cost: 5, lookupName: "Psionic Mystery" },
+    { name: "Hold Monster", cost: 5, lookupName: "Psionic Mystery" },
+    { name: "Telekinesis", cost: 5, lookupName: "Psionic Mystery" },
+    { name: "Wall of Force", cost: 5, lookupName: "Psionic Mystery" },
+    // Warrior of Cosmic Balance (Cthulhu by Torchlight)
+    { name: "Banishment", cost: 3, lookupName: "Ward the Profane" },
+    // Way of the Aether (The Griffon's Saddlebag: Book Two)
+    { name: "Gentle Repose", cost: 2, lookupName: "Spectral Guide" },
+    { name: "See Invisibility", cost: 2, lookupName: "Spectral Guide" },
+    // Warrior of the Celestial (The Griffon's Saddlebag: Book One)
+    { name: "Enhance Ability", cost: 2, lookupName: "Stabilizing Focus" },
+    { name: "Lesser Restoration", cost: 2, lookupName: "Stabilizing Focus" },
+    { name: "Protection from Evil and Good", cost: 2, lookupName: "Stabilizing Focus" },
+    // Way of the Prophet (Book of Ebon Tides)
+    { name: "Charm Person", cost: 1, lookupName: "Charming Aura" },
+    { name: "Command", cost: 1, lookupName: "Charming Aura" },
+    { name: "Suggestion", cost: 2, lookupName: "Charming Aura" },
   ],
   "Favored Enemy": [
     { name: "Hunter's Mark", cost: 1, lookupName: "Favored Enemy", forceInnate: true },

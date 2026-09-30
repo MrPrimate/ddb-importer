@@ -2,6 +2,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class KeeperOfSouls extends DDBEnricherData {
 
+  // the most Hit Dice of any monster on record (Demilich, 72), the scaling ceiling for the heal
+  static MAX_MONSTER_HIT_DICE = 72;
+
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
@@ -10,15 +13,29 @@ export default class KeeperOfSouls extends DDBEnricherData {
     return {
       activationType: "special",
       targetType: "creature",
-      addItemConsume: true,
+      // once until the start of your next turn
+      noConsumeTargets: true,
+      addActivityConsume: true,
       data: {
+        uses: {
+          spent: 0,
+          max: "1",
+          recovery: [{ period: "turnStart", type: "recoverAll" }],
+        },
         description: {
           chatFlavor: "Enemy dies within 60 feet of you.",
         },
+        // the dying enemy's number of Hit Dice, picked as the scaling when used
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.cleric.levels * 2",
+          customFormula: "@scaling",
           types: ["healing"],
         }),
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: String(KeeperOfSouls.MAX_MONSTER_HIT_DICE),
+          },
+        },
       },
     };
   }

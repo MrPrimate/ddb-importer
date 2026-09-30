@@ -142,6 +142,17 @@ export default class CharacterSpellFactory {
   }
 
   /**
+   * A feature listed in FEATURE_SPELLS_FORCE_PREPARED (Share the Burden) arrives from DDB with only its
+   * slot-less casting of an always-prepared spell. The enricher provides that casting, so the entry is
+   * turned into the always-prepared copy that spends slots, which the ignore check then keeps.
+   */
+  static asForcedPreparedFeatureSpell(featureName: string | undefined, spell: IDDBSpellEntry): IDDBSpellEntry {
+    if (!featureName || !DICTIONARY.parsing.featureSpellsForcePrepared.includes(utils.nameString(featureName))) return spell;
+    if (spell.usesSpellSlot && !spell.limitedUse) return spell;
+    return { ...spell, usesSpellSlot: true, alwaysPrepared: true, limitedUse: null };
+  }
+
+  /**
    * A spell DDB attaches to a class feature listed in FEATURE_SPELLS_IGNORE is the feature's own
    * casting (no spell slot, or a limited use) and is provided by the feature's enricher as a cast
    * activity instead. Features such as Wondrous Alteration or Faithful Steed also ship a plain
@@ -408,7 +419,8 @@ export default class CharacterSpellFactory {
       const mastered = classInfo !== undefined
         && CharacterSpellFactory.MASTERED_SPELL_FEATURES.includes(utils.nameString(classInfo.name))
         && CharacterSpellFactory.isMasteredSpell(rawSpell, this.masteredSpellChoiceIds);
-      const spell = mastered ? CharacterSpellFactory.asMasteredSpellbookSpell(rawSpell) : rawSpell;
+      const unforcedSpell = mastered ? CharacterSpellFactory.asMasteredSpellbookSpell(rawSpell) : rawSpell;
+      const spell = CharacterSpellFactory.asForcedPreparedFeatureSpell(classInfo?.name, unforcedSpell);
 
       logger.debug("Class spell parsing, class info", classInfo);
       // Sometimes there are spells here which don't have an class Info
@@ -543,7 +555,8 @@ export default class CharacterSpellFactory {
   ];
 
   canCast(spell: IDDBSpellEntry) {
-    if (spell.limitedUse || spell.definition.level === 0) return true;
+    // an at-will grant (Giantkin's Airstep: Feather Fall) never spends a slot, so a slotless character can cast it
+    if (spell.limitedUse || spell.definition.level === 0 || spell.usesSpellSlot === false) return true;
     if (!this.slots) return false;
     if (this.pactSlots) return true;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {

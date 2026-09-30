@@ -427,6 +427,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Genie's Vessel",
     "Reanimator's Skillset",
     "Storm Aura",
+    "Vestige Spells",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -453,6 +454,8 @@ export const PARSING_CHOICE_FEATURES = {
     // the parent's own <ul> already enumerates the options, and each option is
     // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
     "Adaptive Wild Shape",
+    // the chosen form's spirit stat block; the feature summons all three spirits
+    "Semblance of Life",
     "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
@@ -576,6 +579,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Transmutation Savant",
     "Signature Spells",
     "Spell Mastery",
+    "Vestige Spells",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -596,6 +600,12 @@ export const PARSING_CHOICE_FEATURES = {
     "Dark Bargain",
   ],
 };
+
+// always-prepared feature spells DDB sends only as the feature's slot-less casting: the enricher
+// builds that casting, and the spellbook gets a prepared copy that spends slots instead
+export const FEATURE_SPELLS_FORCE_PREPARED = [
+  "Share the Burden",
+];
 
 export const FEATURE_SPELLS_IGNORE = [
   // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
@@ -643,6 +653,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Spirit Query",
   "Tokens of the Departed",
   "Beasts of Ill Omen",
+  "Share the Burden",
   "Spiteful Curse",
   "Shape-Shifter",
   "Wondrous Alteration",

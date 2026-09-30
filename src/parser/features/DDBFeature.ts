@@ -690,6 +690,8 @@ ${description}`;
     await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     this._final();
+    // with no choice documents to follow, this parent is the finished feature
+    if (this.suppressesChoiceBuild) await this.enricher.cleanup();
   }
 
 

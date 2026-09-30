@@ -22,7 +22,19 @@ export default class ModifyMagic extends DDBEnricherData {
     return [
       {
         action: { name: "Channel Divinity: Fortifying Spell", type: "class" },
-        overrides: { addItemConsume: true, itemConsumeTargetName: "Channel Divinity" },
+        overrides: {
+          addItemConsume: true,
+          itemConsumeTargetName: "Channel Divinity",
+          // DDB bakes the capture's cleric level into the dice and heals ordinary HP
+          data: {
+            healing: DDBEnricherData.basicDamagePart({
+              number: 2,
+              denomination: 8,
+              bonus: "@classes.cleric.levels",
+              types: ["temphp"],
+            }),
+          },
+        },
       },
       {
         action: { name: "Channel Divinity: Tenacious Spell", type: "class" },

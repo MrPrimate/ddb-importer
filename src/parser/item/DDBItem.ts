@@ -562,6 +562,39 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * The charge cost of a spell cast from an item. DDB states a fixed cost as the maximum alone
+   * (`minNumberConsumed` null, Lesser Restoration's 2 charges on a Staff of Healing) and a
+   * variable cost as a min-max range (Cure Wounds' 1 to 4), so the minimum wins, then the
+   * maximum, and only then the item's generic cost. Zero is a real cost and survives.
+   */
+  static itemSpellChargeCost(
+    limitedUse: { minNumberConsumed?: number | string | null; maxNumberConsumed?: number | string | null } | null | undefined,
+    fallback: number | string | null | undefined,
+  ): { cost: number; min: number | null; max: number | null; variable: boolean } {
+    const count = (value: number | string | null | undefined): number | null => {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    };
+    const min = count(limitedUse?.minNumberConsumed);
+    const max = count(limitedUse?.maxNumberConsumed);
+    const cost = min ?? max ?? count(fallback) ?? 1;
+    return { cost, min, max, variable: min !== null && max !== null && max > min };
+  }
+
+  /**
+   * The consumption scaling ceiling for a variable charge cost. dnd5e offers scaling values 1 to
+   * max and spends `cost + value - 1`, so the ceiling is the size of the range, capped by the
+   * charges left.
+   */
+  static itemSpellChargeScalingMax(min: number, max: number): string {
+    const levels = max - min + 1;
+    return min === 1
+      ? `min(@item.uses.value,${levels})`
+      : `min(@item.uses.value - ${min - 1},${levels})`;
+  }
+
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
   static parseItemBonusSaveDC(description: string): number | null {
     const text = DDBDescriptions.plainText(description);
@@ -3198,32 +3231,29 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const reset = this.#getSpellReset();
 
-    const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
-    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionData.consumptionValue ?? 1}`;
+    const charges = DDBItem.itemSpellChargeCost(spellData.limitedUse, this.actionData.consumptionValue);
     if (generateActivityUses) {
       // spells manage charges
-      usesOverride.max = maxNumberConsumed;
+      usesOverride.max = `${charges.max ?? 1}`;
       usesOverride.recovery.push({
         period: reset.period ?? null,
         type: "recoverAll",
       });
     }
 
-    const scalingAmount = maxNumberConsumed > minNumberConsumed;
-
     const activityConsumptionTarget = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
-        value: `${spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1}`,
+        value: `${charges.min ?? charges.max ?? 1}`,
         scaling: {},
       }
       : spellData.limitedUse
         ? {
           type: "itemUses",
           target: "",
-          value: `${minNumberConsumed}`,
+          value: `${charges.cost}`,
           scaling: {
-            mode: scalingAmount ? "amount" : "",
+            mode: charges.variable ? "amount" : "",
             formula: "",
           },
         }
@@ -3239,15 +3269,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
     }
 
-    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    // the item text describes extra charges for any spell it grants, so only a real DDB cost
+    // range may scale: a fixed-cost spell on the same staff must not
+    const scalingAllowed = !this.perSpell.isPerSpell
+      && charges.variable
+      && Boolean(this.ddbDefinition.description.match("each (?:additional )?charge you expend"));
 
     if (activityConsumptionTarget) {
       consumptionOverride.targets = [activityConsumptionTarget];
     }
 
-    if (scalingAllowed) {
+    if (scalingAllowed && charges.min !== null && charges.max !== null) {
       consumptionOverride.scaling.allowed = true;
-      consumptionOverride.scaling.max = `min(@item.uses.value,${spellData.limitedUse.maxNumberConsumed})`;
+      consumptionOverride.scaling.max = DDBItem.itemSpellChargeScalingMax(charges.min, charges.max);
     }
 
     const options = {
@@ -3493,6 +3527,38 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   }
 
+  /**
+   * With per-spell charges the item keeps no uses, so nothing may still spend them. The unnamed
+   * activity the parser built from DDB's activation (Cloak of the Bat, Driftglobe) only duplicates
+   * the cast activities and goes; a named property that is not a cast (Whelm's shockwave "Save")
+   * gets its own once-per-reset use instead.
+   */
+  #movePerSpellUsesOffItem() {
+    if (!("activities" in this.data.system)) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    if (!Object.values(activities).some((activity) => activity.type === "cast")) return;
+    const spendsItemUses = (activity: I5eActivity) => (activity.consumption?.targets ?? [])
+      .some((target) => target.type === "itemUses" && !target.target);
+    const reset = this.#getSpellReset();
+    for (const [id, activity] of Object.entries(activities)) {
+      if (activity.type === "cast" || !spendsItemUses(activity)) continue;
+      if (!activity.name && activity.type === "utility" && (activity.effects ?? []).length === 0) {
+        delete activities[id];
+        continue;
+      }
+      activity.uses = {
+        spent: 0,
+        max: "1",
+        recovery: reset.period ? [{ period: reset.period, type: "recoverAll" }] : [],
+      };
+      foundry.utils.setProperty(activity, "consumption.targets", (activity.consumption?.targets ?? []).map((target) =>
+        target.type === "itemUses" && !target.target
+          ? { ...target, type: "activityUses", value: "1" }
+          : target,
+      ));
+    }
+  }
+
   async #basicMagicItem() {
     if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description ?? "")) {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
@@ -3523,6 +3589,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
       await this.#addSpellAsCastActivity(spell, otherSpellNames);
     }
+
+    if (this.perSpell.isPerSpell && itemSpells.length > 0) this.#movePerSpellUsesOffItem();
 
     if (!this.raw.itemSpells) return;
 

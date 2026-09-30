@@ -472,6 +472,10 @@ export default abstract class DDBEnricherFactoryMixin {
 
     if (overrideData.noConsumeTargets) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
+      // an explicit opt-out must not be undone by the deferred consumption
+      // reconciliation in DDBFeatureMixin._final()
+      const awaitingUses = foundry.utils.getProperty(this.ddbParser ?? {}, "_activitiesAwaitingUses") as Set<string> | undefined;
+      if (activity._id) awaitingUses?.delete(activity._id);
     }
     if (overrideData.addItemConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", []);

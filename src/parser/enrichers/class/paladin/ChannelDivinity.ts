@@ -73,7 +73,8 @@ export default class ChannelDivinity extends DDBEnricherData {
         const wanted = this.ddbParser.isMuncher
           || (oath !== "" && oaths.includes(oath))
           || this._characterHasClassAction(name);
-        if (wanted) results.push({ action: { name, type: "class" } });
+        // every option spends the Channel Divinity use
+        if (wanted) results.push({ action: { name, type: "class" }, overrides: { addItemConsume: true } });
       }
     }
     return results;
@@ -97,7 +98,17 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData | null {
-    if (this.is2014) return null;
+    // 2014: one use, back on a short or long rest; DDB puts no limited use on the feature
+    if (this.is2014) {
+      return {
+        uses: this._getUsesWithSpent({
+          type: "class",
+          name: "Channel Divinity",
+          max: "1",
+          period: "sr",
+        }),
+      };
+    }
 
     const uses = this._getUsesWithSpent({
       type: "class",

@@ -8,7 +8,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class DavyJonessKey extends DDBEnricherData {
 
-  // the parser turns the tentacle's damage into a second weapon attack, rebuilt here as its own
+  // DDB ships the tentacle's 3d6 as a restricted damage modifier, which the parser builds as a
+  // "Restricted Attack" mode of the weapon; the tentacle attacks on its own, so it is rebuilt below
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

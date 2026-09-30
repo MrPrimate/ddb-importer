@@ -1,9 +1,14 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * AU origin feat: Resistance can be cast as a Bonus Action a proficiency-bonus number of times per
+ * long rest. The cast activity overrides the spell's activation; the cantrip itself arrives as a
+ * DDB spell grant, so the cached copy stays out of the spellbook.
+ */
 export default class ArcaneSafeguard extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.CAST;
   }
 
   override get useDefaultAdditionalActivities(): boolean {
@@ -17,10 +22,16 @@ export default class ArcaneSafeguard extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Bonus Action Resistance",
-      targetType: "creature",
       activationType: "bonus",
+      // a cast activity shows its spell's activation unless told to override it
+      overrideActivation: true,
       addItemConsume: true,
-      data: { range: { value: "0", units: "touch" } },
+      addSpellUuid: "Resistance",
+      data: {
+        spell: {
+          spellbook: false,
+        },
+      },
     };
   }
 

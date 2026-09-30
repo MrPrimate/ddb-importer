@@ -238,6 +238,11 @@ export default class DDBCompanionMixin {
     if (spellSaveRegex.test(text)) {
       this.summons.match.saves = true;
     }
+    // the Vestige Companion's Pact Bond: its checks and saves use the summoner's proficiency
+    const pactBondRegex = /Add your Proficiency Bonus to any ability check or saving throw the vestige makes/i;
+    if (pactBondRegex.test(text)) {
+      this.summons.match.proficiency = true;
+    }
     return featureFactory.getFeatures(type);
   }
 

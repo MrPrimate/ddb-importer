@@ -162,6 +162,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Force Ballista": "Eldritch Cannon",
     "Flamethrower": "Eldritch Cannon",
     "Protector": "Eldritch Cannon",
+    // the Vestige Patron companion actors, one per form ("Vestige Companion (Fiend)")
+    "Vestige Companion (": "Vestige Companion",
   };
 
   NAME_HINTS_2014: Record<string, Record<string, string>> = {};
