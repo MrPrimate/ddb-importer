@@ -50,11 +50,12 @@ describe("CharacterSpellFactory._applyHealingRerolls", () => {
     };
   }
 
-  // the factory is heavy to construct, and only these two fields matter here
-  function factory(healingReroll: boolean, spells: any[]): any {
+  // the factory is heavy to construct, and only these fields matter here
+  function factory(healingReroll: boolean, spells: any[], granted: any[] = []): any {
     const instance = Object.create(CharacterSpellFactory.prototype);
     instance.healingReroll = healingReroll;
     instance.processed = spells;
+    instance._granted = { class: [], feat: granted, race: [], background: [], item: [] };
     return instance;
   }
 
@@ -70,6 +71,54 @@ describe("CharacterSpellFactory._applyHealingRerolls", () => {
     factory(false, [spell])._applyHealingRerolls();
     expect(spell.system.activities.abc.healing.modifiers).toBeUndefined();
     expect(spell.flags.ddbimporter.healingReroll).toBeUndefined();
+  });
+
+  it("bakes spells granted by a feature or feat, which are not in the spellbook", () => {
+    const granted = healingSpell();
+    factory(true, [], [granted])._applyHealingRerolls();
+    expect(granted.system.activities.abc.healing.modifiers).toEqual(["r1"]);
+    expect(granted.flags.ddbimporter.healingReroll).toBe(true);
+  });
+});
+
+describe("CharacterSpellFactory._applyElementalAdept", () => {
+  function damageSpell(name: string, types: string[]): any {
+    return {
+      name,
+      flags: { ddbimporter: {} },
+      system: {
+        activities: {
+          abc: { type: "save", damage: { parts: [{ number: 8, denomination: 6, types }] } },
+        },
+      },
+    };
+  }
+
+  function factory(types: string[], spells: any[], granted: Record<string, any[]> = {}): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.elementalAdeptTypes = types;
+    instance.processed = spells;
+    instance._granted = { class: [], feat: [], race: [], background: [], item: [], ...granted };
+    return instance;
+  }
+
+  it("stamps spells from the spellbook and those granted by class features and feats once each", () => {
+    const burningHands = damageSpell("Burning Hands", ["fire"]);
+    const fireball = damageSpell("Fireball", ["fire"]);
+    const produceFlame = damageSpell("Produce Flame", ["fire"]);
+    // a spell can sit in both holders; it must not be stamped twice
+    factory(["fire"], [burningHands], { class: [fireball, burningHands], feat: [produceFlame] })._applyElementalAdept();
+    for (const spell of [burningHands, fireball, produceFlame]) {
+      expect(spell.system.activities.abc.damage.parts[0].modifiers).toEqual(["min2"]);
+      expect(spell.flags.ddbimporter.elementalAdept).toEqual(["fire"]);
+    }
+  });
+
+  it("leaves other damage types alone", () => {
+    const coneOfCold = damageSpell("Cone of Cold", ["cold"]);
+    factory(["fire"], [], { class: [coneOfCold] })._applyElementalAdept();
+    expect(coneOfCold.system.activities.abc.damage.parts[0].modifiers).toBeUndefined();
+    expect(coneOfCold.flags.ddbimporter.elementalAdept).toBeUndefined();
   });
 });
 

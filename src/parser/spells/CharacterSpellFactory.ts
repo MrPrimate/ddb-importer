@@ -942,13 +942,22 @@ export default class CharacterSpellFactory {
   }
 
   /**
+   * Every spell this factory parsed: the spellbook (`processed`) and the spells granted by class
+   * features, species and feats, which reach the actor through the feature factory's spell
+   * advancements instead. Die-modifier bakes must cover both.
+   */
+  _allParsedSpells(): I5eSpellItem[] {
+    return [...new Set([...this.processed, ...Object.values(this._granted).flat()])];
+  }
+
+  /**
    * Bake the 2024 Healer feat's healing-die reroll onto the character's healing spells, flagging
    * each spell it changed. Every import re-parses the spells, so there is never a stale reroll to
    * strip when the feat goes away or AC5e turns up.
    */
   _applyHealingRerolls() {
     if (!this.healingReroll) return;
-    for (const spell of this.processed) {
+    for (const spell of this._allParsedSpells()) {
       const applied = SpellDataUtils.applyHealingDieModifiers(spell, CharacterSpellFactory.HEALING_REROLL_MODIFIERS);
       if (applied) foundry.utils.setProperty(spell, "flags.ddbimporter.healingReroll", true);
     }
@@ -962,7 +971,7 @@ export default class CharacterSpellFactory {
   _applyElementalAdept() {
     if (this.elementalAdeptTypes.length === 0) return;
     const modifiers = CharacterSpellFactory.ELEMENTAL_ADEPT_MODIFIERS;
-    for (const spell of this.processed) {
+    for (const spell of this._allParsedSpells()) {
       // a part is only stamped when every damage type it offers is a chosen one
       if (SpellDataUtils.applyDamageDieModifiers(spell, modifiers, this.elementalAdeptTypes)) {
         foundry.utils.setProperty(spell, "flags.ddbimporter.elementalAdept", [...this.elementalAdeptTypes]);
