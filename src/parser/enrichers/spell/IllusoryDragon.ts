@@ -112,6 +112,32 @@ export default class IllusoryDragon extends DDBEnricherData {
           data: { range: { units: "spec" } },
         },
       },
+      {
+        init: {
+          name: "Study Illusion",
+          type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
+        },
+        build: {
+          generateCheck: true,
+          generateActivation: true,
+          generateTarget: false,
+          generateRange: false,
+          // another creature's check must not start the caster's concentration
+          generateDuration: true,
+          durationOverride: { units: "inst", concentration: false },
+          noSpellslot: true,
+          checkOverride: {
+            associated: ["inv"],
+            ability: "int",
+            dc: { calculation: "spellcasting", formula: "" },
+          },
+          activationOverride: { type: "action", value: 1, condition: "A creature examines the dragon; success reveals the illusion" },
+        },
+        overrides: {
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+        },
+      },
     ];
   }
 

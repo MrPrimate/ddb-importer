@@ -111,6 +111,9 @@ export default class DDBMuleHandler {
   // done and process() just runs the flush / finalize phases.
   _streamProcessedAll = false;
   _streamProcessingErrors = 0;
+  // Subclass choice passes that reached processing before their subClassData, keyed by subclass
+  // id. They are rescheduled when that data arrives; any left when the stream ends are reported.
+  _deferredSubClassChoices = new Map<string | number, any[]>();
   // Per-subclass actor cache so each subclass's choice variants share
   // one mockCharacter (one actor per subclass id across event arrivals).
   _streamMockActors = new Map<string | number, any>();
@@ -530,6 +533,7 @@ export default class DDBMuleHandler {
         await this._replayBufferedSourceThroughStreamProcessors();
       } else {
         await this._drainStreamProcessing();
+        this._reportUnresolvedSubClassChoices();
         this._streamProcessedAll = true;
       }
       if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
@@ -546,6 +550,17 @@ export default class DDBMuleHandler {
 
   _scheduleStreamProcessing(event: DDBMuleEvent) {
     switch (event.kind) {
+      case "subClassData": {
+        const subClassId = event.payload?.debug?.subClassId ?? null;
+        const deferred = subClassId == null ? undefined : this._deferredSubClassChoices.get(subClassId);
+        if (!deferred) break;
+        this._deferredSubClassChoices.delete(subClassId);
+        for (const payload of deferred) {
+          const desc = `${payload?.debug?.subclassName ?? "subclass"} (deferred)`;
+          this._scheduleStreamTask("subClassChoices (deferred)", desc, subClassId, () => this._processStreamSubClassChoice(payload));
+        }
+        break;
+      }
       case "subClassChoices": {
         const payload = event.payload;
         const subClassList = ((this.source as any)?.subClasses?.[this.classId ?? ""] ?? []) as any[];
@@ -787,6 +802,19 @@ export default class DDBMuleHandler {
     });
   }
 
+  /**
+   * Subclass choice passes whose subClassData never arrived could not be parsed. Count them as
+   * processing errors so the run reports a partial import instead of silently omitting them.
+   */
+  _reportUnresolvedSubClassChoices() {
+    for (const [subClassId, choices] of this._deferredSubClassChoices) {
+      const name = choices[0]?.debug?.subclassName ?? subClassId;
+      this._streamProcessingErrors += choices.length;
+      logger.error(`[stream-process] ${choices.length} choice pass(es) for subclass ${name} (${subClassId}) were never parsed: its subclass data did not arrive`, { choices });
+    }
+    this._deferredSubClassChoices.clear();
+  }
+
   async _drainStreamProcessing() {
     await Promise.all(this._streamTaskPromises);
     this._streamTaskPromises = [];
@@ -845,7 +873,12 @@ export default class DDBMuleHandler {
     }
     const subClassData = (this.source as any).subClassData?.[subClassId];
     if (!subClassData) {
-      logger.warn(`[stream-process] no subClassData for subClassId ${subClassId} yet, deferring`);
+      // the check and the deferral must stay synchronous: the subClassData event handler reads
+      // this map when the data arrives, so no await may sit between them
+      logger.debug(`[stream-process] no subClassData for subClassId ${subClassId} yet, deferring`);
+      const deferred = this._deferredSubClassChoices.get(subClassId) ?? [];
+      deferred.push(subClassChoiceData);
+      this._deferredSubClassChoices.set(subClassId, deferred);
       return;
     }
     const mockCharacter = this._getStreamMockActor(`class:${subClassId}`, subClassData.debug.subclassName);
@@ -1038,6 +1071,7 @@ export default class DDBMuleHandler {
         throw new Error(`Unknown munch type ${this.type}`);
     }
     await this._drainStreamProcessing();
+    this._reportUnresolvedSubClassChoices();
     this._streamProcessedAll = true;
   }
 

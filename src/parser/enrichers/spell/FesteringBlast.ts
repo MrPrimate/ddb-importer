@@ -46,6 +46,25 @@ export default class FesteringBlast extends DDBEnricherData {
           noTemplate: true,
         },
       },
+      {
+        init: { name: "End of Turn Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
+        build: {
+          generateSave: true,
+          generateActivation: true,
+          generateTarget: true,
+          generateDamage: false,
+          noSpellslot: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
+          activationOverride: { type: "special", value: null, condition: "End of a Poisoned target's turn (a success ends the spell on it)" },
+        },
+        overrides: {
+          targetType: "creature",
+          removeSpellSlotConsume: true,
+          noTemplate: true,
+          // the repeat save ends the poison; it must not re-apply it
+          noeffect: true,
+        },
+      },
     ];
   }
 

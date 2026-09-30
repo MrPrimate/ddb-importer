@@ -4,7 +4,8 @@ export default class TeamTactics extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      addItemConsume: true,
+      // rides on Group Recovery, which spends its own use
+      noConsumeTargets: true,
       activationCondition: "You use Group Recovery",
       activationType: "special",
       targetType: "ally",

@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import GenericLightSource from "./GenericLightSource";
+import _HandheldFlame from "./_HandheldFlame";
 
-export default class Candle extends GenericLightSource {
+export default class Candle extends _HandheldFlame {
 
   override get effects(): IDDBEffectHint[] {
     return [
@@ -21,13 +21,4 @@ export default class Candle extends GenericLightSource {
       },
     ];
   }
-
-  override get override(): IDDBOverrideData {
-    return {
-      uses: {
-        autoDestroy: true,
-      },
-    };
-  }
-
 }

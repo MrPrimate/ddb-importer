@@ -2,14 +2,18 @@ import DDBEnricherData from "../data/DDBEnricherData";
 import type DDBItem from "../../item/DDBItem";
 import { hasItemSource, itemActivity, itemText, itemUses } from "./_ItemActivities";
 
-/** Magazine counts belong only to the firearm definitions with the Reload property. */
+/**
+ * Magazine counts belong only to the firearm definitions with the Reload property: the DMG firearms
+ * (3, 146) and Mage Hand Press's The Gunslinger Class (TGC, 197), whose Reload property is the same
+ * rule (a limited number of shots, then reload as an action or a Bonus Action).
+ */
 export default abstract class _ReloadFirearm extends DDBEnricherData {
 
   abstract capacity: number;
 
   get supported(): boolean {
     return (
-      hasItemSource(this, 3, 146) &&
+      hasItemSource(this, 3, 146, 197) &&
       (/reload/i).test(itemText(this)) &&
       ((this.ddbParser as DDBItem).ddbDefinition.properties ?? []).some((p) => p.name === "Reload")
     );

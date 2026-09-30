@@ -33,6 +33,7 @@ export { default as MappingMagic } from "./MappingMagic";
 export { default as PerfectedArmor } from "./PerfectedArmor";
 export { default as PerfectWeapon } from "./PerfectWeapon";
 export { default as ReanimatedCompanion } from "./ReanimatedCompanion";
+export { default as ReanimatorsSkillset } from "./ReanimatorsSkillset";
 export { default as RefinedReanimation } from "./RefinedReanimation";
 export { default as RestorativeReagents } from "./RestorativeReagents";
 export { default as SoulOfArtifice } from "./SoulOfArtifice";

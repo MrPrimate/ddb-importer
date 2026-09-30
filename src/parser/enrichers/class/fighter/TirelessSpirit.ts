@@ -9,9 +9,12 @@ export default class TirelessSpirit extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       name: "Regain 1 Use",
-      addItemConsume: true,
-      itemConsumeValue: "-1",
       activationType: "encounter",
+      activationCondition: "When you roll initiative and have no uses of Fighting Spirit remaining",
+      // regains a Fighting Spirit use; like the official Archdruid data it has no uses of its own
+      addItemConsume: true,
+      itemConsumeTargetName: "Fighting Spirit",
+      itemConsumeValue: "-1",
     };
   }
 

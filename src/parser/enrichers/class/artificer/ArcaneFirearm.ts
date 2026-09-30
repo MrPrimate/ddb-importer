@@ -10,7 +10,8 @@ export default class ArcaneFirearm extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
-      addItemConsume: true,
+      // every artificer spell cast through the firearm, with no limit
+      noConsumeTargets: true,
       data: {
         damage: {
           parts: [

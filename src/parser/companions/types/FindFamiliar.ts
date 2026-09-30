@@ -171,6 +171,21 @@ const animals2024 = [
   },
 ];
 
+// the Necromancer's special familiar forms (Necromancy Spellbook, AU 2024)
+const undeadFamiliars2024 = [
+  {
+    name: "Skeleton",
+    id: 4775841,
+  },
+  {
+    name: "Zombie",
+    id: 4775851,
+  },
+];
+
+/** Activity name NecromancySpellbook gives its Skeleton or Zombie summon. */
+const UNDEAD_FORMS_ACTIVITY = "Cast Find Familiar (Skeleton or Zombie)";
+
 export async function getFindFamiliarActivityData(activity: I5eActivity, options: any): Promise<IFindFamiliarActivityData> {
   const is2014 = options.is2014;
   const rules = is2014 ? "2014" : "2024";
@@ -182,13 +197,18 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   const packMap = is2014 ? pactFamiliars2014 : pactFamiliars2024;
 
   const isPactActivity = activity.name === "Find Familiar (Expanded Options)";
+  const isUndeadFormsActivity = !is2014 && activity.name === UNDEAD_FORMS_ACTIVITY;
   const isPactSpell = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.dndbeyond.lookupName") === "Pact of the Chain";
   const originalName = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName") as string | undefined;
   const isPactFeature = originalName?.includes("Pact of the Chain") ?? false;
   // the Necromancer's Undead Familiar lets a normal form take the Undead creature type
   const isNecromancySpellbook = originalName === "Necromancy Spellbook";
 
-  const mapInUse = isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
+  const mapInUse = isUndeadFormsActivity
+    ? undeadFamiliars2024
+    : isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
+  // named forms are listed as profiles; the 2024 normal forms are any CR 0 Beast
+  const listsNamedForms = is2014 || isPactActivity || isUndeadFormsActivity;
 
   if (game.user.isGM) await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
@@ -207,7 +227,7 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
     });
   }
 
-  const profilesChoice = is2014 || isPactActivity
+  const profilesChoice = listsNamedForms
     ? profiles
     : [
       {
@@ -232,9 +252,12 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   // });
 
   const activityData = {
-    creatureTypes: isNecromancySpellbook
-      ? ["celestial", "fey", "fiend", "undead"]
-      : ["celestial", "fey", "fiend"],
+    // Skeleton and Zombie keep their own Undead type
+    creatureTypes: isUndeadFormsActivity
+      ? []
+      : isNecromancySpellbook
+        ? ["celestial", "fey", "fiend", "undead"]
+        : ["celestial", "fey", "fiend"],
     profiles: profilesChoice,
     creatureSizes: [],
     match: {
@@ -244,7 +267,7 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
     },
     summon: {
       identifier: "",
-      mode: is2014 || isPactActivity ? "" : "cr",
+      mode: listsNamedForms ? "" : "cr",
       prompt: true,
     },
     bonuses: {

@@ -1,7 +1,51 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import GenericLightSource from "./GenericLightSource";
+import _HandheldFlame from "./_HandheldFlame";
 
-export default class Torch extends GenericLightSource {
+/** A lit torch can also be swung as an improvised melee attack for 1 Fire damage. */
+export default class Torch extends _HandheldFlame {
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
+        },
+        build: {
+          generateAttack: true,
+          generateDamage: true,
+          generateActivation: true,
+          generateTarget: true,
+          generateRange: true,
+          generateConsumption: false,
+        },
+        overrides: {
+          noConsumeTargets: true,
+          noTemplate: true,
+          activationType: "action",
+          targetType: "creature",
+          data: {
+            range: { override: true, units: "ft", value: "5" },
+            attack: {
+              ability: "str",
+              type: {
+                value: "melee",
+                classification: "weapon",
+              },
+            },
+            damage: {
+              parts: [
+                DDBEnricherData.basicDamagePart({
+                  customFormula: "1",
+                  types: ["fire"],
+                }),
+              ],
+            },
+          },
+        },
+      },
+    ];
+  }
 
   override get effects(): IDDBEffectHint[] {
     const lightAnimation = "{type: \"torch\", speed: 2, intensity: 2}";
@@ -24,14 +68,4 @@ export default class Torch extends GenericLightSource {
       },
     ];
   }
-
-  override get override(): IDDBOverrideData {
-    return {
-      uses: {
-        autoDestroy: true,
-      },
-    };
-  }
-
-
 }

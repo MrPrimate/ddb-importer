@@ -153,7 +153,12 @@ export function applyItemFilters(input: IDDBItemsSource, {
     counts.category = data.items.length;
   }
   // source filtering
-  const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
+  // Generic parents ("Weapon, +1", "Spell Scroll") cannot be added to an inventory, but adventure
+  // text links to them by id, so an explicitly requested id is kept even with generics off.
+  const requestedIds = ddbIdSet(ids);
+  const filteredItems = useGenerics
+    ? data.items
+    : data.items.filter((item) => item.canBeAddedToInventory || requestedIds.has(String(item.id)));
   const bookFilterActive = sources.length > 0 && useSourceFilter;
   data = {
     items: bookFilterActive
