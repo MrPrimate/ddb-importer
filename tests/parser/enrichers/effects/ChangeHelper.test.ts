@@ -251,6 +251,42 @@ describe("ChangeHelper.daeStatusEffectChange", () => {
   });
 });
 
+describe("ChangeHelper inherited statuses", () => {
+  it("adds the statuses dnd5e says a condition implies, after the given ones", () => {
+    expect(ChangeHelper.withInheritedStatuses(["stunned"])).toEqual(["stunned", "incapacitated"]);
+    expect(ChangeHelper.withInheritedStatuses(["paralyzed", "poisoned"])).toEqual(["paralyzed", "poisoned", "incapacitated"]);
+  });
+
+  it("leaves conditions without inherited statuses alone and does not repeat any", () => {
+    expect(ChangeHelper.withInheritedStatuses(["prone"])).toEqual(["prone"]);
+    expect(ChangeHelper.withInheritedStatuses(["unconscious", "incapacitated", "stunned"]))
+      .toEqual(["unconscious", "incapacitated", "stunned"]);
+  });
+
+  it("does not add Unconscious's Prone rider, which dnd5e creates as its own effect", () => {
+    expect(ChangeHelper.withInheritedStatuses(["unconscious"])).toEqual(["unconscious", "incapacitated"]);
+  });
+
+  it("stops on a cycle", () => {
+    const types = CONFIG.DND5E.conditionTypes as Record<string, { statuses?: string[] }>;
+    types.cycleA = { statuses: ["cycleB"] };
+    types.cycleB = { statuses: ["cycleA"] };
+    try {
+      expect(ChangeHelper.withInheritedStatuses(["cycleA"])).toEqual(["cycleA", "cycleB"]);
+    } finally {
+      delete types.cycleA;
+      delete types.cycleB;
+    }
+  });
+
+  it("gives an imported status effect the native inherited statuses", () => {
+    const effect = { name: "Stun", statuses: [] as string[] } as unknown as I5eEffectData;
+    ChangeHelper.addStatusEffectChange({ effect, statusName: "Stunned" });
+    ChangeHelper.addStatusEffectChange({ effect, statusName: "Incapacitated" });
+    expect(effect.statuses).toEqual(["stunned", "incapacitated"]);
+  });
+});
+
 describe("ChangeHelper overtime saveDC", () => {
   const doc = { name: "Wretched" } as any;
 
