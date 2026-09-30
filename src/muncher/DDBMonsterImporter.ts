@@ -6,6 +6,7 @@ import {
   DDBEffectImporter,
   FileHelper,
   CompendiumHelper,
+  ImageSnipper,
 } from "../lib/_module";
 
 
@@ -341,11 +342,26 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.img") as string
       : foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg") as string;
 
-    if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
-    if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
+    // enriched summon art can carry a cut (flags.monsterMunch.imgSnip / tokenImgSnip), which
+    // travels with its url through the swaps and fallbacks
+    const avatarSnipFlag = foundry.utils.getProperty(this.monster, "flags.monsterMunch.imgSnip") as IDDBImageSnip | undefined;
+    const tokenSnipFlag = foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSnip") as IDDBImageSnip | undefined;
+    let avatarSnip = (useTokenAsAvatar ? tokenSnipFlag : avatarSnipFlag) ?? null;
+    let tokenSnip = (useAvatarAsToken ? avatarSnipFlag : tokenSnipFlag) ?? null;
 
-    const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
-    const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+    if (!ddbAvatarUrl && ddbTokenUrl) {
+      ddbAvatarUrl = ddbTokenUrl;
+      avatarSnip = tokenSnip;
+    }
+    if (!ddbTokenUrl && ddbAvatarUrl) {
+      ddbTokenUrl = ddbAvatarUrl;
+      tokenSnip = avatarSnip;
+    }
+
+    const avatarLookupKey = ImageSnipper.lookupKey(ddbAvatarUrl, avatarSnip);
+    const tokenLookupKey = ImageSnipper.lookupKey(ddbTokenUrl, tokenSnip);
+    const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(avatarLookupKey);
+    const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(tokenLookupKey);
 
     const detailsType = this.monster.system.details?.type;
     const npcType = this.type.startsWith("vehicle")
@@ -369,7 +385,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
 
     if (ddbAvatarUrl && foundry.utils.getProperty(this.monster, "flags.monsterMunch.imgSet") !== true) {
       if (hasAvatarProcessedAlready) {
-        this.monster.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
+        this.monster.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(avatarLookupKey);
       } else {
         const ext = ddbAvatarUrl.split(".").pop()?.split(/#|\?|&/)[0] ?? "";
         const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
@@ -385,6 +401,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
           pathPostfix,
           imageNamePrefix,
           force: forceUpdate || updateImages,
+          snip: avatarSnip,
         };
         this.monster.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
       }
@@ -400,7 +417,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
 
     if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
-        monsterTokenImgPath = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+        monsterTokenImgPath = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(tokenLookupKey);
         protoTexture.src = monsterTokenImgPath;
         if (useWildcard && protoTexture.src?.includes("*")) protoToken.randomImg = true;
       } else {
@@ -416,7 +433,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
           force: forceUpdate || updateImages,
         });
         tokenName = downloadOptions.name;
-        monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, { ...downloadOptions, snip: tokenSnip });
         this.tokenFiles.downloaded = monsterTokenImgPath;
         protoTexture.src = monsterTokenImgPath;
         if (monsterTokenImgPath && useWildcard && !useTokenizer) {
@@ -519,8 +536,8 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
       logger.debug(`Generated tokenizer image at ${tokenizerResult}`);
     }
 
-    if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(ddbAvatarUrl, this.monster.img);
-    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(ddbTokenUrl, protoTexture.src);
+    if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(avatarLookupKey, this.monster.img);
+    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(tokenLookupKey, protoTexture.src);
 
     return this.monster;
   }

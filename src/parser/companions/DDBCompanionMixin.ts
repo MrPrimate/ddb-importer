@@ -74,7 +74,13 @@ export default class DDBCompanionMixin {
     };
   }
 
-  static async getEnrichedImageData(document: I5eMonsterData) {
+  /** An enriched image map entry by exact name, then by the name without its "(variant)" suffix. */
+  static findEnrichedEntry<T>(entries: Record<string, T> | undefined | null, name: string): T | undefined {
+    if (!entries) return undefined;
+    return entries[name] ?? entries[name.split("(")[0].trim()];
+  }
+
+  static async getEnrichedImageData(document: I5eMonsterData): Promise<IDDBEnrichedImageData | null> {
     const tiers = await PatreonHelper.checkPatreon({ cacheBust: false });
     if (!tiers.all || DDBProxy.isCustom(true)) return null;
     const name = document.name;
@@ -92,12 +98,23 @@ export default class DDBCompanionMixin {
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }
 
-    const summonsImages = CONFIG.DDBI.EXTRA_IMAGES?.summons;
-    if (!summonsImages) return null;
-    const data = summonsImages[name]
-      ?? summonsImages[name.split("(")[0].trim()];
+    const summons = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.summons, name);
+    const snips = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.snips, name);
+    if (!summons && !snips) return null;
 
-    return data;
+    return { ...(summons ?? {}), snips };
+  }
+
+  /** Point the munch flags at a snip, so getNPCImage downloads and cuts it. */
+  static applyImageSnips(document: I5eMonsterData, snips: IDDBImageSnipEntry | undefined) {
+    if (snips?.actor) {
+      foundry.utils.setProperty(document, "flags.monsterMunch.img", snips.actor.url);
+      foundry.utils.setProperty(document, "flags.monsterMunch.imgSnip", snips.actor);
+    }
+    if (snips?.token) {
+      foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", snips.token.url);
+      foundry.utils.setProperty(document, "flags.monsterMunch.tokenImgSnip", snips.token);
+    }
   }
 
   static async addEnrichedImageData(document: I5eMonsterData): Promise<I5eMonsterData> {
@@ -109,7 +126,9 @@ export default class DDBCompanionMixin {
 
     foundry.utils.setProperty(document, "flags.monsterMunch.enrichedImages", true);
 
-    if (data.monsterIDs && data.monsterIDs.length > 0) {
+    // a snip replaces the image for its target, so a snipped avatar and token need no monster fetch
+    const needsMonsterArt = !data.snips?.actor || !data.snips?.token;
+    if (needsMonsterArt && data.monsterIDs && data.monsterIDs.length > 0) {
       const monsterFactory = new DDBMonsterFactory({ type: "summons" });
 
       // the proxy refuses by-id fetches outside its no-auth list for users without a Patreon key,
@@ -125,6 +144,7 @@ export default class DDBCompanionMixin {
         const tokenImg = monsterSource.avatarUrl;
         foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", tokenImg);
         foundry.utils.setProperty(document, "flags.monsterMunch.img", img);
+        DDBCompanionMixin.applyImageSnips(document, data.snips);
         return document;
       }
     }
@@ -134,6 +154,7 @@ export default class DDBCompanionMixin {
     if (data.token) {
       foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", data.token);
     }
+    DDBCompanionMixin.applyImageSnips(document, data.snips);
 
     // future enhancement loop through the downloaded compendium monsters for image
     return document;

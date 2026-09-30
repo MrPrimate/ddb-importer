@@ -18,6 +18,7 @@ export { default as DDBEffectImporter } from "./DDBEffectImporter";
 export { default as DDBProxy } from "./DDBProxy";
 export { default as DialogHelper } from "./DialogHelper";
 export { default as FileHelper } from "./FileHelper";
+export { default as ImageSnipper } from "./ImageSnipper";
 export { default as FrameAnimator } from "./FrameAnimator";
 export { default as FrameKeyframeRenderer } from "./FrameKeyframeRenderer";
 export { default as FolderHelper } from "./FolderHelper";

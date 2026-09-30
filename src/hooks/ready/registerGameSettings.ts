@@ -86,7 +86,10 @@ export interface IDDBIConfig {
   ignoreEnrichedImages?: boolean;
   keyPostfix?: string;
   useLocal?: boolean;
-  EXTRA_IMAGES?: { summons?: Record<string, any> } & Record<string, Record<string, any>> | null;
+  EXTRA_IMAGES?: {
+    summons?: Record<string, IDDBEnrichedSummonImage>;
+    snips?: Record<string, IDDBImageSnipEntry>;
+  } & Record<string, Record<string, any>> | null;
   RULE_MATCHES?: IDDBRuleLinksLookup | null;
   remaining?: Record<string, any>[];
   monsterURL?: string;

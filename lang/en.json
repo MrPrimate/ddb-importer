@@ -684,6 +684,48 @@
           "none": "Scanned {scenes}, no expired templates found."
         }
       }
+    },
+    "image-snipper": {
+      "title": "DDB Image Snipper",
+      "name": "Match name",
+      "namePlaceholder": "The summon or companion name, e.g. Homunculus Servant",
+      "unnamed": "Unnamed",
+      "target": "Image being edited",
+      "avatar": "Avatar",
+      "token": "Token",
+      "copyToToken": "Copy avatar to token",
+      "clear": "Clear",
+      "url": "Image URL",
+      "load": "Load",
+      "loading": "Loading...",
+      "emptyHint": "Enter a D&D Beyond image URL and press Load. Drag to draw the cut, drag inside it to move it, and drag a corner to resize it.",
+      "cut": "Cut",
+      "rotation": "Rotation (degrees)",
+      "shape": "Shape",
+      "shapes": {
+        "rectangle": "Rectangle",
+        "square": "Square",
+        "circle": "Circle"
+      },
+      "center": "Centre (source px)",
+      "size": "Size (source px)",
+      "width": "Width",
+      "height": "Height",
+      "maxSize": "Maximum size",
+      "maxSizeNone": "None",
+      "maxSizeHint": "Scales the saved cut down so its longest side fits, e.g. 400 for tokens. Leave empty to keep the source pixels.",
+      "noImage": "No image",
+      "output": "Proxy entry",
+      "outputPlaceholder": "The entry for snip-images.js appears here. Paste an existing entry here and use Load entry to edit it.",
+      "copy": "Copy entry",
+      "applyText": "Load entry",
+      "notify": {
+        "loadFailed": "Could not load {url}. D&D Beyond refused the image or the image proxy is unreachable.",
+        "noAvatar": "Load an avatar image before copying it to the token.",
+        "nothingToCopy": "There is no avatar or token cut to copy yet.",
+        "copied": "Image snip entry copied to the clipboard.",
+        "parseFailed": "The text is not an image snip entry."
+      }
     }
   }
 }

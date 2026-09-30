@@ -363,4 +363,32 @@ global {
     ids?: number;
     search: number;
   }
+
+  type TDDBImageSnipShape = "rectangle" | "square" | "circle";
+
+  /**
+   * Instructions for cutting a piece out of a remote image, served by the proxy's enriched image
+   * data. Positions are in the unrotated source image's pixels; `width`/`height` are the size of the
+   * cut, which is axis-aligned in the view rotated clockwise by `rotation` degrees. `square` and
+   * `circle` cuts always have equal sides.
+   */
+  interface IDDBImageSnip {
+    url: string;
+    // the natural image size the snip was authored against, so a differently sized copy still cuts true
+    sourceWidth: number;
+    sourceHeight: number;
+    rotation: number;
+    centerX: number;
+    centerY: number;
+    width: number;
+    height: number;
+    shape: TDDBImageSnipShape;
+    // scale the cut down so its longest side is at most this many pixels
+    maxSize?: number;
+  }
+
+  interface IDDBImageSnipEntry {
+    actor?: IDDBImageSnip;
+    token?: IDDBImageSnip;
+  }
 }

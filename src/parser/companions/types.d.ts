@@ -1,6 +1,20 @@
 export {};
 
 global {
+  /** A summons entry in the proxy's enriched image data, keyed by the summon's name. */
+  interface IDDBEnrichedSummonImage {
+    monster?: string | null;
+    monsterID?: number | null;
+    // DDB monsters whose art is used; only the first one returned is read
+    monsterIDs?: number[];
+    actor?: string | null;
+    token?: string | null;
+  }
+
+  interface IDDBEnrichedImageData extends IDDBEnrichedSummonImage {
+    snips?: IDDBImageSnipEntry;
+  }
+
   interface IDDBCompanionMixinOptions {
     type?: string;
     subType?: string;

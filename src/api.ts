@@ -52,6 +52,7 @@ import SceneCopyApp from "./apps/SceneCopyApp";
 import SceneCopyBatchApp from "./apps/SceneCopyBatchApp";
 import DDBRegionDisplayProfiles from "./apps/DDBRegionDisplayProfiles";
 import DDBRegionDisplayConfig from "./apps/DDBRegionDisplayConfig";
+import DDBImageSnipper from "./apps/DDBImageSnipper";
 import { sceneFieldGroups } from "./apps/lib/sceneFieldCopy";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
@@ -153,6 +154,13 @@ export const API_BASE = {
     SceneCopyBatchApp,
     DDBRegionDisplayProfiles,
     DDBRegionDisplayConfig,
+    DDBImageSnipper,
+  },
+  images: {
+    // author a snip entry for the proxy's enriched image data: openSnipper(url) or openSnipper({ url, name })
+    openSnipper: (options: string | { url?: string; name?: string } = {}) =>
+      DDBImageSnipper.open(typeof options === "string" ? { url: options } : options),
+    ImageSnipper: lib.ImageSnipper,
   },
   scenes: {
     // single scene Copy Scene Fields dialog
