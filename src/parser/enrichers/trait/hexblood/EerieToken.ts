@@ -139,7 +139,7 @@ export default class EerieToken extends DDBEnricherData {
       },
       {
         name: "Remote Viewing",
-        statuses: ["Incapatitated"],
+        statuses: ["Incapacitated"],
         activitiesMatch: ["Remote Viewing"],
         options: {
           durationSeconds: 60,

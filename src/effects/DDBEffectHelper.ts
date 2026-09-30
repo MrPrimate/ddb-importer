@@ -296,12 +296,12 @@ export default class DDBEffectHelper {
     if (!statusName) {
       return;
     }
-    const customStatusName = `${statusName.label} [${originItemName}]`;
+    const customStatusName = `${statusName.name} [${originItemName}]`;
     if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a: any) => (a.label ?? a.name) === customStatusName)) {
       const aaHookId = (Hooks as unknown as IDynamicHooks).on("AutomatedAnimations-WorkflowStart", (data: IAAWorkflowData) => {
         if (
           data.item instanceof CONFIG.ActiveEffect.documentClass
-          && data.item.name === statusName.label
+          && data.item.name === statusName.name
           && data.item.origin === macroData.sourceItemUuid
         ) {
           data.recheckAnimation = true;
