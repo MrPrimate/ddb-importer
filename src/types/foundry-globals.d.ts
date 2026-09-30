@@ -155,6 +155,8 @@ declare global {
         /** Status icon path (dnd5e 6 has no `icon`). */
         img: string;
         reference?: string;
+        /** Not a rules condition (Burning, Falling...), only a status effect. */
+        pseudo?: boolean;
         /** Other status ids the condition carries (Stunned: incapacitated). */
         statuses?: string[];
         /** Conditions dnd5e creates as separate effects alongside it (Unconscious: prone). */

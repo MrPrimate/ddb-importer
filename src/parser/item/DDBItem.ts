@@ -3871,8 +3871,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       durationSeconds: conditions.expiry ? null : conditions.seconds ?? undefined,
       description: `Apply status ${label}`,
     });
-    effect.statuses.push(...statuses);
-    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.icon ?? effect.img;
+    Effects.ChangeHelper.addStatuses(effect, statuses);
+    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.img ?? effect.img;
     if (conditions.expiry) foundry.utils.setProperty(effect, "duration.expiry", conditions.expiry);
     foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", "Save");
     this.data.effects ??= [];
