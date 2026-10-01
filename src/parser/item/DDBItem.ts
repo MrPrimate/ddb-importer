@@ -2030,10 +2030,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /**
    * "(no Concentration required)", "doesn't require your Concentration", "without requiring
-   * concentration" and similar. Wording that only mentions concentration ("provided you maintain
-   * concentration", "a spell you cast that requires Concentration") must not match.
+   * concentration" and similar, plus an item that concentrates on its own spell "so that you don't
+   * have to" (DDB's text can space the apostrophe, "don' t"). Wording that only mentions
+   * concentration ("provided you maintain concentration", "a spell you cast that requires
+   * Concentration") must not match.
    */
-  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration/;
+  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration|concentration on (?:it|the spell|that spell),? so (?:that )?you (?:don' ?t|do not) have to/;
 
   /**
    * Does the item description say a spell it grants is cast without concentration?

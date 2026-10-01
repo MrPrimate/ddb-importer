@@ -230,6 +230,8 @@ describe("DDBItem.spellIgnoresConcentration", () => {
     "The Glow spell no longer requires Concentration.",
     "These spells do not require your concentration.",
     "Glow cast this way (save DC 15, no concentration required) lasts 1 minute.",
+    "The widget casts Glow and maintains concentration on it so that you don't have to.",
+    "It chooses when to cast the spell and maintains concentration on it so that you don' t have to.",
   ])("matches %s", (description) => {
     expect(DDBItem.spellIgnoresConcentration(description, "Glow")).toBe(true);
   });
