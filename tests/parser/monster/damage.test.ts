@@ -203,4 +203,22 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     expect(dmg.damageParts[0].damageTypes).toContain("slashing");
     expect(dmg.damageParts[0].part).toBeDefined();
   });
+
+  it("folds a damage type choice into the part before it rather than an alternative", () => {
+    const dmg = makeDamage("Hit: 19 (2d10 + 8) piercing damage plus 10 (3d6) necrotic damage or (3d6) radiant damage (the son’s choice).");
+    expect(dmg.damageParts.map((p) => p.damageTypes)).toEqual([["piercing"], ["necrotic", "radiant"]]);
+    expect(dmg.damageParts[1].part.types).toEqual(["necrotic", "radiant"]);
+    expect(dmg.versatileParts).toEqual([]);
+  });
+
+  it("keeps the condition of an or-alternative for naming its activity", () => {
+    const dmg = makeDamage("Hit: 7 (2d6) piercing damage, or 3 (1d6) piercing damage if the swarm has half of its hit points or fewer. The target must make a DC 10 Constitution saving throw.");
+    expect(dmg.versatileParts).toHaveLength(1);
+    expect(dmg.versatileCondition).toBe("the swarm has half of its hit points or fewer");
+  });
+
+  it("records no condition for a two-handed alternative", () => {
+    const dmg = makeDamage("Hit: 7 (1d8 + 3) slashing damage, or 8 (1d10 + 3) slashing damage if used with two hands.");
+    expect(dmg.versatileCondition).toBe("");
+  });
 });

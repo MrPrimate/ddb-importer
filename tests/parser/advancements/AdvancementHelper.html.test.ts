@@ -137,6 +137,28 @@ describe("AdvancementHelper.parseHTMLSkills", () => {
     expect(double.grants).toEqual(["ins", "med"]);
   });
 
+  it("reads 'proficiency in the A, B, or C skill' as a choice of one", () => {
+    const have = AdvancementHelper.parseHTMLSkills("<p>You have proficiency in the Insight, Perception, or Survival skill.</p>");
+    expect(have).toMatchObject({ number: 1, choices: ["ins", "prc", "sur"], grants: [] });
+    const gain = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in the Persuasion or Deception skill.</p>");
+    expect(gain).toMatchObject({ number: 1, choices: ["per", "dec"], grants: [] });
+  });
+
+  it("does not read a skill-or-free-pick sentence as a list", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in the Arcana skill or one skill of your choice from the Wizard skill list.</p>");
+    expect(result.number).toBe(0);
+  });
+
+  it("reads 'one skill proficiency and one tool proficiency of your choice' as any one skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain one skill proficiency and one tool proficiency of your choice.</p>");
+    expect(result).toMatchObject({ number: 1, choices: ["*"] });
+  });
+
+  it("reads 'one skill or with one tool of your choice' as one pick from either pool", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in one skill or with one tool of your choice.</p>");
+    expect(result).toMatchObject({ number: 1, choices: ["*", "tool:*"] });
+  });
+
   it("returns an empty parse when the text has no proficiency wording", () => {
     const result = AdvancementHelper.parseHTMLSkills("<p>You can cast a spell.</p>");
     expect(result).toEqual({ choices: [], grants: [], number: 0, allowReplacements: true });

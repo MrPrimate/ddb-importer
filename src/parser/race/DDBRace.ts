@@ -1035,15 +1035,43 @@ export default class DDBRace {
 
   #generateConditionAdvancement(trait: IDDBRacialTraitDefinition) {
     // A munched lineage species grants its chosen lineage trait, which carries the resistance as an
-    // effect. The muncher reads conditions from the description table instead of the modifiers, which
-    // always yields the first lineage row (e.g. Poison for every Tiefling legacy).
-    if (this.isMuncher && this.isLineage && this.lineageTrait?.componentId === trait.id) return;
+    // effect. The description table lists every lineage, so reading it always yields the first row
+    // (e.g. Poison for every Tiefling legacy).
+    if (this.isLineage && this.lineageTrait?.componentId === trait.id) {
+      if (this.isMuncher) return;
+      this.#generateLineageConditionAdvancement(trait);
+      return;
+    }
     // TO DO: Dragonborn Resistance choice advancement
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
     if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+  }
+
+  /**
+   * A character's chosen 2024 lineage or legacy grants its resistance outright. DDB attaches that
+   * modifier to the chosen option (Infernal Legacy), not to the lineage trait.
+   */
+  #generateLineageConditionAdvancement(trait: IDDBRacialTraitDefinition) {
+    const optionId = this.lineageTrait?.id;
+    if (!optionId) return;
+    // resistances are effect-excluded modifiers, which getModifiers drops by default
+    const mods = DDBModifiers.getModifiers(this.ddbData, "race", true).filter((mod) => mod.componentId === optionId);
+    const grants = AdvancementHelper.conditionValuesFromMods(mods);
+    if (grants.length === 0) return;
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
+    const update: I5eAdvancementTrait = {
+      name: trait.name,
+      configuration: {
+        allowReplacements: false,
+      },
+      level: 0,
+    };
+    advancement.updateSource(update as any);
+    AdvancementHelper.advancementUpdate(advancement, { grants });
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   /**

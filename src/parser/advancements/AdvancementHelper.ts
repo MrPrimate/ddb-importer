@@ -658,7 +658,8 @@ export default class AdvancementHelper {
       : [...new Set([...skillsFromMods, ...subTypeSkills])];
 
     const pool = parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
-      ? parsedSkills.choices.map((skill) => `skills:${skill}`)
+      // a mixed pick carries its other pools as full trait keys ("tool:*")
+      ? parsedSkills.choices.map((skill) => (skill.includes(":") ? skill : `skills:${skill}`))
       : modPool.map((choice) => `skills:${choice}`);
 
     const chosen = this.isMuncher || chosenSkills.chosen.length > 0
@@ -1270,22 +1271,21 @@ export default class AdvancementHelper {
     4: "ci",
   };
 
-  getConditionAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
+  /** Trait keys ("dr:fire", "ci:poisoned") for the unrestricted damage and condition modifiers. */
+  static conditionValuesFromMods(mods: IModifiersMod[]): string[] {
     const conditionsFromMods: string[] = [];
     (["resistance", "immunity", "vulnerability", "immunity"] as TDDBDamageConditionType[]).forEach((condition, i) => {
       const proficiencyMods = DDBModifiers.filterModifiers(mods, condition, { restriction: null });
       const conditionId = i + 1;
       const conditionData = AutoEffects.getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
       const conditionValues = new Set(conditionData.map((result) => `${AdvancementHelper.CONDITION_ID_MAPPING[conditionId]}:${result.value}`));
-      // console.warn("Individual Parse", {
-      //   proficiencyMods,
-      //   condition,
-      //   conditionId,
-      //   conditionData,
-      //   conditionValues,
-      // });
       conditionsFromMods.push(...conditionValues);
     });
+    return conditionsFromMods;
+  }
+
+  getConditionAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
+    const conditionsFromMods = AdvancementHelper.conditionValuesFromMods(mods);
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
@@ -1661,14 +1661,38 @@ export default class AdvancementHelper {
 
     // You gain proficiency in one skill of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
+    // You gain proficiency in one skill or with one tool of your choice. (one pick from either pool)
+    if ((/You gain proficiency in one skill or (?:with )?one tool of your choice/i).test(textDescription)) {
+      parsedSkills.number = 1;
+      parsedSkills.choices = ["*", "tool:*"];
+      return parsedSkills;
+    }
+
     // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
-    const additionalMatchRegex = /You gain (?:one skill proficiency of your choice|proficiency in (?:an additional skill|one skill of your choice))/im;
+    // You gain one skill proficiency and one tool proficiency of your choice.
+    const additionalMatchRegex = /You gain (?:one skill proficiency (?:and one tool proficiency )?of your choice|proficiency in (?:an additional skill|one skill of your choice))/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
       parsedSkills.number = 1;
       parsedSkills.choices = ["*"];
       return parsedSkills;
+    }
+
+    // You have proficiency in the Insight, Perception, or Survival skill.
+    // you gain proficiency in the Persuasion or Deception skill
+    // Every listed name must be a skill: "the Arcana skill or one skill of your choice" is not a list.
+    const orSkillMatch = textDescription.match(/You (?:have|gain) proficiency in the ([^.]*?\bor\b[^.]*?) skill\b/i);
+    if (orSkillMatch) {
+      const names = orSkillMatch[1].split(/,\s*(?:or\s+)?|\s+or\s+/).map((name) => name.trim()).filter(Boolean);
+      const skills = names
+        .map((name) => DICTIONARY.actor.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase())?.name)
+        .filter((name): name is T5eSkillKey => !!name);
+      if (skills.length > 1 && skills.length === names.length) {
+        parsedSkills.number = 1;
+        parsedSkills.choices = skills;
+        return parsedSkills;
+      }
     }
 
     // You gain proficiency in the Intimidation skill.
