@@ -527,6 +527,35 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
       { level: 1, name: "spike growth", amount: "1" },
     ]);
   });
+
+  it("parses the 2024 Magic Initiate cantrip list, same-list level 1 choice and replacement", () => {
+    // the official dnd5e feat is two pool-less ItemChoice advancements: two cantrips, then one level 1
+    // spell from the same list with one free cast per long rest, both replaceable on a level up
+    const html = "<p>You gain the following benefits.</p>"
+      + "<p><strong>Two Cantrips.</strong> You learn two cantrips of your choice from the Druid spell list. "
+      + "Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat).</p>"
+      + "<p><strong>Level 1 Spell.</strong> Choose a level 1 spell from the same list you selected for this feat’s cantrips. "
+      + "You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. "
+      + "You can also cast the spell using any spell slots you have.</p>"
+      + "<p><strong>Spell Change.</strong> Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellListCantripChoice).toBe("druid");
+    expect(result.spellListCantripChoiceNum).toBe(2);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "druid", amount: "1" }]);
+    expect(result.spellListChoiceReplace).toBe(true);
+    expect(result.spellGrants).toEqual([]);
+  });
+
+  it("parses the 2014 Magic Initiate possessive spell list for cantrips and the 1st-level choice", () => {
+    const html = "<p>You learn two cantrips of your choice from the druid's spell list. In addition, choose one 1st-level spell from the druid's spell list. "
+      + "You learn that spell and can cast it at its lowest level. Once you cast it, you must finish a long rest before you can cast it again using this feat. "
+      + "Wisdom is your spellcasting ability for these spells.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellListCantripChoice).toBe("druid");
+    expect(result.spellListCantripChoiceNum).toBe(2);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "druid", amount: "1" }]);
+    expect(result.spellListChoiceReplace).toBe(false);
+  });
 });
 
 // =============================================================================

@@ -142,6 +142,30 @@ export default class AdvancementHelper {
     };
   }
 
+  /**
+   * The skills a background grants outright, read from the rules defaults DDB keeps on its skill
+   * choices whether or not they are picked. Each fixed skill is a choice with a single default;
+   * "X or Y" choices list their whole pool as defaults, so any such choice returns [].
+   */
+  getBackgroundSkillDefaults(feature: TAdvancementFeatureDefinitions): string[] {
+    const defaults = new Set<string>();
+    const choices = ((this.ddbData.character.choices as Record<string, any>).background ?? []).filter((choice: any) =>
+      feature.id === choice.componentId
+      && choice.subType === 1
+      && choice.type === 2,
+    );
+    for (const choice of choices) {
+      const skills = (choice.defaultSubtypes ?? [])
+        .map((label: string) => DICTIONARY.actor.skills.find((s) => s.label === label)?.name)
+        .filter((name: string | undefined): name is string => !!name);
+      // tool choices share this choice type; their defaults resolve to no skill
+      if (skills.length === 0) continue;
+      if (skills.length > 1) return [];
+      defaults.add(skills[0]);
+    }
+    return Array.from(defaults);
+  }
+
   getToolChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
     const toolsChosen = new Set<string>();
     const toolChoices = new Set<string>();
@@ -523,6 +547,14 @@ export default class AdvancementHelper {
 
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
     const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
+
+    // A background's fixed skills are structured as its choices' defaults, which win over the
+    // "Skill Proficiencies:" text: DDB has copied that block from another background before
+    // (Bejeweled Conclave Spy carries Agent of the Ninth Quill's).
+    if (this.type === "background" && parsedSkills.grants.length > 0) {
+      const defaults = this.getBackgroundSkillDefaults(feature);
+      if (defaults.length > 0) parsedSkills.grants = defaults;
+    }
 
     const count = this.isMuncher && availableToMulticlass && baseProficiency
       ? this.dictionary.multiclassSkill
@@ -2842,7 +2874,8 @@ export default class AdvancementHelper {
 
     // You know one cantrip of your choice from the Sorcerer spell list.
     // you gain two cantrips of your choice from the wizard spell list
-    const spellListRegex = /You (?:know|learn|gain) (\w+) cantrip(?:s)? of your choice from the (\w+) spell list/i;
+    // You learn two cantrips of your choice from the druid's spell list. (2014 Magic Initiate)
+    const spellListRegex = /You (?:know|learn|gain) (\w+) cantrip(?:s)? of your choice from the (\w+)(?:['’]s)? spell list/i;
     const spellListMatch = strippedDescription.match(spellListRegex);
 
     if (spellListMatch) {
@@ -2932,7 +2965,27 @@ export default class AdvancementHelper {
 
     result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
 
-    const spellListChoiceReplace = /you can replace one of the spells you chose with this feature/i;
+    // Magic Initiate names its list once, for the cantrips, and the level 1 spell refers back to it:
+    // 2024: "Choose a level 1 spell from the same list you selected for this feat's cantrips."
+    // 2014: "In addition, choose one 1st-level spell from the druid's spell list. ... Once you cast it,
+    // you must finish a long rest before you can cast it again using this feat."
+    const sameListChoice = strippedDescription.match(/Choose a level (\d) spell from the same list you selected for this feat['’]s cantrips/i);
+    const possessiveListChoice = strippedDescription.match(/choose one (\d)(?:st|nd|rd|th)-level spell from the (\w+)['’]s spell list/i);
+    const featListChoice = sameListChoice
+      ? { level: parseInt(sameListChoice[1]), spellList: result.spellListCantripChoice ?? "" }
+      : possessiveListChoice
+        ? { level: parseInt(possessiveListChoice[1]), spellList: possessiveListChoice[2].toLowerCase() }
+        : null;
+    if (featListChoice && !result.spellChoices.some((c) => c.level === featListChoice.level && c.spellList === featListChoice.spellList)) {
+      const oncePerRest = (/Once you cast it, you must finish a long rest before you can cast it again/i).test(strippedDescription);
+      result.spellChoices.push({
+        ...featListChoice,
+        amount: AdvancementHelper.#freeCastAmount(strippedDescription) || (oncePerRest ? "1" : ""),
+      });
+    }
+
+    // "you can replace one of the spells you chose for this feat" is the 2024 feat wording
+    const spellListChoiceReplace = /you can replace one of the spells you chose (?:with this feature|for this feat)/i;
     if (spellListChoiceReplace.test(strippedDescription)) {
       result.spellListChoiceReplace = true;
     }

@@ -227,6 +227,39 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
     expect(data.value.chosen).toEqual(["skills:med", "skills:rel"]);
   });
 
+  it("prefers a background's skill choice defaults over its description text", () => {
+    const skillChoice = (defaultSubtypes: string[]) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds: [], defaultSubtypes,
+    });
+    const adv: any = makeHelper({
+      type: "background",
+      // DDB's tool choice shares the skill choice type
+      ddbData: makeDdbData({ background: [skillChoice(["Deception"]), skillChoice(["Perception"]), skillChoice(["Disguise Kit"])] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description: "<p><strong>Skill Proficiencies:</strong> Arcana and Sleight of Hand</p>" }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["skills:dec", "skills:prc"]);
+  });
+
+  it("keeps the description's background skills when a choice lists a pool as its defaults", () => {
+    const skillChoice = (defaultSubtypes: string[]) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds: [], defaultSubtypes,
+    });
+    const adv: any = makeHelper({
+      type: "background",
+      ddbData: makeDdbData({ background: [skillChoice(["Insight"]), skillChoice(["Arcana", "History", "Nature"])] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description: "<p><strong>Skill Proficiencies:</strong> Insight, Religion</p>" }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["skills:ins", "skills:rel"]);
+  });
+
   it("uses the feature name as name for non-base features", () => {
     const adv: any = makeHelper().getSkillAdvancement({
       feature: makeFeature({ name: "Bonus Proficiency", description: "<p>You gain proficiency in the Intimidation skill.</p>" }),
