@@ -296,6 +296,18 @@ describe("DDBDataUtils.getScaleValueString", () => {
     expect(DDBDataUtils.getScaleValueString(ddb, action).value).toBe("@scale.fighter.action-surge");
   });
 
+  // optional class features (Quickened Healing, Favored Foe) are parsed from their bare
+  // ddb.classOptions definition: levelScales, but no { definition } wrapper and no componentId
+  it("resolves a bare optional class feature definition that carries levelScales", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const option: any = { id: 3035739, name: "Favored Foe", classId: 1, levelScales: scales };
+    expect(DDBDataUtils.getScaleValueString(ddb, option)).toEqual({
+      name: "Favored Foe",
+      value: "@scale.fighter.favored-foe",
+      rollable: true,
+    });
+  });
+
   it("returns no value when nothing resolves", () => {
     const ddb = makeDDB({ classOptions: [] });
     const action: any = { name: "Orphan", componentId: 99999, componentTypeId: 1 };

@@ -431,8 +431,12 @@ export default class DDBDataUtils {
     // componentId to the feature they belong to.
     const definition = "definition" in feature ? feature.definition : undefined;
     const definitionScales = definition && "levelScales" in definition ? definition.levelScales : undefined;
+    // an optional class feature (Quickened Healing, Favored Foe) is parsed from its bare
+    // ddb.classOptions definition, which carries levelScales but no wrapper and no componentId
+    const bareScales = !definition && "levelScales" in feature ? feature.levelScales : undefined;
     const isScaleSource = ("levelScale" in feature && Boolean(feature.levelScale))
-      || (definitionScales?.length ?? 0) > 0;
+      || (definitionScales?.length ?? 0) > 0
+      || (bareScales?.length ?? 0) > 0;
     let feat: IDDBClassFeature | IDDBRacialTrait | undefined = isScaleSource
       ? feature as IDDBClassFeature
       : componentId != null
