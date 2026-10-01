@@ -47,6 +47,24 @@ export default class DDBClassFeatures {
 
   static FORCE_DERIVED_FEATURES = DICTIONARY.parsing.features.FORCE_DERIVED_FEATURES;
 
+  /** A comparable signature of an effect's name, type and changes, ignoring ids and duration. */
+  static effectSignature(effect: I5eEffectData): string {
+    const changes = (effect.system?.changes ?? [])
+      .map((c) => [c.key, c.type, c.value, c.priority, c.phase, c.conditions]);
+    return JSON.stringify([effect.name, effect.type ?? "base", changes]);
+  }
+
+  /**
+   * The effects a repeated levelled copy of a class feature (Improved Brutal Strike at 13 and 17)
+   * adds when it folds into the first copy. The copy's activities are dropped, so the enricher
+   * effects it rebuilt would only sit beside the first copy's as unlinked duplicates; an effect
+   * the surviving feature already carries with the same changes is skipped, one that differs is kept.
+   */
+  static newMergedEffects(existingFeature: T5eFeatureMixinDataTypes, item: T5eFeatureMixinDataTypes): I5eEffectData[] {
+    const existing = new Set((existingFeature.effects ?? []).map((e) => DDBClassFeatures.effectSignature(e)));
+    return (item.effects ?? []).filter((e) => !existing.has(DDBClassFeatures.effectSignature(e)));
+  }
+
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {
       const derived = klass.classFeatures;
@@ -234,7 +252,7 @@ export default class DDBClassFeatures {
           if (existingFeature && !duplicateFeature) {
             const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
             if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
-            existingFeature.effects?.push(...(item.effects ?? []));
+            existingFeature.effects?.push(...DDBClassFeatures.newMergedEffects(existingFeature, item));
           } else if (!existingFeature) {
             this._processed.push(item);
           }

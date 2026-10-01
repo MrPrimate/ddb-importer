@@ -343,3 +343,26 @@ describe("DDBClassFeatures.build", () => {
     expect(subclassFeature.flags.ddbimporter.class).toBe("Testclass");
   });
 });
+
+describe("DDBClassFeatures.newMergedEffects", () => {
+  const effect = (id: string, name: string, value = "5", extra: Record<string, unknown> = {}): any => ({
+    _id: id,
+    name,
+    type: "enchantment",
+    system: { changes: [{ _id: `c${id}`, key: "activities[attack].attack.bonus", type: "add", value, priority: 20 }] },
+    duration: { expiry: null },
+    ...extra,
+  });
+
+  it("skips a repeated copy's effect the surviving feature already carries", () => {
+    const existing: any = { effects: [effect("a1", "Sundering Blow Bonus", "5", { duration: { expiry: "sourceStart" } })] };
+    const repeat: any = { effects: [effect("b1", "Sundering Blow Bonus")] };
+    expect(DDBClassFeatures.newMergedEffects(existing, repeat)).toEqual([]);
+  });
+
+  it("keeps a same-named effect whose changes differ, and a new effect", () => {
+    const existing: any = { effects: [effect("a1", "Bonus", "2")] };
+    const repeat: any = { effects: [effect("b1", "Bonus", "3"), effect("b2", "Other")] };
+    expect(DDBClassFeatures.newMergedEffects(existing, repeat).map((e) => e._id)).toEqual(["b1", "b2"]);
+  });
+});
