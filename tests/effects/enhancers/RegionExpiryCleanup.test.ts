@@ -380,6 +380,33 @@ describe("RegionExpiryCleanup region timers", () => {
     expect(regionData[0].flags.ddbimporter.regionExpiry).toMatchObject({ combat: "c1", startRound: 3, startTurn: 2 });
   });
 
+  it("stamps the placing scene's combat, not one the tracker views on another scene", () => {
+    setMockSettings({ "enable-region-expiry-cleanup": true });
+    const elsewhere = { id: "c1", round: 9, turn: 4, scene: { id: "other" }, active: true, started: true };
+    const here = { id: "c2", round: 2, turn: 1, scene: { id: "here" }, active: false, started: true };
+    stubTime(1000, [elsewhere, here]);
+    vi.stubGlobal("canvas", { scene: { id: "here" } });
+    const regionData = [{}] as any[];
+
+    RegionExpiryCleanup.stampTemplateDurations(
+      { duration: { value: 3, units: "round", getEffectData: () => ({ value: 3, units: "rounds" }) } },
+      regionData,
+    );
+
+    expect(regionData[0].flags.ddbimporter.regionExpiry).toMatchObject({ combat: "c2", startRound: 2, startTurn: 1 });
+  });
+
+  it("keeps a viewed unlinked combat, and stamps no combat when the placing scene has none", () => {
+    const unlinked = { id: "c1", round: 5, turn: 0, scene: null };
+    stubTime(1000, [unlinked]);
+    expect(RegionExpiryCleanup.combatForScene({ id: "here" } as any)).toBe(unlinked);
+
+    const elsewhere = { id: "c2", round: 5, turn: 0, scene: { id: "other" }, active: true, started: true };
+    stubTime(1000, [elsewhere]);
+    expect(RegionExpiryCleanup.combatForScene({ id: "here" } as any)).toBeNull();
+    expect(RegionExpiryCleanup.combatForScene(null)).toBe(elsewhere);
+  });
+
   it("stamps nothing for an instantaneous or permanent activity", () => {
     setMockSettings({ "enable-region-expiry-cleanup": true });
     stubTime(1000);

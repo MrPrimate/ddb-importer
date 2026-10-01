@@ -203,7 +203,8 @@ export default class RegionExpiryCleanup {
       });
       return;
     }
-    const combat = game.combat;
+    // dnd5e creates the regions on the canvas scene
+    const combat = RegionExpiryCleanup.combatForScene(canvas?.scene);
     const timer: IRegionExpiryTimer = {
       ...duration,
       startTime: game.time?.worldTime ?? 0,
@@ -216,6 +217,20 @@ export default class RegionExpiryCleanup {
       foundry.utils.setProperty(data, `flags.${DDB_FLAG}.${TIMER_FLAG}`, timer);
     }
     logger.debug(`${LOG} stamped duration on ${regionData?.length ?? 0} region(s)`, timer);
+  }
+
+  /**
+   * The combat a region placed on a scene runs in. `game.combat` is the encounter the tracker is
+   * viewing, which can belong to another scene, so it is only kept when it is unlinked or on this
+   * scene; otherwise the scene's active, then started, combat. With no scene the viewed combat stands.
+   */
+  static combatForScene(scene: TSceneDoc | null | undefined): Combat.Stored | null {
+    const viewed = game.combat ?? null;
+    if (!scene) return viewed;
+    const sceneId = (combat: Combat.Stored): string | null => combat.scene?.id ?? null;
+    if (viewed && [null, scene.id].includes(sceneId(viewed))) return viewed;
+    const onScene = game.combats?.filter((combat) => sceneId(combat) === scene.id) ?? [];
+    return onScene.find((combat) => combat.active) ?? onScene.find((combat) => combat.started) ?? null;
   }
 
   /** The duration snapshot on a region, if it was placed while the watcher was enabled. */
