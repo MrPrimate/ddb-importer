@@ -52,3 +52,31 @@ describe("timers", () => {
     expect(timeEnd).toHaveBeenCalledWith(time.mock.calls[0][0]);
   });
 });
+
+describe("level override", () => {
+  afterEach(() => {
+    logger.setLevelOverride(null);
+  });
+
+  it("takes precedence over the world setting while set and returns the previous override", () => {
+    vi.mocked(logger._showMessage).mockRestore();
+    const get = vi.spyOn(game.settings, "get").mockReturnValue("DEBUG" as never);
+    expect(logger._showMessage("DEBUG", ["msg"])).toBe(true);
+
+    expect(logger.setLevelOverride("warn")).toBeNull();
+    expect(logger._showMessage("DEBUG", ["msg"])).toBe(false);
+    expect(logger._showMessage("INFO", ["msg"])).toBe(false);
+    expect(logger._showMessage("WARN", ["msg"])).toBe(true);
+    expect(logger._showMessage("ERR", ["msg"])).toBe(true);
+
+    expect(logger.setLevelOverride(null)).toBe("WARN");
+    expect(logger._showMessage("DEBUG", ["msg"])).toBe(true);
+    get.mockRestore();
+  });
+
+  it("rejects an unknown level and keeps the current override", () => {
+    logger.setLevelOverride("ERR");
+    expect(() => logger.setLevelOverride("LOUD")).toThrow(/Unknown log level/);
+    expect(logger.levelOverride).toBe("ERR");
+  });
+});

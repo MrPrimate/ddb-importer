@@ -17,10 +17,34 @@ export function ddbDebug(): IDDBImporterDebug {
 }
 
 
+/** Levels in increasing severity; a message shows when its level is at or above the active one. */
+const LOG_LEVELS = ["VERBOSE", "DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
+
 const logger = {
 
   LOG_PREFIX: "DDB Importer",
   LOG_MSG_DEFAULT: "No logging message provided. Please see the payload for more information.",
+
+  /**
+   * A client-only level that takes precedence over the world `log-level` setting while set. Bulk
+   * runs use it to drop to WARN without changing the setting for everyone in the world: at DEBUG,
+   * the console keeps every logged parser object (and the character graph behind it) alive.
+   */
+  levelOverride: null as string | null,
+
+  /**
+   * Set or clear (null) the client-only level override. Returns the previous override so a caller
+   * can restore it.
+   */
+  setLevelOverride: (level: string | null): string | null => {
+    const previous = logger.levelOverride;
+    const normalised = level === null ? null : String(level).toUpperCase();
+    if (normalised !== null && !LOG_LEVELS.includes(normalised)) {
+      throw new Error(`Unknown log level "${level}", expected one of ${LOG_LEVELS.join(", ")}`);
+    }
+    logger.levelOverride = normalised;
+    return previous;
+  },
 
   _showMessage: (logLevel: string, data: unknown[]) => {
     if (!logLevel || !data || typeof (logLevel) !== "string") {
@@ -28,12 +52,11 @@ const logger = {
     }
 
     try {
-      const setting = game.settings.get("ddb-importer", "log-level") as unknown as string;
-      const logLevels = ["VERBOSE", "DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
-      const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
+      const setting = logger.levelOverride ?? game.settings.get("ddb-importer", "log-level") as unknown as string;
+      const logLevelIndex = LOG_LEVELS.indexOf(logLevel.toUpperCase());
       if (setting == "OFF"
               || logLevelIndex === -1
-              || logLevelIndex < logLevels.indexOf(setting)) {
+              || logLevelIndex < LOG_LEVELS.indexOf(setting)) {
         return false;
       }
       return true;

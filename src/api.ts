@@ -337,6 +337,9 @@ export const API_BASE = {
     executeSimpleMacro: lib.DDBSimpleMacro.execute,
   },
   debug: {
+    // client-only log level for this session, e.g. "WARN"; null returns to the world setting.
+    // Returns the previous override so a script can restore it
+    setLogLevelOverride: (level: string | null) => lib.logger.setLevelOverride(level),
     start: debugStart,
     stop: debugStop,
     test: testFunction,
