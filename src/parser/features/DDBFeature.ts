@@ -191,6 +191,23 @@ export default class DDBFeature extends DDBFeatureMixin {
     }
   }
 
+  /**
+   * The abilities a 2024 background's ASI pseudo-feat offers, read from its description:
+   * "The X Background allows you to choose between Constitution, Intelligence, Wisdom. Increase
+   * one of these scores by 2 ...". Returns [] unless exactly three abilities are named, so an
+   * unexpected wording leaves the advancement unlocked rather than wrongly locked.
+   */
+  static backgroundAsiAbilitiesFromText(description: string): T5eAbility[] {
+    const text = utils.stripHtml(description).replace(/\s+/g, " ");
+    const match = text.match(/choose between (.+?)\. Increase/i);
+    if (!match) return [];
+    const named = match[1].toLowerCase();
+    const abilities = DICTIONARY.actor.abilities
+      .filter((a) => new RegExp(`\\b${a.long}\\b`).test(named))
+      .map((a) => a.value);
+    return abilities.length === 3 ? abilities : [];
+  }
+
   generateBackgroundAbilityScoreAdvancement() {
     const advancements: I5eAdvancement[] = [];
 
@@ -287,11 +304,15 @@ export default class DDBFeature extends DDBFeatureMixin {
     );
 
     // The choosable abilities are listed structurally on the background definition as
-    // stat ids (e.g. Criminal primaryAbilities [2, 3, 4] = dex/con/int). The feat
-    // description text varies too much to parse reliably.
-    const available = (this.ddbDefinition.primaryAbilities ?? [])
+    // stat ids (e.g. Criminal primaryAbilities [2, 3, 4] = dex/con/int). Many 2024
+    // backgrounds outside the PHB (Arcana Unleashed, Eberron) leave that list empty, and
+    // then the ASI pseudo-feat's "allows you to choose between ..." sentence names them.
+    const structured = (this.ddbDefinition.primaryAbilities ?? [])
       .map((statId) => DICTIONARY.actor.abilities.find((a) => a.id === statId)?.value)
-      .filter((v) => v);
+      .filter((v): v is T5eAbility => !!v);
+    const available = structured.length > 0
+      ? structured
+      : DDBFeature.backgroundAsiAbilitiesFromText(asiBuild[0].definition.description ?? "");
 
     // `locked` is the set of abilities the player may NOT pick, so lock everything not named.
     const locked = available.length > 0

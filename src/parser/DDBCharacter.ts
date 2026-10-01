@@ -633,6 +633,7 @@ class DDBCharacter {
       this._ddbRace.linkFeatures();
       this._ddbRace.linkSpells(this);
       this._characterFeatureFactory.linkFeatures();
+      this._characterFeatureFactory.linkSpells();
 
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
