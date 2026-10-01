@@ -500,6 +500,33 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
   });
 
+  it("adds the substitutes for a spell the feature casts, cast the same way", () => {
+    const mock = makeCastMock(
+      "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21). It can replace one Fireball with Hold Monster (level 7 version) or Wall of Fire.",
+      "1",
+    );
+    const shared = { ignoredComponents: ["material"], ability: "Charisma", consumeType: "itemUses", quantity: "1" };
+    expect(mock.getOtherCastSpells()).toEqual([
+      { name: "Fireball", level: "5", ...shared },
+      { name: "Hold Monster", level: "7", ...shared },
+      { name: "Wall of Fire", ...shared },
+    ]);
+  });
+
+  it("ignores a replacement for something the feature does not cast", () => {
+    const mock = makeCastMock(
+      "The dragon casts Shatter, using the same spellcasting ability as Spellcasting. It can replace one attack with a use of Spellcasting to cast Fog Cloud.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Shatter"]);
+  });
+
+  it("does not duplicate a substitute the feature already casts", () => {
+    const mock = makeCastMock(
+      "The mage casts Fireball or Lightning Bolt, using Intelligence as the spellcasting ability. It can replace one Fireball with Lightning Bolt or Ice Storm.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Fireball", "Lightning Bolt", "Ice Storm"]);
+  });
+
   it("still parses the uses Spellcasting to cast form", () => {
     const mock = makeCastMock("The mage uses Spellcasting to cast Misty Step, and it can move up to 10 feet.");
     expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Misty Step"]);

@@ -79,13 +79,17 @@ export default class AdvancementHelper {
     // return utils.stripHtml(descriptionReplaced, true);
   }
 
+  /**
+   * "You can replace" / "whenever you gain a level" choices: replacement is offered at every level
+   * above the one the feature grants the choice at, never at that level itself (nothing to replace yet).
+   */
   static getChoiceReplacements(description: string, lowestLevel: number, choices: TI5eAdvItemChoiceConfigChoices = {}, forceReplace = false): TI5eAdvItemChoiceConfigChoices {
     const replaceRegex = /you can replace(?! one of your attacks)/i;
     const replace = replaceRegex.test(description);
 
     if (replace || forceReplace) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(String(level)) < parseInt(String(lowestLevel))) continue;
+        if (parseInt(String(level)) <= parseInt(String(lowestLevel))) continue;
         foundry.utils.setProperty(choices, `${level}.replacement`, true);
       }
     } else {
@@ -3589,20 +3593,17 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       level: 0,
     });
 
-    const levelChoices = {
+    const levelChoices: Record<string, I5eAdvItemChoiceLevelConfig> = {
       [choiceLevel]: {
         count,
         replacement: false,
       },
-      replacement: {
-        count: null as any as any,
-        replacement: false,
-      },
     };
 
+    // replacement is offered at the levels above the choice, never at the choice level itself
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(String(level)) < parseInt(String(choiceLevel))) continue;
+        if (parseInt(String(level)) <= parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }
@@ -3622,9 +3623,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           list: spellListChoice ? [`class:${spellListChoice}`] : [],
         },
         type: "spell",
+        // dnd5e 6 replaced `preparation` with method + prepared; a chosen cantrip is a prepared spell
         spell: {
           ability: abilities,
-          preparation: "",
+          method: "spell",
+          prepared: CONFIG.DND5E.spellPreparationStates.always.value,
           uses: {
             max: "",
             per: "",
@@ -3664,9 +3667,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       },
     };
 
+    // replacement is offered at the levels above the choice, never at the choice level itself
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(String(level)) < parseInt(String(choiceLevel))) continue;
+        if (parseInt(String(level)) <= parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }

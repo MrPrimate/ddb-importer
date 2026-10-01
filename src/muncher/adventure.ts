@@ -68,6 +68,28 @@ async function getMonsterMap () {
   return Promise.all(results);
 }
 
+/**
+ * ddb://vehicles links to the vehicles in the DDB vehicle compendium, keyed by DDB id, so an
+ * imported vehicle gets a compendium link. Vehicles not imported keep only their DDB url entry.
+ */
+async function getVehicleMap() {
+  const vehicleCompendiumLabel = CompendiumHelper.getCompendiumLabel("vehicle");
+  const vehicleCompendium = CompendiumHelper.getCompendium(vehicleCompendiumLabel, false);
+  if (!vehicleCompendium) return [];
+  const vehicleIndex = await vehicleCompendium.getIndex({
+    fields: CompendiumHelper.safeIndexFields(vehicleCompendium, ["name", "flags.ddbimporter.id"]),
+  }) as unknown as IAdventureIndexEntry[];
+
+  return vehicleIndex
+    .filter((vehicle) => vehicle.flags?.ddbimporter?.id)
+    .map((vehicle) => ({
+      id: vehicle.flags?.ddbimporter?.id,
+      _id: vehicle._id,
+      compendium: vehicleCompendiumLabel,
+      name: vehicle.name,
+    }));
+}
+
 async function getSpellMap() {
   // ddb://spells
   // mm 2176
@@ -188,20 +210,19 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     result.lookups.items = await getItemMap();
   }
 
-  // vehicles
+  // vehicles: imported ones link to the compendium; the DDB vehicle list (cobalt) supplies the
+  // DDB url for the rest
+  const compendiumVehicles = full ? await getVehicleMap() : [];
+  const ddbVehicles: { id: string | number; url: string; name: string }[] = [];
   if (getVehicles) {
     const vehicleFactory = new DDBVehicleFactory();
     await vehicleFactory.fetchDDBVehicleSourceData();
-    result.lookups.vehicles = (vehicleFactory.source ?? []).map((v) => {
-      return {
-        id: v.id,
-        url: v.url,
-        name: v.name,
-        // TODO: uuid is not in the source model and is likely always undefined
-        uuid: foundry.utils.getProperty(v, "uuid"),
-      };
-    });
+    ddbVehicles.push(...(vehicleFactory.source ?? []).map((v) => ({ id: v.id, url: v.url, name: v.name })));
   }
+  result.lookups.vehicles = [
+    ...compendiumVehicles.map((v) => ({ ...v, url: ddbVehicles.find((d) => d.id == v.id)?.url })),
+    ...ddbVehicles.filter((d) => !compendiumVehicles.some((v) => v.id == d.id)),
+  ];
 
   if (legacy) {
     const rulesCompendium = "dnd5e.rules";
