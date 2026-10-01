@@ -247,6 +247,7 @@ async function reapplyScenesSnips(liveScene: Scene, snips: PreservedSnips): Prom
  * tokens before any token is placed, so the 2024 swap can be offered for token-only monsters
  * @param options.updateExisting replace existing world actors from the compendium
  * @param options.refreshedActorIds ddb ids of world actors already replaced this run
+ * @param options.canImportMonsters false when the Patreon tier cannot import missing monsters
  * @returns the world scenes enriched this run, including the floor clones enrich made
  */
 export async function applyScenes(
@@ -263,6 +264,7 @@ export async function applyScenes(
     extendMonsterSwap?: (tokenMonsterIds: number[]) => Promise<void>;
     updateExisting?: boolean;
     refreshedActorIds?: Set<number>;
+    canImportMonsters?: boolean;
   } = { applyTokens: true },
 ): Promise<Scene[]> {
   if (scenes.length === 0) return [];
@@ -325,7 +327,9 @@ export async function applyScenes(
       const mapStub = mapStubs.get(sceneId) ?? await resolveMapStub(scene, bookCode, sourceId);
       const results = await DDBMapMetaData.enrich(liveScene as any, mapStub, {
         applyTokens: options.applyTokens,
-        noAutoImport: false,
+        // without monster access the journal-monster import has already warned once; each
+        // scene would otherwise raise the same permanent warning
+        noAutoImport: options.canImportMonsters === false,
         actorFolderPath,
         monsterSwap: options.monsterSwap,
         assetMap: options.assetMap,

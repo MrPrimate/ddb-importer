@@ -324,11 +324,15 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     context.ownershipKnown = !!(this._ownedIds && !this._ownedFetchFailed);
     context.hideUnowned = this.hideUnowned;
 
+    // monster options the Patreon tier does not allow are shown unchecked and greyed out
+    const access = NativeAdventureMunch.monsterOptionAccess();
+    context.allActorsAllowed = access.allMonsters;
+    context.use2024MonstersAllowed = access.use2024Monsters;
     context.allScenes = utils.getSetting<boolean>("adventure-policy-all-scenes");
-    context.allActorsToWorld = utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
+    context.allActorsToWorld = access.allMonsters && utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
     context.addToCompendiums = utils.getSetting<boolean>("adventure-policy-add-to-compendiums");
     context.compendiumOnly = utils.getSetting<boolean>("adventure-policy-compendium-only");
-    context.use2024Monsters = utils.getSetting<boolean>("adventure-policy-use2024-monsters");
+    context.use2024Monsters = access.use2024Monsters && utils.getSetting<boolean>("adventure-policy-use2024-monsters");
     context.observeAll = utils.getSetting<boolean>("adventure-policy-observe-all");
     context.updateExisting = utils.getSetting<boolean>("munching-policy-update-existing");
 

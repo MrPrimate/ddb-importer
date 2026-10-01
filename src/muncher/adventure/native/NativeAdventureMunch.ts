@@ -1,4 +1,4 @@
-import { logger, utils, DDBSources } from "../../../lib/_module";
+import { logger, utils, DDBSources, PatreonHelper } from "../../../lib/_module";
 import { decryptAndQuery } from "../../../lib/SqliteCipher";
 import { generateAdventureConfig } from "../../adventure";
 import NativeIdFactory from "./NativeIdFactory";
@@ -47,17 +47,30 @@ export default class NativeAdventureMunch {
   }
 
   // Resolve the effective flags (option override, else adventure-policy setting).
+  /**
+   * The monster options a user's Patreon tier allows, as the legacy muncher gates them: importing
+   * monsters needs a supporter tier or a custom proxy (AdventureMunchHelpers.loadMissingDocuments),
+   * and the 2024 swap lookup (`/proxy/monsters/hints`) needs a supporter key. The rest of the
+   * native import only needs a cobalt token.
+   */
+  static monsterOptionAccess(): { allMonsters: boolean; use2024Monsters: boolean } {
+    const tiers = PatreonHelper.getAccessMatrix();
+    return { allMonsters: tiers.all, use2024Monsters: tiers.supporter };
+  }
+
   // Shared by the phase-count and the import logic so the bar denominator matches
   // what actually runs.
   #effectiveFlags(options: ImportOptions) {
+    const access = NativeAdventureMunch.monsterOptionAccess();
     const compendiumOnly = options.compendiumOnly ?? utils.getSetting<boolean>("adventure-policy-compendium-only");
     const addToCompendiums = compendiumOnly
       || (options.addToCompendiums ?? utils.getSetting<boolean>("adventure-policy-add-to-compendiums"));
-    const importAllMonsters = options.importAllMonsters
-      ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
+    const importAllMonsters = access.allMonsters && (options.importAllMonsters
+      ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world"));
     const allScenes = options.allScenes ?? utils.getSetting<boolean>("adventure-policy-all-scenes");
     const observeAll = options.observeAll ?? utils.getSetting<boolean>("adventure-policy-observe-all");
-    const use2024monsters = options.use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters");
+    const use2024monsters = access.use2024Monsters
+      && (options.use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters"));
     const updateExisting = options.updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
     return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters, updateExisting };
   }
@@ -306,6 +319,7 @@ export default class NativeAdventureMunch {
         const options = {
           applyTokens: true, notify: this.#item, monsterSwap, preservedSnips, assetMap: imageOpts?.assetMap,
           reimported, extendMonsterSwap, updateExisting, refreshedActorIds,
+          canImportMonsters: NativeAdventureMunch.monsterOptionAccess().allMonsters,
         };
         appliedScenes = await applyScenes(scenesToApply, journals, bookCode, options);
       }
