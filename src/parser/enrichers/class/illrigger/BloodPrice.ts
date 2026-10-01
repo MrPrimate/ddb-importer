@@ -1,8 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Blood Price spends a Hit Die (the parser's hitDice consumption) and rolls the largest one the
- * character has, which after multiclassing may not be the illrigger's d10.
+ * Blood Price spends a Hit Die (the parser's "largest" hitDice consumption) and rolls the die it
+ * spent, which after multiclassing, or once no d10 Hit Dice are left, may be a smaller die.
  */
 export default class BloodPrice extends DDBEnricherData {
 
@@ -20,7 +20,7 @@ export default class BloodPrice extends DDBEnricherData {
       data: {
         roll: {
           name: "Hit Die",
-          formula: "1d(@attributes.hd.largestFace)",
+          formula: "@consumed.hd",
           prompt: false,
           visible: true,
         },

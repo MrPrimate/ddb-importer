@@ -47,8 +47,9 @@ export default class AbberantDragonmark extends Generic {
 
   get surgeActivities(): IDDBAdditionalActivity[] {
     return [
-      { label: "Largest Hit Die", target: "largest", formula: "@attributes.hd.largest" },
-      { label: "Smallest Hit Die", target: "smallest", formula: "@attributes.hd.smallest" },
+      // the die actually spent: a "largest" spend falls back to a smaller die once the largest run out
+      { label: "Largest Hit Die", target: "largest", formula: "@consumed.hd" },
+      { label: "Smallest Hit Die", target: "smallest", formula: "@consumed.hd" },
     ].map((surge) => ({
       init: {
         name: `Aberrant Surge (${surge.label})`,
