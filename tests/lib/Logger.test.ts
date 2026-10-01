@@ -40,3 +40,15 @@ describe("error export", () => {
     expect(CONFIG.DDBI.CAPTURED_ERRORS[1].payload).toBeNull();
   });
 });
+
+describe("timers", () => {
+  it("starts a console timer on time and ends the same label on timeEnd", () => {
+    const time = vi.spyOn(console, "time").mockImplementation(() => undefined);
+    const timeEnd = vi.spyOn(console, "timeEnd").mockImplementation(() => undefined);
+    logger.time("Monster Parsing");
+    expect(time).toHaveBeenCalledTimes(1);
+    expect(timeEnd).not.toHaveBeenCalled();
+    logger.timeEnd("Monster Parsing");
+    expect(timeEnd).toHaveBeenCalledWith(time.mock.calls[0][0]);
+  });
+});

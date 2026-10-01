@@ -115,7 +115,7 @@ const logger = {
         if (payload) {
           console.debug(msg, ...payload);
         }
-        console.timeEnd(msg);
+        console.time(msg);
         break;
       case "TIMEEND":
         if (payload) {
