@@ -205,9 +205,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
 
   override _generateAttack() {
+    // a monster's Unarmed Strike is a natural weapon item, so the activity carries the unarmed part
     const classification = this.ddbParent.spellAttack
       ? "spell"
-      : "weapon"; // unarmed, weapon, spell
+      : (/^Unarmed Strike\b/i).test(this.ddbParent.name)
+        ? "unarmed"
+        : "weapon";
 
     const type = this.ddbParent.rangedAttack
       ? "ranged"

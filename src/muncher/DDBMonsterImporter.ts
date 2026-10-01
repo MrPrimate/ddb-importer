@@ -102,19 +102,24 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
 
     const currentItems = compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
     const fiddledItems: any[] = [];
+    const claimed = new Set<string>();
+    // monster attacks moved from features to natural weapons, so a re-munch can meet the old
+    // feat under the same name; it is the same action and keeps what the user retained on it
+    const attackTypes = ["feat", "weapon"];
 
     await newItems.forEach((item) => {
-      const existingItem = currentItems.find((owned) => {
-        const simpleMatch
-          = item.name === owned.name
-          && item.type === owned.type
-          // && item.system.activation?.type === owned.system.activation?.type
-          && ((checkId
-            && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(owned, "flags.ddbimporter.id")
-          ) || !checkId);
-
-        return simpleMatch;
-      });
+      const candidates = currentItems.filter((owned) =>
+        item.name === owned.name
+        && !claimed.has(owned.id ?? "")
+        // && item.system.activation?.type === owned.system.activation?.type
+        && ((checkId
+          && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(owned, "flags.ddbimporter.id")
+        ) || !checkId));
+      const existingItem = candidates.find((owned) => item.type === owned.type)
+        ?? (this.type !== "vehicles" && attackTypes.includes(item.type)
+          ? candidates.find((owned) => attackTypes.includes(owned.type))
+          : undefined);
+      if (existingItem?.id) claimed.add(existingItem.id);
 
       if (existingItem) {
         if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreItemImport")) {

@@ -35,6 +35,8 @@ export class DDBMonsterDamage {
   damageModeWarnings: string[] = [];
   normalHit = "";
   replacesVersatile = false;
+  /** The condition of an "or ... damage if X" alternative kept as a Versatile activity. */
+  versatileCondition = "";
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;
@@ -160,9 +162,15 @@ export class DDBMonsterDamage {
       return;
     }
     if (DDBDescriptions.damagesObjectsOnly(dmg)) return;
+    const after = this.hit.slice((dmg.index ?? 0) + dmg[0].length);
+    if (this._mergeDamageTypeChoice(dmg, after)) return;
     // check for versatile
     if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
       this.versatile = true;
+      const condition = dmg.groups.prefix == "or "
+        ? after.match(/^\s*(?:if|while|when)\s+(.+?)(?=[.;]|,\s*(?:plus|and)\b|$)/i)
+        : null;
+      if (condition && !this.versatileCondition) this.versatileCondition = condition[1].trim();
     }
 
     const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
@@ -191,7 +199,7 @@ export class DDBMonsterDamage {
       save = hasSave;
       other = true;
     }
-    const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
+    const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: false });
     // assumption here is that there is just one field added to versatile. this is going to be rare.
     if (other) {
       this.additionalActivities.push({
@@ -240,6 +248,23 @@ export class DDBMonsterDamage {
     }
   }
 
+  /**
+   * "10 (3d6) necrotic damage or (3d6) radiant damage (the son's choice)" is one roll of either
+   * type, not an alternative attack: the choice adds its type to the part before it.
+   */
+  _mergeDamageTypeChoice(dmg: TDamageMatch, after: string): boolean {
+    if (dmg.groups.prefix.trim().toLowerCase() !== "or") return false;
+    if (!(/^\s*\((?:the |its |their )?[^()]*\bchoice\)/i).test(after)) return false;
+    const previous = this.damageParts.at(-1);
+    const dice = (dmg.groups.dice ?? dmg.groups.diceminor ?? "").replace(/\s+/g, "");
+    if (!previous || dice === "" || !previous.damageString.replace(/\s+/g, "").startsWith(dice)) return false;
+    const types = DDBMonsterDamage._getDamageTypes(this.hit, dmg.groups.type) as I5eDamageType[];
+    if (types.length === 0) return false;
+    previous.damageTypes = [...new Set([...previous.damageTypes, ...types])];
+    previous.part.types = [...new Set([...(previous.part.types ?? []), ...types])];
+    return true;
+  }
+
   _generateSaveParts(matches: TDamageMatch[]) {
     for (const dmg of matches) {
       if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
@@ -249,7 +274,7 @@ export class DDBMonsterDamage {
       const part = SystemHelpers.buildDamagePart({
         damageString: finalDamage,
         types: damageTypes,
-        stripMod: this.templateType === "weapon",
+        stripMod: false,
       });
       this.saveParts.push(part);
     }
@@ -331,7 +356,7 @@ export class DDBMonsterDamage {
       const damageString = finalDamage.replace(/\s+/g, " ").trim();
       const damageTypes = DDBMonsterDamage._getDamageTypes(this.hit, match.groups.type);
       const part = SystemHelpers.buildDamagePart({ damageString, types: damageTypes,
-        stripMod: this.templateType === "weapon" });
+        stripMod: false });
       return {
         part, damageString, damageTypes, includesDice,
         profBonus: damageString.includes("@prof") ? "@prof" : "",

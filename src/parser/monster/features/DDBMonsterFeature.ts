@@ -4,7 +4,7 @@ import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
-import { monsterDamageAppliedStatuses } from "./MonsterDamageModes";
+import { monsterDamageAppliedStatuses, monsterDamageModeName } from "./MonsterDamageModes";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
@@ -145,56 +145,57 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.profBonus = false;
   }
 
-  static #naturalAttackParts: Set<string> | null = null;
-  #patternNaturalWeapon = false;
+  #derivedWeapon = false;
+  #bonusWeapon = false;
 
   /**
-   * Whether alternate damage becomes extra attack activities ("Versatile", damage modes). Weapons
-   * drop it, but the attacks made natural weapons by name pattern were features until then and
-   * their alternates ("9d6 if the target is grappled") are not weapon versatile damage.
+   * Whether alternate damage becomes extra attack activities ("Versatile", damage modes) in the
+   * feature slots. Weapons from the dictionary keep their own ids for these, but the attacks made
+   * weapons from their text (#derivedWeaponLookup) were features until then and keep those ids.
    */
   get #keepsDamageModeActivities(): boolean {
-    return this.templateType !== "weapon" || this.#patternNaturalWeapon;
+    return this.templateType !== "weapon" || this.#derivedWeapon;
   }
 
   /**
-   * Body-part words that mark a monster attack as a natural weapon: the monster dictionary list
-   * plus the last word of the character NATURAL_WEAPONS names. The natural entries of the monster
-   * weapon dictionary already match by name prefix, and "Beast's Strike" would add "strike", which
-   * also ends Unarmed Strike and spell-like attacks. Built on first use, after DICTIONARY settles.
+   * A parsed part as a weapon roll part, without the ability modifier, which dnd5e adds to a
+   * weapon's base roll itself. The parsed parts keep it, as they also serve activities that do not
+   * include the base (a save, an ongoing grapple's damage) and would otherwise roll without it.
    */
-  static get naturalAttackParts(): Set<string> {
-    if (DDBMonsterFeature.#naturalAttackParts) return DDBMonsterFeature.#naturalAttackParts;
-    const names = DICTIONARY.parsing.levelScale.NATURAL_WEAPONS;
-    const words = names.flatMap((name) => DDBMonsterFeature.#singular(name.toLowerCase().split(/\s+/).pop() ?? ""));
-    DDBMonsterFeature.#naturalAttackParts = new Set([...DICTIONARY.monsters.naturalAttackParts, ...words]);
-    return DDBMonsterFeature.#naturalAttackParts;
-  }
-
-  static #singular(word: string): string[] {
-    return [word, word.replace(/es$/, ""), word.replace(/s$/, "")];
+  static weaponDamagePart(damagePart: IDDBMonsterActionDataDamagePart): I5eDamagePart {
+    return SystemHelpers.buildDamagePart({
+      damageString: damagePart.damageString,
+      types: damagePart.damageTypes,
+      stripMod: true,
+    });
   }
 
   /**
-   * Whether an attack name reads as a natural weapon: the last word, ignoring any parenthetical, is a
-   * body part ("Gore", "Barbed Tail", "Flurry of Bites", "Petrifying Bite (Petrifying Head Only)").
+   * A dictionary weapon carrying a magic bonus before its name ("+1 Rapier"). The bonus after the
+   * name ("Longsword +1") already matches the dictionary by prefix.
    */
-  static isNaturalAttackName(name: string): boolean {
+  static bonusWeaponMatch(name: string): IMonsterWeaponDictionary | undefined {
     const baseName = name.replace(/\s*\(.*$/, "").trim();
-    if (DICTIONARY.monsters.naturalAttackExclusions.includes(baseName)) return false;
-    const lastWord = baseName.toLowerCase().split(/\s+/).pop() ?? "";
-    const parts = DDBMonsterFeature.naturalAttackParts;
-    return DDBMonsterFeature.#singular(lastWord).some((word) => parts.has(word));
+    const bonus = baseName.match(/^\+\d+\s+(.+)$/);
+    if (!bonus) return undefined;
+    const weapon = DICTIONARY.monsters.weapons.find((w) => w.weaponType !== "natural" && bonus[1].startsWith(w.name));
+    return weapon ? { ...weapon, properties: { ...weapon.properties, mgc: true } } : undefined;
   }
 
   /**
-   * Natural weapon lookup for an attack the weapon dictionary does not name, when its name reads as
-   * a body part. Recharge attacks stay features.
+   * Weapon lookup for an attack the weapon dictionary does not name by prefix. Following the
+   * official Monster Manual, every such attack is a natural weapon (claws and gores, but also
+   * rocks, rays, bursts and touches, which keep their spell classification on the activity),
+   * except a dictionary weapon with a leading magic bonus. Recharge attacks stay features.
    */
-  #naturalAttackLookup(): IMonsterWeaponDictionary | undefined {
+  #derivedWeaponLookup(): IMonsterWeaponDictionary | undefined {
     if (!this.isAttack || this.isRecharge !== null) return undefined;
-    if (!DDBMonsterFeature.isNaturalAttackName(this.name)) return undefined;
-    this.#patternNaturalWeapon = true;
+    this.#derivedWeapon = true;
+    const bonusWeapon = DDBMonsterFeature.bonusWeaponMatch(this.name);
+    if (bonusWeapon) {
+      this.#bonusWeapon = true;
+      return bonusWeapon;
+    }
     return {
       name: this.name.replace(/\s*\(.*$/, "").trim(),
       actionType: this.rangedAttack && !this.meleeAttack ? "rwak" : "mwak",
@@ -233,7 +234,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
     this.weaponLookup = DICTIONARY.monsters.weapons.find((weapon) => this.name.startsWith(weapon.name))
-      ?? this.#naturalAttackLookup();
+      ?? this.#derivedWeaponLookup();
 
     if (this.name === "Legendary Actions" || !this.weaponLookup) {
       this.templateType = "feat";
@@ -464,19 +465,51 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     if (this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile) this.#queueDamageModes();
 
     if (this.actionData.damageParts.length > 0 && this.templateType === "weapon") {
-      this.actionData.damage.base = this.actionData.damageParts[0].part;
+      this.actionData.damage.base = DDBMonsterFeature.weaponDamagePart(this.actionData.damageParts[0]);
     }
     if (this.#keepsDamageModeActivities && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
-      this.additionalActivities.push({
-        name: `Versatile`,
-        type: "attack",
-        options: {
-          generateDamage: true,
-          damageParts: this.actionData.versatileParts,
-          includeBaseDamage: false,
-        },
-      });
+      this.additionalActivities.push(this.#versatileOutline());
     }
+  }
+
+  /** "Versatile" unless the alternative names a condition a damage mode would ("Bloodied Attack"). */
+  get #versatileName(): string {
+    const condition = this.ddbMonsterDamage?.versatileCondition;
+    return (condition ? monsterDamageModeName(condition) : null) ?? "Versatile";
+  }
+
+  /**
+   * The alternative damage of an "or ... damage" hit as its own attack. A named alternative keeps
+   * the id a Versatile activity would have, so links to it keep resolving.
+   */
+  #versatileOutline(): IAdditionalActivityOutline {
+    const name = this.#versatileName;
+    const condition = this.ddbMonsterDamage.versatileCondition;
+    return {
+      name,
+      type: "attack",
+      options: {
+        generateDamage: true,
+        damageParts: this.actionData.versatileParts,
+        includeBaseDamage: false,
+        ...(condition ? { activationCondition: condition } : {}),
+        ...(name !== "Versatile"
+          ? { data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) } }
+          : {}),
+      },
+    };
+  }
+
+  /**
+   * Dictionary natural weapons (Bite, Claw) drop the feature path's Versatile activity, so an
+   * alternative such as "or 3 (1d6) piercing damage if the swarm has half of its hit points or
+   * fewer" would be lost. It is queued last so the ids of the activities before it do not move.
+   */
+  #queueNaturalWeaponAlternative() {
+    if (this.#keepsDamageModeActivities || this.weaponLookup?.weaponType !== "natural") return;
+    if (!this.enricher.addAutoAdditionalActivities || this.enricher.noVersatile) return;
+    if (this.actionData.versatileParts.length === 0) return;
+    this.additionalActivities.push(this.#versatileOutline());
   }
 
   /** New modes append after existing outlines; replacements are queued in the old versatile slot. */
@@ -763,7 +796,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       const strMod = utils.calculateModifier(this.ddbMonster.abilities["str"].value ?? 10);
       const dexMod = utils.calculateModifier(this.ddbMonster.abilities["dex"].value ?? 10);
       const versatileWeapon = this.actionData.properties.ver && dexMod > strMod;
-      if (versatileWeapon || weaponLookup.actionType == "rwak") {
+      // weapons read from the attack's text keep a feature's choice of both abilities, so the
+      // printed to-hit decides (a finesse "+1 Rapier", a thrown rock, a sprite's tiny sword)
+      if (this.#derivedWeapon) {
+        weaponAbilities = ["str", "dex"];
+      } else if (versatileWeapon || weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (weaponLookup.actionType == "mwak") {
         weaponAbilities = ["str"];
@@ -815,8 +852,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
         this.actionData.proficient = checkInitialAbilities.proficient ?? false;
       }
 
-      // okay lets see if its one of the others then!
-      if (!this.actionData.baseAbility) {
+      // okay lets see if its one of the others then! A "+1 Handaxe" names its bonus, so its
+      // to-hit only matches another ability by accident; the magic bonus check below finds it.
+      if (!this.actionData.baseAbility && !this.#bonusWeapon) {
         const checkAllAbilities = this.checkAbility(abilities);
         if (checkAllAbilities.success) {
           this.actionData.baseAbility = checkAllAbilities.ability;
@@ -1486,7 +1524,7 @@ ${this.data.system.description.value}
       // includes no dice, i.e. is flat, we want to ignore the base damage
       parts = this.actionData.damageParts.map((s) => s.part);
     } else if (this.actionData.damageParts.length > 1 && this.templateType === "weapon") {
-      parts = this.actionData.damageParts.slice(1).map((s) => s.part);
+      parts = this.actionData.damageParts.slice(1).map((s) => DDBMonsterFeature.weaponDamagePart(s));
     } else if (this.templateType === "feat") {
       // e.g. Armanite Hooves
       parts = this.actionData.damageParts.map((s) => s.part);
@@ -1751,9 +1789,13 @@ ${this.data.system.description.value}
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 
-    // Effect hints matched to the "Versatile" activity follow the damage mode that replaces it.
-    if (this.ddbMonsterDamage.replacesVersatile && this.ddbMonsterDamage.damageModes.length) {
-      const name = this.ddbMonsterDamage.damageModes[0].name;
+    // Effect hints matched to the "Versatile" activity follow the damage mode that replaces it,
+    // or the name the alternative took from its condition.
+    const versatileRename = this.ddbMonsterDamage.replacesVersatile && this.ddbMonsterDamage.damageModes.length
+      ? this.ddbMonsterDamage.damageModes[0].name
+      : this.#versatileName;
+    if (versatileRename !== "Versatile") {
+      const name = versatileRename;
       for (const effect of this.data.effects) {
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch") === "Versatile") {
           foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", name);
@@ -2254,6 +2296,7 @@ ${this.data.system.description.value}
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
       this.#addHealAdditionalActivities();
       this.#queueDamageModes();
+      this.#queueNaturalWeaponAlternative();
       if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();
       }

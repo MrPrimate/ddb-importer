@@ -14,8 +14,6 @@ export interface IMonsterResetDictionary {
 
 export interface IMonsterDictionary {
   weapons: IMonsterWeaponDictionary[];
-  naturalAttackParts: string[];
-  naturalAttackExclusions: string[];
   resets: IMonsterResetDictionary[];
 }
 
@@ -97,17 +95,6 @@ export const MONSTERS: IMonsterDictionary = {
     // other
     { name: "Storm Sword", actionType: "mwak", weaponType: "martialM", properties: {} },
   ],
-  // Body parts that make an attack with no weapon match above a natural weapon when they are the
-  // last word of its name ("Gore", "Petrifying Bite", "Swarm of Proboscises"), in singular form.
-  // The character NATURAL_WEAPONS names are added at lookup time.
-  naturalAttackParts: [
-    "antler", "arm", "beak", "bite", "claw", "fang", "fist", "foreleg", "gore", "hair", "headbutt",
-    "hoof", "hooves", "horn", "jaw", "kick", "leg", "limb", "mandible", "maw", "peck", "pincer",
-    "proboscis", "pseudopod", "quill", "rake", "ram", "scratch", "slam", "spine", "sting", "stinger",
-    "stomp", "tail", "talon", "teeth", "tendril", "tentacle", "tongue", "tooth", "trunk", "tusk", "wing",
-  ],
-  // Names whose last word is a body part but which are weapons or objects.
-  naturalAttackExclusions: ["Battering Ram", "Flame Tongue"],
   resets: [
     { id: 1, value: "sr" },
     { id: "ShortRest", value: "sr" },

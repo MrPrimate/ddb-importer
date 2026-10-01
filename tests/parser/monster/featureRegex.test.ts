@@ -575,26 +575,17 @@ describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistanc
   });
 });
 
-describe("DDBMonsterFeature.isNaturalAttackName", () => {
-  it("matches body-part attacks by their last word, singular or plural", () => {
-    for (const name of ["Gore", "Hooves", "Pseudopod", "Barbed Tail", "Flurry of Bites", "Swarm of Proboscises", "Rotting Fist"]) {
-      expect(DDBMonsterFeature.isNaturalAttackName(name), name).toBe(true);
-    }
+describe("DDBMonsterFeature.bonusWeaponMatch", () => {
+  it("reads a dictionary weapon behind a leading magic bonus as a magic weapon", () => {
+    const rapier = DDBMonsterFeature.bonusWeaponMatch("+1 Rapier");
+    expect(rapier).toMatchObject({ name: "Rapier", weaponType: "martialM" });
+    expect(rapier?.properties).toMatchObject({ fin: true, mgc: true });
+    expect(DDBMonsterFeature.bonusWeaponMatch("+2 Longsword (Two-Handed)")).toMatchObject({ name: "Longsword" });
   });
 
-  it("reads the character natural weapon names too", () => {
-    expect(DDBMonsterFeature.isNaturalAttackName("Fangs")).toBe(true);
-    expect(DDBMonsterFeature.isNaturalAttackName("Cat's Claws")).toBe(true);
-  });
-
-  it("ignores a trailing parenthetical", () => {
-    expect(DDBMonsterFeature.isNaturalAttackName("Petrifying Bite (Petrifying Head Only)")).toBe(true);
-    expect(DDBMonsterFeature.isNaturalAttackName("Javelin (Humanoid Form Only)")).toBe(false);
-  });
-
-  it("leaves strikes, spell-like attacks, equipment and exclusions alone", () => {
-    for (const name of ["Unarmed Strike", "Force Strike", "Mind Rend", "Arcane Burst", "Tentacle Rod", "Flame Tongue", "Battering Ram", "Acid Spike"]) {
-      expect(DDBMonsterFeature.isNaturalAttackName(name), name).toBe(false);
+  it("leaves other names to the prefix match or natural weapons", () => {
+    for (const name of ["Rapier", "Longsword +1", "Silver Longsword", "Ice Spear", "+1 Claw", "Bite"]) {
+      expect(DDBMonsterFeature.bonusWeaponMatch(name), name).toBeUndefined();
     }
   });
 });
