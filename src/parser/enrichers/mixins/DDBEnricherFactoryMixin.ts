@@ -818,7 +818,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
               EnchantmentEffects.addMagicalBonus({
                 effect,
                 nameAddition: effectHint.magicalBonus.nameAddition,
-                bonus: `${effectHint.magicalBonus.bonus}`,
+                // a hint without a bonus only renames and makes magical; stringifying a missing
+                // bonus would emit an "undefined" override on system.magicalBonus
+                bonus: effectHint.magicalBonus.bonus == null ? null : `${effectHint.magicalBonus.bonus}`,
                 bonusMode: effectHint.magicalBonus.mode,
                 makeMagical: effectHint.magicalBonus.makeMagical,
               });
