@@ -18,6 +18,7 @@ import { anchorInjection } from "./hooks/ready/anchorInjection";
 // import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing";
 import { pruneRegionTurnFlags } from "./hooks/ready/pruneRegionFlags";
 import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
+import { preserveImportedGear } from "./hooks/init/preserveGear";
 import addRegionBehaviorHooks from "./hooks/regionBehaviors/loadBehaviors";
 import { setupRegionDisplayProfiles } from "./hooks/canvas/regionDisplaySetup";
 
@@ -56,6 +57,7 @@ export function init() {
   chatHooks();
   adventureImporter();
   DDBEffectHooks.loadHooks();
+  preserveImportedGear();
   addRegionBehaviorHooks();
   // after earlySettings(): the region display master switch is an early setting
   setupRegionDisplayProfiles();

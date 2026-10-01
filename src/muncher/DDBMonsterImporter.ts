@@ -8,6 +8,7 @@ import {
   CompendiumHelper,
   ImageSnipper,
 } from "../lib/_module";
+import { preserveGearOptions } from "../hooks/init/preserveGear";
 
 
 interface IDDBMonsterImporterBuildOptions {
@@ -219,7 +220,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
         await DDBEffectImporter.importStandaloneEffects(items);
         // update() resolves undefined when nothing changed; the items were
         // wiped above so recreate them on the existing compendium actor
-        await (updatedNPC ?? this.compendiumActor).createEmbeddedDocuments("Item", items as any, { keepId: true });
+        await (updatedNPC ?? this.compendiumActor).createEmbeddedDocuments("Item", items as any, preserveGearOptions({ keepId: true }));
 
         // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
         await this.generateCastSpells();
