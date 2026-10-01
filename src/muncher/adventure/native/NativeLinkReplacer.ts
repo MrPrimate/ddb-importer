@@ -73,5 +73,8 @@ export function foundryCompendiumReplace(text: string, adventureConfig: any): st
   return sharedCompendiumReplace(text, {
     lookups: adventureConfig.lookups,
     monstersToReplace: adventureConfig.monstersToReplace ?? [],
+    // native journals always link the compendium actors; the zip importer's "link journals to
+    // world actors" option is not offered here
+    journalWorldActors: false,
   });
 }

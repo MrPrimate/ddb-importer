@@ -2,6 +2,14 @@
 // Kept import-free (no lib/_module chain) so the dependency-free, unit-tested
 // modules (NativeNoteResolution, NativeHeadingAnchors) can use them too.
 
+/**
+ * Tell the user some adventure content could not be imported, as the zip importer does
+ * (AdventureMunchHelpers.tryCheckForMissingDocuments); the import carries on without it.
+ */
+export function warnImportFailure(what: string): void {
+  ui.notifications?.warn(`Could not import the missing ${what} from DDB; the adventure will be imported without them.`, { permanent: true });
+}
+
 /** Image file extensions we treat as assets (download/upload + drop href on links). */
 export const IMAGE_EXT = /\.(jpe?g|png|gif|webp|webm|svg|bmp|tiff?)$/i;
 

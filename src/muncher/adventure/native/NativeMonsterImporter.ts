@@ -1,7 +1,7 @@
 import { logger, FolderHelper } from "../../../lib/_module";
 import MonsterReplacer from "../../../apps/MonsterReplacer";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
-import { scanIds } from "./NativeShared";
+import { scanIds, warnImportFailure } from "./NativeShared";
 import { getNativeSessionCache } from "./NativeSessionCache";
 
 // ContentRow + MonsterSwap are declared globally in ./types.d.ts.
@@ -23,16 +23,38 @@ export function scanMonsterIds(rows: ContentRow[]): number[] {
  */
 export async function buildMonsterSwapMap(rows: ContentRow[], adventureName: string): Promise<Map<number, MonsterSwap>> {
   const swap = new Map<number, MonsterSwap>();
-  const ids = scanMonsterIds(rows);
-  if (ids.length === 0) return swap;
+  await chooseMonsterSwaps(scanMonsterIds(rows), adventureName, swap);
+  return swap;
+}
+
+/**
+ * Offer the 2014->2024 swap for monsters that only appear as scene tokens. The journal chooser
+ * (buildMonsterSwapMap) runs before any scene exists, so the monsters the meta-data scenes place
+ * are offered here, before their tokens are created, skipping any id the journal chooser already
+ * offered. Journals never link these monsters, so their links are unaffected.
+ * @param swap the run's swap map, extended in place
+ * @param tokenIds DDB monster ids of the scene tokens
+ * @param offeredIds ids the journal chooser already offered
+ */
+export async function extendMonsterSwapMap(
+  swap: Map<number, MonsterSwap>, tokenIds: number[], offeredIds: Set<number>, adventureName: string,
+): Promise<void> {
+  const ids = tokenIds.filter((id) => !offeredIds.has(id) && !swap.has(id));
+  ids.forEach((id) => offeredIds.add(id));
+  await chooseMonsterSwaps(ids, adventureName, swap);
+}
+
+/** Fetch the 2024 versions of `ids`, prompt for which to upgrade and add the chosen ones to `swap`. */
+async function chooseMonsterSwaps(ids: number[], adventureName: string, swap: Map<number, MonsterSwap>): Promise<void> {
+  if (ids.length === 0) return;
 
   try {
     const monsterData = await MonsterReplacer.fetchUpdatedMonsterInfo(ids);
-    if (!Array.isArray(monsterData) || monsterData.length === 0) return swap;
+    if (!Array.isArray(monsterData) || monsterData.length === 0) return;
 
     const replacer = new MonsterReplacer({ name: adventureName });
     const selectedIds: number[] = await replacer.chooseMonstersToReplace(monsterData);
-    if (selectedIds.length === 0) return swap;
+    if (selectedIds.length === 0) return;
 
     for (const data of monsterData) {
       if (!selectedIds.includes(data.id2014)) continue;
@@ -46,8 +68,6 @@ export async function buildMonsterSwapMap(rows: ContentRow[], adventureName: str
   } catch (error) {
     logger.warn(`NativeMonsterImporter: 2024 monster lookup failed (${(error as Error).message ?? error}); keeping 2014 monsters`);
   }
-
-  return swap;
 }
 
 /**
@@ -84,6 +104,7 @@ export async function importRequiredMonsters(rows: ContentRow[], swap?: Map<numb
     candidates.forEach((id) => session.importedMonsterIds.add(String(id)));
   } catch (error) {
     logger.warn(`NativeMonsterImporter: monster import failed (${(error as Error).message}); links will fall back to DDB urls`);
+    warnImportFailure("monsters");
   }
 }
 
@@ -98,7 +119,10 @@ export async function importRequiredMonsters(rows: ContentRow[], swap?: Map<numb
  * per-actor resilience live in AdventureMunchHelpers.importMonstersToWorld, shared
  * with the legacy AdventureMunch path.
  */
-export async function importAllMonstersToWorld(rows: ContentRow[], bookName: string, swap?: Map<number, MonsterSwap>): Promise<void> {
+export async function importAllMonstersToWorld(
+  rows: ContentRow[], bookName: string, swap?: Map<number, MonsterSwap>,
+  { updateExisting = false, refreshedIds = null }: { updateExisting?: boolean; refreshedIds?: Set<number> | null } = {},
+): Promise<void> {
   const ids = scanIds(rows, MONSTER_REF_RE);
   if (ids.size === 0) return;
 
@@ -115,6 +139,6 @@ export async function importAllMonstersToWorld(rows: ContentRow[], bookName: str
     logger.warn(`NativeMonsterImporter: failed to ensure Actor folder "${bookName}" (${(error as Error).message ?? error})`);
   }
 
-  const imported = await AdventureMunchHelpers.importMonstersToWorld(mapped, { folderId });
+  const imported = await AdventureMunchHelpers.importMonstersToWorld(mapped, { folderId, updateExisting, refreshedIds });
   logger.info(`NativeMonsterImporter: imported ${imported.length} world actor(s) from ${mapped.length} referenced monsters into "${bookName}"`);
 }
