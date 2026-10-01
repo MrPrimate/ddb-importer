@@ -106,6 +106,14 @@ export default class SpellListExtractor {
 
     if (!game.user.isGM) return;
 
+    // Features routed here without a table of their own are not missing data: Maverick Spells
+    // picks from whole class lists, Circle of the Land Spells keeps its tables on the land
+    // options, and Vestige Spells points at the chosen Cleric domain's existing list.
+    if (!this.description.includes("<table")) {
+      logger.debug(`No spell table in ${type} "${this.name}", no spell list generated`);
+      return;
+    }
+
     const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type }) as SpellListFactory;
     await spellListFactory.init();
 
