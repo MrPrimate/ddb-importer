@@ -17,6 +17,13 @@ export default class DDBCompanionMixin {
    * enrichers such as the Vestige Companion's), not only the summoning feature.
    */
   static VERSION = 2;
+
+  /**
+   * A bond trait handing the companion the summoner's proficiency: "Add your Proficiency Bonus to
+   * any ability check or saving throw the vestige makes" (Pact Bond), and the same sentence for a
+   * beast, a grim or a defender, some with "attack roll" in the list.
+   */
+  static PROFICIENCY_BOND = /Add your Proficiency Bonus to any ability check(?:, attack roll,)? or saving throw (?:that )?the [\w' -]{1,40}? makes/i;
   // npc, data and name are populated by parse() before consumers read them
   npc!: I5eMonsterData;
   data!: I5eMonsterData;
@@ -259,9 +266,7 @@ export default class DDBCompanionMixin {
     if (spellSaveRegex.test(text)) {
       this.summons.match.saves = true;
     }
-    // the Vestige Companion's Pact Bond: its checks and saves use the summoner's proficiency
-    const pactBondRegex = /Add your Proficiency Bonus to any ability check or saving throw the vestige makes/i;
-    if (pactBondRegex.test(text)) {
+    if (DDBCompanionMixin.PROFICIENCY_BOND.test(text.replaceAll("’", "'"))) {
       this.summons.match.proficiency = true;
     }
     return featureFactory.getFeatures(type);

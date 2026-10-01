@@ -107,3 +107,20 @@ describe("DDBCompanion hit dice", () => {
   });
 
 });
+
+describe("DDBCompanionMixin.PROFICIENCY_BOND", () => {
+  it.each([
+    "Bond. Add your Proficiency Bonus to any ability check or saving throw the widget makes.",
+    "Bond. Add your Proficiency Bonus to any ability check, attack roll, or saving throw the clockwork hound makes.",
+    "Bond. Add your proficiency bonus to any ability check or saving throw that the sprite makes.",
+  ])("matches %s", (text) => {
+    expect(DDBCompanion2024.PROFICIENCY_BOND.test(text)).toBe(true);
+  });
+
+  it.each([
+    "Add your Proficiency Bonus to any ability check you make that uses the widget.",
+    "Add your Proficiency Bonus to Wisdom saving throws for the duration.",
+  ])("does not match %s", (text) => {
+    expect(DDBCompanion2024.PROFICIENCY_BOND.test(text)).toBe(false);
+  });
+});
