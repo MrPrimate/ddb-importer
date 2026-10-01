@@ -9,6 +9,14 @@ import { DDBMonsterFeatureActivity } from "../activities/_module";
 
 
 export default class DDBCompanionMixin {
+
+  /**
+   * The parsed companion actor's version. A stored compendium companion with a lower version is
+   * rewritten on the next import even when the muncher's "update existing" policy is off, so bump
+   * this when a change alters the companion actors themselves (stat block parsing, monster feature
+   * enrichers such as the Vestige Companion's), not only the summoning feature.
+   */
+  static VERSION = 2;
   // npc, data and name are populated by parse() before consumers read them
   npc!: I5eMonsterData;
   data!: I5eMonsterData;
@@ -332,6 +340,7 @@ export default class DDBCompanionMixin {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", summonsKey);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.summonsKey", summonsKey);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.version", DDBCompanionMixin.VERSION);
     if (this.options.folderHint) foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.folder", this.options.folderHint);
 
     foundry.utils.setProperty(this.npc, "system.source.rules", this.rules);

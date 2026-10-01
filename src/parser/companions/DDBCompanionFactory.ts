@@ -349,8 +349,11 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id ?? undefined;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
+      // an older parsed companion is replaced whatever the "update existing" policy says
+      const storedVersion = Number(foundry.utils.getProperty(existingCompanion, "flags.ddbimporter.summons.version") ?? 0);
+      const outdated = storedVersion < Number(companion.flags?.ddbimporter?.summons?.version ?? 0);
       const npc = !this.noCompendiums
-        ? await this.summonsManager.addToCompendium(companion)
+        ? await this.summonsManager.addToCompendium(companion, outdated ? true : null)
         : await DDBCompanionFactory.addToWorld(companion, true);
       results.push(npc);
     }
