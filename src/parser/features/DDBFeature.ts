@@ -799,14 +799,19 @@ export default class DDBFeature extends DDBFeatureMixin {
     const grantedFeats = this.ddbDefinition.grantedFeats ?? [];
     if (grantedFeats.length === 0) return;
 
-    const chosenFeats = this.ddbData.character.feats.filter((f) =>
-      grantedFeats.some((bgFeat) =>
-        f.componentId === bgFeat.id
-        && bgFeat.featIds.includes(f.definition.id)
-        && !f.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")),
-    );
+    // One advancement per granted entry. An entry offering several feats is a choice the player
+    // may not have made yet (the background muncher's mule never picks one, and a new character
+    // may not have): it still gets its ItemChoice, just without a chosen feat to link.
+    const grants = grantedFeats.map((bgFeat) => ({
+      bgFeat,
+      ddbFeat: this.ddbData.character.feats.find((f) =>
+        f.componentId === bgFeat.id && bgFeat.featIds.includes(f.definition.id)) ?? null,
+    })).filter(({ bgFeat, ddbFeat }) => ddbFeat
+      ? !ddbFeat.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")
+      // an unpicked entry has no categories to read; the ASI pseudo-feat is named for what it does
+      : !(/Ability Score|Ability Improvement/i).test(bgFeat.name ?? ""));
 
-    if (chosenFeats.length === 0) return;
+    if (grants.length === 0) return;
 
     const indexFilter = {
       fields: [
@@ -823,22 +828,23 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     const advancementLinkData: IDDBFeaturesAdvancementLinkData[] = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[] ?? [];
 
-    for (const ddbFeat of chosenFeats) {
-      const bgFeat = grantedFeats.find((g) => g.id === ddbFeat.componentId);
-      const chosenMatch = matchFeatId(ddbFeat.definition.id);
-      if (!chosenMatch) {
+    for (const { bgFeat, ddbFeat } of grants) {
+      const isChoice = bgFeat.featIds.length > 1;
+      // an unpicked single grant still names its one feat
+      const featId = ddbFeat?.definition.id ?? (isChoice ? null : bgFeat.featIds[0]);
+      const chosenMatch = featId ? matchFeatId(featId) : undefined;
+      if (featId && !chosenMatch) {
         // Still emit the advancement (empty) so the player can assign in Foundry; only the
         // automatic link is skipped. Usually means the feats have not been munched to the compendium.
-        logger.warn(`Unable to link background feat ${ddbFeat.definition.name}, this is probably because the feats have not been munched to the compendium`, { ddbFeat });
+        logger.warn(`Unable to link background feat ${ddbFeat?.definition.name ?? bgFeat.name}, this is probably because the feats have not been munched to the compendium`, { ddbFeat, bgFeat });
       }
 
-      const isChoice = (bgFeat?.featIds.length ?? 1) > 1;
       const advancement = isChoice
         ? AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement)
         : AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
 
       if (isChoice) {
-        const uuids = (bgFeat?.featIds ?? [])
+        const uuids = bgFeat.featIds
           .map((id) => matchFeatId(id)?.uuid)
           .filter((uuid): uuid is string => Boolean(uuid));
         const update: I5eAdvancementItemChoice = {
@@ -880,7 +886,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       // Only record link data when matched. Key by the DDB feat name (`definition.name`), since
       // the post-import linker (getDataFeature) matches on `flags.ddbimporter.originalName ?? name`,
       // not the compendium name.
-      if (chosenMatch) {
+      if (chosenMatch && ddbFeat) {
         advancementLinkData.push({
           _id: advancementId,
           features: {
