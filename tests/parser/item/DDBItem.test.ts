@@ -787,6 +787,28 @@ describe("DDBItem.parseItemBonusSaveDC", () => {
   });
 });
 
+describe("DDBItem.scrollSpellLevel", () => {
+  it.each([
+    ["Spell Scroll (Level 3)", 3],
+    ["Spell Scroll (Level 9)", 9],
+    ["Spell Scroll (1st Level)", 1],
+    ["Spell Scroll (2nd Level)", 2],
+    ["Spell Scroll (3rd Level)", 3],
+    ["Spell Scroll (7th Level)", 7],
+    ["Spell Scroll (Cantrip)", 0],
+    ["Spell Scroll (0 - Cantrip)", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.scrollSpellLevel(name)).toBe(level);
+  });
+
+  it.each(["Spell Scroll", "Spell Scroll of Fireball", "Spell Scroll: Shield", "Scroll of Protection"])(
+    "leaves %s without a level",
+    (name) => {
+      expect(DDBItem.scrollSpellLevel(name)).toBeNull();
+    },
+  );
+});
+
 describe("DDBItem.restrictionSave", () => {
   it.each([
     ["Backfire - DC 15 CON save", ["con"], "15"],

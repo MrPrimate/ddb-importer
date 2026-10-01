@@ -605,6 +605,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       : `min(@item.uses.value - ${min - 1},${levels})`;
   }
 
+  /**
+   * The spell level of a generic Spell Scroll from its name, or null for named scrolls
+   * ("Spell Scroll of Fireball", "Spell Scroll: Shield"). DDB writes the level as "(Level 3)" in
+   * 2024, "(3rd Level)" in 2014, and the cantrip as "(Cantrip)" or "(0 - Cantrip)".
+   */
+  static scrollSpellLevel(name: string): number | null {
+    const match = name.match(/^Spell Scroll \((?:Level (\d)|(\d)(?:st|nd|rd|th) Level|(?:0 - )?(Cantrip))\)/i);
+    if (!match) return null;
+    if (match[3]) return 0;
+    return Number(match[1] ?? match[2]);
+  }
+
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
   static parseItemBonusSaveDC(description: string): number | null {
     const text = DDBDescriptions.plainText(description);
@@ -2471,10 +2483,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     let price = 0;
     if (this.parsingType === "scroll") {
-      const levelRegex = /level (\d+)/i;
-      const levelMatch = levelRegex.exec(this.originalName);
-      if (levelMatch && levelMatch[1]) {
-        const level = parseInt(levelMatch[1]);
+      const level = DDBItem.scrollSpellLevel(this.originalName);
+      if (level !== null) {
         switch (level) {
           case 0:
             price = 30;
@@ -2861,6 +2871,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // KNOWN_ISSUE_4_0: what kind of activity type are scrolls?
     this.addMagical = true;
     this._generateConsumableUses();
+    // dnd5e prices scroll crafting from this flag (Consumable#getCraftCost) and reads the cast
+    // level for roll data from it, as createScrollFromSpell sets it.
+    const level = DDBItem.scrollSpellLevel(this.originalName);
+    if (level !== null) {
+      foundry.utils.setProperty(this.data, "flags.dnd5e.spellLevel", { base: level, value: level });
+    }
   }
 
   #generateStaffSpecifics() {
