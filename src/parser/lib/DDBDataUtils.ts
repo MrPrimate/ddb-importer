@@ -447,7 +447,7 @@ export default class DDBDataUtils {
     }
     if (!feat) {
       logger.debug("no scale value for ", feature);
-      return { name: undefined, value: undefined };
+      return { name: undefined, value: undefined, rollable: false };
     }
     const featDefinition = "definition" in feat ? feat.definition : feat as TDDBFeatureMixinDefinitions;
     const scaleValue = DDBDataUtils.getScaleValueLink(ddb, featDefinition);
@@ -455,13 +455,36 @@ export default class DDBDataUtils {
       return {
         name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
         value: scaleValue,
+        rollable: DDBDataUtils.isRollableScale(featDefinition),
       };
     }
     // final fallback if scale value extraction fails
     return {
       name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
       value: DDBDataUtils.getExactScalingValue(feat as { levelScale?: IDDBClassFeatureLevelScale | null }),
+      rollable: true,
     };
+  }
+
+  /**
+   * Whether a feature's scale value can sit in a roll formula. A scale whose levelScales carry
+   * only descriptions (Spectral Guide's "CR 1/2") becomes a dnd5e string scale, and a string such
+   * as "CR 4" fails to parse as a damage formula. A non-rename special advancement may rebuild the
+   * scale as dice or a number, so it is trusted.
+   */
+  static isRollableScale(featDefinition: TDDBFeatureMixinDefinitions): boolean {
+    const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales ?? [] : [];
+    const hasValues = levelScales.some((scale) => {
+      const die = scale.dice ?? scale.die;
+      return Boolean(die?.diceString)
+        || (die?.fixedValue != null && String(die.fixedValue) !== "")
+        || (scale.fixedValue != null && String(scale.fixedValue) !== "");
+    });
+    if (hasValues) return true;
+    const special = findSpecialAdvancement(featDefinition.name);
+    if (!special) return false;
+    const fixes = [special.fixFunction, ...(special.fixFunctions ?? []).map((f) => f.fn)];
+    return fixes.some((fn) => fn && fn.name !== "rename");
   }
 
   static classIdentifierName(className: string) {

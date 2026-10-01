@@ -206,10 +206,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
     // Class features carry their scale context on the wrapper; only actions have a componentId.
-    const scaleValue = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature).value;
-    this.scaleValueLink = scaleValue == null ? "" : String(scaleValue);
+    const scale = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature);
+    this.scaleValueLink = scale.value == null ? "" : String(scale.value);
     this.useScaleValueLink
-      = !this.excludedScale && Boolean(this.scaleValueLink) && this.scaleValueLink !== "{{scalevalue-unknown}}";
+      = !this.excludedScale
+      && scale.rollable
+      && Boolean(this.scaleValueLink)
+      && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   _generateFlagHints() {
