@@ -8,6 +8,7 @@ import FelineAgility from "../../../src/parser/enrichers/trait/tabaxi/FelineAgil
 import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpeed";
 import HoldBreath from "../../../src/parser/enrichers/trait/generic/HoldBreath";
 import ChangelingShapeShift from "../../../src/parser/enrichers/trait/changeling/ShapeShift";
+import Shifting from "../../../src/parser/enrichers/trait/shifter/Shifting";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -191,5 +192,16 @@ describe("changeling Shape-Shift", () => {
       activityMatch: "Change Form",
       options: { transfer: false, durationSeconds: null },
     });
+  });
+});
+
+describe("shifter Shifting", () => {
+  // DDB only ships the Swiftstride reaction when Swiftstride is the chosen shifter type
+  const swiftstride = (actions: { name: string }[]) =>
+    (makeEnricherData(Shifting as any, { actions: { race: actions } }) as any).additionalActivitiesSwiftstride;
+
+  it("asks for the Swiftstride reaction only when DDB ships it", () => {
+    expect(swiftstride([{ name: "Shift" }, { name: "Beasthide: Temporary Hit Points" }])).toEqual([]);
+    expect(swiftstride([{ name: "Shift" }, { name: "Swiftstride" }]).map((a: any) => a.action.name)).toEqual(["Swiftstride"]);
   });
 });

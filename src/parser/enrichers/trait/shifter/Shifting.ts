@@ -104,6 +104,8 @@ export default class Shifting extends DDBEnricherData {
   }
 
   get additionalActivitiesSwiftstride(): IDDBAdditionalActivity[] {
+    // DDB only ships the reaction when Swiftstride is the chosen shifter type
+    if (!this.hasAction({ name: "Swiftstride", type: "race" })) return [];
     return [
       {
         action: {

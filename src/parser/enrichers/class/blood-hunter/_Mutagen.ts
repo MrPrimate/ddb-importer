@@ -135,9 +135,9 @@ export default class _Mutagen extends _BloodHunter {
   }
 
   /**
-   * Raise a score and its maximum by the same amount. Plain adds on both keys: the DAE aware
-   * `min(@abilities.x.max, ...)` form used by the auto generator exists to cap a bonus at the
-   * existing maximum, which is the opposite of what a mutagen does.
+   * Raise a score and its maximum by the same amount. Plain adds on both keys: the clamped
+   * `delta<=limit` add the auto generator writes caps a bonus at the item's ceiling, which is the
+   * opposite of what a mutagen does.
    */
   static abilityScoreChanges(ability: string, bonus: number): IActiveEffectChangeData[] {
     return [

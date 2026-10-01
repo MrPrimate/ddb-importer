@@ -2328,6 +2328,61 @@ describe("class action hints match what DDB ships", () => {
       expect(hints.map((a: any) => a.init?.name ?? a.action?.name))
         .toEqual(["Lay On Hands Macro", "Lay On Hands: Purify Poison"]);
     });
+
+    it("uses the Pugilist's own cure action and 3 x level pool for Street Saint", () => {
+      const e = build(ClassEnrichers.Paladin.LayOnHands, {
+        klass: "Pugilist",
+        actions: { class: [{ name: "Lay On Hands: Heal", limitedUse: { numberUsed: 4, maxUses: 60 } }] },
+      });
+      expect(e.additionalActivities.map((a: any) => a.init?.name ?? a.action?.name))
+        .toEqual(["Lay On Hands Macro", "Lay On Hands: Cure Poisoned"]);
+      expect(e.override.data.system.uses).toMatchObject({ max: "3 * @classes.pugilist.levels", spent: 4 });
+    });
+
+    it("keeps the paladin pool for a paladin", () => {
+      expect(build(ClassEnrichers.Paladin.LayOnHands, { klass: "Paladin" }).override.data.system.uses.max)
+        .toBe("5 * @classes.paladin.levels");
+    });
+  });
+
+  describe("paladin LivingLegend", () => {
+    it("builds no extra action activity and reads uses from DDB's Living Legend action", () => {
+      const e = build(ClassEnrichers.Paladin.LivingLegend, {
+        actions: { class: [{ name: "Living Legend", limitedUse: { numberUsed: 1, maxUses: 1 } }] },
+      });
+      expect(e.additionalActivities ?? []).toEqual([]);
+      expect(e.override.uses).toMatchObject({ max: "1", spent: 1 });
+    });
+  });
+
+  describe("cleric CircleOfMortality", () => {
+    it("asks for Pull of Death only on the 2024 feature", () => {
+      const names = (e: any) => (e.additionalActivities ?? []).map((a: any) => a.action?.name);
+      expect(names(build(ClassEnrichers.Cleric.CircleOfMortality))).toEqual(["Pull of Death"]);
+      expect(names(build(ClassEnrichers.Cleric.CircleOfMortality, { is2014: true }))).toEqual([]);
+    });
+  });
+
+  describe("monk ArmsOfTheAstralSelf", () => {
+    const names = (actionNames: string[]) => build(ClassEnrichers.Monk.ArmsOfTheAstralSelf, {
+      actions: { class: actionNames.map((name) => ({ name })) },
+    }).additionalActivities.map((a: any) => [a.action.name, a.action.rename[0]]);
+
+    it("asks only for the attack names this character's DDB data carries", () => {
+      expect(names(["Arms of the Astral Self: Summon", "Arms of the Astral Self (Wis.)", "Arms of the Astral Self"])).toEqual([
+        ["Arms of the Astral Self: Summon", "Summon"],
+        ["Arms of the Astral Self", "DEX/STR Attack"],
+        ["Arms of the Astral Self (Wis.)", "WIS Attack"],
+      ]);
+    });
+
+    it("falls back to the canonical names when DDB ships none", () => {
+      expect(names([]).map(([n]: string[]) => n)).toEqual([
+        "Arms of the Astral Self: Summon",
+        "Arms of the Astral Self (DEX/STR)",
+        "Arms of the Astral Self (WIS)",
+      ]);
+    });
   });
 
   describe("paladin ChannelDivinity 2014 options", () => {
