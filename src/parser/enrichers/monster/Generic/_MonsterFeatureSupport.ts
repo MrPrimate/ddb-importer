@@ -30,7 +30,9 @@ export default abstract class _MonsterFeatureSupport extends DDBEnricherData {
   /** Retain the parser's ability formula when the source damage token already has a parsed part. */
   damage(formula: string, type: string): I5eDamagePart {
     const normalize = (value: string) => value.replace(/\s/g, "");
-    const existing = this.parser.actionData?.damageParts.find(
+    // later-turn damage written in the hit is parsed apart from the hit's own parts
+    const parsed = [...(this.parser.actionData?.damageParts ?? []), ...(this.parser.ddbMonsterDamage?.recurringParts ?? [])];
+    const existing = parsed.find(
       (p) => normalize(p.damageString) === normalize(formula) && p.damageTypes.includes(type as I5eDamageType),
     );
     if (existing) return foundry.utils.deepClone(existing.part);
@@ -38,7 +40,7 @@ export default abstract class _MonsterFeatureSupport extends DDBEnricherData {
     const score = ability ? this.parser.ddbMonster?.npc.system.abilities?.[ability]?.value : undefined;
     if (score !== undefined) {
       const mod = Math.floor((score - 10) / 2);
-      const dynamic = this.parser.actionData.damageParts.find(
+      const dynamic = parsed.find(
         (p) =>
           p.damageHasMod &&
           normalize(p.damageString.replace("@mod", String(mod))) === normalize(formula) &&

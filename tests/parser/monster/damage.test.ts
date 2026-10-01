@@ -173,12 +173,13 @@ describe("DDBMonsterDamage._getDamageTypes", () => {
 // shape DDBEffectHelper.getMonsterFeatureDamage / over-time effects consume)
 // =============================================================================
 describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
-  function makeDamage(hit: string) {
+  function makeDamage(hit: string, { isAttack = false }: { isAttack?: boolean } = {}) {
     // DAMAGE_EXPRESSION is a shared static regex with the /g flag; earlier tests in
     // this file leave its lastIndex advanced, which matchAll would seed from.
     DDBMonsterDamage.DAMAGE_EXPRESSION.lastIndex = 0;
     const feature = {
       name: "Test",
+      isAttack,
       templateType: "monster",
       actionData: {},
       damageModReplace: (s: string) => s,
@@ -215,6 +216,37 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     const dmg = makeDamage("Hit: 7 (2d6) piercing damage, or 3 (1d6) piercing damage if the swarm has half of its hit points or fewer. The target must make a DC 10 Constitution saving throw.");
     expect(dmg.versatileParts).toHaveLength(1);
     expect(dmg.versatileCondition).toBe("the swarm has half of its hit points or fewer");
+  });
+
+  it("splits damage dealt on later turns out of an attack's hit", () => {
+    const dmg = makeDamage("Hit: 22 (3d8 + 9) piercing damage. If the target is a Large or smaller creature, it must succeed on a DC 19 Dexterity saving throw or be swallowed by the worm. A swallowed creature is blinded and restrained, and it takes 21 (6d6) acid damage at the start of each of the worm’s turns.", { isAttack: true });
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["3d8 + 9"]);
+    expect(dmg.recurringParts.map((p) => p.damageString)).toEqual(["6d6"]);
+    expect(dmg.recurringParts[0].damageTypes).toEqual(["acid"]);
+    expect(dmg.recurringTiming).toBe("turnStart");
+    expect(dmg.recurringCondition).toMatch(/^A swallowed creature .* start of each of the worm’s turns\.$/);
+  });
+
+  it("takes every roll of a 'takes X and Y at the start of' clause, and only that clause", () => {
+    const dmg = makeDamage("Hit: 10 (2d6 + 3) slashing damage. While restrained, a creature takes 7 (2d6) slashing damage and 7 (2d6) necrotic damage at the start of each of the genie’s turns.", { isAttack: true });
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["2d6 + 3"]);
+    expect(dmg.recurringParts.map((p) => p.damageTypes[0])).toEqual(["slashing", "necrotic"]);
+  });
+
+  it("keeps the hit's own roll when a later-turn roll is joined to it", () => {
+    const dmg = makeDamage("Hit: 10 (4d4) acid damage and 5 (2d4) acid damage at the end of its next turn.", { isAttack: true });
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["4d4"]);
+    expect(dmg.recurringParts.map((p) => p.damageString)).toEqual(["2d4"]);
+    expect(dmg.recurringTiming).toBe("turnEnd");
+  });
+
+  it("leaves a rider in its own sentence, a save's damage and non-attacks alone", () => {
+    const rider = makeDamage("Hit: 2 (1d4) acid damage. At the end of each of its turns, the target must make a DC 10 Constitution saving throw.", { isAttack: true });
+    expect(rider.recurringParts).toEqual([]);
+    const save = makeDamage("Hit: 6 (1d8 + 2) slashing damage, and the target must succeed on a DC 16 Constitution saving throw or take 5 (2d4) slashing damage at the start of each of its turns.", { isAttack: true });
+    expect(save.recurringParts).toEqual([]);
+    const trait = makeDamage("While in sunlight, it takes 20 radiant damage at the start of its turn.");
+    expect(trait.recurringParts).toEqual([]);
   });
 
   it("records no condition for a two-handed alternative", () => {

@@ -501,6 +501,33 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   }
 
   /**
+   * Damage a hit deals on later turns ("takes 21 (6d6) acid damage at the start of each of its
+   * turns") is its own activity at that turn boundary, not part of the hit. Queued last so the
+   * ids of the activities before it do not move. A feature with an enricher that shapes its
+   * activities is left to it: OngoingDamage, the swallow and attach enrichers build their own
+   * later-turn damage, and an activity override would rename this one into a copy of the attack.
+   */
+  #queueRecurringDamage() {
+    const damage = this.ddbMonsterDamage;
+    if (!damage || damage.recurringParts.length === 0 || !this.enricher.addAutoAdditionalActivities) return;
+    const override = this.enricher.activity;
+    // a primaryOnly override (a placed zone's area) never reaches the extra activities
+    const overridesExtras = !!override && override.primaryOnly !== true && Object.keys(override).length > 0;
+    if ((this.enricher.additionalActivities ?? []).length > 0 || overridesExtras || this.enricher.type) return;
+    this.additionalActivities.push({
+      name: "Ongoing Damage",
+      type: "damage",
+      options: {
+        generateDamage: true,
+        damageParts: damage.recurringParts.map((part) => part.part),
+        includeBaseDamage: false,
+        generateConsumption: false,
+        activationOverride: { type: damage.recurringTiming, value: null, condition: damage.recurringCondition },
+      },
+    });
+  }
+
+  /**
    * Dictionary natural weapons (Bite, Claw) drop the feature path's Versatile activity, so an
    * alternative such as "or 3 (1d6) piercing damage if the swarm has half of its hit points or
    * fewer" would be lost. It is queued last so the ids of the activities before it do not move.
@@ -745,6 +772,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return result;
   }
 
+  /** Sort comparator putting proficient ability readings before non-proficient ones. */
+  static #byProficiency(a: { proficient: boolean | null }, b: { proficient: boolean | null }): number {
+    return Number(b.proficient === true) - Number(a.proficient === true);
+  }
+
   checkAbilities(abilitiesToCheck: T5eAbility[], negatives = false) {
     const results = abilitiesToCheck.map((ability) => {
       const result: {
@@ -867,15 +899,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       if (!this.actionData.baseAbility) {
         const magicAbilities = this.checkAbilities(initialAbilities);
 
-        const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
-          if (a.proficient == !b.proficient) return -1;
-          if (b.proficient == !a.proficient) return 1;
-          if (a.proficient == b.proficient) {
-            if (a.bonus > b.bonus) return 1;
-            if (b.bonus > a.bonus) return -1;
-          }
-          return 0;
-        });
+        // proficient readings first, then the smallest unexplained bonus
+        const filteredAbilities = magicAbilities.filter((ab) => ab.success == true)
+          .sort((a, b) => DDBMonsterFeature.#byProficiency(a, b) || a.bonus - b.bonus);
 
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
@@ -891,15 +917,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
         const magicAbilities = this.checkAbilities(initialAbilities, true);
 
-        const filteredAbilities = magicAbilities.filter((ab: any) => ab.success == true).sort((a, b) => {
-          if (a.proficient == !b.proficient) return -1;
-          if (b.proficient == !a.proficient) return 1;
-          if (a.proficient == b.proficient) {
-            if (a.bonus < b.bonus) return 1;
-            if (b.bonus < a.bonus) return -1;
-          }
-          return 0;
-        });
+        // proficient readings first, then the penalty closest to zero
+        const filteredAbilities = magicAbilities.filter((ab) => ab.success == true)
+          .sort((a, b) => DDBMonsterFeature.#byProficiency(a, b) || b.bonus - a.bonus);
         logger.debug("Filtered abilities", { filteredAbilities, html: this.strippedHtml });
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
@@ -1383,6 +1403,8 @@ ${this.data.system.description.value}
     } else {
       for (const id of Object.keys(this.data.system.activities)) {
         const activity = this.data.system.activities[id];
+        // damage on the target's later turns is not the legendary action, and spends nothing
+        if (["turnStart", "turnEnd"].includes(activity.activation?.type ?? "")) continue;
         // A copied attack keeps its eligibility condition when it becomes legendary.
         activity.activation = {
           ...foundry.utils.deepClone(this.actionData.activation),
@@ -2297,6 +2319,7 @@ ${this.data.system.description.value}
       this.#addHealAdditionalActivities();
       this.#queueDamageModes();
       this.#queueNaturalWeaponAlternative();
+      this.#queueRecurringDamage();
       if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();
       }

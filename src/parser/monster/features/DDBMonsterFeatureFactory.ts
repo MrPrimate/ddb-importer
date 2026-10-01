@@ -427,7 +427,8 @@ export default class DDBMonsterFeatureFactory {
         dupFeature.data.name = action.name; // fix up name to make sure things like Attack are included
         Object.keys(dupFeature.data.system.activities).forEach((id) => {
           const activation = dupFeature.data.system.activities[id].activation;
-          if (activation) activation.type = "legendary";
+          // damage on the target's later turns stays on that turn
+          if (activation && !["turnStart", "turnEnd"].includes(activation.type ?? "")) activation.type = "legendary";
         });
         dupFeature.data.sort = i + 1;
         this.features[type].push(dupFeature);
