@@ -195,7 +195,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.ddbItem, "isMuncher", isCompendium);
 
     this.legacy = this.ddbDefinition.isLegacy;
-    this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
+    // DDB lists some 2014 printings under a 2024 book as well (legacy Net 38, legacy Defender
+    // Greatsword 4618); a legacy definition with any 2014 source is the 2014 version, and must
+    // stay distinct from the separate 2024 definition of the same name
+    this.is2014 = this.legacy
+      ? this.ddbDefinition.sources.some((s) => DDBSources.is2014Source(s))
+      : this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this.originalName = utils.nameString(ddbItem.definition.name);

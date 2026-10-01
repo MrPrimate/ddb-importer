@@ -32,6 +32,10 @@ export default class VenomSpray extends DDBEnricherData {
           targetType: "self",
           activationType: "special",
           noeffect: true,
+          // the description's 15-foot cube belongs to the poison spray, not the self-inflicted cut,
+          // and the spray already spends the recharge use
+          noTemplate: true,
+          noConsumeTargets: true,
           data: {
             sort: 1,
             damage: {

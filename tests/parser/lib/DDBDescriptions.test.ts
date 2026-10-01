@@ -881,3 +881,32 @@ describe("DDBDescriptions.checkKey", () => {
     expect(DDBDescriptions.checkKey(first)).not.toBe(DDBDescriptions.checkKey(second));
   });
 });
+
+// =============================================================================
+// monsterIgnoredComponents
+// =============================================================================
+describe("DDBDescriptions.monsterIgnoredComponents", () => {
+  const all = ["vocal", "somatic", "material"];
+
+  it.each([
+    ["requiring no Material components and using Charisma", ["material"]],
+    ["requiring no material components:", ["material"]],
+    ["requiring no material spell components and using Wisdom", ["material"]],
+    ["It requires no material components to cast its spells.", ["material"]],
+    ["requiring no Somatic or Material components and using Wisdom", ["somatic", "material"]],
+    ["requiring no verbal or material components:", ["vocal", "material"]],
+    ["It requires no verbal components to cast its spells.", ["vocal"]],
+    ["requiring no spell components and using Intelligence", all],
+    ["requiring no spellcasting components and using Intelligence", all],
+    ["requiring no components:", all],
+    ["requiring no components other than its gear, which doesn't function for others:", all],
+    ["requiring no material components or concentration", ["material"]],
+  ])("reads %s", (text, expected) => {
+    expect(DDBDescriptions.monsterIgnoredComponents(text)).toEqual(expected);
+  });
+
+  it("waives nothing when components are not mentioned as waived", () => {
+    expect(DDBDescriptions.monsterIgnoredComponents("using Charisma as the spellcasting ability")).toEqual([]);
+    expect(DDBDescriptions.monsterIgnoredComponents("no concentration required")).toEqual([]);
+  });
+});
