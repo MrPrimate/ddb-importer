@@ -19,6 +19,7 @@ vi.mock("../../../src/parser/classes/DDBClass", () => ({ default: class DDBClass
 vi.mock("../../../src/parser/classes/DDBSubClass", () => ({ default: class DDBSubClass {} }));
 
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
+import { DICTIONARY } from "../../../src/config/_module";
 
 describe("weapon mastery name resolution", () => {
   it("uses canonical names in advancement choices including nested ammunition", () => {
@@ -258,6 +259,46 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
       level: 1,
     });
     expect(adv.toObject().configuration.grants).toEqual(["skills:ins", "skills:rel"]);
+  });
+
+  describe("background open skill picks", () => {
+    // DDB models each background skill as a choice; one without a default is an open pick
+    const skillOptions = DICTIONARY.actor.skills.map((skill, index) => ({ id: 3783 + index, label: skill.label }));
+    const choice = (defaultSubtypes: string[], optionIds = skillOptions.map((o) => o.id)) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds, defaultSubtypes,
+    });
+    const background = (choices: any[], description: string): any => makeHelper({
+      type: "background",
+      ddbData: makeDdbData({ background: choices, choiceDefinitions: [{ id: "12-2", options: skillOptions }] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    })?.toObject().configuration;
+
+    it("offers any two skills when the description has no skill line", () => {
+      expect(background([choice([]), choice([])], "<p>Flavour only.</p>")).toMatchObject({
+        choices: [{ count: 2, pool: ["skills:*"] }],
+      });
+    });
+
+    it("grants the fixed skill and offers the open pick", () => {
+      const config = background([choice(["Survival"]), choice([])], "<p><strong>Skill Proficiencies:</strong>Survival, choose one</p>");
+      expect(config.grants).toEqual(["skills:sur"]);
+      expect(config.choices).toEqual([{ count: 1, pool: ["skills:*"] }]);
+    });
+
+    it("limits the pick to the choice's own options", () => {
+      const config = background([choice([], skillOptions.slice(0, 2).map((o) => o.id))], "<p>Flavour only.</p>");
+      expect(config.choices).toEqual([{ count: 1, pool: [`skills:${DICTIONARY.actor.skills[0].name}`, `skills:${DICTIONARY.actor.skills[1].name}`] }]);
+    });
+
+    it("ignores an open DDB choice that a fixed skill line does not mention", () => {
+      const config = background([choice([])], "<p><strong>Skill Proficiencies:</strong> Religion and Intimidation</p>");
+      expect(config.grants).toEqual(["skills:rel", "skills:itm"]);
+      expect(config.choices ?? []).toEqual([]);
+    });
   });
 
   it("uses the feature name as name for non-base features", () => {

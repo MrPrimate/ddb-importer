@@ -170,6 +170,43 @@ export default class AdvancementHelper {
     return Array.from(defaults);
   }
 
+  /**
+   * A background's open skill picks: skill choices with no rules default ("two skills of your
+   * choice", "Survival, choose one"). The pool is the choice's own options, or any skill when it
+   * offers every skill. Tool choices share the choice type; their options are not skills.
+   */
+  getBackgroundOpenSkillChoices(feature: TAdvancementFeatureDefinitions): { count: number; pool: string[] } {
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions ?? [];
+    const choices = ((this.ddbData.character.choices as Record<string, any>).background ?? []).filter((choice: any) =>
+      feature.id === choice.componentId
+      && choice.subType === 1
+      && choice.type === 2
+      && (choice.defaultSubtypes ?? []).length === 0,
+    );
+    let count = 0;
+    const pool = new Set<string>();
+    for (const choice of choices) {
+      const definition = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      const labels = (definition?.options ?? [])
+        .filter((option) => (choice.optionIds ?? []).includes(option.id))
+        .map((option) => option.label);
+      const skills = labels
+        .map((label) => DICTIONARY.actor.skills.find((s) => s.label === label)?.name)
+        .filter((name): name is T5eSkillKey => !!name);
+      if (skills.length === 0 || skills.length !== labels.length) continue;
+      count += 1;
+      if (skills.length === DICTIONARY.actor.skills.length) pool.add("*");
+      else skills.forEach((skill) => pool.add(skill));
+    }
+    return { count, pool: pool.has("*") ? ["*"] : Array.from(pool) };
+  }
+
+  /** The text of a background's "Skill Proficiencies:" line, or null when it has none. */
+  static backgroundSkillLine(description: string): string | null {
+    const text = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
+    return text.match(/Skill Proficiencies:\s*(.*?)(?:$|\.$|\w+:)/im)?.[1] ?? null;
+  }
+
   getToolChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
     const toolsChosen = new Set<string>();
     const toolChoices = new Set<string>();
@@ -554,10 +591,22 @@ export default class AdvancementHelper {
 
     // A background's fixed skills are structured as its choices' defaults, which win over the
     // "Skill Proficiencies:" text: DDB has copied that block from another background before
-    // (Bejeweled Conclave Spy carries Agent of the Ninth Quill's).
-    if (this.type === "background" && parsedSkills.grants.length > 0) {
-      const defaults = this.getBackgroundSkillDefaults(feature);
-      if (defaults.length > 0) parsedSkills.grants = defaults;
+    // (Bejeweled Conclave Spy carries Agent of the Ninth Quill's), and some descriptions have no
+    // such line at all. Its remaining skill choices without a default are open picks.
+    if (this.type === "background") {
+      const textChoice = parsedSkills.choices.length > 0 || parsedSkills.number > 0;
+      if (!textChoice) {
+        const defaults = this.getBackgroundSkillDefaults(feature);
+        if (defaults.length > 0) parsedSkills.grants = defaults;
+        const open = this.getBackgroundOpenSkillChoices(feature);
+        // a skill line that names only fixed skills outranks a stray DDB choice (Steinhardt's
+        // Inquisitor carries an Arcane Archer lore pick its text never mentions)
+        const skillLine = AdvancementHelper.backgroundSkillLine(feature.description);
+        if (open.count > 0 && (skillLine === null || (/\bchoose\b|\bchoice\b/i).test(skillLine))) {
+          parsedSkills.number = open.count;
+          parsedSkills.choices = open.pool;
+        }
+      }
     }
 
     const count = this.isMuncher && availableToMulticlass && baseProficiency
@@ -1555,7 +1604,7 @@ export default class AdvancementHelper {
     }
 
     // Skill Proficiencies: Nature, Survival
-    const backgroundSkillRegex = /Skill Proficiencies:\s(.*?)($|\.$|\w+:)/im;
+    const backgroundSkillRegex = /Skill Proficiencies:\s*(.*?)($|\.$|\w+:)/im;
     const backgroundMatch = textDescription.match(backgroundSkillRegex);
 
     if (backgroundMatch) {
