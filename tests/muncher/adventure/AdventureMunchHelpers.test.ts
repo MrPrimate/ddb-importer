@@ -185,3 +185,87 @@ describe("AdventureMunchHelpers.tryCheckForMissingDocuments", () => {
     await expect(AdventureMunchHelpers.tryCheckForMissingDocuments("item", [999])).resolves.toBe(true);
   });
 });
+
+// Scene-token overrides, shared by the zip (AdventureMunch) and native (DDBMapMetaData) paths
+describe("AdventureMunchHelpers.getTokenActorDelta", () => {
+  it("returns null when the token captured no actor data", () => {
+    expect(AdventureMunchHelpers.getTokenActorDelta({ name: "Goblin", flags: {} } as any)).toBeNull();
+  });
+
+  it("uses a current capture's actor data as the delta, without touching the token", () => {
+    const token: any = { name: "Tangletop", flags: {}, actorData: { name: "Tangletop", system: { attributes: { hp: { value: 0 } } } } };
+    const delta = AdventureMunchHelpers.getTokenActorDelta(token);
+    expect(delta).toEqual({ name: "Tangletop", system: { attributes: { hp: { value: 0 } } } });
+    delta!.name = "changed";
+    expect(token.actorData.name).toBe("Tangletop");
+  });
+
+  it("moves a pre-v10 capture's data into the delta system", () => {
+    const token: any = { flags: {}, actorData: { name: "Guard", data: { details: { cr: "0" } }, oldHpVal: 3 } };
+    expect(AdventureMunchHelpers.getTokenActorDelta(token)).toEqual({ name: "Guard", system: { details: { cr: "0" } } });
+  });
+});
+
+describe("AdventureMunchHelpers.migrateTokenEffects", () => {
+  const globals = globalThis as any;
+  const staticID = (id: string) => id.substring(0, 16).padEnd(16, "0");
+  let savedStatusEffects: unknown;
+  let savedDnd5e: unknown;
+
+  beforeEach(() => {
+    savedStatusEffects = globals.CONFIG.statusEffects;
+    savedDnd5e = globals.dnd5e;
+    globals.CONFIG.statusEffects = [{ id: "unconscious" }, { id: "prone" }];
+    globals.dnd5e = { ...(globals.dnd5e ?? {}), utils: { ...(globals.dnd5e?.utils ?? {}), staticID } };
+  });
+
+  afterEach(() => {
+    globals.CONFIG.statusEffects = savedStatusEffects;
+    globals.dnd5e = savedDnd5e;
+  });
+
+  it("renames pre-v11 fields and makes a core status effect the dnd5e condition with its inherited statuses", () => {
+    const effects: any[] = [
+      { label: "Unconscious", icon: "icons/svg/unconscious.svg", flags: { core: { statusId: "unconscious" } } },
+      { name: "Blessed", flags: {} },
+    ];
+    AdventureMunchHelpers.migrateTokenEffects(effects);
+    expect(effects[0]).toMatchObject({
+      name: "Unconscious",
+      img: "icons/svg/unconscious.svg",
+      _id: staticID("dnd5eunconscious"),
+      statuses: ["unconscious", "incapacitated"],
+    });
+    expect(effects[0].label).toBeUndefined();
+    expect(effects[0].flags.core.statusId).toBeUndefined();
+    expect(effects[1]).toEqual({ name: "Blessed", flags: {} });
+  });
+
+  it("tolerates a token without effects", () => {
+    expect(() => AdventureMunchHelpers.migrateTokenEffects(undefined)).not.toThrow();
+  });
+});
+
+describe("AdventureMunchHelpers.getTokenItems", () => {
+  it("keeps custom items and copies monster features from the world actor", async () => {
+    const worldActor: any = {
+      items: [{ name: "Bite", type: "weapon", toObject: () => ({ _id: "abc", name: "Bite", type: "weapon" }) }],
+    };
+    const token: any = {
+      flags: {
+        ddbItems: [
+          { name: "Lantern", type: "loot", customItem: true, data: { name: "Lantern", type: "loot" } },
+          { name: "Bite", type: "weapon" },
+        ],
+      },
+    };
+    await expect(AdventureMunchHelpers.getTokenItems(worldActor, token)).resolves.toEqual([
+      { name: "Lantern", type: "loot" },
+      { name: "Bite", type: "weapon" },
+    ]);
+  });
+
+  it("returns nothing for a token that kept no items", async () => {
+    await expect(AdventureMunchHelpers.getTokenItems({ items: [] } as any, { flags: {} } as any)).resolves.toEqual([]);
+  });
+});

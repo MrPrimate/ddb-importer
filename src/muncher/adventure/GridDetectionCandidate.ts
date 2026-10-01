@@ -5,7 +5,9 @@ export async function isGridDetectionCandidate(
   scene: any,
   getDimensions: (src: string) => Promise<{ width: number; height: number }>,
 ): Promise<boolean> {
-  const src = scene?.levels?.[0]?.background?.src ?? scene?.background?.src ?? null;
+  // a live V14 scene holds its levels in a collection, scene data in an array
+  const firstLevel = scene?.levels?.contents?.[0] ?? scene?.levels?.[0];
+  const src = firstLevel?.background?.src ?? scene?.background?.src ?? null;
   if (!src) return false;
 
   const shiftX = Number(scene.shiftX ?? 0);

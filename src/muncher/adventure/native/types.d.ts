@@ -25,6 +25,9 @@ global {
     /** replace legacy (2014) monsters with their 2024 versions where available
      *  (defaults to the `adventure-policy-use2024-monsters` setting) */
     use2024monsters?: boolean;
+    /** overwrite world scenes, journals, tables and monster actors that already exist; otherwise a
+     *  re-import only creates what is missing (defaults to `munching-policy-update-existing`) */
+    updateExisting?: boolean;
   }
 
   /** Per-item callback handed to loop-bearing submodules (secondary bar). */

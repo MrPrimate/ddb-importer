@@ -33,6 +33,9 @@
       <label class="ddb-adventure-browser-option" title="Make imported journals and tables observable by all players. You probably only want this for things like the PHB.">
         <input type="checkbox" class="adv-opt-observe-all" {{#if observeAll}}checked{{/if}} /> Journals/tables observable by all players
       </label>
+      <label class="ddb-adventure-browser-option" title="Re-importing replaces world scenes, journals, tables and monster actors that already exist. Unchecked, only missing documents are created. This is the muncher's shared update existing setting.">
+        <input type="checkbox" class="adv-opt-update-existing" {{#if updateExisting}}checked{{/if}} /> Update existing world documents
+      </label>
     </fieldset>
   </header>
 

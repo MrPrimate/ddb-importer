@@ -110,6 +110,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
         importAllMonsters: utils.getSetting<boolean>("adventure-policy-all-actors-into-world"),
         observeAll: utils.getSetting<boolean>("adventure-policy-observe-all"),
         use2024monsters: utils.getSetting<boolean>("adventure-policy-use2024-monsters"),
+        updateExisting: utils.getSetting<boolean>("munching-policy-update-existing"),
       };
       await new NativeAdventureMunch({ notifier }).importBook(bookId, options);
       this.notifierV2({ section: "monster", message: `Imported ${bookName}`, clear: true });
@@ -248,6 +249,12 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     await this.render();
   }
 
+  // the muncher-wide "update existing" policy, which the native import also follows
+  async _setUpdateExisting(checked: boolean) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-update-existing", checked);
+    await this.render();
+  }
+
   _setHideUnowned(checked: boolean) {
     this.hideUnowned = checked;
     this.render();
@@ -278,6 +285,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     wire(".adv-opt-compendium-only", (c) => this._setCompendiumOnly(c));
     wire(".adv-opt-2024-monsters", (c) => this._set2024Monsters(c));
     wire(".adv-opt-observe-all", (c) => this._setObserveAll(c));
+    wire(".adv-opt-update-existing", (c) => this._setUpdateExisting(c));
     wire(".adv-opt-hide-unowned", (c) => this._setHideUnowned(c));
 
     const input = this.element.querySelector("#adventure-browser-search") as HTMLInputElement | null;
@@ -322,6 +330,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     context.compendiumOnly = utils.getSetting<boolean>("adventure-policy-compendium-only");
     context.use2024Monsters = utils.getSetting<boolean>("adventure-policy-use2024-monsters");
     context.observeAll = utils.getSetting<boolean>("adventure-policy-observe-all");
+    context.updateExisting = utils.getSetting<boolean>("munching-policy-update-existing");
 
     const groups = this._buildCategoryGroups();
     context.categories = groups;

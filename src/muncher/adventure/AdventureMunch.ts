@@ -1,19 +1,12 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
-import { logger, utils, FileHelper, CompendiumHelper, DDBSources, isGridDetectionEnabled } from "../../lib/_module";
+import { logger, utils, FileHelper, CompendiumHelper, DDBSources } from "../../lib/_module";
 import { generateAdventureConfig } from "../adventure";
 import { SETTINGS } from "../../config/_module";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
 import * as CompendiumLinkReplacer from "./CompendiumLinkReplacer";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
-import {
-  runDetectionForScene,
-  applyChoiceToScene,
-  fetchBackgroundBlob,
-  readBitmapDimensions,
-} from "../../apps/SceneGridDetector";
-
-import { isGridDetectionCandidate } from "./GridDetectionCandidate";
+import { promptGridDetectionForScenes } from "./GridDetectionPrompt";
 
 
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
@@ -451,96 +444,6 @@ export default class AdventureMunch {
     }
   }
 
-  // A scene whose imported width/height matches the natural image dimensions and
-  // whose shiftX/shiftY are both zero almost certainly shipped without grid
-  // alignment. After import, offer to run detectGrid on those candidates.
-  async _findGridDetectionCandidates() {
-    const scenes = this.temporary?.scene ?? [];
-    if (scenes.length === 0) return [];
-
-    const getDimensions = async (src: string) => {
-      const blob = await fetchBackgroundBlob(src);
-      return readBitmapDimensions(blob);
-    };
-
-    const checks: Promise<Scene | null>[] = scenes.map(async (scene) => {
-      const ok = await isGridDetectionCandidate(scene, getDimensions);
-      return ok ? scene : null;
-    });
-
-    const results = await Promise.all(checks);
-    return results.filter((s) => s !== null);
-  }
-
-  async _promptGridDetectionForImportedScenes() {
-    if (!isGridDetectionEnabled()) return;
-
-    const candidates = await this._findGridDetectionCandidates();
-    if (candidates.length === 0) return;
-
-    const rows = candidates
-      .map((scene, i) => {
-        const name = ((scene.name ?? `Scene ${i + 1}`) as string)
-          .replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]!);
-        return `<li><label><input type="checkbox" name="scene" value="${i}" checked> ${name}</label></li>`;
-      })
-      .join("");
-
-    const content = `
-      <p>${candidates.length} imported scene${candidates.length === 1 ? "" : "s"} ${candidates.length === 1 ? "has" : "have"} no shift/offset and image dimensions matching the scene size.</p>
-      <p>Run grid auto-detection on the selected scenes?</p>
-      <ul style="list-style:none;padding-left:0;max-height:300px;overflow-y:auto;">${rows}</ul>
-    `;
-
-    const selected = await foundry.applications.api.DialogV2.wait({
-      rejectClose: false,
-      window: { title: "Detect Grid on Imported Scenes" },
-      content,
-      position: { width: 480 },
-      buttons: [
-        {
-          action: "run",
-          label: "Run Detection",
-          icon: "fas fa-magnifying-glass",
-          default: true,
-          callback: (_event, button) => {
-            const form = (button as HTMLButtonElement).form;
-            if (!form) return [];
-            const checked = Array.from(form.querySelectorAll<HTMLInputElement>("input[name='scene']:checked"));
-            return checked.map((el) => Number(el.value));
-          },
-        },
-        {
-          action: "skip",
-          label: "Skip",
-          icon: "fas fa-times",
-          callback: () => null,
-        },
-      ],
-    });
-
-    if (!Array.isArray(selected) || selected.length === 0) return;
-
-    for (const index of selected) {
-      const scene = candidates[index];
-      if (!scene) continue;
-      try {
-        ui.notifications?.info(`Detecting grid for "${scene.name}"...`);
-        const run = await runDetectionForScene(scene);
-        const choice = run.recommendedKey
-          ? run.candidateList.find((c) => c.key === run.recommendedKey) ?? null
-          : null;
-        await applyChoiceToScene(scene, run, choice);
-        const sizePx = choice ? choice.entry.gridSize : Math.round(run.grid.size);
-        ui.notifications?.info(`Grid updated on "${scene.name}" (size ${sizePx}px).`);
-      } catch (err) {
-        const msg = (err as Error).message;
-        logger.error(`Grid detection failed for "${scene?.name ?? "?"}": ${msg}`, err);
-        ui.notifications?.warn(`Grid detection failed for "${scene?.name ?? "?"}": ${msg}`);
-      }
-    }
-  }
-
   _renderCompleteDialog() {
     logger.info(`Adventure import complete for ${this.adventure.name}`, {
       this: this,
@@ -593,89 +496,18 @@ export default class AdventureMunch {
 
 
   async _getTokenUpdateData(worldActor: Actor.Known, sceneToken: I5eTokenData) {
-    const items = [];
-    const ddbItems = sceneToken.flags.ddbItems ?? [];
-    for (const item of ddbItems) {
-      if (item.customItem) {
-        items.push(item.data);
-      } else {
-        const ddbId = foundry.utils.getProperty(item, "ddbId") as number;
-        if (Number.isInteger(ddbId)) {
-          // fetch ddbItem
-          const compendium = CompendiumHelper.getCompendiumType(item.type);
-          if (!compendium) {
-            // getCompendiumType throws when it fails to find the compendium, so this is unreachable
-            logger.warn(`Unable to find compendium for item type ${item.type}`, { item, sceneToken });
-            continue;
-          }
-          const itemRef = compendium.index.find((i) => {
-            const entry = i as unknown as INameMatchIndexEntry;
-            return entry.name === item.name && entry.type === item.type;
-          });
-          if (itemRef) {
-            const compendiumItem = await compendium.getDocument(itemRef._id);
-            if (!compendiumItem) {
-              logger.error(`Unable to load compendium item ${item.name}`, { item, sceneToken, itemRef });
-              continue;
-            }
-            const jsonItem = compendiumItem.toObject();
-            delete (jsonItem as { _id?: string })._id;
-            items.push(jsonItem);
-          } else {
-            logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
-          }
-        } else {
-          // fetch actor item here
-          const actorItem = worldActor.items?.find((i: Item.Implementation) => i.name === item.name && i.type === item.type);
-          if (actorItem) {
-            const jsonItem = actorItem.toObject();
-            delete (jsonItem as { _id?: string })._id;
-            items.push(jsonItem);
-          } else {
-            logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
-          }
-        }
-      }
-    }
+    const items = await AdventureMunchHelpers.getTokenItems(worldActor, sceneToken);
 
     const tokenStub = { };
 
-    if (foundry.utils.hasProperty(sceneToken, "actorData")) {
-      const data = foundry.utils.deepClone(sceneToken.actorData) as Record<string, any>;
-      if (data.data) {
-        foundry.utils.setProperty(tokenStub, "delta.system", foundry.utils.deepClone(data.data));
-        if (data.name) foundry.utils.setProperty(tokenStub, "delta.name", foundry.utils.deepClone(data.name));
-      } else {
-        foundry.utils.setProperty(tokenStub, "delta", foundry.utils.deepClone(sceneToken.actorData));
-      }
-      delete sceneToken.actorData;
+    const actorDelta = AdventureMunchHelpers.getTokenActorDelta(sceneToken);
+    if (actorDelta) {
+      foundry.utils.setProperty(tokenStub, "delta", actorDelta);
+      delete (sceneToken as { actorData?: unknown }).actorData;
     }
 
-    const deltaEffects = foundry.utils.getProperty(sceneToken, "delta.effects") as I5eEffectData[] | undefined;
-    if (deltaEffects) {
-      for (const effect of deltaEffects) {
-        // migration from older versions of Foundry
-        if ((effect as any).label) {
-          effect.name = (effect as any).label;
-          delete (effect as any).label;
-        }
-        if ((effect as any).icon) {
-          effect.img = (effect as any).icon;
-          delete (effect as any).icon;
-        }
-        const statusId = foundry.utils.getProperty(effect, "flags.core.statusId") as string | undefined;
-        if (statusId) {
-          const condition = CONFIG.statusEffects.find((c) => c.id === statusId)
-            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(statusId));
-          if (!condition) continue;
-          effect._id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
-          // a native condition carries the statuses it implies, as core's fromStatusEffect adds them
-          const statuses = [condition.id, ...(CONFIG.DND5E.conditionTypes[condition.id]?.statuses ?? [])];
-          effect.statuses = [...new Set([...(effect.statuses ?? []), ...statuses])];
-          delete effect.flags?.core?.statusId;
-        }
-      }
-    }
+    AdventureMunchHelpers.migrateTokenEffects(foundry.utils.getProperty(tokenStub, "delta.effects") as I5eEffectData[] | undefined);
+    AdventureMunchHelpers.migrateTokenEffects(foundry.utils.getProperty(sceneToken, "delta.effects") as I5eEffectData[] | undefined);
 
     if (items.length > 0) {
       foundry.utils.setProperty(tokenStub, "delta.items", items);
@@ -1014,7 +846,7 @@ export default class AdventureMunch {
         else logger.warn("Unable to find Adventures compendium settings");
         await this._importAdventureToCompendium();
       }
-      await this._promptGridDetectionForImportedScenes();
+      await promptGridDetectionForScenes((this.temporary?.scene ?? []) as Scene[]);
       this._renderCompleteDialog();
     } catch (err) {
       ui.notifications.error(`There was an error importing ${this.importFilename}`);
