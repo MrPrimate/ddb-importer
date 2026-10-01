@@ -574,3 +574,27 @@ describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistanc
     expect(makeTrait("Legendary Actions")._getActivitiesType()).toBeNull();
   });
 });
+
+describe("DDBMonsterFeature.isNaturalAttackName", () => {
+  it("matches body-part attacks by their last word, singular or plural", () => {
+    for (const name of ["Gore", "Hooves", "Pseudopod", "Barbed Tail", "Flurry of Bites", "Swarm of Proboscises", "Rotting Fist"]) {
+      expect(DDBMonsterFeature.isNaturalAttackName(name), name).toBe(true);
+    }
+  });
+
+  it("reads the character natural weapon names too", () => {
+    expect(DDBMonsterFeature.isNaturalAttackName("Fangs")).toBe(true);
+    expect(DDBMonsterFeature.isNaturalAttackName("Cat's Claws")).toBe(true);
+  });
+
+  it("ignores a trailing parenthetical", () => {
+    expect(DDBMonsterFeature.isNaturalAttackName("Petrifying Bite (Petrifying Head Only)")).toBe(true);
+    expect(DDBMonsterFeature.isNaturalAttackName("Javelin (Humanoid Form Only)")).toBe(false);
+  });
+
+  it("leaves strikes, spell-like attacks, equipment and exclusions alone", () => {
+    for (const name of ["Unarmed Strike", "Force Strike", "Mind Rend", "Arcane Burst", "Tentacle Rod", "Flame Tongue", "Battering Ram", "Acid Spike"]) {
+      expect(DDBMonsterFeature.isNaturalAttackName(name), name).toBe(false);
+    }
+  });
+});

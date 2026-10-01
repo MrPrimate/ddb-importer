@@ -922,6 +922,8 @@ global {
     spellSniper?: boolean;
     // added by us
     sharpShooter?: string;
+    // dnd5e: replaces the generated text of an NPC stat block row, e.g. the Gear line
+    statBlockOverride?: Record<string, string>;
   };
 
   interface IMidiQoLActorFlags {

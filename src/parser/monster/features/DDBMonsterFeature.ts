@@ -145,6 +145,64 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.profBonus = false;
   }
 
+  static #naturalAttackParts: Set<string> | null = null;
+  #patternNaturalWeapon = false;
+
+  /**
+   * Whether alternate damage becomes extra attack activities ("Versatile", damage modes). Weapons
+   * drop it, but the attacks made natural weapons by name pattern were features until then and
+   * their alternates ("9d6 if the target is grappled") are not weapon versatile damage.
+   */
+  get #keepsDamageModeActivities(): boolean {
+    return this.templateType !== "weapon" || this.#patternNaturalWeapon;
+  }
+
+  /**
+   * Body-part words that mark a monster attack as a natural weapon: the monster dictionary list
+   * plus the last word of the character NATURAL_WEAPONS names. The natural entries of the monster
+   * weapon dictionary already match by name prefix, and "Beast's Strike" would add "strike", which
+   * also ends Unarmed Strike and spell-like attacks. Built on first use, after DICTIONARY settles.
+   */
+  static get naturalAttackParts(): Set<string> {
+    if (DDBMonsterFeature.#naturalAttackParts) return DDBMonsterFeature.#naturalAttackParts;
+    const names = DICTIONARY.parsing.levelScale.NATURAL_WEAPONS;
+    const words = names.flatMap((name) => DDBMonsterFeature.#singular(name.toLowerCase().split(/\s+/).pop() ?? ""));
+    DDBMonsterFeature.#naturalAttackParts = new Set([...DICTIONARY.monsters.naturalAttackParts, ...words]);
+    return DDBMonsterFeature.#naturalAttackParts;
+  }
+
+  static #singular(word: string): string[] {
+    return [word, word.replace(/es$/, ""), word.replace(/s$/, "")];
+  }
+
+  /**
+   * Whether an attack name reads as a natural weapon: the last word, ignoring any parenthetical, is a
+   * body part ("Gore", "Barbed Tail", "Flurry of Bites", "Petrifying Bite (Petrifying Head Only)").
+   */
+  static isNaturalAttackName(name: string): boolean {
+    const baseName = name.replace(/\s*\(.*$/, "").trim();
+    if (DICTIONARY.monsters.naturalAttackExclusions.includes(baseName)) return false;
+    const lastWord = baseName.toLowerCase().split(/\s+/).pop() ?? "";
+    const parts = DDBMonsterFeature.naturalAttackParts;
+    return DDBMonsterFeature.#singular(lastWord).some((word) => parts.has(word));
+  }
+
+  /**
+   * Natural weapon lookup for an attack the weapon dictionary does not name, when its name reads as
+   * a body part. Recharge attacks stay features.
+   */
+  #naturalAttackLookup(): IMonsterWeaponDictionary | undefined {
+    if (!this.isAttack || this.isRecharge !== null) return undefined;
+    if (!DDBMonsterFeature.isNaturalAttackName(this.name)) return undefined;
+    this.#patternNaturalWeapon = true;
+    return {
+      name: this.name.replace(/\s*\(.*$/, "").trim(),
+      actionType: this.rangedAttack && !this.meleeAttack ? "rwak" : "mwak",
+      weaponType: "natural",
+      properties: {},
+    };
+  }
+
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
   prepare() {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
@@ -174,7 +232,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
-    this.weaponLookup = DICTIONARY.monsters.weapons.find((weapon) => this.name.startsWith(weapon.name));
+    this.weaponLookup = DICTIONARY.monsters.weapons.find((weapon) => this.name.startsWith(weapon.name))
+      ?? this.#naturalAttackLookup();
 
     if (this.name === "Legendary Actions" || !this.weaponLookup) {
       this.templateType = "feat";
@@ -402,11 +461,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     }
 
     // A renamed feat alternative occupies its original slot so later save/check IDs survive.
-    if (this.templateType !== "weapon" && this.ddbMonsterDamage.replacesVersatile) this.#queueDamageModes();
+    if (this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile) this.#queueDamageModes();
 
     if (this.actionData.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionData.damage.base = this.actionData.damageParts[0].part;
-    } else if (this.templateType !== "weapon" && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
+    }
+    if (this.#keepsDamageModeActivities && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
       this.additionalActivities.push({
         name: `Versatile`,
         type: "attack",
@@ -432,7 +492,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           includeBaseDamage: false,
           activationCondition: mode.condition,
           // Take the id and slot a versatile activity would have, so links to it keep resolving.
-          ...(this.templateType !== "weapon" && this.ddbMonsterDamage.replacesVersatile ? {
+          ...(this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile ? {
             data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
           } : {}),
           damageParts: mode.damageParts.map((part) => SystemHelpers.buildDamagePart({

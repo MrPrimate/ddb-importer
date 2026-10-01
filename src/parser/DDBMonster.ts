@@ -42,6 +42,8 @@ interface DDBMonster {
   _generateEnvironments(): void;
   // features.ts
   _generateFeatures(): Promise<void>;
+  // gear.ts
+  _generateGear(gearList?: string[]): void;
   // habitats.ts
   _generateHabitats(): void;
   // hp.ts
@@ -374,6 +376,7 @@ class DDBMonster {
       : this.featureFactory.gear;
 
     await this._generateAC(extraGear);
+    this._generateGear(extraGear);
     await this._generateTreasure();
 
     // Spellcasting 2014
