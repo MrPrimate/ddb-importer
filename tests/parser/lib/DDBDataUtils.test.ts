@@ -275,6 +275,7 @@ describe("DDBDataUtils.getScaleValueString", () => {
     expect(DDBDataUtils.getScaleValueString(ddb, feature)).toEqual({
       name: "Action Surge",
       value: "@scale.fighter.action-surge",
+      rollable: true,
     });
   });
 
@@ -298,7 +299,36 @@ describe("DDBDataUtils.getScaleValueString", () => {
   it("returns no value when nothing resolves", () => {
     const ddb = makeDDB({ classOptions: [] });
     const action: any = { name: "Orphan", componentId: 99999, componentTypeId: 1 };
-    expect(DDBDataUtils.getScaleValueString(ddb, action)).toEqual({ name: undefined, value: undefined });
+    expect(DDBDataUtils.getScaleValueString(ddb, action)).toEqual({ name: undefined, value: undefined, rollable: false });
+  });
+
+  // Way of the Aether's Spectral Guide: description-only rows build a string scale ("CR 1/2"),
+  // which cannot be used as a damage formula
+  it("marks a description-only scale as not rollable", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const descriptionScales = [
+      { level: 6, description: "CR 1/2", fixedValue: null, dice: { diceCount: null, diceValue: null, fixedValue: null, diceString: null } },
+      { level: 17, description: "CR 4", fixedValue: null, dice: null },
+    ];
+    const feature: any = {
+      definition: { id: 100, name: "Spectral Guide", classId: 1, levelScales: descriptionScales },
+      levelScale: descriptionScales[1],
+    };
+    expect(DDBDataUtils.getScaleValueString(ddb, feature)).toEqual({
+      name: "Spectral Guide",
+      value: "@scale.fighter.spectral-guide",
+      rollable: false,
+    });
+  });
+
+  it("marks a dice scale as rollable", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const diceScales = [{ level: 3, fixedValue: null, dice: { diceCount: 1, diceValue: 6, fixedValue: null, diceString: "1d6" } }];
+    const feature: any = {
+      definition: { id: 100, name: "Spirit Strike", classId: 1, levelScales: diceScales },
+      levelScale: diceScales[0],
+    };
+    expect(DDBDataUtils.getScaleValueString(ddb, feature).rollable).toBe(true);
   });
 });
 

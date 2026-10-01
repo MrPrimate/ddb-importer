@@ -26,6 +26,9 @@ const WANTED = [
   "Figurine of Wondrous Power",
   "Arrows",
   "Spell Scroll (0 - Cantrip)",
+  "Spell Scroll (Level 3)",
+  "Spell Scroll (5th Level)",
+  "Spell Scroll of Fireball",
   "Dragongleam",
   "Potion of Healing (Normal)",
   "Horn of Valhalla",
@@ -131,6 +134,14 @@ describe.skipIf(!fixturesPresent())("DDBItem rarity on real payloads", () => {
     expect(rarityOf("Spell Scroll (0 - Cantrip)").rarities).toEqual(["common"]);
     expect(rarityOf("Arrows").rarities).toEqual([]);
     expect(rarityOf("Arrows").flag).toBe("Common");
+  });
+
+  it("flags generic spell scrolls with their level for dnd5e crafting prices", () => {
+    expect(docs.get("Spell Scroll (0 - Cantrip)")?.flags.dnd5e?.spellLevel).toEqual({ base: 0, value: 0 });
+    expect(docs.get("Spell Scroll (Level 3)")?.flags.dnd5e?.spellLevel).toEqual({ base: 3, value: 3 });
+    expect(docs.get("Spell Scroll (5th Level)")?.flags.dnd5e?.spellLevel).toEqual({ base: 5, value: 5 });
+    expect(docs.get("Spell Scroll of Fireball")).toBeDefined();
+    expect(docs.get("Spell Scroll of Fireball")?.flags.dnd5e?.spellLevel).toBeUndefined();
   });
 
   it("gives an Unknown Rarity item an empty set with the label on the flag", () => {
