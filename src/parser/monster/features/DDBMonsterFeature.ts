@@ -2049,12 +2049,58 @@ ${this.data.system.description.value}
       spells.push(spell);
     }
 
+    spells.push(...this.getReplacementCastSpells(spells));
+
     logger.verbose(`${this.ddbMonster.name}: ${this.name}: Parsed cast spells`, {
       spells,
       count: matchGroups.count?.trim() ?? null,
     });
 
     return spells;
+  }
+
+  /**
+   * Spells a cast feature offers in place of one it already casts, e.g. "It can replace one Fireball
+   * with Hold Monster (level 7 version) or Wall of Fire." Each substitute is cast the same way as the
+   * spell it replaces: same ability, waived components and uses. Only a replaced name this feature
+   * already casts counts, so Multiattack's "replace one attack with a use of Spellcasting to cast X"
+   * (whose spell the Spellcasting feature already builds) is left alone.
+   */
+  getReplacementCastSpells(spells: IMonsterSpellcastingSpell[]): IMonsterSpellcastingSpell[] {
+    const replaceRegex = /\b(?:It|He|She|They|The [^.]+?) can replace (?:one|any) (?<replaced>[^.]+?) with (?<spells>[^.]+?)(?:,? if available)?\./gi;
+    const known = new Set(spells.map((spell) => spell.name.toLowerCase()));
+    const replacements: IMonsterSpellcastingSpell[] = [];
+
+    for (const match of this.strippedHtml.matchAll(replaceRegex)) {
+      const groups = match.groups;
+      if (!groups) continue;
+      const replacedName = groups.replaced.replace(/ spell$/i, "").trim().toLowerCase();
+      const replaced = spells.find((spell) => spell.name.toLowerCase() === replacedName);
+      if (!replaced) continue;
+
+      const names = DDBDescriptions
+        .splitStringByComma(groups.spells.replace(", or ", ", ").replace(" or ", ", "))
+        .filter((n) => n.trim() !== "");
+      for (const name of names) {
+        const entry = DDBDescriptions.parseMonsterSpellEntry(name);
+        if (known.has(entry.name.toLowerCase())) continue;
+        known.add(entry.name.toLowerCase());
+
+        const spell: IMonsterSpellcastingSpell = { name: entry.name };
+        if (entry.level) spell.level = entry.level;
+        if (entry.extra) spell.extra = entry.extra;
+        if (entry.targetSelf) spell.targetSelf = true;
+        if (entry.duration) spell.duration = entry.duration;
+        if (replaced.ignoredComponents) spell.ignoredComponents = [...replaced.ignoredComponents];
+        if (replaced.ability) spell.ability = replaced.ability;
+        if (replaced.consumeType) spell.consumeType = replaced.consumeType;
+        if (replaced.quantity) spell.quantity = replaced.quantity;
+        if (replaced.period) spell.period = replaced.period;
+        replacements.push(spell);
+      }
+    }
+
+    return replacements;
   }
 
   async #buildOtherSpellActivities() {
