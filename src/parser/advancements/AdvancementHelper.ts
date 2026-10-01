@@ -2896,6 +2896,34 @@ export default class AdvancementHelper {
     return singular ? [grants[grants.length - 1]] : grants;
   }
 
+  /**
+   * A granted cantrip with a fallback for characters who already know it is a choice, as in the
+   * official Cold Caster: the named cantrip in the pool and the fallback's list as the restriction.
+   *   "You learn the Ray of Frost cantrip. If you already know it, you learn a different Wizard
+   *   cantrip of your choice."
+   *   "You know the Mending cantrip or another if you already know it." (no list: any cantrip)
+   * Only a lone grant with no other cantrip choice is changed, so the restriction belongs to it.
+   * "If you already know this spell, its range increases" is not a choice and is left alone.
+   */
+  static #grantWithAlternativeToChoice(result: IParsedSpellAdvancementData, text: string) {
+    if (result.cantripGrants.length !== 1 || result.cantripChoices.length > 0 || result.spellListCantripChoice) return;
+    const listed = text.match(/If you already know (?:it|this cantrip|that cantrip|the [\w' ]+ cantrip),? you (?:instead )?learn (?:a|another|one) (?:different |other )?(\w+) cantrip/i);
+    const unlisted = text.match(/cantrip,? or another(?: cantrip)? if you already know it/i);
+    if (!listed && !unlisted) return;
+    result.cantripChoices = [result.cantripGrants[0]];
+    result.cantripGrants = [];
+    result.spellListCantripChoice = listed ? listed[1].toLowerCase() : null;
+    result.spellListCantripChoiceNum = 1;
+    if (result.hint === "") {
+      const sentence = (listed ?? unlisted)![0];
+      const fallbackStart = text.lastIndexOf(".", text.indexOf(sentence));
+      // the listed fallback is its own sentence after the grant, so the hint starts at the grant
+      const start = listed ? text.lastIndexOf(".", fallbackStart - 1) : fallbackStart;
+      const end = text.indexOf(".", text.indexOf(sentence) + sentence.length);
+      result.hint = text.slice(start + 1, end < 0 ? undefined : end + 1).trim();
+    }
+  }
+
   /** Drops parsed names that are prose rather than spells, warning so a missed spell is visible. */
   static #dropImplausibleSpellNames(result: IParsedSpellAdvancementData, description: string) {
     const keep = (name: string) => {
@@ -3068,6 +3096,7 @@ export default class AdvancementHelper {
     }
 
     AdvancementHelper.#dropImplausibleSpellNames(result, description);
+    AdvancementHelper.#grantWithAlternativeToChoice(result, strippedDescription);
     return result;
   }
 
@@ -3167,6 +3196,7 @@ export default class AdvancementHelper {
     result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
 
     AdvancementHelper.#dropImplausibleSpellNames(result, description);
+    AdvancementHelper.#grantWithAlternativeToChoice(result, strippedDescription);
     return result;
   }
 
