@@ -29,6 +29,8 @@ const WANTED = [
   "Spell Scroll (Level 3)",
   "Spell Scroll (5th Level)",
   "Spell Scroll of Fireball",
+  "Longsword, Silver",
+  "Dart, Wooden",
   "Dragongleam",
   "Potion of Healing (Normal)",
   "Horn of Valhalla",
@@ -142,6 +144,15 @@ describe.skipIf(!fixturesPresent())("DDBItem rarity on real payloads", () => {
     expect(docs.get("Spell Scroll (5th Level)")?.flags.dnd5e?.spellLevel).toEqual({ base: 5, value: 5 });
     expect(docs.get("Spell Scroll of Fireball")).toBeDefined();
     expect(docs.get("Spell Scroll of Fireball")?.flags.dnd5e?.spellLevel).toBeUndefined();
+  });
+
+  it("imports DDB's silvered and wooden weapons as the core weapon, silvered with the property", () => {
+    const silver = docs.get("Longsword, Silver");
+    expect(silver?.system.type.baseItem).toBe("longsword");
+    expect(silver?.system.properties).toContain("sil");
+    const wooden = docs.get("Dart, Wooden");
+    expect(wooden?.system.type.baseItem).toBe("dart");
+    expect(wooden?.system.properties).not.toContain("sil");
   });
 
   it("gives an Unknown Rarity item an empty set with the label on the flag", () => {

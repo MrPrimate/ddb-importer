@@ -6,6 +6,7 @@ import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
 import Vestige from "./Vestige";
 import { addRestrictionFlags } from "../../effects/restrictions";
+import { weaponMaterialVariant } from "../lib/WeaponMastery";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
@@ -1787,7 +1788,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.systemType.baseItem) {
       baseItem = this.systemType.baseItem;
     } else if (this.ddbDefinition.filterType === "Weapon") {
-      baseItem = this.ddbDefinition.type?.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+      baseItem = weaponMaterialVariant(this.ddbDefinition.type)?.key
+        ?? this.ddbDefinition.type?.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
       baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Other Gear"
@@ -2644,6 +2646,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       .forEach((prop) => {
         this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
       });
+    // DDB's silvered weapons are catalogue weapons of their own ("Longsword, Silver") without the
+    // Silvered property; they import as the core weapon with it
+    if (weaponMaterialVariant(this.ddbDefinition.type)?.silvered) {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "sil");
+    }
   }
 
   #getWeaponProficient(): boolean | null {
@@ -2660,8 +2667,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     ) {
       return true;
     } else {
+      const types = [this.ddbDefinition.type, weaponMaterialVariant(this.ddbDefinition.type)?.base]
+        .filter((type): type is string => Boolean(type))
+        .map((type) => type.toLowerCase());
       const proficient = this.characterProficiencies.some((proficiency) =>
-        proficiency.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
+        types.includes(proficiency.name.toLowerCase()),
       );
       if (proficient) return proficient;
     }
