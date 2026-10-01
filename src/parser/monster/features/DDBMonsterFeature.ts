@@ -1742,7 +1742,7 @@ ${this.data.system.description.value}
     const result: IMonsterSpellcastingData = {
       dc: null,
       ability: null, // ability associated
-      material: true,
+      ignoredComponents: [],
       innateMatch: false,
       concentration: true,
       innate: false,
@@ -1761,11 +1761,7 @@ ${this.data.system.description.value}
       result.dc = parseInt(dcMatch[1]);
     }
 
-    const noMaterialSearch = new RegExp(/no material component|no component|no spell components/);
-    const noMaterialMatch = noMaterialSearch.test(this.strippedHtml);
-    if (noMaterialMatch) {
-      result.material = false;
-    }
+    result.ignoredComponents = DDBDescriptions.monsterIgnoredComponents(this.strippedHtml);
 
     const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
     const noConcentrationMatch = noConcentrationSearch.test(this.strippedHtml);
@@ -1821,7 +1817,9 @@ ${this.data.system.description.value}
     if (!this.spellCastingData.concentration || spellData.noConcentration) {
       spellOverride.properties.push("concentration");
     }
-    if (!this.spellCastingData.material) spellOverride.properties.push("material");
+    // cast activity properties are the spell properties the cast ignores
+    const ignoredComponents = new Set([...this.spellCastingData.ignoredComponents, ...(spellData.ignoredComponents ?? [])]);
+    spellOverride.properties.push(...ignoredComponents);
     if (spellData.level) spellOverride.level = parseInt(spellData.level);
 
     if (spellData.consumeType || spellData.period) {
@@ -1961,7 +1959,7 @@ ${this.data.system.description.value}
   //   quantity: "2"  // quantity available per period
   //   consumeType: "itemUses",// defaults to activity uses
   //   targetSelf: true,
-  //   noComponents: true,
+  //   ignoredComponents: ["material"],
   //   duration: {},
   // }
   async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[]) {
@@ -1981,7 +1979,7 @@ ${this.data.system.description.value}
         });
         continue;
       }
-      this.#getCastSpellActivitySpellData(spell, entry);
+      await this.#getCastSpellActivitySpellData(spell, entry);
     }
   }
 
@@ -1993,7 +1991,7 @@ ${this.data.system.description.value}
    * dnd5e cast activity; the parent feature's recharge/uses already gate the action.
    */
   getOtherCastSpells(): IMonsterSpellcastingSpell[] {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:spell|spellcasting|material) components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
+    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
@@ -2001,7 +1999,7 @@ ${this.data.system.description.value}
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (?<spells>.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
 
-    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:spell|spellcasting|material) components and )?using the same spellcasting ability as its Spellcasting action./i;
+    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
@@ -2033,7 +2031,7 @@ ${this.data.system.description.value}
         spell.targetSelf = true;
       }
       if (matchGroups.components) {
-        spell.noComponents = true;
+        spell.ignoredComponents = DDBDescriptions.monsterIgnoredComponents(matchGroups.components);
       }
 
       if (matchGroups.ability) {

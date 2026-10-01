@@ -33,7 +33,7 @@ global {
     pact: string[];
     innate: IMonsterSpellInnate[];
     edgeCases: IMonsterSpellEdgeCase[];
-    material: boolean;
+    ignoredComponents: TSpellProperties[];
     innateMatch: boolean;
     concentration: boolean;
     overrideData?: DeepPartial<I5eSpellItem> | null;

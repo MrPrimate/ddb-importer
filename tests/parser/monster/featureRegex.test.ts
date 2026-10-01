@@ -448,7 +448,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", noComponents: true, ability: "Charisma" });
+    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", ignoredComponents: ["material"], ability: "Charisma" });
     expect(spells[0].extra).toBeUndefined();
   });
 
@@ -468,7 +468,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Invisibility", "Misty Step", "Suggestion"]);
-    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", noComponents: true });
+    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", ignoredComponents: ["material"] });
     expect(spells[0].targetSelf).toBeUndefined();
   });
 
@@ -476,7 +476,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     const mock = makeCastMock(
       "The drider casts Darkness, requiring no spell components and using Wisdom as the spellcasting ability (spell save DC 14).",
     );
-    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", noComponents: true, ability: "Wisdom" }]);
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", ignoredComponents: ["vocal", "somatic", "material"], ability: "Wisdom" }]);
   });
 
   it("still parses the on itself form", () => {
@@ -485,7 +485,19 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", noComponents: true });
+    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", ignoredComponents: ["vocal", "somatic", "material"] });
+  });
+
+  it("waives only the named components", () => {
+    const mock = makeCastMock(
+      "The hag casts Sleep, requiring no Somatic or Material components and using Wisdom as the spellcasting ability.",
+    );
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Sleep", ignoredComponents: ["somatic", "material"], ability: "Wisdom" }]);
+  });
+
+  it("leaves components alone when the text does not waive them", () => {
+    const mock = makeCastMock("The mage casts Fireball, using Intelligence as the spellcasting ability.");
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
   });
 
   it("still parses the uses Spellcasting to cast form", () => {

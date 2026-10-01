@@ -1608,6 +1608,25 @@ export default class DDBDescriptions {
   }
 
   /**
+   * The spell components a monster's spellcasting text waives, as dnd5e spell properties.
+   * "requiring no Material components" waives Material only and "no Somatic or Material
+   * components" the two named, while "no spell components" or a bare "no components" (including
+   * "no components other than its gear") waives Verbal, Somatic and Material.
+   */
+  static monsterIgnoredComponents(text: string): TSpellProperties[] {
+    const ignored = new Set<TSpellProperties>();
+    const regex = /\bno ((?:(?:verbal|somatic|material|spell|spellcasting)\b,?\s+(?:(?:or|and)\s+)?)*)components?\b/gi;
+    for (const match of text.matchAll(regex)) {
+      const named = match[1].toLowerCase().match(/verbal|somatic|material/g) ?? [];
+      const components = named.length > 0 ? named : ["verbal", "somatic", "material"];
+      for (const component of components) {
+        ignored.add(component === "verbal" ? "vocal" : component as TSpellProperties);
+      }
+    }
+    return [...ignored];
+  }
+
+  /**
    * Parse a single spell entry from monster text, e.g. "charm person (level 5 version)" or
    * "invisibility (self only, 1-hour duration)", splitting the parenthetical qualifiers into
    * level / self-target / duration data and keeping any unrecognised qualifier as the `extra` label.

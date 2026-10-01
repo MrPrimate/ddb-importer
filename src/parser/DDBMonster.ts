@@ -227,7 +227,7 @@ class DDBMonster {
       // {name: "", type: "srt/lng/day", value: 0} // check these values
       innate: [],
       edgeCases: [], // map { name: "", type: "", edge: "" }
-      material: true,
+      ignoredComponents: [],
       innateMatch: false,
       concentration: true,
     };

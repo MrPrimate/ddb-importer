@@ -52,7 +52,8 @@ global {
     quantity?: string;
     consumeType?: "activityUses" | "itemUses";
     targetSelf?: boolean | null;
-    noComponents?: boolean;
+    // components this cast's own wording waives, on top of the feature-wide exemption
+    ignoredComponents?: TSpellProperties[];
     noConcentration?: boolean;
     ability?: string;
     duration?: {
@@ -65,7 +66,7 @@ global {
   interface IMonsterSpellcastingData {
     dc: number | null;
     ability: string | null;
-    material: boolean;
+    ignoredComponents: TSpellProperties[];
     innateMatch: boolean;
     concentration: boolean;
     innate: boolean;
