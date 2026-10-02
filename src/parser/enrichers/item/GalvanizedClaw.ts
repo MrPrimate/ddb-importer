@@ -25,6 +25,9 @@ export default class GalvanizedClaw extends DDBEnricherData {
 
   static EFFECT_ID = utils.namedIDStub("galvanizedClaw", { prefix: "enchant", postfix: "ef" });
 
+  /** Roll-time condition: the wielder has Temporary Hit Points. */
+  static HAS_TEMP_HP: IEffectChangeFilter = { k: "attributes.hp.temp", o: "gt", v: 0 };
+
   /** DDB's per-state copy, "(Transformed)" or "(Untransformed)", as opposed to the base item. */
   get isStateCopy(): boolean {
     return (/\((?:un)?transformed\)$/i).test(this.name ?? "");
@@ -95,9 +98,15 @@ export default class GalvanizedClaw extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.addChange("-bludgeoning", 21, "system.damage.base.types"),
           // Strength or Dexterity
           DDBEnricherData.ChangeHelper.unsignedAddChange("fin", 20, "system.properties"),
+          // A rule on the enchantment lands in the Unarmed Strike's own applied rules, so it only joins
+          // the claw's damage rolls. dnd5e appends a rule bonus to an existing damage part; the flavor
+          // splits it off as its own lightning chunk when the rolls are aggregated.
+          DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "1d8[lightning]", {
+            conditions: GalvanizedClaw.HAS_TEMP_HP,
+          }),
         ],
         options: {
-          description: "Your Unarmed Strikes become a 1d8 Slashing claw that can use Strength or Dexterity, with +1 to attack and damage rolls. While you have Temporary Hit Points, melee hits with the claw deal an extra 1d8 Lightning damage.",
+          description: "Your Unarmed Strikes become a 1d8 Slashing claw that can use Strength or Dexterity, with +1 to attack and damage rolls, and an extra 1d8 Lightning damage while you have Temporary Hit Points.",
         },
         data: {
           _id: GalvanizedClaw.EFFECT_ID,

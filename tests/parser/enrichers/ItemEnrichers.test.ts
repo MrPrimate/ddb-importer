@@ -1419,6 +1419,10 @@ describe("magic bonus items", () => {
       ["system.damage.base.types", "slashing"],
       ["system.properties", "fin"],
     ]));
+    // the extra lightning is a roll-time rule on the enchantment, gated on temporary hit points
+    const lightning = enchant.changes.find((c: any) => c.type === "dnd5e.bonus");
+    expect(lightning).toMatchObject({ key: "damage", value: "1d8[lightning]" });
+    expect(JSON.parse(lightning.conditions)).toEqual({ k: "attributes.hp.temp", o: "gt", v: 0 });
   });
 
   it("imports DDB's Galvanized Claw state copies as weapons, named Galvanized Claw on a character", () => {
