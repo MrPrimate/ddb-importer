@@ -944,13 +944,14 @@ describe("levelled and variant weapon properties", () => {
     expect(named(ItemEnrichers.PneumaBlade, "Pneuma Blade").stopDefaultActivity).toBe(true);
   });
 
-  it("splits the Unstable Crumbler forms and keeps both on the parent", () => {
-    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler (Cannon)"))).toEqual(["Overheated Cannonball"]);
-    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler (Maul)"))).toEqual(["Detonation"]);
-    expect(names(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler"))).toEqual(["Overheated Cannonball", "Detonation"]);
-    expect(named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler").effects[0].changes[0]).toMatchObject({
-      key: "system.traits.dm.amount.fire", value: "-max(@abilities.con.mod, 1)",
-    });
+  it("gives every Unstable Crumbler copy the Transform and both forms' properties", () => {
+    // a trick weapon (item/_TrickWeapon.ts): every DDB copy imports as the one Cannon/Maul weapon
+    for (const name of ["Unstable Crumbler (Cannon)", "Unstable Crumbler (Maul)", "Unstable Crumbler"]) {
+      expect(names(named(ItemEnrichers.UnstableCrumbler, name))).toEqual(["Transform", "Overheated Cannonball", "Detonation"]);
+    }
+    const fire = named(ItemEnrichers.UnstableCrumbler, "Unstable Crumbler").effects
+      .find((effect: any) => effect.name === "Unstable Crumbler: Fire Reduction");
+    expect(fire.changes[0]).toMatchObject({ key: "system.traits.dm.amount.fire", value: "-max(@abilities.con.mod, 1)" });
   });
 
   it("spends Scorching Cleaver charges by consumption scaling", () => {
@@ -1497,5 +1498,87 @@ describe("Hoopak", () => {
     const munched = build(ItemEnrichers.Hoopak, { name: "Hoopak (Ranged)", ddbParser: { data, isMuncher: true } });
     expect(munched.override.data.name).toBeUndefined();
     expect(munched.override.data.system.type.value).toBe("martialM");
+  });
+});
+
+// trick weapons (item/_TrickWeapon.ts): every DDB copy is one weapon with a Transform self-enchant
+describe("trick weapons", () => {
+  const changes = (effect: any) => Object.fromEntries(effect.changes.map((c: any) => [c.key, c.value]));
+
+  it("imports every copy as the Untransformed weapon, named and pre-transformed only on a character", () => {
+    const base = build(ItemEnrichers.DreamExecutioner, { name: "Dream Executioner" });
+    expect(base.documentStub).toMatchObject({ documentType: "weapon", parsingType: "weapon", systemType: { value: "martialM", baseItem: "" } });
+    expect(base.override.data).toMatchObject({
+      name: "Dream Executioner",
+      system: {
+        damage: { base: { number: 1, denomination: 10, types: ["slashing"] } },
+        properties: ["fin", "rch", "two", "mgc"],
+        mastery: "cleave",
+        range: { value: 10 },
+        magicalBonus: 1,
+      },
+    });
+    expect(base.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+
+    const maul = build(ItemEnrichers.DreamExecutioner, { name: "Dream Executioner (Maul)" });
+    expect(maul.override.data.flags.ddbimporter.transferEnchantment).toEqual({
+      targetItemId: "self",
+      effectId: maul.effects[0].data._id,
+      activityId: "ddbItemTransform",
+    });
+
+    const munched = build(ItemEnrichers.DreamExecutioner, { name: "Dream Executioner (Maul)", ddbParser: { isMuncher: true } });
+    expect(munched.override.data.name).toBeUndefined();
+    expect(munched.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+  });
+
+  it("switches to the Transformed form with a self-enchant that renames itself to revert", () => {
+    const e = build(ItemEnrichers.Revelations, { name: "Revelations" });
+    const transform = e.additionalActivities[0];
+    expect(transform.init).toMatchObject({ name: "Transform", type: "enchant" });
+    expect(transform.overrides).toMatchObject({ activationType: "bonus", data: { enchant: { self: true } } });
+    const enchant = e.effects[0];
+    expect(enchant).toMatchObject({ type: "enchant", activityMatch: "Transform" });
+    expect(changes(enchant)).toMatchObject({
+      "name": "{} (Whip)",
+      "system.type.baseItem": "whip",
+      "system.damage.base.denomination": "6",
+      "system.mastery": "slow",
+      "activities[enchant].name": "Revert to Cleaver",
+    });
+    // properties change one by one (Cleaver hvy/ver to Whip rch/ver); mgc is never touched
+    const props = enchant.changes.filter((c: any) => c.key === "system.properties").map((c: any) => c.value);
+    expect(props).toEqual(["rch", "-hvy"]);
+    expect(JSON.parse(changes(enchant)["system.damage.versatile"])).toMatchObject({ number: 1, denomination: 8 });
+  });
+
+  it("adds form-only hit damage as a rule limited to the weapon's attacks", () => {
+    const rule = build(ItemEnrichers.OrphansCradle, { name: "Orphan's Cradle" }).effects[0].changes
+      .find((c: any) => c.type === "dnd5e.bonus");
+    expect(rule).toMatchObject({ key: "damage", value: "2d6[fire]" });
+    expect(JSON.parse(rule.conditions)).toEqual({ k: "activity.type", o: "exact", v: "attack" });
+  });
+
+  it("switches the attack type when the forms differ (Unstable Crumbler's Cannon to Maul)", () => {
+    const e = build(ItemEnrichers.UnstableCrumbler, { name: "Unstable Crumbler (Cannon)" });
+    expect(e.activity.data.attack.type.value).toBe("ranged");
+    expect(changes(e.effects[0])["activities[attack].attack.type.value"]).toBe("melee");
+    expect(e.effects[0].changes.filter((c: any) => c.key === "system.properties").map((c: any) => c.value))
+      .toEqual(["hvy", "-amm"]);
+  });
+
+  it("gives Ravenous Gazer's Transformed bonuses as a rider of the enchantment", () => {
+    const e = build(ItemEnrichers.RavenousGazer, { name: "Ravenous Gazer" });
+    const rider = e.effects.find((x: any) => x.name === "Ravenous Gazer: Transformed Bonuses");
+    expect(rider.options.transfer).toBe(true);
+    expect(e.effects[0].data.flags.ddbimporter.effectRiders).toEqual([rider.data._id]);
+    expect(e.override.data.system.proficient).toBe(1);
+  });
+
+  it("swaps Dawn and Dusk's Radiant for Necrotic in its Sickle form", () => {
+    const e = build(ItemEnrichers.DawnAndDusk, { name: "Dawn and Dusk" });
+    expect(e.activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 4, types: ["radiant"] });
+    expect(changes(e.effects[0])["system.damage.parts"]).toBe(`[["1d6", "necrotic"]]`);
+    expect(e.additionalActivities[0].overrides.activationType).toBe("special");
   });
 });

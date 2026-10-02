@@ -85,6 +85,13 @@ describe("DDBCompanionMixin.findEnrichedEntry", () => {
     expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Tricksy)", "2024")).toBe(2);
     expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Tricksy)", "2014")).toBe(1);
   });
+
+  it("matches title-cased stat block names case-insensitively", () => {
+    const entries = { "Beast of the Land": 1, "Beast of the Land [2024]": 2 };
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Beast Of The Land", "2024")).toBe(2);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Beast Of The Land", "2014")).toBe(1);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Beast Of The Land")).toBe(1);
+  });
 });
 
 describe("DDBCompanionMixin.addEnrichedImageData with rulesets", () => {

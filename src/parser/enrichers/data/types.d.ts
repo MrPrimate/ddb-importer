@@ -179,6 +179,26 @@ global {
     makeMagical?: boolean;
   }
 
+  // -- Trick Weapons ----------------------------------------------------------
+
+  /** One form of a trick weapon (item/_TrickWeapon.ts): the weapon stats that form imports with. */
+  export interface ITrickWeaponForm {
+    /** shown in the name while the form is active, e.g. "Maul" */
+    label: string;
+    typeValue: string;
+    /** a dnd5e base item key, or "" for a book-only base weapon (Steinhardt's Cleaver) */
+    baseItem: string;
+    number: number;
+    denomination: number;
+    damageType: string;
+    versatile?: { number: number; denomination: number } | null;
+    /** weapon properties without "mgc", which the magic bonus adds */
+    properties: string[];
+    mastery: string;
+    range: { value: number; long?: number | null; reach?: number | null };
+    attackType: "melee" | "ranged";
+  }
+
   // -- Macro Change Inputs ----------------------------------------------------
 
   export interface IDDBMacroChange {

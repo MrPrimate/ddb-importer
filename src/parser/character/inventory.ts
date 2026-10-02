@@ -10,28 +10,34 @@ import { ensureItemSpellsInCompendium } from "./itemSpells";
 type SupportedOverrideKey = "name" | "weight" | "price";
 
 /**
- * Items DDB ships as one copy per state or mode, which import as a single item (see the
- * GalvanizedClaw and Hoopak enrichers). A character holding both copies keeps one: the secondary
- * copy only when it is attuned and the preferred one is not, otherwise the preferred copy (the
- * Galvanized Claw's Transformed state is then assumed not to be active).
+ * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw
+ * and Hoopak enrichers and the item/_TrickWeapon.ts weapons). Each list is in order of preference.
+ * A character holding several copies keeps one: the first attuned copy, or the first copy held
+ * when none is attuned. The Transformed copy of a trick weapon comes last, as the Transformed state
+ * is then assumed not to be active.
  */
 const STATE_COPIES = [
-  { preferred: "Galvanized Claw (Untransformed)", secondary: "Galvanized Claw (Transformed)" },
-  { preferred: "Hoopak", secondary: "Hoopak (Ranged)" },
-  { preferred: "Forcebreaker Hoopak", secondary: "Forcebreaker Hoopak (Ranged)" },
-  { preferred: "Hoopak of Throne's Command", secondary: "Hoopak of Throne's Command (Ranged)" },
+  ["Galvanized Claw (Untransformed)", "Galvanized Claw", "Galvanized Claw (Transformed)"],
+  ["Hoopak", "Hoopak (Ranged)"],
+  ["Forcebreaker Hoopak", "Forcebreaker Hoopak (Ranged)"],
+  ["Hoopak of Throne's Command", "Hoopak of Throne's Command (Ranged)"],
+  ["Dream Executioner (Scythe)", "Dream Executioner", "Dream Executioner (Maul)"],
+  ["Orphan's Cradle (Morningstar)", "Orphan's Cradle", "Orphan's Cradle (Transformed)"],
+  ["Ravenous Gazer (Glaive)", "Ravenous Gazer", "Ravenous Gazer (Transformed)"],
+  ["Revelations (Cleaver)", "Revelations", "Revelations (Whip)"],
+  ["Shard of Moonlight (Longsword)", "Shard of Moonlight", "Shard of Moonlight (Greatsword)"],
+  ["Unstable Crumbler (Cannon)", "Unstable Crumbler", "Unstable Crumbler (Maul)"],
+  ["Dawn and Dusk (Mace)", "Dawn and Dusk", "Dawn and Dusk (Sickle)"],
 ];
 
 /** DDB inventory ids of the state copies a character import should not keep. */
 export function droppedStateCopyIds(inventory: Pick<IDDBInventoryItem, "id" | "isAttuned" | "definition">[]): Set<number> {
   const dropped = new Set<number>();
-  const named = (name: string) => inventory.filter((i) => utils.nameString(i.definition.name) === name);
-  for (const pair of STATE_COPIES) {
-    const preferred = named(pair.preferred);
-    const secondary = named(pair.secondary);
-    if (preferred.length === 0 || secondary.length === 0) continue;
-    const keepSecondary = secondary.some((i) => i.isAttuned) && !preferred.some((i) => i.isAttuned);
-    for (const item of keepSecondary ? preferred : secondary) dropped.add(item.id);
+  for (const copies of STATE_COPIES) {
+    const held = copies.flatMap((name) => inventory.filter((i) => utils.nameString(i.definition.name) === name));
+    if (held.length < 2) continue;
+    const keep = held.find((i) => i.isAttuned) ?? held[0];
+    for (const item of held) if (item !== keep) dropped.add(item.id);
   }
   return dropped;
 }

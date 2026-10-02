@@ -29,6 +29,17 @@ describe("droppedStateCopyIds", () => {
     expect([...droppedStateCopyIds([item(1, TRANSFORMED, true), item(2, UNTRANSFORMED, true)])]).toEqual([1]);
   });
 
+  it("keeps one of a trick weapon's three copies: the first attuned, else the Untransformed one", () => {
+    const base = item(1, "Shard of Moonlight");
+    const longsword = item(2, "Shard of Moonlight (Longsword)");
+    const greatsword = item(3, "Shard of Moonlight (Greatsword)", true);
+    expect([...droppedStateCopyIds([base, longsword, greatsword])].sort()).toEqual([1, 2]);
+    expect([...droppedStateCopyIds([base, item(2, "Shard of Moonlight (Longsword)")])]).toEqual([1]);
+    // DDB's curly apostrophes match the straight ones in the table
+    // with neither attuned the base copy wins over the Transformed one
+    expect([...droppedStateCopyIds([item(4, "Orphan’s Cradle"), item(5, "Orphan’s Cradle (Transformed)")])]).toEqual([5]);
+  });
+
   it("keeps a Hoopak's melee copy over its (Ranged) one", () => {
     expect([...droppedStateCopyIds([item(1, "Hoopak"), item(2, "Hoopak (Ranged)")])]).toEqual([2]);
     expect([...droppedStateCopyIds([item(1, "Forcebreaker Hoopak"), item(2, "Forcebreaker Hoopak (Ranged)", true)])]).toEqual([1]);

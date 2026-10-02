@@ -18,7 +18,7 @@ export default class DDBCompanionMixin {
    * this when a change alters the companion actors themselves (stat block parsing, monster feature
    * enrichers such as the Vestige Companion's), not only the summoning feature.
    */
-  static VERSION = 3;
+  static VERSION = 4;
 
   /**
    * A bond trait handing the companion the summoner's proficiency: "Add your Proficiency Bonus to
@@ -100,7 +100,8 @@ export default class DDBCompanionMixin {
   /**
    * An enriched image map entry by exact name, then by the name without its "(variant)" suffix.
    * The 2014 and 2024 printings share most summon names, so at each step a ruleset key
-   * ("Steel Defender [2024]") is preferred over the plain name, which covers both.
+   * ("Steel Defender [2024]") is preferred over the plain name, which covers both. Keys match
+   * case-insensitively: stat block titles are title-cased word by word ("Beast Of The Land").
    */
   static findEnrichedEntry<T>(
     entries: Record<string, T> | undefined | null,
@@ -108,12 +109,14 @@ export default class DDBCompanionMixin {
     rules?: T5eRulesVersion | null,
   ): T | undefined {
     if (!entries) return undefined;
+    const lowerKeys = new Map(Object.keys(entries).map((key) => [key.toLowerCase(), key]));
     const base = name.split("(")[0].trim();
     const keys = rules
       ? [`${name} [${rules}]`, name, `${base} [${rules}]`, base]
       : [name, base];
     for (const key of keys) {
-      if (entries[key]) return entries[key];
+      const match = entries[key] ? key : lowerKeys.get(key.toLowerCase());
+      if (match && entries[match]) return entries[match];
     }
     return undefined;
   }
