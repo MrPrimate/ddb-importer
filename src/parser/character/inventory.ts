@@ -9,6 +9,29 @@ import { ensureItemSpellsInCompendium } from "./itemSpells";
 
 type SupportedOverrideKey = "name" | "weight" | "price";
 
+/**
+ * Trick weapons DDB ships as one item per state (as well as the base item). A character holding
+ * both state copies keeps one: the attuned copy, or the Untransformed one when neither or both are
+ * attuned, as the Transformed state is then assumed not to be active.
+ */
+const TRANSFORM_COPIES = [
+  { transformed: "Galvanized Claw (Transformed)", untransformed: "Galvanized Claw (Untransformed)" },
+];
+
+/** DDB inventory ids of the trick weapon state copies a character import should not keep. */
+export function droppedTransformCopyIds(inventory: Pick<IDDBInventoryItem, "id" | "isAttuned" | "definition">[]): Set<number> {
+  const dropped = new Set<number>();
+  const named = (name: string) => inventory.filter((i) => utils.nameString(i.definition.name) === name);
+  for (const pair of TRANSFORM_COPIES) {
+    const transformed = named(pair.transformed);
+    const untransformed = named(pair.untransformed);
+    if (transformed.length === 0 || untransformed.length === 0) continue;
+    const keepTransformed = transformed.some((i) => i.isAttuned) && !untransformed.some((i) => i.isAttuned);
+    for (const item of keepTransformed ? untransformed : transformed) dropped.add(item.id);
+  }
+  return dropped;
+}
+
 function applyItemOverride(
   definition: IDDBItemDefinition,
   key: SupportedOverrideKey,
@@ -61,6 +84,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
 
   const discardMissingContainerItems = utils.getSetting<boolean>("character-import-policy-ignore-items-with-non-existing-containers");
+  const droppedCopies = isCompendiumItem ? new Set<number>() : droppedTransformCopyIds(ddb.character.inventory);
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = ddb.character.inventory.length;
@@ -71,6 +95,11 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
         ddbItem,
         container: ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
       });
+      continue;
+    }
+
+    if (droppedCopies.has(ddbItem.id)) {
+      logger.debug(`Skipping ${ddbItem.definition.name}: the character also holds the other state of this trick weapon`, { ddbItem });
       continue;
     }
 

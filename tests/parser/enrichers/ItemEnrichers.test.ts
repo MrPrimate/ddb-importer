@@ -1420,4 +1420,37 @@ describe("magic bonus items", () => {
       ["system.properties", "fin"],
     ]));
   });
+
+  it("imports DDB's Galvanized Claw state copies as weapons, named Galvanized Claw on a character", () => {
+    const base = build(ItemEnrichers.GalvanizedClaw, { name: "Galvanized Claw" });
+    expect(base.documentStub).toBeNull();
+    expect(base.override).toBeNull();
+
+    for (const name of ["Galvanized Claw (Transformed)", "Galvanized Claw (Untransformed)"]) {
+      const copy = build(ItemEnrichers.GalvanizedClaw, { name });
+      expect(copy.documentStub).toMatchObject({ documentType: "weapon", parsingType: "wondrous", systemType: { value: "simpleM" } });
+      expect(copy.override.data.name).toBe("Galvanized Claw");
+    }
+  });
+
+  it("only the Transformed copy enchants the Unarmed Strike on a character import", () => {
+    const transformed = build(ItemEnrichers.GalvanizedClaw, { name: "Galvanized Claw (Transformed)" });
+    const transfer = transformed.override.data.flags.ddbimporter.transferEnchantment;
+    expect(transfer).toMatchObject({
+      activityId: transformed.additionalActivities[0].overrides.id,
+      effectId: transformed.effects[0].data._id,
+    });
+    // a natural weapon target: the claw itself is a simple weapon, so it never enchants itself
+    expect(transfer.targetItemMatches).toEqual([
+      { field: "type", value: "weapon" },
+      { field: "system.type.value", value: "natural" },
+    ]);
+
+    const untransformed = build(ItemEnrichers.GalvanizedClaw, { name: "Galvanized Claw (Untransformed)" });
+    expect(untransformed.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+    // munched copies keep DDB's names (the compendium would merge two same-named weapons) and no flag
+    const munched = build(ItemEnrichers.GalvanizedClaw, { name: "Galvanized Claw (Transformed)", ddbParser: { isMuncher: true } });
+    expect(munched.override).toBeNull();
+    expect(munched.documentStub).toMatchObject({ documentType: "weapon" });
+  });
 });

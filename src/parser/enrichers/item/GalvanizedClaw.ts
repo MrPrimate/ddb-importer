@@ -2,15 +2,49 @@ import { utils } from "../../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Galvanized Claw (and DDB's "(Transformed)" copy): a trick weapon whose Transformed state turns
- * your Unarmed Strikes into a 1d8 Slashing claw that can use Strength or Dexterity, with +1 to
- * attack and damage rolls. Transforming is a Bonus Action, so it is an enchantment on the Unarmed
- * Strike (the Demon Armor idiom) rather than a passive bonus. The parser keeps the reaction
- * charges and the lightning and thunder resistances.
+ * Galvanized Claw: a trick weapon whose Transformed state turns your Unarmed Strikes into a 1d8
+ * Slashing claw that can use Strength or Dexterity, with +1 to attack and damage rolls.
+ * Transforming is a Bonus Action, so it is an enchantment on the Unarmed Strike (the Demon Armor
+ * idiom) rather than a passive bonus. The parser keeps the reaction charges and the lightning and
+ * thunder resistances.
+ *
+ * DDB also ships the two states as their own items, "Galvanized Claw (Transformed)" and
+ * "(Untransformed)", which it types as ammunition. Those import as weapons (the claw has no attack
+ * of its own, the enchanted Unarmed Strike is the attack). On a character import they are named
+ * "Galvanized Claw" - a character keeps only one copy (TRANSFORM_COPIES in
+ * parser/character/inventory.ts) - and the Transformed copy carries a transfer flag so the
+ * Unarmed Strike is enchanted straight away while the claw is equipped and attuned. Munched
+ * copies keep DDB's names: the compendium matches items by name, type and ruleset, so two weapons
+ * both named "Galvanized Claw" would collapse into one.
  */
 export default class GalvanizedClaw extends DDBEnricherData {
 
   static ACTIVITY_NAME = "Transform: Claw";
+
+  static ACTIVITY_ID = utils.namedIDStub("galvanizedClaw", { postfix: "core" });
+
+  static EFFECT_ID = utils.namedIDStub("galvanizedClaw", { prefix: "enchant", postfix: "ef" });
+
+  /** DDB's per-state copy, "(Transformed)" or "(Untransformed)", as opposed to the base item. */
+  get isStateCopy(): boolean {
+    return (/\((?:un)?transformed\)$/i).test(this.name ?? "");
+  }
+
+  get isTransformedCopy(): boolean {
+    return (this.name ?? "").endsWith("(Transformed)");
+  }
+
+  override get documentStub(): IDDBDocumentStub | null {
+    if (!this.isStateCopy) return null;
+    return {
+      // a weapon document, but parsed as the wondrous item DDB describes so no weapon attack is built
+      documentType: "weapon",
+      parsingType: "wondrous",
+      systemType: {
+        value: "simpleM",
+      },
+    };
+  }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
@@ -27,7 +61,7 @@ export default class GalvanizedClaw extends DDBEnricherData {
           activationOverride: { type: "bonus", value: 1, condition: "" },
         },
         overrides: {
-          id: utils.namedIDStub("galvanizedClaw", { postfix: "core" }),
+          id: GalvanizedClaw.ACTIVITY_ID,
           noConsumeTargets: true,
           data: {
             restrictions: {
@@ -65,8 +99,37 @@ export default class GalvanizedClaw extends DDBEnricherData {
         options: {
           description: "Your Unarmed Strikes become a 1d8 Slashing claw that can use Strength or Dexterity, with +1 to attack and damage rolls. While you have Temporary Hit Points, melee hits with the claw deal an extra 1d8 Lightning damage.",
         },
+        data: {
+          _id: GalvanizedClaw.EFFECT_ID,
+        },
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData | null {
+    if (!this.isStateCopy || this.ddbParser.isMuncher) return null;
+    // linkSelectedEnchantments only transfers while the claw is equipped and attuned
+    const flags: IDDBImporterFlags = this.isTransformedCopy
+      ? {
+        transferEnchantment: {
+          targetItemMatches: [
+            { field: "type", value: "weapon" },
+            { field: "system.type.value", value: "natural" },
+          ],
+          effectId: GalvanizedClaw.EFFECT_ID,
+          activityId: GalvanizedClaw.ACTIVITY_ID,
+        },
+      }
+      : {};
+
+    return {
+      data: {
+        name: "Galvanized Claw",
+        flags: {
+          ddbimporter: flags,
+        },
+      },
+    };
   }
 
 }

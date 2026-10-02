@@ -178,8 +178,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Flute": ItemEnrichers.MusicalInstrumentChecks,
     "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,
     "Frost Brand": ItemEnrichers.FrostBrand,
-    // DDB's second copy of the trick weapon, already in its Transformed state
+    // DDB's per-state copies of the trick weapon
     "Galvanized Claw (Transformed)": ItemEnrichers.GalvanizedClaw,
+    "Galvanized Claw (Untransformed)": ItemEnrichers.GalvanizedClaw,
     "Ghaal'Shaarat": ItemEnrichers.GhaalShaaratWeapon,
     "Goading Ammunition": ItemEnrichers.GoadingAmmunition,
     "Haemscale": ItemEnrichers.Haemscale,
