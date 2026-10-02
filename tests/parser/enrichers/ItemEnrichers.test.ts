@@ -1360,3 +1360,64 @@ describe("weapon property enrichers", () => {
     expect(record(ItemEnrichers.Moonblade, "Moonblade Longsword").stopDefaultActivity).toBe(false);
   });
 });
+
+// magic-bonus wave: wondrous items, potions and rings whose DDB "magic" bonus the parser has
+// nowhere to put, so each enricher has to carry it (an item without enricher effects logs an error)
+describe("magic bonus items", () => {
+  const rules = (effect: any) => effect.changes.map((c: any) => [c.key, c.value]);
+
+  it("Hero's Blade enchants a weapon with +3 for a minute", () => {
+    const e = build(ItemEnrichers.HerosBlade);
+    expect(e.type).toBe("enchant");
+    expect(e.activity.data.duration).toEqual({ value: "1", units: "minute" });
+    expect(e.effects[0]).toMatchObject({ type: "enchant", magicalBonus: { bonus: "3" } });
+  });
+
+  it("Poundwise Porter's Drink applies a non-transfer +3 unarmed effect for a minute", () => {
+    const e = build(ItemEnrichers.PoundwisePorter);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Drink", targetType: "self", addItemConsume: true });
+    const [effect] = e.effects;
+    expect(effect).toMatchObject({ activityMatch: "Drink", options: { transfer: false, durationSeconds: 60 } });
+    expect(effect.changes).toHaveLength(2);
+    for (const change of effect.changes) expect(change.value).toBe("3");
+  });
+
+  it("Battlechef's Splendid Saucepan is the SRD mace with thunder damage and a helmet AC toggle", () => {
+    const e = build(ItemEnrichers.BattlechefsSplendidSaucepan);
+    expect(e.documentStub).toMatchObject({ documentType: "weapon", systemType: { baseItem: "mace" } });
+    expect(e.addAutoAdditionalActivities).toBe(false);
+    expect(e.additionalActivities[0].build.damageParts[0]).toMatchObject({ number: 1, denomination: 4, types: ["thunder"] });
+    expect(e.effects[0]).toMatchObject({ name: "Worn as a Helmet", options: { transfer: true, disabled: true } });
+    expect(rules(e.effects[0])).toEqual([["system.attributes.ac.bonus", "1"]]);
+  });
+
+  it("Crimson Fulcrum Lens and Ring of Eldritch Ire carry their bonus as item effects", () => {
+    expect(build(ItemEnrichers.CrimsonFulcrumLens).effects[0].options).toMatchObject({ transfer: true });
+    const ring = build(ItemEnrichers.RingOfEldritchIre).effects[0];
+    expect(ring.options).toMatchObject({ transfer: true, disabled: true });
+    expect(ring.changes).toHaveLength(2);
+  });
+
+  it("The Thorn of Kren keeps the parsed saves beside its Bite", () => {
+    const e = build(ItemEnrichers.TheThornOfKren);
+    expect(e.keepParsedActivities).toBe(true);
+    expect(e.additionalActivities[0].init).toEqual({ name: "Bite", type: "attack" });
+    expect(e.additionalActivities[0].overrides.data.attack.type).toEqual({ value: "melee", classification: "unarmed" });
+    expect(e.effects[0].options).toMatchObject({ transfer: true });
+  });
+
+  it("Galvanized Claw transforms the Unarmed Strike into a +1 1d8 slashing finesse claw", () => {
+    const e = build(ItemEnrichers.GalvanizedClaw);
+    const [transform] = e.additionalActivities;
+    expect(transform.init.type).toBe("enchant");
+    expect(transform.overrides.data.restrictions).toMatchObject({ type: "weapon", categories: ["natural"] });
+    const [enchant] = e.effects;
+    expect(enchant).toMatchObject({ type: "enchant", activityMatch: transform.init.name, magicalBonus: { bonus: "1" } });
+    expect(rules(enchant)).toEqual(expect.arrayContaining([
+      ["system.damage.base.denomination", "8"],
+      ["system.damage.base.types", "slashing"],
+      ["system.properties", "fin"],
+    ]));
+  });
+});
