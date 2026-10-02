@@ -538,8 +538,10 @@ export default class AdventureMunchHelpers {
   /**
    * Replace a world actor with its current compendium version (the "update existing" policy),
    * keeping its id, folder and ownership so the tokens already placed for it stay linked. The
-   * compendium copy is loaded first, so a failed lookup leaves the world actor alone.
-   * @returns the replacement actor, or the original when it could not be replaced
+   * compendium copy is loaded first, so a failed lookup leaves the world actor alone. If the
+   * replacement throws or a preCreate hook cancels it, the original is recreated from its saved
+   * data under the same id; only a failed restore throws.
+   * @returns the replacement actor, or the original (restored if need be) when it could not be replaced
    */
   static async refreshWorldActor(
     worldActor: Actor.Implementation,
@@ -548,12 +550,28 @@ export default class AdventureMunchHelpers {
   ): Promise<Actor.Implementation> {
     const source = await compendium.getDocument(compendiumId);
     if (!source) return worldActor;
-    const { _id, folder, ownership, sort } = worldActor.toObject() as Record<string, any>;
+    const original = worldActor.toObject() as Record<string, any>;
+    const { _id, folder, ownership, sort } = original;
     const data = { ...game.actors.fromCompendium(source as any), _id, folder, ownership, sort };
     await worldActor.delete();
-    const replaced = await Actor.implementation.create(data as any, { keepId: true, keepEmbeddedIds: true });
+    let replaced: Actor.Implementation | undefined;
+    let failure: unknown = null;
+    try {
+      replaced = await Actor.implementation.create(data as any, { keepId: true, keepEmbeddedIds: true }) as Actor.Implementation | undefined;
+    } catch (err) {
+      failure = err;
+    }
+    if (!replaced) {
+      const reason = failure ? ((failure as Error).message ?? String(failure)) : "creation was cancelled";
+      logger.warn(`AdventureMunchHelpers: failed to update world monster ${original.name}, restoring it: ${reason}`);
+      const restored = await Actor.implementation.create(original as any, { keepId: true, keepEmbeddedIds: true });
+      if (!restored) {
+        throw new Error(`could not restore world actor ${original.name} (${_id}) after a failed refresh`, { cause: failure });
+      }
+      return restored as Actor.Implementation;
+    }
     logger.debug(`AdventureMunchHelpers: refreshed world actor ${worldActor.name} from ${compendium.metadata.id}`);
-    return (replaced ?? worldActor) as Actor.Implementation;
+    return replaced;
   }
 
   static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null, updateExisting = false, refreshedIds = null }: {
@@ -586,6 +604,8 @@ export default class AdventureMunchHelpers {
           refreshedIds?.add(Number(ddbId));
         } catch (err) {
           logger.warn(`AdventureMunchHelpers: failed to update world monster ${(idx as unknown as INameMatchIndexEntry).name} (ddbId ${ddbId}): ${(err as Error).message ?? err}`);
+          // a refresh that deleted the actor and could not restore it falls through to a fresh import
+          if (worldActor.id && !game.actors.has(worldActor.id)) worldActor = undefined;
         }
       }
       if (!worldActor) {

@@ -269,3 +269,71 @@ describe("AdventureMunchHelpers.getTokenItems", () => {
     await expect(AdventureMunchHelpers.getTokenItems({ items: [] } as any, { flags: {} } as any)).resolves.toEqual([]);
   });
 });
+
+describe("AdventureMunchHelpers.refreshWorldActor", () => {
+  const original = { _id: "actor1", name: "Goblin", folder: "fold1", ownership: { default: 0 }, sort: 5 };
+  const compendium: any = {
+    metadata: { id: "world.monsters" },
+    getDocument: async () => ({ name: "Goblin (compendium)" }),
+  };
+  let deleted: boolean;
+  let worldActor: any;
+
+  beforeEach(() => {
+    deleted = false;
+    worldActor = {
+      name: "Goblin",
+      toObject: () => ({ ...original }),
+      delete: async () => {
+        deleted = true;
+      },
+    };
+    vi.stubGlobal("game", { actors: { fromCompendium: (doc: any) => ({ name: doc.name }) } });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function stubCreate(replacement: (data: any) => Promise<any>) {
+    const create = vi.fn(async (data: any) => (data.name === "Goblin" ? { ...data, restored: true } : replacement(data)));
+    vi.stubGlobal("Actor", { implementation: { create } });
+    return create;
+  }
+
+  it("replaces the actor under its own id, folder and ownership", async () => {
+    const create = stubCreate(async (data) => ({ ...data, replaced: true }));
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(deleted).toBe(true);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({ _id: "actor1", folder: "fold1", sort: 5, name: "Goblin (compendium)", replaced: true });
+  });
+
+  it("restores the original when creating the replacement throws", async () => {
+    const create = stubCreate(async () => {
+      throw new Error("validation failed");
+    });
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ ...original, restored: true });
+  });
+
+  it("restores the original when a hook cancels the replacement", async () => {
+    stubCreate(async () => undefined);
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(result).toMatchObject({ ...original, restored: true });
+  });
+
+  it("throws only when the original cannot be restored either", async () => {
+    vi.stubGlobal("Actor", { implementation: { create: async () => undefined } });
+    await expect(AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA")).rejects.toThrow(/could not restore/);
+  });
+
+  it("leaves the actor alone when the compendium copy is missing", async () => {
+    const create = stubCreate(async (data) => data);
+    const missing: any = { ...compendium, getDocument: async () => null };
+    await expect(AdventureMunchHelpers.refreshWorldActor(worldActor, missing, "monsterA")).resolves.toBe(worldActor);
+    expect(deleted).toBe(false);
+    expect(create).not.toHaveBeenCalled();
+  });
+});

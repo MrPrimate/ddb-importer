@@ -1321,7 +1321,7 @@ export default class DDBMapMetaData {
         (m: any) => Number(foundry.utils.getProperty(m, "flags.ddbimporter.id")) === ddbId,
       );
       if (!monsterEntry) continue;
-      const existing = (game.actors?.contents ?? []).find((a: any) =>
+      let existing = (game.actors?.contents ?? []).find((a: any) =>
         Number(foundry.utils.getProperty(a, "flags.ddbimporter.id")) === ddbId,
       );
       if (existing && options.updateExisting && monsterCompendium && !options.refreshedActorIds?.has(ddbId)) {
@@ -1329,11 +1329,12 @@ export default class DDBMapMetaData {
           const refreshed = await AdventureMunchHelpers.refreshWorldActor(existing, monsterCompendium, monsterEntry._id);
           options.refreshedActorIds?.add(ddbId);
           actorByDdbId.set(ddbId, refreshed);
+          continue;
         } catch (error) {
           logger.warn(`DDBMapMetaData: failed to update actor ${ddbId}: ${(error as Error).message ?? error}`);
-          actorByDdbId.set(ddbId, existing);
+          // a refresh that deleted the actor and could not restore it falls through to a fresh import
+          if (existing.id && !game.actors.has(existing.id)) existing = undefined;
         }
-        continue;
       }
       if (existing) {
         actorByDdbId.set(ddbId, existing);
