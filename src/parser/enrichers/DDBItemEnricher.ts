@@ -116,6 +116,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wraps of Unarmed Prowess": "Wraps of Unarmed Power",
     "Wyrm's Breath Grenade": "Wyrm's Breath Grenade",
     " of Wounding": "Weapon of Wounding",
+    // Hoopak, Forcebreaker Hoopak, Hoopak of Throne's Command and their "(Ranged)" copies
+    "Hoopak": "Hoopak",
     "Lash of Shadows": "Lash of Shadows",
     "Will of the Talon": "Will of the Talon",
     "Dragon's Wrath Weapon": "Dragon's Wrath Weapon",
@@ -260,6 +262,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dragon's Wrath Weapon": ItemEnrichers.DragonsWrathWeapon,
     "Headbanger Lute": ItemEnrichers.HeadbangerLute,
     "Gunnspier": ItemEnrichers.Gunnspier,
+    "Hoopak": ItemEnrichers.Hoopak,
     "Claws of Corruption": ItemEnrichers.ClawsOfCorruption,
     "Flooze": ItemEnrichers.Flooze,
     "Sword of the Crimson Abbot": ItemEnrichers.SwordOfTheCrimsonAbbot,

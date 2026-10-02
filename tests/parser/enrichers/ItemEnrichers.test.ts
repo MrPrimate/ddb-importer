@@ -1454,3 +1454,44 @@ describe("magic bonus items", () => {
     expect(munched.documentStub).toMatchObject({ documentType: "weapon" });
   });
 });
+
+// DDB ships each hoopak twice (melee and "(Ranged)"); both import as the melee weapon with a Sling
+describe("Hoopak", () => {
+  const magic = (value: number) => ({ ddbDefinition: { grantedModifiers: [{ type: "bonus", subType: "magic", value }] } });
+
+  it("adds a Sling ranged attack carrying the DDB magic bonus in its damage", () => {
+    const sling = (options: Record<string, any>) => build(ItemEnrichers.Hoopak, { name: "Hoopak", ...options }).additionalActivities[0];
+    const plain = sling({});
+    expect(plain.init).toEqual({ name: "Sling", type: "attack" });
+    expect(plain.overrides.data.range).toEqual({ override: true, value: "40", units: "ft" });
+    expect(plain.overrides.data.attack.type).toEqual({ value: "ranged", classification: "weapon" });
+    expect(plain.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 4, bonus: "@mod", types: ["bludgeoning"] });
+    expect(sling({ name: "Forcebreaker Hoopak", ddbParser: magic(2) }).overrides.data.damage.parts[0].bonus).toBe("@mod + 2");
+  });
+
+  it("leaves the melee copy's own weapon alone", () => {
+    const e = build(ItemEnrichers.Hoopak, { name: "Hoopak of Throne's Command", ddbParser: magic(1) });
+    expect(e.override).toBeNull();
+    expect(e.activity).toBeNull();
+    expect(e.keepParsedActivities).toBe(true);
+  });
+
+  it("reshapes the (Ranged) copy into the melee hoopak, renamed only on a character import", () => {
+    const data = { system: { properties: ["amm", "fin", "spc", "two", "mgc"] } };
+    const character = build(ItemEnrichers.Hoopak, { name: "Forcebreaker Hoopak (Ranged)", ddbParser: { data } });
+    expect(character.activity.data.attack.type).toEqual({ value: "melee", classification: "weapon" });
+    expect(character.override.data).toMatchObject({
+      name: "Forcebreaker Hoopak",
+      system: {
+        type: { value: "martialM", baseItem: "hoopak" },
+        damage: { base: { number: 1, denomination: 6, types: ["piercing"] } },
+        range: { value: 5, long: null },
+        ammunition: { type: "" },
+        properties: ["fin", "spc", "two", "mgc"],
+      },
+    });
+    const munched = build(ItemEnrichers.Hoopak, { name: "Hoopak (Ranged)", ddbParser: { data, isMuncher: true } });
+    expect(munched.override.data.name).toBeUndefined();
+    expect(munched.override.data.system.type.value).toBe("martialM");
+  });
+});

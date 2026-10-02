@@ -20,8 +20,9 @@ export function hasItemSource(enricher: DDBEnricherData, ...ids: number[]): bool
 }
 
 /**
- * The spells DDB attached to this item on a character import. The item-spell path already builds
- * their cast activities, so an enricher adding its own cast skips these. Empty for the muncher.
+ * The spells DDB attached to this item (character imports and munches both pass the item spells
+ * in). The item-spell path builds their cast activities, so an enricher adding its own cast skips
+ * these.
  */
 export function shippedItemSpellNames(enricher: DDBEnricherData): string[] {
   const definitionId = enricher.ddbParser?.ddbDefinition?.id;

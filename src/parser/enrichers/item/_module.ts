@@ -131,6 +131,7 @@ export { default as HerosBlade } from "./HerosBlade";
 export { default as HolyAvenger } from "./HolyAvenger";
 export { default as HomewardCompass } from "./HomewardCompass";
 export { default as HoodedLantern } from "./HoodedLantern";
+export { default as Hoopak } from "./Hoopak";
 export { default as HornOfBlasting } from "./HornOfBlasting";
 export { default as HorseshoesOfSpeed } from "./HorseshoesOfSpeed";
 export { default as HrethiSoulScepter } from "./HrethiSoulScepter";

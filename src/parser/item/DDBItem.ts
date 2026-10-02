@@ -3259,6 +3259,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
+  /**
+   * The generated cast activity id, or one stubbed from the spell name alone when the item already
+   * has an activity with that id (the name-based stub collides on long item names).
+   */
+  static uniqueCastActivityId(id: string, spellName: string, existingIds: Set<string>): string {
+    if (!existingIds.has(id)) return id;
+    let n = 1;
+    let unique = utils.namedIDStub(spellName, { prefix: "cast", postfix: n });
+    while (existingIds.has(unique)) unique = utils.namedIDStub(spellName, { prefix: "cast", postfix: ++n });
+    return unique;
+  }
+
   async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -3383,6 +3395,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     };
 
     const activity = this._getCastActivity({ name: spell.name }, options);
+    // The id is stubbed from the activity name, which on a long item name shortens every word to two
+    // letters, so "Command (Halberd of Throne's Command)" and "Compulsion (...)" both came out as
+    // castCoHaOfThCoLe and the second cast replaced the first. Only a clash gets a new id, so items
+    // without one keep their ids across re-imports.
+    const existingIds = new Set(Object.keys(foundry.utils.getProperty(this.data, "system.activities") ?? {}));
+    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, spell.name, existingIds);
 
     await this.enricher.customFunction({
       name: spellData.name,

@@ -1001,3 +1001,22 @@ describe("DDBItem.itemSpellChargeCost", () => {
     expect(DDBItem.itemSpellChargeScalingMax(2, 5)).toBe("min(@item.uses.value - 1,4)");
   });
 });
+
+// An item spell's cast id is stubbed from "<spell> (<item>) (Legacy)"; on a long item name every
+// word shrinks to two letters, so Command and Compulsion on Halberd of Throne's Command both came
+// out as castCoHaOfThCoLe and Compulsion's cast replaced Command's.
+describe("DDBItem.uniqueCastActivityId", () => {
+  it("keeps a free id unchanged", () => {
+    expect(DDBItem.uniqueCastActivityId("castCommanLPOTCL", "Command", new Set(["castBanishLPOTCL"]))).toBe("castCommanLPOTCL");
+  });
+
+  it("gives a clashing cast an id of its own, stubbed from the spell name", () => {
+    const existing = new Set(["castBaHaOfThCoLe", "castCoHaOfThCoLe"]);
+    const id = DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", existing);
+    expect(id).not.toBe("castCoHaOfThCoLe");
+    expect(id.startsWith("cast")).toBe(true);
+    expect(id).toHaveLength(16);
+    // a second clash on the replacement keeps counting
+    expect(DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", new Set([...existing, id]))).not.toBe(id);
+  });
+});

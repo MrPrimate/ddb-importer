@@ -11,7 +11,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * DDB also ships the two states as their own items, "Galvanized Claw (Transformed)" and
  * "(Untransformed)", which it types as ammunition. Those import as weapons (the claw has no attack
  * of its own, the enchanted Unarmed Strike is the attack). On a character import they are named
- * "Galvanized Claw" - a character keeps only one copy (TRANSFORM_COPIES in
+ * "Galvanized Claw" - a character keeps only one copy (STATE_COPIES in
  * parser/character/inventory.ts) - and the Transformed copy carries a transfer flag so the
  * Unarmed Strike is enchanted straight away while the claw is equipped and attuned. Munched
  * copies keep DDB's names: the compendium matches items by name, type and ruleset, so two weapons
