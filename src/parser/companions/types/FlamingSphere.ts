@@ -91,7 +91,7 @@ export async function getFlamingSphere({
   stub.items.push(...features);
   const bonusFeatures = await manager.getFeature(bonusDescription, "bonus");
   stub.items.push(...bonusFeatures);
-  stub = await DDBCompanionMixin.addEnrichedImageData(stub);
+  stub = await DDBCompanionMixin.addEnrichedImageData(stub, ddbParser.is2014 ? "2014" : "2024");
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
   // console.warn("Flaming Sphere", {

@@ -97,13 +97,28 @@ export default class DDBCompanionMixin {
     };
   }
 
-  /** An enriched image map entry by exact name, then by the name without its "(variant)" suffix. */
-  static findEnrichedEntry<T>(entries: Record<string, T> | undefined | null, name: string): T | undefined {
+  /**
+   * An enriched image map entry by exact name, then by the name without its "(variant)" suffix.
+   * The 2014 and 2024 printings share most summon names, so at each step a ruleset key
+   * ("Steel Defender [2024]") is preferred over the plain name, which covers both.
+   */
+  static findEnrichedEntry<T>(
+    entries: Record<string, T> | undefined | null,
+    name: string,
+    rules?: T5eRulesVersion | null,
+  ): T | undefined {
     if (!entries) return undefined;
-    return entries[name] ?? entries[name.split("(")[0].trim()];
+    const base = name.split("(")[0].trim();
+    const keys = rules
+      ? [`${name} [${rules}]`, name, `${base} [${rules}]`, base]
+      : [name, base];
+    for (const key of keys) {
+      if (entries[key]) return entries[key];
+    }
+    return undefined;
   }
 
-  static async getEnrichedImageData(document: I5eMonsterData): Promise<IDDBEnrichedImageData | null> {
+  static async getEnrichedImageData(document: I5eMonsterData, rules?: T5eRulesVersion | null): Promise<IDDBEnrichedImageData | null> {
     const tiers = await PatreonHelper.checkPatreon({ cacheBust: false });
     if (!tiers.all || DDBProxy.isCustom(true)) return null;
     const name = document.name;
@@ -121,8 +136,8 @@ export default class DDBCompanionMixin {
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }
 
-    const summons = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.summons, name);
-    const snips = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.snips, name);
+    const summons = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.summons, name, rules);
+    const snips = DDBCompanionMixin.findEnrichedEntry(CONFIG.DDBI.EXTRA_IMAGES?.snips, name, rules);
     if (!summons && !snips) return null;
 
     return { ...(summons ?? {}), snips };
@@ -140,11 +155,16 @@ export default class DDBCompanionMixin {
     }
   }
 
-  static async addEnrichedImageData(document: I5eMonsterData): Promise<I5eMonsterData> {
+  /**
+   * Point a summon's munch image flags at the proxy's enriched art. `rules` picks ruleset-specific
+   * entries and defaults to the document's `system.source.rules`, so stubs built without a source
+   * must pass it.
+   */
+  static async addEnrichedImageData(document: I5eMonsterData, rules?: T5eRulesVersion | null): Promise<I5eMonsterData> {
     if (!game.user.isGM && !DDBRunContext.keyPostfix) return document;
     if (DDBRunContext.ignoreEnrichedImages) return document;
 
-    const data = await DDBCompanionMixin.getEnrichedImageData(document);
+    const data = await DDBCompanionMixin.getEnrichedImageData(document, rules ?? document.system?.source?.rules);
     if (!data) return document;
 
     foundry.utils.setProperty(document, "flags.monsterMunch.enrichedImages", true);

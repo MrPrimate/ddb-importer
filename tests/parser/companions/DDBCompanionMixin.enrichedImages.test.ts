@@ -13,7 +13,6 @@ vi.mock("../../../src/lib/_module", () => ({
   fetchJson: vi.fn(),
   DDBRunContext: { keyPostfix: null, ignoreEnrichedImages: false },
 }));
-vi.mock("../../../src/config/_module", () => ({ DICTIONARY: {} }));
 vi.mock("../../../src/parser/DDBMonster", () => ({ default: class {} }));
 vi.mock("../../../src/parser/DDBMonsterFactory", () => ({
   default: class {
@@ -71,6 +70,52 @@ describe("DDBCompanionMixin.findEnrichedEntry", () => {
     expect(DDBCompanionMixin.findEnrichedEntry(entries, "Aberrant Spirit (Star Spawn)")).toBe(1);
     expect(DDBCompanionMixin.findEnrichedEntry(entries, "Beast")).toBeUndefined();
     expect(DDBCompanionMixin.findEnrichedEntry(undefined, "Beast")).toBeUndefined();
+  });
+
+  it("prefers a ruleset key at each step, and the exact name over the variant", () => {
+    const entries = {
+      "Fey Spirit": 1,
+      "Fey Spirit [2024]": 2,
+      "Fey Spirit (Fuming)": 3,
+      "Fey Spirit (Fuming) [2014]": 4,
+    };
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Fuming)", "2014")).toBe(4);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Fuming)", "2024")).toBe(3);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Fuming)")).toBe(3);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Tricksy)", "2024")).toBe(2);
+    expect(DDBCompanionMixin.findEnrichedEntry(entries, "Fey Spirit (Tricksy)", "2014")).toBe(1);
+  });
+});
+
+describe("DDBCompanionMixin.addEnrichedImageData with rulesets", () => {
+  beforeEach(() => {
+    CONFIG.DDBI.EXTRA_IMAGES = {
+      summons: {
+        "Steel Defender": { actor: "https://ddb.example/both.png", token: "https://ddb.example/both-token.png" },
+        "Steel Defender [2024]": { actor: "https://ddb.example/2024.png", token: "https://ddb.example/2024-token.png" },
+      },
+      snips: { "Steel Defender [2014]": { actor: ACTOR_SNIP, token: TOKEN_SNIP } },
+    };
+  });
+
+  it("reads the ruleset from the document source", async () => {
+    const document = doc("Steel Defender");
+    foundry.utils.setProperty(document, "system.source.rules", "2024");
+    expect(munchFlags(await DDBCompanionMixin.addEnrichedImageData(document))).toMatchObject({
+      img: "https://ddb.example/2024.png",
+      tokenImg: "https://ddb.example/2024-token.png",
+    });
+  });
+
+  it("lets an explicit ruleset pick that ruleset's snips", async () => {
+    const document = await DDBCompanionMixin.addEnrichedImageData(doc("Steel Defender"), "2014");
+    expect(munchFlags(document)).toMatchObject({ imgSnip: ACTOR_SNIP, tokenImgSnip: TOKEN_SNIP });
+  });
+
+  it("falls back to the plain entry without a ruleset", async () => {
+    const document = await DDBCompanionMixin.addEnrichedImageData(doc("Steel Defender"));
+    expect(munchFlags(document)).toMatchObject({ img: "https://ddb.example/both.png" });
+    expect(munchFlags(document).imgSnip).toBeUndefined();
   });
 });
 
