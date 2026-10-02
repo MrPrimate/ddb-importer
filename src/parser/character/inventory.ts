@@ -11,7 +11,7 @@ type SupportedOverrideKey = "name" | "weight" | "price";
 
 /**
  * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw
- * and Hoopak enrichers and the item/_TrickWeapon.ts weapons). Each list is in order of preference.
+ * and Hoopak enrichers, the item/_TrickWeapon.ts weapons and Precipit's states). Each list is in order of preference.
  * A character holding several copies keeps one: the first attuned copy, or the first copy held
  * when none is attuned. The Transformed copy of a trick weapon comes last, as the Transformed state
  * is then assumed not to be active.
@@ -28,6 +28,10 @@ const STATE_COPIES = [
   ["Shard of Moonlight (Longsword)", "Shard of Moonlight", "Shard of Moonlight (Greatsword)"],
   ["Unstable Crumbler (Cannon)", "Unstable Crumbler", "Unstable Crumbler (Maul)"],
   ["Dawn and Dusk (Mace)", "Dawn and Dusk", "Dawn and Dusk (Sickle)"],
+  // the Blunderbuss copy is in both states, so it reads as Untransformed
+  ["Meat Hookshot (Sickle)", "Meat Hookshot", "Meat Hookshot (Blunderbuss)", "Meat Hookshot (Battleaxe)"],
+  // the base item is in no state, so a state copy is kept over it only when attuned
+  ["Precipit, the Formless", "Precipit, the Formless (Gas)", "Precipit, the Formless (Liquid)", "Precipit, the Formless (Solid)"],
 ];
 
 /** DDB inventory ids of the state copies a character import should not keep. */

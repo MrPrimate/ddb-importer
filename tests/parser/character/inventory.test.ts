@@ -40,6 +40,17 @@ describe("droppedStateCopyIds", () => {
     expect([...droppedStateCopyIds([item(4, "Orphan’s Cradle"), item(5, "Orphan’s Cradle (Transformed)")])]).toEqual([5]);
   });
 
+  it("keeps one Meat Hookshot, preferring the Sickle and Blunderbuss over the Battleaxe", () => {
+    const held = [item(1, "Meat Hookshot (Battleaxe)"), item(2, "Meat Hookshot (Blunderbuss)"), item(3, "Meat Hookshot (Sickle)")];
+    expect([...droppedStateCopyIds(held)].sort()).toEqual([1, 2]);
+    expect([...droppedStateCopyIds([item(1, "Meat Hookshot (Battleaxe)"), item(2, "Meat Hookshot (Blunderbuss)")])]).toEqual([1]);
+  });
+
+  it("keeps Precipit's attuned state copy, else the base staff", () => {
+    expect([...droppedStateCopyIds([item(1, "Precipit, the Formless"), item(2, "Precipit, the Formless (Solid)", true)])]).toEqual([1]);
+    expect([...droppedStateCopyIds([item(1, "Precipit, the Formless (Gas)"), item(2, "Precipit, the Formless")])]).toEqual([1]);
+  });
+
   it("keeps a Hoopak's melee copy over its (Ranged) one", () => {
     expect([...droppedStateCopyIds([item(1, "Hoopak"), item(2, "Hoopak (Ranged)")])]).toEqual([2]);
     expect([...droppedStateCopyIds([item(1, "Forcebreaker Hoopak"), item(2, "Forcebreaker Hoopak (Ranged)", true)])]).toEqual([1]);

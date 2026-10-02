@@ -1530,6 +1530,9 @@ describe("trick weapons", () => {
     const munched = build(ItemEnrichers.DreamExecutioner, { name: "Dream Executioner (Maul)", ddbParser: { isMuncher: true } });
     expect(munched.override.data.name).toBeUndefined();
     expect(munched.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+    // a munched copy keeps DDB's suffixed name, so the form takes the weapon's name, not "{} (Maul)"
+    expect(munched.effects[0].changes.find((c: any) => c.key === "name").value).toBe("Dream Executioner (Maul)");
+    expect(maul.effects[0].changes.find((c: any) => c.key === "name").value).toBe("{} (Maul)");
   });
 
   it("switches to the Transformed form with a self-enchant that renames itself to revert", () => {
@@ -1575,10 +1578,93 @@ describe("trick weapons", () => {
     expect(e.override.data.system.proficient).toBe(1);
   });
 
+  it("gives the Meat Hookshot a Blunderbuss attack and a Transformed-only Hookshot", () => {
+    const e = build(ItemEnrichers.MeatHookshot, { name: "Meat Hookshot (Blunderbuss)" });
+    expect(e.override.data).toMatchObject({
+      name: "Meat Hookshot",
+      system: { type: { value: "simpleM", baseItem: "sickle" }, properties: ["lgt", "fin"], mastery: "nick" },
+    });
+    expect(e.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+    const names = e.additionalActivities.map((a: any) => a.init.name);
+    expect(names).toEqual(["Transform", "Blunderbuss", "Hookshot", "Hookshot: Pull"]);
+    const blunderbuss = e.additionalActivities[1];
+    expect(blunderbuss.overrides).toMatchObject({ noConsumeTargets: true, data: { range: { value: "20" }, attack: { type: { value: "ranged" } } } });
+    // the hookshot and its pull save only exist while Transformed
+    const riders = e.effects[0].data.flags.ddbimporter.activityRiders;
+    expect(riders).toEqual([e.additionalActivities[2].init.id, e.additionalActivities[3].init.id]);
+    expect(changes(e.effects[0])).toMatchObject({ "system.type.baseItem": "battleaxe", "system.damage.base.denomination": "10" });
+    expect(e.effects[0].changes.filter((c: any) => c.key === "system.properties").map((c: any) => c.value))
+      .toEqual(["two", "-lgt", "-fin"]);
+
+    const battleaxe = build(ItemEnrichers.MeatHookshot, { name: "Meat Hookshot (Battleaxe)" });
+    expect(battleaxe.override.data.flags.ddbimporter.transferEnchantment.effectId).toBe(battleaxe.effects[0].data._id);
+  });
+
   it("swaps Dawn and Dusk's Radiant for Necrotic in its Sickle form", () => {
     const e = build(ItemEnrichers.DawnAndDusk, { name: "Dawn and Dusk" });
     expect(e.activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 4, types: ["radiant"] });
     expect(changes(e.effects[0])["system.damage.parts"]).toBe(`[["1d6", "necrotic"]]`);
     expect(e.additionalActivities[0].overrides.activationType).toBe("special");
+  });
+});
+
+// Precipit, the Formless: one State Change self-enchant whose profiles carry each state's riders
+describe("PrecipitTheFormless", () => {
+  const Enricher = ItemEnrichers.PrecipitTheFormless;
+  const byName = (list: any[], name: string) => list.find((x: any) => (x.init?.name ?? x.name) === name);
+
+  it("offers one profile per state, each with its own effect and activity riders", () => {
+    const e = build(Enricher, { name: "Precipit, the Formless" });
+    const profiles = e.effects.filter((x: any) => x.type === "enchant");
+    expect(profiles.map((p: any) => p.name)).toEqual([
+      "Precipit, the Formless: Gas", "Precipit, the Formless: Liquid", "Precipit, the Formless: Solid",
+    ]);
+    expect(profiles.every((p: any) => p.activityMatch === "State Change")).toBe(true);
+
+    const solid = profiles[2].data.flags.ddbimporter;
+    const solidEffect = e.effects.find((x: any) => x.data?._id === solid.effectRiders[0]);
+    expect(solidEffect.name).toBe("Precipit, the Formless: Solid State");
+    expect(solidEffect.options.transfer).toBe(true);
+    expect(solidEffect.changes.find((c: any) => c.key === "system.attributes.ac.bonus").value).toBe("3");
+
+    const riderNames = solid.activityRiders.map((id: string) => e.additionalActivities.find((a: any) => a.init.id === id).init.name);
+    expect(riderNames).toEqual(["Cone of Cold", "Ice Storm", "Ray of Frost", "Wall of Ice", "Deep Freeze", "Frozen Shell"]);
+
+    // every activity id is distinct, so no rider replaces another
+    const ids = e.additionalActivities.map((a: any) => a.init.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    // the State Change and its Reaction form are never riders
+    const allRiders = profiles.flatMap((p: any) => p.data.flags.ddbimporter.activityRiders);
+    expect(allRiders).not.toContain(e.additionalActivities[0].init.id);
+    expect(allRiders).not.toContain(e.additionalActivities[1].init.id);
+  });
+
+  it("casts each state's spells for their charges at the printed DC", () => {
+    const e = build(Enricher, { name: "Precipit, the Formless" });
+    const cloudkill = byName(e.additionalActivities, "Cloudkill");
+    expect(cloudkill.init.type).toBe("cast");
+    expect(cloudkill.overrides).toMatchObject({ addSpellUuid: "Cloudkill", addItemConsume: true, itemConsumeValue: "5" });
+    expect(cloudkill.build.spellOverride.challenge).toMatchObject({ save: "18", override: true });
+    expect(byName(e.additionalActivities, "Ray of Frost").build.spellOverride.challenge).toMatchObject({ save: "18", attack: "10" });
+    expect(byName(e.additionalActivities, "Ray of Frost").overrides).toMatchObject({ addItemConsume: false, noConsumeTargets: true });
+    const reaction = byName(e.additionalActivities, "State Change (Reaction)");
+    expect(reaction.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "1", data: { activity: { id: e.additionalActivities[0].init.id } } });
+  });
+
+  it("imports a state copy already in its state on a character only", () => {
+    const gas = build(Enricher, { name: "Precipit, the Formless (Gas)" });
+    expect(gas.override.data.name).toBe("Precipit, the Formless");
+    const gasProfile = gas.effects.find((x: any) => x.name === "Precipit, the Formless: Gas");
+    expect(gas.override.data.flags.ddbimporter.transferEnchantment).toEqual({
+      targetItemId: "self",
+      effectId: gasProfile.data._id,
+      activityId: gas.additionalActivities[0].init.id,
+    });
+    expect(build(Enricher, { name: "Precipit, the Formless" }).override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+    const munched = build(Enricher, { name: "Precipit, the Formless (Gas)", ddbParser: { isMuncher: true } });
+    expect(munched.override.data.name).toBeUndefined();
+    expect(munched.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
+    const munchedSolid = munched.effects.find((x: any) => x.name === "Precipit, the Formless: Solid");
+    expect(munchedSolid.changes[0]).toMatchObject({ key: "name", value: "Precipit, the Formless (Solid)" });
   });
 });

@@ -3306,6 +3306,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spellbook: true,
     };
 
+    const castAtLevel = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel") as number | null | undefined;
+    // The enricher's activities are already on the item. One that casts this spell at the same
+    // level owns it (Precipit's casts exist only in their state, as enchantment riders), so a
+    // second cast here would duplicate it, outside any state.
+    const existingActivities = Object.values(foundry.utils.getProperty(this.data, "system.activities") ?? {}) as I5eActivity[];
+    const enricherCast = existingActivities.some((existing) => existing.type === "cast"
+      && (existing as I5eCastActivity).spell?.uuid === compendiumSpell.uuid
+      && ((existing as I5eCastActivity).spell?.level ?? null) === (castAtLevel ?? null));
+    if (enricherCast) {
+      foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", true);
+      return true;
+    }
+
     const usesOverride = {
       spent: 0,
       recovery: [] as I5eSystemLimitedUsesRecovery[],

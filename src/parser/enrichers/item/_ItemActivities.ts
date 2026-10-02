@@ -72,6 +72,49 @@ export function itemActivity(
   };
 }
 
+/** The id `itemCast` gives a spell's cast activity. */
+export function itemCastId(spell: string): string {
+  return utils.namedIDStub(spell, { prefix: "cast" });
+}
+
+/**
+ * A spell the item casts, linked to the spells compendium by name, as the item-spell path builds
+ * one for spells DDB attaches: no components, no spell slot, and the item's printed save DC and
+ * attack bonus when it has them. `charges` is the item charge cost; 0 casts for free.
+ */
+export function itemCast(
+  spell: string,
+  { charges = 0, dc, attack }: { charges?: number; dc?: number; attack?: number } = {},
+): IDDBAdditionalActivity {
+  const challenge = dc !== undefined || attack !== undefined
+    ? { save: dc !== undefined ? `${dc}` : undefined, attack: attack !== undefined ? `${attack}` : undefined, override: true }
+    : { save: undefined, attack: undefined, override: false };
+  return {
+    init: { name: spell, type: DDBEnricherData.ACTIVITY_TYPES.CAST, id: itemCastId(spell) },
+    build: {
+      generateSpell: true,
+      spellOverride: {
+        properties: ["vocal", "somatic", "material"],
+        level: null,
+        challenge,
+        spellbook: true,
+      },
+      generateConsumption: false,
+      generateActivation: false,
+      generateTarget: false,
+      generateDuration: false,
+      generateRange: false,
+    },
+    overrides: {
+      addSpellUuid: spell,
+      noSpellslot: true,
+      noConsumeTargets: charges === 0,
+      addItemConsume: charges > 0,
+      ...(charges > 0 ? { itemConsumeValue: `${charges}` } : {}),
+    },
+  };
+}
+
 /** Keep imported expenditure while making a source-defined resource available to all its modes. */
 export function itemUses(
   enricher: DDBEnricherData,

@@ -65,6 +65,11 @@ export default abstract class TrickWeapon extends DDBEnricherData {
     return [];
   }
 
+  /** Ids of activities in `propertyActivities` that only exist while Transformed. */
+  get transformedActivityRiders(): string[] {
+    return [];
+  }
+
   get transformActivation(): { type: TActivationCost; condition: string } {
     return { type: "bonus", condition: "" };
   }
@@ -155,11 +160,19 @@ export default abstract class TrickWeapon extends DDBEnricherData {
     return [transform, ...this.propertyActivities];
   }
 
+  /**
+   * The weapon's name in a form. A munched copy keeps DDB's name ("Meat Hookshot (Sickle)"), which
+   * a "{} (Battleaxe)" suffix would add to, so it takes the weapon's name instead.
+   */
+  formName(label: string): string {
+    return this.ddbParser.isMuncher ? `${this.weaponName} (${label})` : `{} (${label})`;
+  }
+
   /** The changes that turn the Untransformed weapon into the given form. */
   formChanges(form: ITrickWeaponForm): IActiveEffectChangeData[] {
     const helper = DDBEnricherData.ChangeHelper;
     const changes = [
-      helper.overrideChange(`{} (${form.label})`, 20, "name"),
+      helper.overrideChange(this.formName(form.label), 20, "name"),
       helper.overrideChange(form.typeValue, 20, "system.type.value"),
       helper.overrideChange(form.baseItem, 20, "system.type.baseItem"),
       helper.overrideChange(form.number, 20, "system.damage.base.number"),
@@ -216,7 +229,7 @@ export default abstract class TrickWeapon extends DDBEnricherData {
           flags: {
             ddbimporter: {
               effectIdLevel: { min: null, max: null },
-              activityRiders: [],
+              activityRiders: this.transformedActivityRiders,
               effectRiders: this.transformedEffectRiders,
             },
           },
