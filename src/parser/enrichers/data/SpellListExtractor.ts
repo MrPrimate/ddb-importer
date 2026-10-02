@@ -87,7 +87,11 @@ export default class SpellListExtractor {
         const spellsText = spellsCell.textContent.trim();
 
         if (spellsText) {
-          const spellsInCell = spellsText.split(",").map((spell: string) => utils.nameString(spell));
+          // asterisks are table footnote markers ("Identify*" = a Divination spell, "Hangover *" =
+          // a new spell in this book), and textContent keeps non-breaking spaces as U+00A0
+          const spellsInCell = spellsText.split(",")
+            .map((spell: string) => utils.nameString(spell.replace(/[*\u00a0]/g, " ").replace(/\s+/g, " ")))
+            .filter((spell: string) => spell !== "");
           const level = `${cells[0].textContent.trim()}`.match(levelRegex);
           if (withLevel && level) {
             spells[level[0]] = spells[level[0]] ?? [];

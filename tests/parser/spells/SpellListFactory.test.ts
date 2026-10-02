@@ -106,3 +106,32 @@ describe("SpellListFactory.addSpellsByDefinitionId", () => {
     expect(await factory.addSpellsByDefinitionId("Warlock", [{ id: 101, sourceId: 145 }])).toEqual([101]);
   });
 });
+
+describe("SpellListFactory.generateSpellUuidsForSourceAndSpellList", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const spell = (id: string, name: string, is2024: boolean) => ({
+    uuid: `Compendium.world.ddb-spells.Item.${id}`, name,
+    flags: { ddbimporter: { originalName: name, is2014: !is2024, is2024 } },
+  });
+
+  it("matches a book's short name to DDB's possessive spell name for the same ruleset", async () => {
+    const { factory } = makeFactory();
+    (factory as any).spellCompendium = { index: [
+      spell("laughter2014", "Hideous Laughter", false),
+      spell("laughter2024", "Tasha's Hideous Laughter", true),
+      spell("bond2024", "Rary’s Telepathic Bond", true),
+      spell("hangover", "Hangover", true),
+      spell("charm2024", "Charm Person", true),
+      spell("charmPrefixed", "Someone's Charm Person", true),
+    ] };
+    factory.uuidsBySourceAndSpellListName.VSSPP ??= {};
+    await factory.generateSpellUuidsForSourceAndSpellList("VSSPP", "Oath of Revelry",
+      ["Charm Person", "Hideous Laughter", "Hangover", "Telepathic Bond", "Not A Spell"], ["is2024"]);
+    // an exact name wins over a possessive one; a 2014-only exact name is not taken for 2024
+    expect(factory.uuidsBySourceAndSpellListName.VSSPP["Oath of Revelry"].map((u: string) => u.split(".").pop()))
+      .toEqual(["charm2024", "laughter2024", "hangover", "bond2024"]);
+  });
+});

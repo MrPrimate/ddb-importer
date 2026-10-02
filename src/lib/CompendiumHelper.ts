@@ -585,19 +585,43 @@ const CompendiumHelper = {
 
   async retrieveCompendiumSpellReferences(spellNames: string[], { use2024Spells = false } = {}) {
     const compendiumName = utils.getSetting<string>("entity-spell-compendium");
-
-    const results = await CompendiumHelper.queryCompendiumEntries({
+    const rules = use2024Spells ? "2024" : "2014";
+    const query = (documentNames: string[]) => CompendiumHelper.queryCompendiumEntries({
       compendiumName,
-      documentNames: spellNames,
+      documentNames,
       matchedProperties: {
-        "system.source.rules": use2024Spells ? "2024" : "2014",
+        "system.source.rules": rules,
       },
       extraFields: ["system.level"],
     });
-    if (!results) return [];
-    const cleanResults = results.filter((item): item is ICompendiumLookup => item !== null);
 
-    return cleanResults;
+    const results = await query(spellNames);
+    if (!results) return [];
+
+    // DDB keeps the wizard's name on spells that some books list without it ("Tasha's Hideous
+    // Laughter" as "Hideous Laughter"), so retry an exact miss against "<Name>'s <spell>" in the
+    // same ruleset, keeping any "(restriction)" suffix the caller passed
+    const missing = spellNames.filter((_name, i) => results[i] === null);
+    if (missing.length > 0) {
+      const pack = game.packs.get(compendiumName);
+      const index = pack
+        ? await pack.getIndex({ fields: CompendiumHelper.safeIndexFields(pack, ["name", "system.source.rules"]) })
+        : undefined;
+      const possessive = /^[^\s']+'s (.+)$/;
+      const retryNames = missing.map((name) => {
+        const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
+        const wanted = utils.normalizeString(base ?? name);
+        const entry = index?.find((e) => {
+          const match = possessive.exec(utils.nameString(String(e.name ?? "")));
+          return match !== null && utils.normalizeString(match[1]) === wanted
+            && foundry.utils.getProperty(e, "system.source.rules") === rules;
+        });
+        return entry ? `${entry.name}${restriction ? ` ${restriction}` : ""}` : null;
+      }).filter((name): name is string => name !== null);
+      if (retryNames.length > 0) results.push(...(await query(retryNames) ?? []));
+    }
+
+    return results.filter((item): item is ICompendiumLookup => item !== null);
   },
 
   getConfiguredCompendiums(): IConfiguredCompendium[] {

@@ -43,4 +43,12 @@ describe("SpellListExtractor", () => {
     expect(extractor.extractSpells()).toEqual(["Bless", "Cure Wounds", "Aid"]);
     expect(extractor.extractSpells(true)).toEqual({ 3: ["Bless", "Cure Wounds"], 5: ["Aid"] });
   });
+
+  it("drops footnote asterisks and non-breaking spaces from spell names", () => {
+    const description = `<table><thead><tr><th>Level</th><th>Spells</th></tr></thead><tbody>
+      <tr><td>3</td><td>Command, Comprehend Languages*, Detect Magic*</td></tr>
+      <tr><td>5</td><td>Enhance Ability, Hangover&nbsp; *</td></tr></tbody></table>`;
+    const extractor = new SpellListExtractor({ name: "Knowledge Domain Spells", description });
+    expect(extractor.extractSpells()).toEqual(["Command", "Comprehend Languages", "Detect Magic", "Enhance Ability", "Hangover"]);
+  });
 });
