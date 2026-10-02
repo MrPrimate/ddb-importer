@@ -641,6 +641,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _generateDescription({ forceFull = false, extra = "" }: { forceFull?: boolean; extra?: string } = {}) {
     this.data.system.description = this.getDescription({ forceFull, extra });
+    if (this.ddbCompanionFactory) {
+      this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
+    }
 
     if (!("prerequisites" in this.data.system)) return;
     const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
@@ -1392,6 +1395,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     // always update compendium imports, but respect player import disable
     await this.ddbCompanionFactory.updateOrCreateCompanions();
+
+    // some builds write the description before this and some after; _generateDescription
+    // covers the later ones
+    await this.ddbCompanionFactory.prepareStatBlockEmbeds();
+    if (this.data.system.description?.value) {
+      this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
+    }
 
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,

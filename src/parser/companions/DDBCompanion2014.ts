@@ -136,7 +136,8 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
 
   #generateAlignment() {
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata")?.innerHTML;
-    if (!data) return;
+    // summoned spirits print only "Small beast", with no alignment after a comma
+    if (!data || !data.includes(",")) return;
     const alignment = data.split(",").pop()?.toLowerCase().trim();
 
     this._handleAlignment(alignment);
@@ -194,6 +195,27 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     if (!data) return;
 
     this._handleSpeed(data);
+  }
+
+  /** The Challenge line, which DDB styles as the last data line of the block. */
+  #getChallengeText(): string | null {
+    const line = Array.from(this.block.querySelectorAll("p.Stat-Block-Styles_Stat-Block-Data, p.Stat-Block-Styles_Stat-Block-Data-Last"))
+      .find((el) => (el.textContent ?? "").trim().startsWith("Challenge"));
+    return line ? (line.textContent ?? "").trim().replace(/^Challenge/, "").trim() : null;
+  }
+
+  #generateStatBlockOverrides() {
+    this._addStatBlockOverrides({
+      ac: this.getBlockData("Armor Class"),
+      hp: this.getBlockData("Hit Points"),
+      speed: this.getBlockData("Speed"),
+      tag: this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata")?.textContent ?? null,
+      challenge: this.#getChallengeText(),
+      vulnerabilities: this.getBlockData("Damage Vulnerabilities"),
+      resistances: this.getBlockData("Damage Resistances"),
+      immunities: this.getBlockData("Damage Immunities"),
+      conditionImmunities: this.getBlockData("Condition Immunities"),
+    });
   }
 
   async _processFeatureElement(element: HTMLElement, featType: TDDBMonsterActionType): Promise<{ next: HTMLElement | null; featType: TDDBMonsterActionType }> {
@@ -276,6 +298,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     this.#generateSenses();
     this.#generateLanguages();
     this.#generateSpeed();
+    this.#generateStatBlockOverrides();
     await this.#generateFeatures();
   }
 

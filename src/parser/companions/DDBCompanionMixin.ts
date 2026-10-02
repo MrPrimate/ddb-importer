@@ -6,6 +6,8 @@ import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFacto
 import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
 import { DDBMonsterFeatureActivity } from "../activities/_module";
+import { baseItemEffect } from "../../effects/effects";
+import { ChangeHelper } from "../enrichers/effects/_module";
 
 
 export default class DDBCompanionMixin {
@@ -16,7 +18,7 @@ export default class DDBCompanionMixin {
    * this when a change alters the companion actors themselves (stat block parsing, monster feature
    * enrichers such as the Vestige Companion's), not only the summoning feature.
    */
-  static VERSION = 2;
+  static VERSION = 3;
 
   /**
    * A bond trait handing the companion the summoner's proficiency: "Add your Proficiency Bonus to
@@ -40,6 +42,9 @@ export default class DDBCompanionMixin {
   removeCreatureOnlyNames: boolean;
   addChrisPremades: boolean;
   summons: IDDBCompanionSummons;
+  statBlockOverride: IDDBStatBlockOverride;
+  // the block's numeric challenge rating; null when it prints "None", "—" or no challenge at all
+  challengeRating: number | null;
   name!: string;
 
   constructor(block: HTMLElement | string, options: IDDBCompanionMixinOptions = {}, {
@@ -60,7 +65,10 @@ export default class DDBCompanionMixin {
     this.legacyName = legacyName; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     this.addMonsterEffects = addMonsterEffects; // game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
     this.removeSplitCreatureActions = removeSplitCreatureActions;
-    this.removeCreatureOnlyNames = removeCreatureOnlyNames;
+    // a template keeps its "(Air Only)" trait names, as the book's combined stat block does
+    this.removeCreatureOnlyNames = removeCreatureOnlyNames && !this.options.template;
+    this.statBlockOverride = {};
+    this.challengeRating = null;
     this.addChrisPremades = addChrisPremades;
 
     this.summons = {
@@ -266,10 +274,38 @@ export default class DDBCompanionMixin {
     if (spellSaveRegex.test(text)) {
       this.summons.match.saves = true;
     }
+    const features = featureFactory.getFeatures(type);
     if (DDBCompanionMixin.PROFICIENCY_BOND.test(text.replaceAll("’", "'"))) {
       this.summons.match.proficiency = true;
+      this._addProficiencyBondEffect(features);
     }
-    return featureFactory.getFeatures(type);
+    return features;
+  }
+
+  /**
+   * "Add your Proficiency Bonus to any ability check or saving throw the vestige makes": the bond
+   * trait carries the official Pact Bond effect, proficiency in every check and save. Skills then
+   * list in the stat block and initiative, which is not proficient, stays the Dexterity modifier.
+   * dnd5e does not store these proficiency fields, so only an effect can set them. The check and
+   * save bonuses are emptied because companions stored before this carried "@prof" there.
+   */
+  _addProficiencyBondEffect(features: I5eMonsterItem[]) {
+    const bond = features.find((feature) => DDBCompanionMixin.PROFICIENCY_BOND.test(
+      utils.stripHtml(feature.system?.description?.value ?? "").replaceAll("’", "'"),
+    ));
+    foundry.utils.setProperty(this.npc, "system.rolls.ability.check.bonus", "");
+    foundry.utils.setProperty(this.npc, "system.rolls.ability.save.bonus", "");
+    if (!bond) {
+      logger.warn(`Companion ${this.npc.name} has a proficiency bond but no trait to carry its effect`);
+      return;
+    }
+    const effect = baseItemEffect(bond, bond.name);
+    effect.system.changes.push(
+      ChangeHelper.change({ value: "1", priority: 20, key: "system.rolls.ability.check.proficiency", type: "override", phase: "initial" }),
+      ChangeHelper.change({ value: "1", priority: 20, key: "system.rolls.ability.save.proficiency", type: "override", phase: "initial" }),
+    );
+    bond.effects ??= [];
+    bond.effects.push(effect);
   }
 
   // async _processFeatureElements(element, featType) {
@@ -339,7 +375,8 @@ export default class DDBCompanionMixin {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     foundry.utils.setProperty(this.npc, "prototypeToken.name", actorName);
 
-    const summonsKey = `companion-${utils.normalizeString(actorName)}-${this.rules}`;
+    const templatePostfix = this.options.template ? "-template" : "";
+    const summonsKey = `companion-${utils.normalizeString(actorName)}-${this.rules}${templatePostfix}`;
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.name", `${name}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", summonsKey);
@@ -347,9 +384,20 @@ export default class DDBCompanionMixin {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.summonsKey", summonsKey);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.version", DDBCompanionMixin.VERSION);
     if (this.options.folderHint) foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.folder", this.options.folderHint);
+    if (this.options.template) foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.template", true);
 
     foundry.utils.setProperty(this.npc, "system.source.rules", this.rules);
     await this._generate();
+    // the actor data model defaults to CR 1; companions without one are CR 0, as the official ones are
+    const details = this.npc.system.details;
+    if (details) details.cr = this.challengeRating ?? 0;
+    // a block with no challenge line (Vestige Companion) still uses the summoner's bonus
+    if (!this.statBlockOverride.pb && this.summons.match.proficiency) {
+      this.statBlockOverride.pb = this.rules === "2014" ? "equals your bonus" : "PB equals your Proficiency Bonus";
+    }
+    if (Object.keys(this.statBlockOverride).length > 0) {
+      foundry.utils.setProperty(this.npc, "flags.dnd5e.statBlockOverride", this.statBlockOverride);
+    }
 
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
@@ -360,6 +408,156 @@ export default class DDBCompanionMixin {
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
+  }
+
+  /** A "(Brute only)" style marker, with any qualifier before the form list ("hover; Flyer only"). */
+  static FORM_ONLY_MARKER = /\s*\(([^()]*?)\bonly\)/i;
+
+  /** Separators between a stat block value's terms, outside parentheses. */
+  static FORM_TERM_SEPARATOR = /^(?:\s*[;,]\s*|\s+or\s+|\s*\+\s*)/i;
+
+  /**
+   * The text of a multi-form stat block value as it reads for one form. Terms marked for other
+   * forms are dropped along with the separator that follows them, and the form's own marker is
+   * removed, so for Brute "30 (Brute only) or 20 (Flyer or Stalker only) + 5 for each spell
+   * level above 2" reads "30 + 5 for each spell level above 2", and for Flyer
+   * "40 ft., Fly 30 ft. (hover; Flyer only), Swim 30 ft." keeps "Fly 30 ft. (hover)". Without a
+   * form the text is returned whole, which is what a combined template shows.
+   */
+  static formText(text: string, subType?: string): string {
+    const clean = text.replaceAll("\u00a0", " ").replace(/\s+/g, " ").trim();
+    if (!subType) return clean;
+    // "Beast of the Sky" may be marked "(Sky only)"
+    const formNames = [subType, subType.split(" ").pop() ?? subType].map((n) => utils.escapeRegExp(n.trim()));
+    const form = new RegExp(`\\b(?:${formNames.join("|")})\\b`, "i");
+
+    // alternating terms and the separators between them
+    const parts: string[] = [];
+    let depth = 0;
+    let current = "";
+    for (let i = 0; i < clean.length; i++) {
+      const character = clean[i];
+      if (character === "(") depth++;
+      else if (character === ")") depth = Math.max(0, depth - 1);
+      else if (depth === 0) {
+        const separator = clean.slice(i).match(DDBCompanionMixin.FORM_TERM_SEPARATOR);
+        if (separator) {
+          parts.push(current, separator[0]);
+          current = "";
+          i += separator[0].length - 1;
+          continue;
+        }
+      }
+      current += character;
+    }
+    parts.push(current);
+
+    let result = "";
+    let pendingSeparator = "";
+    let first = true;
+    for (let i = 0; i < parts.length; i += 2) {
+      const following = parts[i + 1] ?? "";
+      const marker = parts[i].match(DDBCompanionMixin.FORM_ONLY_MARKER);
+      if (marker && !form.test(marker[1])) {
+        // the separator after a dropped term joins its neighbours: "30 + 5", not "30 or 5"
+        if (!first) pendingSeparator = following;
+        continue;
+      }
+      let term = parts[i];
+      if (marker) {
+        const qualifier = marker[1].split(";").slice(0, -1).join(";").trim();
+        term = term.replace(marker[0], qualifier ? ` (${qualifier})` : "");
+      }
+      result += `${first ? "" : pendingSeparator}${term}`;
+      first = false;
+      pendingSeparator = following;
+    }
+    return result.trim();
+  }
+
+  /**
+   * The stat block text dnd5e shows when this companion is embedded (`@Embed[... statblock]`),
+   * where the actor's own values cannot say it: scaling AC and HP ("11 + the spell's level"), the
+   * printed speed, a creature tag naming several types or sizes, form-marked damage and condition
+   * traits, and the "None" challenge with a Proficiency Bonus that "equals your Proficiency Bonus".
+   */
+  _addStatBlockOverrides({
+    ac, hp, speed, tag, challenge, vulnerabilities, resistances, immunities, conditionImmunities,
+  }: IDDBStatBlockOverrideText) {
+    const subType = this.options.subType;
+    const isPlainNumber = (text: string) => (/^\d+$/).test(text);
+
+    if (ac) {
+      const text = DDBCompanionMixin.formText(ac, subType);
+      if (text && !isPlainNumber(text)) this.statBlockOverride.ac = text;
+    }
+    if (hp) {
+      const text = DDBCompanionMixin.formText(hp, subType);
+      if (text && !isPlainNumber(text)) this.statBlockOverride.hp = text;
+    }
+    // the book's spacing and punctuation ("40 ft.", not dnd5e's "40 ft"), as the official summons keep
+    if (speed) {
+      const text = DDBCompanionMixin.formText(speed, subType);
+      if (text) this.statBlockOverride.speed = text;
+    }
+    // the actor's own traits already say what one form has; only the text with form markers needs
+    // carrying across
+    const formOnly: [keyof IDDBStatBlockOverride, string | null | undefined][] = [
+      ["vulnerabilities", vulnerabilities],
+      ["resistances", resistances],
+      ["immunities", immunities],
+      ["conditionImmunities", conditionImmunities],
+    ];
+    for (const [key, text] of formOnly) {
+      if (!text || !(/\bonly\b/i).test(text)) continue;
+      const formValue = DDBCompanionMixin.formText(text, subType);
+      if (formValue) this.statBlockOverride[key] = formValue;
+    }
+    if (tag && (/\(|\bor\b|\bchoice\b/i).test(tag)) {
+      this.statBlockOverride.tag = DDBCompanionMixin.formText(tag, subType);
+    }
+    if (challenge) this._addChallengeOverrides(DDBCompanionMixin.formText(challenge));
+  }
+
+  /**
+   * 2024: "None (XP 0; PB equals your Proficiency Bonus)". 2014: "— Proficiency Bonus equals your
+   * bonus", which the embed shows as a challenge with its XP and a separate Proficiency Bonus row.
+   */
+  _addChallengeOverrides(challenge: string) {
+    const fractions: Record<string, number> = { "½": 0.5, "¼": 0.25, "⅛": 0.125, "1/2": 0.5, "1/4": 0.25, "1/8": 0.125 };
+    const crValue = (text: string): number | null => {
+      if (text in fractions) return fractions[text];
+      return (/^\d+$/).test(text) ? Number.parseInt(text) : null;
+    };
+
+    const is2024 = (/\(.*\)\s*$/).test(challenge);
+    if (is2024) {
+      const match = challenge.match(/^(.*?)\s*\((.*)\)\s*$/);
+      if (!match) return;
+      const cr = match[1].trim();
+      this.challengeRating = crValue(cr);
+      const [xp, ...pbParts] = match[2].split(";");
+      const pb = pbParts.join(";").trim();
+      if (!pb || (/^PB\s*[+−-]?\d+$/i).test(pb)) return;
+      this.statBlockOverride.pb = pb;
+      if (this.challengeRating === null) {
+        this.statBlockOverride.cr = cr;
+        this.statBlockOverride.xp = xp.trim();
+      }
+      return;
+    }
+
+    const pbIndex = challenge.search(/Proficiency Bonus/i);
+    const cr = (pbIndex === -1 ? challenge.split("(")[0] : challenge.slice(0, pbIndex)).trim();
+    this.challengeRating = crValue(cr);
+    if (pbIndex === -1) return;
+    const pb = challenge.slice(pbIndex + "Proficiency Bonus".length).trim();
+    if (!pb || (/^[+−-]?\d+$/).test(pb)) return;
+    this.statBlockOverride.pb = pb;
+    if (cr && this.challengeRating === null) {
+      this.statBlockOverride.cr = cr;
+      this.statBlockOverride.xp = "0 XP";
+    }
   }
 
   _handleAc(acString: string) {

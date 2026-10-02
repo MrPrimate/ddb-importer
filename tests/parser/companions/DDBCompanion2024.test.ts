@@ -124,3 +124,40 @@ describe("DDBCompanionMixin.PROFICIENCY_BOND", () => {
     expect(DDBCompanion2024.PROFICIENCY_BOND.test(text)).toBe(false);
   });
 });
+
+// The info line under the title gives size, type and alignment; newer blocks put the title in
+// an h3 and list several types for a form to choose from.
+describe("DDBCompanion2024 info line", () => {
+  const infoFor = async (title: string, info: string, options: Record<string, any> = {}) => {
+    const block = `<div class="stat-block">${title}<p>${info}</p></div>`;
+    const companion = new DDBCompanion2024(block as unknown as HTMLElement, options);
+    (companion as any).npc = {
+      name: "Test Companion",
+      prototypeToken: { texture: {} },
+      system: { traits: {}, details: { type: {} }, attributes: {}, abilities: {}, skills: {} },
+    };
+    await (companion as any)._generate();
+    const system = (companion as any).npc.system;
+    return { size: system.traits.size, type: system.details.type.value, alignment: system.details.alignment };
+  };
+
+  it("reads an h3 titled block", async () => {
+    expect(await infoFor(`<h3 class="compendium-hr">Test Vestige</h3>`, "Small Celestial, Fiend, or Undead; Neutral"))
+      .toEqual({ size: "sm", type: "celestial", alignment: "Neutral" });
+  });
+
+  it("gives a form named for a listed type that type", async () => {
+    const result = await infoFor(`<h3 class="compendium-hr">Test Vestige</h3>`, "Small Celestial, Fiend, or Undead; Neutral", { subType: "Fiend" });
+    expect(result.type).toBe("fiend");
+  });
+
+  it("keeps the first type for forms that are not creature types", async () => {
+    const result = await infoFor(`<h4>Test Familiar</h4>`, "Medium Celestial, Fey, or Fiend (Your Choice) Neutral", { subType: "Brute" });
+    expect(result).toEqual({ size: "med", type: "celestial", alignment: "Neutral" });
+  });
+
+  it("reads a comma separated alignment", async () => {
+    expect((await infoFor(`<h4>Test Spirit</h4>`, "Small Beast, Chaotic Good")).alignment).toBe("Chaotic Good");
+    expect((await infoFor(`<h4>Test Spirit</h4>`, "Medium Undead (Amalgamation), your Alignment")).alignment).toBe("your Alignment");
+  });
+});

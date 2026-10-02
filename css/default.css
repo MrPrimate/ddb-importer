@@ -95,6 +95,26 @@
   flex: 1 0 75%;
 }
 
+/*
+ * dnd5e's NPC stat block embed (@Embed[... statblock]) runs an action's name into its first
+ * paragraph only when the item description opens with <p>, and styles it there. Parsed monster
+ * features are wrapped in div.ddb, so the name is left loose ahead of the wrapper: give it the
+ * same look and run the wrapper's first paragraph on after it.
+ */
+.ddb .statblock .statblock-action > .name:first-child {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.ddb .statblock .statblock-action > .name:first-child::after {
+  content: ". ";
+}
+
+.statblock .statblock-action > .name:first-child + div.ddb,
+.statblock .statblock-action > .name:first-child + div.ddb > p:first-child {
+  display: inline;
+}
+
 h2.task-name.error {
   color: red;
 }

@@ -839,6 +839,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     // always update compendium imports, but respect player import disable
     await this.ddbCompanionFactory.updateOrCreateCompanions();
 
+    await this.ddbCompanionFactory.prepareStatBlockEmbeds();
+    this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
+
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,
       parsed: this.ddbCompanionFactory.companions,
