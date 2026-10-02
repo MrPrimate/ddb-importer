@@ -116,7 +116,7 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [DreadfulStrikes, "bonus=@scale.fey-wanderer.dreadful-strikes[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BodyOfTheAstralSelf, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')"],
     [ManifestBlowForgedHeart, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')"],
-    [FavoredFoe, "bonus=@scale.favored-foe.die; oncePerTurn; optin; hasAttack"],
+    [FavoredFoe, "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack"],
     [SchoolOfHardKnocks, "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ApexPredator, "bonus=2d10[force]; oncePerTurn; optin"],
     [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
@@ -221,22 +221,13 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     expect(alias.activity).toBeNull();
   });
 
-  it("Favored Foe adds a level-scaled die advancement backing the effect's scale ref", () => {
+  it("Favored Foe reads the Ranger's die scale and holds no scale of its own", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
     const data = enricher.override.data;
     expect(data["system.identifier"]).toBe("favored-foe");
+    expect(data.flags).toBeUndefined();
     expect(Object.keys(data).some((key) => key.startsWith("system.advancement"))).toBe(false);
-    expect(enricher.additionalAdvancements).toHaveLength(1);
-    const advancement = enricher.additionalAdvancements[0];
-    expect(advancement.type).toBe("ScaleValue");
-    expect(advancement.name).toBe("Favored Foe Damage");
-    expect(advancement.hint).toBe("The extra damage dealt to a marked favored enemy.");
-    expect(advancement.configuration.identifier).toBe("die");
-    expect(advancement.configuration.scale).toEqual({
-      "1": { number: 1, faces: 4 },
-      "6": { number: 1, faces: 6 },
-      "14": { number: 1, faces: 8 },
-    });
+    expect(enricher.additionalAdvancements ?? []).toHaveLength(0);
   });
 
   it("Omen of Doom grants origin-scoped bonus damage from the Doomed effect", () => {

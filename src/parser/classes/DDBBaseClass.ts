@@ -103,6 +103,8 @@ export default abstract class DDBBaseClass {
 
   static NOT_ADVANCEMENT_FOR_FEATURE = [
     "Bardic Inspiration",
+    // DDB's Quickened Healing scale copies the Martial Arts die; its links go to @scale.monk.die
+    "Quickened Healing",
   ];
 
   static FORCE_ADVANCEMENT_REPLACE = [

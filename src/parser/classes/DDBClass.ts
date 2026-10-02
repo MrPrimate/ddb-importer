@@ -51,6 +51,23 @@ export default class DDBClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Monk (TCoE optional feature): the official Quickened Healing rolls the Martial Arts die,
+    // so no scale is built from it (NOT_ADVANCEMENT_FOR_FEATURE) and this only redirects links
+    "Quickened Healing": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { identifier: "die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Ranger (TCoE optional feature): the official Favored Foe rolls @scale.ranger.die
+    "Favored Foe": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Favored Foe Die", identifier: "die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
     // Kindred (VtM): the "Blood Potency" feature scale is the Blood Points pool
     "Blood Potency": {
       fix: true,
