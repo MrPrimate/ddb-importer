@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class WardingTrick extends DDBEnricherData {
+export default class WardingTrick extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
@@ -25,7 +27,7 @@ export default class WardingTrick extends DDBEnricherData {
           value: "10",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.road.travelers-tricks + max(1, @abilities.wis.mod)",
+          customFormula: `${travelersTrickDie(this.ddbEnricher.isClass2014("Bard"))} + max(1, @abilities.wis.mod)`,
           types: ["temphp"],
         }),
       },

@@ -74,5 +74,6 @@ export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll";
 export { default as VoiceOfDeath } from "./VoiceOfDeath";
 export { default as WailsFromTheGrave } from "./WailsFromTheGrave";
+export { default as WaxEnchantments } from "./WaxEnchantments";
 export { default as WhispersOfTheDead } from "./WhispersOfTheDead";
 

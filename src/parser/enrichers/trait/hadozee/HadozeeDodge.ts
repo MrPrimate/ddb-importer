@@ -13,7 +13,8 @@ export default class HadozeeDodge extends DDBEnricherData {
       name: "Reduce Damage",
       targetType: "self",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
-      noConsumeTargets: true,
+      // the trait's proficiency-bonus uses are spent by the reaction
+      addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,

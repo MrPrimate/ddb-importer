@@ -14,7 +14,7 @@ export default class SuperiorDefense extends DDBEnricherData<DDBClassFeatureEnri
       activationCondition: "At the start of your turn",
       targetType: "self",
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       itemConsumeValue: 3,
       data: {
         duration: {

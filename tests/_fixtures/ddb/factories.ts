@@ -229,6 +229,12 @@ export function makeEnricherData<T>(
     ddbEnricher: {
       ddbParser,
       is2014,
+      // mirrors DDBClassFeatureEnricher.isClass2014: the named class's sources, else the feature's ruleset
+      isClass2014: (className: string) => {
+        const klass = (ddbParser as any).ddbData?.character?.classes?.find((k: any) => k.definition?.name === className);
+        if (!klass?.definition?.sources?.length) return is2014;
+        return klass.definition.sources.every((s: any) => s.sourceId < 145);
+      },
       useLookupName: false,
       activityGenerator: null,
       effectType: "",

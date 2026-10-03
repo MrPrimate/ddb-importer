@@ -1241,6 +1241,16 @@ export default abstract class DDBBaseClass {
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes((a.configuration as I5eAdvConfig)?.identifier ?? "")),
       );
 
+    // a printing whose feature has no DDB level scale still needs the hand-built scales the
+    // special entry adds beside the generated one (the 2014 Misfortunist and its jinx points)
+    for (const feature of this.classFeatures) {
+      if ((feature.levelScales?.length ?? 0) > 0) continue;
+      const specialLookup = this.SPECIAL_ADVANCEMENTS[feature.name];
+      (specialLookup?.withoutScaleFunctions ?? []).forEach((fn) => {
+        specialFeatures.push(fn());
+      });
+    }
+
     this._addAdvancements(advancements);
     this._addAdvancements(specialFeatures);
   }

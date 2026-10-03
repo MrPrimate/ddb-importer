@@ -44,7 +44,9 @@ export default class DDBSubClass extends DDBBaseClass {
       additionalFunctions: [],
     },
     // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
-    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand
+    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand. The 2014
+    // printing's Misfortunist has no level scale at all, so the jinx points come from
+    // withoutScaleFunctions there.
     "Misfortunist": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
@@ -59,6 +61,13 @@ export default class DDBSubClass extends DDBBaseClass {
           identifier: "jinx-points",
           scale: { 3: 4, 13: 6 },
         })(advancement),
+      ],
+      withoutScaleFunctions: [
+        () => AdvancementHelper.buildNumberScale({
+          name: "Jinx Points",
+          identifier: "jinx-points",
+          scale: { 3: 4, 13: 6 },
+        }),
       ],
     },
     // DDB only records the level 17 value; a scale with no entry at or below the current level

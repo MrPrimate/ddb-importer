@@ -23,6 +23,7 @@ export default class FeyStep extends DDBEnricherData {
       targetType: "self",
       activationType: "bonus",
       overrideActivation: true,
+      addItemConsume: true,
       data: {
         range: {
           override: true,
@@ -188,6 +189,28 @@ export default class FeyStep extends DDBEnricherData {
         activityMatch: "Winter (Save)",
       },
     ];
+  }
+
+
+  /**
+   * The Dungeon Master's Guide variant eladrin casts misty step "once using this trait" and regains it
+   * on a short or long rest, but DDB gives that trait no limited use, so the teleport has nothing to spend.
+   */
+  override get override(): IDDBOverrideData | null {
+    const definition = this.ddbParser?.ddbDefinition;
+    if (foundry.utils.getProperty(definition ?? {}, "limitedUse") || !(/once using this trait/i).test(definition?.description ?? "")) return null;
+    return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          {
+            period: "sr",
+            type: "recoverAll",
+          },
+        ],
+      },
+    };
   }
 
 }

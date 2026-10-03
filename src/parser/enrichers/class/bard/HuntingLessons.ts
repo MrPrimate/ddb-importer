@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class HuntingLessons extends DDBEnricherData {
+export default class HuntingLessons extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -27,7 +29,7 @@ export default class HuntingLessons extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.road.travelers-tricks",
+          formula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
           name: "Extra weapon damage vs quarry",
         },
       },

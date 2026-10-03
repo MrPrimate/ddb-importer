@@ -9,6 +9,8 @@ export default class FavoredFoe extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       data: {
+        // the Favored Foe die scale is read against the Ranger's level, not the total level
+        flags: this.classAdvancementRootFlags("Ranger"),
         "system.identifier": "favored-foe",
       },
     };

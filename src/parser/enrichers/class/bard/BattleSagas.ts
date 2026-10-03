@@ -6,6 +6,12 @@ export default class BattleSagas extends DDBEnricherData {
     return true;
   }
 
+  /** The 1 minute recitation is once per short or long rest; the action's parsed Bardic Inspiration cost belongs to the later reaction. */
+  override get activity(): IDDBActivityData | null {
+    if (!this.isAction) return null;
+    return { addItemConsume: true };
+  }
+
   override get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [

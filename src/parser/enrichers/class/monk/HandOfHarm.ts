@@ -37,7 +37,7 @@ export default class HandOfHarm extends DDBEnricherData<DDBClassFeatureEnricher>
   }
 
   override get effects(): IDDBEffectHint[] {
-    const focusIdentifier = this.ddbEnricher.isParentClass2014 ? "ki" : "monks-focus";
+    const focusIdentifier = this.ddbEnricher.isClass2014("Monk") ? "ki" : "monks-focus";
     return [
       {
         name: "Hand of Harm (Automation)",

@@ -1,7 +1,8 @@
 import { DDBEnricherData } from "../../data/_module";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 
-export default class AscendantAspect extends DDBEnricherData {
+export default class AscendantAspect extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
@@ -11,7 +12,7 @@ export default class AscendantAspect extends DDBEnricherData {
    * @returns {DDBAdditionalActivity[]}
    */
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    const spend = this.is2014 ? "Ki" : "Monk's Focus";
+    const spend = this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus";
     return [
       {
         action: {

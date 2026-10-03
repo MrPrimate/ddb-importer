@@ -38,11 +38,12 @@ export default class LiveFastBeAGoodLookingCorpse extends DDBEnricherData {
             value: 1,
             condition: "",
           },
+          // DDB's turn counter: the feature's proficiency-bonus uses tick down one per turn
           consumptionOverride: {
             targets: [
               {
                 type: "itemUses",
-                target: "blood-potency",
+                target: "",
                 value: 1,
                 scaling: { mode: "", formula: "" },
               },

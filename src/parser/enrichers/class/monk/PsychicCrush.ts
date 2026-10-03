@@ -12,7 +12,7 @@ export default class PsychicCrush extends DDBEnricherData<DDBClassFeatureEnriche
       activationType: "bonus",
       targetType: "creature",
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       data: {
         save: {
           ability: ["str"],

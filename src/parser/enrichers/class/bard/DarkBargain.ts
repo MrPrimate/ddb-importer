@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class DarkBargain extends DDBEnricherData {
+export default class DarkBargain extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -23,7 +25,7 @@ export default class DarkBargain extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.road.travelers-tricks",
+          formula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
           name: "Necrotic damage taken",
         },
       },

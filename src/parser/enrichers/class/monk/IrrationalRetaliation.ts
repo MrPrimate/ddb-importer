@@ -13,7 +13,7 @@ export default class IrrationalRetaliation extends DDBEnricherData<DDBClassFeatu
       activationType: "reaction",
       activationCondition: "A creature deals damage to you",
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
     };
   }
 

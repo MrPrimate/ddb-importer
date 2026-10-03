@@ -42,6 +42,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return klass?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
+  /**
+   * Whether the character's class of this name is a 2014 printing. A reprinted subclass feature
+   * ("Way of the Ascendant Dragon (FToD)" on the 2024 Monk) carries its book's ruleset, but the
+   * resources it spends belong to the class. Falls back to the feature's own ruleset when the
+   * character has no such class (single-class mule stubs always do).
+   */
+  isClass2014(className: string): boolean {
+    const klass = this.ddbParser.ddbData?.character?.classes?.find((k) => k.definition.name === className);
+    if (!klass) return this.is2014 ?? false;
+    return klass.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
+  }
+
   get className(): string | undefined {
     return this.ddbParser.klass;
   }

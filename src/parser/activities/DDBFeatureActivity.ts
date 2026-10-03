@@ -466,10 +466,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     if (!this.ddbParent.getDamage && !parts) {
       return;
     }
+    // an enricher's flat part ("+10", "@prof") has no die but is still damage; the parsed fallback
+    // keeps the stricter rule so a bonus-only parse does not become an activity
     const damage = (parts ?? [this.ddbParent.getDamage()])
       .filter((part) => {
         if (!part) return false;
-        return part.denomination || part.custom?.enabled;
+        return part.denomination || part.custom?.enabled || (parts !== null && `${part.bonus ?? ""}`.trim() !== "");
       });
 
     if (!damage || damage.length === 0) return;
