@@ -875,6 +875,11 @@ global {
     parentChoiceId: string | null;
     subType: number | string | null;
     type: string;
+    /**
+     * DDB's choice type (2 proficiency pick, 3 class option, 4 spell pick, 6 feat pick); `type`
+     * holds the feature type instead. Absent on results built from an options-match lookup.
+     */
+    choiceType?: number;
     wasOption: boolean;
     optionId: number;
     optionComponentId: number;

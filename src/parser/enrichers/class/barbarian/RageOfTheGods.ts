@@ -2,6 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RageOfTheGods extends DDBEnricherData {
 
+  // the Divine Warrior Form option is this feature's own activity; a class munch would otherwise
+  // add it as a choice of one
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }

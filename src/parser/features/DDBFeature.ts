@@ -961,8 +961,81 @@ export default class DDBFeature extends DDBFeatureMixin {
         .some((prefix) => (pool[0].label ?? "").startsWith(prefix));
   }
 
+  /** A feature or option name reduced for containment checks: straight quotes, no quote marks. */
+  static choiceNameKey(name: string): string {
+    return utils.nameString(name).toLowerCase().replace(/["“”]/g, "").replace(/\s+/g, " ").trim();
+  }
+
+  /**
+   * A class feature whose whole pool is one option restating the feature: the bare name, or the
+   * name after a feature prefix or a toggle verb ("Rage: Vitality of the Tree", "Wild Shape:
+   * Object Shape", "Take Feline Form").
+   * There is nothing to choose:
+   * characters leave it unpicked and import the plain feature, but a class munch picks it, which
+   * would add a choice of one beside the feature. The toggle check covers "Activate X".
+   */
+  get isRestatingSingleChoice(): boolean {
+    if (this.type !== "class" || DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    if (pool.length !== 1) return false;
+    const name = DDBFeature.choiceNameKey(this.originalName);
+    const label = DDBFeature.choiceNameKey(pool[0].label ?? "");
+    if (name === "" || label === name) return name !== "";
+    // the name must end the label: "Elemental Gift (Dao)" and "Full Bloom: Jade Vine" are real
+    // options narrowed to one by an earlier pick
+    if (!label.endsWith(name)) return false;
+    // and only a feature prefix or a toggle verb may lead in: "Black Draconic Magic" is one of
+    // ten real options served one per pass
+    const leadIn = label.slice(0, -name.length).trim();
+    return leadIn.endsWith(":") || DDBFeature.RESTATING_LEAD_INS.includes(leadIn);
+  }
+
+  /** Words leading into a restating option's label ("Enter Resolute Stance", "Take Feline Form"). */
+  static RESTATING_LEAD_INS = ["activate", "active", "adopt", "enter", "ignite", "invoke the", "take"];
+
+  /**
+   * Does the feature cast this picked spell on its own uses, without a spell slot? DDB grants a
+   * Mystic Arcanum pick under the feature with one use per long rest and no slot, and only the
+   * choice document carries that cast; a Savant or Magical Discoveries pick lands in the
+   * spellbook instead.
+   */
+  castsPickedSpell(choice: IDDBChoiceResult): boolean {
+    const spells = this.ddbData?.character?.spells?.class ?? [];
+    return spells.some((spell) => spell.componentId === this.ddbDefinition.id
+      && !spell.usesSpellSlot
+      && (spell.limitedUse?.maxUses ?? 0) > 0
+      && (spell.definition?.id === choice.optionId || spell.definition?.name === choice.label));
+  }
+
+  /**
+   * Is this choice a pick that never needs a document of its own? Proficiency picks (DDB choice
+   * type 2: languages, skills, tools, saves, damage types) land through trait advancements and
+   * built empty documents; spell picks (type 4) land in the spellbook unless the feature casts
+   * the pick itself. Class features only: species and backgrounds match their own documents.
+   */
+  isPickOnlyChoice(choice: IDDBChoiceResult): boolean {
+    if (this.type !== "class") return false;
+    if (choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE) return true;
+    return choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE
+      && !this._parentOnlyChosen.some((chosen) => this.castsPickedSpell(chosen));
+  }
+
+  static PROFICIENCY_CHOICE_TYPE = 2;
+
+  static SPELL_CHOICE_TYPE = 4;
+
+  /** Every choice the class feature offers is a pick that needs no document (isPickOnlyChoice). */
+  get isPickOnlyChoiceFeature(): boolean {
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    return pool.length > 0 && pool.every((choice) => this.isPickOnlyChoice(choice));
+  }
+
   override get suppressesChoiceBuild(): boolean {
-    return super.suppressesChoiceBuild || this.isSingleToggleChoice;
+    return super.suppressesChoiceBuild
+      || this.isSingleToggleChoice
+      || this.isRestatingSingleChoice
+      || this.isPickOnlyChoiceFeature;
   }
 
   /**
@@ -987,6 +1060,10 @@ export default class DDBFeature extends DDBFeatureMixin {
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
+    // a built option merges its uses into the parent; a pick or restating option is no longer
+    // built, so that parent parses its own (Draconic Disciple's once per long rest). Listed and
+    // enricher-owned parents keep their configured shape
+    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice) this._generateLimitedUse();
 
     await this._generateSummons();
     await this._generateCompanions();

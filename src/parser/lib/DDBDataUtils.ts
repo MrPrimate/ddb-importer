@@ -645,6 +645,7 @@ export default class DDBDataUtils {
                   parentChoiceId: choice.parentChoiceId,
                   subType: choice.subType,
                   type: type,
+                  choiceType: choice.type,
                   wasOption: false,
                 }) as unknown as IDDBChoiceResult;
                 return choiceOption;
@@ -685,6 +686,7 @@ export default class DDBDataUtils {
             parentChoiceId: choice.parentChoiceId,
             subType: choice.subType,
             type: type,
+            choiceType: choice.type,
             wasOption: false,
           }) as unknown as IDDBChoiceResult;
           options.push(choiceOption);

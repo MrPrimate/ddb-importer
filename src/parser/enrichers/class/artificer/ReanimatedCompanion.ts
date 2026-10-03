@@ -2,6 +2,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ReanimatedCompanion extends DDBEnricherData {
 
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   override get activity(): IDDBActivityData {
     return {
       name: "Summon Reanimated Companion",

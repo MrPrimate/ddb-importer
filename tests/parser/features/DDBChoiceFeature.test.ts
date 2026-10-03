@@ -41,6 +41,10 @@ interface IChoiceDataOptions {
   featureDescription?: string;
   options?: { id: number; label: string; description: string }[];
   chosenId?: number;
+  /** DDB's choice type (1 by default; 2 proficiency pick, 4 spell pick) */
+  choiceType?: number;
+  /** character.spells.class entries (feature-granted spells) */
+  classSpells?: any[];
 }
 
 /**
@@ -55,6 +59,8 @@ function makeChoiceDdbData({
     { id: 102, label: "Option B", description: "<p>Option B text.</p>" },
   ],
   chosenId = 101,
+  choiceType = CHOICE_TYPE,
+  classSpells = [],
 }: IChoiceDataOptions = {}): any {
   const feature = makeDdbFeature({
     id: FEATURE_ID,
@@ -65,13 +71,14 @@ function makeChoiceDdbData({
   return makeDdbCharacterData({
     character: {
       classes: [klass],
+      spells: { class: classSpells },
       choices: {
         class: [
           {
             id: "choice-1",
             componentId: FEATURE_ID,
             componentTypeId: FEATURE_ENTITY_TYPE_ID,
-            type: CHOICE_TYPE,
+            type: choiceType,
             subType: 1,
             optionValue: chosenId,
             optionIds: options.map((o) => o.id),
@@ -84,7 +91,7 @@ function makeChoiceDdbData({
         background: [],
         item: [],
         choiceDefinitions: [
-          { id: `${FEATURE_ENTITY_TYPE_ID}-${CHOICE_TYPE}`, options },
+          { id: `${FEATURE_ENTITY_TYPE_ID}-${choiceType}`, options },
         ],
       },
     },
@@ -225,6 +232,60 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("background"))).toBe(false);
     expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("class", false))).toBe(false);
     expect(DDBChoiceFeature.munchKeepsLoneChoice({ ...stub("class"), isCompanionFeature: true })).toBe(false);
+  });
+
+  describe("derived choice suppression", () => {
+    const single = (label: string) => [{ id: 101, label, description: "<p>Text.</p>" }];
+
+    it("suppresses a lone option restating the feature", async () => {
+      const parent = makeParentFeature({ options: single("Rage: Test Feature") });
+      expect(parent.isRestatingSingleChoice).toBe(true);
+      expect(parent.suppressesChoiceBuild).toBe(true);
+      expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature");
+    });
+
+    it("builds a lone option that adds to the feature name (a pool narrowed by an earlier pick)", () => {
+      // "Elemental Gift (Dao)", "Full Bloom: Jade Vine"
+      expect(makeParentFeature({ options: single("Test Feature (Dao)") }).isRestatingSingleChoice).toBe(false);
+      expect(makeParentFeature({ options: single("Test Feature: Jade Vine") }).isRestatingSingleChoice).toBe(false);
+      // "Black Draconic Magic": one of several real options served one per pass
+      expect(makeParentFeature({ options: single("Black Test Feature") }).isRestatingSingleChoice).toBe(false);
+      expect(makeParentFeature({ options: single("Take Test Feature") }).isRestatingSingleChoice).toBe(true);
+      expect(makeParentFeature({ options: single("Test Feature") }).isRestatingSingleChoice).toBe(true);
+    });
+
+    it("builds a lone option that names something else", async () => {
+      const parent = makeParentFeature({ options: single("Eyes") });
+      expect(parent.isRestatingSingleChoice).toBe(false);
+      expect(parent.suppressesChoiceBuild).toBe(false);
+    });
+
+    it("suppresses proficiency picks", async () => {
+      const parent = makeParentFeature({ choiceType: 2 });
+      expect(parent.isPickOnlyChoiceFeature).toBe(true);
+      expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
+      expect(parent.data.name).toBe("Test Feature");
+    });
+
+    it("suppresses a spell pick that lands in the spellbook", () => {
+      const parent = makeParentFeature({
+        choiceType: 4,
+        classSpells: [{ componentId: FEATURE_ID, usesSpellSlot: true, limitedUse: null, definition: { id: 101, name: "Option A" } }],
+      });
+      expect(parent.isPickOnlyChoiceFeature).toBe(true);
+    });
+
+    it("keeps a spell pick the feature casts on its own uses (Mystic Arcanum)", async () => {
+      const parent = makeParentFeature({
+        choiceType: 4,
+        classSpells: [{ componentId: FEATURE_ID, usesSpellSlot: false, limitedUse: { maxUses: 1, resetType: 2 }, definition: { id: 101, name: "Option A" } }],
+      });
+      expect(parent.isPickOnlyChoiceFeature).toBe(false);
+      expect(parent.suppressesChoiceBuild).toBe(false);
+      await DDBChoiceFeature.buildChoiceFeatures(parent);
+      expect(parent.data.name).toBe("Test Feature: Option A");
+    });
   });
 
   it("returns each choice as a separate feature when allFeatures is set", async () => {

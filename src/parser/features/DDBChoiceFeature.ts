@@ -257,7 +257,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
         && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool")
-          .map((p) => p.name).includes(utils.nameString(c.label)),
+          .map((p) => p.name).includes(utils.nameString(c.label))
+        // proficiency and spellbook picks beside a real option (a mixed pool)
+        && !ddbFeature.isPickOnlyChoice(c),
       );
     logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
       _choices: ddbFeature._choices,

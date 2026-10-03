@@ -2,6 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Rage extends DDBEnricherData {
 
+  // DDB's lone "Rage - Bonus Damage" option restates the rage damage this feature already
+  // models; a class munch would otherwise add it as a choice of one
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   override get activity(): IDDBActivityData {
     return {
       targetType: "self",
