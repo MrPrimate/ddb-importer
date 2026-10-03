@@ -392,6 +392,15 @@ export const PARSING_CHOICE_FEATURES = {
     "Transmutation Savant",
     "Signature Spells",
     "Rage of the Wilds",
+    // 2024 features whose only DDB option restates the feature ("Rage: Vitality of the Tree"):
+    // characters leave it unpicked, but the class munch picks it, which would add a choice of one
+    // option beside the feature itself
+    "Rage",
+    "Vitality of the Tree",
+    "Travel along the Tree",
+    "Divine Fury",
+    "Rage of the Gods",
+    "Stormborn",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",

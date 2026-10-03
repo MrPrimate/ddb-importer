@@ -226,6 +226,24 @@ export default class DDBChoiceFeature extends DDBFeature {
     return folded;
   }
 
+  /**
+   * A compendium munch drives the mule through a feature's options one pass at a time, so each
+   * pass has a single chosen option. Merging it into the parent, as a character import does, left
+   * one parent-flagged copy per option in the compendium (the parent's DDB id and originalName, no
+   * isChoice): the feature lookup then found several equal matches and the choice advancement
+   * found no options. A munch therefore always keeps the option as its own document. A pass can
+   * offer just the one option even when the feature has more (Improved Blessed Strikes follows the
+   * earlier Blessed Strikes pick), so the offered count cannot tell them apart. Companion features
+   * keep their own fold. Species are left alone: their compendium lookup (DDBRace) is built on one
+   * merged trait per option, matched by isChoiceFeature and the option id.
+   */
+  static munchKeepsLoneChoice(ddbFeature: DDBFeature): boolean {
+    return ddbFeature.isMuncher
+      && ["class", "subclass"].includes(ddbFeature.type)
+      && !ddbFeature.isCompanionFeatureOption
+      && !ddbFeature.isCompanionFeature;
+  }
+
   static async buildChoiceFeatures(ddbFeature: DDBFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
     const features: T5eFeatureMixinDataTypes[] = [];
     if (ddbFeature.suppressesChoiceBuild) {
@@ -295,6 +313,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       if (choices.length === 1
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+        && !DDBChoiceFeature.munchKeepsLoneChoice(ddbFeature)
       ) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into parent feature ${ddbFeature.originalName}`);
         ddbFeature.data.name = choiceFeature.data.name;

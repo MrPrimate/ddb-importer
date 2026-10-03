@@ -104,7 +104,7 @@ function makeChoiceFeature(dataOptions: IChoiceDataOptions = {}, type = "class")
   } as any);
 }
 
-function makeParentFeature(dataOptions: IChoiceDataOptions = {}, type = "class"): any {
+function makeParentFeature(dataOptions: IChoiceDataOptions = {}, type = "class", isMuncher = false): any {
   const ddbData = makeChoiceDdbData(dataOptions);
   const ddbDefinition = ddbData.character.classes[0].classFeatures[0];
   return new DDBFeature({
@@ -112,6 +112,7 @@ function makeParentFeature(dataOptions: IChoiceDataOptions = {}, type = "class")
     ddbDefinition,
     type,
     rawCharacter: makeRawCharacter(),
+    isMuncher,
   } as any);
 }
 
@@ -189,6 +190,41 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
       parentName: "Test Feature",
       label: "Option A",
     });
+  });
+
+  it("keeps a lone chosen option as its own document when munching a feature with several options", async () => {
+    // the class munch chooses one option per mule pass; a merged parent per pass left the
+    // compendium with several parent-flagged copies and no isChoice options
+    const parent = makeParentFeature({}, "class", true);
+    expect(parent.isMuncher).toBe(true);
+    const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+
+    expect(features.map((f: any) => f.name)).toEqual(["Test Feature: Option A"]);
+    expect((features[0] as any).flags.ddbimporter.isChoice).toBe(true);
+    expect((features[0] as any).flags.ddbimporter.dndbeyond.choice.optionId).toBe(101);
+    expect(parent.data.name).toBe("Test Feature");
+    expect(parent.data.flags.ddbimporter.dndbeyond?.choice).toBeUndefined();
+  });
+
+  it("keeps a munched pass's only offered option as its own document too", async () => {
+    // a pass can offer one option of several (an earlier pick narrows the list)
+    const parent = makeParentFeature({
+      options: [{ id: 101, label: "Option A", description: "<p>Option A text.</p>" }],
+    }, "class", true);
+    const features = await DDBChoiceFeature.buildChoiceFeatures(parent);
+
+    expect(features.map((f: any) => f.name)).toEqual(["Test Feature: Option A"]);
+    expect(parent.data.name).toBe("Test Feature");
+  });
+
+  it("splits lone munched options for class features only", () => {
+    const stub = (type: string, isMuncher = true) => ({ type, isMuncher, isCompanionFeature: false, isCompanionFeatureOption: false }) as any;
+    expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("class"))).toBe(true);
+    // species lookups match one merged trait per option; backgrounds keep the merge too
+    expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("race"))).toBe(false);
+    expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("background"))).toBe(false);
+    expect(DDBChoiceFeature.munchKeepsLoneChoice(stub("class", false))).toBe(false);
+    expect(DDBChoiceFeature.munchKeepsLoneChoice({ ...stub("class"), isCompanionFeature: true })).toBe(false);
   });
 
   it("returns each choice as a separate feature when allFeatures is set", async () => {

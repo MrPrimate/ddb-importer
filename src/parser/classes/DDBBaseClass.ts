@@ -857,10 +857,14 @@ export default abstract class DDBBaseClass {
           ?? ((foundry.utils.getProperty(match, "name") as string) ?? "").trim();
         const nameMatch = featureName.toLowerCase() === matchName.toLowerCase();
         const isIdMatch = feature.id === matchFlags.id;
-        if (!nameMatch && looseMatch) {
-          const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
-          if (!containsMatch || !isIdMatch) return false;
-        } else if (nameMatch && !looseMatch && !isIdMatch) {
+        if (looseMatch) {
+          if (!nameMatch) {
+            const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
+            if (!containsMatch || !isIdMatch) return false;
+          }
+        } else if (!nameMatch || !isIdMatch) {
+          // the exact pass breaks ties between features DDB ships twice under two ids (Vitality
+          // of the Tree as 10292408 and 13279415), so it needs both the name and the id
           return false;
         }
         for (const [key, value] of Object.entries(excludeFlags)) {
@@ -1012,6 +1016,13 @@ export default abstract class DDBBaseClass {
       this.featureAdvancements.push(advancement.toObject() as I5eAdvancement);
     } else {
       const existingAdvancement = this.featureAdvancements[levelAdvancement];
+      // DDB ships some features twice under two ids (Vitality of the Tree), and each copy has its
+      // own compendium document; the level grants the feature once
+      if (existingAdvancement._id && featureMatch.name
+        && this._advancementMatches.features[existingAdvancement._id]?.[featureMatch.name]) {
+        logger.debug(`Feature ${featureMatch.name} is already granted at level ${feature.requiredLevel}, skipping DDB's second copy`);
+        return;
+      }
       const existingConfig = existingAdvancement.configuration as I5eAdvItemGrantConfig;
       (existingConfig.items ??= []).push({ uuid: featureMatch.uuid, optional: false });
       if (existingAdvancement._id && featureMatch.name) {
